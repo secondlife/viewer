@@ -1851,7 +1851,7 @@ void LLLiveLSLEditor::loadAsset()
 			mIsModifiable = item && gAgent.allowOperation(PERM_MODIFY, 
 										item->getPermissions(),
 				   						GP_OBJECT_MANIPULATE);
-			refreshFromItem();
+
 			// This is commented out, because we don't completely
 			// handle script exports yet.
 			/*

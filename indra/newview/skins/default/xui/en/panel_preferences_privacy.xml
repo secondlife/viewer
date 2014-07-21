@@ -47,7 +47,7 @@
   <check_box
       height="16"
       enabled="false"
-      label="Show me in Search results"
+      label="Show my profile info in Search results"
       layout="topleft"
       left="30"
       name="online_searchresults"

@@ -8046,6 +8046,18 @@
     <integer>128</integer>
   </map>
 
+  <key>OctreeMinimumNodeSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum size of any octree node</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.01</real>
+  </map>
+
   <key>OctreeStaticObjectSizeFactor</key>
   <map>
     <key>Comment</key>
@@ -15439,6 +15451,17 @@
     <string>U32</string>
     <key>Value</key>
     <integer>7000</integer>
+  </map>
+  <key>DisablePrecacheDelayAfterTeleporting</key>
+  <map>
+    <key>Comment</key>
+    <string>Disables the artificial delay in the viewer that precaches some incoming assets</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
   <key>VersionChannelName</key>
     <map>

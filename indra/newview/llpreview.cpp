@@ -90,6 +90,7 @@ void LLPreview::setObjectID(const LLUUID& object_id)
 	{
 		loadAsset();
 	}
+	refreshFromItem();
 }
 
 void LLPreview::setItem( LLInventoryItem* item )
@@ -99,6 +100,7 @@ void LLPreview::setItem( LLInventoryItem* item )
 	{
 		loadAsset();
 	}
+	refreshFromItem();
 }
 
 const LLInventoryItem *LLPreview::getItem() const

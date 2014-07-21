@@ -2022,7 +2022,7 @@ bool idle_startup()
 	{
 		display_startup();
 		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
-
+		
 		// We now have an inventory skeleton, so if this is a user's first
 		// login, we can start setting up their clothing and avatar 
 		// appearance.  This helps to avoid the generic "Ruth" avatar in
@@ -2116,20 +2116,20 @@ bool idle_startup()
 				&& gAgentAvatarp->isFullyLoaded())
 			{
 				LL_DEBUGS("Avatar") << "avatar fully loaded" << LL_ENDL;
-			LLStartUp::setStartupState( STATE_CLEANUP );
+				LLStartUp::setStartupState( STATE_CLEANUP );
 				return TRUE;
 			}
 		}
 		else
 		{
-		// OK to just get the wearables
+			// OK to just get the wearables
 			if ( gAgentWearables.areWearablesLoaded() )
-		{
-			// We have our clothing, proceed.
+			{
+				// We have our clothing, proceed.
 				LL_DEBUGS("Avatar") << "wearables loaded" << LL_ENDL;
-			LLStartUp::setStartupState( STATE_CLEANUP );
+				LLStartUp::setStartupState( STATE_CLEANUP );
 				return TRUE;
-		}
+			}
 		}
 		//fall through this frame to STATE_CLEANUP
 	}
@@ -2820,6 +2820,7 @@ void LLStartUp::initNameCache()
 	// capabilities for display name lookup
 	LLAvatarNameCache::initClass(false,gSavedSettings.getBOOL("UsePeopleAPI"));
 	LLAvatarNameCache::setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
+	LLAvatarNameCache::setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
 }
 
 void LLStartUp::cleanupNameCache()
