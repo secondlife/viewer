@@ -143,7 +143,8 @@ BOOL LLFloaterAbout::postBuild()
 	}
 	else // not logged in
 	{
-		setSupportText(LLStringUtil::null);
+		LL_DEBUGS("ViewerInfo") << "cannot display region info when not connected" << LL_ENDL;
+		setSupportText(LLTrans::getString("NotConnected"));
 	}
 
 	support_widget->blockUndo();
@@ -262,11 +263,10 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 	LLViewerTextEditor *support_widget =
 		getChild<LLViewerTextEditor>("support_editor", true);
 
+	LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
 	support_widget->clear();
 	support_widget->appendText(LLAppViewer::instance()->getViewerInfoString(),
-								FALSE,
-								LLStyle::Params()
-									.color(LLUIColorTable::instance().getColor("TextFgReadOnlyColor")));
+							   FALSE, LLStyle::Params() .color(about_color));
 }
 
 ///----------------------------------------------------------------------------

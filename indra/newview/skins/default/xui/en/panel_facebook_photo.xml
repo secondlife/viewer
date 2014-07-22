@@ -2,7 +2,8 @@
       height="400"
       width="304"
       layout="topleft"
-      name="panel_social_photo">
+      follows="all"
+      name="panel_facebook_photo">
       <layout_stack
 	   layout="topleft"
        border_size="0"
@@ -15,7 +16,7 @@
          name="snapshot_panel"
          height="367">
             <combo_box
-             control_name="SocialPhotoResolution"
+             control_name="FacebookPhotoResolution"
              follows="left|top"
              top="6"
              left="9"
@@ -39,27 +40,32 @@
                label="1024x768"
                name="1024x768"
                value="[i1024,i768]" />
+              <combo_box.item
+               label="1200x630"
+               name="1200x630"
+               value="[i1200,i630]" />
             </combo_box>
-            <text
-             follows="left|top"
-             font="SansSerifSmall"
-             height="14"
-             left="208"
-             length="1"
-             halign="right"
-             name="file_size_label"
-             top="9"
-             type="string"
-             width="50">
-              [SIZE] KB
-            </text>
+            <combo_box
+                control_name="FacebookPhotoFilters"
+                follows="right|top"
+                name="filters_combobox"
+                tool_tip="Image filters"
+                top="6"
+                left="165"
+                height="21"
+                width="135">
+                <combo_box.item
+                label="No Filter"
+                name="NoFilter"
+                value="NoFilter" />
+            </combo_box>
             <panel
                 height="150"
                 width="250"
                 visible="true"
                 name="thumbnail_placeholder"
                 top="33"
-                follows="left|top"
+                follows="left|top|right"
                 left="9">
             </panel>
             <button
@@ -81,7 +87,7 @@
                 text_color="EmphasisColor"
                 height="14"
                 top_pad="-19"
-                left_pad="-20"
+                left_pad="-30"
                 length="1"
                 halign="center"
                 name="working_lbl"
@@ -91,6 +97,20 @@
                 width="150">
                 Refreshing...
             </text>
+            <button
+                follows="right|top"
+                height="23"
+                label="Preview"
+                left="200"
+                top_pad="-19"
+                name="big_preview_btn"
+                tool_tip="Click to toggle preview"
+                is_toggle="true"
+                visible="true"
+                width="100" >
+                <button.commit_callback
+                function="SocialSharing.BigPreview" />
+            </button>
             <text
              length="1"
              follows="top|left|right"
@@ -103,7 +123,7 @@
               Comment (optional):
             </text>
             <text_editor
-             follows="left|top"
+             follows="left|top|right|bottom"
              height="87"
              width="250"
              left="9"
@@ -118,7 +138,7 @@
           name="photo_button_panel"
           height="25">
           <button
-           follows="left|top"
+           follows="left|bottom"
            top="0"
            left="9"
            height="23"
@@ -129,7 +149,7 @@
              function="SocialSharing.SendPhoto" />
           </button>
           <button
-               follows="left|top"
+               follows="left|bottom"
                height="23"
                label="Cancel"
                name="cancel_photo_btn"

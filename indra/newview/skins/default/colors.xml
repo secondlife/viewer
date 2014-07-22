@@ -56,7 +56,7 @@
 	<color
 	 name="Black"
 	 value="0 0 0 1" />
-	<colork
+	<color
 	 name="Black_10"
 	 value="0 0 0 0.1" />
 	<color
@@ -904,5 +904,45 @@
   <color
     name="ResizebarBody"
     value="0.208 0.208 0.208 1"/>
-    
+
+  <!-- syntax highlighting (LSL Scripts) -->
+  <color
+    name="ScriptText"
+    reference="Black" />
+  <color
+    name="ScriptBackground"
+    reference="White" />
+  <color
+    name="ScriptCursorColor"
+    reference="Black" />
+  <color
+    name="SyntaxLslComment"
+    value="0 0.5 0 1" />
+  <color
+    name="SyntaxLslConstant"
+    value="0 0.6 0.6 1" />
+  <color
+    name="SyntaxLslControlFlow"
+    value="0.4 0 0.8 1" />
+  <color
+    name="SyntaxLslControlLabel"
+    value="0 0 0.8 1" />
+  <color
+    name="SyntaxLslDataType"
+    value="0.8 0.4 0 1" />
+   <color
+    name="SyntaxLslDeprecated"
+    value="0.9 0.0 0.66, 1" />
+  <color
+   name="SyntaxLslEvent"
+   value="0 0.3 0.5 1" />
+  <color
+   name="SyntaxLslFunction"
+   value="0.3 0 0.5 1" />
+  <color
+   name="SyntaxLslGodMode"
+   value="0.7 .2 .35 1" />
+  <color
+    name="SyntaxLslStringLiteral"
+    value="1 0.14 0 1" />
 </colors>

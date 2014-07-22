@@ -452,18 +452,8 @@ void LLImageRaw::verticalFlip()
 void LLImageRaw::expandToPowerOfTwo(S32 max_dim, BOOL scale_image)
 {
 	// Find new sizes
-	S32 new_width = MIN_IMAGE_SIZE;
-	S32 new_height = MIN_IMAGE_SIZE;
-
-	while( (new_width < getWidth()) && (new_width < max_dim) )
-	{
-		new_width <<= 1;
-	}
-
-	while( (new_height < getHeight()) && (new_height < max_dim) )
-	{
-		new_height <<= 1;
-	}
+	S32 new_width  = expandDimToPowerOfTwo(getWidth(), max_dim);
+	S32 new_height = expandDimToPowerOfTwo(getHeight(), max_dim);
 
 	scale( new_width, new_height, scale_image );
 }
@@ -471,54 +461,60 @@ void LLImageRaw::expandToPowerOfTwo(S32 max_dim, BOOL scale_image)
 void LLImageRaw::contractToPowerOfTwo(S32 max_dim, BOOL scale_image)
 {
 	// Find new sizes
-	S32 new_width = max_dim;
-	S32 new_height = max_dim;
-
-	while( (new_width > getWidth()) && (new_width > MIN_IMAGE_SIZE) )
-	{
-		new_width >>= 1;
-	}
-
-	while( (new_height > getHeight()) && (new_height > MIN_IMAGE_SIZE) )
-	{
-		new_height >>= 1;
-	}
+	S32 new_width  = contractDimToPowerOfTwo(getWidth(), MIN_IMAGE_SIZE);
+	S32 new_height = contractDimToPowerOfTwo(getHeight(), MIN_IMAGE_SIZE);
 
 	scale( new_width, new_height, scale_image );
 }
 
-void LLImageRaw::biasedScaleToPowerOfTwo(S32 max_dim)
+// static
+S32 LLImageRaw::biasedDimToPowerOfTwo(S32 curr_dim, S32 max_dim)
 {
 	// Strong bias towards rounding down (to save bandwidth)
 	// No bias would mean THRESHOLD == 1.5f;
-	const F32 THRESHOLD = 1.75f; 
-
+	const F32 THRESHOLD = 1.75f;
+    
 	// Find new sizes
-	S32 larger_w = max_dim;	// 2^n >= mWidth
-	S32 smaller_w = max_dim;	// 2^(n-1) <= mWidth
-	while( (smaller_w > getWidth()) && (smaller_w > MIN_IMAGE_SIZE) )
+	S32 larger_dim  = max_dim;	// 2^n >= curr_dim
+	S32 smaller_dim = max_dim;	// 2^(n-1) <= curr_dim
+	while( (smaller_dim > curr_dim) && (smaller_dim > MIN_IMAGE_SIZE) )
 	{
-		larger_w = smaller_w;
-		smaller_w >>= 1;
+		larger_dim = smaller_dim;
+		smaller_dim >>= 1;
 	}
-	S32 new_width = ( (F32)getWidth() / smaller_w > THRESHOLD ) ? larger_w : smaller_w;
+	return ( ((F32)curr_dim / (F32)smaller_dim) > THRESHOLD ) ? larger_dim : smaller_dim;
+}
 
-
-	S32 larger_h = max_dim;	// 2^m >= mHeight
-	S32 smaller_h = max_dim;	// 2^(m-1) <= mHeight
-	while( (smaller_h > getHeight()) && (smaller_h > MIN_IMAGE_SIZE) )
+// static
+S32 LLImageRaw::expandDimToPowerOfTwo(S32 curr_dim, S32 max_dim)
+{
+	S32 new_dim = MIN_IMAGE_SIZE;
+	while( (new_dim < curr_dim) && (new_dim < max_dim) )
 	{
-		larger_h = smaller_h;
-		smaller_h >>= 1;
+		new_dim <<= 1;
 	}
-	S32 new_height = ( (F32)getHeight() / smaller_h > THRESHOLD ) ? larger_h : smaller_h;
+    return new_dim;
+}
 
+// static
+S32 LLImageRaw::contractDimToPowerOfTwo(S32 curr_dim, S32 min_dim)
+{
+	S32 new_dim = MAX_IMAGE_SIZE;
+	while( (new_dim > curr_dim) && (new_dim > min_dim) )
+	{
+		new_dim >>= 1;
+	}
+    return new_dim;
+}
+
+void LLImageRaw::biasedScaleToPowerOfTwo(S32 max_dim)
+{
+	// Find new sizes
+	S32 new_width  = biasedDimToPowerOfTwo(getWidth(),max_dim);
+	S32 new_height = biasedDimToPowerOfTwo(getHeight(),max_dim);
 
 	scale( new_width, new_height );
 }
-
-
-
 
 // Calculates (U8)(255*(a/255.f)*(b/255.f) + 0.5f).  Thanks, Jim Blinn!
 inline U8 LLImageRaw::fastFractionalMult( U8 a, U8 b )

@@ -138,6 +138,8 @@ public:
 
 		bool mHasOfflineMessage;
 
+		bool mIsDNDsend;
+
 	private:
 		void onAdHocNameCache(const LLAvatarName& av_name);
 
@@ -440,6 +442,12 @@ public:
 	bool endCall(const LLUUID& session_id);
 
 	bool isVoiceCall(const LLUUID& session_id);
+
+	void updateDNDMessageStatus();
+
+	bool isDNDMessageSend(const LLUUID& session_id);
+
+	void setDNDMessageSent(const LLUUID& session_id, bool is_send);
 
 	void addNotifiedNonFriendSessionID(const LLUUID& session_id);
 

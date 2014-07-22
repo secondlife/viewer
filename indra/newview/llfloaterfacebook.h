@@ -1,6 +1,6 @@
 /** 
-* @file   llfloatersocial.h
-* @brief  Header file for llfloatersocial
+* @file   llfloaterfacebook.h
+* @brief  Header file for llfloaterfacebook
 * @author Gilbert@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -24,9 +24,10 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERSOCIAL_H
-#define LL_LLFLOATERSOCIAL_H
+#ifndef LL_LLFLOATERFACEBOOK_H
+#define LL_LLFLOATERFACEBOOK_H
 
+#include "llcallingcard.h"
 #include "llfloater.h"
 #include "lltextbox.h"
 #include "llviewertexture.h"
@@ -34,11 +35,13 @@
 class LLIconCtrl;
 class LLCheckBoxCtrl;
 class LLSnapshotLivePreview;
+class LLAvatarList;
+class LLFloaterBigPreview;
 
-class LLSocialStatusPanel : public LLPanel
+class LLFacebookStatusPanel : public LLPanel
 {
 public:
-    LLSocialStatusPanel();
+    LLFacebookStatusPanel();
 	BOOL postBuild();
 	void draw();
     void onSend();
@@ -53,19 +56,21 @@ private:
 	LLUICtrl* mCancelButton;
 };
 
-class LLSocialPhotoPanel : public LLPanel
+class LLFacebookPhotoPanel : public LLPanel
 {
 public:
-	LLSocialPhotoPanel();
-	~LLSocialPhotoPanel();
+	LLFacebookPhotoPanel();
+	~LLFacebookPhotoPanel();
 
 	BOOL postBuild();
 	void draw();
 
 	LLSnapshotLivePreview* getPreviewView();
-	void onVisibilityChanged(const LLSD& new_visibility);
+	void onVisibilityChange(BOOL new_visibility);
+    void onClickBigPreview();
 	void onClickNewSnapshot();
 	void onSend();
+	S32 notify(const LLSD& info);
 	bool onFacebookConnectStateChange(const LLSD& data);
 
 	void sendPhoto();
@@ -77,22 +82,31 @@ public:
 	LLUICtrl* getRefreshBtn();
 
 private:
+    bool isPreviewVisible();
+    void attachPreview();
+    
 	LLHandle<LLView> mPreviewHandle;
 
 	LLUICtrl * mSnapshotPanel;
 	LLUICtrl * mResolutionComboBox;
+	LLUICtrl * mFilterComboBox;
 	LLUICtrl * mRefreshBtn;
 	LLUICtrl * mWorkingLabel;
 	LLUICtrl * mThumbnailPlaceholder;
 	LLUICtrl * mCaptionTextBox;
 	LLUICtrl * mPostButton;
-	LLUICtrl* mCancelButton;
+	LLUICtrl * mCancelButton;
+	LLButton * mBtnPreview;
+    
+    LLFloaterBigPreview * mBigPreviewFloater;
+    
+    S32 mQuality;       // Compression quality
 };
 
-class LLSocialCheckinPanel : public LLPanel
+class LLFacebookCheckinPanel : public LLPanel
 {
 public:
-    LLSocialCheckinPanel();
+    LLFacebookCheckinPanel();
 	BOOL postBuild();
 	void draw();
     void onSend();
@@ -114,15 +128,34 @@ private:
     bool mReloadingMapTexture;
 };
 
-class LLSocialAccountPanel : public LLPanel
+class LLFacebookFriendsPanel : public LLPanel, public LLFriendObserver
 {
 public:
-	LLSocialAccountPanel();
+	LLFacebookFriendsPanel();
+	~LLFacebookFriendsPanel();
+	BOOL postBuild();
+	virtual void changed(U32 mask);
+
+private:
+	bool updateSuggestedFriendList();
+	void showFriendsAccordionsIfNeeded();
+	void updateFacebookList(bool visible);
+	bool onConnectedToFacebook(const LLSD& data);
+	
+	LLTextBox * mFriendsStatusCaption;
+	LLAvatarList* mSecondLifeFriends;
+	LLAvatarList* mSuggestedFriends;
+};
+
+class LLFacebookAccountPanel : public LLPanel
+{
+public:
+	LLFacebookAccountPanel();
 	BOOL postBuild();
 	void draw();
 
 private:
-	void onVisibilityChanged(const LLSD& new_visibility);
+	void onVisibilityChange(BOOL new_visibility);
 	bool onFacebookConnectStateChange(const LLSD& data);
 	bool onFacebookConnectInfoChange();
 	void onConnect();
@@ -141,24 +174,23 @@ private:
 	LLUICtrl * mDisconnectButton;
 };
 
-
-class LLFloaterSocial : public LLFloater
+class LLFloaterFacebook : public LLFloater
 {
 public:
-	LLFloaterSocial(const LLSD& key);
+	LLFloaterFacebook(const LLSD& key);
 	BOOL postBuild();
 	void draw();
+	void onClose(bool app_quitting);
 	void onCancel();
-
-	static void preUpdate();
-	static void postUpdate();
+	
+	void showPhotoPanel();
 
 private:
-	LLSocialPhotoPanel* mSocialPhotoPanel;
+	LLFacebookPhotoPanel* mFacebookPhotoPanel;
     LLTextBox* mStatusErrorText;
     LLTextBox* mStatusLoadingText;
     LLUICtrl*  mStatusLoadingIndicator;
 };
 
-#endif // LL_LLFLOATERSOCIAL_H
+#endif // LL_LLFLOATERFACEBOOK_H
 

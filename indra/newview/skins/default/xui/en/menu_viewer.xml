@@ -16,14 +16,6 @@
          parameter="agent" />
       </menu_item_call>
       <menu_item_call
-        label="Post to Facebook..."
-        name="PostToFacebook">
-        <menu_item_call.on_click
-          function="Floater.Toggle"
-          parameter="social"/>
-      </menu_item_call>      
-      <menu_item_separator/>
-      <menu_item_call
        label="Appearance..."
        name="ChangeOutfit">
         <menu_item_call.on_click
@@ -294,6 +286,28 @@
              function="Floater.Toggle"
              parameter="conversation" />
         </menu_item_check>
+        <menu_item_separator/>
+      <menu_item_call
+        label="Facebook..."
+        name="Facebook">
+        <menu_item_call.on_click
+          function="Floater.Toggle"
+          parameter="facebook"/>
+      </menu_item_call>
+      <menu_item_call
+        label="Twitter..."
+        name="Twitter">
+        <menu_item_call.on_click
+          function="Floater.Toggle"
+          parameter="twitter"/>
+      </menu_item_call>
+      <menu_item_call
+        label="Flickr..."
+        name="Flickr">
+        <menu_item_call.on_click
+          function="Floater.Toggle"
+          parameter="flickr"/>
+      </menu_item_call>
         <menu_item_separator/>
         <menu
          label="Voice morphing"
@@ -1209,8 +1223,9 @@
                     <menu_item_call.on_enable
                      function="SomethingSelected" />
                 </menu_item_call>
+                <menu_item_separator/>
                 <menu_item_call
-                 label="Grid Options"
+                 label="Grid Options..."
                  name="Grid Options"
                  shortcut="control|shift|B">
                     <menu_item_call.on_click
@@ -1218,6 +1233,13 @@
                      parameter="build_options" />
                     <menu_item_call.on_enable
                      function="Tools.EnableToolNotPie" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Set Default Permissions..."
+                 name="Set default permissions">
+                    <menu_item_call.on_click
+                     function="Floater.ToggleOrBringToFront"
+                     parameter="perms_default" />
                 </menu_item_call>
         </menu>
         <menu
@@ -1285,13 +1307,6 @@
                 <menu_item_call.on_click
                  function="File.UploadBulk"
                  parameter="" />
-            </menu_item_call>
-            <menu_item_call
-             label="Set Default Upload Permissions"
-             name="perm prefs">
-                <menu_item_call.on_click
-                 function="Floater.Toggle"
-                 parameter="perm_prefs" />
             </menu_item_call>
         </menu>
         <menu_item_separator/>
@@ -2598,6 +2613,16 @@
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="lights" />
+        </menu_item_check>
+        <menu_item_check
+         label="Particles"
+         name="Particles">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="particles" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="particles" />
         </menu_item_check>
         <menu_item_check
          label="Collision Skeleton"

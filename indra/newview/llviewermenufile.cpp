@@ -215,7 +215,8 @@ std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
 #endif
 	case LLFilePicker::FFLOAD_XML:
 	    return XML_EXTENSIONS;
-	case LLFilePicker::FFLOAD_ALL:
+    case LLFilePicker::FFLOAD_ALL:
+    case LLFilePicker::FFLOAD_EXE:
 		return ALL_FILE_EXTENSIONS;
 #endif
     default:
@@ -442,9 +443,9 @@ class LLFileUploadBulk : public view_listener_t
 				0,
 				LLFolderType::FT_NONE,
 				LLInventoryType::IT_NONE,
-				LLFloaterPerms::getNextOwnerPerms(),
-				LLFloaterPerms::getGroupPerms(),
-				LLFloaterPerms::getEveryonePerms(),
+				LLFloaterPerms::getNextOwnerPerms("Uploads"),
+				LLFloaterPerms::getGroupPerms("Uploads"),
+				LLFloaterPerms::getEveryonePerms("Uploads"),
 				display_name,
 				callback,
 				expected_upload_cost,
@@ -1006,9 +1007,9 @@ void upload_done_callback(
 			0,
 			LLFolderType::FT_NONE,
 			LLInventoryType::IT_NONE,
-			PERM_NONE,
-			PERM_NONE,
-			PERM_NONE,
+			LLFloaterPerms::getNextOwnerPerms("Uploads"),
+			LLFloaterPerms::getGroupPerms("Uploads"),
+			LLFloaterPerms::getEveryonePerms("Uploads"),
 			display_name,
 			callback,
 			expected_upload_cost, // assuming next in a group of uploads is of roughly the same type, i.e. same upload cost

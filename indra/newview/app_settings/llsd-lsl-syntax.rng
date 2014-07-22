@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar
+	xmlns="http://relaxng.org/ns/structure/1.0"
+	xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+	datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+	<start>
+		<element name="llsd">
+			<element name="map">
+				<group>
+					<element name="key">
+						<value>constants</value>
+					</element>
+					<element name="map">
+						<oneOrMore>
+							<group>
+								<ref name="keyString"/>
+								<element name="map">
+									<ref name="Deprecated" />
+									<ref name="constantTypeValue" />
+									<ref name="Tooltip" />
+								</element>
+							</group>
+						</oneOrMore>
+					</element>
+				</group>
+
+				<group>
+					<element name="key">
+						<value>controls</value>
+					</element>
+					<element name="map">
+						<oneOrMore>
+							<group>
+								<ref name="keyString"/>
+								<ref name="mapTooltip"/>
+							</group>
+						</oneOrMore>
+					</element>
+				</group>
+
+				<group>
+					<element name="key">
+						<value>events</value>
+					</element>
+					<element name="map">
+						<oneOrMore>
+							<group>
+								<ref name="keyString"/>
+								<element name="map">
+									<ref name="Deprecated" />
+									<ref name="Arguments"/>
+									<ref name="Tooltip"/>
+								</element>
+							</group>
+						</oneOrMore>
+					</element>
+				</group>
+
+				<group>
+					<element name="key">
+						<value>functions</value>
+					</element>
+					<element name="map">
+						<oneOrMore>
+							<group>
+								<ref name="keyString"/>
+								<element name="map">
+									<ref name="Arguments"/>
+									<ref name="Deprecated" />
+									<element name="key">
+										<value>energy</value>
+									</element>
+									<ref name="float"/>
+									<optional>
+										<group>
+											<element name="key">
+												<value>god-mode</value>
+											</element>
+											<element name="boolean">
+												<data type="boolean"/>
+											</element>
+										</group>
+									</optional>
+									<ref name="Return"/>
+									<element name="key">
+										<value>sleep</value>
+									</element>
+									<ref name="float"/>
+									<ref name="Tooltip"/>
+								</element>
+							</group>
+						</oneOrMore>
+					</element>
+				</group>
+
+				<group>
+					<element name="key">
+						<value>llsd-lsl-syntax-version</value>
+					</element>
+					<element name="integer">
+						<data type="integer" />
+					</element>
+				</group>
+
+				<group>
+					<element name="key">
+						<value>types</value>
+					</element>
+					<element name="map">
+						<oneOrMore>
+							<group>
+								<ref name="keyString"/>
+								<ref name="mapTooltip"/>
+							</group>
+						</oneOrMore>
+					</element>
+				</group>
+			</element>
+		</element>
+	</start>
+
+	<define name="Deprecated">
+		<optional>
+			<group>
+				<element name="key">
+					<value>deprecated</value>
+				</element>
+				<element name="boolean">
+					<data type="boolean"/>
+				</element>
+			</group>
+		</optional>
+	</define>
+
+	<define name="keyName">
+		<element name="key"><value>name</value></element>
+		<element name="string"><data type="string" /></element>
+	</define>
+
+
+	<define name="keyString">
+		<element name="key"><data type="string"/></element>
+	</define>
+
+	<define name="keyType">
+		<element name="key"><value>type</value></element>
+	</define>
+	
+	<define name="typeList">
+		<ref name="keyType" />
+		<element name="string">
+			<choice>
+				<value>float</value>
+				<value>integer</value>
+				<value>key</value>
+				<value>list</value>
+				<value>rotation</value>
+				<value>string</value>
+				<value>vector</value>
+			</choice>
+		</element>
+	</define>
+
+	<define name="keyValue">
+		<element name="key"><value>value</value></element>
+	</define>
+
+	<define name="constantTypeValue">
+		<choice>
+			<group>
+				<ref name="keyType"/>
+				<element name="string"><value>float</value></element>
+				<ref name="keyValue"/>
+				<element name="real"><data type="float"/></element>
+			</group>
+			<group>
+				<ref name="keyType"/>
+				<element name="string"><value>integer</value></element>
+				<ref name="keyValue"/>
+				<choice>
+					<element name="integer"><data type="integer"/></element>
+					<element name="integer"><data type="string"><param name="pattern">0x[0-9A-Fa-f]+</param></data></element>
+				</choice>
+			</group>
+			<group>
+				<ref name="keyType"/>
+				<element name="string"><value>key</value></element>
+				<ref name="keyValue"/>
+				<element name="uuid"><data type="string"><param name="pattern">[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}</param></data></element>
+			</group>
+			<group>
+				<ref name="keyType"/>
+				<element name="string"><value>rotation</value></element>
+				<ref name="keyValue"/>
+				<element name="array">
+					<element name="map">
+						<element name="key">
+							<value>x</value>
+						</element>
+						<ref name="realFromMinusOneToOne"/>
+					</element>
+					<element name="map">
+						<element name="key">
+							<value>y</value>
+						</element>
+						<ref name="realFromMinusOneToOne"/>
+					</element>
+					<element name="map">
+						<element name="key">
+							<value>z</value>
+						</element>
+						<ref name="realFromMinusOneToOne"/>
+					</element>
+					<element name="map">
+						<element name="key"><value>w</value></element>
+					<ref name="realFromMinusOneToOne"/>
+					</element>
+				</element>
+			</group>
+			<group>
+				<ref name="keyType"/>
+				<element name="string"><value>string</value></element>
+				<ref name="keyValue"/>
+				<element name="string">
+					<data type="string"/>
+				</element>
+			</group>
+			<group>
+				<ref name="keyType"/>
+				<element name="string">
+					<value>vector</value>
+				</element>
+				<ref name="keyValue"/>
+				<element name="array">
+					<ref name="vector"/>
+				</element>
+			</group>
+		</choice>
+	</define>
+
+	<define name="nameType">
+		<ref name="keyName" />
+		<ref name="keyType" />
+	</define>
+
+	<define name="realFromMinusOneToOne">
+		<element name="real">
+			<data type="float">
+				<param name="pattern">([\-+]|)(1|0)\.\d+</param>
+			</data>
+		</element>
+	</define>
+
+	<define name="float">
+		<choice>
+			<element name="real">
+				<data type="float"/>
+			</element>
+			<element name="real">
+				<empty/>
+			</element>
+		</choice>
+	</define>
+
+	<define name="vector">
+		<element name="map">
+			<element name="key">
+				<value>x</value>
+			</element>
+			<ref name="realFromMinusOneToOne"/>
+		</element>
+		<element name="map">
+			<element name="key">
+				<value>y</value>
+			</element>
+			<ref name="realFromMinusOneToOne"/>
+		</element>
+		<element name="map">
+			<element name="key">
+				<value>z</value>
+			</element>
+			<ref name="realFromMinusOneToOne"/>
+		</element>
+	</define>
+
+	<define name="mapTooltip">
+		<element name="map">
+			<ref name="Tooltip" />
+		</element>
+	</define>
+	
+	<define name="Tooltip">
+		<element name="key">
+			<value>tooltip</value>
+		</element>
+		<element name="string">
+			<data type="string" />
+		</element>
+	</define>
+	
+	<define name="Arguments">
+		<element name="key"><value>arguments</value></element>
+		<choice>
+			<element name="array">
+				<oneOrMore>
+					<element name="map">
+						<element name="key"><data type="string"><param name="pattern">[A-Z][A-Za-z0-9_]*|[a-z]</param></data></element>
+						<element name="map">
+							<!--ref name="keyName" /-->
+							<ref name="Tooltip" />
+							<ref name="typeList" />
+						</element>
+					</element>
+				</oneOrMore>
+				<!--choice>
+					<oneOrMore>
+						<element name="map">
+							<ref name="Argument"/>
+						</element>
+					</oneOrMore>
+					<element name="undef">
+						<empty/>
+					</element>
+				</choice-->
+			</element>
+			<element name="undef"><empty/></element>
+		</choice>
+	</define>
+
+	<define name="Argument">
+		<ref name="keyType"/>
+		<choice>
+			<element name="string">
+				<value>float</value>
+			</element>
+			<element name="string">
+				<value>integer</value>
+			</element>
+			<element name="string">
+				<value>key</value>
+			</element>
+			<element name="string">
+				<value>list</value>
+			</element>
+			<element name="string">
+				<value>rotation</value>
+			</element>
+			<element name="string">
+				<value>string</value>
+			</element>
+			<element name="string">
+				<value>vector</value>
+			</element>
+		</choice>
+		<ref name="Tooltip"/>
+	</define>
+
+	<define name="Return">
+		<element name="key">
+			<value>return</value>
+		</element>
+		<choice>
+			<element name="string">
+				<value>float</value>
+			</element>
+			<element name="string">
+				<value>integer</value>
+			</element>
+			<element name="string">
+				<value>key</value>
+			</element>
+			<element name="string">
+				<value>list</value>
+			</element>
+			<element name="string">
+				<value>rotation</value>
+			</element>
+			<element name="string">
+				<value>string</value>
+			</element>
+			<element name="string">
+				<value>vector</value>
+			</element>
+			<element name="string">
+				<value>void</value>
+			</element>
+		</choice>
+	</define>
+
+</grammar>

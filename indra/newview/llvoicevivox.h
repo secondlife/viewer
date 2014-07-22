@@ -38,7 +38,7 @@ class LLVivoxProtocolParser;
 #include "llviewerregion.h"
 #include "llcallingcard.h"   // for LLFriendObserver
 
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 # include "expat.h"
 #else
 # include "expat/expat.h"
