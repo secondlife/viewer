@@ -2045,7 +2045,7 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 	if (pMaterialParams && getTEImage(te) && 3 == getTEImage(te)->getComponents() && pMaterialParams->getDiffuseAlphaMode()) 
 	{
 		LLViewerObject::setTEMaterialID(te, LLMaterialID::null);
-		res = LLViewerObject::setTEMaterialParams(te, nullptr);
+		res = LLViewerObject::setTEMaterialParams(te, NULL);
 	}
 	else 
 	{
