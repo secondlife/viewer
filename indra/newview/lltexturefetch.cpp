@@ -2648,7 +2648,8 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->setImagePriority(priority);
 		worker->setDesiredDiscard(desired_discard, desired_size);
 		worker->setCanUseHTTP(can_use_http);
-		worker->setUrl(url);
+
+		//worker->setUrl(url); //MAINT-4184 this line seems to be the cause and url is always blank.
 		if (!worker->haveWork())
 		{
 			worker->setState(LLTextureFetchWorker::INIT);
