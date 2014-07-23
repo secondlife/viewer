@@ -4593,6 +4593,10 @@ public:
 	virtual void changed(U32 mask)
 	{
 		mBridgep->refreshFolderViewItem();
+		if (mask & LLFriendObserver::ONLINE)
+		{
+			mBridgep->checkSearchBySuffixChanges();
+		}
 	}
 protected:
 	LLCallingCardBridge* mBridgep;
@@ -4624,6 +4628,44 @@ void LLCallingCardBridge::refreshFolderViewItem()
 	if (itemp)
 	{
 		itemp->refresh();
+	}
+}
+
+void LLCallingCardBridge::checkSearchBySuffixChanges()
+{
+	if (!mDisplayName.empty())
+	{
+		// changes in mDisplayName are processed by rename function and here it will be always same
+		// suffixes are also of fixed length, and we are processing change of one at a time,
+		// so it should be safe to use length (note: mSearchableName is capitalized)
+		S32 old_length = mSearchableName.length();
+		S32 new_length = mDisplayName.length() + getLabelSuffix().length();
+		if (old_length == new_length)
+		{
+			return;
+		}
+		mSearchableName.assign(mDisplayName);
+		mSearchableName.append(getLabelSuffix());
+		LLStringUtil::toUpper(mSearchableName);
+		if (new_length<old_length)
+		{
+			LLInventoryFilter* filter = getInventoryFilter();
+			if (filter && mPassedFilter && mSearchableName.find(filter->getFilterSubString()) == std::string::npos)
+			{
+				// string no longer contains substring 
+				// we either have to update all parents manually or restart filter.
+				// dirtyFilter will not work here due to obsolete descendants' generations 
+				getInventoryFilter()->setModified(LLFolderViewFilter::FILTER_MORE_RESTRICTIVE);
+			}
+		}
+		else
+		{
+			if (getInventoryFilter())
+			{
+				// mSearchableName became longer, we gained additional suffix and need to repeat filter check.
+				dirtyFilter();
+			}
+		}
 	}
 }
 

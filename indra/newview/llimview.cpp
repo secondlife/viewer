@@ -410,6 +410,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mOtherParticipantIsAvatar(true),
 	mStartCallOnInitialize(false),
 	mStartedAsIMCall(voice),
+	mIsDNDsend(false),
 	mAvatarNameCacheConnection()
 {
 	// set P2P type by default
@@ -3313,6 +3314,38 @@ bool LLIMMgr::isVoiceCall(const LLUUID& session_id)
 	if (!im_session) return false;
 
 	return im_session->mStartedAsIMCall;
+}
+
+void LLIMMgr::updateDNDMessageStatus()
+{
+	if (LLIMModel::getInstance()->mId2SessionMap.empty()) return;
+
+	std::map<LLUUID, LLIMModel::LLIMSession*>::const_iterator it = LLIMModel::getInstance()->mId2SessionMap.begin();
+	for (; it != LLIMModel::getInstance()->mId2SessionMap.end(); ++it)
+	{
+		LLIMModel::LLIMSession* session = (*it).second;
+
+		if (session->isP2P())
+		{
+			setDNDMessageSent(session->mSessionID,false);
+		}
+	}
+}
+
+bool LLIMMgr::isDNDMessageSend(const LLUUID& session_id)
+{
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!im_session) return false;
+
+	return im_session->mIsDNDsend;
+}
+
+void LLIMMgr::setDNDMessageSent(const LLUUID& session_id, bool is_send)
+{
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!im_session) return;
+
+	im_session->mIsDNDsend = is_send;
 }
 
 void LLIMMgr::addNotifiedNonFriendSessionID(const LLUUID& session_id)

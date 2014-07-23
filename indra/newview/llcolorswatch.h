@@ -56,6 +56,7 @@ public:
 		Optional<LLUIImage*>			alpha_background_image;
 		Optional<commit_callback_t> 	cancel_callback;
 		Optional<commit_callback_t> 	select_callback;
+		Optional<commit_callback_t>		preview_callback;
 		Optional<LLUIColor>				border_color;
 		Optional<S32>					label_width;
 		Optional<S32>					label_height;
@@ -84,6 +85,7 @@ public:
 	void			setCanApplyImmediately(BOOL apply) { mCanApplyImmediately = apply; }
 	void			setOnCancelCallback(commit_callback_t cb) { mOnCancelCallback = cb; }
 	void			setOnSelectCallback(commit_callback_t cb) { mOnSelectCallback = cb; }
+	void			setPreviewCallback(commit_callback_t cb) { mPreviewCallback = cb; }
 	void			setFallbackImage(LLPointer<LLUIImage> image) { mFallbackImage = image; }
 
 	void			showPicker(BOOL take_focus);
@@ -109,6 +111,7 @@ protected:
 	bool					mCanApplyImmediately;
 	commit_callback_t		mOnCancelCallback,
 							mOnSelectCallback;
+	commit_callback_t mPreviewCallback;
 	S32						mLabelWidth,
 							mLabelHeight;
 

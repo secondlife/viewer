@@ -2571,40 +2571,69 @@ void LLViewerRegion::unpackRegionHandshake()
 	{
 		LLUUID tmp_id;
 
+		bool changed = false;
+
+		// Get the 4 textures for land
 		msg->getUUID("RegionInfo", "TerrainDetail0", tmp_id);
+		changed |= (tmp_id != compp->getDetailTextureID(0));		
 		compp->setDetailTextureID(0, tmp_id);
+
 		msg->getUUID("RegionInfo", "TerrainDetail1", tmp_id);
+		changed |= (tmp_id != compp->getDetailTextureID(1));		
 		compp->setDetailTextureID(1, tmp_id);
+
 		msg->getUUID("RegionInfo", "TerrainDetail2", tmp_id);
+		changed |= (tmp_id != compp->getDetailTextureID(2));		
 		compp->setDetailTextureID(2, tmp_id);
+
 		msg->getUUID("RegionInfo", "TerrainDetail3", tmp_id);
+		changed |= (tmp_id != compp->getDetailTextureID(3));		
 		compp->setDetailTextureID(3, tmp_id);
 
+		// Get the start altitude and range values for land textures
 		F32 tmp_f32;
 		msg->getF32("RegionInfo", "TerrainStartHeight00", tmp_f32);
+		changed |= (tmp_f32 != compp->getStartHeight(0));
 		compp->setStartHeight(0, tmp_f32);
+
 		msg->getF32("RegionInfo", "TerrainStartHeight01", tmp_f32);
+		changed |= (tmp_f32 != compp->getStartHeight(1));
 		compp->setStartHeight(1, tmp_f32);
+
 		msg->getF32("RegionInfo", "TerrainStartHeight10", tmp_f32);
+		changed |= (tmp_f32 != compp->getStartHeight(2));
 		compp->setStartHeight(2, tmp_f32);
+
 		msg->getF32("RegionInfo", "TerrainStartHeight11", tmp_f32);
+		changed |= (tmp_f32 != compp->getStartHeight(3));
 		compp->setStartHeight(3, tmp_f32);
 
+
 		msg->getF32("RegionInfo", "TerrainHeightRange00", tmp_f32);
+		changed |= (tmp_f32 != compp->getHeightRange(0));
 		compp->setHeightRange(0, tmp_f32);
+
 		msg->getF32("RegionInfo", "TerrainHeightRange01", tmp_f32);
+		changed |= (tmp_f32 != compp->getHeightRange(1));
 		compp->setHeightRange(1, tmp_f32);
+
 		msg->getF32("RegionInfo", "TerrainHeightRange10", tmp_f32);
+		changed |= (tmp_f32 != compp->getHeightRange(2));
 		compp->setHeightRange(2, tmp_f32);
+
 		msg->getF32("RegionInfo", "TerrainHeightRange11", tmp_f32);
+		changed |= (tmp_f32 != compp->getHeightRange(3));
 		compp->setHeightRange(3, tmp_f32);
 
 		// If this is an UPDATE (params already ready, we need to regenerate
 		// all of our terrain stuff, by
 		if (compp->getParamsReady())
 		{
-			//this line creates frame stalls on region crossing and removing it appears to have no effect
-			//getLand().dirtyAllPatches();
+			// Update if the land changed
+			if (changed)
+			{
+				getLand().dirtyAllPatches();
+			}
 		}
 		else
 		{
