@@ -709,6 +709,11 @@ void LLSceneMonitorView::onClose(bool app_quitting)
 	setVisible(false);	
 }
 
+void LLSceneMonitorView::onClickCloseBtn(bool app_quitting)
+{
+	setVisible(false);
+}
+
 void LLSceneMonitorView::onVisibilityChange(BOOL visible)
 {
 	if (!LLGLSLShader::sNoFixedFunction && visible)
