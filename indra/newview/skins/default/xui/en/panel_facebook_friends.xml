@@ -1,6 +1,6 @@
 <panel
 	 height="400"
-	 width="304"
+	 width="272"
 	 layout="topleft"
     follows="all"
    name="panel_facebook_friends">
@@ -11,15 +11,15 @@
    name="facebook_friends_no_connected"
    value="You're currently not connected to Facebook. Please go to the Account tab to connect and enable this feature." />
   <accordion
- background_visible="true"
+ background_visible="false"
  bg_alpha_color="DkGray2"
  bg_opaque_color="DkGray2"
    follows="all"
-   height="408"
+   height="383"
    layout="topleft"
-   left="3"
+   left="10"
    name="friends_accordion"
-   right="-2"
+   right="-10"
    top_pad="2">
     <accordion_tab
      layout="topleft"
@@ -36,7 +36,7 @@
        name="second_life_friends"
        show_permissions_granted="true"
        top="0"
-       width="307" />
+       width="272" />
     </accordion_tab>
     <accordion_tab
      layout="topleft"
@@ -53,19 +53,20 @@
        name="suggested_friends"
        show_permissions_granted="true"
        top="0"
-       width="307" />
+       width="272" />
     </accordion_tab>
   </accordion>
     <text
         layout="topleft"
         word_wrap="true"
         height="64"
-        width="290"
+        width="250"
         follows="top|left|right"
         font="SansSerif"
-        left="9"
+        left="10"
+		right="-10"
         name="facebook_friends_status"
-        top="21"
+        top="5"
         type="string">
         Not connected to Facebook.
     </text>
