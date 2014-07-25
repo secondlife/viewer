@@ -1315,7 +1315,7 @@ void LLToolPie::handleDeselect()
 	// Menu may be still up during transfer to different tool.
 	// toolfocus and toolgrab should retain menu, they will clear it if needed
 	MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
-	if (!gMenuHolder->getVisible() || (override_mask & (MASK_ALT | MASK_CONTROL)) == 0)
+	if (gMenuHolder && (!gMenuHolder->getVisible() || (override_mask & (MASK_ALT | MASK_CONTROL)) == 0))
 	{
 		// in most cases menu is useless without correct selection, so either keep both or discard both
 		gMenuHolder->hideMenus();
