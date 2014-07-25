@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
-	<button label="In meinem Profil posten" name="save_to_profile_btn"/>
-	<button label="E-Mail" name="save_to_email_btn"/>
-	<button label="In meinem Inventar speichern ([AMOUNT] L$)" name="save_to_inventory_btn"/>
-	<button label="Auf meinem Computer speichern" name="save_to_computer_btn"/>
+	<button label="Ins Profil hochladen" name="save_to_profile_btn"/>
+	<button label="Per E-Mail senden" name="save_to_email_btn"/>
+	<button label="Im Inventar speichern" name="save_to_inventory_btn"/>
+	<button label="Auf Festplatte speichern" name="save_to_computer_btn"/>
+	<button label="Zu Facebook hochladen" name="send_to_facebook_btn"/>
+	<button label="Zu Twitter hochladen" name="send_to_twitter_btn"/>
+	<button label="Zu Flickr hochladen" name="send_to_flickr_btn"/>
 </panel>

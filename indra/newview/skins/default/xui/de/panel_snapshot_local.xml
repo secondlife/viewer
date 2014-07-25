@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_local">
 	<text name="title">
-		Auf meinem Computer speichern
+		Festplatte
 	</text>
 	<combo_box label="Auflösung" name="local_size_combo">
 		<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>

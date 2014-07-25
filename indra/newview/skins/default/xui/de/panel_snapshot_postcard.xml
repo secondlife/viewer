@@ -12,6 +12,4 @@
 	<text name="title">
 		E-Mail
 	</text>
-	<button label="Nachricht" name="message_btn"/>
-	<button label="Einstellungen" name="settings_btn"/>
 </panel>

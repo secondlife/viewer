@@ -12,12 +12,12 @@
      left="12"
      mouse_opaque="true"
      name="title_icon"
-     top="5"
+     top="7"
      width="18" />
     <text
      follows="top|left|right"
      font="SansSerifBold"
-     height="20"
+     height="14"
      layout="topleft"
      left_pad="12"
      length="1"
@@ -25,8 +25,8 @@
      right="-10"
      text_color="white"
      type="string"
-     top_delta="4">
-        Save to My Computer
+     top_delta="2">
+        Disk
     </text>
     <view_border 
      bevel_style="in"
@@ -35,18 +35,17 @@
      left="10"
      layout="topleft"
      name="hr"
-     right="-10"
-     top_pad="5"
-     />
+     right="-5"
+     top_pad="5"/>
     <combo_box
      follows="left|top|right"
-     height="23"
+     height="20"
      label="Resolution"
      layout="topleft"
      left_delta="0"
      name="local_size_combo"
-     right="-10"
-     top_pad="10">
+     right="-5"
+     top_pad="5">
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
@@ -80,149 +79,114 @@
          name="Custom"
          value="[i-1,i-1]" />
     </combo_box>
-    <layout_stack
-     animate="false"
-     follows="all"
-     height="275"
-     layout="bottomleft"
-     name="local_image_params_ls"
-     left_delta="0"
-     orientation="vertical"
-     top_pad="10"
-     right="-10">
-        <layout_panel
-         follows="top|left|right"
-         height="60"
-         layout="topleft"
-         left="0"
-         name="local_image_size_lp"
-         auto_resize="false"
-         top="0"
-         right="-1"
-         visible="true">
-            <spinner
-             allow_text_entry="false"
-             decimal_digits="0"
-             follows="left|top"
-             height="20"
-             increment="32"
-             label="Width"
-             label_width="40"
-             layout="topleft"
-             left="10"
-             max_val="6016"
-             min_val="32"
-             name="local_snapshot_width"
-             top_pad="10"
-             width="95" />
-            <spinner
-             allow_text_entry="false"
-             decimal_digits="0"
-             follows="left|top"
-             height="20"
-             increment="32"
-             label="Height"
-             label_width="40"
-             layout="topleft"
-             left_pad="5"
-             max_val="6016"
-             min_val="32"
-             name="local_snapshot_height"
-             top_delta="0"
-             width="95" />
-            <check_box
-             bottom_delta="20"
-             height="10"
-             follows="left|top"
-             label="Constrain proportions"
-             layout="topleft"
-             left="10"
-             name="local_keep_aspect_check" />
-        </layout_panel>
-        <layout_panel
-         follows="top|left|right"
-         height="23"
-         layout="topleft"
-         left="0"
-         name="local_image_format_quality_lp"
-         auto_resize="true"
-         top="0"
-         right="-1"
-         visible="true">
-            <combo_box
-             follows="left|top"
-             height="23"
-             label="Format"
-             layout="topleft"
-             left_delta="0"
-             name="local_format_combo"
-             top_pad="0"
-             width="120">
-                <combo_box.item
-                 label="PNG (Lossless)"
-                 name="PNG"
-                 value="PNG" />
-                <combo_box.item
-                 label="JPEG"
-                 name="JPEG"
-                 value="JPEG" />
-                <combo_box.item
-                 label="BMP (Lossless)"
-                 name="BMP"
-                 value="BMP" />
-            </combo_box>
-            <slider
-             decimal_digits="0"
-             follows="left|top"
-             height="15"
-             increment="1"
-             initial_value="75"
-             label="Image quality"
-             label_width="80"
-             layout="topleft"
-             left="10"
-             max_val="100"
-             name="image_quality_slider"
-             top_pad="7"
-             width="200" />
-            <text
-             type="string"
-             follows="left|top"
-             font="SansSerifSmall"
-             length="1"
-             height="14"
-             layout="topleft"
-             left_pad="-5"
-             halign="left"
-             name="image_quality_level"
-             top_delta="0"
-             width="60">
-               ([QLVL])
-            </text>
-        </layout_panel>
-    </layout_stack>
+    <spinner
+     allow_text_entry="false"
+     decimal_digits="0"
+     follows="left|top"
+     height="20"
+     increment="32"
+     label="Width x Height"
+     label_width="80"
+     layout="topleft"
+     left="10"
+     max_val="6016"
+     min_val="32"
+     name="local_snapshot_width"
+     top_pad="7"
+     width="134" />
+    <spinner
+     allow_text_entry="false"
+     decimal_digits="0"
+     follows="left|top"
+     height="20"
+     increment="32"
+     label=""
+     label_width="0"
+     layout="topleft"
+     left_pad="0"
+     max_val="6016"
+     min_val="32"
+     name="local_snapshot_height"
+     top_delta="0"
+     width="54" />
+    <check_box
+     bottom_delta="20"
+     follows="left|top"
+     label="Constrain proportions"
+     layout="topleft"
+     left="10"
+     name="local_keep_aspect_check" />
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="13"
+      layout="topleft"
+      left="10"
+      name="local_format_label"
+      top_pad="7"
+      width="50">
+         Format:
+     </text>
+    <combo_box
+     follows="left|top|right"
+     height="20"
+     label="Format"
+     layout="topleft"
+     left="65"
+     right="-5"
+     name="local_format_combo"
+     top_delta="-3"
+     width="120">
+        <combo_box.item
+         label="PNG (Lossless)"
+         name="PNG"
+         value="PNG" />
+        <combo_box.item
+         label="JPEG"
+         name="JPEG"
+         value="JPEG" />
+        <combo_box.item
+         label="BMP (Lossless)"
+         name="BMP"
+         value="BMP" />
+    </combo_box>
+    <slider
+     decimal_digits="0"
+     follows="left|top"
+     height="15"
+     increment="1"
+     initial_value="75"
+     label="Quality:"
+     label_width="45"
+     layout="topleft"
+     left="10"
+     max_val="100"
+     name="image_quality_slider"
+     top_pad="6"
+     width="195" />
     <button
      follows="right|bottom"
      height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-32"
-     top="350"
-     width="100">
+     right="-5"
+     top="337"
+     width="90">
       <button.commit_callback
        function="Local.Cancel" />
     </button>
     <flyout_button
-     follows="right|bottom"
+     follows="left|bottom"
      height="23"
      label="Save"
      layout="topleft"
-     left_delta="-106"
+     left="10"
      name="save_btn"
      tool_tip="Save image to a file"
      top_delta="0"
-     width="100">
+     width="95">
         <flyout_button.item
          label="Save"
          name="save_item"

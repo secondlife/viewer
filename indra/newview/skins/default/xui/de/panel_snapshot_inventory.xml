@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_inventory">
 	<text name="title">
-		In meinem Inventar speichern
+		Inventar
 	</text>
 	<text name="hint_lbl">
 		Das Speichern eines Bilds in Ihrem Inventar kostet [UPLOAD_COST] L$. Um das Bild als Textur zu speichern, wählen Sie eines der quadratischen Formate aus.

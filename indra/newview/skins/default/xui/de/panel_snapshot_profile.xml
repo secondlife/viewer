@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_profile">
 	<text name="title">
-		In meinem Profil posten
+		Profil
 	</text>
 	<combo_box label="Auflösung" name="profile_size_combo">
 		<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>

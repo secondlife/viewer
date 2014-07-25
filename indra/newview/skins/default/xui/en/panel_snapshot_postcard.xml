@@ -24,12 +24,12 @@
      left="12"
      mouse_opaque="true"
      name="title_icon"
-     top="5"
+     top="8"
      width="18" />
     <text
      follows="top|left|right"
      font="SansSerifBold"
-     height="20"
+     height="14"
      layout="topleft"
      left_pad="12"
      length="1"
@@ -37,19 +37,20 @@
      right="-10"
      text_color="white"
      type="string"
-     top_delta="3">
-        Email
+     top_delta="2">
+        E-mail
     </text>
     <button
      follows="right|top"
      height="23"
      is_toggle="true"
-     label="Message"
+     label=""
+     image_overlay="Command_Chat_Icon"
      layout="topleft"
      name="message_btn"
-     right="-82"
-     top_delta="-7"
-     width="70">
+     right="-35"
+     top_delta="-3"
+     width="25">
       <button.commit_callback
        function="Postcard.Message" />
     </button>
@@ -57,12 +58,13 @@
      follows="right|top"
      height="23"
      is_toggle="true"
-     label="Settings"
+     label=""
+     image_overlay="Command_Preferences_Icon"
      layout="topleft"
      name="settings_btn"
      top_delta="0"
-     right="-10"
-     width="70">
+     left_pad="5"
+     width="25">
       <button.commit_callback
        function="Postcard.Settings" />
     </button>
@@ -73,8 +75,8 @@
      left="10"
      layout="topleft"
      name="hr"
-     right="-10"
-     top_pad="5"
+     right="-5"
+     top_pad="2"
      />
     <panel_container
      follows="all"
@@ -83,7 +85,7 @@
      left="0"
      name="postcard_panel_container"
      default_panel_name="panel_postcard_message"
-     top_pad="10"
+     top_pad="0"
      width="490">
       <panel
        follows="all"

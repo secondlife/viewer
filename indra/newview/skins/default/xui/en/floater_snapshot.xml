@@ -3,15 +3,17 @@
  positioning="cascading"
  legacy_header_height="18"
  can_minimize="true"
+ can_resize="false"
  can_close="true"
- height="500"
+ height="455"
  layout="topleft"
  name="Snapshot"
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
  title="SNAPSHOT"
- width="470">
+ width="624"
+ min_height="455">
     <floater.string
      name="unknown">
         unknown
@@ -57,11 +59,11 @@
  	    Saved to Computer!
  	</string>
  	<string
-        name="facebook_failed_str">
+     name="facebook_failed_str">
  	    Failed to upload image to your Facebook timeline.
  	</string>
  	<string
-        name="profile_failed_str">
+     name="profile_failed_str">
  	    Failed to upload image to your Profile Feed.
  	</string>
  	<string
@@ -78,188 +80,146 @@
  	</string>
     <button
      follows="left|top"
-     height="23"
-     image_overlay="TabIcon_Close_Off"
+     height="18"
+     image_overlay="Refresh_Off"
+     image_overlay_alignment="left"
+     imgoverlay_label_space="5"
+	 pad_bottom="0"
+	 halign="left"
+	 image_selected="transparent.j2c"
+	 image_unselected="transparent.j2c"
      layout="topleft"
-     left="236"
-     name="advanced_options_btn"
-     tool_tip="Advanced options"
-     top="25"
-     width="23" />
-  <ui_ctrl 
-    height="160"
-    width="250"
-    layout="topleft"
-    name="thumbnail_placeholder"
-    top="50"
-    follows="left|top"
-    left="10">
-      <panel
-       background_visible="true"
-       bg_alpha_color="0.9 1 0.9 1"
-       follows="left|top"
-       font="SansSerifLarge"
-       halign="center"
-       height="20"
-       layout="topleft"
-       left="0"
-       length="1"
-       name="succeeded_panel"
-       right="-1"
-       top="0"
-       type="string"
-       visible="false">
-          <text
-           follows="all"
-           font="SansSerif"
-           halign="center"
-           height="18"
-           layout="topleft"
-           left="1"
-           length="1"
-           name="succeeded_lbl"
-           right="-1"
-           text_color="0.2 0.5 0.2 1"
-           top="4"
-           translate="false"
-           type="string">
-              Succeeded
-          </text>
-      </panel>
-      <panel
-       background_visible="true"
-       bg_alpha_color="1 0.9 0.9 1"
-       follows="left|top"
-       font="SansSerifLarge"
-       halign="center"
-       height="20"
-       layout="topleft"
-       left_delta="0"
-       length="1"
-       name="failed_panel"
-       right="-1"
-       top="0"
-       type="string"
-       visible="false">
-          <text
-           follows="all"
-           font="SansSerif"
-           halign="center"
-           height="18"
-           layout="topleft"
-           left="1"
-           length="1"
-           name="failed_lbl"
-           right="-1"
-           text_color="0.5 0.2 0.2 1"
-           top="4"
-           translate="false"
-           type="string">
-              Failed
-          </text>
-      </panel>
-      <loading_indicator
-       follows="left|top"
-       height="48"
-       layout="topleft"
-       name="working_indicator"
-       left="101"
-       top="46"
-       visible="false"
-       width="48" />
-      <text
-       follows="left|top|right"
-       font="SansSerifBold"
-       height="14"
-       layout="topleft"
-       left="5"
-       length="1"
-       halign="center"
-       name="working_lbl"
-       right="-5"
-       top="98"
-       translate="false"
-       type="string"
-       visible="false"
-       width="130">
-          Working
-      </text>
-      <button
-       follows="left|top"
-       height="22"
-       image_overlay="Refresh_Off"
-       layout="topleft"
-       left="20"
-       name="new_snapshot_btn"
-       bottom="-20"
-       visible="false"
-       width="22" />
-      <text
-       follows="left|top"
-       font="SansSerifBold"
-       halign="left"
-       height="18"
-       layout="topleft"
-       left_pad="10"
-       length="1"
-       name="refresh_lbl"
-       right="-5"
-       text_color="red"
-       top_delta="0"
-       translate="false"
-       type="string"
-       visible="false"
-       width="130">
-          Refresh to save.
-      </text>
-  </ui_ctrl>
-  <view_border 
-   bevel_style="in" 
-   height="21"
-   width="250"
-   layout="topleft"
-   name="img_info_border"
-   top_pad="3"
-   follows="left|top"
-   left_delta="0"
-   />
-   <text
-    type="string"
-    font="SansSerifSmall"
-    length="1"
-    follows="left|top"
-    height="14"
-    layout="topleft"
-    left_delta="5"
-    halign="left"
-    name="image_res_text"
-    top_delta="5"
-    width="100">
-       [WIDTH] x [HEIGHT] px
-   </text>
-   <text
-    follows="left|top"
-    font="SansSerifSmall"
-    height="14"
-    layout="topleft"
-    left="200"
-    length="1"
-    halign="right"
-    name="file_size_label"
-    top_delta="0"
-    type="string"
-    width="50">
-       [SIZE] KB
-   </text>
-    <panel_container
+     left="5"
+	 label="REFRESH"
+     name="new_snapshot_btn"
+     top_pad="26"
+     width="195" />
+	<panel
+     height="154"
+     layout="topleft"
+	 follows="top|left"
+     left="0"
+     name="advanced_options_panel"
+     top_pad="0"
+     width="200">
+        <view_border 
+         bevel_style="in"
+         follows="left|top|right" 
+         height="1"
+         left="6"
+         layout="topleft"
+         name="advanced_options_hr"
+         right="-1"
+         top_pad="5"
+         />
+        <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="13"
+         layout="topleft"
+         left="10"
+         name="layer_type_label"
+         top_pad="10"
+         width="100">
+            Capture:
+        </text>
+        <combo_box
+         follows="left|top|right"
+         height="23"
+         label="Image Layers"
+         layout="topleft"
+         left="30"
+         name="layer_types"
+         right="-2">
+            <combo_box.item
+             label="Colors"
+             name="Colors"
+             value="colors" />
+            <combo_box.item
+             label="Depth"
+             name="Depth"
+             value="depth" />
+        </combo_box>
+        <check_box
+         label="Interface"
+         layout="topleft"
+         left="30"
+		 height="16"
+         top_pad="8"
+         width="180"
+         name="ui_check" />
+        <check_box
+         label="HUDs"
+         layout="topleft"
+		 height="16"
+         left="30"
+         top_pad="1"
+         width="180"
+         name="hud_check" />
+        <check_box
+         label="Freeze frame (fullscreen)"
+         layout="topleft"
+		 height="16"
+         left="10"
+         top_pad="1"
+         width="180"
+         name="freeze_frame_check" />
+        <check_box
+         label="Auto-refresh"
+         layout="topleft"
+		 height="16"
+         left="10"
+         top_pad="1"
+         width="180"
+         name="auto_snapshot_check" />
+        <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="13"
+         layout="topleft"
+         left="10"
+         name="filter_list_label"
+         top_pad="10"
+         width="50">
+            Filter:
+        </text>
+        <combo_box
+            control_name="PhotoFilters"
+            follows="left|right|top"
+            name="filters_combobox"
+            tool_tip="Image filters"
+            top_delta="-3"
+            left="50"
+			right="-1"
+            height="21"
+            width="135">
+            <combo_box.item
+            label="No Filter"
+            name="NoFilter"
+            value="NoFilter" />
+        </combo_box>
+		 <view_border 
+         bevel_style="in"
+         follows="left|top|right" 
+         height="1"
+         left="6"
+         layout="topleft"
+         name="advanced_options_hr"
+         right="-1"
+         top_pad="10"
+         />
+    </panel>
+	<panel_container
      follows="left|top"
-     height="260"
+     height="230"
      layout="topleft"
      left="0"
      name="panel_container"
      default_panel_name="panel_snapshot_options"
      top_pad="10"
-     width="270">
+     width="205">
       <panel
        class="llpanelsnapshotoptions"
        filename="panel_snapshot_options.xml"
@@ -293,119 +253,173 @@
        name="panel_snapshot_local"
        filename="panel_snapshot_local.xml" />
     </panel_container>
-    <panel
-     height="295"
-     layout="topleft"
-     left="270"
-     name="advanced_options_panel"
-     top="20"
-     width="200">
-        <text
-         type="string"
-         font="SansSerifSmall"
-         length="1"
-         follows="left|top"
-         height="14"
-         layout="topleft"
-         left="10"
-         halign="left"
-         name="advanced_options_label"
-         right="-10"
-         top="10">
-            ADVANCED OPTIONS
-        </text>
-        <view_border 
+	<view_border 
          bevel_style="in"
-         follows="left|top|right" 
+         follows="left|top" 
          height="1"
-         left="10"
+         left="6"
          layout="topleft"
-         name="advanced_options_hr"
-         right="-10"
-         top_pad="5"
-         />
-        <text
-         type="string"
-         length="1"
-         follows="left|top"
-         height="13"
-         layout="topleft"
-         left="10"
-         name="layer_type_label"
-         top_pad="10"
-         width="50">
-            Capture:
-        </text>
-        <combo_box
-         follows="left|top|right"
-         height="23"
-         label="Image Layers"
-         layout="topleft"
-         left="30"
-         name="layer_types"
-         right="-10">
-            <combo_box.item
-             label="Colors"
-             name="Colors"
-             value="colors" />
-            <combo_box.item
-             label="Depth"
-             name="Depth"
-             value="depth" />
-        </combo_box>
-        <check_box
-         label="Interface"
-         layout="topleft"
-         left="30"
-         top_pad="10"
-         width="180"
-         name="ui_check" />
-        <check_box
-         label="HUDs"
-         layout="topleft"
-         left="30"
-         top_pad="10"
-         width="180"
-         name="hud_check" />
-        <check_box
-         label="Freeze frame (fullscreen)"
-         layout="topleft"
-         left="10"
-         top_pad="8"
-         width="180"
-         name="freeze_frame_check" />
-        <check_box
-         label="Auto-refresh"
-         layout="topleft"
-         left="10"
-         top_pad="8"
-         width="180"
-         name="auto_snapshot_check" />
-        <text
-         type="string"
-         length="1"
-         follows="left|top"
-         height="13"
-         layout="topleft"
-         left="10"
-         name="filter_list_label"
-         top_pad="10"
-         width="50">
-            Filter:
-        </text>
-        <combo_box
-            control_name="PhotoFilters"
-            follows="left|right|top"
-            name="filters_combobox"
-            tool_tip="Image filters"
-            top_pad="8"
-            left="30"
-            height="21"
-            width="135">
-            <combo_box.item
-            label="No Filter"
-            name="NoFilter"
-            value="NoFilter" />
-        </combo_box>
-    </panel>
+         name="status_hr"
+         width="192"
+         top_pad="-16"/>
+	<panel
+       background_visible="true"
+       bg_alpha_color="0 0 0 0.25"
+       follows="left|top"
+       font="SansSerifLarge"
+       halign="center"
+       height="20"
+       layout="topleft"
+       left="10"
+       length="1"
+       name="succeeded_panel"
+	   width="188"
+       top_pad="1"
+       type="string"
+       visible="false">
+          <text
+           follows="all"
+           font="SansSerif"
+           halign="center"
+           height="18"
+           layout="topleft"
+           left="1"
+           length="1"
+           name="succeeded_lbl"
+           right="-1"
+           text_color="0.2 0.85 0.2 1"
+           top="4"
+           translate="false"
+           type="string">
+              Succeeded
+          </text>
+      </panel>
+      <panel
+       background_visible="true"
+       bg_alpha_color="0 0 0 0.25"
+       follows="left|top"
+       font="SansSerifLarge"
+       halign="center"
+       height="20"
+       layout="topleft"
+       left="10"
+       length="1"
+       name="failed_panel"
+	   width="188"
+       top_delta="0"
+       type="string"
+       visible="false">
+          <text
+           follows="all"
+           font="SansSerif"
+           halign="center"
+           height="18"
+           layout="topleft"
+           left="1"
+           length="1"
+           name="failed_lbl"
+           right="-1"
+           text_color="0.95 0.4 0.4 1"
+           top="4"
+           translate="false"
+           type="string">
+              Failed
+          </text>
+      </panel>
+      <loading_indicator
+       follows="left|top"
+       height="24"
+       layout="topleft"
+       name="working_indicator"
+       left="95"
+       top_delta="0"
+       visible="false"
+       width="24" />
+      <text
+       follows="left|top"
+       font="SansSerifBold"
+       height="14"
+       layout="topleft"
+       left="10"
+       length="1"
+       halign="right"
+       name="working_lbl"
+       top_delta="4"
+       translate="false"
+       type="string"
+       visible="false"
+       width="80">
+          Working
+      </text>
+      <text
+       follows="left|top"
+       font="SansSerifBold"
+       halign="left"
+       height="18"
+       layout="topleft"
+       left="10"
+       length="1"
+       name="refresh_lbl"
+       text_color="0.95 0.4 0.4 1"
+       top_delta="0"
+       translate="false"
+       type="string"
+       visible="false"
+       width="130">
+          Refresh to save.
+      </text>
+  <ui_ctrl 
+    layout="topleft"
+    name="thumbnail_placeholder"
+    top="23"
+	left="215"
+	width="400"
+	height="400"
+    follows="top|left"/>
+  <view_border 
+   bevel_style="in" 
+   height="21"
+   layout="topleft"
+   name="img_info_border"
+   top_pad="0"
+   right="-10"
+   follows="left|top|right"
+   left_delta="0"/>
+   <text
+    type="string"
+    font="SansSerifSmall"
+    length="1"
+    follows="left|top"
+    height="14"
+    layout="topleft"
+    left_delta="5"
+    halign="left"
+    name="image_res_text"
+    top_delta="5"
+    width="200">
+       [WIDTH]px (width) x [HEIGHT]px (height)
+   </text>
+   <text
+    follows="right|top"
+    font="SansSerifSmall"
+    height="14"
+    layout="topleft"
+    left="-65"
+    length="1"
+    halign="right"
+    name="file_size_label"
+    top_delta="0"
+    type="string"
+    width="50">
+       [SIZE] KB
+   </text>
+   <button
+       follows="left|top"
+       height="420"
+       layout="topleft"
+	   image_overlay="Arrow_Right"
+       name="preview_btn"
+       left="203"
+	   top="25"
+       width="8" />
 </floater>

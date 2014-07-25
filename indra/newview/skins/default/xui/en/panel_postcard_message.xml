@@ -25,7 +25,7 @@
      layout="topleft"
      left_pad="10"
      name="to_form"
-     right="-10"
+     right="-5"
      top_delta="-4" />
     <text
      type="string"
@@ -47,7 +47,7 @@
      left_pad="10"
      max_length_bytes="100"
      name="name_form"
-     right="-10"
+     right="-5"
      top_delta="-4" />
     <text
      type="string"
@@ -70,31 +70,31 @@
      left_pad="10"
      max_length_bytes="100"
      name="subject_form"
-     right="-10"
+     right="-5"
      top_delta="-4" />
     <text
      type="string"
      length="1"
      bottom_delta="23"
-     follows="top|left|right"
+     follows="top|left"
      font="SansSerif"
+     height="16"
      layout="topleft"
      left="12"
-     name="msg_label"
-     right="-10">
+     name="msg_label">
         Message:
     </text>
     <text_editor
      type="string"
      length="1"
      follows="left|top|right"
-     height="60"
+     height="45"
      layout="topleft"
      left_delta="0"
      max_length="700"
      name="msg_form"
-     right="-10"
-     top_pad="10"
+     right="-5"
+     top_pad="5"
      word_wrap="true">
         Type your message here.
     </text_editor>
@@ -104,21 +104,21 @@
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-32"
-     top="350"
-     width="100">
+     right="-5"
+     top="345"
+     width="90">
       <button.commit_callback
        function="Postcard.Cancel" />
     </button>
     <button
-     follows="right|bottom"
+     follows="left|bottom"
      height="23"
      label="Send"
      layout="topleft"
-     left_delta="-106"
+     left="10"
      name="send_btn"
      top_delta="0"
-     width="100">
+     width="95">
       <button.commit_callback
        function="Postcard.Send" />
     </button>

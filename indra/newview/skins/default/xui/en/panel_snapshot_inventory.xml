@@ -12,12 +12,12 @@
      left="12"
      mouse_opaque="true"
      name="title_icon"
-     top="5"
+     top="6"
      width="18" />
     <text
      follows="top|left|right"
      font="SansSerifBold"
-     height="20"
+     height="14"
      layout="topleft"
      left_pad="12"
      length="1"
@@ -25,42 +25,28 @@
      right="-10"
      text_color="white"
      type="string"
-     top_delta="5">
-        Save to My Inventory
+     top_delta="3">
+        Inventory
     </text>
     <view_border 
      bevel_style="in"
      follows="left|top|right" 
      height="1"
-     left="10"
+     left="9"
      layout="topleft"
      name="hr"
-     right="-10"
+     right="-5"
      top_pad="5"
      />
-    <text
-     bottom="35"
-     follows="top|left|right"
-     font="SansSerif"
-     height="56"
-     layout="topleft"
-     left="12"
-     length="1"
-     name="hint_lbl"
-     top_pad="10"
-     type="string"
-     word_wrap="true">
-        Saving an image to your inventory costs L$[UPLOAD_COST]. To save your image as a texture select one of the square formats.
-    </text>
     <combo_box
      follows="top|left|right"
-     height="23"
+     height="20"
      label="Resolution"
      layout="topleft"
      left_delta="0"
      name="texture_size_combo"
-     right="-10"
-     top_pad="10">
+     right="-5"
+     top_pad="5">
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
@@ -88,60 +74,73 @@
      follows="left|top"
      height="20"
      increment="32"
-     label="Width"
-     label_width="40"
+     label="Width x Height"
+     label_width="80"
      layout="topleft"
      left="10"
      max_val="6016"
      min_val="32"
      name="inventory_snapshot_width"
-     top_pad="10"
-     width="95" />
+     top_pad="7"
+     width="134" />
     <spinner
      allow_text_entry="false"
      decimal_digits="0"
      follows="left|top"
      height="20"
      increment="32"
-     label="Height"
-     label_width="40"
+     label=""
+     label_width="0"
      layout="topleft"
-     left_pad="5"
+     left_pad="0"
      max_val="6016"
      min_val="32"
      name="inventory_snapshot_height"
      top_delta="0"
-     width="95" />
+     width="54" />
     <check_box
      bottom_delta="20"
-     height="10"
      follows="left|top"
      label="Constrain proportions"
      layout="topleft"
      left="10"
      name="inventory_keep_aspect_check"
      visible="false" />
+    <text
+     follows="top|left"
+     font="SansSerif"
+     height="56"
+     layout="topleft"
+     left="10"
+     length="1"
+     name="hint_lbl"
+     top_pad="10"
+     width="190"
+     type="string"
+     word_wrap="true">
+        Saving an image to your inventory costs L$[UPLOAD_COST]. To save your image as a texture select one of the square formats.
+    </text>
     <button
      follows="right|bottom"
      height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-32"
-     top="350"
-     width="100">
+     right="-5"
+     top="337"
+     width="90">
       <button.commit_callback
        function="Inventory.Cancel" />
     </button>
     <button
-     follows="right|bottom"
+     follows="left|bottom"
      height="23"
      label="Save"
      layout="topleft"
-     left_delta="-106"
+     left="10"
      name="save_btn"
      top_delta="0"
-     width="100">
+     width="95">
       <button.commit_callback
        function="Inventory.Save" />
     </button>
