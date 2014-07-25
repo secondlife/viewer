@@ -488,6 +488,7 @@ public:
 	virtual LLUIImagePtr	getIcon() const;
 	virtual void			performAction(LLInventoryModel* model, std::string action);
 	virtual void			openItem();
+    virtual BOOL isItemWearable() const { return TRUE; }
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL renameItem(const std::string& new_name);
@@ -520,6 +521,7 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual void	performAction(LLInventoryModel* model, std::string action);
 	virtual void	openItem();
+    virtual BOOL isItemWearable() const { return TRUE; }
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
 	virtual BOOL renameItem(const std::string& new_name);

@@ -95,6 +95,7 @@
       border="false"
       bevel_style="none"
       show_item_link_overlays="true">
+      <item allow_wear="false"/>
     </inventory_panel>
     <inventory_panel
       label="LISTED"
@@ -115,6 +116,7 @@
       border="false"
       bevel_style="none"
       show_item_link_overlays="true">
+      <item allow_wear="false"/>
     </inventory_panel>
     <inventory_panel
       label="UNLISTED"
@@ -135,6 +137,7 @@
       border="false"
       bevel_style="none"
       show_item_link_overlays="true">
+      <item allow_wear="false"/>
     </inventory_panel>
     <inventory_panel
       label="UNASSOCIATED"
@@ -155,6 +158,7 @@
       border="false"
       bevel_style="none"
       show_item_link_overlays="true">
+      <item allow_wear="false"/>
     </inventory_panel>
   </tab_container>
   </panel>

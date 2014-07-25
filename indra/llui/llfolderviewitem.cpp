@@ -104,7 +104,7 @@ LLFolderViewItem::Params::Params()
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
 	creation_date(),
-	allow_open("allow_open", true),
+	allow_wear("allow_wear", true),
 	font_color("font_color"),
 	font_highlight_color("font_highlight_color"),
     left_pad("left_pad", 0),
@@ -137,7 +137,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mRoot(p.root),
 	mViewModelItem(p.listener),
 	mIsMouseOverTitle(false),
-	mAllowOpen(p.allow_open),
+	mAllowWear(p.allow_wear),
 	mFontColor(p.font_color),
 	mFontHighlightColor(p.font_highlight_color),
     mLeftPad(p.left_pad),
@@ -454,7 +454,7 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLFolderViewItem::openItem( void )
 {
-	if (mAllowOpen)
+	if (mAllowWear || !getViewModelItem()->isItemWearable())
 	{
 		getViewModelItem()->openItem();
 	}
