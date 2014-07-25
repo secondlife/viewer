@@ -106,7 +106,7 @@
          bevel_style="in"
          follows="left|top|right" 
          height="1"
-         left="6"
+         left="10"
          layout="topleft"
          name="advanced_options_hr"
          right="-1"
@@ -204,11 +204,11 @@
          bevel_style="in"
          follows="left|top|right" 
          height="1"
-         left="6"
+         left="10"
          layout="topleft"
          name="advanced_options_hr"
          right="-1"
-         top_pad="10"
+         top_pad="7"
          />
     </panel>
 	<panel_container
@@ -257,7 +257,7 @@
          bevel_style="in"
          follows="left|top" 
          height="1"
-         left="6"
+         left="10"
          layout="topleft"
          name="status_hr"
          width="192"

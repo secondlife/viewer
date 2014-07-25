@@ -16,7 +16,7 @@
    imgoverlay_label_space="10"
    label="Save to Disk"
    layout="topleft"
-   left="5"
+   left="10"
    name="save_to_computer_btn"
    top_pad="9">
     <button.commit_callback
