@@ -260,7 +260,7 @@
          left="10"
          layout="topleft"
          name="status_hr"
-         width="192"
+         width="189"
          top_pad="-16"/>
 	<panel
        background_visible="true"
