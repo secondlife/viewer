@@ -9,7 +9,7 @@
 	<text name="subject_label">
 		Betreff:
 	</text>
-	<line_editor label="Betreff hier eingeben." name="subject_form"/>
+	<line_editor label="Betreff hier rein." name="subject_form"/>
 	<text name="msg_label">
 		Nachricht:
 	</text>
