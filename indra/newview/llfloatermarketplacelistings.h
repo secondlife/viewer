@@ -161,7 +161,7 @@ public:
 	virtual void draw();
 	virtual void onOpen(const LLSD& key);
     
-    void appendMessage(std::string& message);
+    void appendMessage(std::string& message, LLError::ELevel log_level);
 	static void	onOK( void* userdata );
     
 private:

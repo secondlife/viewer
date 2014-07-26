@@ -593,7 +593,7 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
     if (marketplacelistings_id.notNull())
     {
         LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
-        validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1));
+        validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2));
     }
 }
 
@@ -605,7 +605,7 @@ void LLFloaterMarketplaceValidation::onOK( void* userdata )
 	self->closeFloater();
 }
 
-void LLFloaterMarketplaceValidation::appendMessage(std::string& message)
+void LLFloaterMarketplaceValidation::appendMessage(std::string& message, LLError::ELevel log_level)
 {
     if (mEditor)
     {

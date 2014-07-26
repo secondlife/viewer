@@ -307,6 +307,19 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+        icon="OutboxStatus_Error"
+        name="MerchantListingFailed"
+        type="outbox">
+        Listing to Marketplace failed with error :
+        
+        &apos;[ERROR_CODE]&apos;
+        
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+    
+    <notification
         icon="alertmodal.tga"
         name="ConfirmMerchantActiveChange"
         type="alertmodal">

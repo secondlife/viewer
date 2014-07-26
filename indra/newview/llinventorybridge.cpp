@@ -2975,7 +2975,15 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_list" == action)
 	{
-        if (depth_nesting_in_marketplace(mUUID) == 1)
+        LLViewerInventoryCategory* cat = gInventory.getCategory(mUUID);
+        mMessage = "";
+        if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2)))
+        {
+            LLSD subs;
+            subs["[ERROR_CODE]"] = mMessage;
+            LLNotificationsUtil::add("MerchantListingFailed", subs);
+        }
+        else if (depth_nesting_in_marketplace(mUUID) == 1)
         {
             LLMarketplaceData::instance().activateListing(mUUID,true);
         }
@@ -3025,7 +3033,18 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
     }
 	else if ("marketplace_associate_listing" == action)
 	{
-        LLFloaterAssociateListing::show(mUUID);
+        LLViewerInventoryCategory* cat = gInventory.getCategory(mUUID);
+        mMessage = "";
+        if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2)))
+        {
+            LLSD subs;
+            subs["[ERROR_CODE]"] = mMessage;
+            LLNotificationsUtil::add("MerchantListingFailed", subs);
+        }
+        else
+        {
+            LLFloaterAssociateListing::show(mUUID);
+        }
 		return;
 	}
 	else if ("marketplace_edit_listing" == action)
@@ -3053,6 +3072,18 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_folder_to_outbox(cat, outbox_id, cat->getUUID(), LLToolDragAndDrop::getOperationId());
 	}
+}
+
+void LLFolderBridge::gatherMessage(std::string& message, LLError::ELevel log_level)
+{
+    if (log_level >= LLError::LEVEL_ERROR)
+    {
+        if (!mMessage.empty())
+        {
+            mMessage += "\n";
+        }
+        mMessage += message;
+    }
 }
 
 void LLFolderBridge::openItem()

@@ -361,11 +361,13 @@ public:
 private:
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
+    void gatherMessage(std::string& message, LLError::ELevel log_level);
 
 	bool							mCallingCards;
 	bool							mWearables;
 	bool							mIsLoading;
 	LLTimer							mTimeSinceRequestStart;
+    std::string                     mMessage;
 	LLRootHandle<LLFolderBridge> mHandle;
 };
 
