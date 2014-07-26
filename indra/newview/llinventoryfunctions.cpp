@@ -1944,7 +1944,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         for (; set_iter != selected_items.end(); ++set_iter)
         {
             viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
-            if (viewModel && LLMarketplaceData::instance().isInActiveFolder(viewModel->getUUID()))
+            if (viewModel && (depth_nesting_in_marketplace(viewModel->getUUID()) >= 0))
             {
                 break;
             }
