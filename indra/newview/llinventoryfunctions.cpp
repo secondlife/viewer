@@ -1951,24 +1951,25 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         }
         if (set_iter != selected_items.end())
         {
-            if ((("cut" == action) || ("delete" == action)) && (LLMarketplaceData::instance().isListed(viewModel->getUUID()) || LLMarketplaceData::instance().isVersionFolder(viewModel->getUUID())))
-            {
-                // Cut or delete of the active version folder or listing folder itself will unlist the listing so ask that question specifically
-                LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
-                return;
-            }
-            else if ("open" == action)
+            if ("open" == action)
             {
                 if (get_can_item_be_worn(viewModel->getUUID()))
                 {
-                    // Wearing an object from an active listing is verbotten
+                    // Wearing an object from any listing, active or not, is verbotten
                     LLNotificationsUtil::add("AlertMerchantListingCannotWear");
                     return;
                 }
-                // Note: we do not prompt for active change when opening items (e.g. textures or note cards) on the marketplace...
+                // Note: we do not prompt for change when opening items (e.g. textures or note cards) on the marketplace...
             }
-            else
+            else if (LLMarketplaceData::instance().isInActiveFolder(viewModel->getUUID()))
             {
+                // If item is in active listing, further confirmation is required
+                if ((("cut" == action) || ("delete" == action)) && (LLMarketplaceData::instance().isListed(viewModel->getUUID()) || LLMarketplaceData::instance().isVersionFolder(viewModel->getUUID())))
+                {
+                    // Cut or delete of the active version folder or listing folder itself will unlist the listing so ask that question specifically
+                    LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+                    return;
+                }
                 // Any other case will simply modify but not unlist a listing
                 LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
                 return;
