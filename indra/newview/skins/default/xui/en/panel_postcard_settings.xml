@@ -34,87 +34,55 @@
          name="Custom"
          value="[i-1,i-1]" />
     </combo_box>
-    <layout_stack
-     animate="false"
-     follows="all"
-     height="275"
-     layout="bottomleft"
-     name="postcard_image_params_ls"
-     left="0"
-     orientation="vertical"
-     top_pad="0"
-     right="-1">
-        <layout_panel
-         follows="top|left|right"
-         height="47"
-         layout="topleft"
-         left="0"
-         name="postcard_image_size_lp"
-         auto_resize="false"
-         top="0"
-         right="-5"
-         visible="true">
-            <spinner
-             allow_text_entry="false"
-             decimal_digits="0"
-             follows="left|top"
-             height="20"
-             increment="32"
-             label="Width x Height"
-             label_width="78"
-             layout="topleft"
-             left="10"
-             max_val="6016"
-             min_val="32"
-             name="postcard_snapshot_width"
-             top_pad="3"
-             width="132" />
-            <spinner
-             allow_text_entry="false"
-             decimal_digits="0"
-             follows="left|top"
-             height="20"
-             increment="32"
-             label=""
-             label_width="0"
-             layout="topleft"
-             left_pad="0"
-             max_val="6016"
-             min_val="32"
-             name="postcard_snapshot_height"
-             top_delta="0"
-             width="54" />
-            <check_box
-             bottom_delta="20"
-             follows="left|top"
-             label="Constrain proportions"
-             layout="topleft"
-             left="10"
-             name="postcard_keep_aspect_check" />
-        </layout_panel>
-        <layout_panel
-         follows="top|left|right"
-         height="19"
-         layout="topleft"
-         left="0"
-         name="postcard_image_format_quality_lp"
-         auto_resize="true"
-         top="0"
-         visible="true">
-            <slider
-            decimal_digits="0"
-            follows="left|top"
-            height="15"
-            increment="1"
-            initial_value="75"
-            label="Quality:"
-            label_width="45"
-            layout="topleft"
-            left="10"
-            max_val="100"
-            name="image_quality_slider"
-            top_pad="6"
-            width="195" />
-        </layout_panel>
-    </layout_stack>
+   <spinner
+    allow_text_entry="false"
+    decimal_digits="0"
+    follows="left|top"
+    height="20"
+    increment="32"
+    label="Width x Height"
+    label_width="78"
+    layout="topleft"
+    left="10"
+    max_val="6016"
+    min_val="32"
+    name="postcard_snapshot_width"
+    top_pad="3"
+    width="132" />
+   <spinner
+    allow_text_entry="false"
+    decimal_digits="0"
+    follows="left|top"
+    height="20"
+    increment="32"
+    label=""
+    label_width="0"
+    layout="topleft"
+    left_pad="0"
+    max_val="6016"
+    min_val="32"
+    name="postcard_snapshot_height"
+    top_delta="0"
+    width="54" />
+   <check_box
+    top_pad="12"
+    follows="left|top"
+    label="Constrain proportions"
+    layout="topleft"
+    left="10"
+    name="postcard_keep_aspect_check" />
+   <slider
+   decimal_digits="0"
+   follows="left|top"
+   height="15"
+   increment="1"
+   initial_value="75"
+   label="Quality:"
+   label_width="45"
+   layout="topleft"
+   left="10"
+   max_val="100"
+   name="image_quality_slider"
+   top_pad="6"
+   width="195" />
 </panel>
