@@ -380,8 +380,11 @@ void AISUpdate::parseMeta(const LLSD& update)
 		 it != cat_ids.end(); ++it)
 	{
 		LLViewerInventoryCategory *cat = gInventory.getCategory(*it);
-		mCatDescendentDeltas[cat->getParentUUID()]--;
-		mObjectsDeletedIds.insert(*it);
+		if(cat)
+		{
+			mCatDescendentDeltas[cat->getParentUUID()]--;
+			mObjectsDeletedIds.insert(*it);
+		}
 	}
 
 	// parse _categories_items_removed -> mObjectsDeletedIds
@@ -392,8 +395,11 @@ void AISUpdate::parseMeta(const LLSD& update)
 		 it != item_ids.end(); ++it)
 	{
 		LLViewerInventoryItem *item = gInventory.getItem(*it);
-		mCatDescendentDeltas[item->getParentUUID()]--;
-		mObjectsDeletedIds.insert(*it);
+		if(item)
+		{
+			mCatDescendentDeltas[item->getParentUUID()]--;
+			mObjectsDeletedIds.insert(*it);
+		}
 	}
 
 	// parse _broken_links_removed -> mObjectsDeletedIds
@@ -403,8 +409,11 @@ void AISUpdate::parseMeta(const LLSD& update)
 		 it != broken_link_ids.end(); ++it)
 	{
 		LLViewerInventoryItem *item = gInventory.getItem(*it);
-		mCatDescendentDeltas[item->getParentUUID()]--;
-		mObjectsDeletedIds.insert(*it);
+		if(item)
+		{
+			mCatDescendentDeltas[item->getParentUUID()]--;
+			mObjectsDeletedIds.insert(*it);
+		}
 	}
 
 	// parse _created_items
