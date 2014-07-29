@@ -975,6 +975,21 @@ void LLSnapshotLivePreview::saveTexture()
 		mPreviewImage->getHeight(),
 		mPreviewImage->getComponents());
 
+	// Apply the filter to mPreviewImage
+	if (getFilter() != "")
+	{
+		std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
+		if (filter_path != "")
+		{
+			LLImageFilter filter(filter_path);
+			filter.executeFilter(scaled);
+		}
+		else
+		{
+			llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
+		}
+	}
+
 	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
 	LL_DEBUGS() << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;
 
