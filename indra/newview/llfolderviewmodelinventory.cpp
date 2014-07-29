@@ -129,15 +129,13 @@ void LLFolderViewModelItemInventory::requestSort()
 
 void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
 {
-	bool init_state = getLastFilterGeneration() < 0;
 	LLFolderViewModelItemCommon::setPassedFilter(passed, filter_generation, string_offset, string_size);
 	bool before = mPrevPassedAllFilters;
 	mPrevPassedAllFilters = passedFilter(filter_generation);
 
-	if (before != mPrevPassedAllFilters || (init_state && before && !mFolderViewItem->getVisible()))
+	if (before != mPrevPassedAllFilters)
 	{
 		// Need to rearrange the folder if the filtered state of the item changed
-		// or folder was hidden during update as filter-dirty (MAINT-4218)
 		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
 		if (parent_folder)
 		{
