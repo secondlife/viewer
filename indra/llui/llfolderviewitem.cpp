@@ -256,6 +256,24 @@ BOOL LLFolderViewItem::passedFilter(S32 filter_generation)
 	return getViewModelItem()->passedFilter(filter_generation);
 }
 
+BOOL LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
+{
+	// Item should be visible if:
+	// 1. item passed current filter
+	// 2. item was updated (gen < 0) but has descendants that passed filter
+	// 3. item was recently updated and was visible before update
+
+	LLFolderViewModelItem* model = getViewModelItem();
+	if (model->getLastFilterGeneration() < 0)
+	{
+		return model->descendantsPassedFilter(filter_generation) || getVisible();
+	}
+	else
+	{
+		return model->passedFilter(filter_generation);
+	}
+}
+
 void LLFolderViewItem::refresh()
 {
 	LLFolderViewModelItem& vmi = *getViewModelItem();
@@ -968,11 +986,10 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	getRoot()->getFolderViewModel()->sort(this);
 
 	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
-
+	
 	// evaluate mHasVisibleChildren
-	bool default_filter = getRoot()->getFolderViewModel()->getFilter().isDefault();
-	mHasVisibleChildren = default_filter && (mItems.size() || mFolders.size());
-	if (!default_filter && getViewModelItem()->descendantsPassedFilter())
+	mHasVisibleChildren = false;
+	if (getViewModelItem()->descendantsPassedFilter())
 	{
 		// We have to verify that there's at least one child that's not filtered out
 		bool found = false;
@@ -980,7 +997,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 		for (items_t::iterator iit = mItems.begin(); iit != mItems.end(); ++iit)
 		{
 			LLFolderViewItem* itemp = (*iit);
-			found = itemp->passedFilter();
+			found = itemp->isPotentiallyVisible();
 			if (found)
 				break;
 		}
@@ -990,7 +1007,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			for (folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
-				found = folderp->passedFilter();
+				found = folderp->isPotentiallyVisible();
 				if (found)
 					break;
 			}
@@ -1023,12 +1040,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			for(folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
-
-				// passedFilter() will show everything  that passed filter or has descendants that passed filter
-				// also it will hide all filter-pending folders (they will be shown later if needed).
-				// but since refreshed folders are 'pending', they can be rendered invisible by passedFilter()
-				// even if we are not using filter at the moment, default_filter is used to prevent it
-				folderp->setVisible(default_filter || folderp->passedFilter());
+				folderp->setVisible(folderp->isPotentiallyVisible());
 
 				if (folderp->getVisible())
 				{
@@ -1047,7 +1059,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 				iit != mItems.end(); ++iit)
 			{
 				LLFolderViewItem* itemp = (*iit);
-				itemp->setVisible(default_filter || itemp->passedFilter());
+				itemp->setVisible(itemp->isPotentiallyVisible());
 
 				if (itemp->getVisible())
 				{
