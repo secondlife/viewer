@@ -331,7 +331,7 @@
        height="24"
        layout="topleft"
        name="working_indicator"
-       left="95"
+       left="10"
        top_delta="0"
        visible="false"
        width="24" />
@@ -340,15 +340,15 @@
        font="SansSerifBold"
        height="14"
        layout="topleft"
-       left="10"
+       left_pad="3"
        length="1"
-       halign="right"
+       halign="left"
        name="working_lbl"
-       top_delta="4"
+       top_delta="5"
        translate="false"
        type="string"
        visible="false"
-       width="80">
+       width="162">
           Working
       </text>
       <text
