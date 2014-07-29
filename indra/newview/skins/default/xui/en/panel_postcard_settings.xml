@@ -40,7 +40,7 @@
     follows="left|top"
     height="20"
     increment="32"
-    label="Width x Height"
+    label="Width*Height"
     label_width="78"
     layout="topleft"
     left="10"
