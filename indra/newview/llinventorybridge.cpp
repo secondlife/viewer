@@ -2279,6 +2279,29 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 		}
+		U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
+		if (is_movable
+			&& move_is_into_current_outfit
+			&& descendent_items.size() > max_items_to_wear)
+		{
+			LLInventoryModel::cat_array_t cats;
+			LLInventoryModel::item_array_t items;
+			LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+			gInventory.collectDescendentsIf(cat_id,
+				cats,
+				items,
+				LLInventoryModel::EXCLUDE_TRASH,
+				not_worn);
+
+			if (items.size() > max_items_to_wear)
+			{
+				// Can't move 'large' folders into current outfit: MAINT-4086
+				is_movable = FALSE;
+				LLStringUtil::format_map_t args;
+				args["AMOUNT"] = llformat("%d", max_items_to_wear);
+				tooltip_msg = LLTrans::getString("TooltipTooManyWearables",args);
+			}
+		}
 		if (is_movable && move_is_into_trash)
 		{
 			for (S32 i=0; i < descendent_items.size(); ++i)
