@@ -415,11 +415,27 @@
    </text>
    <button
        follows="left|top"
+	   control_name="AdvanceSnapshot"
+	   invisibility_control="AdvanceSnapshot"
        height="420"
+	   is_toggle="true"
        layout="topleft"
 	   image_overlay="Arrow_Right"
-       name="preview_btn"
+       name="retract_btn"
        left="203"
 	   top="25"
+       width="8" />
+   <button
+       follows="left|top"
+	   control_name="AdvanceSnapshot"
+	   visibility_control="AdvanceSnapshot"
+       height="420"
+	   is_toggle="true"
+       layout="topleft"
+	   image_overlay="Arrow_Left"
+	   image_selected="PushButton_Off"
+       name="extend_btn"
+       left_delta="0"
+	   top_delta="0"
        width="8" />
 </floater>
