@@ -71,8 +71,7 @@
    name="send_to_facebook_btn"
    top_pad="5">
     <button.commit_callback
-     function="Floater.Toggle"
-     parameter="facebook"/>
+     function="Snapshot.SendToFacebook"/>
   </button>
   <button
    follows="left|top"
@@ -89,8 +88,7 @@
    name="send_to_twitter_btn"
    top_pad="5">
     <button.commit_callback
-     function="Floater.Toggle"
-     parameter="twitter"/>
+     function="Snapshot.SendToTwitter"/>
   </button>
   <button
    follows="left|top"
@@ -107,8 +105,7 @@
    name="send_to_flickr_btn"
    top_pad="5">
     <button.commit_callback
-     function="Floater.Toggle"
-     parameter="flickr"/>
+     function="Snapshot.SendToFlickr"/>
   </button>
   <button
    follows="left|top"
