@@ -82,10 +82,10 @@
 			  layout="topleft"
               height="24"
               width="24"
-              name="map_loading_indicator2"
+              name="map_loading_indicator"
               top_delta="116"
               left="126"
-              visible="true"/>
+              visible="false"/>
             <button
               follows="left|bottom"
 			  layout="topleft"
