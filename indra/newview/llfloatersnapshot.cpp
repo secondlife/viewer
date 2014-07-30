@@ -95,7 +95,6 @@ public:
 	static void onClickAutoSnap(LLUICtrl *ctrl, void* data);
 	static void onClickFilter(LLUICtrl *ctrl, void* data);
 	//static void onClickAdvanceSnap(LLUICtrl *ctrl, void* data);
-	static void onClickPreview(void* data) ;
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
 	static void applyKeepAspectCheck(LLFloaterSnapshot* view, BOOL checked);
@@ -688,20 +687,6 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 }
 
-void LLFloaterSnapshot::Impl::onClickPreview(void* data)
-{
-	BOOL visible = gSavedSettings.getBOOL("AdvanceSnapshot");
-	
-	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
-	if (view)
-	{
-		view->impl.setStatus(Impl::STATUS_READY);
-		gSavedSettings.setBOOL("AdvanceSnapshot", !visible);
-		updateControls(view) ;
-		updateLayout(view) ;
-	}
-}
-
 // Show/hide upload progress indicators.
 // static
 void LLFloaterSnapshot::Impl::setWorking(LLFloaterSnapshot* floater, bool working)
@@ -1055,8 +1040,6 @@ BOOL LLFloaterSnapshot::postBuild()
 	mRefreshLabel = getChild<LLUICtrl>("refresh_lbl");
 	mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
 	mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
-
-	childSetAction("preview_btn", Impl::onClickPreview, this);
 
 	childSetCommitCallback("ui_check", Impl::onClickUICheck, this);
 	getChild<LLUICtrl>("ui_check")->setValue(gSavedSettings.getBOOL("RenderUIInSnapshot"));
