@@ -787,6 +787,18 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
  		const LLUUID &parent_id = objectp->getParentUUID();
 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
   		
+    // Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
+    if (mParams.show_root_folder)
+    {
+        LLUUID root_id = getRootFolderID();
+        if (root_id == id)
+        {
+            // We insert an extra level that's seen by the UI but has no influence on the model
+            parent_folder = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
+            folder_view_item = NULL;
+        }
+    }
+
  	if (!folder_view_item && parent_folder)
   		{
   			if (objectp->getType() <= LLAssetType::AT_NONE ||

@@ -96,6 +96,7 @@ public:
 		Optional<StartFolder>               start_folder;
 		Optional<bool>						use_label_suffix;
 		Optional<bool>						show_empty_message;
+		Optional<bool>						show_root_folder;
 		Optional<LLScrollContainer::Params>	scroll;
 		Optional<bool>						accepts_drag_and_drop;
 		Optional<LLFolderView::Params>		folder_view;
@@ -110,7 +111,8 @@ public:
 			filter("filter"),
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
-			show_empty_message("show_empty_message", true),
+            show_empty_message("show_empty_message", true),
+            show_root_folder("show_root_folder", false),
 			scroll("scroll"),
 			accepts_drag_and_drop("accepts_drag_and_drop"),
 			folder_view("folder_view"),
