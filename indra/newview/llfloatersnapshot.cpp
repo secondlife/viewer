@@ -967,8 +967,6 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 			//if to upload a snapshot, process spinner input in a special way.
 			previewp->setMaxImageSize((S32) getWidthSpinner(view)->getMaxValue()) ;
 
-			updateSpinners(view, previewp, w, h, w != curw); // may change w and h
-
 			previewp->setSize(w,h);
 			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
