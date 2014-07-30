@@ -264,7 +264,7 @@ BOOL LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
 	// 3. item was recently updated and was visible before update
 
 	LLFolderViewModelItem* model = getViewModelItem();
-	if (model->getLastFilterGeneration() < 0)
+	if (model->getLastFilterGeneration() < 0 && !getFolderViewModel()->getFilter().isModified())
 	{
 		return model->descendantsPassedFilter(filter_generation) || getVisible();
 	}
