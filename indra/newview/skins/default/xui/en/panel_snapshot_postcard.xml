@@ -59,7 +59,7 @@
      height="23"
      is_toggle="true"
      label=""
-     image_overlay="Command_Preferences_Icon"
+     image_overlay="OptionsMenu_Off"
      layout="topleft"
      name="settings_btn"
      top_delta="0"
