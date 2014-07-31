@@ -60,6 +60,7 @@ public:
 
 		Optional<time_t>							creation_date;
 		Optional<bool>								allow_wear;
+		Optional<bool>								allow_drop;
 
 		Optional<LLUIColor>                         font_color;
 		Optional<LLUIColor>                         font_highlight_color;
@@ -118,6 +119,7 @@ protected:
 								mDragAndDropTarget,
 								mIsMouseOverTitle,
 								mAllowWear,
+                                mAllowDrop,
 								mSelectPending;
 	
 	LLUIColor                   mFontColor;

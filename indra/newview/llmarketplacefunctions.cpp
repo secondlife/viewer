@@ -124,7 +124,7 @@ void log_SLM_infos(const std::string& request, const std::string& url, const std
 
 // Merov: This is a temporary hack used by dev while secondlife-staging is down...
 // *TODO : Suppress that before shipping!
-static bool sBypassMerchant = false;
+static bool sBypassMerchant = true;
 
 class LLSLMGetMerchantResponder : public LLHTTPClient::Responder
 {

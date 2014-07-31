@@ -104,7 +104,8 @@ LLFolderViewItem::Params::Params()
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
 	creation_date(),
-	allow_wear("allow_wear", true),
+    allow_wear("allow_wear", true),
+    allow_drop("allow_drop", true),
 	font_color("font_color"),
 	font_highlight_color("font_highlight_color"),
     left_pad("left_pad", 0),
@@ -138,6 +139,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mViewModelItem(p.listener),
 	mIsMouseOverTitle(false),
 	mAllowWear(p.allow_wear),
+    mAllowDrop(p.allow_drop),
 	mFontColor(p.font_color),
 	mFontHighlightColor(p.font_highlight_color),
     mLeftPad(p.left_pad),
@@ -1782,9 +1784,16 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
 													   EAcceptance* accept,
 													   std::string& tooltip_msg)
 {
+    if (!mAllowDrop)
+    {
+		*accept = ACCEPT_NO;
+        tooltip_msg = LLTrans::getString("TooltipOutboxCannotDropOnRoot");
+        return TRUE;
+    }
+    
 	BOOL accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
-	
-	if (accepted) 
+
+	if (accepted)
 	{
 		mDragAndDropTarget = TRUE;
 		*accept = ACCEPT_YES_MULTI;

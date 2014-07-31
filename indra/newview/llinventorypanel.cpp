@@ -191,6 +191,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_empty_message = mShowEmptyMessage;
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
+    p.allow_drop = mParams.allow_drop_on_root;
     p.options_menu = "menu_inventory.xml";
 
     return LLUICtrlFactory::create<LLFolderView>(p);
@@ -744,7 +745,7 @@ void LLInventoryPanel::initializeViews()
 }
 
 
-LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
+LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop)
 {
 	LLFolderViewFolder::Params params(mParams.folder);
 
@@ -752,6 +753,7 @@ LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * br
 	params.root = mFolderRoot.get();
 	params.listener = bridge;
 	params.tool_tip = params.name;
+    params.allow_drop = allow_drop;
 
 	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
 	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
@@ -788,6 +790,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
   		
     // Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
+    bool allow_drop = true;
     if (mParams.show_root_folder)
     {
         LLUUID root_id = getRootFolderID();
@@ -796,6 +799,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
             // We insert an extra level that's seen by the UI but has no influence on the model
             parent_folder = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
             folder_view_item = NULL;
+            allow_drop = mParams.allow_drop_on_root;
         }
     }
 
@@ -822,7 +826,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   																				objectp->getUUID());
   				if (new_listener)
   				{
-				folder_view_item = createFolderViewFolder(new_listener);
+				folder_view_item = createFolderViewFolder(new_listener,allow_drop);
   				}
   			}
   			else
@@ -958,7 +962,7 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		// If folder view is empty the (x, y) point won't be in its rect
 		// so the handler must be called explicitly.
 		// but only if was not handled before. See EXT-6746.
-		if (!handled && !mFolderRoot.get()->hasVisibleChildren())
+		if (!handled && mParams.allow_drop_on_root && !mFolderRoot.get()->hasVisibleChildren())
 		{
 			handled = mFolderRoot.get()->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}

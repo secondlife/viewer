@@ -97,6 +97,7 @@ public:
 		Optional<bool>						use_label_suffix;
 		Optional<bool>						show_empty_message;
 		Optional<bool>						show_root_folder;
+		Optional<bool>						allow_drop_on_root;
 		Optional<LLScrollContainer::Params>	scroll;
 		Optional<bool>						accepts_drag_and_drop;
 		Optional<LLFolderView::Params>		folder_view;
@@ -113,6 +114,7 @@ public:
 			use_label_suffix("use_label_suffix", true),
             show_empty_message("show_empty_message", true),
             show_root_folder("show_root_folder", false),
+            allow_drop_on_root("allow_drop_on_root", true),
 			scroll("scroll"),
 			accepts_drag_and_drop("accepts_drag_and_drop"),
 			folder_view("folder_view"),
@@ -292,7 +294,7 @@ protected:
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	
     virtual LLFolderView * createFolderRoot(LLUUID root_id );
-	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
+	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop = true);
 	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
 private:
 	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
