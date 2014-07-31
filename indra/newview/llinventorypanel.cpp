@@ -590,9 +590,20 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		}
 	}
 
-	if ("Recent Items" == getName())
+	if (mask & (LLInventoryObserver::STRUCTURE | LLInventoryObserver::REMOVE))
 	{
-		getFilter().setModified();
+		// STRUCTURE and REMOVE model changes usually fail to update (clean)
+		// mMostFilteredDescendantGeneration of parent folder and dirtyFilter()
+		// is not sufficient for successful filter update, so we need to check
+		// all already passed element over again to remove obsolete elements.
+		// New items or moved items should be sufficiently covered by
+		// dirtyFilter().
+		LLInventoryFilter& filter = getFilter();
+		if (filter.getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE
+			|| filter.isNotDefault())
+		{
+			filter.setModified(LLFolderViewFilter::FILTER_MORE_RESTRICTIVE);
+		}
 	}
 }
 
