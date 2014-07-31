@@ -72,9 +72,9 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
-    mCommitCallbackRegistrar.add("Snapshot.SendToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
-    mCommitCallbackRegistrar.add("Snapshot.SendToTwitter",		boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
-    mCommitCallbackRegistrar.add("Snapshot.SendToFlickr",		boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
+	mCommitCallbackRegistrar.add("Snapshot.SendToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
+	mCommitCallbackRegistrar.add("Snapshot.SendToTwitter",		boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
+	mCommitCallbackRegistrar.add("Snapshot.SendToFlickr",		boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
 	LLGlobalEconomy::Singleton::getInstance()->addObserver(this);
 }
 
