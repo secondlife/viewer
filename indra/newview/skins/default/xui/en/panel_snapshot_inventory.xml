@@ -74,7 +74,7 @@
      follows="left|top"
      height="20"
      increment="32"
-     label="Width*Height"
+     label="Width x Height"
      label_width="80"
      layout="topleft"
      left="10"
