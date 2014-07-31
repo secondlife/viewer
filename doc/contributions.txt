@@ -1002,6 +1002,8 @@ NiranV Dean
     STORM-2049
     STORM-2050
     STORM-2051
+    BUG-372
+    BUG-1179
 Nounouch Hapmouche
 	VWR-238
 Ollie Kubrick
