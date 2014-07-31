@@ -232,9 +232,9 @@ void LLPanelSnapshotPostcard::onTabButtonPress(S32 btn_idx)
 		getChild<LLSideTrayPanelContainer>("postcard_panel_container");
 
 	container->selectTab(clicked_btn->getToggleState() ? btn_idx : !btn_idx);
-	//clicked_btn->setEnabled(FALSE);
+	clicked_btn->setEnabled(FALSE);
 	other_btn->toggleState();
-	//other_btn->setEnabled(TRUE);
+	other_btn->setEnabled(TRUE);
 
 	LL_DEBUGS() << "Button #" << btn_idx << " (" << clicked_btn->getName() << ") clicked" << LL_ENDL;
 }
