@@ -9,9 +9,9 @@
      height="23"
      label="Resolution"
      layout="topleft"
-     left="10"
+     left="5"
      name="postcard_size_combo"
-     right="-5"
+     right="-3"
      top_pad="5">
         <combo_box.item
          label="Current Window"
@@ -43,11 +43,11 @@
     label="Width x Height"
     label_width="80"
     layout="topleft"
-    left="10"
+    left="5"
     max_val="6016"
     min_val="32"
     name="postcard_snapshot_width"
-    top_pad="3"
+    top_pad="5"
     width="132" />
    <spinner
     allow_text_entry="false"
@@ -69,7 +69,7 @@
     follows="left|top"
     label="Constrain proportions"
     layout="topleft"
-    left="10"
+    left="5"
     name="postcard_keep_aspect_check" />
    <slider
    decimal_digits="0"
@@ -80,9 +80,9 @@
    label="Quality:"
    label_width="45"
    layout="topleft"
-   left="10"
+   left="5"
    max_val="100"
    name="image_quality_slider"
    top_pad="6"
-   width="195" />
+   width="190" />
 </panel>
