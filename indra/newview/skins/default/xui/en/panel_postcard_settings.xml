@@ -41,14 +41,14 @@
     height="20"
     increment="32"
     label="Width x Height"
-    label_width="80"
+    label_width="90"
     layout="topleft"
     left="5"
     max_val="6016"
     min_val="32"
     name="postcard_snapshot_width"
     top_pad="5"
-    width="132" />
+    width="144" />
    <spinner
     allow_text_entry="false"
     decimal_digits="0"
@@ -63,7 +63,7 @@
     min_val="32"
     name="postcard_snapshot_height"
     top_delta="0"
-    width="54" />
+    width="52" />
    <check_box
     top_pad="12"
     follows="left|top"

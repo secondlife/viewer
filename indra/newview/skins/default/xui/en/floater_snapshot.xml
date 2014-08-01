@@ -80,28 +80,59 @@
  	</string>
     <button
      follows="left|top"
-     height="18"
+     height="25"
      image_overlay="Refresh_Off"
+	 image_hover_unselected="Toolbar_Middle_Over"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
      image_overlay_alignment="left"
      imgoverlay_label_space="5"
 	 pad_bottom="0"
 	 halign="left"
-	 image_selected="transparent.j2c"
-	 image_unselected="transparent.j2c"
      layout="topleft"
-     left="5"
+     left="10"
 	 label="REFRESH"
      name="new_snapshot_btn"
      top_pad="26"
-     width="195" />
+     width="167" />
+	<button
+       follows="left|top"
+	   control_name="AdvanceSnapshot"
+	   invisibility_control="AdvanceSnapshot"
+       height="25"
+	   is_toggle="true"
+       layout="topleft"
+	   image_hover_unselected="Toolbar_Middle_Over"
+	   image_selected="Toolbar_Middle_Off"
+	   image_unselected="Toolbar_Middle_Off"
+	   image_overlay="Conv_toolbar_collapse"
+       name="retract_btn"
+       left_pad="1"
+	   top_delta="0"
+       width="31" />
+   <button
+       follows="left|top"
+	   control_name="AdvanceSnapshot"
+	   visibility_control="AdvanceSnapshot"
+       height="25"
+	   is_toggle="true"
+       layout="topleft"
+	   image_overlay="Conv_toolbar_expand"
+	   image_hover_unselected="Toolbar_Middle_Over"
+	   image_selected="Toolbar_Middle_Off"
+	   image_unselected="Toolbar_Middle_Off"
+       name="extend_btn"
+       left_delta="0"
+	   top_delta="0"
+       width="31" />
 	<panel
      height="154"
      layout="topleft"
 	 follows="top|left"
      left="0"
      name="advanced_options_panel"
-     top_pad="0"
-     width="200">
+     top_pad="-6"
+     width="210">
         <view_border 
          bevel_style="in"
          follows="left|top|right" 
@@ -219,7 +250,7 @@
      name="panel_container"
      default_panel_name="panel_snapshot_options"
      top_pad="10"
-     width="205">
+     width="215">
       <panel
        class="llpanelsnapshotoptions"
        filename="panel_snapshot_options.xml"
@@ -260,7 +291,7 @@
          left="10"
          layout="topleft"
          name="status_hr"
-         width="189"
+         width="199"
          top_pad="-16"/>
 	<panel
        background_visible="true"
@@ -273,7 +304,7 @@
        left="10"
        length="1"
        name="succeeded_panel"
-	   width="188"
+	   width="198"
        top_pad="1"
        type="string"
        visible="false">
@@ -305,7 +336,7 @@
        left="10"
        length="1"
        name="failed_panel"
-	   width="188"
+	   width="198"
        top_delta="0"
        type="string"
        visible="false">
@@ -413,29 +444,4 @@
     width="50">
        [SIZE] KB
    </text>
-   <button
-       follows="left|top"
-	   control_name="AdvanceSnapshot"
-	   invisibility_control="AdvanceSnapshot"
-       height="420"
-	   is_toggle="true"
-       layout="topleft"
-	   image_overlay="Arrow_Right"
-       name="retract_btn"
-       left="203"
-	   top="25"
-       width="8" />
-   <button
-       follows="left|top"
-	   control_name="AdvanceSnapshot"
-	   visibility_control="AdvanceSnapshot"
-       height="420"
-	   is_toggle="true"
-       layout="topleft"
-	   image_overlay="Arrow_Left"
-	   image_selected="PushButton_Off"
-       name="extend_btn"
-       left_delta="0"
-	   top_delta="0"
-       width="8" />
 </floater>

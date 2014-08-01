@@ -75,14 +75,14 @@
      height="20"
      increment="32"
      label="Width x Height"
-     label_width="80"
+     label_width="90"
      layout="topleft"
      left="10"
      max_val="6016"
      min_val="32"
      name="inventory_snapshot_width"
      top_pad="7"
-     width="134" />
+     width="144" />
     <spinner
      allow_text_entry="false"
      decimal_digits="0"
@@ -115,7 +115,7 @@
      length="1"
      name="hint_lbl"
      top_pad="6"
-     width="190"
+     width="200"
      type="string"
      word_wrap="true">
         Saving an image to your inventory costs L$[UPLOAD_COST]. To save your image as a texture select one of the square formats.
@@ -128,7 +128,7 @@
      name="cancel_btn"
      right="-5"
      top="337"
-     width="90">
+     width="97">
       <button.commit_callback
        function="Inventory.Cancel" />
     </button>
@@ -140,7 +140,7 @@
      left="10"
      name="save_btn"
      top_delta="0"
-     width="95">
+     width="97">
       <button.commit_callback
        function="Inventory.Save" />
     </button>

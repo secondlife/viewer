@@ -4,7 +4,7 @@
  height="240"
  layout="topleft"
  name="panel_snapshot_options"
- width="198">
+ width="208">
  <button
    follows="left|top"
    font="SansSerif"
