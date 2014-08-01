@@ -16,6 +16,4 @@
 	<text_editor name="msg_form">
 		Nachricht hier eingeben.
 	</text_editor>
-	<button label="Abbrechen" name="cancel_btn"/>
-	<button label="Senden" name="send_btn"/>
 </panel>

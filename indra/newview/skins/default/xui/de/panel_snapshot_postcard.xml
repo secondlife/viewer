@@ -16,4 +16,6 @@
 		<panel name="panel_postcard_message" label="Nachricht"/>
 		<panel name="panel_postcard_settings" label="Einstellungen"/>
 	</tab_container>
+	<button name="cancel_btn" label="Abbrechen"/>
+	<button name="send_btn" label="Absenden"/>
 </panel>
