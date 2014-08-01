@@ -294,7 +294,7 @@ protected:
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	
     virtual LLFolderView * createFolderRoot(LLUUID root_id );
-	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop = true);
+	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
 private:
 	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
