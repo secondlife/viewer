@@ -12,7 +12,7 @@
      left="12"
      mouse_opaque="true"
      name="title_icon"
-     top="5"
+     top="7"
      width="18" />
     <text
      follows="top|left|right"
@@ -32,7 +32,7 @@
      bevel_style="in"
      follows="left|top|right" 
      height="1"
-     left="10"
+     left="9"
      layout="topleft"
      name="hr"
      right="-5"
