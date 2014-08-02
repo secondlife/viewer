@@ -791,6 +791,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   		
     // Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
     bool allow_drop = true;
+    bool create_root = false;
     if (mParams.show_root_folder)
     {
         LLUUID root_id = getRootFolderID();
@@ -800,6 +801,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
             parent_folder = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
             folder_view_item = NULL;
             allow_drop = mParams.allow_drop_on_root;
+            create_root = true;
         }
     }
 
@@ -849,11 +851,16 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   			}
  
   	    if (folder_view_item)
-  			{
+        {
             llassert(parent_folder != NULL);
             folder_view_item->addToFolder(parent_folder);
 			addItemID(id, folder_view_item);
-		}
+            // In the case of the root folder been shown, open that folder by default once the widget is created
+            if (create_root)
+            {
+                folder_view_item->setOpen(TRUE);
+            }
+        }
 	}
 
 	// If this is a folder, add the children of the folder and recursively add any 
