@@ -2354,6 +2354,11 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 
 		BOOL is_movable = TRUE;
 
+        if (is_movable && (marketplacelistings_id == cat_id))
+        {
+            is_movable = FALSE;
+            tooltip_msg = LLTrans::getString("TooltipOutboxCannotMoveRoot");
+        }
         if (is_movable && move_is_from_marketplacelistings && LLMarketplaceData::instance().getActivationState(cat_id))
         {
             // If the incoming folder is listed and active (and is therefore either the listing or the version folder),
