@@ -410,6 +410,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mOtherParticipantIsAvatar(true),
 	mStartCallOnInitialize(false),
 	mStartedAsIMCall(voice),
+	mIsDNDsend(false),
 	mAvatarNameCacheConnection()
 {
 	// set P2P type by default
@@ -1353,7 +1354,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
 		//		(it can be also Group chat but it is checked above)
 		// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
-		// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
+		// to Recent People to prevent showing of an item with (?? ?)(?? ?), sans the spaces. See EXT-8246.
 		// Concrete participants will be added into this list once they sent message in chat.
 		if (IM_SESSION_INVITE == dialog) return;
 			
@@ -3313,6 +3314,38 @@ bool LLIMMgr::isVoiceCall(const LLUUID& session_id)
 	if (!im_session) return false;
 
 	return im_session->mStartedAsIMCall;
+}
+
+void LLIMMgr::updateDNDMessageStatus()
+{
+	if (LLIMModel::getInstance()->mId2SessionMap.empty()) return;
+
+	std::map<LLUUID, LLIMModel::LLIMSession*>::const_iterator it = LLIMModel::getInstance()->mId2SessionMap.begin();
+	for (; it != LLIMModel::getInstance()->mId2SessionMap.end(); ++it)
+	{
+		LLIMModel::LLIMSession* session = (*it).second;
+
+		if (session->isP2P())
+		{
+			setDNDMessageSent(session->mSessionID,false);
+		}
+	}
+}
+
+bool LLIMMgr::isDNDMessageSend(const LLUUID& session_id)
+{
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!im_session) return false;
+
+	return im_session->mIsDNDsend;
+}
+
+void LLIMMgr::setDNDMessageSent(const LLUUID& session_id, bool is_send)
+{
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (!im_session) return;
+
+	im_session->mIsDNDsend = is_send;
 }
 
 void LLIMMgr::addNotifiedNonFriendSessionID(const LLUUID& session_id)

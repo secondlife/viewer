@@ -67,6 +67,7 @@ class LLNameListCtrl
 :	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
+	typedef boost::signals2::signal<void(bool)> namelist_complete_signal_t;
 
 	typedef enum e_name_type
 	{
@@ -114,10 +115,14 @@ protected:
 	LLNameListCtrl(const Params&);
 	virtual ~LLNameListCtrl()
 	{
-		if (mAvatarNameCacheConnection.connected())
+		for (avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.begin(); it != mAvatarNameCacheConnections.end(); ++it)
 		{
-			mAvatarNameCacheConnection.disconnect();
+			if (it->second.connected())
+			{
+				it->second.disconnect();
+			}
 		}
+		mAvatarNameCacheConnections.clear();
 	}
 	friend class LLUICtrlFactory;
 public:
@@ -152,17 +157,28 @@ public:
 
 	/*virtual*/ void updateColumns(bool force_update);
 
-	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
+	/*virtual*/ void mouseOverHighlightNthItem( S32 index );
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, LLHandle<LLNameListItem> item);
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, std::string suffix, LLHandle<LLNameListItem> item);
 
 private:
 	S32    			mNameColumnIndex;
 	std::string		mNameColumn;
 	BOOL			mAllowCallingCardDrop;
 	bool			mShortNames;  // display name only, no SLID
-	boost::signals2::connection mAvatarNameCacheConnection;
+	typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+	avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
+
+	S32 mPendingLookupsRemaining;
+	namelist_complete_signal_t mNameListCompleteSignal;
+	
+public:
+	boost::signals2::connection setOnNameListCompleteCallback(boost::function<void(bool)> onNameListCompleteCallback) 
+	{ 
+		return mNameListCompleteSignal.connect(onNameListCompleteCallback); 
+	}
+
 };
 
 

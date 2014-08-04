@@ -30,7 +30,7 @@
 #ifndef XML_STATIC
 #define XML_STATIC
 #endif
-#ifdef LL_STANDALONE
+#ifdef LL_USESYSTEMLIBS
 #include <expat.h>
 #else
 #include "expat/expat.h"

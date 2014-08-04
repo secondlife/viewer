@@ -65,7 +65,7 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 	mNameColumn(p.name_column.column_name),
 	mAllowCallingCardDrop(p.allow_calling_card_drop),
 	mShortNames(p.short_names),
-	mAvatarNameCacheConnection()
+	mPendingLookupsRemaining(0)
 {}
 
 // public
@@ -328,13 +328,27 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 			else
 			{
 				// ...schedule a callback
-				// This is not correct and will likely lead to partially populated lists in cases where avatar names are not cached.
-				// *TODO : Change this to have 2 callbacks : one callback per list item and one for the whole list.
-				if (mAvatarNameCacheConnection.connected())
+				avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(id);
+				if (it != mAvatarNameCacheConnections.end())
 				{
-					mAvatarNameCacheConnection.disconnect();
+					if (it->second.connected())
+					{
+						it->second.disconnect();
+					}
+					mAvatarNameCacheConnections.erase(it);
 				}
-				mAvatarNameCacheConnection = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, item->getHandle()));
+				mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, item->getHandle()));
+
+				if(mPendingLookupsRemaining <= 0)
+				{
+					// BAKER TODO:
+					// We might get into a state where mPendingLookupsRemaining might
+					//	go negative.  So just reset it right now and figure out if it's
+					//	possible later :)
+					mPendingLookupsRemaining = 0;
+					mNameListCompleteSignal(false);
+				}
+				mPendingLookupsRemaining++;
 			}
 			break;
 		}
@@ -386,20 +400,37 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 	{
 		selectNthItem(idx); // not sure whether this is needed, taken from previous implementation
 		deleteSingleItem(idx);
+
+		mPendingLookupsRemaining--;
 	}
 }
 
 void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
+									   std::string suffix,
 									   LLHandle<LLNameListItem> item)
 {
-	mAvatarNameCacheConnection.disconnect();
+	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(agent_id);
+	if (it != mAvatarNameCacheConnections.end())
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+		mAvatarNameCacheConnections.erase(it);
+	}
 
 	std::string name;
 	if (mShortNames)
 		name = av_name.getDisplayName();
 	else
 		name = av_name.getCompleteName();
+
+	// Append optional suffix.
+	if (!suffix.empty())
+	{
+		name.append(suffix);
+	}
 
 	LLNameListItem* list_item = item.get();
 	if (list_item && list_item->getUUID() == agent_id)
@@ -412,6 +443,23 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 		}
 	}
 	
+	//////////////////////////////////////////////////////////////////////////
+	// BAKER - FIX NameListCtrl
+ 	//if (mPendingLookupsRemaining <= 0)
+ 	{
+ 		// We might get into a state where mPendingLookupsRemaining might
+ 		//	go negative.  So just reset it right now and figure out if it's
+ 		//	possible later :)
+ 		//mPendingLookupsRemaining = 0;
+		
+ 		mNameListCompleteSignal(true);
+ 	}
+ 	//else
+ 	{
+ 	//	mPendingLookupsRemaining--;
+ 	}
+	//////////////////////////////////////////////////////////////////////////
+
 	dirtyColumns();
 }
 

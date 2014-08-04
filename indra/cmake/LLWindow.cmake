@@ -4,7 +4,7 @@ include(Variables)
 include(GLEXT)
 include(Prebuilt)
 
-if (STANDALONE)
+if (USESYSTEMLIBS)
   include(FindSDL)
 
   # This should be done by FindSDL.  Sigh.
@@ -13,14 +13,14 @@ if (STANDALONE)
       SDL_INCLUDE_DIR
       SDL_LIBRARY
       )
-else (STANDALONE)
+else (USESYSTEMLIBS)
   if (LINUX)
     use_prebuilt_binary(SDL)
     set (SDL_FOUND TRUE)
     set (SDL_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/i686-linux)
     set (SDL_LIBRARY SDL directfb fusion direct)
   endif (LINUX)
-endif (STANDALONE)
+endif (USESYSTEMLIBS)
 
 if (SDL_FOUND)
   include_directories(${SDL_INCLUDE_DIR})

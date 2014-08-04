@@ -1341,15 +1341,15 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear,
 		LLNotificationsUtil::add("CannotWearTrash");
 		return false;
 	}
-	else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), LLAppearanceMgr::instance().getCOF())) // EXT-84911
+	else if (isLinkedInCOF(item_to_wear->getUUID())) // EXT-84911
 	{
 		return false;
 	}
 
 	switch (item_to_wear->getType())
 	{
-	case LLAssetType::AT_CLOTHING:
-	if (gAgentWearables.areWearablesLoaded())
+		case LLAssetType::AT_CLOTHING:
+		if (gAgentWearables.areWearablesLoaded())
 		{
 			if (!cb && do_update)
 			{
@@ -1367,7 +1367,8 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear,
 			addCOFItemLink(item_to_wear, cb);
 		} 
 		break;
-	case LLAssetType::AT_BODYPART:
+
+		case LLAssetType::AT_BODYPART:
 		// TODO: investigate wearables may not be loaded at this point EXT-8231
 		
 		// Remove the existing wearables of the same type.
@@ -1379,10 +1380,12 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear,
 		}
 		addCOFItemLink(item_to_wear, cb);
 		break;
-	case LLAssetType::AT_OBJECT:
+
+		case LLAssetType::AT_OBJECT:
 		rez_attachment(item_to_wear, NULL, replace);
 		break;
-	default: return false;;
+
+		default: return false;;
 	}
 
 	return true;
@@ -1480,6 +1483,18 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 		uuids_to_remove.push_back(item->getUUID());
 	}
 	removeItemsFromAvatar(uuids_to_remove);
+
+	// deactivate all gestures in the outfit folder
+	LLInventoryModel::item_array_t gest_items;
+	getDescendentsOfAssetType(cat_id, gest_items, LLAssetType::AT_GESTURE);
+	for(S32 i = 0; i  < gest_items.size(); ++i)
+	{
+		LLViewerInventoryItem *gest_item = gest_items[i];
+		if ( LLGestureMgr::instance().isGestureActive( gest_item->getLinkedUUID()) )
+		{
+			LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
+		}
+	}
 }
 
 // Create a copy of src_id + contents as a subfolder of dst_id.

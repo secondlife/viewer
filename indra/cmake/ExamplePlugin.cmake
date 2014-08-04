@@ -2,13 +2,13 @@
 include(Linking)
 include(Prebuilt)
 
-if (STANDALONE)
+if (USESYSTEMLIBS)
     set(EXAMPLEPLUGIN OFF CACHE BOOL
         "EXAMPLEPLUGIN support for the llplugin/llmedia test apps.")
-else (STANDALONE)
+else (USESYSTEMLIBS)
     set(EXAMPLEPLUGIN ON CACHE BOOL
         "EXAMPLEPLUGIN support for the llplugin/llmedia test apps.")
-endif (STANDALONE)
+endif (USESYSTEMLIBS)
 
 if (WINDOWS)
 elseif (DARWIN)

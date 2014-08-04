@@ -1,14 +1,14 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if (STANDALONE)
+if (USESYSTEMLIBS)
   include(FindPkgConfig)
 
   pkg_check_modules(GSTREAMER010 REQUIRED gstreamer-0.10)
   pkg_check_modules(GSTREAMER010_PLUGINS_BASE REQUIRED gstreamer-plugins-base-0.10)
 elseif (LINUX)
   use_prebuilt_binary(gstreamer)
-  # possible libxml should have its own .cmake file instead
+  # possible libxml2 should have its own .cmake file instead
   use_prebuilt_binary(libxml2)
   set(GSTREAMER010_FOUND ON FORCE BOOL)
   set(GSTREAMER010_PLUGINS_BASE_FOUND ON FORCE BOOL)
@@ -26,7 +26,7 @@ elseif (LINUX)
       gthread-2.0
       glib-2.0
       )
-endif (STANDALONE)
+endif (USESYSTEMLIBS)
 
 if (GSTREAMER010_FOUND AND GSTREAMER010_PLUGINS_BASE_FOUND)
   set(GSTREAMER010 ON CACHE BOOL "Build with GStreamer-0.10 streaming media support.")

@@ -5,9 +5,9 @@ set(ZLIB_FIND_REQUIRED ON)
 
 include(Prebuilt)
 
-if (STANDALONE)
+if (USESYSTEMLIBS)
   include(FindZLIB)
-else (STANDALONE)
+else (USESYSTEMLIBS)
   use_prebuilt_binary(zlib)
   if (WINDOWS)
     set(ZLIB_LIBRARIES 
@@ -32,4 +32,4 @@ else (STANDALONE)
     set(ZLIB_LIBRARIES z)
   endif (WINDOWS)
   set(ZLIB_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/zlib)
-endif (STANDALONE)
+endif (USESYSTEMLIBS)

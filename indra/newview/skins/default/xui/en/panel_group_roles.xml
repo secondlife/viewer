@@ -118,6 +118,13 @@ clicking on their names.
              left_pad="10"
              name="member_eject"
              width="100" />
+      <button
+       height="23"
+       label="Ban Member(s)"
+       follows="top|left"
+       left_pad="10"
+       name="member_ban"
+       width="100" />
         </panel>
         <panel
          border="false"
@@ -138,291 +145,372 @@ clicking on their names.
              right="-5"
              name="show_all_button"
              width="100" />-->
-            <panel.string
-             name="help_text">
-                Roles have a title and an allowed list of Abilities
-that Members can perform. Members can belong to
-one or more Roles. A group can have up to 10 Roles,
-including the Everyone and Owner Roles.
-            </panel.string>
-            <panel.string
-             name="cant_delete_role">
-                The &apos;Everyone&apos; and &apos;Owners&apos; Roles are special and can't be deleted.
-            </panel.string>
-            <panel.string
-             name="power_folder_icon" translate="false">
-                Inv_FolderClosed
-            </panel.string>
-            <panel.string
-             name="power_all_have_icon" translate="false">
-                Checkbox_On
-            </panel.string>
-            <panel.string
-             name="power_partial_icon" translate="false">
-                Checkbox_Off
-            </panel.string>
-         <filter_editor
-         layout="topleft"
-         top="5"
-         left="5"
-         right="-5"
-         height="22"
-         search_button_visible="false"
-         follows="left|top|right"
-         label="Filter Roles"
-         name="filter_input" />
-            <scroll_list
-             column_padding="0"
-             draw_heading="true"
-             draw_stripes="false"
-             heading_height="23"
-             height="132"
-             layout="topleft"
-             search_column="1"
-             left="0"
-             follows="left|top|right"
-             right="-1"
-             name="role_list"
-             top_pad="2"
-             width="310">
-                <scroll_list.columns
-                 label="Role"
-                 name="name"
-               relative_width="0.45"  />
-                <scroll_list.columns
-                 label="Title"
-                 name="title"
-               relative_width="0.45"  />
-                <scroll_list.columns
-                 label="#"
-                 name="members"
-               relative_width="0.15"  />
-            </scroll_list>
-            <button
-            follows="top|left"
-             height="23"
-             label="New Role"
-             layout="topleft"
-             left="0"
-             name="role_create"
-             width="120" />
-            <button
-             height="23"
-             follows="top|left"
-             label="Delete Role"
-             layout="topleft"
-             left_pad="10"
-             name="role_delete"
-             width="120" />
-        </panel>
-        <panel
-         border="false"
-         height="303"
-         label="ABILITIES"
-         layout="topleft"
-         left="0"
-         right="-1"
-         help_topic="roles_actions_tab"
-         name="actions_sub_tab"
-         class="panel_group_actions_subtab"
-         tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability."
-         width="310">
-            <panel.string
-             name="help_text">
-                Abilities allow Members in Roles to do specific
-things in this group. There&apos;s a broad variety of Abilities.
-            </panel.string>
-            <panel.string
-             name="power_folder_icon" translate="false">
-                Inv_FolderClosed
-            </panel.string>
-            <panel.string
-             name="power_all_have_icon" translate="false">
-                Checkbox_On
-            </panel.string>
-            <panel.string
-             name="power_partial_icon" translate="false">
-                Checkbox_Off
-            </panel.string>
-         <filter_editor
-         layout="topleft"
-         top="5"
-         left="5"
-         right="-5"
-         height="22"
-         search_button_visible="false"
-         follows="left|top|right"
-         label="Filter Abilities"
-         name="filter_input" />
-        <scroll_list
-         column_padding="0"
-         draw_stripes="true"
-         height="200"
-         follows="left|top|right"
-         layout="topleft"
-         left="0"
-         right="-1"
-         name="action_list"
-         search_column="2"
-         tool_tip="Select an Ability to view more details"
-         top_pad="5"
-         width="300">
-            <scroll_list.columns
-             label=""
-             name="icon"
-             width="2" />
-            <scroll_list.columns
-             label=""
-             name="checkbox"
-             width="20" />
-            <scroll_list.columns
-             label=""
-             name="action"
-             width="270" />
-        </scroll_list>
-        </panel>
-    </tab_container>
-    <panel
-     height="350"
-     background_visible="false"
-     bg_alpha_color="FloaterUnfocusBorderColor"
-     layout="topleft"
-     follows="top|left|right"
-     left="0"
-     right="-1"
-     width="313"
-     mouse_opaque="false"
-     name="members_footer"
-     top="325"
-     visible="false">
-        <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         top="8"
-         text_color="EmphasisColor"
-         name="static"
-         width="300">
-            Assigned Roles
-        </text>
-        <scroll_list
-         draw_stripes="true"
-        follows="left|top|right"
-         height="150"
-         layout="topleft"
-         left="0"
-         right="-1"
-         name="member_assigned_roles"
-         top_pad="0">
-            <scroll_list.columns
-             label=""
-             name="checkbox"
-             width="20" />
-            <scroll_list.columns
-             label=""
-             name="role"
-             width="270" />
-        </scroll_list>
-          <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         top_pad="5"
-         text_color="EmphasisColor"
-         name="static2"
-         width="285">
-            Allowed Abilities
-        </text>
-        <scroll_list
-         draw_stripes="true"
-             follows="left|top|right"
-         height="150"
-         layout="topleft"
-         left="0"
-         right="-1"
-         name="member_allowed_actions"
-         search_column="2"
-         tool_tip="For details of each allowed ability see the abilities tab"
-         top_pad="0">
-            <scroll_list.columns
-             label=""
-             name="icon"
-             width="2" />
-            <scroll_list.columns
-             label=""
-             name="checkbox"
-             width="20" />
-            <scroll_list.columns
-             label=""
-             name="action"
-             width="270" />
-        </scroll_list>
+      <panel.string
+       name="help_text">
+        Roles have a title and an allowed list of Abilities
+        that Members can perform. Members can belong to
+        one or more Roles. A group can have up to 10 Roles,
+        including the Everyone and Owner Roles.
+      </panel.string>
+      <panel.string
+       name="cant_delete_role">
+        The &apos;Everyone&apos; and &apos;Owners&apos; Roles are special and can't be deleted.
+      </panel.string>
+      <panel.string
+       name="power_folder_icon" translate="false">
+        Inv_FolderClosed
+      </panel.string>
+      <panel.string
+       name="power_all_have_icon" translate="false">
+        Checkbox_On
+      </panel.string>
+      <panel.string
+       name="power_partial_icon" translate="false">
+        Checkbox_Off
+      </panel.string>
+      <filter_editor
+      layout="topleft"
+      top="5"
+      left="5"
+      right="-5"
+      height="22"
+      search_button_visible="false"
+      follows="left|top|right"
+      label="Filter Roles"
+      name="filter_input" />
+      <scroll_list
+       column_padding="0"
+       draw_heading="true"
+       draw_stripes="false"
+       heading_height="23"
+       height="132"
+       layout="topleft"
+       search_column="1"
+       left="0"
+       follows="left|top|right"
+       right="-1"
+       name="role_list"
+       top_pad="2"
+       width="310">
+        <scroll_list.columns
+         label="Role"
+         name="name"
+       relative_width="0.45"  />
+        <scroll_list.columns
+         label="Title"
+         name="title"
+       relative_width="0.45"  />
+        <scroll_list.columns
+         label="#"
+         name="members"
+       relative_width="0.15"  />
+      </scroll_list>
+      <button
+      follows="top|left"
+       height="23"
+       label="New Role"
+       layout="topleft"
+       left="0"
+       name="role_create"
+       width="120" />
+      <button
+       height="23"
+       follows="top|left"
+       label="Delete Role"
+       layout="topleft"
+       left_pad="10"
+       name="role_delete"
+       width="120" />
     </panel>
     <panel
-     height="550"
-     background_visible="false"
-     bg_alpha_color="FloaterUnfocusBorderColor"
+     border="false"
+     height="303"
+     label="ABILITIES"
      layout="topleft"
-     follows="top|left|right"
      left="0"
      right="-1"
-     width="313"
-     mouse_opaque="false"
-     name="roles_footer"
-     top_delta="0"
-     top="209"
-     visible="false">
-        <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         top="5"
-         name="static"
-         width="300">
-           Role Name
-        </text>
-        <line_editor
-         type="string"
-         height="20"
-         layout="topleft"
-         left="0"
+     help_topic="roles_actions_tab"
+     name="actions_sub_tab"
+     class="panel_group_actions_subtab"
+     tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability."
+     width="310">
+      <panel.string
+       name="help_text">
+        Abilities allow Members in Roles to do specific
+        things in this group. There&apos;s a broad variety of Abilities.
+      </panel.string>
+      <panel.string
+       name="power_folder_icon" translate="false">
+        Inv_FolderClosed
+      </panel.string>
+      <panel.string
+       name="power_all_have_icon" translate="false">
+        Checkbox_On
+      </panel.string>
+      <panel.string
+       name="power_partial_icon" translate="false">
+        Checkbox_Off
+      </panel.string>
+      <filter_editor
+      layout="topleft"
+      top="5"
+      left="5"
+      right="-5"
+      height="22"
+      search_button_visible="false"
+      follows="left|top|right"
+      label="Filter Abilities"
+      name="filter_input" />
+      <scroll_list
+       column_padding="0"
+       draw_stripes="true"
+       height="200"
+       follows="left|top|right"
+       layout="topleft"
+       left="0"
+       right="-1"
+       name="action_list"
+       search_column="2"
+       tool_tip="Select an Ability to view more details"
+       top_pad="5"
+       width="300">
+        <scroll_list.columns
+         label=""
+         name="icon"
+         width="2" />
+        <scroll_list.columns
+         label=""
+         name="checkbox"
+         width="20" />
+        <scroll_list.columns
+         label=""
+         name="action"
+         width="270" />
+      </scroll_list>
+    </panel>
+    <panel
+     border="false"
+     height="303"
+     label="BANNED RESIDENTS"
+     layout="topleft"
+     left="0"
+     right="-1"
+     help_topic="roles_banlist_tab"
+     name="banlist_sub_tab"
+     class="panel_group_banlist_subtab"
+     tool_tip="View the banned residents from this group."
+     width="310">
+      <panel.string
+       name="help_text">
+        Any resident on the ban list will be unable to join the group.
+      </panel.string>
+      <panel.string
+       name="ban_count_template">
+        Ban count: [COUNT]/[LIMIT]
+      </panel.string>
+      <name_list
+           column_padding="0"
+           draw_heading="true"
+           height="400"
+           follows="left|top|right"
+           layout="topleft"
+           left="0"
+           right="-1"
+           multi_select="true"
+           name="ban_list"
+           short_names="false"
+           top_pad="5">
+        <name_list.columns
+         label="Resident"
+         name="name"
+         font.name="SANSSERIF_SMALL"
+         font.style="NORMAL"
+         relative_width="0.7" />
+        <name_list.columns
+         label="Date Banned"
+         name="ban_date"
+         relative_width="0.3" />
+      </name_list>
+      <button
+        follows="top|left"
+        height="23"
+        label="Ban Resident(s)"
+        layout="topleft"
+        left="3"
+        name="ban_create"
+        tool_tip="Ban residents from your group"
+        width="120" />
+      <button
+        follows="top|left"
+        height="23"
+        label="Remove Ban(s)"
+        layout="topleft"
+        left_pad="5"
+        name="ban_delete"
+        tool_tip="Unban selected residents from your group"
+        width="120" />
+      <button
+        follows="top|left"
+        height="23"
+        width="23"
+        image_overlay="Refresh_Off"
+        layout="topleft"
+        left_pad="5"
+        name="ban_refresh"
+        tool_tip="Refresh the ban list"
+        />
+      <text
+        type="string"
+        height="18"
+        left_pad="5"
+        follows="top|left"
+        layout="topleft"
+        name="ban_count"
+        width="100">
+      </text>
+    </panel>
+  </tab_container>
+  <panel
+   height="350"
+   background_visible="false"
+   bg_alpha_color="FloaterUnfocusBorderColor"
+   layout="topleft"
+   follows="top|left|right"
+   left="0"
+   right="-1"
+   width="313"
+   mouse_opaque="false"
+   name="members_footer"
+   top="325"
+   visible="false">
+    <text
+     type="string"
+     height="16"
+     layout="topleft"
+     follows="left|top"
+     left="5"
+     top="8"
+     text_color="EmphasisColor"
+     name="static"
+     width="300">
+      Assigned Roles
+    </text>
+    <scroll_list
+     draw_stripes="true"
+    follows="left|top|right"
+     height="150"
+     layout="topleft"
+     left="0"
+     right="-1"
+     name="member_assigned_roles"
+     top_pad="0">
+      <scroll_list.columns
+       label=""
+       name="checkbox"
+       width="20" />
+      <scroll_list.columns
+       label=""
+       name="role"
+       width="270" />
+    </scroll_list>
+    <text
+   type="string"
+   height="16"
+   layout="topleft"
+   follows="left|top"
+   left="5"
+   top_pad="5"
+   text_color="EmphasisColor"
+   name="static2"
+   width="285">
+      Allowed Abilities
+    </text>
+    <scroll_list
+     draw_stripes="true"
          follows="left|top|right"
-         right="-1"
-         max_length_bytes="20"
-         name="role_name"
-         top_pad="0"
-         width="300">
-        </line_editor>
-        <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         name="static3"
-         top_pad="5"
-         width="300">
-           Role Title
-        </text>
-        <line_editor
-         type="string"
-         height="20"
-         layout="topleft"
-         left="0"
-         follows="left|top|right"
-         right="-1"
-         max_length_bytes="20"
-         name="role_title"
-         top_pad="0"
-         width="300">
-        </line_editor>
-               <text
+     height="150"
+     layout="topleft"
+     left="0"
+     right="-1"
+     name="member_allowed_actions"
+     search_column="2"
+     tool_tip="For details of each allowed ability see the abilities tab"
+     top_pad="0">
+      <scroll_list.columns
+       label=""
+       name="icon"
+       width="2" />
+      <scroll_list.columns
+       label=""
+       name="checkbox"
+       width="20" />
+      <scroll_list.columns
+       label=""
+       name="action"
+       width="270" />
+    </scroll_list>
+  </panel>
+  <panel
+   height="550"
+   background_visible="false"
+   bg_alpha_color="FloaterUnfocusBorderColor"
+   layout="topleft"
+   follows="top|left|right"
+   left="0"
+   right="-1"
+   width="313"
+   mouse_opaque="false"
+   name="roles_footer"
+   top_delta="0"
+   top="209"
+   visible="false">
+    <text
+     type="string"
+     height="16"
+     layout="topleft"
+     follows="left|top"
+     left="5"
+     top="5"
+     name="static"
+     width="300">
+      Role Name
+    </text>
+    <line_editor
+     type="string"
+     height="20"
+     layout="topleft"
+     left="0"
+     follows="left|top|right"
+     right="-1"
+     max_length_bytes="20"
+     name="role_name"
+     top_pad="0"
+     width="300">
+    </line_editor>
+    <text
+     type="string"
+     height="16"
+     layout="topleft"
+     follows="left|top"
+     left="5"
+     name="static3"
+     top_pad="5"
+     width="300">
+      Role Title
+    </text>
+    <line_editor
+     type="string"
+     height="20"
+     layout="topleft"
+     left="0"
+     follows="left|top|right"
+     right="-1"
+     max_length_bytes="20"
+     name="role_title"
+     top_pad="0"
+     width="300">
+    </line_editor>
+    <text
          type="string"
          height="16"
          layout="topleft"
@@ -431,161 +519,161 @@ things in this group. There&apos;s a broad variety of Abilities.
          name="static2"
          top_pad="5"
          width="200">
-            Description
-        </text>
-        <text_editor
-         type="string"
-         layout="topleft"
-         left="0"
-         follows="left|top|right"
-         right="-1"
-         max_length="295"
-         height="35"
-         name="role_description"
-         top_pad="0"
-         width="300"
-         word_wrap="true">
-        </text_editor>
-        <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         text_color="EmphasisColor"
-         name="static4"
-         top_pad="5"
-         width="300">
-            Assigned Members
-        </text>
-        <name_list
-         draw_stripes="true"
-         height="128"
-         layout="topleft"
-         left="0"
-         follows="left|top|right"
-         right="-1"
-         name="role_assigned_members"
-         top_pad="0"
-         width="300" />
-        <check_box
-         height="15"
-         label="Reveal members"
-         left="5"
-         layout="topleft"
-         name="role_visible_in_list"
-         tool_tip="Sets whether members of this role are visible in the General tab to people outside of the group."
-         top_pad="4"
-         width="300" />
-         <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         text_color="EmphasisColor"
-         name="static5"
-         top_pad="2"
-         width="300">
-            Allowed Abilities
-        </text>
-        <scroll_list
-         draw_stripes="true"
-         height="140"
-         layout="topleft"
-         left="0"
-         follows="left|top|right"
-         right="-1"
-         name="role_allowed_actions"
-         search_column="2"
-         tool_tip="For details of each allowed ability see the abilities tab"
-         top_pad="0"
-         width="300">
-            <scroll_list.columns
-             label=""
-             name="icon"
-             width="2" />
-            <scroll_list.columns
-             label=""
-             name="checkbox"
-             width="20" />
-            <scroll_list.columns
-             label=""
-             name="action"
-             width="270" />
-        </scroll_list>
-    </panel>
-   <panel
-     height="424"
-     background_visible="false"
-     bg_alpha_color="FloaterUnfocusBorderColor"
+      Description
+    </text>
+    <text_editor
+     type="string"
      layout="topleft"
-     follows="top|left|right"
+     left="0"
+     follows="left|top|right"
+     right="-1"
+     max_length="295"
+     height="35"
+     name="role_description"
+     top_pad="0"
+     width="300"
+     word_wrap="true">
+    </text_editor>
+    <text
+     type="string"
+     height="16"
+     layout="topleft"
+     follows="left|top"
+     left="5"
+     text_color="EmphasisColor"
+     name="static4"
+     top_pad="5"
+     width="300">
+      Assigned Members
+    </text>
+    <name_list
+     draw_stripes="true"
+     height="128"
+     layout="topleft"
+     left="0"
+     follows="left|top|right"
+     right="-1"
+     name="role_assigned_members"
+     top_pad="0"
+     width="300" />
+    <check_box
+     height="15"
+     label="Reveal members"
+     left="5"
+     layout="topleft"
+     name="role_visible_in_list"
+     tool_tip="Sets whether members of this role are visible in the General tab to people outside of the group."
+     top_pad="4"
+     width="300" />
+    <text
+    type="string"
+    height="16"
+    layout="topleft"
+    follows="left|top"
+    left="5"
+    text_color="EmphasisColor"
+    name="static5"
+    top_pad="2"
+    width="300">
+      Allowed Abilities
+    </text>
+    <scroll_list
+     draw_stripes="true"
+     height="140"
+     layout="topleft"
+     left="0"
+     follows="left|top|right"
+     right="-1"
+     name="role_allowed_actions"
+     search_column="2"
+     tool_tip="For details of each allowed ability see the abilities tab"
+     top_pad="0"
+     width="300">
+      <scroll_list.columns
+       label=""
+       name="icon"
+       width="2" />
+      <scroll_list.columns
+       label=""
+       name="checkbox"
+       width="20" />
+      <scroll_list.columns
+       label=""
+       name="action"
+       width="270" />
+    </scroll_list>
+  </panel>
+  <panel
+    height="424"
+    background_visible="false"
+    bg_alpha_color="FloaterUnfocusBorderColor"
+    layout="topleft"
+    follows="top|left|right"
+    left="0"
+    right="-1"
+    width="313"
+    mouse_opaque="false"
+    name="actions_footer"
+    top_delta="0"
+    top="255"
+    visible="false">
+    <text_editor
+   bg_readonly_color="Transparent"
+   text_readonly_color="EmphasisColor"
+   font="SansSerifSmall"
+     type="string"
+     enabled="false"
+     halign="left"
+     layout="topleft"
+     follows="left|top|right"
      left="0"
      right="-1"
-     width="313"
-     mouse_opaque="false"
-     name="actions_footer"
-     top_delta="0"
-     top="255"
-     visible="false">
-        <text_editor
-       bg_readonly_color="Transparent"
-       text_readonly_color="EmphasisColor"
-       font="SansSerifSmall"
-         type="string"
-         enabled="false"
-         halign="left"
-         layout="topleft"
-         follows="left|top|right"
-         left="0"
-         right="-1"
-         height="90"
-         max_length="512"
-         name="action_description"
-         top="0"
-         word_wrap="true">
-            This Ability is &apos;Eject Members from this Group&apos;. Only an Owner can eject another Owner.
-        </text_editor>
-        <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         name="static2"
-         top_pad="1"
-         width="300">
-            Roles with this ability
-        </text>
-        <scroll_list
-         height="172"
-         layout="topleft"
-         follows="left|top|right"
-         left="5"
-         right="-1"
-         name="action_roles"
-         top_pad="0"
-         width="300" />
-        <text
-         type="string"
-         height="16"
-         layout="topleft"
-         follows="left|top"
-         left="5"
-         name="static3"
-         top_pad="5"
-         width="300">
-            Members with this ability
-        </text>
-        <name_list
-         height="122"
-         follows="left|top|right"
-         layout="topleft"
-         left="5"
-         right="-1"
-         name="action_members"
-         top_pad="0"
-         width="300" />
-    </panel>
+     height="90"
+     max_length="512"
+     name="action_description"
+     top="0"
+     word_wrap="true">
+      This Ability is &apos;Eject Members from this Group&apos;. Only an Owner can eject another Owner.
+    </text_editor>
+    <text
+     type="string"
+     height="16"
+     layout="topleft"
+     follows="left|top"
+     left="5"
+     name="static2"
+     top_pad="1"
+     width="300">
+      Roles with this ability
+    </text>
+    <scroll_list
+     height="172"
+     layout="topleft"
+     follows="left|top|right"
+     left="5"
+     right="-1"
+     name="action_roles"
+     top_pad="0"
+     width="300" />
+    <text
+     type="string"
+     height="16"
+     layout="topleft"
+     follows="left|top"
+     left="5"
+     name="static3"
+     top_pad="5"
+     width="300">
+      Members with this ability
+    </text>
+    <name_list
+     height="122"
+     follows="left|top|right"
+     layout="topleft"
+     left="5"
+     right="-1"
+     name="action_members"
+     top_pad="0"
+     width="300" />
+  </panel>
 </panel>

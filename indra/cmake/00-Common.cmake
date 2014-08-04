@@ -174,12 +174,12 @@ if (LINUX)
   endif (WORD_SIZE EQUAL 32)
   add_definitions(-mfpmath=sse)
   #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
-  if (NOT STANDALONE)
+  if (NOT USESYSTEMLIBS)
     # this stops us requiring a really recent glibc at runtime
     add_definitions(-fno-stack-protector)
     # linking can be very memory-hungry, especially the final viewer link
     set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
-  endif (NOT STANDALONE)
+  endif (NOT USESYSTEMLIBS)
 
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")
@@ -226,14 +226,14 @@ if (LINUX OR DARWIN)
 endif (LINUX OR DARWIN)
 
 
-if (STANDALONE)
-  add_definitions(-DLL_STANDALONE=1)
+if (USESYSTEMLIBS)
+  add_definitions(-DLL_USESYSTEMLIBS=1)
 
   if (LINUX AND ${ARCH} STREQUAL "i686")
     add_definitions(-march=pentiumpro)
   endif (LINUX AND ${ARCH} STREQUAL "i686")
 
-else (STANDALONE)
+else (USESYSTEMLIBS)
   set(${ARCH}_linux_INCLUDES
       ELFIO
       atk-1.0
@@ -242,6 +242,6 @@ else (STANDALONE)
       gtk-2.0
       pango-1.0
       )
-endif (STANDALONE)
+endif (USESYSTEMLIBS)
 
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
