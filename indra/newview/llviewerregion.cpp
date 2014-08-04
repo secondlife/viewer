@@ -2708,6 +2708,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("GetObjectCost");
 	capabilityNames.append("GetObjectPhysicsData");
 	capabilityNames.append("GetTexture");
+	capabilityNames.append("GroupAPIv1");
 	capabilityNames.append("GroupMemberData");
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("HomeLocation");

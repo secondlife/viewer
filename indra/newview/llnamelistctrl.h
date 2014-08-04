@@ -67,6 +67,7 @@ class LLNameListCtrl
 :	public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
+	typedef boost::signals2::signal<void(bool)> namelist_complete_signal_t;
 
 	typedef enum e_name_type
 	{
@@ -156,7 +157,7 @@ public:
 
 	/*virtual*/ void updateColumns(bool force_update);
 
-	/*virtual*/ void	mouseOverHighlightNthItem( S32 index );
+	/*virtual*/ void mouseOverHighlightNthItem( S32 index );
 private:
 	void showInspector(const LLUUID& avatar_id, bool is_group);
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, std::string suffix, LLHandle<LLNameListItem> item);
@@ -168,6 +169,16 @@ private:
 	bool			mShortNames;  // display name only, no SLID
 	typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
 	avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
+
+	S32 mPendingLookupsRemaining;
+	namelist_complete_signal_t mNameListCompleteSignal;
+	
+public:
+	boost::signals2::connection setOnNameListCompleteCallback(boost::function<void(bool)> onNameListCompleteCallback) 
+	{ 
+		return mNameListCompleteSignal.connect(onNameListCompleteCallback); 
+	}
+
 };
 
 
