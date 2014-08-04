@@ -6149,7 +6149,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>600.0</real>
+    <real>30.0</real>
         </map>
     <key>MemoryPrivatePoolEnabled</key>
     <map>
