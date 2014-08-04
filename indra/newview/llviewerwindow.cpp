@@ -1969,7 +1969,7 @@ void LLViewerWindow::initWorldUI()
 
 	// Force gFloaterTools to initialize
 	LLFloaterReg::getInstance("build");
-	LLFloaterReg::hideInstance("build");
+
 
 	// Status bar
 	LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
