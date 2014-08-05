@@ -51,6 +51,7 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0),
 	mDisplayModeratorOptions(false),
+	mDisplayGroupBanOptions(false),
 	mAvatarNameCacheConnection()
 {
 }
@@ -63,6 +64,7 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0),
 	mDisplayModeratorOptions(false),
+	mDisplayGroupBanOptions(false),
 	mAvatarNameCacheConnection()
 {
 }
@@ -75,6 +77,7 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	mConvType(CONV_UNKNOWN),
 	mLastActiveTime(0.0),
 	mDisplayModeratorOptions(false),
+	mDisplayGroupBanOptions(false),
 	mAvatarNameCacheConnection()
 {
 }
@@ -158,6 +161,12 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 			items.push_back(std::string("ModerateVoiceUnMuteSelected"));
 			items.push_back(std::string("ModerateVoiceMute"));
 			items.push_back(std::string("ModerateVoiceUnmute"));
+		}
+
+		if ((getType() != CONV_SESSION_1_ON_1) && mDisplayGroupBanOptions)
+		{
+			items.push_back(std::string("Group Ban Separator"));
+			items.push_back(std::string("BanMember"));
 		}
 	}
 }

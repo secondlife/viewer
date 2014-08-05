@@ -6118,16 +6118,16 @@
     <integer>0</integer>
   </map>
   <key>MemoryLogFrequency</key>
-        <map>
-        <key>Comment</key>
-            <string>Seconds between display of Memory in log (0 for never)</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>600.0</real>
-        </map>
+  <map>
+    <key>Comment</key>
+    <string>Seconds between display of Memory in log (0 for never)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>30.0</real>
+  </map>
     <key>MemoryPrivatePoolEnabled</key>
     <map>
       <key>Comment</key>
