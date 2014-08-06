@@ -71,7 +71,7 @@ public:
 
 		ManipulatorHandle(LLVector3 pos, EManipPart id, EScaleManipulatorType type):mPosition(pos), mManipID(id), mType(type){}
 	};
-
+	static const S32 NUM_MANIPULATORS = 14;
 
 	LLManipScale( LLToolComposite* composite );
 	~LLManipScale();
@@ -98,7 +98,7 @@ private:
 	void			renderFaces( const LLBBox& local_bbox );
 	void			renderEdges( const LLBBox& local_bbox );
 	void			renderBoxHandle( F32 x, F32 y, F32 z );
-	void			renderAxisHandle( const LLVector3& start, const LLVector3& end );
+	void			renderAxisHandle( U32 part, const LLVector3& start, const LLVector3& end );
 	void			renderGuidelinesPart( const LLBBox& local_bbox );
 	void			renderSnapGuides( const LLBBox& local_bbox );
 
@@ -142,7 +142,6 @@ private:
 	};
 
 
-	F32				mBoxHandleSize; //!< The size of the handles at the corners of the bounding box.
 	F32				mScaledBoxHandleSize; //!< Handle size after scaling for selection feedback.
 	LLVector3d		mDragStartPointGlobal;
 	LLVector3d		mDragStartCenterGlobal; //!< The center of the bounding box of all selected objects at time of drag start.
@@ -171,7 +170,8 @@ private:
 	LLVector3		mScaleDir; //!< The direction of the scaling action.  In face-dragging this is aligned with one of the cardinal axis relative to the prim, but in corner-dragging this is along the diagonal.
 	F32				mScaleSnappedValue; //!< The distance of the current position nearest the mouse location, measured along mScaleDir.  Is measured either from the center or from the far face/corner depending upon whether uniform scaling is true or false respectively.
 	ESnapRegimes	mSnapRegime; //<! Which, if any, snap regime the cursor is currently residing in.
-	F32*			mManipulatorScales;
+	F32				mManipulatorScales[NUM_MANIPULATORS];
+	F32				mBoxHandleSize[NUM_MANIPULATORS];		// The size of the handles at the corners of the bounding box
 };
 
 #endif  // LL_MANIPSCALE_H

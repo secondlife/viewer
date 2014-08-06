@@ -33,8 +33,10 @@
 #include <string>
 #include <map>
 
+// Forward Declarations
 class LLMessageSystem;
-
+class LLGroupRoleData;
+class LLGroupMgr;
 
 enum LLGroupChange
 {
@@ -43,8 +45,11 @@ enum LLGroupChange
 	GC_ROLE_DATA,
 	GC_ROLE_MEMBER_DATA,
 	GC_TITLES,
+	GC_BANLIST,
 	GC_ALL
 };
+
+const U32 GB_MAX_BANNED_AGENTS = 500;
 
 class LLGroupMgrObserver
 {
@@ -64,8 +69,6 @@ public:
 	virtual ~LLParticularGroupObserver(){}
 	virtual void changed(const LLUUID& group_id, LLGroupChange gc) = 0;
 };
-
-class LLGroupRoleData;
 
 class LLGroupMemberData
 {
@@ -201,14 +204,23 @@ struct lluuid_pair_less
 	}
 };
 
+
+struct LLGroupBanData
+{
+	LLGroupBanData(): mBanDate()	{}
+	~LLGroupBanData()	{}
+	
+	LLDate mBanDate;
+	// TODO: std:string ban_reason;
+};
+
+
 struct LLGroupTitle
 {
 	std::string mTitle;
 	LLUUID		mRoleID;
 	BOOL		mSelected;
 };
-
-class LLGroupMgr;
 
 class LLGroupMgrGroupData
 {
@@ -239,11 +251,11 @@ public:
 	void recalcAllAgentPowers();
 	void recalcAgentPowers(const LLUUID& agent_id);
 
-	BOOL isMemberDataComplete() { return mMemberDataComplete; }
-	BOOL isRoleDataComplete() { return mRoleDataComplete; }
-	BOOL isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
-	BOOL isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
-	
+	bool isMemberDataComplete() { return mMemberDataComplete; }
+	bool isRoleDataComplete() { return mRoleDataComplete; }
+	bool isRoleMemberDataComplete() { return mRoleMemberDataComplete; }
+	bool isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
+
 	bool isSingleMemberNotOwner();
 
 	F32 getAccessTime() const { return mAccessTime; }
@@ -251,17 +263,26 @@ public:
 
 	const LLUUID& getMemberVersion() const { return mMemberVersion; }
 
+	void clearBanList() { mBanList.clear(); }
+	void getBanList(const LLUUID& group_id, LLGroupBanData& ban_data);
+	const LLGroupBanData& getBanEntry(const LLUUID& ban_id) { return mBanList[ban_id]; }
+	
+	void createBanEntry(const LLUUID& ban_id, const LLGroupBanData& ban_data = LLGroupBanData());
+	void removeBanEntry(const LLUUID& ban_id);
+	
+
 public:
 	typedef	std::map<LLUUID,LLGroupMemberData*> member_list_t;
 	typedef	std::map<LLUUID,LLGroupRoleData*> role_list_t;
 	typedef std::map<lluuid_pair,LLRoleMemberChange,lluuid_pair_less> change_map_t;
 	typedef std::map<LLUUID,LLRoleData> role_data_map_t;
+	typedef std::map<LLUUID,LLGroupBanData> ban_list_t;
+
 	member_list_t		mMembers;
 	role_list_t			mRoles;
-
-	
 	change_map_t		mRoleMemberChanges;
 	role_data_map_t		mRoleChanges;
+	ban_list_t			mBanList;
 
 	std::vector<LLGroupTitle> mTitles;
 
@@ -292,12 +313,12 @@ private:
 	LLUUID				mTitlesRequestID;
 	U32					mReceivedRoleMemberPairs;
 
-	BOOL				mMemberDataComplete;
-	BOOL				mRoleDataComplete;
-	BOOL				mRoleMemberDataComplete;
-	BOOL				mGroupPropertiesDataComplete;
+	bool				mMemberDataComplete;
+	bool				mRoleDataComplete;
+	bool				mRoleMemberDataComplete;
+	bool				mGroupPropertiesDataComplete;
 
-	BOOL				mPendingRoleMemberRequest;
+	bool				mPendingRoleMemberRequest;
 	F32					mAccessTime;
 
 	// Generate a new ID every time mMembers
@@ -324,6 +345,23 @@ class LLGroupMgr : public LLSingleton<LLGroupMgr>
 {
 	LOG_CLASS(LLGroupMgr);
 	
+public:
+	enum EBanRequestType
+	{
+		REQUEST_GET = 0,
+		REQUEST_POST,
+		REQUEST_PUT,
+		REQUEST_DEL
+	};
+
+	enum EBanRequestAction
+	{
+		BAN_NO_ACTION	= 0,
+		BAN_CREATE		= 1,
+		BAN_DELETE		= 2,
+		BAN_UPDATE		= 4
+	};
+
 public:
 	LLGroupMgr();
 	~LLGroupMgr();
@@ -357,8 +395,14 @@ public:
 	static void sendGroupMemberInvites(const LLUUID& group_id, std::map<LLUUID,LLUUID>& role_member_pairs);
 	static void sendGroupMemberEjects(const LLUUID& group_id,
 									  uuid_vec_t& member_ids);
+	
+	static void sendGroupBanRequest(EBanRequestType request_type, 
+									const LLUUID& group_id,	
+									U32 ban_action = BAN_NO_ACTION,
+									const uuid_vec_t ban_list = uuid_vec_t());
 
-	// BAKER
+	static void processGroupBanRequest(const LLSD& content);
+
 	void sendCapGroupMembersRequest(const LLUUID& group_id);
 	static void processCapGroupMembersRequest(const LLSD& content);
 
@@ -403,4 +447,3 @@ private:
 
 
 #endif
-

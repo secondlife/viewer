@@ -7,7 +7,7 @@
 	<text name="cache_size_label_l">
 		(Lokationer, billeder, web, søge historik)
 	</text>
-	<check_box label="Vis dig selv i søgeresultater" name="online_searchresults"/>
+	<check_box label="Vis min profil info i søgeresultater" name="online_searchresults"/>
 	<check_box label="Kun venner og grupper ved jeg er online" name="online_visibility"/>
 	<check_box label="Kun venner og grupper kan sende besked til mig" name="voice_call_friends_only_check"/>
 	<check_box label="Slå mikrofon fra når opkald slutter" name="auto_disengage_mic_check"/>

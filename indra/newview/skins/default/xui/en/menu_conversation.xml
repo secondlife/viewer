@@ -17,6 +17,7 @@
      layout="topleft"
      name="open_voice_conversation">
         <on_click function="Avatar.DoToSelected" parameter="open_voice_conversation"/>
+        <on_enable function="Avatar.EnableItem" parameter="can_open_voice_conversation"/>
      </menu_item_call>	
      <menu_item_call
      label="Disconnect from voice"
@@ -213,4 +214,12 @@
 			<on_enable function="Avatar.EnableItem" parameter="can_moderate_voice" />
 		</menu_item_call>
 	</context_menu>
+	<menu_item_separator layout="topleft" name="Group Ban Separator"/>
+	<menu_item_call
+		 label="Ban member"
+		 layout="topleft"
+		 name="BanMember">
+			<on_click function="Avatar.DoToSelected" parameter="ban_member" />
+			<on_enable function="Avatar.EnableItem" parameter="can_ban_member" />
+	</menu_item_call>		
 </toggleable_menu>
