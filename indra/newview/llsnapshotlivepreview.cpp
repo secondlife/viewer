@@ -151,7 +151,7 @@ F32 LLSnapshotLivePreview::getImageAspect()
 
 void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail, F32 delay)
 {
-	lldebugs << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << llendl;
+	LL_DEBUGS() << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << LL_ENDL;
 
 	// Update snapshot if requested.
 	if (new_snapshot)
@@ -594,7 +594,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
             }
             else
             {
-                llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
+                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         // Scale to a power of 2 so it can be mapped to a texture
@@ -642,7 +642,7 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
             }
             else
             {
-                llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
+                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         // Scale to a power of 2 so it can be mapped to a texture
@@ -695,7 +695,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	// time to produce a snapshot
 	if(!previewp->getSnapshotUpToDate())
     {
-        lldebugs << "producing snapshot" << llendl;
+        LL_DEBUGS() << "producing snapshot" << LL_ENDL;
         if (!previewp->mPreviewImage)
         {
             previewp->mPreviewImage = new LLImageRaw;
@@ -775,7 +775,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotDelayTimer.stop();
         previewp->mSnapshotActive = FALSE;
-        lldebugs << "done creating snapshot" << llendl;
+        LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
     }
     
     if (!previewp->getThumbnailUpToDate())
@@ -910,13 +910,13 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
             }
             else
             {
-                llwarns << "Couldn't find a path to the following filter : " << getFilter() << llendl;
+                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         
         // Create the new formatted image of the appropriate format.
         LLFloaterSnapshot::ESnapshotFormat format = getSnapshotFormat();
-        lldebugs << "Encoding new image of format " << format << llendl;
+        LL_DEBUGS() << "Encoding new image of format " << format << LL_ENDL;
             
         switch (format)
         {
@@ -974,6 +974,21 @@ void LLSnapshotLivePreview::saveTexture()
 		mPreviewImage->getWidth(),
 		mPreviewImage->getHeight(),
 		mPreviewImage->getComponents());
+
+	// Apply the filter to mPreviewImage
+	if (getFilter() != "")
+	{
+		std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
+		if (filter_path != "")
+		{
+			LLImageFilter filter(filter_path);
+			filter.executeFilter(scaled);
+		}
+		else
+		{
+			LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+		}
+	}
 
 	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
 	LL_DEBUGS() << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;

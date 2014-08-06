@@ -80,7 +80,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>AgentPause</key>
     <map>
@@ -11451,17 +11451,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>SnapshotFiltersEnabled</key>
-    <map>
-        <key>Comment</key>
-        <string>Enable filters in the Snapshot Advanced panel (experimental).</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
     </map>
     <key>SnapshotFormat</key>
     <map>

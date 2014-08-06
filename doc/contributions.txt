@@ -992,6 +992,21 @@ Nicky Perian
 	STORM-1090
 	STORM-1828
 Nicoladie Gymnast
+NiranV Dean
+    STORM-2040
+    STORM-2042
+    STORM-2043
+    STORM-2044
+    STORM-2045
+    STORM-2046
+    STORM-2047
+    STORM-2048
+    STORM-2049
+    STORM-2050
+    STORM-2051
+    STORM-2052
+    BUG-372
+    BUG-1179
 Nounouch Hapmouche
 	VWR-238
 Ollie Kubrick
