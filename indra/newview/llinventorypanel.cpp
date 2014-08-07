@@ -1492,8 +1492,6 @@ public:
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
 	}
 
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
-
 protected:
 	LLInventoryRecentItemsPanel (const Params&);
 	friend class LLUICtrlFactory;
@@ -1506,13 +1504,6 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
 
-void LLInventoryRecentItemsPanel::onVisibilityChange(BOOL new_visibility)
-{
-	if(new_visibility)
-	{
-		getFilter().setModified();
-	}
-}
 namespace LLInitParam
 {
 	void TypeValues<LLFolderType::EType>::declareValues()
