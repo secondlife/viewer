@@ -334,13 +334,14 @@ void main()
 			vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
 			
 			vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
-			stc /= stc.w;
 
 			if (stc.z > 0.0)
 			{
-				float fatten = clamp(spec.a*spec.a+spec.a*0.25, 0.25, 1.0);
+                stc /= stc.w;
                 
-				stc.xy = (stc.xy - vec2(0.5)) + vec2(0.5);
+				//float fatten = clamp(spec.a*spec.a+spec.a*0.25, 0.25, 1.0);
+                
+				//stc.xy = (stc.xy - vec2(0.25)) * fatten + vec2(0.5);
 								
 				if (stc.x < 1.0 &&
 					stc.y < 1.0 &&
@@ -352,7 +353,6 @@ void main()
 			}
 		}
 	}
-	
 
 	//not sure why, but this line prevents MATBUG-194
 	col = max(col, vec3(0.0));
