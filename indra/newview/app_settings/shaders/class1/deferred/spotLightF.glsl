@@ -324,17 +324,17 @@ void main()
 			{
 				stc.xy /= stc.w;
 
-				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.5, 0.25, 1.0);
+				float fatten = clamp(spec.a*spec.a+spec.a*0.25, 0.25, 1.0);
 				
 				//stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
-				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
+				stc.xy = (stc.xy - vec2(0.5)) + vec2(0.5);
 								
 				if (stc.x < 1.0 &&
 					stc.y < 1.0 &&
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					col += color.rgb * texture2DLodSpecular(projectionMap, stc.xy, proj_lod).rgb * envIntensity;
+					col += color.rgb * texture2DLodSpecular(projectionMap, stc.xy, (1 - spec.a * spec.a) * (proj_lod * 0.5)).rgb * envIntensity;
 				}
 			}
 		}
