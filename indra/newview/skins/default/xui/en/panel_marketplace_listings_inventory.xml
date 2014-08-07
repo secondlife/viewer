@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<inventory_panel
+    label="ALL"
+    name="All Items"
+    help_topic="marketplace_tab"
+    start_folder.name="Marketplace listings"
+    show_empty_message="false"
+    show_load_status="false"
+    show_root_folder="true"
+    start_folder.type="merchant"
+    follows="all"
+    layout="topleft"
+    top="16"
+    left="0"
+    height="370"
+    width="308"
+    top_pad="0"
+    bg_opaque_color="DkGray2"
+    bg_alpha_color="DkGray2"
+    background_visible="true"
+    border="false"
+    bevel_style="none"
+    tool_tip="Drag and drop items here to sell them"
+    show_item_link_overlays="true">
+    <item allow_wear="false"/>
+</inventory_panel>

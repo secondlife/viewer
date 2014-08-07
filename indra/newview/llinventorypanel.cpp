@@ -240,6 +240,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		// Determine the root folder in case specified, and
 		// build the views starting with that folder.
+        //llinfos << "Merov : panel = " << getName() << ", create folder root id = " << root_id << llendl;
         LLFolderView* folder_view = createFolderRoot(root_id);
 		mFolderRoot = folder_view->getHandle();
 	
@@ -271,6 +272,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	// otherwise wait for idle callback.
 	if (mInventory->isInventoryUsable() && !mViewsInitialized)
 	{
+        //llinfos << "Merov : panel = " << getName() << ", initializeViews" << llendl;
 		initializeViews();
 	}
 	
