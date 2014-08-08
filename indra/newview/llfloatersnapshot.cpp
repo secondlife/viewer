@@ -965,16 +965,14 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 
 			previewp->setSize(w,h);
 			checkAutoSnapshot(previewp, FALSE);
-			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
-			previewp->updateSnapshot(TRUE);
 			comboSetCustom(view, "profile_size_combo");
 			comboSetCustom(view, "postcard_size_combo");
 			comboSetCustom(view, "texture_size_combo");
 			comboSetCustom(view, "local_size_combo");
+			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
+			previewp->updateSnapshot(TRUE);
 		}
 	}
-
-	updateControls(view);
 }
 
 // static
