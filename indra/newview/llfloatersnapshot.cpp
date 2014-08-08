@@ -576,7 +576,7 @@ void LLFloaterSnapshot::Impl::onClickFilter(LLUICtrl *ctrl, void* data)
             LLComboBox* filterbox = static_cast<LLComboBox *>(view->getChild<LLComboBox>("filters_combobox"));
             std::string filter_name = (filterbox->getCurrentIndex() ? filterbox->getSimple() : "");
             previewp->setFilter(filter_name);
-            previewp->updateSnapshot(FALSE, TRUE);
+            previewp->updateSnapshot(TRUE);
         }
 	}
 }
@@ -825,12 +825,11 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			// hide old preview as the aspect ratio could be wrong
 			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
-			getPreviewView(view)->updateSnapshot(FALSE, TRUE);
+			getPreviewView(view)->updateSnapshot(TRUE);
 			if(do_update)
 			{
 				LL_DEBUGS() << "Will update controls" << LL_ENDL;
 				updateControls(view);
-				setNeedRefresh(view, true);
 			}
 		}
 	}
@@ -873,7 +872,6 @@ void LLFloaterSnapshot::Impl::onImageFormatChange(LLFloaterSnapshot* view)
 		LL_DEBUGS() << "image format changed, updating snapshot" << LL_ENDL;
 		getPreviewView(view)->updateSnapshot(TRUE);
 		updateControls(view);
-		setNeedRefresh(view, false); // we're refreshing
 	}
 }
 
@@ -951,8 +949,6 @@ void LLFloaterSnapshot::Impl::updateSpinners(LLFloaterSnapshot* view, LLSnapshot
 // static
 void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32 w, S32 h)
 {
-	bool need_refresh = false;
-
 	LL_DEBUGS() << "applyCustomResolution(" << w << ", " << h << ")" << LL_ENDL;
 	if (!view) return;
 
@@ -970,20 +966,15 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 			previewp->setSize(w,h);
 			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
-			previewp->updateSnapshot(FALSE, TRUE);
+			previewp->updateSnapshot(TRUE);
 			comboSetCustom(view, "profile_size_combo");
 			comboSetCustom(view, "postcard_size_combo");
 			comboSetCustom(view, "texture_size_combo");
 			comboSetCustom(view, "local_size_combo");
-			need_refresh = true;
 		}
 	}
 
 	updateControls(view);
-	if (need_refresh)
-	{
-		setNeedRefresh(view, true); // need to do this after updateControls()
-	}
 }
 
 // static
@@ -1238,8 +1229,6 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 	{
         // Disable the send/post/save buttons until snapshot is ready.
         impl.updateControls(this);
-        // Force hiding the "Refresh to save" hint because we know we've just started refresh.
-        impl.setNeedRefresh(this, false);
 		return 1;
 	}
 
