@@ -758,6 +758,12 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		S32 original_width = 0 , original_height = 0 ;
 		previewp->getSize(original_width, original_height) ;
 		
+		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
+		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
+			width = llmin(width, gViewerWindow->getWindowWidthRaw());
+			height = llmin(height, gViewerWindow->getWindowHeightRaw());
+		}
+
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
@@ -803,12 +809,6 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		checkAspectRatio(view, width) ;
 
 		previewp->getSize(width, height);
-	
-		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
-		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
-			width = llmin(width, gViewerWindow->getWindowWidthRaw());
-			height = llmin(height, gViewerWindow->getWindowHeightRaw());
-		}
 
 		updateSpinners(view, previewp, width, height, TRUE); // may change width and height
 		
