@@ -240,7 +240,6 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		// Determine the root folder in case specified, and
 		// build the views starting with that folder.
-        //llinfos << "Merov : panel = " << getName() << ", create folder root id = " << root_id << llendl;
         LLFolderView* folder_view = createFolderRoot(root_id);
 		mFolderRoot = folder_view->getHandle();
 	
@@ -272,7 +271,6 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	// otherwise wait for idle callback.
 	if (mInventory->isInventoryUsable() && !mViewsInitialized)
 	{
-        //llinfos << "Merov : panel = " << getName() << ", initializeViews" << llendl;
 		initializeViews();
 	}
 	
@@ -590,13 +588,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 
 LLUUID LLInventoryPanel::getRootFolderID()
 {
+    LLUUID root_id;
 	if (mFolderRoot.get() && mFolderRoot.get()->getViewModelItem())
 	{
-		return static_cast<LLFolderViewModelItemInventory*>(mFolderRoot.get()->getViewModelItem())->getUUID();
+		root_id = static_cast<LLFolderViewModelItemInventory*>(mFolderRoot.get()->getViewModelItem())->getUUID();
 	}
 	else
 	{
-		LLUUID root_id;
 		if (mParams.start_folder.id.isChosen())
 		{
 			root_id = mParams.start_folder.id;
@@ -624,8 +622,8 @@ LLUUID LLInventoryPanel::getRootFolderID()
 				}
 			}
 		}
-		return root_id;
 	}
+    return root_id;
 }
 
 // static
@@ -784,11 +782,14 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
  	LLInventoryObject const* objectp = gInventory.getObject(id);
 	
-	if (!objectp) return NULL;
+	if (!objectp)
+    {
+        return NULL;
+    }
 
 	LLFolderViewItem* folder_view_item = getItemByID(id);
 
- 		const LLUUID &parent_id = objectp->getParentUUID();
+    const LLUUID &parent_id = objectp->getParentUUID();
 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
   		
     // Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
@@ -813,8 +814,8 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   				objectp->getType() >= LLAssetType::AT_COUNT)
   			{
   				LL_WARNS() << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
-  						<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
-  						<< LL_ENDL;
+                << ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
+                << LL_ENDL;
   				return NULL;
   			}
   		

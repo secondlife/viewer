@@ -60,34 +60,50 @@ LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 
 BOOL LLPanelMarketplaceListings::postBuild()
 {
-	mAllPanel = getChild<LLInventoryPanel>("All Items");
 	childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
 	childSetAction("audit_btn", boost::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
 
-	// Set the sort order newest to oldest
-	LLInventoryPanel* panel = getChild<LLInventoryPanel>("All Items");
-	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
-	panel->getFilter().markDefault();
-    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
+    return LLPanel::postBuild();
+}
 
-    // Set filters on the 3 prefiltered panels
-	panel = getChild<LLInventoryPanel>("Active Items");
-	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+void LLPanelMarketplaceListings::buildAllPanels()
+{
+    LLInventoryPanel* panel;
+    panel = buildInventoryPanel("All Items", "panel_marketplace_listings_inventory.xml");
+	panel->getFilter().markDefault();
+    mAllPanel = panel;
+    panel = buildInventoryPanel("Active Items", "panel_marketplace_listings_listed.xml");
 	panel->getFilter().setFilterMarketplaceActiveFolders();
 	panel->getFilter().markDefault();
-    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
-	panel = getChild<LLInventoryPanel>("Inactive Items");
-	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+    panel = buildInventoryPanel("Inactive Items", "panel_marketplace_listings_unlisted.xml");
 	panel->getFilter().setFilterMarketplaceInactiveFolders();
 	panel->getFilter().markDefault();
-    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
-	panel = getChild<LLInventoryPanel>("Unassociated Items");
-	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+    panel = buildInventoryPanel("Unassociated Items", "panel_marketplace_listings_unassociated.xml");
 	panel->getFilter().setFilterMarketplaceUnassociatedFolders();
 	panel->getFilter().markDefault();
-    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
+    
+	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+    tabs_panel->selectTabPanel(mAllPanel);
+}
+
+LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::string& childname, const std::string& filename)
+{
+	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+    LLInventoryPanel* panel = getChild<LLInventoryPanel>(childname);
+    if (panel)
+    {
+        tabs_panel->removeTabPanel(panel);
+        delete panel;
+    }
+    panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>(filename, tabs_panel, LLInventoryPanel::child_registry_t::instance());
+	llassert(panel != NULL);
 	
-    return LLPanel::postBuild();
+	// Set sort order and callbacks
+	panel = getChild<LLInventoryPanel>(childname);
+	panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
+    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
+    
+    return panel;
 }
 
 void LLPanelMarketplaceListings::draw()
@@ -189,6 +205,7 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryText(NULL)
 , mInventoryTitle(NULL)
 , mPanelListings(NULL)
+, mFirstViewListings(true)
 {
 }
 
@@ -267,7 +284,6 @@ void LLFloaterMarketplaceListings::setup()
 {
     if (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
 	{
-        //llinfos << "Merov D&D : setup failed: we're not a merchant" << llendl;
 		// If we are *not* a merchant or we have no market place connection established yet, do nothing
 		return;
 	}
@@ -277,25 +293,10 @@ void LLFloaterMarketplaceListings::setup()
 	if (marketplacelistings_id.isNull())
 	{
 		// We should never get there unless the inventory fails badly
-        //llinfos << "Merov D&D : setup failed: couldn't get to the marketplace listings folder" << llendl;
 		LL_ERRS("SLM") << "Inventory problem: failure to create the marketplace listings folder for a merchant!" << LL_ENDL;
 		return;
 	}
 
-    //llinfos << "Merov D&D : setup : marketplace listings folder = " << marketplacelistings_id << llendl;
-
-    // Consolidate Marketplace listings
-    // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention, things get messy and conventions get broken down eventually
-    gInventory.consolidateForType(marketplacelistings_id, LLFolderType::FT_MARKETPLACE_LISTINGS);
-    
-    if (marketplacelistings_id == mRootFolderId)
-    {
-        //llinfos << "Merov D&D : setup failed: Marketplace listings folder already set" << llendl;
-        LL_WARNS("SLM") << "Inventory warning: Marketplace listings folder already set" << LL_ENDL;
-        return;
-    }
-    mRootFolderId = marketplacelistings_id;
-    
 	// No longer need to observe new category creation
 	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
 	{
@@ -305,42 +306,29 @@ void LLFloaterMarketplaceListings::setup()
 	}
 	llassert(!mCategoryAddedObserver);
     
-    // Merov : Hack...
-    /*
-    LLInventoryPanel* inventory_panel = mPanelListings->mAllPanel;
-	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
-    if (inventory_panel)
+    if (marketplacelistings_id == mRootFolderId)
     {
-        tabs_panel->removeTabPanel(inventory_panel);
-        delete inventory_panel;
+        LL_WARNS("SLM") << "Inventory warning: Marketplace listings folder already set" << LL_ENDL;
+        return;
     }
-    inventory_panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>("panel_marketplace_listings_inventory.xml", tabs_panel, LLInventoryPanel::child_registry_t::instance());
-	llassert(inventory_panel != NULL);
-	
-	// Reshape to the proper size
-	//LLRect tabs_panel_rect = tabs_panel->getRect();
-	//inventory_panel->setShape(tabs_panel_rect);
+    mRootFolderId = marketplacelistings_id;
     
-	// Set sort order and callbacks
-	LLInventoryPanel* panel = getChild<LLInventoryPanel>("All Items");
-	//panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
-	//panel->getFilter().markDefault();
-    //panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
-
-    mPanelListings->mAllPanel = panel;
-    */
-    // Merov : end hack...
+    // Consolidate Marketplace listings
+    // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention,
+    // things get messy and conventions get broken down eventually
+    gInventory.consolidateForType(marketplacelistings_id, LLFolderType::FT_MARKETPLACE_LISTINGS);
+    
+    // Now that we do have a non NULL root, we can build the inventory panels
+    mPanelListings->buildAllPanels();
 	
-	// Create observer for marketplace listings modifications : clear the old one and create a new one
-	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
-	{
-		gInventory.removeObserver(mCategoriesObserver);
-		delete mCategoriesObserver;
-	}
-    mCategoriesObserver = new LLInventoryCategoriesObserver();
-    gInventory.addObserver(mCategoriesObserver);
-    mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMarketplaceListings::onChanged, this));
-	llassert(mCategoriesObserver);
+	// Create observer for marketplace listings modifications
+    if (!mCategoriesObserver && mRootFolderId.notNull())
+    {
+        mCategoriesObserver = new LLInventoryCategoriesObserver();
+        llassert(mCategoriesObserver);
+        gInventory.addObserver(mCategoriesObserver);
+        mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMarketplaceListings::onChanged, this));
+    }
 	
 	// Get the content of the marketplace listings folder
 	fetchContents();
@@ -379,7 +367,6 @@ void LLFloaterMarketplaceListings::updateView()
     // Get or create the root folder if we are a merchant and it hasn't been done already
     if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
     {
-        //llinfos << "Merov D&D : setup from updateView because root folder is null" << llendl;
         setup();
     }
 
@@ -398,14 +385,19 @@ void LLFloaterMarketplaceListings::updateView()
     // Update the middle portion : tabs or messages
 	if (getFolderCount() > 0)
 	{
+        if (mFirstViewListings)
+        {
+            // We need to rebuild the tabs cleanly the first time we make them visible
+            // setup() does it if the root is nixed first
+            mRootFolderId.setNull();
+            setup();
+            mFirstViewListings = false;
+        }
 		mPanelListings->setVisible(TRUE);
 		mInventoryPlaceholder->setVisible(FALSE);
 	}
 	else
 	{
-        // Merov : Hack...
-		//mPanelListings->setVisible(TRUE);
-		//mInventoryPlaceholder->setVisible(FALSE);
         mPanelListings->setVisible(FALSE);
 		mInventoryPlaceholder->setVisible(TRUE);
 		
@@ -419,11 +411,6 @@ void LLFloaterMarketplaceListings::updateView()
         // *TODO : check those messages and create better appropriate ones in strings.xml
         if (mRootFolderId.notNull())
         {
-            // Does the marketplace listings folder needs recreation?
-            if (!mPanelListings || !gInventory.getCategory(mRootFolderId))
-            {
-                setup();
-            }
             // "Marketplace listings is empty!" message strings
             text = LLTrans::getString("InventoryMarketplaceListingsNoItems", subs);
             title = LLTrans::getString("InventoryMarketplaceListingsNoItemsTitle");

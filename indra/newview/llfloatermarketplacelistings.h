@@ -40,6 +40,8 @@ class LLInventoryCategoryAddedObserver;
 class LLTextBox;
 class LLView;
 
+class LLFloaterMarketplaceListings;
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMarketplaceListings
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,7 +54,11 @@ public:
 	void draw();
 	LLFolderView* getRootFolder() { return mAllPanel->getRootFolder(); }    // *TODO : Suppress and get DnD in here instead...
     
+    void buildAllPanels();
+    
 private:
+    LLInventoryPanel* buildInventoryPanel(const std::string& childname, const std::string& filename);
+
     // UI callbacks
 	void onViewSortMenuItemClicked(const LLSD& userdata);
 	bool onViewSortMenuItemCheck(const LLSD& userdata);
@@ -117,8 +123,9 @@ private:
 	LLTextBox *		mInventoryText;
 	LLTextBox *		mInventoryTitle;
 
-	LLUUID				mRootFolderId;
+	LLUUID			mRootFolderId;
 	LLPanelMarketplaceListings * mPanelListings;
+    bool            mFirstViewListings;
 };
 
 //-----------------------------------------------------------------------------
