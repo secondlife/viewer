@@ -1327,7 +1327,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 		}
 
-		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP", true);
+		static LLCachedControl<bool> use_http(gSavedSettings, "ImagePipelineUseHTTP", true);
 
 // 		if (mHost != LLHost::invalid) get_url = false;
 		if ( use_http && mCanUseHTTP && mUrl.empty())//get http url.
@@ -1472,6 +1472,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == SEND_HTTP_REQ)
 	{
+		// Also used in llmeshrepository
+		static LLCachedControl<bool> disable_range_req(gSavedSettings, "HttpRangeRequestsDisable", false);
+		
 		if (! mCanUseHTTP)
 		{
 			releaseHttpSemaphore();
@@ -1553,16 +1556,32 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		// Will call callbackHttpGet when curl request completes
 		// Only server bake images use the returned headers currently, for getting retry-after field.
 		LLCore::HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
-		mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
-																  mWorkPriority,
-																  mUrl,
-																  mRequestedOffset,
-																  (mRequestedOffset + mRequestedSize) > HTTP_REQUESTS_RANGE_END_MAX
-																  ? 0
-																  : mRequestedSize,
-																  options,
-																  mFetcher->mHttpHeaders,
-																  this);
+		if (disable_range_req)
+		{
+			// 'Range:' requests may be disabled in which case all HTTP
+			// texture fetches result in full fetches.  This can be used
+			// by people with questionable ISPs or networking gear that
+			// doesn't handle these well.
+			mHttpHandle = mFetcher->mHttpRequest->requestGet(mHttpPolicyClass,
+															 mWorkPriority,
+															 mUrl,
+															 options,
+															 mFetcher->mHttpHeaders,
+															 this);
+		}
+		else
+		{
+			mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
+																	  mWorkPriority,
+																	  mUrl,
+																	  mRequestedOffset,
+																	  (mRequestedOffset + mRequestedSize) > HTTP_REQUESTS_RANGE_END_MAX
+																	  ? 0
+																	  : mRequestedSize,
+																	  options,
+																	  mFetcher->mHttpHeaders,
+																	  this);
+		}
 		if (LLCORE_HTTP_HANDLE_INVALID == mHttpHandle)
 		{
 			LLCore::HttpStatus status(mFetcher->mHttpRequest->getStatus());
@@ -1782,7 +1801,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
-		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled", false);
+		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings, "TextureDecodeDisabled", false);
 
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		if (textures_decode_disabled)
