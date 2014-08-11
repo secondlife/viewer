@@ -3779,24 +3779,21 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 
 	// checking amount of items to wear
 	U32 max_items = gSavedSettings.getU32("WearFolderLimit");
-	if (cat->getDescendentCount() > max_items)
-	{
-		LLInventoryModel::cat_array_t cats;
-		LLInventoryModel::item_array_t items;
-		LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
-		gInventory.collectDescendentsIf(cat->getUUID(),
-			cats,
-			items,
-			LLInventoryModel::EXCLUDE_TRASH,
-			not_worn);
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+	gInventory.collectDescendentsIf(cat->getUUID(),
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
 
-		if (items.size() > max_items)
-		{
-			LLSD args;
-			args["AMOUNT"] = llformat("%d", max_items);
-			LLNotificationsUtil::add("TooManyWearables", args);
-			return;
-		}
+	if (items.size() > max_items)
+	{
+		LLSD args;
+		args["AMOUNT"] = llformat("%d", max_items);
+		LLNotificationsUtil::add("TooManyWearables", args);
+		return;
 	}
 
 	LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, append );
