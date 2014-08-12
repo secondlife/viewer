@@ -40,6 +40,8 @@ namespace
 void check_curl_multi_code(CURLMcode code);
 void check_curl_multi_code(CURLMcode code, int curl_setopt_option);
 
+static const char * const LOG_CORE("CoreHttp");
+
 } // end anonymous namespace
 
 
@@ -51,7 +53,8 @@ HttpLibcurl::HttpLibcurl(HttpService * service)
 	: mService(service),
 	  mPolicyCount(0),
 	  mMultiHandles(NULL),
-	  mActiveHandles(NULL)
+	  mActiveHandles(NULL),
+	  mDirtyPolicy(NULL)
 {}
 
 
@@ -90,6 +93,9 @@ void HttpLibcurl::shutdown()
 
 		delete [] mActiveHandles;
 		mActiveHandles = NULL;
+
+		delete [] mDirtyPolicy;
+		mDirtyPolicy = NULL;
 	}
 
 	mPolicyCount = 0;
@@ -101,44 +107,21 @@ void HttpLibcurl::start(int policy_count)
 	llassert_always(policy_count <= HTTP_POLICY_CLASS_LIMIT);
 	llassert_always(! mMultiHandles);					// One-time call only
 	
-	HttpPolicy & policy(mService->getPolicy());
 	mPolicyCount = policy_count;
 	mMultiHandles = new CURLM * [mPolicyCount];
 	mActiveHandles = new int [mPolicyCount];
+	mDirtyPolicy = new bool [mPolicyCount];
 	
 	for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
 	{
-		HttpPolicyClass & options(policy.getClassOptions(policy_class));
-
-		mActiveHandles[policy_class] = 0;
 		if (NULL == (mMultiHandles[policy_class] = curl_multi_init()))
 		{
-			LL_ERRS("CoreHttp") << "Failed to allocate multi handle in libcurl."
-								<< LL_ENDL;
+			LL_ERRS(LOG_CORE) << "Failed to allocate multi handle in libcurl."
+							  << LL_ENDL;
 		}
-				
-		if (options.mPipelining > 1)
-		{
-			CURLMcode code;
-			
-			// We'll try to do pipelining on this multihandle
-			code = curl_multi_setopt(mMultiHandles[policy_class],
-									 CURLMOPT_PIPELINING,
-									 1L);
-			check_curl_multi_code(code, CURLMOPT_PIPELINING);
-			code = curl_multi_setopt(mMultiHandles[policy_class],
-									 CURLMOPT_MAX_PIPELINE_LENGTH,
-									 long(options.mPipelining));
-			check_curl_multi_code(code, CURLMOPT_MAX_PIPELINE_LENGTH);
-			code = curl_multi_setopt(mMultiHandles[policy_class],
-									 CURLMOPT_MAX_HOST_CONNECTIONS,
-									 long(options.mPerHostConnectionLimit));
-			check_curl_multi_code(code, CURLMOPT_MAX_HOST_CONNECTIONS);
-			code = curl_multi_setopt(mMultiHandles[policy_class],
-									 CURLMOPT_MAX_TOTAL_CONNECTIONS,
-									 long(options.mConnectionLimit));
-			check_curl_multi_code(code, CURLMOPT_MAX_TOTAL_CONNECTIONS);
-		}
+		mActiveHandles[policy_class] = 0;
+		mDirtyPolicy[policy_class] = false;
+		policyUpdated(policy_class);
 	}
 }
 
@@ -156,8 +139,19 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 	// Give libcurl some cycles to do I/O & callbacks
 	for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
 	{
-		if (! mActiveHandles[policy_class] || ! mMultiHandles[policy_class])
+		if (! mMultiHandles[policy_class])
 		{
+			// No handle, nothing to do.
+			continue;
+		}
+		if (! mActiveHandles[policy_class])
+		{
+			// If we've gone quiet and there's a dirty update, apply it,
+			// otherwise we're done.
+			if (mDirtyPolicy[policy_class])
+			{
+				policyUpdated(policy_class);
+			}
 			continue;
 		}
 		
@@ -192,9 +186,9 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 			}
 			else
 			{
-				LL_WARNS_ONCE("CoreHttp") << "Unexpected message from libcurl.  Msg code:  "
-										  << msg->msg
-										  << LL_ENDL;
+				LL_WARNS_ONCE(LOG_CORE) << "Unexpected message from libcurl.  Msg code:  "
+										<< msg->msg
+										<< LL_ENDL;
 			}
 			msgs_in_queue = 0;
 		}
@@ -230,11 +224,11 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	{
 		HttpPolicy & policy(mService->getPolicy());
 		
-		LL_INFOS("CoreHttp") << "TRACE, ToActiveQueue, Handle:  "
-							 << static_cast<HttpHandle>(op)
-							 << ", Actives:  " << mActiveOps.size()
-							 << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
-							 << LL_ENDL;
+		LL_INFOS(LOG_CORE) << "TRACE, ToActiveQueue, Handle:  "
+						   << static_cast<HttpHandle>(op)
+						   << ", Actives:  " << mActiveOps.size()
+						   << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
+						   << LL_ENDL;
 	}
 	
 	// On success, make operation active
@@ -286,10 +280,10 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 	// Tracing
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
-		LL_INFOS("CoreHttp") << "TRACE, RequestCanceled, Handle:  "
-							 << static_cast<HttpHandle>(op)
-							 << ", Status:  " << op->mStatus.toTerseString()
-							 << LL_ENDL;
+		LL_INFOS(LOG_CORE) << "TRACE, RequestCanceled, Handle:  "
+						   << static_cast<HttpHandle>(op)
+						   << ", Status:  " << op->mStatus.toTerseString()
+						   << LL_ENDL;
 	}
 
 	// Cancel op and deliver for notification
@@ -306,18 +300,18 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 
 	if (handle != op->mCurlHandle || ! op->mCurlActive)
 	{
-		LL_WARNS("CoreHttp") << "libcurl handle and HttpOpRequest handle in disagreement or inactive request."
-							 << "  Handle:  " << static_cast<HttpHandle>(handle)
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "libcurl handle and HttpOpRequest handle in disagreement or inactive request."
+						   << "  Handle:  " << static_cast<HttpHandle>(handle)
+						   << LL_ENDL;
 		return false;
 	}
 
 	active_set_t::iterator it(mActiveOps.find(op));
 	if (mActiveOps.end() == it)
 	{
-		LL_WARNS("CoreHttp") << "libcurl completion for request not on active list.  Continuing."
-							 << "  Handle:  " << static_cast<HttpHandle>(handle)
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "libcurl completion for request not on active list.  Continuing."
+						   << "  Handle:  " << static_cast<HttpHandle>(handle)
+						   << LL_ENDL;
 		return false;
 	}
 
@@ -348,9 +342,9 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 		}
 		else
 		{
-			LL_WARNS("CoreHttp") << "Invalid HTTP response code ("
-								 << http_status << ") received from server."
-								 << LL_ENDL;
+			LL_WARNS(LOG_CORE) << "Invalid HTTP response code ("
+							   << http_status << ") received from server."
+							   << LL_ENDL;
 			op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
 		}
 	}
@@ -363,10 +357,10 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	// Tracing
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
-		LL_INFOS("CoreHttp") << "TRACE, RequestComplete, Handle:  "
-							 << static_cast<HttpHandle>(op)
-							 << ", Status:  " << op->mStatus.toTerseString()
-							 << LL_ENDL;
+		LL_INFOS(LOG_CORE) << "TRACE, RequestComplete, Handle:  "
+						   << static_cast<HttpHandle>(op)
+						   << ", Status:  " << op->mStatus.toTerseString()
+						   << LL_ENDL;
 	}
 
 	// Dispatch to next stage
@@ -388,6 +382,88 @@ int HttpLibcurl::getActiveCountInClass(int policy_class) const
 	llassert_always(policy_class < mPolicyCount);
 
 	return mActiveHandles ? mActiveHandles[policy_class] : 0;
+}
+
+void HttpLibcurl::policyUpdated(int policy_class)
+{
+	if (policy_class < 0 || policy_class >= mPolicyCount || ! mMultiHandles)
+	{
+		return;
+	}
+	
+	HttpPolicy & policy(mService->getPolicy());
+	
+	if (! mActiveHandles[policy_class])
+	{
+		// Clear to set options.  As of libcurl 7.37.0, if a pipelining
+		// multi handle has active requests and you try to set the
+		// multi handle to non-pipelining, the library gets very angry
+		// and goes off the rails corrupting memory.  A clue that you're
+		// about to crash is that you'll get a missing server response
+		// error (curl code 9).  So, if options are to be set, we let
+		// the multi handle run out of requests, then set options, and
+		// re-enable request processing.
+		//
+		// All of this stall mechanism exists for this reason.  If
+		// libcurl becomes more resilient later, it should be possible
+		// to remove all of this.  The connection limit settings are fine,
+		// it's just that pipelined-to-non-pipelined transition that
+		// is fatal at the moment.
+		
+		HttpPolicyClass & options(policy.getClassOptions(policy_class));
+		CURLM * multi_handle(mMultiHandles[policy_class]);
+		CURLMcode code;
+
+		// Enable policy if stalled
+		policy.stallPolicy(policy_class, false);
+		mDirtyPolicy[policy_class] = false;
+		
+		if (options.mPipelining > 1)
+		{
+			// We'll try to do pipelining on this multihandle
+			code = curl_multi_setopt(multi_handle,
+									 CURLMOPT_PIPELINING,
+									 1L);
+			check_curl_multi_code(code, CURLMOPT_PIPELINING);
+			code = curl_multi_setopt(multi_handle,
+									 CURLMOPT_MAX_PIPELINE_LENGTH,
+									 long(options.mPipelining));
+			check_curl_multi_code(code, CURLMOPT_MAX_PIPELINE_LENGTH);
+			code = curl_multi_setopt(multi_handle,
+									 CURLMOPT_MAX_HOST_CONNECTIONS,
+									 long(options.mPerHostConnectionLimit));
+			check_curl_multi_code(code, CURLMOPT_MAX_HOST_CONNECTIONS);
+			code = curl_multi_setopt(multi_handle,
+									 CURLMOPT_MAX_TOTAL_CONNECTIONS,
+									 long(options.mConnectionLimit));
+			check_curl_multi_code(code, CURLMOPT_MAX_TOTAL_CONNECTIONS);
+		}
+		else
+		{
+			code = curl_multi_setopt(multi_handle,
+									 CURLMOPT_PIPELINING,
+									 0L);
+			check_curl_multi_code(code, CURLMOPT_PIPELINING);
+			code = curl_multi_setopt(multi_handle,
+									 CURLMOPT_MAX_HOST_CONNECTIONS,
+									 0L);
+			check_curl_multi_code(code, CURLMOPT_MAX_HOST_CONNECTIONS);
+			code = curl_multi_setopt(multi_handle,
+									 CURLMOPT_MAX_TOTAL_CONNECTIONS,
+									 long(options.mConnectionLimit));
+			check_curl_multi_code(code, CURLMOPT_MAX_TOTAL_CONNECTIONS);
+		}
+	}
+	else if (! mDirtyPolicy[policy_class])
+	{
+		// Mark policy dirty and request a stall in the policy.
+		// When policy goes idle, we'll re-invoke this method
+		// and perform the change.  Don't allow this thread to
+		// sleep while we're waiting for quiescence, we'll just
+		// stop processing.
+		mDirtyPolicy[policy_class] = true;
+		policy.stallPolicy(policy_class, true);
+	}
 }
 
 
@@ -424,9 +500,9 @@ void check_curl_multi_code(CURLMcode code, int curl_setopt_option)
 {
 	if (CURLM_OK != code)
 	{
-		LL_WARNS("CoreHttp") << "libcurl multi error detected:  " << curl_multi_strerror(code)
-							 << ", curl_multi_setopt option:  " << curl_setopt_option
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "libcurl multi error detected:  " << curl_multi_strerror(code)
+						   << ", curl_multi_setopt option:  " << curl_setopt_option
+						   << LL_ENDL;
 	}
 }
 
@@ -435,8 +511,8 @@ void check_curl_multi_code(CURLMcode code)
 {
 	if (CURLM_OK != code)
 	{
-		LL_WARNS("CoreHttp") << "libcurl multi error detected:  " << curl_multi_strerror(code)
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "libcurl multi error detected:  " << curl_multi_strerror(code)
+						   << LL_ENDL;
 	}
 }
 

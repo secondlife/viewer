@@ -158,6 +158,14 @@ public:
 	/// Threading:  called by worker thread
 	int getReadyCount(HttpRequest::policy_t policy_class) const;
 	
+	/// Stall (or unstall) a policy class preventing requests from
+	/// transitioning to an active state.  Used to allow an HTTP
+	/// request policy to empty prior to changing settings or state
+	/// that isn't tolerant of changes when work is outstanding.
+	///
+	/// Threading:  called by worker thread
+	bool stallPolicy(HttpRequest::policy_t policy_class, bool stall);
+	
 protected:
 	struct ClassState;
 	typedef std::vector<ClassState *>	class_list_t;

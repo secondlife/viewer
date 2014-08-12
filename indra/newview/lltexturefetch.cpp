@@ -483,12 +483,12 @@ private:
 	bool acquireHttpSemaphore()
 		{
 			llassert(! mHttpHasResource);
-			if (mFetcher->mHttpSemaphore <= 0)
+			if (mFetcher->mHttpSemaphore >= mFetcher->mHttpHighWater)
 			{
 				return false;
 			}
 			mHttpHasResource = true;
-			mFetcher->mHttpSemaphore--;
+			mFetcher->mHttpSemaphore++;
 			return true;
 		}
 
@@ -498,7 +498,8 @@ private:
 		{
 			llassert(mHttpHasResource);
 			mHttpHasResource = false;
-			mFetcher->mHttpSemaphore++;
+			mFetcher->mHttpSemaphore--;
+			llassert_always(mFetcher->mHttpSemaphore >= 0);
 		}
 	
 private:
@@ -2523,6 +2524,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));
 
+	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
+	mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_TEXTURE);
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = new LLCore::HttpOptions;
 	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
@@ -2531,21 +2534,9 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpHeaders->append("Accept", "image/x-j2c");
 	mHttpMetricsHeaders = new LLCore::HttpHeaders;
 	mHttpMetricsHeaders->append("Content-Type", "application/llsd+xml");
-	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
-	mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_TEXTURE);
-	if (app_core_http.isPipelined(LLAppCoreHttp::AP_TEXTURE))
-	{
-		// Init-time election that will have to change for
-		// support of dynamic changes to the pipelining enable flag.
-		mHttpHighWater = HTTP_PIPE_REQUESTS_HIGH_WATER;
-		mHttpLowWater = HTTP_PIPE_REQUESTS_LOW_WATER;
-	}
-	else
-	{
-		mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
-		mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
-	}
-	mHttpSemaphore = mHttpHighWater;
+	mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
+	mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
+	mHttpSemaphore = 0;
 
 	// Conditionally construct debugger object after 'this' is
 	// fully initialized.
@@ -3032,6 +3023,20 @@ bool LLTextureFetch::runCondition()
 // Threads:  Ttf
 void LLTextureFetch::commonUpdate()
 {
+	// Update low/high water levels based on pipelining.  We pick
+	// up setting eventually, so the semaphore/request level can
+	// fall outside the [0..HIGH_WATER] range.  Expect that.
+	if (LLAppViewer::instance()->getAppCoreHttp().isPipelined(LLAppCoreHttp::AP_TEXTURE))
+	{
+		mHttpHighWater = HTTP_PIPE_REQUESTS_HIGH_WATER;
+		mHttpLowWater = HTTP_PIPE_REQUESTS_LOW_WATER;
+	}
+	else
+	{
+		mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
+		mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
+	}
+
 	// Release waiters
 	releaseHttpWaiters();
 	
@@ -3693,8 +3698,16 @@ void LLTextureFetch::releaseHttpWaiters()
 {
 	// Use mHttpSemaphore rather than mHTTPTextureQueue.size()
 	// to avoid a lock.  
-	if (mHttpSemaphore < (mHttpHighWater - mHttpLowWater))
+	if (mHttpSemaphore >= mHttpLowWater)
 		return;
+	S32 needed(mHttpHighWater - mHttpSemaphore);
+	if (needed <= 0)
+	{
+		// Would only happen if High/LowWater were changed behind
+		// our back.  In that case, defer fill until usage falls within
+		// limits.
+		return;
+	}
 
 	// Quickly make a copy of all the LLUIDs.  Get off the
 	// mutex as early as possible.
@@ -3743,10 +3756,10 @@ void LLTextureFetch::releaseHttpWaiters()
 	tids.clear();
 
 	// Sort into priority order, if necessary and only as much as needed
-	if (tids2.size() > mHttpSemaphore)
+	if (tids2.size() > needed)
 	{
 		LLTextureFetchWorker::Compare compare;
-		std::partial_sort(tids2.begin(), tids2.begin() + mHttpSemaphore, tids2.end(), compare);
+		std::partial_sort(tids2.begin(), tids2.begin() + needed, tids2.end(), compare);
 	}
 
 	// Release workers up to the high water mark.  Since we aren't

@@ -218,6 +218,7 @@ private:
 	bool						mStopped;
 	HttpClass					mHttpClasses[AP_COUNT];
 	bool						mPipelined;				// Global setting
+	boost::signals2::connection mPipelinedSignal;		// Signal for 'HttpPipelining' setting
 };
 
 

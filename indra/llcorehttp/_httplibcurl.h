@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -116,6 +116,14 @@ public:
 	/// Threading:  called by worker thread.
 	bool cancel(HttpHandle handle);
 
+	/// Informs transport that a particular policy class has had
+	/// options changed and so should effect any transport state
+	/// change necessary to effect those changes.  Used mainly for
+	/// initialization and dynamic option setting.
+	///
+	/// Threading:  called by worker thread.
+	void policyUpdated(int policy_class);
+
 protected:
 	/// Invoked when libcurl has indicated a request has been processed
 	/// to completion and we need to move the request to a new state.
@@ -134,6 +142,8 @@ protected:
 	int					mPolicyCount;
 	CURLM **			mMultiHandles;			// One handle per policy class
 	int *				mActiveHandles;			// Active count per policy class
+	bool *				mDirtyPolicy;			// Dirty policy update waiting for stall (per pc)
+	
 }; // end class HttpLibcurl
 
 }  // end namespace LLCore

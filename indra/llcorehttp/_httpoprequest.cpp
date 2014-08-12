@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -93,6 +93,8 @@ void os_strlower(char * str);
 // Error testing and reporting for libcurl status codes
 void check_curl_easy_code(CURLcode code);
 void check_curl_easy_code(CURLcode code, int curl_setopt_option);
+
+static const char * const LOG_CORE("CoreHttp");
 
 } // end anonymous namespace
 
@@ -416,8 +418,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	if (! mCurlHandle)
 	{
 		// We're in trouble.  We'll continue but it won't go well.
-		LL_WARNS("CoreHttp") << "Failed to allocate libcurl easy handle.  Continuing."
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "Failed to allocate libcurl easy handle.  Continuing."
+						   << LL_ENDL;
 		return HttpStatus(HttpStatus::LLCORE, HE_BAD_ALLOC);
 	}
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -538,9 +540,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		break;
 		
 	default:
-		LL_ERRS("CoreHttp") << "Invalid HTTP method in request:  "
-							<< int(mReqMethod)  << ".  Can't recover."
-							<< LL_ENDL;
+		LL_ERRS(LOG_CORE) << "Invalid HTTP method in request:  "
+						  << int(mReqMethod)  << ".  Can't recover."
+						  << LL_ENDL;
 		break;
 	}
 
@@ -652,8 +654,8 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 		{
 			// Warn but continue if the read position moves beyond end-of-body
 			// for some reason.
-			LL_WARNS("CoreHttp") << "Request body position beyond body size.  Truncating request body."
-								 << LL_ENDL;
+			LL_WARNS(LOG_CORE) << "Request body position beyond body size.  Truncating request body."
+							   << LL_ENDL;
 		}
 		return 0;
 	}
@@ -790,10 +792,10 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		else
 		{
 			// Ignore the unparsable.
-			LL_INFOS_ONCE("CoreHttp") << "Problem parsing odd Content-Range header:  '"
-									  << std::string(hdr_data, wanted_hdr_size)
-									  << "'.  Ignoring."
-									  << LL_ENDL;
+			LL_INFOS_ONCE(LOG_CORE) << "Problem parsing odd Content-Range header:  '"
+									<< std::string(hdr_data, wanted_hdr_size)
+									<< "'.  Ignoring."
+									<< LL_ENDL;
 		}
 	}
 
@@ -895,11 +897,11 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 
 	if (logit)
 	{
-		LL_INFOS("CoreHttp") << "TRACE, LibcurlDebug, Handle:  "
-							 << static_cast<HttpHandle>(op)
-							 << ", Type:  " << tag
-							 << ", Data:  " << safe_line
-							 << LL_ENDL;
+		LL_INFOS(LOG_CORE) << "TRACE, LibcurlDebug, Handle:  "
+						   << static_cast<HttpHandle>(op)
+						   << ", Type:  " << tag
+						   << ", Data:  " << safe_line
+						   << LL_ENDL;
 	}
 		
 	return 0;
@@ -1094,9 +1096,9 @@ void check_curl_easy_code(CURLcode code, int curl_setopt_option)
 		//
 		// linux appears to throw a curl error once per session for a bad initialization
 		// at a pretty random time (when enabling cookies).
-		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
-							 << ", curl_easy_setopt option:  " << curl_setopt_option
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "libcurl error detected:  " << curl_easy_strerror(code)
+						   << ", curl_easy_setopt option:  " << curl_setopt_option
+						   << LL_ENDL;
 	}
 }
 
@@ -1109,8 +1111,8 @@ void check_curl_easy_code(CURLcode code)
 		//
 		// linux appears to throw a curl error once per session for a bad initialization
 		// at a pretty random time (when enabling cookies).
-		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "libcurl error detected:  " << curl_easy_strerror(code)
+						   << LL_ENDL;
 	}
 }
 

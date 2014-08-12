@@ -35,6 +35,13 @@
 
 #include "lltimer.h"
 
+namespace
+{
+
+static const char * const LOG_CORE("CoreHttp");
+
+} // end anonymous namespace
+
 
 namespace LLCore
 {
@@ -51,7 +58,8 @@ public:
 	ClassState()
 		: mThrottleEnd(0),
 		  mThrottleLeft(0L),
-		  mRequestCount(0L)
+		  mRequestCount(0L),
+		  mStallStaging(false)
 		{}
 	
 	HttpReadyQueue		mReadyQueue;
@@ -61,6 +69,7 @@ public:
 	HttpTime			mThrottleEnd;
 	long				mThrottleLeft;
 	long				mRequestCount;
+	bool				mStallStaging;
 };
 
 
@@ -171,19 +180,19 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	{
 		++op->mPolicy503Retries;
 	}
-	LL_DEBUGS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
-						  << " retry " << op->mPolicyRetries
-						  << " scheduled in " << (delta / HttpTime(1000))
-						  << " mS (" << (external_delta ? "external" : "internal")
-						  << ").  Status:  " << op->mStatus.toTerseString()
-						  << LL_ENDL;
+	LL_DEBUGS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+						<< " retry " << op->mPolicyRetries
+						<< " scheduled in " << (delta / HttpTime(1000))
+						<< " mS (" << (external_delta ? "external" : "internal")
+						<< ").  Status:  " << op->mStatus.toTerseString()
+						<< LL_ENDL;
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
-		LL_INFOS("CoreHttp") << "TRACE, ToRetryQueue, Handle:  "
-							 << static_cast<HttpHandle>(op)
-							 << ", Delta:  " << (delta / HttpTime(1000))
-							 << ", Retries:  " << op->mPolicyRetries
-							 << LL_ENDL;
+		LL_INFOS(LOG_CORE) << "TRACE, ToRetryQueue, Handle:  "
+						   << static_cast<HttpHandle>(op)
+						   << ", Delta:  " << (delta / HttpTime(1000))
+						   << ", Retries:  " << op->mPolicyRetries
+						   << LL_ENDL;
 	}
 	mClasses[policy_class]->mRetryQueue.push(op);
 }
@@ -219,6 +228,15 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 		HttpRetryQueue & retryq(state.mRetryQueue);
 		HttpReadyQueue & readyq(state.mReadyQueue);
 
+		if (state.mStallStaging)
+		{
+			// Stalling but don't sleep.  Need to complete operations
+			// and get back to servicing queues.  Do this test before
+			// the retryq/readyq test or you'll get stalls until you
+			// click a setting or an asset request comes in.
+			result = HttpService::NORMAL;
+			continue;
+		}
 		if (retryq.empty() && readyq.empty())
 		{
 			continue;
@@ -262,9 +280,9 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 					if (now >= state.mThrottleEnd)
 					{
 						// Throttle expired, move to next window
-						LL_DEBUGS("CoreHttp") << "Throttle expired with " << state.mThrottleLeft
-											  << " requests to go and " << state.mRequestCount
-											  << " requests issued." << LL_ENDL;
+						LL_DEBUGS(LOG_CORE) << "Throttle expired with " << state.mThrottleLeft
+											<< " requests to go and " << state.mRequestCount
+											<< " requests issued." << LL_ENDL;
 						state.mThrottleLeft = state.mOptions.mThrottleRate;
 						state.mThrottleEnd = now + HttpTime(1000000);
 					}
@@ -291,9 +309,9 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 					if (now >= state.mThrottleEnd)
 					{
 						// Throttle expired, move to next window
-						LL_DEBUGS("CoreHttp") << "Throttle expired with " << state.mThrottleLeft
-											  << " requests to go and " << state.mRequestCount
-											  << " requests issued." << LL_ENDL;
+						LL_DEBUGS(LOG_CORE) << "Throttle expired with " << state.mThrottleLeft
+											<< " requests to go and " << state.mRequestCount
+											<< " requests issued." << LL_ENDL;
 						state.mThrottleLeft = state.mOptions.mThrottleRate;
 						state.mThrottleEnd = now + HttpTime(1000000);
 					}
@@ -408,17 +426,17 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	// This op is done, finalize it delivering it to the reply queue...
 	if (! op->mStatus)
 	{
-		LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
-							 << " failed after " << op->mPolicyRetries
-							 << " retries.  Reason:  " << op->mStatus.toString()
-							 << " (" << op->mStatus.toTerseString() << ")"
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+						   << " failed after " << op->mPolicyRetries
+						   << " retries.  Reason:  " << op->mStatus.toString()
+						   << " (" << op->mStatus.toTerseString() << ")"
+						   << LL_ENDL;
 	}
 	else if (op->mPolicyRetries)
 	{
-		LL_DEBUGS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
-							  << " succeeded on retry " << op->mPolicyRetries << "."
-							  << LL_ENDL;
+		LL_DEBUGS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+							<< " succeeded on retry " << op->mPolicyRetries << "."
+							<< LL_ENDL;
 	}
 
 	op->stageFromActive(mService);
@@ -443,6 +461,19 @@ int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class) const
 				+ mClasses[policy_class]->mRetryQueue.size());
 	}
 	return 0;
+}
+
+
+bool HttpPolicy::stallPolicy(HttpRequest::policy_t policy_class, bool stall)
+{
+	bool ret(false);
+	
+	if (policy_class < mClasses.size())
+	{
+		ret = mClasses[policy_class]->mStallStaging;
+		mClasses[policy_class]->mStallStaging = stall;
+	}
+	return ret;
 }
 
 
