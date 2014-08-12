@@ -71,7 +71,6 @@ add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 
 if (LINUX)
   add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
-  add_subdirectory(${VIEWER_PREFIX}linux_updater)
   if (INSTALL_PROPRIETARY)
       include(LLAppearanceUtility)
       add_subdirectory(${LLAPPEARANCEUTILITY_SRC_DIR} ${LLAPPEARANCEUTILITY_BIN_DIR})
