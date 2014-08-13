@@ -3796,6 +3796,7 @@ Abuse Report</string>
   <string name="LocalEstimateUSD">US$ [AMOUNT]</string>
 
   <!-- Group Profile roles and powers -->
+  <string name="Group Ban">Group Ban</string>
   <string name="Membership">Membership</string>
   <string name="Roles">Roles</string>
   <string name="Group Identity">Group Identity</string>
