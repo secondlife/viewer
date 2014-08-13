@@ -20,12 +20,12 @@
 	</text>
 	<check_box label="Запретить терраформирование" name="block_terraform_check"/>
 	<check_box label="Запретить полеты" name="block_fly_check"/>
+	<check_box label="Запретить пролет над участком" name="block_fly_over_check" tool_tip="Поднять проверку доступа вверх для предотвращения пролета над участком"/>
 	<check_box label="Разрешить повреждения" name="allow_damage_check"/>
 	<check_box label="Запретить толкание" name="restrict_pushobject"/>
 	<check_box label="Разрешить перепродажу земли" name="allow_land_resell_check"/>
 	<check_box label="Разрешить объединение/разделение земли" name="allow_parcel_changes_check"/>
 	<check_box label="Не показывать землю в поиске" name="block_parcel_search_check" tool_tip="Отображать регион и его участки в результатах поиска"/>
-	<check_box label="Разрешить меши-объекты" name="mesh_rez_enabled_check" tool_tip="Разрешить жителям выкладывать меши в этом регионе"/>
 	<spinner label="Лимит агентов" name="agent_limit_spin"/>
 	<spinner label="Льгота для объекта" name="object_bonus_spin"/>
 	<text label="Дозволенность" name="access_text">

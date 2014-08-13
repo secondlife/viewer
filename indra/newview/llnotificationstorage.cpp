@@ -103,19 +103,21 @@ bool LLNotificationStorage::writeNotifications(const LLSD& pNotificationData) co
 	return didFileOpen;
 }
 
-bool LLNotificationStorage::readNotifications(LLSD& pNotificationData) const
+bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_new_filename) const
 {
-	LL_INFOS("LLNotificationStorage") << "starting read '" << mFileName << "'" << LL_ENDL;
+	std::string filename = is_new_filename? mFileName : mOldFileName;
+
+	LL_INFOS("LLNotificationStorage") << "starting read '" << filename << "'" << LL_ENDL;
 
 	bool didFileRead;
 
 	pNotificationData.clear();
 
-	llifstream notifyFile(mFileName.c_str());
+	llifstream notifyFile(filename.c_str());
 	didFileRead = notifyFile.is_open();
 	if (!didFileRead)
 	{
-		LL_WARNS("LLNotificationStorage") << "Failed to open file '" << mFileName << "'" << LL_ENDL;
+		LL_WARNS("LLNotificationStorage") << "Failed to open file '" << filename << "'" << LL_ENDL;
 	}
 	else
 	{
@@ -128,7 +130,19 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData) const
 		}
 	}
 
-	LL_INFOS("LLNotificationStorage") << "ending read '" << mFileName << "'" << LL_ENDL;
+	LL_INFOS("LLNotificationStorage") << "ending read '" << filename << "'" << LL_ENDL;
+	if (!didFileRead)
+	{
+		if(is_new_filename)
+		{
+			didFileRead = readNotifications(pNotificationData, false);
+			if(didFileRead)
+			{
+				writeNotifications(pNotificationData);
+				LLFile::remove(mOldFileName);
+			}
+		}
+	}
 
 	return didFileRead;
 }

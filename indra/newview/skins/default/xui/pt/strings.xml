@@ -28,6 +28,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Falha na inicialização dos gráficos. Atualize seu driver gráfico!
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [Notas da versão]]
+	</string>
+	<string name="AboutCompiler">
+		Construído com [COMPILER] versão [COMPILER_VERSION]
+	</string>
+	<string name="AboutPosition">
+		Você está em [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] em [REGION] localizado em &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(coordenadas globais [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU: [CPU]
+Memória: [MEMORY_MB] MBs
+Versão OS: [OS_VERSION]
+Placa de vídeo: [GRAPHICS_CARD_VENDOR]
+Placa gráfica: [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Versão do driver de vídeo Windows: [GRAPHICS_CARD_VENDOR]
+	</string>
+	<string name="AboutLibs">
+		Versão OpenGL: [OPENGL_VERSION]
+
+Versão libcurl: [LIBCURL_VERSION]
+Versão J2C Decoder: [J2C_VERSION]
+Versão do driver de áudio: [AUDIO_DRIVER_VERSION]
+Versão Qt Webkit: [QT_WEBKIT_VERSION]
+Versão do servidor de voz: [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Erro ao obter URL de notas de versão do servidor.
+	</string>
 	<string name="ProgressRestoring">
 		Restaurando...
 	</string>
@@ -886,11 +925,11 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="ControlYourCamera">
 		Controle sua camera
 	</string>
-	<string name="AgentNameSubst">
-		(Você)
-	</string>
 	<string name="TeleportYourAgent">
 		Teletransportá-lo
+	</string>
+	<string name="AgentNameSubst">
+		(Você)
 	</string>
 	<string name="JoinAnExperience">
 		Participar de uma experiência
@@ -1216,8 +1255,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="InventoryInboxNoItems">
 		Suas compras do Marketplace aparecerão aqui. Depois, você poderá arrastá-las para seu inventário para usá-las.
 	</string>
-  <string name="Unconstrained">Sem limites</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1246,6 +1284,18 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="InventoryOutboxNoItems">
 		Arraste as pastas para estas áreas e então clique em &quot;Enviar para Mercado&quot; para listar os itens para venda no [[MARKETPLACE_DASHBOARD_URL] Mercado].
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Inicializando o Marketplace.
+	</string>
+	<string name="InventoryOutboxInitializing">
+		Estamos acessando sua conta na [loja [MARKETPLACE_CREATE_STORE_URL] do Marketplace].
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Erros do Marketplace.
+	</string>
+	<string name="InventoryOutboxError">
+		A loja [[MARKETPLACE_CREATE_STORE_URL] no Marketplace] está retornando erros.
+	</string>
 	<string name="Marketplace Error None">
 		Sem erros
 	</string>
@@ -1272,6 +1322,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="Open landmarks">
 		Marcos abertos
+	</string>
+	<string name="Unconstrained">
+		Sem limites
 	</string>
 	<string name="no_transfer" value="(não transferível)"/>
 	<string name="no_modify" value="(não modificável)"/>
@@ -1666,6 +1719,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Baixado, agora compilando
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		Serviço de compilação de scripts não disponível
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		Script não encontrado no servidor.

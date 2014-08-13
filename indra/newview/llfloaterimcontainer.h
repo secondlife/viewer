@@ -135,7 +135,8 @@ private:
 	void onExpandCollapseButtonClicked();
 	void onStubCollapseButtonClicked();
 	void processParticipantsStyleUpdate();
-	void onSpeakButtonClicked();
+	void onSpeakButtonPressed();
+	void onSpeakButtonReleased();
 	/*virtual*/ void onClickCloseBtn(bool app_quitting = false);
 	/*virtual*/ void closeHostedFloater();
 

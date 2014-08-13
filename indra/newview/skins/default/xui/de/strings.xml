@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Grafikinitialisierung fehlgeschlagen. Bitte aktualisieren Sie Ihren Grafiktreiber.
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="AboutCompiler">
+		Kompiliert mit [COMPILER], Version [COMPILER_VERSION]
+	</string>
+	<string name="AboutPosition">
+		Sie befinden sich an [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(globale Koordinaten [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU: [CPU]
+Speicher: [MEMORY_MB] MB
+Betriebssystemversion: [OS_VERSION]
+Grafikkartenhersteller: [GRAPHICS_CARD_VENDOR]
+Grafikkarte: [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Windows-Grafiktreiberversion: [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		OpenGL-Version: [OPENGL_VERSION]
+
+libcurl-Version: [LIBCURL_VERSION]
+J2C-Decoderversion: [J2C_VERSION]
+Audiotreiberversion: [AUDIO_DRIVER_VERSION]
+Qt-Webkit-Version: [QT_WEBKIT_VERSION]
+Voice-Server-Version: [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Paketverlust: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1] %)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Fehler beim Abrufen der URL für die Server-Versionshinweise.
+	</string>
 	<string name="ProgressRestoring">
 		Wird wiederhergestellt...
 	</string>
@@ -937,14 +976,14 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="ControlYourCamera">
 		Kamerasteuerung
 	</string>
+	<string name="TeleportYourAgent">
+		Sie teleportieren
+	</string>
 	<string name="NotConnected">
 		Nicht verbunden
 	</string>
 	<string name="AgentNameSubst">
 		(Sie)
-	</string>
-	<string name="TeleportYourAgent">
-		Sie teleportieren
 	</string>
 	<string name="JoinAnExperience">
 		Bei einem Erlebnis mitmachen
@@ -1267,8 +1306,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
-  <string name="Unconstrained">keines</string>
-  <string name="InventoryInboxNoItems">
+	<string name="InventoryInboxNoItems">
 		Einkäufe aus dem Marktplatz erscheinen hier. Sie können diese dann zur Verwendung in Ihr Inventar ziehen.
 	</string>
 	<string name="MarketplaceURL">
@@ -1300,6 +1338,18 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryOutboxNoItems">
 		Ziehen Sie Ordner in dien Bereich und klicken Sie auf „In Marktplatz übertragen“, um sie im [[MARKETPLACE_DASHBOARD_URL] Marktplatz] zum Verkauf anzubieten.
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Marktplatz wird initialisiert.
+	</string>
+	<string name="InventoryOutboxInitializing">
+		Wir greifen auf Ihr Konto im [[MARKETPLACE_CREATE_STORE_URL] Marktplatz-Laden] zu.
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Marktplatzfehler.
+	</string>
+	<string name="InventoryOutboxError">
+		Der [[MARKETPLACE_CREATE_STORE_URL] Marktplatz-Laden] gibt Fehler zurück.
+	</string>
 	<string name="Marketplace Error None">
 		Keine Fehler
 	</string>
@@ -1326,6 +1376,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Open landmarks">
 		Landmarken öffnen
+	</string>
+	<string name="Unconstrained">
+		Variabel
 	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
@@ -1726,6 +1779,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Heruntergeladen, wird kompiliert
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		Kein Skriptkompilierungsdienst verfügbar
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		Skript wurde auf Server nicht gefunden.

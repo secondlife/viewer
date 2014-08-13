@@ -70,11 +70,11 @@
 			<menu_item_check label="進階選單" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="太陽" name="Sun">
-			<menu_item_call label="日出" name="Sunrise"/>
-			<menu_item_call label="中午" name="Noon"/>
-			<menu_item_call label="日落" name="Sunset"/>
-			<menu_item_call label="午夜" name="Midnight"/>
-			<menu_item_call label="使用地區設定" name="Use Region Settings"/>
+			<menu_item_check label="日出" name="Sunrise"/>
+			<menu_item_check label="中午" name="Noon"/>
+			<menu_item_check label="日落" name="Sunset"/>
+			<menu_item_check label="午夜" name="Midnight"/>
+			<menu_item_check label="使用地區設定" name="Use Region Settings"/>
 		</menu>
 		<menu label="環境編輯器" name="Environment Editor">
 			<menu_item_call label="環境設定…" name="Environment Settings"/>
@@ -163,8 +163,6 @@
 	</menu>
 	<menu label="幫助" name="Help">
 		<menu_item_call label="簡易教學…" name="How To"/>
-		<menu_item_call label="[SECOND_LIFE] 幫助" name="Second Life Help"/>
-		<menu_item_call label="使用者指南" name="User’s guide"/>
 		<menu_item_call label="知識庫" name="Knowledge Base"/>
 		<menu_item_call label="維基" name="Wiki"/>
 		<menu_item_call label="社群論壇" name="Community Forums"/>
@@ -186,6 +184,7 @@
 		<menu label="效能工具" name="Performance Tools">
 			<menu_item_call label="Lag 測量器" name="Lag Meter"/>
 			<menu_item_check label="統計列" name="Statistics Bar"/>
+			<menu_item_call label="場景負載統計資料" name="Scene Load Statistics"/>
 			<menu_item_check label="顯示化身的繪製重量" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="高亮顯示與可見度" name="Highlighting and Visibility">
@@ -248,6 +247,7 @@
 			<menu_item_check label="快速碼錶" name="Fast Timers"/>
 			<menu_item_check label="記憶體" name="Memory"/>
 			<menu_item_check label="場景統計資料" name="Scene Statistics"/>
+			<menu_item_check label="場景載入監控器" name="Scene Loading Monitor"/>
 			<menu_item_call label="材質擷取除錯控制台" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="地區資訊傳至除錯控制台" name="Region Info to Debug Console"/>
 			<menu_item_call label="群組資訊至除錯控制台" name="Group Info to Debug Console"/>
@@ -284,6 +284,7 @@
 			<menu_item_check label="定期出現慢幀率" name="Periodic Slow Frame"/>
 			<menu_item_check label="畫面測試" name="Frame Test"/>
 			<menu_item_call label="幀特性" name="Frame Profile"/>
+			<menu_item_call label="標竿測試" name="Benchmark"/>
 		</menu>
 		<menu label="呈像的元資料" name="Render Metadata">
 			<menu_item_check label="外框箱" name="Bounding Boxes"/>
@@ -302,6 +303,7 @@
 			<menu_item_check label="建製佇列" name="Build Queue"/>
 			<menu_item_check label="燈光" name="Lights"/>
 			<menu_item_check label="碰撞骨架" name="Collision Skeleton"/>
+			<menu_item_check label="接點" name="Joints"/>
 			<menu_item_check label="光線投射" name="Raycast"/>
 			<menu_item_check label="風力向量" name="Wind Vectors"/>
 			<menu_item_check label="繪出複雜度" name="rendercomplexity"/>
@@ -334,6 +336,7 @@
 			<menu_item_check label="使附著燈光呈像" name="Render Attached Lights"/>
 			<menu_item_check label="使附著例子效果呈像" name="Render Attached Particles"/>
 			<menu_item_check label="停懸發光物件" name="Hover Glow Objects"/>
+			<menu_item_call label="立即清除快取" name="Cache Clear"/>
 		</menu>
 		<menu label="網路" name="Network">
 			<menu_item_check label="暫停用戶" name="AgentPause"/>
@@ -366,7 +369,6 @@
 			<menu_item_call label="傾印焦點容器" name="Dump Focus Holder"/>
 			<menu_item_call label="列印所選物件資訊" name="Print Selected Object Info"/>
 			<menu_item_call label="列印用戶資訊" name="Print Agent Info"/>
-			<menu_item_check label="地區除錯控制台" name="Region Debug Console"/>
 			<menu_item_check label="除錯 SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="除錯點按動作" name="Debug Clicks"/>
 			<menu_item_check label="視角除錯" name="Debug Views"/>

@@ -28,12 +28,12 @@
 					<button label="Profil" name="info_btn" tool_tip="Objektprofil anzeigen"/>
 				</layout_panel>
 				<layout_panel name="share_btn_lp">
-					<button label="Teilen" name="share_btn" tool_tip="Inventarobjekt teilen"/>
+					<button label="Freigeben" name="share_btn" tool_tip="Inventarobjekt freigeben"/>
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
 					<button label="Einkaufen" name="shop_btn" tool_tip="Marktplatz-Webseite öffnen"/>
 					<button label="Anziehen" name="wear_btn" tool_tip="Ausgewähltes Outfit tragen"/>
-					<button label="Wiedergeben" name="play_btn"/>
+					<button label="Spielen" name="play_btn"/>
 					<button label="Teleportieren" name="teleport_btn" tool_tip="Zu ausgewähltem Standort teleportieren"/>
 				</layout_panel>
 			</layout_stack>

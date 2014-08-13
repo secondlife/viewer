@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Ошибка инициализации графики. Обновите графический драйвер!
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="AboutCompiler">
+		Использован компилятор [COMPILER], версия [COMPILER_VERSION]
+	</string>
+	<string name="AboutPosition">
+		Вы в точке [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(глобальные координаты [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		ЦП: [CPU]
+Память: [MEMORY_MB] МБ
+Версия ОС: [OS_VERSION]
+Производитель графической платы: [GRAPHICS_CARD_VENDOR]
+Графическая плата: [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Версия графического драйвера Windows: [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		Версия OpenGL: [OPENGL_VERSION]
+
+Версия libcurl: [LIBCURL_VERSION]
+Версия декодера J2C: [J2C_VERSION]
+Версия драйвера звука: [AUDIO_DRIVER_VERSION]
+Версия Qt Webkit: [QT_WEBKIT_VERSION]
+Версия голосового сервера: [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Потеряно пакетов: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Ошибка при получении URL-адреса заметок о выпуске сервера.
+	</string>
 	<string name="ProgressRestoring">
 		Восстановление...
 	</string>
@@ -934,14 +973,14 @@ support@secondlife.com.
 	<string name="ControlYourCamera">
 		Управлять камерой
 	</string>
+	<string name="TeleportYourAgent">
+		Телепортировать вас
+	</string>
 	<string name="NotConnected">
 		Нет подключения
 	</string>
 	<string name="AgentNameSubst">
 		(Вы)
-	</string>
-	<string name="TeleportYourAgent">
-		Телепортировать вас
 	</string>
 	<string name="JoinAnExperience">
 		Присоединитесь
@@ -1267,8 +1306,7 @@ support@secondlife.com.
 	<string name="InventoryInboxNoItems">
 		Здесь будут показаны ваши покупки из торгового центра. Их можно будет перетащить в ваш инвентарь для использования.
 	</string>
-  <string name="Unconstrained">Без ограничения</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1297,6 +1335,18 @@ support@secondlife.com.
 	<string name="InventoryOutboxNoItems">
 		Перетащите папки в эту область и щелкните «Отправить в торговый центр», чтобы выставить их на продажу в [[MARKETPLACE_DASHBOARD_URL] Торговом центре].
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Инициализация Торгового центра.
+	</string>
+	<string name="InventoryOutboxInitializing">
+		Мы обращаемся к вашему аккаунту в [[MARKETPLACE_CREATE_STORE_URL] магазине].
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Ошибки торгового центра.
+	</string>
+	<string name="InventoryOutboxError">
+		[[MARKETPLACE_CREATE_STORE_URL] Магазин] возвращает ошибки.
+	</string>
 	<string name="Marketplace Error None">
 		Ошибок нет
 	</string>
@@ -1323,6 +1373,9 @@ support@secondlife.com.
 	</string>
 	<string name="Open landmarks">
 		Открыть закладки
+	</string>
+	<string name="Unconstrained">
+		Без ограничения
 	</string>
 	<string name="no_transfer" value="(не передается)"/>
 	<string name="no_modify" value="(не изменяется)"/>
@@ -1723,6 +1776,9 @@ support@secondlife.com.
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Загружено, компилируется
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		Служба компилирования скриптов недоступна
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		Скрипт не найден на сервере.

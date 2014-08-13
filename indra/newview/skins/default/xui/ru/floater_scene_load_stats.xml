@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Scene Load Statistics" title="СТАТИСТИКА ЗАГРУЗКИ СЦЕН">
+	<button label="Пауза" name="playpause"/>
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view label="Основной" name="basic">
+				<stat_bar label="Разница в пикселах на кадр" name="frame difference"/>
+				<stat_bar label="Получены данные UDP" name="bandwidth"/>
+				<stat_bar label="Потери пакетов" name="packet_loss"/>
+			</stat_view>
+			<stat_view label="Расширенный" name="advanced">
+				<stat_view label="Отрисовка" name="render">
+					<stat_bar label="Всего объектов" name="objs"/>
+					<stat_bar label="Новых объектов" name="newobjs"/>
+					<stat_bar label="Частота попаданий в кэш объектов" name="object_cache_hits"/>
+				</stat_view>
+				<stat_view label="Текстура" name="texture">
+					<stat_bar label="Частота попаданий в кэш" name="texture_cache_hits"/>
+					<stat_bar label="Задержка чтения кэша" name="texture_cache_read_latency"/>
+					<stat_bar label="Кол-во" name="numimagesstat"/>
+					<stat_bar label="Необраб. изображений" name="numrawimagesstat"/>
+				</stat_view>
+				<stat_view label="Сеть" name="network">
+					<stat_bar label="Входящие пакеты" name="packetsinstat"/>
+					<stat_bar label="Исходящие пакеты" name="packetsoutstat"/>
+					<stat_bar label="Объекты" name="objectdatareceived"/>
+					<stat_bar label="Текстура" name="texturedatareceived"/>
+					<stat_bar label="Актив" name="assetudpdatareceived"/>
+					<stat_bar label="Слои" name="layersdatareceived"/>
+					<stat_bar label="Действительный ввод" name="messagedatain"/>
+					<stat_bar label="Действительный вывод" name="messagedataout"/>
+					<stat_bar label="Ожидающие операции VFS" name="vfspendingoperations"/>
+				</stat_view>
+			</stat_view>
+			<stat_view label="Симулятор" name="sim">
+				<stat_bar label="Объекты" name="simobjects"/>
+				<stat_bar label="Активные объекты" name="simactiveobjects"/>
+				<stat_bar label="Активные скрипты" name="simactivescripts"/>
+				<stat_bar label="Входящие пакеты" name="siminpps"/>
+				<stat_bar label="Исходящие пакеты" name="simoutpps"/>
+				<stat_bar label="Отложенные загрузки" name="simpendingdownloads"/>
+				<stat_bar label="Отложенные передачи" name="simpendinguploads"/>
+				<stat_bar label="Общий нераспакованный объем (байт)" name="simtotalunackedbytes"/>
+				<stat_view label="Время (мс)" name="simperf">
+					<stat_bar label="Общее время кадра" name="simframemsec"/>
+					<stat_bar label="Чистое время" name="simnetmsec"/>
+					<stat_bar label="Время на физику" name="simsimphysicsmsec"/>
+					<stat_bar label="Время на симуляцию" name="simsimothermsec"/>
+					<stat_bar label="Время на клиент" name="simagentmsec"/>
+					<stat_bar label="Время на изображения" name="simimagesmsec"/>
+					<stat_bar label="Время на скрипт" name="simscriptmsec"/>
+					<stat_bar label="Резервное время" name="simsparemsec"/>
+					<stat_view label="Данные времени (мс)" name="timedetails">
+						<stat_bar label="Шаг физики" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Обновить физ. формы" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Физика - прочее" name="simsimphysicsothermsec"/>
+						<stat_bar label="Время сна" name="simsleepmsec"/>
+						<stat_bar label="Время ввода/вывода" name="simpumpiomsec"/>
+					</stat_view>
+				</stat_view>
+			</stat_view>
+		</container_view>
+	</scroll_container>
+</floater>

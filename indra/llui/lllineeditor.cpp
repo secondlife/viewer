@@ -254,6 +254,7 @@ void LLLineEditor::onCommit()
 
 	setControlValue(getValue());
 	LLUICtrl::onCommit();
+	resetDirty();
 
 	// Selection on commit needs to be turned off when evaluating maths
 	// expressions, to allow indication of the error position
