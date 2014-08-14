@@ -642,37 +642,63 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 @implementation LLNonInlineTextView
 
+/*  Input Window is a legacy of 20 century, so we want to remove related classes.
+    But unfortunately, Viwer web browser has no support for modern inline input,
+    we need to leave these classes...
+    We will be back to get rid of Input Window after fixing viewer web browser.
+
+    How Input Window should work:
+        1) Input Window must not be empty.
+          It must close when it become empty result of edithing.
+        2) Input Window must not close when it still has input data.
+          It must keep open user types next char before commit.         by Pell Smit
+*/
+
 - (void) setGLView:(LLOpenGLView *)view
 {
 	glview = view;
 }
 
-- (void) insertText:(id)insertString
+- (void)keyDown:(NSEvent *)theEvent
 {
-	[[self inputContext] discardMarkedText];
-    [self setString:@""];
-    [_window orderOut:_window];
-	[self insertText:insertString replacementRange:NSMakeRange(0, [insertString length])];
+    // mKeyPressed is used later to determine whethere Input Window should close or not
+    mKeyPressed = [[theEvent charactersIgnoringModifiers] characterAtIndex:0];
+    // setMarkedText and insertText is called indirectly from inside keyDown: method
+    [super keyDown:theEvent];
 }
 
+// setMarkedText: is called for incomplete input(on the way to conversion).
+- (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
+{
+    [super setMarkedText:aString selectedRange:selectedRange replacementRange:replacementRange];
+    if ([aString length] == 0)      // this means Input Widow becomes empty
+    {
+        [_window orderOut:_window];     // Close this to avoid empty Input Window
+    }
+}
+
+// insertText: is called for inserting commited text.
+// There are two ways to be called here:
+//      a) explicitly commited (must close)
+//          In case of user typed commit key(usually return key) or delete key or something
+//      b) automatically commited (must not close)
+//          In case of user typed next letter after conversion
 - (void) insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-	[glview insertText:aString replacementRange:replacementRange];
-}
-
-- (void) insertNewline:(id)sender
-{
-	[[self textStorage] setValue:@""];
-	[[self inputContext] discardMarkedText];
+    [[self inputContext] discardMarkedText];
     [self setString:@""];
-}
-
-- (void)doCommandBySelector:(SEL)aSelector
-{
-	if (aSelector == @selector(insertNewline:))
-	{
-		[self insertNewline:self];
-	}
+    [glview insertText:aString replacementRange:replacementRange];
+    if (mKeyPressed == NSEnterCharacter ||
+        mKeyPressed == NSBackspaceCharacter ||
+        mKeyPressed == NSTabCharacter ||
+        mKeyPressed == NSNewlineCharacter ||
+        mKeyPressed == NSCarriageReturnCharacter ||
+        mKeyPressed == NSDeleteCharacter ||
+        (mKeyPressed >= 0xF700 && mKeyPressed <= 0xF8FF))
+    {
+        // this is case a) of above comment
+        [_window orderOut:_window];     // to avoid empty Input Window
+    }
 }
 
 @end
