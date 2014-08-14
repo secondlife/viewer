@@ -379,15 +379,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
 	mModifiers = [theEvent modifierFlags];
     bool acceptsText = mHasMarkedText ? false : callKeyDown(keycode, mModifiers);
+    unichar ch;
     if (acceptsText &&
         !mMarkedTextAllowed &&
+        !(mModifiers & (NSControlKeyMask | NSCommandKeyMask)) &&  // commands don't invoke InputWindow
         ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSDeleteCharacter &&
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSBackspaceCharacter &&
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSDownArrowFunctionKey &&
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSUpArrowFunctionKey &&
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSLeftArrowFunctionKey &&
-        [[theEvent charactersIgnoringModifiers] characterAtIndex:0] != NSRightArrowFunctionKey)
+        (ch = [[theEvent charactersIgnoringModifiers] characterAtIndex:0]) > ' ' &&
+        ch != NSDeleteCharacter &&
+        (ch < 0xF700 || ch > 0xF8FF))  // 0xF700-0xF8FF: reserved for function keys on the keyboard(from NSEvent.h)
     {
         [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
     } else
