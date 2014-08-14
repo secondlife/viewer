@@ -270,14 +270,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
         !([theEvent modifierFlags] & NSFunctionKeyMask) &&
         !([theEvent modifierFlags] & NSHelpKeyMask))
     {
-        callRightMouseDown(mMousePos, mModifiers);
+        callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
     } else {
         if ([theEvent clickCount] >= 2)
         {
-            callDoubleClick(mMousePos, mModifiers);
+            callDoubleClick(mMousePos, [theEvent modifierFlags]);
         } else if ([theEvent clickCount] == 1) {
-            callLeftMouseDown(mMousePos, mModifiers);
+            callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
         }
     }
 }
@@ -286,21 +286,21 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     if (mSimulatedRightClick)
     {
-        callRightMouseUp(mMousePos, mModifiers);
+        callRightMouseUp(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = false;
     } else {
-        callLeftMouseUp(mMousePos, mModifiers);
+        callLeftMouseUp(mMousePos, [theEvent modifierFlags]);
     }
 }
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-	callRightMouseDown(mMousePos, mModifiers);
+	callRightMouseDown(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
 {
-	callRightMouseUp(mMousePos, mModifiers);
+	callRightMouseUp(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent
@@ -341,12 +341,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) otherMouseDown:(NSEvent *)theEvent
 {
-	callMiddleMouseDown(mMousePos, mModifiers);
+	callMiddleMouseDown(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent
 {
-	callMiddleMouseUp(mMousePos, mModifiers);
+	callMiddleMouseUp(mMousePos, [theEvent modifierFlags]);
 }
 
 - (void) otherMouseDragged:(NSEvent *)theEvent
@@ -366,12 +366,18 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) keyUp:(NSEvent *)theEvent
 {
-	callKeyUp([theEvent keyCode], mModifiers);
+	callKeyUp([theEvent keyCode], [theEvent modifierFlags]);
 }
 
 - (void) keyDown:(NSEvent *)theEvent
 {
     uint keycode = [theEvent keyCode];
+    // We must not depend on flagsChange event to detect modifier flags changed,
+    // must depend on the modifire flags in the event parameter.
+    // Because flagsChange event handler misses event when other window is activated,
+    // e.g. OS Window for upload something or Input Window...
+    // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
+	mModifiers = [theEvent modifierFlags];
     bool acceptsText = mHasMarkedText ? false : callKeyDown(keycode, mModifiers);
     if (acceptsText &&
         !mMarkedTextAllowed &&
@@ -396,11 +402,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         callKeyUp([theEvent keyCode], mModifiers);
     }
-}
-
-- (void)flagsChanged:(NSEvent *)theEvent {
-	mModifiers = [theEvent modifierFlags];
-	callModifier([theEvent modifierFlags]);
 }
 
 - (BOOL) acceptsFirstResponder
