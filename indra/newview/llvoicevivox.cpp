@@ -476,10 +476,9 @@ void LLVivoxVoiceClient::connectorCreate()
 
 	std::string savedLogLevel = gSavedSettings.getString("VivoxDebugLevel");
 		
-	if(savedLogLevel != "-0")
+	if(savedLogLevel != "0")
 	{
 		LL_DEBUGS("Voice") << "creating connector with logging enabled" << LL_ENDL;
-		loglevel = "0";
 	}
 	
 	stream 
@@ -788,15 +787,29 @@ void LLVivoxVoiceClient::stateMachine()
 						// vivox executable exists.  Build the command line and launch the daemon.
 						LLProcess::Params params;
 						params.executable = exe_path;
-						// SLIM SDK: these arguments are no longer necessary.
-//						std::string args = " -p tcp -h -c";
+
 						std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
+						std::string shutdown_timeout = gSavedSettings.getString("VivoxShutdownTimeout");
 						if(loglevel.empty())
 						{
 							loglevel = "0";	// turn logging off completely
 						}
+							
 						params.args.add("-ll");
 						params.args.add(loglevel);
+
+						//if (loglevel != "0") //SPATTERS
+						{
+							std::string log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+							params.args.add("-lf");
+							params.args.add(log_folder);
+						}
+
+						if(!shutdown_timeout.empty())
+						{
+							params.args.add("-st");
+							params.args.add(shutdown_timeout);
+						}
 						params.cwd = gDirUtilp->getAppRODataDir();
 						sGatewayPtr = LLProcess::create(params);
 
@@ -1334,7 +1347,7 @@ void LLVivoxVoiceClient::stateMachine()
 				{
 					// Connect to a session by URI
 					sessionCreateSendMessage(mAudioSession, true, false);
-				}
+				}  
 
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINING);
 				setState(stateJoiningSession);
@@ -1510,7 +1523,7 @@ void LLVivoxVoiceClient::stateMachine()
 			// Always reset the terminate request flag when we get here.
 			mSessionTerminateRequested = false;
 
-			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
+			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested  && !LLApp::isExiting())
 			{				
 				// Just leaving a channel, go back to stateNoChannel (the "logged in but have no channel" state).
 				setState(stateNoChannel);
@@ -1529,6 +1542,7 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateLoggingOut
 		case stateLoggingOut:			// waiting for logout response
 			// The handler for the AccountLoginStateChangeEvent will transition from here to stateLoggedOut.
+			LL_INFOS() << "SPATTERS do I need to stay alive here?" << LL_ENDL;
 		break;
 		
 		//MARK: stateLoggedOut
@@ -2316,6 +2330,12 @@ static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVe
 	}
 	
 #endif
+}
+
+void LLVivoxVoiceClient::setHidden(bool hidden)
+{
+    mHidden = hidden;
+    return;
 }
 
 void LLVivoxVoiceClient::sendPositionalUpdate(void)

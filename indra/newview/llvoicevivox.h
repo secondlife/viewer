@@ -747,6 +747,7 @@ private:
 	std::string getAudioSessionURI();
 	std::string getAudioSessionHandle();
 			
+    void setHidden(bool hidden);
 	void sendPositionalUpdate(void);
 	
 	void buildSetCaptureDevice(std::ostringstream &stream);
@@ -775,6 +776,7 @@ private:
 	
 	bool		mMuteMic;
 	bool		mMuteMicDirty;
+    bool        mHidden;       //Set to true during teleport to hide the agent's position.
 			
 	// Set to true when the friends list is known to have changed.
 	bool		mFriendsListDirty;
