@@ -941,7 +941,8 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
     // Options available at all levels on items and categories
     items.push_back(std::string("Marketplace Edit Listing"));
     LLUUID listing_folder_id = nested_parent_id(mUUID,depth);
-    if (!LLMarketplaceData::instance().isListed(listing_folder_id))
+    LLUUID version_folder_id = LLMarketplaceData::instance().getVersionFolder(listing_folder_id);
+    if (!LLMarketplaceData::instance().isListed(listing_folder_id) || version_folder_id.isNull())
     {
         disabled_items.push_back(std::string("Marketplace Edit Listing"));
     }
