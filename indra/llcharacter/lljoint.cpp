@@ -275,7 +275,7 @@ void LLJoint::storeScaleForReset( const LLVector3& scale )
 //--------------------------------------------------------------------
 void LLJoint::restoreOldXform( void )
 {	
-	mXform = mDefaultXform;
+	mXform = mOldXform;
 	mResetAfterRestoreOldXform = false;
 	mDirtyFlags = ALL_DIRTY;	
 }
@@ -432,7 +432,7 @@ const LLMatrix4 &LLJoint::getWorldMatrix()
 //--------------------------------------------------------------------
 void LLJoint::setWorldMatrix( const LLMatrix4& mat )
 {
-LL_INFOS() << "WARNING: LLJoint::setWorldMatrix() not correctly implemented yet" << LL_ENDL;
+	LL_INFOS() << "WARNING: LLJoint::setWorldMatrix() not correctly implemented yet" << LL_ENDL;
 	// extract global translation
 	LLVector3 trans(	mat.mMatrix[VW][VX],
 						mat.mMatrix[VW][VY],

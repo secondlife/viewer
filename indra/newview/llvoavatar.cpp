@@ -7676,6 +7676,15 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 		}
 
 	}
+	avatar_joint_list_t::iterator iter = mSkeleton.begin();
+	avatar_joint_list_t::iterator end  = mSkeleton.end();
+	for (; iter != end; ++iter)
+	{
+		LLJoint* pJoint = (*iter);
+		const LLVector3& pos = pJoint->getPosition();
+		apr_file_printf( file, "\t\t<joint name=\"%s\" position=\"%f %f %f\"/>\n", pJoint->getName().c_str(), pos[0], pos[1], pos[2]);
+	}
+
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
 
