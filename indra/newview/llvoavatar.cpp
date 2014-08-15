@@ -7682,7 +7682,9 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	{
 		LLJoint* pJoint = (*iter);
 		const LLVector3& pos = pJoint->getPosition();
-		apr_file_printf( file, "\t\t<joint name=\"%s\" position=\"%f %f %f\"/>\n", pJoint->getName().c_str(), pos[0], pos[1], pos[2]);
+		const LLVector3& scale = pJoint->getScale();
+		apr_file_printf( file, "\t\t<joint name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+						 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
 	}
 
 	apr_file_printf( file, "\t</archetype>\n" );
