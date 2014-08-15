@@ -287,7 +287,10 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 	thumbnail_placeholder->reshape(panel_width, thumbnail_placeholder->getRect().getHeight());
 	floaterp->getChild<LLUICtrl>("image_res_text")->setVisible(advanced);
 	floaterp->getChild<LLUICtrl>("file_size_label")->setVisible(advanced);
-	floaterp->reshape(floater_width, floaterp->getRect().getHeight());
+	if(!floaterp->isMinimized())
+	{
+		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
+	}
 
 	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
 
