@@ -9,33 +9,26 @@
         </array>
         <array>
             <string>darken</string>
-            <real>0.15</real>
+            <real>0.05</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>
         </array>
         <array>
             <string>stencil</string>
-            <string>uniform</string>
-            <string>add</string>
+            <string>scanlines</string>
+            <string>add-back</string>
             <real>0.0</real>
-            <real>0.5</real>
-        </array>
-        <array>
-            <string>screen</string>
-            <string>line</string>
-            <real>0.02</real>
-            <real>0.0</real>
+            <real>0.25</real>
+            <real>0.025</real>
+            <real>0</real>
         </array>
         <array>
             <string>gamma</string>
-            <real>0.25</real>
+            <real>0.0</real>
             <real>1.0</real>
             <real>1.0</real>
             <real>1.0</real>
-        </array>
-        <array>
-            <string>blur</string>
         </array>
         <array>
             <string>blur</string>
