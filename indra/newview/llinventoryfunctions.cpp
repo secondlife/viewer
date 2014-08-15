@@ -923,8 +923,8 @@ bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg
 	LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
     LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
 
-    // Linked items and folders cannot be put for sale if caller can't resolve them
-    if (!resolve_links && (linked_category || linked_item))
+    // Linked items and folders cannot be put for sale
+    if (linked_category || linked_item)
     {
 		tooltip_msg = LLTrans::getString("TooltipOutboxLinked");
         return false;
