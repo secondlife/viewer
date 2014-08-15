@@ -83,6 +83,7 @@ void LLPanelMarketplaceListings::buildAllPanels()
 	panel->getFilter().markDefault();
     
 	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+	tabs_panel->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onTabChange, this));
     tabs_panel->selectTabPanel(mAllPanel);
 }
 
@@ -118,6 +119,15 @@ void LLPanelMarketplaceListings::draw()
 void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action)
 {
 	panel->onSelectionChange(items, user_action);
+}
+
+void LLPanelMarketplaceListings::onTabChange()
+{
+	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+    LLInventoryPanel* panel = static_cast<LLInventoryPanel*>(tabs_panel->getCurrentPanel());
+    // If the panel doesn't allow drop on root, it doesn't allow the creation of new folder on root either
+	LLButton* add_btn = getChild<LLButton>("add_btn");
+    add_btn->setEnabled(panel->getAllowDropOnRoot());
 }
 
 void LLPanelMarketplaceListings::onAddButtonClicked()

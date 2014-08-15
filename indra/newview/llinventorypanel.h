@@ -187,6 +187,7 @@ public:
 	LLFolderView* getRootFolder() { return mFolderRoot.get(); }
 	LLUUID getRootFolderID();
 	LLScrollContainer* getScrollableContainer() { return mScroller; }
+    bool getAllowDropOnRoot() { return mParams.allow_drop_on_root; }
 	
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	
