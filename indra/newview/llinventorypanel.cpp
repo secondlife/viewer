@@ -337,12 +337,6 @@ void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType 
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
 	{
-		//Don't show folder without recent item in it
-		if ("Recent Items" == getName())
-		{
-			types &= ~(0x1 << LLInventoryType::IT_CATEGORY);
-		}
-
 		getFilter().setFilterObjectTypes(types);
 	}
 	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
