@@ -160,6 +160,13 @@ void LLVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &age
 	mVoiceModule->userAuthorized(user_id, agentID);
 }
 
+void LLVoiceClient::setHidden(bool hidden)
+{
+    if (mVoiceModule)
+    {
+        mVoiceModule->setHidden(hidden);
+    }
+}
 
 void LLVoiceClient::terminate()
 {

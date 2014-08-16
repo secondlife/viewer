@@ -70,6 +70,7 @@
 #include "apr_base64.h"
 
 #define USE_SESSION_GROUPS 0
+#define VX_NULL_POSITION -2147483648.0 /*The Silence*/
 
 extern LLMenuBarGL* gMenuBarView;
 extern void handle_voice_morphing_subscribe();
@@ -2334,7 +2335,9 @@ static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVe
 
 void LLVivoxVoiceClient::setHidden(bool hidden)
 {
+    //SPATTERS hide me
     mHidden = hidden;
+    sendPositionalUpdate();
     return;
 }
 
@@ -2359,7 +2362,17 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 		l = mAvatarRot.getLeftRow();
 		u = mAvatarRot.getUpRow();
 		a = mAvatarRot.getFwdRow();
-		pos = mAvatarPosition;
+        if (mHidden)
+        {
+            for (int i=0;i<3;++i)
+            {
+                pos.mdV[i] = VX_NULL_POSITION;
+            }
+        }
+        else
+        {
+            pos = mAvatarPosition;
+        }
 		vel = mAvatarVelocity;
 
 		// SLIM SDK: the old SDK was doing a transform on the passed coordinates that the new one doesn't do anymore.
@@ -2426,7 +2439,17 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 		l = earRot.getLeftRow();
 		u = earRot.getUpRow();
 		a = earRot.getFwdRow();
-		pos = earPosition;
+        if (mHidden)
+        {
+            for (int i=0;i<3;++i)
+            {
+                pos.mdV[i] = VX_NULL_POSITION;
+            }
+        }
+        else
+        {
+            pos = earPosition;
+        }
 		vel = earVelocity;
 
 //		LL_DEBUGS("Voice") << "Sending listener position " << earPosition << LL_ENDL;
