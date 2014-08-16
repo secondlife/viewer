@@ -4897,7 +4897,7 @@ void LLAppViewer::idle()
 	// hover callbacks
 	//
     
-#ifdef LL_DARWIN   //SPATTERS may want to make this mac-only.  Test on Windows.
+#ifdef LL_DARWIN
 	if (!mQuitRequested)  //MAINT-4243
 #endif
 	{

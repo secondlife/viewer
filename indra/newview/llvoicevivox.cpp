@@ -799,12 +799,9 @@ void LLVivoxVoiceClient::stateMachine()
 						params.args.add("-ll");
 						params.args.add(loglevel);
 
-						//if (loglevel != "0") //SPATTERS
-						{
-							std::string log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-							params.args.add("-lf");
-							params.args.add(log_folder);
-						}
+						std::string log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+						params.args.add("-lf");
+						params.args.add(log_folder);
 
 						if(!shutdown_timeout.empty())
 						{
@@ -1543,7 +1540,6 @@ void LLVivoxVoiceClient::stateMachine()
 		//MARK: stateLoggingOut
 		case stateLoggingOut:			// waiting for logout response
 			// The handler for the AccountLoginStateChangeEvent will transition from here to stateLoggedOut.
-			LL_INFOS() << "SPATTERS do I need to stay alive here?" << LL_ENDL;
 		break;
 		
 		//MARK: stateLoggedOut
@@ -1647,6 +1643,9 @@ void LLVivoxVoiceClient::stateMachine()
 
 void LLVivoxVoiceClient::closeSocket(void)
 {
+#ifdef LL_WINDOWS
+	_sleep(3000);	//Wait a moment for socket to close.  SPATTERS
+#endif  
 	mSocket.reset();
 	mConnected = false;
 	mConnectorHandle.clear();

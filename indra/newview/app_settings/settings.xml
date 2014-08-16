@@ -13501,7 +13501,7 @@
     <key>VivoxDebugLevel</key>
     <map>
       <key>Comment</key>
-      <string>Logging level to use when launching the vivox daemon SPATTERS FIX VALUE BEFORE CHECKIN</string>
+      <string>Logging level to use when launching the vivox daemon</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13518,7 +13518,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>500</string>
+      <string>5</string>
     </map>
     <key>VivoxDebugSIPURIHostName</key>
     <map>
