@@ -5175,6 +5175,19 @@ Warning: The &apos;Pay object&apos; click action has been set, but it will only 
 
   <notification
    icon="alertmodal.tga"
+   name="PayConfirmation"
+   type="alertmodal">
+    Confirm that you want to pay L$[AMOUNT] to [TARGET].
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before paying"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Pay"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OpenObjectCannotCopy"
    type="alertmodal">
 There are no items in this object that you are allowed to copy.
