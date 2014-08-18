@@ -294,8 +294,7 @@
          width="199"
          top_pad="-16"/>
 	<panel
-       background_visible="true"
-       bg_alpha_color="0 0 0 0.25"
+       background_visible="false"
        follows="left|top"
        font="SansSerifLarge"
        halign="center"
@@ -326,8 +325,7 @@
           </text>
       </panel>
       <panel
-       background_visible="true"
-       bg_alpha_color="0 0 0 0.25"
+       background_visible="false"
        follows="left|top"
        font="SansSerifLarge"
        halign="center"
@@ -420,10 +418,11 @@
     type="string"
     font="SansSerifSmall"
     length="1"
-    follows="left|top"
+    follows="left|top|right"
     height="14"
     layout="topleft"
-    left_delta="5"
+    left="220"
+	right="-20"
     halign="left"
     name="image_res_text"
     top_delta="5"

@@ -287,7 +287,10 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 	thumbnail_placeholder->reshape(panel_width, thumbnail_placeholder->getRect().getHeight());
 	floaterp->getChild<LLUICtrl>("image_res_text")->setVisible(advanced);
 	floaterp->getChild<LLUICtrl>("file_size_label")->setVisible(advanced);
-	floaterp->reshape(floater_width, floaterp->getRect().getHeight());
+	if(!floaterp->isMinimized())
+	{
+		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
+	}
 
 	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
 
@@ -576,7 +579,7 @@ void LLFloaterSnapshot::Impl::onClickFilter(LLUICtrl *ctrl, void* data)
             LLComboBox* filterbox = static_cast<LLComboBox *>(view->getChild<LLComboBox>("filters_combobox"));
             std::string filter_name = (filterbox->getCurrentIndex() ? filterbox->getSimple() : "");
             previewp->setFilter(filter_name);
-            previewp->updateSnapshot(FALSE, TRUE);
+            previewp->updateSnapshot(TRUE);
         }
 	}
 }
@@ -758,6 +761,12 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		S32 original_width = 0 , original_height = 0 ;
 		previewp->getSize(original_width, original_height) ;
 		
+		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
+		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
+			width = llmin(width, gViewerWindow->getWindowWidthRaw());
+			height = llmin(height, gViewerWindow->getWindowHeightRaw());
+		}
+
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
@@ -803,14 +812,17 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		checkAspectRatio(view, width) ;
 
 		previewp->getSize(width, height);
-	
-		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
-		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
-			width = llmin(width, gViewerWindow->getWindowWidthRaw());
-			height = llmin(height, gViewerWindow->getWindowHeightRaw());
-		}
 
-		updateSpinners(view, previewp, width, height, TRUE); // may change width and height
+		bool width_changed;
+		if(original_width != width)
+		{
+			width_changed = TRUE;
+		}
+		else
+		{
+			width_changed = FALSE;
+		}
+		updateSpinners(view, previewp, width, height, width_changed); // may change width and height
 		
 		if(getWidthSpinner(view)->getValue().asInteger() != width || getHeightSpinner(view)->getValue().asInteger() != height)
 		{
@@ -825,12 +837,11 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			// hide old preview as the aspect ratio could be wrong
 			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
-			getPreviewView(view)->updateSnapshot(FALSE, TRUE);
+			getPreviewView(view)->updateSnapshot(TRUE);
 			if(do_update)
 			{
 				LL_DEBUGS() << "Will update controls" << LL_ENDL;
 				updateControls(view);
-				setNeedRefresh(view, true);
 			}
 		}
 	}
@@ -873,7 +884,6 @@ void LLFloaterSnapshot::Impl::onImageFormatChange(LLFloaterSnapshot* view)
 		LL_DEBUGS() << "image format changed, updating snapshot" << LL_ENDL;
 		getPreviewView(view)->updateSnapshot(TRUE);
 		updateControls(view);
-		setNeedRefresh(view, false); // we're refreshing
 	}
 }
 
@@ -951,8 +961,6 @@ void LLFloaterSnapshot::Impl::updateSpinners(LLFloaterSnapshot* view, LLSnapshot
 // static
 void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32 w, S32 h)
 {
-	bool need_refresh = false;
-
 	LL_DEBUGS() << "applyCustomResolution(" << w << ", " << h << ")" << LL_ENDL;
 	if (!view) return;
 
@@ -969,20 +977,13 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 
 			previewp->setSize(w,h);
 			checkAutoSnapshot(previewp, FALSE);
-			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
-			previewp->updateSnapshot(FALSE, TRUE);
 			comboSetCustom(view, "profile_size_combo");
 			comboSetCustom(view, "postcard_size_combo");
 			comboSetCustom(view, "texture_size_combo");
 			comboSetCustom(view, "local_size_combo");
-			need_refresh = true;
+			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
+			previewp->updateSnapshot(TRUE);
 		}
-	}
-
-	updateControls(view);
-	if (need_refresh)
-	{
-		setNeedRefresh(view, true); // need to do this after updateControls()
 	}
 }
 
@@ -1238,8 +1239,6 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 	{
         // Disable the send/post/save buttons until snapshot is ready.
         impl.updateControls(this);
-        // Force hiding the "Refresh to save" hint because we know we've just started refresh.
-        impl.setNeedRefresh(this, false);
 		return 1;
 	}
 

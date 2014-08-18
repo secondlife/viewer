@@ -48,10 +48,6 @@
      right="-5"
      top_pad="5">
         <combo_box.item
-         label="Current Window"
-         name="CurrentWindow"
-         value="[i0,i0]" />
-        <combo_box.item
          label="Small (128x128)"
          name="Small(128x128)"
          value="[i128,i128]" />

@@ -195,6 +195,8 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 		mSnapshotDelayTimer.start();
 		mSnapshotDelayTimer.setTimerExpirySec(delay);
         
+		mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
+
         // Tell the floater container that the snapshot is in the process of updating itself
         if (mViewContainer)
         {
@@ -760,7 +762,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                     curr_preview_image->setFilteringOption(previewp->getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
                     curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-                    previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
                     previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
                 }
             }
