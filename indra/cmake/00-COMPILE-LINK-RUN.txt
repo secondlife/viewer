@@ -1,0 +1,344 @@
+
+    A short guide to compiling, linking, running and debugging issues
+    in the viewer and its packaged libraries.
+
+Introduction
+
+    A recent pass through some third-party libraries resulted in the
+    collection of a lot of information about how things should and
+    shouldn't be built in the viewer.  Some of that is presented below
+    with hints and rules about doing things well.  What's presented is
+    a guideline only.  Not all suggestions are hard rules and you'll
+    find exceptions all over.  Some exceptions arise from solid
+    reasoning, others may be legacy that hasn't been re-examined.
+
+    Use good engineering judgement when applying this information.
+
+Compilation
+
+  Windows Targets
+
+    Significant compilation flags and defines follow:
+
+    ----------------------------------------------------------------------------
+    Option                Release          RelWithDebInfo          Debug
+    ----------------------------------------------------------------------------
+    wchar_t             /Zc:wchar_t-             "                   "
+    RTL type               /MD                  /MD                 /MDd
+    FLoating Point       /fp:fast                "                   "
+    Debug Info        /Zi (app/dll), /Z7 (lib)   "                   "
+    Optimizer           /O2 /Ob2 /GR       /Od /Ob0 /GR           /Od /GR
+    Incr. Link      /INCREMENTAL:NO        /INCREMENTAL       /INCREMENTAL:NO
+    Debug                /DEBUG               /DEBUG              /DEBUG
+                         /OPT:REF
+    Ignore Libs          LIBCMT               LIBCMT      LIBCMT;LIBCMTD;MSVCRT
+    Alignment           Default                  "                   "
+
+    Defines        WIN32                         "                   "
+                   _WINDOWS                      "                   "
+                   LL_RELEASE=1          LL_RELEASE=1               n/a
+                   LL_RELEASE_FOR_DOWNLOAD=1    n/a                 n/a
+                   NDEBUG                NDEBUG               _DEBUG
+                           n/a                  n/a           LL_DEBUG=1
+                           n/a           LL_RELEASE_WITH_\          n/a
+                                         DEBUG_INFO=1
+                           n/a                  n/a           _SCL_SECURE_NO_WARNINGS=1
+                   _SECURE_STL=0         _SECURE_STL=0        _SECURE_STL=0
+                   _HAS_ITERATOR_DEBUGGING=0    n/a                 n/a
+                   LL_WINDOWS=1                  "                   "
+                   UNICODE                       "                   "
+                   _UNICODE                      "                   "
+                   WINVER=0x0501                 "                   "
+                   _WIN32_WINNT=0x0501           "                   "
+                   LL_OS_DRAGDROP_ENABLED=1      "                   "
+                   CARES_STATICLIB               "                   "
+                   LIB_NDOF=1                    "                   "
+
+    ----------------------------------------------------------------------------
+    Notes:
+
+    1.  /Zc:wchar_t-.  Not certain where this comes from.  It may be
+    due to a default set of compilation flags in Qt 4.X that then
+    propagates outward.  In Qt 5.X, this setting is flipped back to
+    default (wchar_t is a built-in).  Other options for dealing with
+    this include:
+
+    http://msdn.microsoft.com/en-us/library/dh8che7s%28v=vs.110%29.aspx
+
+    Recommend trying to stay with /Zc:wchar_t (the default) when
+    adding libraries.  If incompatible, you'll typically get some
+    missing ostream '<<' operators or something similar in the stream
+    headers.
+
+    2.  /Z7 (VC 7.0 compatibility symbols) gives us debug information
+    in the static libraries we build.  Otherwise builds generate
+    vc100.pdb files all over the place which generally aren't useful.
+    DLL's and .EXEs are to get /Zi or /ZI with separate .PDB files.
+    These .PDB files can then be packaged up in symbol tarballs for
+    the crash dump analyzer or used in debugging.  There are issues here
+    for VS 2013 (see below).
+
+
+  Mac Targets
+
+    Fairly straightforward, optimization level is easily changed (may
+    be little or negative gain for -O3 and RelWithDebInfo should be
+    kicked up to 1 or 2.  Boost debug symbols to dwarf-2 with a goal
+    of dwarf-2 in separate dSYM file when building .dylibs and
+    executables.
+
+    ----------------------------------------------------------------------------
+    Option                Release          RelWithDebInfo          Debug
+    ----------------------------------------------------------------------------
+    Strip Debug Symbols     On                   "                   "
+    During Copy
+
+    Generate Debug Syms     On                   "                   "
+
+    Level Debug Syms    -gdwarf-2                "                   "
+
+    Optimization           -O3                  -O0                 -O0
+
+    PIC                -fPIC -DPIC               "                   "
+
+    Defines        LL_RELEASE=1          LL_RELEASE=1               n/a
+                   LL_RELEASE_FOR_DOWNLOAD=1    n/a                 n/a
+                   NDEBUG                NDEBUG               _DEBUG
+                           n/a                  n/a           LL_DEBUG=1
+                           n/a           LL_RELEASE_WITH_\          n/a
+                                         DEBUG_INFO=1
+                   LL_DARWIN=1                   "                   "
+                   LL_OS_DRAGDROP_ENABLED=1      "                   "
+                   CARES_STATICLIB               "                   "
+                   LIB_NDOF=1                    "                   "
+
+    ----------------------------------------------------------------------------
+    Notes:
+
+    1.  We’re also building dylibs in a somewhat unusual way.  They’re
+    currently being generated with a link path of
+    ‘@executable_path/../Resources/<library>’.  If we were to follow
+    the recommendations in dyld’s man page, we’d instead reference
+    ‘@loader_path/<library>’, use -rpath on the executable link
+    (pointing to the ‘Resources’ subdir of the main executable), and
+    be able to avoid some symlinking in the .app tree.
+
+    2.  Use the -headerpad_max_install_names link option on all .dylibs.
+
+
+  Linux Targets
+
+    Not much variety here.
+
+    ----------------------------------------------------------------------------
+    Option                Release          RelWithDebInfo          Debug
+    ----------------------------------------------------------------------------
+    Debug Level     -g (-g0/1 better?)          -g                  -g
+    During Copy
+
+    Optimization            -O2                 -O0                 -O0
+
+    PIC                    -fPIC                 "                   "
+    ----------------------------------------------------------------------------
+    Notes:
+
+
+Linking
+
+    The library update work has generally moved in the direction of
+    preferring static libraries over dynamic (Qt4 being the notable
+    exception).  It also mostly eliminated the extremely bad practice
+    of having multiple versions of a library built into an image.
+
+    How bad was it?  Very.  Appalling.  A nightmare.  On Windows, at
+    least four versions of zlib (1.2.3, 1.2.5, 1.2.6, unknown), three
+    versions of Boost (1.45, 1.48, 1.52), two versions of OpenSSL
+    (0.9.8q, 1.0.0g) and three different builds of libexpat
+    2.0.5/1.5.2 were used.  Mac was worse with five builds or versions
+    of zlib, two of PCRE, two of c-ares, and three of OpenSSL.  Linux
+    topped that by adding two builds of libpng.
+
+    DO NOT ALLOW THIS TO HAPPEN AGAIN.  It isn't enough to update a
+    library and then stuff a new triplet of S3 URLs into the viewer's
+    autobuild.xml.  If you update a library you MUST:
+
+    *  Update the autobuild.xml of ALL consumers of the library.  In
+    the case of zlib, that meant updating freetype, libpng, openssl,
+    libxml2, fontconfig, curl, Boost, SDL, llqtwebkit, google-mock and
+    colladadom.
+
+    *  Confirm by test and observation that the consumers actually use
+    your library rather than 'call home to mother' and find
+    system-supplied versions of your library.  This may consist of
+    watching configuration scripts, probing with ldd/depends/otool,
+    pulling text out of binaries with 'strings'.  The previously-
+    mentioned libraries all have a README.Linden file that gives
+    examples specific to the consumer library.
+
+    *  DO NOT RE-EXPORT LIBRARIES.  Colladadom was the worst offender
+    of this rule.  As a shared library, it was re-exporting part, but
+    not all, of Boost filesystem and system, some zlib, some PCRE,
+    some libxml2 and minizip.  This meant that depending upon link-
+    time and run-time symbol resolution, data constructed with one
+    version of a library might be processed by a method built in a
+    second, incompatible version of the library.  Switching colladadom
+    to a static library ended the re-export problem.
+
+    *  Preventing re-export is not sufficient.  other libraries will
+    still be shipped as shared and they can still have Singleton and
+    Fragile Base Class issues.  A DLL may be built with a static
+    archive of a library that has global data.  That same static
+    archive might be linked into the application proper.  An object
+    created with a method in the DLL may pass into a method in the
+    application where the archive's global data has a second instance
+    and no knowledge of the object.  This is a failure due to an
+    assumption of Singleton global data which leads to some kind of
+    failure.  This is the same effect as when, in Windows, both MSVCRT
+    and MSVCRTD get activated in a program.  If you're lucky, some
+    asserts fail in that case having to do with file handle global
+    data.
+
+
+Running
+
+    Windows Debug Build.  Seems to have been rendered nearly useless
+    by having the LL_CHECK_MEMORY define in llmemory.h calling
+    _CrtCheckMemory().  Viewer is almost useful disabling this in
+    llvoavatar code alone but not quite.
+
+
+Futures
+
+  Static Versus Dynamic Libraries
+
+    One solution to the above linking problems is the use of static
+    libraries for everything.  Single version, singleton instancing of
+    data, etc.  But it's not the 1950's and we're not running our
+    applications on bare metal.  Every platform comes with 100s of
+    libraries waiting to interfere with operations by breaking the
+    single-version and singleton-data assumption.
+
+    Additionally, there are libraries that simply expect to be built
+    into shared libraries.  Qt4 is one such.  The version we're using
+    now, 4.7.1, is actually trying to disable both Webkit and plugin
+    modules because we're building it statically on Mac and Linux.
+    It's only because of configuration bugs that we're getting the
+    functionality out of it that we want.
+
+    With enough libraries and a single, global namespace, eventually
+    there will be collisions and there may not be a warning.  All it
+    takes is two programmers who thought that 'FILE * open_file(const
+    char *);' was a safe signature to use between compilation units in
+    their libraries and glorious debugging sessions are in your
+    future.  Having debugged it, you will now become the proud owner
+    of a one-off version of one of those libraries that uses a special
+    symbol prefix which you will be maintaining forever.
+
+    Lastly, we have some binary blobs that we must use as delivered.
+    Executables can be isolated at run-time if necessary.  Shared
+    libraries are a different problem.  They may bring their own
+    library dependencies that affect link- and run-time symbol
+    resolution and they'll impose that on us according to platform
+    rules.
+
+    So, what to do?  My natural bias for large software is to use
+    shared libraries for everything.  It's a path to single-version
+    and singleton data and isolates namespaces and prevents
+    interactions.  It also has some field serviceability benefits if
+    you need to debug some bizarre problem a user has.
+
+    But there's a local preference for static.  Here, my
+    rules-of-thumb are:
+
+    * Static library used by default.
+
+    * Shared library where the library must be built shared.
+
+    * Shared library if that is the only means to enforce the
+      single-version and singleton-data requirements.
+
+    * Shared library *on a case-by-case basis* if the library is also
+      provided by the platform and some benefit is plausible.  (An
+      example of this is freetype/fontconfig on Linux.  The .so
+      versions we build with, and incompletely ship, are inferior in
+      behavior to the platform libraries.  By being shared libraries,
+      the platform-supplied option is available to all Linux users.)
+
+    In all cases, beware of cmake which appears to collapse and move
+    library references in links.  This can drastically affect symbol
+    resolution when there are multiple sources for a symbol.
+
+  General
+
+    VS 2013.  The /Z7 flag is rumored to be somewhat broken in 2013.
+    But it also sounds like there are explicit controls to name .PDB
+    files associated with static archives.  That would make this an
+    ideal time to switch to /Zi or /ZI everywhere with explicit naming
+    and bring all the .PDBs together.
+
+    The embedded browser technology (e.g. Qt4 with Webkit) is the
+    800-pound gorilla in the viewer.  When starting any major work,
+    decide what changes you need here as those changes will propagate
+    outwards forcing many other decisions (cf: /Zc:wchar_t- flag).
+
+    The current package structure (./include, ./lib/release,
+    ./lib/debug, etc.) really works against the conventions used by
+    configure-like programs.  I wasted a lot of time getting each
+    library to work with our structure without having to go back to
+    automake/autoconf.  For Linux and Mac (and even for Windows), a
+    structure like the following where each grouping is optional would
+    probably save some work:
+
+        ./debug/bin
+               /include
+               /lib
+        ./debug/shared/bin
+                      /include
+                      /lib
+        ./debug/static/bin
+                      /include
+                      /lib
+        ./release/bin
+                 /include
+                 /lib
+        ...
+
+    In zlib and openssl and in a few of the libraries that consume
+    them, I experimented with packaging both static and shared
+    libraries and then having the consumer library move the unwanted
+    pieces out of the way to use the library type of choice (see
+    restore_dylibs() and restore_sos() functions).  It was a bit fussy
+    and simplicity and clarity are the keys to maintaining libraries
+    in the future.
+
+    But it did suggest another approach.  The idea is that every build
+    pre-stages inputs.  Before anything is built, package pieces are
+    copied or symlinked from the 'stage/packages' area to the
+    'stage/input' area.  Builds then proceed with a single set of
+    -I/-L options for the dependencies.  And products are built and
+    installed in a similar output staging structure for the next
+    consumer:
+
+        stage/packages/<package>/[above structure]
+        stage/input/{bin,include,lib}
+        stage/<package>/[above structure]
+
+    Next library project.  I'd recommend working on the related set of
+    libexpat, apr, aprutil, xmlrpc-epi.  We know libexpat has some
+    updates that should improve stability.  Libapr consumes it and it
+    could use some /Z7 flag work to get rid of some 1000's of PDB
+    warnings and improve our debug symbols.
+
+    Miscellany to be sorted out:
+
+    * The packaging of libfreetype and libfontconfig on Linux.
+    Determine what the right thing is, do it.
+
+    * Maybe do something with ICU4C.  Qt5 will require it and a number
+    of our packages can consume it typically replacing iconv or some
+    other library.  But it is a huge bolus of static data.  It can be
+    trimmed, but still.
+
+    * Revisit openssl.  Package as a shared library?  Replace with
+    LibreSSL when available?  Start using platform-supplied crypto?
+

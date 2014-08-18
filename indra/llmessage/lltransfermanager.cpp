@@ -1260,9 +1260,13 @@ bool LLTransferTarget::addDelayedPacket(
 		size);
 
 #ifdef _DEBUG
-	if (mDelayedPacketMap.find(packet_id) != mDelayedPacketMap.end())
+    transfer_packet_map::iterator iter = mDelayedPacketMap.find(packet_id);
+	if (iter != mDelayedPacketMap.end())
 	{
-		LL_ERRS() << "Packet ALREADY in delayed packet map!" << LL_ENDL;
+        if (!(iter->second->mSize == size) && !(iter->second->mDatap == datap))
+        {
+            LL_ERRS() << "Packet ALREADY in delayed packet map!" << LL_ENDL;
+        }
 	}
 #endif
 
