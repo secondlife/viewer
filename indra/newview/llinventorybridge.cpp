@@ -3551,9 +3551,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	LLInventoryModel* model = getInventoryModel();
 	llassert(model != NULL);
 
-	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	const LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-	const LLUUID favorites = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	const LLUUID &lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+	const LLUUID &favorites = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	const LLUUID &marketplace_listings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 
 	if (lost_and_found_id == mUUID)
 	{
@@ -3574,6 +3575,12 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (isMarketplaceListingsFolder())
     {
 		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+    }
+    if (marketplace_listings_id == mUUID)
+    {
+		disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("Cut"));
+        disabled_items.push_back(std::string("Delete"));
     }
 	if(trash_id == mUUID)
 	{
@@ -3669,7 +3676,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	}
 	// Add menu items that are dependent on the contents of the folder.
 	LLViewerInventoryCategory* category = (LLViewerInventoryCategory *) model->getCategory(mUUID);
-	if (category)
+	if (category && (marketplace_listings_id != mUUID))
 	{
 		uuid_vec_t folders;
 		folders.push_back(category->getUUID());
