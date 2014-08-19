@@ -183,7 +183,7 @@
                 top="0"
                 value=""
                 width="293"
-                max_length="2048"/>
+                textbox.max_length="2048"/>
             </layout_panel>
             <layout_panel
               follows=""

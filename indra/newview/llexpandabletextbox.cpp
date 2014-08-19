@@ -211,7 +211,6 @@ LLExpandableTextBox::Params::Params()
 :	textbox("textbox"),
 	scroll("scroll"),
 	max_height("max_height", 0),
-	max_text_length("max_length", 255),
 	bg_visible("bg_visible", false),
 	expanded_bg_visible("expanded_bg_visible", true),
 	bg_color("bg_color", LLColor4::black),
@@ -237,7 +236,6 @@ LLExpandableTextBox::LLExpandableTextBox(const Params& p)
 
 	LLTextBoxEx::Params textbox_params = p.textbox;
 	textbox_params.rect(rc);
-	textbox_params.max_text_length = p.max_text_length;
 	mTextBox = LLUICtrlFactory::create<LLTextBoxEx>(textbox_params);
 	mScroll->addChild(mTextBox);
 
