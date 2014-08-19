@@ -87,6 +87,8 @@ void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
 
+const F32 SOUND_GAIN = 1.0f;
+
 struct LLMoveInv
 {
 	LLUUID mObjectID;
@@ -4523,6 +4525,23 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
+void LLSoundBridge::performAction(LLInventoryModel* model, std::string action)
+{
+	if ("sound_play" == action)
+	{
+		LLViewerInventoryItem* item = getItem();
+		if(item)
+		{
+			send_sound_trigger(item->getAssetUUID(), SOUND_GAIN);
+		}
+	}
+	else if ("open" == action)
+	{
+		openSoundPreview((void*)this);
+	}
+	else LLItemBridge::performAction(model, action);
+}
+
 // +=================================================+
 // |        LLLandmarkBridge                         |
 // +=================================================+
@@ -6135,7 +6154,7 @@ public:
 		LLViewerInventoryItem* item = getItem();
 		if (item)
 		{
-			LLFloaterReg::showInstance("preview_sound", LLSD(mUUID), TAKE_FOCUS_YES);
+			send_sound_trigger(item->getAssetUUID(), SOUND_GAIN);
 		}
 		LLInvFVBridgeAction::doIt();
 	}
