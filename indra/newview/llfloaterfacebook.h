@@ -62,6 +62,8 @@ private:
 	void showDisconnectedLayout();
 	void showConnectedLayout();
 
+	bool pressedConnect;
+
 	LLTextBox * mAccountCaptionLabel;
 	LLTextBox * mAccountNameLabel;
 	LLUICtrl * mPanelButtons;

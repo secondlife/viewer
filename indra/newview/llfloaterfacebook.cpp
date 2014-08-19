@@ -156,7 +156,8 @@ void LLFacebookStatusPanel::onSend()
 {
 	LLEventPumps::instance().obtain("FacebookConnectState").stopListening("LLFacebookStatusPanel"); // just in case it is already listening
 	LLEventPumps::instance().obtain("FacebookConnectState").listen("LLFacebookStatusPanel", boost::bind(&LLFacebookStatusPanel::onFacebookConnectStateChange, this, _1));
-		
+	
+	pressedConnect = FALSE;
 	// Connect to Facebook if necessary and then post
 	if (LLFacebookConnect::instance().isConnected())
 	{
@@ -186,7 +187,8 @@ bool LLFacebookStatusPanel::onFacebookConnectStateChange(const LLSD& data)
 	switch (data.get("enum").asInteger())
 	{
 		case LLFacebookConnect::FB_CONNECTED:
-			sendStatus();
+			if(!pressedConnect)
+				sendStatus();
 			break;
 
 		case LLFacebookConnect::FB_POSTED:
@@ -293,6 +295,7 @@ void LLFacebookStatusPanel::onConnect()
 {
 	LLFacebookConnect::instance().checkConnectionToFacebook(true);
 
+	pressedConnect = TRUE;
 	//Clear only the facebook browser cookies so that the facebook login screen appears
 	LLViewerMedia::getCookieStore()->removeCookiesByDomain(".facebook.com"); 
 }
