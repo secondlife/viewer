@@ -1644,7 +1644,7 @@ void LLVivoxVoiceClient::stateMachine()
 void LLVivoxVoiceClient::closeSocket(void)
 {
 #ifdef LL_WINDOWS
-	_sleep(3000);	//Wait a moment for socket to close.  SPATTERS
+	_sleep(3000);	//Wait a moment for socket to close.
 #endif  
 	mSocket.reset();
 	mConnected = false;
@@ -2334,8 +2334,8 @@ static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVe
 
 void LLVivoxVoiceClient::setHidden(bool hidden)
 {
-    //SPATTERS hide me
     mHidden = hidden;
+    
     sendPositionalUpdate();
     return;
 }
@@ -2361,6 +2361,14 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 		l = mAvatarRot.getLeftRow();
 		u = mAvatarRot.getUpRow();
 		a = mAvatarRot.getFwdRow();
+
+        pos = mAvatarPosition;
+		vel = mAvatarVelocity;
+
+		// SLIM SDK: the old SDK was doing a transform on the passed coordinates that the new one doesn't do anymore.
+		// The old transform is replicated by this function.
+		oldSDKTransform(l, u, a, pos, vel);
+        
         if (mHidden)
         {
             for (int i=0;i<3;++i)
@@ -2368,17 +2376,8 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
                 pos.mdV[i] = VX_NULL_POSITION;
             }
         }
-        else
-        {
-            pos = mAvatarPosition;
-        }
-		vel = mAvatarVelocity;
-
-		// SLIM SDK: the old SDK was doing a transform on the passed coordinates that the new one doesn't do anymore.
-		// The old transform is replicated by this function.
-		oldSDKTransform(l, u, a, pos, vel);
 		
-		stream 
+		stream
 			<< "<Position>"
 				<< "<X>" << pos.mdV[VX] << "</X>"
 				<< "<Y>" << pos.mdV[VY] << "</Y>"
@@ -2438,6 +2437,14 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 		l = earRot.getLeftRow();
 		u = earRot.getUpRow();
 		a = earRot.getFwdRow();
+
+        pos = earPosition;
+		vel = earVelocity;
+
+//		LL_DEBUGS("Voice") << "Sending listener position " << earPosition << LL_ENDL;
+		
+		oldSDKTransform(l, u, a, pos, vel);
+		
         if (mHidden)
         {
             for (int i=0;i<3;++i)
@@ -2445,17 +2452,8 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
                 pos.mdV[i] = VX_NULL_POSITION;
             }
         }
-        else
-        {
-            pos = earPosition;
-        }
-		vel = earVelocity;
-
-//		LL_DEBUGS("Voice") << "Sending listener position " << earPosition << LL_ENDL;
-		
-		oldSDKTransform(l, u, a, pos, vel);
-		
-		stream 
+        
+		stream
 			<< "<Position>"
 				<< "<X>" << pos.mdV[VX] << "</X>"
 				<< "<Y>" << pos.mdV[VY] << "</Y>"
