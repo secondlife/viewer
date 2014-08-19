@@ -1307,6 +1307,7 @@ void LLLiveLSLEditor::updateExperiencePanel()
 		mExperienceEnabled->setEnabled(getIsModifiable());
 		mExperiences->setVisible(TRUE);
 		mExperienceEnabled->set(TRUE);
+		getChild<LLButton>("view_profile")->setToolTip(getString("show_experience_profile"));
         buildExperienceList();
     }
 }

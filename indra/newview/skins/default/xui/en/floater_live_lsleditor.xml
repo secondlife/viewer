@@ -38,6 +38,10 @@
     Select to add an experience
   </floater.string>
   <floater.string
+    name="show_experience_profile">
+    Click to view the experience profile
+  </floater.string>
+  <floater.string
     name="loading">
     Loading...
   </floater.string>
