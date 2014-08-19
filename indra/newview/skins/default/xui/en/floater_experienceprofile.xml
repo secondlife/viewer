@@ -182,7 +182,8 @@
                 name="experience_description"
                 top="0"
                 value=""
-                width="293"/>
+                width="293"
+                max_length="2048"/>
             </layout_panel>
             <layout_panel
               follows=""
