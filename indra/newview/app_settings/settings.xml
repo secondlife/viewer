@@ -6118,16 +6118,16 @@
     <integer>0</integer>
   </map>
   <key>MemoryLogFrequency</key>
-        <map>
-        <key>Comment</key>
-            <string>Seconds between display of Memory in log (0 for never)</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>600.0</real>
-        </map>
+  <map>
+    <key>Comment</key>
+    <string>Seconds between display of Memory in log (0 for never)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>30.0</real>
+  </map>
     <key>MemoryPrivatePoolEnabled</key>
     <map>
       <key>Comment</key>
@@ -8021,6 +8021,18 @@
     <string>U32</string>
     <key>Value</key>
     <integer>128</integer>
+  </map>
+
+  <key>OctreeMinimumNodeSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum size of any octree node</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.01</real>
   </map>
 
   <key>OctreeStaticObjectSizeFactor</key>
@@ -15416,6 +15428,17 @@
     <string>U32</string>
     <key>Value</key>
     <integer>7000</integer>
+  </map>
+  <key>DisablePrecacheDelayAfterTeleporting</key>
+  <map>
+    <key>Comment</key>
+    <string>Disables the artificial delay in the viewer that precaches some incoming assets</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
   <key>VersionChannelName</key>
     <map>

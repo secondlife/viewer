@@ -477,7 +477,8 @@ void LLToolTipMgr::show(const std::string& msg)
 void LLToolTipMgr::show(const LLToolTip::Params& params)
 {
 	if (!params.styled_message.isProvided() 
-		&& (!params.message.isProvided() || params.message().empty())) return;
+		&& (!params.message.isProvided() || params.message().empty())
+		&& !params.image.isProvided()) return;
 
 	// fill in default tooltip params from tool_tip.xml
 	LLToolTip::Params params_with_defaults(params);

@@ -2465,10 +2465,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					&& from_id.notNull() //not a system message
 					&& to_id.notNull()) //not global message
 		{
-			// return a standard "do not disturb" message, but only do it to online IM
-			// (i.e. not other auto responses and not store-and-forward IM)
-
-			send_do_not_disturb_message(msg, from_id, session_id);
 
 			// now store incoming IM in chat history
 
@@ -2489,6 +2485,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				region_id,
 				position,
 				true);
+
+			if (!gIMMgr->isDNDMessageSend(session_id))
+			{
+				// return a standard "do not disturb" message, but only do it to online IM
+				// (i.e. not other auto responses and not store-and-forward IM)
+				send_do_not_disturb_message(msg, from_id, session_id);
+				gIMMgr->setDNDMessageSent(session_id, true);
+			}
+
 		}
 		else if (from_id.isNull())
 		{

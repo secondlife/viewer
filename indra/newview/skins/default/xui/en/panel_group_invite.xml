@@ -76,7 +76,7 @@
         Choose what Role to assign them to:
     </text>
     <combo_box
-     height="16"
+     height="20"
      layout="topleft"
      left_delta="0"
      name="role_name"
@@ -88,7 +88,7 @@
      label="Send Invitations"
      layout="topleft"
      left="4"
-     name="ok_button"
+     name="invite_button"
      top="356"
      width="135" />
     <button

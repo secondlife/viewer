@@ -132,6 +132,8 @@ int yyerror(const char *fmt, ...);
 "money"					{ count(); return(MONEY); }
 "email"					{ count(); return(EMAIL); }
 "run_time_permissions"	{ count(); return(RUN_TIME_PERMISSIONS); }
+"experience_permissions"	{ count(); return(EXPERIENCE_PERMISSIONS); }
+"experience_permissions_denied"	{ count(); return(EXPERIENCE_PERMISSIONS_DENIED); }
 "changed"				{ count(); return(INVENTORY); }
 "attach"				{ count(); return(ATTACH); }
 "dataserver"			{ count(); return(DATASERVER); }
@@ -393,7 +395,6 @@ int yyerror(const char *fmt, ...);
 "PSYS_PART_END_ALPHA"	{ count(); yylval.ival = LLPS_PART_END_ALPHA; return (INTEGER_CONSTANT); }
 "PSYS_PART_END_SCALE"	{ count(); yylval.ival = LLPS_PART_END_SCALE; return (INTEGER_CONSTANT); }
 "PSYS_PART_MAX_AGE"		{ count(); yylval.ival = LLPS_PART_MAX_AGE; return (INTEGER_CONSTANT); }
-
 "PSYS_PART_BLEND_FUNC_SOURCE"	{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_SOURCE; return (INTEGER_CONSTANT); }
 "PSYS_PART_BLEND_FUNC_DEST"		{ count(); yylval.ival = LLPS_PART_BLEND_FUNC_DEST; return (INTEGER_CONSTANT); }
 "PSYS_PART_START_GLOW"	{ count(); yylval.ival = LLPS_PART_START_GLOW; return (INTEGER_CONSTANT); }
@@ -418,7 +419,6 @@ int yyerror(const char *fmt, ...);
 "PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_COLOR; return(INTEGER_CONSTANT); }
 "PSYS_PART_BF_SOURCE_ALPHA"				{ count(); yylval.ival = LLPartData::LL_PART_BF_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
 "PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA"	{ count(); yylval.ival = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA; return(INTEGER_CONSTANT); }
-
 
 "PSYS_SRC_MAX_AGE"					{ count(); yylval.ival = LLPS_SRC_MAX_AGE; return(INTEGER_CONSTANT); }
 "PSYS_SRC_PATTERN"					{ count(); yylval.ival = LLPS_SRC_PATTERN; return(INTEGER_CONSTANT); }
@@ -737,22 +737,23 @@ int yyerror(const char *fmt, ...);
 "STATUS_INTERNAL_ERROR"              { count(); yylval.ival = LSL_STATUS_INTERNAL_ERROR; return(INTEGER_CONSTANT); }
 "STATUS_WHITELIST_FAILED"            { count(); yylval.ival = LSL_STATUS_WHITELIST_FAILED; return(INTEGER_CONSTANT); }
 
-"XP_ERROR_NONE"                      { const char* sval= "no error";                                yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_THROTTLED"                 { const char* sval= "exceeded throttle";                       yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_EXPERIENCES_DISABLED"      { const char* sval= "experiences are disabled";                yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_INVALID_PARAMETERS"        { const char* sval= "invalid parameters";                      yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_NOT_PERMITTED"             { const char* sval= "operation not permitted";                 yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_NO_EXPERIENCE"             { const char* sval= "script not associated with an experience";yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_NOT_FOUND"                 { const char* sval= "not found";                               yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_INVALID_EXPERIENCE"        { const char* sval= "invalid experience";                      yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_EXPERIENCE_DISABLED"       { const char* sval= "experience is disabled";                  yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_EXPERIENCE_SUSPENDED"      { const char* sval= "experience is suspended";                 yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_UNKNOWN_ERROR"             { const char* sval= "unknown error";                           yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_QUOTA_EXCEEDED"            { const char* sval= "experience data quota exceeded";          yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_STORE_DISABLED"            { const char* sval= "key-value store is disabled";             yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_STORAGE_EXCEPTION"         { const char* sval= "key-value store communication failed";    yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_KEY_NOT_FOUND"             { const char* sval= "key doesn't exist";                       yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
-"XP_ERROR_RETRY_UPDATE"              { const char* sval= "retry update";                            yylval.sval = new char[strlen(sval)+1]; strcpy(yylval.sval, sval); return(STRING_CONSTANT); }
+"XP_ERROR_NONE"                      { count(); yylval.ival = LSL_XP_ERROR_NONE                ; return (INTEGER_CONSTANT); }
+"XP_ERROR_THROTTLED"                 { count(); yylval.ival = LSL_XP_ERROR_THROTTLED           ; return (INTEGER_CONSTANT); }
+"XP_ERROR_EXPERIENCES_DISABLED"      { count(); yylval.ival = LSL_XP_ERROR_EXPERIENCES_DISABLED; return (INTEGER_CONSTANT); }
+"XP_ERROR_INVALID_PARAMETERS"        { count(); yylval.ival = LSL_XP_ERROR_INVALID_PARAMETERS  ; return (INTEGER_CONSTANT); }
+"XP_ERROR_NOT_PERMITTED"             { count(); yylval.ival = LSL_XP_ERROR_NOT_PERMITTED       ; return (INTEGER_CONSTANT); }
+"XP_ERROR_NO_EXPERIENCE"             { count(); yylval.ival = LSL_XP_ERROR_NO_EXPERIENCE       ; return (INTEGER_CONSTANT); }
+"XP_ERROR_NOT_FOUND"                 { count(); yylval.ival = LSL_XP_ERROR_NOT_FOUND           ; return (INTEGER_CONSTANT); }
+"XP_ERROR_INVALID_EXPERIENCE"        { count(); yylval.ival = LSL_XP_ERROR_INVALID_EXPERIENCE  ; return (INTEGER_CONSTANT); }
+"XP_ERROR_EXPERIENCE_DISABLED"       { count(); yylval.ival = LSL_XP_ERROR_EXPERIENCE_DISABLED ; return (INTEGER_CONSTANT); }
+"XP_ERROR_EXPERIENCE_SUSPENDED"      { count(); yylval.ival = LSL_XP_ERROR_EXPERIENCE_SUSPENDED; return (INTEGER_CONSTANT); }
+"XP_ERROR_UNKNOWN_ERROR"             { count(); yylval.ival = LSL_XP_ERROR_UNKNOWN_ERROR       ; return (INTEGER_CONSTANT); }
+"XP_ERROR_QUOTA_EXCEEDED"            { count(); yylval.ival = LSL_XP_ERROR_QUOTA_EXCEEDED      ; return (INTEGER_CONSTANT); }
+"XP_ERROR_STORE_DISABLED"            { count(); yylval.ival = LSL_XP_ERROR_STORE_DISABLED      ; return (INTEGER_CONSTANT); }
+"XP_ERROR_STORAGE_EXCEPTION"         { count(); yylval.ival = LSL_XP_ERROR_STORAGE_EXCEPTION   ; return (INTEGER_CONSTANT); }
+"XP_ERROR_KEY_NOT_FOUND"             { count(); yylval.ival = LSL_XP_ERROR_KEY_NOT_FOUND       ; return (INTEGER_CONSTANT); }
+"XP_ERROR_RETRY_UPDATE"              { count(); yylval.ival = LSL_XP_ERROR_RETRY_UPDATE        ; return (INTEGER_CONSTANT); }
+"XP_ERROR_MATURITY_EXCEEDED"         { count(); yylval.ival = LSL_XP_ERROR_MATURITY_EXCEEDED    ; return (INTEGER_CONSTANT); }
 
 {L}({L}|{N})*		{ count(); yylval.sval = new char[strlen(yytext) + 1]; strcpy(yylval.sval, yytext); return(IDENTIFIER); }
 

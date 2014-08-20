@@ -232,8 +232,6 @@ set(viewer_SOURCE_FILES
     llfloatereditwater.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
-    llfloaterfacebook.cpp
-    llfloaterflickr.cpp
     llfloaterexperiencepicker.cpp
     llfloaterexperienceprofile.cpp
     llfloaterexperiences.cpp
@@ -243,6 +241,7 @@ set(viewer_SOURCE_FILES
     llfloatergesture.cpp
     llfloatergodtools.cpp
     llfloatergotoline.cpp
+    llfloatergroupbulkban.cpp
     llfloatergroupinvite.cpp
     llfloatergroups.cpp
     llfloaterhandler.cpp
@@ -421,6 +420,8 @@ set(viewer_SOURCE_FILES
     llpanelface.cpp
     llpanelgenerictip.cpp
     llpanelgroup.cpp
+    llpanelgroupbulk.cpp
+    llpanelgroupbulkban.cpp
     llpanelgroupexperiences.cpp
     llpanelgroupgeneral.cpp
     llpanelgroupinvite.cpp
@@ -845,8 +846,6 @@ set(viewer_HEADER_FILES
     llfloatereditwater.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
-    llfloaterfacebook.h
-    llfloaterflickr.h
     llfloaterexperiencepicker.h
     llfloaterexperienceprofile.h
     llfloaterexperiences.h
@@ -856,6 +855,7 @@ set(viewer_HEADER_FILES
     llfloatergesture.h
     llfloatergodtools.h
     llfloatergotoline.h
+    llfloatergroupbulkban.h
     llfloatergroupinvite.h
     llfloatergroups.h
     llfloaterhandler.h
@@ -1027,6 +1027,9 @@ set(viewer_HEADER_FILES
     llpanelface.h
     llpanelgenerictip.h
     llpanelgroup.h
+    llpanelgroupbulk.h
+    llpanelgroupbulkimpl.h
+    llpanelgroupbulkban.h
     llpanelgroupexperiences.h
     llpanelgroupgeneral.h
     llpanelgroupinvite.h
