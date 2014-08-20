@@ -814,13 +814,13 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		previewp->getSize(width, height);
 
 		bool width_changed;
-		if(original_width != width)
+		if(getHeightSpinner(view)->isDirty())
 		{
-			width_changed = TRUE;
+			width_changed = FALSE;
 		}
 		else
 		{
-			width_changed = FALSE;
+			width_changed = TRUE;
 		}
 		updateSpinners(view, previewp, width, height, width_changed); // may change width and height
 		
@@ -952,6 +952,8 @@ void LLFloaterSnapshot::Impl::setImageSizeSpinnersValues(LLFloaterSnapshot *view
 // static
 void LLFloaterSnapshot::Impl::updateSpinners(LLFloaterSnapshot* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL is_width_changed)
 {
+	getWidthSpinner(view)->resetDirty();
+	getHeightSpinner(view)->resetDirty();
 	if (checkImageSize(previewp, width, height, is_width_changed, previewp->getMaxImageSize()))
 	{
 		setImageSizeSpinnersValues(view, width, height);
