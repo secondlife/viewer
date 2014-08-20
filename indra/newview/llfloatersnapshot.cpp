@@ -813,16 +813,7 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 
 		previewp->getSize(width, height);
 
-		bool width_changed;
-		if(getHeightSpinner(view)->isDirty())
-		{
-			width_changed = FALSE;
-		}
-		else
-		{
-			width_changed = TRUE;
-		}
-		updateSpinners(view, previewp, width, height, width_changed); // may change width and height
+		updateSpinners(view, previewp, width, height, !getHeightSpinner(view)->isDirty()); // may change width and height
 		
 		if(getWidthSpinner(view)->getValue().asInteger() != width || getHeightSpinner(view)->getValue().asInteger() != height)
 		{
