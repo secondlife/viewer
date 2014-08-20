@@ -379,6 +379,7 @@ void LLVivoxVoiceClient::terminate()
 	{
 		logout();
 		connectorShutdown(); 
+#ifdef LL_WINDOWS
 		int count=0;
 		while (!mShutdownComplete && 10 > count++)
 		{
@@ -386,6 +387,7 @@ void LLVivoxVoiceClient::terminate()
 			_sleep(1000);
 		}
 
+#endif
 		closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
 		cleanUp();
 	}
