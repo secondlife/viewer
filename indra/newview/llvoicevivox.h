@@ -723,6 +723,7 @@ private:
 	bool mRenderDeviceDirty;
 
 	bool mIsInitialized;
+	bool mShutdownComplete;
 	
 	
 	bool checkParcelChanged(bool update = false);
