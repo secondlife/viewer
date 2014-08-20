@@ -1431,6 +1431,11 @@ bool LLMarketplaceData::isListed(const LLUUID& folder_id)
     return (it != mMarketplaceItems.end());
 }
 
+bool LLMarketplaceData::isListedAndActive(const LLUUID& folder_id)
+{
+    return (isListed(folder_id) && getActivationState(folder_id));
+}
+
 bool LLMarketplaceData::isVersionFolder(const LLUUID& folder_id)
 {
     marketplace_items_list_t::iterator it = mMarketplaceItems.begin();
@@ -1451,7 +1456,7 @@ bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id)
     LLUUID listing_uuid = nested_parent_id(obj_id, depth);
     bool active = getActivationState(listing_uuid);
     LLUUID version_uuid = getVersionFolder(listing_uuid);
-    return (active && ((obj_id == listing_uuid) || (obj_id == version_uuid) || gInventory.isObjectDescendentOf(obj_id, version_uuid)));
+    return (active && ((obj_id == version_uuid) || gInventory.isObjectDescendentOf(obj_id, version_uuid)));
 }
 
 // Private Modifiers

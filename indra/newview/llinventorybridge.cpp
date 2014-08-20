@@ -271,7 +271,8 @@ BOOL LLInvFVBridge::cutToClipboard()
         const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
         const BOOL cut_from_marketplacelistings = gInventory.isObjectDescendentOf(mUUID, marketplacelistings_id);
             
-        if (cut_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID))
+        if (cut_from_marketplacelistings && (LLMarketplaceData::instance().isInActiveFolder(mUUID) ||
+                                             LLMarketplaceData::instance().isListedAndActive(mUUID)))
         {
             // Prompt the user if cutting from a marketplace active listing
             LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInvFVBridge::callback_cutToClipboard, this, _1, _2));
@@ -2493,7 +2494,8 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
             // Dropping in or out of marketplace needs (sometimes) confirmation
             if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
             {
-                if (move_is_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(cat_id))
+                if (move_is_from_marketplacelistings && (LLMarketplaceData::instance().isInActiveFolder(cat_id) ||
+                                                         LLMarketplaceData::instance().isListedAndActive(cat_id)))
                 {
                     if (LLMarketplaceData::instance().isListed(cat_id) || LLMarketplaceData::instance().isVersionFolder(cat_id))
                     {
@@ -4283,7 +4285,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
             // Dropping in or out of marketplace needs (sometimes) confirmation
             if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
             {
-                if ((move_is_from_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(inv_item->getUUID())) ||
+                if ((move_is_from_marketplacelistings && (LLMarketplaceData::instance().isInActiveFolder(inv_item->getUUID())
+                                                       || LLMarketplaceData::instance().isListedAndActive(inv_item->getUUID()))) ||
                     (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
                 {
                     LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));

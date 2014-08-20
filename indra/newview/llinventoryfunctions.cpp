@@ -1973,7 +1973,8 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
                 }
                 // Note: we do not prompt for change when opening items (e.g. textures or note cards) on the marketplace...
             }
-            else if (LLMarketplaceData::instance().isInActiveFolder(viewModel->getUUID()))
+            else if (LLMarketplaceData::instance().isInActiveFolder(viewModel->getUUID()) ||
+                     LLMarketplaceData::instance().isListedAndActive(viewModel->getUUID()))
             {
                 // If item is in active listing, further confirmation is required
                 if ((("cut" == action) || ("delete" == action)) && (LLMarketplaceData::instance().isListed(viewModel->getUUID()) || LLMarketplaceData::instance().isVersionFolder(viewModel->getUUID())))
