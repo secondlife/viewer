@@ -1,4 +1,4 @@
-﻿/** 
+/** 
  * @file llfloatersnapshot.cpp
  * @brief Snapshot preview window, allowing saving, e-mailing, etc.
  *
@@ -813,6 +813,10 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 
 		previewp->getSize(width, height);
 
+		// We use the height spinner here because we come here via the aspect ratio
+		// checkbox as well and we want height always changing to width by default.
+		// If we use the width spinner we would change width according to height by
+		// default, that is not what we want.
 		updateSpinners(view, previewp, width, height, !getHeightSpinner(view)->isDirty()); // may change width and height
 		
 		if(getWidthSpinner(view)->getValue().asInteger() != width || getHeightSpinner(view)->getValue().asInteger() != height)
