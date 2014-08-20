@@ -1235,7 +1235,8 @@ std::string LLUrlEntryExperienceProfile::getLabel( const std::string &url, const
     const LLSD& experience_details = LLExperienceCache::get(experience_id);
     if(!experience_details.isUndefined())
     {
-        return experience_details[LLExperienceCache::NAME].asString();
+		std::string experience_name_string = experience_details[LLExperienceCache::NAME].asString();
+        return experience_name_string.empty() ? LLTrans::getString("ExperienceNameUntitled") : experience_name_string;
     }
 
     addObserver(experience_id_string, url, cb);
