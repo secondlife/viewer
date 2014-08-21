@@ -65,12 +65,12 @@ static const struct
 		"texture fetch"
 	},
 	{ // AP_MESH1
-		32,		1,		128,	100,	false,
+		32,		1,		128,	0,		false,
 		"MeshMaxConcurrentRequests",
 		"mesh fetch"
 	},
 	{ // AP_MESH2
-		8,		1,		32,		100,	true,	
+		8,		1,		32,		0,		true,	
 		"Mesh2MaxConcurrentRequests",
 		"mesh2 fetch"
 	},
