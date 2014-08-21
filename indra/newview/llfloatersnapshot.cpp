@@ -1,4 +1,4 @@
-﻿/** 
+/** 
  * @file llfloatersnapshot.cpp
  * @brief Snapshot preview window, allowing saving, e-mailing, etc.
  *
@@ -813,16 +813,11 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 
 		previewp->getSize(width, height);
 
-		bool width_changed;
-		if(original_width != width)
-		{
-			width_changed = TRUE;
-		}
-		else
-		{
-			width_changed = FALSE;
-		}
-		updateSpinners(view, previewp, width, height, width_changed); // may change width and height
+		// We use the height spinner here because we come here via the aspect ratio
+		// checkbox as well and we want height always changing to width by default.
+		// If we use the width spinner we would change width according to height by
+		// default, that is not what we want.
+		updateSpinners(view, previewp, width, height, !getHeightSpinner(view)->isDirty()); // may change width and height
 		
 		if(getWidthSpinner(view)->getValue().asInteger() != width || getHeightSpinner(view)->getValue().asInteger() != height)
 		{
@@ -952,6 +947,8 @@ void LLFloaterSnapshot::Impl::setImageSizeSpinnersValues(LLFloaterSnapshot *view
 // static
 void LLFloaterSnapshot::Impl::updateSpinners(LLFloaterSnapshot* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL is_width_changed)
 {
+	getWidthSpinner(view)->resetDirty();
+	getHeightSpinner(view)->resetDirty();
 	if (checkImageSize(previewp, width, height, is_width_changed, previewp->getMaxImageSize()))
 	{
 		setImageSizeSpinnersValues(view, width, height);
