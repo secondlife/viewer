@@ -1240,8 +1240,8 @@ LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
 	F32 dist_from_sphere_center = sqrt(delta_x * delta_x + delta_y * delta_y);
 
 	LLVector3 axis = mMouseDown % mMouseCur;
-	axis.normVec();
 	F32 angle = atan2(sqrtf(axis * axis), mMouseDown * mMouseCur);
+	axis.normVec();
 	LLQuaternion sphere_rot( angle, axis );
 	
 	if (is_approx_zero(1.f - mMouseDown * mMouseCur))
