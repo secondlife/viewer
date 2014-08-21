@@ -1337,7 +1337,12 @@ void LLLiveLSLEditor::buildExperienceList()
 		}
 		else
 		{
-			mExperiences->add(experience[LLExperienceCache::NAME].asString(), id, position);
+			std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
+			if (experience_name_string.empty())
+			{
+				experience_name_string = LLTrans::getString("ExperienceNameUntitled");
+			}
+			mExperiences->add(experience_name_string, id, position);
 		} 
 	}
 
@@ -1346,7 +1351,12 @@ void LLLiveLSLEditor::buildExperienceList()
 		const LLSD& experience = LLExperienceCache::get(associated);
 		if(experience.isDefined())
 		{
-			item=mExperiences->add(experience[LLExperienceCache::NAME].asString(), associated, ADD_TOP);
+			std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
+			if (experience_name_string.empty())
+			{
+				experience_name_string = LLTrans::getString("ExperienceNameUntitled");
+			}
+			item=mExperiences->add(experience_name_string, associated, ADD_TOP);
 		} 
 		else
 		{

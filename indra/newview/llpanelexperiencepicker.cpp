@@ -41,6 +41,7 @@
 #include "llcombobox.h"
 #include "llviewercontrol.h"
 #include "llfloater.h"
+#include "lltrans.h"
 
 #define BTN_FIND		"find"
 #define BTN_OK			"ok_btn"
@@ -321,6 +322,12 @@ void LLPanelExperiencePicker::filterContent()
 		if(isExperienceHidden(experience))
 			continue;
 
+		std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
+		if (experience_name_string.empty())
+		{
+			experience_name_string = LLTrans::getString("ExperienceNameUntitled");
+		}
+
 		item["id"]=experience[LLExperienceCache::EXPERIENCE_ID];
 		LLSD& columns = item["columns"];
 		columns[0]["column"] = "maturity";
@@ -328,7 +335,7 @@ void LLPanelExperiencePicker::filterContent()
 		columns[0]["type"]="icon";
 		columns[0]["halign"]="right";
 		columns[1]["column"] = "experience_name";
-		columns[1]["value"] = columnSpace+experience[LLExperienceCache::NAME].asString();
+		columns[1]["value"] = columnSpace+experience_name_string;
 		columns[2]["column"] = "owner";
 		columns[2]["value"] = columnSpace+getString("loading");
 		search_results->addElement(item);

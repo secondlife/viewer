@@ -208,8 +208,14 @@ void LLPanelExperienceListEditor::onExperienceDetails( const LLSD& experience )
 	LLScrollListItem* item = mItems->getItem(experience[LLExperienceCache::EXPERIENCE_ID]);
 	if(!item)
 		return;
+	
+	std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
+	if (experience_name_string.empty())
+	{
+		experience_name_string = LLTrans::getString("ExperienceNameUntitled");
+	}
 
-	item->getColumn(0)->setValue(experience[LLExperienceCache::NAME]);
+	item->getColumn(0)->setValue(experience_name_string);
 }
 
 LLPanelExperienceListEditor::~LLPanelExperienceListEditor()
