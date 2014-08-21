@@ -5828,11 +5828,11 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock)
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 			returnValue = true;
 		}
-		}
+	}
 
-	if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
+	// If we have a notification but it is normally ignored, give a simple one instead of an in-your-face dialog
+	if (returnValue && (maturityLevelNotification != NULL) && maturityLevelNotification->isIgnored())
 	{
-		// Given a simple notification if no maturityLevelNotification is set or it is ignore
 		LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
 	}
 
