@@ -541,6 +541,7 @@ void LLFloaterIMContainer::draw()
 		{
 			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
 			participant_model->setModeratorOptionsVisible(isGroupModerator() && participant_model->getUUID() != gAgentID);
+			participant_model->setGroupBanVisible(haveAbilityToBan() && participant_model->getUUID() != gAgentID);
 
 			current_participant_model++;
 		}
@@ -1159,6 +1160,10 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		{
 			toggleAllowTextChat(userID);
 		}
+		else if ("ban_member" == command)
+		{
+			banSelectedMember(userID);
+		}
 	}
 	else if (selectedIDS.size() > 1)
 	{
@@ -1405,6 +1410,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
     	return is_single_select && LLAvatarActions::canCall();
     }
+    else if ("can_open_voice_conversation" == item)
+    {
+    	return is_single_select && LLAvatarActions::canCall();
+    }
 	else if ("can_zoom_in" == item)
 	{
 		return is_single_select && gObjectList.findObject(single_id);
@@ -1416,6 +1425,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     else if ("can_offer_teleport" == item)
     {
 		return LLAvatarActions::canOfferTeleport(uuids);
+    }
+    else if ("can_ban_member" == item)
+    {
+   		return canBanSelectedMember(single_id);
     }
 	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item))
 	{
@@ -1837,6 +1850,95 @@ bool LLFloaterIMContainer::isGroupModerator()
 	}
 
 	return false;
+}
+
+bool LLFloaterIMContainer::haveAbilityToBan()
+{
+	LLSpeakerMgr * speaker_manager = getSpeakerMgrForSelectedParticipant();
+	if (NULL == speaker_manager)
+	{
+		LL_WARNS() << "Speaker manager is missing" << LL_ENDL;
+		return false;
+	}
+	LLUUID group_uuid = speaker_manager->getSessionID();
+
+	return gAgent.isInGroup(group_uuid) && gAgent.hasPowerInGroup(group_uuid, GP_GROUP_BAN_ACCESS);
+}
+
+bool LLFloaterIMContainer::canBanSelectedMember(const LLUUID& participant_uuid)
+{
+	LLSpeakerMgr * speaker_manager = getSpeakerMgrForSelectedParticipant();
+	if (NULL == speaker_manager)
+	{
+		LL_WARNS() << "Speaker manager is missing" << LL_ENDL;
+		return false;
+	}
+	LLUUID group_uuid = speaker_manager->getSessionID();
+	LLGroupMgrGroupData* gdatap	= LLGroupMgr::getInstance()->getGroupData(group_uuid);
+	if(!gdatap)
+	{
+		LL_WARNS("Groups") << "Unable to get group data for group " << group_uuid << LL_ENDL;
+		return false;
+	}
+
+	if (!gdatap->mMembers.size())
+	{
+		return false;
+	}
+
+	LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find((participant_uuid));
+	if (mi == gdatap->mMembers.end())
+	{
+		return false;
+	}
+
+	LLGroupMemberData* member_data = (*mi).second;
+	// Is the member an owner?
+	if ( member_data && member_data->isInRole(gdatap->mOwnerRole) )
+	{
+		return false;
+	}
+
+	if(	gAgent.hasPowerInGroup(group_uuid, GP_ROLE_REMOVE_MEMBER) &&
+		gAgent.hasPowerInGroup(group_uuid, GP_GROUP_BAN_ACCESS)	)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void LLFloaterIMContainer::banSelectedMember(const LLUUID& participant_uuid)
+{
+	LLSpeakerMgr * speaker_manager = getSpeakerMgrForSelectedParticipant();
+	if (NULL == speaker_manager)
+	{
+		LL_WARNS() << "Speaker manager is missing" << LL_ENDL;
+		return;
+	}
+
+	LLUUID group_uuid = speaker_manager->getSessionID();
+	LLGroupMgrGroupData* gdatap	= LLGroupMgr::getInstance()->getGroupData(group_uuid);
+	if(!gdatap)
+	{
+		LL_WARNS("Groups") << "Unable to get group data for group " << group_uuid << LL_ENDL;
+		return;
+	}
+	std::vector<LLUUID> ids;
+	ids.push_back(participant_uuid);
+
+	LLGroupBanData ban_data;
+	gdatap->createBanEntry(participant_uuid, ban_data);
+	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, group_uuid, LLGroupMgr::BAN_CREATE, ids);
+	LLGroupMgr::getInstance()->sendGroupMemberEjects(group_uuid, ids);
+	LLGroupMgr::getInstance()->sendGroupMembersRequest(group_uuid);
+	LLSD args;
+	std::string name;
+	gCacheName->getFullName(participant_uuid, name);
+	args["AVATAR_NAME"] = name;
+	args["GROUP_NAME"] = gdatap->mName;
+	LLNotifications::instance().add(LLNotification::Params("EjectAvatarFromGroup").substitutions(args));
+
 }
 
 void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUID& userID)

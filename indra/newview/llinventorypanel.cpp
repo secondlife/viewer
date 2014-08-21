@@ -337,12 +337,6 @@ void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType 
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
 	{
-		//Don't show folder without recent item in it
-		if ("Recent Items" == getName())
-		{
-			types &= ~(0x1 << LLInventoryType::IT_CATEGORY);
-		}
-
 		getFilter().setFilterObjectTypes(types);
 	}
 	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
@@ -590,9 +584,20 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		}
 	}
 
-	if ("Recent Items" == getName())
+	if (mask & (LLInventoryObserver::STRUCTURE | LLInventoryObserver::REMOVE))
 	{
-		getFilter().setModified();
+		// STRUCTURE and REMOVE model changes usually fail to update (clean)
+		// mMostFilteredDescendantGeneration of parent folder and dirtyFilter()
+		// is not sufficient for successful filter update, so we need to check
+		// all already passed element over again to remove obsolete elements.
+		// New items or moved items should be sufficiently covered by
+		// dirtyFilter().
+		LLInventoryFilter& filter = getFilter();
+		if (filter.getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE
+			|| filter.isNotDefault())
+		{
+			filter.setModified(LLFolderViewFilter::FILTER_MORE_RESTRICTIVE);
+		}
 	}
 }
 
@@ -1481,8 +1486,6 @@ public:
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
 	}
 
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
-
 protected:
 	LLInventoryRecentItemsPanel (const Params&);
 	friend class LLUICtrlFactory;
@@ -1495,13 +1498,6 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
 
-void LLInventoryRecentItemsPanel::onVisibilityChange(BOOL new_visibility)
-{
-	if(new_visibility)
-	{
-		getFilter().setModified();
-	}
-}
 namespace LLInitParam
 {
 	void TypeValues<LLFolderType::EType>::declareValues()

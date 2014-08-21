@@ -183,13 +183,6 @@ BOOL LLPanelMainInventory::postBuild()
 
 	}
 
-	if (recent_items_panel)
-	{
-		U64 types = recent_items_panel->getFilter().getFilterObjectTypes();
-		types &= ~(0x1 << LLInventoryType::IT_CATEGORY);
-		recent_items_panel->getFilter().setFilterObjectTypes(types);
-	}
-
 	mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
 	if (mFilterEditor)
 	{
