@@ -1454,17 +1454,40 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             type = (LLInventoryType::EType)(i);
         }
     }
-    // If we have no items in there (only folders) -> all OK
+    // If we have no items in there (only folders or empty), analyze a bit further 
     if (count == 0)
     {
-        // We warn if there's really nothing in the folder (may be it's a mistake or an under construction listing)
-        if ((cat_array->size() == 0) && cb)
+        if (cat_array->size() == 0)
         {
-            std::string message = indent + LLTrans::getString("Marketplace Validation Warning Empty") + cat->getName();
-            cb(message,LLError::LEVEL_WARN);
+            // If this is an empty version folder (not even folders), raise an error
+            if (depth == 2)
+            {
+                result = false;
+                if (cb)
+                {
+                    std::string message = indent + LLTrans::getString("Marketplace Validation Error Empty Version") + cat->getName();
+                    cb(message,LLError::LEVEL_ERROR);
+                }
+            }
+            // If this is a legit but empty stock folder, raise an error
+            else if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2))
+            {
+                result = false;
+                if (cb)
+                {
+                    std::string message = indent + LLTrans::getString("Marketplace Validation Error Empty Stock") + cat->getName();
+                    cb(message,LLError::LEVEL_ERROR);
+                }
+            }
+            else if (cb)
+            {
+                // We warn if there's nothing in a regular folder (may be it's an under construction listing)
+                std::string message = indent + LLTrans::getString("Marketplace Validation Warning Empty") + cat->getName();
+                cb(message,LLError::LEVEL_WARN);
+            }
         }
     }
-    // If we have one kind only, in the correct folder type at the right depth -> all OK
+    // If we have a single type of items of the right type in the right place, we're done
     else if ((count == 1) && (((type == LLInventoryType::IT_COUNT) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2))))
     {
         // Done with that folder!

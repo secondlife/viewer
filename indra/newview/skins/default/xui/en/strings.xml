@@ -2301,6 +2301,8 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	<string name="Marketplace Validation Warning Move">Warning : moving item : </string>
 	<string name="Marketplace Validation Warning Delete">Warning : folder content completely transfered to stock folder, removing empty folder : </string>
 	<string name="Marketplace Validation Error">Error : </string>
+	<string name="Marketplace Validation Error Empty Version">Error : cannot list empty version folder : </string>
+	<string name="Marketplace Validation Error Empty Stock">Error : cannot list empty stock folder : </string>
 	<string name="Marketplace Error None">No error</string>
 	<string name="Marketplace Error Prefix">Error: </string>
 	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>

@@ -2983,17 +2983,21 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_list" == action)
 	{
-        LLViewerInventoryCategory* cat = gInventory.getCategory(mUUID);
-        mMessage = "";
-        if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2)))
+        if (depth_nesting_in_marketplace(mUUID) == 1)
         {
-            LLSD subs;
-            subs["[ERROR_CODE]"] = mMessage;
-            LLNotificationsUtil::add("MerchantListingFailed", subs);
-        }
-        else if (depth_nesting_in_marketplace(mUUID) == 1)
-        {
-            LLMarketplaceData::instance().activateListing(mUUID,true);
+            LLUUID version_folder_id = LLMarketplaceData::instance().getVersionFolder(mUUID);
+            LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
+            mMessage = "";
+            if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2)))
+            {
+                LLSD subs;
+                subs["[ERROR_CODE]"] = mMessage;
+                LLNotificationsUtil::add("MerchantListingFailed", subs);
+            }
+            else
+            {
+                LLMarketplaceData::instance().activateListing(mUUID,true);
+            }
         }
 		return;
 	}
@@ -3090,7 +3094,10 @@ void LLFolderBridge::gatherMessage(std::string& message, LLError::ELevel log_lev
         {
             mMessage += "\n";
         }
-        mMessage += message;
+        // Take the leading spaces out...
+        std::string::size_type start = message.find_first_not_of(" ");
+        // Append the message
+        mMessage += message.substr(start, message.length() - start);
     }
 }
 
