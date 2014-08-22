@@ -60,7 +60,7 @@ static const struct
 		"other"
 	},
 	{ // AP_TEXTURE
-		8,		1,		12,		0,		true,	
+		8,		1,		12,		0,		true,
 		"TextureFetchConcurrency",
 		"texture fetch"
 	},
@@ -70,7 +70,7 @@ static const struct
 		"mesh fetch"
 	},
 	{ // AP_MESH2
-		8,		1,		32,		100,	true,	
+		8,		1,		32,		100,	true,
 		"Mesh2MaxConcurrentRequests",
 		"mesh2 fetch"
 	},
@@ -88,6 +88,11 @@ static const struct
 		32,		32,		32,		0,		false,
 		"",
 		"long poll"
+	},
+	{ // AP_INVENTORY
+		4,		1,		4,		0,		false,
+		"",
+		"inventory"
 	}
 };
 

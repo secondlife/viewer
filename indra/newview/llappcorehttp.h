@@ -64,7 +64,7 @@ public:
 		/// Texture fetching policy class.  Used to
 		/// download textures via capability or SSA
 		/// baking service.  Deep queueing of requests.
-		/// Do not share.
+		/// Do not share.  GET requests only.
 		///
 		/// Destination:     simhost:12046 & bake-texture:80
 		/// Protocol:        http:
@@ -92,7 +92,8 @@ public:
 		/// download textures via 'GetMesh2' capability.
 		/// Used when fetch request (typically one LOD)
 		/// is 'small', currently defined as 2MB.
-		/// Very deeply queued.  Do not share.
+		/// Very deeply queued.  Do not share.  GET
+		/// requests only.
 		///
 		/// Destination:     simhost:12046
 		/// Protocol:        http:
@@ -149,6 +150,19 @@ public:
 		/// Request rate:    low
 		/// Pipelined:       no
 		AP_LONG_POLL,
+
+		/// Inventory operations (really Capabilities-
+		/// related operations).  Mix of high-priority
+		/// and low-priority operations.
+		///
+		/// Destination:     simhost:12043
+		/// Protocol:        https:
+		/// Transfer size:   KB-MB
+		/// Long poll:       no
+		/// Concurrency:     high
+		/// Request rate:    high
+		/// Pipelined:       no
+		AP_INVENTORY,
 
 		AP_COUNT						// Must be last
 	};
