@@ -1480,17 +1480,6 @@ void LLViewerFetchedTexture::processTextureStats()
 		{
 			mDesiredDiscardLevel = 0;
 		}
-		else if (mDontDiscard && (mBoostLevel == LLGLTexture::BOOST_UI || mBoostLevel == LLGLTexture::BOOST_ICON))
-		{
-			if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
-			{
-				mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
-			}
-			else
-			{
-				mDesiredDiscardLevel = 0;
-			}
-		}
 		else if(!mFullWidth || !mFullHeight)
 		{
 			mDesiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel);
