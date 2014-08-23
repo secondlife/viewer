@@ -1364,7 +1364,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     {
         if (cb)
         {
-            std::string message = LLTrans::getString("Marketplace Validation Intro") + cat->getName();
+            std::string message = cat->getName() + LLTrans::getString("Marketplace Validation Intro");
             cb(message,LLError::LEVEL_INFO);
         }
         std::string message;
@@ -1373,7 +1373,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             result = false;
             if (cb)
             {
-                message = LLTrans::getString("Marketplace Validation Error") + message;
+                message = cat->getName() + LLTrans::getString("Marketplace Validation Error") + message;
                 cb(message,LLError::LEVEL_ERROR);
             }
         }
@@ -1393,7 +1393,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_NONE, cat->getName());
         if (cb)
         {
-            std::string message = indent + LLTrans::getString("Marketplace Validation Warning Stock") + cat->getName();
+            std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Warning Stock");
             cb(message,LLError::LEVEL_WARN);
         }
         LLInventoryCategory* new_cat = gInventory.getCategory(folder_uuid);
@@ -1429,7 +1429,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             result = false;
             if (cb)
             {
-                std::string message = indent + LLTrans::getString("Marketplace Validation Error") + error_msg + " : " + viewer_inv_item->getName();
+                std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Error") + error_msg;
                 cb(message,LLError::LEVEL_ERROR);
             }
             continue;
@@ -1465,7 +1465,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 result = false;
                 if (cb)
                 {
-                    std::string message = indent + LLTrans::getString("Marketplace Validation Error Empty Version") + cat->getName();
+                    std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Empty Version");
                     cb(message,LLError::LEVEL_ERROR);
                 }
             }
@@ -1475,14 +1475,14 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 result = false;
                 if (cb)
                 {
-                    std::string message = indent + LLTrans::getString("Marketplace Validation Error Empty Stock") + cat->getName();
+                    std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Empty Stock");
                     cb(message,LLError::LEVEL_ERROR);
                 }
             }
             else if (cb)
             {
                 // We warn if there's nothing in a regular folder (may be it's an under construction listing)
-                std::string message = indent + LLTrans::getString("Marketplace Validation Warning Empty") + cat->getName();
+                std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Warning Empty");
                 cb(message,LLError::LEVEL_WARN);
             }
         }
@@ -1493,7 +1493,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         // Done with that folder!
         if (cb)
         {
-            std::string message = indent + LLTrans::getString("Marketplace Validation Log") + cat->getName();
+            std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Log");
             cb(message,LLError::LEVEL_INFO);
         }
     }
@@ -1512,11 +1512,11 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     std::string message = "";
                     if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
                     {
-                        message = indent + LLTrans::getString("Marketplace Validation Warning Create Stock") + viewer_cat->getName();
+                        message = indent + viewer_cat->getName() + LLTrans::getString("Marketplace Validation Warning Create Stock");
                     }
                     else
                     {
-                        message = indent + LLTrans::getString("Marketplace Validation Warning Create Version") + viewer_cat->getName();
+                        message = indent + viewer_cat->getName() + LLTrans::getString("Marketplace Validation Warning Create Version");
                     }
                     cb(message,LLError::LEVEL_WARN);
                 }
@@ -1527,7 +1527,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     LLViewerInventoryItem* viewer_inv_item = items_vector[i].back();
                     if (cb)
                     {
-                        std::string message = indent + LLTrans::getString("Marketplace Validation Warning Move") + viewer_inv_item->getName();
+                        std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
                         cb(message,LLError::LEVEL_WARN);
                     }
                     gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
@@ -1543,7 +1543,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             // Remove the current folder if it ends up empty
             if (cb)
             {
-                std::string message = indent + LLTrans::getString("Marketplace Validation Warning Delete") + viewer_cat->getName();
+                std::string message = indent + viewer_cat->getName() + LLTrans::getString("Marketplace Validation Warning Delete");
                 cb(message,LLError::LEVEL_WARN);
             }
             gInventory.removeCategory(cat->getUUID());

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-    title="MARKETPLACE VALIDATION LOG"
+    title="Audit Marketplace Listings"
     name="floater_marketplace_validation"
     help_topic="floater_marketplace_validation"
     layout="topleft"
@@ -26,19 +26,6 @@
     width="100"
     height="20"
     left="484"/>
-    <text
-     name="tos_heading"
-     type="string"
-     font="SansSerif"
-     length="1"
-     layout="topleft"
-     follows="left|top"
-     width="552"
-     height="20"
-     left="20"
-     top="20">
-        The Marketplace Validation reported the following:
-    </text>
     <text_editor
      name="validation_text"
      type="string"
@@ -49,7 +36,7 @@
      follows="all"
      bg_readonly_color="TextBgReadOnlyColor"
      text_readonly_color="TextFgReadOnlyColor"
-     top="45"
+     top="25"
      bottom="455"
      left="20"
      right="-20"
