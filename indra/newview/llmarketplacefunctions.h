@@ -200,6 +200,7 @@ public:
     bool isListedAndActive(const LLUUID& folder_id); // returns true if folder_id is an active (listed) Listing folder
     bool isVersionFolder(const LLUUID& folder_id); // returns true if folder_id is a Version folder
     bool isInActiveFolder(const LLUUID& obj_id); // returns true if the obj_id is buried in an active version folder
+    LLUUID getActiveFolder(const LLUUID& obj_id); // returns the UUID of the active version folder obj_id is in
     
     // Access Marketplace data set : each method returns a default value if the argument can't be found
     bool getActivationState(const LLUUID& folder_id);

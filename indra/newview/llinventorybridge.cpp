@@ -2568,6 +2568,17 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
             if (move_is_from_marketplacelistings)
             {
+                // If we move from an active (listed) listing, checks that it's still valid, if not, unlist
+                LLUUID version_folder_id = LLMarketplaceData::instance().getActiveFolder(from_folder_uuid);
+                if (version_folder_id.notNull())
+                {
+                    LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
+                    if (!validate_marketplacelistings(cat,NULL))
+                    {
+                        LLMarketplaceData::instance().activateListing(version_folder_id,false);
+                    }
+                }
+                // Update the listing we moved from anyway
                 update_marketplace_category(from_folder_uuid);
                 // Clear the folder from the marketplace in case it is a listing folder
                 if (LLMarketplaceData::instance().isListed(cat_id))
@@ -4368,6 +4379,17 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
             
             if (move_is_from_marketplacelistings)
             {
+                // If we move from an active (listed) listing, checks that it's still valid, if not, unlist
+                LLUUID version_folder_id = LLMarketplaceData::instance().getActiveFolder(from_folder_uuid);
+                if (version_folder_id.notNull())
+                {
+                    LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
+                    if (!validate_marketplacelistings(cat,NULL))
+                    {
+                        LLMarketplaceData::instance().activateListing(version_folder_id,false);
+                    }
+                }
+                // Update the listing we moved from anyway
                 update_marketplace_category(from_folder_uuid);
             }
 

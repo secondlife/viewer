@@ -1459,6 +1459,13 @@ bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id)
     return (active && ((obj_id == version_uuid) || gInventory.isObjectDescendentOf(obj_id, version_uuid)));
 }
 
+LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id)
+{
+    S32 depth = depth_nesting_in_marketplace(obj_id);
+    LLUUID listing_uuid = nested_parent_id(obj_id, depth);
+    return (getActivationState(listing_uuid) ? getVersionFolder(listing_uuid) : LLUUID::null);
+}
+
 // Private Modifiers
 bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id)
 {
