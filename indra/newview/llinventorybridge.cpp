@@ -881,39 +881,51 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         items.push_back(std::string("Marketplace Disassociate Listing"));
         items.push_back(std::string("Marketplace List"));
         items.push_back(std::string("Marketplace Unlist"));
-		if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
-		{
-            items.push_back(std::string("Marketplace Get Listing"));
-        }
-        if (LLMarketplaceData::instance().isListed(mUUID))
+        if (LLMarketplaceData::instance().isUpdating(mUUID))
         {
-			disabled_items.push_back(std::string("Marketplace Create Listing"));
-			disabled_items.push_back(std::string("Marketplace Associate Listing"));
-            if (LLMarketplaceData::instance().getVersionFolder(mUUID).isNull())
-            {
-                disabled_items.push_back(std::string("Marketplace List"));
-                disabled_items.push_back(std::string("Marketplace Unlist"));
-            }
-            else
-            {
-                if (LLMarketplaceData::instance().getActivationState(mUUID))
-                {
-                    disabled_items.push_back(std::string("Marketplace List"));
-                }
-                else
-                {
-                    disabled_items.push_back(std::string("Marketplace Unlist"));
-                }
-            }
+            // During SLM update, disable all marketplace related options
+            disabled_items.push_back(std::string("Marketplace Create Listing"));
+            disabled_items.push_back(std::string("Marketplace Associate Listing"));
+            disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
+            disabled_items.push_back(std::string("Marketplace List"));
+            disabled_items.push_back(std::string("Marketplace Unlist"));
         }
         else
         {
-			disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
-			disabled_items.push_back(std::string("Marketplace List"));
-			disabled_items.push_back(std::string("Marketplace Unlist"));
             if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
             {
-                disabled_items.push_back(std::string("Marketplace Get Listing"));
+                items.push_back(std::string("Marketplace Get Listing"));
+            }
+            if (LLMarketplaceData::instance().isListed(mUUID))
+            {
+                disabled_items.push_back(std::string("Marketplace Create Listing"));
+                disabled_items.push_back(std::string("Marketplace Associate Listing"));
+                if (LLMarketplaceData::instance().getVersionFolder(mUUID).isNull())
+                {
+                    disabled_items.push_back(std::string("Marketplace List"));
+                    disabled_items.push_back(std::string("Marketplace Unlist"));
+                }
+                else
+                {
+                    if (LLMarketplaceData::instance().getActivationState(mUUID))
+                    {
+                        disabled_items.push_back(std::string("Marketplace List"));
+                    }
+                    else
+                    {
+                        disabled_items.push_back(std::string("Marketplace Unlist"));
+                    }
+                }
+            }
+            else
+            {
+                disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
+                disabled_items.push_back(std::string("Marketplace List"));
+                disabled_items.push_back(std::string("Marketplace Unlist"));
+                if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+                {
+                    disabled_items.push_back(std::string("Marketplace Get Listing"));
+                }
             }
         }
     }
@@ -925,17 +937,26 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         {
             items.push_back(std::string("Marketplace Activate"));
             items.push_back(std::string("Marketplace Deactivate"));
-            if (LLMarketplaceData::instance().isVersionFolder(mUUID))
+            if (LLMarketplaceData::instance().isUpdating(mUUID))
             {
+                // During SLM update, disable all marketplace related options
                 disabled_items.push_back(std::string("Marketplace Activate"));
-                if (LLMarketplaceData::instance().getActivationState(mUUID))
-                {
-                    disabled_items.push_back(std::string("Marketplace Deactivate"));
-                }
+                disabled_items.push_back(std::string("Marketplace Deactivate"));
             }
             else
             {
-                disabled_items.push_back(std::string("Marketplace Deactivate"));
+                if (LLMarketplaceData::instance().isVersionFolder(mUUID))
+                {
+                    disabled_items.push_back(std::string("Marketplace Activate"));
+                    if (LLMarketplaceData::instance().getActivationState(mUUID))
+                    {
+                        disabled_items.push_back(std::string("Marketplace Deactivate"));
+                    }
+                }
+                else
+                {
+                    disabled_items.push_back(std::string("Marketplace Deactivate"));
+                }
             }
         }
     }
