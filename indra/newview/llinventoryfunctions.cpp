@@ -175,8 +175,17 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
         // Update all descendents starting from the listing root
         update_marketplace_folder_hierarchy(listing_uuid);
     }
-    else if (depth < 0)
+    else if (depth == 0)
     {
+        // If this is the marketplace listings root itself, update all descendents
+        if (gInventory.getCategory(cur_uuid))
+        {
+            update_marketplace_folder_hierarchy(cur_uuid);
+        }
+    }
+    else
+    {
+        // If the folder is outside the marletplace listings root, clear its SLM data if needs be
         if (perform_consistency_enforcement && LLMarketplaceData::instance().isListed(cur_uuid))
         {
             LL_INFOS("SLM") << "Disassociate as the listing folder is not under the marketplace folder anymore!!" << LL_ENDL;

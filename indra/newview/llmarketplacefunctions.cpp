@@ -167,12 +167,15 @@ class LLSLMGetListingsResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMGetListingsResponder);
 public:
 	
-    LLSLMGetListingsResponder() {}
+    LLSLMGetListingsResponder(const LLUUID& folder_id)
+    {
+        mExpectedFolderId = folder_id;
+    }
     
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
-        LLMarketplaceData::instance().setUpdating(false);
+        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
         
 		if (!isGoodStatus())
 		{
@@ -217,7 +220,13 @@ public:
             }
             it++;
         }
+        
+        // Update all folders under the root
+        update_marketplace_category(mExpectedFolderId, false);
+        gInventory.notifyObservers();        
     }
+private:
+    LLUUID mExpectedFolderId;
 };
 
 class LLSLMCreateListingsResponder : public LLHTTPClient::Responder
@@ -1072,8 +1081,7 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 LLMarketplaceData::LLMarketplaceData() : 
  mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
  mStatusUpdatedSignal(NULL),
- mDirtyCount(false),
- mIsUpdating(false)
+ mDirtyCount(false)
 {
     mInventoryObserver = new LLMarketplaceInventoryObserver;
     gInventory.addObserver(mInventoryObserver);
@@ -1108,8 +1116,9 @@ void LLMarketplaceData::getSLMListings()
 	// Send request
     std::string url = getSLMConnectURL("/listings");
     log_SLM_infos("LLHTTPClient::get", url, "");
-    setUpdating(true);
-	LLHTTPClient::get(url, new LLSLMGetListingsResponder(), headers);
+	const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    setUpdating(marketplacelistings_id,true);
+	LLHTTPClient::get(url, new LLSLMGetListingsResponder(marketplacelistings_id), headers);
 }
 
 void LLMarketplaceData::getSLMListing(S32 listing_id)
@@ -1511,15 +1520,28 @@ LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id)
 
 bool LLMarketplaceData::isUpdating(const LLUUID& folder_id)
 {
-    if (mIsUpdating)
+    S32 depth = depth_nesting_in_marketplace(folder_id);
+    if ((depth <= 0) || (depth > 2))
     {
-        // If we're waiting for data for all listings, we are in the updating process
-        return true;
+        // Only listing and version folders though are concerned by that status
+        return false;
     }
     else
     {
-        std::set<LLUUID>::iterator it = mPendingUpdateSet.find(folder_id);
-        return (it != mPendingUpdateSet.end());
+        const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        std::set<LLUUID>::iterator it = mPendingUpdateSet.find(marketplace_listings_uuid);
+        if (it != mPendingUpdateSet.end())
+        {
+            // If we're waiting for data for the marketplace listings root, we are in the updating process for all
+            return true;
+        }
+        else
+        {
+            // Check if the listing folder is waiting or data
+            LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+            it = mPendingUpdateSet.find(listing_uuid);
+            return (it != mPendingUpdateSet.end());
+        }
     }
 }
 

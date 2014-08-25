@@ -213,7 +213,6 @@ public:
     // Used to flag if stock count values for Marketplace have to be updated
     bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }
     void setDirtyCount() { mDirtyCount = true; }
-    void setUpdating(bool isUpdating) { mIsUpdating = isUpdating; }
     void setUpdating(const LLUUID& folder_id, bool isUpdating);
     
 private:
@@ -242,7 +241,6 @@ private:
     bool mDirtyCount;   // If true, stock count value need to be updated at the next check
     
     // Update data
-    bool mIsUpdating;   // true if we're globally waiting for updated values from SLM
     std::set<LLUUID> mPendingUpdateSet;
     
     // The cache of SLM data (at last...)
