@@ -172,6 +172,8 @@ public:
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
+        LLMarketplaceData::instance().setUpdating(false);
+        
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Get /listings", getStatus(), getReason(), "", "");
@@ -223,11 +225,16 @@ class LLSLMCreateListingsResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMCreateListingsResponder);
 public:
 	
-    LLSLMCreateListingsResponder() {}
+    LLSLMCreateListingsResponder(const LLUUID& folder_id)
+    {
+        mExpectedFolderId = folder_id;
+    }
     
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
+        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
+        
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Post /listings", getStatus(), getReason(), "", "");
@@ -269,6 +276,8 @@ public:
             it++;
         }
     }
+private:
+    LLUUID mExpectedFolderId;
 };
 
 class LLSLMGetListingResponder : public LLHTTPClient::Responder
@@ -276,11 +285,16 @@ class LLSLMGetListingResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMGetListingResponder);
 public:
 	
-    LLSLMGetListingResponder() {}
+    LLSLMGetListingResponder(const LLUUID& folder_id)
+    {
+        mExpectedFolderId = folder_id;
+    }
     
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
+        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
+
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
@@ -327,6 +341,8 @@ public:
             it++;
         }
     }
+private:
+    LLUUID mExpectedFolderId;
 };
 
 class LLSLMUpdateListingsResponder : public LLHTTPClient::Responder
@@ -334,8 +350,9 @@ class LLSLMUpdateListingsResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMUpdateListingsResponder);
 public:
 	
-    LLSLMUpdateListingsResponder(bool expected_listed_state, const LLUUID& expected_version_id)
+    LLSLMUpdateListingsResponder(const LLUUID& folder_id, bool expected_listed_state, const LLUUID& expected_version_id)
     {
+        mExpectedFolderId = folder_id;
         mExpectedListedState = expected_listed_state;
         mExpectedVersionUUID = expected_version_id;
     }
@@ -343,6 +360,8 @@ public:
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
+        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
+
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
@@ -399,6 +418,7 @@ public:
         }
     }
 private:
+    LLUUID mExpectedFolderId;
     bool mExpectedListedState;
     LLUUID mExpectedVersionUUID;
 };
@@ -408,11 +428,16 @@ class LLSLMAssociateListingsResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMAssociateListingsResponder);
 public:
 	
-    LLSLMAssociateListingsResponder() {}
+    LLSLMAssociateListingsResponder(const LLUUID& folder_id)
+    {
+        mExpectedFolderId = folder_id;
+    }
     
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
+        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
+        
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", "");
@@ -464,6 +489,8 @@ public:
             it++;
         }
     }
+private:
+    LLUUID mExpectedFolderId;
 };
 
 class LLSLMDeleteListingsResponder : public LLHTTPClient::Responder
@@ -471,11 +498,16 @@ class LLSLMDeleteListingsResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMDeleteListingsResponder);
 public:
 	
-    LLSLMDeleteListingsResponder() {}
+    LLSLMDeleteListingsResponder(const LLUUID& folder_id)
+    {
+        mExpectedFolderId = folder_id;
+    }
     
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
+        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
+        
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
@@ -511,6 +543,8 @@ public:
             it++;
         }
     }
+private:
+    LLUUID mExpectedFolderId;
 };
 
 // SLM Responders End
@@ -1038,7 +1072,8 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 LLMarketplaceData::LLMarketplaceData() : 
  mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
  mStatusUpdatedSignal(NULL),
- mDirtyCount(false)
+ mDirtyCount(false),
+ mIsUpdating(false)
 {
     mInventoryObserver = new LLMarketplaceInventoryObserver;
     gInventory.addObserver(mInventoryObserver);
@@ -1073,6 +1108,7 @@ void LLMarketplaceData::getSLMListings()
 	// Send request
     std::string url = getSLMConnectURL("/listings");
     log_SLM_infos("LLHTTPClient::get", url, "");
+    setUpdating(true);
 	LLHTTPClient::get(url, new LLSLMGetListingsResponder(), headers);
 }
 
@@ -1085,7 +1121,9 @@ void LLMarketplaceData::getSLMListing(S32 listing_id)
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
     log_SLM_infos("LLHTTPClient::get", url, "");
-	LLHTTPClient::get(url, new LLSLMGetListingResponder(), headers);
+    LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
+    setUpdating(folder_id,true);
+	LLHTTPClient::get(url, new LLSLMGetListingResponder(folder_id), headers);
 }
 
 void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
@@ -1112,7 +1150,8 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
 	// Send request
     std::string url = getSLMConnectURL("/listings");
     log_SLM_infos("LLHTTPClient::postRaw", url, json_str);
-	LLHTTPClient::postRaw(url, data, size, new LLSLMCreateListingsResponder(), headers);
+    setUpdating(folder_id,true);
+	LLHTTPClient::postRaw(url, data, size, new LLSLMCreateListingsResponder(folder_id), headers);
 }
 
 void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed)
@@ -1140,7 +1179,8 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
     log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
-	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(is_listed, version_id), headers);
+    setUpdating(folder_id,true);
+	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(folder_id, is_listed, version_id), headers);
 }
 
 void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id)
@@ -1167,7 +1207,8 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
 	// Send request
     std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d",listing_id);
     log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
-	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(), headers);
+    setUpdating(folder_id,true);
+	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(folder_id), headers);
 }
 
 void LLMarketplaceData::deleteSLMListing(S32 listing_id)
@@ -1179,7 +1220,9 @@ void LLMarketplaceData::deleteSLMListing(S32 listing_id)
 	// Send request
     std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
     log_SLM_infos("LLHTTPClient::del", url, "");
-	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(), headers);
+    LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
+    setUpdating(folder_id,true);
+	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(folder_id), headers);
 }
 
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
@@ -1464,6 +1507,33 @@ LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id)
     S32 depth = depth_nesting_in_marketplace(obj_id);
     LLUUID listing_uuid = nested_parent_id(obj_id, depth);
     return (getActivationState(listing_uuid) ? getVersionFolder(listing_uuid) : LLUUID::null);
+}
+
+bool LLMarketplaceData::isUpdating(const LLUUID& folder_id)
+{
+    if (mIsUpdating)
+    {
+        // If we're waiting for data for all listings, we are in the updating process
+        return true;
+    }
+    else
+    {
+        std::set<LLUUID>::iterator it = mPendingUpdateSet.find(folder_id);
+        return (it != mPendingUpdateSet.end());
+    }
+}
+
+void LLMarketplaceData::setUpdating(const LLUUID& folder_id, bool isUpdating)
+{
+    std::set<LLUUID>::iterator it = mPendingUpdateSet.find(folder_id);
+    if (it != mPendingUpdateSet.end())
+    {
+        mPendingUpdateSet.erase(it);
+    }
+    if (isUpdating)
+    {
+        mPendingUpdateSet.insert(folder_id);
+    }
 }
 
 // Private Modifiers

@@ -201,7 +201,8 @@ public:
     bool isVersionFolder(const LLUUID& folder_id); // returns true if folder_id is a Version folder
     bool isInActiveFolder(const LLUUID& obj_id); // returns true if the obj_id is buried in an active version folder
     LLUUID getActiveFolder(const LLUUID& obj_id); // returns the UUID of the active version folder obj_id is in
-    
+    bool isUpdating(const LLUUID& folder_id); // returns true if we're waiting from SLM incoming data for folder_id
+   
     // Access Marketplace data set : each method returns a default value if the argument can't be found
     bool getActivationState(const LLUUID& folder_id);
     S32 getListingID(const LLUUID& folder_id);
@@ -212,6 +213,8 @@ public:
     // Used to flag if stock count values for Marketplace have to be updated
     bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }
     void setDirtyCount() { mDirtyCount = true; }
+    void setUpdating(bool isUpdating) { mIsUpdating = isUpdating; }
+    void setUpdating(const LLUUID& folder_id, bool isUpdating);
     
 private:
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
@@ -237,6 +240,10 @@ private:
 	status_updated_signal_t* mStatusUpdatedSignal;
 	LLInventoryObserver* mInventoryObserver;
     bool mDirtyCount;   // If true, stock count value need to be updated at the next check
+    
+    // Update data
+    bool mIsUpdating;   // true if we're globally waiting for updated values from SLM
+    std::set<LLUUID> mPendingUpdateSet;
     
     // The cache of SLM data (at last...)
     marketplace_items_list_t mMarketplaceItems;

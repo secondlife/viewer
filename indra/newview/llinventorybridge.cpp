@@ -2087,6 +2087,11 @@ std::string LLFolderBridge::getLabelSuffix() const
                 suffix += " (" +  LLTrans::getString("MarketplaceMax") + "=" + llformat("%d", stock_count) + ")";
             }
         }
+        // Add updating suffix
+        if (LLMarketplaceData::instance().isUpdating(getUUID()))
+        {
+            suffix += " (" +  LLTrans::getString("MarketplaceUpdating") + ")";
+        }
         return LLInvFVBridge::getLabelSuffix() + suffix;
 	}
 	else

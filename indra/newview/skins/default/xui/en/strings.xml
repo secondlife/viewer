@@ -2315,6 +2315,7 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	<string name="MarketplaceMax">max</string>
 	<string name="MarketplaceStock">stock</string>
 	<string name="MarketplaceNoStock">out of stock</string>
+	<string name="MarketplaceUpdating">updating...</string>
 
 	<string name="Open landmarks">Open landmarks</string>
   <string name="Unconstrained">Unconstrained</string>
