@@ -40,16 +40,23 @@
 #include "llhttpconstants.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
-#include "llsdserialize.h"
+#include "llcorehttputil.h"
 
 namespace
 {
 
+//
 // Http request handler class for single inventory item requests.
 //
 // We'll use a handler-per-request pattern here rather than
 // a shared handler.  Mainly convenient as this was converted
 // from a Responder class model.
+//
+// Derives from and is identical to the normal FetchItemHttpHandler
+// except that:  1) it uses the background request object which is
+// updated more slowly than the foreground and 2) keeps a count of
+// active requests on the LLInventoryModelBackgroundFetch object
+// to indicate outstanding operations are in-flight.
 //
 class BGItemHttpHandler : public LLInventoryModel::FetchItemHttpHandler
 {
@@ -74,6 +81,10 @@ protected:
 
 
 // Http request handler class for folders.
+//
+// Handler for FetchInventoryDescendents2 and FetchLibDescendents2
+// caps requests for folders.
+//
 class BGFolderHttpHandler : public LLCore::HttpHandler
 {
 	LOG_CLASS(BGFolderHttpHandler);
@@ -115,12 +126,6 @@ private:
 const S32 MAX_FETCH_RETRIES = 10;
 
 const char * const LOG_INV("Inventory");
-
-std::string dumpResponse()
-{
-	return std::string("ADD SOMETHING MEANINGFUL HERE");
-}
-
 
 } // end of namespace anonymous
 
@@ -471,6 +476,10 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 		return;
 	}
 
+	// *TODO:  These values could be tweaked at runtime to effect
+	// a fast/slow fetch throttle.  Once login is complete and the scene
+	// is mostly loaded, we could turn up the throttle and fill missing
+	// inventory more quickly.
 	static const S32 max_concurrent_fetches(12);		// Outstanding requests, not connections
 	static const F32 new_min_time(0.5f);		// *HACK:  Clean this up when old code goes away entirely.
 	static const U32 max_batch_size(10);
@@ -482,7 +491,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 
 	if (mFetchCount)
 	{
-		// Process completed HTTP requests
+		// Process completed background HTTP requests
 		gInventory.handleResponses(false);
 	}
 	
@@ -497,6 +506,8 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 
 	const U32 sort_order(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER) & 0x1);
 
+	// *TODO:  Think I'd like to get a shared pointer to this and share it
+	// among all the folder requests.
 	uuid_vec_t recursive_cats;
 
 	LLSD folder_request_body;
@@ -673,7 +684,9 @@ bool LLInventoryModelBackgroundFetch::fetchQueueContainsNoDescendentsOf(const LL
 }
 
 
+// ===============================
 // Anonymous Namespace Definitions
+// ===============================
 
 namespace
 {
@@ -683,27 +696,50 @@ namespace
 void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
 	LLCore::HttpStatus status(response->getStatus());
+	// status = LLCore::HttpStatus(404);				// Dev tool to force error handling
 	if (! status)
 	{
 		processFailure(status, response);
 	}
 	else
 	{
+		// Response body should be present.
 		LLCore::BufferArray * body(response->getBody());
+		// body = NULL;									// Dev tool to force error handling
 		if (! body || ! body->size())
 		{
 			LL_WARNS(LOG_INV) << "Missing data in inventory folder query." << LL_ENDL;
 			processFailure("HTTP response missing expected body", response);
 			goto only_exit;
 		}
-		
-		LLCore::BufferArrayStream bas(body);
+
+		// Could test 'Content-Type' header but probably unreliable.
+
+		// Convert response to LLSD
+		// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
 		LLSD body_llsd;
-		S32 parse_status(LLSDSerialize::fromXML(body_llsd, bas));
-		if (LLSDParser::PARSE_FAILURE == parse_status)
+		if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
 		{
 			// INFOS-level logging will occur on the parsed failure
 			processFailure("HTTP response contained malformed LLSD", response);
+			goto only_exit;
+		}
+
+		// Expect top-level structure to be a map
+		// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
+		if (! body_llsd.isMap())
+		{
+			processFailure("LLSD response not a map", response);
+			goto only_exit;
+		}
+
+		// Check for 200-with-error failures
+		// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
+		// body_llsd["error"]["identifier"] = "Development";
+		// body_llsd["error"]["message"] = "You left development code in the viewer";
+		if (body_llsd.has("error"))
+		{
+			processFailure("Inventory application error (200-with-error)", response);
 			goto only_exit;
 		}
 
@@ -719,13 +755,12 @@ only_exit:
 
 void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * response)
 {
-	if (! content.isMap())
-	{
-		processFailure("LLSD response not a map", response);
-		return;
-	}
-
 	LLInventoryModelBackgroundFetch * fetcher(LLInventoryModelBackgroundFetch::getInstance());
+
+	// API V2 and earlier should probably be testing for "error" map
+	// in response as an application-level error.
+
+	// Instead, we assume success and attempt to extract information.
 	if (content.has("folders"))	
 	{
 		LLSD folders(content["folders"]);
@@ -836,7 +871,7 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
 			 folder_it != bad_folders.endArray();
 			 ++folder_it)
 		{
-			// *TODO: Stop copying data
+			// *TODO: Stop copying data [ed:  this isn't copying data]
 			LLSD folder_sd(*folder_it);
 			
 			// These folders failed on the dataserver.  We probably don't want to retry them.
@@ -857,14 +892,26 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
 
 void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response)
 {
-	LL_WARNS(LOG_INV) << dumpResponse() << LL_ENDL;
+	const std::string & ct(response->getContentType());
+	LL_WARNS(LOG_INV) << "Inventory folder fetch failure\n"
+					  << "[Status: " << status.toTerseString() << "]\n"
+					  << "[Reason: " << status.toString() << "]\n"
+					  << "[Content-type: " << ct << "]\n"
+					  << "[Content (abridged): "
+					  << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
+
+	// Could use a 404 test here to try to detect revoked caps...
+	
+	// This was originally the request retry logic for the inventory
+	// request which tested on HTTP_INTERNAL_ERROR status.  This
+	// retry logic was unbounded and lacked discrimination as to the
+	// cause of the retry.  The new http library should be doing
+	// adquately on retries but I want to keep the structure of a
+	// retry for reference.
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
-
-	LL_INFOS(LOG_INV) << dumpResponse() << LL_ENDL;
-
-	// *FIX:  Not the correct test here...
-	if (status == LLCore::HttpStatus(408)) // timed out or curl failure
+	if (false)
 	{
+		// timed out or curl failure
 		for (LLSD::array_const_iterator folder_it = mRequestSD["folders"].beginArray();
 			 folder_it != mRequestSD["folders"].endArray();
 			 ++folder_it)
@@ -888,12 +935,20 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 
 void BGFolderHttpHandler::processFailure(const char * const reason, LLCore::HttpResponse * response)
 {
-	LL_WARNS(LOG_INV) << dumpResponse() << LL_ENDL;
-	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
+	LL_WARNS(LOG_INV) << "Inventory folder fetch failure\n"
+					  << "[Status: internal error]\n"
+					  << "[Reason: " << reason << "]\n"
+					  << "[Content (abridged): "
+					  << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
 
-	LL_INFOS(LOG_INV) << dumpResponse() << LL_ENDL;
-						
-	if (true /* status == LLCore::HttpStatus(408)*/) // timed out or curl failure
+	// Reverse of previous processFailure() method, this is invoked
+	// when response structure is found to be invalid.  Original
+	// always re-issued the request (without limit).  This does
+	// the same but be aware that this may be a source of problems.
+	// Philosophy is that inventory folders are so essential to
+	// operation that this is a reasonable action.
+	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
+	if (true)
 	{
 		for (LLSD::array_const_iterator folder_it = mRequestSD["folders"].beginArray();
 			 folder_it != mRequestSD["folders"].endArray();

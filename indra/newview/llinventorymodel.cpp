@@ -55,7 +55,7 @@
 #include "llsdutil.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
-#include "llsdserialize.h"
+#include "llcorehttputil.h"
 
 //#define DIFF_INVENTORY_FILES
 #ifdef DIFF_INVENTORY_FILES
@@ -74,12 +74,6 @@ BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 //BOOL decompress_file(const char* src_filename, const char* dst_filename);
 static const char CACHE_FORMAT_STRING[] = "%s.inv"; 
 static const char * const LOG_INV("Inventory");
-
-static std::string dumpResponse()
-{
-	return std::string("ADD SOMETHING MEANINGFUL HERE");
-}
-
 
 struct InventoryIDPtrLess
 {
@@ -2468,18 +2462,15 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 	
 	LLCore::HttpRequest * request(foreground ? mHttpRequestFG : mHttpRequestBG);
 	LLCore::HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
-	LLCore::BufferArray * ba = new LLCore::BufferArray;
-	LLCore::BufferArrayStream bas(ba);
-	LLSDSerialize::toXML(body, bas);
 		
-	handle = request->requestPost(mHttpPolicyClass,
-								  (foreground ? mHttpPriorityFG : mHttpPriorityBG),
-								  url,
-								  ba,
-								  mHttpOptions,
-								  mHttpHeaders,
-								  handler);
-	ba->release();
+	handle = LLCoreHttpUtil::requestPostWithLLSD(request,
+												 mHttpPolicyClass,
+												 (foreground ? mHttpPriorityFG : mHttpPriorityBG),
+												 url,
+												 body,
+												 mHttpOptions,
+												 mHttpHeaders,
+												 handler);
 	if (LLCORE_HTTP_HANDLE_INVALID == handle)
 	{
 		LLCore::HttpStatus status(request->getStatus());
@@ -3981,6 +3972,7 @@ void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle hand
 														 LLCore::HttpResponse * response)
 {
 	LLCore::HttpStatus status(response->getStatus());
+	// status = LLCore::HttpStatus(404);				// Dev tool to force error handling
 	if (! status)
 	{
 		processFailure(status, response);
@@ -3988,20 +3980,38 @@ void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle hand
 	else
 	{
 		LLCore::BufferArray * body(response->getBody());
+		// body = NULL;									// Dev tool to force error handling
 		if (! body || ! body->size())
 		{
 			LL_WARNS(LOG_INV) << "Missing data in inventory item query." << LL_ENDL;
 			processFailure("HTTP response for inventory item query missing body", response);
 			goto only_exit;
 		}
-		
-		LLCore::BufferArrayStream bas(body);
+
+		// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
 		LLSD body_llsd;
-		S32 parse_status(LLSDSerialize::fromXML(body_llsd, bas));
-		if (LLSDParser::PARSE_FAILURE == parse_status)
+		if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
 		{
 			// INFOS-level logging will occur on the parsed failure
 			processFailure("HTTP response for inventory item query has malformed LLSD", response);
+			goto only_exit;
+		}
+
+		// Expect top-level structure to be a map
+		// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
+		if (! body_llsd.isMap())
+		{
+			processFailure("LLSD response for inventory item not a map", response);
+			goto only_exit;
+		}
+
+		// Check for 200-with-error failures
+		// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
+		// body_llsd["error"]["identifier"] = "Development";
+		// body_llsd["error"]["message"] = "You left development code in the viewer";
+		if (body_llsd.has("error"))
+		{
+			processFailure("Inventory application error (200-with-error)", response);
 			goto only_exit;
 		}
 
@@ -4016,12 +4026,6 @@ only_exit:
 
 void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore::HttpResponse * response)
 {
-	if (! content.isMap())
-	{
-		processFailure("LLSD response for inventory item not a map", response);
-		return;
-	}
-
 	start_new_inventory_observer();
 
 #if 0
@@ -4083,7 +4087,7 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 	{
 		changes |= gInventory.updateItem(*it);
 	}
-	// *HUH:  Have computed changes, nothing uses it.
+	// *HUH:  Have computed 'changes', nothing uses it.
 	
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
@@ -4092,13 +4096,23 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 
 void LLInventoryModel::FetchItemHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response)
 {
-	LL_WARNS(LOG_INV) << dumpResponse() << LL_ENDL;
+	const std::string & ct(response->getContentType());
+	LL_WARNS(LOG_INV) << "Inventory item fetch failure\n"
+					  << "[Status: " << status.toTerseString() << "]\n"
+					  << "[Reason: " << status.toString() << "]\n"
+					  << "[Content-type: " << ct << "]\n"
+					  << "[Content (abridged): "
+					  << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
 	gInventory.notifyObservers();
 }
 
 void LLInventoryModel::FetchItemHttpHandler::processFailure(const char * const reason, LLCore::HttpResponse * response)
 {
-	LL_WARNS(LOG_INV) << dumpResponse() << LL_ENDL;
+	LL_WARNS(LOG_INV) << "Inventory item fetch failure\n"
+					  << "[Status: internal error]\n"
+					  << "[Reason: " << reason << "]\n"
+					  << "[Content (abridged): "
+					  << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
 	gInventory.notifyObservers();
 }
 
