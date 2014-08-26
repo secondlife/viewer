@@ -180,6 +180,8 @@ public:
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Get /listings", getStatus(), getReason(), "", "");
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
 		}
         LLBufferStream istr(channels, buffer.get());
@@ -192,6 +194,8 @@ public:
         if (!reader.parse(body,root))
         {
             log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
         }
         
@@ -247,6 +251,8 @@ public:
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Post /listings", getStatus(), getReason(), "", "");
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
 		}
         
@@ -260,6 +266,8 @@ public:
         if (!reader.parse(body,root))
         {
             log_SLM_warning("Post /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
         }
 
@@ -312,6 +320,8 @@ public:
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
 		}
         
@@ -320,6 +330,8 @@ public:
         if (!reader.parse(body,root))
         {
             log_SLM_warning("Get /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
         }
         
@@ -379,6 +391,8 @@ public:
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Put /listing", getStatus(), getReason(), "", body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
 		}
         
@@ -387,6 +401,8 @@ public:
         if (!reader.parse(body,root))
         {
             log_SLM_warning("Put /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
         }
         
@@ -450,6 +466,8 @@ public:
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", "");
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
 		}
         
@@ -463,6 +481,8 @@ public:
         if (!reader.parse(body,root))
         {
             log_SLM_warning("Put /associate_inventory", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
         }
         
@@ -525,6 +545,8 @@ public:
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Delete /listing", getStatus(), getReason(), "", body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
 		}
         
@@ -533,6 +555,8 @@ public:
         if (!reader.parse(body,root))
         {
             log_SLM_warning("Delete /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
             return;
         }
         
