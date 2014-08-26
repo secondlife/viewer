@@ -4116,8 +4116,8 @@ void LLAgent::stopCurrentAnimations()
 		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
 		      anim_it++)
 		{
-			if (anim_it->first ==
-			    ANIM_AGENT_SIT_GROUND_CONSTRAINED)
+			if ((anim_it->first == ANIM_AGENT_DO_NOT_DISTURB)||
+				(anim_it->first == ANIM_AGENT_SIT_GROUND_CONSTRAINED))
 			{
 				// don't cancel a ground-sit anim, as viewers
 				// use this animation's status in
