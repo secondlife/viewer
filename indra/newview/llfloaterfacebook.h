@@ -46,6 +46,7 @@ public:
 	void draw();
     void onSend();
 	bool onFacebookConnectStateChange(const LLSD& data);
+	bool onFacebookConnectAccountStateChange(const LLSD& data);
 
 	void sendStatus();
 	void clearAndClose();
@@ -61,8 +62,6 @@ private:
 	void hideConnectButton();
 	void showDisconnectedLayout();
 	void showConnectedLayout();
-
-	bool pressedConnect;
 
 	LLTextBox * mAccountCaptionLabel;
 	LLTextBox * mAccountNameLabel;
