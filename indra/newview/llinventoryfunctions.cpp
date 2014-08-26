@@ -1353,6 +1353,11 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
 // This function does no deletion of listings but a mere audit and raises issues to the user (through the
 // optional callback cb). It also returns a boolean, true if things validate, false if issues are raised.
 // The only inventory changes that are done is to move and sort folders containing no-copy items to stock folders.
+bool sort_alpha(const LLViewerInventoryCategory* cat1, const LLViewerInventoryCategory* cat2)
+{
+	return cat1->getName().compare(cat2->getName()) < 0;
+}
+
 bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_t cb)
 {
     // Folder is valid unless issue is raised
@@ -1569,7 +1574,9 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 
     // Recursion : Perform the same validation on each nested folder
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-    
+    // Sort the folders in alphabetical order first
+    std::sort(cat_array_copy.begin(), cat_array_copy.end(), sort_alpha);
+   
 	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
 	{
 		LLInventoryCategory* category = *iter;

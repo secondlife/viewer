@@ -2293,7 +2293,7 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	</string>
 
 	<string name="Marketplace Validation Intro"></string>
-	<string name="Marketplace Validation Log">: No errors</string>
+	<string name="Marketplace Validation Log"></string>
 	<string name="Marketplace Validation Warning Stock">: Warning: creating wrapping folder for stock folder</string>
 	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any item</string>
 	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>

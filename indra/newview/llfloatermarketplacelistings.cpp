@@ -641,7 +641,13 @@ void LLFloaterMarketplaceValidation::appendMessage(std::string& message, LLError
 {
     if (mEditor)
     {
-        mEditor->appendText(message, true);
+        // Errors are printed in bold, other messages in normal font
+		LLStyle::Params style;
+        LLFontDescriptor new_desc(mEditor->getFont()->getFontDesc());
+        new_desc.setStyle(log_level == LLError::LEVEL_ERROR ? LLFontGL::BOLD : LLFontGL::NORMAL);
+        LLFontGL* new_font = LLFontGL::getFont(new_desc);
+        style.font = new_font;
+        mEditor->appendText(message, true, style);
     }
 }
 
