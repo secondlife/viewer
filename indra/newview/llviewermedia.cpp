@@ -196,7 +196,7 @@ private:
 		// 500 means "Internal Server error" but we decided it's okay to 
 		//     accept this and go past it in the MIME type probe
 		// 302 means the resource can be found temporarily in a different place - added this for join.secondlife.com
-		// 499 is a code specifc to join.secondlife.com (????) apparently safe to ignore
+		// 499 is a code specifc to join.secondlife.com (?) apparently safe to ignore
 //		if(	((status >= 200) && (status < 300))	||
 //			((status >= 400) && (status < 499))	|| 
 //			(status == 500) ||
@@ -1524,7 +1524,7 @@ void LLViewerMedia::createSpareBrowserMediaSource()
 	// popping up at the moment we start a media plugin.
 	if (!sSpareBrowserMediaSource && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
 	{
-		// The null owner will keep the browser plugin from fully initializing 
+		// The null owner will keep the browser plugin from fully initializing
 		// (specifically, it keeps LLPluginClassMedia from negotiating a size change, 
 		// which keeps MediaPluginWebkit::initBrowserWindow from doing anything until we have some necessary data, like the background color)
 		sSpareBrowserMediaSource = LLViewerMediaImpl::newSourceFromMediaType(HTTP_CONTENT_TEXT_HTML, NULL, 0, 0);
@@ -1533,7 +1533,7 @@ void LLViewerMedia::createSpareBrowserMediaSource()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
-LLPluginClassMedia* LLViewerMedia::getSpareBrowserMediaSource() 
+LLPluginClassMedia* LLViewerMedia::getSpareBrowserMediaSource()
 {
 	LLPluginClassMedia* result = sSpareBrowserMediaSource;
 	sSpareBrowserMediaSource = NULL;
@@ -1582,7 +1582,7 @@ std::string LLViewerMedia::getParcelAudioURL()
 // static
 void LLViewerMedia::initClass()
 {
-	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);	
+	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);
 	sTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
 		setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished));
 }
@@ -1670,7 +1670,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false),
 	mTrustedBrowser(false),
-	mZoomFactor(1.0)
+	mZoomFactor(1.0),
+    mCleanBrowser(false)
 { 
 
 	// Set up the mute list observer if it hasn't been set up already.
@@ -1794,14 +1795,16 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*static*/
-LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target)
+LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, const std::string target, bool clean_browser)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
 	LLPluginClassMedia* media_source = NULL;
 	
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
 	// If a spare was already created before PluginAttachDebuggerToPlugins was set, don't use it.
-	if(plugin_basename == "media_plugin_webkit" && !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"))
+    // Do not use a spare if launching with full viewer control (e.g. Facebook, Twitter and few others)
+	if ((plugin_basename == "media_plugin_webkit") &&
+        !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins") && !clean_browser)
 	{
 		media_source = LLViewerMedia::getSpareBrowserMediaSource();
 		if(media_source)
@@ -1813,7 +1816,6 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			return media_source;
 		}
 	}
-	
 	if(plugin_basename.empty())
 	{
 		LL_WARNS_ONCE("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
@@ -1857,18 +1859,18 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 
 			// collect 'cookies enabled' setting from prefs and send to embedded browser
 			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
-			media_source->enable_cookies( cookies_enabled );
+			media_source->enable_cookies( cookies_enabled || clean_browser);
 
 			// collect 'plugins enabled' setting from prefs and send to embedded browser
 			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
-			media_source->setPluginsEnabled( plugins_enabled );
+			media_source->setPluginsEnabled( plugins_enabled  || clean_browser);
 
 			// collect 'javascript enabled' setting from prefs and send to embedded browser
 			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
-			media_source->setJavascriptEnabled( javascript_enabled );
+			media_source->setJavascriptEnabled( javascript_enabled || clean_browser);
 		
 			bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
-			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled );
+			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
 			media_source->setTarget(target);
 			
@@ -1923,7 +1925,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	// Save the MIME type that really caused the plugin to load
 	mCurrentMimeType = mMimeType;
 
-	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mTarget);
+	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mTarget, mCleanBrowser);
 	
 	if (media_source)
 	{
@@ -2544,7 +2546,7 @@ void LLViewerMediaImpl::unload()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
+void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request, bool clean_browser)
 {
 	cancelMimeTypeProbe();
 
@@ -2557,6 +2559,7 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	// Always set the current URL and MIME type.
 	mMediaURL = url;
 	mMimeType = mime_type;
+    mCleanBrowser = clean_browser;
 	
 	// Clear the current media URL, since it will no longer be correct.
 	mCurrentMediaURL.clear();

@@ -117,11 +117,14 @@ Var DO_UNINSTALL_V2     ; If non-null, path to a previous Viewer 2 installation 
 !include "FileFunc.nsh"     ; For GetParameters, GetOptions
 !insertmacro GetParameters
 !insertmacro GetOptions
+!include WinVer.nsh			; For OS and SP detection
+!include x64.nsh			; For 64bit OS detection
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; After install completes, launch app
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
+Call CheckWindowsServPack				; Warn if not on the latest SP before asking to launch.
     Push $R0	# Option value, unused
 	StrCmp $SKIP_AUTORUN "true" +2;
 	# Assumes SetOutPath $INSTDIR
@@ -138,26 +141,67 @@ Function dirPre
 FunctionEnd    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Make sure we're not on Windows 98 / ME
+; Make sure this computer meets the minimum system requirements.
+; Currently: Windows 32bit XP SP3, 64bit XP SP2 and Server 2003 SP2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsVersion
-	DetailPrint "Checking Windows version..."
-	Call GetWindowsVersion
-	Pop $R0
-	; Just get first two characters, ignore 4.0 part of "NT 4.0"
-	StrCpy $R0 $R0 2
-	; Blacklist certain OS versions
-	StrCmp $R0 "95" win_ver_bad
-	StrCmp $R0 "98" win_ver_bad
-	StrCmp $R0 "ME" win_ver_bad
-	StrCmp $R0 "NT" win_ver_bad
-	Return
-win_ver_bad:
-	StrCmp $SKIP_DIALOGS "true" +2 ; If skip_dialogs is set just install
-            MessageBox MB_YESNO $(CheckWindowsVersionMB) IDNO win_ver_abort
-	Return
-win_ver_abort:
-	Quit
+  ${If} ${AtMostWin2000}
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+
+  ${If} ${IsWinXP}
+  ${AndIfNot} ${RunningX64}
+  ${AndIfNot} ${IsServicePack} 3
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+
+  ${If} ${IsWinXP}
+  ${AndIf} ${RunningX64}
+  ${AndIfNot} ${IsServicePack} 2
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+
+  ${If} ${IsWin2003}
+  ${AndIfNot} ${IsServicePack} 2
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Recommend Upgrading Service Pack
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function CheckWindowsServPack
+  ${If} ${IsWinVista}
+  ${AndIfNot} ${IsServicePack} 2
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin2008}
+  ${AndIfNot} ${IsServicePack} 2
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin7}
+  ${AndIfNot} ${IsServicePack} 1
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin2008R2}
+  ${AndIfNot} ${IsServicePack} 1
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -208,17 +252,13 @@ FunctionEnd
 ; Checks for CPU valid (must have SSE2 support)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckCPUFlags
-    Call GetWindowsVersion
-    Pop $R0
-    StrCmp $R0 "2000" OK_SSE  ; sse check not available on win2k.
-
     Push $1
     System::Call 'kernel32::IsProcessorFeaturePresent(i) i(10) .r1'
-    IntCmp $1 1 OK_SSE
-    MessageBox MB_OKCANCEL $(MissingSSE2) /SD IDOK IDOK OK_SSE
+    IntCmp $1 1 OK_SSE2
+    MessageBox MB_OKCANCEL $(MissingSSE2) /SD IDOK IDOK OK_SSE2
     Quit
 
-  OK_SSE:
+  OK_SSE2:
     Pop $1
     Return
 FunctionEnd
@@ -754,103 +794,13 @@ Call un.ProgramFiles
 
 SectionEnd 				; end of uninstall section
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; (From the NSIS documentation, JC)
-; GetWindowsVersion
-;
-; Based on Yazno's function, http://yazno.tripod.com/powerpimpit/
-; Updated by Joost Verburg
-;
-; Returns on top of stack
-;
-; Windows Version (95, 98, ME, NT x.x, 2000, XP, 2003)
-; or
-; '' (Unknown Windows Version)
-;
-; Usage:
-;   Call GetWindowsVersion
-;   Pop $R0
-;   ; at this point $R0 is "NT 4.0" or whatnot
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function GetWindowsVersion
- 
-   Push $R0
-   Push $R1
- 
-   ReadRegStr $R0 HKLM \
-   "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
-
-   IfErrors 0 lbl_winnt
-   
-   ; we are not NT
-   ReadRegStr $R0 HKLM \
-   "SOFTWARE\Microsoft\Windows\CurrentVersion" VersionNumber
- 
-   StrCpy $R1 $R0 1
-   StrCmp $R1 '4' 0 lbl_error
- 
-   StrCpy $R1 $R0 3
- 
-   StrCmp $R1 '4.0' lbl_win32_95
-   StrCmp $R1 '4.9' lbl_win32_ME lbl_win32_98
- 
-   lbl_win32_95:
-     StrCpy $R0 '95'
-   Goto lbl_done
- 
-   lbl_win32_98:
-     StrCpy $R0 '98'
-   Goto lbl_done
- 
-   lbl_win32_ME:
-     StrCpy $R0 'ME'
-   Goto lbl_done
- 
-   lbl_winnt:
- 
-   StrCpy $R1 $R0 1
- 
-   StrCmp $R1 '3' lbl_winnt_x
-   StrCmp $R1 '4' lbl_winnt_x
- 
-   StrCpy $R1 $R0 3
- 
-   StrCmp $R1 '5.0' lbl_winnt_2000
-   StrCmp $R1 '5.1' lbl_winnt_XP
-   StrCmp $R1 '5.2' lbl_winnt_2003 lbl_error
- 
-   lbl_winnt_x:
-     StrCpy $R0 "NT $R0" 6
-   Goto lbl_done
- 
-   lbl_winnt_2000:
-     Strcpy $R0 '2000'
-   Goto lbl_done
- 
-   lbl_winnt_XP:
-     Strcpy $R0 'XP'
-   Goto lbl_done
- 
-   lbl_winnt_2003:
-     Strcpy $R0 '2003'
-   Goto lbl_done
- 
-   lbl_error:
-     Strcpy $R0 ''
-   lbl_done:
- 
-   Pop $R1
-   Exch $R0
- 
-FunctionEnd
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Note: to add new languages, add a language file include to the list 
 ;;  at the top of this file, add an entry to the menu and then add an 
 ;;  entry to the language ID selector below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInit
+Call CheckWindowsVersion		; Don't install On unsupported systems
     Push $0
     ${GetParameters} $COMMANDLINE              ; get our command line
 
@@ -924,13 +874,12 @@ StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
-Call CheckWindowsVersion		; warn if on Windows 98/ME
-Call CheckCPUFlags			; Make sure we have SSE2 support
+Call CheckCPUFlags				; Make sure we have SSE2 support
 Call CheckIfAdministrator		; Make sure the user can install/uninstall
 Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this version
 Call CloseSecondLife			; Make sure we're not running
 Call CheckNetworkConnection		; ping secondlife.com
-Call CheckWillUninstallV2               ; See if a V2 install exists and will be removed.
+Call CheckWillUninstallV2		; See if a V2 install exists and will be removed.
 Call CheckOldExeName                    ; Clean up a previous version of the exe
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

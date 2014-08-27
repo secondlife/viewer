@@ -27,6 +27,7 @@ set(llimage_SOURCE_FILES
     llimage.cpp
     llimagedimensionsinfo.cpp
     llimagedxt.cpp
+    llimagefilter.cpp
     llimagej2c.cpp
     llimagejpeg.cpp
     llimagepng.cpp
@@ -42,6 +43,7 @@ set(llimage_HEADER_FILES
     llimagebmp.h
     llimagedimensionsinfo.h
     llimagedxt.h
+    llimagefilter.h
     llimagej2c.h
     llimagejpeg.h
     llimagepng.h

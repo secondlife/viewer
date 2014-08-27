@@ -51,6 +51,13 @@ typedef	enum e_scale_manipulator_type
 	SCALE_MANIP_FACE
 } EScaleManipulatorType;
 
+typedef	enum e_snap_regimes
+{
+	SNAP_REGIME_NONE = 0, //!< The cursor is not in either of the snap regimes.
+	SNAP_REGIME_UPPER = 0x1, //!< The cursor is, non-exclusively, in the first of the snap regimes. Prefer to treat as bitmask.
+	SNAP_REGIME_LOWER = 0x2 //!< The cursor is, non-exclusively, in the second of the snap regimes. Prefer to treat as bitmask.
+} ESnapRegimes;
+
 
 class LLManipScale : public LLManip
 {
@@ -64,7 +71,7 @@ public:
 
 		ManipulatorHandle(LLVector3 pos, EManipPart id, EScaleManipulatorType type):mPosition(pos), mManipID(id), mType(type){}
 	};
-
+	static const S32 NUM_MANIPULATORS = 14;
 
 	LLManipScale( LLToolComposite* composite );
 	~LLManipScale();
@@ -91,12 +98,12 @@ private:
 	void			renderFaces( const LLBBox& local_bbox );
 	void			renderEdges( const LLBBox& local_bbox );
 	void			renderBoxHandle( F32 x, F32 y, F32 z );
-	void			renderAxisHandle( const LLVector3& start, const LLVector3& end );
+	void			renderAxisHandle( U32 part, const LLVector3& start, const LLVector3& end );
 	void			renderGuidelinesPart( const LLBBox& local_bbox );
 	void			renderSnapGuides( const LLBBox& local_bbox );
 
 	void			revert();
-	
+
 	inline void		conditionalHighlight( U32 part, const LLColor4* highlight = NULL, const LLColor4* normal = NULL );
 
 	void			drag( S32 x, S32 y );
@@ -135,34 +142,36 @@ private:
 	};
 
 
-	F32				mBoxHandleSize;		// The size of the handles at the corners of the bounding box
-	F32				mScaledBoxHandleSize; // handle size after scaling for selection feedback
+	F32				mScaledBoxHandleSize; //!< Handle size after scaling for selection feedback.
 	LLVector3d		mDragStartPointGlobal;
-	LLVector3d		mDragStartCenterGlobal;	// The center of the bounding box of all selected objects at time of drag start
+	LLVector3d		mDragStartCenterGlobal; //!< The center of the bounding box of all selected objects at time of drag start.
 	LLVector3d		mDragPointGlobal;
 	LLVector3d 		mDragFarHitGlobal;
 	S32				mLastMouseX;
 	S32				mLastMouseY;
 	BOOL			mSendUpdateOnMouseUp;
 	U32 			mLastUpdateFlags;
-	typedef std::set<ManipulatorHandle*, compare_manipulators> minpulator_list_t;
-	minpulator_list_t mProjectedManipulators;
+	typedef std::set<ManipulatorHandle*, compare_manipulators> manipulator_list_t;
+	manipulator_list_t mProjectedManipulators;
 	LLVector4		mManipulatorVertices[14];
-	F32				mScaleSnapUnit1;  // size of snap multiples for axis 1
-	F32				mScaleSnapUnit2;  // size of snap multiples for axis 2
-	LLVector3		mScalePlaneNormal1; // normal of plane in which scale occurs that most faces camera
-	LLVector3		mScalePlaneNormal2; // normal of plane in which scale occurs that most faces camera
-	LLVector3		mSnapGuideDir1;
-	LLVector3		mSnapGuideDir2;
-	LLVector3		mSnapDir1;
-	LLVector3		mSnapDir2;
-	F32				mSnapRegimeOffset;
+	F32				mScaleSnapUnit1; //!< Size of snap multiples for the upper scale.
+	F32				mScaleSnapUnit2; //!< Size of snap multiples for the lower scale.
+	LLVector3		mScalePlaneNormal1; //!< Normal of plane in which scale occurs that most faces camera.
+	LLVector3		mScalePlaneNormal2; //!< Normal of plane in which scale occurs that most faces camera.
+	LLVector3		mSnapGuideDir1; //!< The direction in which the upper snap guide tick marks face.
+	LLVector3		mSnapGuideDir2; //!< The direction in which the lower snap guide tick marks face.
+	LLVector3		mSnapDir1; //!< The direction in which the upper snap guides face.
+	LLVector3		mSnapDir2; //!< The direction in which the lower snap guides face.
+	F32				mSnapRegimeOffset; //!< How far off the scale axis centerline the mouse can be before it exits/enters the snap regime.
+	F32				mTickPixelSpacing1; //!< The pixel spacing between snap guide tick marks for the upper scale.
+	F32				mTickPixelSpacing2; //!< The pixel spacing between snap guide tick marks for the lower scale.
 	F32				mSnapGuideLength;
-	LLVector3		mScaleCenter;
-	LLVector3		mScaleDir;
-	F32				mScaleSnapValue;
-	BOOL			mInSnapRegime;
-	F32*			mManipulatorScales;
+	LLVector3		mScaleCenter; //!< The location of the origin of the scaling operation.
+	LLVector3		mScaleDir; //!< The direction of the scaling action.  In face-dragging this is aligned with one of the cardinal axis relative to the prim, but in corner-dragging this is along the diagonal.
+	F32				mScaleSnappedValue; //!< The distance of the current position nearest the mouse location, measured along mScaleDir.  Is measured either from the center or from the far face/corner depending upon whether uniform scaling is true or false respectively.
+	ESnapRegimes	mSnapRegime; //<! Which, if any, snap regime the cursor is currently residing in.
+	F32				mManipulatorScales[NUM_MANIPULATORS];
+	F32				mBoxHandleSize[NUM_MANIPULATORS];		// The size of the handles at the corners of the bounding box
 };
 
 #endif  // LL_MANIPSCALE_H

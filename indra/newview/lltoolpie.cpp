@@ -1672,17 +1672,7 @@ BOOL LLToolPie::handleRightClickPick()
 			{
 				name = node->mName;
 			}
-			std::string mute_msg;
-			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
-			{
-				mute_msg = LLTrans::getString("UnmuteObject");
-			}
-			else
-			{
-				mute_msg = LLTrans::getString("MuteObject2");
-			}
-			
-			gMenuHolder->getChild<LLUICtrl>("Object Mute")->setValue(mute_msg);
+
 			gMenuObject->show(x, y);
 
 			showVisualContextMenuEffect();

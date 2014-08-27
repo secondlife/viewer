@@ -47,7 +47,20 @@
      text_color="White"
      top="4"
      value="..."
-     width="330" />
+     width="290" />
+    <text
+     follows="right"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     right="-20"
+     parse_urls="false"
+     use_ellipses="true"
+     name="timestamp"
+     text_color="White"
+     top="4"
+     value="..."
+     width="45" />
     <button
      follows="right"
      height="20"

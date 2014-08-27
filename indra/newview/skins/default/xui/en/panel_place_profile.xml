@@ -220,7 +220,7 @@
             <layout_stack
              border_size="0"
              clip="false"
-             follows="left|top|right"
+             follows="left|top"
              height="50"
              layout="topleft"
              mouse_opaque="false"
@@ -251,10 +251,10 @@
                 </layout_panel>
                 <layout_panel
                  follows="left|right"
-                 height="60"
+                 height="50"
                  layout="topleft"
                  min_height="50"
-                 min_width="60"
+                 min_width="50"
                  mouse_opaque="false"
                  name="for_sale_panel"
                  top="0"
@@ -264,7 +264,7 @@
                      height="50"
                      image_name="ForSale_Badge"
                      layout="topleft"
-                     left="10"
+                     left="0"
                      name="icon_for_sale"
                      top="0"
                      width="50" />
@@ -762,11 +762,19 @@
                          top_pad="5"
                          value="Rating:"
                          width="80" />
+                        <icon
+                         follows="top|left"
+                         height="16"
+                         image_name="Parcel_PG_Dark"
+                         layout="topleft"
+                         left_pad="0"
+                         name="estate_rating_icon"
+                         width="18" />
                         <text
                          follows="left|top|right"
                          height="15"
                          layout="topleft"
-                         left_pad="0"
+                         left_pad="10"
                          name="estate_rating"
                          top_delta="0"
                          width="187" />

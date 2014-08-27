@@ -150,7 +150,7 @@
 	     parameter="Land" />
 	</button>
     <text
-     height="30"
+     height="20"
      word_wrap="true"
      use_ellipses="true"
      type="string"
@@ -294,24 +294,14 @@
     <check_box
      control_name="ScaleUniform"
      height="19"
-     label=""
+     label="Stretch Both Sides"
      layout="topleft"
      left="143"
      name="checkbox uniform"
      top="48"
-     width="20" />
-    <text
-     height="19"
-     label="Stretch Both Sides"
-     left_delta="20"
-     name="checkbox uniform label"
-     top_delta="2"
-     width="120"
-     layout="topleft"
-     follows="top|left"
-     wrap="true">
-     	Stretch Both Sides
-    </text>
+     label_text.wrap="true"
+     label_text.width="100"
+     width="134" />
     <check_box
      control_name="ScaleStretchTextures"
      height="19"

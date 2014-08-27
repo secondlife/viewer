@@ -47,6 +47,8 @@ include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 include(LLAppearance)
+include(PNG)
+include(ZLIB)
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -199,6 +201,7 @@ set(viewer_SOURCE_FILES
     llfilteredwearablelist.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
+    llflickrconnect.cpp
     llfloaterabout.cpp
     llfloaterbvhpreview.cpp
     llfloaterauction.cpp
@@ -207,6 +210,7 @@ set(viewer_SOURCE_FILES
     llfloateravatarpicker.cpp
     llfloateravatartextures.cpp
     llfloaterbeacons.cpp
+    llfloaterbigpreview.cpp
     llfloaterbuildoptions.cpp
     llfloaterbulkpermission.cpp
     llfloaterbump.cpp
@@ -228,10 +232,13 @@ set(viewer_SOURCE_FILES
     llfloatereditwater.cpp
     llfloaterenvironmentsettings.cpp
     llfloaterevent.cpp
+    llfloaterfacebook.cpp
+    llfloaterflickr.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
     llfloatergotoline.cpp
+    llfloatergroupbulkban.cpp
     llfloatergroupinvite.cpp
     llfloatergroups.cpp
     llfloaterhandler.cpp
@@ -272,13 +279,13 @@ set(viewer_SOURCE_FILES
     llfloaterregionrestarting.cpp
     llfloatersceneloadstats.cpp
     llfloaterscriptdebug.cpp
+    llfloaterscriptedprefs.cpp
     llfloaterscriptlimits.cpp
     llfloatersearch.cpp
     llfloatersellland.cpp
     llfloatersettingsdebug.cpp
     llfloatersidepanelcontainer.cpp
     llfloatersnapshot.cpp
-    llfloatersocial.cpp
     llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
@@ -290,6 +297,7 @@ set(viewer_SOURCE_FILES
     llfloatertos.cpp
     llfloatertoybox.cpp
     llfloatertranslationsettings.cpp
+    llfloatertwitter.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
@@ -327,6 +335,7 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
+    llimagefiltersmanager.cpp
     llimhandler.cpp
     llimview.cpp
     llinspect.cpp
@@ -404,6 +413,8 @@ set(viewer_SOURCE_FILES
     llpanelface.cpp
     llpanelgenerictip.cpp
     llpanelgroup.cpp
+    llpanelgroupbulk.cpp
+    llpanelgroupbulkban.cpp
     llpanelgroupgeneral.cpp
     llpanelgroupinvite.cpp
     llpanelgrouplandmoney.cpp
@@ -496,6 +507,7 @@ set(viewer_SOURCE_FILES
     llscenemonitor.cpp
     llsceneview.cpp
     llscreenchannel.cpp
+    llscripteditor.cpp
     llscriptfloater.cpp
     llscrollingpanelparam.cpp
     llscrollingpanelparambase.cpp
@@ -525,6 +537,7 @@ set(viewer_SOURCE_FILES
     llstylemap.cpp
     llsurface.cpp
     llsurfacepatch.cpp
+    llsyntaxid.cpp
     llsyswellitem.cpp
     llsyswellwindow.cpp
     llteleporthistory.cpp
@@ -570,6 +583,7 @@ set(viewer_SOURCE_FILES
     lltransientdockablefloater.cpp
     lltransientfloatermgr.cpp
     lltranslate.cpp
+    lltwitterconnect.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     lluploadfloaterobservers.cpp
@@ -791,6 +805,7 @@ set(viewer_HEADER_FILES
     llfilteredwearablelist.h
     llfirstuse.h
     llflexibleobject.h
+    llflickrconnect.h
     llfloaterabout.h
     llfloaterbvhpreview.h
     llfloaterauction.h
@@ -799,6 +814,7 @@ set(viewer_HEADER_FILES
     llfloateravatarpicker.h
     llfloateravatartextures.h
     llfloaterbeacons.h
+    llfloaterbigpreview.h
     llfloaterbuildoptions.h
     llfloaterbulkpermission.h
     llfloaterbump.h
@@ -820,10 +836,13 @@ set(viewer_HEADER_FILES
     llfloatereditwater.h
     llfloaterenvironmentsettings.h
     llfloaterevent.h
+    llfloaterfacebook.h
+    llfloaterflickr.h
     llfloaterfonttest.h
     llfloatergesture.h
     llfloatergodtools.h
     llfloatergotoline.h
+    llfloatergroupbulkban.h
     llfloatergroupinvite.h
     llfloatergroups.h
     llfloaterhandler.h
@@ -867,13 +886,13 @@ set(viewer_HEADER_FILES
     llfloaterregionrestarting.h
     llfloatersceneloadstats.h
     llfloaterscriptdebug.h
+    llfloaterscriptedprefs.h
     llfloaterscriptlimits.h
     llfloatersearch.h
     llfloatersellland.h
     llfloatersettingsdebug.h
     llfloatersidepanelcontainer.h
     llfloatersnapshot.h
-    llfloatersocial.h
     llfloatersounddevices.h
     llfloaterspellchecksettings.h
     llfloatertelehub.h
@@ -885,6 +904,7 @@ set(viewer_HEADER_FILES
     llfloatertos.h
     llfloatertoybox.h
     llfloatertranslationsettings.h
+    llfloatertwitter.h
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
@@ -921,6 +941,7 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
+    llimagefiltersmanager.h
     llimview.h
     llinspect.h
     llinspectavatar.h
@@ -989,6 +1010,9 @@ set(viewer_HEADER_FILES
     llpanelface.h
     llpanelgenerictip.h
     llpanelgroup.h
+    llpanelgroupbulk.h
+    llpanelgroupbulkimpl.h
+    llpanelgroupbulkban.h
     llpanelgroupgeneral.h
     llpanelgroupinvite.h
     llpanelgrouplandmoney.h
@@ -1078,6 +1102,7 @@ set(viewer_HEADER_FILES
     llscenemonitor.h
     llsceneview.h
     llscreenchannel.h
+    llscripteditor.h
     llscriptfloater.h
     llscrollingpanelparam.h
     llscrollingpanelparambase.h
@@ -1106,6 +1131,7 @@ set(viewer_HEADER_FILES
     llstylemap.h
     llsurface.h
     llsurfacepatch.h
+    llsyntaxid.h
     llsyswellitem.h
     llsyswellwindow.h
     lltable.h
@@ -1152,6 +1178,7 @@ set(viewer_HEADER_FILES
     lltransientdockablefloater.h
     lltransientfloatermgr.h
     lltranslate.h
+    lltwitterconnect.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h
@@ -1462,9 +1489,9 @@ if (WINDOWS)
 
     SOURCE_GROUP("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
-    if (NOT STANDALONE)
+    if (NOT USESYSTEMLIBS)
         list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
-    endif (NOT STANDALONE)
+    endif (NOT USESYSTEMLIBS)
 
     find_library(DINPUT_LIBRARY dinput8 ${DIRECTX_LIBRARY_DIR})
     find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
@@ -1539,7 +1566,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
     app_settings/keys.xml
-    app_settings/keywords.ini
+    app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
     app_settings/low_graphics.xml
     app_settings/mid_graphics.xml
@@ -1575,9 +1602,9 @@ source_group("Character File" FILES ${viewer_CHARACTER_FILES})
 
 set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-if (NOT STANDALONE)
+if (NOT USESYSTEMLIBS)
     list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
-endif (NOT STANDALONE)
+endif (NOT USESYSTEMLIBS)
 
 if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)
@@ -1859,20 +1886,44 @@ elseif (DARWIN)
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
         )
 else (WINDOWS)
-        # Linux 
+        # Linux
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
         )
 endif (WINDOWS)
 
-# *NOTE - this list is very sensitive to ordering, test carefully on all
+# *NOTE: - this list is very sensitive to ordering, test carefully on all
 # platforms if you change the releative order of the entries here.
 # In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
 # appears to sometimes de-duplicate redundantly listed dependencies improperly.
 # To work around this, higher level modules should be listed before the modules
 # that they depend upon. -brad
+#
+# *NOTE:  On mixing system shared libraries and updated static archives.
+# We use a number of libraries that have an existence as system libraries,
+# internal-use libraries and applications libraries.  The most-referenced
+# one of these being libz where you can find four or more versions in play
+# at once.  On Linux, libz can be found at link and run time via a number
+# of paths:
+#     
+#      => -lfreetype
+#        => libz.so.1 (on install machine, not build)
+#      => -lSDL
+#        => libz.so.1 (on install machine, not build)
+#      => -lgdk-x11-2.0
+#        => libz.so.1
+#      => -lz
+#
+# We generally want the newest version of the library to provide all symbol
+# resolution.  To that end, when using static archives, the *_PRELOAD_ARCHIVES
+# variables, PNG_PRELOAD_ARCHIVES and ZLIB_PRELOAD_ARCHIVES, get the archives
+# dumped into the target binary and runtime lookup will find the most
+# modern version.
+
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${PNG_PRELOAD_ARCHIVES}
+    ${ZLIB_PRELOAD_ARCHIVES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
@@ -1899,6 +1950,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_COROUTINE_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${FMODWRAPPER_LIBRARY} # must come after LLAudio
@@ -2044,7 +2096,7 @@ if (DARWIN)
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit mac-crash-logger)
-  
+
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
   else (ENABLE_SIGNING)
