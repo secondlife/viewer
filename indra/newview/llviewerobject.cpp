@@ -6193,6 +6193,17 @@ const LLUUID &LLViewerObject::extractAttachmentItemID()
 	return getAttachmentItemID();
 }
 
+const std::string& LLViewerObject::getAttachmentItemName()
+{
+	static std::string empty;
+	LLInventoryItem *item = gInventory.getItem(getAttachmentItemID());
+	if (isAttachment() && item)
+	{
+		return item->getName();
+	}
+	return empty;
+}
+
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const
 {

@@ -88,8 +88,6 @@ public:
 	U32				mDirtyFlags;
 	BOOL			mUpdateXform;
 
-	BOOL			mResetAfterRestoreOldXform;
-
 	// describes the skin binding pose
 	LLVector3		mSkinOffset;
 
@@ -102,6 +100,25 @@ public:
 	// debug statics
 	static S32		sNumTouches;
 	static S32		sNumUpdates;
+
+	struct AttachmentOverrideRecord
+	{
+		AttachmentOverrideRecord()
+		{
+		}
+		LLVector3 pos;
+		std::string name;
+
+		bool operator<(const AttachmentOverrideRecord& other) const
+		{
+			return name < other.name;
+		}
+	};
+	typedef std::map<std::string,AttachmentOverrideRecord> attachment_map_t;
+	attachment_map_t m_attachmentOverrides;
+	LLVector3 m_posBeforeOverrides;
+
+	void updatePos();
 
 public:
 	LLJoint();
@@ -188,15 +205,13 @@ public:
 	void setDefaultFromCurrentXform( void );
 	void storeCurrentXform( const LLVector3& pos );
 
+	void addAttachmentPosOverride( const LLVector3& pos, const std::string& attachment_name );
+	void removeAttachmentPosOverride( const std::string& attachment_name );
+
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }
 	//Setter for the joints id
 	void setId( const LLUUID& id ) { mId = id;}
-
-	//If the old transform flag has been set, then the reset logic in avatar needs to be aware(test) of it
-	const BOOL doesJointNeedToBeReset( void ) const { return mResetAfterRestoreOldXform; }
-	void setJointResetFlag( bool val ) { mResetAfterRestoreOldXform = val; }
-	
 };
 #endif // LL_LLJOINT_H
 
