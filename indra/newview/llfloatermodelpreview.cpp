@@ -1935,7 +1935,8 @@ bool LLModelLoader::doLoadModel()
 										LLJoint* pJoint = mPreview->getPreviewAvatar()->getJoint( lookingForJoint );
 										if ( pJoint )
 										{   
-											pJoint->storeCurrentXform( jointTransform.getTranslation() );												
+											LL_WARNS() << "Aieee, now what!" << LL_ENDL;
+											//pJoint->storeCurrentXform( jointTransform.getTranslation() );												
 										}
 										else
 										{

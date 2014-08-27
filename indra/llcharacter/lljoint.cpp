@@ -52,7 +52,6 @@ void LLJoint::init()
 	mOldXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
 	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
 	mUpdateXform = TRUE;
-	mResetAfterRestoreOldXform = false;	
 }
 
 LLJoint::LLJoint() :
@@ -245,7 +244,7 @@ void LLJoint::setPosition( const LLVector3& pos )
 
 
 //--------------------------------------------------------------------
-// setPosition()
+// setDefaultFromCurrentXform()
 //--------------------------------------------------------------------
 void LLJoint::setDefaultFromCurrentXform( void )
 {		
@@ -253,14 +252,62 @@ void LLJoint::setDefaultFromCurrentXform( void )
 }
 
 //--------------------------------------------------------------------
-// storeCurrentXform()
+// addAttachmentPosOverride()
 //--------------------------------------------------------------------
-void LLJoint::storeCurrentXform( const LLVector3& pos )
-{	
-	mOldXform = mXform;
-	mResetAfterRestoreOldXform = true;	
-	setPosition( pos );
-	touch(ALL_DIRTY);	
+void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const std::string& attachment_name )
+{
+	if (attachment_name.empty())
+	{
+		return;
+	}
+	if (m_attachmentOverrides.empty())
+	{
+		LL_WARNS() << "saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
+		m_posBeforeOverrides = getPosition();
+	}
+	AttachmentOverrideRecord rec;
+	rec.name = attachment_name;
+	rec.pos = pos;
+	m_attachmentOverrides[attachment_name] = rec;
+	LL_WARNS() << "addAttachmentPosOverride for " << attachment_name << " pos " << pos << LL_ENDL;
+	updatePos();
+}
+
+//--------------------------------------------------------------------
+// removeAttachmentPosOverride()
+//--------------------------------------------------------------------
+void LLJoint::removeAttachmentPosOverride( const std::string& attachment_name )
+{
+	if (attachment_name.empty())
+	{
+		return;
+	}
+	attachment_map_t::iterator it = m_attachmentOverrides.find(attachment_name);
+	if (it != m_attachmentOverrides.end())
+	{
+		LL_WARNS() << "removeAttachmentPosOverride for " << attachment_name << LL_ENDL;
+		m_attachmentOverrides.erase(it);
+	}
+	updatePos();
+}
+
+void LLJoint::updatePos()
+{
+	LLVector3 pos;
+	attachment_map_t::iterator it = std::max_element(m_attachmentOverrides.begin(),
+													 m_attachmentOverrides.end());
+	if (it != m_attachmentOverrides.end())
+	{
+		AttachmentOverrideRecord& rec = it->second;
+		LL_WARNS() << "updatePos, winner is attachment " << rec.name << " pos " << rec.pos << LL_ENDL;
+		pos = rec.pos;
+	}
+	else
+	{
+		LL_WARNS() << "updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
+		pos = m_posBeforeOverrides;
+	}
+	setPosition(pos);
 }
 
 //--------------------------------------------------------------------
@@ -276,7 +323,6 @@ void LLJoint::storeScaleForReset( const LLVector3& scale )
 void LLJoint::restoreOldXform( void )
 {	
 	mXform = mOldXform;
-	mResetAfterRestoreOldXform = false;
 	mDirtyFlags = ALL_DIRTY;	
 }
 //--------------------------------------------------------------------
@@ -325,7 +371,7 @@ void LLJoint::setWorldPosition( const LLVector3& pos )
 
 
 //--------------------------------------------------------------------
-// mXform.getRotation()
+// getRotation()
 //--------------------------------------------------------------------
 const LLQuaternion& LLJoint::getRotation()
 {
@@ -548,20 +594,6 @@ void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
 			break;
 		}
 	}
-
-	// 2003.03.26 - This code was just using up cpu cycles. AB
-
-//	LLVector3 old_axis = main_axis * old_rot;
-//	LLVector3 new_axis = main_axis * new_rot;
-
-//	for (S32 i = 0; i < mConstraintSilhouette.size() - 1; i++)
-//	{
-//		LLVector3 vert1 = mConstraintSilhouette[i];
-//		LLVector3 vert2 = mConstraintSilhouette[i + 1];
-
-		// figure out how to clamp rotation to line on 3-sphere
-
-//	}
 }
 
 // End

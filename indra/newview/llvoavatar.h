@@ -199,7 +199,7 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	
-	void					resetJointPositionsToDefault( void );
+	void					resetJointPositionsOnDetach(const std::string& attachment_name);
 	
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);

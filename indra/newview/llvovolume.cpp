@@ -4626,7 +4626,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 											const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
 											
 											//Set the joint position
-											pJoint->storeCurrentXform( jointPos );					
+											const std::string& attachment_name = drawablep->getVObj()->getAttachmentItemName();
+											//pJoint->storeCurrentXform( jointPos );					
+											pJoint->addAttachmentPosOverride( jointPos, attachment_name );
 									
 											//If joint is a pelvis then handle old/new pelvis to foot values
 											if ( lookingForJoint == "mPelvis" )
