@@ -605,8 +605,6 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 							 info->mRot.mV[VZ], LLQuaternion::XYZ));
 	joint->setScale(info->mScale);
 
-	//joint->setDefaultFromCurrentXform();
-	
 	if (info->mIsJoint)
 	{
 		joint->setSkinOffset( info->mPivot );
