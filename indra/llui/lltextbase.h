@@ -618,7 +618,6 @@ protected:
 
 	// cursor
 	S32							mCursorPos;			// I-beam is just after the mCursorPos-th character.
-	bool						mDrawRightmostCursor;   // When cursor is on the rightmost position on the line
 	S32							mDesiredXPixel;		// X pixel position where the user wants the cursor to be
 	LLFrameTimer				mCursorBlinkTimer;  // timer that controls cursor blinking
 

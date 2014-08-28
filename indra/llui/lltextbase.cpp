@@ -218,8 +218,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mParseHighlights(p.parse_highlights),
 	mBGVisible(p.bg_visible),
 	mScroller(NULL),
-	mStyleDirty(true),
-	mDrawRightmostCursor(false)
+	mStyleDirty(true)
 {
 	if(p.allow_scroll)
 	{
@@ -1505,11 +1504,6 @@ void LLTextBase::reflow()
 		// find and erase line info structs starting at start_index and going to end of document
 		if (!mLineInfoList.empty())
 		{
-			if (mDrawRightmostCursor)
-			{
-				start_index--;
-			}
-
 			// find first element whose end comes after start_index
 			line_list_t::iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), start_index, line_end_compare());
 			line_start_index = iter->mDocIndexStart;
@@ -1698,11 +1692,6 @@ S32 LLTextBase::getLineNumFromDocIndex( S32 doc_index, bool include_wordwrap) co
 	}
 	else
 	{
-		if (mDrawRightmostCursor)
-		{
-			doc_index--;
-		}
-
 		line_list_t::const_iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), doc_index, line_end_compare());
 		if (include_wordwrap)
 		{
@@ -1731,11 +1720,6 @@ S32 LLTextBase::getLineOffsetFromDocIndex( S32 startpos, bool include_wordwrap) 
 	}
 	else
 	{
-		if (mDrawRightmostCursor)
-		{
-			startpos--;
-		}
-
 		line_list_t::const_iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), startpos, line_end_compare());
 		return startpos - iter->mDocIndexStart;
 	}
@@ -2456,7 +2440,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		}
 		else if (hit_past_end_of_line && segmentp->getEnd() >= line_iter->mDocIndexEnd)
 		{
-			if (getLineNumFromDocIndex(line_iter->mDocIndexEnd - 1) == line_iter->mLineNum && !mDrawRightmostCursor)
+			if (getLineNumFromDocIndex(line_iter->mDocIndexEnd - 1) == line_iter->mLineNum)
 			{
 				// if segment wraps to the next line we should step one char back
 				// to compensate for the space char between words
@@ -2489,13 +2473,7 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 	// clamp pos to valid values
 	pos = llclamp(pos, 0, mLineInfoList.back().mDocIndexEnd - 1);
 
-	S32 corrected_pos = pos;
-	if (mDrawRightmostCursor && pos > 0)
-	{
-		corrected_pos--;
-	}
-
-	line_list_t::const_iterator line_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), corrected_pos, line_end_compare());
+	line_list_t::const_iterator line_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), pos, line_end_compare());
 
 	doc_rect.mLeft = line_iter->mRect.mLeft; 
 	doc_rect.mBottom = line_iter->mRect.mBottom;
@@ -2670,6 +2648,12 @@ void LLTextBase::changeLine( S32 delta )
         LLRect visible_region = getVisibleDocumentRect();
         S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel,
                                                        mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
+		S32 actual_line = getLineNumFromDocIndex(new_cursor_pos);
+		if (actual_line != new_line)
+		{
+			// line edge, correcting position by 1 to move onto proper line
+			new_cursor_pos += new_line - actual_line;
+		}
         setCursorPos(new_cursor_pos, true);
     }
 }
