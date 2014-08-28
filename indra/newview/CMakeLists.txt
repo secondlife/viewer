@@ -47,6 +47,8 @@ include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 include(LLAppearance)
+include(PNG)
+include(ZLIB)
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -1893,13 +1895,37 @@ else (WINDOWS)
         )
 endif (WINDOWS)
 
-# *NOTE - this list is very sensitive to ordering, test carefully on all
+# *NOTE: - this list is very sensitive to ordering, test carefully on all
 # platforms if you change the releative order of the entries here.
 # In particular, cmake 2.6.4 (when buidling with linux/makefile generators)
 # appears to sometimes de-duplicate redundantly listed dependencies improperly.
 # To work around this, higher level modules should be listed before the modules
 # that they depend upon. -brad
+#
+# *NOTE:  On mixing system shared libraries and updated static archives.
+# We use a number of libraries that have an existence as system libraries,
+# internal-use libraries and applications libraries.  The most-referenced
+# one of these being libz where you can find four or more versions in play
+# at once.  On Linux, libz can be found at link and run time via a number
+# of paths:
+#     
+#      => -lfreetype
+#        => libz.so.1 (on install machine, not build)
+#      => -lSDL
+#        => libz.so.1 (on install machine, not build)
+#      => -lgdk-x11-2.0
+#        => libz.so.1
+#      => -lz
+#
+# We generally want the newest version of the library to provide all symbol
+# resolution.  To that end, when using static archives, the *_PRELOAD_ARCHIVES
+# variables, PNG_PRELOAD_ARCHIVES and ZLIB_PRELOAD_ARCHIVES, get the archives
+# dumped into the target binary and runtime lookup will find the most
+# modern version.
+
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${PNG_PRELOAD_ARCHIVES}
+    ${ZLIB_PRELOAD_ARCHIVES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
@@ -1926,6 +1952,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_COROUTINE_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${FMODWRAPPER_LIBRARY} # must come after LLAudio
