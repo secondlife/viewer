@@ -36,6 +36,20 @@
 S32 LLJoint::sNumUpdates = 0;
 S32 LLJoint::sNumTouches = 0;
 
+
+//-----------------------------------------------------------------------------
+// LLJoint::AttachmentOverrideRecord::AttachmentOverrideRecord()
+//-----------------------------------------------------------------------------
+LLJoint::AttachmentOverrideRecord::AttachmentOverrideRecord()
+{
+}
+
+template <class T> 
+bool attachment_map_iter_compare_name(const T& a, const T& b)
+{
+	return a.second.name < b.second.name;
+}
+
 //-----------------------------------------------------------------------------
 // LLJoint()
 // Class Constructor
@@ -48,8 +62,6 @@ void LLJoint::init()
 	mParent = NULL;
 	mXform.setScaleChildOffset(TRUE);
 	mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
-	mOldXform.setScaleChildOffset(TRUE);
-	mOldXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
 	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
 	mUpdateXform = TRUE;
 }
@@ -242,15 +254,6 @@ void LLJoint::setPosition( const LLVector3& pos )
 	touch(MATRIX_DIRTY | POSITION_DIRTY);
 }
 
-
-//--------------------------------------------------------------------
-// setDefaultFromCurrentXform()
-//--------------------------------------------------------------------
-void LLJoint::setDefaultFromCurrentXform( void )
-{		
-	mDefaultXform = mXform;
-}
-
 //--------------------------------------------------------------------
 // addAttachmentPosOverride()
 //--------------------------------------------------------------------
@@ -262,14 +265,14 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const std::string&
 	}
 	if (m_attachmentOverrides.empty())
 	{
-		LL_WARNS() << "saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
+		LL_DEBUGS("Avatar") << getName() << " saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
 		m_posBeforeOverrides = getPosition();
 	}
 	AttachmentOverrideRecord rec;
 	rec.name = attachment_name;
 	rec.pos = pos;
 	m_attachmentOverrides[attachment_name] = rec;
-	LL_WARNS() << "addAttachmentPosOverride for " << attachment_name << " pos " << pos << LL_ENDL;
+	LL_DEBUGS("Avatar") << getName() << " addAttachmentPosOverride for " << attachment_name << " pos " << pos << LL_ENDL;
 	updatePos();
 }
 
@@ -285,46 +288,35 @@ void LLJoint::removeAttachmentPosOverride( const std::string& attachment_name )
 	attachment_map_t::iterator it = m_attachmentOverrides.find(attachment_name);
 	if (it != m_attachmentOverrides.end())
 	{
-		LL_WARNS() << "removeAttachmentPosOverride for " << attachment_name << LL_ENDL;
+		LL_DEBUGS("Avatar") << getName() << " removeAttachmentPosOverride for " << attachment_name << LL_ENDL;
 		m_attachmentOverrides.erase(it);
 	}
 	updatePos();
 }
 
+//--------------------------------------------------------------------
+// updatePos()
+//--------------------------------------------------------------------
 void LLJoint::updatePos()
 {
 	LLVector3 pos;
 	attachment_map_t::iterator it = std::max_element(m_attachmentOverrides.begin(),
-													 m_attachmentOverrides.end());
+													 m_attachmentOverrides.end(),
+													 attachment_map_iter_compare_name<LLJoint::attachment_map_t::value_type>);
 	if (it != m_attachmentOverrides.end())
 	{
 		AttachmentOverrideRecord& rec = it->second;
-		LL_WARNS() << "updatePos, winner is attachment " << rec.name << " pos " << rec.pos << LL_ENDL;
+		LL_DEBUGS("Avatar") << getName() << " updatePos, winner of " << m_attachmentOverrides.size() << " is attachment " << rec.name << " pos " << rec.pos << LL_ENDL;
 		pos = rec.pos;
 	}
 	else
 	{
-		LL_WARNS() << "updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
+		LL_DEBUGS("Avatar") << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
 		pos = m_posBeforeOverrides;
 	}
 	setPosition(pos);
 }
 
-//--------------------------------------------------------------------
-// storeScaleForReset()
-//--------------------------------------------------------------------
-void LLJoint::storeScaleForReset( const LLVector3& scale )
-{
-	mOldXform.setScale( scale );
-}
-//--------------------------------------------------------------------
-// restoreOldXform()
-//--------------------------------------------------------------------
-void LLJoint::restoreOldXform( void )
-{	
-	mXform = mOldXform;
-	mDirtyFlags = ALL_DIRTY;	
-}
 //--------------------------------------------------------------------
 // getWorldPosition()
 //--------------------------------------------------------------------

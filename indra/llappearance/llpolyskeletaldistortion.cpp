@@ -213,7 +213,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 LLVector3 scaleDelta = iter->second;
                 newScale = newScale + (effective_weight * scaleDelta) - (mLastWeight * scaleDelta);				                
 				//An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
-				joint->storeScaleForReset( newScale );				
+				// needed? // joint->storeScaleForReset( newScale );				
 				joint->setScale(newScale);
         }
 

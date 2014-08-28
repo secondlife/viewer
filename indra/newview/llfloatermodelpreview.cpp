@@ -1935,7 +1935,8 @@ bool LLModelLoader::doLoadModel()
 										LLJoint* pJoint = mPreview->getPreviewAvatar()->getJoint( lookingForJoint );
 										if ( pJoint )
 										{   
-											LL_WARNS() << "Aieee, now what!" << LL_ENDL;
+											pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), mFilename);
+											//LL_WARNS() << "Aieee, now what!" << LL_ENDL;
 											//pJoint->storeCurrentXform( jointTransform.getTranslation() );												
 										}
 										else
