@@ -1124,13 +1124,6 @@ void LLTextEditor::addChar(llwchar wc)
 			setCursorPos(new_cursor_pos);
 		}
 	}
-
-	if (mCursorPos > 0)
-	{
-		LLRect current_cursor_rect = getDocRectFromDocIndex(mCursorPos);
-		LLRect prev_cursor_rect = getDocRectFromDocIndex(mCursorPos - 1);
-		mDrawRightmostCursor = current_cursor_rect.mBottom < prev_cursor_rect.mBottom;
-	}
 }
 
 void LLTextEditor::addLineBreakChar(BOOL group_together)
@@ -1277,12 +1270,6 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 			break;
 
 		case KEY_HOME:
-			if(mDrawRightmostCursor && mCursorPos > 0)
-			{
-				mCursorPos--;
-				mDrawRightmostCursor = false;
-			}
-
 			startOfLine();
 			break;
 
@@ -1297,23 +1284,6 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
  
 		case KEY_END:
 			endOfLine();
-			{
-				S32 last_line_index = mLineInfoList.size() - 1;
-				if (getLineNumFromDocIndex(mCursorPos, true) < last_line_index)
-				{
-					mDrawRightmostCursor = true;
-					setCursorPos(mCursorPos + 1);
-				}
-				else if (last_line_index > 0) // only for two and more lines
-				{
-					S32 prev_line_width = mLineInfoList[last_line_index - 1].mRect.getWidth();
-					S32 last_line_width = mLineInfoList[last_line_index].mRect.getWidth();
-					if (prev_line_width <= last_line_width)
-					{
-						mDrawRightmostCursor = true;
-					}
-				}
-			}
 			break;
 
 		case KEY_LEFT:
@@ -1325,18 +1295,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 			{
 				if( 0 < mCursorPos )
 				{
-					LLRect current_cursor_rect = getDocRectFromDocIndex(mCursorPos);
-					LLRect next_cursor_rect = getDocRectFromDocIndex(mCursorPos - 1);
-
-					if (current_cursor_rect.mBottom < next_cursor_rect.mBottom)
-					{
-						mDrawRightmostCursor = true;
-					}
-					else
-					{
-						mDrawRightmostCursor = false;
-						setCursorPos(mCursorPos - 1);
-					}
+					setCursorPos(mCursorPos - 1);
 				}
 				else
 				{
@@ -1354,26 +1313,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 			{
 				if( mCursorPos < getLength() )
 				{
-					LLRect current_cursor_rect = getDocRectFromDocIndex(mCursorPos);
-					LLRect next_cursor_rect = getDocRectFromDocIndex(mCursorPos + 1);
-
-					if (current_cursor_rect.mBottom > next_cursor_rect.mBottom)
-					{
-						if (mDrawRightmostCursor)
-						{
-							mDrawRightmostCursor = false;
-						}
-						else
-						{
-							mDrawRightmostCursor = true;
-							setCursorPos(mCursorPos + 1);
-						}
-					}
-					else
-					{
-						mDrawRightmostCursor = false;
-						setCursorPos(mCursorPos + 1);
-					}
+					setCursorPos(mCursorPos + 1);
 				}
 				else
 				{
