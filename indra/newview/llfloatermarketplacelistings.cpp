@@ -530,7 +530,7 @@ LLFloaterAssociateListing::~LLFloaterAssociateListing()
 
 BOOL LLFloaterAssociateListing::postBuild()
 {
-	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this));
+	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this, TRUE));
 	getChild<LLButton>("Cancel")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::cancel, this));
 	center();
     
@@ -563,13 +563,40 @@ LLFloaterAssociateListing* LLFloaterAssociateListing::show(const LLUUID& folder_
 	return floater;
 }
 
-void LLFloaterAssociateListing::apply()
+// Callback for apply if DAMA required...
+void LLFloaterAssociateListing::callback_apply(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // YES
+    {
+        apply(FALSE);
+    }
+}
+
+void LLFloaterAssociateListing::apply(BOOL user_confirm)
 {
 	if (mUUID.notNull())
 	{
         S32 id = (S32)getChild<LLUICtrl>("listing_id")->getValue().asInteger();
         if (id > 0)
         {
+            // Check if the id exists in the merchant SLM DB: note that this record might exist in the LLMarketplaceData
+            // structure even if unseen in the UI, for instance, if its listing_uuid doesn't exist in the merchant inventory
+            LLUUID listing_uuid = LLMarketplaceData::instance().getListingFolder(id);
+            if (listing_uuid.notNull())
+            {
+                // Look for user confirmation when unlisting something
+                if (user_confirm)
+                {
+                    LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFloaterAssociateListing::callback_apply, this, _1, _2));
+                    return;
+                }
+                // Unlist the id if it exists in the merchant SLM DB
+                LLMarketplaceData::instance().activateListing(listing_uuid, false);
+                // Clear its version folder
+                LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
+            }
+            // Associate the id with the user chosen folder
             LLMarketplaceData::instance().associateListing(mUUID,id);
         }
 	}

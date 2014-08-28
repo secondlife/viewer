@@ -146,8 +146,9 @@ private:
 	virtual ~LLFloaterAssociateListing();
     
 	// UI Callbacks
-	void apply();
+	void apply(BOOL user_confirm = TRUE);
 	void cancel();
+    void callback_apply(const LLSD& notification, const LLSD& response);
     
 	LLUUID mUUID;
 };
