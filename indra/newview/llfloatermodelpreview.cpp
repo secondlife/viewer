@@ -1408,7 +1408,7 @@ void LLModelPreview::rebuildUploadData()
 
                 FindModel(mScene[i], name_to_match, lod_model, transform);
 
-                S32 importerDebug = gSavedSettings.getS32("ImporterDebug");                    
+                BOOL importerDebug = gSavedSettings.getBOOL("ImporterDebug");                    
 
                 // Fall back to old method of index-based association if
                 // we could not find a match based on the mesh names
@@ -1418,7 +1418,7 @@ void LLModelPreview::rebuildUploadData()
                     
                     if (i == LLModel::LOD_PHYSICS)
                     {
-                        if (importerDebug > 0)
+                        if (importerDebug)
                         {
                             LL_INFOS() << "Assigning collision for " << instance.mLabel << " to match " << lod_model->mLabel << LL_ENDL;
                         }
@@ -1426,7 +1426,7 @@ void LLModelPreview::rebuildUploadData()
                     }
                     else
                     {
-                        if (importerDebug > 0)
+                        if (importerDebug)
                         {
                             LL_INFOS() << "Assigning LOD" << i << " for " << instance.mLabel << " to found match " << lod_model->mLabel << LL_ENDL;
                         }
@@ -1463,7 +1463,7 @@ void LLModelPreview::rebuildUploadData()
                     {
                         if (i == LLModel::LOD_PHYSICS)
                         {
-                            if (importerDebug > 0)
+                            if (importerDebug)
                             {                         
                                 LL_INFOS() << "Falling back collision for " << instance.mLabel << " to " << lod_model->mLabel << LL_ENDL;
                             }
@@ -1471,7 +1471,7 @@ void LLModelPreview::rebuildUploadData()
                         }
                         else
                         {
-                            if (importerDebug > 0)
+                            if (importerDebug)
                             {
                                 LL_INFOS() << "Falling back LOD" << i << " for " << instance.mLabel << " to found " << lod_model->mLabel << LL_ENDL;
                             }
@@ -1485,7 +1485,7 @@ void LLModelPreview::rebuildUploadData()
 			            {  //find reference instance for this model
 				            if (mBaseModel[idx] == base_model)
 				            {
-                                if (importerDebug > 0)
+                                if (importerDebug)
                                 {
                                     LL_INFOS() << "Falling back to model index " << idx << " for LOD " << i << " of " << instance.mLabel << LL_ENDL;
                                 }
@@ -1503,14 +1503,14 @@ void LLModelPreview::rebuildUploadData()
 						    instance.mLOD[i] = lod_model;
                             if (i == LLModel::LOD_PHYSICS)
                             {
-                                if (importerDebug > 0)
+                                if (importerDebug)
                                 {
                                     LL_INFOS() << "Indexed fallback to model index " << idx << ": LOD " << i << " named " << lod_model->mLabel << " for collision for " << instance.mLabel <<  LL_ENDL;
                                 }
                             }
                             else
                             {
-                                if (importerDebug > 0)
+                                if (importerDebug)
                                 {
                                     LL_INFOS() << "Indexed fallback to model index " << idx << " LOD " << i << " named " << lod_model->mLabel << " for LOD " << i << " for " << instance.mLabel << LL_ENDL;
                                 }
@@ -1518,7 +1518,7 @@ void LLModelPreview::rebuildUploadData()
 					    }
                         else
                         {
-                            if (importerDebug > 0)
+                            if (importerDebug)
                             {
                                 LL_INFOS() << "List of models for LOD " << i << " did not include index " << idx <<  LL_ENDL;
                             }
@@ -2434,8 +2434,8 @@ void LLModelPreview::updateStatusMessages()
 
                 std::string instance_name = instance.mLabel;
 
-                S32 importerDebug = gSavedSettings.getS32("ImporterDebug");
-                if (importerDebug > 0)
+                BOOL importerDebug = gSavedSettings.getBOOL("ImporterDebug");
+                if (importerDebug)
                 {
                     // Useful for debugging generalized complaints below about total submeshes which don't have enough
                     // context to address exactly what needs to be fixed to move towards compliance with the rules.
@@ -2444,14 +2444,11 @@ void LLModelPreview::updateStatusMessages()
                     LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Tris:  "   << cur_tris      << LL_ENDL;
                     LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Faces: "   << cur_submeshes << LL_ENDL;
 
-                    if (importerDebug > 1)
+                    LLModel::material_list::iterator mat_iter = lod_model->mMaterialList.begin();
+                    while (mat_iter != lod_model->mMaterialList.end())
                     {
-                        LLModel::material_list::iterator mat_iter = lod_model->mMaterialList.begin();
-                        while (mat_iter != lod_model->mMaterialList.end())
-                        {
-                            LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Material " << *(mat_iter) << LL_ENDL;
-                            mat_iter++;
-                        }
+                        LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Material " << *(mat_iter) << LL_ENDL;
+                        mat_iter++;
                     }
                 }
 
