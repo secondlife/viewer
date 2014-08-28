@@ -79,8 +79,6 @@ protected:
 
 	// explicit transformation members
 	LLXformMatrix		mXform;
-	LLXformMatrix		mOldXform;
-	LLXformMatrix		mDefaultXform;
 
 	LLUUID				mId;
 
@@ -103,16 +101,9 @@ public:
 
 	struct AttachmentOverrideRecord
 	{
-		AttachmentOverrideRecord()
-		{
-		}
+		AttachmentOverrideRecord();
 		LLVector3 pos;
 		std::string name;
-
-		bool operator<(const AttachmentOverrideRecord& other) const
-		{
-			return name < other.name;
-		}
 	};
 	typedef std::map<std::string,AttachmentOverrideRecord> attachment_map_t;
 	attachment_map_t m_attachmentOverrides;
@@ -177,7 +168,7 @@ public:
 	// get/set local scale
 	const LLVector3& getScale();
 	void setScale( const LLVector3& scale );
-	void storeScaleForReset( const LLVector3& scale );
+
 	// get/set world matrix
 	const LLMatrix4 &getWorldMatrix();
 	void setWorldMatrix( const LLMatrix4& mat );
@@ -200,10 +191,6 @@ public:
 	virtual BOOL isAnimatable() const { return TRUE; }
 
 	S32 getJointNum() const { return mJointNum; }
-	
-	void restoreOldXform( void );
-	void setDefaultFromCurrentXform( void );
-	void storeCurrentXform( const LLVector3& pos );
 
 	void addAttachmentPosOverride( const LLVector3& pos, const std::string& attachment_name );
 	void removeAttachmentPosOverride( const std::string& attachment_name );

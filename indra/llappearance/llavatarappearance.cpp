@@ -605,7 +605,7 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 							 info->mRot.mV[VZ], LLQuaternion::XYZ));
 	joint->setScale(info->mScale);
 
-	joint->setDefaultFromCurrentXform();
+	//joint->setDefaultFromCurrentXform();
 	
 	if (info->mIsJoint)
 	{
