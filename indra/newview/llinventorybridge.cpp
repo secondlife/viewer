@@ -2787,8 +2787,8 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 class LLInventoryCopyAndWearObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryCopyAndWearObserver(const LLUUID& cat_id, int count, bool folder_added=false) :
-		mCatID(cat_id), mContentsCount(count), mFolderAdded(folder_added) {}
+	LLInventoryCopyAndWearObserver(const LLUUID& cat_id, int count, bool folder_added=false, bool replace=false) :
+		mCatID(cat_id), mContentsCount(count), mFolderAdded(folder_added), mReplace(replace){}
 	virtual ~LLInventoryCopyAndWearObserver() {}
 	virtual void changed(U32 mask);
 
@@ -2796,6 +2796,7 @@ protected:
 	LLUUID mCatID;
 	int    mContentsCount;
 	bool   mFolderAdded;
+	bool   mReplace;
 };
 
 
@@ -2834,7 +2835,7 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 				    mContentsCount)
 				{
 					gInventory.removeObserver(this);
-					LLAppearanceMgr::instance().wearInventoryCategory(category, FALSE, TRUE);
+					LLAppearanceMgr::instance().wearInventoryCategory(category, FALSE, !mReplace);
 					delete this;
 				}
 			}
@@ -3815,7 +3816,8 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 			LLInventoryObject::object_list_t inventory_objects;
 			object->getInventoryContents(inventory_objects);
 			int contents_count = inventory_objects.size()-1; //subtract one for containing folder
-			LLInventoryCopyAndWearObserver* inventoryObserver = new LLInventoryCopyAndWearObserver(cat_and_wear->mCatID, contents_count, cat_and_wear->mFolderResponded);
+			LLInventoryCopyAndWearObserver* inventoryObserver = new LLInventoryCopyAndWearObserver(cat_and_wear->mCatID, contents_count, cat_and_wear->mFolderResponded,
+																									cat_and_wear->mReplace);
 			
 			gInventory.addObserver(inventoryObserver);
 		}

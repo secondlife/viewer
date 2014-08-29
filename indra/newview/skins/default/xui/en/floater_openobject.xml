@@ -6,7 +6,7 @@
  height="350"
  layout="topleft"
  min_height="160"
- min_width="280"
+ min_width="285"
  name="objectcontents"
  help_topic="objectcontents"
  save_rect="true"
@@ -31,36 +31,63 @@
      background_visible="false"
      draw_border="false"
      follows="all"
-     height="276"
+     height="250"
      layout="topleft"
      left="10"
      name="object_contents"
      top_pad="0"
      width="284" />
+     
+ 	<button
+     follows="bottom|left"
+     height="23"
+     label="Copy and add to outfit"
+     label_selected="Copy and add to outfit"
+     layout="topleft"
+ 	 left="15"    
+     name="copy_and_wear_button"
+ 	 top_pad="5"	
+     width="135">
+        <button.commit_callback
+         function="OpenObject.MoveAndWear" />
+    </button>
+	<button
+     follows="bottom|left"
+     height="23"
+     label="Replace outfit"
+     label_selected="Replace outfit"
+     layout="topleft"
+     left_pad="5"
+     name="copy_and_replace_button"
+     width="120">
+        <button.commit_callback
+         function="OpenObject.ReplaceOutfit" />
+    </button>  
+ 
     <button
      follows="bottom|left"
      height="23"
-     label="Copy to inventory"
-     label_selected="Copy to inventory"
+     label="Only copy to inventory"
+     label_selected="Only copy to inventory"
      layout="topleft"
      left="15"
      name="copy_to_inventory_button"
      tab_group="1"
      top_pad="5"
-     width="120">
+     width="135">
         <button.commit_callback
          function="OpenObject.MoveToInventory" />
     </button>
     <button
      follows="bottom|left"
      height="23"
-     label="Copy and add to outfit"
-     label_selected="Copy and add to outfit"
+     label="Cancel"
+     label_selected="Cancel"
      layout="topleft"
      left_pad="5"
-     name="copy_and_wear_button"
-     width="135">
+     name="cancel_button"
+     width="120">
         <button.commit_callback
-         function="OpenObject.MoveAndWear" />
+         function="OpenObject.Cancel" />
     </button>
 </floater>
