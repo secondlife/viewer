@@ -1397,13 +1397,19 @@ void LLModelPreview::rebuildUploadData()
                 std::string name_to_match = instance.mLabel;
                 llassert(!name_to_match.empty());
 
+                std::string toAdd;
                 switch (i)
                 {
-                    case LLModel::LOD_IMPOSTOR: name_to_match += "_LOD0"; break;
-                    case LLModel::LOD_LOW:      name_to_match += "_LOD1"; break;
-		            case LLModel::LOD_MEDIUM:   name_to_match += "_LOD2"; break;
-                    case LLModel::LOD_PHYSICS:  name_to_match += "_PHYS"; break;
-                    case LLModel::LOD_HIGH:                               break;
+                    case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
+                    case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
+		            case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
+                    case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
+                    case LLModel::LOD_HIGH:                      break;
+                }
+
+                if (name_to_match.find(toAdd) == -1)
+                {
+                    name_to_match += toAdd;
                 }
 
                 FindModel(mScene[i], name_to_match, lod_model, transform);
@@ -1441,13 +1447,19 @@ void LLModelPreview::rebuildUploadData()
                         std::string name_to_match = instance.mLabel;
                         llassert(!name_to_match.empty());
 
+                        std::string toAdd;
                         switch (searchLOD)
                         {
-                            case LLModel::LOD_IMPOSTOR: name_to_match += "_LOD0"; break;
-                            case LLModel::LOD_LOW:      name_to_match += "_LOD1"; break;
-		                    case LLModel::LOD_MEDIUM:   name_to_match += "_LOD2"; break;
-                            case LLModel::LOD_PHYSICS:  name_to_match += "_PHYS"; break;
-                            case LLModel::LOD_HIGH:                               break;
+                            case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
+                            case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
+		                    case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
+                            case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
+                            case LLModel::LOD_HIGH:                      break;
+                        }
+
+                        if (name_to_match.find(toAdd) == -1)
+                        {
+                            name_to_match += toAdd;
                         }
 
                         // See if we can find an appropriately named model in LOD 'searchLOD'
