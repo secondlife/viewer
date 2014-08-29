@@ -1441,31 +1441,35 @@ void LLModelPreview::rebuildUploadData()
                 }
                 else
                 {
-                    int searchLOD = (i > LLModel::LOD_HIGH) ? LLModel::LOD_HIGH : i;
-                    while ((searchLOD <= LLModel::LOD_HIGH) && !lod_model)
+
+                    if  (i != LLModel::LOD_PHYSICS)
                     {
-                        std::string name_to_match = instance.mLabel;
-                        llassert(!name_to_match.empty());
-
-                        std::string toAdd;
-                        switch (searchLOD)
+                        int searchLOD = (i > LLModel::LOD_HIGH) ? LLModel::LOD_HIGH : i;
+                        while ((searchLOD <= LLModel::LOD_HIGH) && !lod_model)
                         {
-                            case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
-                            case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
-		                    case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
-                            case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
-                            case LLModel::LOD_HIGH:                      break;
-                        }
+                            std::string name_to_match = instance.mLabel;
+                            llassert(!name_to_match.empty());
 
-                        if (name_to_match.find(toAdd) == -1)
-                        {
-                            name_to_match += toAdd;
-                        }
+                            std::string toAdd;
+                            switch (searchLOD)
+                            {
+                                case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
+                                case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
+		                        case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
+                                case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
+                                case LLModel::LOD_HIGH:                      break;
+                            }
 
-                        // See if we can find an appropriately named model in LOD 'searchLOD'
-                        //
-                        FindModel(mScene[searchLOD], name_to_match, lod_model, transform);
-                        searchLOD++;
+                            if (name_to_match.find(toAdd) == -1)
+                            {
+                                name_to_match += toAdd;
+                            }
+
+                            // See if we can find an appropriately named model in LOD 'searchLOD'
+                            //
+                            FindModel(mScene[searchLOD], name_to_match, lod_model, transform);
+                            searchLOD++;
+                        }
                     }
 
                     // Fall back to old method of index-based association if
@@ -1473,22 +1477,11 @@ void LLModelPreview::rebuildUploadData()
                     //
                     if (lod_model)
                     {
-                        if (i == LLModel::LOD_PHYSICS)
+                        if (importerDebug)
                         {
-                            if (importerDebug)
-                            {                         
-                                LL_INFOS() << "Falling back collision for " << instance.mLabel << " to " << lod_model->mLabel << LL_ENDL;
-                            }
-                            instance.mLOD[i] = lod_model;
+                            LL_INFOS() << "Falling back LOD" << i << " for " << instance.mLabel << " to found " << lod_model->mLabel << LL_ENDL;
                         }
-                        else
-                        {
-                            if (importerDebug)
-                            {
-                                LL_INFOS() << "Falling back LOD" << i << " for " << instance.mLabel << " to found " << lod_model->mLabel << LL_ENDL;
-                            }
-                            instance.mLOD[i] = lod_model;
-                        }
+                        instance.mLOD[i] = lod_model;
                     }
                     else
                     {
