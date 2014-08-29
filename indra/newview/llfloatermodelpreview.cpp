@@ -1809,7 +1809,7 @@ void LLModelPreview::clearGLODGroup()
 	}
 }
 
-void LLModelPreview::loadModelCallback(S32 lod)
+void LLModelPreview::loadModelCallback(S32 loaded_lod)
 {
 	assert_main_thread();
 
@@ -1833,7 +1833,7 @@ void LLModelPreview::loadModelCallback(S32 lod)
 
 	mModelLoader->loadTextures() ;
 
-	if (lod == -1)
+	if (loaded_lod == -1)
 	{ //populate all LoDs from model loader scene
 		mBaseModel.clear();
 		mBaseScene.clear();
@@ -1849,7 +1849,7 @@ void LLModelPreview::loadModelCallback(S32 lod)
 			mModel[lod].clear();
 			mVertexBuffer[lod].clear();
 			
-			if (mModelLoader->mScene.begin()->second[0].mLOD[lod].notNull())
+			if (mModelLoader->mScene.begin()->second[0].mLOD[loaded_lod].notNull())
 			{ //if this LoD exists in the loaded scene
 
 				//copy scene to current LoD
@@ -1921,31 +1921,31 @@ void LLModelPreview::loadModelCallback(S32 lod)
 	}
 	else
 	{ //only replace given LoD
-		mModel[lod] = mModelLoader->mModelList;
-		mScene[lod] = mModelLoader->mScene;
-		mVertexBuffer[lod].clear();
+		mModel[loaded_lod] = mModelLoader->mModelList;
+		mScene[loaded_lod] = mModelLoader->mScene;
+		mVertexBuffer[loaded_lod].clear();
 
-		setPreviewLOD(lod);
+		setPreviewLOD(loaded_lod);
 
-		if (lod == LLModel::LOD_HIGH)
+		if (loaded_lod == LLModel::LOD_HIGH)
 		{ //save a copy of the highest LOD for automatic LOD manipulation
 			if (mBaseModel.empty())
 			{ //first time we've loaded a model, auto-gen LoD
 				mGenLOD = true;
 			}
 
-			mBaseModel = mModel[lod];
+			mBaseModel = mModel[loaded_lod];
 			clearGLODGroup();
 
-			mBaseScene = mScene[lod];
+			mBaseScene = mScene[loaded_lod];
 			mVertexBuffer[5].clear();
 		}
 
-		clearIncompatible(lod);
+		clearIncompatible(loaded_lod);
 
 		mDirty = true;
 
-		if (lod == LLModel::LOD_HIGH)
+		if (loaded_lod == LLModel::LOD_HIGH)
 		{
 			resetPreviewTarget();
 		}
@@ -3092,15 +3092,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
 void LLModelPreview::update()
 {
-	if (mDirty)
-	{
-		mDirty = false;
-		mResourceCost = calcResourceCost();
-		refresh();
-		updateStatusMessages();
-	}
-
-	if (mGenLOD)
+    if (mGenLOD)
 	{
 		mGenLOD = false;
 		genLODs();
@@ -3108,7 +3100,15 @@ void LLModelPreview::update()
 		updateStatusMessages();
 	}
 
+	if (mDirty)
+	{
+		mDirty = false;
+		mResourceCost = calcResourceCost();
+		refresh();
+		updateStatusMessages();
+	}
 }
+
 //-----------------------------------------------------------------------------
 // getTranslationForJointOffset()
 //-----------------------------------------------------------------------------
@@ -3933,14 +3933,14 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
 	fmp->childDisable("reset_btn");
 	LLModelPreview* mp = fmp->mModelPreview;
-	std::string filename = mp->mLODFile[3]; 
+	std::string filename = mp->mLODFile[LLModel::LOD_HIGH]; 
 
 	fmp->resetDisplayOptions();
 	//reset model preview
 	fmp->initModelPreview();
 
 	mp = fmp->mModelPreview;
-	mp->loadModel(filename,3,true);
+	mp->loadModel(filename,LLModel::LOD_HIGH,true);
 }
 
 //static

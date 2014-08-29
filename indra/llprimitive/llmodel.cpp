@@ -943,10 +943,10 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 		}
 	}
 
-    if (mdl.has("submodel_id"))
-	{ //write out submodel id
+        if (mdl.has("submodel_id"))
+        { //write out submodel id
         header["submodel_id"] = (LLSD::Integer)mdl["submodel_id"];
-	}
+        }
 
 	std::string out[MODEL_NAMES_LENGTH];
 
