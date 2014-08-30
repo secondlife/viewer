@@ -5286,6 +5286,25 @@ void LLNotecardBridge::openItem()
 	}
 }
 
+void LLNotecardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	LL_DEBUGS() << "LLNotecardBridge::buildContextMenu()" << LL_ENDL;
+    
+    if (isMarketplaceListingsFolder())
+    {
+        menuentry_vec_t items;
+        menuentry_vec_t disabled_items;
+		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+		items.push_back(std::string("Properties"));
+		getClipboardEntries(false, items, disabled_items, flags);
+        hide_context_entries(menu, items, disabled_items);
+    }
+	else
+	{
+        LLItemBridge::buildContextMenu(menu, flags);
+    }
+}
+
 // +=================================================+
 // |        LLGestureBridge                          |
 // +=================================================+
