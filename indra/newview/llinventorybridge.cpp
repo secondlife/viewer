@@ -3621,6 +3621,15 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (isMarketplaceListingsFolder())
     {
 		addMarketplaceContextMenuOptions(flags, items, disabled_items);
+        if (LLMarketplaceData::instance().isUpdating(mUUID))
+        {
+            disabled_items.push_back(std::string("New Folder"));
+            disabled_items.push_back(std::string("Rename"));
+            disabled_items.push_back(std::string("Cut"));
+            disabled_items.push_back(std::string("Copy"));
+            disabled_items.push_back(std::string("Paste"));
+            disabled_items.push_back(std::string("Delete"));
+        }
     }
     if (marketplace_listings_id == mUUID)
     {
