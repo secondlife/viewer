@@ -324,7 +324,13 @@ void LLInvFVBridge::showProperties()
 {
 	if (isMarketplaceListingsFolder())
     {
-        LLFloaterReg::showInstance("item_properties", LLSD().with("id",mUUID));
+        LLFloaterReg::showInstance("item_properties", LLSD().with("id",mUUID),TRUE);
+        // Force it to show on top as this floater has a tendency to hide when confirmation dialog shows up
+        LLFloater* floater_properties = LLFloaterReg::findInstance("item_properties", LLSD().with("id",mUUID));
+        if (floater_properties)
+        {
+            floater_properties->setVisibleAndFrontmost();
+        }
     }
     else
     {
