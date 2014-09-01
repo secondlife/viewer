@@ -305,7 +305,21 @@ Initialization with the Marketplace failed because of a system or network error.
         name="okbutton"
         yestext="OK"/>
     </notification>
-
+    
+    <notification
+        icon="OutboxStatus_Error"
+        name="MerchantTransactionFailed"
+        type="outbox">
+        Transaction with the Marketplace failed with error :
+        
+        Reason : &apos;[ERROR_REASON]&apos;
+        [ERROR_DESCRIPTION]
+        
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+    
     <notification
         icon="OutboxStatus_Error"
         name="MerchantListingFailed"

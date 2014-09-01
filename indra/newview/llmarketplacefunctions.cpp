@@ -106,6 +106,12 @@ LLSD getMarketplaceStringSubstitutions()
 void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
     LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
+    // Prompt the user with the warning (so they know why things are failing)
+    LLSD subs;
+    subs["[ERROR_REASON]"] = reason;
+    subs["[ERROR_DESCRIPTION]"] = description;
+    LLNotificationsUtil::add("MerchantTransactionFailed", subs);
+    
 }
 void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
 {
@@ -177,17 +183,18 @@ public:
     {
         LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
         
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Get /listings", getStatus(), getReason(), "", "");
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
+
+		if (!isGoodStatus())
+		{
+            log_SLM_warning("Get /listings", getStatus(), getReason(), "", body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
+            return;
+		}
 
         Json::Value root;
         Json::Reader reader;
@@ -248,18 +255,18 @@ public:
     {
         LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
         
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Post /listings", getStatus(), getReason(), "", "");
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-        
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
+        
+		if (!isGoodStatus())
+		{
+            log_SLM_warning("Post /listings", getStatus(), getReason(), "", body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
+            return;
+		}
         
         Json::Value root;
         Json::Reader reader;
@@ -463,18 +470,18 @@ public:
     {
         LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
         
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", "");
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-        
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
         strstrm << istr.rdbuf();
         const std::string body = strstrm.str();
+        
+		if (!isGoodStatus())
+		{
+            log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", body);
+            update_marketplace_category(mExpectedFolderId, false);
+            gInventory.notifyObservers();
+            return;
+		}
         
         Json::Value root;
         Json::Reader reader;
