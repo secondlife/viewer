@@ -841,8 +841,20 @@ S32 depth_nesting_in_marketplace(LLUUID cur_uuid)
 // Returns the UUID of the marketplace listing this object is in
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth)
 {
+    if (depth < 1)
+    {
+        // For objects outside the marketplace listings root (or root itself), we return a NULL UUID
+        return LLUUID::null;
+    }
+    else if (depth == 1)
+    {
+        // Just under the root, we return the passed UUID itself if it's a folder, NULL otherwise (not a listing)
+        LLViewerInventoryCategory* cat = gInventory.getCategory(cur_uuid);
+        return (cat ? cur_uuid : LLUUID::null);
+    }
+
+    // depth > 1
     LLInventoryObject* cur_object = gInventory.getObject(cur_uuid);
-    cur_uuid = (depth < 1 ? LLUUID::null : cur_uuid);
     while (depth > 1)
     {
         depth--;
