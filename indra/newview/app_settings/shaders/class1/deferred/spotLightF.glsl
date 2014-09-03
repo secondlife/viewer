@@ -138,7 +138,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 	
 	float d = dot(dist,dist);
 		
-	ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0)+det, 1.0);
+	ret *= min(clamp((0.125-d)/0.125, 0.0, 1.0)+det, 1.0);
 	
 	return ret;
 }
@@ -329,7 +329,7 @@ void main()
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					col += color.rgb * texture2DLodSpecular(projectionMap, stc.xy, (1 - spec.a * spec.a) * (proj_lod * 0.5)).rgb * envIntensity;
+					col += color.rgb * texture2DLodDiffuse(projectionMap, stc.xy, (1 - spec.a * spec.a) * (proj_lod * 0.5)).rgb * envIntensity;
 				}
 			}
 		}
