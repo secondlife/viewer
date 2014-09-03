@@ -192,7 +192,7 @@ public:
     bool activateListing(const LLUUID& folder_id, bool activate);
     bool clearListing(const LLUUID& folder_id);
     bool setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id);
-    bool associateListing(const LLUUID& folder_id, S32 listing_id);
+    bool associateListing(const LLUUID& folder_id, const LLUUID& source_folder_id, S32 listing_id);
     bool getListing(const LLUUID& folder_id);
     
     // Probe the Marketplace data set to identify folders

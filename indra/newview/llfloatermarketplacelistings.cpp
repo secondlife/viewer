@@ -583,21 +583,17 @@ void LLFloaterAssociateListing::apply(BOOL user_confirm)
             // Check if the id exists in the merchant SLM DB: note that this record might exist in the LLMarketplaceData
             // structure even if unseen in the UI, for instance, if its listing_uuid doesn't exist in the merchant inventory
             LLUUID listing_uuid = LLMarketplaceData::instance().getListingFolder(id);
-            if (listing_uuid.notNull())
+            if (listing_uuid.notNull() && user_confirm && LLMarketplaceData::instance().getActivationState(listing_uuid))
             {
-                // Look for user confirmation when unlisting something
-                if (user_confirm)
-                {
-                    LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFloaterAssociateListing::callback_apply, this, _1, _2));
-                    return;
-                }
-                // Unlist the id if it exists in the merchant SLM DB
-                LLMarketplaceData::instance().activateListing(listing_uuid, false);
-                // Clear its version folder
-                LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
+                // Look for user confirmation before unlisting
+                LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFloaterAssociateListing::callback_apply, this, _1, _2));
+                return;
             }
             // Associate the id with the user chosen folder
-            LLMarketplaceData::instance().associateListing(mUUID,id);
+            LLMarketplaceData::instance().associateListing(mUUID,listing_uuid,id);
+            // Update the folder widgets now that the action is launched
+            update_marketplace_category(listing_uuid);
+            update_marketplace_category(mUUID);
         }
 	}
 	closeFloater();

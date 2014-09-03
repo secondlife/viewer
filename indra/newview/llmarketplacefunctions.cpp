@@ -460,15 +460,17 @@ class LLSLMAssociateListingsResponder : public LLHTTPClient::Responder
 	LOG_CLASS(LLSLMAssociateListingsResponder);
 public:
 	
-    LLSLMAssociateListingsResponder(const LLUUID& folder_id)
+    LLSLMAssociateListingsResponder(const LLUUID& folder_id, const LLUUID& source_folder_id)
     {
         mExpectedFolderId = folder_id;
+        mSourceFolderId = source_folder_id;
     }
     
     virtual void completedRaw(const LLChannelDescriptors& channels,
                               const LLIOPipe::buffer_ptr_t& buffer)
     {
         LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
+        LLMarketplaceData::instance().setUpdating(mSourceFolderId,false);
         
         LLBufferStream istr(channels, buffer.get());
         std::stringstream strstrm;
@@ -479,6 +481,7 @@ public:
 		{
             log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", body);
             update_marketplace_category(mExpectedFolderId, false);
+            update_marketplace_category(mSourceFolderId, false);
             gInventory.notifyObservers();
             return;
 		}
@@ -489,6 +492,7 @@ public:
         {
             log_SLM_warning("Put /associate_inventory", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
             update_marketplace_category(mExpectedFolderId, false);
+            update_marketplace_category(mSourceFolderId, false);
             gInventory.notifyObservers();
             return;
         }
@@ -524,9 +528,13 @@ public:
             LLMarketplaceData::instance().setListingURL(folder_id, edit_url);
             it++;
         }
+        
+        // Always update the source folder so its widget updates
+        update_marketplace_category(mSourceFolderId, false);
     }
 private:
-    LLUUID mExpectedFolderId;
+    LLUUID mExpectedFolderId;   // This is the folder now associated with the id.
+    LLUUID mSourceFolderId;     // This is the folder initially associated with the id. Can be LLUUI::null
 };
 
 class LLSLMDeleteListingsResponder : public LLHTTPClient::Responder
@@ -1223,7 +1231,7 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(folder_id, is_listed, version_id), headers);
 }
 
-void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id)
+void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& source_folder_id)
 {
 	LLSD headers = LLSD::emptyMap();
 	headers["Accept"] = "application/json";
@@ -1234,8 +1242,9 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     
     // Note : we're assuming that sending unchanged info won't break anything server side...
     root["listing"]["id"] = listing_id;
+    root["listing"]["is_listed"] = false;
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
+    root["listing"]["inventory_info"]["version_folder_id"] = LLUUID::null.asString();
     
     std::string json_str = writer.write(root);
     
@@ -1248,7 +1257,8 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d",listing_id);
     log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
     setUpdating(folder_id,true);
-	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(folder_id), headers);
+    setUpdating(source_folder_id,true);
+	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(folder_id,source_folder_id), headers);
 }
 
 void LLMarketplaceData::deleteSLMListing(S32 listing_id)
@@ -1403,7 +1413,7 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     return true;
 }
 
-bool LLMarketplaceData::associateListing(const LLUUID& folder_id, S32 listing_id)
+bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& source_folder_id, S32 listing_id)
 {
     if (isListed(folder_id))
     {
@@ -1412,8 +1422,7 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, S32 listing_id
     }
     
     // Post the listing update request to SLM
-    LLUUID version_id;
-    associateSLMListing(folder_id, listing_id, version_id);
+    associateSLMListing(folder_id, listing_id, source_folder_id);
     
     return true;
 }

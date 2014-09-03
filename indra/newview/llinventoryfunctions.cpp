@@ -153,6 +153,11 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
     // is limited to 4.
     // We also take care of degenerated cases so we don't update all folders in the inventory by mistake.
 
+    if (cur_uuid.isNull())
+    {
+        return;
+    }
+    
     // Grab marketplace listing data for this item
     S32 depth = depth_nesting_in_marketplace(cur_uuid);
     if (depth > 0)
