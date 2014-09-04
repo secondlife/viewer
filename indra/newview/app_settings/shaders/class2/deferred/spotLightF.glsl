@@ -347,7 +347,7 @@ void main()
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					col += color.rgb * texture2DLodSpecular(projectionMap, stc.xy, (1 - spec.a * spec.a) * (proj_lod)).rgb * shadow * envIntensity;
+					col += color.rgb * texture2DLodSpecular(projectionMap, stc.xy, (1 - spec.a) * (proj_lod * 0.6)).rgb * shadow * envIntensity;
 				}
 			}
 		}
