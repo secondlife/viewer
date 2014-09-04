@@ -13509,6 +13509,17 @@
       <key>Value</key>
       <string>0</string>
     </map>
+    <key>VivoxLogDirectory</key>
+    <map>
+        <key>Comment</key>
+        <string>Default log path is Application Support/SecondLife/logs specify alternate absolute path here.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+    </map>
     <key>VivoxShutdownTimeout</key>
     <map>
       <key>Comment</key>

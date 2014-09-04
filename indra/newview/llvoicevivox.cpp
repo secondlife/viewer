@@ -810,7 +810,13 @@ void LLVivoxVoiceClient::stateMachine()
 						params.args.add("-ll");
 						params.args.add(loglevel);
 
-						std::string log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+						std::string log_folder = gSavedSettings.getString("VivoxLogDirectory");
+                        
+                        if (log_folder.empty())
+                        {
+                            log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+                        }
+                        
 						params.args.add("-lf");
 						params.args.add(log_folder);
 
