@@ -4459,7 +4459,7 @@
     <key>HttpPipelining</key>
     <map>
       <key>Comment</key>
-      <string>If true, viewer will pipeline HTTP requests to servers.</string>
+      <string>If true, viewer will attempt to pipeline HTTP requests.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4470,7 +4470,7 @@
     <key>HttpRangeRequestsDisable</key>
     <map>
       <key>Comment</key>
-      <string>If true, viewer will not issued range GET requests for meshes and textures.  May resolve problems with certain ISPs and networking gear.</string>
+      <string>If true, viewer will not issue GET requests with 'Range:' headers for meshes and textures.  May resolve problems with certain ISPs and networking gear.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

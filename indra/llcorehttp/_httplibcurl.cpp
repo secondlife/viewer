@@ -217,8 +217,17 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	}
 
 	// Make the request live
-	curl_multi_add_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
+	CURLMcode code;
+	code = curl_multi_add_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
+	if (CURLM_OK != code)
+	{
+		// *TODO:  Better cleanup and recovery but not much we can do here.
+		check_curl_multi_code(code);
+		return;
+	}
 	op->mCurlActive = true;
+	mActiveOps.insert(op);
+	++mActiveHandles[op->mReqPolicy];
 	
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
@@ -230,10 +239,6 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 						   << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
 						   << LL_ENDL;
 	}
-	
-	// On success, make operation active
-	mActiveOps.insert(op);
-	++mActiveHandles[op->mReqPolicy];
 }
 
 

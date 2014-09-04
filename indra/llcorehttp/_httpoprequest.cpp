@@ -378,6 +378,7 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 // Junk may be left around from a failed request and that
 // needs to be cleaned out.
 //
+// *TODO:  Move this to _httplibcurl where it belongs.
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
 	CURLcode code;
@@ -411,8 +412,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// *FIXME:  better error handling later
 	HttpStatus status;
 
-	// Get global policy options
-	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
+	// Get global and class policy options
+	HttpPolicyGlobal & gpolicy(service->getPolicy().getGlobalOptions());
+	HttpPolicyClass & cpolicy(service->getPolicy().getClassOptions(mReqPolicy));
 	
 	mCurlHandle = LLCurl::createStandardCurlHandle();
 	if (! mCurlHandle)
@@ -462,30 +464,30 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
 
-	if (policy.mUseLLProxy)
+	if (gpolicy.mUseLLProxy)
 	{
 		// Use the viewer-based thread-safe API which has a
 		// fast/safe check for proxy enable.  Would like to
 		// encapsulate this someway...
 		LLProxy::getInstance()->applyProxySettings(mCurlHandle);
 	}
-	else if (policy.mHttpProxy.size())
+	else if (gpolicy.mHttpProxy.size())
 	{
 		// *TODO:  This is fine for now but get fuller socks5/
 		// authentication thing going later....
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, policy.mHttpProxy.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, gpolicy.mHttpProxy.c_str());
 		check_curl_easy_code(code, CURLOPT_PROXY);
 		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
 		check_curl_easy_code(code, CURLOPT_PROXYTYPE);
 	}
-	if (policy.mCAPath.size())
+	if (gpolicy.mCAPath.size())
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, policy.mCAPath.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, gpolicy.mCAPath.c_str());
 		check_curl_easy_code(code, CURLOPT_CAPATH);
 	}
-	if (policy.mCAFile.size())
+	if (gpolicy.mCAFile.size())
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, policy.mCAFile.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, gpolicy.mCAFile.c_str());
 		check_curl_easy_code(code, CURLOPT_CAINFO);
 	}
 	
@@ -593,6 +595,20 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	if (xfer_timeout == 0L)
 	{
 		xfer_timeout = timeout;
+	}
+	if (cpolicy.mPipelining > 1L)
+	{
+		// Pipelining affects both connection and transfer timeout values.
+		// Requests that are added to a pipeling immediately have completed
+		// their connection so the connection delay tends to be less than
+		// the non-pipelined value.  Transfers are the opposite.  Transfer
+		// timeout starts once the connection is established and completion
+		// can be delayed due to the pipelined requests ahead.  So, it's
+		// a handwave but bump the transfer timeout up by the pipelining
+		// depth to give some room.
+		//
+		// *TODO:  Find a better scheme than timeouts to guarantee liveness.
+		xfer_timeout *= cpolicy.mPipelining;
 	}
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
 	check_curl_easy_code(code, CURLOPT_TIMEOUT);
