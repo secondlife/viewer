@@ -310,7 +310,7 @@ Initialization with the Marketplace failed because of a system or network error.
         icon="OutboxStatus_Error"
         name="MerchantTransactionFailed"
         type="outbox">
-        Transaction with the Marketplace failed with error :
+        The transaction with the Marketplace failed with the following error :
         
         Reason : &apos;[ERROR_REASON]&apos;
         [ERROR_DESCRIPTION]
