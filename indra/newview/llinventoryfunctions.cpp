@@ -1537,21 +1537,23 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             {
                 // Create a new folder
                 LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
+                LLViewerInventoryItem* viewer_inv_item = items_vector[i].back();
+                std::string folder_name = (depth > 1 ? viewer_cat->getName() : viewer_inv_item->getName());
                 LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
                 if (cb)
                 {
                     std::string message = "";
                     if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
                     {
-                        message = indent + viewer_cat->getName() + LLTrans::getString("Marketplace Validation Warning Create Stock");
+                        message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Stock");
                     }
                     else
                     {
-                        message = indent + viewer_cat->getName() + LLTrans::getString("Marketplace Validation Warning Create Version");
+                        message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Version");
                     }
                     cb(message,LLError::LEVEL_WARN);
                 }
-                LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, viewer_cat->getName());
+                LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, folder_name);
                 // Move each item to the new folder
                 while (!items_vector[i].empty())
                 {
