@@ -349,9 +349,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	callMiddleMouseUp(mMousePos, mModifiers);
 }
 
+- (void) rightMouseDragged:(NSEvent *)theEvent
+{
+	[self mouseDragged:theEvent];
+}
+
 - (void) otherMouseDragged:(NSEvent *)theEvent
 {
-	
+	[self mouseDragged:theEvent];        
 }
 
 - (void) scrollWheel:(NSEvent *)theEvent
