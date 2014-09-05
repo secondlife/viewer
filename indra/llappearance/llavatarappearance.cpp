@@ -480,18 +480,6 @@ void LLAvatarAppearance::computeBodySize()
 				 	knee.mV[VZ] * hip_scale.mV[VZ] -
 				 	ankle.mV[VZ] * knee_scale.mV[VZ] -
 				 	foot.mV[VZ] * ankle_scale.mV[VZ];
-	// if (isSelf())
-	// {
-	// 	LL_INFOS("Avatar") << "mAvatarOffset.mV[VZ] " << mAvatarOffset.mV[VZ] << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "mPelvisToFoot " << mPelvisToFoot << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "- hip.mV[VZ] " << hip.mV[VZ] << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "- pelvis_scale.mV[VZ] " << pelvis_scale.mV[VZ] << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "- knee.mV[VZ] " << knee.mV[VZ] << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "- ankle.mV[VZ] " << ankle.mV[VZ] << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "- knee_scale.mV[VZ] " << knee_scale.mV[VZ] << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "- foot.mV[VZ] " << foot.mV[VZ] << LL_ENDL;
-	// 	LL_INFOS("Avatar") << "- ankle_scale.mV[VZ] " << ankle_scale.mV[VZ] << LL_ENDL;
-	// }
 
 	LLVector3 new_body_size;
 	new_body_size.mV[VZ] = mPelvisToFoot +
@@ -502,10 +490,6 @@ void LLAvatarAppearance::computeBodySize()
 					   neck.mV[VZ] * chest_scale.mV[VZ] + 
 					   chest.mV[VZ] * torso_scale.mV[VZ] + 
 					   torso.mV[VZ] * pelvis_scale.mV[VZ]; 
-	// if (isSelf())
-	// {
-	// 	LL_INFOS("Avatar") << "new_body_size.mV[VZ] " << new_body_size.mV[VZ] << LL_ENDL;
-	// }
 
 	// TODO -- measure the real depth and width
 	new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
@@ -518,11 +502,6 @@ void LLAvatarAppearance::computeBodySize()
 	{
 		mBodySize = new_body_size;
 	}
-
-	// if (isSelf())
-	// {
-	// 	LL_INFOS("Avatar") << "mBodySize.mV[VZ] " << mBodySize.mV[VZ] << LL_ENDL;
-	// }
 }
 
 //-----------------------------------------------------------------------------
