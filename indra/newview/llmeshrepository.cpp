@@ -2644,6 +2644,17 @@ void LLMeshRepository::cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header)
 
 }
 
+// Handle failed or successful requests for mesh assets.
+//
+// Support for 200 responses was added for several reasons.  One,
+// a service or cache can ignore range headers and give us a
+// 200 with full asset should it elect to.  We also support
+// a debug flag which disables range requests for those very
+// few users that have some sort of problem with their networking
+// services.  But the 200 response handling is suboptimal:  rather
+// than cache the whole asset, we just extract the part that would
+// have been sent in a 206 and process that.  Inefficient but these
+// are cases far off the norm.
 void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
 	mProcessed = true;
@@ -2685,7 +2696,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 				
 			if (par_status == status)
 			{
-				// 216 case
+				// 206 case
 				response->getRange(&offset, &length, &full_length);
 				if (! offset && ! length)
 				{
