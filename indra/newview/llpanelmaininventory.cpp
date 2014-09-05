@@ -151,7 +151,9 @@ BOOL LLPanelMainInventory::postBuild()
 		recent_items_panel->setSinceLogoff(TRUE);
 		recent_items_panel->setSortOrder(LLInventoryFilter::SO_DATE);
 		recent_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		recent_items_panel->getFilter().markDefault();
+		LLInventoryFilter& recent_filter = recent_items_panel->getFilter();
+		recent_filter.setFilterObjectTypes(recent_filter.getFilterObjectTypes() & ~(0x1 << LLInventoryType::IT_CATEGORY));
+		recent_filter.markDefault();
 		recent_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, recent_items_panel, _1, _2));
 	}
 
@@ -382,9 +384,11 @@ BOOL LLPanelMainInventory::filtersVisible(void* user_data)
 
 void LLPanelMainInventory::onClearSearch()
 {
+	BOOL initially_active = FALSE;
 	LLFloater *finder = getFinder();
 	if (mActivePanel)
 	{
+		initially_active = mActivePanel->getFilter().isNotDefault();
 		mActivePanel->setFilterSubString(LLStringUtil::null);
 		mActivePanel->setFilterTypes(0xffffffffffffffffULL);
 		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
@@ -395,8 +399,8 @@ void LLPanelMainInventory::onClearSearch()
 		LLFloaterInventoryFinder::selectAllTypes(finder);
 	}
 
-	// re-open folders that were initially open
-	if (mActivePanel)
+	// re-open folders that were initially open in case filter was active
+	if (mActivePanel && (mFilterSubString.size() || initially_active))
 	{
 		mSavedFolderState->setApply(TRUE);
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
@@ -823,9 +827,9 @@ void LLFloaterInventoryFinder::draw()
 		filtered_by_all_types = FALSE;
 	}
 
-	if (!filtered_by_all_types)
+	if (!filtered_by_all_types || (mPanelMainInventory->getPanel()->getFilter().getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE))
 	{
-		// don't include folders in filter, unless I've selected everything
+		// don't include folders in filter, unless I've selected everything or filtering by date
 		filter &= ~(0x1 << LLInventoryType::IT_CATEGORY);
 	}
 

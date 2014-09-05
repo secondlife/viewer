@@ -234,6 +234,8 @@ void LLToast::closeToast()
 {
 	mOnDeleteToastSignal(this);
 
+	setSoundFlags(SILENT);
+
 	closeFloater();
 }
 

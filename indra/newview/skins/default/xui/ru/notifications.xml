@@ -114,13 +114,13 @@
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		Ошибка при передаче
+		Не удалось передать, ошибка: «[ERROR_CODE]»
 
 Папки не отправлены в торговый центр из-за ошибки системы или сети.  Повторите попытку позже.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		Ошибка инициализации торгового центра
+		Не удалось инициализировать торговый центр, ошибка: «[ERROR_CODE]»
 
 Не удалось инициализировать торговый центр из-за ошибки системы или сети.  Повторите попытку позже.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -1731,6 +1731,10 @@ http://secondlife.com/download.
 		Вы действительно хотите телепортироваться в &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
 		<usetemplate ignoretext="Подтверждать телепортацию на закладку" name="okcancelignore" notext="Отмена" yestext="Телепортация"/>
 	</notification>
+	<notification name="TeleportViaSLAPP">
+		Вы действительно хотите телепортироваться в &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
+		<usetemplate ignoretext="Подтверждать телепортацию через SLAPP" name="okcancelignore" notext="Отмена" yestext="Телепортация"/>
+	</notification>
 	<notification name="TeleportToPick">
 		Телепортироваться в [PICK]?
 		<usetemplate ignoretext="Подтверждать телепортацию на место в подборке" name="okcancelignore" notext="Отмена" yestext="Телепортация"/>
@@ -1939,6 +1943,9 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="ProblemAddingEstateManager">
 		Проблема при добавлении нового менеджера землевладения.  Возможно, в одном или нескольких землевладениях список менеджеров уже заполнен.
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		Невозможно добавить землевладельца или менеджера в список запрета доступа.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		Проблема при добавлении в этот список землевладения.  Возможно, в одном или нескольких землевладениях список уже заполнен.
@@ -3029,7 +3036,7 @@ http://secondlife.com/download.
 
 Со следующими жителями:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3041,7 +3048,7 @@ http://secondlife.com/download.
 
 Со следующими жителями:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="ОК"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3497,10 +3504,6 @@ http://secondlife.com/download.
 	<notification name="EjectComingSoon">
 		Вам запрещено здесь присутствовать; у вас есть [EJECT_TIME] сек, чтобы покинуть это место.
 	</notification>
-	<notification name="NoEnterServerFull">
-		Вам нет доступа в этот регион: 
-серпер переполнен.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Сохранение в инвентаре отключено.
 	</notification>
@@ -3688,6 +3691,9 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		Объект использует слишком много ресурсов физики -- динамическое поведение отключено.
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		Объект «[OBJECT_NAME]» по адресу [SLURL] не может телепортировать менеджеров землевладений домой.
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		Вы были телепортированы домой объектом «[OBJECT_NAME]» на участке «[PARCEL_NAME]»
@@ -3879,13 +3885,18 @@ http://secondlife.com/download.
 		Выбрано недостаточно арендуемых участков для вступления.
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		Нельзя разделить землю.\nВыбрано больше одного участка.\nВыберите меньшую территорию.
+		Невозможно разделить землю.
+Выбрано несколько участков.
+Попробуйте выбрать область поменьше.
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		Нельзя разделить землю.\nНе удалось найти участок.\nСообщите об этой неполадке: Справка -&gt; Сообщить об ошибке...
+		Невозможно разделить землю.
+Не удается найти участок.
+Сообщите об этом: Справка -&gt; Сообщить об ошибке...
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		Невозможно разделить землю. Выбран весь участок.\nПопробуйте выбрать территорию поменьше.
+		Невозможно разделить землю. Выбран весь участок.
+Попробуйте выбрать область поменьше.
 	</notification>
 	<notification name="LandHasBeenDivided">
 		Земля разделена.
@@ -4024,5 +4035,9 @@ http://secondlife.com/download.
 	<notification name="PreferenceChatPathChanged">
 		Невозможно переместить файлы. Восстановлен прежний путь.
 		<usetemplate ignoretext="Невозможно переместить файлы. Восстановлен прежний путь." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		Файл журнала чата занят предыдущей операцией. Повторите попытку через несколько минут или выберите чат с другим лицом.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

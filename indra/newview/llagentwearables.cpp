@@ -1040,6 +1040,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	if (mismatched == 0)
 	{
 		LL_DEBUGS("Avatar") << "no changes, bailing out" << LL_ENDL;
+		mCOFChangeInProgress = false;
 		return;
 	}
 	

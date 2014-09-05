@@ -2040,7 +2040,18 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
 {
-	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
+	S32 res = 0;
+	
+	if (pMaterialParams && getTEImage(te) && 3 == getTEImage(te)->getComponents() && pMaterialParams->getDiffuseAlphaMode()) 
+	{
+		LLViewerObject::setTEMaterialID(te, LLMaterialID::null);
+		res = LLViewerObject::setTEMaterialParams(te, NULL);
+	}
+	else 
+	{
+		res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
+	}
+
 	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterialParams) ? pMaterialParams->asLLSD() : LLSD("null")) << " res " << res
 							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
 							 << LL_ENDL;
@@ -4328,7 +4339,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mBump  = bump;
 		draw_info->mShiny = shiny;
 
-		float alpha[4] =
+		static const float alpha[4] =
 		{
 			0.00f,
 			0.25f,
@@ -5653,7 +5664,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 				if (material_pass)
 				{
-					U32 pass[] = 
+					static const U32 pass[] = 
 					{
 						LLRenderPass::PASS_MATERIAL,
 						LLRenderPass::PASS_ALPHA, //LLRenderPass::PASS_MATERIAL_ALPHA,

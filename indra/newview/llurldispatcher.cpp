@@ -278,12 +278,12 @@ public:
 							   tokens[2].asReal(), 
 							   tokens[3].asReal());
 		}
-		
-		LLSD args;
-		args["LOCATION"] = tokens[0];
 
 		// Region names may be %20 escaped.
 		std::string region_name = LLURI::unescape(tokens[0]);
+
+		LLSD args;
+		args["LOCATION"] = region_name;
 
 		LLSD payload;
 		payload["region_name"] = region_name;

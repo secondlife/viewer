@@ -70,6 +70,7 @@
 	<menu_item_call label="Oyna" name="Sound Play"/>
 	<menu_item_call label="SLurl&apos;i Kopyala" name="url_copy"/>
 	<menu_item_call label="Yer İmi Hakkında" name="About Landmark"/>
+	<menu_item_call label="Haritada Göster" name="show_on_map"/>
 	<menu_item_call label="SL Dünyasında Oynat" name="Animation Play"/>
 	<menu_item_call label="Yerel Olarak Oynat" name="Animation Audition"/>
 	<menu_item_call label="Anlık İleti Gönder" name="Send Instant Message"/>

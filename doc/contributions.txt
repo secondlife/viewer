@@ -1017,6 +1017,8 @@ Peekay Semyorka
 	VWR-19
 	VWR-49
 	VWR-79
+Pell Smit
+	MAINT-4323
 Peter Lameth
 	VWR-7331
 PeterPunk Mooney

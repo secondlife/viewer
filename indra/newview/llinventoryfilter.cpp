@@ -124,13 +124,6 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewModelItem* item) const
 
 bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
-	// when applying a filter, matching folders get their contents downloaded first
-	if (isNotDefault()
-		&& !gInventory.isCategoryComplete(folder_id))
-	{
-		LLInventoryModelBackgroundFetch::instance().start(folder_id);
-	}
-
 	// Always check against the clipboard
 	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
 	
@@ -138,6 +131,13 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
 		return passed_clipboard;
+	}
+
+	// when applying a filter, matching folders get their contents downloaded first
+	if (mFilterSubString.size()
+		&& !gInventory.isCategoryComplete(folder_id))
+	{
+		LLInventoryModelBackgroundFetch::instance().start(folder_id);
 	}
 
 	// show folder links
@@ -177,6 +177,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	// Pass if this item's type is of the correct filter type
 	if (filterTypes & FILTERTYPE_OBJECT)
 	{
+
 		// If it has no type, pass it, unless it's a link.
 		if (object_type == LLInventoryType::IT_NONE)
 		{
@@ -244,13 +245,25 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 			bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(listener->getPreferredType());
 			if (is_hidden_if_empty)
 			{
-				// Force the fetching of those folders so they are hidden iff they really are empty...
+				// Force the fetching of those folders so they are hidden if they really are empty...
 				gInventory.fetchDescendentsOf(object_id);
-				return FALSE;
+
+				LLInventoryModel::cat_array_t* cat_array = NULL;
+				LLInventoryModel::item_array_t* item_array = NULL;
+				gInventory.getDirectDescendentsOf(object_id,cat_array,item_array);
+				S32 descendents_actual = 0;
+				if(cat_array && item_array)
+				{
+					descendents_actual = cat_array->size() + item_array->size();
+				}
+				if (descendents_actual == 0)
+				{
+					return FALSE;
+				}
 			}
 		}
 	}
-	
+
 	return TRUE;
 }
 
@@ -970,6 +983,11 @@ void LLInventoryFilter::fromParams(const Params& params)
 	setFilterPermissions(params.filter_ops.permissions);
 	setFilterSubString(params.substring);
 	setDateRangeLastLogoff(params.since_logoff);
+}
+
+U64 LLInventoryFilter::getFilterTypes() const
+{
+	return mFilterOps.mFilterTypes;
 }
 
 U64 LLInventoryFilter::getFilterObjectTypes() const

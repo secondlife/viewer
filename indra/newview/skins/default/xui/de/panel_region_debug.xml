@@ -7,11 +7,8 @@
 		unbekannt
 	</text>
 	<check_box label="Skripts deaktivieren" name="disable_scripts_check" tool_tip="Skripts in dieser Region deaktivieren"/>
-	<button label="?" name="disable_scripts_help"/>
 	<check_box label="Kollisionen deaktivieren" name="disable_collisions_check" tool_tip="Nicht-Avatar-Kollisionen in dieser Region deaktivieren"/>
-	<button label="?" name="disable_collisions_help"/>
 	<check_box label="Physik deaktivieren" name="disable_physics_check" tool_tip="Physik in dieser Region deaktivieren"/>
-	<button label="?" name="disable_physics_help"/>
 	<button label="Übernehmen" name="apply_btn"/>
 	<text name="objret_text_lbl" width="110">
 		Objekt zurückgeben
@@ -31,10 +28,8 @@
 	<check_box label="In jeder Region auf diesem Grundbesitz" name="return_estate_wide" tool_tip="Es werden die Objekte in allen Regionen dieses Grundbesitzes zurückgegeben"/>
 	<button label="Zurückgeben" name="return_btn" width="90"/>
 	<button label="Top-Kollisionsobjekte..." name="top_colliders_btn" tool_tip="Liste der Objekte mit den meisten potenziellen Kollisionen"/>
-	<button label="?" name="top_colliders_help"/>
-	<button label="Top-Skripts..." name="top_scripts_btn" tool_tip="Zeigt eine Liste der Objekte an, die die meiste Zeit benötigen, um Skripts auszuführen."/>
-	<button label="?" name="top_scripts_help"/>
 	<button label="Region neu starten" name="restart_btn" tool_tip="2-Minuten-Countdown und Region neu starten"/>
-	<button label="?" name="restart_help"/>
+	<button label="Top-Skripts..." name="top_scripts_btn" tool_tip="Zeigt eine Liste der Objekte an, die die meiste Zeit benötigen, um Skripts auszuführen."/>
 	<button label="Neustart abbrechen" name="cancel_restart_btn" tool_tip="Regionsneustart abbrechen"/>
+	<button label="Regions-Debug-Konsole" name="region_debug_console_btn" tool_tip="Regions-Debug-Konsole öffnen"/>
 </panel>
