@@ -1936,8 +1936,6 @@ bool LLModelLoader::doLoadModel()
 										if ( pJoint )
 										{   
 											pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), mFilename);
-											//LL_WARNS() << "Aieee, now what!" << LL_ENDL;
-											//pJoint->storeCurrentXform( jointTransform.getTranslation() );												
 										}
 										else
 										{
