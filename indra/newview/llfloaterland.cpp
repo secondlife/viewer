@@ -2959,7 +2959,7 @@ BOOL LLPanelLandExperiences::postBuild()
 	mAllowed->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
 
 	// no privileged ones
-	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperties, _1, LLExperienceCache::PROPERTY_PRIVILEGED|LLExperienceCache::PROPERTY_GRID));
+	mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithoutProperties, _1, LLExperienceCache::PROPERTY_PRIVILEGED|LLExperienceCache::PROPERTY_GRID));
 
 	getChild<LLLayoutPanel>("trusted_layout_panel")->setVisible(FALSE);
 	getChild<LLTextBox>("experiences_help_text")->setVisible(FALSE);

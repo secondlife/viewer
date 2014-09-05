@@ -55,7 +55,7 @@ public:
 	void setDefaultFilters();
 
 	static bool FilterWithProperty(const LLSD& experience, S32 prop);
-	static bool FilterWithProperties(const LLSD& experience, S32 prop);
+	static bool FilterWithoutProperties(const LLSD& experience, S32 prop);
 	static bool FilterWithoutProperty(const LLSD& experience, S32 prop);
 	static bool FilterMatching(const LLSD& experience, const LLUUID& id);
 	bool FilterOverRating(const LLSD& experience);

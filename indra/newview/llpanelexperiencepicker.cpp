@@ -407,9 +407,9 @@ bool LLPanelExperiencePicker::FilterWithProperty( const LLSD& experience, S32 pr
 	return (experience[LLExperienceCache::PROPERTIES].asInteger() & prop) != 0;
 }
 
-bool LLPanelExperiencePicker::FilterWithProperties( const LLSD& experience, S32 prop)
+bool LLPanelExperiencePicker::FilterWithoutProperties( const LLSD& experience, S32 prop)
 {
-	return ! ((experience[LLExperienceCache::PROPERTIES].asInteger() & prop) == prop);
+	return ((experience[LLExperienceCache::PROPERTIES].asInteger() & prop) == prop);
 }
 
 bool LLPanelExperiencePicker::FilterWithoutProperty( const LLSD& experience, S32 prop )
