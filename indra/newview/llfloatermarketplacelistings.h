@@ -39,6 +39,7 @@ class LLInventoryCategoriesObserver;
 class LLInventoryCategoryAddedObserver;
 class LLTextBox;
 class LLView;
+class LLFilterEditor;
 
 class LLFloaterMarketplaceListings;
 
@@ -66,8 +67,11 @@ private:
     void onAuditButtonClicked();
 	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
     void onTabChange();
+    void onFilterEdit(const std::string& search_string);
     
     LLInventoryPanel* mAllPanel;
+	LLFilterEditor*	  mFilterEditor;
+	std::string		  mFilterSubString;
     LLInventoryFilter::ESortOrderType mSortOrder;
     LLInventoryFilter::EFilterType mFilterType;
 };

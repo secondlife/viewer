@@ -30,6 +30,7 @@
 #include "llfloatermarketplacelistings.h"
 
 #include "llfloaterreg.h"
+#include "llfiltereditor.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -63,6 +64,9 @@ BOOL LLPanelMarketplaceListings::postBuild()
 	childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
 	childSetAction("audit_btn", boost::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
 
+	mFilterEditor = getChild<LLFilterEditor>("filter_editor");
+    mFilterEditor->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onFilterEdit, this, _2));
+    
     return LLPanel::postBuild();
 }
 
@@ -107,6 +111,19 @@ LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::str
     return panel;
 }
 
+void LLPanelMarketplaceListings::onFilterEdit(const std::string& search_string)
+{
+	// Find active panel
+	LLInventoryPanel* panel = (LLInventoryPanel*)getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
+	if (panel)
+	{
+        // Save filter string (needed when switching tabs)
+        mFilterSubString = search_string;
+        // Set filter string on active panel
+        panel->setFilterSubString(mFilterSubString);
+	}
+}
+
 void LLPanelMarketplaceListings::draw()
 {
     if (LLMarketplaceData::instance().checkDirtyCount())
@@ -123,11 +140,17 @@ void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, cons
 
 void LLPanelMarketplaceListings::onTabChange()
 {
-	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
-    LLInventoryPanel* panel = static_cast<LLInventoryPanel*>(tabs_panel->getCurrentPanel());
-    // If the panel doesn't allow drop on root, it doesn't allow the creation of new folder on root either
-	LLButton* add_btn = getChild<LLButton>("add_btn");
-    add_btn->setEnabled(panel->getAllowDropOnRoot());
+	// Find active panel
+	LLInventoryPanel* panel = (LLInventoryPanel*)getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
+	if (panel)
+	{
+        // If the panel doesn't allow drop on root, it doesn't allow the creation of new folder on root either
+        LLButton* add_btn = getChild<LLButton>("add_btn");
+        add_btn->setEnabled(panel->getAllowDropOnRoot());
+        
+        // Set filter string on active panel
+        panel->setFilterSubString(mFilterSubString);
+	}
 }
 
 void LLPanelMarketplaceListings::onAddButtonClicked()

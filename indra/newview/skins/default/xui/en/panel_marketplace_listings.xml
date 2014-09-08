@@ -60,15 +60,26 @@
     default_tab_group="1"
     width="308"
     height="400">
+  <filter_editor
+    text_pad_left="10"
+    follows="left|top|right"
+    height="23"
+    label="Filter Marketplace Listings"
+    layout="topleft"
+    left="0"
+    max_length_chars="300"
+    name="filter_editor"
+    top="0"
+    width="308" />
   <tab_container
     name="marketplace_filter_tabs"
     follows="all"
     layout="topleft"
-    top="0"
+    top="30"
     left="0"
     top_pad="0"
     width="308"
-    height="400"
+    height="370"
     halign="center"
     tab_height="30"
     tab_group="1"
