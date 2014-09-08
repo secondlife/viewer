@@ -36,8 +36,9 @@
             <color_swatch
              can_apply_immediately="true"
              follows="left|top"
-             height="45"
+             height="22"
              label=""
+             label_height="0"
              layout="topleft"
              left="10"
              name="colorswatch"

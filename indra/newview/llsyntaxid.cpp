@@ -47,23 +47,22 @@ public:
 		LL_DEBUGS("SyntaxLSL") << "Instantiating with file saving to: '" << filespec << "'" << LL_ENDL;
 	}
 
-	virtual void errorWithContent(U32 status,
-								  const std::string& reason,
-								  const LLSD& content)
+	/* virtual */ void httpFailure()
 	{
-		LL_WARNS("SyntaxLSL") << "failed to fetch syntax file [status:" << status << "]: " << content << LL_ENDL;
+		LL_WARNS("SyntaxLSL") << "failed to fetch syntax file [status:" << getStatus() << "]: " << getContent() << LL_ENDL;
 	}
 
-	virtual void result(const LLSD& content_ref)
+	/* virtual */ void httpSuccess()
 	{
 		// Continue only if a valid LLSD object was returned.
-		if (content_ref.isMap())
+		const LLSD& content = getContent();
+		if (content.isMap())
 		{
-			if (LLSyntaxIdLSL::getInstance()->isSupportedVersion(content_ref))
+			if (LLSyntaxIdLSL::getInstance()->isSupportedVersion(content))
 			{
-				LLSyntaxIdLSL::getInstance()->setKeywordsXml(content_ref);
+				LLSyntaxIdLSL::getInstance()->setKeywordsXml(content);
 
-				cacheFile(content_ref);
+				cacheFile(content);
 				LLSyntaxIdLSL::getInstance()->handleFileFetched(mFileSpec);
 			}
 			else

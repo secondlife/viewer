@@ -72,7 +72,6 @@ private:
 	void onMsgFormFocusRecieved();
 	void onFormatComboCommit(LLUICtrl* ctrl);
 	void onQualitySliderCommit(LLUICtrl* ctrl);
-	void onTabButtonPress(S32 btn_idx);
 	void onSend();
 
 	bool mHasFirstMsgFocus;
@@ -86,8 +85,6 @@ LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 {
 	mCommitCallbackRegistrar.add("Postcard.Send",		boost::bind(&LLPanelSnapshotPostcard::onSend,	this));
 	mCommitCallbackRegistrar.add("Postcard.Cancel",		boost::bind(&LLPanelSnapshotPostcard::cancel,	this));
-	mCommitCallbackRegistrar.add("Postcard.Message",	boost::bind(&LLPanelSnapshotPostcard::onTabButtonPress,	this, 0));
-	mCommitCallbackRegistrar.add("Postcard.Settings",	boost::bind(&LLPanelSnapshotPostcard::onTabButtonPress,	this, 1));
 
 }
 
@@ -107,8 +104,6 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 	getChild<LLUICtrl>("to_form")->setFocus(TRUE);
 
 	getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotPostcard::onQualitySliderCommit, this, _1));
-
-	getChild<LLButton>("message_btn")->setToggleState(TRUE);
 
 	return LLPanelSnapshot::postBuild();
 }
@@ -216,27 +211,6 @@ void LLPanelSnapshotPostcard::onQualitySliderCommit(LLUICtrl* ctrl)
 	LLSD info;
 	info["image-quality-change"] = quality_val;
 	LLFloaterSnapshot::getInstance()->notify(info); // updates the "SnapshotQuality" setting
-}
-
-void LLPanelSnapshotPostcard::onTabButtonPress(S32 btn_idx)
-{
-	LLButton* buttons[2] = {
-			getChild<LLButton>("message_btn"),
-			getChild<LLButton>("settings_btn"),
-	};
-
-	// Switch between Message and Settings tabs.
-	LLButton* clicked_btn = buttons[btn_idx];
-	LLButton* other_btn = buttons[!btn_idx];
-	LLSideTrayPanelContainer* container =
-		getChild<LLSideTrayPanelContainer>("postcard_panel_container");
-
-	container->selectTab(clicked_btn->getToggleState() ? btn_idx : !btn_idx);
-	//clicked_btn->setEnabled(FALSE);
-	other_btn->toggleState();
-	//other_btn->setEnabled(TRUE);
-
-	LL_DEBUGS() << "Button #" << btn_idx << " (" << clicked_btn->getName() << ") clicked" << LL_ENDL;
 }
 
 void LLPanelSnapshotPostcard::onSend()
