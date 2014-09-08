@@ -1,6 +1,6 @@
 <panel
 	 height="540"
-	 width="304"
+	 width="272"
 	 layout="topleft"
    name="panel_flickr_account">
   <string
@@ -15,9 +15,9 @@
    follows="top|left"
    font="SansSerif"
    height="16"
-   left="9"
+   left="10"
    name="account_caption_label"
-   top="21"
+   top="5"
    type="string">
     Not connected to Flickr.
   </text>
@@ -28,7 +28,7 @@
    follows="top|left"
    font="SansSerif"
    height="16"
-   left="9"
+   left="10"
    name="account_name_label"
    parse_urls="true"
    type="string"/>
@@ -36,12 +36,14 @@
     layout="topleft"
     name="panel_buttons"
     height="345"
-    left="9">
+    left="0">
     <button
      layout="topleft"
-     follows="left|top"
+     follows="left|top|right"
      top_pad="9"
      visible="true"
+	 left="10"
+	 right="-10"
      height="23"
      label="Connect..."
      name="connect_btn"
@@ -51,8 +53,10 @@
 
     <button
      layout="topleft"
-     follows="left|top"
+     follows="left|top|right"
      top_delta="0"
+	 left="10"
+	 right="-10"
      height="23"
      label="Disconnect"
      name="disconnect_btn"
@@ -65,9 +69,9 @@
       length="1"
       follows="top|left"
       height="16"
-      left="0"
+      left="10"
       name="account_learn_more_label"
-      top_pad="20"
+      top_pad="5"
       type="string">
       [http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Flickr/ta-p/2435609 Learn about posting to Flickr]
     </text>

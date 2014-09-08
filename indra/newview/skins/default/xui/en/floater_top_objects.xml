@@ -38,6 +38,18 @@
      name="none_descriptor">
         None found.
     </floater.string>
+    <floater.string
+     name="URLs">
+        URLs
+    </floater.string>
+    <floater.string
+     name="memory">
+        Memory (KB)
+    </floater.string>
+
+
+
+
     <text
      type="string"
      length="1"
@@ -82,7 +94,7 @@
          name="parcel"
          width="120" />
         <scroll_list.columns
-         label="Time"
+         label="Date"
          name="time"
          width="130" />
           <scroll_list.columns
