@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="408"
+ height="440"
  layout="topleft"
  name="Inventory Finder"
  help_topic="inventory_finder"
@@ -95,23 +95,6 @@
      width="126" />
     <icon
      height="16"
-     image_name="Inv_Mesh"
-     layout="topleft"
-     left="8"
-     mouse_opaque="true"
-     name="icon_mesh"
-     top="142"
-     width="16" />
-    <check_box
-     height="16"
-     label="Meshes"
-     layout="topleft"
-     left_pad="2"
-     name="check_mesh"
-     top_delta="0"
-     width="126" />
-    <icon
-     height="16"
      image_name="Inv_Notecard"
      layout="topleft"
      left="8"
@@ -125,6 +108,23 @@
      layout="topleft"
      left_pad="2"
      name="check_notecard"
+     top_delta="0"
+     width="126" />
+    <icon
+     height="16"
+     image_name="Inv_Mesh"
+     layout="topleft"
+     left="8"
+     mouse_opaque="true"
+     name="icon_mesh"
+     top="142"
+     width="16" />
+    <check_box
+     height="16"
+     label="Meshes"
+     layout="topleft"
+     left_pad="2"
+     name="check_mesh"
      top_delta="0"
      width="126" />
     <icon
@@ -223,25 +223,33 @@
      top="262"
      width="100" />
     <button
-     follows="left|top"
      height="20"
      label="None"
      label_selected="None"
-     layout="topleft"
      left_delta="0"
      name="None"
-     top_pad="4"
+     left_pad="10"
      width="100" />
     <check_box
      height="16"
      label="Always show folders"
      layout="topleft"
-     left_delta="0"
+     left="8"
      name="check_show_empty"
-     top_pad="4"
+     top_pad="6"
      width="144" />
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="0"
+     layout="topleft"
+     left="10"
+     name="horiz_separator"
+     top_pad="8"
+     width="260"/>
     <check_box
      height="16"
+     top="324"
      label="Since Logoff"
      layout="topleft"
      left_delta="0"
@@ -257,36 +265,74 @@
      layout="topleft"
      left_delta="0"
      name="- OR -"
-     top_delta="16"
+     top="342"
      width="144">
         - OR -
+    </text>
+    <radio_group
+     height="16"
+     layout="topleft"
+     name="date_search_direction"
+     top="360"
+     left="8"
+     width="270">
+     <radio_item
+      label="Newer than"
+      layout="topleft"
+      name="newer"
+      top_pad="6"
+      left="0" />
+     <radio_item
+      label="Older than"
+      layout="topleft"
+      name="older"
+      top_delta="0"
+      left="120" />
+    </radio_group>
+    <spinner
+     follows="left|top"
+     height="16"
+     increment="1"
+     initial_value="0"
+     layout="topleft"
+     left_delta="0"
+     max_val="240000"
+     name="spin_hours_ago"
+     top_pad="4"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="3"
+     top_delta="4"
+     width="80">
+        Hours
     </text>
     <spinner
      follows="left|top"
      height="16"
      increment="1"
      initial_value="0"
-     label="Hours Ago"
-     label_width="64"
      layout="topleft"
-     left_delta="0"
-     max_val="240000"
-     name="spin_hours_ago"
-     top_pad="4"
-     width="144" />
-    <spinner
-     follows="left|top"
-     height="16"
-     increment="1"
-     initial_value="0"
-     label="Days Ago"
-     label_width="64"
-     layout="topleft"
-     left_delta="0"
      max_val="10000"
      name="spin_days_ago"
      top_pad="4"
-     width="144" />
+     left="8"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="3"
+     top_delta="4"
+     width="80">
+        Days
+    </text>
     <button
      follows="top|right"
      height="20"
@@ -295,6 +341,6 @@
      layout="topleft"
      name="Close"
      right="-6"
-     top="382"
+     top="406"
      width="76" />
 </floater>
