@@ -406,6 +406,11 @@ void LLInventoryPanel::setHoursAgo(U32 hours)
 	getFilter().setHoursAgo(hours);
 }
 
+void LLInventoryPanel::setDateSearchDirection(U32 direction)
+{
+	getFilter().setDateSearchDirection(direction);
+}
+
 void LLInventoryPanel::setFilterLinks(U64 filter_links)
 {
 	getFilter().setFilterLinks(filter_links);
