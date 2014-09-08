@@ -185,6 +185,7 @@ public:
 	virtual void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) = 0;
 	virtual void setPassedFolderFilter(bool passed, S32 filter_generation) = 0;
 	virtual void dirtyFilter() = 0;
+	virtual void dirtyDescendantsFilter() = 0;
 	virtual bool hasFilterStringMatch() = 0;
 	virtual std::string::size_type getFilterStringOffset() = 0;
 	virtual std::string::size_type getFilterStringSize() = 0;
@@ -261,6 +262,14 @@ public:
 			mParent->dirtyFilter();
 		}	
 	}
+	void dirtyDescendantsFilter()
+	{
+		mMostFilteredDescendantGeneration = -1;
+		if (mParent)
+		{
+			mParent->dirtyDescendantsFilter();
+		}
+	}
 	bool hasFilterStringMatch();
 	std::string::size_type getFilterStringOffset();
 	std::string::size_type getFilterStringSize();
@@ -279,7 +288,7 @@ public:
 				return;
 			}
 		}
-		mChildren.push_back(child); 
+		mChildren.push_back(child);
 		child->setParent(this); 
 		dirtyFilter();
 		requestSort();
@@ -287,7 +296,8 @@ public:
 	virtual void removeChild(LLFolderViewModelItem* child) 
 	{ 
 		mChildren.remove(child); 
-		child->setParent(NULL); 
+		child->setParent(NULL);
+		dirtyDescendantsFilter();
 		dirtyFilter();
 	}
 	
@@ -297,6 +307,7 @@ public:
 		// This is different and not equivalent to calling removeChild() on each child
 		std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
 		mChildren.clear();
+		dirtyDescendantsFilter();
 		dirtyFilter();
 	}
 	
