@@ -537,12 +537,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			// This item already exists in both memory and UI.  It was probably reparented.
 			else if (model_item && view_item)
 			{
+				LLFolderViewFolder* old_parent = view_item->getParentFolder();
 				// Don't process the item if it is the root
-				if (view_item->getParentFolder())
+				if (old_parent)
 				{
 					LLFolderViewFolder* new_parent =   (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
 					// Item has been moved.
-					if (view_item->getParentFolder() != new_parent)
+					if (old_parent != new_parent)
 					{
 						if (new_parent != NULL)
 						{
@@ -568,6 +569,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							// doesn't include trash).  Just remove the item's UI.
 							view_item->destroyView();
 						}
+						old_parent->getViewModelItem()->dirtyDescendantsFilter();
 					}
 				}
 			}
@@ -578,25 +580,14 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			else if (!model_item && view_item && viewmodel_item)
 			{
 				// Remove the item's UI.
-                removeItemID(viewmodel_item->getUUID());
+				LLFolderViewFolder* parent = view_item->getParentFolder();
+				removeItemID(viewmodel_item->getUUID());
 				view_item->destroyView();
+				if(parent)
+				{
+					parent->getViewModelItem()->dirtyDescendantsFilter();
+				}
 			}
-		}
-	}
-
-	if (mask & (LLInventoryObserver::STRUCTURE | LLInventoryObserver::REMOVE))
-	{
-		// STRUCTURE and REMOVE model changes usually fail to update (clean)
-		// mMostFilteredDescendantGeneration of parent folder and dirtyFilter()
-		// is not sufficient for successful filter update, so we need to check
-		// all already passed element over again to remove obsolete elements.
-		// New items or moved items should be sufficiently covered by
-		// dirtyFilter().
-		LLInventoryFilter& filter = getFilter();
-		if (filter.getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE
-			|| filter.isNotDefault())
-		{
-			filter.setModified(LLFolderViewFilter::FILTER_MORE_RESTRICTIVE);
 		}
 	}
 }
