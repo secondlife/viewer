@@ -62,7 +62,6 @@ const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
 
 
-
 ///----------------------------------------------------------------------------
 /// Class LLFloaterSnapshot::Impl
 ///----------------------------------------------------------------------------
@@ -96,7 +95,6 @@ public:
 	static void onClickAutoSnap(LLUICtrl *ctrl, void* data);
 	static void onClickFilter(LLUICtrl *ctrl, void* data);
 	//static void onClickAdvanceSnap(LLUICtrl *ctrl, void* data);
-	static void onClickMore(void* data) ;
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
 	static void applyKeepAspectCheck(LLFloaterSnapshot* view, BOOL checked);
@@ -264,29 +262,34 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 
 	BOOL advanced = gSavedSettings.getBOOL("AdvanceSnapshot");
 
-	// Show/hide advanced options.
-	LLPanel* advanced_options_panel = floaterp->getChild<LLPanel>("advanced_options_panel");
-	floaterp->getChild<LLButton>("advanced_options_btn")->setImageOverlay(advanced ? "TabIcon_Open_Off" : "TabIcon_Close_Off");
-	if (advanced != advanced_options_panel->getVisible())
+	//BD - Automatically calculate the size of our snapshot window to enlarge
+	//     the snapshot preview to its maximum size, this is especially helpfull
+	//     for pretty much every aspect ratio other than 1:1.
+	F32 panel_width = 400.f * gViewerWindow->getWorldViewAspectRatio();
+
+	//BD - Make sure we clamp at 700 here because 700 would be for 16:9 which we
+	//     consider the maximum. Everything bigger will be clamped and will have
+	//     a slightly smaller preview window which most likely won't fill up the
+	//     whole snapshot floater as it should.
+	if(panel_width > 700.f)
 	{
-		S32 panel_width = advanced_options_panel->getRect().getWidth();
-		floaterp->getChild<LLPanel>("advanced_options_panel")->setVisible(advanced);
-		S32 floater_width = floaterp->getRect().getWidth();
-		floater_width += (advanced ? panel_width : -panel_width);
-		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
+		panel_width = 700.f;
 	}
 
-	if(!advanced) //set to original window resolution
+	S32 floater_width = 224.f;
+	if(advanced)
 	{
-		previewp->mKeepAspectRatio = TRUE;
+		floater_width = floater_width + panel_width;
+	}
 
-		floaterp->getChild<LLComboBox>("profile_size_combo")->setCurrentByIndex(0);
-		floaterp->getChild<LLComboBox>("postcard_size_combo")->setCurrentByIndex(0);
-		floaterp->getChild<LLComboBox>("texture_size_combo")->setCurrentByIndex(0);
-		floaterp->getChild<LLComboBox>("local_size_combo")->setCurrentByIndex(0);
-
-		LLSnapshotLivePreview* previewp = getPreviewView(floaterp);
-		previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
+	LLUICtrl* thumbnail_placeholder = floaterp->getChild<LLUICtrl>("thumbnail_placeholder");
+	thumbnail_placeholder->setVisible(advanced);
+	thumbnail_placeholder->reshape(panel_width, thumbnail_placeholder->getRect().getHeight());
+	floaterp->getChild<LLUICtrl>("image_res_text")->setVisible(advanced);
+	floaterp->getChild<LLUICtrl>("file_size_label")->setVisible(advanced);
+	if(!floaterp->isMinimized())
+	{
+		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
 	}
 
 	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
@@ -388,7 +391,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 			height_ctrl->setValue(h);
 		}
 
-		// Сlamp snapshot resolution to window size when showing UI or HUD in snapshot.
+		// Clamp snapshot resolution to window size when showing UI or HUD in snapshot.
 		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
 		{
 			S32 width = gViewerWindow->getWindowWidthRaw();
@@ -576,22 +579,8 @@ void LLFloaterSnapshot::Impl::onClickFilter(LLUICtrl *ctrl, void* data)
             LLComboBox* filterbox = static_cast<LLComboBox *>(view->getChild<LLComboBox>("filters_combobox"));
             std::string filter_name = (filterbox->getCurrentIndex() ? filterbox->getSimple() : "");
             previewp->setFilter(filter_name);
-            previewp->updateSnapshot(FALSE, TRUE);
+            previewp->updateSnapshot(TRUE);
         }
-	}
-}
-
-void LLFloaterSnapshot::Impl::onClickMore(void* data)
-{
-	BOOL visible = gSavedSettings.getBOOL("AdvanceSnapshot");
-	
-	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
-	if (view)
-	{
-		view->impl.setStatus(Impl::STATUS_READY);
-		gSavedSettings.setBOOL("AdvanceSnapshot", !visible);
-		updateControls(view) ;
-		updateLayout(view) ;
 	}
 }
 
@@ -772,6 +761,12 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		S32 original_width = 0 , original_height = 0 ;
 		previewp->getSize(original_width, original_height) ;
 		
+		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
+		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
+			width = llmin(width, gViewerWindow->getWindowWidthRaw());
+			height = llmin(height, gViewerWindow->getWindowHeightRaw());
+		}
+
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
@@ -817,14 +812,12 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		checkAspectRatio(view, width) ;
 
 		previewp->getSize(width, height);
-	
-		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
-		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
-			width = llmin(width, gViewerWindow->getWindowWidthRaw());
-			height = llmin(height, gViewerWindow->getWindowHeightRaw());
-		}
 
-		updateSpinners(view, previewp, width, height, TRUE); // may change width and height
+		// We use the height spinner here because we come here via the aspect ratio
+		// checkbox as well and we want height always changing to width by default.
+		// If we use the width spinner we would change width according to height by
+		// default, that is not what we want.
+		updateSpinners(view, previewp, width, height, !getHeightSpinner(view)->isDirty()); // may change width and height
 		
 		if(getWidthSpinner(view)->getValue().asInteger() != width || getHeightSpinner(view)->getValue().asInteger() != height)
 		{
@@ -839,12 +832,11 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			// hide old preview as the aspect ratio could be wrong
 			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
-			getPreviewView(view)->updateSnapshot(FALSE, TRUE);
+			getPreviewView(view)->updateSnapshot(TRUE);
 			if(do_update)
 			{
 				LL_DEBUGS() << "Will update controls" << LL_ENDL;
 				updateControls(view);
-				setNeedRefresh(view, true);
 			}
 		}
 	}
@@ -887,7 +879,6 @@ void LLFloaterSnapshot::Impl::onImageFormatChange(LLFloaterSnapshot* view)
 		LL_DEBUGS() << "image format changed, updating snapshot" << LL_ENDL;
 		getPreviewView(view)->updateSnapshot(TRUE);
 		updateControls(view);
-		setNeedRefresh(view, false); // we're refreshing
 	}
 }
 
@@ -956,6 +947,8 @@ void LLFloaterSnapshot::Impl::setImageSizeSpinnersValues(LLFloaterSnapshot *view
 // static
 void LLFloaterSnapshot::Impl::updateSpinners(LLFloaterSnapshot* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL is_width_changed)
 {
+	getWidthSpinner(view)->resetDirty();
+	getHeightSpinner(view)->resetDirty();
 	if (checkImageSize(previewp, width, height, is_width_changed, previewp->getMaxImageSize()))
 	{
 		setImageSizeSpinnersValues(view, width, height);
@@ -965,8 +958,6 @@ void LLFloaterSnapshot::Impl::updateSpinners(LLFloaterSnapshot* view, LLSnapshot
 // static
 void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32 w, S32 h)
 {
-	bool need_refresh = false;
-
 	LL_DEBUGS() << "applyCustomResolution(" << w << ", " << h << ")" << LL_ENDL;
 	if (!view) return;
 
@@ -981,24 +972,15 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 			//if to upload a snapshot, process spinner input in a special way.
 			previewp->setMaxImageSize((S32) getWidthSpinner(view)->getMaxValue()) ;
 
-			updateSpinners(view, previewp, w, h, w != curw); // may change w and h
-
 			previewp->setSize(w,h);
 			checkAutoSnapshot(previewp, FALSE);
-			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
-			previewp->updateSnapshot(FALSE, TRUE);
 			comboSetCustom(view, "profile_size_combo");
 			comboSetCustom(view, "postcard_size_combo");
 			comboSetCustom(view, "texture_size_combo");
 			comboSetCustom(view, "local_size_combo");
-			need_refresh = true;
+			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
+			previewp->updateSnapshot(TRUE);
 		}
-	}
-
-	updateControls(view);
-	if (need_refresh)
-	{
-		setNeedRefresh(view, true); // need to do this after updateControls()
 	}
 }
 
@@ -1055,8 +1037,6 @@ BOOL LLFloaterSnapshot::postBuild()
 	mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
 	mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
 
-	childSetAction("advanced_options_btn", Impl::onClickMore, this);
-
 	childSetCommitCallback("ui_check", Impl::onClickUICheck, this);
 	getChild<LLUICtrl>("ui_check")->setValue(gSavedSettings.getBOOL("RenderUIInSnapshot"));
 
@@ -1075,24 +1055,15 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
     
+
 	// Filters
 	LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
-    if (gSavedSettings.getBOOL("SnapshotFiltersEnabled"))
+    std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
+    for (U32 i = 0; i < filter_list.size(); i++)
     {
-        // Update filter list if setting is on (experimental)
-        std::vector<std::string> filter_list = LLImageFiltersManager::getInstance()->getFiltersList();
-        for (U32 i = 0; i < filter_list.size(); i++)
-        {
-            filterbox->add(filter_list[i]);
-        }
-        childSetCommitCallback("filters_combobox", Impl::onClickFilter, this);
+        filterbox->add(filter_list[i]);
     }
-    else
-    {
-        // Hide Filter UI if setting is off (default)
-        getChild<LLUICtrl>("filter_list_label")->setVisible(FALSE);
-        filterbox->setVisible(FALSE);
-    }
+    childSetCommitCallback("filters_combobox", Impl::onClickFilter, this);
     
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, _1));
@@ -1119,7 +1090,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLComboBox>("profile_size_combo")->selectNthItem(0);
 	getChild<LLComboBox>("postcard_size_combo")->selectNthItem(0);
 	getChild<LLComboBox>("texture_size_combo")->selectNthItem(0);
-	getChild<LLComboBox>("local_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("local_size_combo")->selectNthItem(8);
 	getChild<LLComboBox>("local_format_combo")->selectNthItem(0);
 
 	impl.mPreviewHandle = previewp->getHandle();
@@ -1145,7 +1116,7 @@ void LLFloaterSnapshot::draw()
 
 	LLFloater::draw();
 
-	if (previewp && !isMinimized())
+	if (previewp && !isMinimized() && sThumbnailPlaceholder->getVisible())
 	{		
 		if(previewp->getThumbnailImage())
 		{
@@ -1172,44 +1143,13 @@ void LLFloaterSnapshot::draw()
 
 			previewp->drawPreviewRect(offset_x, offset_y) ;
 
-			// Draw some controls on top of the preview thumbnail.
-			static const S32 PADDING = 5;
-			static const S32 REFRESH_LBL_BG_HEIGHT = 32;
-
-			// Reshape and position the posting result message panels at the top of the thumbnail.
-			// Do this regardless of current posting status (finished or not) to avoid flicker
-			// when the result message is displayed for the first time.
-			// if (impl.getStatus() == Impl::STATUS_FINISHED)
-			{
-				LLRect result_lbl_rect = mSucceessLblPanel->getRect();
-				const S32 result_lbl_h = result_lbl_rect.getHeight();
-				result_lbl_rect.setLeftTopAndSize(local_offset_x, local_offset_y + thumbnail_h, thumbnail_w - 1, result_lbl_h);
-				mSucceessLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
-				mSucceessLblPanel->setRect(result_lbl_rect);
-				mFailureLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
-				mFailureLblPanel->setRect(result_lbl_rect);
-			}
-
-			// Position the refresh button in the bottom left corner of the thumbnail.
-			mRefreshBtn->setOrigin(local_offset_x + PADDING, local_offset_y + PADDING);
-
-			if (impl.mNeedRefresh)
-			{
-				// Place the refresh hint text to the right of the refresh button.
-				const LLRect& refresh_btn_rect = mRefreshBtn->getRect();
-				mRefreshLabel->setOrigin(refresh_btn_rect.mLeft + refresh_btn_rect.getWidth() + PADDING, refresh_btn_rect.mBottom);
-
-				// Draw the refresh hint background.
-				LLRect refresh_label_bg_rect(offset_x, offset_y + REFRESH_LBL_BG_HEIGHT, offset_x + thumbnail_w - 1, offset_y);
-				gl_rect_2d(refresh_label_bg_rect, LLColor4::white % 0.9f, TRUE);
-			}
-
 			gGL.pushUIMatrix();
 			LLUI::translate((F32) thumbnail_rect.mLeft, (F32) thumbnail_rect.mBottom);
 			sThumbnailPlaceholder->draw();
 			gGL.popUIMatrix();
 		}
 	}
+	impl.updateLayout(this);
 }
 
 void LLFloaterSnapshot::onOpen(const LLSD& key)
@@ -1224,6 +1164,9 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
+
+	impl.updateControls(this);
+	impl.updateLayout(this);
 
 	// Initialize default tab.
 	getChild<LLSideTrayPanelContainer>("panel_container")->getCurrentPanel()->onOpen(LLSD());
@@ -1293,8 +1236,6 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 	{
         // Disable the send/post/save buttons until snapshot is ready.
         impl.updateControls(this);
-        // Force hiding the "Refresh to save" hint because we know we've just started refresh.
-        impl.setNeedRefresh(this, false);
 		return 1;
 	}
 

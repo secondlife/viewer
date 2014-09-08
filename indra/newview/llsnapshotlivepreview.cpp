@@ -195,6 +195,8 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 		mSnapshotDelayTimer.start();
 		mSnapshotDelayTimer.setTimerExpirySec(delay);
         
+		mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
+
         // Tell the floater container that the snapshot is in the process of updating itself
         if (mViewContainer)
         {
@@ -760,7 +762,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                     curr_preview_image->setFilteringOption(previewp->getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
                     curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-                    previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
                     previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
                 }
             }
@@ -974,6 +975,21 @@ void LLSnapshotLivePreview::saveTexture()
 		mPreviewImage->getWidth(),
 		mPreviewImage->getHeight(),
 		mPreviewImage->getComponents());
+
+	// Apply the filter to mPreviewImage
+	if (getFilter() != "")
+	{
+		std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
+		if (filter_path != "")
+		{
+			LLImageFilter filter(filter_path);
+			filter.executeFilter(scaled);
+		}
+		else
+		{
+			LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+		}
+	}
 
 	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
 	LL_DEBUGS() << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;

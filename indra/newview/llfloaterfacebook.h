@@ -46,11 +46,28 @@ public:
 	void draw();
     void onSend();
 	bool onFacebookConnectStateChange(const LLSD& data);
+	bool onFacebookConnectAccountStateChange(const LLSD& data);
 
 	void sendStatus();
 	void clearAndClose();
 
 private:
+	void onVisibilityChange(BOOL new_visibility);
+	bool onFacebookConnectInfoChange();
+	void onConnect();
+	void onUseAnotherAccount();
+	void onDisconnect();
+
+	void showConnectButton();
+	void hideConnectButton();
+	void showDisconnectedLayout();
+	void showConnectedLayout();
+
+	LLTextBox * mAccountCaptionLabel;
+	LLTextBox * mAccountNameLabel;
+	LLUICtrl * mPanelButtons;
+	LLUICtrl * mConnectButton;
+	LLUICtrl * mDisconnectButton;
 	LLUICtrl* mMessageTextEditor;
 	LLUICtrl* mPostButton;
 	LLUICtrl* mCancelButton;
@@ -87,7 +104,6 @@ private:
     
 	LLHandle<LLView> mPreviewHandle;
 
-	LLUICtrl * mSnapshotPanel;
 	LLUICtrl * mResolutionComboBox;
 	LLUICtrl * mFilterComboBox;
 	LLUICtrl * mRefreshBtn;
@@ -145,33 +161,6 @@ private:
 	LLTextBox * mFriendsStatusCaption;
 	LLAvatarList* mSecondLifeFriends;
 	LLAvatarList* mSuggestedFriends;
-};
-
-class LLFacebookAccountPanel : public LLPanel
-{
-public:
-	LLFacebookAccountPanel();
-	BOOL postBuild();
-	void draw();
-
-private:
-	void onVisibilityChange(BOOL new_visibility);
-	bool onFacebookConnectStateChange(const LLSD& data);
-	bool onFacebookConnectInfoChange();
-	void onConnect();
-	void onUseAnotherAccount();
-	void onDisconnect();
-
-	void showConnectButton();
-	void hideConnectButton();
-	void showDisconnectedLayout();
-	void showConnectedLayout();
-
-	LLTextBox * mAccountCaptionLabel;
-	LLTextBox * mAccountNameLabel;
-	LLUICtrl * mPanelButtons;
-	LLUICtrl * mConnectButton;
-	LLUICtrl * mDisconnectButton;
 };
 
 class LLFloaterFacebook : public LLFloater
