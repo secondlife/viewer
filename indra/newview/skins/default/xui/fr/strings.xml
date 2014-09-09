@@ -71,7 +71,7 @@ Version Qt Webkit : [QT_WEBKIT_VERSION]
 Version serveur vocal : [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
-		Paquets perdus : [PACKETS_LOST,nombre,0]/[PACKETS_IN,nombre,0] ([PACKETS_PCT,nombre,1]%)
+		Paquets perdus : [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Erreur lors de la récupération de l&apos;URL des notes de version du serveur.
