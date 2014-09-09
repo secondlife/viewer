@@ -71,6 +71,7 @@
 #include "bufferarray.h"
 #include "bufferstream.h"
 #include "llfasttimer.h"
+#include "llcorehttputil.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -2236,21 +2237,17 @@ void LLMeshUploadThread::doWholeModelUpload()
 		mModelData = LLSD::emptyMap();
 		wholeModelToLLSD(mModelData, true);
 		LLSD body = mModelData["asset_resources"];
-		dump_llsd_to_file(body,make_dump_name("whole_model_body_",dump_num));
 
-		LLCore::BufferArray * ba = new LLCore::BufferArray;
-		LLCore::BufferArrayStream bas(ba);
-		LLSDSerialize::toXML(body, bas);
-		// LLSDSerialize::toXML(mModelData, bas);		// <- Enabling this will generate a convenient upload error
-		LLCore::HttpHandle handle = mHttpRequest->requestPost(mHttpPolicyClass,
-															  mHttpPriority,
-															  mWholeModelUploadURL,
-															  ba,
-															  mHttpOptions,
-															  mHttpHeaders,
-															  this);
-		ba->release();
-		
+		dump_llsd_to_file(body, make_dump_name("whole_model_body_", dump_num));
+
+		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
+																		mHttpPolicyClass,
+																		mHttpPriority,
+																		mWholeModelUploadURL,
+																		body,
+																		mHttpOptions,
+																		mHttpHeaders,
+																		this);
 		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
 			mHttpStatus = mHttpRequest->getStatus();
@@ -2294,19 +2291,14 @@ void LLMeshUploadThread::requestWholeModelFee()
 	mModelData = LLSD::emptyMap();
 	wholeModelToLLSD(mModelData, false);
 	dump_llsd_to_file(mModelData, make_dump_name("whole_model_fee_request_", dump_num));
-
-	LLCore::BufferArray * ba = new LLCore::BufferArray;
-	LLCore::BufferArrayStream bas(ba);
-	LLSDSerialize::toXML(mModelData, bas);
-		
-	LLCore::HttpHandle handle = mHttpRequest->requestPost(mHttpPolicyClass,
-														  mHttpPriority,
-														  mWholeModelFeeCapability,
-														  ba,
-														  mHttpOptions,
-														  mHttpHeaders,
-														  this);
-	ba->release();
+	LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
+																	mHttpPolicyClass,
+																	mHttpPriority,
+																	mWholeModelFeeCapability,
+																	mModelData,
+																	mHttpOptions,
+																	mHttpHeaders,
+																	this);
 	if (LLCORE_HTTP_HANDLE_INVALID == handle)
 	{
 		mHttpStatus = mHttpRequest->getStatus();
@@ -2379,12 +2371,8 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 			}
 			else
 			{
-				LLCore::BufferArray * ba(response->getBody());
-				if (ba && ba->size())
-				{
-					LLCore::BufferArrayStream bas(ba);
-					LLSDSerialize::fromXML(body, bas);
-				}
+				// *TODO:  handle error in conversion process
+				LLCoreHttpUtil::responseToLLSD(response, true, body);
 			}
 			dump_llsd_to_file(body, make_dump_name("whole_model_upload_response_", dump_num));
 
@@ -2443,12 +2431,8 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 			}
 			else
 			{
-				LLCore::BufferArray * ba(response->getBody());
-				if (ba && ba->size())
-				{
-					LLCore::BufferArrayStream bas(ba);
-					LLSDSerialize::fromXML(body, bas);
-				}
+				// *TODO:  handle error in conversion process
+				LLCoreHttpUtil::responseToLLSD(response, true, body);
 			}
 			dump_llsd_to_file(body, make_dump_name("whole_model_fee_response_", dump_num));
 

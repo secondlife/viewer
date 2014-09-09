@@ -45,6 +45,10 @@
 namespace
 {
 
+///----------------------------------------------------------------------------
+/// Class <anonymous>::BGItemHttpHandler
+///----------------------------------------------------------------------------
+
 //
 // Http request handler class for single inventory item requests.
 //
@@ -79,6 +83,10 @@ protected:
 	void operator=(const BGItemHttpHandler &);					// Not defined
 };
 
+
+///----------------------------------------------------------------------------
+/// Class <anonymous>::BGFolderHttpHandler
+///----------------------------------------------------------------------------
 
 // Http request handler class for folders.
 //
@@ -129,6 +137,10 @@ const char * const LOG_INV("Inventory");
 
 } // end of namespace anonymous
 
+
+///----------------------------------------------------------------------------
+/// Class LLInventoryModelBackgroundFetch
+///----------------------------------------------------------------------------
 
 LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
 	mBackgroundFetchActive(FALSE),
@@ -684,14 +696,12 @@ bool LLInventoryModelBackgroundFetch::fetchQueueContainsNoDescendentsOf(const LL
 }
 
 
-// ===============================
-// Anonymous Namespace Definitions
-// ===============================
-
 namespace
 {
 
-// ====  BGFolderHttpHandler ====
+///----------------------------------------------------------------------------
+/// Class <anonymous>::BGFolderHttpHandler
+///----------------------------------------------------------------------------
 
 void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
@@ -734,6 +744,9 @@ void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRes
 		}
 
 		// Check for 200-with-error failures
+		//
+		// See comments in llinventorymodel.cpp about this mode of error.
+		//
 		// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
 		// body_llsd["error"]["identifier"] = "Development";
 		// body_llsd["error"]["message"] = "You left development code in the viewer";
@@ -976,8 +989,9 @@ bool BGFolderHttpHandler::getIsRecursive(const LLUUID & cat_id) const
 	return std::find(mRecursiveCatUUIDs.begin(), mRecursiveCatUUIDs.end(), cat_id) != mRecursiveCatUUIDs.end();
 }
 
-
-// ====  BGItemHttpHandler ====
+///----------------------------------------------------------------------------
+/// Class <anonymous>::BGItemHttpHandler
+///----------------------------------------------------------------------------
 
 // Nothing to implement here.  All ctor/dtor changes.
 

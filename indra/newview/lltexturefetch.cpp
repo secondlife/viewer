@@ -56,13 +56,13 @@
 #include "llsdparam.h"
 #include "llsdutil.h"
 #include "llstartup.h"
-#include "llsdserialize.h"
 
 #include "httprequest.h"
 #include "httphandler.h"
 #include "httpresponse.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
+#include "llcorehttputil.h"
 
 #include "llhttpretrypolicy.h"
 
@@ -1349,20 +1349,20 @@ bool LLTextureFetchWorker::doWork(S32 param)
 						LL_WARNS(LOG_TXT) << "trying to seek a non-default texture on the sim. Bad!" << LL_ENDL;
 					}
 					setUrl(http_url + "/?texture_id=" + mID.asString().c_str());
-					LL_DEBUGS("Texture") << "Texture URL " << mUrl << LL_ENDL;
+					LL_DEBUGS(LOG_TXT) << "Texture URL: " << mUrl << LL_ENDL;
 					mWriteToCacheState = CAN_WRITE ; //because this texture has a fixed texture id.
 				}
 				else
 				{
 					mCanUseHTTP = false ;
-					LL_DEBUGS("Texture") << "Texture not available via HTTP: no URL " << mUrl << LL_ENDL;
+					LL_DEBUGS(LOG_TXT) << "Texture not available via HTTP: empty URL." << LL_ENDL;
 				}
 			}
 			else
 			{
 				// This will happen if not logged in or if a region deoes not have HTTP Texture enabled
 				//LL_WARNS(LOG_TXT) << "Region not found for host: " << mHost << LL_ENDL;
-				LL_DEBUGS("Texture") << "Texture not available via HTTP: no region " << mUrl << LL_ENDL;
+				LL_DEBUGS(LOG_TXT) << "Texture not available via HTTP: no region " << mUrl << LL_ENDL;
 				mCanUseHTTP = false;
 			}
 		}
@@ -4026,7 +4026,9 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 		
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
+	{
 		report_sequence = 0;
+	}
 	reporting_started = true;
 	
 	// Limit the size of the stats report if necessary.
@@ -4035,18 +4037,16 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 
 	if (! mCapsURL.empty())
 	{
-		LLCore::BufferArray * ba = new LLCore::BufferArray;
-		LLCore::BufferArrayStream bas(ba);
-		LLSDSerialize::toXML(sd, bas);
-		
-		fetcher->getHttpRequest().requestPost(fetcher->getPolicyClass(),
-											  report_priority,
-											  mCapsURL,
-											  ba,
-											  NULL,
-											  fetcher->getMetricsHeaders(),
-											  handler);
-		ba->release();
+		// *TODO:  Move this to a different class that expects POSTs sometime.
+		// Don't care about handle, this is a fire-and-forget operation.  
+		LLCoreHttpUtil::requestPostWithLLSD(&fetcher->getHttpRequest(),
+											fetcher->getPolicyClass(),
+											report_priority,
+											mCapsURL,
+											sd,
+											NULL,
+											fetcher->getMetricsHeaders(),
+											handler);
 		LLTextureFetch::svMetricsDataBreak = false;
 	}
 	else
@@ -4057,7 +4057,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// In QA mode, Metrics submode, log the result for ease of testing
 	if (fetcher->isQAMode())
 	{
-		LL_INFOS("Textures") << ll_pretty_print_sd(sd) << LL_ENDL;
+		LL_INFOS(LOG_TXT) << ll_pretty_print_sd(sd) << LL_ENDL;
 	}
 
 	return true;

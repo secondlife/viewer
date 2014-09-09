@@ -39,7 +39,9 @@ using namespace LLCore;
 namespace LLCoreHttpUtil
 {
 
-
+// *TODO:  Currently converts only from XML content.  A mode
+// to convert using fromBinary() might be useful as well.  Mesh
+// headers could use it.
 bool responseToLLSD(HttpResponse * response, bool log, LLSD & out_llsd)
 {
 	// Convert response to LLSD

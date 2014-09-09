@@ -3958,7 +3958,10 @@ BOOL decompress_file(const char* src_filename, const char* dst_filename)
 }
 #endif
 
-// ====  FetchItemHttpHandler ====
+
+///----------------------------------------------------------------------------
+/// Class LLInventoryModel::FetchItemHttpHandler
+///----------------------------------------------------------------------------
 
 LLInventoryModel::FetchItemHttpHandler::FetchItemHttpHandler(const LLSD & request_sd)
 	: LLCore::HttpHandler(),
@@ -4006,6 +4009,15 @@ void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle hand
 		}
 
 		// Check for 200-with-error failures
+		//
+		// Original Responder-based serivce model didn't check for these errors.
+		// It may be more robust to ignore this condition.  With aggregated requests,
+		// an error in one inventory item might take down the entire request.
+		// So if this instead broke up the aggregated items into single requests,
+		// maybe that would make progress.  Or perhaps there's structured information
+		// that can tell us what went wrong.  Need to dig into this and firm up
+		// the API.
+		//
 		// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
 		// body_llsd["error"]["identifier"] = "Development";
 		// body_llsd["error"]["message"] = "You left development code in the viewer";
