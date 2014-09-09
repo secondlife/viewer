@@ -6,7 +6,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,13 @@
 #include "../../llxml/llcontrol.h"
 #include "llfile.h"
 
+namespace
+{
+
+// Should not collide with other test programs creating temp files.
+static const char * const TEST_FILENAME("llviewernetwork_test.xml");
+
+}
 //----------------------------------------------------------------------------
 // Mock objects for the dependencies of the code we're testing
 
@@ -143,7 +150,7 @@ namespace tut
 	{
 		viewerNetworkTest()
 		{
-			LLFile::remove("grid_test.xml");
+			LLFile::remove(TEST_FILENAME);
 			gCmdLineLoginURI.clear();
 			gCmdLineGridChoice.clear();
 			gCmdLineHelperURI.clear();
@@ -152,7 +159,7 @@ namespace tut
 		}
 		~viewerNetworkTest()
 		{
-			LLFile::remove("grid_test.xml");
+			LLFile::remove(TEST_FILENAME);
 		}
 	};
 
@@ -170,7 +177,7 @@ namespace tut
 	{
 		LLGridManager *manager = LLGridManager::getInstance();
 		// grid file doesn't exist
-		manager->initialize("grid_test.xml");
+		manager->initialize(TEST_FILENAME);
 		// validate that some of the defaults are available.
 		std::map<std::string, std::string> known_grids = manager->getKnownGrids();
 		ensure_equals("Known grids is a string-string map of size 2", known_grids.size(), 2);
@@ -238,11 +245,11 @@ namespace tut
 	template<> template<>
 	void viewerNetworkTestObject::test<2>()
 	{
-		llofstream gridfile("grid_test.xml");
+		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
 
-		LLGridManager::getInstance()->initialize("grid_test.xml");
+		LLGridManager::getInstance()->initialize(TEST_FILENAME);
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
 		ensure_equals("adding a grid via a grid file increases known grid size",4, 
 					  known_grids.size());
@@ -369,11 +376,11 @@ namespace tut
 	void viewerNetworkTestObject::test<7>()
 	{
 		// adding a grid with simply a name will populate the values.
-		llofstream gridfile("grid_test.xml");
+		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
 
-		LLGridManager::getInstance()->initialize("grid_test.xml");
+		LLGridManager::getInstance()->initialize(TEST_FILENAME);
 
 		LLGridManager::getInstance()->setGridChoice("util.agni.lindenlab.com");
 		ensure_equals("getGridLabel",
