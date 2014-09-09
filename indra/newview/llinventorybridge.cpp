@@ -3211,36 +3211,36 @@ LLFolderType::EType LLFolderBridge::getPreferredType() const
 // Icons for folders are based on the preferred type
 LLUIImagePtr LLFolderBridge::getIcon() const
 {
-	LLFolderType::EType preferred_type = LLFolderType::FT_NONE;
-	LLViewerInventoryCategory* cat = getCategory();
-	if (cat)
-	{
-		preferred_type = cat->getPreferredType();
-	}
-    if ((preferred_type == LLFolderType::FT_NONE) && (depth_nesting_in_marketplace(mUUID) == 2))
-    {
-        // We override the type when in the marketplace listings folder and only for version folder
-        preferred_type = LLFolderType::FT_MARKETPLACE_VERSION;
-    }
-	return getIcon(preferred_type);
-}
-
-// static
-LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
-{
-	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, FALSE));
+	return getFolderIcon(FALSE);
 }
 
 LLUIImagePtr LLFolderBridge::getIconOpen() const
 {
+	return getFolderIcon(TRUE);
+}
+
+LLUIImagePtr LLFolderBridge::getFolderIcon(BOOL is_open) const
+{
 	LLFolderType::EType preferred_type = getPreferredType();
-    if ((preferred_type == LLFolderType::FT_NONE) && (depth_nesting_in_marketplace(mUUID) == 2))
+    S32 depth = depth_nesting_in_marketplace(mUUID);
+    if ((preferred_type == LLFolderType::FT_NONE) && (depth == 2))
     {
         // We override the type when in the marketplace listings folder and only for version folder
         preferred_type = LLFolderType::FT_MARKETPLACE_VERSION;
     }
-	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, TRUE));
+    else if ((preferred_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth == -1))
+    {
+        // We override the type when a stock folder is outside of the marketplace listings root
+        // as we don't want to export that notion outside of marketplace
+        preferred_type = LLFolderType::FT_NONE;
+    }
+	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, is_open));
+}
 
+// static : use by LLLinkFolderBridge to get the closed type icons
+LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
+{
+	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, FALSE));
 }
 
 LLUIImagePtr LLFolderBridge::getIconOverlay() const

@@ -284,9 +284,9 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual LLUIImagePtr getIconOpen() const;
 	virtual LLUIImagePtr getIconOverlay() const;
+	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 	virtual std::string getLabelSuffix() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
-	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
 
@@ -362,6 +362,7 @@ private:
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, LLError::ELevel log_level);
+    LLUIImagePtr getFolderIcon(BOOL is_open) const;
 
 	bool							mCallingCards;
 	bool							mWearables;
