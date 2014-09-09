@@ -57,7 +57,6 @@ public:
 
 protected:
 	LLSideTrayPanelContainer* getParentContainer();
-	virtual void updateCustomResControls();
 	void updateImageQualityLevel();
 	void goBack(); ///< Switch to the default (Snapshot Options) panel
 	void cancel();

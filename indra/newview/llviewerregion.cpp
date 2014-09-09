@@ -285,8 +285,8 @@ private:
 		{
 			regionp->setCapability(iter->first, iter->second);
 
-			LL_DEBUGS("AppInit", "Capabilities") << "got capability for " 
-				<< iter->first << LL_ENDL;
+			LL_DEBUGS("AppInit", "Capabilities")
+				<< "Capability '" << iter->first << "' is '" << iter->second << "'" << LL_ENDL;
 
 			/* HACK we're waiting for the ServerReleaseNotes */
 			if (iter->first == "ServerReleaseNotes" && regionp->getReleaseNotesRequested())

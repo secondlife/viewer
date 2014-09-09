@@ -4,117 +4,124 @@
  height="240"
  layout="topleft"
  name="panel_snapshot_options"
- width="490">
-  <button
-   follows="left|top|right"
+ width="208">
+ <button
+   follows="left|top"
    font="SansSerif"
    halign="left"
-   height="38"
-   image_overlay="Snapshot_Profile"
+   height="22"
+   image_overlay="Snapshot_Download"
    image_overlay_alignment="left"
-   image_top_pad="-2"
+   image_top_pad="-0"
    imgoverlay_label_space="10"
-   label="Post to My Profile Feed"
+   label="Save to Disk"
    layout="topleft"
-   left_delta="0"
-   name="save_to_profile_btn"
-   pad_left="10"
-   right="-10"
-   top_pad="10">
+   left="9"
+   name="save_to_computer_btn"
+   top_pad="9">
     <button.commit_callback
-     function="Snapshot.SaveToProfile" />
+     function="Snapshot.SaveToComputer" />
   </button>
   <button
-   follows="left|top|right"
+   follows="left|top"
    font="SansSerif"
    halign="left"
-   height="38"
-   image_overlay="Snapshot_Email"
-   image_overlay_alignment="left"
-   image_top_pad="-2"
-   imgoverlay_label_space="10"
-   label="Email"
-   layout="topleft"
-   left_delta="0"
-   name="save_to_email_btn"
-   pad_left="10"
-   right="-10"
-   top_pad="10">
-    <button.commit_callback
-     function="Snapshot.SaveToEmail" />
-  </button>
-  <button
-   follows="left|top|right"
-   font="SansSerif"
-   halign="left"
-   height="38"
+   height="22"
    image_overlay="Snapshot_Inventory"
    image_overlay_alignment="left"
-   image_top_pad="-2"
+   image_top_pad="-1"
    imgoverlay_label_space="10"
-   label="Save to My Inventory (L$[AMOUNT])"
+   label="Save to Inventory (L$[AMOUNT])"
    layout="topleft"
    left_delta="0"
    name="save_to_inventory_btn"
-   pad_left="10"
-   right="-10"
-   top_pad="10">
+   top_pad="5">
     <button.commit_callback
      function="Snapshot.SaveToInventory" />
   </button>
   <button
-   follows="left|top|right"
+   follows="left|top"
    font="SansSerif"
    halign="left"
-   height="38"
-   image_overlay="Snapshot_Download"
+   height="22"
+   image_overlay="Snapshot_Profile"
    image_overlay_alignment="left"
-   image_top_pad="-2"
+   image_top_pad="-1"
    imgoverlay_label_space="10"
-   label="Save to My Computer"
+   label="Upload to Profile"
+   layout="topleft"
+   name="save_to_profile_btn"
+   left_delta="0"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SaveToProfile" />
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Facebook"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Upload to Facebook"
    layout="topleft"
    left_delta="0"
-   name="save_to_computer_btn"
-   pad_left="10"
-   right="-10"
-   top_pad="10">
+   name="send_to_facebook_btn"
+   top_pad="5">
     <button.commit_callback
-     function="Snapshot.SaveToComputer" />
+     function="Snapshot.SendToFacebook"/>
   </button>
-  <text
-    font="SansSerif"
-    layout="topleft"
-    length="1"
-    follows="top|left"
-    height="16"
-    left="10"
-    name="send_to_facebook_textbox"
-    top_pad="10"
-    type="string">
-    Send to:  [secondlife:/// Facebook]
-  </text>
-  <text
-    font="SansSerif"
-    layout="topleft"
-    length="1"
-    follows="top|left"
-    height="16"
-    left="140"
-    name="send_to_twitter_textbox"
-    top_pad="-16"
-    type="string">
-    [secondlife:/// Twitter]
-  </text>
-  <text
-    font="SansSerif"
-    layout="topleft"
-    length="1"
-    follows="top|left"
-    height="16"
-    left="190"
-    name="send_to_flickr_textbox"
-    top_pad="-16"
-    type="string">
-    [secondlife:/// Flickr]
-  </text>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Command_Twitter_Icon"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Upload to Twitter"
+   layout="topleft"
+   left_delta="0"
+   name="send_to_twitter_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SendToTwitter"/>
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Command_Flickr_Icon"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Upload to Flickr"
+   layout="topleft"
+   left_delta="0"
+   name="send_to_flickr_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SendToFlickr"/>
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Email"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Send via E-mail"
+   layout="topleft"
+   left_delta="0"
+   name="save_to_email_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SaveToEmail" />
+  </button>
 </panel>
