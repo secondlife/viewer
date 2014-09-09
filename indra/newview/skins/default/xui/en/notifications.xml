@@ -169,6 +169,16 @@ No tutorial is currently available.
 
   <notification
    icon="alertmodal.tga"
+   name="GenericAlertOK"
+   type="alertmodal">
+[MESSAGE]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="BadInstallation"
    type="alertmodal">
  An error occurred while updating [APP_NAME].  Please [http://get.secondlife.com download the latest version] of the Viewer.
@@ -4654,6 +4664,17 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    type="alertmodal">
     <tag>fail</tag>
     We are having technical difficulties with your teleport because your preferences are out of sync with the server.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RegionTPSpecialUsageBlocked"
+   type="alertmodal">
+    <tag>fail</tag>
+    Unable to enter region. '[REGION_NAME]' is a Skill Gaming Region, and you must meet certain criteria in order to enter. For details, please review the [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ].
     <usetemplate
      name="okbutton"
      yestext="OK"/>

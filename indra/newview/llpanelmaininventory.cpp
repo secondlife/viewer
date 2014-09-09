@@ -55,6 +55,7 @@
 #include "llviewertexturelist.h"
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
+#include "llradiogroup.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -82,6 +83,7 @@ public:
 	void updateElementsFromFilter();
 	BOOL getCheckShowEmpty();
 	BOOL getCheckSinceLogoff();
+	U32 getDateSearchDirection();
 
 	static void onTimeAgo(LLUICtrl*, void *);
 	static void onCloseBtn(void* user_data);
@@ -704,6 +706,30 @@ void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
 	if ( self->mSpinSinceDays->get() ||  self->mSpinSinceHours->get() )
 	{
 		self->getChild<LLUICtrl>("check_since_logoff")->setValue(false);
+
+		U32 days = (U32)self->mSpinSinceDays->get();
+		U32 hours = (U32)self->mSpinSinceHours->get();
+		if (hours >= 24)
+		{
+			// Try to handle both cases of spinner clicking and text input in a sensible fashion as best as possible.
+			// There is no way to tell if someone has clicked the spinner to get to 24 or input 24 manually, so in
+			// this case add to days.  Any value > 24 means they have input the hours manually, so do not add to the
+			// current day value.
+			if (24 == hours)  // Got to 24 via spinner clicking or text input of 24
+			{
+				days = days + hours / 24;
+			}
+			else	// Text input, so do not add to days
+			{ 
+				days = hours / 24;
+			}
+			hours = (U32)hours % 24;
+			self->mSpinSinceHours->setFocus(false);
+			self->mSpinSinceDays->setFocus(false);
+			self->mSpinSinceDays->set((F32)days);
+			self->mSpinSinceHours->set((F32)hours);
+			self->mSpinSinceHours->setFocus(true);
+		}
 	}
 }
 
@@ -723,6 +749,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	std::string filter_string = mFilter->getFilterSubString();
 	LLInventoryFilter::EFolderShow show_folders = mFilter->getShowFolderState();
 	U32 hours = mFilter->getHoursAgo();
+	U32 date_search_direction = mFilter->getDateSearchDirection();
 
 	// update the ui elements
 	setTitle(mFilter->getName());
@@ -744,6 +771,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_since_logoff")->setValue(mFilter->isSinceLogoff());
 	mSpinSinceHours->set((F32)(hours % 24));
 	mSpinSinceDays->set((F32)(hours / 24));
+	getChild<LLRadioGroup>("date_search_direction")->setSelectedIndex(date_search_direction);
 }
 
 void LLFloaterInventoryFinder::draw()
@@ -844,17 +872,23 @@ void LLFloaterInventoryFinder::draw()
 	}
 	U32 days = (U32)mSpinSinceDays->get();
 	U32 hours = (U32)mSpinSinceHours->get();
-	if (hours > 24)
+	if (hours >= 24)
 	{
-		days += hours / 24;
+		days = hours / 24;
 		hours = (U32)hours % 24;
+		// A UI element that has focus will not display a new value set to it
+		mSpinSinceHours->setFocus(false);
+		mSpinSinceDays->setFocus(false);
 		mSpinSinceDays->set((F32)days);
 		mSpinSinceHours->set((F32)hours);
+		mSpinSinceHours->setFocus(true);
 	}
 	hours += days * 24;
+
 	mPanelMainInventory->getPanel()->setHoursAgo(hours);
 	mPanelMainInventory->getPanel()->setSinceLogoff(getCheckSinceLogoff());
 	mPanelMainInventory->setFilterTextFromFilter();
+	mPanelMainInventory->getPanel()->setDateSearchDirection(getDateSearchDirection());
 
 	LLPanel::draw();
 }
@@ -867,6 +901,11 @@ BOOL LLFloaterInventoryFinder::getCheckShowEmpty()
 BOOL LLFloaterInventoryFinder::getCheckSinceLogoff()
 {
 	return getChild<LLUICtrl>("check_since_logoff")->getValue();
+}
+
+U32 LLFloaterInventoryFinder::getDateSearchDirection()
+{
+	return 	getChild<LLRadioGroup>("date_search_direction")->getSelectedIndex();
 }
 
 void LLFloaterInventoryFinder::onCloseBtn(void* user_data)

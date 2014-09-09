@@ -247,7 +247,7 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 	{
 		LLAvatarPropertiesProcessor* app =
 			LLAvatarPropertiesProcessor::getInstance();
-		if (mAvatarId.notNull() && mAvatarId != value.asUUID())
+		if (mAvatarId.notNull())
 		{
 			app->removeObserver(mAvatarId, this);
 		}
@@ -255,7 +255,6 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		if (mAvatarId != value.asUUID())
 		{
 			mAvatarId = value.asUUID();
-			app->addObserver(mAvatarId, this);
 
 			// *BUG: This will return stale icons if a user changes their
 			// profile picture. However, otherwise we send too many upstream
@@ -271,7 +270,7 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 				// People API, rather than sending AvatarPropertyRequest
 				// messages.  People API already hits the user table.
 				LLIconCtrl::setValue(mDefaultIconName);
-				// duplicated requests are filtered later if there are any
+				app->addObserver(mAvatarId, this);
 				app->sendAvatarPropertiesRequest(mAvatarId);
 			}
 		}

@@ -5756,83 +5756,101 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 }
 
 // some of the server notifications need special handling. This is where we do that.
-bool handle_teleport_access_blocked(LLSD& llsdBlock)
+bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notificationID, const std::string & defaultMessage)
 {
-	std::string notificationID("TeleportEntryAccessBlocked");
 	U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
 	std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
 	LLStringUtil::toLower(regionMaturity);
 	llsdBlock["REGIONMATURITY"] = regionMaturity;
 	
 	bool returnValue = false;
-	LLNotificationPtr maturityLevelNotification;
-	std::string notifySuffix = "_Notify";
-	if (regionAccess == SIM_ACCESS_MATURE)
-	{
-		if (gAgent.isTeen())
-		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
-			returnValue = true;
+	LLNotificationPtr tp_failure_notification;
+	std::string notifySuffix;
 
-			notifySuffix = "_NotifyAdultsOnly";
-		}
-		else if (gAgent.prefersPG())
+	if (notificationID == std::string("TeleportEntryAccessBlocked"))
+	{
+		notifySuffix = "_Notify";
+		if (regionAccess == SIM_ACCESS_MATURE)
 		{
-			if (gAgent.hasRestartableFailedTeleportRequest())
+			if (gAgent.isTeen())
 			{
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+				gAgent.clearTeleportRequest();
+				tp_failure_notification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 				returnValue = true;
+
+				notifySuffix = "_NotifyAdultsOnly";
+			}
+			else if (gAgent.prefersPG())
+			{
+				if (gAgent.hasRestartableFailedTeleportRequest())
+				{
+					tp_failure_notification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+					returnValue = true;
+				}
+				else
+				{
+					gAgent.clearTeleportRequest();
+					tp_failure_notification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+					returnValue = true;
+				}
 			}
 			else
 			{
 				gAgent.clearTeleportRequest();
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				tp_failure_notification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
 		}
-		else
+		else if (regionAccess == SIM_ACCESS_ADULT)
 		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
-			returnValue = true;
-		}
+			if (!gAgent.isAdult())
+			{
+				gAgent.clearTeleportRequest();
+				tp_failure_notification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
+				returnValue = true;
+
+				notifySuffix = "_NotifyAdultsOnly";
+			}
+			else if (gAgent.prefersPG() || gAgent.prefersMature())
+			{
+				if (gAgent.hasRestartableFailedTeleportRequest())
+				{
+					tp_failure_notification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+					returnValue = true;
+				}
+				else
+				{
+					gAgent.clearTeleportRequest();
+					tp_failure_notification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+					returnValue = true;
+				}
+			}
+			else
+			{
+				gAgent.clearTeleportRequest();
+				tp_failure_notification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				returnValue = true;
+			}
 	}
-	else if (regionAccess == SIM_ACCESS_ADULT)
-	{
-		if (!gAgent.isAdult())
+	}		// End of special handling for "TeleportEntryAccessBlocked"
+	else
+	{	// Normal case, no message munging
+		gAgent.clearTeleportRequest();
+		if (LLNotifications::getInstance()->templateExists(notificationID))
 		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
-			returnValue = true;
-
-			notifySuffix = "_NotifyAdultsOnly";
-		}
-		else if (gAgent.prefersPG() || gAgent.prefersMature())
-		{
-			if (gAgent.hasRestartableFailedTeleportRequest())
-			{
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
-				returnValue = true;
-			}
-			else
-			{
-				gAgent.clearTeleportRequest();
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
-				returnValue = true;
-			}
+			tp_failure_notification = LLNotificationsUtil::add(notificationID, llsdBlock, llsdBlock);
 		}
 		else
 		{
-			gAgent.clearTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
-			returnValue = true;
+			llsdBlock["MESSAGE"] = defaultMessage;
+			tp_failure_notification = LLNotificationsUtil::add("GenericAlertOK", llsdBlock);
 		}
-		}
+		returnValue = true;
+	}
 
-	if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
+	if ((tp_failure_notification == NULL) || tp_failure_notification->isIgnored())
 	{
-		// Given a simple notification if no maturityLevelNotification is set or it is ignore
+		// Given a simple notification if no tp_failure_notification is set or it is ignore
 		LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
 	}
 
@@ -6048,8 +6066,8 @@ void process_alert_core(const std::string& message, BOOL modal)
 		std::string alert_name(message.substr(ALERT_PREFIX.length()));
 		if (!handle_special_alerts(alert_name))
 		{
-		LLNotificationsUtil::add(alert_name);
-	}
+			LLNotificationsUtil::add(alert_name);
+		}
 	}
 	else if (message.find(NOTIFY_PREFIX) == 0)
 	{
@@ -6071,10 +6089,10 @@ void process_alert_core(const std::string& message, BOOL modal)
 			LLFloaterRegionRestarting::close();
 		}
 
-			std::string new_msg =LLNotifications::instance().getGlobalString(text);
-			args["MESSAGE"] = new_msg;
-			LLNotificationsUtil::add("SystemMessage", args);
-		}
+		std::string new_msg =LLNotifications::instance().getGlobalString(text);
+		args["MESSAGE"] = new_msg;
+		LLNotificationsUtil::add("SystemMessage", args);
+	}
 	else if (modal)
 	{
 		LLSD args;
@@ -6657,8 +6675,8 @@ std::string formatted_time(const time_t& the_time)
 
 void process_teleport_failed(LLMessageSystem *msg, void**)
 {
-	std::string reason;
-	std::string big_reason;
+	std::string message_id;		// Tag from server, like "RegionEntryAccessBlocked"
+	std::string big_reason;		// Actual message to display
 	LLSD args;
 
 	// Let the interested parties know that teleport failed.
@@ -6668,16 +6686,16 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 	if (msg->has(_PREHASH_AlertInfo) && msg->getSizeFast(_PREHASH_AlertInfo, _PREHASH_Message) > 0)
 	{
 		// Get the message ID
-		msg->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, reason);
-		big_reason = LLAgent::sTeleportErrorMessages[reason];
+		msg->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, message_id);
+		big_reason = LLAgent::sTeleportErrorMessages[message_id];
 		if ( big_reason.size() > 0 )
 		{	// Substitute verbose reason from the local map
 			args["REASON"] = big_reason;
 		}
 		else
 		{	// Nothing found in the map - use what the server returned in the original message block
-			msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, reason);
-			args["REASON"] = reason;
+			msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, big_reason);
+			args["REASON"] = big_reason;
 		}
 
 		LLSD llsd_block;
@@ -6693,7 +6711,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 			else
 			{
 				// change notification name in this special case
-				if (handle_teleport_access_blocked(llsd_block))
+				if (handle_teleport_access_blocked(llsd_block, message_id, args["REASON"]))
 				{
 					if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 					{
@@ -6706,17 +6724,17 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 
 	}
 	else
-	{
-		msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, reason);
+	{	// Extra message payload not found - use what the simulator sent
+		msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, message_id);
 
-		big_reason = LLAgent::sTeleportErrorMessages[reason];
+		big_reason = LLAgent::sTeleportErrorMessages[message_id];
 		if ( big_reason.size() > 0 )
 		{	// Substitute verbose reason from the local map
 			args["REASON"] = big_reason;
 		}
 		else
 		{	// Nothing found in the map - use what the server returned
-			args["REASON"] = reason;
+			args["REASON"] = message_id;
 		}
 	}
 
