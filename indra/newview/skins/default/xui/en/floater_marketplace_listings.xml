@@ -25,7 +25,7 @@
     <panel
       follows="all"
       left="10"
-      height="420"
+      height="440"
       width="313"
       top="0"
       bg_opaque_color="InventoryBackgroundColor">
@@ -36,7 +36,7 @@
         top="0"
         left="0"
         width="313"
-        height="420"
+        height="440"
         bg_opaque_color="InventoryBackgroundColor">
         <text
           name="marketplace_listings_inventory_placeholder_title"
