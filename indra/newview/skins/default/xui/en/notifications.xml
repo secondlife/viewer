@@ -5251,7 +5251,7 @@ Warning: The &apos;Pay object&apos; click action has been set, but it will only 
     Confirm that you want to pay L$[AMOUNT] to [TARGET].
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="Confirm before paying"
+     ignoretext="Confirm before paying (sums over L$200)"
      name="okcancelignore"
      notext="Cancel"
      yestext="Pay"/>
