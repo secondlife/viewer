@@ -3,31 +3,22 @@
       width="304"
       layout="topleft"
       name="panel_twitter_photo">
-      <layout_stack
-	   layout="topleft"
-       border_size="0"
-       height="412"
-       follows="all"
-       orientation="vertical"
-       name="stack_photo"
-       top="8">
-        <layout_panel
-         name="text_panel"
-         height="160">
           <text
            length="1"
+		   layout="topleft"
            follows="top|left|right"
            font="SansSerif"
            height="16"
-           left="9"
+           left="10"
            name="status_label"
-           top="3"
+           top="5"
            type="string">
             What's happening?
           </text>
           <text
            length="1"
            follows="top|left"
+		   layout="topleft"
            font="SansSerif"
            text_color="EmphasisColor"
            halign="right"
@@ -35,15 +26,16 @@
            width="30"
            left="227"
            name="status_counter_label"
-           top="3"
+           top="5"
            type="string">
             140
           </text>
           <text_editor
            follows="left|top"
+		   layout="topleft"
            height="87"
            width="250"
-           left="9"
+           left="10"
            length="1"
            max_length="140"
            name="photo_status"
@@ -52,33 +44,32 @@
           </text_editor>
           <check_box
            follows="left|top"
+		   layout="topleft"
            initial_value="true"
            label="Include SL location"
            name="add_location_cb"
-            left="9"
+            left="10"
             height="16"
-           top_pad="10"/>
+           top_pad="8"/>
           <check_box
            follows="left|top"
+		   layout="topleft"
            initial_value="true"
            label="Include a photo"
            name="add_photo_cb"
-            left="9"
+            left="10"
             height="16"
-           top_pad="10"/>
-        </layout_panel>
-          <layout_panel
-           name="snapshot_panel"
-           height="227">
+           top_pad="1"/>
             <combo_box
              control_name="TwitterPhotoResolution"
              follows="left|top"
-             top="6"
-             left="9"
+			 layout="topleft"
+             top_pad="5"
+             left="10"
              name="resolution_combobox"
              tool_tip="Image resolution"
              height="21"
-             width="135">
+             width="124">
               <combo_box.item
                label="Current Window"
                name="CurrentWindow"
@@ -99,31 +90,61 @@
               <combo_box
                   control_name="TwitterPhotoFilters"
                   follows="right|top"
+				  layout="topleft"
                   name="filters_combobox"
                   tool_tip="Image filters"
-                  top="6"
-                  left="165"
+                  top_delta="0"
+                  right="-10"
                   height="21"
-                  width="135">
+                  width="124">
                   <combo_box.item
                   label="No Filter"
                   name="NoFilter"
                   value="NoFilter" />
               </combo_box>
             <panel
+				layout="topleft"
                 height="150"
                 width="250"
                 visible="true"
                 name="thumbnail_placeholder"
-                top="33"
-                follows="left|top"
-                left="9">
+                top_pad="5"
+				right="-10"
+                follows="left|top|right"
+                left="10">
             </panel>
+			<text
+                follows="left|top"
+				layout="topleft"
+                font="SansSerif"
+                text_color="EmphasisColor"
+                height="14"
+                top_pad="2"
+                left="10"
+                length="1"
+                halign="center"
+                name="working_lbl"
+                translate="false"
+                type="string"
+                visible="true"
+                width="251">
+                Refreshing...
+            </text>
+			<view_border 
+			 bevel_style="in"
+			 follows="left|top"
+			 layout="topleft"
+			 height="1"
+			 left="10"
+			 name="refresh_border"
+			 width="250"
+			 top_pad="0"/>
             <button
              follows="left|top"
+			 layout="topleft"
              height="23"
              label="Refresh"
-             left="9"
+             left="10"
              top_pad="5"
              name="new_snapshot_btn"
              tool_tip="Click to refresh"
@@ -132,28 +153,13 @@
              <button.commit_callback
                function="SocialSharing.RefreshPhoto" />
             </button>
-            <text
-                follows="left|top"
-                font="SansSerif"
-                text_color="EmphasisColor"
-                height="14"
-                top_pad="-19"
-                left_pad="-30"
-                length="1"
-                halign="center"
-                name="working_lbl"
-                translate="false"
-                type="string"
-                visible="true"
-                width="150">
-                Refreshing...
-            </text>
               <button
                   follows="right|top"
+				  layout="topleft"
                   height="23"
                   label="Preview"
-                  left="200"
-                  top_pad="-19"
+                  right="-10"
+                  top_delta="0"
                   name="big_preview_btn"
                   tool_tip="Click to toggle preview"
                   is_toggle="true"
@@ -162,14 +168,11 @@
                   <button.commit_callback
                   function="SocialSharing.BigPreview" />
               </button>
-        </layout_panel>
-        <layout_panel
-          name="photo_button_panel"
-          height="25">
           <button
            follows="left|top"
-           top="0"
-           left="9"
+		   layout="topleft"
+           top_pad="3"
+           left="10"
            height="23"
            label="Tweet"
            name="post_photo_btn"
@@ -178,16 +181,15 @@
              function="SocialSharing.SendPhoto" />
           </button>
           <button
-               follows="left|top"
+               follows="right|top"
+			   layout="topleft"
                height="23"
                label="Cancel"
                name="cancel_photo_btn"
-               left_pad="15"
+			   right="-10"
                top_delta="0"
                width="100">
             <button.commit_callback
              function="SocialSharing.Cancel" />
           </button>          
-        </layout_panel>        
-      </layout_stack>
     </panel>
