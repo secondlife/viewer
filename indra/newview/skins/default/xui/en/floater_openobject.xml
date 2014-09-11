@@ -3,9 +3,9 @@
  legacy_header_height="18"
  can_resize="true"
  default_tab_group="1"
- height="350"
+ height="370"
  layout="topleft"
- min_height="160"
+ min_height="190"
  min_width="285"
  name="objectcontents"
  help_topic="objectcontents"
@@ -31,22 +31,41 @@
      background_visible="false"
      draw_border="false"
      follows="all"
-     height="250"
+     height="240"
      layout="topleft"
      left="10"
      name="object_contents"
      top_pad="0"
      width="284" />
-     
+  	<view_border
+     bevel_style="none"
+     follows="bottom|left"
+     height="50"
+     highlight_light_color="0.6 0.6 0.6"
+     layout="topleft"
+     left="10"
+     name="border"
+     top_pad="5"
+     width="270"/> 
+  	<text
+  	 follows="bottom|left"
+  	 height="15"
+  	 layout="topleft"
+  	 left="15"
+  	 name="border_note"
+  	 text_color="White"
+  	 top_delta="5">
+  	 	Copy to inventory and wear
+    </text>  
  	<button
      follows="bottom|left"
      height="23"
-     label="Copy and add to outfit"
-     label_selected="Copy and add to outfit"
+     label="Add to outfit"
+     label_selected="Add to outfit"
      layout="topleft"
  	 left="15"    
-     name="copy_and_wear_button"
- 	 top_pad="5"	
+     name="copy_and_wear_button" 	
+ 	 top_pad="3"	
      width="135">
         <button.commit_callback
          function="OpenObject.MoveAndWear" />
@@ -63,7 +82,6 @@
         <button.commit_callback
          function="OpenObject.ReplaceOutfit" />
     </button>  
- 
     <button
      follows="bottom|left"
      height="23"
@@ -73,7 +91,7 @@
      left="15"
      name="copy_to_inventory_button"
      tab_group="1"
-     top_pad="5"
+     top_pad="9"
      width="135">
         <button.commit_callback
          function="OpenObject.MoveToInventory" />
