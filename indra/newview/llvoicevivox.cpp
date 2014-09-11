@@ -498,13 +498,14 @@ void LLVivoxVoiceClient::connectorCreate()
 		<< "<AccountManagementServer>" << mVoiceAccountServerURI << "</AccountManagementServer>"
 		<< "<Mode>Normal</Mode>"
 		<< "<Logging>"
-			<< "<Folder>" << logpath << "</Folder>"
-			<< "<FileNamePrefix>Connector</FileNamePrefix>"
-			<< "<FileNameSuffix>.log</FileNameSuffix>"
-			<< "<LogLevel>" << loglevel << "</LogLevel>"
+        << "<Folder>" << logpath << "</Folder>"
+        << "<FileNamePrefix>Connector</FileNamePrefix>"
+        << "<FileNameSuffix>.log</FileNameSuffix>"
+        << "<LogLevel>" << loglevel << "</LogLevel>"
 		<< "</Logging>"
-		<< "<Application>SecondLifeViewer.1</Application>"
-	<< "</Request>\n\n\n";
+		<< "<Application></Application>"  //Name can cause problems per vivox.
+        << "<MaxCalls>12</MaxCalls>"
+        << "</Request>\n\n\n";
 	
 	writeString(stream.str());
 }
