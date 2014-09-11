@@ -2369,7 +2369,9 @@ void LLMenuGL::createSpilloverBranch()
 		branch_params.label = label;
 		branch_params.branch = mSpilloverMenu;
 		branch_params.font.style = "italic";
-
+		branch_params.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+		branch_params.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
+		branch_params.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
 
 		mSpilloverBranch = LLUICtrlFactory::create<LLMenuItemBranchGL>(branch_params);
 	}
