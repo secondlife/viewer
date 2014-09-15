@@ -34,6 +34,9 @@
 		<menu_item_check label="附近的聊天……" name="Nearby Chat"/>
 		<menu_item_check label="說話" name="Speak"/>
 		<menu_item_check label="交談記錄…" name="Conversation Log..."/>
+		<menu_item_call label="臉書…" name="Facebook"/>
+		<menu_item_call label="推特…" name="Twitter"/>
+		<menu_item_call label="Flickr…" name="Flickr"/>
 		<menu label="語音變聲" name="VoiceMorphing">
 			<menu_item_check label="沒有變聲效果" name="NoVoiceMorphing"/>
 			<menu_item_check label="預覽……" name="Preview"/>
@@ -70,11 +73,11 @@
 			<menu_item_check label="進階選單" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="太陽" name="Sun">
-			<menu_item_call label="日出" name="Sunrise"/>
-			<menu_item_call label="中午" name="Noon"/>
-			<menu_item_call label="日落" name="Sunset"/>
-			<menu_item_call label="午夜" name="Midnight"/>
-			<menu_item_call label="使用地區設定" name="Use Region Settings"/>
+			<menu_item_check label="日出" name="Sunrise"/>
+			<menu_item_check label="中午" name="Noon"/>
+			<menu_item_check label="日落" name="Sunset"/>
+			<menu_item_check label="午夜" name="Midnight"/>
+			<menu_item_check label="使用地區設定" name="Use Region Settings"/>
 		</menu>
 		<menu label="環境編輯器" name="Environment Editor">
 			<menu_item_call label="環境設定…" name="Environment Settings"/>
@@ -148,7 +151,8 @@
 			<menu_item_check label="貼齊格線" name="Snap to Grid"/>
 			<menu_item_call label="貼齊物件 XY 軸到格線" name="Snap Object XY to Grid"/>
 			<menu_item_call label="以所選擇作為格線" name="Use Selection for Grid"/>
-			<menu_item_call label="格線選項" name="Grid Options"/>
+			<menu_item_call label="格線選項…" name="Grid Options"/>
+			<menu_item_call label="設定預設權限…" name="Set default permissions"/>
 		</menu>
 		<menu label="上傳" name="Upload">
 			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
@@ -156,15 +160,12 @@
 			<menu_item_call label="動作（L$[COST]）..." name="Upload Animation"/>
 			<menu_item_call label="模型…" name="Upload Model"/>
 			<menu_item_call label="批量（每檔案 L$[COST] ）..." name="Bulk Upload"/>
-			<menu_item_call label="設定預設上傳權限" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="復原" name="Undo"/>
 		<menu_item_call label="重做" name="Redo"/>
 	</menu>
 	<menu label="幫助" name="Help">
 		<menu_item_call label="簡易教學…" name="How To"/>
-		<menu_item_call label="[SECOND_LIFE] 幫助" name="Second Life Help"/>
-		<menu_item_call label="使用者指南" name="User’s guide"/>
 		<menu_item_call label="知識庫" name="Knowledge Base"/>
 		<menu_item_call label="維基" name="Wiki"/>
 		<menu_item_call label="社群論壇" name="Community Forums"/>
@@ -301,6 +302,7 @@
 			<menu_item_check label="細節層次資訊" name="LOD Info"/>
 			<menu_item_check label="建製佇列" name="Build Queue"/>
 			<menu_item_check label="燈光" name="Lights"/>
+			<menu_item_check label="粒子效果" name="Particles"/>
 			<menu_item_check label="碰撞骨架" name="Collision Skeleton"/>
 			<menu_item_check label="光線投射" name="Raycast"/>
 			<menu_item_check label="風力向量" name="Wind Vectors"/>
@@ -366,7 +368,6 @@
 			<menu_item_call label="傾印焦點容器" name="Dump Focus Holder"/>
 			<menu_item_call label="列印所選物件資訊" name="Print Selected Object Info"/>
 			<menu_item_call label="列印用戶資訊" name="Print Agent Info"/>
-			<menu_item_check label="地區除錯控制台" name="Region Debug Console"/>
 			<menu_item_check label="除錯 SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="除錯點按動作" name="Debug Clicks"/>
 			<menu_item_check label="視角除錯" name="Debug Views"/>

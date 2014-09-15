@@ -12,7 +12,8 @@
 				<stat_view label="Отрисовка" name="render">
 					<stat_bar label="Треугольников на кадр" name="ktrisframe"/>
 					<stat_bar label="Треугольников в секунду" name="ktrissec"/>
-					<stat_bar label="Всего объектов" name="objs"/>
+					<stat_bar label="Всего объектов" name="totalobjs"/>
+					<stat_bar label="Кэшированных объектов" name="cachedobjs"/>
 					<stat_bar label="Новых объектов" name="newobjs"/>
 					<stat_bar label="Частота попаданий в кэш объектов" name="object_cache_hits"/>
 				</stat_view>
@@ -29,12 +30,6 @@
 				<stat_view label="Сеть" name="network">
 					<stat_bar label="Входящие пакеты" name="packetsinstat"/>
 					<stat_bar label="Исходящие пакеты" name="packetsoutstat"/>
-					<stat_bar label="Объекты" name="objectkbitstat"/>
-					<stat_bar label="Текстура" name="texturekbitstat"/>
-					<stat_bar label="Актив" name="assetkbitstat"/>
-					<stat_bar label="Слои" name="layerskbitstat"/>
-					<stat_bar label="Действительный ввод" name="actualinkbitstat"/>
-					<stat_bar label="Действительный вывод" name="actualoutkbitstat"/>
 					<stat_bar label="Ожидающие операции VFS" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>

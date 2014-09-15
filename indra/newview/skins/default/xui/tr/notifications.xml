@@ -210,6 +210,22 @@ Bu Yetenek &apos;[ROLE_NAME]&apos; rolüne eklensin mi?
 Bu Yetenek &apos;[ROLE_NAME]&apos; rolüne eklensin mi?
 		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
 	</notification>
+	<notification name="AssignBanAbilityWarning">
+		&quot;[ROLE_NAME]&quot; rolüne &quot;[ACTION_NAME]&quot; yeteneğini eklemek üzeresiniz.
+
+ *UYARI*
+Bu Yeteneğe sahip bir Roldeki Üyeler &quot;[ACTION_NAME_2]&quot; ve &quot;[ACTION_NAME_3]&quot; yeteneklerine de sahip olacak.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		&quot;[ROLE_NAME]&quot; rolünden &quot;[ACTION_NAME]&quot; yeteneğini kaldırıyorsunuz.
+
+ *UYARI*
+Bu yeteneğin kaldırılması &quot;[ACTION_NAME_2]&quot; ve &quot;[ACTION_NAME_3]&quot; yeteneklerini kaldırmaz.
+ 
+Bu yeteneklerin artık bu rolde bulunmasını istemiyorsanız, onları hemen devre dışı bırakın!
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Gruptan [AVATAR_NAME] adlı üyeyi çıkarmak üzeresiniz.
 		<usetemplate ignoretext="Gruptan bir katılımcının çıkarılmasını doğrulayın" name="okcancelignore" notext="İptal" yestext="Çıkar"/>
@@ -1579,6 +1595,14 @@ Gruptan ayrılmak istiyor musunuz?
 		Gruptan ayrılınamıyor. Gruptan ayrılamazsınız çünkü grubun son sahibisiniz. Lütfen önce sahip rolüne başka bir üye atayın.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Gruptan ayrılma işlemi yapılamıyor: [reason].
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="GroupDepart">
+		[group_name] grubundan ayrıldınız.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Tüm Sakinleri GERÇEKTEN ağ dışına çıkarmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Tüm Sakinleri Çıkar"/>
@@ -2451,6 +2475,12 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 		Lütfen arama yapmak için en az bir içerik türü seçin (Genel, Orta Seviye veya Yetişkin)
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -3496,10 +3526,6 @@ Lütfen bir dakika sonra tekrar deneyin.
 	<notification name="EjectComingSoon">
 		Daha fazla burada olma izniniz yok ve ayrılmak için [EJECT_TIME] saniyeniz var.
 	</notification>
-	<notification name="NoEnterServerFull">
-		Bu bölgeye giremezsiniz çünkü 
-sunucu dolu.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Envantere Geri Kaydet devre dışı bırakıldı.
 	</notification>
@@ -4018,5 +4044,9 @@ sunucu dolu.
 	<notification name="PreferenceChatPathChanged">
 		Dosyalar taşınamıyor. Önceki yol geri yüklendi.
 		<usetemplate ignoretext="Dosyalar taşınamıyor. Önceki yol geri yüklendi." name="okignore" yestext="Tamam"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Aşağıdaki nedenden dolayı, varsayılan izinler kaydedilirken bir sorun oluştu: [REASON].  Varsayılan izinleri ayarlamayı lütfen daha sonra tekrar deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 </notifications>

@@ -12,7 +12,8 @@
 				<stat_view label="描画" name="render">
 					<stat_bar label="フレームごとの KTris 描画" name="ktrisframe"/>
 					<stat_bar label="秒ごとの KTris 描画" name="ktrissec"/>
-					<stat_bar label="オブジェクト合計" name="objs"/>
+					<stat_bar label="オブジェクト合計" name="totalobjs"/>
+					<stat_bar label="キャッシュされたオブジェクト" name="cachedobjs"/>
 					<stat_bar label="新規オブジェクト" name="newobjs"/>
 					<stat_bar label="オブジェクトキャッシュヒット率" name="object_cache_hits"/>
 				</stat_view>
@@ -29,12 +30,6 @@
 				<stat_view label="ネットワーク" name="network">
 					<stat_bar label="パケットイン" name="packetsinstat"/>
 					<stat_bar label="パケットアウト" name="packetsoutstat"/>
-					<stat_bar label="オブジェクト" name="objectkbitstat"/>
-					<stat_bar label="テクスチャ" name="texturekbitstat"/>
-					<stat_bar label="アセット" name="assetkbitstat"/>
-					<stat_bar label="レイヤー" name="layerskbitstat"/>
-					<stat_bar label="実際の受信" name="actualinkbitstat"/>
-					<stat_bar label="実際の送信" name="actualoutkbitstat"/>
 					<stat_bar label="VFS 保留中の操作" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>

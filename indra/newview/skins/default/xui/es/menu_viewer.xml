@@ -35,6 +35,9 @@
 		<menu_item_check label="Chat..." name="Nearby Chat"/>
 		<menu_item_check label="Hablar" name="Speak"/>
 		<menu_item_check label="Registro de conversación..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Transformación de voz" name="VoiceMorphing">
 			<menu_item_check label="Sin transformación de voz" name="NoVoiceMorphing"/>
 			<menu_item_check label="Probar..." name="Preview"/>
@@ -71,11 +74,11 @@
 			<menu_item_check label="Menú Avanzado" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Sol" name="Sun">
-			<menu_item_call label="Amanecer" name="Sunrise"/>
-			<menu_item_call label="Mediodía" name="Noon"/>
-			<menu_item_call label="Atardecer" name="Sunset"/>
-			<menu_item_call label="Medianoche" name="Midnight"/>
-			<menu_item_call label="Usar configuración de región" name="Use Region Settings"/>
+			<menu_item_check label="Amanecer" name="Sunrise"/>
+			<menu_item_check label="Mediodía" name="Noon"/>
+			<menu_item_check label="Atardecer" name="Sunset"/>
+			<menu_item_check label="Medianoche" name="Midnight"/>
+			<menu_item_check label="Usar configuración de región" name="Use Region Settings"/>
 		</menu>
 		<menu label="Editor de entorno" name="Environment Editor">
 			<menu_item_call label="Configuración del entorno..." name="Environment Settings"/>
@@ -149,7 +152,8 @@
 			<menu_item_check label="Ajustar a la cuadrícula" name="Snap to Grid"/>
 			<menu_item_call label="Ajustar a la cuadrícula los ejes X e Y" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Usar lo seleccionado como cuadrícula" name="Use Selection for Grid"/>
-			<menu_item_call label="Opciones de la cuadrícula" name="Grid Options"/>
+			<menu_item_call label="Opciones de la cuadrícula..." name="Grid Options"/>
+			<menu_item_call label="Definir permisos predeterminados..." name="Set default permissions"/>
 		</menu>
 		<menu label="Subir" name="Upload">
 			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
@@ -157,15 +161,12 @@
 			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modelo..." name="Upload Model"/>
 			<menu_item_call label="Masivo ([COST] L$ por archivo)..." name="Bulk Upload"/>
-			<menu_item_call label="Configurar los permisos por defecto de subida" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Deshacer" name="Undo"/>
 		<menu_item_call label="Rehacer" name="Redo"/>
 	</menu>
 	<menu label="Ayuda" name="Help">
 		<menu_item_call label="Cómo..." name="How To"/>
-		<menu_item_call label="Ayuda de [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_call label="Guía del usuario" name="User’s guide"/>
 		<menu_item_call label="Base de Conocimientos" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Foros comunitarios" name="Community Forums"/>
@@ -286,6 +287,7 @@
 			<menu_item_check label="Actualizar el tipo" name="Update Type"/>
 			<menu_item_check label="Información sobre el nivel de detalle" name="LOD Info"/>
 			<menu_item_check label="Crear cola" name="Build Queue"/>
+			<menu_item_check label="Partículas" name="Particles"/>
 			<menu_item_check label="Vectores de viento" name="Wind Vectors"/>
 			<menu_item_check label="Complejidad del renderizado" name="rendercomplexity"/>
 			<menu_item_check label="Bytes de adjunto" name="attachment bytes"/>
@@ -326,7 +328,6 @@
 			<menu_item_call label="Prueba de navegadores de medios" name="Web Browser Test"/>
 			<menu_item_call label="Navegador de contenido web" name="Web Content Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
-			<menu_item_check label="Consola de depuración de región" name="Region Debug Console"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
 		</menu>

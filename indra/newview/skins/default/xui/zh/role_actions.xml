@@ -3,6 +3,7 @@
 	<action_set description="這些能力包括新增或移除群組成員和允許新成員不受邀即可加入群組的等權力。" name="Membership">
 		<action description="邀請他人加入這個群組" longdescription="欲邀請他人加入這個群組，請按下角色欄下的成員頁籤中的「邀請」按鈕。" name="member invite" value="1"/>
 		<action description="將會員由這個群組中踢出" longdescription="欲將成員從群組踢出，請按下角色欄下的成員頁籤中的「踢出」按鈕。 所有人可踢出任何不具所有人角色的人。 如果你不是所有人，一位成員只在他僅屬於「任何人」角色且沒有其他角色的情況下被踢出群組。 欲卸除成員的角色，你必須有「卸除成員角色」的能力。" name="member eject" value="2"/>
+		<action description="管理禁入清單" longdescription="允許群組成員控制是否禁止或重新允許居民加入這個群組。" name="allow ban" value="51"/>
 		<action description="切換「免費自由加入」設定，更改「加入費」。" longdescription="切換「免費自由加入」設定，讓成員不受邀也可加入，並在基本設定欄更改「加入費」。" name="member options" value="3"/>
 	</action_set>
 	<action_set description="這些能力包括新增、移除、更改群組角色，新增或移除成員的角色，和為角色設定能力等權力。" name="Roles">

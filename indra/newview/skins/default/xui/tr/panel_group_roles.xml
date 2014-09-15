@@ -23,12 +23,13 @@ Ctrl tuşuna basıp adlarına tıklayarak birden fazla Üye seçebilirsiniz.
 			</name_list>
 			<button label="Davet Et" name="member_invite"/>
 			<button label="Çıkar" name="member_eject"/>
+			<button label="Üyeyi/Üyeleri Yasakla" name="member_ban"/>
 		</panel>
 		<panel label="ROLLER" name="roles_sub_tab">
 			<panel.string name="help_text">
-				Roller, birer başlığa ve Üyelerin gerçekleştirmesine izin verilen Yetenekler listesine sahiptir.
+				Rollerde, birer başlık ve Üyelerin gerçekleştirmesine izin verilen bir Yetenekler listesi vardır.
  Bir Üye bir veya daha fazla sayıda Role ait olabilir.
- Bir grupta 10&apos;a kadar Rol olabilir, buna Herkes ve Sahip Rolü de dahildir.
+ Bir grupta, Herkes ve Sahip Rolü dahil, en fazla 10 Rol olabilir.
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				&apos;Herkes&apos; ve &apos;Sahipler&apos; Rolleri özeldir, silinemez.
@@ -44,11 +45,26 @@ Ctrl tuşuna basıp adlarına tıklayarak birden fazla Üye seçebilirsiniz.
 		</panel>
 		<panel label="YETENEKLER" name="actions_sub_tab" tool_tip="Bir Yeteneğin Açıklamasını ve bu Yeteneğe hangi Rollerin ve Üyelerin sahip olabileceğini görebilirsiniz.">
 			<panel.string name="help_text">
-				Yetenekler sayesinde Rollerle ilişkili Üyeler bu grup içerisinde belirli şeyler yapabilir.
+				Yetenekler sayesinde Rollerle İlişkili Üyeler bu grup içerisinde belirli şeyler yapabilir.
  Yeteneklerin kapsamı oldukça geniştir.
 			</panel.string>
 			<filter_editor label="Yetenekleri Filtrele" name="filter_input"/>
 			<scroll_list name="action_list" tool_tip="Bir Yeteneği seçerek daha çok ayrıntı görebilirsiniz"/>
+		</panel>
+		<panel label="YASAKLI SAKİNLER" name="banlist_sub_tab" tool_tip="Bu gruba girişleri yasaklanan sakinleri görüntüle">
+			<panel.string name="help_text">
+				Yasaklı listesindeki sakinler gruba katılamaz.
+			</panel.string>
+			<panel.string name="ban_count_template">
+				Yasaklama sayısı: [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="Sakin" name="name"/>
+				<name_list.columns label="Yasaklama Tarihi" name="ban_date"/>
+			</name_list>
+			<button label="Sakini/Sakinleri Yasakla" name="ban_create" tool_tip="Grubunuzdaki sakinleri yasaklayın"/>
+			<button label="Yasaklamayı Kaldır" name="ban_delete" tool_tip="Seçilen sakinlerin gruba giriş yasağını kaldır"/>
+			<button name="ban_refresh" tool_tip="Yasaklı listesini yenile"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">

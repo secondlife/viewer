@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Espelli residenti" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(caricamento...)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		Espulsioni di gruppo non inviate: troppi residenti selezionati Le espulsioni di gruppo possono includere un massimo di 100 persone per ciascuna richiesta.
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		Espulsione di gruppo non inviata: non hai l&apos;abilità &apos;Gestisci lista espulsi&apos;.
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		Espulsione di gruppo non inviata: il gruppo ha raggiunto il numero massimo di espulsioni consentite.
+	</panel.string>
+	<panel.string name="partial_ban">
+		Alcune espulsioni di gruppo non sono state inviate:
+[REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		Le espulsioni di gruppo non sono state inviate:
+[REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- I residenti seguenti sono già stati espulsi: [RESIDENTS].
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- È stato raggiunto il numero massimo di espulsioni; i seguenti agenti non sono stati espulsi: [RESIDENTS].
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- Non puoi espellerti dal gruppo.
+	</panel.string>
+	<text name="help_text">
+		Puoi selezionare più residenti da espellere dal gruppo. Per iniziare, fai clic su &apos;Apri il selettore di residenti&apos;.
+	</text>
+	<button label="Apri il selettore di residenti" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="Tieni premuto Ctrl e fai clic sui nomi dei residenti per selezionare più nomi"/>
+	<button label="Rimuovi i selezionati dalla lista" name="remove_button" tool_tip="Rimuove i residenti selezionati dalla lista espulsi"/>
+	<button label="Espelli residenti" name="ban_button"/>
+	<button label="Annulla" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		Espulsione di gruppo
+	</string>
+</panel>

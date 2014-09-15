@@ -35,7 +35,7 @@
 		<combo_box.item label="年齡 &gt; 成人居民出現在青少年專用第二人生" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="年齡 &gt; 未成年居民出現在青少年專用第二人生以外場所" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="攻擊 &gt; 戰鬥沙盤 / 不安全區域" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="攻擊 &gt; 安全區域" name="Assault__Safe_area"/>
+		<combo_box.item label="攻擊 &gt; 在安全地區射擊、推擠或推撞另一名居民" name="Assault__Safe_area"/>
 		<combo_box.item label="攻擊 &gt; 測試武器的沙盤" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="商業 &gt; 未送交產品或履行服務" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="揭露 &gt; 真實世界資訊" name="Disclosure__Real_world_information"/>
@@ -49,25 +49,25 @@
 		<combo_box.item label="詐欺 &gt; L$" name="Fraud__L$"/>
 		<combo_box.item label="詐欺 &gt; 土地" name="Fraud__Land"/>
 		<combo_box.item label="詐欺 &gt; 層壓式推銷或連環信" name="Fraud__Pyramid_scheme_or_chain_letter"/>
-		<combo_box.item label="詐欺 &gt; 美金" name="Fraud__US$"/>
+		<combo_box.item label="詐欺 &gt; L$ 或美元" name="Fraud__US$"/>
 		<combo_box.item label="騷擾 &gt; 廣告農場 / 視覺轟炸" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="騷擾 &gt; 詆譭個人或群組" name="Harassment__Defaming_individuals_or_groups"/>
 		<combo_box.item label="騷擾 &gt; 阻撓移動" name="Harassment__Impeding_movement"/>
 		<combo_box.item label="騷擾 &gt; 性騷擾" name="Harassment__Sexual_harassment"/>
-		<combo_box.item label="騷擾 &gt; 鼓吹 / 教唆他人違反服務條款" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="騷擾 &gt; 意圖滋事的有針對性的行為" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
 		<combo_box.item label="騷擾 &gt; 言語暴力" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="不雅 &gt; 令大多人不快的內容或行為" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="不雅 &gt; 冒犯人的化身名稱" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="不雅 &gt; 在一般普級地區出現冒犯人的內容或行為" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="失當 &gt; 對一地區的分級不恰當的的內容或行為" name="Indecency__Mature_content_in_PG_region"/>
 		<combo_box.item label="不雅 &gt; 在適度成人地區出現冒犯人的內容或行為" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="侵犯智產權 &gt; 移除內容" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="侵犯智產權 &gt; 複製機器程式碼 CopyBot 或濫用權限" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="不容異己" name="Intolerance"/>
 		<combo_box.item label="土地 &gt; 不當使用沙盤資源" name="Land__Abuse_of_sandbox_resources"/>
-		<combo_box.item label="土地 &gt; 侵佔 &gt; 物件 / 材質" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="土地 &gt; 侵佔 &gt; 物件或材質" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="土地 &gt; 侵佔 &gt; 粒子" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="土地 &gt; 侵佔 &gt; 樹種 / 植物" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="下注 / 賭博" name="Wagering_gambling"/>
+		<combo_box.item label="下注或賭博" name="Wagering_gambling"/>
 		<combo_box.item label="其他" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

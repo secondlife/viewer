@@ -36,6 +36,9 @@
 		<menu_item_check label="Chat près de moi..." name="Nearby Chat"/>
 		<menu_item_check label="Parler" name="Speak"/>
 		<menu_item_check label="Journal des conversations..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Effet de voix" name="VoiceMorphing">
 			<menu_item_check label="Aucun effet de voix" name="NoVoiceMorphing"/>
 			<menu_item_check label="Aperçu..." name="Preview"/>
@@ -72,11 +75,11 @@
 			<menu_item_check label="Menu Avancé" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Luminosité" name="Sun">
-			<menu_item_call label="Aube" name="Sunrise"/>
-			<menu_item_call label="Milieu de journée" name="Noon"/>
-			<menu_item_call label="Coucher de soleil" name="Sunset"/>
-			<menu_item_call label="Minuit" name="Midnight"/>
-			<menu_item_call label="Utiliser les réglages de la région" name="Use Region Settings"/>
+			<menu_item_check label="Aube" name="Sunrise"/>
+			<menu_item_check label="Milieu de journée" name="Noon"/>
+			<menu_item_check label="Coucher de soleil" name="Sunset"/>
+			<menu_item_check label="Minuit" name="Midnight"/>
+			<menu_item_check label="Utiliser les réglages de la région" name="Use Region Settings"/>
 		</menu>
 		<menu label="Éditeur d&apos;environnement" name="Environment Editor">
 			<menu_item_call label="Paramètres d&apos;environnement..." name="Environment Settings"/>
@@ -150,7 +153,8 @@
 			<menu_item_check label="Fixer sur la grille" name="Snap to Grid"/>
 			<menu_item_call label="Fixer les coordonnées XY de l&apos;objet sur la grille" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
-			<menu_item_call label="Options de la grille" name="Grid Options"/>
+			<menu_item_call label="Options de la grille..." name="Grid Options"/>
+			<menu_item_call label="Définir les permissions par défaut..." name="Set default permissions"/>
 		</menu>
 		<menu label="Charger" name="Upload">
 			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
@@ -158,15 +162,12 @@
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modèle..." name="Upload Model"/>
 			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
-			<menu_item_call label="Définir les droits de chargement par défaut" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Annuler" name="Undo"/>
 		<menu_item_call label="Refaire" name="Redo"/>
 	</menu>
 	<menu label="Aide" name="Help">
 		<menu_item_call label="Aide rapide..." name="How To"/>
-		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_call label="Guide de l&apos;utilisateur" name="User’s guide"/>
 		<menu_item_call label="Base de connaissances" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Forums de la communauté" name="Community Forums"/>
@@ -303,6 +304,7 @@
 			<menu_item_check label="Infos sur le niveau de détail" name="LOD Info"/>
 			<menu_item_check label="File d&apos;attente pour la construction" name="Build Queue"/>
 			<menu_item_check label="Lumières" name="Lights"/>
+			<menu_item_check label="Particules" name="Particles"/>
 			<menu_item_check label="Squelette de collision" name="Collision Skeleton"/>
 			<menu_item_check label="Rayons" name="Raycast"/>
 			<menu_item_check label="Vecteurs de vent" name="Wind Vectors"/>
@@ -368,7 +370,6 @@
 			<menu_item_call label="Dump Focus Holder" name="Dump Focus Holder"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;objet sélectionné" name="Print Selected Object Info"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;avatar" name="Print Agent Info"/>
-			<menu_item_check label="Console de débogage de région" name="Region Debug Console"/>
 			<menu_item_check label="Débogage SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Débogage clics" name="Debug Clicks"/>
 			<menu_item_check label="Débogage des vues" name="Debug Views"/>

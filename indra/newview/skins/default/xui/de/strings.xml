@@ -296,6 +296,75 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="TestingDisconnect">
 		Verbindungsabbruch wird getestet
 	</string>
+	<string name="SocialFlickrConnecting">
+		Verbinden mit Flickr...
+	</string>
+	<string name="SocialFlickrPosting">
+		Posten...
+	</string>
+	<string name="SocialFlickrDisconnecting">
+		Flickr-Verbindung wird getrennt...
+	</string>
+	<string name="SocialFlickrErrorConnecting">
+		Problem beim Verbinden mit Flickr
+	</string>
+	<string name="SocialFlickrErrorPosting">
+		Problem beim Posten auf Flickr
+	</string>
+	<string name="SocialFlickrErrorDisconnecting">
+		Problem beim Trennen der Flickr-Verbindung
+	</string>
+	<string name="SocialTwitterConnecting">
+		Verbinden mit Twitter...
+	</string>
+	<string name="SocialTwitterPosting">
+		Posten...
+	</string>
+	<string name="SocialTwitterDisconnecting">
+		Twitter-Verbindung wird getrennt...
+	</string>
+	<string name="SocialTwitterErrorConnecting">
+		Problem beim Verbinden mit Twitter
+	</string>
+	<string name="SocialTwitterErrorPosting">
+		Problem beim Posten auf Twitter
+	</string>
+	<string name="SocialTwitterErrorDisconnecting">
+		Problem beim Trennen der Twitter-Verbindung
+	</string>
+	<string name="BlackAndWhite">
+		Schwarzweiß
+	</string>
+	<string name="Colors1970">
+		Farben der Siebziger Jahre
+	</string>
+	<string name="Intense">
+		Intensiv
+	</string>
+	<string name="Newspaper">
+		Zeitungspapier
+	</string>
+	<string name="Sepia">
+		Sepia
+	</string>
+	<string name="Spotlight">
+		Spotlight
+	</string>
+	<string name="Video">
+		Video
+	</string>
+	<string name="Autocontrast">
+		Autokontrast
+	</string>
+	<string name="LensFlare">
+		Blendenfleck
+	</string>
+	<string name="Miniature">
+		Miniatur
+	</string>
+	<string name="Toycamera">
+		Spielzeugkamera
+	</string>
 	<string name="TooltipPerson">
 		Person
 	</string>
@@ -847,6 +916,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="use_texture">
 		Textur verwenden
 	</string>
+	<string name="manip_hint1">
+		Zum Einrasten Mauscursor
+	</string>
+	<string name="manip_hint2">
+		über Lineal bewegen
+	</string>
 	<string name="texture_loading">
 		Wird geladen...
 	</string>
@@ -937,14 +1012,14 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="ControlYourCamera">
 		Kamerasteuerung
 	</string>
+	<string name="TeleportYourAgent">
+		Sie teleportieren
+	</string>
 	<string name="NotConnected">
 		Nicht verbunden
 	</string>
 	<string name="AgentNameSubst">
 		(Sie)
-	</string>
-	<string name="TeleportYourAgent">
-		Sie teleportieren
 	</string>
 	<string name="JoinAnExperience">
 		Bei einem Erlebnis mitmachen
@@ -1267,8 +1342,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
-  <string name="Unconstrained">keines</string>
-  <string name="InventoryInboxNoItems">
+	<string name="InventoryInboxNoItems">
 		Einkäufe aus dem Marktplatz erscheinen hier. Sie können diese dann zur Verwendung in Ihr Inventar ziehen.
 	</string>
 	<string name="MarketplaceURL">
@@ -1326,6 +1400,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Open landmarks">
 		Landmarken öffnen
+	</string>
+	<string name="Unconstrained">
+		keines
 	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
@@ -4027,6 +4104,12 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="share_alert">
 		Objekte aus dem Inventar hier her ziehen
 	</string>
+	<string name="flickr_post_success">
+		Sie haben auf Flickr gepostet.
+	</string>
+	<string name="twitter_post_success">
+		Sie haben auf Twitter gepostet.
+	</string>
 	<string name="no_session_message">
 		(IM-Session nicht vorhanden)
 	</string>
@@ -4483,6 +4566,9 @@ Missbrauchsbericht
 	<string name="LocalEstimateUSD">
 		[AMOUNT] US$
 	</string>
+	<string name="Group Ban">
+		Gruppenverbannung
+	</string>
 	<string name="Membership">
 		Mitgliedschaft
 	</string>
@@ -4905,6 +4991,12 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Destinations_Label">
 		Ziele
 	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
+	</string>
+	<string name="Command_Flickr_Label">
+		Flickr
+	</string>
 	<string name="Command_Gestures_Label">
 		Gesten
 	</string>
@@ -4953,6 +5045,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Speak_Label">
 		Sprechen
 	</string>
+	<string name="Command_Twitter_Label">
+		Twitter
+	</string>
 	<string name="Command_View_Label">
 		Kamerasteuerungen
 	</string>
@@ -4982,6 +5077,12 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Ziele von Interesse
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Auf Facebook posten
+	</string>
+	<string name="Command_Flickr_Tooltip">
+		Auf Flickr hochladen
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Gesten für Ihren Avatar
@@ -5030,6 +5131,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Speak_Tooltip">
 		Über Ihr Mikrofon mit Leuten in der Nähe sprechen
+	</string>
+	<string name="Command_Twitter_Tooltip">
+		Twitter
 	</string>
 	<string name="Command_View_Tooltip">
 		Kamerawinkel ändern

@@ -12,7 +12,8 @@
 				<stat_view label="呈像" name="render">
 					<stat_bar label="繪出的 KTris（每幀）" name="ktrisframe"/>
 					<stat_bar label="繪出的 KTris（每秒）" name="ktrissec"/>
-					<stat_bar label="物件總計" name="objs"/>
+					<stat_bar label="物件總計" name="totalobjs"/>
+					<stat_bar label="存入快取的物件" name="cachedobjs"/>
 					<stat_bar label="新物件" name="newobjs"/>
 					<stat_bar label="物件快取讀取率" name="object_cache_hits"/>
 				</stat_view>
@@ -29,12 +30,6 @@
 				<stat_view label="網路" name="network">
 					<stat_bar label="進入封包" name="packetsinstat"/>
 					<stat_bar label="出去封包" name="packetsoutstat"/>
-					<stat_bar label="物件" name="objectkbitstat"/>
-					<stat_bar label="材質" name="texturekbitstat"/>
-					<stat_bar label="資產" name="assetkbitstat"/>
-					<stat_bar label="層次" name="layerskbitstat"/>
-					<stat_bar label="實入" name="actualinkbitstat"/>
-					<stat_bar label="實出" name="actualoutkbitstat"/>
 					<stat_bar label="VFS 待行作業" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>

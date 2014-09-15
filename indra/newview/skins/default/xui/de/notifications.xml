@@ -216,6 +216,22 @@ Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
+	<notification name="AssignBanAbilityWarning">
+		Sie sind im Begriff, der Rolle „[ROLE_NAME]“ die Fähigkeit „[ACTION_NAME]“ zuzuweisen.
+
+ *ACHTUNG*
+Jedem Mitglied in einer Rolle mit dieser Fähigkeit werden auch die Fähigkeiten „[ACTION_NAME_2]“ und „[ACTION_NAME_3]“ zugewiesen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		Sie sind im Begriff, die Fähigkeit „[ACTION_NAME]“ aus der Rolle „[ROLE_NAME]“ zu entfernen.
+
+ *ACHTUNG*
+Durch Entfernen dieser Fähigkeit werden die Fähigkeiten „[ACTION_NAME_2]“ und „[ACTION_NAME_3]“ NICHT entfernt.
+ 
+Wenn diese Rolle nicht mehr diese Fähigkeiten haben soll, deaktivieren Sie sie bitte umgehend.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Sie sind dabei, [AVATAR_NAME] aus der Gruppe hinauszuwerfen.
 		<usetemplate ignoretext="Hinauswerfen eines einzelnen Gruppenmitglieds bestätigen" name="okcancelignore" notext="Abbrechen" yestext="Hinauswerfen"/>
@@ -1591,6 +1607,14 @@ Diese Gruppe verlassen?
 		Sie können die Gruppe nicht verlassen, da Sie der letzte Besitzer der Gruppe sind. Weisen Sie die Besitzerrolle zuerst einem anderen Mitglied zu.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Kann Gruppe nicht verlassen: [reason].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		Sie haben die Gruppe „[group_name]“ verlassen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Möchten Sie WIRKLICH alle Benutzer aus dem Grid werfen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Alle Benutzer hinauswerfen"/>
@@ -2465,6 +2489,12 @@ Wählen Sie eine kleinere Landfläche.
 		Bitte wählen Sie mindestens eine Inhaltsart für die Suche aus (Generell, Moderat oder Adult).
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -3510,10 +3540,6 @@ Warten Sie kurz und versuchen Sie es noch einmal.
 	<notification name="EjectComingSoon">
 		Sie nicht hier nicht mehr zugelassen und haben [EJECT_TIME] Sekunden Zeit, um zu gehen.
 	</notification>
-	<notification name="NoEnterServerFull">
-		Sie können diese Region nicht betreten, da 
-der Server voll ist.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Erneutes Speichern im Inventar ist deaktiviert.
 	</notification>
@@ -4038,5 +4064,9 @@ der Server voll ist.
 	<notification name="PreferenceChatPathChanged">
 		Dateien können nicht verschoben werden. Vorheriger Pfad wurde wiederhergestellt.
 		<usetemplate ignoretext="Dateien können nicht verschoben werden. Vorheriger Pfad wurde wiederhergestellt." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Die Standardberechtigungen konnten aus folgendem Grund nicht gespeichert werden: [REASON].  Versuchen Sie später, die Standardberechtigungen einzustellen.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

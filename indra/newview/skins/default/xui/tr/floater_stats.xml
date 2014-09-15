@@ -12,7 +12,8 @@
 				<stat_view label="İşle" name="render">
 					<stat_bar label="Çerçeve Başına Çizilen Üçgenler" name="ktrisframe"/>
 					<stat_bar label="Saniyede Bir Çizilen Üçgenler" name="ktrissec"/>
-					<stat_bar label="Toplam Nesne" name="objs"/>
+					<stat_bar label="Toplam Nesne" name="totalobjs"/>
+					<stat_bar label="Önbelleğe Alınan Nesne" name="cachedobjs"/>
 					<stat_bar label="Yeni Nesne" name="newobjs"/>
 					<stat_bar label="Nesne Önbellek İsabet Oranı" name="object_cache_hits"/>
 				</stat_view>
@@ -29,12 +30,6 @@
 				<stat_view label="Ağ" name="network">
 					<stat_bar label="Gelen Paketler" name="packetsinstat"/>
 					<stat_bar label="Giden Paketler" name="packetsoutstat"/>
-					<stat_bar label="Nesneler" name="objectkbitstat"/>
-					<stat_bar label="Doku" name="texturekbitstat"/>
-					<stat_bar label="Varlık" name="assetkbitstat"/>
-					<stat_bar label="Katmanlar" name="layerskbitstat"/>
-					<stat_bar label="Gerçekte Gelen" name="actualinkbitstat"/>
-					<stat_bar label="Gerçekte Giden" name="actualoutkbitstat"/>
 					<stat_bar label="VFS Bekleyen İşlemler" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>

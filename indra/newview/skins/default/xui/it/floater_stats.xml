@@ -12,7 +12,8 @@
 				<stat_view label="Render" name="render">
 					<stat_bar label="KTris disegnato per fotogramma" name="ktrisframe"/>
 					<stat_bar label="KTris disegnato per secondo" name="ktrissec"/>
-					<stat_bar label="Totale oggetti" name="objs"/>
+					<stat_bar label="Totale oggetti" name="totalobjs"/>
+					<stat_bar label="Oggetti nella cache" name="cachedobjs"/>
 					<stat_bar label="Nuovi oggetti" name="newobjs"/>
 					<stat_bar label="Hit rate della cache per l&apos;oggetto" name="object_cache_hits"/>
 				</stat_view>
@@ -29,12 +30,6 @@
 				<stat_view label="Rete" name="network">
 					<stat_bar label="Pacchetti in ingresso" name="packetsinstat"/>
 					<stat_bar label="Pacchetti in uscita" name="packetsoutstat"/>
-					<stat_bar label="Oggetti" name="objectkbitstat"/>
-					<stat_bar label="Texture" name="texturekbitstat"/>
-					<stat_bar label="Risorse server" name="assetkbitstat"/>
-					<stat_bar label="Layer" name="layerskbitstat"/>
-					<stat_bar label="Effettivi in ingresso" name="actualinkbitstat"/>
-					<stat_bar label="Effettivi in uscita" name="actualoutkbitstat"/>
 					<stat_bar label="Operazioni VFS in sospeso" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>

@@ -210,6 +210,22 @@
 你仍要新增這項能力給「[ROLE_NAME]」？
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
 	</notification>
+	<notification name="AssignBanAbilityWarning">
+		你即將把「[ACTION_NAME]」能力增加給「[ROLE_NAME]」角色。
+
+ *警告*
+任何擔任帶有此能力的角色的成員，將連帶得到「[ACTION_NAME_2]」和「[ACTION_NAME_3]」能力。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		你即將剝除「[ROLE_NAME]」角色的「[ACTION_NAME]」能力。
+
+ *警告*
+剝除這個能力，將不連帶剝除「[ACTION_NAME_2]」和「[ACTION_NAME_3]」能力。
+ 
+如果你不希望讓這個角色繼續擁有這些能力，請立即取消它們！
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="EjectGroupMemberWarning">
 		你即將把 [AVATAR_NAME] 踢出群組。
 		<usetemplate ignoretext="確定將某人踢出群組" name="okcancelignore" notext="取消" yestext="踢出"/>
@@ -1569,6 +1585,14 @@ SHA1 指紋：[MD5_DIGEST]
 		無法離開群組。 你是此群組僅存的所有人，不得離開群組。 請先把所有人職銜指派給另一人。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="GroupDepartError">
+		無法離開群組：[reason]。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="GroupDepart">
+		你已經離開[group_name]群組。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="ConfirmKick">
 		你確定要踢出這網格內的全部居民？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="踢出全部居民"/>
@@ -2441,6 +2465,12 @@ SHA1 指紋：[MD5_DIGEST]
 		請至少選擇一種要搜索的內容分級（一般普級、適度成人、完全成人）。
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -3487,10 +3517,6 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="EjectComingSoon">
 		你不再允許待在這裡，必須在 [EJECT_TIME] 秒內離開。
 	</notification>
-	<notification name="NoEnterServerFull">
-		你無法進入這地區，因為 
-伺服器滿載。
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		「儲存回收納區」功能已被停用。
 	</notification>
@@ -4015,5 +4041,9 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="PreferenceChatPathChanged">
 		無法移動檔案。 已恢復前一個路徑。
 		<usetemplate ignoretext="無法移動檔案。 已恢復前一個路徑。" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		儲存預設權限時出問題，原因：[REASON]。  請稍後再嘗試儲存預設權限。
+		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 </notifications>

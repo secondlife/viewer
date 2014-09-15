@@ -24,13 +24,14 @@
 			</name_list>
 			<button label="Пригласить" name="member_invite"/>
 			<button label="Выкинуть" name="member_eject"/>
+			<button label="Заблокировать участников" name="member_ban"/>
 		</panel>
 		<panel label="РОЛИ" name="roles_sub_tab">
 			<panel.string name="help_text">
 				У ролей есть название и список способностей,
-доступных участникам. У участников может быть
-одна или несколько ролей. У группы может быть до 10 ролей,
-в том числе роли «Все» и «Владелец».
+        доступных участникам. У участников может быть
+        одна или несколько ролей. У группы может быть до 10 ролей,
+        в том числе роли «Все» и «Владелец».
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				Роли «Все» и «Владелец» являются особыми и не могут быть удалены.
@@ -47,10 +48,25 @@
 		<panel label="СПОСОБНОСТИ" name="actions_sub_tab" tool_tip="Можно просмотреть описание способности, а также какие участники и роли ею обладают.">
 			<panel.string name="help_text">
 				Способности позволяют участникам, которым назначены соответствующие роли, выполнять особые
-действия в группе. Имеется широкий выбор способностей.
+        действия в группе. Имеется широкий выбор способностей.
 			</panel.string>
 			<filter_editor label="Фильтр способностей" name="filter_input"/>
 			<scroll_list name="action_list" tool_tip="Выберите способность, чтобы просмотреть данные о ней"/>
+		</panel>
+		<panel label="ЗАБЛОКИРОВАННЫЕ ЖИТЕЛИ" name="banlist_sub_tab" tool_tip="Просмотреть заблокированных жителей из этой группы.">
+			<panel.string name="help_text">
+				Любой житель из списка заблокированных пользователей не сможет присоединиться к группе.
+			</panel.string>
+			<panel.string name="ban_count_template">
+				Кол-во заблокированных: [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="Житель" name="name"/>
+				<name_list.columns label="Дата блокировки" name="ban_date"/>
+			</name_list>
+			<button label="Заблокировать жителей" name="ban_create" tool_tip="Заблокировать жителей из вашей группы"/>
+			<button label="Разблокировать" name="ban_delete" tool_tip="Разблокировать выбранных жителей из вашей группы"/>
+			<button name="ban_refresh" tool_tip="Обновить список заблокированных пользователей"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">
