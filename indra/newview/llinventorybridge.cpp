@@ -3629,6 +3629,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (marketplace_listings_id == mUUID)
     {
 		disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("Rename"));
         disabled_items.push_back(std::string("Cut"));
         disabled_items.push_back(std::string("Delete"));
     }
