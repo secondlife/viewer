@@ -10,7 +10,6 @@
     left_delta="0"
     start_folder.name="Marketplace listings"
     show_empty_message="false"
-    show_load_status="false"
     show_root_folder="true"
     allow_drop_on_root="false"
     start_folder.type="merchant"

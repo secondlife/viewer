@@ -3,7 +3,6 @@
     name="inventory_outbox"
     start_folder.name="Outbox"
     show_empty_message="false"
-    show_load_status="false"
     start_folder.type="outbox"
     follows="all" layout="topleft"
     top="0" left="0" height="165" width="308"
