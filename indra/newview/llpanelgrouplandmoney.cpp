@@ -421,20 +421,43 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 		msg->getUUID("QueryData", "OwnerID", owner_id, 0);
 		msg->getUUID("TransactionData", "TransactionID", trans_id);
 
-		S32 total_contribution = 0;
 		if(owner_id.isNull())
 		{
 			// special block which has total contribution
 			++first_block;
 
+			S32 committed = 0;
+			S32 billable_area = 0;
+			for(S32 i = first_block; i < count; ++i)
+			{
+				msg->getS32("QueryData", "BillableArea", billable_area, i);
+				committed+=billable_area;
+			}
+
+			S32 total_contribution;
 			msg->getS32("QueryData", "ActualArea", total_contribution, 0);
 			mPanel.getChild<LLUICtrl>("total_contributed_land_value")->setTextArg("[AREA]", llformat("%d", total_contribution));
+
+			mPanel.getChild<LLUICtrl>("total_land_in_use_value")->setTextArg("[AREA]", llformat("%d", committed));
+			S32 available = total_contribution - committed;
+			mPanel.getChild<LLUICtrl>("land_available_value")->setTextArg("[AREA]", llformat("%d", available));
+
+
+			if ( mGroupOverLimitTextp && mGroupOverLimitIconp )
+
+			{
+				mGroupOverLimitIconp->setVisible(available < 0);
+				mGroupOverLimitTextp->setVisible(available < 0);
+			}
+
 		}
 
 		if ( trans_id != mTransID ) return;
+
 		// This power was removed to make group roles simpler
 		//if ( !gAgent.hasPowerInGroup(mGroupID, GP_LAND_VIEW_OWNED) ) return;
 		if (!gAgent.isInGroup(mPanel.mGroupID)) return;
+
 		mGroupParcelsp->setCommentText(mEmptyParcelsText);
 
 		std::string name;
@@ -447,7 +470,6 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 		std::string sim_name;
 		std::string land_sku;
 		std::string land_type;
-		S32 committed = 0;
 
 		for(S32 i = first_block; i < count; ++i)
 		{
@@ -477,7 +499,6 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
 			std::string location = sim_name + llformat(" (%d, %d)", region_x, region_y);
 			std::string area;
-			committed+=billable_area;
 
 
 			if(billable_area == actual_area)
@@ -515,16 +536,6 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			row["columns"][4]["value"] = hidden;
 			
 			mGroupParcelsp->addElement(row);
-		}
-
-		mPanel.getChild<LLUICtrl>("total_land_in_use_value")->setTextArg("[AREA]", llformat("%d", committed));
-
-		S32 available = total_contribution - committed;
-		mPanel.getChild<LLUICtrl>("land_available_value")->setTextArg("[AREA]", llformat("%d", available));
-		if ( mGroupOverLimitTextp && mGroupOverLimitIconp )
-		{
-			mGroupOverLimitIconp->setVisible(available < 0);
-			mGroupOverLimitTextp->setVisible(available < 0);
 		}
 	}
 }
