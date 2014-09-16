@@ -20,14 +20,16 @@
 				<name_list.columns label="Doações" name="donated"/>
 				<name_list.columns label="Status" name="online"/>
 			</name_list>
-			<button label="Convidar" name="member_invite" />
+			<button label="Convidar" name="member_invite"/>
 			<button label="Ejetar" name="member_eject"/>
+			<button label="Banir membro(s)" name="member_ban"/>
 		</panel>
 		<panel label="CARGOS" name="roles_sub_tab">
 			<panel.string name="help_text">
-				Cada cargo tem um nome e uma lista das funções que membros designados podem desempenhar.
- Os membros podem ter um ou mais cargos.
- Cada grupo pode ter 10 cargos, incluindo Membro e Dono do Grupo.
+				Os cargos têm um título e uma lista de funções permitidas
+        que os membros podem realizar. Os membros podem pertencer a
+        um ou mais cargos. Um grupo pode ter até 10 cargos,
+        inclusive Todos e Proprietário.
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				As funções &apos;Todos&apos; e &apos;Owners&apos; são especiais e não podem ser apagadas.
@@ -46,11 +48,26 @@
 		</panel>
 		<panel height="148" label="FUNÇÕES" name="actions_sub_tab" tool_tip="Você pode ver a descrição de uma função e quais cargos e membros podem desempenhá-la.">
 			<panel.string name="help_text">
-				As habilidades permitem que os membros nas funções façam coisas específicas dentro do grupo.
-Há uma grande variedade de habilidades.
+				As funções permitem que os membros em cargos realizem
+        tarefas específicas neste grupo. Existem diversas funções.
 			</panel.string>
 			<filter_editor label="Filtrar por função" name="filter_input"/>
 			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Selecione uma função para ver mais detalhes"/>
+		</panel>
+		<panel label="RESIDENTES BANIDOS" name="banlist_sub_tab" tool_tip="Visualizar os residentes banidos deste grupo.">
+			<panel.string name="help_text">
+				Qualquer residente na lista de banidos não poderá entrar no grupo.
+			</panel.string>
+			<panel.string name="ban_count_template">
+				Número de banimentos: [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="Residente" name="name"/>
+				<name_list.columns label="Data do banimento" name="ban_date"/>
+			</name_list>
+			<button label="Banir residente(s)" name="ban_create" tool_tip="Banir residentes do seu grupo"/>
+			<button label="Cancelar banimento(s)" name="ban_delete" tool_tip="Cancelar o banimento de residentes selecionados do seu grupo"/>
+			<button name="ban_refresh" tool_tip="Atualizar a lista de banidos"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">
