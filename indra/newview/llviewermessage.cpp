@@ -5956,9 +5956,6 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			make_ui_sound("UISndRestart");
 		}
         
-        // WIP for DD-23 : Suppress those printouts once tested
-        llinfos << "Merov : notificationID = " << notificationID << llendl;
-        llinfos << "Merov : listing_id = " << llsdBlock["listing_id"].asInteger() << llendl;
         // Special Marketplace update notification
 		if (notificationID == "SLM_UPDATE_FOLDER")
         {
