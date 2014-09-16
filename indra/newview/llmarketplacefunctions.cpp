@@ -1372,6 +1372,18 @@ bool LLMarketplaceData::getListing(const LLUUID& folder_id)
     return true;
 }
 
+bool LLMarketplaceData::getListing(S32 listing_id)
+{
+    if (listing_id == 0)
+    {
+        return false;
+    }
+    
+    // Get listing data from SLM
+    getSLMListing(listing_id);
+    return true;
+}
+
 bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
 {
     // Folder id can be the root of the listing or not so we need to retrieve the root first

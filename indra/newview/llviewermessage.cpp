@@ -71,6 +71,7 @@
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llfloaterimnearbychat.h"
+#include "llmarketplacefunctions.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpanelgrouplandmoney.h"
@@ -5873,7 +5874,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 				LL_WARNS() << "attempt_standard_notification: Attempted to read notification parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
 			}
 		}
-		
+
 		if (
 			(notificationID == "RegionEntryAccessBlocked") ||
 			(notificationID == "LandClaimAccessBlocked") ||
@@ -5954,7 +5955,18 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 
 			make_ui_sound("UISndRestart");
 		}
-
+        
+        // WIP for DD-23 : Suppress those printouts once tested
+        llinfos << "Merov : notificationID = " << notificationID << llendl;
+        llinfos << "Merov : listing_id = " << llsdBlock["listing_id"].asInteger() << llendl;
+        // Special Marketplace update notification
+		if (notificationID == "SLM_UPDATE_FOLDER")
+        {
+            // In general, no message will be displayed, all we want is to get the listing updated in the marketplace floater
+            // If getListing() fails though, the message of the alert will be shown by the caller of attempt_standard_notification()
+            return LLMarketplaceData::instance().getListing(llsdBlock["listing_id"].asInteger());
+        }
+        
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
 	}	

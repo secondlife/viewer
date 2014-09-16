@@ -4552,6 +4552,13 @@ Are you sure you want to change the Estate Covenant?
   </notification>
 
   <notification
+    icon="alertmodal.tga"
+    name="SLM_UPDATE_FOLDER"
+    type="alertmodal">
+    [MESSAGE]
+  </notification>
+
+   <notification
    icon="alertmodal.tga"
    name="RegionEntryAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
