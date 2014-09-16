@@ -2114,10 +2114,13 @@ void LLMenuGL::arrange( void )
 						&& height + (*item_iter)->getNominalHeight() > max_height - spillover_item_height)
 					{
 						// don't show only one item
-						int visible_items = std::count_if(item_iter, mItems.end(), [](LLMenuItemGL* itemp)
+						int visible_items = 0;
+						item_list_t::iterator count_iter;
+						for (count_iter = item_iter; count_iter != mItems.end(); ++count_iter)
 						{
-							return itemp->getVisible();
-						});
+							if((*count_iter)->getVisible())
+								visible_items++;
+						}
 						if (visible_items>1)
 						{
 							// no room for any more items
