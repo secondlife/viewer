@@ -47,6 +47,19 @@
 #include "llhttpconstants.h"
 #include "llproxy.h"
 
+// *DEBUG:  "[curl:bugs] #1420" problem and testing.
+//
+// A pipelining problem, https://sourceforge.net/p/curl/bugs/1420/,
+// was a source of Core_9 failures.  Code related to this can be
+// identified and tested by:
+// * Looking for '[curl:bugs]' strings in source and following
+//   instructions there.
+// * Set 'QAModeHttpTrace' to 2 or 3 in settings.xml and look for
+//   'timed out' events in the log.
+// * Enable the HttpRangeRequestsDisable debug setting which causes
+//   full asset fetches.  These slow the pipelines down a bit.
+//
+
 namespace
 {
 
@@ -610,6 +623,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// *TODO:  Find a better scheme than timeouts to guarantee liveness.
 		xfer_timeout *= cpolicy.mPipelining;
 	}
+	// *DEBUG:  Useful for timeout handling and "[curl:bugs] #1420" tests
+	// xfer_timeout = 3L;
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
 	check_curl_easy_code(code, CURLOPT_TIMEOUT);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
