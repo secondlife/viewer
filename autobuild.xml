@@ -282,9 +282,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f5a699c93beb1a854d0b51382b5cecc8</string>
+              <string>7e5385eedde808e51e602deca1879b22</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/Darwin/installer/curl-7.37.0-darwin-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/http_3p-curl-experimental/rev/294357/arch/Darwin/installer/curl-7.38.0-darwin-20140918.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -294,9 +294,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2bc285edffd0e55e0cd6290f39854a89</string>
+              <string>c85406fb9cad19b5602b90c55a169a6a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/Linux/installer/curl-7.37.0-linux-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/http_3p-curl-experimental/rev/294357/arch/Linux/installer/curl-7.38.0-linux-20140918.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -306,9 +306,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8d3b197d7a114d2b688d2831a0a59757</string>
+              <string>9fe81decac23f3179a2af58d23baf6ce</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/CYGWIN/installer/curl-7.37.0-windows-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/http_3p-curl-experimental/rev/294357/arch/CYGWIN/installer/curl-7.38.0-windows-20140918.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
