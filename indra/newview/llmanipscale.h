@@ -172,6 +172,9 @@ private:
 	ESnapRegimes	mSnapRegime; //<! Which, if any, snap regime the cursor is currently residing in.
 	F32				mManipulatorScales[NUM_MANIPULATORS];
 	F32				mBoxHandleSize[NUM_MANIPULATORS];		// The size of the handles at the corners of the bounding box
+	S32				mFirstClickX;
+	S32				mFirstClickY;
+	bool			mIsFirstClick;
 };
 
 #endif  // LL_MANIPSCALE_H

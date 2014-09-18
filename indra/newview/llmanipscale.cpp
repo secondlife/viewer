@@ -352,6 +352,10 @@ BOOL LLManipScale::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 
 	updateSnapGuides(bbox);
 
+	mFirstClickX = x;
+	mFirstClickY = y;
+	mIsFirstClick = true;
+
 	mDragStartPointGlobal = gAgent.getPosGlobalFromAgent(box_corner_agent);
 	mDragStartCenterGlobal = gAgent.getPosGlobalFromAgent(box_center_agent);
 	LLVector3 far_corner_agent = bbox.localToAgent( unitVectorToLocalBBoxExtent( -1.f * partToUnitVector( mManipPart ), bbox ) );
@@ -415,7 +419,15 @@ BOOL LLManipScale::handleHover(S32 x, S32 y, MASK mask)
 		}
 		else
 		{
-			drag( x, y );
+			if((mFirstClickX != x) || (mFirstClickY != y))
+			{
+				mIsFirstClick = false;
+			}
+
+			if(!mIsFirstClick)
+			{
+				drag( x, y );
+			}
 		}
 		LL_DEBUGS("UserInput") << "hover handled by LLManipScale (active)" << LL_ENDL;		
 	}
