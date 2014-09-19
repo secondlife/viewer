@@ -240,6 +240,10 @@ bool HttpStatus::isRetryable() const
 	static const HttpStatus inv_cont_range(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
 	static const HttpStatus inv_status(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
 
+	// *DEBUG:  For "[curl:bugs] #1420" tests.
+	// Disable the '*this == inv_status' test and look for 'Core_9'
+	// failures in log files.
+
 	return ((isHttpStatus() && mType >= 499 && mType <= 599) ||	// Include special 499 in retryables
 			*this == cant_connect ||	// Connection reset/endpoint problems
 			*this == cant_res_proxy ||	// DNS problems
