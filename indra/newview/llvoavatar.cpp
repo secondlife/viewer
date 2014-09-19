@@ -2068,7 +2068,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	}	
 
 	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_AVATAR))
-		&& !(gSavedSettings.getBOOL("DisableAllRenderTypes")))
+		&& !(gSavedSettings.getBOOL("DisableAllRenderTypes")) && !isSelf())
 	{
 		return;
 	}
@@ -4884,6 +4884,12 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 		{
 			sitDown(FALSE);
 		}
+		if ((anim_id == ANIM_AGENT_DO_NOT_DISTURB) && gAgent.isDoNotDisturb())
+		{
+			// re-assert DND tag animation
+			gAgent.sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, ANIM_REQUEST_START);
+			return result;
+		}
 		stopMotion(anim_id);
 		result = TRUE;
 	}
@@ -5058,9 +5064,9 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 	return jointp;
 }
 //-----------------------------------------------------------------------------
-// resetJointPositionsToDefault
+// resetJointPositionsOnDetach
 //-----------------------------------------------------------------------------
-void LLVOAvatar::resetJointPositionsToDefault( void )
+void LLVOAvatar::resetJointPositionsOnDetach(const std::string& attachment_name)
 {	
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
@@ -5072,17 +5078,16 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	{
 		LLJoint* pJoint = (*iter);
 		//Reset joints except for pelvis
-		if ( pJoint && pJoint != pJointPelvis && pJoint->doesJointNeedToBeReset() )
+		if ( pJoint && pJoint != pJointPelvis)
 		{			
 			pJoint->setId( LLUUID::null );
-			pJoint->restoreOldXform();
+			pJoint->removeAttachmentPosOverride(attachment_name);
 		}		
 		else
-		if ( pJoint && pJoint == pJointPelvis && pJoint->doesJointNeedToBeReset() )
+		if ( pJoint && pJoint == pJointPelvis)
 		{
 			pJoint->setId( LLUUID::null );
 			pJoint->setPosition( LLVector3( 0.0f, 0.0f, 0.0f) );
-			pJoint->setJointResetFlag( false );
 		}		
 	}	
 		
@@ -5625,7 +5630,7 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 }
 
 //-----------------------------------------------------------------------------
-// attachObject()
+// getNumAttachments()
 //-----------------------------------------------------------------------------
 U32 LLVOAvatar::getNumAttachments() const
 {
@@ -5746,7 +5751,8 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
 				&& pSkinData->mAlternateBindMatrix.size() > 0 )
 					{				
-						LLVOAvatar::resetJointPositionsToDefault();							
+						const std::string& attachment_name = pVO->getAttachmentItemName();
+						LLVOAvatar::resetJointPositionsOnDetach(attachment_name);							
 						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
 						//This handles the case where we detach a replacement rig.
 						if ( gAgentCamera.cameraCustomizeAvatar() )
@@ -7676,6 +7682,17 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 		}
 
 	}
+	avatar_joint_list_t::iterator iter = mSkeleton.begin();
+	avatar_joint_list_t::iterator end  = mSkeleton.end();
+	for (; iter != end; ++iter)
+	{
+		LLJoint* pJoint = (*iter);
+		const LLVector3& pos = pJoint->getPosition();
+		const LLVector3& scale = pJoint->getScale();
+		apr_file_printf( file, "\t\t<joint name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+						 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
+	}
+
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
 

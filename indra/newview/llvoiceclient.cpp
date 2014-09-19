@@ -36,6 +36,7 @@
 #include "llsdserialize.h"
 #include "llui.h"
 #include "llkeyboard.h"
+#include "llagent.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -642,7 +643,7 @@ void LLVoiceClient::keyDown(KEY key, MASK mask)
 		return;
 	}
 	
-	if(!mPTTIsMiddleMouse)
+	if(!mPTTIsMiddleMouse && LLAgent::isActionAllowed("speak"))
 	{
 		bool down = (mPTTKey != KEY_NONE)
 		&& gKeyboard->getKeyDown(mPTTKey);
@@ -661,12 +662,9 @@ void LLVoiceClient::keyUp(KEY key, MASK mask)
 }
 void LLVoiceClient::middleMouseState(bool down)
 {
-	if(mPTTIsMiddleMouse)
+	if(mPTTIsMiddleMouse && LLAgent::isActionAllowed("speak"))
 	{
-        if(mPTTIsMiddleMouse)
-        {
-			inputUserControlState(down);
-        }		
+		inputUserControlState(down);
 	}
 }
 

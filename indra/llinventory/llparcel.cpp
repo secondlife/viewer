@@ -793,8 +793,6 @@ BOOL LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
 		}
 	}
     
-    removeFromBanList(agent_id);
-    
     LLAccessEntry new_entry;
     new_entry.mID			 = agent_id;
     new_entry.mTime	 = time;
@@ -837,8 +835,6 @@ BOOL LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
             ++itor;
         }
     }
-    
-    removeFromAccessList(agent_id);
     
     LLAccessEntry new_entry;
     new_entry.mID			 = agent_id;

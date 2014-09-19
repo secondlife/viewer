@@ -1710,8 +1710,16 @@ bool LLAppearanceMgr::getCanAddToCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
-	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, not_worn);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
+
+	return items.size() > 0;
 }
 
 bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
@@ -1729,8 +1737,16 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 	}
 
 	// Check whether the outfit contains any wearables we aren't wearing already (STORM-702).
-	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
-	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, not_worn);
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx is_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_worn);
+
+	return items.size() > 0;
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb)
@@ -4040,17 +4056,33 @@ public:
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
-		LLPointer<LLInventoryCategory> category = new LLInventoryCategory(query_map["folder_id"],
-																		  LLUUID::null,
-																		  LLFolderType::FT_CLOTHING,
-																		  "Quick Appearance");
-		LLSD::UUID folder_uuid = query_map["folder_id"].asUUID();
-		if ( gInventory.getCategory( folder_uuid ) != NULL )
-		{
-			LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
+		LLSD::UUID folder_uuid;
 
-			// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
-			gAgent.setOutfitChosen(TRUE);
+		if (folder_uuid.isNull() && query_map.has("folder_name"))
+		{
+			std::string outfit_folder_name = query_map["folder_name"];
+			folder_uuid = findDescendentCategoryIDByName(
+				gInventory.getLibraryRootFolderID(),
+				outfit_folder_name);	
+		}
+		if (folder_uuid.isNull() && query_map.has("folder_id"))
+		{
+			folder_uuid = query_map["folder_id"].asUUID();
+		}
+		
+		if (folder_uuid.notNull())
+		{
+			LLPointer<LLInventoryCategory> category = new LLInventoryCategory(folder_uuid,
+																			  LLUUID::null,
+																			  LLFolderType::FT_CLOTHING,
+																			  "Quick Appearance");
+			if ( gInventory.getCategory( folder_uuid ) != NULL )
+			{
+				LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
+				
+				// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
+				gAgent.setOutfitChosen(TRUE);
+			}
 		}
 
 		// release avatar picker keyboard focus

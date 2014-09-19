@@ -336,7 +336,9 @@ LLInventoryFilter& LLInventoryPanel::getFilter()
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
+	{
 		getFilter().setFilterObjectTypes(types);
+	}
 	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
 		getFilter().setFilterCategoryTypes(types);
 }
@@ -540,12 +542,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			// This item already exists in both memory and UI.  It was probably reparented.
 			else if (model_item && view_item)
 			{
+				LLFolderViewFolder* old_parent = view_item->getParentFolder();
 				// Don't process the item if it is the root
-				if (view_item->getParentFolder())
+				if (old_parent)
 				{
 					LLFolderViewFolder* new_parent =   (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
 					// Item has been moved.
-					if (view_item->getParentFolder() != new_parent)
+					if (old_parent != new_parent)
 					{
 						if (new_parent != NULL)
 						{
@@ -571,6 +574,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							// doesn't include trash).  Just remove the item's UI.
 							view_item->destroyView();
 						}
+						old_parent->getViewModelItem()->dirtyDescendantsFilter();
 					}
 				}
 			}
@@ -581,8 +585,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			else if (!model_item && view_item && viewmodel_item)
 			{
 				// Remove the item's UI.
-                removeItemID(viewmodel_item->getUUID());
+				LLFolderViewFolder* parent = view_item->getParentFolder();
+				removeItemID(viewmodel_item->getUUID());
 				view_item->destroyView();
+				if(parent)
+				{
+					parent->getViewModelItem()->dirtyDescendantsFilter();
+				}
 			}
 		}
 	}
@@ -1395,6 +1404,17 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 		// Open selected items if enter key hit on the inventory panel
 		if (mask == MASK_NONE)
 		{
+			//Don't allow attaching or opening items from Merchant Outbox
+			LLFolderViewItem* folder_item = mFolderRoot.get()->getCurSelectedItem();
+			if(folder_item)
+			{
+				LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+				if(bridge && bridge->isOutboxFolder() && (bridge->getInventoryType() != LLInventoryType::IT_CATEGORY))
+				{
+					return handled;
+				}
+			}
+
 			LLInventoryAction::doToSelected(mInventory, mFolderRoot.get(), "open");
 			handled = TRUE;
 		}

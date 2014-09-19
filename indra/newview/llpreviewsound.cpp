@@ -95,7 +95,6 @@ void LLPreviewSound::auditionSound( void *userdata )
 
 	if(item && gAudiop)
 	{
-		LLVector3d lpos_global = gAgent.getPositionGlobal();
-		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_SFX, lpos_global);
+		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_SFX);
 	}
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Scene Load Statistics" title="場景負載統計資料">
+	<button label="暫停" name="playpause"/>
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view label="基本" name="basic">
+				<stat_bar label="幀像素差" name="frame difference"/>
+				<stat_bar label="已收到UDP資料" name="bandwidth"/>
+				<stat_bar label="封包損失" name="packet_loss"/>
+			</stat_view>
+			<stat_view label="進階" name="advanced">
+				<stat_view label="呈像" name="render">
+					<stat_bar label="物件總計" name="objs"/>
+					<stat_bar label="新物件" name="newobjs"/>
+					<stat_bar label="物件快取讀取率" name="object_cache_hits"/>
+				</stat_view>
+				<stat_view label="材質" name="texture">
+					<stat_bar label="快取讀取率" name="texture_cache_hits"/>
+					<stat_bar label="快取讀取延遲" name="texture_cache_read_latency"/>
+					<stat_bar label="計數" name="numimagesstat"/>
+					<stat_bar label="原始計數" name="numrawimagesstat"/>
+				</stat_view>
+				<stat_view label="網路" name="network">
+					<stat_bar label="進入封包" name="packetsinstat"/>
+					<stat_bar label="出去封包" name="packetsoutstat"/>
+					<stat_bar label="物件" name="objectdatareceived"/>
+					<stat_bar label="材質" name="texturedatareceived"/>
+					<stat_bar label="資產" name="assetudpdatareceived"/>
+					<stat_bar label="層次" name="layersdatareceived"/>
+					<stat_bar label="實入" name="messagedatain"/>
+					<stat_bar label="實出" name="messagedataout"/>
+					<stat_bar label="VFS 待行作業" name="vfspendingoperations"/>
+				</stat_view>
+			</stat_view>
+			<stat_view label="模擬器" name="sim">
+				<stat_bar label="物件" name="simobjects"/>
+				<stat_bar label="使用中物件" name="simactiveobjects"/>
+				<stat_bar label="使用中腳本" name="simactivescripts"/>
+				<stat_bar label="進入封包" name="siminpps"/>
+				<stat_bar label="出去封包" name="simoutpps"/>
+				<stat_bar label="擱置下載" name="simpendingdownloads"/>
+				<stat_bar label="擱置上傳" name="simpendinguploads"/>
+				<stat_bar label="未承認的總位元組數" name="simtotalunackedbytes"/>
+				<stat_view label="時間（毫秒）" name="simperf">
+					<stat_bar label="總幀時間" name="simframemsec"/>
+					<stat_bar label="淨時間" name="simnetmsec"/>
+					<stat_bar label="物理時間" name="simsimphysicsmsec"/>
+					<stat_bar label="模擬時間" name="simsimothermsec"/>
+					<stat_bar label="用戶時間" name="simagentmsec"/>
+					<stat_bar label="圖像時間" name="simimagesmsec"/>
+					<stat_bar label="腳本時間" name="simscriptmsec"/>
+					<stat_bar label="閒置時間" name="simsparemsec"/>
+					<stat_view label="時間細節（毫秒）" name="timedetails">
+						<stat_bar label="物理步驟" name="simsimphysicsstepmsec"/>
+						<stat_bar label="更新物理形狀" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="物理（其他）" name="simsimphysicsothermsec"/>
+						<stat_bar label="睡眠時間" name="simsleepmsec"/>
+						<stat_bar label="基礎網路輸出入" name="simpumpiomsec"/>
+					</stat_view>
+				</stat_view>
+			</stat_view>
+		</container_view>
+	</scroll_container>
+</floater>

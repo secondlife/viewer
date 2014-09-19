@@ -477,8 +477,10 @@ class LLFileEnableCloseWindow : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = NULL != gFloaterView->getFrontmostClosableFloater();
-		return new_value;
+		bool frontmost_fl_exists = (NULL != gFloaterView->getFrontmostClosableFloater());
+		bool frontmost_snapshot_fl_exists = (NULL != gSnapshotFloaterView->getFrontmostClosableFloater());
+
+		return frontmost_fl_exists || frontmost_snapshot_fl_exists;
 	}
 };
 
@@ -486,7 +488,21 @@ class LLFileCloseWindow : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloater::closeFrontmostFloater();
+		bool frontmost_fl_exists = (NULL != gFloaterView->getFrontmostClosableFloater());
+		LLFloater* snapshot_floater = gSnapshotFloaterView->getFrontmostClosableFloater();
+
+		if(snapshot_floater && (!frontmost_fl_exists || snapshot_floater->hasFocus()))
+		{
+			snapshot_floater->closeFloater();
+			if (gFocusMgr.getKeyboardFocus() == NULL)
+			{
+				gFloaterView->focusFrontFloater();
+			}
+		}
+		else
+		{
+			LLFloater::closeFrontmostFloater();
+		}
 		return true;
 	}
 };

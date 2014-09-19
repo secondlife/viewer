@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="region_restarting" title="REGION WIRD NEU GESTARTET">
+	<string name="RegionName">
+		Die Region, in der Sie sich gerade befinden ([NAME]), wird gleich neu gestartet.
+
+Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
+	</string>
+	<string name="RestartSeconds">
+		Sekunden bis Neustart
+[SECONDS]
+	</string>
+	<panel name="layout_panel_1">
+		<text name="region_name">
+			Die Region, in der Sie sich gerade befinden (-längster Regionsname-), wird gleich neu gestartet.
+
+Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
+		</text>
+		<text name="restart_seconds">
+			Sekunden bis Neustart
+     32767
+		</text>
+	</panel>
+</floater>

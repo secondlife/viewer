@@ -114,6 +114,8 @@ public:
 
 	virtual bool	hasAccelerators() const { return true; }
 
+	void 			setScriptName(const std::string& name){mScriptName = name;};
+
 private:
 	void		onBtnHelp();
 	void		onBtnDynamicHelp();
@@ -131,6 +133,7 @@ protected:
 	void deleteBridges();
 	void setHelpPage(const std::string& help_string);
 	void updateDynamicHelp(BOOL immediate = FALSE);
+	bool isKeyword(LLKeywordToken* token);
 	void addHelpItemToHistory(const std::string& help_string);
 	static void onErrorList(LLUICtrl*, void* user_data);
 
@@ -138,6 +141,7 @@ protected:
 
 private:
 	std::string		mSampleText;
+	std::string		mScriptName;
 	LLScriptEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);

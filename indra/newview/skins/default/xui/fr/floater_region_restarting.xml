@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="region_restarting" title="REDÉMARRAGE DE LA RÉGION">
+	<string name="RegionName">
+		La région dans laquelle vous vous trouvez actuellement ([NAME]) est sur le point de redémarrer.
+
+Si vous restez dans cette région, vous serez déconnecté(e).
+	</string>
+	<string name="RestartSeconds">
+		Secondes avant le redémarrage
+[SECONDS]
+	</string>
+	<panel name="layout_panel_1">
+		<text name="region_name">
+			La région dans laquelle vous vous trouvez actuellement (-le nom de région le plus long-) est sur le point de redémarrer.
+
+Si vous restez dans cette région, vous serez déconnecté(e).
+		</text>
+		<text name="restart_seconds">
+			Secondes avant le redémarrage
+     32767
+		</text>
+	</panel>
+</floater>

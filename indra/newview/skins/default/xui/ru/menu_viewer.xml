@@ -70,11 +70,11 @@
 			<menu_item_check label="Меню «Дополнительно»" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Солнце" name="Sun">
-			<menu_item_call label="Восход" name="Sunrise"/>
-			<menu_item_call label="Полдень" name="Noon"/>
-			<menu_item_call label="Закат" name="Sunset"/>
-			<menu_item_call label="Полночь" name="Midnight"/>
-			<menu_item_call label="Использовать настройки региона" name="Use Region Settings"/>
+			<menu_item_check label="Восход" name="Sunrise"/>
+			<menu_item_check label="Полдень" name="Noon"/>
+			<menu_item_check label="Закат" name="Sunset"/>
+			<menu_item_check label="Полночь" name="Midnight"/>
+			<menu_item_check label="Использовать настройки региона" name="Use Region Settings"/>
 		</menu>
 		<menu label="Редактор среды" name="Environment Editor">
 			<menu_item_call label="Настройки среды..." name="Environment Settings"/>
@@ -162,7 +162,6 @@
 	</menu>
 	<menu label="Справка" name="Help">
 		<menu_item_call label="Инструкции..." name="How To"/>
-		<menu_item_call label="Справка по [SECOND_LIFE]" name="Second Life Help"/>
 		<menu_item_call label="Жалоба" name="Report Abuse"/>
 		<menu_item_call label="Сообщить об ошибке" name="Report Bug"/>
 		<menu_item_call label="О [APP_NAME]" name="About Second Life"/>
@@ -178,6 +177,7 @@
 		<menu label="Производительность" name="Performance Tools">
 			<menu_item_call label="Запаздывание" name="Lag Meter"/>
 			<menu_item_check label="Статистика" name="Statistics Bar"/>
+			<menu_item_call label="Статистика загрузки сцен" name="Scene Load Statistics"/>
 			<menu_item_check label="Показать вес отрисовки для аватаров" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Подсветка и видимость" name="Highlighting and Visibility">
@@ -240,6 +240,7 @@
 			<menu_item_check label="Оперативные таймеры" name="Fast Timers"/>
 			<menu_item_check label="Память" name="Memory"/>
 			<menu_item_check label="Статистика по сцене" name="Scene Statistics"/>
+			<menu_item_check label="Монитор загрузки сцен" name="Scene Loading Monitor"/>
 			<menu_item_call label="Консоль отладки извлечения текстур" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Данные о регионе на консоль отладки" name="Region Info to Debug Console"/>
 			<menu_item_call label="Данны о группе на консоль отладки" name="Group Info to Debug Console"/>
@@ -276,6 +277,7 @@
 			<menu_item_check label="Периодическое замедление кадров" name="Periodic Slow Frame"/>
 			<menu_item_check label="Тест кадров" name="Frame Test"/>
 			<menu_item_call label="Профиль кадра" name="Frame Profile"/>
+			<menu_item_call label="Тест" name="Benchmark"/>
 		</menu>
 		<menu label="Визуализировать метаданные" name="Render Metadata">
 			<menu_item_check label="Рамки" name="Bounding Boxes"/>
@@ -294,6 +296,7 @@
 			<menu_item_check label="Очередь построителя" name="Build Queue"/>
 			<menu_item_check label="Освещение" name="Lights"/>
 			<menu_item_check label="Каркас столкновений" name="Collision Skeleton"/>
+			<menu_item_check label="Суставы" name="Joints"/>
 			<menu_item_check label="Лучи" name="Raycast"/>
 			<menu_item_check label="Направления ветра" name="Wind Vectors"/>
 			<menu_item_check label="Сложность визуализации" name="rendercomplexity"/>
@@ -326,6 +329,7 @@
 			<menu_item_check label="Визуализация присоединенных источников света" name="Render Attached Lights"/>
 			<menu_item_check label="Визуализация присоединенных частиц" name="Render Attached Particles"/>
 			<menu_item_check label="Парящие светящиеся объекты" name="Hover Glow Objects"/>
+			<menu_item_call label="Немедленно очистить кэш" name="Cache Clear"/>
 		</menu>
 		<menu label="Сеть" name="Network">
 			<menu_item_check label="Приостановить клиент" name="AgentPause"/>
@@ -358,7 +362,6 @@
 			<menu_item_call label="Вывод средства фокусировки" name="Dump Focus Holder"/>
 			<menu_item_call label="Печать информации о выбранных объектах" name="Print Selected Object Info"/>
 			<menu_item_call label="Печать информации об агенте" name="Print Agent Info"/>
-			<menu_item_check label="Консоль отладки региона" name="Region Debug Console"/>
 			<menu_item_check label="Отладка SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Отладка щелчков мышью" name="Debug Clicks"/>
 			<menu_item_check label="Отладка обзора" name="Debug Views"/>

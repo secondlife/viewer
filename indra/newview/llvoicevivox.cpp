@@ -3225,7 +3225,7 @@ void LLVivoxVoiceClient::mediaStreamUpdatedEvent(
 				session->mErrorStatusCode = statusCode;
 			break;
 		}
-		
+
 		switch(state)
 		{
 			case streamStateIdle:
@@ -5489,7 +5489,8 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 
 	// skipped to avoid speak button blinking
 	if (   status != LLVoiceClientStatusObserver::STATUS_JOINING
-		&& status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL)
+		&& status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL
+		&& status != LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED)
 	{
 		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 
