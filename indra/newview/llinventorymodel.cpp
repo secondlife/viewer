@@ -3974,64 +3974,68 @@ LLInventoryModel::FetchItemHttpHandler::~FetchItemHttpHandler()
 void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle handle,
 														 LLCore::HttpResponse * response)
 {
-	LLCore::HttpStatus status(response->getStatus());
-	// status = LLCore::HttpStatus(404);				// Dev tool to force error handling
-	if (! status)
+	// Single-pass do-while used for common exit handling
+	do
 	{
-		processFailure(status, response);
+		LLCore::HttpStatus status(response->getStatus());
+		// status = LLCore::HttpStatus(404);				// Dev tool to force error handling
+		if (! status)
+		{
+			processFailure(status, response);
+		}
+		else
+		{
+			LLCore::BufferArray * body(response->getBody());
+			// body = NULL;									// Dev tool to force error handling
+			if (! body || ! body->size())
+			{
+				LL_WARNS(LOG_INV) << "Missing data in inventory item query." << LL_ENDL;
+				processFailure("HTTP response for inventory item query missing body", response);
+				break;			// Goto common exit
+			}
+
+			// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
+			LLSD body_llsd;
+			if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
+			{
+				// INFOS-level logging will occur on the parsed failure
+				processFailure("HTTP response for inventory item query has malformed LLSD", response);
+				break;			// Goto common exit
+			}
+
+			// Expect top-level structure to be a map
+			// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
+			if (! body_llsd.isMap())
+			{
+				processFailure("LLSD response for inventory item not a map", response);
+				break;			// Goto common exit
+			}
+
+			// Check for 200-with-error failures
+			//
+			// Original Responder-based serivce model didn't check for these errors.
+			// It may be more robust to ignore this condition.  With aggregated requests,
+			// an error in one inventory item might take down the entire request.
+			// So if this instead broke up the aggregated items into single requests,
+			// maybe that would make progress.  Or perhaps there's structured information
+			// that can tell us what went wrong.  Need to dig into this and firm up
+			// the API.
+			//
+			// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
+			// body_llsd["error"]["identifier"] = "Development";
+			// body_llsd["error"]["message"] = "You left development code in the viewer";
+			if (body_llsd.has("error"))
+			{
+				processFailure("Inventory application error (200-with-error)", response);
+				break;			// Goto common exit
+			}
+
+			// Okay, process data if possible
+			processData(body_llsd, response);
+		}
 	}
-	else
-	{
-		LLCore::BufferArray * body(response->getBody());
-		// body = NULL;									// Dev tool to force error handling
-		if (! body || ! body->size())
-		{
-			LL_WARNS(LOG_INV) << "Missing data in inventory item query." << LL_ENDL;
-			processFailure("HTTP response for inventory item query missing body", response);
-			goto only_exit;
-		}
+	while (false);
 
-		// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
-		LLSD body_llsd;
-		if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
-		{
-			// INFOS-level logging will occur on the parsed failure
-			processFailure("HTTP response for inventory item query has malformed LLSD", response);
-			goto only_exit;
-		}
-
-		// Expect top-level structure to be a map
-		// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
-		if (! body_llsd.isMap())
-		{
-			processFailure("LLSD response for inventory item not a map", response);
-			goto only_exit;
-		}
-
-		// Check for 200-with-error failures
-		//
-		// Original Responder-based serivce model didn't check for these errors.
-		// It may be more robust to ignore this condition.  With aggregated requests,
-		// an error in one inventory item might take down the entire request.
-		// So if this instead broke up the aggregated items into single requests,
-		// maybe that would make progress.  Or perhaps there's structured information
-		// that can tell us what went wrong.  Need to dig into this and firm up
-		// the API.
-		//
-		// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
-		// body_llsd["error"]["identifier"] = "Development";
-		// body_llsd["error"]["message"] = "You left development code in the viewer";
-		if (body_llsd.has("error"))
-		{
-			processFailure("Inventory application error (200-with-error)", response);
-			goto only_exit;
-		}
-
-		// Okay, process data if possible
-		processData(body_llsd, response);
-	}
-
-only_exit:
 	// Must delete on completion.
 	delete this;
 }

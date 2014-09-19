@@ -288,6 +288,7 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 	}
 	mFolderFetchActive = false;
 	mBackgroundFetchActive = false;
+	LL_INFOS(LOG_INV) << "Inventory background fetch completed" << LL_ENDL;
 }
 
 void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
@@ -314,12 +315,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 		// No more categories to fetch, stop fetch process.
 		if (mFetchQueue.empty())
 		{
-			LL_INFOS(LOG_INV) << "Inventory fetch completed" << LL_ENDL;
-
 			setAllFoldersFetched();
-			mBackgroundFetchActive = false;
-			mFolderFetchActive = false;
-
 			return;
 		}
 
@@ -493,9 +489,10 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	// is mostly loaded, we could turn up the throttle and fill missing
 	// inventory more quickly.
 	static const S32 max_concurrent_fetches(12);		// Outstanding requests, not connections
-	static const F32 new_min_time(0.5f);		// *HACK:  Clean this up when old code goes away entirely.
+	static const F32 new_min_time(0.05f);		// *HACK:  Clean this up when old code goes away entirely.
 	static const U32 max_batch_size(10);
 	
+	mMinTimeBetweenFetches = 0.01f;
 	if (mMinTimeBetweenFetches < new_min_time) 
 	{
 		mMinTimeBetweenFetches = new_min_time;  // *HACK:  See above.
@@ -705,62 +702,66 @@ namespace
 
 void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
-	LLCore::HttpStatus status(response->getStatus());
-	// status = LLCore::HttpStatus(404);				// Dev tool to force error handling
-	if (! status)
+	// Single-pass do-while used for common exit handling
+	do
 	{
-		processFailure(status, response);
+		LLCore::HttpStatus status(response->getStatus());
+		// status = LLCore::HttpStatus(404);				// Dev tool to force error handling
+		if (! status)
+		{
+			processFailure(status, response);
+		}
+		else
+		{
+			// Response body should be present.
+			LLCore::BufferArray * body(response->getBody());
+			// body = NULL;									// Dev tool to force error handling
+			if (! body || ! body->size())
+			{
+				LL_WARNS(LOG_INV) << "Missing data in inventory folder query." << LL_ENDL;
+				processFailure("HTTP response missing expected body", response);
+				break;			// Goto common exit
+			}
+
+			// Could test 'Content-Type' header but probably unreliable.
+
+			// Convert response to LLSD
+			// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
+			LLSD body_llsd;
+			if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
+			{
+				// INFOS-level logging will occur on the parsed failure
+				processFailure("HTTP response contained malformed LLSD", response);
+				break;			// goto common exit
+			}
+
+			// Expect top-level structure to be a map
+			// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
+			if (! body_llsd.isMap())
+			{
+				processFailure("LLSD response not a map", response);
+				break;			// goto common exit
+			}
+
+			// Check for 200-with-error failures
+			//
+			// See comments in llinventorymodel.cpp about this mode of error.
+			//
+			// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
+			// body_llsd["error"]["identifier"] = "Development";
+			// body_llsd["error"]["message"] = "You left development code in the viewer";
+			if (body_llsd.has("error"))
+			{
+				processFailure("Inventory application error (200-with-error)", response);
+				break;			// goto common exit
+			}
+
+			// Okay, process data if possible
+			processData(body_llsd, response);
+		}
 	}
-	else
-	{
-		// Response body should be present.
-		LLCore::BufferArray * body(response->getBody());
-		// body = NULL;									// Dev tool to force error handling
-		if (! body || ! body->size())
-		{
-			LL_WARNS(LOG_INV) << "Missing data in inventory folder query." << LL_ENDL;
-			processFailure("HTTP response missing expected body", response);
-			goto only_exit;
-		}
+	while (false);
 
-		// Could test 'Content-Type' header but probably unreliable.
-
-		// Convert response to LLSD
-		// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
-		LLSD body_llsd;
-		if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
-		{
-			// INFOS-level logging will occur on the parsed failure
-			processFailure("HTTP response contained malformed LLSD", response);
-			goto only_exit;
-		}
-
-		// Expect top-level structure to be a map
-		// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
-		if (! body_llsd.isMap())
-		{
-			processFailure("LLSD response not a map", response);
-			goto only_exit;
-		}
-
-		// Check for 200-with-error failures
-		//
-		// See comments in llinventorymodel.cpp about this mode of error.
-		//
-		// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
-		// body_llsd["error"]["identifier"] = "Development";
-		// body_llsd["error"]["message"] = "You left development code in the viewer";
-		if (body_llsd.has("error"))
-		{
-			processFailure("Inventory application error (200-with-error)", response);
-			goto only_exit;
-		}
-
-		// Okay, process data if possible
-		processData(body_llsd, response);
-	}
-
-only_exit:
 	// Must delete on completion.
 	delete this;
 }
@@ -895,7 +896,6 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
 	
 	if (fetcher->isBulkFetchProcessingComplete())
 	{
-		LL_INFOS(LOG_INV) << "Inventory fetch completed" << LL_ENDL;
 		fetcher->setAllFoldersFetched();
 	}
 	

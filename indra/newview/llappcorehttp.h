@@ -66,7 +66,7 @@ public:
 		/// baking service.  Deep queueing of requests.
 		/// Do not share.  GET requests only.
 		///
-		/// Destination:     simhost:12046 & bake-texture:80
+		/// Destination:     simhost:12046 & {bake-texture,cdn}:80
 		/// Protocol:        http:
 		/// Transfer size:   KB-MB
 		/// Long poll:       no
@@ -95,7 +95,7 @@ public:
 		/// Very deeply queued.  Do not share.  GET
 		/// requests only.
 		///
-		/// Destination:     simhost:12046
+		/// Destination:     simhost:12046 & cdn:80
 		/// Protocol:        http:
 		/// Transfer size:   KB-MB
 		/// Long poll:       no
@@ -113,7 +113,7 @@ public:
 		/// traffic that can wait for longish stalls
 		/// (default timeout 600S).
 		///
-		/// Destination:     simhost:12046
+		/// Destination:     simhost:12046 & cdn:80
 		/// Protocol:        http:
 		/// Transfer size:   MB
 		/// Long poll:       no
@@ -163,7 +163,8 @@ public:
 		/// Request rate:    high
 		/// Pipelined:       no
 		AP_INVENTORY,
-
+		AP_REPORTING = AP_INVENTORY,	// Piggy-back on inventory
+		
 		AP_COUNT						// Must be last
 	};
 	

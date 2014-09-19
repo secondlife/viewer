@@ -179,6 +179,9 @@ public:
 	// Threads:  T*
 	LLCore::HttpHeaders * getMetricsHeaders() const	{ return mHttpMetricsHeaders; }
 
+	// Threads:  T*
+	LLCore::HttpRequest::policy_t getMetricsPolicyClass() const { return mHttpMetricsPolicyClass; }
+
 	bool isQAMode() const				{ return mQAMode; }
 
 	// ----------------------------------
@@ -354,8 +357,9 @@ private:
 	LLCore::HttpOptions *				mHttpOptions;					// Ttf
 	LLCore::HttpOptions *				mHttpOptionsWithHeaders;		// Ttf
 	LLCore::HttpHeaders *				mHttpHeaders;					// Ttf
-	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*
+	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
+	LLCore::HttpRequest::policy_t		mHttpMetricsPolicyClass;		// T*
 	S32									mHttpHighWater;					// Ttf
 	S32									mHttpLowWater;					// Ttf
 	
