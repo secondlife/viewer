@@ -51,6 +51,7 @@ namespace LLCore
 
 HttpLibcurl::HttpLibcurl(HttpService * service)
 	: mService(service),
+	  mHandleCache(),
 	  mPolicyCount(0),
 	  mMultiHandles(NULL),
 	  mActiveHandles(NULL),
@@ -61,7 +62,7 @@ HttpLibcurl::HttpLibcurl(HttpService * service)
 HttpLibcurl::~HttpLibcurl()
 {
 	shutdown();
-	
+
 	mService = NULL;
 }
 
@@ -279,7 +280,7 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 
 	// Detach from multi and recycle handle
 	curl_multi_remove_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
-	curl_easy_cleanup(op->mCurlHandle);
+	mHandleCache.freeHandle(op->mCurlHandle);
 	op->mCurlHandle = NULL;
 
 	// Tracing
@@ -356,7 +357,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 
 	// Detach from multi and recycle handle
 	curl_multi_remove_handle(multi_handle, handle);
-	curl_easy_cleanup(handle);
+	mHandleCache.freeHandle(op->mCurlHandle);
 	op->mCurlHandle = NULL;
 
 	// Tracing
@@ -468,6 +469,82 @@ void HttpLibcurl::policyUpdated(int policy_class)
 		// stop processing.
 		mDirtyPolicy[policy_class] = true;
 		policy.stallPolicy(policy_class, true);
+	}
+}
+
+// ---------------------------------------
+// HttpLibcurl::HandleCache
+// ---------------------------------------
+
+HttpLibcurl::HandleCache::HandleCache()
+	: mHandleTemplate(NULL)
+{
+	mCache.reserve(50);
+}
+
+
+HttpLibcurl::HandleCache::~HandleCache()
+{
+	if (mHandleTemplate)
+	{
+		curl_easy_cleanup(mHandleTemplate);
+		mHandleTemplate = NULL;
+	}
+
+	for (handle_cache_t::iterator it(mCache.begin()); mCache.end() != it; ++it)
+	{
+		curl_easy_cleanup(*it);
+	}
+	mCache.clear();
+}
+
+
+CURL * HttpLibcurl::HandleCache::getHandle()
+{
+	CURL * ret(NULL);
+	
+	if (! mCache.empty())
+	{
+		// Fastest path to handle
+		ret = mCache.back();
+		mCache.pop_back();
+	}
+	else if (mHandleTemplate)
+	{
+		// Still fast path
+		ret = curl_easy_duphandle(mHandleTemplate);
+	}
+	else
+	{
+		// When all else fails
+		ret = curl_easy_init();
+	}
+
+	return ret;
+}
+
+
+void HttpLibcurl::HandleCache::freeHandle(CURL * handle)
+{
+	if (! handle)
+	{
+		return;
+	}
+
+	curl_easy_reset(handle);
+	if (! mHandleTemplate)
+	{
+		// Save the first freed handle as a template.
+		mHandleTemplate = handle;
+	}
+	else
+	{
+		// Otherwise add it to the cache
+		if (mCache.size() >= mCache.capacity())
+		{
+			mCache.reserve(mCache.capacity() + 50);
+		}
+		mCache.push_back(handle);
 	}
 }
 

@@ -124,6 +124,23 @@ public:
 	/// Threading:  called by worker thread.
 	void policyUpdated(int policy_class);
 
+	/// Allocate a curl handle for caller.  May be freed using
+	/// either the freeHandle() method or calling curl_easy_cleanup()
+	/// directly.
+	///
+	/// @return			Libcurl handle (CURL *) or NULL on allocation
+	///					problem.  Handle will be in curl_easy_reset()
+	///					condition.
+	///
+	/// Threading:  callable by worker thread.
+	///
+	/// Deprecation:  Expect this to go away after _httpoprequest is
+	/// refactored bringing code into this class.
+	CURL * getHandle()
+		{
+			return mHandleCache.getHandle();
+		}
+
 protected:
 	/// Invoked when libcurl has indicated a request has been processed
 	/// to completion and we need to move the request to a new state.
@@ -135,14 +152,67 @@ protected:
 	
 protected:
 	typedef std::set<HttpOpRequest *> active_set_t;
+
+	/// Simple request handle cache for libcurl.
+	///
+	/// Handle creation is somewhat slow and chunky in libcurl and there's
+	/// a pretty good speedup to be had from handle re-use.  So, a simple
+	/// vector is kept of 'freed' handles to be reused as needed.  When
+	/// that is empty, the first freed handle is kept as a template for
+	/// handle duplication.  This is still faster than creation from nothing.
+	/// And when that fails, we init fresh from curl_easy_init().
+	///
+	/// Handles allocated with getHandle() may be freed with either
+	/// freeHandle() or curl_easy_cleanup().  Choice may be dictated
+	/// by thread constraints.
+	///
+	/// Threading:  Single-threaded.  May only be used by a single thread,
+	/// typically the worker thread.  If freeing requests' handles in an
+	/// unknown threading context, use curl_easy_cleanup() for safety.
+
+	class HandleCache
+	{
+	public:
+		HandleCache();
+		~HandleCache();
+
+	private:
+		HandleCache(const HandleCache &);				// Not defined
+		void operator=(const HandleCache &);			// Not defined
+
+	public:
+		/// Allocate a curl handle for caller.  May be freed using
+		/// either the freeHandle() method or calling curl_easy_cleanup()
+		/// directly.
+		///
+		/// @return			Libcurl handle (CURL *) or NULL on allocation
+		///					problem.
+		///
+		/// Threading:  Single-thread (worker) only.
+		CURL * getHandle();
+
+		/// Free a libcurl handle acquired by whatever means.  Thread
+		/// safety is left to the caller.
+		///
+		/// Threading:  Single-thread (worker) only.
+		void freeHandle(CURL * handle);
+
+	protected:
+		typedef std::vector<CURL *> handle_cache_t;
+	
+	protected:
+		CURL *				mHandleTemplate;		// Template for duplicating new handles
+		handle_cache_t		mCache;					// Cache of old handles
+	}; // end class HandleCache
 	
 protected:
-	HttpService *		mService;				// Simple reference, not owner
+	HttpService *		mService;			// Simple reference, not owner
+	HandleCache			mHandleCache;		// Handle allocator, owner
 	active_set_t		mActiveOps;
 	int					mPolicyCount;
-	CURLM **			mMultiHandles;			// One handle per policy class
-	int *				mActiveHandles;			// Active count per policy class
-	bool *				mDirtyPolicy;			// Dirty policy update waiting for stall (per pc)
+	CURLM **			mMultiHandles;		// One handle per policy class
+	int *				mActiveHandles;		// Active count per policy class
+	bool *				mDirtyPolicy;		// Dirty policy update waiting for stall (per pc)
 	
 }; // end class HttpLibcurl
 
