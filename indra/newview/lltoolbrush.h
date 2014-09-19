@@ -81,10 +81,14 @@ protected:
 					   const LLVector3& pos_world);
 
 	// Does region allow terraform, or are we a god?
-	bool canTerraform(LLViewerRegion* regionp) const;
+	bool canTerraformRegion(LLViewerRegion* regionp) const;
+
+	bool canTerraformParcel(LLViewerRegion* regionp) const;
 
 	// Modal dialog that you can't terraform the region
-	void alertNoTerraform(LLViewerRegion* regionp);
+	void alertNoTerraformRegion(LLViewerRegion* regionp);
+
+	void alertNoTerraformParcel();
 
 protected:
 	F32 mStartingZ;

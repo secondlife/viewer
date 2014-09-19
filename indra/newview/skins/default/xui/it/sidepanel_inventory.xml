@@ -33,7 +33,7 @@
 				<layout_panel name="shop_btn_lp">
 					<button label="Acquisti" name="shop_btn" tool_tip="Apri pagina web di Marketplace"/>
 					<button label="Indossa" name="wear_btn" tool_tip="Indossa il vestiario selezionato"/>
-					<button label="Riproduci" name="play_btn"/>
+					<button label="Gioca" name="play_btn"/>
 					<button label="Teleport" name="teleport_btn" tool_tip="Teleport alla zona selezionata"/>
 				</layout_panel>
 			</layout_stack>

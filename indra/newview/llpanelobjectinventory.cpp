@@ -698,6 +698,10 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	if(isItemRenameable())
 	{
 		items.push_back(std::string("Task Rename"));
+		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Task Rename"));
+		}
 	}
 	if(isItemRemovable())
 	{
@@ -1862,12 +1866,17 @@ void LLPanelObjectInventory::refresh()
 	}
 	if(!has_inventory)
 	{
-		mTaskUUID = LLUUID::null;
-		removeVOInventoryListener();
-		clearContents();
+		clearInventoryTask();
 	}
 	mInventoryViewModel.setTaskID(mTaskUUID);
 	//LL_INFOS() << "LLPanelObjectInventory::refresh() " << mTaskUUID << LL_ENDL;
+}
+
+void LLPanelObjectInventory::clearInventoryTask()
+{
+	mTaskUUID = LLUUID::null;
+	removeVOInventoryListener();
+	clearContents();
 }
 
 void LLPanelObjectInventory::removeSelectedItem()

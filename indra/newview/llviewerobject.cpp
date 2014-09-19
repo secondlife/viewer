@@ -2274,7 +2274,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 	}
 
-	if ((new_rot != getRotation())
+	if ((new_rot.isNotEqualEps(getRotation(), F_ALMOST_ZERO))
 		|| (new_angv != old_angv))
 	{
 		if (new_rot != mPreviousRotation)
@@ -2792,8 +2792,8 @@ void LLViewerObject::dirtyInventory()
 		mInventory->clear(); // will deref and delete entries
 		delete mInventory;
 		mInventory = NULL;
-		mInventoryDirty = TRUE;
 	}
+	mInventoryDirty = TRUE;
 }
 
 void LLViewerObject::registerInventoryListener(LLVOInventoryListener* listener, void* user_data)
@@ -2830,12 +2830,15 @@ void LLViewerObject::clearInventoryListeners()
 
 void LLViewerObject::requestInventory()
 {
-	mInventoryDirty = FALSE;
+	if(mInventoryDirty && mInventory && !mInventoryCallbacks.empty())
+	{
+		mInventory->clear(); // will deref and delete entries
+		delete mInventory;
+		mInventory = NULL;
+		mInventoryDirty = FALSE; //since we are going to request it now
+	}
 	if(mInventory)
 	{
-		//mInventory->clear() // will deref and delete it
-		//delete mInventory;
-		//mInventory = NULL;
 		doInventoryCallback();
 	}
 	// throw away duplicate requests
@@ -6188,6 +6191,17 @@ const LLUUID &LLViewerObject::extractAttachmentItemID()
 	}
 	setAttachmentItemID(item_id);
 	return getAttachmentItemID();
+}
+
+const std::string& LLViewerObject::getAttachmentItemName()
+{
+	static std::string empty;
+	LLInventoryItem *item = gInventory.getItem(getAttachmentItemID());
+	if (isAttachment() && item)
+	{
+		return item->getName();
+	}
+	return empty;
 }
 
 //virtual

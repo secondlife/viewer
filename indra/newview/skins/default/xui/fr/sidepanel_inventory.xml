@@ -31,10 +31,10 @@
 					<button label="Partager" name="share_btn" tool_tip="Partager un article de l&apos;inventaire"/>
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
-					<button label="Acheter" name="shop_btn" tool_tip="Accéder à la place du marché sur le Web"/>
+					<button label="Faire des achats" name="shop_btn" tool_tip="Accéder à la Place du marché sur le Web"/>
 					<button label="Porter" name="wear_btn" tool_tip="Porter la tenue sélectionnée"/>
-					<button label="Lire" name="play_btn"/>
-					<button label="Téléportation" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
+					<button label="Jouer" name="play_btn"/>
+					<button label="Téléporter" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>

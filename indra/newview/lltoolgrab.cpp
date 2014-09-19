@@ -56,6 +56,7 @@
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
+#include "llmenugl.h"
 
 const S32 SLOP_DIST_SQ = 4;
 
@@ -83,6 +84,7 @@ LLToolGrab::LLToolGrab( LLToolComposite* composite )
 	mLastFace(0),
 	mSpinGrabbing( FALSE ),
 	mSpinRotation(),
+	mClickedInMouselook( FALSE ),
 	mHideBuildHighlight(FALSE)
 { }
 
@@ -97,6 +99,8 @@ void LLToolGrab::handleSelect()
 	{
 		// viewer can crash during startup if we don't check.
 		gFloaterTools->setStatusText("grab");
+		// in case we start from tools floater, we count any selection as valid
+		mValidSelection = gFloaterTools->getVisible();
 	}
 	gGrabBtnVertical = FALSE;
 	gGrabBtnSpin = FALSE;
@@ -107,6 +111,14 @@ void LLToolGrab::handleDeselect()
 	if( hasMouseCapture() )
 	{
 		setMouseCapture( FALSE );
+	}
+
+	// Make sure that temporary(invalid) selection won't pass anywhere except pie tool.
+	MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
+	if (!mValidSelection && (override_mask != MASK_NONE || (gFloaterTools && gFloaterTools->getVisible())))
+	{
+		LLMenuGL::sMenuContainer->hideMenus();
+		LLSelectMgr::getInstance()->validateSelection();
 	}
 
 }
@@ -136,6 +148,7 @@ BOOL LLToolGrab::handleMouseDown(S32 x, S32 y, MASK mask)
 		// can grab transparent objects (how touch event propagates, scripters rely on this)
 		gViewerWindow->pickAsync(x, y, mask, pickCallback, TRUE);
 	}
+	mClickedInMouselook = gAgentCamera.cameraMouselook();
 	return TRUE;
 }
 
@@ -926,13 +939,21 @@ BOOL LLToolGrab::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		setMouseCapture( FALSE );
 	}
+
 	mMode = GRAB_INACTIVE;
 
-	// HACK: Make some grabs temporary
-	if (gGrabTransientTool)
+	if(mClickedInMouselook && !gAgentCamera.cameraMouselook())
 	{
-		gBasicToolset->selectTool( gGrabTransientTool );
-		gGrabTransientTool = NULL;
+		mClickedInMouselook = FALSE;
+	}
+	else
+	{
+		// HACK: Make some grabs temporary
+		if (gGrabTransientTool)
+		{
+			gBasicToolset->selectTool( gGrabTransientTool );
+			gGrabTransientTool = NULL;
+		}
 	}
 
 	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));

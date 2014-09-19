@@ -124,6 +124,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowResized:) name:NSWindowDidResizeNotification
+											   object:[self window]];    
+ 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowWillMiniaturize:) name:NSWindowWillMiniaturizeNotification
+											   object:[self window]];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowDidDeminiaturize:) name:NSWindowDidDeminiaturizeNotification
 											   object:[self window]];
 }
 
@@ -139,6 +147,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
         NSSize size = [self frame].size;
         callResize(size.width, size.height);
     }
+}
+
+- (void)windowWillMiniaturize:(NSNotification *)notification;
+{
+    callWindowHide();
+}
+
+- (void)windowDidDeminiaturize:(NSNotification *)notification;
+{
+    callWindowUnhide();
 }
 
 - (void)dealloc
@@ -349,9 +367,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	callMiddleMouseUp(mMousePos, mModifiers);
 }
 
+- (void) rightMouseDragged:(NSEvent *)theEvent
+{
+	[self mouseDragged:theEvent];
+}
+
 - (void) otherMouseDragged:(NSEvent *)theEvent
 {
-	
+	[self mouseDragged:theEvent];        
 }
 
 - (void) scrollWheel:(NSEvent *)theEvent
@@ -398,9 +421,35 @@ attributedStringInfo getSegments(NSAttributedString *str)
     }
 }
 
-- (void)flagsChanged:(NSEvent *)theEvent {
+- (void)flagsChanged:(NSEvent *)theEvent
+{
 	mModifiers = [theEvent modifierFlags];
 	callModifier([theEvent modifierFlags]);
+     
+    NSInteger mask = 0;
+    switch([theEvent keyCode])
+    {        
+        case 56:
+            mask = NSShiftKeyMask;
+            break;
+        case 58:
+            mask = NSAlternateKeyMask;
+            break;
+        case 59:
+            mask = NSControlKeyMask;
+            break;
+        default:
+            return;            
+    }
+    
+    if (mModifiers & mask)
+    {
+        callKeyDown([theEvent keyCode], 0);
+    }
+    else
+    {
+        callKeyUp([theEvent keyCode], 0);
+    }  
 }
 
 - (BOOL) acceptsFirstResponder

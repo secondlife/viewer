@@ -28,6 +28,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Error de inicialización de gráficos. Actualiza tu controlador de gráficos.
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="AboutCompiler">
+		Compilado con [COMPILER], versión [COMPILER_VERSION]
+	</string>
+	<string name="AboutPosition">
+		Estás en la posición [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1], de [REGION], alojada en &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(coordenadas globales [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU: [CPU]
+Memoria: [MEMORY_MB] MB
+Versión del Sistema Operativo: [OS_VERSION]
+Fabricante de la tarjeta gráfica: [GRAPHICS_CARD_VENDOR]
+Tarjeta gráfica: [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Versión de Windows Graphics Driver: [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		Versión de OpenGL: [OPENGL_VERSION]
+
+Versión de libcurl: [LIBCURL_VERSION]
+Versión de J2C Decoder: [J2C_VERSION]
+Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
+Versión de Qt Webkit: [QT_WEBKIT_VERSION]
+Versión del servidor de voz: [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Error al obtener la URL de las notas de la versión del servidor.
+	</string>
 	<string name="ProgressRestoring">
 		Restaurando...
 	</string>
@@ -922,11 +961,11 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="ControlYourCamera">
 		Controlar su cámara
 	</string>
-	<string name="AgentNameSubst">
-		(Tú)
-	</string>
 	<string name="TeleportYourAgent">
 		Teleportarte
+	</string>
+	<string name="AgentNameSubst">
+		(Tú)
 	</string>
 	<string name="JoinAnExperience">
 		Únete a una experiencia
@@ -1252,8 +1291,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InventoryInboxNoItems">
 		Aquí aparecerán algunos de los objetos que recibas, como los regalos Premium. Después puedes arrastrarlos a tu inventario.
 	</string>
-  <string name="Unconstrained">Sin restricciones</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1282,6 +1320,18 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InventoryOutboxNoItems">
 		Arrastra carpetas a esta sección y pulsa en &quot;Enviar al Mercado&quot; para incluirlas en la lista de venta del [[MARKETPLACE_DASHBOARD_URL] Mercado].
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Inicializando el Mercado.
+	</string>
+	<string name="InventoryOutboxInitializing">
+		Estamos accediendo a tu cuenta de la [[MARKETPLACE_CREATE_STORE_URL] tienda del Mercado].
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Errores del Mercado.
+	</string>
+	<string name="InventoryOutboxError">
+		La [[MARKETPLACE_CREATE_STORE_URL] tienda del Mercado] devuelve errores.
+	</string>
 	<string name="Marketplace Error None">
 		Sin errores
 	</string>
@@ -1308,6 +1358,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="Open landmarks">
 		Abrir hitos
+	</string>
+	<string name="Unconstrained">
+		Sin restricciones
 	</string>
 	<string name="no_transfer" value="(no transferible)"/>
 	<string name="no_modify" value="(no modificable)"/>
@@ -1702,6 +1755,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Descargado, compilándolo
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		El servicio de compilación de scripts no está disponible
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		No se encuentra el script en el servidor.
