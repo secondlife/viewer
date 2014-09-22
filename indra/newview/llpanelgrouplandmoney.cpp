@@ -428,10 +428,18 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 
 			S32 committed = 0;
 			S32 billable_area = 0;
-			for(S32 i = first_block; i < count; ++i)
+
+			if(count == 1)
 			{
-				msg->getS32("QueryData", "BillableArea", billable_area, i);
-				committed+=billable_area;
+				msg->getS32("QueryData", "BillableArea", committed, 0);
+			}
+			else
+			{
+				for(S32 i = first_block; i < count; ++i)
+				{
+					msg->getS32("QueryData", "BillableArea", billable_area, i);
+					committed+=billable_area;
+				}
 			}
 
 			S32 total_contribution;
