@@ -44,6 +44,8 @@
 #include "llwindow.h"
 #include <boost/bind.hpp>
 
+#include "uriparser/Uri.h"
+
 const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
@@ -2019,6 +2021,41 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 
 static LLTrace::BlockTimerStatHandle FTM_PARSE_HTML("Parse HTML");
 
+S32 LLTextBase::normalizeUri(std::string& uri_string)
+{
+	UriParserStateA state;
+	UriUriA uri;
+	state.uri = &uri;
+
+	S32 res = uriParseUriA(&state, uri_string.c_str());
+
+	if (!res)	
+	{
+		res = uriNormalizeSyntaxExA(&uri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
+
+		if (!res)
+		{
+			S32 chars_required;
+			res = uriToStringCharsRequiredA(&uri, &chars_required);
+
+			if (!res)
+			{
+				chars_required++;
+				std::vector<char> label_buf(chars_required);
+				res = uriToStringA(&label_buf[0], &uri, chars_required, NULL);
+
+				if (!res)
+				{
+					uri_string = &label_buf[0];
+				}
+			}
+		}
+	}
+
+	uriFreeUriMembersA(&uri);
+	return res;
+}
+
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
@@ -2055,8 +2092,12 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				std::string subtext=text.substr(0,start);
 				appendAndHighlightText(subtext, part, style_params); 
 			}
+
+			std::string label = match.getLabel();
+			normalizeUri(label);
+
 			// output the styled Url
-			appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
+			appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
 			
 			// set the tooltip for the Url label
 			if (! match.getTooltip().empty())
