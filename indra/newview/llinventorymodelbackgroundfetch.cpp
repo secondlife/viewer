@@ -42,6 +42,56 @@
 #include "bufferstream.h"
 #include "llcorehttputil.h"
 
+// History (may be apocryphal)
+//
+// Around V2, an HTTP inventory download mechanism was added
+// along with inventory LINK items referencing other inventory
+// items.  As part of this, at login, the entire inventory
+// structure is downloaded 'in the background' using the
+// backgroundFetch()/bulkFetch() methods.  The UDP path can
+// still be used and is found in the 'DEPRECATED OLD CODE'
+// section.
+//
+// The old UDP path implemented a throttle that adapted
+// itself during running.  The mechanism survived info HTTP
+// somewhat but was pinned to poll the HTTP plumbing at
+// 0.5S intervals.  The reasons for this particular value
+// have been lost.  It's possible to switch between UDP
+// and HTTP while this is happening but there may be
+// surprises in what happens in that case.
+//
+// Conversion to llcorehttp reduced the number of connections
+// used but batches more data and queues more requests (but
+// doesn't due pipelining due to libcurl restrictions).  The
+// poll interval above was re-examined and reduced to get
+// inventory into the viewer more quickly.
+//
+// Possible future work:
+//
+// * Don't download the entire heirarchy in one go (which
+//   might have been how V1 worked).  Implications for
+//   links (which may not have a valid target) and search
+//   which would then be missing data.
+//
+// * Review the download rate throttling.  Slow then fast?
+//   Detect bandwidth usage and speed up when it drops?
+//
+// * A lot of calls to notifyObservers().  It looks like
+//   these could be collapsed by maintaining a 'dirty'
+//   bit and there appears to be an attempt to do this.
+//   But it isn't used or is used in a limited fashion.
+//   Are there semanic issues requiring a call after certain
+//   updateItem() calls?
+//
+// * An error on a fetch could be due to one item in the batch.
+//   If the batch were broken up, perhaps more of the inventory
+//   would download.  (Handwave here, not certain this is an
+//   issue in practice.)
+//
+// * Conversion to AISv3.
+//
+
+
 namespace
 {
 
@@ -488,11 +538,11 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	// a fast/slow fetch throttle.  Once login is complete and the scene
 	// is mostly loaded, we could turn up the throttle and fill missing
 	// inventory more quickly.
+	static const U32 max_batch_size(10);
 	static const S32 max_concurrent_fetches(12);		// Outstanding requests, not connections
 	static const F32 new_min_time(0.05f);		// *HACK:  Clean this up when old code goes away entirely.
-	static const U32 max_batch_size(10);
 	
-	mMinTimeBetweenFetches = 0.01f;
+	mMinTimeBetweenFetches = new_min_time;
 	if (mMinTimeBetweenFetches < new_min_time) 
 	{
 		mMinTimeBetweenFetches = new_min_time;  // *HACK:  See above.
@@ -702,63 +752,61 @@ namespace
 
 void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
 {
-	// Single-pass do-while used for common exit handling
-	do
+	do  	// Single-pass do-while used for common exit handling
 	{
 		LLCore::HttpStatus status(response->getStatus());
 		// status = LLCore::HttpStatus(404);				// Dev tool to force error handling
 		if (! status)
 		{
 			processFailure(status, response);
+			break;			// Goto common exit
 		}
-		else
+
+		// Response body should be present.
+		LLCore::BufferArray * body(response->getBody());
+		// body = NULL;									// Dev tool to force error handling
+		if (! body || ! body->size())
 		{
-			// Response body should be present.
-			LLCore::BufferArray * body(response->getBody());
-			// body = NULL;									// Dev tool to force error handling
-			if (! body || ! body->size())
-			{
-				LL_WARNS(LOG_INV) << "Missing data in inventory folder query." << LL_ENDL;
-				processFailure("HTTP response missing expected body", response);
-				break;			// Goto common exit
-			}
-
-			// Could test 'Content-Type' header but probably unreliable.
-
-			// Convert response to LLSD
-			// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
-			LLSD body_llsd;
-			if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
-			{
-				// INFOS-level logging will occur on the parsed failure
-				processFailure("HTTP response contained malformed LLSD", response);
-				break;			// goto common exit
-			}
-
-			// Expect top-level structure to be a map
-			// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
-			if (! body_llsd.isMap())
-			{
-				processFailure("LLSD response not a map", response);
-				break;			// goto common exit
-			}
-
-			// Check for 200-with-error failures
-			//
-			// See comments in llinventorymodel.cpp about this mode of error.
-			//
-			// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
-			// body_llsd["error"]["identifier"] = "Development";
-			// body_llsd["error"]["message"] = "You left development code in the viewer";
-			if (body_llsd.has("error"))
-			{
-				processFailure("Inventory application error (200-with-error)", response);
-				break;			// goto common exit
-			}
-
-			// Okay, process data if possible
-			processData(body_llsd, response);
+			LL_WARNS(LOG_INV) << "Missing data in inventory folder query." << LL_ENDL;
+			processFailure("HTTP response missing expected body", response);
+			break;			// Goto common exit
 		}
+
+		// Could test 'Content-Type' header but probably unreliable.
+
+		// Convert response to LLSD
+		// body->write(0, "Garbage Response", 16);		// Dev tool to force error handling
+		LLSD body_llsd;
+		if (! LLCoreHttpUtil::responseToLLSD(response, true, body_llsd))
+		{
+			// INFOS-level logging will occur on the parsed failure
+			processFailure("HTTP response contained malformed LLSD", response);
+			break;			// goto common exit
+		}
+
+		// Expect top-level structure to be a map
+		// body_llsd = LLSD::emptyArray();				// Dev tool to force error handling
+		if (! body_llsd.isMap())
+		{
+			processFailure("LLSD response not a map", response);
+			break;			// goto common exit
+		}
+
+		// Check for 200-with-error failures
+		//
+		// See comments in llinventorymodel.cpp about this mode of error.
+		//
+		// body_llsd["error"] = LLSD::emptyMap();		// Dev tool to force error handling
+		// body_llsd["error"]["identifier"] = "Development";
+		// body_llsd["error"]["message"] = "You left development code in the viewer";
+		if (body_llsd.has("error"))
+		{
+			processFailure("Inventory application error (200-with-error)", response);
+			break;			// goto common exit
+		}
+
+		// Okay, process data if possible
+		processData(body_llsd, response);
 	}
 	while (false);
 

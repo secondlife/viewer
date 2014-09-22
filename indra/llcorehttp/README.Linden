@@ -529,6 +529,14 @@ HttpOperation::addAsReply: TRACE, ToReplyQueue, Handle:  086D3148
         data = NULL;
 
 
+    There are now helper functions in llmessage/llcorehttputil.h to
+    assist with LLSD usage.  requestPostWithLLSD(...) provides a
+    requestPost()-like interface that takes an LLSD object rather than
+    a BufferArray.  And responseToLLSD(...) attempts to convert a
+    BufferArray received from a server into an LLSD object.  You can
+    find examples in llmeshrepository.cpp, llinventorymodel.cpp,
+    llinventorymodelbackgroundfetch.cpp and lltexturefetch.cpp.
+
     LLSD will often go hand-in-hand with BufferArray and data
     transport.  But you can also do all the streaming I/O you'd expect
     of a std::iostream object:
