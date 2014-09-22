@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="region_restarting" title="RIAVVIO REGIONE IN CORSO">
+	<string name="RegionName">
+		La regione in cui ti trovi ([NAME]) verrà riavviata tra breve.
+
+Se rimani in questa regione verrai scollegato da Second Life.
+	</string>
+	<string name="RestartSeconds">
+		Secondi prima del riavvio
+[SECONDS]
+	</string>
+	<panel name="layout_panel_1">
+		<text name="region_name">
+			La regione in cui ti trovi (il nome di regione più lungo) verrà riavviata tra breve.
+
+Se rimani in questa regione verrai scollegato da Second Life.
+		</text>
+		<text name="restart_seconds">
+			Secondi prima del riavvio
+     32767
+		</text>
+	</panel>
+</floater>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="region_restarting" title="ПЕРЕЗАПУСК РЕГИОНА">
+	<string name="RegionName">
+		Регион, в котором вы находитесь ([NAME]), будет перезапущен.
+
+Если вы останетесь в этом регионе, вы выйдете из системы.
+	</string>
+	<string name="RestartSeconds">
+		Секунд до перезапуска
+[SECONDS]
+	</string>
+	<panel name="layout_panel_1">
+		<text name="region_name">
+			Регион, в котором вы находитесь (-длинное название региона-), будет перезапущен.
+
+Если вы останетесь в этом регионе, вы выйдете из системы.
+		</text>
+		<text name="restart_seconds">
+			Секунд до перезапуска
+     32767
+		</text>
+	</panel>
+</floater>

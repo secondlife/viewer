@@ -40,6 +40,13 @@
 class LLWeb
 {
 public:
+	enum PreferredBrowser
+	{
+		BROWSER_EXTERNAL_ONLY = 0,
+		BROWSER_INT_LL_EXT_OTHERS = 1,
+		BROWSER_INTERNAL_ONLY = 2
+	};
+
 	static void initClass();
 	
 	/// Load the given url in the operating system's web browser, async if we want to return immediately
@@ -57,6 +64,7 @@ public:
 	/// Expands various strings like [LANG], [VERSION], etc. in a URL
 	static std::string expandURLSubstitutions(const std::string &url,
 											  const LLSD &default_subs);
+	static bool useExternalBrowser(const std::string &url);
 };
 
 #endif

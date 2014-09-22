@@ -20,6 +20,7 @@ Ctrl tuşuna basıp adlarına tıklayarak birden fazla Üye seçebilirsiniz.
 				<name_list.columns label="Üye" name="name"/>
 				<name_list.columns label="Bağış" name="donated"/>
 				<name_list.columns label="Durum" name="online"/>
+				<name_list.columns label="Ünvan" name="title"/>
 			</name_list>
 			<button label="Davet Et" name="member_invite"/>
 			<button label="Çıkar" name="member_eject"/>

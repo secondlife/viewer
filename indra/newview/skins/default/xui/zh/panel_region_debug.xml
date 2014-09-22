@@ -28,7 +28,8 @@
 	<check_box label="於這個領地內的每一個地區" name="return_estate_wide" tool_tip="退回這個領地內全部地區中標記為他的物件"/>
 	<button label="退回" name="return_btn"/>
 	<button label="取得最常碰撞的物件..." name="top_colliders_btn" tool_tip="條列出目前運作中最常碰撞的物件清單"/>
-	<button label="取得最耗能腳本..." name="top_scripts_btn" tool_tip="條列���目前運作中最耗能的腳本清單"/>
 	<button label="地區重新啟動" name="restart_btn" tool_tip="給予兩分鐘倒數計時並重新啟動"/>
+	<button label="取得最耗能腳本..." name="top_scripts_btn" tool_tip="條列���目前運作中最耗能的腳本清單"/>
 	<button label="取消重新啟動" name="cancel_restart_btn" tool_tip="取消地區重新啟動"/>
+	<button label="地區除錯控制台" name="region_debug_console_btn" tool_tip="開啟地區除錯控制台"/>
 </panel>

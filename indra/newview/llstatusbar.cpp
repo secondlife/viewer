@@ -200,6 +200,7 @@ BOOL LLStatusBar::postBuild()
 	sgp.stat.count_stat_float(&LLStatViewer::ACTIVE_MESSAGE_DATA_RECEIVED);
 	sgp.units("Kbps");
 	sgp.precision(0);
+	sgp.per_sec(true);
 	mSGBandwidth = LLUICtrlFactory::create<LLStatGraph>(sgp);
 	addChild(mSGBandwidth);
 	x -= SIM_STAT_WIDTH + 2;

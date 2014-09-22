@@ -72,11 +72,11 @@
 			<menu_item_check label="Menu Avancé" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Luminosité" name="Sun">
-			<menu_item_call label="Aube" name="Sunrise"/>
-			<menu_item_call label="Milieu de journée" name="Noon"/>
-			<menu_item_call label="Coucher de soleil" name="Sunset"/>
-			<menu_item_call label="Minuit" name="Midnight"/>
-			<menu_item_call label="Utiliser les réglages de la région" name="Use Region Settings"/>
+			<menu_item_check label="Aube" name="Sunrise"/>
+			<menu_item_check label="Milieu de journée" name="Noon"/>
+			<menu_item_check label="Coucher de soleil" name="Sunset"/>
+			<menu_item_check label="Minuit" name="Midnight"/>
+			<menu_item_check label="Utiliser les réglages de la région" name="Use Region Settings"/>
 		</menu>
 		<menu label="Éditeur d&apos;environnement" name="Environment Editor">
 			<menu_item_call label="Paramètres d&apos;environnement..." name="Environment Settings"/>
@@ -165,8 +165,6 @@
 	</menu>
 	<menu label="Aide" name="Help">
 		<menu_item_call label="Aide rapide..." name="How To"/>
-		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_call label="Guide de l&apos;utilisateur" name="User’s guide"/>
 		<menu_item_call label="Base de connaissances" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Forums de la communauté" name="Community Forums"/>
@@ -188,6 +186,7 @@
 		<menu label="Outils de performance" name="Performance Tools">
 			<menu_item_call label="Mesure du lag" name="Lag Meter"/>
 			<menu_item_check label="Barre de statistiques" name="Statistics Bar"/>
+			<menu_item_call label="Statistiques de chargement de scène" name="Scene Load Statistics"/>
 			<menu_item_check label="Afficher le poids de dessin pour les avatars" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Surbrillance et visibilité" name="Highlighting and Visibility">
@@ -250,6 +249,7 @@
 			<menu_item_check label="Chronos" name="Fast Timers"/>
 			<menu_item_check label="Mémoire" name="Memory"/>
 			<menu_item_check label="Statistiques de la scène" name="Scene Statistics"/>
+			<menu_item_check label="Moniteur de chargement de scène" name="Scene Loading Monitor"/>
 			<menu_item_call label="Console de débogage de la récupération des textures" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Infos de région vers la console de débogage" name="Region Info to Debug Console"/>
 			<menu_item_call label="Infos de groupe vers la console de débogage" name="Group Info to Debug Console"/>
@@ -286,6 +286,7 @@
 			<menu_item_check label="Cadre lent périodique" name="Periodic Slow Frame"/>
 			<menu_item_check label="Test cadre" name="Frame Test"/>
 			<menu_item_call label="Profil du cadre" name="Frame Profile"/>
+			<menu_item_call label="Référence" name="Benchmark"/>
 		</menu>
 		<menu label="Métadonnées de rendu" name="Render Metadata">
 			<menu_item_check label="Cadres" name="Bounding Boxes"/>
@@ -304,6 +305,7 @@
 			<menu_item_check label="File d&apos;attente pour la construction" name="Build Queue"/>
 			<menu_item_check label="Lumières" name="Lights"/>
 			<menu_item_check label="Squelette de collision" name="Collision Skeleton"/>
+			<menu_item_check label="Articulations" name="Joints"/>
 			<menu_item_check label="Rayons" name="Raycast"/>
 			<menu_item_check label="Vecteurs de vent" name="Wind Vectors"/>
 			<menu_item_check label="Complexité du rendu" name="rendercomplexity"/>
@@ -336,6 +338,7 @@
 			<menu_item_check label="Rendu des lumières jointes" name="Render Attached Lights"/>
 			<menu_item_check label="Rendu des particules jointes" name="Render Attached Particles"/>
 			<menu_item_check label="Objets en surbrillance avec le pointeur" name="Hover Glow Objects"/>
+			<menu_item_call label="Vider le cache immédiatement" name="Cache Clear"/>
 		</menu>
 		<menu label="Réseau" name="Network">
 			<menu_item_check label="Pauser l&apos;avatar" name="AgentPause"/>
@@ -368,7 +371,6 @@
 			<menu_item_call label="Dump Focus Holder" name="Dump Focus Holder"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;objet sélectionné" name="Print Selected Object Info"/>
 			<menu_item_call label="Imprimer les infos sur l&apos;avatar" name="Print Agent Info"/>
-			<menu_item_check label="Console de débogage de région" name="Region Debug Console"/>
 			<menu_item_check label="Débogage SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Débogage clics" name="Debug Clicks"/>
 			<menu_item_check label="Débogage des vues" name="Debug Views"/>

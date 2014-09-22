@@ -64,6 +64,7 @@
 #include "llfloaterinventory.h"
 #include "llfloaterimcontainer.h"
 #include "llfloaterland.h"
+#include "llfloaterimnearbychat.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
@@ -92,6 +93,7 @@
 #include "llparcel.h"
 #include "llrootview.h"
 #include "llsceneview.h"
+#include "llscenemonitor.h"
 #include "llselectmgr.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
@@ -533,6 +535,10 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)gSceneView);
 		}
+		else if ("scene monitor" == console_type)
+		{
+			toggle_visibility( (void*)gSceneMonitorView);
+		}
 
 		return true;
 	}
@@ -558,6 +564,10 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("scene view" == console_type)
 		{
 			new_value = get_visibility( (void*) gSceneView);
+		}
+		else if ("scene monitor" == console_type)
+		{
+			new_value = get_visibility( (void*) gSceneMonitorView);
 		}
 		
 		return new_value;
@@ -5660,6 +5670,25 @@ void toggle_debug_menus(void*)
 // 	gExportDialog = LLUploadDialog::modalUploadDialog("Exporting selected objects...");
 // }
 //
+
+class LLCommunicateNearbyChat : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloaterIMContainer* im_box = LLFloaterIMContainer::getInstance();
+		bool nearby_visible	= LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->isInVisibleChain();
+		if(nearby_visible && im_box->getSelectedSession() == LLUUID() && im_box->getConversationListItemSize() > 1)
+		{
+			im_box->selectNextorPreviousConversation(false);
+		}
+		else
+		{
+			LLFloaterReg::toggleInstanceOrBringToFront("nearby_chat");
+		}
+		return true;
+	}
+};
+
 class LLWorldSetHomeLocation : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -6176,7 +6205,7 @@ class LLPromptShowURL : public view_listener_t
 			std::string alert = param.substr(0, offset);
 			std::string url = param.substr(offset+1);
 
-			if(gSavedSettings.getBOOL("UseExternalBrowser"))
+			if (LLWeb::useExternalBrowser(url))
 			{ 
     			LLSD payload;
     			payload["url"] = url;
@@ -7796,7 +7825,7 @@ void handle_web_content_test(const LLSD& param)
 void handle_show_url(const LLSD& param)
 {
 	std::string url = param.asString();
-	if(gSavedSettings.getBOOL("UseExternalBrowser"))
+	if (LLWeb::useExternalBrowser(url))
 	{
 		LLWeb::loadURLExternal(url);
 	}
@@ -8233,9 +8262,9 @@ class LLWorldEnableEnvSettings : public view_listener_t
 		bool result = false;
 		std::string tod = userdata.asString();
 
-		if (tod == "region")
+		if (LLEnvManagerNew::instance().getUseRegionSettings())
 		{
-			return LLEnvManagerNew::instance().getUseRegionSettings();
+			return (tod == "region");
 		}
 
 		if (LLEnvManagerNew::instance().getUseFixedSky())
@@ -8577,6 +8606,9 @@ void initialize_menus()
 	
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+
+	//Communicate Nearby chat
+	view_listener_t::addMenu(new LLCommunicateNearbyChat(), "Communicate.NearbyChat");
 
 	// Communicate > Voice morphing > Subscribe...
 	commit.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));

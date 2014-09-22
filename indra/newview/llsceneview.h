@@ -39,6 +39,7 @@ public:
 	
 protected:
 	virtual void onClose(bool app_qutting = false);
+    virtual void onClickCloseBtn(bool app_qutting = false);
 
 
 };

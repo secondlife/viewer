@@ -50,6 +50,8 @@
 #include "llviewerwindow.h"
 #include "llnotificationsutil.h"
 
+#include <boost/regex.hpp>
+
 bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async );
 
 
@@ -87,7 +89,8 @@ void LLWeb::loadURL(const std::string& url, const std::string& target, const std
 		// Force load in the internal browser, as if with a blank target.
 		loadURLInternal(url, "", uuid);
 	}
-	else if (gSavedSettings.getBOOL("UseExternalBrowser") || (target == "_external"))
+
+	else if (useExternalBrowser(url) || (target == "_external"))
 	{
 		loadURLExternal(url);
 	}
@@ -224,4 +227,20 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	LLStringUtil::format(expanded_url, substitution);
 
 	return LLWeb::escapeURL(expanded_url);
+}
+
+//static
+bool LLWeb::useExternalBrowser(const std::string &url)
+{
+	if (gSavedSettings.getU32("PreferredBrowserBehavior") == BROWSER_EXTERNAL_ONLY)
+	{
+		return true;
+	}
+	else if (gSavedSettings.getU32("PreferredBrowserBehavior") == BROWSER_INT_LL_EXT_OTHERS)
+	{
+		boost::regex pattern = boost::regex("\\b(lindenlab.com|secondlife.com)\\b", boost::regex::perl|boost::regex::icase);
+		boost::match_results<std::string::const_iterator> matches;
+		return !(boost::regex_search(url, matches, pattern));	
+	}
+	return false;
 }

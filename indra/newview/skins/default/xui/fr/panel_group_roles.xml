@@ -20,6 +20,7 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 				<name_list.columns label="Membre" name="name"/>
 				<name_list.columns label="Donation" name="donated"/>
 				<name_list.columns label="Statut" name="online"/>
+				<name_list.columns label="Titre" name="title"/>
 			</name_list>
 			<button label="Inviter" name="member_invite"/>
 			<button label="Expulser" name="member_eject"/>

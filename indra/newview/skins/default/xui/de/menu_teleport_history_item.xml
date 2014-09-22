@@ -2,5 +2,5 @@
 <context_menu name="Teleport History Item Context Menu">
 	<menu_item_call label="Teleportieren" name="Teleport"/>
 	<menu_item_call label="Weitere Informationen" name="More Information"/>
-	<menu_item_call label="In Zwischenablage kopieren" name="CopyToClipboard"/>
+	<menu_item_call label="SLurl kopieren" name="CopyToClipboard"/>
 </context_menu>

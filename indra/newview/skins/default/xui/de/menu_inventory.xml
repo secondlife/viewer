@@ -70,6 +70,7 @@
 	<menu_item_call label="Wiedergeben/Abspielen" name="Sound Play"/>
 	<menu_item_call label="SLurl kopieren" name="url_copy"/>
 	<menu_item_call label="Landmarken-Info" name="About Landmark"/>
+	<menu_item_call label="Auf Karte anzeigen" name="show_on_map"/>
 	<menu_item_call label="Inworld abspielen" name="Animation Play"/>
 	<menu_item_call label="Lokal abspielen" name="Animation Audition"/>
 	<menu_item_call label="Instant Message senden" name="Send Instant Message"/>

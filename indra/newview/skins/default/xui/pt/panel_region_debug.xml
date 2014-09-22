@@ -7,11 +7,8 @@
 		desconhecido
 	</text>
 	<check_box label="Desativar scripts" name="disable_scripts_check" tool_tip="Desativar todos os scripts nesta região"/>
-	<button label="?" name="disable_scripts_help"/>
 	<check_box label="Desativar colisões" name="disable_collisions_check" tool_tip="Desabilitar colisões de não-avatares nessa região"/>
-	<button label="?" name="disable_collisions_help"/>
 	<check_box label="Desativar física" name="disable_physics_check" tool_tip="Desativar toda a físíca nesta região"/>
-	<button label="?" name="disable_physics_help"/>
 	<button label="Aplicar" name="apply_btn"/>
 	<text name="objret_text_lbl" width="130">
 		Devolver objeto
@@ -31,10 +28,8 @@
 	<check_box label="Em todas as regiões desta propriedade" name="return_estate_wide" tool_tip="Devolver objetos em todas as regiões que constituem esta propriedade"/>
 	<button label="Devolver" name="return_btn"/>
 	<button label="Principais colidentes..." name="top_colliders_btn" tool_tip="Lista dos objetos com maior potencial de colisão" width="280"/>
-	<button label="?" left="297" name="top_colliders_help"/>
-	<button label="Principais scripts..." name="top_scripts_btn" tool_tip="Lista de objetos que mais passam tempo executando scripts" width="280"/>
-	<button label="?" left="297" name="top_scripts_help"/>
 	<button label="Reiniciar a região" name="restart_btn" tool_tip="Após 2 minutos de contagem regressiva, reiniciar a região"/>
-	<button label="?" name="restart_help"/>
+	<button label="Principais scripts..." name="top_scripts_btn" tool_tip="Lista de objetos que mais passam tempo executando scripts" width="280"/>
 	<button label="Cancelar reinício" name="cancel_restart_btn" tool_tip="Cancelar reinício da região"/>
+	<button label="Console de depuração de região" name="region_debug_console_btn" tool_tip="Abrir console de depuração de região"/>
 </panel>

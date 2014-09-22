@@ -709,9 +709,20 @@ void LLSceneMonitorView::onClose(bool app_quitting)
 	setVisible(false);	
 }
 
+void LLSceneMonitorView::onClickCloseBtn(bool app_quitting)
+{
+	setVisible(false);
+}
+
 void LLSceneMonitorView::onVisibilityChange(BOOL visible)
 {
-	visible = visible && LLGLSLShader::sNoFixedFunction;
+	if (!LLGLSLShader::sNoFixedFunction && visible)
+	{
+		visible = false;
+		// keep Scene monitor and its view in sycn
+		setVisible(false);
+		LL_WARNS("SceneMonitor") << "Incompatible graphical settings, Scene Monitor can't be turned on" << LL_ENDL; 
+	}
 	LLSceneMonitor::getInstance()->setDebugViewerVisible(visible);
 }
 

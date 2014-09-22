@@ -21,6 +21,7 @@
 				<name_list.columns label="Участник" name="name"/>
 				<name_list.columns label="Вклад" name="donated"/>
 				<name_list.columns label="Статус" name="online"/>
+				<name_list.columns label="Роль" name="title"/>
 			</name_list>
 			<button label="Пригласить" name="member_invite"/>
 			<button label="Выкинуть" name="member_eject"/>

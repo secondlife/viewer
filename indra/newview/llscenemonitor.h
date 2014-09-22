@@ -116,6 +116,7 @@ public:
 
 protected:
 	virtual void onClose(bool app_quitting=false);
+	virtual void onClickCloseBtn(bool app_quitting=false);
 };
 
 extern LLSceneMonitorView* gSceneMonitorView;

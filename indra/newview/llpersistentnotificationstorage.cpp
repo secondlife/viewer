@@ -35,7 +35,7 @@
 #include "llscreenchannel.h"
 #include "llscriptfloater.h"
 #include "llviewermessage.h"
-
+#include "llviewernetwork.h"
 LLPersistentNotificationStorage::LLPersistentNotificationStorage()
 	: LLSingleton<LLPersistentNotificationStorage>()
 	, LLNotificationStorage("")
@@ -158,7 +158,10 @@ void LLPersistentNotificationStorage::loadNotifications()
 
 void LLPersistentNotificationStorage::initialize()
 {
-	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"));
+	std::string file_name = "open_notifications_" + LLGridManager::getInstance()->getGrid() + ".xml";
+	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, file_name));
+	setOldFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml"));
+
 	LLNotifications::instance().getChannel("Persistent")->
 		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 }
