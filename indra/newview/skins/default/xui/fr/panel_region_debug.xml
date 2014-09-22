@@ -7,11 +7,8 @@
 		(inconnue)
 	</text>
 	<check_box label="Désactiver les scripts" name="disable_scripts_check" tool_tip="Désactiver tous les scripts dans cette région"/>
-	<button label="?" name="disable_scripts_help"/>
 	<check_box label="Désactiver les collisions" name="disable_collisions_check" tool_tip="Désactiver les collisions entre non-avatars dans cette région"/>
-	<button label="?" name="disable_collisions_help"/>
 	<check_box label="Désactiver la physique" name="disable_physics_check" tool_tip="Désactiver tous les effets liés à la physique dans cette région"/>
-	<button label="?" name="disable_physics_help"/>
 	<button bottom_delta="-38" label="Appliquer" name="apply_btn"/>
 	<text bottom_delta="-42" name="objret_text_lbl" width="260">
 		Renvoi de l&apos;objet
@@ -31,10 +28,8 @@
 	<check_box label="Dans toutes les régions de ce domaine" name="return_estate_wide" tool_tip="Renvoyer les objets dans toutes les régions qui constituent ce domaine"/>
 	<button label="Renvoyer" name="return_btn"/>
 	<button label="Collisions les plus consommatrices" name="top_colliders_btn" tool_tip="Liste des objets avec le plus de collisions potentielles" width="320"/>
-	<button label="?" left="337" name="top_colliders_help"/>
-	<button label="Scripts les plus consommateurs" name="top_scripts_btn" tool_tip="Liste des objets passant le plus de temps à exécuter des scripts" width="320"/>
-	<button label="?" left="337" name="top_scripts_help"/>
 	<button label="Redémarrer la région" name="restart_btn" tool_tip="Redémarrer la région au bout de 2 minutes" width="160"/>
-	<button label="?" left="177" name="restart_help"/>
+	<button label="Scripts les plus consommateurs" name="top_scripts_btn" tool_tip="Liste des objets passant le plus de temps à exécuter des scripts" width="320"/>
 	<button label="Annuler le redémarrage" name="cancel_restart_btn" tool_tip="Annuler le redémarrage de la région." width="160"/>
+	<button label="Console de débogage de région" name="region_debug_console_btn" tool_tip="Ouvrir la console de débogage de région"/>
 </panel>

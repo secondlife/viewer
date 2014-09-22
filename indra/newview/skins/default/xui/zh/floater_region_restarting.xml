@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="region_restarting" title="地區重新啟動中">
+	<string name="RegionName">
+		你所在的地區([NAME])即將重新啟動。
+
+如果你繼續留在這地區，你將會被登出。
+	</string>
+	<string name="RestartSeconds">
+		重新啟動倒數秒數：
+[SECONDS]
+	</string>
+	<panel name="layout_panel_1">
+		<text name="region_name">
+			你所在的地區(-最長地區名-)即將重新啟動。
+
+如果你繼續留在這地區，你將會被登出。
+		</text>
+		<text name="restart_seconds">
+			重新啟動倒數秒數：
+     32767
+		</text>
+	</panel>
+</floater>

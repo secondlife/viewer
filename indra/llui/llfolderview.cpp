@@ -1371,7 +1371,8 @@ BOOL LLFolderView::search(LLFolderViewItem* first_item, const std::string &searc
 			}
 		}
 
-		const std::string current_item_label(search_item->getViewModelItem()->getSearchableName());
+		std::string current_item_label(search_item->getViewModelItem()->getSearchableName());
+		LLStringUtil::toUpper(current_item_label);
 		S32 search_string_length = llmin(upper_case_string.size(), current_item_label.size());
 		if (!current_item_label.compare(0, search_string_length, upper_case_string))
 		{

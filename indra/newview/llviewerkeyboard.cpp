@@ -162,7 +162,7 @@ void agent_push_backward( EKeystate s )
 	{
 		camera_move_backward(s);
 	}
-	else if (!gAgent.backwardGrabbed() && gAgentAvatarp->isSitting())
+	else if (!gAgent.backwardGrabbed() && gAgentAvatarp->isSitting() && gSavedSettings.getBOOL("LeaveMouselook"))
 	{
 		gAgentCamera.changeCameraToThirdPerson();
 	}

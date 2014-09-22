@@ -20,6 +20,7 @@ Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada u
 				<name_list.columns label="Miembro" name="name"/>
 				<name_list.columns label="Donaciones" name="donated"/>
 				<name_list.columns label="Estatus" name="online"/>
+				<name_list.columns label="Cargo" name="title"/>
 			</name_list>
 			<button label="Invitar" name="member_invite"/>
 			<button label="Expulsar" name="member_eject"/>

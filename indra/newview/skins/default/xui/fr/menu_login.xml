@@ -5,7 +5,15 @@
 		<menu_item_call label="Quitter [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Aide" name="Help">
-		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
+		<menu_item_call label="Aide rapide..." name="How To"/>
+		<menu_item_call label="Démarrage rapide" name="Quickstart"/>
+		<menu_item_call label="Base de connaissances" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Forums de la communauté" name="Community Forums"/>
+		<menu_item_call label="Portail d&apos;assistance" name="Support portal"/>
+		<menu_item_call label="Actualités [SECOND_LIFE]" name="Second Life News"/>
+		<menu_item_call label="Blogs [SECOND_LIFE]" name="Second Life Blogs"/>
+		<menu_item_call label="Signaler un bug" name="Report Bug"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu_item_check label="Afficher le menu de débogage" name="Show Debug Menu"/>

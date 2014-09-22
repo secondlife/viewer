@@ -114,15 +114,15 @@ Puedes consultar más información en el [[MARKETPLACE_IMPORTS_URL] registro de 
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		Error de transferencia
+		Error de la transferencia: &apos;[ERROR_CODE]&apos;
 
-No se han enviado carpetas al Mercado a causa de un error del sistema o de la red. Vuelve a intentarlo más tarde.
+No se han enviado carpetas al Mercado a causa de un error del sistema o de la red.  Vuelve a intentarlo más tarde.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		Error al inicializar el mercado
+		Error de inicialización del Mercado: &apos;[ERROR_CODE]&apos;
 
-La inicialización del mercado ha fallado por un error del sistema o de la red. Vuelve a intentarlo más tarde.
+La inicialización del mercado ha fallado por un error del sistema o de la red.  Vuelve a intentarlo más tarde.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
@@ -1739,6 +1739,10 @@ excediendo el límite de [LIMIT].
 		¿Seguro que quieres teleportarte a &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
 		<usetemplate ignoretext="Confirmar que quiero teleportarme a un hito" name="okcancelignore" notext="Cancelar" yestext="Teleportar"/>
 	</notification>
+	<notification name="TeleportViaSLAPP">
+		¿Seguro que quieres teleportarte a &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
+		<usetemplate ignoretext="Confirmar el teleporte mediante SLAPP" name="okcancelignore" notext="Cancelar" yestext="Teleportarte"/>
+	</notification>
 	<notification name="TeleportToPick">
 		¿Teleportarte a [PICK]?
 		<usetemplate ignoretext="Confirmar el teleporte a una localización de los Destacados" name="okcancelignore" notext="Cancelar" yestext="Teleportar"/>
@@ -1948,6 +1952,9 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 	</notification>
 	<notification name="ProblemAddingEstateManager">
 		Hay problemas al añadir un administrador nuevo del estado. Uno o más estados deben de tener llena la lista de administradores.
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		No se puede añadir el administrador o propietario de un estado a la lista de expulsados.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		Hay problemas al añadir a la lista del estado. Uno o más estados deben de tener llena la lista.
@@ -3028,9 +3035,9 @@ Consulta los detalles en el archivo de registro.
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-Con los siguientes residentes:
+Con los siguientes Residentes:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3042,7 +3049,7 @@ Con los siguientes residentes:
 
 Con los siguientes Residentes:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTES]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3495,10 +3502,6 @@ Prueba otra vez dentro de un minuto.
 	<notification name="EjectComingSoon">
 		Te han expulsado de aquí y tienes [EJECT_TIME] segundos para salir.
 	</notification>
-	<notification name="NoEnterServerFull">
-		No puedes entrar en esta región porque 
-el servidor está lleno.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Se ha deshabilitado Devolver el objeto a mi inventario.
 	</notification>
@@ -3687,6 +3690,9 @@ el servidor está lleno.
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		El objeto utiliza una cantidad excesiva de recursos de física; se ha desactivado su dinámica.
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		El objeto &apos;[OBJECT_NAME]&apos; de [SLURL] no puede teleportar a los administradores del estado a la base.
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		Has sido teleportado al origen por el objeto &apos;[OBJECT_NAME]&apos; de la parcela &apos;[PARCEL_NAME]&apos;
@@ -3878,13 +3884,18 @@ el servidor está lleno.
 		La selección no contiene suficientes parcelas alquiladas para unirlas.
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		No se puede dividir el terreno.\nHay varias parcelas seleccionadas.\nPrueba a seleccionar un terreno más pequeño.
+		No se puede dividir el terreno.
+Hay varias parcelas seleccionadas.
+Prueba a seleccionar un terreno más pequeño.
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		No se puede dividir el terreno.\nNo se encuentra la parcela.\nAvísanos con Ayuda -&gt; Notificar fallo...
+		No se puede dividir el terreno.
+No se encuentra la parcela.
+Notifícalo con Ayuda -&gt; Informar de un fallo...
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		No se puede dividir el terreno. Está seleccionada la parcela completa.\nPrueba a seleccionar un terreno más pequeño.
+		No se puede dividir el terreno. Esta seleccionada una parcela completa.
+Prueba a seleccionar un terreno más pequeño.
 	</notification>
 	<notification name="LandHasBeenDivided">
 		El terreno se ha dividido.
@@ -4023,5 +4034,9 @@ el servidor está lleno.
 	<notification name="PreferenceChatPathChanged">
 		No se pueden mover los archivos. Ruta anterior restaurada.
 		<usetemplate ignoretext="No se pueden mover los archivos. Ruta anterior restaurada." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		El archivo de historial de chat todavía está realizando la operación anterior. Repite la operación dentro de unos minutos o inicia un chat con otra persona.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		顯像初始化失敗。 請更新你的顯像卡驅動程式！
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="AboutCompiler">
+		以 [COMPILER_VERSION] 版本 [COMPILER] 建置
+	</string>
+	<string name="AboutPosition">
+		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+第二人生URL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+（全域坐標：[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]）
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU：[CPU]
+記憶體：[MEMORY_MB] MB
+作業系統版本：[OS_VERSION]
+顯示卡供應商：[GRAPHICS_CARD_VENDOR]
+顯示卡：[GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Windows 顯示驅動程式版本：[GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		OpenGL 版本：[OPENGL_VERSION]
+
+libcurl 版本： [LIBCURL_VERSION]
+J2C 解碼器版本： [J2C_VERSION]
+音效驅動程式版本： [AUDIO_DRIVER_VERSION]
+Qt Webkit 版本： [QT_WEBKIT_VERSION]
+語音伺服器版本： [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		封包丟失：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		擷取伺服器版本說明 URL 時出錯。
+	</string>
 	<string name="ProgressRestoring">
 		回存中...
 	</string>
@@ -929,14 +968,14 @@ http://secondlife.com/viewer-access-faq
 	<string name="ControlYourCamera">
 		控制你的攝影機
 	</string>
+	<string name="TeleportYourAgent">
+		瞬間傳送你本人
+	</string>
 	<string name="NotConnected">
 		未聯接
 	</string>
 	<string name="AgentNameSubst">
 		（你）
-	</string>
-	<string name="TeleportYourAgent">
-		瞬間傳送你本人
 	</string>
 	<string name="JoinAnExperience">
 		加入體驗
@@ -1291,6 +1330,18 @@ http://secondlife.com/viewer-access-faq
 	<string name="InventoryOutboxNoItems">
 		將資料夾拖曳到這個區域，再點按「送往第二人生購物市集」，即可在[[MARKETPLACE_DASHBOARD_URL]第二人生購物市集]登列出售。
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		正在初始化購物市集。
+	</string>
+	<string name="InventoryOutboxInitializing">
+		我們正在求取你的[[MARKETPLACE_CREATE_STORE_URL] 購物市集商店]帳戶。
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		購物市集出錯。
+	</string>
+	<string name="InventoryOutboxError">
+		[[MARKETPLACE_CREATE_STORE_URL] 購物市集商店]正傳回錯誤。
+	</string>
 	<string name="Marketplace Error None">
 		零錯誤
 	</string>
@@ -1317,6 +1368,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Open landmarks">
 		開啟地標
+	</string>
+	<string name="Unconstrained">
+		不受限
 	</string>
 	<string name="no_transfer" value="（禁止轉讓）"/>
 	<string name="no_modify" value="（禁止修改）"/>
@@ -1717,6 +1771,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		已下載，正在編譯中
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		腳本編譯服務無法使用
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		伺服器上未發現腳本。

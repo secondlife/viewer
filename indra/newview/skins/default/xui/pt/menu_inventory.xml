@@ -70,6 +70,7 @@
 	<menu_item_call label="Executar som" name="Sound Play"/>
 	<menu_item_call label="Copiar SLurl" name="url_copy"/>
 	<menu_item_call label="Sobre o marco" name="About Landmark"/>
+	<menu_item_call label="Mostrar no mapa" name="show_on_map"/>
 	<menu_item_call label="Executar animação" name="Animation Play"/>
 	<menu_item_call label="Executar áudio" name="Animation Audition"/>
 	<menu_item_call label="Mandar MI" name="Send Instant Message"/>
