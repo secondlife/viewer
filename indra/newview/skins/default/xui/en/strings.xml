@@ -242,8 +242,8 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipOutboxLinked">You can not put linked items or folders on the marketplace</string>
 	<string name="TooltipOutboxCallingCard">You can not put calling cards on the marketplace</string>
 	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]</string>
-	<string name="TooltipOutboxTooManyFolders">Subfolders count exceeds [AMOUNT]</string>
-	<string name="TooltipOutboxTooManyObjects">Items count exceeds [AMOUNT]</string>
+	<string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]</string>
+	<string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]</string>
 	<string name="TooltipOutboxDragActive">You can't move an active listed listing</string>
 	<string name="TooltipOutboxCannotDropOnRoot">You can't drop items on filtered tabs root</string>
 	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
@@ -2294,15 +2294,16 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 
 	<string name="Marketplace Validation Intro"></string>
 	<string name="Marketplace Validation Log"></string>
-	<string name="Marketplace Validation Warning Stock">: Warning: creating wrapping folder for stock folder</string>
+	<string name="Marketplace Validation Warning Stock">: Warning: stock folder must be contained by a version folder</string>
 	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any item</string>
 	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>
 	<string name="Marketplace Validation Warning Create Version">: Warning: creating version folder</string>
 	<string name="Marketplace Validation Warning Move">: Warning : moving items</string>
 	<string name="Marketplace Validation Warning Delete">: Warning: folder content transfered to stock folder, removing empty folder</string>
+	<string name="Marketplace Validation Warning Stock Item">: Warning: no-copy item must be contained by a stock folder</string>
 	<string name="Marketplace Validation Error">: Error: </string>
-	<string name="Marketplace Validation Error Empty Version">: Error: cannot list empty version folder</string>
-	<string name="Marketplace Validation Error Empty Stock">: Error: cannot list empty stock folder</string>
+	<string name="Marketplace Validation Error Empty Version">: Error: version folder must contain at least 1 item</string>
+	<string name="Marketplace Validation Error Empty Stock">: Error: stock folder must contain at least 1 item</string>
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Prefix">Error: </string>
 	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>

@@ -671,7 +671,7 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
     if (marketplacelistings_id.notNull())
     {
         LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
-        validate_marketplacelistings(cat,boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2));
+        validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2), false);
     }
 }
 
