@@ -29,4 +29,5 @@
 		<menu_item_call label="Ignorer les autres" name="ModerateVoiceMute"/>
 		<menu_item_call label="Ne plus ignorer les autres" name="ModerateVoiceUnmute"/>
 	</context_menu>
+	<menu_item_call label="Bannir le membre" name="BanMember"/>
 </toggleable_menu>

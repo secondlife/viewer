@@ -21,6 +21,7 @@
 	<context_menu label="Verwalten" name="Remove">
 		<menu_item_call label="Missbrauch melden" name="Report Abuse..."/>
 		<menu_item_call label="Ignorieren" name="Object Mute"/>
+		<menu_item_call label="Freischalten" name="Object Unmute"/>
 		<menu_item_call label="Zurückgeben" name="Return..."/>
 	</context_menu>
 	<menu_item_call label="Nehmen" name="Pie Object Take"/>

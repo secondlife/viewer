@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Einwohner verbannen" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(wird geladen...)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		Gruppenverbannungen nicht gesendet: zu viele Einwohner ausgewählt. Gruppenverbannungen sind auf 100 pro Anfrage beschränkt.
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		Gruppenverbannung nicht gesendet: Sie sind nicht zur Verwaltung der Bannliste berechtigt.
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		Gruppenverbannung nicht gesendet: Ihre Gruppe hat die Höchstzahl möglicher Verbannungen erreicht.
+	</panel.string>
+	<panel.string name="partial_ban">
+		Einige Gruppenverbannungen wurden nicht gesendet:
+[REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		Gruppenverbannungen nicht gesendet:
+[REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- Folgende(r) Einwohner ist/sind bereits verbannt: [RESIDENTS]
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- Höchstzahl Verbannungen erreicht; folgende Agenten wurden nicht verbannt: [RESIDENTS].
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- Sie können sich nicht selbst aus einer Gruppe verbannen.
+	</panel.string>
+	<text name="help_text">
+		Sie können mehrere Einwohner auswählen, um sie aus Ihrer Gruppe zu verbannen. Klicken Sie hierzu auf „Einwohnerliste öffnen“.
+	</text>
+	<button label="Einwohnerliste öffnen" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="Halten Sie zur Mehrfachauswahl die Strg-Taste gedrückt und klicken Sie auf die Namen."/>
+	<button label="Ausgewählte Einwohner aus Liste entfernen" name="remove_button" tool_tip="Dadurch werden die oben ausgewählten Einwohner aus der Bannliste entfernt."/>
+	<button label="Einwohner verbannen" name="ban_button"/>
+	<button label="Abbrechen" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		Gruppenverbannung
+	</string>
+</panel>

@@ -36,6 +36,9 @@
 		<menu_item_check label="Chat in der Nähe..." name="Nearby Chat"/>
 		<menu_item_check label="Sprechen" name="Speak"/>
 		<menu_item_check label="Unterhaltungsprotokoll..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Voice-Morphing" name="VoiceMorphing">
 			<menu_item_check label="Kein Voice-Morphing" name="NoVoiceMorphing"/>
 			<menu_item_check label="Vorschau..." name="Preview"/>
@@ -150,7 +153,8 @@
 			<menu_item_check label="An Raster ausrichten" name="Snap to Grid"/>
 			<menu_item_call label="Objekt-XY an Raster ausrichten" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Auswahl für Raster verwenden" name="Use Selection for Grid"/>
-			<menu_item_call label="Rasteroptionen" name="Grid Options"/>
+			<menu_item_call label="Rasteroptionen..." name="Grid Options"/>
+			<menu_item_call label="Standard-Berechtigungen einstellen..." name="Set default permissions"/>
 		</menu>
 		<menu label="Hochladen" name="Upload">
 			<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
@@ -158,7 +162,6 @@
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modell..." name="Upload Model"/>
 			<menu_item_call label="Mehrfach-Upload ([COST] L$ pro Datei)..." name="Bulk Upload"/>
-			<menu_item_call label="Hochlade-Berechtigungen (Standard) festlegen" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Rückgängig" name="Undo"/>
 		<menu_item_call label="Wiederholen" name="Redo"/>
@@ -304,6 +307,7 @@
 			<menu_item_check label="Detailstufeninfos" name="LOD Info"/>
 			<menu_item_check label="Konstruktionswarteschlange" name="Build Queue"/>
 			<menu_item_check label="Lichter" name="Lights"/>
+			<menu_item_check label="Partikel" name="Particles"/>
 			<menu_item_check label="Gelenkpunkte" name="Collision Skeleton"/>
 			<menu_item_check label="Gelenke" name="Joints"/>
 			<menu_item_check label="Raycast" name="Raycast"/>

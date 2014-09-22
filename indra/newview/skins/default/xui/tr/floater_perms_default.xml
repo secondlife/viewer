@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perms default" title="VARSAYILAN OLUŞTURMA İZİNLERİ">
+	<panel label="Varsayılan İzinler" name="default permissions"/>
+	<button label="Tamam" label_selected="Tamam" name="ok"/>
+	<button label="İptal" label_selected="İptal" name="cancel"/>
+</floater>

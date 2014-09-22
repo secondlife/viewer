@@ -35,7 +35,7 @@
 		<combo_box.item label="Yaş &gt; 18 Yaş Altı Second Life&apos;ında Yetişkin Sakin" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Yaş &gt; 18 Yaş Altı Second Life&apos;ı dışında Reşit Olmayan Sakin" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Saldırı &gt; Çarpışma koruma alanı / güvensiz alan" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="Saldırı &gt; Güvenli alan" name="Assault__Safe_area"/>
+		<combo_box.item label="Şiddet &gt; Güvenli bir Alanda başka bir LS Sakinini ateşli silahla vurmak ya da itip kakmak" name="Assault__Safe_area"/>
 		<combo_box.item label="Saldırı &gt; Silah test güvenli alanı" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="Ticaret &gt; Ürün veya hizmet verilemedi" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="İfşa &gt; Gerçek dünya bilgileri" name="Disclosure__Real_world_information"/>
@@ -49,25 +49,25 @@
 		<combo_box.item label="Dolandırıcılık &gt; L$" name="Fraud__L$"/>
 		<combo_box.item label="Dolandırıcılık &gt; Arazi" name="Fraud__Land"/>
 		<combo_box.item label="Dolandırıcılık &gt; Piramid planı veya zincirleme mektup" name="Fraud__Pyramid_scheme_or_chain_letter"/>
-		<combo_box.item label="Dolandırıcılık &gt; US$" name="Fraud__US$"/>
+		<combo_box.item label="Dolandırıcılık &gt; L$ veya USD $" name="Fraud__US$"/>
 		<combo_box.item label="Taciz &gt;  reklam çiftlikleri / görsel spam" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="Taciz &gt; Kişi ya da grupları aşağılama" name="Harassment__Defaming_individuals_or_groups"/>
 		<combo_box.item label="Taciz &gt; Tehditkâr hareket" name="Harassment__Impeding_movement"/>
 		<combo_box.item label="Taciz &gt; Cinsel taciz" name="Harassment__Sexual_harassment"/>
-		<combo_box.item label="Taciz &gt; Başkalarını Hizmet Koşullarını ihlal etmeye kışkırtma/teşvik" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Taciz &gt; Birini rahatsız etmeye yönelik kasti hareket" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
 		<combo_box.item label="Taciz &gt; Sözlü istismar" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="Uygunsuzluk &gt; Genel anlamda rahatsız edici içerik veya davranış" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Uygunsuzluk &gt; Uygunsuz avatar adı" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="Uygunsuzluk &gt; PG bölgesinde rahatsız edici içerik veya davranış" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Uygunsuzluk &gt; Bölge Seviyesine uygun olmayan rahatsız edici içerik veya davranış" name="Indecency__Mature_content_in_PG_region"/>
 		<combo_box.item label="Uygunsuzluk &gt; Orta bölgede rahatsız edici içerik veya davranış" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Fikri mülkiyet ihlali &gt; İçerik Silme" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Fikri mülkiyet ihlali &gt; CopyBot veya İzinlerin Kötüye Kullanılması" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Tahammülsüzlük" name="Intolerance"/>
 		<combo_box.item label="Arazi &gt; Koruma alanı kaynaklarının istismarı" name="Land__Abuse_of_sandbox_resources"/>
-		<combo_box.item label="Arazi &gt; Tecavvüz &gt; Nesneler/dokular" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Arazi &gt; Tecavüz &gt; Nesneler veya dokular" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Arazi &gt; Tecavvüz &gt; Parçacıklar" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Arazi &gt; Tecavvüz &gt; Ağaçlar/bitkiler" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Bahis oynatma/kumar" name="Wagering_gambling"/>
+		<combo_box.item label="Bahis veya Kumar" name="Wagering_gambling"/>
 		<combo_box.item label="Diğer" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

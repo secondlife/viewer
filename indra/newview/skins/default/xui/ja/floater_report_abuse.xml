@@ -44,7 +44,7 @@
 		<combo_box.item label="年齢 &gt; 成人の住人が Teen Second Life にいる" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="年齢 &gt; 未成年の住人がTeen Second Life の外にいる" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="攻撃＞コンバット・サンドボックス/危険なエリア" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="攻撃＞安全なエリア" name="Assault__Safe_area"/>
+		<combo_box.item label="攻撃 &gt; 安全エリアで他の住人を銃撃、プッシュ、または突き飛ばす" name="Assault__Safe_area"/>
 		<combo_box.item label="攻撃＞武器テスト用サンドボックス" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="商取引＞製品またはサービスの提供が行われない" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="開示＞リアルワールドの情報" name="Disclosure__Real_world_information"/>
@@ -58,25 +58,25 @@
 		<combo_box.item label="詐欺＞ L$" name="Fraud__L$"/>
 		<combo_box.item label="詐欺＞土地" name="Fraud__Land"/>
 		<combo_box.item label="詐欺＞マルチ商法またはチェーンメール" name="Fraud__Pyramid_scheme_or_chain_letter"/>
-		<combo_box.item label="詐欺＞ US$" name="Fraud__US$"/>
+		<combo_box.item label="詐欺 &gt; リンデンドルまたは米ドル" name="Fraud__US$"/>
 		<combo_box.item label="嫌がらせ＞広告委託/視覚的なスパム" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="嫌がらせ＞個人またはグループの中傷" name="Harassment__Defaming_individuals_or_groups"/>
 		<combo_box.item label="嫌がらせ＞移動の妨害" name="Harassment__Impeding_movement"/>
 		<combo_box.item label="嫌がらせ＞性的な嫌がらせ" name="Harassment__Sexual_harassment"/>
-		<combo_box.item label="嫌がらせ＞利用規約（ToS）に違反する行為を行うよう他者を勧誘/扇動" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="ハラスメント &gt; 対象者を定めて嫌がらせを目的とした行為" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
 		<combo_box.item label="嫌がらせ＞暴言" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="わいせつ＞著しく不快であると見なされるコンテンツまたは行為" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="わいせつ＞不適切なアバター名" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="わいせつ＞PG地域での不適切なコンテンツまたは行為" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="わいせつ &gt; 地域（リージョン）のレーティング区分に対して不適切なコンテンツまたは行為" name="Indecency__Mature_content_in_PG_region"/>
 		<combo_box.item label="わいせつ &gt; 「Moderate」指定の地域での不適切なコンテンツまたは行為" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="知的財産の侵害＞コンテンツの撤去" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="知的財産の侵害＞コピーBot及び権限の悪用" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="不寛容" name="Intolerance"/>
 		<combo_box.item label="土地＞サンドボックスのリソースの乱用" name="Land__Abuse_of_sandbox_resources"/>
-		<combo_box.item label="土地＞不法侵入＞オブジェクト/テクスチャー" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="土地 &gt; 不法侵入 &gt; オブジェクトまたはテクスチャ" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="土地＞不法侵入＞パーティクル" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="土地＞不法侵入＞樹木/植物" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="賭け/ギャンブル" name="Wagering_gambling"/>
+		<combo_box.item label="賭けまたはギャンブル" name="Wagering_gambling"/>
 		<combo_box.item label="その他" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

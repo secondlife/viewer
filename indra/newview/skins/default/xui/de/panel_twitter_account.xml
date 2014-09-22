@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_twitter_account">
+	<string name="twitter_connected" value="Sie sind mit Twitter verbunden als:"/>
+	<string name="twitter_disconnected" value="Nicht mit Twitter verbunden"/>
+	<text name="account_caption_label">
+		Nicht mit Twitter verbunden.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Verbinden..." name="connect_btn"/>
+		<button label="Trennen" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Twitter/ta-p/2435453 Anweisungen zum Posten auf Twitter]
+		</text>
+	</panel>
+</panel>

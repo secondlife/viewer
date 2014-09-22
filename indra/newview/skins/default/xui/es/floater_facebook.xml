@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_facebook" title="PUBLICAR EN FACEBOOK">
+	<panel name="background">
+		<tab_container name="tabs">
+			<panel label="ESTADO" name="panel_facebook_status"/>
+			<panel label="FOTO" name="panel_facebook_photo"/>
+			<panel label="ESTOY AQUÍ" name="panel_facebook_place"/>
+			<panel label="AMIGOS" name="panel_facebook_friends"/>
+			<panel label="CUENTA" name="panel_facebook_account"/>
+		</tab_container>
+		<panel name="connection_status_panel">
+			<text name="connection_error_text">
+				Error
+			</text>
+			<text name="connection_loading_text">
+				Cargando...
+			</text>
+		</panel>
+	</panel>
+</floater>
