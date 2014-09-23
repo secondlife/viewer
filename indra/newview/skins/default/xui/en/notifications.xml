@@ -9507,6 +9507,9 @@ You have been teleported by an attachment on [ITEM_ID]
    type="notify">
    <tag>fail</tag>
 You have been teleported by the object '[OBJECT_NAME]' on the parcel '[PARCEL_NAME]'
+   <usetemplate
+    ignoretext="Teleport: You have been teleported by an object on a parcel"
+    name="notifyignore"/>
   </notification>
 
   <notification
