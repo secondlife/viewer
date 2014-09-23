@@ -179,7 +179,14 @@ build_docs()
   end_section "Stub documentation.txt"
   begin_section "Dependency Graph"
   depends_graph="$build_dir/dependancies.png"
-  "$AUTOBUILD" graph --output "$depends_graph" && record_event "autobuild graph succeeded" || record_event "autobuild graph failed"
+  echo "$AUTOBUILD" graph --output "$depends_graph"
+  if "$AUTOBUILD" graph --output "$depends_graph" >> "$build_log" 2>&1
+  then 
+    record_event "autobuild graph succeeded"
+    uplaod_item docs "$depends_graph" image/png
+  else 
+    record_event "autobuild graph failed"
+  fi
   end_section "Dependency Graph"
   end_section "Building Documentation"
 }
@@ -231,7 +238,9 @@ fi
 eval "$("$AUTOBUILD" source_environment)"
 
 # dump environment variables for debugging
+begin_section "Environment"
 env|sort
+end_section "Environment"
 
 # Now run the build
 succeeded=true
