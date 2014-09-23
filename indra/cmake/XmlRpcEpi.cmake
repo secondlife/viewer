@@ -7,7 +7,7 @@ set(XMLRPCEPI_FIND_REQUIRED ON)
 if (USESYSTEMLIBS)
   include(FindXmlRpcEpi)
 else (USESYSTEMLIBS)
-    use_prebuilt_binary(xmlrpc-epi)
+    use_prebuilt_binary(xmlrpc_epi)
     if (WINDOWS)
         set(XMLRPCEPI_LIBRARIES 
             debug xmlrpc-epid

@@ -3,54 +3,6 @@
 <map>
     <key>installables</key>
     <map>
-      <key>GLOD</key>
-      <map>
-        <key>license</key>
-        <string>GLOD</string>
-        <key>license_file</key>
-        <string>LICENSES/glod.txt</string>
-        <key>name</key>
-        <string>GLOD</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e6071abd822c0688390382a26f8a782c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/267984/arch/Darwin/installer/glod-1.0pre4-darwin-20121211.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>176736c52b3cde6ca8e7d9e173d91731</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/268002/arch/Linux/installer/glod-1.0pre4-linux-20121212.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>842208365f5b108dac4c7c733b99da9c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/CYGWIN/installer/glod-1.0pre4-windows-20110610.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>SDL</key>
       <map>
         <key>license</key>
@@ -339,14 +291,14 @@
           </map>
         </map>
       </map>
-      <key>dbusglib</key>
+      <key>dbus_glib</key>
       <map>
         <key>license</key>
         <string>AFL2.1</string>
         <key>license_file</key>
         <string>LICENSES/dbus-glib.txt</string>
         <key>name</key>
-        <string>dbusglib</string>
+        <string>dbus_glib</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -373,43 +325,21 @@
         <string>dictionaries</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
+          <key>common</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>06a6c49eb1873e95623d3d2d07aee903</string>
+              <string>1f300f7b8600a18cd4c958841bfa2a95</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Darwin/installer/dictionaries-1-darwin-20120616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-dictionaries/rev/292421/arch/Linux/installer/dictionaries-1-common-292421.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>4f0ca21d27e0cd0b002149062b0a4b25</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Linux/installer/dictionaries-1-linux-20120616.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7520d75f6af325328322201c888191d4</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/CYGWIN/installer/dictionaries-1-windows-20120616.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
+            <string>common</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1</string>
       </map>
       <key>elfio</key>
       <map>
@@ -665,8 +595,12 @@
       </map>
       <key>glh_linear</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2000 Cass Everitt</string>
+        <key>description</key>
+        <string>glh - is a platform-indepenedent C++ OpenGL helper library </string>
         <key>license</key>
-        <string>glh_linear</string>
+        <string>	Copyright (c) 2000 NVIDIA CorporationMIT</string>
         <key>license_file</key>
         <string>LICENSES/glh_linear.txt</string>
         <key>name</key>
@@ -678,9 +612,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>366f940f2634b0e05954646927620bfd</string>
+              <string>d09b3732d416823c22738643912fbe1f</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glh_linear/rev/289814/arch/Darwin/installer/glh_linear-0.0.0-darwin-289814.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -690,9 +626,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1b1f1e9975e3a671c9faf32fcf4b6d43</string>
+              <string>f59c17c2115889bf4339bff0fcd5256e</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glh_linear/rev/263308/arch/Linux/installer/glh_linear-0.0.0-linux-20120810.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glh_linear/rev/289814/arch/Linux/installer/glh_linear-0.0.0-linux-289814.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -702,19 +640,79 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>57f8be28bbaa2505ae3b59deb2c77cdf</string>
+              <string>a97f8377bcd13c1f56450ea6d394b3a2</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-windows-20101011.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glh_linear/rev/289814/arch/CYGWIN/installer/glh_linear-0.0.0-windows-289814.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.0.0</string>
+      </map>
+      <key>glod</key>
+      <map>
+        <key>license</key>
+        <string>GLOD Open-Source License   Version 1.0</string>
+        <key>license_file</key>
+        <string>LICENSES/GLOD.txt</string>
+        <key>name</key>
+        <string>glod</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>363838752f3f2656ce3c5efaeee40b96</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glod/rev/292477/arch/Darwin/installer/glod-1.0pre4-darwin-292477.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>dce9a44a6c3dbd2ea35dca2e8cf74db4</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glod/rev/292477/arch/Linux/installer/glod-1.0pre4-linux-292477.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>22fb3b3dcd433792e20ceada808ba54f</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glod/rev/292477/arch/CYGWIN/installer/glod-1.0pre4-windows-292477.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0pre4</string>
       </map>
       <key>glui</key>
       <map>
         <key>license</key>
-        <string>lgpl</string>
+        <string>ZLIB</string>
         <key>license_file</key>
         <string>LICENSES/glui.txt</string>
         <key>name</key>
@@ -732,6 +730,18 @@
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ce746c9d80802127c7a14ee89ea6d5bc</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glui/rev/292474/arch/Linux/installer/glui-2.36-linux-292474.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
           </map>
           <key>windows</key>
           <map>
@@ -939,14 +949,14 @@
           </map>
         </map>
       </map>
-      <key>havok-source</key>
+      <key>havok_source</key>
       <map>
         <key>license</key>
         <string>havok-ares</string>
         <key>license_file</key>
         <string>LICENSES/havok.txt</string>
         <key>name</key>
-        <string>havok-source</string>
+        <string>havok_source</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1173,6 +1183,54 @@
               <string>6a140e5620826aa5e587b4157f57b389</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/CYGWIN/installer/libhunspell-1.3.2-windows-20120616.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>libndofdev</key>
+      <map>
+        <key>license</key>
+        <string>linden</string>
+        <key>license_file</key>
+        <string>LICENSES/libndofdev.txt</string>
+        <key>name</key>
+        <string>libndofdev</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>674d37d2ba76a2df7f18c47bf50b5d03</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libndofdev-0.1-darwin-20110308.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9bf7a96c1d2fadb180fda91740c945c6</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev-linux/rev/233137/arch/Linux/installer/libndofdev-0.3-linux-20110617.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3a4bec9562ed6ac53e85abcb1afc5fc0</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libndofdev-0.1-windows-20110223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1501,54 +1559,6 @@
           </map>
         </map>
       </map>
-      <key>ndofdev</key>
-      <map>
-        <key>license</key>
-        <string>linden</string>
-        <key>license_file</key>
-        <string>LICENSES/libndofdev.txt</string>
-        <key>name</key>
-        <string>ndofdev</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>674d37d2ba76a2df7f18c47bf50b5d03</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libndofdev-0.1-darwin-20110308.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>9bf7a96c1d2fadb180fda91740c945c6</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-libndofdev-linux/rev/233137/arch/Linux/installer/libndofdev-0.3-linux-20110617.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3a4bec9562ed6ac53e85abcb1afc5fc0</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libndofdev-0.1-windows-20110223.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>nvapi</key>
       <map>
         <key>license</key>
@@ -1573,14 +1583,14 @@
           </map>
         </map>
       </map>
-      <key>ogg-vorbis</key>
+      <key>ogg_vorbis</key>
       <map>
         <key>license</key>
         <string>ogg-vorbis</string>
         <key>license_file</key>
         <string>LICENSES/ogg-vorbis.txt</string>
         <key>name</key>
-        <string>ogg-vorbis</string>
+        <string>ogg_vorbis</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1907,14 +1917,14 @@
         <key>version</key>
         <string>2008.11.30</string>
       </map>
-      <key>xmlrpc-epi</key>
+      <key>xmlrpc_epi</key>
       <map>
         <key>license</key>
         <string>xmlrpc-epi</string>
         <key>license_file</key>
         <string>LICENSES/xmlrpc-epi.txt</string>
         <key>name</key>
-        <string>xmlrpc-epi</string>
+        <string>xmlrpc_epi</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -2004,14 +2014,16 @@
         </map>
       </map>
     </map>
-    <key>orig_ver</key>
-    <string>1.2</string>
     <key>package_description</key>
     <map>
+      <key>copyright</key>
+      <string>Copyright (c) 2014, Linden Research, Inc.</string>
       <key>description</key>
       <string>Second Life Viewer</string>
       <key>license</key>
       <string>LGPL</string>
+      <key>license_file</key>
+      <string>docs/LICENSE-source.txt</string>
       <key>name</key>
       <string>Second Life Viewer</string>
       <key>platforms</key>
@@ -2759,8 +2771,8 @@
           <string>windows</string>
         </map>
       </map>
-      <key>version</key>
-      <string>1.0</string>
+      <key>version_file</key>
+      <string>VERSION.txt</string>
     </map>
     <key>type</key>
     <string>autobuild</string>

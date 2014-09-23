@@ -8,7 +8,7 @@ if (NDOF)
     set(NDOF_FIND_REQUIRED ON)
     include(FindNDOF)
   else (USESYSTEMLIBS)
-    use_prebuilt_binary(ndofdev)
+    use_prebuilt_binary(libndofdev)
 
     if (WINDOWS)
       set(NDOF_LIBRARY libndofdev)
