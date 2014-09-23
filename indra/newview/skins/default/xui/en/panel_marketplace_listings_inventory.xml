@@ -10,7 +10,7 @@
     top="16"
     left="0"
     start_folder.name="Marketplace listings"
-    show_empty_message="false"
+    show_empty_message="true"
     show_root_folder="true"
     start_folder.type="merchant"
     tool_tip="Drag and drop items here to sell them"

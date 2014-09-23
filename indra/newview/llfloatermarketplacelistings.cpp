@@ -74,16 +74,20 @@ void LLPanelMarketplaceListings::buildAllPanels()
 {
     LLInventoryPanel* panel;
     panel = buildInventoryPanel("All Items", "panel_marketplace_listings_inventory.xml");
+	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
     mAllPanel = panel;
     panel = buildInventoryPanel("Active Items", "panel_marketplace_listings_listed.xml");
 	panel->getFilter().setFilterMarketplaceActiveFolders();
+	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
     panel = buildInventoryPanel("Inactive Items", "panel_marketplace_listings_unlisted.xml");
 	panel->getFilter().setFilterMarketplaceInactiveFolders();
+	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
     panel = buildInventoryPanel("Unassociated Items", "panel_marketplace_listings_unassociated.xml");
 	panel->getFilter().setFilterMarketplaceUnassociatedFolders();
+	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
     
 	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
