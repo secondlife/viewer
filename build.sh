@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# This is a the master build script - it is intended to be run by parabuild
+# This is a the master build script - it is intended to be run by the Linden
+# Lab build farm
 # It is called by a wrapper script in the shared repository which sets up
 # the environment from the various BuildParams files and does all the build 
 # result post-processing.
@@ -12,8 +13,6 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 # * This script relies heavily on parameters defined in BuildParams
-# * The basic convention is that the build name can be mapped onto a mercurial URL,
-#   which is also used as the "branch" name.
 
 check_for()
 {
@@ -172,11 +171,17 @@ build()
 # This is called from the branch independent script upon completion of all platform builds.
 build_docs()
 {
-  begin_section Docs
+  begin_section "Building Documentation"
+  begin_section "Stub documentation.txt"
   # Stub code to generate docs
   echo Hello world  > documentation.txt
   upload_item docs documentation.txt text/plain
-  end_section Docs
+  end_section "Stub documentation.txt"
+  begin_section "Dependency Graph"
+  depends_graph="$build_dir/dependancies.png"
+  "$AUTOBUILD" graph --output "$depends_graph" && record_event "autobuild graph succeeded" || record_event "autobuild graph failed"
+  end_section "Dependency Graph"
+  end_section "Building Documentation"
 }
 
 
@@ -374,7 +379,6 @@ then
     echo skipping debian build due to failed build.
   fi
 fi
-
 
 # check status and upload results to S3
 if $succeeded

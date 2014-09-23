@@ -11,6 +11,7 @@ Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 
 # Use Public Upload Locations
 public_build = true
+build_docs = true
 
 # skip windows debug build until we can get a fix in.
 build_CYGWIN_Debug = false
