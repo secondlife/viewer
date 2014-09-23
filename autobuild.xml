@@ -1631,14 +1631,18 @@
           </map>
         </map>
       </map>
-      <key>openal_soft</key>
+      <key>openal</key>
       <map>
+        <key>copyright</key>
+        <string>Creative Labs</string>
+        <key>description</key>
+        <string>OpenAL is a cross-platform 3D audio API appropriate for use with gaming applications and many other types of audio applications.</string>
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
-        <string>LICENSES/OPENAL.txt</string>
+        <string>LICENSES/openal.txt</string>
         <key>name</key>
-        <string>openal_soft</string>
+        <string>openal</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -1646,11 +1650,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fccdca18a950ac9363c6fb39118b80e1</string>
+              <string>64e35010732d2439bb98251f92031c8d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-3ad86a1c-linux-20110114.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-openal/rev/289850/arch/Linux/installer/openal-1.12.854-1.1.0-linux-289850.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1660,16 +1664,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>04df406f3e5d04cf176660bdac66c3a1</string>
+              <string>de26ec439e0ca030dcda6b960fa73e8b</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-1.12.854-1.1.0-windows-20110301.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-openal/rev/289850/arch/CYGWIN/installer/openal-1.12.854-1.1.0-windows-289850.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>3ad86a1c</string>
+        <string>1.12.854-1.1.0</string>
       </map>
       <key>openjpeg</key>
       <map>
