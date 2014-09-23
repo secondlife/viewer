@@ -281,6 +281,8 @@ do
   end_section "Do$variant"
 done
 
+build_docs
+
 # If we are building variants in parallel, wait, then collect results.
 # This requires that the build dirs are variant specific
 if $build_link_parallel && [ x"$build_processes" != x ]
