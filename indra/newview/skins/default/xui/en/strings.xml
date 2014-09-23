@@ -2292,15 +2292,16 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
         Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
 
-	<string name="Marketplace Validation Intro"></string>
 	<string name="Marketplace Validation Log"></string>
 	<string name="Marketplace Validation Warning Stock">: Warning: stock folder must be contained by a version folder</string>
+	<string name="Marketplace Validation Warning Mixed Stock">: Warning: all items in a stock folder must be no-copy and of the same type</string>
 	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any item</string>
 	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>
 	<string name="Marketplace Validation Warning Create Version">: Warning: creating version folder</string>
 	<string name="Marketplace Validation Warning Move">: Warning : moving items</string>
 	<string name="Marketplace Validation Warning Delete">: Warning: folder content transfered to stock folder, removing empty folder</string>
 	<string name="Marketplace Validation Warning Stock Item">: Warning: no-copy item must be contained by a stock folder</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">: Warning: items must be contained by a version folder</string>
 	<string name="Marketplace Validation Error">: Error: </string>
 	<string name="Marketplace Validation Error Empty Version">: Error: version folder must contain at least 1 item</string>
 	<string name="Marketplace Validation Error Empty Stock">: Error: stock folder must contain at least 1 item</string>
