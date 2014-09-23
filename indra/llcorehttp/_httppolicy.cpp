@@ -403,7 +403,7 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	// This op is done, finalize it delivering it to the reply queue...
 	if (! op->mStatus)
 	{
-		LL_WARNS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
+		LL_DEBUGS("CoreHttp") << "HTTP request " << static_cast<HttpHandle>(op)
 							 << " failed after " << op->mPolicyRetries
 							 << " retries.  Reason:  " << op->mStatus.toString()
 							 << " (" << op->mStatus.toTerseString() << ")"
