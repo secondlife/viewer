@@ -1380,28 +1380,29 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     // Folder is valid unless issue is raised
     bool result = true;
     
-    // Special case a stock folder depth issue
+    // Get the type and the depth of the folder
     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
 	const LLFolderType::EType folder_type = cat->getPreferredType();
     S32 depth = depth_nesting_in_marketplace(cat->getUUID());
     if (depth < 0)
     {
         // If the folder is not under the marketplace listings root, validation should not be applied
-        // *TODO: Should we call update_marketplace_category(cat->getUUID()) ?
         return result;
     }
     
+    // Set the indentation for print output (typically, audit button in marketplace folder floater)
     std::string indent;
     for (int i = 1; i < depth; i++)
     {
         indent += "    ";
     }
 
+    // Check out that version folders are marketplace ready
     if (depth == 2)
     {
-        // Check out that version folders are marketplace ready
         std::string message;
-        if (!can_move_folder_to_marketplace(cat, cat, cat, message, 0, false))
+        // Note: if we fix the hierarchy, we want to check the items individually, hence the last argument here
+        if (!can_move_folder_to_marketplace(cat, cat, cat, message, 0, fix_hierarchy))
         {
             result = false;
             if (cb)
@@ -1412,6 +1413,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         }
     }
     
+    // Check out that stock folders are at the right level
     if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth <= 2))
     {
         if (cb)
@@ -1452,7 +1454,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 		LLInventoryItem* item = *iter;
         LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
         
-        // Skip items that shouldn't be there to start with, raise an error message for those
+        // Test but skip items that shouldn't be there to start with, raise an error message for those
         std::string error_msg;
         if (!can_move_to_marketplace(item, error_msg, false))
         {
@@ -1473,6 +1475,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         }
         items_vector[type].push_back(viewer_inv_item);
 	}
+    
     // How many types of folders? Which type is it if only one?
     S32 count = 0;
     LLInventoryType::EType type = LLInventoryType::IT_COUNT;
@@ -1484,6 +1487,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             type = (LLInventoryType::EType)(i);
         }
     }
+    
     // If we have no items in there (only folders or empty), analyze a bit further 
     if ((count == 0) && !has_bad_items)
     {
@@ -1627,6 +1631,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 }
             }
         }
+        
         // Clean up
         if (viewer_cat->getDescendentCount() == 0)
         {
