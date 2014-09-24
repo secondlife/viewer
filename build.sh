@@ -177,17 +177,7 @@ build_docs()
   echo Hello world  > documentation.txt
   upload_item docs documentation.txt text/plain
   end_section "Stub documentation.txt"
-  begin_section "Dependency Graph"
-  depends_graph="$build_dir/dependancies.png"
-  echo "$AUTOBUILD" graph --output "$depends_graph"
-  if "$AUTOBUILD" graph --output "$depends_graph" >> "$build_log" 2>&1
-  then 
-    record_event "autobuild graph succeeded"
-    uplaod_item docs "$depends_graph" image/png
-  else 
-    record_event "autobuild graph failed"
-  fi
-  end_section "Dependency Graph"
+  record_dependencies_graph # defined in build.sh
   end_section "Building Documentation"
 }
 
