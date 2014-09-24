@@ -10,7 +10,7 @@ if (USESYSTEMLIBS)
 else (USESYSTEMLIBS)
   use_prebuilt_binary(uriparser)
   if (WINDOWS)
-    set(URIPARSER_LIBRARIES.
+    set(URIPARSER_LIBRARIES
       debug uriparserd
       optimized uriparser)
   elseif (LINUX)
