@@ -172,7 +172,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	if (!pos_source)
 	{
-		llwarns << "Unable to process mesh without position data; invalid model;  invalid model." << llendl;
+		LL_WARNS() << "Unable to process mesh without position data; invalid model;  invalid model." << LL_ENDL;
 		return LLModel::BAD_ELEMENT;
 	}
 	
@@ -193,7 +193,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	if ((vertex_count == 0) || (tc_count == 0))
 	{
-		llwarns << "Unable to process mesh with empty position array; invalid model." << llendl;
+		LL_WARNS() << "Unable to process mesh with empty position array; invalid model." << LL_ENDL;
 		return LLModel::BAD_ELEMENT;
 	}
 

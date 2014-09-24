@@ -96,7 +96,6 @@ public:
 private:
 	void			renderCorners( const LLBBox& local_bbox );
 	void			renderFaces( const LLBBox& local_bbox );
-	void			renderEdges( const LLBBox& local_bbox );
 	void			renderBoxHandle( F32 x, F32 y, F32 z );
 	void			renderAxisHandle( U32 part, const LLVector3& start, const LLVector3& end );
 	void			renderGuidelinesPart( const LLBBox& local_bbox );
