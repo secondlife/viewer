@@ -2031,24 +2031,44 @@ S32 LLTextBase::normalizeUri(std::string& uri_string)
 
 	if (!res)	
 	{
-		res = uriNormalizeSyntaxExA(&uri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
-
-		if (!res)
+		if (uri.scheme.afterLast - uri.scheme.first > 0)
 		{
-			S32 chars_required;
-			res = uriToStringCharsRequiredA(&uri, &chars_required);
+			res = uriNormalizeSyntaxExA(&uri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
 
 			if (!res)
 			{
-				chars_required++;
-				std::vector<char> label_buf(chars_required);
-				res = uriToStringA(&label_buf[0], &uri, chars_required, NULL);
+				S32 chars_required;
+				res = uriToStringCharsRequiredA(&uri, &chars_required);
 
 				if (!res)
 				{
-					uri_string = &label_buf[0];
+					chars_required++;
+					std::vector<char> label_buf(chars_required);
+					res = uriToStringA(&label_buf[0], &uri, chars_required, NULL);
+
+					if (!res)
+					{
+						uri_string = &label_buf[0];
+					}
 				}
 			}
+		}
+		else if (uri_string.find_first_of('.') != std::string::npos)
+		{
+			static bool recursive_call = false;
+
+			// allow only single level recursive call
+			if (!recursive_call)
+			{
+				recursive_call = true;
+
+				// force uri to be with scheme and try to normalize
+				std::string uri_with_scheme = "http://";
+				uri_with_scheme += uri_string;
+				normalizeUri(uri_with_scheme);
+				uri_string = uri_with_scheme.substr(7);
+				recursive_call = false;
+			}		
 		}
 	}
 
