@@ -984,7 +984,14 @@ bool can_move_to_marketplace(LLInventoryItem* inv_item, std::string& tooltip_msg
 		tooltip_msg = LLTrans::getString("TooltipOutboxWorn");
 		return false;
 	}
-	
+
+    // Check library status: library items cannot be put on the marketplace
+	if (!gInventory.isObjectDescendentOf(inv_item->getUUID(), gInventory.getRootFolderID()))
+    {
+		tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
+		return false;
+    }
+
     // Check type: for the moment, calling cards cannot be put on the marketplace
 	bool calling_card = (LLAssetType::AT_CALLINGCARD == inv_item->getType());
 	if (calling_card)
@@ -1083,7 +1090,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
     LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(dest_folder);
     bool accept = (view_folder && view_folder->acceptItem(inv_item));
 
-    // Check that the item has the right type and persimssions to be sold on the marketplace
+    // Check that the item has the right type and permissions to be sold on the marketplace
     if (accept)
     {
         accept = can_move_to_marketplace(inv_item, tooltip_msg, true);
