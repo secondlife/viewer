@@ -3412,8 +3412,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
 		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		root_pos += LLVector3d(gSavedSettings.getVector3("AvatarPosFinalOffset"));
 		
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
+
 
 		if (newPosition != mRoot->getXform()->getWorldPosition())
 		{		
@@ -3580,7 +3582,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 	else if (mDrawable.notNull())
 	{
-		mRoot->setPosition(mDrawable->getPosition());
+		LLVector3 pos = mDrawable->getPosition();
+		pos += gSavedSettings.getVector3("AvatarPosFinalOffset");
+		mRoot->setPosition(pos);
 		mRoot->setRotation(mDrawable->getRotation());
 	}
 	
