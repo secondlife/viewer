@@ -1533,19 +1533,25 @@ void LLModelPreview::rebuildUploadData()
 			}
 
             LLModel* high_lod_model = instance.mLOD[LLModel::LOD_HIGH];
-            llassert(high_lod_model);
-
-            for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
-	        {				
-				int refFaceCnt = 0;
-				int modelFaceCnt = 0;
-                llassert(instance.mLOD[i]);
-				if (instance.mLOD[i] && !instance.mLOD[i]->matchMaterialOrder(high_lod_model, refFaceCnt, modelFaceCnt ) )
-				{
-					setLoadState( LLModelLoader::ERROR_MATERIALS );
-					mFMP->childDisable( "calculate_btn" );
-				}
-	        }
+            if (!high_lod_model)
+			{
+				setLoadState( LLModelLoader::ERROR_MATERIALS );
+				mFMP->childDisable( "calculate_btn" );
+			}
+			else
+			{
+				for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
+				{				
+					int refFaceCnt = 0;
+					int modelFaceCnt = 0;
+					llassert(instance.mLOD[i]);
+					if (instance.mLOD[i] && !instance.mLOD[i]->matchMaterialOrder(high_lod_model, refFaceCnt, modelFaceCnt ) )
+					{
+						setLoadState( LLModelLoader::ERROR_MATERIALS );
+						mFMP->childDisable( "calculate_btn" );
+					}
+				}				
+			}
 			instance.mTransform = mat;
 			mUploadData.push_back(instance);
 		}
@@ -2402,12 +2408,16 @@ void LLModelPreview::updateStatusMessages()
 		LLModelInstance& instance = *iter;
 
         LLModel* model_high_lod = instance.mLOD[LLModel::LOD_HIGH];
-        llassert(model_high_lod);
+        if (!model_high_lod)
+		{
+			setLoadState( LLModelLoader::ERROR_MATERIALS );
+			mFMP->childDisable( "calculate_btn" );
+			continue;
+		}
 
         for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
 		{
             LLModel* lod_model = instance.mLOD[i];
-            llassert(lod_model);
             if (!lod_model)
             {
                 setLoadState( LLModelLoader::ERROR_MATERIALS );
