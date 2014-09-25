@@ -41,6 +41,7 @@ class LLNotificationChannelPanel : public LLLayoutPanel
 {
 public:
 	LLNotificationChannelPanel(const Params& p);
+	~LLNotificationChannelPanel();
 	BOOL postBuild();
 
 private:
@@ -55,6 +56,20 @@ LLNotificationChannelPanel::LLNotificationChannelPanel(const LLNotificationChann
 {
 	mChannelPtr = LLNotifications::instance().getChannel(p.name);
 	buildFromFile( "panel_notifications_channel.xml");
+}
+
+LLNotificationChannelPanel::~LLNotificationChannelPanel()
+{
+	// Userdata for all records is a LLNotification* we need to clean up
+	std::vector<LLScrollListItem*> data_list = getChild<LLScrollListCtrl>("notifications_list")->getAllData();
+	std::vector<LLScrollListItem*>::iterator data_itor;
+	for (data_itor = data_list.begin(); data_itor != data_list.end(); ++data_itor)
+	{
+		LLScrollListItem* item = *data_itor;
+		LLNotification* notification = (LLNotification*)item->getUserdata();
+		delete notification;
+		notification = NULL;
+	}
 }
 
 BOOL LLNotificationChannelPanel::postBuild()
@@ -124,7 +139,7 @@ bool LLNotificationChannelPanel::update(const LLSD& payload)
 		row["columns"][2]["type"] = "date";
 
 		LLScrollListItem* sli = getChild<LLScrollListCtrl>("notifications_list")->addElement(row);
-		sli->setUserdata(&(*notification));
+		sli->setUserdata(new LLNotification(notification->asLLSD()));
 	}
 
 	return false;

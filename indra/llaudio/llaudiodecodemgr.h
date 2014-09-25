@@ -24,7 +24,7 @@
  */
 
 #ifndef LL_LLAUDIODECODEMGR_H
-#define LL_LLAUDIODECODEMG_H
+#define LL_LLAUDIODECODEMGR_H
 
 #include "stdtypes.h"
 

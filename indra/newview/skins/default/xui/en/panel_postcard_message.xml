@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- height="380"
+ height="319"
  layout="topleft"
  name="panel_postcard_message"
  width="490">
@@ -12,7 +12,7 @@
      font="SansSerif"
      height="16"
      layout="topleft"
-     left="12"
+     left="5"
      name="to_label"
      top="10"
      width="60">
@@ -25,7 +25,7 @@
      layout="topleft"
      left_pad="10"
      name="to_form"
-     right="-10"
+     right="-3"
      top_delta="-4" />
     <text
      type="string"
@@ -35,7 +35,7 @@
      font="SansSerif"
      height="16"
      layout="topleft"
-     left="12"
+     left="5"
      name="name_label"
      width="60">
         From:
@@ -47,7 +47,7 @@
      left_pad="10"
      max_length_bytes="100"
      name="name_form"
-     right="-10"
+     right="-3"
      top_delta="-4" />
     <text
      type="string"
@@ -57,7 +57,7 @@
      font="SansSerif"
      height="16"
      layout="topleft"
-     left="12"
+     left="5"
      name="subject_label"
      width="60">
         Subject:
@@ -65,61 +65,24 @@
     <line_editor
      follows="left|top|right"
      height="20"
-     label="Type your subject here."
      layout="topleft"
      left_pad="10"
      max_length_bytes="100"
      name="subject_form"
-     right="-10"
+     right="-3"
      top_delta="-4" />
-    <text
-     type="string"
-     length="1"
-     bottom_delta="23"
-     follows="top|left|right"
-     font="SansSerif"
-     layout="topleft"
-     left="12"
-     name="msg_label"
-     right="-10">
-        Message:
-    </text>
     <text_editor
      type="string"
      length="1"
      follows="left|top|right"
-     height="60"
+     height="48"
      layout="topleft"
-     left_delta="0"
+     left="5"
      max_length="700"
      name="msg_form"
-     right="-10"
-     top_pad="10"
+     right="-4"
+     top_pad="5"
      word_wrap="true">
         Type your message here.
     </text_editor>
-    <button
-     follows="right|bottom"
-     height="23"
-     label="Cancel"
-     layout="topleft"
-     name="cancel_btn"
-     right="-32"
-     top="350"
-     width="100">
-      <button.commit_callback
-       function="Postcard.Cancel" />
-    </button>
-    <button
-     follows="right|bottom"
-     height="23"
-     label="Send"
-     layout="topleft"
-     left_delta="-106"
-     name="send_btn"
-     top_delta="0"
-     width="100">
-      <button.commit_callback
-       function="Postcard.Send" />
-    </button>
 </panel>

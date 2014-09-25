@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [Sürüm Notları]]
+	</string>
+	<string name="AboutCompiler">
+		[COMPILER] [COMPILER_VERSION] sürümü ile oluşturuldu
+	</string>
+	<string name="AboutPosition">
+		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] konumundasınız
+SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(küresel koordinatlar [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU: [CPU]
+Bellek: [MEMORY_MB] MB
+İşl. Sis. Sürümü: [OS_VERSION]
+Grafik Kartı Üreticisi: [GRAPHICS_CARD_VENDOR]
+Grafik Kartı: [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Windows Grafik Sürücüsü Sürümü: [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		OpenGL Sürümü: [OPENGL_VERSION]
+
+libcurl Sürümü: [LIBCURL_VERSION]
+J2C Kod Çözücü Sürümü: [J2C_VERSION]
+Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
+Qt Web Kit Sürümü: [QT_WEBKIT_VERSION]
+Ses Sunucusu Sürümü: [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Kaybolan Paketler: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Sunucu sürümü notları URL&apos;si alınırken hata oluştu.
+	</string>
 	<string name="ProgressRestoring">
 		Geri yükleniyor...
 	</string>
@@ -934,14 +973,14 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="ControlYourCamera">
 		Kameranızı kontrol etmek
 	</string>
+	<string name="TeleportYourAgent">
+		Sizi ışınlama
+	</string>
 	<string name="NotConnected">
 		Bağlı Değil
 	</string>
 	<string name="AgentNameSubst">
 		(Siz)
-	</string>
-	<string name="TeleportYourAgent">
-		Sizi ışınlama
 	</string>
 	<string name="JoinAnExperience">
 		Bir tecrübeye katıl
@@ -1267,8 +1306,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InventoryInboxNoItems">
 		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
 	</string>
-  <string name="Unconstrained">Kısıtsız</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1297,6 +1335,18 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InventoryOutboxNoItems">
 		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Pazaryeri Başlatılıyor.
+	</string>
+	<string name="InventoryOutboxInitializing">
+		[[MARKETPLACE_CREATE_STORE_URL] Mağazası] üzerindeki hesabınıza erişiyoruz.
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Pazaryeri Hataları
+	</string>
+	<string name="InventoryOutboxError">
+		[[MARKETPLACE_CREATE_STORE_URL] Mağazası] hata döndürüyor.
+	</string>
 	<string name="Marketplace Error None">
 		Hata yok
 	</string>
@@ -1323,6 +1373,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="Open landmarks">
 		Açık yer imleri
+	</string>
+	<string name="Unconstrained">
+		Kısıtsız
 	</string>
 	<string name="no_transfer" value="(aktarım yok)"/>
 	<string name="no_modify" value="(değiştirme yok)"/>
@@ -1723,6 +1776,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Karşıdan yüklendi, şimdi derleniyor
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		Komut dosyası derleme hizmeti kullanılamıyor
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		Komut dosyası sunucuda bulunamadı.

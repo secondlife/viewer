@@ -65,7 +65,6 @@ const std::string FLICKR_MACHINE_TAGS_NAMESPACE = "secondlife";
 ///////////////////////////
 
 LLFlickrPhotoPanel::LLFlickrPhotoPanel() :
-mSnapshotPanel(NULL),
 mResolutionComboBox(NULL),
 mRefreshBtn(NULL),
 mBtnPreview(NULL),
@@ -96,7 +95,6 @@ BOOL LLFlickrPhotoPanel::postBuild()
 {
 	setVisibleCallback(boost::bind(&LLFlickrPhotoPanel::onVisibilityChange, this, _2));
 	
-	mSnapshotPanel = getChild<LLUICtrl>("snapshot_panel");
 	mResolutionComboBox = getChild<LLUICtrl>("resolution_combobox");
 	mResolutionComboBox->setCommitCallback(boost::bind(&LLFlickrPhotoPanel::updateResolution, this, TRUE));
 	mFilterComboBox = getChild<LLUICtrl>("filters_combobox");
@@ -191,16 +189,9 @@ void LLFlickrPhotoPanel::draw()
 		// calc preview offset within the preview rect
 		const S32 local_offset_x = (thumbnail_rect.getWidth()  - thumbnail_w) / 2 ;
 		const S32 local_offset_y = (thumbnail_rect.getHeight() - thumbnail_h) / 2 ;
+		S32 offset_x = thumbnail_rect.mLeft + local_offset_x;
+		S32 offset_y = thumbnail_rect.mBottom + local_offset_y;
 
-		// calc preview offset within the floater rect
-        // Hack : To get the full offset, we need to take into account each and every offset of each widgets up to the floater.
-        // This is almost as arbitrary as using a fixed offset so that's what we do here for the sake of simplicity.
-        // *TODO : Get the offset looking through the hierarchy of widgets, should be done in postBuild() so to avoid traversing the hierarchy each time.
-		S32 offset_x = thumbnail_rect.mLeft + local_offset_x - 1;
-		S32 offset_y = thumbnail_rect.mBottom + local_offset_y - 39;
-        
-		mSnapshotPanel->localPointToOtherView(offset_x, offset_y, &offset_x, &offset_y, getParentByType<LLFloater>());
-        
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		// Apply floater transparency to the texture unless the floater is focused.
 		F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();

@@ -101,6 +101,27 @@
 			true
 		</allow_looping>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			No Content
+		</label>
+		<default_type>
+			none/none
+		</default_type>
+		<icon>
+			icn_media_web.tga
+		</icon>
+		<tooltip name="none_tooltip">
+			No media here
+		</tooltip>
+		<playtip name="none_playtip" />
+		<allow_resize>
+			false
+		</allow_resize>
+		<allow_looping>
+			false
+		</allow_looping>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Real Time Streaming

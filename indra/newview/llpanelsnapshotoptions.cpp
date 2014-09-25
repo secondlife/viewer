@@ -72,7 +72,9 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
-
+	mCommitCallbackRegistrar.add("Snapshot.SendToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
+	mCommitCallbackRegistrar.add("Snapshot.SendToTwitter",		boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
+	mCommitCallbackRegistrar.add("Snapshot.SendToFlickr",		boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
 	LLGlobalEconomy::Singleton::getInstance()->addObserver(this);
 }
 
@@ -84,13 +86,6 @@ LLPanelSnapshotOptions::~LLPanelSnapshotOptions()
 // virtual
 BOOL LLPanelSnapshotOptions::postBuild()
 {
-    LLTextBox* sendToFacebookTextBox = getChild<LLTextBox>("send_to_facebook_textbox");
-    sendToFacebookTextBox->setURLClickedCallback(boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
-    LLTextBox* sendToTwitterTextBox = getChild<LLTextBox>("send_to_twitter_textbox");
-    sendToTwitterTextBox->setURLClickedCallback(boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
-    LLTextBox* sendToFlickrTextBox = getChild<LLTextBox>("send_to_flickr_textbox");
-    sendToFlickrTextBox->setURLClickedCallback(boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
-
 	return LLPanel::postBuild();
 }
 

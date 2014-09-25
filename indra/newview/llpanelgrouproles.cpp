@@ -2389,7 +2389,8 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
 		}
 		else
 		{
-			LL_WARNS() << "Unable to look up role information for role id: " << role_id << LL_ENDL;
+			LL_WARNS() << "Unable to look up role information for role id: "
+				<< role_id << LL_ENDL;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////
@@ -2834,7 +2835,7 @@ void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
 	if(mActionMembers) mActionMembers->deleteAllItems();
 
 	if(mActionDescription) mActionDescription->clear();
-
+	
 	LLPanelGroupSubTab::setGroupID(id);
 }
 

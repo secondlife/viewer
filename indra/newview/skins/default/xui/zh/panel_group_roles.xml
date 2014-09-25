@@ -21,6 +21,7 @@
 				<name_list.columns label="成員" name="name"/>
 				<name_list.columns label="捐款" name="donated"/>
 				<name_list.columns label="狀態" name="online"/>
+				<name_list.columns label="頭銜" name="title"/>
 			</name_list>
 			<button label="邀請" name="member_invite"/>
 			<button label="踢出" name="member_eject"/>

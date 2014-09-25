@@ -88,7 +88,7 @@ F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
 S32Bytes LLViewerTexture::sBoundTextureMemory;
 S32Bytes LLViewerTexture::sTotalTextureMemory;
-S32Megabytes LLViewerTexture::sMaxBoundTextureMem;
+S32Megabytes LLViewerTexture::sMaxBoundTextureMemory;
 S32Megabytes LLViewerTexture::sMaxTotalTextureMem;
 S32Bytes LLViewerTexture::sMaxDesiredTextureMem;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0;
@@ -534,11 +534,11 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 
 	sBoundTextureMemory = LLImageGL::sBoundTextureMemory;
 	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;
-	sMaxBoundTextureMem = gTextureList.getMaxResidentTexMem();
+	sMaxBoundTextureMemory = gTextureList.getMaxResidentTexMem();
 	sMaxTotalTextureMem = gTextureList.getMaxTotalTextureMem();
 	sMaxDesiredTextureMem = sMaxTotalTextureMem; //in Bytes, by default and when total used texture memory is small.
 
-	if (sBoundTextureMemory >= sMaxBoundTextureMem ||
+	if (sBoundTextureMemory >= sMaxBoundTextureMemory ||
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
 		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
@@ -558,7 +558,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		sEvaluationTimer.reset();
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
-			 sBoundTextureMemory < sMaxBoundTextureMem * texmem_lower_bound_scale &&
+			 sBoundTextureMemory < sMaxBoundTextureMemory * texmem_lower_bound_scale &&
 			 sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
 	{			 
 		// If we are using less texture memory than we should,
@@ -576,7 +576,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
 	sCameraMovingDiscardBias = (S8)(sCameraMovingBias);
 
-	LLViewerTexture::sFreezeImageScalingDown = (sBoundTextureMemory < 0.75f * sMaxBoundTextureMem * texmem_middle_bound_scale) &&
+	LLViewerTexture::sFreezeImageScalingDown = (sBoundTextureMemory < 0.75f * sMaxBoundTextureMemory * texmem_middle_bound_scale) &&
 				(sTotalTextureMemory < 0.75f * sMaxTotalTextureMem * texmem_middle_bound_scale);
 }
 
@@ -3074,7 +3074,7 @@ void LLViewerLODTexture::processTextureStats()
 				scaleDown();
 			}
 			// Limit the amount of GL memory bound each frame
-			else if ( sBoundTextureMemory > sMaxBoundTextureMem * texmem_middle_bound_scale &&
+			else if ( sBoundTextureMemory > sMaxBoundTextureMemory * texmem_middle_bound_scale &&
 				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
 			{
 				scaleDown();

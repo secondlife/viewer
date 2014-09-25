@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
+	</string>
+	<string name="AboutCompiler">
+		Compilé avec [COMPILER] version [COMPILER_VERSION]
+	</string>
+	<string name="AboutPosition">
+		Vous êtes à [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] dans [REGION], se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+SLURL : &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(coordonnées globales [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU : [CPU]
+Mémoire : [MEMORY_MB] Mo
+Version OS : [OS_VERSION]
+Distributeur de cartes graphiques : [GRAPHICS_CARD_VENDOR]
+Carte graphique : [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Version Windows Graphics Driver : [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		Version OpenGL : [OPENGL_VERSION]
+
+Version libcurl : [LIBCURL_VERSION]
+Version J2C Decoder : [J2C_VERSION]
+Version Audio Driver : [AUDIO_DRIVER_VERSION]
+Version Qt Webkit : [QT_WEBKIT_VERSION]
+Version serveur vocal : [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Paquets perdus : [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Erreur lors de la récupération de l&apos;URL des notes de version du serveur.
+	</string>
 	<string name="ProgressRestoring">
 		Restauration...
 	</string>
@@ -937,14 +976,14 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="ControlYourCamera">
 		Contrôler votre caméra
 	</string>
+	<string name="TeleportYourAgent">
+		Vous téléporter
+	</string>
 	<string name="NotConnected">
 		Pas connecté(e)
 	</string>
 	<string name="AgentNameSubst">
 		(Vous)
-	</string>
-	<string name="TeleportYourAgent">
-		Vous téléporter
 	</string>
 	<string name="JoinAnExperience">
 		Rejoindre une expérience
@@ -1270,8 +1309,7 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryInboxNoItems">
 		Les achats que vous avez effectués sur la Place du marché s&apos;affichent ici. Vous pouvez alors les faire glisser vers votre inventaire afin de les utiliser.
 	</string>
-  <string name="Unconstrained">Sans contraintes</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1300,6 +1338,18 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryOutboxNoItems">
 		Pour mettre des dossiers en vente sur la [[MARKETPLACE_DASHBOARD_URL] Place du marché], faites-les glisser vers cette zone et cliquez sur &quot;Envoyer vers la Place du marché&quot;.
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Initialisation de la Place du marché...
+	</string>
+	<string name="InventoryOutboxInitializing">
+		Nous sommes en train d&apos;accéder à votre compte dans la [[MARKETPLACE_CREATE_STORE_URL] boutique de la Place du marché].
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Erreurs de la Place du marché.
+	</string>
+	<string name="InventoryOutboxError">
+		La [[MARKETPLACE_CREATE_STORE_URL] boutique de la Place du marché] renvoie des erreurs.
+	</string>
 	<string name="Marketplace Error None">
 		Aucune erreur
 	</string>
@@ -1326,6 +1376,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Open landmarks">
 		Ouvrir les repères
+	</string>
+	<string name="Unconstrained">
+		Sans contraintes
 	</string>
 	<string name="no_transfer" value=" (pas de transfert)"/>
 	<string name="no_modify" value=" (pas de modification)"/>
@@ -1726,6 +1779,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Téléchargé, compilation en cours
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		Service de compilation de script indisponible.
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		Script introuvable sur le serveur.

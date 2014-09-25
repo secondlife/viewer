@@ -65,8 +65,6 @@ void LLPanelSnapshot::onOpen(const LLSD& key)
 	{
 		LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
 	}
-
-	updateCustomResControls();
 }
 
 LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
@@ -77,11 +75,6 @@ LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
 void LLPanelSnapshot::enableControls(BOOL enable)
 {
 	setCtrlsEnabled(enable);
-	if (enable)
-	{
-		// Make sure only relevant controls are enabled/shown.
-		updateCustomResControls();
-	}
 }
 
 LLSpinCtrl* LLPanelSnapshot::getWidthSpinner()
@@ -119,16 +112,6 @@ LLSideTrayPanelContainer* LLPanelSnapshot::getParentContainer()
 	}
 
 	return parent;
-}
-
-// virtual
-void LLPanelSnapshot::updateCustomResControls()
-{
-	// Only show width/height spinners and the aspect ratio checkbox
-	// when a custom resolution is chosen.
-	LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
-	const bool show = combo->getFirstSelectedIndex() == (combo->getItemCount() - 1);
-	getChild<LLUICtrl>(getImageSizePanelName())->setVisible(show);
 }
 
 void LLPanelSnapshot::updateImageQualityLevel()
@@ -188,8 +171,6 @@ void LLPanelSnapshot::onCustomResolutionCommit()
 
 void LLPanelSnapshot::onResolutionComboCommit(LLUICtrl* ctrl)
 {
-	updateCustomResControls();
-
 	LLSD info;
 	info["combo-res-change"]["control-name"] = ctrl->getName();
 	LLFloaterSnapshot::getInstance()->notify(info);
