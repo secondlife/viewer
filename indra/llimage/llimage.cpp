@@ -524,7 +524,7 @@ inline U8 LLImageRaw::fastFractionalMult( U8 a, U8 b )
 }
 
 
-void LLImageRaw::composite( LLImageRaw* src )
+void LLImageRaw::composite( const LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
 
@@ -560,7 +560,7 @@ void LLImageRaw::composite( LLImageRaw* src )
 }
 
 // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
-void LLImageRaw::compositeScaled4onto3(LLImageRaw* src)
+void LLImageRaw::compositeScaled4onto3(const LLImageRaw* src)
 {
 	LL_INFOS() << "compositeScaled4onto3" << LL_ENDL;
 
@@ -568,26 +568,12 @@ void LLImageRaw::compositeScaled4onto3(LLImageRaw* src)
 
 	llassert( (4 == src->getComponents()) && (3 == dst->getComponents()) );
 
-	S32 temp_data_size = src->getWidth() * dst->getHeight() * src->getComponents();
-	llassert_always(temp_data_size > 0);
-	std::vector<U8> temp_buffer(temp_data_size);
-
-	// Vertical: scale but no composite
-	for( S32 col = 0; col < src->getWidth(); col++ )
-	{
-		copyLineScaled( src->getData() + (src->getComponents() * col), &temp_buffer[0] + (src->getComponents() * col), src->getHeight(), dst->getHeight(), src->getWidth(), src->getWidth() );
-	}
-
-	// Horizontal: scale and composite
-	for( S32 row = 0; row < dst->getHeight(); row++ )
-	{
-		compositeRowScaled4onto3( &temp_buffer[0] + (src->getComponents() * src->getWidth() * row), dst->getData() + (dst->getComponents() * dst->getWidth() * row), src->getWidth(), dst->getWidth() );
-	}
+	ll_nn2d_interpolation(src->getData(), src->getWidth(), src->getHeight(), src->getComponents(), dst->getData(), dst->getWidth(), dst->getHeight(), dst->getComponents());
 }
 
 
 // Src and dst are same size.  Src has 4 components.  Dst has 3 components.
-void LLImageRaw::compositeUnscaled4onto3( LLImageRaw* src )
+void LLImageRaw::compositeUnscaled4onto3( const LLImageRaw* src )
 {
 	/*
 	//test fastFractionalMult()
@@ -610,7 +596,7 @@ void LLImageRaw::compositeUnscaled4onto3( LLImageRaw* src )
 	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
 
-	U8* src_data = src->getData();
+	const U8* src_data = src->getData();
 	U8* dst_data = dst->getData();
 	S32 pixels = getWidth() * getHeight();
 	while( pixels-- )
@@ -751,7 +737,7 @@ void LLImageRaw::copy(LLImageRaw* src)
 }
 
 // Src and dst are same size.  Src and dst have same number of components.
-void LLImageRaw::copyUnscaled(LLImageRaw* src)
+void LLImageRaw::copyUnscaled(const LLImageRaw* src)
 {
 	LLImageRaw* dst = this;  // Just for clarity.
 
@@ -833,7 +819,7 @@ void LLImageRaw::copyUnscaled3onto4( LLImageRaw* src )
 
 
 // Src and dst can be any size.  Src and dst have same number of components.
-void LLImageRaw::copyScaled( LLImageRaw* src )
+void LLImageRaw::copyScaled( const LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
 
@@ -846,21 +832,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 		return;
 	}
 
-	S32 temp_data_size = src->getWidth() * dst->getHeight() * getComponents();
-	llassert_always(temp_data_size > 0);
-	std::vector<U8> temp_buffer(temp_data_size);
-
-	// Vertical
-	for( S32 col = 0; col < src->getWidth(); col++ )
-	{
-		copyLineScaled( src->getData() + (getComponents() * col), &temp_buffer[0] + (getComponents() * col), src->getHeight(), dst->getHeight(), src->getWidth(), src->getWidth() );
-	}
-
-	// Horizontal
-	for( S32 row = 0; row < dst->getHeight(); row++ )
-	{
-		copyLineScaled( &temp_buffer[0] + (getComponents() * src->getWidth() * row), dst->getData() + (getComponents() * dst->getWidth() * row), src->getWidth(), dst->getWidth(), 1, 1 );
-	}
+	ll_nn2d_interpolation(src->getData(), src->getWidth(), src->getHeight(), src->getComponents(), dst->getData(), dst->getWidth(), dst->getHeight(), dst->getComponents());
 }
 
 
@@ -880,25 +852,17 @@ BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 
 	if (scale_image_data)
 	{
-		S32 temp_data_size = old_width * new_height * getComponents();
-		llassert_always(temp_data_size > 0);
-		std::vector<U8> temp_buffer(temp_data_size);
+		S32 new_data_size = new_width * new_height * getComponents();
+		llassert_always(new_data_size > 0);
 
-		// Vertical
-		for( S32 col = 0; col < old_width; col++ )
+		U8 *new_data = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), new_data_size); 
+		if(NULL == new_data) 
 		{
-			copyLineScaled( getData() + (getComponents() * col), &temp_buffer[0] + (getComponents() * col), old_height, new_height, old_width, old_width );
+			return FALSE; 
 		}
 
-		deleteData();
-
-		U8* new_buffer = allocateDataSize(new_width, new_height, getComponents());
-
-		// Horizontal
-		for( S32 row = 0; row < new_height; row++ )
-		{
-			copyLineScaled( &temp_buffer[0] + (getComponents() * old_width * row), new_buffer + (getComponents() * new_width * row), old_width, new_width, 1, 1 );
-		}
+		ll_nn2d_interpolation(getData(), old_width, old_height, getComponents(), new_data, new_width, new_height, getComponents());
+		setDataAndSize(new_data, new_width, new_height, getComponents());
 	}
 	else
 	{

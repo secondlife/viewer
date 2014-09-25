@@ -229,7 +229,7 @@ public:
 	void copy( LLImageRaw* src );
 
 	// Src and dst are same size.  Src and dst have same number of components.
-	void copyUnscaled( LLImageRaw* src );
+	void copyUnscaled( const LLImageRaw* src );
 	
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void copyUnscaled4onto3( LLImageRaw* src );
@@ -243,7 +243,7 @@ public:
 	void copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill);
 
 	// Src and dst can be any size.  Src and dst have same number of components.
-	void copyScaled( LLImageRaw* src );
+	void copyScaled( const LLImageRaw* src );
 
 	// Src and dst can be any size.  Src has 3 components.  Dst has 4 components.
 	void copyScaled3onto4( LLImageRaw* src );
@@ -255,13 +255,13 @@ public:
 	// Composite operations
 
 	// Src and dst can be any size.  Src and dst can each have 3 or 4 components.
-	void composite( LLImageRaw* src );
+	void composite( const LLImageRaw* src );
 
 	// Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
-	void compositeScaled4onto3( LLImageRaw* src );
+	void compositeScaled4onto3( const LLImageRaw* src );
 
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
-	void compositeUnscaled4onto3( LLImageRaw* src );
+	void compositeUnscaled4onto3( const LLImageRaw* src );
 
 protected:
 	// Create an image from a local file (generally used in tools)
