@@ -235,16 +235,16 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 
-	<string name="TooltipOutboxDragToWorld">You can not rez items on the marketplace</string>
+	<string name="TooltipOutboxDragToWorld">You can't rez items on the marketplace</string>
 	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
 	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>
-	<string name="TooltipOutboxWorn">You can not put items you are wearing on the marketplace</string>
-	<string name="TooltipOutboxLinked">You can not put linked items or folders on the marketplace</string>
-	<string name="TooltipOutboxCallingCard">You can not put calling cards on the marketplace</string>
+	<string name="TooltipOutboxWorn">You can't put items you are wearing on the marketplace</string>
+	<string name="TooltipOutboxLinked">You can't put linked items or folders on the marketplace</string>
+	<string name="TooltipOutboxCallingCard">You can't put calling cards on the marketplace</string>
 	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]</string>
 	<string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]</string>
 	<string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]</string>
-	<string name="TooltipOutboxDragActive">You can't move an active listed listing</string>
+	<string name="TooltipOutboxDragActive">You can't move a listed listing</string>
 	<string name="TooltipOutboxCannotDropOnRoot">You can't drop items on filtered tabs root</string>
 	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
 	
@@ -2311,7 +2311,7 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	<string name="Marketplace Error Prefix">Error: </string>
 	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
 	<string name="Marketplace Error Not Accepted">Cannot move item in that folder.</string>
-	<string name="Marketplace Error Unsellable Item">This item can not be sold on the marketplace.</string>
+	<string name="Marketplace Error Unsellable Item">This item cannot be sold on the Marketplace.</string>
 
 	<string name="MarketplaceNoID">no Mkt ID</string>
 	<string name="MarketplaceLive">listed</string>

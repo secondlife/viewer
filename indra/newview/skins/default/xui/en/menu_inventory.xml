@@ -5,7 +5,7 @@
  name="Popup"
  visible="false">
 	<menu_item_call
-        label="Create Listing"
+        label="Create listing"
         layout="topleft"
         name="Marketplace Create Listing">
 		<menu_item_call.on_click
@@ -13,7 +13,7 @@
         parameter="marketplace_create_listing" />
 	</menu_item_call>
 	<menu_item_call
-        label="Associate Listing"
+        label="Associate listing"
         layout="topleft"
         name="Marketplace Associate Listing">
 		<menu_item_call.on_click
@@ -21,7 +21,7 @@
         parameter="marketplace_associate_listing" />
 	</menu_item_call>
 	<menu_item_call
-        label="Disassociate Listing"
+        label="Unassociate listing"
         layout="topleft"
         name="Marketplace Disassociate Listing">
 		<menu_item_call.on_click
@@ -29,7 +29,7 @@
         parameter="marketplace_disassociate_listing" />
 	</menu_item_call>
 	<menu_item_call
-        label="Get (Refresh) Listing"
+        label="Get (Refresh) listing"
         layout="topleft"
         name="Marketplace Get Listing">
 		<menu_item_call.on_click
@@ -37,7 +37,7 @@
         parameter="marketplace_get_listing" />
 	</menu_item_call>
 	<menu_item_call
-        label="Edit Listing"
+        label="Edit listing"
         layout="topleft"
         name="Marketplace Edit Listing">
 		<menu_item_call.on_click

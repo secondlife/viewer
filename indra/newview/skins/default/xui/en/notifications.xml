@@ -397,7 +397,7 @@ This listing could not be updated.
         icon="alertmodal.tga"
         name="AlertMerchantListingCannotWear"
         type="alertmodal">
-        You can not wear clothes or body parts that are on the Marketplace.
+        You cannot wear clothes or body parts that are in the Marketplace Listings folder.
         <tag>fail</tag>
     </notification>
     
