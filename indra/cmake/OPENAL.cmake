@@ -16,7 +16,7 @@ if (OPENAL)
     pkg_check_modules(OPENAL_LIB REQUIRED openal)
     pkg_check_modules(FREEALUT_LIB REQUIRED freealut)
   else (USESYSTEMLIBS)
-    use_prebuilt_binary(openal_soft)
+    use_prebuilt_binary(openal)
   endif (USESYSTEMLIBS)
   if(WINDOWS)
     set(OPENAL_LIBRARIES 
