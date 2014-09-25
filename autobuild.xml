@@ -1585,6 +1585,10 @@
       </map>
       <key>ogg_vorbis</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2002, Xiph.org Foundation</string>
+        <key>description</key>
+        <string>Audio encoding library</string>
         <key>license</key>
         <string>ogg-vorbis</string>
         <key>license_file</key>
@@ -1598,9 +1602,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e849bc2b779fb7cc5e81aeb021a542c0</string>
+              <string>921b9d5ce392f5ced1b683b0f6d46d78</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2-darwin-20110510.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-ogvorbis/rev/292448/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2-darwin-292448.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1610,9 +1614,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71eaa462eb0bf8842277a3436483a354</string>
+              <string>f28d4e7c8c9a46f99ffbaebdd4a6535b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/Linux/installer/ogg_vorbis-1.2.2-1.3.2-linux-20110511.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-ogvorbis/rev/292448/arch/Linux/installer/ogg_vorbis-1.2.2-1.3.2-linux-292448.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1622,14 +1626,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>291dbba89dd8162b76f2c2d82e908c6f</string>
+              <string>25da868a1204203cfd31b449dad24d6d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/CYGWIN/installer/ogg_vorbis-1.2.2-1.3.2-windows-20110510.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-ogvorbis/rev/292448/arch/CYGWIN/installer/ogg_vorbis-1.2.2-1.3.2-windows-292448.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.2.2-1.3.2</string>
       </map>
       <key>openal</key>
       <map>
