@@ -12,7 +12,7 @@
 				Mot de passe oublié
 			</text>
 			<button label="Connexion" name="connect_btn"/>
-			<text name="At_My_Last_Location_Label">
+			<text name="At_My_Last_Location_Label" font="SansSerifSmall" width="140">
 				au dernier emplacement
 			</text>
 			<combo_box label="Mes lieux préférés" name="start_location_combo">

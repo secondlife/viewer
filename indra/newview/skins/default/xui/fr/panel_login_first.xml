@@ -10,7 +10,7 @@
 					<combo_box label="Nom d&apos;utilisateur" name="username_combo" tool_tip="Nom d&apos;utilisateur que vous avez choisi lors de votre inscription (par exemple, bobsmith12 ou Steller Sunshine)."/>
 					<line_editor label="Mot de passe" name="password_edit"/>
 					<button label="Connexion" name="connect_btn"/>
-					<check_box label="Mémoriser mes informations" name="remember_check"/>
+					<check_box label="Mémoriser mes informations" name="remember_check" font="SansSerifSmall"/>
 					<text name="forgot_password_text">
 						Mot de passe oublié
 					</text>
