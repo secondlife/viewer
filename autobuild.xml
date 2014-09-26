@@ -1385,8 +1385,10 @@
       </map>
       <key>llphysicsextensions_source</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>license</key>
-        <string>TEMPORARY</string>
+        <string>internal</string>
         <key>license_file</key>
         <string>LICENSES/llphysicsextensions.txt</string>
         <key>name</key>
@@ -1398,11 +1400,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0578fa67ef9906c6aaa326f51db2669f</string>
+              <string>8d580b805d319064326d76d083d6bce7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/263415/arch/Darwin/installer/llphysicsextensions_source-0.3-darwin-20120814.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/294791/arch/Darwin/installer/llphysicsextensions_source-1.0.294791-darwin-294791.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1412,9 +1414,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a6856b4d58a3b71321acad7e1fa9c8d4</string>
+              <string>524903a69fbc47adf80ae35893f7f9a4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/265749/arch/Linux/installer/llphysicsextensions_source-0.3-linux-20121011.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/294791/arch/Linux/installer/llphysicsextensions_source-1.0.294791-linux-294791.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1433,12 +1435,14 @@
           </map>
         </map>
         <key>version</key>
-        <string>0.2</string>
+        <string>1.0.294791</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>license</key>
-        <string>TEMPORARY</string>
+        <string>internal</string>
         <key>license_file</key>
         <string>LICENSES/llphysicsextensions.txt</string>
         <key>name</key>
@@ -1450,11 +1454,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3ae798d4dfb54a1d806ee5f8b31f7626</string>
+              <string>0249a41f981407b660cc5c0526efa9ac</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub/rev/263415/arch/Darwin/installer/llphysicsextensions_stub-0.3-darwin-20120814.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/294790/arch/Darwin/installer/llphysicsextensions_stub-1.0.294790-darwin-294790.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1464,9 +1468,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aa8a2f25e8629cf5e6a96cc0eb93de8e</string>
+              <string>2abff9eb3d05924bdc3d8a952f9dd173</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub/rev/263415/arch/Linux/installer/llphysicsextensions_stub-0.3-linux-20120814.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/294790/arch/Linux/installer/llphysicsextensions_stub-1.0.294790-linux-294790.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1485,7 +1489,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>0.2</string>
+        <string>1.0.294790</string>
       </map>
       <key>llqtwebkit</key>
       <map>
