@@ -891,8 +891,10 @@
       </map>
       <key>gstreamer</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</string>
         <key>license</key>
-        <string>lgpl</string>
+        <string>LGPL</string>
         <key>license_file</key>
         <string>LICENSES/gstreamer.txt</string>
         <key>name</key>
@@ -904,14 +906,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ddbc0a64ad788107877fee777403592c</string>
+              <string>fb1479533a7699b44d34e3a550037eb7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gstreamer-linux-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/gstreamer_3p-update-gstreamer/rev/294903/arch/Linux/installer/gstreamer-0.10.6.294903-linux-294903.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.10.6.294903</string>
       </map>
       <key>gtk-atk-pango-glib</key>
       <map>
