@@ -1367,14 +1367,18 @@
           </map>
         </map>
       </map>
-      <key>llappearanceutility-source</key>
+      <key>llappearance_utility</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2000-2012, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>Linden Lab appearance utility for server-side avatar baking services.</string>
         <key>license</key>
-        <string>TEMPORARY</string>
+        <string>Proprietary</string>
         <key>license_file</key>
         <string>LICENSES/llappearanceutility.txt</string>
         <key>name</key>
-        <string>llappearanceutility-source</string>
+        <string>llappearance_utility</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -1382,16 +1386,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>54e46715e72b7805d9d3f84d45b6b1b7</string>
+              <string>ce1261a54d877ab5530ae6a9134a77a3</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/290120/arch/Linux/installer/llappearanceutility_source-0.1-linux-20140519.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/294906/arch/Linux/installer/llappearance_utility-0.0.1-linux-294906.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.1</string>
+        <string>0.0.1</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
