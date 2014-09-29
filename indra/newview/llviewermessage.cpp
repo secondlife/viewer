@@ -3768,6 +3768,15 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 		}
 
+		// don't call notification for debug messages from not owned objects
+		if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+		{
+			if (gAgentID != chat.mOwnerID)
+			{
+				return;
+			}
+		}
+
 		LLSD msg_notify = LLSD(LLSD::emptyMap());
 		msg_notify["session_id"] = LLUUID();
         msg_notify["from_id"] = chat.mFromID;
@@ -5823,7 +5832,7 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notific
 				tp_failure_notification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
-		}
+	}
 	}		// End of special handling for "TeleportEntryAccessBlocked"
 	else
 	{	// Normal case, no message munging

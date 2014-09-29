@@ -203,6 +203,8 @@ public:
 	// Is used to save order for Favorites folder.
 	void saveItemsOrder(const LLInventoryModel::item_array_t& items);
 
+	void saveOrder();
+
 	void rearrangeFavoriteLandmarks(const LLUUID& source_item_id, const LLUUID& target_item_id);
 
 	/**

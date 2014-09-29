@@ -5,7 +5,15 @@
 		<menu_item_call label="退出 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="幫助" name="Help">
-		<menu_item_call label="[SECOND_LIFE] 幫助" name="Second Life Help"/>
+		<menu_item_call label="簡易教學…" name="How To"/>
+		<menu_item_call label="快速上手" name="Quickstart"/>
+		<menu_item_call label="知識庫" name="Knowledge Base"/>
+		<menu_item_call label="維基" name="Wiki"/>
+		<menu_item_call label="社群論壇" name="Community Forums"/>
+		<menu_item_call label="支援入口" name="Support portal"/>
+		<menu_item_call label="[SECOND_LIFE] 最新消息" name="Second Life News"/>
+		<menu_item_call label="[SECOND_LIFE] 部落格" name="Second Life Blogs"/>
+		<menu_item_call label="回報錯誤" name="Report Bug"/>
 		<menu_item_call label="關於 [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu_item_check label="顯示除錯選單" name="Show Debug Menu"/>

@@ -1524,6 +1524,14 @@ Graphics Quality can be raised in Preferences &gt; Graphics.
 The region [REGION] does not allow terraforming.
   <tag>fail</tag>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ParcelNoTerraforming"
+   type="notify">
+You are not allowed to terraform parcel [PARCEL].
+  <tag>fail</tag>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -3904,6 +3912,28 @@ You have left the group [group_name].
   </notification>
 
   <notification
+   icon="aler.tga"
+   name="GroupDepartError"
+   type="alert">
+Unable to leave group: [reason].
+      <tag>reason</tag>
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="GroupDepart"
+   type="alert">
+You have left the group [group_name].
+      <tag>group_name</tag>
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    name="ConfirmKick"
    type="alert">
@@ -5521,6 +5551,14 @@ Do you want to replace it with the selected object?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="TooManyWearables"
+   type="alertmodal">
+    You can't wear a folder containing more than [AMOUNT] items.  You can change this limit in Advanced > Show Debug Settings > WearFolderLimit.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alert.tga"
    label="Do Not Disturb Mode Warning"
    name="DoNotDisturbModePay"
@@ -7125,11 +7163,11 @@ If you stay in this region you will be logged out.
    name="LoadWebPage"
    show_toast="false"
    type="notify">
-Load web page [URL]?
+Load web page [URL] ?
 
 [MESSAGE]
 
-From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]?
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]
     <tag>confirm</tag>
     <form name="form">
       <button
@@ -8025,7 +8063,16 @@ You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] second
 ( [EXISTENCE] seconds alive )
 You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
-
+	
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadTexture"
+   type="alertmodal">
+Unable to upload texture.
+[REASON]   
+  <tag>fail</tag>  
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="LivePreviewUnavailable"

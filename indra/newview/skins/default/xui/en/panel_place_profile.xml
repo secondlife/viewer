@@ -295,14 +295,14 @@
              value="SampleParcel, Name Long (145, 228, 26)"
              width="285" />
             <expandable_text
-             follows="left|top|right"
+             follows="left|top"
              height="50"
              layout="topleft"
              left="5"
              name="description"
              top_pad="10"
              value="Du waltz die spritz"
-             width="300" />
+             width="285" />
             <text
              follows="left|top"
              height="14"

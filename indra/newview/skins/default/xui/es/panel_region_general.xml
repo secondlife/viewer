@@ -20,12 +20,12 @@
 	</text>
 	<check_box label="No permitir modificar el terreno" name="block_terraform_check"/>
 	<check_box label="Prohibir volar" name="block_fly_check"/>
+	<check_box label="Bloquear el vuelo sobre parcelas" name="block_fly_over_check" tool_tip="Extender las comprobaciones de acceso en vertical para impedir el vuelo sobre una parcela"/>
 	<check_box label="Permitir el daño" name="allow_damage_check"/>
 	<check_box label="Impedir los &apos;empujones&apos;" name="restrict_pushobject"/>
 	<check_box label="Permitir la reventa del terreno" name="allow_land_resell_check"/>
 	<check_box label="Permitir unir/dividir el terreno" name="allow_parcel_changes_check"/>
 	<check_box label="Bloquear el mostrar el terreno en la búsqueda" name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda."/>
-	<check_box label="Permitir objetos de red" name="mesh_rez_enabled_check" tool_tip="Permitir que los usuarios creen objetos de red en esta región"/>
 	<spinner label="Nº máximo de avatares" label_width="120" name="agent_limit_spin" width="180"/>
 	<spinner label="Plus de objetos" label_width="120" name="object_bonus_spin" width="180"/>
 	<text label="Calificación" name="access_text">

@@ -37,6 +37,44 @@
 	<string name="StartupRequireDriverUpdate">
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="AboutCompiler">
+		コンパイラー [COMPILER] [COMPILER_VERSION] バージョン
+	</string>
+	<string name="AboutPosition">
+		あなたの現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
+SLURL:&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(グローバル座標 [POSITION_0,number,1]、[POSITION_1,number,1]、[POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU：[CPU]
+メモリ：[MEMORY_MB] MB
+OS バージョン：[OS_VERSION]
+グラフィックカード製造元：[GRAPHICS_CARD_VENDOR]
+グラフィックカード:[GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Windows グラフィックドライババージョン：[GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		OpenGL バージョン：[OPENGL_VERSION]
+
+libcurl バージョン：[LIBCURL_VERSION]
+J2C デコーダバージョン：[J2C_VERSION]
+オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
+Qt Webkit バージョン：[QT_WEBKIT_VERSION]
+ボイスサーバーバージョン:[VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		パケットロス：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] （[PACKETS_PCT,number,1]%）
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		サーバーのリリースノートの URL を取得中にエラーが発生しました。
+	</string>
 	<string name="ProgressRestoring">
 		復元中です...
 	</string>
@@ -937,14 +975,14 @@ support@secondlife.com にお問い合わせください。
 	<string name="ControlYourCamera">
 		カメラのコントロール
 	</string>
+	<string name="TeleportYourAgent">
+		あなたをテレポート
+	</string>
 	<string name="NotConnected">
 		接続されていません
 	</string>
 	<string name="AgentNameSubst">
 		(あなた)
-	</string>
-	<string name="TeleportYourAgent">
-		あなたをテレポート
 	</string>
 	<string name="JoinAnExperience">
 		体験に参加する
@@ -1270,8 +1308,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="InventoryInboxNoItems">
 		マーケットプレイスで購入した商品はここに表示されます。その後、アイテムをインベントリにドラッグすれば、それらのアイテムを使用できます。
 	</string>
-  <string name="Unconstrained">非拘束</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1300,6 +1337,18 @@ support@secondlife.com にお問い合わせください。
 	<string name="InventoryOutboxNoItems">
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		マーケットプレイスの初期化。
+	</string>
+	<string name="InventoryOutboxInitializing">
+		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] のアカウントにアクセスしています。
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		マーケットプレイス エラー。
+	</string>
+	<string name="InventoryOutboxError">
+		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] がエラーを返しています。
+	</string>
 	<string name="Marketplace Error None">
 		エラーなし
 	</string>
@@ -1326,6 +1375,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Open landmarks">
 		ランドマークを開く
+	</string>
+	<string name="Unconstrained">
+		非拘束
 	</string>
 	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
@@ -1726,6 +1778,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		ダウンロード完了、コンパイル中
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		スクリプト コンパイル サービスを利用できません
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		サーバー上にスクリプトが見つかりません。

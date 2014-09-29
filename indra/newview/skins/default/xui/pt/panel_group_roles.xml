@@ -19,8 +19,9 @@
 				<name_list.columns label="Membro" name="name"/>
 				<name_list.columns label="Doações" name="donated"/>
 				<name_list.columns label="Status" name="online"/>
+				<name_list.columns label="Título" name="title"/>
 			</name_list>
-			<button label="Convidar" name="member_invite" />
+			<button label="Convidar" name="member_invite"/>
 			<button label="Ejetar" name="member_eject"/>
 		</panel>
 		<panel label="CARGOS" name="roles_sub_tab">

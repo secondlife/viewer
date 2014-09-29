@@ -20,12 +20,12 @@
 	</text>
 	<check_box label="Terraformen blockieren" name="block_terraform_check"/>
 	<check_box label="Fliegen blockieren" name="block_fly_check"/>
+	<check_box label="Überfliegen von Parzellen blockieren" name="block_fly_over_check" tool_tip="Zugangsprüfungen nach oben ausdehnen, um Überfliegen einer Parzelle zu verhindern"/>
 	<check_box label="Schaden zulassen" name="allow_damage_check"/>
 	<check_box label="Stoßen beschränken" name="restrict_pushobject"/>
 	<check_box label="Landwiederverkauf zulassen" name="allow_land_resell_check"/>
 	<check_box label="Landumverteilung zulassen" name="allow_parcel_changes_check"/>
 	<check_box label="Landanzeige in Suche blockieren" name="block_parcel_search_check" tool_tip="Diese Region und ihre Parzellen in Suchergebnissen anzeigen"/>
-	<check_box label="Netzobjekte zulassen" name="mesh_rez_enabled_check" tool_tip="Anderen das Rezzen von Netzobjekten in dieser Region gestatten"/>
 	<spinner label="Avatar-Limit" name="agent_limit_spin"/>
 	<spinner label="Objektbonus" name="object_bonus_spin"/>
 	<text label="Inhaltseinstufung" name="access_text">

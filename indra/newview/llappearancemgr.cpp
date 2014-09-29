@@ -1710,8 +1710,16 @@ bool LLAppearanceMgr::getCanAddToCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
-	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, not_worn);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
+
+	return items.size() > 0;
 }
 
 bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
@@ -1729,8 +1737,16 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 	}
 
 	// Check whether the outfit contains any wearables we aren't wearing already (STORM-702).
-	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
-	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, not_worn);
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx is_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_worn);
+
+	return items.size() > 0;
 }
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb)

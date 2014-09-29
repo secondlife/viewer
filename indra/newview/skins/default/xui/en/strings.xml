@@ -233,6 +233,7 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipFlagNoScripts">No Scripts</string>
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
+	<string name="TooltipTooManyWearables">You can't wear a folder containing more than [AMOUNT] items.  You can change this limit in Advanced > Show Debug Settings > WearFolderLimit.</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 
 	<string name="TooltipOutboxDragToWorld">You can't rez items on the marketplace</string>

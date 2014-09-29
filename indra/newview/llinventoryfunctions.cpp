@@ -1898,7 +1898,7 @@ bool LLFindWearablesEx::operator()(LLInventoryCategory* cat, LLInventoryItem* it
 	if (!vitem) return false;
 
 	// Skip non-wearables.
-	if (!vitem->isWearableType() && vitem->getType() != LLAssetType::AT_OBJECT)
+	if (!vitem->isWearableType() && vitem->getType() != LLAssetType::AT_OBJECT && vitem->getType() != LLAssetType::AT_GESTURE)
 	{
 		return false;
 	}

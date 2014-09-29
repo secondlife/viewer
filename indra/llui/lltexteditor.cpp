@@ -1126,7 +1126,6 @@ void LLTextEditor::addChar(llwchar wc)
 	}
 }
 
-
 void LLTextEditor::addLineBreakChar(BOOL group_together)
 {
 	if( !getEnabled() )

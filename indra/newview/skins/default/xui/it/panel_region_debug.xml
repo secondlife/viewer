@@ -7,11 +7,8 @@
 		sconosciuta
 	</text>
 	<check_box label="Disabilita gli script" name="disable_scripts_check" tool_tip="Disabilita tutti gli script in questa regione"/>
-	<button label="?" name="disable_scripts_help"/>
 	<check_box label="Disabilita le collisioni" name="disable_collisions_check" tool_tip="Disabilita tutte le collisioni non di avatar in questa regione"/>
-	<button label="?" name="disable_collisions_help"/>
 	<check_box label="Disabilita la fisica" name="disable_physics_check" tool_tip="Disabilita tutta la fisica dei corpi in questa regione"/>
-	<button label="?" name="disable_physics_help"/>
 	<button label="Applica" name="apply_btn"/>
 	<text name="objret_text_lbl" width="130">
 		Restituisci oggetti
@@ -31,10 +28,8 @@
 	<check_box label="In tutte le regioni di questa proprietà" name="return_estate_wide" tool_tip="Restituisci tutti gli oggetti nelle varie regioni che costituiscono l&apos;insieme dei possedimenti terrieri"/>
 	<button label="Restituisci" name="return_btn"/>
 	<button label="Visualizza l&apos;elenco dei maggiori collidenti..." name="top_colliders_btn" tool_tip="Elenco degli oggetti che stanno potenzialmente subendo le maggiori collisioni" width="280"/>
-	<button label="?" left="297" name="top_colliders_help"/>
-	<button label="Visualizza l&apos;elenco degli script più pesanti..." name="top_scripts_btn" tool_tip="Elenco degli oggetti che impiegano più tempo a far girare gli script" width="280"/>
-	<button label="?" left="297" name="top_scripts_help"/>
 	<button label="Riavvia la regione" name="restart_btn" tool_tip="Dai 2 minuti di tempo massimo e fai riavviare la regione"/>
-	<button label="?" name="restart_help"/>
+	<button label="Visualizza l&apos;elenco degli script più pesanti..." name="top_scripts_btn" tool_tip="Elenco degli oggetti che impiegano più tempo a far girare gli script" width="280"/>
 	<button label="Annulla riavvio" name="cancel_restart_btn" tool_tip="Annulla riavvio regione"/>
+	<button label="Console di debug regione" name="region_debug_console_btn" tool_tip="Apri console di debug regione"/>
 </panel>

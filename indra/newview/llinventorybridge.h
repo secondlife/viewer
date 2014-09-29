@@ -161,7 +161,7 @@ protected:
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const;       // true if COF or descendant of
 	BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
-	BOOL isOutboxFolder() const;    // true if COF or descendant of   marketplace outbox
+
 	BOOL isOutboxFolderDirectParent() const;
 	BOOL isMarketplaceListingsFolder() const;     // true if descendant of Marketplace listings folder
 	const LLUUID getOutboxFolder() const;
@@ -179,6 +179,10 @@ protected:
     
     BOOL callback_cutToClipboard(const LLSD& notification, const LLSD& response);
     BOOL perform_cutToClipboard();
+
+public:
+	BOOL isOutboxFolder() const;    // true if COF or descendant of   marketplace outbox
+
 protected:
 	LLHandle<LLInventoryPanel> mInventoryPanel;
 	LLFolderView* mRoot;

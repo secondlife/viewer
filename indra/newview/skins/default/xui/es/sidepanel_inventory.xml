@@ -14,7 +14,7 @@
 					<text name="inbox_fresh_new_count">
 						[NUM] nuevos
 					</text>
-					<panel tool_tip="Drag and drop items to your inventory to manage and use them">
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="Arrastra y coloca los artículos en tu inventario para poder utilizarlos">
 						<text name="inbox_inventory_placeholder">
 							Aquí se entregarán las compras realizadas en el mercado.
 						</text>
@@ -33,8 +33,8 @@
 				<layout_panel name="shop_btn_lp">
 					<button label="Comprar" name="shop_btn" tool_tip="Abrir la página web del mercado"/>
 					<button label="Ponerme" name="wear_btn" tool_tip="Ponerme el vestuario seleccionado"/>
-					<button label="Play" name="play_btn"/>
-					<button label="Teleporte" name="teleport_btn" tool_tip="Teleportar a la zona elegida"/>
+					<button label="Jugar" name="play_btn"/>
+					<button label="Teleportarte" name="teleport_btn" tool_tip="Teleportar a la zona elegida"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>
