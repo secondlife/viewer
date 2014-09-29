@@ -1089,6 +1089,10 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
     // Check stock folder type matches item type in marketplace listings or merchant outbox (even if of no use there for the moment)
     LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(dest_folder);
     bool accept = (view_folder && view_folder->acceptItem(inv_item));
+    if (!accept)
+    {
+        tooltip_msg = LLTrans::getString("TooltipOutboxMixedStock");
+    }
 
     // Check that the item has the right type and permissions to be sold on the marketplace
     if (accept)

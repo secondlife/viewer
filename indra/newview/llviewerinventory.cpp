@@ -818,8 +818,10 @@ bool LLViewerInventoryCategory::acceptItem(LLInventoryItem* inv_item)
             LLInventoryModel::cat_array_t* cat_array;
             LLInventoryModel::item_array_t* item_array;
             gInventory.getDirectDescendentsOf(getUUID(),cat_array,item_array);
-            // Destination stock folder must be empty OR types of incoming and existing items must be identical
-            accept = (!item_array->size() || (item_array->at(0)->getInventoryType() == inv_item->getInventoryType()));
+            // Destination stock folder must be empty OR types of incoming and existing items must be identical and have the same permissions
+            accept = (!item_array->size() ||
+                      ((item_array->at(0)->getInventoryType() == inv_item->getInventoryType()) &&
+                       (item_array->at(0)->getPermissions().getMaskNextOwner() == inv_item->getPermissions().getMaskNextOwner())));
         }
     }
     return accept;
