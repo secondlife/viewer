@@ -293,8 +293,12 @@
       </map>
       <key>dbus_glib</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) Red Hat Inc.</string>
+        <key>description</key>
+        <string>D-Bus bindings for glib</string>
         <key>license</key>
-        <string>AFL2.1</string>
+        <string>Academic Free License v. 2.1</string>
         <key>license_file</key>
         <string>LICENSES/dbus-glib.txt</string>
         <key>name</key>
@@ -306,14 +310,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>94b058b9a81114dc4567bd78e4335425</string>
+              <string>ad78620ba44f01e6284e575dbcc4f53a</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbus_glib-0.76-linux-20110310.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/294910/arch/Linux/installer/dbus_glib-0.76-linux-294910.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.76</string>
       </map>
       <key>dictionaries</key>
       <map>
@@ -1297,10 +1303,14 @@
       </map>
       <key>libuuid</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2004-2008 The OSSP Project &lt;http://www.ossp.org/&gt;</string>
+        <key>description</key>
+        <string>OSSP uuid is a ISO-C:1999 application programming interface (API) and corresponding command line interface (CLI) for the generation of DCE 1.1, ISO/IEC 11578:1996 and RFC 4122 compliant Universally Unique Identifier (UUID). </string>
         <key>license</key>
-        <string>lgpl</string>
+        <string>UUID</string>
         <key>license_file</key>
-        <string>LICENSES/libuuid.txt</string>
+        <string>LICENSES/uuid.txt</string>
         <key>name</key>
         <string>libuuid</string>
         <key>platforms</key>
@@ -1310,14 +1320,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>873e8e99d29711df2efa30646dca1795</string>
+              <string>71ec8174f8c4ad94b547f8cc24bdc254</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/uuid-1.6.2-linux-20110315.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libuuid_3p-update-libuuid/rev/294912/arch/Linux/installer/libuuid-1.6.2-linux-294912.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.6.2</string>
       </map>
       <key>libxml2</key>
       <map>
