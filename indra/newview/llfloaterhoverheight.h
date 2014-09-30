@@ -36,6 +36,8 @@ public:
 	BOOL postBuild();
 
 	static void onSliderMoved(LLUICtrl* ctrl, void* userData);
+
+	void onFinalCommit();
 };
 
 #endif

@@ -37,11 +37,14 @@ LLFloaterHoverHeight::LLFloaterHoverHeight(const LLSD& key) : LLFloater(key)
 
 BOOL LLFloaterHoverHeight::postBuild()
 {
-	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
 
 	LLVector3 offset = gSavedSettings.getVector3("AvatarPosFinalOffset");
 	F32 value = offset[2];
+
+	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
 	sldrCtrl->setValue(value,FALSE);
+	sldrCtrl->setSliderMouseUpCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
+	sldrCtrl->setSliderEditorCommitCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
 	childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, NULL);
 
 	return TRUE;
@@ -56,4 +59,11 @@ void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 	LLVector3 offset = gSavedSettings.getVector3("AvatarPosFinalOffset");
 	offset[2] = value;
 	gSavedSettings.setVector3("AvatarPosFinalOffset",offset);
+}
+
+// Do extra send-to-the-server work when slider drag completes, or new
+// value entered as text.
+void LLFloaterHoverHeight::onFinalCommit()
+{
+	LL_INFOS() << "FINAL FINAL!!!" << LL_ENDL;
 }
