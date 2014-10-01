@@ -865,6 +865,10 @@
       </map>
       <key>google_breakpad</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2006, Google Inc.</string>
+        <key>description</key>
+        <string>Breakpad is a crossplatform library for capturing crash callstacks and runtime data.</string>
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
@@ -878,9 +882,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aff5566e04003de0383941981198e04e</string>
+              <string>a41182ffaabaf72fd170535c0879eac0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/294995/arch/Darwin/installer/google_breakpad-1332.294995-darwin-294995.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -910,6 +914,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1332.294995</string>
       </map>
       <key>gperftools</key>
       <map>
@@ -2007,8 +2013,12 @@
       </map>
       <key>slvoice</key>
       <map>
+        <key>copyright</key>
+        <string>2010 Vivox</string>
+        <key>description</key>
+        <string>Vivox SDK components</string>
         <key>license</key>
-        <string>vivox</string>
+        <string>Mixed</string>
         <key>license_file</key>
         <string>LICENSES/slvoice.txt</string>
         <key>name</key>
@@ -2020,9 +2030,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>88181b9f66b7db650e0d571bbb632bdc</string>
+              <string>9fd91e50ef6848ef5fe74455cc0042c9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/287264/arch/Darwin/installer/slvoice-4.6.0009.20030-darwin-20140226.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/294996/arch/Darwin/installer/slvoice-4.6.0009.20030.294996-darwin-294996.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2052,6 +2062,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>4.6.0009.20030.294996</string>
       </map>
       <key>tut</key>
       <map>
