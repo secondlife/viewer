@@ -44,8 +44,6 @@
 #include "llwindow.h"
 #include <boost/bind.hpp>
 
-#include "uriparser/Uri.h"
-
 const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	CURSOR_THICKNESS = 2;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click.
@@ -2021,60 +2019,7 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 
 static LLTrace::BlockTimerStatHandle FTM_PARSE_HTML("Parse HTML");
 
-S32 LLTextBase::normalizeUri(std::string& uri_string)
-{
-	UriParserStateA state;
-	UriUriA uri;
-	state.uri = &uri;
 
-	S32 res = uriParseUriA(&state, uri_string.c_str());
-
-	if (!res)	
-	{
-		if (uri.scheme.afterLast - uri.scheme.first > 0)
-		{
-			res = uriNormalizeSyntaxExA(&uri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
-
-			if (!res)
-			{
-				S32 chars_required;
-				res = uriToStringCharsRequiredA(&uri, &chars_required);
-
-				if (!res)
-				{
-					chars_required++;
-					std::vector<char> label_buf(chars_required);
-					res = uriToStringA(&label_buf[0], &uri, chars_required, NULL);
-
-					if (!res)
-					{
-						uri_string = &label_buf[0];
-					}
-				}
-			}
-		}
-		else if (uri_string.find_first_of('.') != std::string::npos)
-		{
-			static bool recursive_call = false;
-
-			// allow only single level recursive call
-			if (!recursive_call)
-			{
-				recursive_call = true;
-
-				// force uri to be with scheme and try to normalize
-				std::string uri_with_scheme = "http://";
-				uri_with_scheme += uri_string;
-				normalizeUri(uri_with_scheme);
-				uri_string = uri_with_scheme.substr(7);
-				recursive_call = false;
-			}		
-		}
-	}
-
-	uriFreeUriMembersA(&uri);
-	return res;
-}
 
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
@@ -2113,8 +2058,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				appendAndHighlightText(subtext, part, style_params); 
 			}
 
+			// add icon before url if need
+			LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted());
+
 			std::string label = match.getLabel();
-			normalizeUri(label);
+			LLTextUtil::normalizeUri(label);
 
 			// output the styled Url
 			appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
@@ -2124,13 +2072,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			{
 				segment_set_t::iterator it = getSegIterContaining(getLength()-1);
 				if (it != mSegments.end())
-					{
-						LLTextSegmentPtr segment = *it;
-						segment->setToolTip(match.getTooltip());
-					}
+				{
+					LLTextSegmentPtr segment = *it;
+					segment->setToolTip(match.getTooltip());
+				}
 			}
-
-			LLTextUtil::processUrlMatch(&match,this,isContentTrusted());
 
 			// move on to the rest of the text after the Url
 			if (end < (S32)text.length()) 

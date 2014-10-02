@@ -96,6 +96,8 @@ public:
 	/// Should this link text be underlined only when mouse is hovered over it?
 	virtual bool underlineOnHoverOnly(const std::string &string) const { return false; }
 
+	virtual bool isTrusted() const { return false; }
+
 	virtual LLUUID	getID(const std::string &string) const { return LLUUID::null; }
 
 	bool isLinkDisabled() const;
@@ -165,6 +167,21 @@ public:
 	LLUrlEntrySLURL();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getLocation(const std::string &url) const;
+};
+
+///
+/// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com Urls
+///
+class LLUrlEntrySeconlifeURL : public LLUrlEntryBase
+{
+public:
+	LLUrlEntrySeconlifeURL();
+	virtual bool isTrusted() const { return true; }
+	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	virtual std::string getTooltip(const std::string &url) const;
+
+private:
+	std::string mLabel;
 };
 
 ///

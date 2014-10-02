@@ -35,6 +35,7 @@
 #include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lltrans.h"
+#include "lltextutil.h"
 #include "lluicolortable.h"
 #include "message.h"
 
@@ -339,6 +340,35 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 
 	pos += search_string.size() + 1;
 	return url.substr(pos, url.size() - pos);
+}
+
+//
+// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com urls to substitute icon 'hand.png' before link
+//
+LLUrlEntrySeconlifeURL::LLUrlEntrySeconlifeURL()
+{
+	mPattern = boost::regex("\\b(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com\\S*",
+		boost::regex::perl|boost::regex::icase);
+	
+	mIcon = "Hand";
+	mMenuName = "menu_url_http.xml";
+}
+
+std::string LLUrlEntrySeconlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	std::string local_url(url);
+
+	LLTextUtil::Uri uri;
+	LLTextUtil::normalizeUri(local_url, &uri);
+
+	return uri.host;
+}
+
+std::string LLUrlEntrySeconlifeURL::getTooltip(const std::string &url) const
+{
+	std::string local_url(url);
+	LLTextUtil::normalizeUri(local_url);
+	return local_url;
 }
 
 //
