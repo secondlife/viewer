@@ -68,19 +68,19 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		mLabel(notification->getName()),
 		mLineEditor(NULL)
 {
-	// EXP-1822
-	// save currently focused view, so that return focus to it
-	// on destroying this toast.
-	LLView* current_selection = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
-	while(current_selection)
-	{
-		if (current_selection->isFocusRoot())
-		{
-			mPreviouslyFocusedView = current_selection->getHandle();
-			break;
-		}
-		current_selection = current_selection->getParent();
-	}
+    // EXP-1822
+    // save currently focused view, so that return focus to it
+    // on destroying this toast.
+    LLView* current_selection = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
+    while(current_selection)
+    {
+        if (current_selection->isFocusRoot())
+        {
+            mPreviouslyFocusedView = current_selection->getHandle();
+            break;
+        }
+        current_selection = current_selection->getParent();
+    }
 
 	const LLFontGL* font = LLFontGL::getFontSansSerif();
 	const S32 LINE_HEIGHT = font->getLineHeight();
@@ -432,7 +432,24 @@ LLToastAlertPanel::~LLToastAlertPanel()
 	// return focus to the previously focused view if the viewer is not exiting
 	if (mPreviouslyFocusedView.get() && !LLApp::isExiting())
 	{
-		mPreviouslyFocusedView.get()->setFocus(TRUE);
+        LLView* current_selection = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
+        while(current_selection)
+        {
+            if (current_selection->isFocusRoot())
+            {
+                break;
+            }
+            current_selection = current_selection->getParent();
+        }
+        if (current_selection)
+        {
+            // If the focus moved to some other view though, move the focus there
+            current_selection->setFocus(TRUE);
+        }
+        else
+        {
+            mPreviouslyFocusedView.get()->setFocus(TRUE);
+        }
 	}
 }
 
