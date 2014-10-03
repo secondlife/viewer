@@ -3979,7 +3979,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
-  <string name="Command_MarketplaceListings_Label">Sell on Marketplace</string>
+  <string name="Command_MarketplaceListings_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-map</string>
   <string name="Command_Move_Label">Walk / run / fly</string>
   <string name="Command_Outbox_Label">Merchant outbox</string>
