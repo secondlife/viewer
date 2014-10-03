@@ -42,16 +42,13 @@
       image_unselected="Toolbar_Middle_Off"/>
     <button
       name="audit_btn"
-      tool_tip="Validate your marketplace listings"
+      label="Check for Errors"
+      tool_tip="Check your marketplace listings"
       layout="topleft"
-      follows="top|left"
-      width="31"
-      height="25"
-      left_pad="2"
-      image_hover_unselected="Toolbar_Middle_Over"
-      image_overlay="Info"
-      image_selected="Toolbar_Middle_Selected"
-      image_unselected="Toolbar_Middle_Off"/>
+      follows="top|right"
+      width="97"
+      height="26"
+      left_pad="143"/>
   </panel>
   <panel
     name="tab_container_panel"
