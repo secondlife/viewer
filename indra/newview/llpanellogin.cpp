@@ -213,34 +213,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	loadLoginPage();
 
-	// Show last logged in user favorites in "Start at" combo.
-	addUsersWithFavoritesToUsername();
 	LLComboBox* username_combo(getChild<LLComboBox>("username_combo"));
 	username_combo->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
 	// STEAM-14: When user presses Enter with this field in focus, initiate login
 	username_combo->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
-}
-
-void LLPanelLogin::addUsersWithFavoritesToUsername()
-{
-	LLComboBox* combo = getChild<LLComboBox>("username_combo");
-	if (!combo) return;
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
-	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-	LLSD fav_llsd;
-	llifstream file;
-	file.open(filename);
-	if (!file.is_open())
-	{
-		file.open(old_filename);
-		if (!file.is_open()) return;
-	}
-	LLSDSerialize::fromXML(fav_llsd, file);
-	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
-		iter != fav_llsd.endMap(); ++iter)
-	{
-		combo->add(iter->first);
-	}
 }
 
 void LLPanelLogin::addFavoritesToStartLocation()
