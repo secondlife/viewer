@@ -1084,7 +1084,7 @@ bool has_correct_permissions_for_sale(LLInventoryCategory* cat, std::string& err
 // Returns true if inv_item can be dropped in dest_folder, a folder nested in marketplace listings (or merchant inventory) under the root_folder root
 // If returns is false, tooltip_msg contains an error message to display to the user (localized and all).
 // bundle_size is the amount of sibling items that are getting moved to the marketplace at the same time.
-bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryItem* inv_item, std::string& tooltip_msg, S32 bundle_size)
+bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryItem* inv_item, std::string& tooltip_msg, S32 bundle_size, bool from_paste)
 {
     // Check stock folder type matches item type in marketplace listings or merchant outbox (even if of no use there for the moment)
     LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(dest_folder);
@@ -1110,6 +1110,12 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 
         if (version_folder)
         {
+            if (!from_paste && gInventory.isObjectDescendentOf(inv_item->getUUID(), version_folder->getUUID()))
+            {
+                // Clear those counts or they will be counted twice because we're already inside the version category
+                existing_item_count = 0;
+            }
+
             LLInventoryModel::cat_array_t existing_categories;
             LLInventoryModel::item_array_t existing_items;
             
@@ -1134,7 +1140,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 // Returns true if inv_cat can be dropped in dest_folder, a folder nested in marketplace listings (or merchant inventory) under the root_folder root
 // If returns is false, tooltip_msg contains an error message to display to the user (localized and all).
 // bundle_size is the amount of sibling items that are getting moved to the marketplace at the same time.
-bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryCategory* inv_cat, std::string& tooltip_msg, S32 bundle_size, bool check_items)
+bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLInventoryCategory* dest_folder, LLInventoryCategory* inv_cat, std::string& tooltip_msg, S32 bundle_size, bool check_items, bool from_paste)
 {
     bool accept = true;
     
@@ -1171,7 +1177,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     
         if (version_folder)
         {
-            if (gInventory.isObjectDescendentOf(inv_cat->getUUID(), version_folder->getUUID()))
+            if (!from_paste && gInventory.isObjectDescendentOf(inv_cat->getUUID(), version_folder->getUUID()))
             {
                 // Clear those counts or they will be counted twice because we're already inside the version category
                 dragged_folder_count = 0;

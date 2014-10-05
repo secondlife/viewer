@@ -3419,11 +3419,11 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 LLInventoryItem *item = model->getItem(item_id);
                 LLInventoryCategory *cat = model->getCategory(item_id);
                 
-                if (item && !can_move_item_to_marketplace(master_folder, dest_folder, item, error_msg, objects.size()))
+                if (item && !can_move_item_to_marketplace(master_folder, dest_folder, item, error_msg, objects.size(), true))
                 {
                     break;
                 }
-                if (cat && !can_move_folder_to_marketplace(master_folder, dest_folder, cat, error_msg, objects.size()))
+                if (cat && !can_move_folder_to_marketplace(master_folder, dest_folder, cat, error_msg, objects.size(), true, true))
                 {
                     break;
                 }
