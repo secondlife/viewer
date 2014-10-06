@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_flickr_photo">
+	<layout_stack name="stack_photo">
+		<layout_panel name="snapshot_panel">
+			<combo_box name="resolution_combobox" tool_tip="圖像解析度">
+				<combo_box.item label="目前視窗" name="CurrentWindow"/>
+				<combo_box.item label="640x480" name="640x480"/>
+				<combo_box.item label="800x600" name="800x600"/>
+				<combo_box.item label="1024x768" name="1024x768"/>
+			</combo_box>
+			<combo_box name="filters_combobox" tool_tip="圖像濾鏡">
+				<combo_box.item label="不用濾鏡" name="NoFilter"/>
+			</combo_box>
+			<button label="刷新" name="new_snapshot_btn" tool_tip="點按即可刷新"/>
+			<button label="預覽" name="big_preview_btn" tool_tip="點按即可切換預覽"/>
+			<text name="title_label">
+				標題：
+			</text>
+			<text name="description_label">
+				描述：
+			</text>
+			<check_box initial_value="true" label="在描述結尾加上第二人生的地點" name="add_location_cb"/>
+			<text name="tags_label">
+				標籤：
+			</text>
+			<text name="tags_help_label">
+				不同標籤之間以半形空格分隔
+標籤若含空格，用 &quot;&quot; 半形符號括住
+			</text>
+			<combo_box name="rating_combobox" tool_tip="Flickr 內容分級">
+				<combo_box.item label="安全級 Flickr 內容" name="SafeRating"/>
+				<combo_box.item label="適中級 Flickr 內容" name="ModerateRating"/>
+				<combo_box.item label="限制級 Flickr 內容" name="RestrictedRating"/>
+			</combo_box>
+		</layout_panel>
+		<layout_panel name="photo_button_panel">
+			<button label="上傳" name="post_photo_btn"/>
+			<button label="取消" name="cancel_photo_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

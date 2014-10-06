@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="住人を立入禁止" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(ロード中...)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		グループへの立入禁止が送信されていません: 選択した住人が多すぎます。グループへの立入禁止の数は 1 リクエスト当たり 100 人に制限されています。
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		グループへの立入禁止が送信されていません: 「立入禁止リストの管理」の能力がありません。
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		グループへの立入禁止が送信されていません: グループへの立入禁止の登録許容数に達しました。
+	</panel.string>
+	<panel.string name="partial_ban">
+		グループへの立入禁止の一部が送信されませんでした: [REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		グループへの立入禁止が送信されませんでした: [REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- 次の住民は既に立入禁止にされています: [RESIDENTS]。
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- 立入禁止の許容値に達しました。次のエージェントは立入禁止にされません: [RESIDENTS]。
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- グループから自分自身を立入禁止にすることはできません。
+	</panel.string>
+	<text name="help_text">
+		グループから一度に複数の住人を立入禁止にすることができます。「リストから住人を選択」をクリックしてください。
+	</text>
+	<button label="リストから住人を選択" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>
+	<button label="選択した住人をリストから削除" name="remove_button" tool_tip="立入禁止リストから上で選択した住人を削除します"/>
+	<button label="住人を立入禁止" name="ban_button"/>
+	<button label="取り消し" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		グループへの立入禁止
+	</string>
+</panel>

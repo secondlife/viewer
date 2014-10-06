@@ -489,6 +489,11 @@ with the same filename but different name
   <texture name="PushButton_Selected_Press" file_name="widgets/PushButton_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Disabled" file_name="widgets/PushButton_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 
+  <texture name="PushButton_Login" file_name="widgets/PushButton_Login.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Login_Over" file_name="widgets/PushButton_Login_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Login_Pressed" file_name="widgets/PushButton_Login_Pressed.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+
+
   <texture name="RadioButton_Press" file_name="widgets/RadioButton_Press.png" preload="true" />
   <texture name="RadioButton_On_Press" file_name="widgets/RadioButton_On_Press.png" preload="true" />
   <texture name="RadioButton_Off" file_name="widgets/RadioButton_Off.png" preload="true" />
@@ -576,6 +581,11 @@ with the same filename but different name
   <texture name="Snapshot_Facebook" file_name="toolbar_icons/facebook.png" preload="false" />
 
   <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
+
+  <texture name="login_sl_logo"  file_name="windows/login_sl_logo.png" preload="true" />
+  <texture name="login_sl_logo_small"  file_name="windows/login_sl_logo_small.png" preload="true" />
+  <texture name="first_login_image_left"  file_name="windows/first_login_image_left.png" preload="true" />
+  <texture name="first_login_image_right"  file_name="windows/first_login_image_right.png" preload="true" />
 
   <texture name="Stepper_Down_Off" file_name="widgets/Stepper_Down_Off.png" preload="false" />
   <texture name="Stepper_Down_Press" file_name="widgets/Stepper_Down_Press.png" preload="false" />

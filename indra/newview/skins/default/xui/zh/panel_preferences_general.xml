@@ -29,14 +29,10 @@
 		<combo_box.item label="一般普級與適度成人" name="Desired_Mature"/>
 		<combo_box.item label="一般普級" name="Desired_PG"/>
 	</combo_box>
-	<text name="start_location_textbox">
-		開始位置：
+	<check_box label="登入時顯示最愛的地點" name="favorites_on_login_check"/>
+	<text name="favorites_check_extra_text">
+		（使用此電腦的其他人也會看到）
 	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item label="我上一次位置" name="MyLastLocation"/>
-		<combo_box.item label="我的家" name="MyHome"/>
-	</combo_box>
-	<check_box initial_value="true" label="登入時顯示" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
 		名稱標籤：
 	</text>

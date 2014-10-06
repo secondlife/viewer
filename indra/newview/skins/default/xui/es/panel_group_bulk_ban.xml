@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Expulsar residentes" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(cargando...)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		Las expulsiones del grupo no se han enviado: has seleccionado demasiados residentes. Solo se permiten 100 expulsiones del grupo por solicitud.
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		La expulsión del grupo no se ha enviado: no tienes la capacidad &apos;Administrar la lista de expulsados&apos;.
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		La expulsión del grupo no se ha enviado: tu grupo ha alcanzado el límite máximo permitido de expulsiones.
+	</panel.string>
+	<panel.string name="partial_ban">
+		No se han enviado algunas expulsiones del grupo:
+[REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		Las expulsiones del grupo no se enviaron:
+[REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- Los siguientes residentes ya han sido expulsados: [RESIDENTS].
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- Se ha alcanzado el límite de expulsiones. Los agentes siguientes no se han expulsado: [RESIDENTS].
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- No te puedes expulsar a ti mismo del grupo.
+	</panel.string>
+	<text name="help_text">
+		Puedes seleccionar varios residentes para su expulsión del grupo. Para empezar, pulsa &apos;Abrir el selector de residentes&apos;.
+	</text>
+	<button label="Abrir el selector de residentes" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="Para seleccionar varios residentes, pulsa sus nombres mientras mantienes apretada la tecla Ctrl"/>
+	<button label="Quitar seleccionados de la lista" name="remove_button" tool_tip="Quita los residentes seleccionados de la lista de expulsados"/>
+	<button label="Expulsar residentes" name="ban_button"/>
+	<button label="Cancelar" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		Expulsión de grupo
+	</string>
+</panel>

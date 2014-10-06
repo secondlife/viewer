@@ -29,4 +29,5 @@
 		<menu_item_call label="Herkesi engelle" name="ModerateVoiceMute"/>
 		<menu_item_call label="Herkesin engellemesini kaldır" name="ModerateVoiceUnmute"/>
 	</context_menu>
+	<menu_item_call label="Üyeyi yasakla" name="BanMember"/>
 </toggleable_menu>

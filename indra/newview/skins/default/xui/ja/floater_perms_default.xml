@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perms default" title="デフォルトの作成権限">
+	<panel label="デフォルト権限" name="default permissions"/>
+	<button label="OK" label_selected="OK" name="ok"/>
+	<button label="取り消し" label_selected="取り消し" name="cancel"/>
+</floater>

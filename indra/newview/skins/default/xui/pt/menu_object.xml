@@ -21,6 +21,7 @@
 	<context_menu label="Gerenciar" name="Remove">
 		<menu_item_call label="Denunciar abuso" name="Report Abuse..."/>
 		<menu_item_call label="Bloquear" name="Object Mute"/>
+		<menu_item_call label="Desbloquear" name="Object Unmute"/>
 		<menu_item_call label="Devolver" name="Return..."/>
 	</context_menu>
 	<menu_item_call label="Pegar" name="Pie Object Take"/>
