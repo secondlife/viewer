@@ -2436,11 +2436,11 @@ void LLInventoryModel::initHttpRequest()
 
 void LLInventoryModel::handleResponses(bool foreground)
 {
-	if (foreground)
+	if (foreground && mHttpRequestFG)
 	{
 		mHttpRequestFG->update(0);
 	}
-	else
+	else if (! foreground && mHttpRequestBG)
 	{
 		mHttpRequestBG->update(50000L);
 	}
