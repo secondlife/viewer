@@ -12,7 +12,8 @@
 				<stat_view label="Renderización" name="render">
 					<stat_bar label="KTris por fotograma" name="ktrisframe"/>
 					<stat_bar label="KTris por segundo" name="ktrissec"/>
-					<stat_bar label="Objetos en total" name="objs"/>
+					<stat_bar label="Objetos en total" name="totalobjs"/>
+					<stat_bar label="Objetos en caché" name="cachedobjs"/>
 					<stat_bar label="Objetos nuevos" name="newobjs"/>
 					<stat_bar label="Índice de aciertos de caché de objetos" name="object_cache_hits"/>
 					<stat_bar label="Consultas de oclusión realizadas" name="occlusion_queries"/>

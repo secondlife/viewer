@@ -25,13 +25,14 @@ cliccando sui loro nomi.
 			</name_list>
 			<button label="Invita" name="member_invite"/>
 			<button label="Espelli" name="member_eject"/>
+			<button label="Espelli membri" name="member_ban"/>
 		</panel>
 		<panel label="RUOLI" name="roles_sub_tab">
 			<panel.string name="help_text">
 				I ruoli hanno un titolo con un elenco di abilità permesse
-che i membri possono eseguire. I membri possono avere
-uno o più ruoli. Un gruppo può avere fino a 10 ruoli,
-fra cui il ruolo base o &quot;Tutti&quot; e il ruolo del Proprietario, ovvero il capogruppo.
+        che i membri possono eseguire. I membri possono avere
+        uno o più ruoli. Un gruppo può avere fino a 10 ruoli,
+        fra cui il ruolo &apos;Tutti&apos; e il ruolo &apos;Proprietario&apos;, ovvero il capogruppo.
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				I ruoli &apos;Tutti&apos; e &apos;Proprietari&apos; sono speciali e non possono essere eliminati.
@@ -50,11 +51,26 @@ fra cui il ruolo base o &quot;Tutti&quot; e il ruolo del Proprietario, ovvero il
 		</panel>
 		<panel height="148" label="ABILITÀ" name="actions_sub_tab" tool_tip="Puoi vedere la descrizione dell&apos;abilità e quali ruoli o membri possono eseguirla.">
 			<panel.string name="help_text">
-				Le abilità permettono ai membri nei ruoli di fare cose specifiche
-in questo gruppo. C&apos;è una vasta gamma di abilità.
+				Le abilità consentono ai membri nei ruoli di eseguire specifiche
+        attività nel gruppo. Ci sono vari tipi di abilità.
 			</panel.string>
 			<filter_editor label="Filtra Abilità" name="filter_input"/>
 			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Seleziona un&apos;abilità per vedere maggiori dettagli."/>
+		</panel>
+		<panel label="RESIDENTI ESPULSI" name="banlist_sub_tab" tool_tip="Visualizza i residenti espulsi dal gruppo.">
+			<panel.string name="help_text">
+				Nessun residente incluso nella lista espulsi potrà iscriversi al gruppo.
+			</panel.string>
+			<panel.string name="ban_count_template">
+				Numero espulsi: [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="Residente" name="name"/>
+				<name_list.columns label="Data espulsione" name="ban_date"/>
+			</name_list>
+			<button label="Espelli residenti" name="ban_create" tool_tip="Espelli residenti dal gruppo"/>
+			<button label="Annulla espulsioni" name="ban_delete" tool_tip="Annulla l&apos;espulsione dal gruppo per i residenti selezionati"/>
+			<button name="ban_refresh" tool_tip="Aggiorna la lista espulsi"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">

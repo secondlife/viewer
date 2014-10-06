@@ -29,4 +29,5 @@
 		<menu_item_call label="所有人消音" name="ModerateVoiceMute"/>
 		<menu_item_call label="取消所有人的消音" name="ModerateVoiceUnmute"/>
 	</context_menu>
+	<menu_item_call label="封鎖居民" name="BanMember"/>
 </toggleable_menu>

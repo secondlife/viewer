@@ -81,20 +81,86 @@ const S32 MAX_PASSWORD = 16;
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 
-class LLLoginRefreshHandler : public LLCommandHandler
+class LLLoginLocationAutoHandler : public LLCommandHandler
 {
 public:
 	// don't allow from external browsers
-	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", UNTRUSTED_BLOCK) { }
+	LLLoginLocationAutoHandler() : LLCommandHandler("location_login", UNTRUSTED_BLOCK) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{	
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 		{
-			LLPanelLogin::loadLoginPage();
+			if ( tokens.size() == 0 || tokens.size() > 4 ) 
+				return false;
+
+			// unescape is important - uris with spaces are escaped in this code path
+			// (e.g. space -> %20) and the code to log into a region doesn't support that.
+			const std::string region = LLURI::unescape( tokens[0].asString() );
+
+			// just region name as payload 
+			if ( tokens.size() == 1 )
+			{
+				// region name only - slurl will end up as center of region
+				LLSLURL slurl(region);
+				LLPanelLogin::autologinToLocation(slurl);
+			}
+			else
+			// region name and x coord as payload 
+			if ( tokens.size() == 2 )
+			{
+				// invalid to only specify region and x coordinate
+				// slurl code will revert to same as region only, so do this anyway
+				LLSLURL slurl(region);
+				LLPanelLogin::autologinToLocation(slurl);
+			}
+			else
+			// region name and x/y coord as payload 
+			if ( tokens.size() == 3 )
+			{
+				// region and x/y specified - default z to 0
+				F32 xpos;
+				std::istringstream codec(tokens[1].asString());
+				codec >> xpos;
+
+				F32 ypos;
+				codec.clear();
+				codec.str(tokens[2].asString());
+				codec >> ypos;
+
+				const LLVector3 location(xpos, ypos, 0.0f);
+				LLSLURL slurl(region, location);
+
+				LLPanelLogin::autologinToLocation(slurl);
+			}
+			else
+			// region name and x/y/z coord as payload 
+			if ( tokens.size() == 4 )
+			{
+				// region and x/y/z specified - ok
+				F32 xpos;
+				std::istringstream codec(tokens[1].asString());
+				codec >> xpos;
+
+				F32 ypos;
+				codec.clear();
+				codec.str(tokens[2].asString());
+				codec >> ypos;
+
+				F32 zpos;
+				codec.clear();
+				codec.str(tokens[3].asString());
+				codec >> zpos;
+
+				const LLVector3 location(xpos, ypos, zpos);
+				LLSLURL slurl(region, location);
+
+				LLPanelLogin::autologinToLocation(slurl);
+			};
 		}	
 		return true;
 	}
 };
+LLLoginLocationAutoHandler gLoginLocationAutoHandler;
 
 //---------------------------------------------------------------------------
 // Public methods
@@ -103,10 +169,14 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 						 void (*callback)(S32 option, void* user_data),
 						 void *cb_data)
 :	LLPanel(),
-	mLogoImage(),
 	mCallback(callback),
 	mCallbackData(cb_data),
-	mListener(new LLPanelLoginListener(this))
+	mListener(new LLPanelLoginListener(this)),
+	mUsernameLength(0),
+	mPasswordLength(0),
+	mLocationLength(0),
+	mFavoriteSelected(false),
+	mShowFavorites(false)
 {
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
@@ -120,28 +190,37 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		login_holder->addChild(this);
 	}
 
-	// Logo
-	mLogoImage = LLUI::getUIImage("startup_logo");
-
+	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+	{
+		buildFromFile( "panel_login_first.xml");
+	}
+	else
+	{
 	buildFromFile( "panel_login.xml");
+	}
 
 	reshape(rect.getWidth(), rect.getHeight());
 
 	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
 	password_edit->setKeystrokeCallback(onPassKey, this);
 	// STEAM-14: When user presses Enter with this field in focus, initiate login
-	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnectLast, this));
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
 
-	LLComboBox* location_combo = getChild<LLComboBox>("start_location_combo");
+	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
-	location_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
+	favorites_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
+	favorites_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectFavorite, this));
 	
 	LLComboBox* server_choice_combo = getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectServer, this));
 
+	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
+	location_edit->setKeystrokeCallback(boost::bind(&LLPanelLogin::onLocationEditChanged, this, _1), NULL);
+	location_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnectLocation, this));
+	
 	// Load all of the grids, sorted, and then add a bar and the current grid at the top
 	server_choice_combo->removeall();
 
@@ -188,9 +267,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		LLPanelLogin::onUpdateStartSLURL(start_slurl); // updates grid if needed
 	}
 	
-	childSetAction("connect_btn", onClickConnect, this);
+	childSetAction("connect_btn", onClickConnectLast, this);
+	childSetAction("connect_favorite_btn", onClickConnectFavorite, this);
+	childSetAction("connect_location_btn", onClickConnectLocation, this);
 
-	getChild<LLPanel>("links_login_panel")->setDefaultBtn("connect_btn");
+	LLButton* def_btn = getChild<LLButton>("connect_btn");
+	setDefaultBtn(def_btn);
 
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
@@ -200,16 +282,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
-	childSetAction("create_new_account_btn", onClickNewAccount, NULL);
-
 	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
 	need_help_text->setClickedCallback(onClickHelp, NULL);
 	
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
-
-	reshapeBrowser();
 
 	loadLoginPage();
 
@@ -240,6 +318,8 @@ void LLPanelLogin::addUsersWithFavoritesToUsername()
 		iter != fav_llsd.endMap(); ++iter)
 	{
 		combo->add(iter->first);
+		mUsernameLength = iter->first.length();
+		updateLoginButtons();
 	}
 }
 
@@ -249,7 +329,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 	if (!combo) return;
 	int num_items = combo->getItemCount();
-	for (int i = num_items - 1; i > 2; i--)
+	for (int i = num_items - 1; i > 0; i--)
 	{
 		combo->remove(i);
 	}
@@ -259,6 +339,9 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	std::replace(user_defined_name.begin(), user_defined_name.end(), '.', ' ');
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
 	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	mUsernameLength = user_defined_name.length();
+	updateLoginButtons();
+
 	LLSD fav_llsd;
 	llifstream file;
 	file.open(filename);
@@ -268,6 +351,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 		if (!file.is_open()) return;
 	}
 	LLSDSerialize::fromXML(fav_llsd, file);
+
 	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
 		iter != fav_llsd.endMap(); ++iter)
 	{
@@ -291,26 +375,12 @@ void LLPanelLogin::addFavoritesToStartLocation()
 			std::string value = (*iter1)["slurl"].asString();
 			if(label != "" && value != "")
 			{
+				mShowFavorites = true;
 				combo->add(label, value);
 			}
 		}
 		break;
 	}
-}
-
-// force the size to be correct (XML doesn't seem to be sufficient to do this)
-// (with some padding so the other login screen doesn't show through)
-void LLPanelLogin::reshapeBrowser()
-{
-	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-	LLRect rect = gViewerWindow->getWindowRectScaled();
-	LLRect html_rect;
-	html_rect.setCenterAndSize(
-		rect.getCenterX() - 2, rect.getCenterY() + 40,
-		rect.getWidth() + 6, rect.getHeight() - 78 );
-	web_browser->setRect( html_rect );
-	web_browser->reshape( html_rect.getWidth(), html_rect.getHeight(), TRUE );
-	reshape( rect.getWidth(), rect.getHeight(), 1 );
 }
 
 LLPanelLogin::~LLPanelLogin()
@@ -323,50 +393,6 @@ LLPanelLogin::~LLPanelLogin()
 }
 
 // virtual
-void LLPanelLogin::draw()
-{
-	gGL.pushMatrix();
-	{
-		F32 image_aspect = 1.333333f;
-		F32 view_aspect = (F32)getRect().getWidth() / (F32)getRect().getHeight();
-		// stretch image to maintain aspect ratio
-		if (image_aspect > view_aspect)
-		{
-			gGL.translatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
-			gGL.scalef(image_aspect / view_aspect, 1.f, 1.f);
-		}
-
-		S32 width = getRect().getWidth();
-		S32 height = getRect().getHeight();
-
-		if (getChild<LLView>("login_widgets")->getVisible())
-		{
-			// draw a background box in black
-			gl_rect_2d( 0, height - 264, width, 264, LLColor4::black );
-			// draw the bottom part of the background image
-			// just the blue background to the native client UI
-			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
-		};
-	}
-	gGL.popMatrix();
-
-	LLPanel::draw();
-}
-
-// virtual
-BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
-{
-	if ( KEY_F1 == key )
-	{
-		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		vhelp->showTopic(vhelp->f1HelpTopic());
-		return TRUE;
-	}
-
-	return LLPanel::handleKeyHere(key, mask);
-}
-
-// virtual 
 void LLPanelLogin::setFocus(BOOL b)
 {
 	if(b != hasFocus())
@@ -429,10 +455,10 @@ void LLPanelLogin::showLoginWidgets()
 		// It seems to be part of the defunct? reg-in-client project.
 		sInstance->getChildView("login_widgets")->setVisible( true);
 		LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-		sInstance->reshapeBrowser();
+
 		// *TODO: Append all the usual login parameters, like first_login=Y etc.
 		std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
-		web_browser->navigateTo( splash_screen_url, HTTP_CONTENT_TEXT_HTML );
+		web_browser->navigateTo( splash_screen_url, "text/html" );
 		LLUICtrl* username_combo = sInstance->getChild<LLUICtrl>("username_combo");
 		username_combo->setFocus(TRUE);
 	}
@@ -511,9 +537,11 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 		// This is a MD5 hex digest of a password.
 		// We don't actually use the password input field, 
 		// fill it with MAX_PASSWORD characters so we get a 
-		// nice row of asterixes.
+		// nice row of asterisks.
 		const std::string filler("123456789!123456");
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(std::string("123456789!123456"));
+		sInstance->getChild<LLUICtrl>("password_edit")->setValue(filler);
+		sInstance->mPasswordLength = filler.length();
+		sInstance->updateLoginButtons();
 	}
 	else
 	{
@@ -646,11 +674,12 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 {
 	if (sInstance) 
 	{
-		BOOL show_start = gSavedSettings.getBOOL("ShowStartLocation");
-		sInstance->getChild<LLLayoutPanel>("start_location_panel")->setVisible(show_start);
-
 		BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
-		sInstance->getChild<LLLayoutPanel>("grid_panel")->setVisible(show_server);
+		LLComboBox* server_combo = sInstance->getChild<LLComboBox>("server_combo");
+		if ( server_combo ) 
+		{
+			server_combo->setVisible(show_server);
+		}
 	}	
 }
 
@@ -662,6 +691,7 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 	LL_DEBUGS("AppInit")<<new_start_slurl.asString()<<LL_ENDL;
 
 	LLComboBox* location_combo = sInstance->getChild<LLComboBox>("start_location_combo");
+	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
 	/*
 	 * Determine whether or not the new_start_slurl modifies the grid.
 	 *
@@ -691,7 +721,12 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 
 				updateServer(); // to change the links and splash screen
 			}
-			location_combo->setTextEntry(new_start_slurl.getLocationString());
+			if ( new_start_slurl.getLocationString().length() )
+			{
+				location_edit->setValue(new_start_slurl.getLocationString());
+				sInstance->mLocationLength = new_start_slurl.getLocationString().length();
+				sInstance->updateLoginButtons();
+			}
 		}
 		else
 		{
@@ -704,16 +739,12 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
  	break;
 
 	case LLSLURL::HOME_LOCATION:
-		location_combo->setCurrentByIndex(1); // home location
-		break;
-		
-	case LLSLURL::LAST_LOCATION:
-		location_combo->setCurrentByIndex(0); // last location
+		//location_combo->setCurrentByIndex(0); // home location
 		break;
 
 	default:
 		LL_WARNS("AppInit")<<"invalid login slurl, using home"<<LL_ENDL;
-		location_combo->setCurrentByIndex(1); // home location
+		//location_combo->setCurrentByIndex(0); // home location
 		break;
 	}
 }
@@ -723,6 +754,19 @@ void LLPanelLogin::setLocation(const LLSLURL& slurl)
 	LL_DEBUGS("AppInit")<<"setting Location "<<slurl.asString()<<LL_ENDL;
 	LLStartUp::setStartSLURL(slurl); // calls onUpdateStartSLURL, above
 }
+
+void LLPanelLogin::autologinToLocation(const LLSLURL& slurl)
+{
+	LL_DEBUGS("AppInit")<<"automatically logging into Location "<<slurl.asString()<<LL_ENDL;
+	LLStartUp::setStartSLURL(slurl); // calls onUpdateStartSLURL, above
+
+	if ( LLPanelLogin::sInstance != NULL )
+	{
+		void* unused_parameter = 0;
+		LLPanelLogin::sInstance->onClickConnect(unused_parameter);
+	}
+}
+
 
 // static
 void LLPanelLogin::closePanel()
@@ -761,6 +805,13 @@ void LLPanelLogin::loadLoginPage()
 
 	LL_DEBUGS("AppInit") << "login_page: " << login_page << LL_ENDL;
 
+	// allow users (testers really) to specify a different login content URL
+	std::string force_login_url = gSavedSettings.getString("ForceLoginURL");
+	if ( force_login_url.length() > 0 )
+	{
+		login_page = LLURI(force_login_url);
+	}
+
 	// Language
 	params["lang"] = LLUI::getLanguage();
 
@@ -785,6 +836,9 @@ void LLPanelLogin::loadLoginPage()
 	// sourceid
 	params["sourceid"] = gSavedSettings.getString("sourceid");
 
+	// login page (web) content version
+	params["login_content_version"] = gSavedSettings.getString("LoginContentVersion");
+
 	// Make an LLURI with this augmented info
 	LLURI login_uri(LLURI::buildHTTP(login_page.authority(),
 									 login_page.path(),
@@ -796,7 +850,7 @@ void LLPanelLogin::loadLoginPage()
 	if (web_browser->getCurrentNavUrl() != login_uri.asString())
 	{
 		LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
-		web_browser->navigateTo( login_uri.asString(), HTTP_CONTENT_TEXT_HTML );
+		web_browser->navigateTo( login_uri.asString(), "text/html" );
 	}
 }
 
@@ -807,6 +861,32 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 //---------------------------------------------------------------------------
 // Protected methods
 //---------------------------------------------------------------------------
+// static
+void LLPanelLogin::onClickConnectLast(void *)
+{
+	std::string location = LLSLURL::SIM_LOCATION_LAST;
+	LLStartUp::setStartSLURL(location);
+
+	void* unused_parameter = 0;
+	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
+}
+
+void LLPanelLogin::onClickConnectFavorite(void *)
+{
+	LLPanelLogin::sInstance->onLocationSLURL();
+
+	void* unused_parameter = 0;
+	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
+}
+
+void LLPanelLogin::onClickConnectLocation(void *)
+{
+	std::string location = sInstance->getChild<LLUICtrl>("location_edit")->getValue().asString();
+	LLStartUp::setStartSLURL(location);
+
+	void* unused_parameter = 0;
+	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
+}
 
 // static
 void LLPanelLogin::onClickConnect(void *)
@@ -876,16 +956,6 @@ void LLPanelLogin::onClickConnect(void *)
 }
 
 // static
-void LLPanelLogin::onClickNewAccount(void*)
-{
-	if (sInstance)
-	{
-		LLWeb::loadURLExternal(LLTrans::getString("create_account_url"));
-	}
-}
-
-
-// static
 void LLPanelLogin::onClickVersion(void*)
 {
 	LLFloaterReg::showInstance("sl_about"); 
@@ -913,13 +983,17 @@ void LLPanelLogin::onClickHelp(void*)
 // static
 void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 {
-	LLPanelLogin *This = (LLPanelLogin *) user_data;
-	This->mPasswordModified = TRUE;
+	LLPanelLogin *self = (LLPanelLogin *)user_data;
+	self->mPasswordModified = TRUE;
 	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == FALSE)
 	{
 		// *TODO: use another way to notify user about enabled caps lock, see EXT-6858
 		sCapslockDidNotification = TRUE;
 	}
+
+	LLLineEditor* password_edit(self->getChild<LLLineEditor>("password_edit"));
+	self->mPasswordLength = password_edit->getText().length();
+	self->updateLoginButtons();
 }
 
 
@@ -958,6 +1032,64 @@ void LLPanelLogin::updateServer()
 			return;
 		}
 	}
+}
+
+void LLPanelLogin::updateLoginButtons()
+{
+	LLButton* last_login_btn = getChild<LLButton>("connect_btn");
+	LLButton* loc_btn = getChild<LLButton>("connect_location_btn");
+	LLButton* fav_btn = getChild<LLButton>("connect_favorite_btn");
+
+	// no username or no password - turn all buttons off
+	if ( mUsernameLength == 0 || mPasswordLength == 0 )
+	{
+		last_login_btn->setEnabled(false);
+		loc_btn->setEnabled(false);
+		fav_btn->setEnabled(false);
+	};
+
+	// we have a username and a password
+	if ( mUsernameLength != 0 && mPasswordLength != 0 )
+	{
+		// last login button always enabled for this case
+		last_login_btn->setEnabled(true);
+
+		// double check status of favorites combo (must be items there and one must be selected to enable button)
+		LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
+		int num_items = favorites_combo->getItemCount();
+		int selected_index = favorites_combo->getCurrentIndex();
+		if ( num_items > 0 && selected_index >=0 )
+			mFavoriteSelected = true;
+		else
+			mFavoriteSelected = false;
+
+		// only turn on favorites login button if one is selected
+		fav_btn->setEnabled( mFavoriteSelected );
+
+		// only enable location login if there is content there
+		if ( mLocationLength > 0 )
+			loc_btn->setEnabled(true);
+		else
+			loc_btn->setEnabled(false);
+	}
+}
+
+void LLPanelLogin::onLocationEditChanged(LLUICtrl* ctrl)
+{
+	LLLineEditor* self = (LLLineEditor*)ctrl;
+	if (self )
+	{
+		mLocationLength = self->getText().length();
+		updateLoginButtons();
+	}
+}
+
+void LLPanelLogin::onSelectFavorite()
+{
+	// no way to unselect a favorite once it's selected (i think)
+	mFavoriteSelected = true;
+
+	updateLoginButtons();
 }
 
 void LLPanelLogin::onSelectServer()
@@ -1002,6 +1134,7 @@ void LLPanelLogin::onSelectServer()
 				// the grid specified by the location is not this one, so clear the combo
 				location_combo->setCurrentByIndex(0); // last location on the new grid
 				location_combo->setTextEntry(LLStringUtil::null);
+				mFavoriteSelected = true;
 			}
 		}			
 		break;
@@ -1017,4 +1150,10 @@ void LLPanelLogin::onLocationSLURL()
 	LL_DEBUGS("AppInit")<<location<<LL_ENDL;
 
 	LLStartUp::setStartSLURL(location); // calls onUpdateStartSLURL, above 
+}
+
+// static
+bool LLPanelLogin::getShowFavorites()
+{
+	return gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin");
 }

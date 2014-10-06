@@ -73,9 +73,7 @@
 	<check_box label="Bağlantılıları düzenle" name="checkbox edit linked parts"/>
 	<button label="Bağla" name="link_btn"/>
 	<button label="Bağlantıyı Kopar" name="unlink_btn"/>
-	<text label="Her İki Tarafı Uzat" name="checkbox uniform label">
-		Her İki Tarafı Uzat
-	</text>
+	<check_box label="Her İki Tarafı Uzat" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Dokuları Uzat" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Yasla" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Nesneyi konumlandırmak için ağ cetvelini seçin">
@@ -410,82 +408,7 @@
 			<spinner label="100 kg/m3 cinsinden yoğunluk" name="Physics Density"/>
 			<spinner label="Restitüsyon" name="Physics Restitution"/>
 		</panel>
-		<panel label="Doku" name="Texture">
-			<panel.string name="string repeats per meter">
-				Metrede Kaç Kez Tekrarlandığı
-			</panel.string>
-			<panel.string name="string repeats per face">
-				Bir Yüzde Kaç Kez Tekrarlandığı
-			</panel.string>
-			<texture_picker label="Doku" name="texture control" tool_tip="Bir resim seçmek için tıklayın"/>
-			<color_swatch label="Renk" name="colorswatch" tool_tip="Renk seçiciyi açmak için tıklayın"/>
-			<text name="color trans">
-				Saydamlık %
-			</text>
-			<text name="glow label">
-				Parıltı
-			</text>
-			<check_box label="Tam Parlak" name="checkbox fullbright"/>
-			<text name="tex gen">
-				Eşleştirme
-			</text>
-			<combo_box name="combobox texgen">
-				<combo_box.item label="Varsayılan" name="Default"/>
-				<combo_box.item label="Planar" name="Planar"/>
-			</combo_box>
-			<text name="label shininess">
-				Parıldama
-			</text>
-			<combo_box name="combobox shininess">
-				<combo_box.item label="Hiçbiri" name="None"/>
-				<combo_box.item label="Düşük" name="Low"/>
-				<combo_box.item label="Orta" name="Medium"/>
-				<combo_box.item label="Yüksek" name="High"/>
-			</combo_box>
-			<text name="label bumpiness">
-				Yumruluk
-			</text>
-			<combo_box name="combobox bumpiness">
-				<combo_box.item label="Hiçbiri" name="None"/>
-				<combo_box.item label="Parlaklık" name="Brightness"/>
-				<combo_box.item label="Koyuluk" name="Darkness"/>
-				<combo_box.item label="damarlı ahşap" name="woodgrain"/>
-				<combo_box.item label="ağaç kabuğu" name="bark"/>
-				<combo_box.item label="tuğlalar" name="bricks"/>
-				<combo_box.item label="dama tahtası" name="checker"/>
-				<combo_box.item label="beton" name="concrete"/>
-				<combo_box.item label="sert çini" name="crustytile"/>
-				<combo_box.item label="kesilmiş taş" name="cutstone"/>
-				<combo_box.item label="diskler" name="discs"/>
-				<combo_box.item label="çakıl" name="gravel"/>
-				<combo_box.item label="petri kabı" name="petridish"/>
-				<combo_box.item label="dış kaplama" name="siding"/>
-				<combo_box.item label="taş çini" name="stonetile"/>
-				<combo_box.item label="stükko" name="stucco"/>
-				<combo_box.item label="vakum" name="suction"/>
-				<combo_box.item label="örgü" name="weave"/>
-			</combo_box>
-			<spinner label="Yatay (U)" name="TexScaleU"/>
-			<check_box label="Çevir" name="checkbox flip s"/>
-			<spinner label="Dikey (V)" name="TexScaleV"/>
-			<check_box label="Çevir" name="checkbox flip t"/>
-			<spinner label="Döndürme*" name="TexRot"/>
-			<button label="Uygula" label_selected="Uygula" name="button apply"/>
-			<text name="tex offset">
-				Doku Dengeleyicisi
-			</text>
-			<spinner label="Yatay (U)" name="TexOffsetU"/>
-			<spinner label="Dikey (V)" name="TexOffsetV"/>
-			<panel name="Add_Media">
-				<text name="media_tex">
-					Ortam
-				</text>
-				<button name="add_media" tool_tip="Ortam Ekle"/>
-				<button name="delete_media" tool_tip="Bu ortam dokusunu sil"/>
-				<button name="edit_media" tool_tip="Bu Ortamı Düzenle"/>
-				<button label="Hizala" label_selected="Ortamı Hizala" name="button align" tool_tip="Ortam dokusunu hizala (önce yüklenmelidir)"/>
-			</panel>
-		</panel>
+		<panel label="Doku" name="Texture"/>
 		<panel label="İçerik" name="Contents">
 			<button label="Yeni Komut Dosyası" label_selected="Yeni Komut Dosyası" name="button new script"/>
 			<button label="İzinler" name="button permissions"/>

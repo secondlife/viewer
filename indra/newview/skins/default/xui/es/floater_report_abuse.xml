@@ -44,7 +44,7 @@
 		<combo_box.item label="Edad &gt; Residente adulto en Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Edad &gt; Residente menor de edad fuera de Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Ataque &gt; Sandbox de combate / Zona no segura" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="Ataque &gt; Zona segura" name="Assault__Safe_area"/>
+		<combo_box.item label="Atacar &gt; Disparar o empujar a otro residente en una zona segura" name="Assault__Safe_area"/>
 		<combo_box.item label="Ataque &gt; Sandbox de prueba de armas" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="Comercio &gt; Error en la entrega de productos o servicios" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="Indiscreción &gt; Información del mundo real" name="Disclosure__Real_world_information"/>
@@ -58,25 +58,25 @@
 		<combo_box.item label="Fraude &gt; L$" name="Fraud__L$"/>
 		<combo_box.item label="Fraude &gt; Terreno" name="Fraud__Land"/>
 		<combo_box.item label="Fraude &gt; Esquemas piramidales o cadenas de cartas" name="Fraud__Pyramid_scheme_or_chain_letter"/>
-		<combo_box.item label="Fraude &gt; US$" name="Fraud__US$"/>
+		<combo_box.item label="Fraude &gt; L$ o USD" name="Fraud__US$"/>
 		<combo_box.item label="Acoso &gt; Anuncios múltiples / Spam visual" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="Acoso &gt; Difamación de individuos o grupos" name="Harassment__Defaming_individuals_or_groups"/>
 		<combo_box.item label="Acoso &gt; Impedir el movimiento" name="Harassment__Impeding_movement"/>
 		<combo_box.item label="Acoso &gt; Acoso sexual" name="Harassment__Sexual_harassment"/>
-		<combo_box.item label="Acoso &gt; Incitar a, o pedir, que otros violen las Condiciones del Servicio" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Acosar &gt; Molestar deliberadamente a alguien concreto" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
 		<combo_box.item label="Acoso &gt; Abuso verbal" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="Indecencia &gt; En general, contenido o conducta ofensivos" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Indecencia &gt; Nombre inapropiado del avatar" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="Indecencia &gt; Contenido o conducta inapropiada en una región General" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Indecencia &gt; Conducta o contenido inapropiado para la calificación de una región" name="Indecency__Mature_content_in_PG_region"/>
 		<combo_box.item label="Indecencia &gt; Contenido o conducta inapropiada en una región Moderado" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Infracción de la propiedad intelectual &gt; Eliminación de contenidos" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Infracción de la propiedad intelectual &gt; CopyBot o Exploit (programa malicioso) de permisos" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Intolerancia" name="Intolerance"/>
 		<combo_box.item label="Terreno &gt; Abuso de los recursos de un sandbox" name="Land__Abuse_of_sandbox_resources"/>
-		<combo_box.item label="Terreno &gt; Invasión &gt; Objetos/Texturas" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Terreno &gt; Invasión &gt; Objetos o texturas" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Terreno &gt; Invasión &gt; Partículas" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Terreno &gt; Invasión &gt; Árboles/Plantas" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Apuestas/Juego" name="Wagering_gambling"/>
+		<combo_box.item label="Apostar" name="Wagering_gambling"/>
 		<combo_box.item label="Otra" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

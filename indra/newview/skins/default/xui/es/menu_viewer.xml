@@ -35,6 +35,9 @@
 		<menu_item_check label="Chat..." name="Nearby Chat"/>
 		<menu_item_check label="Hablar" name="Speak"/>
 		<menu_item_check label="Registro de conversación..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Transformación de voz" name="VoiceMorphing">
 			<menu_item_check label="Sin transformación de voz" name="NoVoiceMorphing"/>
 			<menu_item_check label="Probar..." name="Preview"/>
@@ -149,7 +152,8 @@
 			<menu_item_check label="Ajustar a la cuadrícula" name="Snap to Grid"/>
 			<menu_item_call label="Ajustar a la cuadrícula los ejes X e Y" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Usar lo seleccionado como cuadrícula" name="Use Selection for Grid"/>
-			<menu_item_call label="Opciones de la cuadrícula" name="Grid Options"/>
+			<menu_item_call label="Opciones de la cuadrícula..." name="Grid Options"/>
+			<menu_item_call label="Definir permisos predeterminados..." name="Set default permissions"/>
 		</menu>
 		<menu label="Subir" name="Upload">
 			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
@@ -157,7 +161,6 @@
 			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modelo..." name="Upload Model"/>
 			<menu_item_call label="Masivo ([COST] L$ por archivo)..." name="Bulk Upload"/>
-			<menu_item_call label="Configurar los permisos por defecto de subida" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Deshacer" name="Undo"/>
 		<menu_item_call label="Rehacer" name="Redo"/>
@@ -287,6 +290,7 @@
 			<menu_item_check label="Actualizar el tipo" name="Update Type"/>
 			<menu_item_check label="Información sobre el nivel de detalle" name="LOD Info"/>
 			<menu_item_check label="Crear cola" name="Build Queue"/>
+			<menu_item_check label="Partículas" name="Particles"/>
 			<menu_item_check label="Articulaciones" name="Joints"/>
 			<menu_item_check label="Vectores de viento" name="Wind Vectors"/>
 			<menu_item_check label="Complejidad del renderizado" name="rendercomplexity"/>

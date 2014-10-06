@@ -22,7 +22,7 @@
 		Выберите назначаемую им роль:
 	</text>
 	<combo_box name="role_name" tool_tip="Выберите в списке роли, которые вы можете назначать участникам"/>
-	<button label="Отправить приглашения" name="ok_button"/>
+	<button label="Отправить приглашения" name="invite_button"/>
 	<button label="Отмена" name="cancel_button"/>
 	<string name="GroupInvitation">
 		Групповое приглашение

@@ -209,6 +209,22 @@ Ajouter ce pouvoir à « [ROLE_NAME] » ?
 Ajouter ce pouvoir à « [ROLE_NAME] » ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
+	<notification name="AssignBanAbilityWarning">
+		Vous êtes sur le point d&apos;ajouter le pouvoir « [ACTION_NAME] » au rôle « [ROLE_NAME] ».
+
+ *AVERTISSEMENT*
+Tout membre ayant un rôle doté de ce pouvoir disposera aussi des pouvoirs « [ACTION_NAME_2] » et « [ACTION_NAME_3] ».
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		Vous êtes sur le point de supprimer le pouvoir « [ACTION_NAME] » du rôle « [ROLE_NAME] ».
+
+ *AVERTISSEMENT*
+En supprimant ce pouvoir, vous ne supprimez PAS les pouvoirs « [ACTION_NAME_2] » et « [ACTION_NAME_3] ».
+ 
+Si vous ne voulez plus que ce rôle dispose de ces pouvoirs, désactivez-les immédiatement.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Vous allez expulser [AVATAR_NAME] du groupe.
 		<usetemplate ignoretext="Confirmer l&apos;expulsion d&apos;un membre du groupe" name="okcancelignore" notext="Annuler" yestext="Expulser"/>
@@ -1576,6 +1592,14 @@ Quitter le groupe ?
 		Impossible de quitter le groupe. Vous ne pouvez pas quitter le groupe car vous en êtes le dernier propriétaire. Vous devez d&apos;abord affecter le rôle de propriétaire à un autre membre.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Impossible de quitter le groupe : [reason].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		Vous avez quitté le groupe [group_name].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Souhaitez-vous vraiment éjecter tous les résidents de la grille ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Éjecter tous les résidents"/>
@@ -2458,6 +2482,12 @@ Veuillez sélectionner un terrain plus petit.
 		Veuillez sélectionner au moins un type de contenu à rechercher (Général, Modéré ou Adulte)
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -4035,6 +4065,10 @@ Veuillez sélectionner un terrain plus petit.
 	<notification name="PreferenceChatPathChanged">
 		Impossible de déplacer les fichiers. Chemin précédent rétabli.
 		<usetemplate ignoretext="Impossible de déplacer les fichiers. Chemin précédent rétabli." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Une erreur est survenue lors de l&apos;enregistrement des droits par défaut, suite au problème suivant : [REASON].  Réessayez de définir les droits par défaut ultérieurement.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		Le fichier d&apos;historique des chats est occupé à traiter l&apos;opération précédente. Réessayez dans quelques minutes ou choisissez une autre personne pour le chat.

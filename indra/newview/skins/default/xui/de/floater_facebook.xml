@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_facebook" title="AUF FACEBOOK POSTEN">
+	<panel name="background">
+		<tab_container name="tabs">
+			<panel label="STATUS" name="panel_facebook_status"/>
+			<panel label="FOTO" name="panel_facebook_photo"/>
+			<panel label="EINCHECKEN" name="panel_facebook_place"/>
+			<panel label="FREUNDE" name="panel_facebook_friends"/>
+			<panel label="KONTO" name="panel_facebook_account"/>
+		</tab_container>
+		<panel name="connection_status_panel">
+			<text name="connection_error_text">
+				Fehler
+			</text>
+			<text name="connection_loading_text">
+				Laden...
+			</text>
+		</panel>
+	</panel>
+</floater>

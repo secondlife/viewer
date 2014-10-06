@@ -12,7 +12,8 @@
 				<stat_view label="描画" name="render">
 					<stat_bar label="KTris (フレームごと)" name="ktrisframe"/>
 					<stat_bar label="KTris (秒ごと)" name="ktrissec"/>
-					<stat_bar label="オブジェクト合計" name="objs"/>
+					<stat_bar label="オブジェクト合計" name="totalobjs"/>
+					<stat_bar label="キャッシュされたオブジェクト" name="cachedobjs"/>
 					<stat_bar label="新規オブジェクト" name="newobjs"/>
 					<stat_bar label="オブジェクトキャッシュヒット率" name="object_cache_hits"/>
 					<stat_bar label="閉鎖クエリ実行" name="occlusion_queries"/>

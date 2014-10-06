@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_facebook_account">
+	<string name="facebook_connected" value="Sei in collegamento con Facebook come:"/>
+	<string name="facebook_disconnected" value="Non in collegamento con Facebook"/>
+	<text name="account_caption_label">
+		Non in collegamento con Facebook.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Collegamento..." name="connect_btn"/>
+		<button label="Interrompi collegamento" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Facebook/ta-p/2149711 Come pubblicare su Facebook]
+		</text>
+	</panel>
+</panel>

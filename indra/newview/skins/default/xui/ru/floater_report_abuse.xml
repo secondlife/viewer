@@ -35,7 +35,7 @@
 		<combo_box.item label="Возраст &gt; Взрослый житель в Second Life для подростков" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Возраст &gt; Малолетний житель в Second Life для подростков" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Нападение &gt; Боевая «песочница»/небезопасная область" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="Нападение &gt; Безопасная область" name="Assault__Safe_area"/>
+		<combo_box.item label="Нападение &gt; Стрельба, нанесение ударов или толкание другого жителя в безопасной области" name="Assault__Safe_area"/>
 		<combo_box.item label="Нападение &gt; «Песочница» испытания оружия" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="Коммерция &gt; Не удалось доставить продукт или услугу" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="Раскрытие &gt; Информация о реальном мире" name="Disclosure__Real_world_information"/>
@@ -49,25 +49,25 @@
 		<combo_box.item label="Мошенничество &gt; L$" name="Fraud__L$"/>
 		<combo_box.item label="Мошенничество &gt; Земля" name="Fraud__Land"/>
 		<combo_box.item label="Мошенничество &gt; «Пирамида» или «письмо счастья»" name="Fraud__Pyramid_scheme_or_chain_letter"/>
-		<combo_box.item label="Мошенничество &gt; US$" name="Fraud__US$"/>
+		<combo_box.item label="Мошенничество &gt; Линден-доллары (L$) или доллары США" name="Fraud__US$"/>
 		<combo_box.item label="Беспокойство &gt; Рекламная ферма/видимый спам" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="Беспокойство &gt; Клевета на отдельных лиц или группы" name="Harassment__Defaming_individuals_or_groups"/>
 		<combo_box.item label="Беспокойство &gt; Препятствие движению" name="Harassment__Impeding_movement"/>
 		<combo_box.item label="Беспокойство &gt; Сексуальное домогательство" name="Harassment__Sexual_harassment"/>
-		<combo_box.item label="Беспокойство &gt; Подстрекательство /призыв к нарушению лицензионного соглашения" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Преследование &gt; Намеренное поведение с целью нарушить привычный образ жизни" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
 		<combo_box.item label="Беспокойство &gt; Оскорбление словом" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="Непристойность &gt; Откровенно оскорбительное содержимое или поведение" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Непристойность &gt; Некорректное имя аватара" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="Непристойность &gt; Некорректное содержимое или поведение в регионе PG" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Непристойность &gt; Некорректное для рейтинга данного региона содержимое или поведение" name="Indecency__Mature_content_in_PG_region"/>
 		<combo_box.item label="Непристойность &gt; Некорректное содержимое или поведение в регионе Moderate" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Нарушение прав интеллектуальной собственности &gt; Удаление содержимого" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Нарушение прав интеллектуальной собственности &gt; CopyBot или нарушение разрешений" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Нетерпимость" name="Intolerance"/>
 		<combo_box.item label="Земля &gt; Злоупотребление ресурсами «песочницы»" name="Land__Abuse_of_sandbox_resources"/>
-		<combo_box.item label="Земля &gt; Посягательство &gt; Объекты/текстуры" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Земля &gt; Посягательство &gt; Объекты или текстуры" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Земля &gt; Посягательство &gt; Частицы" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Земля &gt; Посягательство &gt; Деревья/растения" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Пари/азартные игры" name="Wagering_gambling"/>
+		<combo_box.item label="Пари или азартные игры" name="Wagering_gambling"/>
 		<combo_box.item label="Другое" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">
