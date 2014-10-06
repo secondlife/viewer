@@ -123,8 +123,10 @@
            icon="Command_MktListings_Icon"
            label_ref="Command_MarketplaceListings_Label"
            tooltip_ref="Command_MarketplaceListings_Tooltip"
-           execute_function="Floater.ToggleOrBringToFront"
-           execute_parameters="marketplace_listings"
+           execute_function="Marketplace.Toggle"
+           execute_parameters="marketplace"
+           is_enabled_function="Marketplace.Enabled"
+           is_enabled_parameters="marketplace"
            is_running_function="Floater.IsOpen"
            is_running_parameters="marketplace_listings"
            />

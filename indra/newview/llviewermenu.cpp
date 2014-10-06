@@ -88,6 +88,7 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
+#include "llmarketplacefunctions.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
 #include "llparcel.h"
@@ -98,6 +99,7 @@
 #include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
+#include "lltoolbarview.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
@@ -384,6 +386,37 @@ void set_underclothes_menu_options()
 		gMenuBarView->getChild<LLView>("Menu Underpants")->setVisible(FALSE);
 		gMenuBarView->getChild<LLView>("Menu Undershirt")->setVisible(FALSE);
 	}
+}
+
+void set_merchant_menu()
+{
+    if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_MERCHANT_NOT_MIGRATED)
+    {
+        // Merchant not migrated: show only the old Merchant Outbox menu
+        gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(TRUE);
+    }
+    else
+    {
+        // All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool
+        gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
+        LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
+		gToolBarView->enableCommand(command->id(), true);
+    }
+}
+
+void check_merchant_status()
+{
+    if (!gSavedSettings.getBOOL("InventoryOutboxDisplayBoth"))
+    {
+        // Hide both merchant related menu items
+        gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(FALSE);
+        gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
+        // Also disable the toolbar button for Marketplace Listings
+        LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
+		gToolBarView->enableCommand(command->id(), false);
+        // Launch an SLM test connection to get the merchant status
+        LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_menu));
+    }
 }
 
 void init_menus()

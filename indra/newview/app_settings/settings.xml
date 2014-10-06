@@ -4621,17 +4621,6 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
-    <key>InventoryDisplayOutbox</key>
-    <map>
-        <key>Comment</key>
-        <string>Override merchant inventory outbox display</string>
-        <key>Persist</key>
-        <integer>0</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
-    </map>
     <key>InventoryInboxToggleState</key>
     <map>
         <key>Comment</key>
@@ -4654,6 +4643,17 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+    <key>InventoryOutboxDisplayBoth</key>
+    <map>
+        <key>Comment</key>
+        <string>Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
 	<key>InventoryOutboxLogging</key>
 	<map>
 		<key>Comment</key>

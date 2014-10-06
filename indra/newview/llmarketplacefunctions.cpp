@@ -153,6 +153,11 @@ protected:
             log_SLM_infos("Get /merchant", getStatus(), "User is not a merchant");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
         }
+        else if (HTTP_SERVICE_UNAVAILABLE == getStatus())
+        {
+            log_SLM_infos("Get /merchant", getStatus(), "Merchant is not migrated");
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_MERCHANT_NOT_MIGRATED);
+        }
 		else
 		{
             log_SLM_warning("Get /merchant", getStatus(), getReason(), getContent().get("error_code"), getContent().get("error_description"));
@@ -1133,16 +1138,25 @@ LLMarketplaceData::~LLMarketplaceData()
 
 void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
 {
-    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
 	if (mStatusUpdatedSignal == NULL)
 	{
 		mStatusUpdatedSignal = new status_updated_signal_t();
 	}
 	mStatusUpdatedSignal->connect(cb);
     
-    std::string url = getSLMConnectURL("/merchant");
-    log_SLM_infos("LLHTTPClient::get", url, "");
-	LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
+    if (mMarketPlaceStatus != MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+    {
+        // If already initialized, just confirm the status so the callback gets called
+        setSLMStatus(mMarketPlaceStatus);
+    }
+    else
+    {
+        // Initiate SLM connection and set responder
+        mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
+        std::string url = getSLMConnectURL("/merchant");
+        log_SLM_infos("LLHTTPClient::get", url, "");
+        LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
+    }
 }
 
 // Get/Post/Put requests to the SLM Server using the SLM API
