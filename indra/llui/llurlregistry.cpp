@@ -27,6 +27,7 @@
 
 #include "linden_common.h"
 #include "llurlregistry.h"
+#include "lluriparser.h"
 
 #include <boost/regex.hpp>
 
@@ -207,6 +208,11 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 	{
 		// fill in the LLUrlMatch object and return it
 		std::string url = text.substr(match_start, match_end - match_start + 1);
+
+		LLUriParser up(url);
+		up.normalize();
+		url = up.normalizedUri();
+
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
 						match_entry->getLabel(url, cb),

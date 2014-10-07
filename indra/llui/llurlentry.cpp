@@ -31,13 +31,15 @@
 #include "lluri.h"
 #include "llurlmatch.h"
 #include "llurlregistry.h"
+#include "lluriparser.h"
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lltrans.h"
-#include "lltextutil.h"
 #include "lluicolortable.h"
 #include "message.h"
+
+#include "uriparser/Uri.h"
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
@@ -346,8 +348,8 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 // LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com urls to substitute icon 'hand.png' before link
 //
 LLUrlEntrySeconlifeURL::LLUrlEntrySeconlifeURL()
-{
-	mPattern = boost::regex("\\b(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com\\S*",
+{ 
+	mPattern = boost::regex("\\b(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(:\\d{1,5})?(/\\S*)?\\b",
 		boost::regex::perl|boost::regex::icase);
 	
 	mIcon = "Hand";
@@ -356,19 +358,14 @@ LLUrlEntrySeconlifeURL::LLUrlEntrySeconlifeURL()
 
 std::string LLUrlEntrySeconlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	std::string local_url(url);
-
-	LLTextUtil::Uri uri;
-	LLTextUtil::normalizeUri(local_url, &uri);
-
-	return uri.host;
+	LLUriParser up(url);
+	up.extractParts();
+	return up.host();
 }
 
 std::string LLUrlEntrySeconlifeURL::getTooltip(const std::string &url) const
 {
-	std::string local_url(url);
-	LLTextUtil::normalizeUri(local_url);
-	return local_url;
+	return url;
 }
 
 //

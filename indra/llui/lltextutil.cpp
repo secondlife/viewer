@@ -30,8 +30,6 @@
 #include "lltextbox.h"
 #include "llurlmatch.h"
 
-#include "uriparser/Uri.h"
-
 boost::function<bool(LLUrlMatch*,LLTextBase*)>	LLTextUtil::TextHelpers::iconCallbackCreationFunction = 0;
 
 void LLTextUtil::textboxSetHighlightedVal(LLTextBox *txtbox, const LLStyle::Params& normal_style, const std::string& text, const std::string& hl)
@@ -104,95 +102,6 @@ bool LLTextUtil::processUrlMatch(LLUrlMatch* match,LLTextBase* text_base, bool i
 	}
 	
 	return false;
-}
-
-static void textRangeToString(UriTextRangeA& textRange, std::string& str)
-{
-	S32 len = textRange.afterLast - textRange.first;
-	if (len)
-	{
-		str = textRange.first;
-		str = str.substr(0, len);
-	}
-}
-
-S32 LLTextUtil::normalizeUri(std::string& uri_string, Uri * urip/* = NULL*/)
-{
-	UriParserStateA state;
-	UriUriA uri;
-	state.uri = &uri;
-
-	S32 res = uriParseUriA(&state, uri_string.c_str());
-
-	if (!res)	
-	{
-		S32 len = uri.scheme.afterLast - uri.scheme.first;
-
-		if (len > 0)
-		{
-			res = uriNormalizeSyntaxExA(&uri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
-
-			if (!res)
-			{
-				S32 chars_required;
-				res = uriToStringCharsRequiredA(&uri, &chars_required);
-
-				if (!res)
-				{
-					chars_required++;
-					std::vector<char> label_buf(chars_required);
-					res = uriToStringA(&label_buf[0], &uri, chars_required, NULL);
-
-					if (!res)
-					{
-						uri_string = &label_buf[0];
-					}
-				}
-			}
-
-			// fill urip if requested
-			if (urip)
-			{
-				textRangeToString(uri.scheme, urip->scheme);
-				textRangeToString(uri.hostText, urip->host);
-				textRangeToString(uri.portText, urip->port);
-				textRangeToString(uri.query, urip->query);
-				textRangeToString(uri.fragment, urip->fragment);
-
-				UriPathSegmentA * pathHead = uri.pathHead;
-				while (pathHead)
-				{
-					std::string partOfPath;
-					textRangeToString(pathHead->text, partOfPath);
-
-					urip->path += '/';
-					urip->path += partOfPath;
-
-					pathHead = pathHead->next;
-				}
-			}
-		}
-		else if (uri_string.find_first_of('.') != std::string::npos)
-		{
-			static bool recursive_call = false;
-
-			// allow only single level recursive call
-			if (!recursive_call)
-			{
-				recursive_call = true;
-
-				// force uri to be with scheme and try to normalize
-				std::string uri_with_scheme = "http://";
-				uri_with_scheme += uri_string;
-				normalizeUri(uri_with_scheme, urip);
-				uri_string = uri_with_scheme.substr(7);
-				recursive_call = false;
-			}		
-		}
-	}
-
-	uriFreeUriMembersA(&uri);
-	return res;
 }
 
 // EOF
