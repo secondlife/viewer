@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_flickr" title="CARREGAR NO FLICKR">
+	<panel name="background">
+		<tab_container name="tabs">
+			<panel label="FOTO" name="panel_flickr_photo"/>
+			<panel label="CONTA" name="panel_flickr_account"/>
+		</tab_container>
+		<panel name="connection_status_panel">
+			<text name="connection_error_text">
+				Erro
+			</text>
+			<text name="connection_loading_text">
+				Carregando...
+			</text>
+		</panel>
+	</panel>
+</floater>

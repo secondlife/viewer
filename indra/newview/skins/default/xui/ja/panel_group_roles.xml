@@ -25,12 +25,13 @@ Ctrl キーを押しながらメンバー名をクリックすると
 			</name_list>
 			<button label="招待" name="member_invite"/>
 			<button label="追放" name="member_eject"/>
+			<button label="メンバーの立入禁止" name="member_ban"/>
 		</panel>
 		<panel label="役割" name="roles_sub_tab">
 			<panel.string name="help_text">
 				役割には、タイトルと許可された能力が
-割り当てられています。 メンバーは
-1つ以上の役割を持つことができます。 グループで使える役割は10つまでで、
+割り当てられています。メンバーは
+1つ以上の役割を持つことができます。グループで使える役割は10つまでで、
 「全員（Everyone）」と「オーナー（Owner）」がそれに含まれています。
 			</panel.string>
 			<panel.string name="cant_delete_role">
@@ -56,13 +57,28 @@ Ctrl キーを押しながらメンバー名をクリックすると
 		</panel>
 		<panel label="能力" name="actions_sub_tab" tool_tip="能力の説明文には、どの役割・メンバーがその能力を持つかが書かれています。">
 			<panel.string name="help_text">
-				このグループ内で役割を与えられているメンバーが実行できる操作は、
-能力によって決まります。 さまざまな能力が用意されています。
+				役割に含まれたメンバーに、このグループで特定の
+活動を行うことを許可する能力。さまざまな能力が提供されます。
 			</panel.string>
 			<filter_editor label="能力を選別" name="filter_input"/>
 			<scroll_list name="action_list" tool_tip="詳細を見るには、能力を選んでください。">
 				<scroll_list.columns label="" name="action"/>
 			</scroll_list>
+		</panel>
+		<panel label="立入禁止にされた住人" name="banlist_sub_tab" tool_tip="このグループから立ち入り禁止にされた住人を表示します。">
+			<panel.string name="help_text">
+				立入禁止リストに登録された住人はグループに参加できません。
+			</panel.string>
+			<panel.string name="ban_count_template">
+				立入禁止の人数: [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="住人" name="name"/>
+				<name_list.columns label="立入禁止にされた日付" name="ban_date"/>
+			</name_list>
+			<button label="住人の立入禁止" name="ban_create" tool_tip="グループから住人を立入禁止にする"/>
+			<button label="立入禁止の解除" name="ban_delete" tool_tip="選択した住人のグループへの立ち入り禁止を解除"/>
+			<button name="ban_refresh" tool_tip="立入禁止リストの更新"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">

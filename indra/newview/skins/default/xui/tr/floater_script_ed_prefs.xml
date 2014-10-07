@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_script_colors" title="YAZI RENKLERİ">
+	<text name="color_pickers_label">
+		İstediğiniz renkleri seçin:
+	</text>
+	<text name="text_label">
+		Metin
+	</text>
+	<text name="cursor_label">
+		İmleç
+	</text>
+	<text name="background_label">
+		Arka Plan
+	</text>
+	<text name="datatype_label">
+		Veri Türleri
+	</text>
+	<text name="event_label">
+		Etkinlikler
+	</text>
+	<text name="string_literal_label">
+		Dize Değişmezleri
+	</text>
+	<text name="constant_label">
+		Sabit
+	</text>
+	<text name="flow_control_label">
+		Akış Denetimi
+	</text>
+	<text name="function_label">
+		İşlev
+	</text>
+	<text name="comment_label">
+		Yorum
+	</text>
+	<script_editor name="Script Preview">
+		/* Örnek yazı */
+default
+{
+    state_entry()
+    {
+        // Yorum
+        string greeting = &quot;Merhaba&quot;;
+        llSay(PUBLIC_CHANNEL, greeting);
+    }
+}
+	</script_editor>
+</floater>

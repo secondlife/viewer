@@ -4,4 +4,13 @@
 	<button label="電郵" name="save_to_email_btn"/>
 	<button label="儲存到我的收納區（L$[AMOUNT]）" name="save_to_inventory_btn"/>
 	<button label="儲存到電腦上" name="save_to_computer_btn"/>
+	<text name="send_to_facebook_textbox">
+		[secondlife:/// 臉書(Facebook)]
+	</text>
+	<text name="send_to_twitter_textbox">
+		[secondlife:/// 推特(Twitter)]
+	</text>
+	<text name="send_to_flickr_textbox">
+		[secondlife:/// Flickr]
+	</text>
 </panel>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_facebook_status">
+	<layout_stack name="stack_status">
+		<layout_panel name="status_detail_panel">
+			<text name="status_caption_label">
+				¿En qué estás pensando?
+			</text>
+		</layout_panel>
+		<layout_panel name="status_button_panel">
+			<button label="Publicar" name="post_status_btn"/>
+			<button label="Cancelar" name="cancel_status_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

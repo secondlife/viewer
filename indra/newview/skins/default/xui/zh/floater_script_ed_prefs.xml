@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_script_colors" title="腳本文字色彩">
+	<text name="color_pickers_label">
+		選擇所要的色彩：
+	</text>
+	<text name="text_label">
+		文字
+	</text>
+	<text name="cursor_label">
+		游標
+	</text>
+	<text name="background_label">
+		背景
+	</text>
+	<text name="datatype_label">
+		資料類型
+	</text>
+	<text name="event_label">
+		活動
+	</text>
+	<text name="string_literal_label">
+		字串常值
+	</text>
+	<text name="constant_label">
+		常數
+	</text>
+	<text name="flow_control_label">
+		流程控制
+	</text>
+	<text name="function_label">
+		函式
+	</text>
+	<text name="comment_label">
+		註解
+	</text>
+	<script_editor name="Script Preview">
+		/* 範例腳本 */
+default
+{
+    state_entry()
+    {
+        // 註解
+        string greeting = &quot;大家好&quot;;
+        llSay(PUBLIC_CHANNEL, greeting);
+    }
+}
+	</script_editor>
+</floater>

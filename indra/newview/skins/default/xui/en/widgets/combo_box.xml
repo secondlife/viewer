@@ -7,7 +7,7 @@
   <combo_box.combo_button name="Combobox Button"
                           hover_glow_amount="0.15"
                           font="SansSerifSmall"
-                          scale_image="false"
+                          scale_image="true"
                           image_unselected="ComboButton_Off"
                           image_selected="ComboButton_Selected"
                           image_disabled="ComboButton_Disabled" />

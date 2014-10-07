@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perms default" title="PERMISSIONS DE CRÉATION PAR DÉFAUT">
+	<panel label="Permissions par défaut" name="default permissions"/>
+	<button label="OK" label_selected="OK" name="ok"/>
+	<button label="Annuler" label_selected="Annuler" name="cancel"/>
+</floater>
