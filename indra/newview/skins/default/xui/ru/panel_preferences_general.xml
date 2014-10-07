@@ -29,14 +29,10 @@
 		<combo_box.item label="Общий и умеренный" name="Desired_Mature"/>
 		<combo_box.item label="Общий" name="Desired_PG"/>
 	</combo_box>
-	<text name="start_location_textbox">
-		Место старта:
+	<check_box label="Показывать любимые места на экране входа" name="favorites_on_login_check"/>
+	<text name="favorites_check_extra_text">
+		(Другие пользователи этого компьютера также увидят их)
 	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item label="Мое последнее место" name="MyLastLocation"/>
-		<combo_box.item label="Мой дом" name="MyHome"/>
-	</combo_box>
-	<check_box initial_value="true" label="Показывать на экране входа" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
 		Теги имен:
 	</text>

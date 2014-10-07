@@ -4,4 +4,13 @@
 	<button label="E-mail" name="save_to_email_btn"/>
 	<button label="Salva nell&apos;inventario (L$[AMOUNT])" name="save_to_inventory_btn"/>
 	<button label="Salva sul mio computer" name="save_to_computer_btn"/>
+	<text name="send_to_facebook_textbox">
+		Invia a:  [secondlife:/// Facebook]
+	</text>
+	<text name="send_to_twitter_textbox">
+		[secondlife:/// Twitter]
+	</text>
+	<text name="send_to_flickr_textbox">
+		[secondlife:/// Flickr]
+	</text>
 </panel>

@@ -12,7 +12,8 @@
 				<stat_view label="呈像" name="render">
 					<stat_bar label="KTris（每幀）" name="ktrisframe"/>
 					<stat_bar label="KTris（每秒）" name="ktrissec"/>
-					<stat_bar label="物件總計" name="objs"/>
+					<stat_bar label="物件總計" name="totalobjs"/>
+					<stat_bar label="存入快取的物件" name="cachedobjs"/>
 					<stat_bar label="新物件" name="newobjs"/>
 					<stat_bar label="物件快取讀取率" name="object_cache_hits"/>
 					<stat_bar label="已執行遮蔽查詢" name="occlusion_queries"/>

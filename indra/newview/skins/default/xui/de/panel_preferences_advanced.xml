@@ -28,4 +28,5 @@
 	<check_box label="Bei Anmeldung Rasterauswahl anzeigen" name="show_grid_selection_check"/>
 	<check_box label="Menü „Erweitert“ anzeigen" name="show_advanced_menu_check"/>
 	<check_box label="Menü „Entwickler“ anzeigen" name="show_develop_menu_check"/>
+	<button label="Standard-Erstellungsberechtigungen" name="default_creation_permissions"/>
 </panel>

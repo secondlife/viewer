@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_facebook" title="ОПУБЛИКОВАТЬ В FACEBOOK">
+	<panel name="background">
+		<tab_container name="tabs">
+			<panel label="СТАТУС" name="panel_facebook_status"/>
+			<panel label="ФОТО" name="panel_facebook_photo"/>
+			<panel label="ВХОД" name="panel_facebook_place"/>
+			<panel label="ДРУЗЬЯ" name="panel_facebook_friends"/>
+			<panel label="АККАУНТ" name="panel_facebook_account"/>
+		</tab_container>
+		<panel name="connection_status_panel">
+			<text name="connection_error_text">
+				Ошибка
+			</text>
+			<text name="connection_loading_text">
+				Загрузка...
+			</text>
+		</panel>
+	</panel>
+</floater>

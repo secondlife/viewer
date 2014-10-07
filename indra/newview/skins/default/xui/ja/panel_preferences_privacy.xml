@@ -7,7 +7,7 @@
 	<text name="cache_size_label_l">
 		（位置、画像、web、検索履歴）
 	</text>
-	<check_box label="検索結果に自分のプロフィール情報を表示する" name="online_searchresults"/>
+	<check_box label="プロフィールを検索結果に表示する" name="online_searchresults"/>
 	<check_box label="私のオンライン状態を確認できるのは、フレンドとグループだけ" name="online_visibility"/>
 	<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
 	<check_box label="コールが終了したら自動的にマイクのスイッチを切る" name="auto_disengage_mic_check"/>

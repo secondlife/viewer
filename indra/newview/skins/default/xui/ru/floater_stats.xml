@@ -12,7 +12,8 @@
 				<stat_view label="Отрисовка" name="render">
 					<stat_bar label="Треугольников на кадр" name="ktrisframe"/>
 					<stat_bar label="Треугольников в секунду" name="ktrissec"/>
-					<stat_bar label="Всего объектов" name="objs"/>
+					<stat_bar label="Всего объектов" name="totalobjs"/>
+					<stat_bar label="Кэшированных объектов" name="cachedobjs"/>
 					<stat_bar label="Новых объектов" name="newobjs"/>
 					<stat_bar label="Частота попаданий в кэш объектов" name="object_cache_hits"/>
 					<stat_bar label="Выполненные запросы на смыкание" name="occlusion_queries"/>

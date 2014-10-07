@@ -29,4 +29,5 @@
 		<menu_item_call label="全員の音声をミュートする" name="ModerateVoiceMute"/>
 		<menu_item_call label="全員のミュートを解除する" name="ModerateVoiceUnmute"/>
 	</context_menu>
+	<menu_item_call label="メンバーを立入禁止" name="BanMember"/>
 </toggleable_menu>

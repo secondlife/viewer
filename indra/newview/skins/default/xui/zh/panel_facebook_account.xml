@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_facebook_account">
+	<string name="facebook_connected" value="已成功連通臉書，身分為："/>
+	<string name="facebook_disconnected" value="未連通臉書"/>
+	<text name="account_caption_label">
+		未連通臉書。
+	</text>
+	<panel name="panel_buttons">
+		<button label="連通…" name="connect_btn"/>
+		<button label="中斷" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Facebook/ta-p/2149711 如何發佈到臉書]
+		</text>
+	</panel>
+</panel>

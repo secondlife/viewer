@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="FOTO-ANZEIGE">
+<floater name="Snapshot" title="SCHNAPPSCHUSS">
 	<floater.string name="unknown">
 		unbekannt
 	</floater.string>
@@ -46,7 +46,6 @@
 	<text name="file_size_label">
 		[SIZE] KB
 	</text>
-	<button name="advanced_options" label="AUFNAHME OPTIONEN"/>
 	<panel name="advanced_options_panel">
 		<text name="layer_type_label">
 			Aufnehmen:
@@ -55,12 +54,15 @@
 			<combo_box.item label="Farben" name="Colors"/>
 			<combo_box.item label="Tiefe" name="Depth"/>
 		</combo_box>
-		<combo_box label="Filter" name="filters_combobox">
-			<combo_box.item label="Kein Filter" name="NoFilter"/>
-		</combo_box>
 		<check_box label="Benutzeroberfläche" name="ui_check"/>
 		<check_box label="HUDs" name="hud_check"/>
 		<check_box label="Standbild (Vollbild)" name="freeze_frame_check"/>
 		<check_box label="Automatisch aktualisieren" name="auto_snapshot_check"/>
+		<text name="filter_list_label">
+			Filter:
+		</text>
+		<combo_box label="Filter" name="filters_combobox" tool_tip="Bildfilter">
+			<combo_box.item label="Kein Filter" name="NoFilter"/>
+		</combo_box>
 	</panel>
 </floater>

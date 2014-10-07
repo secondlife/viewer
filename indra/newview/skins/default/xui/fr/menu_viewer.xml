@@ -36,6 +36,9 @@
 		<menu_item_check label="Chat près de moi..." name="Nearby Chat"/>
 		<menu_item_check label="Parler" name="Speak"/>
 		<menu_item_check label="Journal des conversations..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Effet de voix" name="VoiceMorphing">
 			<menu_item_check label="Aucun effet de voix" name="NoVoiceMorphing"/>
 			<menu_item_check label="Aperçu..." name="Preview"/>
@@ -150,7 +153,8 @@
 			<menu_item_check label="Fixer sur la grille" name="Snap to Grid"/>
 			<menu_item_call label="Fixer les coordonnées XY de l&apos;objet sur la grille" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
-			<menu_item_call label="Options de la grille" name="Grid Options"/>
+			<menu_item_call label="Options de la grille..." name="Grid Options"/>
+			<menu_item_call label="Définir les permissions par défaut..." name="Set default permissions"/>
 		</menu>
 		<menu label="Charger" name="Upload">
 			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
@@ -158,7 +162,6 @@
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modèle..." name="Upload Model"/>
 			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
-			<menu_item_call label="Définir les droits de chargement par défaut" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Annuler" name="Undo"/>
 		<menu_item_call label="Refaire" name="Redo"/>
@@ -304,6 +307,7 @@
 			<menu_item_check label="Infos sur le niveau de détail" name="LOD Info"/>
 			<menu_item_check label="File d&apos;attente pour la construction" name="Build Queue"/>
 			<menu_item_check label="Lumières" name="Lights"/>
+			<menu_item_check label="Particules" name="Particles"/>
 			<menu_item_check label="Squelette de collision" name="Collision Skeleton"/>
 			<menu_item_check label="Articulations" name="Joints"/>
 			<menu_item_check label="Rayons" name="Raycast"/>

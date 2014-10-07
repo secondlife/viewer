@@ -209,6 +209,22 @@ Qualquer membro numa função com esta habilidade, pode atribuir a sí mesmo -- 
 Adicionar esta habilidade a &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
+	<notification name="AssignBanAbilityWarning">
+		Você está prestes a adicionar a função &apos;[ACTION_NAME]&apos; ao cargo &apos;[ROLE_NAME]&apos;.
+
+ *AVISO*
+Qualquer membro em um cargo com essa função também terá as funções &apos;[ACTION_NAME_2]&apos; e &apos;[ACTION_NAME_3]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		Você está removendo a função &apos;[ACTION_NAME]&apos; do cargo &apos;[ROLE_NAME]&apos;.
+
+ *AVISO*
+Remover essa função NÃO removerá as funções &apos;[ACTION_NAME_2]&apos; e &apos;[ACTION_NAME_3]&apos;.
+ 
+Se você não quiser que essas funções sejam concedidas a esse cargo, desative-as imediatamente.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Você está prestes a expulsar [AVATAR_NAME] do grupo.
 		<usetemplate ignoretext="Confirmar expulsão de um participante do grupo" name="okcancelignore" notext="Cancelar" yestext="Expulsar"/>
@@ -1570,6 +1586,14 @@ consulte a informação [[INFO_URL] sobre essa atualização]
 		Não foi possível deixar o grupo. Você não pode deixar o grupo pois é o último proprietário dele. Primeiramente, atribua outro membro à função de proprietário.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Não foi possível deixar o grupo: [reason].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		Você deixou o grupo [group_name].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Tem CERTEZA de que deseja expulsar todos os residentes do grid?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Chutar todos"/>
@@ -2449,6 +2473,12 @@ Selecione só um objeto.
 		Por favor, selecione ao menos um tipo de conteúdo para a busca (PG, Mature ou Adult).
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -4023,6 +4053,10 @@ Tente selecionar uma quantidade menor de terreno.
 	<notification name="PreferenceChatPathChanged">
 		Não foi possível mover arquivos. Caminho anterior restaurado.
 		<usetemplate ignoretext="Não foi possível mover arquivos. Caminho anterior restaurado." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Ocorreu um problema ao salvar as permissões padrão devido ao seguinte motivo: [REASON].  Tente definir as permissões padrão mais tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		O arquivo de histórico de bate-papo está ocupado com uma operação anterior. Tente novamente em alguns minutos ou selecione outra pessoa para bater papo.

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_twitter_account">
+	<string name="twitter_connected" value="Вы подключились к Twitter как:"/>
+	<string name="twitter_disconnected" value="Не подключено к Twitter"/>
+	<text name="account_caption_label">
+		Не подключено к Twitter.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Подключение..." name="connect_btn"/>
+		<button label="Отключить" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Twitter/ta-p/2435453 О публикации в Twitter]
+		</text>
+	</panel>
+</panel>

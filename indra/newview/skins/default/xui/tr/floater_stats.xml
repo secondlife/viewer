@@ -12,7 +12,8 @@
 				<stat_view label="İşle" name="render">
 					<stat_bar label="Çerçeve Başına Üçgenler" name="ktrisframe"/>
 					<stat_bar label="Saniye Başına Üçgenler" name="ktrissec"/>
-					<stat_bar label="Toplam Nesne" name="objs"/>
+					<stat_bar label="Toplam Nesne" name="totalobjs"/>
+					<stat_bar label="Önbelleğe Alınan Nesne" name="cachedobjs"/>
 					<stat_bar label="Yeni Nesne" name="newobjs"/>
 					<stat_bar label="Nesne Önbellek İsabet Oranı" name="object_cache_hits"/>
 					<stat_bar label="Gerçekleştirilen Gölgeleme Sorguları" name="occlusion_queries"/>
