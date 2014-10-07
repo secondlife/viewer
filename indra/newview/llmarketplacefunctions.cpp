@@ -156,7 +156,7 @@ protected:
         else if (HTTP_SERVICE_UNAVAILABLE == getStatus())
         {
             log_SLM_infos("Get /merchant", getStatus(), "Merchant is not migrated");
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_MERCHANT_NOT_MIGRATED);
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
         }
 		else
 		{

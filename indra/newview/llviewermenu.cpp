@@ -390,7 +390,7 @@ void set_underclothes_menu_options()
 
 void set_merchant_menu()
 {
-    if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_MERCHANT_NOT_MIGRATED)
+    if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT)
     {
         // Merchant not migrated: show only the old Merchant Outbox menu
         gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(TRUE);

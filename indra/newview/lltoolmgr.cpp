@@ -350,7 +350,7 @@ bool LLToolMgr::inBuildMode()
 
 bool LLToolMgr::canAccessMarketplace()
 {
-	return (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_MERCHANT_NOT_MIGRATED) || gSavedSettings.getBOOL("InventoryOutboxDisplayBoth");
+	return (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT) || gSavedSettings.getBOOL("InventoryOutboxDisplayBoth");
 }
 
 void LLToolMgr::toggleMarketplace(const LLSD& sdname)
