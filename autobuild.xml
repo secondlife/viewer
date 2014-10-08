@@ -1643,8 +1643,12 @@
       </map>
       <key>llqtwebkit</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).</string>
+        <key>description</key>
+        <string>QT cross-platform application and UI framework.</string>
         <key>license</key>
-        <string>lgpl</string>
+        <string>LGPL</string>
         <key>license_file</key>
         <string>LICENSES/llqtwebkit.txt</string>
         <key>name</key>
@@ -1656,9 +1660,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>79afb464255be2be7c02fdfac10bcd5c</string>
+              <string>2f20b5a2303e98981706b0a0566d0844</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290663/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20140605.tar.bz2</string>
+              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-darwin-20141008.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1668,9 +1674,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>090190a8dd80efe1f0933c7ed307e6f1</string>
+              <string>d6b90550524d02b00d9d08b7039400a1</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290663/arch/Linux/installer/llqtwebkit-4.7.1-linux-20140605.tar.bz2</string>
+              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-linux-20141008.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1680,14 +1688,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>650f2a30a83eacde238fcc87ff161190</string>
+              <string>28b12c86f2ab89ef202ffadac5bb3f31</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-llqtwebkit2/rev/290663/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20140605.tar.bz2</string>
+              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-windows-20141008.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>4.7.1</string>
       </map>
       <key>mesa</key>
       <map>
