@@ -1851,8 +1851,12 @@
       </map>
       <key>openjpeg</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2002-2007, Communications and Remote Sensing Laboratory, Universite catholique de Louvain (UCL), Belgium, Copyright (c) 2002-2007, Professor Benoit Macq, Copyright (c) 2001-2003, David Janssens, Copyright (c) 2002-2003, Yannick Verschueren, Copyright (c) 2003-2007, Francois-Olivier Devaux and Antonin Descampe, Copyright (c) 2005, Herve Drolon, FreeImage Team</string>
+        <key>description</key>
+        <string>The OpenJPEG library is an open-source JPEG 2000 codec written in C language.</string>
         <key>license</key>
-        <string>openjpeg</string>
+        <string>BSD</string>
         <key>license_file</key>
         <string>LICENSES/openjpeg.txt</string>
         <key>name</key>
@@ -1864,9 +1868,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4be51c7cca7d84831e30b63279df7ae5</string>
+              <string>f4abee9d9955bf62bea681d17e16f7ba</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.4-darwin-20110302.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openjpeg_3p-update-openjpeg/rev/295265/arch/Darwin/installer/openjpeg-1.4.295265-darwin-295265.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1896,6 +1900,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.4.295265</string>
       </map>
       <key>openssl</key>
       <map>
