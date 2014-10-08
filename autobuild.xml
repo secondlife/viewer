@@ -436,9 +436,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9bd79781b58e556ab1c36084ec4a1c0c</string>
+              <string>1ed2b8d927659b331951f2a7bf1c4d73</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Linux/installer/expat-2.0.1-linux-20110219.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/295191/arch/Linux/installer/expat-2.0.1.295191-linux-295191.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -457,7 +457,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>2.0.1.295018</string>
+        <string>2.0.1.295191</string>
       </map>
       <key>fmodex</key>
       <map>
@@ -1822,7 +1822,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f7cfbb1bd1fdccfd1834704a2bb3748</string>
+              <string>a0abe99bb40d04e7cbbc470583e39a42</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
@@ -2144,9 +2144,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>174ab797440157956eda7061dae37564</string>
+              <string>4de9b81e31fb9da981e96a3bdcecabfc</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc_epi-0.54.1-linux-20110314.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/295272/arch/Linux/installer/xmlrpc_epi-0.54.1.295272-linux-295272.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2165,7 +2165,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>0.54.1.295251</string>
+        <string>0.54.1.295272</string>
       </map>
       <key>zlib</key>
       <map>
