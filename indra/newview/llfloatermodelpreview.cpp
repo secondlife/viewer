@@ -1935,7 +1935,9 @@ bool LLModelLoader::doLoadModel()
 										LLJoint* pJoint = mPreview->getPreviewAvatar()->getJoint( lookingForJoint );
 										if ( pJoint )
 										{   
-											pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), mFilename);
+											LLUUID fake_mesh_id;
+											fake_mesh_id.generate();
+											pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, gAgentAvatarp->avString());
 										}
 										else
 										{
