@@ -292,6 +292,6 @@ if(LL_TESTS)
       )
   LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
   # INTEGRATION TESTS
-  set(test_libs llui llmessage llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+  set(test_libs llui llmessage llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} ${HUNSPELL_LIBRARY})
   LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
 endif(LL_TESTS)
