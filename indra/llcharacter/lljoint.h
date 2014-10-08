@@ -103,13 +103,12 @@ public:
 	{
 		AttachmentOverrideRecord();
 		LLVector3 pos;
-		std::string name;
 	};
-	typedef std::map<std::string,AttachmentOverrideRecord> attachment_map_t;
+	typedef std::map<LLUUID,AttachmentOverrideRecord> attachment_map_t;
 	attachment_map_t m_attachmentOverrides;
 	LLVector3 m_posBeforeOverrides;
 
-	void updatePos();
+	void updatePos(const std::string& av_info);
 
 public:
 	LLJoint();
@@ -192,8 +191,8 @@ public:
 
 	S32 getJointNum() const { return mJointNum; }
 
-	void addAttachmentPosOverride( const LLVector3& pos, const std::string& attachment_name );
-	void removeAttachmentPosOverride( const std::string& attachment_name );
+	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info );
+	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
 
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }

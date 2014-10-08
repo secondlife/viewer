@@ -5061,7 +5061,7 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 //-----------------------------------------------------------------------------
 // resetJointPositionsOnDetach
 //-----------------------------------------------------------------------------
-void LLVOAvatar::resetJointPositionsOnDetach(const std::string& attachment_name)
+void LLVOAvatar::resetJointPositionsOnDetach(const LLUUID& mesh_id)
 {	
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
@@ -5076,7 +5076,7 @@ void LLVOAvatar::resetJointPositionsOnDetach(const std::string& attachment_name)
 		if ( pJoint && pJoint != pJointPelvis)
 		{			
 			pJoint->setId( LLUUID::null );
-			pJoint->removeAttachmentPosOverride(attachment_name);
+			pJoint->removeAttachmentPosOverride(mesh_id, avString());
 		}		
 		else
 		if ( pJoint && pJoint == pJointPelvis)
@@ -5746,8 +5746,8 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
 				&& pSkinData->mAlternateBindMatrix.size() > 0 )
 					{				
-						const std::string& attachment_name = pVO->getAttachmentItemName();
-						LLVOAvatar::resetJointPositionsOnDetach(attachment_name);							
+						const LLUUID& mesh_id = pSkinData->mMeshID;
+						LLVOAvatar::resetJointPositionsOnDetach(mesh_id);							
 						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
 						//This handles the case where we detach a replacement rig.
 						if ( gAgentCamera.cameraCustomizeAvatar() )
