@@ -38,6 +38,7 @@
 #include "lltextutil.h"
 #include "lltooltip.h"
 #include "lluictrl.h"
+#include "lluriparser.h"
 #include "llurlaction.h"
 #include "llurlregistry.h"
 #include "llview.h"
@@ -2061,11 +2062,9 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			// add icon before url if need
 			LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted());
 
-			std::string label = match.getLabel();
-			LLTextUtil::normalizeUri(label);
-
 			// output the styled Url
-			appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
+			//appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
+			appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
 			
 			// set the tooltip for the Url label
 			if (! match.getTooltip().empty())

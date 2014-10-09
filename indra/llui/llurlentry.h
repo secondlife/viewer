@@ -176,9 +176,9 @@ class LLUrlEntrySeconlifeURL : public LLUrlEntryBase
 {
 public:
 	LLUrlEntrySeconlifeURL();
-	virtual bool isTrusted() const { return true; }
-	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	virtual std::string getTooltip(const std::string &url) const;
+	bool isTrusted() const { return true; }
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getTooltip(const std::string &url) const;
 
 private:
 	std::string mLabel;
