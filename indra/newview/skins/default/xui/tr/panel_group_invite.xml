@@ -22,7 +22,7 @@
 		Onları hala Role atayacağınızı seçin:
 	</text>
 	<combo_box name="role_name" tool_tip="Üyeleri atamanıza izin verilen Roller listesinden seçin"/>
-	<button label="Davetiye Gönder" name="ok_button"/>
+	<button label="Davetiye Gönder" name="invite_button"/>
 	<button label="İptal" name="cancel_button"/>
 	<string name="GroupInvitation">
 		Grup Davetiyesi

@@ -30,14 +30,10 @@
 		<combo_box.item label="General と Moderate" name="Desired_Mature"/>
 		<combo_box.item label="General" name="Desired_PG"/>
 	</combo_box>
-	<text name="start_location_textbox">
-		ログイン位置：
+	<check_box label="ログイン画面にお気に入りの場所を表示" name="favorites_on_login_check"/>
+	<text name="favorites_check_extra_text">
+		(このコンピュータを使用する他の人にも表示されます)
 	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item label="最後にログアウトした場所" name="MyLastLocation" tool_tip="常に最後にいた場所にログイン"/>
-		<combo_box.item label="ホーム" name="MyHome" tool_tip="常にホーム（自宅）にログイン"/>
-	</combo_box>
-	<check_box initial_value="true" label="ログイン画面に表示する" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
 		名前の表示：
 	</text>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_flickr_photo">
+	<layout_stack name="stack_photo">
+		<layout_panel name="snapshot_panel">
+			<combo_box name="resolution_combobox" tool_tip="Risoluzione immagini">
+				<combo_box.item label="Finestra attuale" name="CurrentWindow"/>
+				<combo_box.item label="640x480" name="640x480"/>
+				<combo_box.item label="800x600" name="800x600"/>
+				<combo_box.item label="1024x768" name="1024x768"/>
+			</combo_box>
+			<combo_box name="filters_combobox" tool_tip="Filtri immagini">
+				<combo_box.item label="Nessun filtro" name="NoFilter"/>
+			</combo_box>
+			<button label="Aggiorna" name="new_snapshot_btn" tool_tip="Fai clic per aggiornare"/>
+			<button label="Anteprima" name="big_preview_btn" tool_tip="Fai clic per alternare l&apos;anteprima"/>
+			<text name="title_label">
+				Titolo:
+			</text>
+			<text name="description_label">
+				Descrizione:
+			</text>
+			<check_box initial_value="true" label="Includi l&apos;ubicazione SL al termine della descrizione" name="add_location_cb"/>
+			<text name="tags_label">
+				Tag:
+			</text>
+			<text name="tags_help_label">
+				Separa tag con spazi
+Usa &quot;&quot; per tag con più di una parola
+			</text>
+			<combo_box name="rating_combobox" tool_tip="Categoria del contenuto di Flickr">
+				<combo_box.item label="Categoria Flickr Sicuro" name="SafeRating"/>
+				<combo_box.item label="Categoria Flickr Moderato" name="ModerateRating"/>
+				<combo_box.item label="Categoria Flickr Censurato" name="RestrictedRating"/>
+			</combo_box>
+		</layout_panel>
+		<layout_panel name="photo_button_panel">
+			<button label="Carica" name="post_photo_btn"/>
+			<button label="Annulla" name="cancel_photo_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

@@ -44,7 +44,7 @@
 		<combo_box.item label="Età &gt; Residente adulto in Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Età &gt; Residente minorenne fuori da Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Assalto &gt; sandbox da combattimento / area pericolosa" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="Assalto &gt; Area sicura" name="Assault__Safe_area"/>
+		<combo_box.item label="Assalto &gt; Colpire, spingere o urtare un altro residente in un&apos;area Sicura" name="Assault__Safe_area"/>
 		<combo_box.item label="Assalto &gt; Test di armi in sandbox" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="Commercio &gt; Problema nella consegna di un prodotto o servizio" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="Divulgazione &gt; Informazioni del mondo reale" name="Disclosure__Real_world_information"/>
@@ -58,25 +58,25 @@
 		<combo_box.item label="Truffa &gt; L$" name="Fraud__L$"/>
 		<combo_box.item label="Truffa &gt; Terreno" name="Fraud__Land"/>
 		<combo_box.item label="Truffa &gt; Multilivello o catena di Sant&apos;Antonio" name="Fraud__Pyramid_scheme_or_chain_letter"/>
-		<combo_box.item label="Truffa &gt; Dollari US$" name="Fraud__US$"/>
+		<combo_box.item label="Frode &gt; L$ o USD $" name="Fraud__US$"/>
 		<combo_box.item label="Molestie &gt; Territori adibiti a pubblicità / spam visivo" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="Molestie &gt; Diffamazione di individui o gruppi" name="Harassment__Defaming_individuals_or_groups"/>
 		<combo_box.item label="Molestie &gt; Impedimento di movimenti" name="Harassment__Impeding_movement"/>
 		<combo_box.item label="Molestie &gt; Molestie sessuali" name="Harassment__Sexual_harassment"/>
-		<combo_box.item label="Molestie &gt; Sollecitare/incitare altri a violare i Termini di Servizio" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Molestia &gt; Comportamento mirato a disturbare" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
 		<combo_box.item label="Molestie &gt; Abusi verbali" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="Indecenza &gt; Condotta o contenuti largamente offensivi" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Indecenza &gt; Nome di un avatar inappropriato" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="Indecenza &gt; Contenuto o condotta inappropriata in una regione con accesso Generale" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Indecenza &gt; Comportamenti o contenuti non appropriati per la categoria di accesso della regione" name="Indecency__Mature_content_in_PG_region"/>
 		<combo_box.item label="Indecenza &gt; Contenuto o condotta inappropriata in una regione con accesso Moderato" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Violazione della proprietà intellettuale &gt; Rimozione contenuti" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Violazione della proprietà intellettuale &gt; CopyBot o sblocco di permessi" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Intolleranza" name="Intolerance"/>
 		<combo_box.item label="Terreno &gt; Abuso delle risorse di una sandbox" name="Land__Abuse_of_sandbox_resources"/>
-		<combo_box.item label="Terreno &gt; Invasione &gt; Oggetti/textures" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Terreno &gt; Invasione &gt; Oggetti o texture" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Terreno &gt; Invasione &gt; Particelle" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Terreno &gt; Invasione &gt; Alberi/piante" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Chiedere l&apos;elemosina/gioco d&apos;azzardo" name="Wagering_gambling"/>
+		<combo_box.item label="Scommesse o gioco d&apos;azzardo" name="Wagering_gambling"/>
 		<combo_box.item label="Altro" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

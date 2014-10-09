@@ -24,6 +24,7 @@
 			<menu_item_call label="還原全部變更" name="Revert All Changes"/>
 			<menu_item_call label="從檔案載入…" name="LoadFromFile"/>
 			<menu_item_call label="存入檔案…" name="SaveToFile"/>
+			<menu_item_call label="顏色…" name="Colors"/>
 		</menu>
 		<menu label="編輯" name="Edit">
 			<menu_item_call label="復原" name="Undo"/>
@@ -41,9 +42,9 @@
 			<menu_item_call label="關鍵字幫助..." name="Keyword Help..."/>
 		</menu>
 	</menu_bar>
-	<text_editor name="Script Editor">
+	<script_editor name="Script Editor">
 		載入中...
-	</text_editor>
+	</script_editor>
 	<combo_box label="插入..." name="Insert..."/>
 	<button label="儲存" label_selected="儲存" name="Save_btn"/>
 	<button label="編輯..." name="Edit_btn"/>

@@ -1891,19 +1891,6 @@ bool idle_startup()
 
 		display_startup();
 
-		// based on the comments, we've successfully logged in so we can delete the 'forced'
-		// URL that the updater set in settings.ini (in a mostly paranoid fashion)
-		std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
-		if ( nextLoginLocation.length() )
-		{
-			// clear it
-			gSavedSettings.setString( "NextLoginLocation", "" );
-
-			// and make sure it's saved
-			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
-			LLUIColorTable::instance().saveUserSettings();
-		};
-
 		display_startup();
 		// JC: Initializing audio requests many sounds for download.
 		init_audio();

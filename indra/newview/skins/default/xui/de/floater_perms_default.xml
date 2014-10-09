@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perms default" title="STANDARD-ERSTELLUNGSBERECHTIGUNGEN">
+	<panel label="Standardberechtigungen" name="default permissions"/>
+	<button label="OK" label_selected="OK" name="ok"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel"/>
+</floater>

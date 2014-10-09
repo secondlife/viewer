@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_flickr" title="FLICKR&apos;A YÜKLE">
+	<panel name="background">
+		<tab_container name="tabs">
+			<panel label="FOTOĞRAF" name="panel_flickr_photo"/>
+			<panel label="HESAP" name="panel_flickr_account"/>
+		</tab_container>
+		<panel name="connection_status_panel">
+			<text name="connection_error_text">
+				Hata
+			</text>
+			<text name="connection_loading_text">
+				Yükleniyor...
+			</text>
+		</panel>
+	</panel>
+</floater>

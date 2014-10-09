@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_login">
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php
+	</panel.string>
+	<layout_stack name="logo_stack">
+		<layout_panel name="parent_panel2">
+			<layout_stack name="widget_stack">
+				<layout_panel name="widget_container">
+					<combo_box label="Имя пользователя" name="username_combo" tool_tip="Имя пользователя, которое вы выбрали при регистрации, например, «bobsmith12» или «Steller Sunshine»"/>
+					<line_editor label="Пароль" name="password_edit"/>
+					<button label="Войти" name="connect_btn"/>
+					<check_box label="Запомнить меня" name="remember_check"/>
+					<text name="forgot_password_text">
+						Забытый пароль
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="parent_panel3">
+			<layout_stack name="images_stack">
+				<layout_panel name="images_container">
+					<text name="image_caption_left">
+						Ваш первый шаг – Учебный остров. Найдите портал выхода!
+					</text>
+					<text name="image_caption_right">
+						Затем исследуйте Социальный остров и познакомьтесь с другими новичками!
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

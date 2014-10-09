@@ -44,7 +44,7 @@
 		<combo_box.item label="Âge &gt; Résident adulte sur Second Life pour adolescents" name="Age__Adult_resident_on_Teen_Second_Life"/>
 		<combo_box.item label="Âge &gt; Résident mineur en dehors de Second Life pour adolescents" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Assaut &gt; Bac à sable utilisé pour des combats/zone non sécurisée" name="Assault__Combat_sandbox___unsafe_area"/>
-		<combo_box.item label="Assaut &gt; Zone sécurisée" name="Assault__Safe_area"/>
+		<combo_box.item label="Assaut &gt; Tirer sur une personne avec une arme, pousser ou bousculer un résident dans une zone « sécurisée »" name="Assault__Safe_area"/>
 		<combo_box.item label="Assaut &gt; Bac à sable pour tests d&apos;armes à feu" name="Assault__Weapons_testing_sandbox"/>
 		<combo_box.item label="Commerce &gt; Incapacité à fournir un produit ou service" name="Commerce__Failure_to_deliver_product_or_service"/>
 		<combo_box.item label="Divulgation &gt; Informations sur la vie réelle" name="Disclosure__Real_world_information"/>
@@ -58,25 +58,25 @@
 		<combo_box.item label="Fraude &gt; L$" name="Fraud__L$"/>
 		<combo_box.item label="Fraude &gt; Terrain" name="Fraud__Land"/>
 		<combo_box.item label="Fraude &gt; Vente pyramidale ou lettre-chaîne" name="Fraud__Pyramid_scheme_or_chain_letter"/>
-		<combo_box.item label="Fraude &gt; US$" name="Fraud__US$"/>
+		<combo_box.item label="Fraude &gt; L$ ou US$" name="Fraud__US$"/>
 		<combo_box.item label="Harcèlement &gt; Spam visuel" name="Harassment__Advert_farms___visual_spam"/>
 		<combo_box.item label="Harcèlement &gt; Diffamation envers des individus ou des groupes" name="Harassment__Defaming_individuals_or_groups"/>
 		<combo_box.item label="Harcèlement &gt; Immobilisation" name="Harassment__Impeding_movement"/>
 		<combo_box.item label="Harcèlement &gt;  Harcèlement sexuel" name="Harassment__Sexual_harassment"/>
-		<combo_box.item label="Harcèlement &gt; Incitation à enfreindre les Conditions d&apos;utilisation" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="Harcèlement &gt; Comportement ciblé fait pour déranger" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
 		<combo_box.item label="Harcèlement &gt; Abus verbal" name="Harassment__Verbal_abuse"/>
 		<combo_box.item label="Indécence &gt; Contenu ou comportement offensifs" name="Indecency__Broadly_offensive_content_or_conduct"/>
 		<combo_box.item label="Indécence &gt; Nom d&apos;avatar inapproprié" name="Indecency__Inappropriate_avatar_name"/>
-		<combo_box.item label="Indécence &gt; Contenu ou conduite inappropriés dans une région PG" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="Indécence &gt; Contenu ou conduite inappropriés pour la catégorie de région" name="Indecency__Mature_content_in_PG_region"/>
 		<combo_box.item label="Indécence &gt; Contenu ou conduite inappropriés dans une région modérée" name="Indecency__Inappropriate_content_in_Mature_region"/>
 		<combo_box.item label="Violation de droits de propriété intellectuelle &gt; Suppression de contenu" name="Intellectual_property_infringement_Content_Removal"/>
 		<combo_box.item label="Violation de droits de propriété intellectuelle &gt; CopyBot ou exploitation abusive des droits" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
 		<combo_box.item label="Intolérance" name="Intolerance"/>
 		<combo_box.item label="Terrain &gt; Utilisation abusive des ressources du bac à sable" name="Land__Abuse_of_sandbox_resources"/>
-		<combo_box.item label="Terrain &gt; Empiètement &gt; Objets/textures" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="Terrain &gt; Empiètement &gt; Objets ou textures" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Terrain &gt; Empiètement &gt; Particules" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Terrain &gt; Empiètement &gt; Arbres/plantes" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Paris/jeux d&apos;argent" name="Wagering_gambling"/>
+		<combo_box.item label="Paris ou jeux d&apos;argent" name="Wagering_gambling"/>
 		<combo_box.item label="Autre" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

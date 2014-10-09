@@ -36,6 +36,9 @@
 		<menu_item_check label="近くのチャット..." name="Nearby Chat"/>
 		<menu_item_check label="話す" name="Speak"/>
 		<menu_item_check label="会話ログ..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="ボイスモーフィング" name="VoiceMorphing">
 			<menu_item_check label="ボイスモーフィングなし" name="NoVoiceMorphing"/>
 			<menu_item_check label="プレビュー..." name="Preview"/>
@@ -150,7 +153,8 @@
 			<menu_item_check label="グリッドポイントにスナップする" name="Snap to Grid"/>
 			<menu_item_call label="オブジェクトの XY 軸をグリッドにスナップする" name="Snap Object XY to Grid"/>
 			<menu_item_call label="選択をグリッドに使用する" name="Use Selection for Grid"/>
-			<menu_item_call label="グリッドオプション" name="Grid Options"/>
+			<menu_item_call label="グリッドオプション..." name="Grid Options"/>
+			<menu_item_call label="デフォルト権限の設定..." name="Set default permissions"/>
 		</menu>
 		<menu label="アップロード" name="Upload">
 			<menu_item_call label="画像（L$[COST]）..." name="Upload Image"/>
@@ -158,7 +162,6 @@
 			<menu_item_call label="アニメーション（L$[COST]）..." name="Upload Animation"/>
 			<menu_item_call label="モデル" name="Upload Model"/>
 			<menu_item_call label="一括 （ファイルにつきL$[COST]）..." name="Bulk Upload"/>
-			<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="元に戻す" name="Undo"/>
 		<menu_item_call label="やり直し" name="Redo"/>
@@ -304,6 +307,7 @@
 			<menu_item_check label="LOD 情報" name="LOD Info"/>
 			<menu_item_check label="制作キュー" name="Build Queue"/>
 			<menu_item_check label="光" name="Lights"/>
+			<menu_item_check label="パーティクル" name="Particles"/>
 			<menu_item_check label="骨組みの衝突判定" name="Collision Skeleton"/>
 			<menu_item_check label="ジョイント" name="Joints"/>
 			<menu_item_check label="レイキャスト" name="Raycast"/>

@@ -29,4 +29,5 @@
 		<menu_item_call label="Silenciar a todos" name="ModerateVoiceMute"/>
 		<menu_item_call label="Quitar el silencio a todos" name="ModerateVoiceUnmute"/>
 	</context_menu>
+	<menu_item_call label="Expulsar a miembro" name="BanMember"/>
 </toggleable_menu>

@@ -24,6 +24,7 @@
 			<menu_item_call label="Annulla tutte le modifiche" name="Revert All Changes"/>
 			<menu_item_call label="Carica da file..." name="LoadFromFile"/>
 			<menu_item_call label="Salva su file..." name="SaveToFile"/>
+			<menu_item_call label="Colori..." name="Colors"/>
 		</menu>
 		<menu label="Modifica" name="Edit">
 			<menu_item_call label="Annulla" name="Undo"/>
@@ -41,9 +42,9 @@
 			<menu_item_call label="Aiuto con parole chiave..." name="Keyword Help..."/>
 		</menu>
 	</menu_bar>
-	<text_editor name="Script Editor">
+	<script_editor name="Script Editor">
 		Caricamento in corso...
-	</text_editor>
+	</script_editor>
 	<combo_box label="Inserisci..." name="Insert..."/>
 	<button label="Salva" label_selected="Salva" name="Save_btn"/>
 	<button label="Modifica..." name="Edit_btn"/>
