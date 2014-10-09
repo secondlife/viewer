@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_login">
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=ja
+	</panel.string>
+	<layout_stack name="logo_stack">
+		<layout_panel name="parent_panel2">
+			<layout_stack name="widget_stack">
+				<layout_panel name="widget_container">
+					<combo_box label="ユーザー名" name="username_combo" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）"/>
+					<line_editor label="パスワード" name="password_edit"/>
+					<button label="ログイン" name="connect_btn"/>
+					<check_box label="記憶する" name="remember_check"/>
+					<text name="forgot_password_text">
+						パスワードを忘れた場合
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="parent_panel3">
+			<layout_stack name="images_stack">
+				<layout_panel name="images_container">
+					<text name="image_caption_left">
+						最初のステップは、アイランドについて学ぶことです。さあ、アイランド探検の入口を見つけてください!
+					</text>
+					<text name="image_caption_right">
+						ソーシャル アイランドを探検して、他の新しい住人を探してください!
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

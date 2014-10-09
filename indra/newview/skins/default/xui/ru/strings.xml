@@ -335,6 +335,75 @@ support@secondlife.com.
 	<string name="TestingDisconnect">
 		Тестирование отключения клиента
 	</string>
+	<string name="SocialFlickrConnecting">
+		Подключение к Flickr...
+	</string>
+	<string name="SocialFlickrPosting">
+		Публикация...
+	</string>
+	<string name="SocialFlickrDisconnecting">
+		Отключение от Flickr...
+	</string>
+	<string name="SocialFlickrErrorConnecting">
+		Неполадка при подключении к Flickr
+	</string>
+	<string name="SocialFlickrErrorPosting">
+		Неполадка при публикации в Flickr
+	</string>
+	<string name="SocialFlickrErrorDisconnecting">
+		Неполадка при отключении от Flickr
+	</string>
+	<string name="SocialTwitterConnecting">
+		Подключение к Twitter...
+	</string>
+	<string name="SocialTwitterPosting">
+		Публикация...
+	</string>
+	<string name="SocialTwitterDisconnecting">
+		Отключение от Twitter...
+	</string>
+	<string name="SocialTwitterErrorConnecting">
+		Неполадка при подключении к Twitter
+	</string>
+	<string name="SocialTwitterErrorPosting">
+		Неполадка при публикации в Twitter
+	</string>
+	<string name="SocialTwitterErrorDisconnecting">
+		Неполадка при отключении от Twitter
+	</string>
+	<string name="BlackAndWhite">
+		Черно-белый
+	</string>
+	<string name="Colors1970">
+		Цвета 1970-х
+	</string>
+	<string name="Intense">
+		Интенсивный
+	</string>
+	<string name="Newspaper">
+		Газета
+	</string>
+	<string name="Sepia">
+		Сепия
+	</string>
+	<string name="Spotlight">
+		Прожектор
+	</string>
+	<string name="Video">
+		Видео
+	</string>
+	<string name="Autocontrast">
+		Автоконтраст
+	</string>
+	<string name="LensFlare">
+		Блик
+	</string>
+	<string name="Miniature">
+		Миниатюра
+	</string>
+	<string name="Toycamera">
+		Игрушечная камера
+	</string>
 	<string name="TooltipPerson">
 		Человек
 	</string>
@@ -882,6 +951,12 @@ support@secondlife.com.
 	</string>
 	<string name="use_texture">
 		Использовать текстуру
+	</string>
+	<string name="manip_hint1">
+		Наведите указатель мыши на линейку
+	</string>
+	<string name="manip_hint2">
+		для привязки к сетке
 	</string>
 	<string name="texture_loading">
 		Загрузка...
@@ -4077,6 +4152,12 @@ support@secondlife.com.
 	<string name="share_alert">
 		Перетаскивайте вещи из инвентаря сюда
 	</string>
+	<string name="flickr_post_success">
+		Вы опубликовали сообщение в Flickr.
+	</string>
+	<string name="twitter_post_success">
+		Вы опубликовали сообщение в Twitter.
+	</string>
 	<string name="no_session_message">
 		(Сеанс IM не существует)
 	</string>
@@ -4533,6 +4614,9 @@ support@secondlife.com.
 	<string name="LocalEstimateUSD">
 		[AMOUNT] US$
 	</string>
+	<string name="Group Ban">
+		Групповая блокировка
+	</string>
 	<string name="Membership">
 		Членство
 	</string>
@@ -4967,6 +5051,12 @@ support@secondlife.com.
 	<string name="Command_Destinations_Label">
 		Пункты
 	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
+	</string>
+	<string name="Command_Flickr_Label">
+		Flickr
+	</string>
 	<string name="Command_Gestures_Label">
 		Жесты
 	</string>
@@ -5015,6 +5105,9 @@ support@secondlife.com.
 	<string name="Command_Speak_Label">
 		Говорить
 	</string>
+	<string name="Command_Twitter_Label">
+		Twitter
+	</string>
 	<string name="Command_View_Label">
 		Управление камерой
 	</string>
@@ -5044,6 +5137,12 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Интересные места
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Опубликовать в Facebook
+	</string>
+	<string name="Command_Flickr_Tooltip">
+		Загрузить на Flickr
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Жесты для аватара
@@ -5092,6 +5191,9 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Speak_Tooltip">
 		Говорите с людьми вокруг вас с помощью микрофона
+	</string>
+	<string name="Command_Twitter_Tooltip">
+		Twitter
 	</string>
 	<string name="Command_View_Tooltip">
 		Изменение угла камеры

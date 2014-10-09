@@ -169,46 +169,29 @@
      left_pad="2"
      name="rating_icon_adult"
      width="18"/>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="15"
-     layout="topleft"
-     left="30"
-     name="start_location_textbox"
-     top_pad="8"
-     width="394">
-        Start location:
-    </text>
-    <combo_box
-     control_name="LoginLocation"
-     follows="left|top"
-     height="23"
-     layout="topleft"
-     name="start_location_combo"
-     left="50"
-     width="200">
-        <combo_box.item
-         label="My Last Location"
-         name="MyLastLocation"
-         value="last" />
-        <combo_box.item
-         label="My Home"
-         name="MyHome"
-         value="home" />
-    </combo_box>
-    <check_box
-     control_name="ShowStartLocation"
-     height="16"
-     initial_value="true"
-     label="Show on login"
-     layout="topleft"
-     left_pad="5"
-     name="show_location_checkbox"
-     top_delta="5"
-     width="256" />
-   <text
+     <check_box
+       control_name="ShowFavoritesOnLogin"
+       enabled="false" 
+       height="16"
+       layout="topleft"
+       label="Show favorite locations on login screen"
+       left="30"
+       name="favorites_on_login_check"
+       top_pad="10"
+       width="350" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="15"
+   layout="topleft"
+   left="52"
+   name="favorites_check_extra_text"
+   top_pad="0"
+   width="400">
+    (Others using this computer will also see them)
+  </text>
+  <text
     type="string"
     length="1"
     follows="left|top"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="VISUALIZAR FOTO">
+<floater name="Snapshot" title="FOTO">
 	<floater.string name="unknown">
 		desconhecido
 	</floater.string>
@@ -61,5 +61,11 @@
 		<check_box label="HUDs" name="hud_check"/>
 		<check_box label="Gerar quadro (tela inteira)" name="freeze_frame_check"/>
 		<check_box label="Atualização automática" name="auto_snapshot_check"/>
+		<text name="filter_list_label">
+			Filtro:
+		</text>
+		<combo_box name="filters_combobox" tool_tip="Filtros de imagem">
+			<combo_box.item label="Sem filtro" name="NoFilter"/>
+		</combo_box>
 	</panel>
 </floater>

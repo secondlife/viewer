@@ -12,7 +12,8 @@
 				<stat_view label="Render" name="render">
 					<stat_bar label="KTris per fotogramma" name="ktrisframe"/>
 					<stat_bar label="KTris per secondo" name="ktrissec"/>
-					<stat_bar label="Totale oggetti" name="objs"/>
+					<stat_bar label="Totale oggetti" name="totalobjs"/>
+					<stat_bar label="Oggetti nella cache" name="cachedobjs"/>
 					<stat_bar label="Nuovi oggetti" name="newobjs"/>
 					<stat_bar label="Hit rate della cache per l&apos;oggetto" name="object_cache_hits"/>
 					<stat_bar label="Occlusion query eseguite" name="occlusion_queries"/>

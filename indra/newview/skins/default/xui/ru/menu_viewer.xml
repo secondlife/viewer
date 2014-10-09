@@ -34,6 +34,9 @@
 		<menu_item_check label="Локальный чат..." name="Nearby Chat"/>
 		<menu_item_check label="Говорить" name="Speak"/>
 		<menu_item_check label="Журнал разговора..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Изменение голоса" name="VoiceMorphing">
 			<menu_item_check label="Без изменения голоса" name="NoVoiceMorphing"/>
 			<menu_item_check label="Просмотр..." name="Preview"/>
@@ -147,7 +150,8 @@
 			<menu_item_check label="Привязка к сетке" name="Snap to Grid"/>
 			<menu_item_call label="Сдвиг к ближайшему узлу XY сетки" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Использовать выбранное для сетки" name="Use Selection for Grid"/>
-			<menu_item_call label="Параметры сетки" name="Grid Options"/>
+			<menu_item_call label="Параметры сетки..." name="Grid Options"/>
+			<menu_item_call label="Установить стандартные разрешения..." name="Set default permissions"/>
 		</menu>
 		<menu label="Передача" name="Upload">
 			<menu_item_call label="Изображение (L$[COST])..." name="Upload Image"/>
@@ -155,7 +159,6 @@
 			<menu_item_call label="Анимация (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Модель..." name="Upload Model"/>
 			<menu_item_call label="Все сразу (L$[COST] за файл)..." name="Bulk Upload"/>
-			<menu_item_call label="Установить разрешения на передачу по умолчанию" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Отменить" name="Undo"/>
 		<menu_item_call label="Вернуть" name="Redo"/>
@@ -295,6 +298,7 @@
 			<menu_item_check label="Данные об уровнях детализации" name="LOD Info"/>
 			<menu_item_check label="Очередь построителя" name="Build Queue"/>
 			<menu_item_check label="Освещение" name="Lights"/>
+			<menu_item_check label="Частицы" name="Particles"/>
 			<menu_item_check label="Каркас столкновений" name="Collision Skeleton"/>
 			<menu_item_check label="Суставы" name="Joints"/>
 			<menu_item_check label="Лучи" name="Raycast"/>

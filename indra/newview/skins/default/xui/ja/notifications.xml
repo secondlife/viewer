@@ -221,6 +221,22 @@
 この能力を [ROLE_NAME] に割り当てますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="AssignBanAbilityWarning">
+		役割 &apos;[ROLE_NAME]&apos; に能力 &apos;[ACTION_NAME]&apos; を追加しようとしています。
+
+*警告*
+この能力を持つ役割のメンバーにも能力 &apos;[ACTION_NAME_2]&apos; と &apos;[ACTION_NAME_3]&apos; が許可されます
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		役割 &apos;[ROLE_NAME]&apos; から能力 &apos;[ACTION_NAME]&apos; を削除しようとしています。
+
+*警告*
+この能力を削除しても能力 &apos;[ACTION_NAME_2]&apos; と &apos;[ACTION_NAME_3]&apos; は削除されません。
+ 
+これらの能力をこの役割に許可しない場合は、すぐに削除してください!
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="EjectGroupMemberWarning">
 		[AVATAR_NAME] をグループから追放しようとしています。
 		<usetemplate ignoretext="グループからの参加者の追放を確認します" name="okcancelignore" notext="取り消し" yestext="追放"/>
@@ -1614,6 +1630,14 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		グループを抜けることができません: [reason]。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		グループ [group_name] を抜けました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		本当に住人全員をグリッドから追い出しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="住人全員を追い出す"/>
@@ -2505,6 +2529,12 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		少なくともどれか一つコンテンツの種類を選択して検索を行ってください。（General、Moderate、Adult）
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -4075,6 +4105,10 @@ M キーを押して変更します。
 	<notification name="PreferenceChatPathChanged">
 		ファイルを移動できません。以前のパスがリストアされました。
 		<usetemplate ignoretext="ファイルを移動できません。以前のパスがリストアされました。" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		次の理由により、デフォルト権限を保存するときに問題がありました: [REASON]。後でデフォルト権限を設定してください。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		チャット履歴ファイルが前の操作でビジーです。2、3 分経ってからもう一度試すか、別の人とのチャットを選択してください。
