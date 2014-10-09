@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_facebook_friends">
+	<string name="facebook_friends_empty" value="你的臉書朋友中，沒有同時也是第二人生居民的人。 今天就請你的臉書朋友加入第二人生！"/>
+	<string name="facebook_friends_no_connected" value="你目前尚未連結臉書。 請到「帳戶」頁籤開啟這項功能並進行連結。"/>
+	<accordion name="friends_accordion">
+		<accordion_tab name="tab_second_life_friends" title="第二人生的朋友"/>
+		<accordion_tab name="tab_suggested_friends" title="把這些人加為第二人生的朋友"/>
+	</accordion>
+	<text name="facebook_friends_status">
+		未連通臉書。
+	</text>
+</panel>

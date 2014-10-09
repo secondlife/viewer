@@ -8,6 +8,7 @@
  height="455"
  layout="topleft"
  name="Snapshot"
+ single_instance="true"
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"

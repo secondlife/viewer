@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_lagmeter" title="ラグメーター">
+	<floater.string name="max_title_msg">
+		ラグ メーター
+	</floater.string>
+	<floater.string name="max_width_px">
+		350
+	</floater.string>
+	<floater.string name="min_title_msg">
+		ラグ
+	</floater.string>
+	<floater.string name="min_width_px">
+		90
+	</floater.string>
+	<floater.string name="client_text_msg">
+		クライアント
+	</floater.string>
+	<floater.string name="client_frame_rate_critical_fps">
+		10
+	</floater.string>
+	<floater.string name="client_frame_rate_warning_fps">
+		15
+	</floater.string>
+	<floater.string name="client_frame_time_window_bg_msg">
+		ノーマル、ウィンドウは背景に
+	</floater.string>
+	<floater.string name="client_frame_time_critical_msg">
+		クライアント フレームレート ＜ [CLIENT_FRAME_RATE_CRITICAL]
+	</floater.string>
+	<floater.string name="client_frame_time_warning_msg">
+		クライアント フレームレート: [CLIENT_FRAME_RATE_CRITICAL] ～ [CLIENT_FRAME_RATE_WARNING]
+	</floater.string>
+	<floater.string name="client_frame_time_normal_msg">
+		ノーマル
+	</floater.string>
+	<floater.string name="client_draw_distance_cause_msg">
+		考えられる原因: 描画距離の設定が大きすぎる
+	</floater.string>
+	<floater.string name="client_texture_loading_cause_msg">
+		考えられる原因: 画像のロード中
+	</floater.string>
+	<floater.string name="client_texture_memory_cause_msg">
+		考えられる原因: メモリ内の画像数が多すぎる
+	</floater.string>
+	<floater.string name="client_complex_objects_cause_msg">
+		考えられる原因: 画面に含まれる複雑なオブジェクトが多すぎる
+	</floater.string>
+	<floater.string name="network_text_msg">
+		ネットワーク
+	</floater.string>
+	<floater.string name="network_packet_loss_critical_pct">
+		10
+	</floater.string>
+	<floater.string name="network_packet_loss_warning_pct">
+		5
+	</floater.string>
+	<floater.string name="network_packet_loss_critical_msg">
+		接続でドロップされるパケットの割合: ＞ [NETWORK_PACKET_LOSS_CRITICAL]
+	</floater.string>
+	<floater.string name="network_packet_loss_warning_msg">
+		接続でドロップされるパケットの割合:[NETWORK_PACKET_LOSS_WARNING] ～ [NETWORK_PACKET_LOSS_CRITICAL]
+	</floater.string>
+	<floater.string name="network_performance_normal_msg">
+		ノーマル
+	</floater.string>
+	<floater.string name="network_ping_critical_ms">
+		600
+	</floater.string>
+	<floater.string name="network_ping_warning_ms">
+		300
+	</floater.string>
+	<floater.string name="network_ping_critical_msg">
+		接続の ping 時間: ＞ [NETWORK_PING_CRITICAL] ミリ秒
+	</floater.string>
+	<floater.string name="network_ping_warning_msg">
+		接続の ping 時間: [NETWORK_PING_WARNING] ～ [NETWORK_PING_CRITICAL] ミリ秒
+	</floater.string>
+	<floater.string name="network_packet_loss_cause_msg">
+		接続不良になっているか、帯域幅設定が高すぎます。
+	</floater.string>
+	<floater.string name="network_ping_cause_msg">
+		接続不良になっているか、ファイル共有アプリケーションに問題があります。
+	</floater.string>
+	<floater.string name="server_text_msg">
+		サーバー
+	</floater.string>
+	<floater.string name="server_frame_rate_critical_fps">
+		20
+	</floater.string>
+	<floater.string name="server_frame_rate_warning_fps">
+		30
+	</floater.string>
+	<floater.string name="server_single_process_max_time_ms">
+		20
+	</floater.string>
+	<floater.string name="server_frame_time_critical_msg">
+		シミュレーターのフレームレート: ＜ [SERVER_FRAME_RATE_CRITICAL]
+	</floater.string>
+	<floater.string name="server_frame_time_warning_msg">
+		シミュレーターのフレームレート: [SERVER_FRAME_RATE_CRITICAL] ～ [SERVER_FRAME_RATE_WARNING]
+	</floater.string>
+	<floater.string name="server_frame_time_normal_msg">
+		ノーマル
+	</floater.string>
+	<floater.string name="server_physics_cause_msg">
+		考えられる原因: 物理的オブジェクトが多すぎる
+	</floater.string>
+	<floater.string name="server_scripts_cause_msg">
+		考えられる原因: スクリプトを含むオブジェクトが多すぎる
+	</floater.string>
+	<floater.string name="server_net_cause_msg">
+		考えられる原因: ネットワーク トラフィック過大
+	</floater.string>
+	<floater.string name="server_agent_cause_msg">
+		考えられる原因: 地域内にて動いているアバターが多すぎる
+	</floater.string>
+	<floater.string name="server_images_cause_msg">
+		考えられる原因: 画像計算が多すぎる
+	</floater.string>
+	<floater.string name="server_generic_cause_msg">
+		考えられる原因: シミュレーターの過負荷
+	</floater.string>
+	<floater.string name="smaller_label">
+		&gt;&gt;
+	</floater.string>
+	<floater.string name="bigger_label">
+		&lt;&lt;
+	</floater.string>
+	<button name="client_lagmeter" tool_tip="クライアント ラグ ステータス"/>
+	<text name="client">
+		クライアント
+	</text>
+	<text name="client_text">
+		ノーマル
+	</text>
+	<button name="network_lagmeter" tool_tip="ネットワーク ラグ ステータス"/>
+	<text name="network">
+		ネットワーク
+	</text>
+	<text name="network_text">
+		ノーマル
+	</text>
+	<button name="server_lagmeter" tool_tip="サーバー ラグ ステータス"/>
+	<text name="server">
+		サーバー
+	</text>
+	<text name="server_text">
+		ノーマル
+	</text>
+	<button label="&gt;&gt; " name="minimize" tool_tip="フローターのサイズをトグル"/>
+</floater>

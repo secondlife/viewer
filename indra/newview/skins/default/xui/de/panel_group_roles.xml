@@ -21,16 +21,18 @@ um mehrere Mitglieder auszuwählen.
 				<name_list.columns label="Mitglied" name="name" relative_width="0.30"/>
 				<name_list.columns label="Übereignung" name="donated" relative_width="0.33"/>
 				<name_list.columns label="Status" name="online"/>
+				<name_list.columns label="Titel" name="title"/>
 			</name_list>
 			<button label="Einladen" name="member_invite"/>
 			<button label="Hinauswerfen" name="member_eject"/>
+			<button label="Mitglied(er) verbannen" name="member_ban"/>
 		</panel>
 		<panel label="ROLLEN" name="roles_sub_tab">
 			<panel.string name="help_text">
 				Rollen haben einen Titel und umfassen bestimmte
-Fähigkeiten. Mitglieder können mehrere
-Rollen innehaben. Eine Gruppe kann bis zu 10 Rollen
-definieren, darunter  &apos;Jeder &apos; und  &apos;Eigentümer &apos;.
+        Fähigkeiten. Mitglieder können mehrere
+        Rollen innehaben. Eine Gruppe kann bis zu 10 Rollen
+        aufweisen, darunter „Jeder“ und „Eigentümer“.
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				Die Rollen „Jeder&quot; und „Eigentuemer&quot; sind besondere Rollen und können nicht gelöscht werden.
@@ -56,12 +58,27 @@ definieren, darunter  &apos;Jeder &apos; und  &apos;Eigentümer &apos;.
 		<panel label="FÄHIGKEITEN" name="actions_sub_tab" tool_tip="Sie können eine Beschreibung der Fähigkeit anzeigen und welche Rollen bzw. Mitglieder über diese Fähigkeit verfügen.">
 			<panel.string name="help_text">
 				Fähigkeiten verleihen Mitgliedern in Rollen bestimmte
-Rechte in einer Gruppe. Es gibt viele verschiedene Fähigkeiten.
+        Rechte in einer Gruppe. Es gibt viele verschiedene Fähigkeiten.
 			</panel.string>
 			<filter_editor label="Fähigkeiten filtern" name="filter_input"/>
 			<scroll_list name="action_list" tool_tip="Eine Fähigkeit auswählen, um mehr Details anzuzeigen.">
 				<scroll_list.columns label="" name="action"/>
 			</scroll_list>
+		</panel>
+		<panel label="VERBANNTE EINWOHNER" name="banlist_sub_tab" tool_tip="Verbannte Einwohner in dieser Gruppe anzeigen.">
+			<panel.string name="help_text">
+				Einwohner auf der Bannliste können nicht der Gruppe beitreten.
+			</panel.string>
+			<panel.string name="ban_count_template">
+				Anzahl Verbannungen: [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="Einwohner" name="name"/>
+				<name_list.columns label="Datum der Verbannung" name="ban_date"/>
+			</name_list>
+			<button label="Einwohner verbannen" name="ban_create" tool_tip="Einwohner Ihrer Gruppe verbannen"/>
+			<button label="Verbannung(en) entfernen" name="ban_delete" tool_tip="Verbannung für bestimmte Einwohner in Ihrer Gruppe aufheben"/>
+			<button name="ban_refresh" tool_tip="Bannliste aktualisieren"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">

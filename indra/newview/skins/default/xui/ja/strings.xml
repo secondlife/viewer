@@ -37,6 +37,44 @@
 	<string name="StartupRequireDriverUpdate">
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="AboutCompiler">
+		コンパイラー [COMPILER] [COMPILER_VERSION] バージョン
+	</string>
+	<string name="AboutPosition">
+		あなたの現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
+SLURL:&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(グローバル座標 [POSITION_0,number,1]、[POSITION_1,number,1]、[POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU：[CPU]
+メモリ：[MEMORY_MB] MB
+OS バージョン：[OS_VERSION]
+グラフィックカード製造元：[GRAPHICS_CARD_VENDOR]
+グラフィックカード:[GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Windows グラフィックドライババージョン：[GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		OpenGL バージョン：[OPENGL_VERSION]
+
+libcurl バージョン：[LIBCURL_VERSION]
+J2C デコーダバージョン：[J2C_VERSION]
+オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
+Qt Webkit バージョン：[QT_WEBKIT_VERSION]
+ボイスサーバーバージョン:[VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		パケットロス：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] （[PACKETS_PCT,number,1]%）
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		サーバーのリリースノートの URL を取得中にエラーが発生しました。
+	</string>
 	<string name="ProgressRestoring">
 		復元中です...
 	</string>
@@ -295,6 +333,75 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="TestingDisconnect">
 		ビューワの接続を切るテスト中
+	</string>
+	<string name="SocialFlickrConnecting">
+		Flickr に接続中...
+	</string>
+	<string name="SocialFlickrPosting">
+		投稿中...
+	</string>
+	<string name="SocialFlickrDisconnecting">
+		Flickr から切断中...
+	</string>
+	<string name="SocialFlickrErrorConnecting">
+		Flickr への接続時のエラー
+	</string>
+	<string name="SocialFlickrErrorPosting">
+		Flickr への投稿時のエラー
+	</string>
+	<string name="SocialFlickrErrorDisconnecting">
+		Flickr からの切断時のエラー
+	</string>
+	<string name="SocialTwitterConnecting">
+		Twitter に接続中...
+	</string>
+	<string name="SocialTwitterPosting">
+		投稿中...
+	</string>
+	<string name="SocialTwitterDisconnecting">
+		Twitter から切断中...
+	</string>
+	<string name="SocialTwitterErrorConnecting">
+		Twitter への接続時のエラー
+	</string>
+	<string name="SocialTwitterErrorPosting">
+		Twitter への投稿時のエラー
+	</string>
+	<string name="SocialTwitterErrorDisconnecting">
+		Twitter からの切断時のエラー
+	</string>
+	<string name="BlackAndWhite">
+		白黒
+	</string>
+	<string name="Colors1970">
+		1970 年代のカラー
+	</string>
+	<string name="Intense">
+		強調
+	</string>
+	<string name="Newspaper">
+		新聞紙
+	</string>
+	<string name="Sepia">
+		セピア
+	</string>
+	<string name="Spotlight">
+		スポットライト
+	</string>
+	<string name="Video">
+		ビデオ
+	</string>
+	<string name="Autocontrast">
+		オートコントラスト
+	</string>
+	<string name="LensFlare">
+		レンズフレア
+	</string>
+	<string name="Miniature">
+		ミニチュア
+	</string>
+	<string name="Toycamera">
+		おもちゃのカメラ
 	</string>
 	<string name="TooltipPerson">
 		人
@@ -847,6 +954,12 @@ support@secondlife.com にお問い合わせください。
 	<string name="use_texture">
 		テクスチャを使用
 	</string>
+	<string name="manip_hint1">
+		マウスカーソルをルーラに合わせて
+	</string>
+	<string name="manip_hint2">
+		グリッドにスナップ
+	</string>
 	<string name="texture_loading">
 		ローディング...
 	</string>
@@ -937,14 +1050,14 @@ support@secondlife.com にお問い合わせください。
 	<string name="ControlYourCamera">
 		カメラのコントロール
 	</string>
+	<string name="TeleportYourAgent">
+		あなたをテレポート
+	</string>
 	<string name="NotConnected">
 		接続されていません
 	</string>
 	<string name="AgentNameSubst">
 		(あなた)
-	</string>
-	<string name="TeleportYourAgent">
-		あなたをテレポート
 	</string>
 	<string name="JoinAnExperience">
 		体験に参加する
@@ -1270,8 +1383,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="InventoryInboxNoItems">
 		マーケットプレイスで購入した商品はここに表示されます。その後、アイテムをインベントリにドラッグすれば、それらのアイテムを使用できます。
 	</string>
-  <string name="Unconstrained">非拘束</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1300,6 +1412,18 @@ support@secondlife.com にお問い合わせください。
 	<string name="InventoryOutboxNoItems">
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		マーケットプレイスの初期化。
+	</string>
+	<string name="InventoryOutboxInitializing">
+		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] のアカウントにアクセスしています。
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		マーケットプレイス エラー。
+	</string>
+	<string name="InventoryOutboxError">
+		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] がエラーを返しています。
+	</string>
 	<string name="Marketplace Error None">
 		エラーなし
 	</string>
@@ -1326,6 +1450,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Open landmarks">
 		ランドマークを開く
+	</string>
+	<string name="Unconstrained">
+		非拘束
 	</string>
 	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
@@ -1726,6 +1853,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		ダウンロード完了、コンパイル中
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		スクリプト コンパイル サービスを利用できません
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		サーバー上にスクリプトが見つかりません。
@@ -4027,6 +4157,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="share_alert">
 		インベントリからここにアイテムをドラッグします
 	</string>
+	<string name="flickr_post_success">
+		Flickr に投稿しました。
+	</string>
+	<string name="twitter_post_success">
+		Twitter に投稿しました。
+	</string>
 	<string name="no_session_message">
 		（IM セッションが存在しません）
 	</string>
@@ -4483,6 +4619,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="LocalEstimateUSD">
 		US$ [AMOUNT]
 	</string>
+	<string name="Group Ban">
+		グループへの立入禁止
+	</string>
 	<string name="Membership">
 		会員
 	</string>
@@ -4905,6 +5044,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Destinations_Label">
 		行き先
 	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
+	</string>
+	<string name="Command_Flickr_Label">
+		Flickr
+	</string>
 	<string name="Command_Gestures_Label">
 		ジェスチャー
 	</string>
@@ -4953,6 +5098,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Speak_Label">
 		話す
 	</string>
+	<string name="Command_Twitter_Label">
+		Twitter
+	</string>
 	<string name="Command_View_Label">
 		カメラコントロール
 	</string>
@@ -4982,6 +5130,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		行ってみたい場所
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Facebook へ投稿
+	</string>
+	<string name="Command_Flickr_Tooltip">
+		Flickr にアップロード
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		アバターのジェスチャー
@@ -5030,6 +5184,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Speak_Tooltip">
 		マイクを使って近くの人と話す
+	</string>
+	<string name="Command_Twitter_Tooltip">
+		Twitter
 	</string>
 	<string name="Command_View_Tooltip">
 		カメラの角度を変更

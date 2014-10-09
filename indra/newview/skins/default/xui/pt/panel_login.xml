@@ -1,46 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=pt
 	</panel.string>
-	<layout_stack name="login_widgets">
-		<layout_panel name="login">
-			<text name="log_in_text">
-				LOGIN
-			</text>
-			<text name="username_text">
-				Nome de usuário:
-			</text>
-			<combo_box name="username_combo" tool_tip="O nome de usuário que você escolheu ao fazer seu cadastro, como zecazc12 or Magia Solar"/>
-			<text name="password_text">
-				Senha:
-			</text>
-		</layout_panel>
-		<layout_panel name="start_location_panel">
-			<text name="start_location_text">
-				Começar em:
-			</text>
-			<combo_box name="start_location_combo">
-				<combo_box.item label="Última posição" name="MyLastLocation"/>
-				<combo_box.item label="Minha casa" name="MyHome"/>
-				<combo_box.item label="&lt;Digite o nome da região&gt;" name="Typeregionname"/>
-			</combo_box>
-		</layout_panel>
-		<layout_panel name="links_login_panel">
-			<text name="login_help">
-				Precisa de ajuda com o login?
-			</text>
+	<layout_stack name="ui_stack">
+		<layout_panel name="ui_container">
+			<combo_box label="Nome de usuário" name="username_combo" tool_tip="O nome de usuário que você escolheu ao fazer seu cadastro, como zecazc12 ou Magia Solar"/>
+			<line_editor label="Senha" name="password_edit"/>
+			<check_box label="Lembrar-me" name="remember_check"/>
 			<text name="forgot_password_text">
-				Esqueceu seu nome ou senha?
+				Senha esquecida
 			</text>
 			<button label="Login" name="connect_btn"/>
-			<check_box label="Lembrar senha" name="remember_check"/>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_account_text">
-				CRIE SUA CONTA
+			<text name="At_My_Last_Location_Label">
+				no último local
 			</text>
-			<button label="Comece agora" name="create_new_account_btn"/>
+			<combo_box label="Meus locais favoritos" name="start_location_combo">
+				<combo_box.item label="Minha casa" name="MyHome"/>
+			</combo_box>
+			<button label="Login" name="connect_favorite_btn"/>
+			<line_editor label="Digite um local" name="location_edit"/>
+			<button label="Login" name="connect_location_btn"/>
+			<combo_box label="Selecionar grade" name="server_combo"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

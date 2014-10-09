@@ -256,6 +256,24 @@ BOOL LLFolderViewItem::passedFilter(S32 filter_generation)
 	return getViewModelItem()->passedFilter(filter_generation);
 }
 
+BOOL LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
+{
+	// Item should be visible if:
+	// 1. item passed current filter
+	// 2. item was updated (gen < 0) but has descendants that passed filter
+	// 3. item was recently updated and was visible before update
+
+	LLFolderViewModelItem* model = getViewModelItem();
+	if (model->getLastFilterGeneration() < 0 && !getFolderViewModel()->getFilter().isModified())
+	{
+		return model->descendantsPassedFilter(filter_generation) || getVisible();
+	}
+	else
+	{
+		return model->passedFilter(filter_generation);
+	}
+}
+
 void LLFolderViewItem::refresh()
 {
 	LLFolderViewModelItem& vmi = *getViewModelItem();
@@ -655,7 +673,7 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 	//
 	const S32 TOP_PAD = default_params.item_top_pad;
 
-	if (hasVisibleChildren() || getViewModelItem()->hasChildren())
+	if (hasVisibleChildren())
 	{
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
@@ -968,7 +986,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 	getRoot()->getFolderViewModel()->sort(this);
 
 	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
-
+	
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;
 	if (getViewModelItem()->descendantsPassedFilter())
@@ -979,7 +997,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 		for (items_t::iterator iit = mItems.begin(); iit != mItems.end(); ++iit)
 		{
 			LLFolderViewItem* itemp = (*iit);
-			found = itemp->passedFilter();
+			found = itemp->isPotentiallyVisible();
 			if (found)
 				break;
 		}
@@ -989,7 +1007,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			for (folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
-				found = folderp->passedFilter();
+				found = folderp->isPotentiallyVisible();
 				if (found)
 					break;
 			}
@@ -1022,7 +1040,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 			for(folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
 			{
 				LLFolderViewFolder* folderp = (*fit);
-				folderp->setVisible(folderp->passedFilter()); // passed filter or has descendants that passed filter
+				folderp->setVisible(folderp->isPotentiallyVisible());
 
 				if (folderp->getVisible())
 				{
@@ -1041,7 +1059,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 				iit != mItems.end(); ++iit)
 			{
 				LLFolderViewItem* itemp = (*iit);
-				itemp->setVisible(itemp->passedFilter());
+				itemp->setVisible(itemp->isPotentiallyVisible());
 
 				if (itemp->getVisible())
 				{

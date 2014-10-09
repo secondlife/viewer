@@ -36,6 +36,9 @@
 		<menu_item_check label="Chat in der Nähe..." name="Nearby Chat"/>
 		<menu_item_check label="Sprechen" name="Speak"/>
 		<menu_item_check label="Unterhaltungsprotokoll..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Voice-Morphing" name="VoiceMorphing">
 			<menu_item_check label="Kein Voice-Morphing" name="NoVoiceMorphing"/>
 			<menu_item_check label="Vorschau..." name="Preview"/>
@@ -72,11 +75,11 @@
 			<menu_item_check label="Menü „Erweitert“" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Sonne" name="Sun">
-			<menu_item_call label="Sonnenaufgang" name="Sunrise"/>
-			<menu_item_call label="Mittag" name="Noon"/>
-			<menu_item_call label="Sonnenuntergang" name="Sunset"/>
-			<menu_item_call label="Mitternacht" name="Midnight"/>
-			<menu_item_call label="Regionseinstellungen verwenden" name="Use Region Settings"/>
+			<menu_item_check label="Sonnenaufgang" name="Sunrise"/>
+			<menu_item_check label="Mittag" name="Noon"/>
+			<menu_item_check label="Sonnenuntergang" name="Sunset"/>
+			<menu_item_check label="Mitternacht" name="Midnight"/>
+			<menu_item_check label="Regionseinstellungen verwenden" name="Use Region Settings"/>
 		</menu>
 		<menu label="Umwelt-Editor" name="Environment Editor">
 			<menu_item_call label="Umwelt-Einstellungen..." name="Environment Settings"/>
@@ -150,7 +153,8 @@
 			<menu_item_check label="An Raster ausrichten" name="Snap to Grid"/>
 			<menu_item_call label="Objekt-XY an Raster ausrichten" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Auswahl für Raster verwenden" name="Use Selection for Grid"/>
-			<menu_item_call label="Rasteroptionen" name="Grid Options"/>
+			<menu_item_call label="Rasteroptionen..." name="Grid Options"/>
+			<menu_item_call label="Standard-Berechtigungen einstellen..." name="Set default permissions"/>
 		</menu>
 		<menu label="Hochladen" name="Upload">
 			<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
@@ -158,15 +162,12 @@
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modell..." name="Upload Model"/>
 			<menu_item_call label="Mehrfach-Upload ([COST] L$ pro Datei)..." name="Bulk Upload"/>
-			<menu_item_call label="Hochlade-Berechtigungen (Standard) festlegen" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Rückgängig" name="Undo"/>
 		<menu_item_call label="Wiederholen" name="Redo"/>
 	</menu>
 	<menu label="Hilfe" name="Help">
 		<menu_item_call label="Anweisungen..." name="How To"/>
-		<menu_item_call label="[SECOND_LIFE]-Hilfe" name="Second Life Help"/>
-		<menu_item_call label="Benutzerhandbuch" name="User’s guide"/>
 		<menu_item_call label="Knowledge Base" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Community-Foren" name="Community Forums"/>
@@ -188,6 +189,7 @@
 		<menu label="Performance Tools" name="Performance Tools">
 			<menu_item_call label="Lag-Anzeige" name="Lag Meter"/>
 			<menu_item_check label="Statistikleiste" name="Statistics Bar"/>
+			<menu_item_call label="Statistiken zum Laden von Szenen" name="Scene Load Statistics"/>
 			<menu_item_check label="Zuggewicht für Avatare anzeigen" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Hervorhebung und Sichtbarkeit" name="Highlighting and Visibility">
@@ -250,6 +252,7 @@
 			<menu_item_check label="Schnelle Timer" name="Fast Timers"/>
 			<menu_item_check label="Speicher" name="Memory"/>
 			<menu_item_check label="Szenestatistiken" name="Scene Statistics"/>
+			<menu_item_check label="Monitor zum Laden von Szenen" name="Scene Loading Monitor"/>
 			<menu_item_call label="Debug-Konsole für Texturabruffehler" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Info zu Region in Fenster Fehler beseitigen" name="Region Info to Debug Console"/>
 			<menu_item_call label="Gruppeninfo in Fenster Fehler beseitigen" name="Group Info to Debug Console"/>
@@ -286,6 +289,7 @@
 			<menu_item_check label="Periodic Slow Frame" name="Periodic Slow Frame"/>
 			<menu_item_check label="Frame-Test" name="Frame Test"/>
 			<menu_item_call label="Rahmenprofil" name="Frame Profile"/>
+			<menu_item_call label="Benchmark" name="Benchmark"/>
 		</menu>
 		<menu label="Metadaten darstellen" name="Render Metadata">
 			<menu_item_check label="Bonding Boxes" name="Bounding Boxes"/>
@@ -303,7 +307,9 @@
 			<menu_item_check label="Detailstufeninfos" name="LOD Info"/>
 			<menu_item_check label="Konstruktionswarteschlange" name="Build Queue"/>
 			<menu_item_check label="Lichter" name="Lights"/>
+			<menu_item_check label="Partikel" name="Particles"/>
 			<menu_item_check label="Gelenkpunkte" name="Collision Skeleton"/>
+			<menu_item_check label="Gelenke" name="Joints"/>
 			<menu_item_check label="Raycast" name="Raycast"/>
 			<menu_item_check label="Windvektoren" name="Wind Vectors"/>
 			<menu_item_check label="Komplexität beim Rendern" name="rendercomplexity"/>
@@ -336,6 +342,7 @@
 			<menu_item_check label="Angehängte Lichter rendern" name="Render Attached Lights"/>
 			<menu_item_check label="Angehängte Partikel rendern" name="Render Attached Particles"/>
 			<menu_item_check label="Leucht-Objekte schweben lassen" name="Hover Glow Objects"/>
+			<menu_item_call label="Cache sofort leeren" name="Cache Clear"/>
 		</menu>
 		<menu label="Netzwerk" name="Network">
 			<menu_item_check label="Agent pausieren" name="AgentPause"/>
@@ -368,7 +375,6 @@
 			<menu_item_call label="Fokus ausgeben" name="Dump Focus Holder"/>
 			<menu_item_call label="Ausgewählte Objektinfo drucken" name="Print Selected Object Info"/>
 			<menu_item_call label="Agent-Info drucken" name="Print Agent Info"/>
-			<menu_item_check label="Regions-Debug-Konsole" name="Region Debug Console"/>
 			<menu_item_check label="Fehler in SelectMgr beseitigen" name="Debug SelectMgr"/>
 			<menu_item_check label="Fehler in Klicks beseitigen" name="Debug Clicks"/>
 			<menu_item_check label="Debug-Ansichten" name="Debug Views"/>

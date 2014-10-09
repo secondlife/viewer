@@ -124,8 +124,6 @@
 #pragma warning (disable:4702)
 #endif
 
-
-
 extern void on_new_message(const LLSD& msg);
 
 //
@@ -3771,6 +3769,15 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 		}
 
+		// don't call notification for debug messages from not owned objects
+		if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+		{
+			if (gAgentID != chat.mOwnerID)
+			{
+				return;
+			}
+		}
+
 		LLSD msg_notify = LLSD(LLSD::emptyMap());
 		msg_notify["session_id"] = LLUUID();
         msg_notify["from_id"] = chat.mFromID;
@@ -6434,7 +6441,7 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 
 			std::string lookup_url=region->getCapability("ExperiencePreferences"); 
 			if(lookup_url.empty())
-	return false;
+				return false;
 			LLSD permission;
 			LLSD data;
 			permission["permission"]="Block";
@@ -6606,13 +6613,14 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			payload["object_name"] = object_name;
 			payload["owner_name"] = owner_name;
 
+			// check whether cautions are even enabled or not
 			const char* notification = "ScriptQuestion";
 
 			if(caution && gSavedSettings.getBOOL("PermissionsCautionEnabled"))
 			{
-					args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+				args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
 				notification = "ScriptQuestionCaution";
-				}
+			}
 			else if(experienceid.notNull())
 			{
 				payload["experience"]=experienceid;

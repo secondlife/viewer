@@ -73,9 +73,7 @@
 	<check_box label="Редактировать объединенные" name="checkbox edit linked parts"/>
 	<button label="Объединить" name="link_btn"/>
 	<button label="Разъединить" name="unlink_btn"/>
-	<text label="Растяжка обеих сторон" name="checkbox uniform label">
-		Растяжка обеих сторон
-	</text>
+	<check_box label="Растянуть с обеих сторон" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Растягивать текстуры" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Привязка" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Выберите тип линейки сетки для размещения объекта">
@@ -410,82 +408,7 @@
 			<spinner label="Плотность в 100 кг/м^3" name="Physics Density"/>
 			<spinner label="Восстанавливаемость" name="Physics Restitution"/>
 		</panel>
-		<panel label="Текстура" name="Texture">
-			<panel.string name="string repeats per meter">
-				Повторений на метр
-			</panel.string>
-			<panel.string name="string repeats per face">
-				Повторений на грань
-			</panel.string>
-			<texture_picker label="Текстура" name="texture control" tool_tip="Щелкните для выбора изображения"/>
-			<color_swatch label="Цвет" name="colorswatch" tool_tip="Щелкните для выбора цвета"/>
-			<text name="color trans">
-				Прозрачность %
-			</text>
-			<text name="glow label">
-				Свечение
-			</text>
-			<check_box label="Собств. яркость" name="checkbox fullbright"/>
-			<text name="tex gen">
-				Наложение
-			</text>
-			<combo_box name="combobox texgen">
-				<combo_box.item label="По умолчанию" name="Default"/>
-				<combo_box.item label="На плоскость" name="Planar"/>
-			</combo_box>
-			<text name="label shininess">
-				Блеск
-			</text>
-			<combo_box name="combobox shininess">
-				<combo_box.item label="Нет" name="None"/>
-				<combo_box.item label="Низко" name="Low"/>
-				<combo_box.item label="Средний" name="Medium"/>
-				<combo_box.item label="Высоко" name="High"/>
-			</combo_box>
-			<text name="label bumpiness">
-				Рельефность
-			</text>
-			<combo_box name="combobox bumpiness">
-				<combo_box.item label="Нет" name="None"/>
-				<combo_box.item label="Яркость" name="Brightness"/>
-				<combo_box.item label="По темному" name="Darkness"/>
-				<combo_box.item label="дерево" name="woodgrain"/>
-				<combo_box.item label="кора" name="bark"/>
-				<combo_box.item label="кирпич" name="bricks"/>
-				<combo_box.item label="шахматная доска" name="checker"/>
-				<combo_box.item label="бетон" name="concrete"/>
-				<combo_box.item label="старая плитка" name="crustytile"/>
-				<combo_box.item label="тесаный камень" name="cutstone"/>
-				<combo_box.item label="диски" name="discs"/>
-				<combo_box.item label="гравий" name="gravel"/>
-				<combo_box.item label="чашка Петри" name="petridish"/>
-				<combo_box.item label="сайдинг" name="siding"/>
-				<combo_box.item label="каменная плитка" name="stonetile"/>
-				<combo_box.item label="штукатурка" name="stucco"/>
-				<combo_box.item label="присоска" name="suction"/>
-				<combo_box.item label="переплетение" name="weave"/>
-			</combo_box>
-			<spinner label="По горизонтали (U)" name="TexScaleU"/>
-			<check_box label="Разворот" name="checkbox flip s"/>
-			<spinner label="По вертикали (V)" name="TexScaleV"/>
-			<check_box label="Разворот" name="checkbox flip t"/>
-			<spinner label="Вращение˚" name="TexRot"/>
-			<button label="Применить" label_selected="Применить" name="button apply"/>
-			<text name="tex offset">
-				Сдвиг текстуры
-			</text>
-			<spinner label="По горизонтали (U)" name="TexOffsetU"/>
-			<spinner label="По вертикали (V)" name="TexOffsetV"/>
-			<panel name="Add_Media">
-				<text name="media_tex">
-					Медиа
-				</text>
-				<button name="add_media" tool_tip="Добавить медиа"/>
-				<button name="delete_media" tool_tip="Удалить медиа-текстуру"/>
-				<button name="edit_media" tool_tip="Редактировать медиа"/>
-				<button label="Выровнять" label_selected="Выровнять медиа" name="button align" tool_tip="Масштабирование медиа-текстуры (сначала нужно загрузить)"/>
-			</panel>
-		</panel>
+		<panel label="Текстура" name="Texture"/>
 		<panel label="Контент" name="Contents">
 			<button label="Создать скрипт" label_selected="Создать скрипт" name="button new script"/>
 			<button label="Разрешения" name="button permissions"/>

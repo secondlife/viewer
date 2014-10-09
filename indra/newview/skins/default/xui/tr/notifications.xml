@@ -114,13 +114,13 @@ Daha fazla bilgi için bkz. [[MARKETPLACE_IMPORTS_URL] hata günlüğü].
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		Aktarım başarılamadı
+		Aktarım &apos;[ERROR_CODE]&apos; hatası nedeniyle başarısız oldu
 
 Bir sistem veya ağ hatası nedeniyle Pazaryerine hiçbir klasör gönderilemedi.  Daha sonra tekrar deneyin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		Pazaryeri başlatılamadı.
+		Pazaryeri başlatılması &apos;[ERROR_CODE]&apos; hatası nedeniyle başarısız oldu
 
 Bir sistem veya ağ hatası nedeniyle Pazaryeri başlatılamadı.  Daha sonra tekrar deneyin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
@@ -209,6 +209,22 @@ Bu Yetenek &apos;[ROLE_NAME]&apos; rolüne eklensin mi?
 
 Bu Yetenek &apos;[ROLE_NAME]&apos; rolüne eklensin mi?
 		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
+	</notification>
+	<notification name="AssignBanAbilityWarning">
+		&quot;[ROLE_NAME]&quot; rolüne &quot;[ACTION_NAME]&quot; yeteneğini eklemek üzeresiniz.
+
+ *UYARI*
+Bu Yeteneğe sahip bir Roldeki Üyeler &quot;[ACTION_NAME_2]&quot; ve &quot;[ACTION_NAME_3]&quot; yeteneklerine de sahip olacak.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		&quot;[ROLE_NAME]&quot; rolünden &quot;[ACTION_NAME]&quot; yeteneğini kaldırıyorsunuz.
+
+ *UYARI*
+Bu yeteneğin kaldırılması &quot;[ACTION_NAME_2]&quot; ve &quot;[ACTION_NAME_3]&quot; yeteneklerini kaldırmaz.
+ 
+Bu yeteneklerin artık bu rolde bulunmasını istemiyorsanız, onları hemen devre dışı bırakın!
+		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Gruptan [AVATAR_NAME] adlı üyeyi çıkarmak üzeresiniz.
@@ -1579,6 +1595,14 @@ Gruptan ayrılmak istiyor musunuz?
 		Gruptan ayrılınamıyor. Gruptan ayrılamazsınız çünkü grubun son sahibisiniz. Lütfen önce sahip rolüne başka bir üye atayın.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Gruptan ayrılma işlemi yapılamıyor: [reason].
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="GroupDepart">
+		[group_name] grubundan ayrıldınız.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Tüm Sakinleri GERÇEKTEN ağ dışına çıkarmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Tüm Sakinleri Çıkar"/>
@@ -1730,6 +1754,10 @@ Lütfen daha sonra tekrar deneyin.
 	<notification name="TeleportFromLandmark">
 		&lt;nolink&gt;[LOCATION]&lt;/nolink&gt; konumuna ışınlanmak istediğinize emin misiniz?
 		<usetemplate ignoretext="Bir yer imine ışınlanma istediğimde doğrulama iste" name="okcancelignore" notext="İptal Et" yestext="Işınla"/>
+	</notification>
+	<notification name="TeleportViaSLAPP">
+		&lt;nolink&gt;[LOCATION]&lt;/nolink&gt; konumuna ışınlanmak istediğinize emin misiniz?
+		<usetemplate ignoretext="SLAPP ile ışınlanma istediğimde doğrulama iste" name="okcancelignore" notext="İptal" yestext="Işınla"/>
 	</notification>
 	<notification name="TeleportToPick">
 		[PICK] konumuna ışınlanılsın mı?
@@ -1939,6 +1967,9 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 	</notification>
 	<notification name="ProblemAddingEstateManager">
 		Yeni bir gayrimenkul yöneticisi eklenirken problem oluştu. Bir veya birden fazla gayrimenkulün yönetici listesi dolu olabilir.
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		Gayri menkul sahibi ya da yöneticisi yasaklı listesine eklenemedi.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		Bu gayrimenkul listesine eklenirken problem oluştu. Bir veya birden fazla gayrimenkulün listesi dolu olabilir.
@@ -2451,6 +2482,12 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 		Lütfen arama yapmak için en az bir içerik türü seçin (Genel, Orta Seviye veya Yetişkin)
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -3027,9 +3064,9 @@ Ayrıntılar için günlük dosyasına bakın.
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-Paylaşmanın yapılacağı Sakinler:
+Paylaşmanın yapılacağı Second Life Sakinleri:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3041,7 +3078,7 @@ Aşağıdaki öğeleri paylaşmak istediğinize emin misiniz?
 
 Paylaşmanın yapılacağı Second Life Sakinleri:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3496,10 +3533,6 @@ Lütfen bir dakika sonra tekrar deneyin.
 	<notification name="EjectComingSoon">
 		Daha fazla burada olma izniniz yok ve ayrılmak için [EJECT_TIME] saniyeniz var.
 	</notification>
-	<notification name="NoEnterServerFull">
-		Bu bölgeye giremezsiniz çünkü 
-sunucu dolu.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Envantere Geri Kaydet devre dışı bırakıldı.
 	</notification>
@@ -3682,6 +3715,9 @@ sunucu dolu.
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		Nesne çok fazla fizik kaynağı kullanıyor -- dinamikleri devre dışı bırakıldı.
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		[SLURL] adresindeki &apos;[OBJECT_NAME]&apos; nesnesi gayri menkul yöneticilerini ana konuma ışınlayamıyor.
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		&apos;[PARCEL_NAME]&apos; parseli üzerindeki &apos;[OBJECT_NAME]&apos; nesnesi tarafından ana konuma ışınlandınız
@@ -3873,13 +3909,18 @@ sunucu dolu.
 		Seçimde birleştirilecek yeterli sayıda lease edilmiş parsel yok.
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		Arazi bölünemedi.\nBirden fazla parsel seçili durumda.\nDaha küçük bir arazi parçası seçmeyi deneyin.
+		Arazi bölünemiyor.
+Birden fazla parsel seçili.
+Daha küçük bir arazi parçası seçmeyi deneyin.
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		Arazi bölünemiyor.\nParsel bulunamıyor.\nLütfen Yardım -&gt; Hata Bildir ile bildirin...
+		Arazi bölünemiyor.
+Parsel bulunamıyor.
+Lütfen Yardım -&gt; Hata Bildir... sekmesinden hatayı bildirin
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		Arazi bölünemiyor. Tüm parsel seçilidir.\nDaha küçük bir arazi parçası seçmeyi deneyin.
+		Arazi bölünemiyor. Tüm parsel seçili.
+Daha küçük bir arazi parçası seçmeyi deneyin.
 	</notification>
 	<notification name="LandHasBeenDivided">
 		Arazi bölündü.
@@ -4018,5 +4059,13 @@ sunucu dolu.
 	<notification name="PreferenceChatPathChanged">
 		Dosyalar taşınamıyor. Önceki yol geri yüklendi.
 		<usetemplate ignoretext="Dosyalar taşınamıyor. Önceki yol geri yüklendi." name="okignore" yestext="Tamam"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Aşağıdaki nedenden dolayı, varsayılan izinler kaydedilirken bir sorun oluştu: [REASON].  Varsayılan izinleri ayarlamayı lütfen daha sonra tekrar deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		Sohbet geçmişi dosyası önceki işlemi gerçekleştirmekle meşgul. Lütfen bir kaç dakika sonra tekrar deneyin veya başka bir kişiyle sohbet etmeyi deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 </notifications>

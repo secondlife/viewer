@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="封鎖居民" name="bulk_ban_panel">
+	<panel.string name="loading">
+		（載入中...）
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		未送出群組禁入令：所選的居民人數太多。 群組禁入令每次以 100 人為上限。
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		群組禁入令未送出：你沒有「管理禁入清單」的能力。
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		群組禁入令未送出：你的群組已達允許禁入數目的上限。
+	</panel.string>
+	<panel.string name="partial_ban">
+		部分群組禁入令未送出：
+[REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		群組禁入令未送出：
+[REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- 以下居民之前已遭禁：[RESIDENTS]。
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- 已達禁入數目上限，以下用戶未能加禁：[RESIDENTS]。
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- 你不能把自己設為禁入群組。
+	</panel.string>
+	<text name="help_text">
+		你可以選擇把多位居民設為禁入群組。 點按「開啟居民選擇工具」開始選擇。
+	</text>
+	<button label="開啟居民選擇工具" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="按下 Ctrl 鍵同時點選居民的名字，即可選取多個人"/>
+	<button label="將所選的從名單移除" name="remove_button" tool_tip="將上面所選居民從禁入名單中移除"/>
+	<button label="封鎖居民" name="ban_button"/>
+	<button label="取消" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		對群組設禁
+	</string>
+</panel>

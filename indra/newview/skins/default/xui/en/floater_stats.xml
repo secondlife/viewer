@@ -59,10 +59,10 @@
           <stat_bar name="ktrissec"
                     label="KTris per Sec"
                     stat="trianglesdrawnstat"/>
-          <stat_bar name="objs"
+          <stat_bar name="totalobjs"
                     label="Total Objects"
                     stat="numobjectsstat"/>
-					<stat_bar name="objs"
+					<stat_bar name="cachedobjs"
                     label="Cached Objects"
                     stat="numactivecachedobjects"/>
 					<stat_bar name="newobjs"
@@ -267,7 +267,9 @@
                     stat="simsimskippedsilhouettesteps"
                     unit_label="/sec"/>
           <stat_bar name="simsimpctsteppedcharacters"
+          			label="Characters Updated"
                     stat="simsimpctsteppedcharacters"
+          			unit_label="%"
                     decimal_digits="1"/>
         </stat_view>
         <stat_bar name="siminpps"

@@ -36,6 +36,9 @@
 		<menu_item_check label="Bate-papo local..." name="Nearby Chat"/>
 		<menu_item_check label="Falar" name="Speak"/>
 		<menu_item_check label="Registro de conversas..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Distorção de voz" name="VoiceMorphing">
 			<menu_item_check label="Não distorcer voz" name="NoVoiceMorphing"/>
 			<menu_item_check label="Visualizar..." name="Preview"/>
@@ -72,11 +75,11 @@
 			<menu_item_check label="Menu avançado" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Sol" name="Sun">
-			<menu_item_call label="Amanhecer" name="Sunrise"/>
-			<menu_item_call label="Meio-dia" name="Noon"/>
-			<menu_item_call label="Pôr-do-sol" name="Sunset"/>
-			<menu_item_call label="Meia-noite" name="Midnight"/>
-			<menu_item_call label="Usar configurações da região" name="Use Region Settings"/>
+			<menu_item_check label="Amanhecer" name="Sunrise"/>
+			<menu_item_check label="Meio-dia" name="Noon"/>
+			<menu_item_check label="Pôr-do-sol" name="Sunset"/>
+			<menu_item_check label="Meia-noite" name="Midnight"/>
+			<menu_item_check label="Usar configurações da região" name="Use Region Settings"/>
 		</menu>
 		<menu label="Editor de ambientes" name="Environment Editor">
 			<menu_item_call label="Configurações do ambiente..." name="Environment Settings"/>
@@ -150,7 +153,8 @@
 			<menu_item_check label="Encaixar em grade" name="Snap to Grid"/>
 			<menu_item_call label="Encaixar objeto XY em grade" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Usar seleção em grade" name="Use Selection for Grid"/>
-			<menu_item_call label="Opções de grade" name="Grid Options"/>
+			<menu_item_call label="Opções de grade..." name="Grid Options"/>
+			<menu_item_call label="Definir permissões padrão..." name="Set default permissions"/>
 		</menu>
 		<menu label="Upload" name="Upload">
 			<menu_item_call label="Imagem (L$[COST])..." name="Upload Image"/>
@@ -158,15 +162,12 @@
 			<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Modelar..." name="Upload Model"/>
 			<menu_item_call label="Volume (L$[COST] por arquivo)..." name="Bulk Upload"/>
-			<menu_item_call label="Autorizações de upload padrão" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Desfazer" name="Undo"/>
 		<menu_item_call label="Repetir" name="Redo"/>
 	</menu>
 	<menu label="Ajuda" name="Help">
 		<menu_item_call label="Como..." name="How To"/>
-		<menu_item_call label="[SECOND_LIFE] Ajuda" name="Second Life Help"/>
-		<menu_item_call label="Guia do usuário" name="User’s guide"/>
 		<menu_item_call label="Base de conhecimento" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Fóruns da comunidade" name="Community Forums"/>
@@ -188,6 +189,7 @@
 		<menu label="Ferramentas de desempenho" name="Performance Tools">
 			<menu_item_call label="Medidor de lag" name="Lag Meter"/>
 			<menu_item_check label="Barra de estatísticas" name="Statistics Bar"/>
+			<menu_item_call label="Estatísticas de carregamento de cena" name="Scene Load Statistics"/>
 			<menu_item_check label="Mostrar peso do desenho para avatares" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Realces e visibilidade" name="Highlighting and Visibility">
@@ -249,6 +251,7 @@
 			<menu_item_check label="Tempos" name="Fast Timers"/>
 			<menu_item_check label="Memória" name="Memory"/>
 			<menu_item_check label="Estatísticas da cena" name="Scene Statistics"/>
+			<menu_item_check label="Monitor de carregamento de cena" name="Scene Loading Monitor"/>
 			<menu_item_call label="Painel de depuração de obtenção de textura" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
 			<menu_item_check label="Câmera:" name="Camera"/>
@@ -280,6 +283,7 @@
 			<menu_item_check label="Taxa de quadros aleatória" name="Randomize Framerate"/>
 			<menu_item_check label="Frame Test" name="Frame Test"/>
 			<menu_item_call label="Perfil do quadro" name="Frame Profile"/>
+			<menu_item_call label="Benchmark" name="Benchmark"/>
 		</menu>
 		<menu label="Render Metadata" name="Render Metadata">
 			<menu_item_check label="Normais" name="Normals"/>
@@ -287,6 +291,8 @@
 			<menu_item_check label="Tipo de atualização" name="Update Type"/>
 			<menu_item_check label="Dados LOD" name="LOD Info"/>
 			<menu_item_check label="Fila de construção" name="Build Queue"/>
+			<menu_item_check label="Partículas" name="Particles"/>
+			<menu_item_check label="Junções" name="Joints"/>
 			<menu_item_check label="Vetores de vento" name="Wind Vectors"/>
 			<menu_item_check label="Renderizar complexidade" name="rendercomplexity"/>
 			<menu_item_check label="Bytes do anexo" name="attachment bytes"/>
@@ -312,6 +318,7 @@
 			<menu_item_check label="Render Attached Lights" name="Render Attached Lights"/>
 			<menu_item_check label="Render Attached Particles" name="Render Attached Particles"/>
 			<menu_item_check label="Objetos iridescentes" name="Hover Glow Objects"/>
+			<menu_item_call label="Limpar cache imediatamente" name="Cache Clear"/>
 		</menu>
 		<menu label="Rede" name="Network">
 			<menu_item_check label="Pausar avatar" name="AgentPause"/>
@@ -327,7 +334,6 @@
 			<menu_item_call label="Teste de mídia do navegador" name="Web Browser Test"/>
 			<menu_item_call label="Navegador de conteúdo web" name="Web Content Browser"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
-			<menu_item_check label="Console de depuração de região" name="Region Debug Console"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
 		</menu>

@@ -1307,13 +1307,13 @@ void LLTextBase::replaceWithSuggestion(U32 index)
 		if ( (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
 		{
 			deselect();
-
-			// Delete the misspelled word
-			removeStringNoUndo(it->first, it->second - it->first);
-
 			// Insert the suggestion in its place
 			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
 			insertStringNoUndo(it->first, utf8str_to_wstring(mSuggestionList[index]));
+
+			// Delete the misspelled word
+			removeStringNoUndo(it->first + (S32)suggestion.length(), it->second - it->first);
+
 
 			setCursorPos(it->first + (S32)suggestion.length());
 
@@ -2381,7 +2381,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	// binary search for line that starts before local_y
 	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), doc_y, compare_bottom());
 
-	if (line_iter == mLineInfoList.end())
+	if (!mLineInfoList.size() || line_iter == mLineInfoList.end())
 	{
 		return getLength(); // past the end
 	}
@@ -2473,7 +2473,6 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 	// clamp pos to valid values
 	pos = llclamp(pos, 0, mLineInfoList.back().mDocIndexEnd - 1);
 
-	// find line that contains cursor
 	line_list_t::const_iterator line_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), pos, line_end_compare());
 
 	doc_rect.mLeft = line_iter->mRect.mLeft; 
@@ -2649,6 +2648,12 @@ void LLTextBase::changeLine( S32 delta )
         LLRect visible_region = getVisibleDocumentRect();
         S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel,
                                                        mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
+		S32 actual_line = getLineNumFromDocIndex(new_cursor_pos);
+		if (actual_line != new_line)
+		{
+			// line edge, correcting position by 1 to move onto proper line
+			new_cursor_pos += new_line - actual_line;
+		}
         setCursorPos(new_cursor_pos, true);
     }
 }

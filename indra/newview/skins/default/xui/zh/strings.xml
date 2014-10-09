@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		顯像初始化失敗。 請更新你的顯像卡驅動程式！
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
+	<string name="AboutCompiler">
+		以 [COMPILER_VERSION] 版本 [COMPILER] 建置
+	</string>
+	<string name="AboutPosition">
+		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+第二人生URL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+（全域坐標：[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]）
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU：[CPU]
+記憶體：[MEMORY_MB] MB
+作業系統版本：[OS_VERSION]
+顯示卡供應商：[GRAPHICS_CARD_VENDOR]
+顯示卡：[GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Windows 顯示驅動程式版本：[GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		OpenGL 版本：[OPENGL_VERSION]
+
+libcurl 版本： [LIBCURL_VERSION]
+J2C 解碼器版本： [J2C_VERSION]
+音效驅動程式版本： [AUDIO_DRIVER_VERSION]
+Qt Webkit 版本： [QT_WEBKIT_VERSION]
+語音伺服器版本： [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		封包丟失：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		擷取伺服器版本說明 URL 時出錯。
+	</string>
 	<string name="ProgressRestoring">
 		回存中...
 	</string>
@@ -290,6 +329,75 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="TestingDisconnect">
 		測試瀏覽器斷線
+	</string>
+	<string name="SocialFlickrConnecting">
+		連通 Flickr 中…
+	</string>
+	<string name="SocialFlickrPosting">
+		發佈中…
+	</string>
+	<string name="SocialFlickrDisconnecting">
+		Flickr 連通中斷中…
+	</string>
+	<string name="SocialFlickrErrorConnecting">
+		連通臉書時出問題
+	</string>
+	<string name="SocialFlickrErrorPosting">
+		發佈到 Flickr 時出問題
+	</string>
+	<string name="SocialFlickrErrorDisconnecting">
+		試圖中斷 Flickr 連通時出問題
+	</string>
+	<string name="SocialTwitterConnecting">
+		連通推特中…
+	</string>
+	<string name="SocialTwitterPosting">
+		發佈中…
+	</string>
+	<string name="SocialTwitterDisconnecting">
+		推特連通中斷中…
+	</string>
+	<string name="SocialTwitterErrorConnecting">
+		連通推特時出問題
+	</string>
+	<string name="SocialTwitterErrorPosting">
+		發佈到推特時出問題
+	</string>
+	<string name="SocialTwitterErrorDisconnecting">
+		試圖中斷推特連通時出問題
+	</string>
+	<string name="BlackAndWhite">
+		黑白
+	</string>
+	<string name="Colors1970">
+		1970年代色調
+	</string>
+	<string name="Intense">
+		強烈感
+	</string>
+	<string name="Newspaper">
+		黑白報紙
+	</string>
+	<string name="Sepia">
+		懷舊
+	</string>
+	<string name="Spotlight">
+		聚光焦點
+	</string>
+	<string name="Video">
+		舊影片
+	</string>
+	<string name="Autocontrast">
+		自動對比
+	</string>
+	<string name="LensFlare">
+		光暈
+	</string>
+	<string name="Miniature">
+		小模型移軸特效
+	</string>
+	<string name="Toycamera">
+		玩具相機
 	</string>
 	<string name="TooltipPerson">
 		人
@@ -839,6 +947,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="use_texture">
 		使用材質
 	</string>
+	<string name="manip_hint1">
+		把滑鼠游標移到量尺上
+	</string>
+	<string name="manip_hint2">
+		就可貼齊格線
+	</string>
 	<string name="texture_loading">
 		載入中...
 	</string>
@@ -929,14 +1043,14 @@ http://secondlife.com/viewer-access-faq
 	<string name="ControlYourCamera">
 		控制你的攝影機
 	</string>
+	<string name="TeleportYourAgent">
+		瞬間傳送你本人
+	</string>
 	<string name="NotConnected">
 		未聯接
 	</string>
 	<string name="AgentNameSubst">
 		（你）
-	</string>
-	<string name="TeleportYourAgent">
-		瞬間傳送你本人
 	</string>
 	<string name="JoinAnExperience">
 		加入體驗
@@ -1291,6 +1405,18 @@ http://secondlife.com/viewer-access-faq
 	<string name="InventoryOutboxNoItems">
 		將資料夾拖曳到這個區域，再點按「送往第二人生購物市集」，即可在[[MARKETPLACE_DASHBOARD_URL]第二人生購物市集]登列出售。
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		正在初始化購物市集。
+	</string>
+	<string name="InventoryOutboxInitializing">
+		我們正在求取你的[[MARKETPLACE_CREATE_STORE_URL] 購物市集商店]帳戶。
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		購物市集出錯。
+	</string>
+	<string name="InventoryOutboxError">
+		[[MARKETPLACE_CREATE_STORE_URL] 購物市集商店]正傳回錯誤。
+	</string>
 	<string name="Marketplace Error None">
 		零錯誤
 	</string>
@@ -1317,6 +1443,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Open landmarks">
 		開啟地標
+	</string>
+	<string name="Unconstrained">
+		不受限
 	</string>
 	<string name="no_transfer" value="（禁止轉讓）"/>
 	<string name="no_modify" value="（禁止修改）"/>
@@ -1717,6 +1846,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		已下載，正在編譯中
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		腳本編譯服務無法使用
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		伺服器上未發現腳本。
@@ -4018,6 +4150,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="share_alert">
 		將收納區物品拖曳到這裡
 	</string>
+	<string name="flickr_post_success">
+		成功發佈到 Flickr。
+	</string>
+	<string name="twitter_post_success">
+		已成功發佈到推特。
+	</string>
 	<string name="no_session_message">
 		（IM 會話不存在）
 	</string>
@@ -4474,6 +4612,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="LocalEstimateUSD">
 		$ [AMOUNT] 美元
 	</string>
+	<string name="Group Ban">
+		對群組設禁
+	</string>
 	<string name="Membership">
 		成員資格
 	</string>
@@ -4908,6 +5049,12 @@ http://secondlife.com/viewer-access-faq
 	<string name="Command_Destinations_Label">
 		目的地
 	</string>
+	<string name="Command_Facebook_Label">
+		臉書
+	</string>
+	<string name="Command_Flickr_Label">
+		Flickr
+	</string>
 	<string name="Command_Gestures_Label">
 		姿勢
 	</string>
@@ -4956,6 +5103,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="Command_Speak_Label">
 		說話
 	</string>
+	<string name="Command_Twitter_Label">
+		推特
+	</string>
 	<string name="Command_View_Label">
 		攝影機控制
 	</string>
@@ -4985,6 +5135,12 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		你可能感興趣的目的地
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		發佈到臉書
+	</string>
+	<string name="Command_Flickr_Tooltip">
+		上傳到 Flickr
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		你化身可用的姿勢
@@ -5033,6 +5189,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Command_Speak_Tooltip">
 		用麥克風和附近人們交談
+	</string>
+	<string name="Command_Twitter_Tooltip">
+		推特
 	</string>
 	<string name="Command_View_Tooltip">
 		調整攝影機角度

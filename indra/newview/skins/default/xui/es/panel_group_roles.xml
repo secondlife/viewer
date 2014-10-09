@@ -20,16 +20,18 @@ Seleccione varios nombres manteniendo pulsada la tecla Ctrl y pulsando en cada u
 				<name_list.columns label="Miembro" name="name"/>
 				<name_list.columns label="Donaciones" name="donated"/>
 				<name_list.columns label="Estatus" name="online"/>
+				<name_list.columns label="Cargo" name="title"/>
 			</name_list>
 			<button label="Invitar" name="member_invite"/>
 			<button label="Expulsar" name="member_eject"/>
+			<button label="Expulsar miembro(s)" name="member_ban"/>
 		</panel>
 		<panel label="ROLES" name="roles_sub_tab">
 			<panel.string name="help_text">
 				Los roles tienen una etiqueta propia y unas capacidades que se
-permiten ejercer a sus miembros. Los miembros pueden
-tener más de un rol. Un grupo puede tener hasta 10 roles,
-incluyendo el de Todos y el de Propietarios.
+        permiten ejercer a sus miembros. Los miembros pueden
+        tener más de un rol. Un grupo puede tener hasta 10 roles,
+        incluidos los roles Todos y Propietarios.
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				Los roles de &apos;Todos&apos; y &apos;Propietarios&apos; son especiales, y no pueden eliminarse.
@@ -48,13 +50,29 @@ incluyendo el de Todos y el de Propietarios.
 		</panel>
 		<panel height="148" label="CAPACIDADES" name="actions_sub_tab" tool_tip="Puedes ver una descripción de la capacidad y qué miembros y roles la tienen.">
 			<panel.string name="help_text">
-				Las capacidades permiten a los miembros que tienen ese rol el hacer tareas específicas dentro de este grupo. Hay una gran variedad de capacidades.
+				Las capacidades permiten a los miembros con roles hacer
+        cosas concretas en el grupo. Las hay de muchos tipos.
 			</panel.string>
 			<filter_editor label="Filtrar las capacidades" name="filter_input"/>
 			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Elige una capacidad para verla más en detalle">
 				<scroll_list.columns label="" name="icon"/>
 				<scroll_list.columns label="" name="action"/>
 			</scroll_list>
+		</panel>
+		<panel label="RESIDENTES EXPULSADOS" name="banlist_sub_tab" tool_tip="Muestra los residentes expulsados de este grupo.">
+			<panel.string name="help_text">
+				Los residentes que figuren en la lista de expulsados no podrán unirse al grupo.
+			</panel.string>
+			<panel.string name="ban_count_template">
+				Número de expulsados: [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="Residente" name="name"/>
+				<name_list.columns label="Fecha de expulsión" name="ban_date"/>
+			</name_list>
+			<button label="Expulsar residente(s)" name="ban_create" tool_tip="Expulsa residentes del grupo"/>
+			<button label="Anular expulsión" name="ban_delete" tool_tip="Readmite en el grupo a los residentes seleccionados"/>
+			<button name="ban_refresh" tool_tip="Actualiza la lista de expulsados"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">

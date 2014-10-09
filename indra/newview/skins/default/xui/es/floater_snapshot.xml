@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="VISTA PREVIA DE LA FOTO">
+<floater name="Snapshot" title="FOTO">
 	<floater.string name="unknown">
 		desconocido
 	</floater.string>
@@ -61,5 +61,11 @@
 		<check_box label="HUDs" name="hud_check"/>
 		<check_box label="Congelar la toma (pantalla completa)" name="freeze_frame_check"/>
 		<check_box label="Actualizar automáticamente" name="auto_snapshot_check"/>
+		<text name="filter_list_label">
+			Filtro:
+		</text>
+		<combo_box name="filters_combobox" tool_tip="Filtros de imagen">
+			<combo_box.item label="Sin filtro" name="NoFilter"/>
+		</combo_box>
 	</panel>
 </floater>

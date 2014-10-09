@@ -3369,11 +3369,11 @@ LLSD LLAppViewer::getViewerInfo() const
 	// TODO: Implement media plugin version query
 	info["QT_WEBKIT_VERSION"] = "4.7.1 (version number hard-coded)";
 
-	if (gPacketsIn > 0)
+	S32 packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+	if (packets_in > 0)
 	{
-		LLTrace::Recording& last_frame = LLTrace::get_frame_recording().getLastRecording();
-		info["PACKETS_LOST"] = last_frame.getSum(LLStatViewer::PACKETS_LOST);
-		info["PACKETS_IN"] = last_frame.getSum(LLStatViewer::PACKETS_IN);
+		info["PACKETS_LOST"] = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
+		info["PACKETS_IN"] = packets_in;
 		info["PACKETS_PCT"] = 100.f*info["PACKETS_LOST"].asReal() / info["PACKETS_IN"].asReal();
 	}
 

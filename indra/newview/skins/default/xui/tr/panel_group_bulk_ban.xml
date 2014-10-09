@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sakinleri Yasakla" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(yükleniyor...)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		Grup yasaklama talepleri gönderilmedi: çok fazla Sakin seçilmiş. Her talepte en fazla 100 kişiye grup giriş yasağı koyabilirsiniz.
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		Gruptan yasaklama talebi gönderilmedi: &quot;Yasaklı listesini yönetme&quot; yetkisine sahip değilsiniz.
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		Gruptan yasaklama talebi gönderilmedi: grubunuz izin verilen yasaklama limitine ulaştı.
+	</panel.string>
+	<panel.string name="partial_ban">
+		Gruptan yasaklama taleplerinin bazıları gönderilmedi:
+[REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		Gruptan yasaklama talepleri gönderilmedi:
+[REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- Aşağıdaki sakinler zaten yasaklı: [RESIDENTS].
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- Yasaklama limitine ulaşıldığı için aşağıdaki kişiler yasaklanmadı: [RESIDENTS].
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- Kendinizi bir grubun yasaklı listesine ekleyemezsiniz.
+	</panel.string>
+	<text name="help_text">
+		Birden fazla Sakin seçip grubunuza girişlerini yasaklayabilirsiniz. Başlamak için &quot;Sakin Seçiciyi Aç&quot; üzerine tıklayın.
+	</text>
+	<button label="Sakin Seçiciyi Aç" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="Ctrl tuşunu basılı tutun ve seçmek istediğiniz Sakinlerin adlarına tıklayın"/>
+	<button label="Seçilenleri Listeden Çıkar" name="remove_button" tool_tip="Yukarıda seçilen Sakinleri yasaklı listesinden çıkarır"/>
+	<button label="Sakinleri Yasakla" name="ban_button"/>
+	<button label="İptal" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		Gruptan Yasakla
+	</string>
+</panel>

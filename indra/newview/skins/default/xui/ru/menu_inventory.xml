@@ -70,6 +70,7 @@
 	<menu_item_call label="Воспроизвести" name="Sound Play"/>
 	<menu_item_call label="Копировать URL SL" name="url_copy"/>
 	<menu_item_call label="О закладке" name="About Landmark"/>
+	<menu_item_call label="Показать на карте" name="show_on_map"/>
 	<menu_item_call label="Проиграть для всех" name="Animation Play"/>
 	<menu_item_call label="Проиграть для себя" name="Animation Audition"/>
 	<menu_item_call label="Отправить IM-сообщение" name="Send Instant Message"/>

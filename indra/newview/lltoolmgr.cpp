@@ -34,6 +34,7 @@
 
 //#include "llfirstuse.h"
 // tools and manipulators
+#include "llfloaterinspect.h"
 #include "lltool.h"
 #include "llmanipscale.h"
 #include "llselectmgr.h"
@@ -218,7 +219,20 @@ LLTool* LLToolMgr::getCurrentTool()
 		}
 		if (cur_tool)
 		{
-			cur_tool->handleSelect();
+			if (	LLToolCompInspect::getInstance()->isToolCameraActive()
+				&&	prev_tool == LLToolCamera::getInstance()
+				&&	cur_tool == LLToolPie::getInstance() )
+			{
+				LLFloaterInspect * inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
+				if(inspect_instance && inspect_instance->getVisible())
+				{
+					setTransientTool(LLToolCompInspect::getInstance());
+				}
+			}
+			else
+			{
+				cur_tool->handleSelect();
+			}
 		}
 	}
 

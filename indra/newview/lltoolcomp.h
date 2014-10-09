@@ -62,7 +62,7 @@ public:
 	virtual BOOL			clipMouseWhenDown()								{ return mCur->clipMouseWhenDown(); }
 
 	virtual void			handleSelect();
-	virtual void			handleDeselect()								{ mCur->handleDeselect(); mCur = mDefault; mSelected = FALSE; }
+	virtual void			handleDeselect();
 
 	virtual void			render()										{ mCur->render(); }
 	virtual void			draw()											{ mCur->draw(); }
@@ -78,9 +78,10 @@ public:
 								{ mCur->localPointToScreen(local_x, local_y, screen_x, screen_y); }
 
 	BOOL					isSelecting();
+	LLTool*					getCurrentTool()								{ return mCur; }
+
 protected:
 	void					setCurrentTool( LLTool* new_tool );
-	LLTool*					getCurrentTool()								{ return mCur; }
 	// In hover handler, call this to auto-switch tools
 	void					setToolFromMask( MASK mask, LLTool *normal );
 
@@ -108,9 +109,18 @@ public:
 
 	// Overridden from LLToolComposite
     virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
     virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual BOOL		handleKey(KEY key, MASK mask);
+	virtual void		onMouseCaptureLost();
+			void		keyUp(KEY key, MASK mask);
 
 	static void pickCallback(const LLPickInfo& pick_info);
+
+	BOOL isToolCameraActive() const { return mIsToolCameraActive; }
+
+private:
+	BOOL mIsToolCameraActive;
 };
 
 //-----------------------------------------------------------------------

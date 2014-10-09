@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
+	</string>
+	<string name="AboutCompiler">
+		Compilé avec [COMPILER] version [COMPILER_VERSION]
+	</string>
+	<string name="AboutPosition">
+		Vous êtes à [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] dans [REGION], se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+SLURL : &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(coordonnées globales [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU : [CPU]
+Mémoire : [MEMORY_MB] Mo
+Version OS : [OS_VERSION]
+Distributeur de cartes graphiques : [GRAPHICS_CARD_VENDOR]
+Carte graphique : [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Version Windows Graphics Driver : [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		Version OpenGL : [OPENGL_VERSION]
+
+Version libcurl : [LIBCURL_VERSION]
+Version J2C Decoder : [J2C_VERSION]
+Version Audio Driver : [AUDIO_DRIVER_VERSION]
+Version Qt Webkit : [QT_WEBKIT_VERSION]
+Version serveur vocal : [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Paquets perdus : [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Erreur lors de la récupération de l&apos;URL des notes de version du serveur.
+	</string>
 	<string name="ProgressRestoring">
 		Restauration...
 	</string>
@@ -295,6 +334,75 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="TestingDisconnect">
 		Test de déconnexion du client
+	</string>
+	<string name="SocialFlickrConnecting">
+		Connexion à Flickr...
+	</string>
+	<string name="SocialFlickrPosting">
+		Publication…
+	</string>
+	<string name="SocialFlickrDisconnecting">
+		Déconnexion de Flickr...
+	</string>
+	<string name="SocialFlickrErrorConnecting">
+		Un problème est survenu lors de la connexion à Flickr.
+	</string>
+	<string name="SocialFlickrErrorPosting">
+		Un problème est survenu lors de la publication sur Flickr.
+	</string>
+	<string name="SocialFlickrErrorDisconnecting">
+		Un problème est survenu lors de la déconnexion de Flickr.
+	</string>
+	<string name="SocialTwitterConnecting">
+		Connexion à Twitter...
+	</string>
+	<string name="SocialTwitterPosting">
+		Publication…
+	</string>
+	<string name="SocialTwitterDisconnecting">
+		Déconnexion de Twitter...
+	</string>
+	<string name="SocialTwitterErrorConnecting">
+		Un problème est survenu lors de la connexion à Twitter.
+	</string>
+	<string name="SocialTwitterErrorPosting">
+		Un problème est survenu lors de la publication sur Twitter.
+	</string>
+	<string name="SocialTwitterErrorDisconnecting">
+		Un problème est survenu lors de la déconnexion de Twitter.
+	</string>
+	<string name="BlackAndWhite">
+		Noir et blanc
+	</string>
+	<string name="Colors1970">
+		Couleurs des années 1970
+	</string>
+	<string name="Intense">
+		Intense
+	</string>
+	<string name="Newspaper">
+		Presse
+	</string>
+	<string name="Sepia">
+		Sépia
+	</string>
+	<string name="Spotlight">
+		Projecteur
+	</string>
+	<string name="Video">
+		Vidéo
+	</string>
+	<string name="Autocontrast">
+		Contraste automatique
+	</string>
+	<string name="LensFlare">
+		Halo
+	</string>
+	<string name="Miniature">
+		Miniature
+	</string>
+	<string name="Toycamera">
+		Toy Camera
 	</string>
 	<string name="TooltipPerson">
 		Personne
@@ -847,6 +955,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="use_texture">
 		Utiliser la texture
 	</string>
+	<string name="manip_hint1">
+		Faites glisser le curseur sur l&apos;axe
+	</string>
+	<string name="manip_hint2">
+		pour le fixer sur la grille
+	</string>
 	<string name="texture_loading">
 		Chargement...
 	</string>
@@ -937,14 +1051,14 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="ControlYourCamera">
 		Contrôler votre caméra
 	</string>
+	<string name="TeleportYourAgent">
+		Vous téléporter
+	</string>
 	<string name="NotConnected">
 		Pas connecté(e)
 	</string>
 	<string name="AgentNameSubst">
 		(Vous)
-	</string>
-	<string name="TeleportYourAgent">
-		Vous téléporter
 	</string>
 	<string name="JoinAnExperience">
 		Rejoindre une expérience
@@ -1270,8 +1384,7 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryInboxNoItems">
 		Les achats que vous avez effectués sur la Place du marché s&apos;affichent ici. Vous pouvez alors les faire glisser vers votre inventaire afin de les utiliser.
 	</string>
-  <string name="Unconstrained">Sans contraintes</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1300,6 +1413,18 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryOutboxNoItems">
 		Pour mettre des dossiers en vente sur la [[MARKETPLACE_DASHBOARD_URL] Place du marché], faites-les glisser vers cette zone et cliquez sur &quot;Envoyer vers la Place du marché&quot;.
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Initialisation de la Place du marché...
+	</string>
+	<string name="InventoryOutboxInitializing">
+		Nous sommes en train d&apos;accéder à votre compte dans la [[MARKETPLACE_CREATE_STORE_URL] boutique de la Place du marché].
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Erreurs de la Place du marché.
+	</string>
+	<string name="InventoryOutboxError">
+		La [[MARKETPLACE_CREATE_STORE_URL] boutique de la Place du marché] renvoie des erreurs.
+	</string>
 	<string name="Marketplace Error None">
 		Aucune erreur
 	</string>
@@ -1326,6 +1451,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Open landmarks">
 		Ouvrir les repères
+	</string>
+	<string name="Unconstrained">
+		Sans contraintes
 	</string>
 	<string name="no_transfer" value=" (pas de transfert)"/>
 	<string name="no_modify" value=" (pas de modification)"/>
@@ -1726,6 +1854,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Téléchargé, compilation en cours
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		Service de compilation de script indisponible.
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		Script introuvable sur le serveur.
@@ -4027,6 +4158,12 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="share_alert">
 		Faire glisser les objets de l&apos;inventaire ici
 	</string>
+	<string name="flickr_post_success">
+		Vous avez publié sur Flickr.
+	</string>
+	<string name="twitter_post_success">
+		Vous avez publié sur Twitter.
+	</string>
 	<string name="no_session_message">
 		(Session IM inexistante)
 	</string>
@@ -4483,6 +4620,9 @@ du rapport d&apos;infraction
 	<string name="LocalEstimateUSD">
 		[AMOUNT] US$
 	</string>
+	<string name="Group Ban">
+		Bannissement de groupe
+	</string>
 	<string name="Membership">
 		Inscription
 	</string>
@@ -4905,6 +5045,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Command_Destinations_Label">
 		Destinations
 	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
+	</string>
+	<string name="Command_Flickr_Label">
+		Flickr
+	</string>
 	<string name="Command_Gestures_Label">
 		Gestes
 	</string>
@@ -4953,6 +5099,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Command_Speak_Label">
 		Parler
 	</string>
+	<string name="Command_Twitter_Label">
+		Twitter
+	</string>
 	<string name="Command_View_Label">
 		Caméra
 	</string>
@@ -4982,6 +5131,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Destinations intéressantes
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Publier sur Facebook
+	</string>
+	<string name="Command_Flickr_Tooltip">
+		Charger sur Flickr
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Gestes de votre avatar
@@ -5030,6 +5185,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Speak_Tooltip">
 		Parler aux personnes près de vous en utilisant votre micro
+	</string>
+	<string name="Command_Twitter_Tooltip">
+		Twitter
 	</string>
 	<string name="Command_View_Tooltip">
 		Changer l&apos;angle de la caméra

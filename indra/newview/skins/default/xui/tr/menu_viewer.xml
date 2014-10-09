@@ -34,6 +34,9 @@
 		<menu_item_check label="Yakındaki Sohbet..." name="Nearby Chat"/>
 		<menu_item_check label="Konuş" name="Speak"/>
 		<menu_item_check label="Sohbet Günlüğü..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Ses şekillendirme" name="VoiceMorphing">
 			<menu_item_check label="Ses şekillendirme yok" name="NoVoiceMorphing"/>
 			<menu_item_check label="Önizleme..." name="Preview"/>
@@ -70,11 +73,11 @@
 			<menu_item_check label="Gelişmiş Menü" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Güneş" name="Sun">
-			<menu_item_call label="Gün Doğumu" name="Sunrise"/>
-			<menu_item_call label="Gün Ortası" name="Noon"/>
-			<menu_item_call label="Gün Batımı" name="Sunset"/>
-			<menu_item_call label="Gece Yarısı" name="Midnight"/>
-			<menu_item_call label="Bölge Ayarlarını Kullan" name="Use Region Settings"/>
+			<menu_item_check label="Gün Doğumu" name="Sunrise"/>
+			<menu_item_check label="Gün Ortası" name="Noon"/>
+			<menu_item_check label="Gün Batımı" name="Sunset"/>
+			<menu_item_check label="Gece Yarısı" name="Midnight"/>
+			<menu_item_check label="Bölge Ayarlarını Kullan" name="Use Region Settings"/>
 		</menu>
 		<menu label="Ortam Düzenleyici" name="Environment Editor">
 			<menu_item_call label="Ortam Ayarları..." name="Environment Settings"/>
@@ -148,7 +151,8 @@
 			<menu_item_check label="Ağa Uydur" name="Snap to Grid"/>
 			<menu_item_call label="XY Nesnesini Ağa Uydur" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Ağ İçin Seçimi Kullan" name="Use Selection for Grid"/>
-			<menu_item_call label="Ağ Seçenekleri" name="Grid Options"/>
+			<menu_item_call label="Ağ Seçenekleri..." name="Grid Options"/>
+			<menu_item_call label="Varsayılan İzinleri Ayarla..." name="Set default permissions"/>
 		</menu>
 		<menu label="Karşıya Yükle" name="Upload">
 			<menu_item_call label="Görüntü (L$[COST])..." name="Upload Image"/>
@@ -156,15 +160,12 @@
 			<menu_item_call label="Animasyon (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Model..." name="Upload Model"/>
 			<menu_item_call label="Toplu (dosya başına L$[COST])..." name="Bulk Upload"/>
-			<menu_item_call label="Varsayılan Karşıya Yükleme İzinlerini Ayarla" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Geri Al" name="Undo"/>
 		<menu_item_call label="Yinele" name="Redo"/>
 	</menu>
 	<menu label="Yardım" name="Help">
 		<menu_item_call label="Nasıl yapılır..." name="How To"/>
-		<menu_item_call label="[SECOND_LIFE] Yardımı" name="Second Life Help"/>
-		<menu_item_call label="Kullanıcı kılavuzu" name="User’s guide"/>
 		<menu_item_call label="Bilgi Bankası" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="Topluluk Forumları" name="Community Forums"/>
@@ -186,6 +187,7 @@
 		<menu label="Performans Araçları" name="Performance Tools">
 			<menu_item_call label="Gecikme Ölçer" name="Lag Meter"/>
 			<menu_item_check label="İstatistik Çubuğu" name="Statistics Bar"/>
+			<menu_item_call label="Sahne Yükleme İstatistikleri" name="Scene Load Statistics"/>
 			<menu_item_check label="Avatarlar İçin Çizim Ağırlığını Göster" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Vurgulama ve Görünürlük" name="Highlighting and Visibility">
@@ -248,6 +250,7 @@
 			<menu_item_check label="Hızlı Zamanlayıcılar" name="Fast Timers"/>
 			<menu_item_check label="Bellek" name="Memory"/>
 			<menu_item_check label="Sahne İstatistikleri" name="Scene Statistics"/>
+			<menu_item_check label="Sahne Yükleme Ekranı" name="Scene Loading Monitor"/>
 			<menu_item_call label="Doku Alınması Hata Ayıklama Konsolu" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Bölge Bilgisi" name="Region Info to Debug Console"/>
 			<menu_item_call label="Hata Ayıklama Konsoluna giden Grup Bilgisi" name="Group Info to Debug Console"/>
@@ -284,6 +287,7 @@
 			<menu_item_check label="Düzenli Yavaş Çerçeve" name="Periodic Slow Frame"/>
 			<menu_item_check label="Çerçeve Testi" name="Frame Test"/>
 			<menu_item_call label="Çerçeve Profili..." name="Frame Profile"/>
+			<menu_item_call label="Değerlendirme" name="Benchmark"/>
 		</menu>
 		<menu label="Meta Verileri İşle" name="Render Metadata">
 			<menu_item_check label="Sınırlama Kutuları" name="Bounding Boxes"/>
@@ -301,7 +305,9 @@
 			<menu_item_check label="Ayrıntı Seviyesi Bilgisi" name="LOD Info"/>
 			<menu_item_check label="İnşa Kuyruğu" name="Build Queue"/>
 			<menu_item_check label="Işıklar" name="Lights"/>
+			<menu_item_check label="Parçacıklar" name="Particles"/>
 			<menu_item_check label="Çarpışma İskeleti" name="Collision Skeleton"/>
+			<menu_item_check label="Eklemler" name="Joints"/>
 			<menu_item_check label="Işın Yayını" name="Raycast"/>
 			<menu_item_check label="Rüzgar Vektörleri" name="Wind Vectors"/>
 			<menu_item_check label="İşleme Karmaşıklığı" name="rendercomplexity"/>
@@ -334,6 +340,7 @@
 			<menu_item_check label="Eklenmiş Işıkları İşle" name="Render Attached Lights"/>
 			<menu_item_check label="Eklenmiş Parçacıkları İşle" name="Render Attached Particles"/>
 			<menu_item_check label="Parıldayan Nesneler Üzerine Gel" name="Hover Glow Objects"/>
+			<menu_item_call label="Önbelleği Hemen Temizle" name="Cache Clear"/>
 		</menu>
 		<menu label="Ağ" name="Network">
 			<menu_item_check label="Aracıyı Durdur" name="AgentPause"/>
@@ -366,7 +373,6 @@
 			<menu_item_call label="Odaklayıcı Tutucunun Dökümünü Al" name="Dump Focus Holder"/>
 			<menu_item_call label="Seçilen Nesne Bilgisini Yazdır" name="Print Selected Object Info"/>
 			<menu_item_call label="Aracı Bilgisini Yazdır" name="Print Agent Info"/>
-			<menu_item_check label="Bölge Hata Ayıklama Konsolu" name="Region Debug Console"/>
 			<menu_item_check label="SelectMgr İçin Hata Ayıklama" name="Debug SelectMgr"/>
 			<menu_item_check label="Tıklamalar İçin Hata Ayıklama" name="Debug Clicks"/>
 			<menu_item_check label="Görünümler için Hata Ayıklama" name="Debug Views"/>

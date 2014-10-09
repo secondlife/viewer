@@ -117,6 +117,8 @@ public:
 	LLUUID 			getAssociatedExperience()const;
 	void            setAssociatedExperience( const LLUUID& experience_id );
 
+	void 			setScriptName(const std::string& name){mScriptName = name;};
+
 private:
 	void		onBtnHelp();
 	void		onBtnDynamicHelp();
@@ -141,6 +143,7 @@ protected:
 
 private:
 	std::string		mSampleText;
+	std::string		mScriptName;
 	LLScriptEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);

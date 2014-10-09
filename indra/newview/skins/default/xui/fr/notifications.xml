@@ -114,15 +114,15 @@ Pour plus d&apos;informations, consultez le [[MARKETPLACE_IMPORTS_URL] journal d
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		Échec de transfert
+		Échec du transfert avec l&apos;erreur « [ERROR_CODE] »
 
-Aucun dossier n&apos;a été envoyé vers la Place du marché en raison d&apos;une erreur système ou réseau. Veuillez réessayer ultérieurement.
+Aucun dossier n&apos;a été envoyé vers la Place du marché en raison d&apos;une erreur système ou réseau.  Réessayez ultérieurement.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		Échec d&apos;initialisation de la Place du marché
+		Échec de l&apos;initialisation de la Place du marché avec l&apos;erreur « [ERROR_CODE] »
 
-L&apos;initialisation de la Place du marché a échoué en raison d&apos;une erreur système ou réseau. Veuillez réessayer ultérieurement.
+L&apos;initialisation de la Place du marché a échoué en raison d&apos;une erreur système ou réseau.  Réessayez ultérieurement.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
@@ -208,6 +208,22 @@ Ajouter ce pouvoir à « [ROLE_NAME] » ?
 
 Ajouter ce pouvoir à « [ROLE_NAME] » ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
+	</notification>
+	<notification name="AssignBanAbilityWarning">
+		Vous êtes sur le point d&apos;ajouter le pouvoir « [ACTION_NAME] » au rôle « [ROLE_NAME] ».
+
+ *AVERTISSEMENT*
+Tout membre ayant un rôle doté de ce pouvoir disposera aussi des pouvoirs « [ACTION_NAME_2] » et « [ACTION_NAME_3] ».
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		Vous êtes sur le point de supprimer le pouvoir « [ACTION_NAME] » du rôle « [ROLE_NAME] ».
+
+ *AVERTISSEMENT*
+En supprimant ce pouvoir, vous ne supprimez PAS les pouvoirs « [ACTION_NAME_2] » et « [ACTION_NAME_3] ».
+ 
+Si vous ne voulez plus que ce rôle dispose de ces pouvoirs, désactivez-les immédiatement.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Vous allez expulser [AVATAR_NAME] du groupe.
@@ -1576,6 +1592,14 @@ Quitter le groupe ?
 		Impossible de quitter le groupe. Vous ne pouvez pas quitter le groupe car vous en êtes le dernier propriétaire. Vous devez d&apos;abord affecter le rôle de propriétaire à un autre membre.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Impossible de quitter le groupe : [reason].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		Vous avez quitté le groupe [group_name].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Souhaitez-vous vraiment éjecter tous les résidents de la grille ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Éjecter tous les résidents"/>
@@ -1728,6 +1752,10 @@ or ce nombre dépasse la limite autorisée fixée à [LIMIT].
 	<notification name="TeleportFromLandmark">
 		Souhaitez-vous vraiment vous téléporter vers &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; ?
 		<usetemplate ignoretext="Confirmer que je veux me téléporter à un repère" name="okcancelignore" notext="Annuler" yestext="Téléporter"/>
+	</notification>
+	<notification name="TeleportViaSLAPP">
+		Voulez-vous vraiment vous téléporter jusqu&apos;à &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; ?
+		<usetemplate ignoretext="Confirmer que je veux me téléporter en utilisant SLAPP" name="okcancelignore" notext="Annuler" yestext="Téléporter"/>
 	</notification>
 	<notification name="TeleportToPick">
 		Vous téléporter vers [PICK] ?
@@ -1938,6 +1966,9 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 	</notification>
 	<notification name="ProblemAddingEstateManager">
 		Problèmes lors de l&apos;ajout d&apos;un nouveau gérant de domaine. Il est possible qu&apos;au moins un des domaines ait une liste de gérants complète.
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		Impossible d&apos;ajouter le propriétaire ou le gérant du domaine à la liste des résidents bannis.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		Problème lors de l&apos;ajout à la liste de ce domaine. Il est possible qu&apos;au moins un des domaines ait une liste complète.
@@ -2451,6 +2482,12 @@ Veuillez sélectionner un terrain plus petit.
 		Veuillez sélectionner au moins un type de contenu à rechercher (Général, Modéré ou Adulte)
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -3029,7 +3066,7 @@ Voir le fichier journal pour plus de détails.
 
 avec les résidents suivants :
 
-[RESIDENTS] ?
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3041,7 +3078,7 @@ Voulez-vous vraiment partager les articles suivants :
 
 avec les résidents suivants :
 
-[RESIDENTS] ?
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Ok"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3496,10 +3533,6 @@ Veuillez réessayer dans une minute.
 	<notification name="EjectComingSoon">
 		Votre présence ici n&apos;est plus autorisée et vous disposez de [EJECT_TIME] secondes pour partir.
 	</notification>
-	<notification name="NoEnterServerFull">
-		Vous ne pouvez pas pénétrer dans cette région car 
-le serveur est plein.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Le réenregistrement dans l&apos;inventaire a été désactivé.
 	</notification>
@@ -3688,6 +3721,9 @@ le serveur est plein.
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		Cet objet utilise trop de ressources physiques - sa dynamique a été désactivée.
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		L&apos;objet « [OBJECT_NAME] » à [SLURL] ne peut pas téléporter les gérants de domaines chez eux.
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		Vous avez été téléporté chez vous par l&apos;objet [OBJECT_NAME] sur la parcelle [PARCEL_NAME].
@@ -3879,13 +3915,18 @@ le serveur est plein.
 		Pas suffisamment de parcelles louées dans la sélection pour effectuer la fusion.
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		Division du terrain impossible.\nPlusieurs parcelles sont sélectionnées.\nVeuillez sélectionner un terrain plus petit.
+		Division du terrain impossible.
+Plusieurs parcelles sont sélectionnées.
+Veuillez sélectionner un terrain plus petit.
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		Division du terrain impossible.\nParcelle introuvable.\nSignalez-le en allant à Aide -&gt; Signaler un bug...
+		Division du terrain impossible.
+Parcelle introuvable.
+Veuillez utiliser Aide &gt; Signaler un bug pour signaler le problème...
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		Division du terrain impossible. Toute la parcelle est sélectionnée.\nVeuillez sélectionner un terrain plus petit.
+		Division du terrain impossible. La parcelle entière est sélectionnée.
+Veuillez sélectionner un terrain plus petit.
 	</notification>
 	<notification name="LandHasBeenDivided">
 		Le terrain a été divisé.
@@ -4024,5 +4065,13 @@ le serveur est plein.
 	<notification name="PreferenceChatPathChanged">
 		Impossible de déplacer les fichiers. Chemin précédent rétabli.
 		<usetemplate ignoretext="Impossible de déplacer les fichiers. Chemin précédent rétabli." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Une erreur est survenue lors de l&apos;enregistrement des droits par défaut, suite au problème suivant : [REASON].  Réessayez de définir les droits par défaut ultérieurement.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		Le fichier d&apos;historique des chats est occupé à traiter l&apos;opération précédente. Réessayez dans quelques minutes ou choisissez une autre personne pour le chat.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>
