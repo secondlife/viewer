@@ -297,8 +297,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	username_combo->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 }
 
-		mUsernameLength = iter->first.length();
-		updateLoginButtons();
 void LLPanelLogin::addFavoritesToStartLocation()
 {
 	// Clear the combo.
