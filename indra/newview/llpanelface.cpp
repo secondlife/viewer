@@ -242,6 +242,8 @@ BOOL	LLPanelFace::postBuild()
 	if(mShinyColorSwatch)
 	{
 		mShinyColorSwatch->setCommitCallback(boost::bind(&LLPanelFace::onCommitShinyColor, this, _2));
+		mShinyColorSwatch->setOnCancelCallback(boost::bind(&LLPanelFace::onCancelShinyColor, this, _2));
+		mShinyColorSwatch->setOnSelectCallback(boost::bind(&LLPanelFace::onSelectShinyColor, this, _2));
 		mShinyColorSwatch->setFollowsTop();
 		mShinyColorSwatch->setFollowsLeft();
 		mShinyColorSwatch->setCanApplyImmediately(TRUE);
@@ -1463,10 +1465,21 @@ void LLPanelFace::onCancelColor(const LLSD& data)
 	LLSelectMgr::getInstance()->selectionRevertColors();
 }
 
+void LLPanelFace::onCancelShinyColor(const LLSD& data)
+{
+	LLSelectMgr::getInstance()->selectionRevertShinyColors();
+}
+
 void LLPanelFace::onSelectColor(const LLSD& data)
 {
 	LLSelectMgr::getInstance()->saveSelectedObjectColors();
 	sendColor();
+}
+
+void LLPanelFace::onSelectShinyColor(const LLSD& data)
+{
+	LLSelectedTEMaterial::setSpecularLightColor(this, getChild<LLColorSwatchCtrl>("shinycolorswatch")->get());
+	LLSelectMgr::getInstance()->saveSelectedShinyColors();
 }
 
 // static
