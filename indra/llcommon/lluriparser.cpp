@@ -175,9 +175,16 @@ S32 LLUriParser::normalize()
 				if (!mRes)
 				{
 					mNormalizedUri = &label_buf[mTmpScheme ? 7 : 0];
+					mTmpScheme = false;
 				}
 			}
 		}
+	}
+
+	if(mTmpScheme)
+	{
+		mNormalizedUri = mNormalizedUri.substr(7);
+		mTmpScheme = false;
 	}
 
 	return mRes;
