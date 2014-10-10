@@ -254,8 +254,9 @@ bool HttpStatus::isRetryable() const
 			*this == op_timedout ||		// Timer expired
 			*this == post_error ||		// Transport problem
 			*this == partial_file ||	// Data inconsistency in response
-			*this == inv_cont_range ||	// Short data read disagrees with content-range
-			*this == inv_status);		// Inv status can reflect internal state problem in libcurl
+			// *DEBUG:  Comment out 'inv_status' test for [curl:bugs] #1420 testing.
+			*this == inv_status ||		// Inv status can reflect internal state problem in libcurl
+			*this == inv_cont_range);	// Short data read disagrees with content-range
 }
 
 } // end namespace LLCore

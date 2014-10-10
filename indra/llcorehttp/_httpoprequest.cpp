@@ -626,8 +626,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// *TODO:  Find a better scheme than timeouts to guarantee liveness.
 		xfer_timeout *= cpolicy.mPipelining;
 	}
-	// *DEBUG:  Useful for timeout handling and "[curl:bugs] #1420" tests
-	// xfer_timeout = 3L;
+	// *DEBUG:  Enable following override for timeout handling and "[curl:bugs] #1420" tests
+	// xfer_timeout = 1L;
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
 	check_curl_easy_code(code, CURLOPT_TIMEOUT);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
