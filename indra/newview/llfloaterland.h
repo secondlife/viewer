@@ -309,6 +309,85 @@ protected:
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };
 
+
+class LLPanelLandOptions
+:	public LLPanel
+{
+public:
+	LLPanelLandOptions(LLSafeHandle<LLParcelSelection>& parcelp);
+	virtual ~LLPanelLandOptions();
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
+	/*virtual*/ void refresh();
+
+private:
+	// Refresh the "show in search" checkbox and category selector.
+	void refreshSearch();
+
+	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
+	static void onClickSet(void* userdata);
+	static void onClickClear(void* userdata);
+
+private:
+	LLCheckBoxCtrl*	mCheckEditObjects;
+	LLCheckBoxCtrl*	mCheckEditGroupObjects;
+	LLCheckBoxCtrl*	mCheckAllObjectEntry;
+	LLCheckBoxCtrl*	mCheckGroupObjectEntry;
+	LLCheckBoxCtrl*	mCheckSafe;
+	LLCheckBoxCtrl*	mCheckFly;
+	LLCheckBoxCtrl*	mCheckGroupScripts;
+	LLCheckBoxCtrl*	mCheckOtherScripts;
+
+	LLCheckBoxCtrl*	mCheckShowDirectory;
+	LLComboBox*		mCategoryCombo;
+	LLComboBox*		mLandingTypeCombo;
+
+	LLTextureCtrl*	mSnapshotCtrl;
+
+	LLTextBox*		mLocationText;
+	LLButton*		mSetBtn;
+	LLButton*		mClearBtn;
+
+	LLCheckBoxCtrl		*mMatureCtrl;
+	LLCheckBoxCtrl		*mPushRestrictionCtrl;
+	LLCheckBoxCtrl		*mSeeAvatarsCtrl;
+
+	LLSafeHandle<LLParcelSelection>&	mParcel;
+};
+
+
+class LLPanelLandAccess
+:	public LLPanel
+{
+public:
+	LLPanelLandAccess(LLSafeHandle<LLParcelSelection>& parcelp);
+	virtual ~LLPanelLandAccess();
+	void refresh();
+	void refresh_ui();
+	void refreshNames();
+	virtual void draw();
+
+	static void onCommitPublicAccess(LLUICtrl* ctrl, void *userdata);
+	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
+	static void onCommitGroupCheck(LLUICtrl* ctrl, void *userdata);
+	static void onClickRemoveAccess(void*);
+	static void onClickRemoveBanned(void*);
+
+	virtual BOOL postBuild();
+	
+	void onClickAddAccess();
+	void onClickAddBanned();
+	void callbackAvatarCBBanned(const uuid_vec_t& ids);
+	void callbackAvatarCBAccess(const uuid_vec_t& ids);
+
+protected:
+	LLNameListCtrl*		mListAccess;
+	LLNameListCtrl*		mListBanned;
+
+	LLSafeHandle<LLParcelSelection>&	mParcel;
+};
+
+
 class LLPanelLandCovenant
 :	public LLPanel
 {

@@ -113,6 +113,28 @@ public:
 	}
 };
 
+
+class LLPanelLandExperiences
+	:	public LLPanel
+{
+public:	
+	LLPanelLandExperiences(LLSafeHandle<LLParcelSelection>& parcelp);
+	virtual BOOL postBuild();
+	void refresh();
+
+	void experienceAdded(const LLUUID& id, U32 xp_type, U32 access_type);
+	void experienceRemoved(const LLUUID& id, U32 access_type);
+protected:
+	LLPanelExperienceListEditor* setupList( const char* control_name, U32 xp_type, U32 access_type );
+	void refreshPanel(LLPanelExperienceListEditor* panel, U32 xp_type);
+
+	LLSafeHandle<LLParcelSelection>&	mParcel;
+
+
+	LLPanelExperienceListEditor* mAllowed;
+	LLPanelExperienceListEditor* mBlocked;
+};
+
 // inserts maturity info(icon and text) into target textbox 
 // names_floater - pointer to floater which contains strings with maturity icons filenames
 // str_to_parse is string in format "txt1[MATURITY]txt2" where maturity icon and text will be inserted instead of [MATURITY]
@@ -251,6 +273,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_audio_panel"] =	LLCallbackMap(createPanelLandAudio, this);
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
+	mFactoryMap["land_experiences_panel"] =	LLCallbackMap(createPanelLandExperiences, this);
 
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
@@ -350,6 +373,15 @@ void* LLFloaterLand::createPanelLandAccess(void* data)
 	self->mPanelAccess = new LLPanelLandAccess(self->mParcel);
 	return self->mPanelAccess;
 }
+
+// static
+void* LLFloaterLand::createPanelLandExperiences(void* data)
+{
+	LLFloaterLand* self = (LLFloaterLand*)data;
+	self->mPanelExperiences = new LLPanelLandExperiences(self->mParcel);
+	return self->mPanelExperiences;
+}
+
 
 //---------------------------------------------------------------------------
 // LLPanelLandGeneral
@@ -2406,7 +2438,7 @@ void LLPanelLandAccess::refresh()
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
-			for (access_map_const_iterator cit = parcel->mAccessList.begin();
+			for (LLAccessEntry::map::const_iterator cit = parcel->mAccessList.begin();
 				 cit != parcel->mAccessList.end(); ++cit)
 			{
 				const LLAccessEntry& entry = (*cit).second;
@@ -2452,7 +2484,7 @@ void LLPanelLandAccess::refresh()
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
-			for (access_map_const_iterator cit = parcel->mBanList.begin();
+			for (LLAccessEntry::map::const_iterator cit = parcel->mBanList.begin();
 				 cit != parcel->mBanList.end(); ++cit)
 			{
 				const LLAccessEntry& entry = (*cit).second;
@@ -3042,27 +3074,6 @@ void insert_maturity_into_textbox(LLTextBox* target_textbox, LLFloater* names_fl
 	target_textbox->appendText(text_after_rating, false);
 }
 
-class LLPanelLandExperiences
-	:	public LLPanel
-{
-public:	
-	LLPanelLandExperiences(LLSafeHandle<LLParcelSelection>& parcelp);
-	virtual BOOL postBuild();
-	void refresh();
-
-	void experienceAdded(const LLUUID& id, U32 xp_type, U32 access_type);
-	void experienceRemoved(const LLUUID& id, U32 access_type);
-protected:
-	LLPanelExperienceListEditor* setupList( const char* control_name, U32 xp_type, U32 access_type );
-	void refreshPanel(LLPanelExperienceListEditor* panel, U32 xp_type);
-
-	LLSafeHandle<LLParcelSelection>&	mParcel;
-	
-
-	LLPanelExperienceListEditor* mAllowed;
-	LLPanelExperienceListEditor* mBlocked;
-};
-
 LLPanelLandExperiences::LLPanelLandExperiences( LLSafeHandle<LLParcelSelection>& parcelp ) 
 	: mParcel(parcelp)
 {
@@ -3161,200 +3172,4 @@ void LLPanelLandExperiences::refresh()
 {
 	refreshPanel(mAllowed, EXPERIENCE_KEY_TYPE_ALLOWED);
 	refreshPanel(mBlocked, EXPERIENCE_KEY_TYPE_BLOCKED);
-}
-
-LLParcel* LLFloaterLand::getCurrentSelectedParcel()
-{
-	return mParcel->getParcel();
-};
-
-//static
-LLPanelLandObjects* LLFloaterLand::getCurrentPanelLandObjects()
-{
-	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
-	if(land_instance)
-	{
-		return land_instance->mPanelObjects;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-//static
-LLPanelLandCovenant* LLFloaterLand::getCurrentPanelLandCovenant()
-{
-	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
-	if(land_instance)
-	{
-		return land_instance->mPanelCovenant;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-// static
-void LLFloaterLand::refreshAll()
-{
-	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
-	if(land_instance)
-	{
-		land_instance->refresh();
-	}
-}
-
-void LLFloaterLand::onOpen(const LLSD& key)
-{
-	// moved from triggering show instance in llviwermenu.cpp
-	
-	if (LLViewerParcelMgr::getInstance()->selectionEmpty())
-	{
-		LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
-	}
-	
-	// Done automatically when the selected parcel's properties arrive
-	// (and hence we have the local id).
-	// LLViewerParcelMgr::getInstance()->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
-
-	mParcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
-	
-	// Refresh even if not over a region so we don't get an
-	// uninitialized dialog. The dialog is 0-region aware.
-	refresh();
-}
-
-void LLFloaterLand::onVisibilityChanged(const LLSD& visible)
-{
-	if (!visible.asBoolean())
-	{
-		// Might have been showing owned objects
-		LLSelectMgr::getInstance()->unhighlightAll();
-
-		// Save which panel we had open
-		sLastTab = mTabLand->getCurrentPanelIndex();
-	}
-}
-
-
-LLFloaterLand::LLFloaterLand(const LLSD& seed)
-:	LLFloater(seed)
-{
-	mFactoryMap["land_general_panel"] = LLCallbackMap(createPanelLandGeneral, this);
-	mFactoryMap["land_covenant_panel"] = LLCallbackMap(createPanelLandCovenant, this);
-	mFactoryMap["land_objects_panel"] = LLCallbackMap(createPanelLandObjects, this);
-	mFactoryMap["land_options_panel"] = LLCallbackMap(createPanelLandOptions, this);
-	mFactoryMap["land_audio_panel"] =	LLCallbackMap(createPanelLandAudio, this);
-	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
-	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
-	mFactoryMap["land_experiences_panel"] = LLCallbackMap(createPanelLandExperiences, this);
-
-	sObserver = new LLParcelSelectionObserver();
-	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
-}
-
-BOOL LLFloaterLand::postBuild()
-{	
-	setVisibleCallback(boost::bind(&LLFloaterLand::onVisibilityChanged, this, _2));
-	
-	LLTabContainer* tab = getChild<LLTabContainer>("landtab");
-
-	mTabLand = (LLTabContainer*) tab;
-
-	if (tab)
-	{
-		tab->selectTab(sLastTab);
-	}
-
-	return TRUE;
-}
-
-
-// virtual
-LLFloaterLand::~LLFloaterLand()
-{
-	LLViewerParcelMgr::getInstance()->removeObserver( sObserver );
-	delete sObserver;
-	sObserver = NULL;
-}
-
-// public
-void LLFloaterLand::refresh()
-{
-	mPanelGeneral->refresh();
-	mPanelObjects->refresh();
-	mPanelOptions->refresh();
-	mPanelAudio->refresh();
-	mPanelMedia->refresh();
-	mPanelAccess->refresh();
-	mPanelCovenant->refresh();
-	mPanelExperiences->refresh();
-}
-
-
-
-void* LLFloaterLand::createPanelLandGeneral(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelGeneral = new LLPanelLandGeneral(self->mParcel);
-	return self->mPanelGeneral;
-}
-
-// static
-void* LLFloaterLand::createPanelLandCovenant(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelCovenant = new LLPanelLandCovenant(self->mParcel);
-	return self->mPanelCovenant;
-}
-
-
-// static
-void* LLFloaterLand::createPanelLandObjects(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelObjects = new LLPanelLandObjects(self->mParcel);
-	return self->mPanelObjects;
-}
-
-// static
-void* LLFloaterLand::createPanelLandOptions(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelOptions = new LLPanelLandOptions(self->mParcel);
-	return self->mPanelOptions;
-}
-
-// static
-void* LLFloaterLand::createPanelLandAudio(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelAudio = new LLPanelLandAudio(self->mParcel);
-	return self->mPanelAudio;
-}
-
-// static
-void* LLFloaterLand::createPanelLandMedia(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelMedia = new LLPanelLandMedia(self->mParcel);
-	return self->mPanelMedia;
-}
-
-// static
-void* LLFloaterLand::createPanelLandAccess(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelAccess = new LLPanelLandAccess(self->mParcel);
-	return self->mPanelAccess;
-}
-
-// static
-void* LLFloaterLand::createPanelLandExperiences(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelExperiences = new LLPanelLandExperiences(self->mParcel);
-	return self->mPanelExperiences;
 }
