@@ -143,8 +143,12 @@
       </map>
       <key>boost</key>
       <map>
+        <key>copyright</key>
+        <string>(see individual source files)</string>
+        <key>description</key>
+        <string>Boost C++ Libraries</string>
         <key>license</key>
-        <string>boost</string>
+        <string>boost 1.0</string>
         <key>license_file</key>
         <string>LICENSES/boost.txt</string>
         <key>name</key>
@@ -156,9 +160,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b57789bd22dd166aade4a35ec5d36fbb</string>
+              <string>ebbdee3a936e1ce3fc63da64fdab01b1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/290566/arch/Darwin/installer/boost-1.55.0-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/295362/arch/Darwin/installer/boost-1.56-darwin-295362.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -188,11 +192,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.56</string>
       </map>
       <key>colladadom</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
         <key>license</key>
-        <string>scea</string>
+        <string>SCEA</string>
         <key>license_file</key>
         <string>LICENSES/collada.txt</string>
         <key>name</key>
@@ -204,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>68dc13f49a686331df6f0128c5483da3</string>
+              <string>07fc04b6fdac24461bd42eb81e187dfa</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-colladadom-update/rev/290576/arch/Darwin/installer/colladadom-2.3-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/295377/arch/Darwin/installer/colladadom-2.3.295377-darwin-295377.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -236,6 +244,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2.3.295377</string>
       </map>
       <key>curl</key>
       <map>
@@ -839,54 +849,6 @@
         <key>version</key>
         <string>2.36.295075</string>
       </map>
-      <key>gmock</key>
-      <map>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/gmock.txt</string>
-        <key>name</key>
-        <string>gmock</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>36b0ea1a8be38f5749a7b13536b871ab</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/Darwin/installer/gmock-1.7.0-darwin-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3de99704847b34c7acccf5ab87222f6c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/Linux/installer/gmock-1.7.0-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>5d91c1d03780aa26bcd5481145ee9e86</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/CYGWIN/installer/gmock-1.7.0-windows-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>google_breakpad</key>
       <map>
         <key>copyright</key>
@@ -940,6 +902,60 @@
         </map>
         <key>version</key>
         <string>1332.294995</string>
+      </map>
+      <key>googlemock</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2008, Google Inc.</string>
+        <key>description</key>
+        <string>a library for writing and using C++ mock classes</string>
+        <key>license</key>
+        <string>BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/gmock.txt</string>
+        <key>name</key>
+        <string>googlemock</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ccf131481cdbd211689a21f8294acc17</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/295374/arch/Darwin/installer/googlemock-1.7.0.295374-darwin-295374.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3de99704847b34c7acccf5ab87222f6c</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/Linux/installer/gmock-1.7.0-linux-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5d91c1d03780aa26bcd5481145ee9e86</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/CYGWIN/installer/gmock-1.7.0-windows-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.7.0.295374</string>
       </map>
       <key>gperftools</key>
       <map>
