@@ -2039,10 +2039,10 @@ if (LINUX)
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
   if (PACKAGE)
-    add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
+    add_custom_target(llpackage ALL DEPENDS ${product}.tar.bz2)
     # Make sure we don't run two instances of viewer_manifest.py at the same time.
-    add_dependencies(package copy_l_viewer_manifest)
-    check_message_template(package)
+    add_dependencies(llpackage copy_l_viewer_manifest)
+    check_message_template(llpackage)
   endif (PACKAGE)
 endif (LINUX)
 
@@ -2104,11 +2104,11 @@ if (DARWIN)
   endif (ENABLE_SIGNING)
 
   if (PACKAGE)
-      add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME})
-      add_dependencies(package generate_viewer_version)
+      add_custom_target(llpackage ALL DEPENDS ${VIEWER_BINARY_NAME})
+      add_dependencies(llpackage generate_viewer_version)
 
       add_custom_command(
-        TARGET package POST_BUILD
+        TARGET llpackage POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -2190,7 +2190,7 @@ if (PACKAGE)
 
   add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
   add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
-  add_dependencies(package generate_breakpad_symbols)
+  add_dependencies(llpackage generate_breakpad_symbols)
   endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
 endif (PACKAGE)
 

@@ -137,7 +137,7 @@ INCLUDE(GoogleMock)
     #
     # Setup test targets
     #
-    GET_TARGET_PROPERTY(TEST_EXE PROJECT_${project}_TEST_${name} LOCATION)
+    SET(TEST_EXE $<TARGET_FILE:PROJECT_${project}_TEST_${name}>)
     SET(TEST_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/PROJECT_${project}_TEST_${name}_ok.txt)
     SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -225,7 +225,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   # Create the test running command
   SET(test_command ${ARGN})
-  GET_TARGET_PROPERTY(TEST_EXE INTEGRATION_TEST_${testname} LOCATION)
+  SET(TEST_EXE <TARGET_FILE:INTEGRATION_TEST_${testname}>)
   LIST(FIND test_command "{}" test_exe_pos)
   IF(test_exe_pos LESS 0)
     # The {} marker means "the full pathname of the test executable."
