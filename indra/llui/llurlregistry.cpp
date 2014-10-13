@@ -47,7 +47,8 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntrySLURL());
 
 	// decorated links for host names like: secondlife.com and lindenlab.com
-	registerUrl(new LLUrlEntrySeconlifeURL());
+	registerUrl(new LLUrlEntrySecondlifeURL());
+	registerUrl(new LLUrlEntrySimpleSecondlifeURL());
 
 	registerUrl(new LLUrlEntryHTTP());
 	mUrlEntryHTTPLabel = new LLUrlEntryHTTPLabel();
@@ -199,6 +200,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 				match_start = start;
 				match_end = end;
 				match_entry = url_entry;
+				break;
 			}
 		}
 	}
@@ -216,6 +218,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
 						match_entry->getLabel(url, cb),
+						match_entry->getQuery(url),
 						match_entry->getTooltip(url),
 						match_entry->getIcon(url),
 						match_entry->getStyle(),
@@ -252,6 +255,7 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 
 		match.setValues(start, end, match.getUrl(), 
 						match.getLabel(),
+						match.getQuery(),
 						match.getTooltip(),
 						match.getIcon(),
 						match.getStyle(),

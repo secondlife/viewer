@@ -192,18 +192,40 @@ S32 LLUriParser::normalize()
 
 void LLUriParser::glue(std::string& uri) const
 {
+	std::string first_part;
+	glueFirst(first_part);
+
+	std::string second_part;
+	glueSecond(second_part);
+
+	uri = first_part + second_part;
+}
+
+void LLUriParser::glueFirst(std::string& uri) const
+{
 	if (mScheme.size())
 	{
 		uri = mScheme;
 		uri += "://";
 	}
+	else
+	{
+		uri.clear();
+	}
 
 	uri += mHost;
+}
 
+void LLUriParser::glueSecond(std::string& uri) const
+{
 	if (mPort.size())
 	{
-		uri += ':';
+		uri = ':';
 		uri += mPort;
+	}
+	else
+	{
+		uri.clear();
 	}
 
 	uri += mPath;

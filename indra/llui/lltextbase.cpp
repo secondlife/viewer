@@ -2063,8 +2063,17 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted());
 
 			// output the styled Url
-			//appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
 			appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
+
+			// show query part of url with gray color if enabled in global settings in "HTTPNoProtocolShowGreyQuery"
+			// and only for LLUrlEntryHTTP and LLUrlEntryHTTPNoProtocol url entries
+			std::string label = match.getQuery();
+			if (label.size())
+			{
+				link_params.color = LLColor4::grey;
+				link_params.readonly_color = LLColor4::grey;
+				appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
+			}
 			
 			// set the tooltip for the Url label
 			if (! match.getTooltip().empty())

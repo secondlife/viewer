@@ -60,6 +60,8 @@ public:
 
 	void extractParts();
 	void glue(std::string& uri) const;
+	void glueFirst(std::string& uri) const;
+	void glueSecond(std::string& uri) const;
 	bool test() const;
 	S32 normalize();
 

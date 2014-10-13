@@ -78,6 +78,9 @@ public:
 	/// Given a matched Url, return a label for the Url
 	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) { return url; }
 
+	/// Return port, query and fragment parts for the Url
+	virtual std::string getQuery(const std::string &url) const { return ""; }
+
 	/// Return an icon that can be displayed next to Urls of this type
 	virtual std::string getIcon(const std::string &url);
 
@@ -111,6 +114,8 @@ protected:
 	std::string getLabelFromWikiLink(const std::string &url) const;
 	std::string getUrlFromWikiLink(const std::string &string) const;
 	void addObserver(const std::string &id, const std::string &url, const LLUrlLabelCallback &cb); 
+	std::string urlToLabelWithGreyQuery(const std::string &url) const;
+	std::string urlToGreyQuery(const std::string &url) const;
 	virtual void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 
 	typedef struct {
@@ -123,6 +128,7 @@ protected:
 	std::string                                    	mMenuName;
 	std::string                                    	mTooltip;
 	std::multimap<std::string, LLUrlEntryObserver>	mObservers;
+	bool											mGreyQuery;
 };
 
 ///
@@ -133,6 +139,9 @@ class LLUrlEntryHTTP : public LLUrlEntryBase
 public:
 	LLUrlEntryHTTP();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getQuery(const std::string &url) const;
+	/*virtual*/ std::string getUrl(const std::string &string) const;
+	/*virtual*/ std::string getTooltip(const std::string &url) const;
 };
 
 ///
@@ -155,7 +164,9 @@ class LLUrlEntryHTTPNoProtocol : public LLUrlEntryBase
 public:
 	LLUrlEntryHTTPNoProtocol();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getQuery(const std::string &url) const;
 	/*virtual*/ std::string getUrl(const std::string &string) const;
+	/*virtual*/ std::string getTooltip(const std::string &url) const;
 };
 
 ///
@@ -172,17 +183,23 @@ public:
 ///
 /// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com Urls
 ///
-class LLUrlEntrySeconlifeURL : public LLUrlEntryBase
+class LLUrlEntrySecondlifeURL : public LLUrlEntryBase
 {
 public:
-	LLUrlEntrySeconlifeURL();
+	LLUrlEntrySecondlifeURL();
 	bool isTrusted() const { return true; }
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getTooltip(const std::string &url) const;
-	/*virtual*/	std::string getUrl(const std::string &string) const;
+	/*virtual*/ std::string getUrl(const std::string &string) const;
+};
 
-private:
-	std::string mLabel;
+///
+/// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com Urls
+///
+class LLUrlEntrySimpleSecondlifeURL : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleSecondlifeURL();
 };
 
 ///

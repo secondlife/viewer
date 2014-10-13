@@ -43,12 +43,16 @@
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
+extern LLControlGroup gSavedSettings;
+
 // Utility functions
 std::string localize_slapp_label(const std::string& url, const std::string& full_name);
 
 
 LLUrlEntryBase::LLUrlEntryBase()
-{}
+{
+	mGreyQuery = gSavedSettings.getBOOL("HTTPNoProtocolShowGreyQuery");
+}
 
 LLUrlEntryBase::~LLUrlEntryBase()
 {
@@ -187,6 +191,33 @@ bool LLUrlEntryBase::isWikiLinkCorrect(std::string url)
 	return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
 }
 
+std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
+{
+	LLUriParser up(unescapeUrl(url));
+	up.normalize();
+
+	std::string label;
+	up.extractParts();
+	up.glueFirst(label);
+
+	return label;
+}
+
+std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
+{
+	LLUriParser up(unescapeUrl(url));
+
+	std::string query;
+	if (mGreyQuery)
+	{
+		up.extractParts();
+		up.glueSecond(query);
+	}
+
+	return query;
+}
+
+
 static std::string getStringAfterToken(const std::string str, const std::string token)
 {
 	size_t pos = str.find(token);
@@ -203,6 +234,7 @@ static std::string getStringAfterToken(const std::string str, const std::string 
 // LLUrlEntryHTTP Describes generic http: and https: Urls
 //
 LLUrlEntryHTTP::LLUrlEntryHTTP()
+	: LLUrlEntryBase()
 {
 	mPattern = boost::regex("https?://([-\\w\\.]+)+(:\\d+)?(:\\w+)?(@\\d+)?(@\\w+)?/?\\S*",
 							boost::regex::perl|boost::regex::icase);
@@ -211,6 +243,25 @@ LLUrlEntryHTTP::LLUrlEntryHTTP()
 }
 
 std::string LLUrlEntryHTTP::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return urlToLabelWithGreyQuery(url);
+}
+
+std::string LLUrlEntryHTTP::getQuery(const std::string &url) const
+{
+	return urlToGreyQuery(url);
+}
+
+std::string LLUrlEntryHTTP::getUrl(const std::string &string) const
+{
+	if (string.find("://") == std::string::npos)
+	{
+		return "http://" + escapeUrl(string);
+	}
+	return escapeUrl(string);
+}
+
+std::string LLUrlEntryHTTP::getTooltip(const std::string &url) const
 {
 	return unescapeUrl(url);
 }
@@ -247,6 +298,7 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 // LLUrlEntryHTTPNoProtocol Describes generic Urls like www.google.com
 //
 LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
+	: LLUrlEntryBase()
 {
 	mPattern = boost::regex("("
 				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
@@ -260,7 +312,12 @@ LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 
 std::string LLUrlEntryHTTPNoProtocol::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	return unescapeUrl(url);
+	return urlToLabelWithGreyQuery(url);
+}
+
+std::string LLUrlEntryHTTPNoProtocol::getQuery(const std::string &url) const
+{
+	return urlToGreyQuery(url);
 }
 
 std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string) const
@@ -270,6 +327,11 @@ std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string) const
 		return "http://" + escapeUrl(string);
 	}
 	return escapeUrl(string);
+}
+
+std::string LLUrlEntryHTTPNoProtocol::getTooltip(const std::string &url) const
+{
+	return unescapeUrl(url);
 }
 
 //
@@ -345,36 +407,51 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 }
 
 //
-// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com urls to substitute icon 'hand.png' before link
+// LLUrlEntrySeconlifeURL Describes *secondlife.com/ and *lindenlab.com/ urls to substitute icon 'hand.png' before link
 //
-LLUrlEntrySeconlifeURL::LLUrlEntrySeconlifeURL()
-{ 
-	mPattern = boost::regex("\\b(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(:\\d{1,5})?(/\\S*)?\\b",
+LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
+{                              
+	mPattern = boost::regex("(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(:\\d{1,5})?\\/\\S*",
 		boost::regex::perl|boost::regex::icase);
 	
 	mIcon = "Hand";
 	mMenuName = "menu_url_http.xml";
 }
 
-std::string LLUrlEntrySeconlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+std::string LLUrlEntrySecondlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	LLUriParser up(url);
 	up.extractParts();
-	return up.host();
+
+	std::string label;
+	up.glueFirst(label);
+	return label;
 }
 
-std::string LLUrlEntrySeconlifeURL::getTooltip(const std::string &url) const
+std::string LLUrlEntrySecondlifeURL::getTooltip(const std::string &url) const
 {
 	return url;
 }
 
-std::string LLUrlEntrySeconlifeURL::getUrl(const std::string &string) const
+std::string LLUrlEntrySecondlifeURL::getUrl(const std::string &string) const
 {
 	if (string.find("://") == std::string::npos)
 	{
 		return "http://" + escapeUrl(string);
 	}
 	return escapeUrl(string);
+}
+
+//
+// LLUrlEntrySimpleSecondlifeURL Describes *secondlife.com and *lindenlab.com urls to substitute icon 'hand.png' before link
+//
+LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
+  {
+	mPattern = boost::regex("(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(?!\\S)",
+		boost::regex::perl|boost::regex::icase);
+
+	mIcon = "Hand";
+	mMenuName = "menu_url_http.xml";
 }
 
 //
