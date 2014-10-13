@@ -72,7 +72,7 @@
 	<check_box label="Editar partes linkadas" name="checkbox edit linked parts"/>
 	<button label="Link" name="link_btn"/>
 	<button label="Desconectar links" name="unlink_btn"/>
-	<check_box label="" name="checkbox uniform"/>
+	<check_box label="Esticar ambos lados" name="checkbox uniform"/>
 	<text label="Esticar ambos lados" name="checkbox uniform label">
 		Esticar ambos lados
 	</text>

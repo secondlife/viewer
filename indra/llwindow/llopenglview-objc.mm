@@ -403,6 +403,37 @@ attributedStringInfo getSegments(NSAttributedString *str)
     }
 }
 
+- (void)flagsChanged:(NSEvent *)theEvent
+{
+	mModifiers = [theEvent modifierFlags];
+	callModifier([theEvent modifierFlags]);
+     
+    NSInteger mask = 0;
+    switch([theEvent keyCode])
+    {        
+        case 56:
+            mask = NSShiftKeyMask;
+            break;
+        case 58:
+            mask = NSAlternateKeyMask;
+            break;
+        case 59:
+            mask = NSControlKeyMask;
+            break;
+        default:
+            return;            
+    }
+    
+    if (mModifiers & mask)
+    {
+        callKeyDown([theEvent keyCode], 0);
+    }
+    else
+    {
+        callKeyUp([theEvent keyCode], 0);
+    }  
+}
+
 - (BOOL) acceptsFirstResponder
 {
 	return YES;

@@ -30,14 +30,10 @@
 		<combo_box.item label="Geral e Moderado" name="Desired_Mature"/>
 		<combo_box.item label="Geral" name="Desired_PG"/>
 	</combo_box>
-	<text name="start_location_textbox">
-		Posição inicial:
+	<check_box label="Mostrar locais favoritos na tela de logon" name="favorites_on_login_check"/>
+	<text name="favorites_check_extra_text">
+		(Outras pessoas que usarem esse computador também poderão vê-los)
 	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item label="Última localização" name="MyLastLocation" tool_tip="Voltar ao lugar onde estava antes."/>
-		<combo_box.item label="Meu início" name="MyHome" tool_tip="Voltar ao meu início."/>
-	</combo_box>
-	<check_box initial_value="true" label="Mostrar ao entrar" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
 		Mostrar nomes:
 	</text>

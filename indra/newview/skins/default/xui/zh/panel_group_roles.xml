@@ -21,15 +21,18 @@
 				<name_list.columns label="成員" name="name"/>
 				<name_list.columns label="捐款" name="donated"/>
 				<name_list.columns label="狀態" name="online"/>
+				<name_list.columns label="頭銜" name="title"/>
 			</name_list>
 			<button label="邀請" name="member_invite"/>
 			<button label="踢出" name="member_eject"/>
+			<button label="禁絕成員" name="member_ban"/>
 		</panel>
 		<panel label="角色" name="roles_sub_tab">
 			<panel.string name="help_text">
-				一個角色具備職稱和該角色可使用的能力。 
-一位成員可有一到多個角色。 
-一個群組至多可有 10 個角色，包括「任何人」和「所有人」。
+				一個角色具備職稱和該角色可使用的能力
+        可供成員行使。 成員可以擔任
+        一或多個角色。 一個群組最多可有 10 個角色，
+        包括「任何人」和「擁有人」角色。
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				「任何人」和「所有人」是特設角色，不得刪除。
@@ -45,11 +48,26 @@
 		</panel>
 		<panel label="能力" name="actions_sub_tab" tool_tip="你可察看關於某一能力的說明，並得知哪些角色和成員擁有該能力。">
 			<panel.string name="help_text">
-				「能力」可讓群組的成員透過角色行使一定的職權。 
-能力的種類繁多。
+				能力可讓成員在這個群組裡透過角色做
+        一定的事。 能力的種類繁多。
 			</panel.string>
 			<filter_editor label="能力過濾器" name="filter_input"/>
 			<scroll_list name="action_list" tool_tip="請選取一個能力以察看詳情。"/>
+		</panel>
+		<panel label="遭禁的居民" name="banlist_sub_tab" tool_tip="檢視禁入本群組的居民名單">
+			<panel.string name="help_text">
+				禁入名單上的任何居民將無法加入此群組。
+			</panel.string>
+			<panel.string name="ban_count_template">
+				禁止數目： [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="居民" name="name"/>
+				<name_list.columns label="遭禁日期" name="ban_date"/>
+			</name_list>
+			<button label="禁絕成員" name="ban_create" tool_tip="禁止成員加入你的群組"/>
+			<button label="取消禁入" name="ban_delete" tool_tip="取消部分成員禁入你的群組"/>
+			<button name="ban_refresh" tool_tip="更新禁入清單"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">

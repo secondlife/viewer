@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Заблокировать жителей" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(загрузка…)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		Групповая блокировка не отправлена: выбрано слишком много жителей. Групповая блокировка может охватывать не более 100 пользователей за один запрос.
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		Групповая блокировка не отправлена: у вас нет способности «Управление списком заблокированных пользователей».
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		Групповая блокировка не отправлена: в вашей группе достигнуто предельное количество блокировок.
+	</panel.string>
+	<panel.string name="partial_ban">
+		Некоторые групповые блокировки не отправлены: [REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		Групповые блокировки не отправлены: [REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- Следующие жители уже заблокированы: [RESIDENTS].
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- Достигнут лимит блокировок, следующие агенты не заблокированы: [RESIDENTS].
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- Вы не можете заблокировать себе доступ в группу.
+	</panel.string>
+	<text name="help_text">
+		Можно заблокировать доступ в группу для нескольких жителей. Для этого щелкните «Выбрать жителей».
+	</text>
+	<button label="Выбрать жителей" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="Чтобы выбрать нескольких жителей, нажмите и удерживайте клавишу CTRL, а затем щелкните их имена"/>
+	<button label="Удалить выбранных из списка" name="remove_button" tool_tip="Удаление выбранных жителей из списка заблокированных пользователей"/>
+	<button label="Заблокировать жителей" name="ban_button"/>
+	<button label="Отмена" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		Групповая блокировка
+	</string>
+</panel>

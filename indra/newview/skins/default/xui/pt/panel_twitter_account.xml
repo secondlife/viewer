@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_twitter_account">
+	<string name="twitter_connected" value="Você está conectado ao Twitter como:"/>
+	<string name="twitter_disconnected" value="Não conectado ao Twitter"/>
+	<text name="account_caption_label">
+		Não conectado ao Twitter.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Conectar..." name="connect_btn"/>
+		<button label="Desconectar" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Twitter/ta-p/2435453 Aprenda a publicar no Twitter]
+		</text>
+	</panel>
+</panel>

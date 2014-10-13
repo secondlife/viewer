@@ -380,8 +380,15 @@ void AISUpdate::parseMeta(const LLSD& update)
 		 it != cat_ids.end(); ++it)
 	{
 		LLViewerInventoryCategory *cat = gInventory.getCategory(*it);
-		mCatDescendentDeltas[cat->getParentUUID()]--;
-		mObjectsDeletedIds.insert(*it);
+		if(cat)
+		{
+			mCatDescendentDeltas[cat->getParentUUID()]--;
+			mObjectsDeletedIds.insert(*it);
+		}
+		else
+		{
+			LL_WARNS("Inventory") << "removed category not found " << *it << LL_ENDL;
+		}
 	}
 
 	// parse _categories_items_removed -> mObjectsDeletedIds
@@ -392,8 +399,15 @@ void AISUpdate::parseMeta(const LLSD& update)
 		 it != item_ids.end(); ++it)
 	{
 		LLViewerInventoryItem *item = gInventory.getItem(*it);
-		mCatDescendentDeltas[item->getParentUUID()]--;
-		mObjectsDeletedIds.insert(*it);
+		if(item)
+		{
+			mCatDescendentDeltas[item->getParentUUID()]--;
+			mObjectsDeletedIds.insert(*it);
+		}
+		else
+		{
+			LL_WARNS("Inventory") << "removed item not found " << *it << LL_ENDL;
+		}
 	}
 
 	// parse _broken_links_removed -> mObjectsDeletedIds
@@ -403,8 +417,15 @@ void AISUpdate::parseMeta(const LLSD& update)
 		 it != broken_link_ids.end(); ++it)
 	{
 		LLViewerInventoryItem *item = gInventory.getItem(*it);
-		mCatDescendentDeltas[item->getParentUUID()]--;
-		mObjectsDeletedIds.insert(*it);
+		if(item)
+		{
+			mCatDescendentDeltas[item->getParentUUID()]--;
+			mObjectsDeletedIds.insert(*it);
+		}
+		else
+		{
+			LL_WARNS("Inventory") << "broken link not found " << *it << LL_ENDL;
+		}
 	}
 
 	// parse _created_items
@@ -795,7 +816,7 @@ void AISUpdate::doUpdate()
 		// Since this is a copy of the category *before* the accounting update, above,
 		// we need to transfer back the updated version/descendent count.
 		LLViewerInventoryCategory* curr_cat = gInventory.getCategory(new_category->getUUID());
-		if (NULL == curr_cat)
+		if (!curr_cat)
 		{
 			LL_WARNS("Inventory") << "Failed to update unknown category " << new_category->getUUID() << LL_ENDL;
 		}

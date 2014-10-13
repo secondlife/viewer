@@ -29,4 +29,5 @@
 		<menu_item_call label="Alle stummschalten" name="ModerateVoiceMute"/>
 		<menu_item_call label="Stummschaltung für alle aufheben" name="ModerateVoiceUnmute"/>
 	</context_menu>
+	<menu_item_call label="Mitglied verbannen" name="BanMember"/>
 </toggleable_menu>

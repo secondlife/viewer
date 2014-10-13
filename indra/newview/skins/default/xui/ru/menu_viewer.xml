@@ -34,6 +34,9 @@
 		<menu_item_check label="Локальный чат..." name="Nearby Chat"/>
 		<menu_item_check label="Говорить" name="Speak"/>
 		<menu_item_check label="Журнал разговора..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Изменение голоса" name="VoiceMorphing">
 			<menu_item_check label="Без изменения голоса" name="NoVoiceMorphing"/>
 			<menu_item_check label="Просмотр..." name="Preview"/>
@@ -70,11 +73,11 @@
 			<menu_item_check label="Меню «Дополнительно»" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Солнце" name="Sun">
-			<menu_item_call label="Восход" name="Sunrise"/>
-			<menu_item_call label="Полдень" name="Noon"/>
-			<menu_item_call label="Закат" name="Sunset"/>
-			<menu_item_call label="Полночь" name="Midnight"/>
-			<menu_item_call label="Использовать настройки региона" name="Use Region Settings"/>
+			<menu_item_check label="Восход" name="Sunrise"/>
+			<menu_item_check label="Полдень" name="Noon"/>
+			<menu_item_check label="Закат" name="Sunset"/>
+			<menu_item_check label="Полночь" name="Midnight"/>
+			<menu_item_check label="Использовать настройки региона" name="Use Region Settings"/>
 		</menu>
 		<menu label="Редактор среды" name="Environment Editor">
 			<menu_item_call label="Настройки среды..." name="Environment Settings"/>
@@ -147,7 +150,8 @@
 			<menu_item_check label="Привязка к сетке" name="Snap to Grid"/>
 			<menu_item_call label="Сдвиг к ближайшему узлу XY сетки" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Использовать выбранное для сетки" name="Use Selection for Grid"/>
-			<menu_item_call label="Параметры сетки" name="Grid Options"/>
+			<menu_item_call label="Параметры сетки..." name="Grid Options"/>
+			<menu_item_call label="Установить стандартные разрешения..." name="Set default permissions"/>
 		</menu>
 		<menu label="Передача" name="Upload">
 			<menu_item_call label="Изображение (L$[COST])..." name="Upload Image"/>
@@ -155,14 +159,12 @@
 			<menu_item_call label="Анимация (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Модель..." name="Upload Model"/>
 			<menu_item_call label="Все сразу (L$[COST] за файл)..." name="Bulk Upload"/>
-			<menu_item_call label="Установить разрешения на передачу по умолчанию" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Отменить" name="Undo"/>
 		<menu_item_call label="Вернуть" name="Redo"/>
 	</menu>
 	<menu label="Справка" name="Help">
 		<menu_item_call label="Инструкции..." name="How To"/>
-		<menu_item_call label="Справка по [SECOND_LIFE]" name="Second Life Help"/>
 		<menu_item_call label="Жалоба" name="Report Abuse"/>
 		<menu_item_call label="Сообщить об ошибке" name="Report Bug"/>
 		<menu_item_call label="О [APP_NAME]" name="About Second Life"/>
@@ -178,6 +180,7 @@
 		<menu label="Производительность" name="Performance Tools">
 			<menu_item_call label="Запаздывание" name="Lag Meter"/>
 			<menu_item_check label="Статистика" name="Statistics Bar"/>
+			<menu_item_call label="Статистика загрузки сцен" name="Scene Load Statistics"/>
 			<menu_item_check label="Показать вес отрисовки для аватаров" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Подсветка и видимость" name="Highlighting and Visibility">
@@ -240,6 +243,7 @@
 			<menu_item_check label="Оперативные таймеры" name="Fast Timers"/>
 			<menu_item_check label="Память" name="Memory"/>
 			<menu_item_check label="Статистика по сцене" name="Scene Statistics"/>
+			<menu_item_check label="Монитор загрузки сцен" name="Scene Loading Monitor"/>
 			<menu_item_call label="Консоль отладки извлечения текстур" name="Texture Fetch Debug Console"/>
 			<menu_item_call label="Данные о регионе на консоль отладки" name="Region Info to Debug Console"/>
 			<menu_item_call label="Данны о группе на консоль отладки" name="Group Info to Debug Console"/>
@@ -276,6 +280,7 @@
 			<menu_item_check label="Периодическое замедление кадров" name="Periodic Slow Frame"/>
 			<menu_item_check label="Тест кадров" name="Frame Test"/>
 			<menu_item_call label="Профиль кадра" name="Frame Profile"/>
+			<menu_item_call label="Тест" name="Benchmark"/>
 		</menu>
 		<menu label="Визуализировать метаданные" name="Render Metadata">
 			<menu_item_check label="Рамки" name="Bounding Boxes"/>
@@ -293,7 +298,9 @@
 			<menu_item_check label="Данные об уровнях детализации" name="LOD Info"/>
 			<menu_item_check label="Очередь построителя" name="Build Queue"/>
 			<menu_item_check label="Освещение" name="Lights"/>
+			<menu_item_check label="Частицы" name="Particles"/>
 			<menu_item_check label="Каркас столкновений" name="Collision Skeleton"/>
+			<menu_item_check label="Суставы" name="Joints"/>
 			<menu_item_check label="Лучи" name="Raycast"/>
 			<menu_item_check label="Направления ветра" name="Wind Vectors"/>
 			<menu_item_check label="Сложность визуализации" name="rendercomplexity"/>
@@ -326,6 +333,7 @@
 			<menu_item_check label="Визуализация присоединенных источников света" name="Render Attached Lights"/>
 			<menu_item_check label="Визуализация присоединенных частиц" name="Render Attached Particles"/>
 			<menu_item_check label="Парящие светящиеся объекты" name="Hover Glow Objects"/>
+			<menu_item_call label="Немедленно очистить кэш" name="Cache Clear"/>
 		</menu>
 		<menu label="Сеть" name="Network">
 			<menu_item_check label="Приостановить клиент" name="AgentPause"/>
@@ -358,7 +366,6 @@
 			<menu_item_call label="Вывод средства фокусировки" name="Dump Focus Holder"/>
 			<menu_item_call label="Печать информации о выбранных объектах" name="Print Selected Object Info"/>
 			<menu_item_call label="Печать информации об агенте" name="Print Agent Info"/>
-			<menu_item_check label="Консоль отладки региона" name="Region Debug Console"/>
 			<menu_item_check label="Отладка SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Отладка щелчков мышью" name="Debug Clicks"/>
 			<menu_item_check label="Отладка обзора" name="Debug Views"/>

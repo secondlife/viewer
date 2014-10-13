@@ -126,12 +126,20 @@ void LLToolComposite::handleSelect()
 	mSelected = TRUE; 
 }
 
+void LLToolComposite::handleDeselect()
+{
+	mCur->handleDeselect();
+	mCur = mDefault;
+	mSelected = FALSE;
+}
+
 //----------------------------------------------------------------------------
 // LLToolCompInspect
 //----------------------------------------------------------------------------
 
 LLToolCompInspect::LLToolCompInspect()
-: LLToolComposite(std::string("Inspect"))
+: LLToolComposite(std::string("Inspect")),
+  mIsToolCameraActive(FALSE)
 {
 	mSelectRect		= new LLToolSelectRect(this);
 	mDefault = mSelectRect;
@@ -146,42 +154,87 @@ LLToolCompInspect::~LLToolCompInspect()
 
 BOOL LLToolCompInspect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	mMouseDown = TRUE;
-	gViewerWindow->pickAsync(x, y, mask, pickCallback);
-	return TRUE;
+	BOOL handled = FALSE;
+
+	if (mCur == LLToolCamera::getInstance())
+	{
+		handled = mCur->handleMouseDown(x, y, mask);
+	}
+	else
+	{
+		mMouseDown = TRUE;
+		gViewerWindow->pickAsync(x, y, mask, pickCallback);
+		handled = TRUE;	
+	}
+
+	return handled;
+}
+
+BOOL LLToolCompInspect::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLToolComposite::handleMouseUp(x, y, mask);
+	mIsToolCameraActive = getCurrentTool() == LLToolCamera::getInstance();
+	return handled;
 }
 
 void LLToolCompInspect::pickCallback(const LLPickInfo& pick_info)
 {
 	LLViewerObject* hit_obj = pick_info.getObject();
+	LLToolCompInspect * tool_inspectp = LLToolCompInspect::getInstance();
 
-	if (!LLToolCompInspect::getInstance()->mMouseDown)
+	if (!tool_inspectp->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		LLToolCompInspect::getInstance()->mSelectRect->handleObjectSelection(pick_info, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		tool_inspectp->mSelectRect->handleObjectSelection(pick_info, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 
-	if( hit_obj )
-	{
-		if (LLSelectMgr::getInstance()->getSelection()->getObjectCount())
-		{
-			LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
-		}
-		LLToolCompInspect::getInstance()->setCurrentTool( LLToolCompInspect::getInstance()->mSelectRect );
-		LLToolCompInspect::getInstance()->mSelectRect->handlePick( pick_info );
+	LLSelectMgr * mgr_selectp = LLSelectMgr::getInstance();
+	if( hit_obj && mgr_selectp->getSelection()->getObjectCount()) {
+		LLEditMenuHandler::gEditMenuHandler = mgr_selectp;
+	}
 
-	}
-	else
-	{
-		LLToolCompInspect::getInstance()->setCurrentTool( LLToolCompInspect::getInstance()->mSelectRect );
-		LLToolCompInspect::getInstance()->mSelectRect->handlePick( pick_info );
-	}
+	tool_inspectp->setCurrentTool( tool_inspectp->mSelectRect );
+	tool_inspectp->mIsToolCameraActive = FALSE;
+	tool_inspectp->mSelectRect->handlePick( pick_info );
 }
 
 BOOL LLToolCompInspect::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	return TRUE;
+}
+
+BOOL LLToolCompInspect::handleKey(KEY key, MASK mask)
+{
+	BOOL handled = FALSE;
+
+	if(KEY_ALT == key)
+	{
+		setCurrentTool(LLToolCamera::getInstance());
+		mIsToolCameraActive = TRUE;
+		handled = TRUE;
+	}
+	else
+	{
+		handled = LLToolComposite::handleKey(key, mask);
+	}
+
+	return handled;
+}
+
+void LLToolCompInspect::onMouseCaptureLost()
+{
+	LLToolComposite::onMouseCaptureLost();
+	mIsToolCameraActive = FALSE;
+}
+
+void LLToolCompInspect::keyUp(KEY key, MASK mask)
+{
+	if (KEY_ALT == key && mCur == LLToolCamera::getInstance())
+	{
+		setCurrentTool(mDefault);
+		mIsToolCameraActive = FALSE;
+	}
 }
 
 //----------------------------------------------------------------------------

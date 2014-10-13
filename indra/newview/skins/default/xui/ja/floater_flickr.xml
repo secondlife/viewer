@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_flickr" title="FLICKR にアップロード">
+	<panel name="background">
+		<tab_container name="tabs">
+			<panel label="写真" name="panel_flickr_photo"/>
+			<panel label="アカウント" name="panel_flickr_account"/>
+		</tab_container>
+		<panel name="connection_status_panel">
+			<text name="connection_error_text">
+				エラー
+			</text>
+			<text name="connection_loading_text">
+				ロード中...
+			</text>
+		</panel>
+	</panel>
+</floater>

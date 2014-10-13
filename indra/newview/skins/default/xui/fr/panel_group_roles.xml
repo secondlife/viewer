@@ -20,16 +20,18 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 				<name_list.columns label="Membre" name="name"/>
 				<name_list.columns label="Donation" name="donated"/>
 				<name_list.columns label="Statut" name="online"/>
+				<name_list.columns label="Titre" name="title"/>
 			</name_list>
 			<button label="Inviter" name="member_invite"/>
 			<button label="Expulser" name="member_eject"/>
+			<button label="Bannir un ou plusieurs membres" name="member_ban"/>
 		</panel>
 		<panel label="RÔLES" name="roles_sub_tab">
 			<panel.string name="help_text">
 				Chaque rôle possède un titre et des
-pouvoirs. Les membres peuvent avoir
-un ou plusieurs rôles. Un groupe peut avoir jusqu&apos;à 10 rôles,
-notamment les rôles Tous et Propriétaire.
+        pouvoirs. Les membres peuvent avoir
+        un ou plusieurs rôles. Un groupe peut avoir jusqu’à 10 rôles,
+        notamment les rôles Tous et Propriétaire.
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				Les rôles Tous et Propriétaires sont spéciaux et ne peuvent pas être supprimés.
@@ -54,12 +56,28 @@ notamment les rôles Tous et Propriétaire.
 		</panel>
 		<panel height="148" label="POUVOIRS" name="actions_sub_tab" tool_tip="Vous pouvez afficher une description du pouvoir et voir quels membres et rôles peuvent s&apos;en servir.">
 			<panel.string name="help_text">
-				Les pouvoirs déterminent les facultés de chaque membre dans le groupe.
+				Les pouvoirs déterminent les facultés de chaque membre
+        dans le groupe. Il existe une vaste gamme de pouvoirs.
 			</panel.string>
 			<filter_editor label="Filtrer les pouvoirs" name="filter_input"/>
 			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Sélectionnez un pouvoir pour en savoir plus">
 				<scroll_list.columns label="" name="action"/>
 			</scroll_list>
+		</panel>
+		<panel label="RÉSIDENTS BANNIS" name="banlist_sub_tab" tool_tip="Affiche les résidents bannis de ce groupe.">
+			<panel.string name="help_text">
+				Les résidents figurant sur la liste des résidents bannis ne peuvent pas rejoindre le groupe.
+			</panel.string>
+			<panel.string name="ban_count_template">
+				Nombre de résidents bannis : [COUNT]/[LIMIT]
+			</panel.string>
+			<name_list name="ban_list">
+				<name_list.columns label="Résident(e)" name="name"/>
+				<name_list.columns label="Date de bannissement" name="ban_date"/>
+			</name_list>
+			<button label="Bannir un ou plusieurs résidents" name="ban_create" tool_tip="Bannir des résidents de votre groupe"/>
+			<button label="Annuler le bannissement d&apos;un ou plusieurs membres" name="ban_delete" tool_tip="Annuler le bannissement de certains résidents de votre groupe"/>
+			<button name="ban_refresh" tool_tip="Actualiser la liste des résidents bannis"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">

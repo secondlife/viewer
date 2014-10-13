@@ -169,6 +169,16 @@ No tutorial is currently available.
 
   <notification
    icon="alertmodal.tga"
+   name="GenericAlertOK"
+   type="alertmodal">
+[MESSAGE]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="BadInstallation"
    type="alertmodal">
  An error occurred while updating [APP_NAME].  Please [http://get.secondlife.com download the latest version] of the Viewer.
@@ -1415,6 +1425,14 @@ Graphics Quality can be raised in Preferences &gt; Graphics.
    name="RegionNoTerraforming"
    type="alertmodal">
 The region [REGION] does not allow terraforming.
+  <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ParcelNoTerraforming"
+   type="notify">
+You are not allowed to terraform parcel [PARCEL].
   <tag>fail</tag>
   </notification>
 
@@ -3797,6 +3815,28 @@ You have left the group [group_name].
   </notification>
 
   <notification
+   icon="aler.tga"
+   name="GroupDepartError"
+   type="alert">
+Unable to leave group: [reason].
+      <tag>reason</tag>
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="GroupDepart"
+   type="alert">
+You have left the group [group_name].
+      <tag>group_name</tag>
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    name="ConfirmKick"
    type="alert">
@@ -4631,6 +4671,17 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
 
   <notification
    icon="alertmodal.tga"
+   name="RegionTPSpecialUsageBlocked"
+   type="alertmodal">
+    <tag>fail</tag>
+    Unable to enter region. '[REGION_NAME]' is a Skill Gaming Region, and you must meet certain criteria in order to enter. For details, please review the [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ].
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="PreferredMaturityChanged"
    type="alertmodal">
 You won't receive any more notifications that you're about to visit a region with [RATING] content.  You may change your content preferences in the future by using Me &gt; Preferences &gt; General from the menu bar.
@@ -5393,6 +5444,14 @@ Do you want to replace it with the selected object?
        name="No"
        text="Cancel"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TooManyWearables"
+   type="alertmodal">
+    You can't wear a folder containing more than [AMOUNT] items.  You can change this limit in Advanced > Show Debug Settings > WearFolderLimit.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -7000,11 +7059,11 @@ If you stay in this region you will be logged out.
    name="LoadWebPage"
    show_toast="false"
    type="notify">
-Load web page [URL]?
+Load web page [URL] ?
 
 [MESSAGE]
 
-From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]?
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]
     <tag>confirm</tag>
     <form name="form">
       <button
@@ -7900,7 +7959,16 @@ You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] second
 ( [EXISTENCE] seconds alive )
 You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
-
+	
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadTexture"
+   type="alertmodal">
+Unable to upload texture.
+[REASON]   
+  <tag>fail</tag>  
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="LivePreviewUnavailable"

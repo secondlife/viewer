@@ -336,7 +336,9 @@ LLInventoryFilter& LLInventoryPanel::getFilter()
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
 	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
+	{
 		getFilter().setFilterObjectTypes(types);
+	}
 	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
 		getFilter().setFilterCategoryTypes(types);
 }
@@ -398,6 +400,11 @@ void LLInventoryPanel::setSinceLogoff(BOOL sl)
 void LLInventoryPanel::setHoursAgo(U32 hours)
 {
 	getFilter().setHoursAgo(hours);
+}
+
+void LLInventoryPanel::setDateSearchDirection(U32 direction)
+{
+	getFilter().setDateSearchDirection(direction);
 }
 
 void LLInventoryPanel::setFilterLinks(U64 filter_links)
@@ -579,6 +586,22 @@ void LLInventoryPanel::modelChanged(U32 mask)
                 removeItemID(viewmodel_item->getUUID());
 				view_item->destroyView();
 			}
+		}
+	}
+
+	if (mask & (LLInventoryObserver::STRUCTURE | LLInventoryObserver::REMOVE))
+	{
+		// STRUCTURE and REMOVE model changes usually fail to update (clean)
+		// mMostFilteredDescendantGeneration of parent folder and dirtyFilter()
+		// is not sufficient for successful filter update, so we need to check
+		// all already passed element over again to remove obsolete elements.
+		// New items or moved items should be sufficiently covered by
+		// dirtyFilter().
+		LLInventoryFilter& filter = getFilter();
+		if (filter.getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE
+			|| filter.isNotDefault())
+		{
+			filter.setModified(LLFolderViewFilter::FILTER_MORE_RESTRICTIVE);
 		}
 	}
 }
@@ -1390,6 +1413,17 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 		// Open selected items if enter key hit on the inventory panel
 		if (mask == MASK_NONE)
 		{
+			//Don't allow attaching or opening items from Merchant Outbox
+			LLFolderViewItem* folder_item = mFolderRoot.get()->getCurSelectedItem();
+			if(folder_item)
+			{
+				LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+				if(bridge && bridge->isOutboxFolder() && (bridge->getInventoryType() != LLInventoryType::IT_CATEGORY))
+				{
+					return handled;
+				}
+			}
+
 			LLInventoryAction::doToSelected(mInventory, mFolderRoot.get(), "open");
 			handled = TRUE;
 		}

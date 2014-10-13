@@ -1,46 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=de
 	</panel.string>
-	<layout_stack name="login_widgets">
-		<layout_panel name="login">
-			<text name="log_in_text">
-				ANMELDEN
-			</text>
-			<text name="username_text">
-				Benutzername:
-			</text>
-			<combo_box name="username_combo" tool_tip="Bei der Registrierung gewählter Benutzername wie „berndschmidt12“ oder „Liebe Sonne“"/>
-			<text name="password_text">
-				Kennwort:
-			</text>
-		</layout_panel>
-		<layout_panel name="start_location_panel">
-			<text name="start_location_text">
-				Hier starten:
-			</text>
-			<combo_box name="start_location_combo">
-				<combo_box.item label="Mein letzter Standort" name="MyLastLocation"/>
-				<combo_box.item label="Mein Zuhause" name="MyHome"/>
-				<combo_box.item label="&lt;Region eingeben&gt;" name="Typeregionname"/>
-			</combo_box>
-		</layout_panel>
-		<layout_panel name="links_login_panel">
-			<text name="login_help">
-				Brauchen Sie Hilfe beim Anmelden?
-			</text>
+	<layout_stack name="ui_stack">
+		<layout_panel name="ui_container">
+			<combo_box label="Benutzername" name="username_combo" tool_tip="Bei der Registrierung gewählter Benutzername wie „berndschmidt12“ oder „Liebe Sonne“"/>
+			<line_editor label="Kennwort" name="password_edit"/>
+			<check_box label="Details speichern" name="remember_check"/>
 			<text name="forgot_password_text">
-				Benutzernamen oder Kennwort vergessen?
+				Kennwort vergessen
 			</text>
 			<button label="Anmelden" name="connect_btn"/>
-			<check_box label="Kennwort speichern" name="remember_check"/>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_account_text">
-				IHR KONTO ERSTELLEN
+			<text name="At_My_Last_Location_Label">
+				bei letztem Ort
 			</text>
-			<button label="Jetzt starten" name="create_new_account_btn"/>
+			<combo_box label="Meine Lieblingsorte" name="start_location_combo">
+				<combo_box.item label="Mein Zuhause" name="MyHome"/>
+			</combo_box>
+			<button label="Anmelden" name="connect_favorite_btn"/>
+			<line_editor label="Ort eingeben" name="location_edit"/>
+			<button label="Anmelden" name="connect_location_btn"/>
+			<combo_box label="Grid auswählen" name="server_combo"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

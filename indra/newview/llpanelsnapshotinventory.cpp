@@ -49,7 +49,6 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 private:
-	/*virtual*/ void updateCustomResControls(); ///< Show/hide custom resolution controls (spinners and checkbox)
 	/*virtual*/ std::string getWidthSpinnerName() const		{ return "inventory_snapshot_width"; }
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "inventory_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "inventory_keep_aspect_check"; }
@@ -73,7 +72,6 @@ BOOL LLPanelSnapshotInventory::postBuild()
 {
 	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(FALSE);
 	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
-	getChild<LLUICtrl>(getAspectRatioCBName())->setVisible(FALSE); // we don't keep aspect ratio for inventory textures
 	return LLPanelSnapshot::postBuild();
 }
 
@@ -82,17 +80,6 @@ void LLPanelSnapshotInventory::onOpen(const LLSD& key)
 {
 	getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
 	LLPanelSnapshot::onOpen(key);
-}
-
-// virtual
-void LLPanelSnapshotInventory::updateCustomResControls()
-{
-	LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
-	S32 selected_idx = combo->getFirstSelectedIndex();
-	const bool show = selected_idx == (combo->getItemCount() - 1); // Custom selected
-
-	getChild<LLUICtrl>(getWidthSpinnerName())->setVisible(show);
-	getChild<LLUICtrl>(getHeightSpinnerName())->setVisible(show);
 }
 
 // virtual

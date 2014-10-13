@@ -62,7 +62,7 @@ F32		LLManip::sHelpTextFadeTime = 2.f;
 S32		LLManip::sNumTimesHelpTextShown = 0;
 S32		LLManip::sMaxTimesShowHelpText = 5;
 F32		LLManip::sGridMaxSubdivisionLevel = 32.f;
-F32		LLManip::sGridMinSubdivisionLevel = 1.f;
+F32		LLManip::sGridMinSubdivisionLevel = 1.f / 32.f;
 LLVector2 LLManip::sTickLabelSpacing(60.f, 25.f);
 
 
@@ -176,7 +176,7 @@ BOOL LLManip::getManipAxis(LLViewerObject* object, EManipPart manip, LLVector3 &
 	return TRUE;
 }
 
-F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVector3 &translate_axis, F32 grid_scale, S32 min_pixel_spacing)
+F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVector3 &translate_axis, F32 grid_scale, S32 min_pixel_spacing, F32 min_subdivisions, F32 max_subdivisions)
 {
 	//update current snap subdivision level
 	LLVector3 cam_to_reference;
@@ -192,7 +192,8 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
 
 	F32 projected_translation_axis_length = (translate_axis % cam_to_reference).magVec();
 	F32 subdivisions = llmax(projected_translation_axis_length * grid_scale / (current_range / LLViewerCamera::getInstance()->getPixelMeterRatio() * min_pixel_spacing), 0.f);
-	subdivisions = llclamp((F32)pow(2.f, llfloor(log(subdivisions) / log(2.f))), 1.f / 32.f, 32.f);
+	// figure out nearest power of 2 that subdivides grid_scale with result > min_pixel_spacing
+	subdivisions = llclamp((F32)pow(2.f, llfloor(log(subdivisions) / log(2.f))), min_subdivisions, max_subdivisions);
 
 	return subdivisions;
 }
@@ -548,37 +549,31 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 	BOOL hud_selection = mObjectSelection->getSelectType() == SELECT_TYPE_HUD;
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	LLVector3 render_pos = pos;
-	if (hud_selection)
 	{
-		F32 zoom_amt = gAgentCamera.mHUDCurZoom;
-		F32 inv_zoom_amt = 1.f / zoom_amt;
-		// scale text back up to counter-act zoom level
-		render_pos = pos * zoom_amt;
-		gGL.scalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
-	}
+		LLVector3 render_pos = pos;
+		if (hud_selection)
+		{
+			F32 zoom_amt = gAgentCamera.mHUDCurZoom;
+			F32 inv_zoom_amt = 1.f / zoom_amt;
+			// scale text back up to counter-act zoom level
+			render_pos = pos * zoom_amt;
+			gGL.scalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
+		}
 
-	LLColor4 shadow_color = LLColor4::black;
-	shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
+		LLColor4 shadow_color = LLColor4::black;
+		shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
 
-	if (fractional_portion != 0)
-	{
-		fraction_string = llformat("%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix.c_str());
+		if (fractional_portion != 0)
+		{
+			fraction_string = llformat("%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix.c_str());
 
-		gViewerWindow->setup3DViewport(1, -1);
-		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, shadow_color, hud_selection);
-		hud_render_utf8text(fraction_string, render_pos, *small_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, 1.f, 3.f, shadow_color, hud_selection);
-
-		gViewerWindow->setup3DViewport();
-		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
-		hud_render_utf8text(fraction_string, render_pos, *small_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, 1.f, 3.f, color, hud_selection);
-	}
-	else
-	{
-		gViewerWindow->setup3DViewport(1, -1);
-		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, shadow_color, hud_selection);
-		gViewerWindow->setup3DViewport();
-		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
+			hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
+			hud_render_utf8text(fraction_string, render_pos, *small_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, 1.f, 3.f, color, hud_selection);
+		}
+		else
+		{
+			hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
+		}
 	}
 	gGL.popMatrix();
 }

@@ -86,6 +86,7 @@ enum EAcceptance
 {
 	ACCEPT_POSTPONED,	// we are asynchronously determining acceptance
 	ACCEPT_NO,			// Uninformative, general purpose denial.
+	ACCEPT_NO_CUSTOM,	// Denial with custom message.
 	ACCEPT_NO_LOCKED,	// Operation would be valid, but permissions are set to disallow it.
 	ACCEPT_YES_COPY_SINGLE,	// We'll take a copy of a single item
 	ACCEPT_YES_SINGLE,		// Accepted. OK to drag and drop single item here.

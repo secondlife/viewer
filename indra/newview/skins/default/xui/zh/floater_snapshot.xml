@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="快照預覽">
+<floater name="Snapshot" title="快照">
 	<floater.string name="unknown">
 		未知
 	</floater.string>
@@ -61,5 +61,11 @@
 		<check_box label="擡頭顯示" name="hud_check"/>
 		<check_box label="將幀凍結（全螢幕）" name="freeze_frame_check"/>
 		<check_box label="自動刷新" name="auto_snapshot_check"/>
+		<text name="filter_list_label">
+			濾鏡：
+		</text>
+		<combo_box name="filters_combobox" tool_tip="圖像濾鏡">
+			<combo_box.item label="不用濾鏡" name="NoFilter"/>
+		</combo_box>
 	</panel>
 </floater>

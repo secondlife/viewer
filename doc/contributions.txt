@@ -323,6 +323,7 @@ Cinder Roxley
     STORM-1951
     STORM-2035
     STORM-2036
+    STORM-2037
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -712,6 +713,9 @@ Jonathan Yap
 	STORM-1986
 	STORM-1981
 	STORM-2015
+	STORM-2031
+	STORM-2030
+	STORM-2034
 	STORM-2018
 Kadah Coba
 	STORM-1060
@@ -990,6 +994,38 @@ Nicky Perian
 	STORM-1090
 	STORM-1828
 Nicoladie Gymnast
+NiranV Dean
+    STORM-2040
+    STORM-2042
+    STORM-2043
+    STORM-2044
+    STORM-2045
+    STORM-2046
+    STORM-2047
+    STORM-2048
+    STORM-2049
+    STORM-2050
+    STORM-2051
+    STORM-2052
+    STORM-2057
+    STORM-2058
+    STORM-2059
+    STORM-2060
+    STORM-2061
+    STORM-2063
+    STORM-2065
+    STORM-2066
+    STORM-2068
+    STORM-2073
+    STORM-2076
+    BUG-372
+    BUG-1179
+    BUG-6835
+    BUG-6837
+    BUG-6839
+    BUG-6840
+    BUG-6958
+    BUG-7020
 Nounouch Hapmouche
 	VWR-238
 Ollie Kubrick
@@ -1188,6 +1224,7 @@ Sovereign Engineer
     OPEN-189
     STORM-1972
     OPEN-195
+    OPEN-217
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1363,6 +1400,7 @@ Whirly Fizzle
 	VWR-29543
 	MAINT-873
 	STORM-1930
+	BUG-6659
 Whoops Babii
 	VWR-631
 	VWR-1640

@@ -117,6 +117,7 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	mHoverRequestResult(0),
 	mHoverWestSouth(),
 	mHoverEastNorth(),
+	mTeleportInProgressPosition(),
 	mRenderCollision(FALSE),
 	mRenderSelection(TRUE),
 	mCollisionBanned(0),
@@ -1320,12 +1321,6 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 	static U32 last_west, last_south;
 
 
-	// only request parcel info when tooltip is shown
-	if (!gSavedSettings.getBOOL("ShowLandHoverTip"))
-	{
-		return;
-	}
-
 	// only request parcel info if position has changed outside of the
 	// last parcel grid step
 	U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
@@ -1585,7 +1580,15 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			if (instance->mTeleportInProgress)
 			{
 				instance->mTeleportInProgress = FALSE;
-				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal(), false);
+				if(instance->mTeleportInProgressPosition.isNull())
+				{
+					//initial update
+					instance->mTeleportFinishedSignal(gAgent.getPositionGlobal(), false);
+				}
+				else
+				{
+					instance->mTeleportFinishedSignal(instance->mTeleportInProgressPosition, false);
+				}
 			}
 		}
 	}
@@ -2494,6 +2497,7 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
 		// Non-local teleport (inter-region or between different parcels of the same region).
 		// The agent parcel data has not been updated yet.
 		// Let's wait for the update and then emit the signal.
+		mTeleportInProgressPosition = new_pos;
 		mTeleportInProgress = TRUE;
 	}
 }

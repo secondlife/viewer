@@ -70,6 +70,7 @@
 	<menu_item_call label="Jouer" name="Sound Play"/>
 	<menu_item_call label="Copier la SLurl" name="url_copy"/>
 	<menu_item_call label="À propos du repère" name="About Landmark"/>
+	<menu_item_call label="Voir sur la carte" name="show_on_map"/>
 	<menu_item_call label="Jouer dans Second Life" name="Animation Play"/>
 	<menu_item_call label="Jouer localement" name="Animation Audition"/>
 	<menu_item_call label="Envoyer un message instantané" name="Send Instant Message"/>

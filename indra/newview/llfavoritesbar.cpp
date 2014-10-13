@@ -40,7 +40,6 @@
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llclipboard.h"
-#include "llclipboard.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llfloatersidepanelcontainer.h"
@@ -51,7 +50,7 @@
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
-#include "llviewermenu.h"
+#include "llviewernetwork.h"
 #include "lltooldraganddrop.h"
 #include "llsdserialize.h"
 
@@ -327,6 +326,7 @@ public:
 
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
+			LLFavoritesOrderStorage::instance().saveOrder();
 		}
 
 		LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
@@ -1452,6 +1452,18 @@ void LLFavoritesOrderStorage::getSLURL(const LLUUID& asset_id)
 void LLFavoritesOrderStorage::destroyClass()
 {
 	LLFavoritesOrderStorage::instance().cleanup();
+
+
+	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	llifstream file;
+	file.open(old_filename);
+	if (file.is_open())
+	{
+		std::string new_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
+		LLFile::copy(old_filename,new_filename);
+		LLFile::remove(old_filename);
+	}
+
 	if (gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))
 	{
 		LLFavoritesOrderStorage::instance().saveFavoritesSLURLs();
@@ -1498,7 +1510,7 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 		return;
 	}
 
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
 	llifstream in_file;
 	in_file.open(filename);
 	LLSD fav_llsd;
@@ -1546,7 +1558,7 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 
 void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
 {
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
 	LLSD fav_llsd;
 	llifstream file;
 	file.open(filename);
@@ -1639,6 +1651,16 @@ void LLFavoritesOrderStorage::cleanup()
 
 	//Swap the contents of mSortIndexes and aTempMap
 	mSortIndexes.swap(aTempMap);
+}
+
+void LLFavoritesOrderStorage::saveOrder()
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLIsType is_type(LLAssetType::AT_LANDMARK);
+	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+	gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+	saveItemsOrder(items);
 }
 
 void LLFavoritesOrderStorage::saveItemsOrder( const LLInventoryModel::item_array_t& items )

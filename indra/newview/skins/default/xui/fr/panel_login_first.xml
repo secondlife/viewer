@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_login">
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=fr
+	</panel.string>
+	<layout_stack name="logo_stack">
+		<layout_panel name="parent_panel2">
+			<layout_stack name="widget_stack">
+				<layout_panel name="widget_container">
+					<combo_box label="Nom d&apos;utilisateur" name="username_combo" tool_tip="Nom d&apos;utilisateur que vous avez choisi lors de votre inscription (par exemple, bobsmith12 ou Steller Sunshine)."/>
+					<line_editor label="Mot de passe" name="password_edit"/>
+					<button label="Connexion" name="connect_btn"/>
+					<check_box label="Mémoriser mes informations" name="remember_check" font="SansSerifSmall"/>
+					<text name="forgot_password_text">
+						Mot de passe oublié
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="parent_panel3">
+			<layout_stack name="images_stack">
+				<layout_panel name="images_container">
+					<text name="image_caption_left">
+						Votre première étape est Learning Island. Trouvez le portail de sortie.
+					</text>
+					<text name="image_caption_right">
+						Puis explorez Social Island et faites la connaissance d&apos;autres résidents.
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

@@ -113,13 +113,13 @@
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		転送に失敗
+		&apos;[ERROR_CODE]&apos; エラーで転送できませんでした
 
 システムまたはネットワークのエラーのため、フォルダはマーケットプレイスに送信されませんでした。後でもう一度お試しください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		マーケットプレイスの初期化に失敗
+		&apos;[ERROR_CODE]&apos; エラーでマーケットプレイスを初期化できませんでした
 
 システムまたはネットワークのエラーのため、マーケットプレイスの初期化に失敗しました。後でもう一度お試しください。
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -220,6 +220,22 @@
 
 この能力を [ROLE_NAME] に割り当てますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="AssignBanAbilityWarning">
+		役割 &apos;[ROLE_NAME]&apos; に能力 &apos;[ACTION_NAME]&apos; を追加しようとしています。
+
+*警告*
+この能力を持つ役割のメンバーにも能力 &apos;[ACTION_NAME_2]&apos; と &apos;[ACTION_NAME_3]&apos; が許可されます
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		役割 &apos;[ROLE_NAME]&apos; から能力 &apos;[ACTION_NAME]&apos; を削除しようとしています。
+
+*警告*
+この能力を削除しても能力 &apos;[ACTION_NAME_2]&apos; と &apos;[ACTION_NAME_3]&apos; は削除されません。
+ 
+これらの能力をこの役割に許可しない場合は、すぐに削除してください!
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="EjectGroupMemberWarning">
 		[AVATAR_NAME] をグループから追放しようとしています。
@@ -1614,6 +1630,14 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		グループを抜けることができません: [reason]。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		グループ [group_name] を抜けました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		本当に住人全員をグリッドから追い出しますか？
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="住人全員を追い出す"/>
@@ -1767,6 +1791,10 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 	<notification name="TeleportFromLandmark">
 		このまま &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; にテレポートしますか？
 		<usetemplate ignoretext="ランドマークにテレポートしたいかどうかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
+	</notification>
+	<notification name="TeleportViaSLAPP">
+		このまま &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; にテレポートしますか？
+		<usetemplate ignoretext="SLAPP でテレポートすることを確認" name="okcancelignore" notext="取り消し" yestext="テレポート"/>
 	</notification>
 	<notification name="TeleportToPick">
 		[PICK] にテレポートしますか？
@@ -1978,6 +2006,9 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 	<notification name="ProblemAddingEstateManager">
 		新しい不動産マネージャーの追加に関する問題：
 いずれかの不動産のマネージャーリストが満杯になっています。
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		不動産所有者または管理者を禁止リストに追加できません。
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		不動産リストの追加に関する問題：
@@ -2498,6 +2529,12 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		少なくともどれか一つコンテンツの種類を選択して検索を行ってください。（General、Moderate、Adult）
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -3072,9 +3109,9 @@ M キーを押して変更します。
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-次の住人と共有しますか？
+次の住人と共有：
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3086,7 +3123,7 @@ M キーを押して変更します。
 
 次の住人と共有：
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3541,10 +3578,6 @@ M キーを押して変更します。
 	<notification name="EjectComingSoon">
 		ここへの入場が許可されていないため、[EJECT_TIME] 秒後に追放されます。
 	</notification>
-	<notification name="NoEnterServerFull">
-		サーバーが埋まっているため、
-このリージョンに入場することはできません。
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		「「持ち物」に保存」が無効になっています。
 	</notification>
@@ -3728,6 +3761,9 @@ M キーを押して変更します。
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		オブジェクトが使用している物理リソースが多すぎたため、ダイナミックスが無効にされました。
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		[SLURL] のオブジェクト &apos;[OBJECT_NAME]&apos; で不動産マネージャーのホームをテレポートできません。
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		区画 &apos;[PARCEL_NAME]&apos; のオブジェクト &apos;[OBJECT_NAME]&apos; によって、あなたはホームにテレポートされました。
@@ -3919,13 +3955,18 @@ M キーを押して変更します。
 		選択範囲のリース区画の数が少ないため、参加できません。
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		土地を分割できません。\n区画が複数選択されています。\nもっと小さい土地を選択してみてください。
+		土地を分割できません。
+複数の区画が選択されました。
+小さい区画を選択してください。
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		土地を分解できません。\n区画が見つかりません。\n「Help」&gt;「Reprt Bug...」でレポートを行ってください。
+		土地を分割できません。
+区画が見つかりません。
+「ヘルプ」 -&gt; 「バグの報告」で報告してください。
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		土地を分割できません。区画全体を選択します。\n小さい土地を選択してみてください。
+		土地を分割できません。区画全体が選択されています。
+小さい区画を選択してください。
 	</notification>
 	<notification name="LandHasBeenDivided">
 		土地が分割されています。
@@ -4064,5 +4105,13 @@ M キーを押して変更します。
 	<notification name="PreferenceChatPathChanged">
 		ファイルを移動できません。以前のパスがリストアされました。
 		<usetemplate ignoretext="ファイルを移動できません。以前のパスがリストアされました。" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		次の理由により、デフォルト権限を保存するときに問題がありました: [REASON]。後でデフォルト権限を設定してください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		チャット履歴ファイルが前の操作でビジーです。2、3 分経ってからもう一度試すか、別の人とのチャットを選択してください。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

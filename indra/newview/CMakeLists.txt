@@ -252,6 +252,7 @@ set(viewer_SOURCE_FILES
     llfloaterinspect.cpp
     llfloaterinventory.cpp
     llfloaterjoystick.cpp
+    llfloaterlagmeter.cpp
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloatermap.cpp
@@ -859,6 +860,7 @@ set(viewer_HEADER_FILES
     llfloaterinspect.h
     llfloaterinventory.h
     llfloaterjoystick.h
+    llfloaterlagmeter.h
     llfloaterland.h
     llfloaterlandholdings.h
     llfloatermap.h
@@ -1767,7 +1769,6 @@ if (WINDOWS)
       media_plugin_webkit
       winmm_shim
       windows-crash-logger
-      windows-updater
       )
 
     if (FMODEX)
@@ -1813,7 +1814,6 @@ if (WINDOWS)
 
     add_dependencies(${VIEWER_BINARY_NAME}
       SLPlugin
-      windows-updater
       windows-crash-logger
       )
 

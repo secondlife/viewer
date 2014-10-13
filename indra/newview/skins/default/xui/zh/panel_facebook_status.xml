@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_facebook_status">
+	<layout_stack name="stack_status">
+		<layout_panel name="status_detail_panel">
+			<text name="status_caption_label">
+				你在想些什麼？
+			</text>
+		</layout_panel>
+		<layout_panel name="status_button_panel">
+			<button label="發佈" name="post_status_btn"/>
+			<button label="取消" name="cancel_status_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

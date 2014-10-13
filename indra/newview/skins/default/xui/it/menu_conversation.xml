@@ -29,4 +29,5 @@
 		<menu_item_call label="Disattiva audio di tutti" name="ModerateVoiceMute"/>
 		<menu_item_call label="Riattiva audio di tutti" name="ModerateVoiceUnmute"/>
 	</context_menu>
+	<menu_item_call label="Espelli membro" name="BanMember"/>
 </toggleable_menu>
