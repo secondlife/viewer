@@ -161,4 +161,12 @@ void main()
 	
 	frag_color.rgb = out_col;
 	frag_color.a = 0.0;
+
+#ifdef IS_AMD_CARD
+	// If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.
+	vec4 dummy1 = light[0];
+	vec4 dummy2 = light_col[0];
+	vec4 dummy3 = light[LIGHT_COUNT-1];
+	vec4 dummy4 = light_col[LIGHT_COUNT-1];
+#endif
 }
