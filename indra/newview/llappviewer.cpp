@@ -745,6 +745,15 @@ public:
 	}
 };
 
+namespace {
+// With Xcode 6, _exit() is too magical to use with boost::bind(), so provide
+// this little helper function.
+void fast_exit(int rc)
+{
+	_exit(rc);
+}
+}
+
 bool LLAppViewer::init()
 {	
 	setupErrorHandling(mSecondInstance);
@@ -801,10 +810,10 @@ bool LLAppViewer::init()
 	S32 rc(gSavedSettings.getS32("QAModeTermCode"));
 	if (rc >= 0)
 	{
-		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use _exit()
-		// rather than exit() because normal cleanup depends too much on
-		// successful startup!
-		LLError::setFatalFunction(boost::bind(_exit, rc));
+		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use
+		// fast_exit() rather than exit() because normal cleanup depends too
+		// much on successful startup!
+		LLError::setFatalFunction(boost::bind(fast_exit, rc));
 	}
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
