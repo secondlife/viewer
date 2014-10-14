@@ -7595,85 +7595,80 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	
 	LLAPRFile outfile;
 	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-	outfile.open(fullpath, LL_APR_WB );
-	apr_file_t* file = outfile.getFileHandle();
-	if (!file)
+	if (APR_SUCCESS == outfile.open(fullpath, LL_APR_WB ))
 	{
-		return;
-	}
-	else
-	{
+		apr_file_t* file = outfile.getFileHandle();
 		LL_INFOS() << "xmlfile write handle obtained : " << fullpath << LL_ENDL;
-	}
 
-	apr_file_printf( file, "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n" );
-	apr_file_printf( file, "<linden_genepool version=\"1.0\">\n" );
-	apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
+		apr_file_printf( file, "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n" );
+		apr_file_printf( file, "<linden_genepool version=\"1.0\">\n" );
+		apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
-	if (group_by_wearables)
-	{
-		for (S32 type = LLWearableType::WT_SHAPE; type < LLWearableType::WT_COUNT; type++)
+		if (group_by_wearables)
 		{
-			const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
-			apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
-
-			for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
+			for (S32 type = LLWearableType::WT_SHAPE; type < LLWearableType::WT_COUNT; type++)
 			{
-				LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
-				if( (viewer_param->getWearableType() == type) && 
-				   (viewer_param->isTweakable() ) )
-				{
-					dump_visual_param(file, viewer_param, viewer_param->getWeight());
-				}
-			}
+				const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
+				apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
-			for (U8 te = 0; te < TEX_NUM_INDICES; te++)
-			{
-				if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te) == type)
+				for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 				{
-					// MULTIPLE_WEARABLES: extend to multiple wearables?
-					LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
-					if( te_image )
+					LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
+					if( (viewer_param->getWearableType() == type) && 
+					   (viewer_param->isTweakable() ) )
 					{
-						std::string uuid_str;
-						te_image->getID().toString( uuid_str );
-						apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
+						dump_visual_param(file, viewer_param, viewer_param->getWeight());
+					}
+				}
+
+				for (U8 te = 0; te < TEX_NUM_INDICES; te++)
+				{
+					if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex)te) == type)
+					{
+						// MULTIPLE_WEARABLES: extend to multiple wearables?
+						LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
+						if( te_image )
+						{
+							std::string uuid_str;
+							te_image->getID().toString( uuid_str );
+							apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
+						}
 					}
 				}
 			}
 		}
-	}
-	else 
-	{
-		// Just dump all params sequentially.
-		for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
+		else 
 		{
-			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
-			dump_visual_param(file, viewer_param, viewer_param->getWeight());
-		}
-
-		for (U8 te = 0; te < TEX_NUM_INDICES; te++)
-		{
-			// MULTIPLE_WEARABLES: extend to multiple wearables?
-			LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
-			if( te_image )
+			// Just dump all params sequentially.
+			for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 			{
-				std::string uuid_str;
-				te_image->getID().toString( uuid_str );
-				apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
+				LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
+				dump_visual_param(file, viewer_param, viewer_param->getWeight());
+			}
+
+			for (U8 te = 0; te < TEX_NUM_INDICES; te++)
+			{
+				// MULTIPLE_WEARABLES: extend to multiple wearables?
+				LLViewerTexture* te_image = getImage((ETextureIndex)te, 0);
+				if( te_image )
+				{
+					std::string uuid_str;
+					te_image->getID().toString( uuid_str );
+					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
+				}
 			}
 		}
-	}
-	apr_file_printf( file, "\t</archetype>\n" );
-	apr_file_printf( file, "\n</linden_genepool>\n" );
+		apr_file_printf( file, "\t</archetype>\n" );
+		apr_file_printf( file, "\n</linden_genepool>\n" );
 
-	bool ultra_verbose = false;
-	if (isSelf() && ultra_verbose)
-	{
-		// show the cloned params inside the wearables as well.
-		gAgentAvatarp->dumpWearableInfo(outfile);
+		bool ultra_verbose = false;
+		if (isSelf() && ultra_verbose)
+		{
+			// show the cloned params inside the wearables as well.
+			gAgentAvatarp->dumpWearableInfo(outfile);
+		}
+		outfile.close();
 	}
-	// File will close when handle goes out of scope
 }
 
 
