@@ -666,7 +666,7 @@ namespace LLMarketplaceImport
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					LL_INFOS() << " SLM POST clearing marketplace cookie due to client or server error" << LL_ENDL;
+					LL_INFOS() << " SLM POST : Clearing marketplace cookie due to client or server error" << LL_ENDL;
 				}
 				sMarketplaceCookie.clear();
 			}
@@ -746,7 +746,7 @@ namespace LLMarketplaceImport
 	
 	S32 getResultStatus()
 	{
-		return sImportResultStatus;
+        return sImportResultStatus;
 	}
 	
 	const LLSD& getResults()
@@ -989,47 +989,46 @@ void LLMarketplaceInventoryImporter::updateImport()
 		// If we are no longer in progress
 		if (!mImportInProgress)
 		{
-			if (mInitialized)
-			{
-				// Report results
-				if (mStatusReportSignal)
-				{
-					(*mStatusReportSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
-				}
-			}
-			else
-			{
-				// Look for results success
-				mInitialized = LLMarketplaceImport::hasSessionCookie();
-				
-				if (mInitialized)
-				{
-					mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MERCHANT;
-					// Follow up with auto trigger of import
-					if (mAutoTriggerImport)
-					{
-						mAutoTriggerImport = false;
-						mImportInProgress = triggerImport();
-					}
-				}
-				else
-				{
-					U32 status = LLMarketplaceImport::getResultStatus();
-					if ((status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
-						(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR))
-					{
-						mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT;
-					}
-					else 
-					{
-						mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE;
-					}
-					if (mErrorInitSignal && (mMarketPlaceStatus == MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE))
-					{
-						(*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
-					}
-				}
-			}
+            // Look for results success
+            mInitialized = LLMarketplaceImport::hasSessionCookie();
+
+            // Report results
+            if (mStatusReportSignal)
+            {
+                (*mStatusReportSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
+            }
+            
+            if (mInitialized)
+            {
+                mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MERCHANT;
+                // Follow up with auto trigger of import
+                if (mAutoTriggerImport)
+                {
+                    mAutoTriggerImport = false;
+                    mImportInProgress = triggerImport();
+                }
+            }
+            else
+            {
+                U32 status = LLMarketplaceImport::getResultStatus();
+                if ((status == MarketplaceErrorCodes::IMPORT_FORBIDDEN) ||
+                    (status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR))
+                {
+                    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT;
+                }
+                else if (status == MarketplaceErrorCodes::IMPORT_SERVER_API_DISABLED)
+                {
+                    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT;
+                }
+                else
+                {
+                    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE;
+                }
+                if (mErrorInitSignal && (mMarketPlaceStatus == MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE))
+                {
+                    (*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
+                }
+            }
 		}
 
 		// Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
