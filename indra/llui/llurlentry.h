@@ -179,6 +179,7 @@ public:
 	bool isTrusted() const { return true; }
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getTooltip(const std::string &url) const;
+	/*virtual*/	std::string getUrl(const std::string &string) const;
 
 private:
 	std::string mLabel;

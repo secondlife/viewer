@@ -368,6 +368,15 @@ std::string LLUrlEntrySeconlifeURL::getTooltip(const std::string &url) const
 	return url;
 }
 
+std::string LLUrlEntrySeconlifeURL::getUrl(const std::string &string) const
+{
+	if (string.find("://") == std::string::npos)
+	{
+		return "http://" + escapeUrl(string);
+	}
+	return escapeUrl(string);
+}
+
 //
 // LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
