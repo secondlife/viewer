@@ -504,9 +504,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7eded25a95721d2de9349ab10f462db7</string>
+              <string>fdd524bd208787a932df5e05af387afe</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/fmodex_3p-update-fmodex/rev/295033/arch/Darwin/installer/fmodex-4.44.31.295033-darwin-295033.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/fmodex_3p-update-fmodex/rev/295607/arch/Darwin/installer/fmodex-4.44.31.295607-darwin-295607.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -537,7 +537,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>4.44.31.295033</string>
+        <string>4.44.31.295607</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -1081,14 +1081,18 @@
         <key>version</key>
         <string>0.0</string>
       </map>
-      <key>havok_source</key>
+      <key>havok-source</key>
       <map>
+        <key>copyright</key>
+        <string>The Havok software (the "Software") and the accompanying documentation (the "Documentation") supplied (collectively, the "Product") are protected by United States, Irish and international copyright laws, and the copyrights and other intellectual property rights are owned by Telekinesys Research Limited (trading as Havok) Third Floor, 6 Suffolk Street, Dublin 2, Ireland.</string>
+        <key>description</key>
+        <string>Havok source code for libs and demos</string>
         <key>license</key>
-        <string>havok-ares</string>
+        <string>havok</string>
         <key>license_file</key>
         <string>LICENSES/havok.txt</string>
         <key>name</key>
-        <string>havok_source</string>
+        <string>havok-source</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1096,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e6feee3b452c2f70ce8558e30d6bc10a</string>
+              <string>04e7b4982cdd3b89c856978f81a8fdbf</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/lindenlab_3p-havok-source/rev/268409/arch/Darwin/installer/havok_source-2012.1-darwin-20121219.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/295468/arch/Darwin/installer/havok_source-2012.1-darwin-295468.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1128,6 +1132,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2012.1</string>
       </map>
       <key>jpeglib</key>
       <map>
@@ -1148,9 +1154,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>52b92e37b60e665799a492cf7fec6fd3</string>
+              <string>df84cdb8e6d34f76d0f80d9fd36a260b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/295039/arch/Darwin/installer/jpeglib-8c.295039-darwin-295039.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/295494/arch/Darwin/installer/jpeglib-8c.295494-darwin-295494.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1181,7 +1187,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>8c.295039</string>
+        <string>8c.295494</string>
       </map>
       <key>jsoncpp</key>
       <map>
@@ -1202,9 +1208,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>73d3e97bc4ed95df2e178abdde7098d7</string>
+              <string>4087d30bdbe760a8e35e580ce0a67a64</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/295041/arch/Darwin/installer/jsoncpp-0.5.0-darwin-295041.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/295605/arch/Darwin/installer/jsoncpp-0.5.0-darwin-295605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1364,9 +1370,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2184c31e517d2822996513bcc7c0487c</string>
+              <string>465a303dee2be33c80900d3801b8976e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/295045/arch/Darwin/installer/libndofdev-0.1.295045-darwin-295045.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/295599/arch/Darwin/installer/libndofdev-0.1.295599-darwin-295599.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1397,7 +1403,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>0.1.295045</string>
+        <string>0.1.295599</string>
       </map>
       <key>libpng</key>
       <map>
@@ -1584,11 +1590,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>289931abdb953224c1071b6b60a9ae9d</string>
+              <string>ca74ac91efcf2fab89544b79426460a5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/294977/arch/Darwin/installer/llphysicsextensions_source-1.0.294977-darwin-294977.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295454/arch/Darwin/installer/llphysicsextensions_source-1.0.295454-darwin-295454.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1619,7 +1625,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.0.294977</string>
+        <string>1.0.295454</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -1802,9 +1808,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5511ad42866628dab00af350c7eac30b</string>
+              <string>ea79f875296c8686180c426694e7488d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oggvorbis_3p-update-oggvorbis/rev/295047/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2.295047-darwin-295047.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oggvorbis_3p-update-oggvorbis/rev/295493/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2.295493-darwin-295493.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1835,7 +1841,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.2.2-1.3.2.295047</string>
+        <string>1.2.2-1.3.2.295493</string>
       </map>
       <key>openal</key>
       <map>
