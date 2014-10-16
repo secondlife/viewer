@@ -43,15 +43,13 @@
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
-extern LLControlGroup gSavedSettings;
-
 // Utility functions
 std::string localize_slapp_label(const std::string& url, const std::string& full_name);
 
 
 LLUrlEntryBase::LLUrlEntryBase()
 {
-	mGreyQuery = gSavedSettings.getBOOL("HTTPNoProtocolShowGreyQuery");
+	mGreyQuery = LLUI::sSettingGroups["config"]->getBOOL("HTTPNoProtocolShowGreyQuery");
 }
 
 LLUrlEntryBase::~LLUrlEntryBase()
