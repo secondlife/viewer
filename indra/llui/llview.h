@@ -44,7 +44,16 @@
 #include "llviewquery.h"
 #include "lluistring.h"
 #include "llcursortypes.h"
+
+#if LL_DARWIN
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdelete-incomplete"
 #include "lluictrlfactory.h"
+#pragma clang diagnostic pop
+#elif
+#include "lluictrlfactory.h"
+#endif
+
 #include "lltreeiterators.h"
 #include "llfocusmgr.h"
 
