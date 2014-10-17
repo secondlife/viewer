@@ -31,7 +31,12 @@
 
 #include "is_approx_equal_fraction.h" // instead of llmath.h
 
+// turn off warnings about unused functions from clang for tut package
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
 #include <tut/tut.hpp>
+#pragma clang diagnostic pop
+
 #include <cstring>
 
 class LLDate;
