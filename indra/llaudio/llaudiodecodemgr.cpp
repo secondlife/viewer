@@ -247,8 +247,7 @@ BOOL LLVorbisDecodeState::initDecode()
 		LL_WARNS("AudioEngine") << "Illegal sample count: " << sample_count << LL_ENDL;
 	}
 	
-	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE ||
-	    size_guess < 0)
+	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE )
 	{
 		abort_decode = true;
 		LL_WARNS("AudioEngine") << "Illegal sample size: " << size_guess << LL_ENDL;
