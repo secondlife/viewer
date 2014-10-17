@@ -696,11 +696,3 @@ BOOL LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
 	LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " no file available" << LL_ENDL;
 	return FALSE;
 }
-
-#if LL_DARWIN || LL_LINUX
-// HACK: to fool the compiler into not emitting unused warnings.
-namespace {
-	const ov_callbacks callback_array[4] = {OV_CALLBACKS_DEFAULT, OV_CALLBACKS_NOCLOSE, OV_CALLBACKS_STREAMONLY, 
-		OV_CALLBACKS_STREAMONLY_NOCLOSE};
-}
-#endif
