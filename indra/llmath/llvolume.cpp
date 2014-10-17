@@ -4914,9 +4914,7 @@ F64 find_vertex_score(LLVCacheVertexData& data)
 {
 	F64 score = -1.0;
 
-	if (data.mActiveTriangles >= 0)
-	{ 
-		score = 0.0;
+	score = 0.0;
 
 	S32 cache_idx = data.mCacheTag;
 
@@ -4938,9 +4936,8 @@ F64 find_vertex_score(LLVCacheVertexData& data)
 	}
 
 	//bonus points for having low valence
-		F64 valence_boost = pow((F64)data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
+	F64 valence_boost = pow((F64)data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
 	score += FindVertexScore_ValenceBoostScale * valence_boost;
-	}
 
 	return score;
 }
