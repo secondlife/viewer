@@ -568,9 +568,18 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 					(mReqLength ? fmt1 : fmt2),
 					(unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
 #else
-		snprintf(range_line, sizeof(range_line),
-				 (mReqLength ? fmt1 : fmt2),
-				 (unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
+		if ( mReqLength )
+		{
+			snprintf(range_line, sizeof(range_line),
+					 fmt1,
+					 (unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
+		}
+		else
+		{
+			snprintf(range_line, sizeof(range_line),
+					 fmt2,
+					 (unsigned long) mReqOffset);
+		}
 #endif // LL_WINDOWS
 		range_line[sizeof(range_line) - 1] = '\0';
 		mCurlHeaders = curl_slist_append(mCurlHeaders, range_line);
