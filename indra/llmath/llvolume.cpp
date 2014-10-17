@@ -56,8 +56,6 @@
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
 #define DEBUG_SILHOUETTE_EDGE_MAP 0 // DaveP: Use this to display edge map using the silhouette
 
-const F32 CUT_MIN = 0.f;
-const F32 CUT_MAX = 1.f;
 const F32 MIN_CUT_DELTA = 0.02f;
 
 const F32 HOLLOW_MIN = 0.f;
@@ -4027,7 +4025,6 @@ LLVertexIndexPair::LLVertexIndexPair(const LLVector3 &vertex, const S32 index)
 }
 
 const F32 VERTEX_SLOP = 0.00001f;
-const F32 VERTEX_SLOP_SQRD = VERTEX_SLOP * VERTEX_SLOP;
 
 struct lessVertex
 {
