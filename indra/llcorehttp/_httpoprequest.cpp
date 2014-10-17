@@ -91,7 +91,6 @@ char * os_strltrim(char * str);
 void os_strlower(char * str);
 
 // Error testing and reporting for libcurl status codes
-void check_curl_easy_code(CURLcode code);
 void check_curl_easy_code(CURLcode code, int curl_setopt_option);
 
 } // end anonymous namespace
@@ -1105,20 +1104,6 @@ void check_curl_easy_code(CURLcode code, int curl_setopt_option)
 		// at a pretty random time (when enabling cookies).
 		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
 							 << ", curl_easy_setopt option:  " << curl_setopt_option
-							 << LL_ENDL;
-	}
-}
-
-
-void check_curl_easy_code(CURLcode code)
-{
-	if (CURLE_OK != code)
-	{
-		// Comment from old llcurl code which may no longer apply:
-		//
-		// linux appears to throw a curl error once per session for a bad initialization
-		// at a pretty random time (when enabling cookies).
-		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
 							 << LL_ENDL;
 	}
 }
