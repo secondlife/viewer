@@ -29,7 +29,12 @@
 
 // Support classes for reading and writing from memory buffers in KDU
 #define KDU_NO_THREADS
+// don't *really* want to rebuild KDU so turn off specific warnings for this header
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include "kdu_image.h"
+#pragma clang diagnostic pop
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"

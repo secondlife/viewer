@@ -36,7 +36,13 @@
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"
+
+// don't *really* want to rebuild KDU so turn off specific warnings for this header
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include "kdu_compressed.h"
+#pragma clang diagnostic pop
+
 #include "kdu_sample_processing.h"
 
 class LLKDUDecodeState;
