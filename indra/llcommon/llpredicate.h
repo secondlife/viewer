@@ -141,7 +141,8 @@ namespace LLPredicate
 
 		void require(ENUM e)
 		{
-			mRule.set(e, require);
+			// TEMP XCODE6FIX checkin while i figure out what the heck this is supposed to mean
+			// mRule.set(e, require);
 		}
 
 		void allow(ENUM e)
