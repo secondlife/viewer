@@ -2287,7 +2287,10 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 			next->getVolumeFaces() = remainder;
 			next->mNormalizedScale = ret->mNormalizedScale;
 			next->mNormalizedTranslation = ret->mNormalizedTranslation;
-			next->mMaterialList.assign(ret->mMaterialList.begin() + LL_SCULPT_MESH_MAX_FACES, ret->mMaterialList.end());
+			if ( ret->mMaterialList.size() > LL_SCULPT_MESH_MAX_FACES)
+			{
+				next->mMaterialList.assign(ret->mMaterialList.begin() + LL_SCULPT_MESH_MAX_FACES, ret->mMaterialList.end());
+			}
 			ret = next;
 		}
 
