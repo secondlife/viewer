@@ -160,9 +160,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ebbdee3a936e1ce3fc63da64fdab01b1</string>
+              <string>a8252cb5f0eae61ada2f02163e67b752</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/295362/arch/Darwin/installer/boost-1.56-darwin-295362.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/295616/arch/Darwin/installer/boost-1.56-darwin-295616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -212,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>07fc04b6fdac24461bd42eb81e187dfa</string>
+              <string>7e64506a22e23ed9d677643d12fad2a9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/295377/arch/Darwin/installer/colladadom-2.3.295377-darwin-295377.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/295634/arch/Darwin/installer/colladadom-2.3.295634-darwin-295634.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -245,7 +245,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>2.3.295377</string>
+        <string>2.3.295634</string>
       </map>
       <key>curl</key>
       <map>
@@ -922,9 +922,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ccf131481cdbd211689a21f8294acc17</string>
+              <string>0b7abee7091e958ee21ccbd1650d8641</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/295374/arch/Darwin/installer/googlemock-1.7.0.295374-darwin-295374.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/295633/arch/Darwin/installer/googlemock-1.7.0.295633-darwin-295633.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -955,7 +955,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.295374</string>
+        <string>1.7.0.295633</string>
       </map>
       <key>gperftools</key>
       <map>
@@ -2178,9 +2178,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f4b9bcae2c120ea948dd0d30b9c053f</string>
+              <string>4d0ef5415076e6593f2533c05c9a87ee</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/295251/arch/Darwin/installer/xmlrpc_epi-0.54.1.295251-darwin-295251.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/295632/arch/Darwin/installer/xmlrpc_epi-0.54.1.295632-darwin-295632.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2211,7 +2211,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>0.54.1.295272</string>
+        <string>0.54.1.295632</string>
       </map>
       <key>zlib</key>
       <map>
