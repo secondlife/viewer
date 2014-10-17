@@ -205,7 +205,17 @@ endif (DARWIN)
 
 
 if (LINUX OR DARWIN)
+  if (CMAKE_CXX_COMPILER MATCHES ".*clang")
+    set(CMAKE_COMPILER_IS_CLANGXX 1)
+  endif (CMAKE_CXX_COMPILER MATCHES ".*clang")
+
+  if (CMAKE_COMPILER_IS_GNUCXX)
   set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
+  elseif (CMAKE_COMPILER_IS_CLANGXX)
+    # These unused warnings really ought to be cleaned up over time
+    set(UNUSED_WARNINGS "-Wno-overloaded-virtual")
+    set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs ${UNUSED_WARNINGS}")
+  endif()
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
     set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
