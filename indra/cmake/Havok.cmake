@@ -3,7 +3,7 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
-use_prebuilt_binary(havok_source)
+use_prebuilt_binary(havok-source)
 
 set(Havok_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/havok/Source)
 list(APPEND Havok_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/havok/Demo)
