@@ -26,7 +26,15 @@
  * $/LicenseInfo$
  */
 
+#if LL_DARWIN
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
 #include <tut/tut.hpp>
+#pragma clang diagnostic pop
+#elif
+#include <tut/tut.hpp>
+#endif
+
 #include "linden_common.h"
 #include "lltut.h"
 #include "llbuffer.h"
