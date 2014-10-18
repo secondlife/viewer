@@ -408,10 +408,8 @@ LLAgent::LLAgent() :
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
 	mOutfitChosen(FALSE),
-	
-	mVoiceConnected(false),
 
-	mAppearanceSerialNum(0),
+	mVoiceConnected(false),
 
 	mMouselookModeInSignal(NULL),
 	mMouselookModeOutSignal(NULL)
