@@ -9,3 +9,5 @@
 * Port llQtWebKit with SSL3/TLS fix to hacked version and include in autobuild (Oz)
 
 * Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q)
+
+* Fix llphysicsextension so it builds locally and remove unused variables 78-81
