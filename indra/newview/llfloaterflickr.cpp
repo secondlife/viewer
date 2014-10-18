@@ -55,7 +55,6 @@
 static LLPanelInjector<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLPanelInjector<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
 
-const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
 const std::string DEFAULT_TAG_TEXT = "secondlife ";
 const std::string FLICKR_MACHINE_TAGS_NAMESPACE = "secondlife";

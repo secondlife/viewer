@@ -52,10 +52,7 @@
 // The minor cardinal direction labels are hidden if their height is more
 // than this proportion of the map.
 const F32 MAP_MINOR_DIR_THRESHOLD = 0.07f;
-const S32 MAP_PADDING_LEFT = 0;
-const S32 MAP_PADDING_TOP = 2;
-const S32 MAP_PADDING_RIGHT = 2;
-const S32 MAP_PADDING_BOTTOM = 0;
+
 //
 // Member functions
 //
