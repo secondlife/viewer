@@ -2260,8 +2260,6 @@ void LLAgent::heardChat(const LLUUID& id)
 	mChatTimer.reset();
 }
 
-const F32 SIT_POINT_EXTENTS = 0.2f;
-
 LLSD ll_sdmap_from_vector3(const LLVector3& vec)
 {
     LLSD ret;

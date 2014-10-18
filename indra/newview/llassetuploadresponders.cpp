@@ -63,9 +63,6 @@
 #include "llsdutil.h"
 #include "llvfs.h"
 
-// When uploading multiple files, don't display any of them when uploading more than this number.
-static const S32 FILE_COUNT_DISPLAY_THRESHOLD = 5;
-
 void dialog_refresh_all();
 
 void on_new_single_inventory_upload_complete(
