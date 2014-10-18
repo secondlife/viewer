@@ -15,4 +15,6 @@
 	* remove unused variables 78-81
 	* remove pointer to hacked version in vewer autobuild.xml
 
+* clang demands default ctor here: https://bitbucket.org/callum_linden/viewer-tools-update-callum/src/c58560da7bb6e00deffcbbc1c25cbf87bf2e96ec/indra/newview/llgrouplist.cpp?at=default#cl-53   side effects?
+
 
