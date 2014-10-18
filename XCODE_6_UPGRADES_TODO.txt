@@ -5,3 +5,7 @@
 * Missed off some #if LL_DARWINs around #pragmas to turn off non-useful warnings for OS X - will fix when build Windows viewer
 
 * Remove explicity code to turn off unused funcs for tut.hpp (#pragma clang diagnostic ignored "-Wunused-function") - moved to package itself
+
+* Port llQtWebKit with SSL3/TLS fix to hacked version and include in autobuild (Oz)
+
+* Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q)
