@@ -4,3 +4,4 @@
 
 * Missed off some #if LL_DARWINs around #pragmas to turn off non-useful warnings for OS X - will fix when build Windows viewer
 
+* Remove explicity code to turn off unused funcs for tut.hpp (#pragma clang diagnostic ignored "-Wunused-function") - moved to package itself
