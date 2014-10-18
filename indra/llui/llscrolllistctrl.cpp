@@ -2095,9 +2095,6 @@ BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask )
 	// not called from parent means we have keyboard focus or a child does
 	if (mCanSelect) 
 	{
-		// Ignore capslock
-		mask = mask;
-
 		if (mask == MASK_NONE)
 		{
 			switch(key)
