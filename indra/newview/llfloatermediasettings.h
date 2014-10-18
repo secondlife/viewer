@@ -83,7 +83,6 @@ private:
 	bool haveValuesChanged() const;
 	
 	LLSD mInitialValues;
-	bool mWaitingToClose;
 };
 
 #endif  // LL_LLFLOATERMEDIASETTINGS_H
