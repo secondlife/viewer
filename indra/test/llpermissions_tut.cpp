@@ -28,7 +28,16 @@
  
 #include <tut/tut.hpp>
 #include "linden_common.h"
+
+#if LL_DARWIN
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
 #include "lltut.h"
+#pragma clang diagnostic pop
+#elif
+#include "lltut.h"
+#endif
+
 #include "message.h"
 #include "llpermissions.h"
 
