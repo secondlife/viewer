@@ -1,0 +1,6 @@
+* Remove references to Xcode < 6 from CMake (and everywhere else I guess)
+
+* /Users/callum/work/Linden/viewer-tools-update-callum/indra/llcommon/llpredicate.h:144:17 trying to decipher correct code here.
+
+* Missed off some #if LL_DARWINs around #pragmas to turn off non-useful warnings for OS X - will fix when build Windows viewer
+
