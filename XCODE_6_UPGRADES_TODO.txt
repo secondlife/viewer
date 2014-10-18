@@ -1,13 +1,18 @@
 * Remove references to Xcode < 6 from CMake (and everywhere else I guess)
 
-* /Users/callum/work/Linden/viewer-tools-update-callum/indra/llcommon/llpredicate.h:144:17 trying to decipher correct code here.
+* /Users/callum/work/Linden/viewer-tools-update-callum/indra/llcommon/llpredicate.h:144:17 trying to decipher correct code here. (via Richard)
 
 * Missed off some #if LL_DARWINs around #pragmas to turn off non-useful warnings for OS X - will fix when build Windows viewer
 
-* Remove explicity code to turn off unused funcs for tut.hpp (#pragma clang diagnostic ignored "-Wunused-function") - moved to package itself
+* Remove explicit code to turn off unused funcs for tut.hpp (#pragma clang diagnostic ignored "-Wunused-function") - I moved it to package itself
 
 * Port llQtWebKit with SSL3/TLS fix to hacked version and include in autobuild (Oz)
 
 * Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q)
 
-* Fix llphysicsextension so it builds locally and remove unused variables 78-81
+* Fix llphysicsextension:
+	* so it builds locally
+	* remove unused variables 78-81
+	* remove pointer to hacked version in vewer autobuild.xml
+
+
