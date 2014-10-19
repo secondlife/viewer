@@ -550,7 +550,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		if (mFilterOps.mFilterTypes == FILTERTYPE_UUID)
 		{
 			mFilterOps.mFilterTypes &= ~FILTERTYPE_UUID;
-			mFilterOps.mFilterUUID == LLUUID::null;
+			mFilterOps.mFilterUUID = LLUUID::null;
 			setModified(FILTER_RESTART);
 		}
 
