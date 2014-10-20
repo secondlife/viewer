@@ -25,11 +25,7 @@
  * $/LicenseInfo$
  */
 
-// turn off warnings about unused functions from clang for tut package
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
 #include <tut/tut.hpp>
-#pragma clang diagnostic pop
 
 #include "linden_common.h"
 #include "llapp.h"

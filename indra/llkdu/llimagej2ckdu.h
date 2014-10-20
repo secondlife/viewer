@@ -38,10 +38,14 @@
 #include "kdu_params.h"
 
 // don't *really* want to rebuild KDU so turn off specific warnings for this header
+#if LL_DARWIN
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-private-field"
 #include "kdu_compressed.h"
 #pragma clang diagnostic pop
+#elif
+#include "kdu_compressed.h"
+#endif
 
 #include "kdu_sample_processing.h"
 
