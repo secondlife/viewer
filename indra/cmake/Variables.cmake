@@ -129,29 +129,10 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
   
-  execute_process(
-    COMMAND sh -c "xcodebuild -version | grep Xcode  | cut -d ' ' -f2 | cut -d'.' -f1-2"
-    OUTPUT_VARIABLE XCODE_VERSION )
-
-  # To support a different SDK update these Xcode settings:
-  # (Using > 5.9 because CMake doesn't have a >= operator)
-  if (XCODE_VERSION GREATER 5.9)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.7)
-    set(CMAKE_OSX_SYSROOT macosx10.9)
-  else (XCODE_VERSION GREATER 5.9)
-  if (XCODE_VERSION GREATER 4.5)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8)
-    set(CMAKE_OSX_SYSROOT macosx10.8)
-  else (XCODE_VERSION GREATER 4.5)
-  if (XCODE_VERSION GREATER 4.2)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6)
-    set(CMAKE_OSX_SYSROOT macosx10.7)
-  else (XCODE_VERSION GREATER 4.2)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6)
-    set(CMAKE_OSX_SYSROOT macosx10.7)
-  endif (XCODE_VERSION GREATER 4.2)
-  endif (XCODE_VERSION GREATER 4.5)
-  endif (XCODE_VERSION GREATER 5.9)
+  # now we only support Xcode 6.0 using 10.9 (Mavericks), minimum OS 10.7 (Lion)
+  set(XCODE_VERSION 6.0)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.7)
+  set(CMAKE_OSX_SYSROOT macosx10.9)
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
   set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL 3)
@@ -177,10 +158,8 @@ set(GRID agni CACHE STRING "Target Grid")
 
 set(VIEWER_CHANNEL "Second Life Test" CACHE STRING "Viewer Channel Name")
 
-if (XCODE_VERSION GREATER 4.2)
-  set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
-  set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
-endif (XCODE_VERSION GREATER 4.2)
+set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
+set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
 
 set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 set(USESYSTEMLIBS OFF CACHE BOOL "Use libraries from your system rather than Linden-supplied prebuilt libraries.")
