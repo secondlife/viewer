@@ -128,10 +128,14 @@ void LLModel::sortVolumeFacesByMaterialName()
 {
 	std::vector<MaterialBinding> bindings;
 	bindings.resize(mVolumeFaces.size());
+
 	for (int i = 0; i < bindings.size(); i++)
 	{
 		bindings[i].index = i;
-		bindings[i].matName = mMaterialList[i];
+		if(i < mMaterialList.size())
+		{
+			bindings[i].matName = mMaterialList[i];
+		}
 	}
 	std::sort(bindings.begin(), bindings.end(), MaterialSort());
 	std::vector< LLVolumeFace > new_faces;
@@ -142,7 +146,10 @@ void LLModel::sortVolumeFacesByMaterialName()
 	for (int i = 0; i < bindings.size(); i++)
 	{
 		new_faces[i] = mVolumeFaces[bindings[i].index];
-		mMaterialList[i] = bindings[i].matName;
+		if(i < mMaterialList.size())
+		{
+			mMaterialList[i] = bindings[i].matName;
+		}
 	}
 
 	mVolumeFaces = new_faces;	
