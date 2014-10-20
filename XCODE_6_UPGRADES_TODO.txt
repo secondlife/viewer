@@ -1,19 +1,9 @@
-* Build with tests on (LL_TESTS:BOOL=ON) and fix
+* autobuild configure with tests on (LL_TESTS:BOOL=ON) and fix errors
 
-* Missed off some #if LL_DARWINs around #pragmas to turn off non-useful warnings for OS X - will fix when build Windows viewer
+* Get release build working (RelWithDebInfo works) - rel build linker fails on KDU error
 
-* Remove explicit code to turn off unused funcs for tut.hpp (#pragma clang diagnostic ignored "-Wunused-function") - I moved it to package itself
-
-* Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q)
-
-* Fix llphysicsextension:
-	* so it builds locally
-	* remove unused variables 78-81
-	* remove pointer to hacked version in vewer autobuild.xml
+* Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q), rebuild package and point autobuild.xml at original version
 
 * Nat to look at this please: https://bitbucket.org/callum_linden/viewer-tools-update-callum/commits/3d2fb85943d527e7db9908ff2824bc54afe916f1
 
-* Rebuild with CMake 3.0.2
-
-* Remove -Wno-sign-compare from indra/cmake/00-Common.cmake and see if it builds.  (Why did this switched off still catch U32 v; if ( v < 0 ) {  })
-
+* Remove -Wno-sign-compare from indra/cmake/00-Common.cmake and see if it builds.  (Why did this, switched off, still catch code like U32 v; if ( v < 0 ) {  })
