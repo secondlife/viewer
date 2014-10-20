@@ -1590,11 +1590,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0ffa749b8be7b9193e25034aaf9a44aa</string>
+              <string>ca74ac91efcf2fab89544b79426460a5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295454/arch/Darwin/installer/llphysicsextensions_source-1.0.HACK-darwin-295454.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295454/arch/Darwin/installer/llphysicsextensions_source-1.0.295454-darwin-295454.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
