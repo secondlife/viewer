@@ -75,7 +75,6 @@
 #include "llviewerwindow.h"
 
 // Constants
-static const S32 LANDMARK_FOLDERS_MENU_WIDTH = 250;
 static const F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
 static const std::string AGENT_INFO_TYPE			= "agent";
 static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
