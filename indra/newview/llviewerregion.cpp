@@ -1924,7 +1924,7 @@ public:
 			}
 			else if( i != you_index)
 			{
-				U32 loc = x << 16 | y << 8 | z; loc = loc;
+				U32 loc = x << 16 | y << 8 | z;
 				U32 pos = 0x0;
 				pos |= x;
 				pos <<= 8;
