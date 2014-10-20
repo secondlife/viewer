@@ -70,7 +70,6 @@ const F32 DEFAULT_MAXIMUM_GESTICULATION_AMPLITUDE	= 1.0f;
 //--------------------------------------------------------------------------------------
 // other constants
 //--------------------------------------------------------------------------------------
-const F32 ONE_HALF = 1.0f; // to clarify intent and reduce magic numbers in the code. 
 const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is up in SL
 
 //------------------------------------------------------------------

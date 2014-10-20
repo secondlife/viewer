@@ -70,7 +70,6 @@ U32			gAgentPauseSerialNum = 0;
 //
 // Constants
 //
-const S32 MAX_NUMBER_OF_CLOUDS	= 750;
 const S32 WORLD_PATCH_SIZE = 16;
 
 extern LLColor4U MAX_WATER_COLOR;

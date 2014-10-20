@@ -128,10 +128,7 @@ extern void on_new_message(const LLSD& msg);
 //
 // Constants
 //
-const F32 BIRD_AUDIBLE_RADIUS = 32.0f;
-const F32 SIT_DISTANCE_FROM_TARGET = 0.25f;
 const F32 CAMERA_POSITION_THRESHOLD_SQUARED = 0.001f * 0.001f;
-static const F32 LOGOUT_REPLY_TIME = 3.f;	// Wait this long after LogoutReply before quitting.
 
 // Determine how quickly residents' scripts can issue question dialogs
 // Allow bursts of up to 5 dialogs in 10 seconds. 10*2=20 seconds recovery if throttle kicks in
@@ -7117,8 +7114,6 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 //---------------------------------------------------------------------------
 
 const S32 SCRIPT_DIALOG_MAX_BUTTONS = 12;
-const S32 SCRIPT_DIALOG_BUTTON_STR_SIZE = 24;
-const S32 SCRIPT_DIALOG_MAX_MESSAGE_SIZE = 512;
 const char* SCRIPT_DIALOG_HEADER = "Script Dialog:\n";
 
 bool callback_script_dialog(const LLSD& notification, const LLSD& response)

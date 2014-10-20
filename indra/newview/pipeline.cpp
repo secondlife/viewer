@@ -207,15 +207,9 @@ F32 LLPipeline::CameraDoFResScale;
 F32 LLPipeline::RenderAutoHideSurfaceAreaLimit;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
-const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
-const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
-const S32 MAX_OFFSCREEN_GEOMETRY_CHANGES_PER_FRAME = 10;
-const U32 REFLECTION_MAP_RES = 128;
 const U32 DEFERRED_VB_MASK = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
-// Max number of occluders to search for. JC
-const S32 MAX_OCCLUDER_COUNT = 2;
 
 extern S32 gBoxFrame;
 //extern BOOL gHideSelectedObjects;
@@ -409,16 +403,6 @@ BOOL	LLPipeline::sRenderingHUDs;
 static LLPipelineListener sPipelineListener;
 
 static LLCullResult* sCull = NULL;
-
-static const U32 gl_cube_face[] = 
-{
-	GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
-	GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
-	GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
-	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
-	GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
-	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
-};
 
 void validate_framebuffer_object();
 
