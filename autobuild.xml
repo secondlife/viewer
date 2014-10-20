@@ -1700,11 +1700,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2f20b5a2303e98981706b0a0566d0844</string>
+              <string>0babab42b66a643da74c8b287e412caa</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-darwin-20141008.tar.bz2</string>
+              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-darwin-295522.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1714,11 +1714,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d6b90550524d02b00d9d08b7039400a1</string>
+              <string>40540b9974ac7df477f0685b389b0766</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-linux-20141008.tar.bz2</string>
+              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-linux-295522.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1728,11 +1728,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>28b12c86f2ab89ef202ffadac5bb3f31</string>
+              <string>19c035d15782ae35b45fd43f486292f6</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-windows-20141008.tar.bz2</string>
+              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-windows-295522.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
