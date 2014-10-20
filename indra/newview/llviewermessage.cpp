@@ -2411,7 +2411,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
 		// object IMs contain sender object id in session_id (STORM-1209)
-		|| dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id);
+		|| (dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id));
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
 	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
@@ -5116,7 +5116,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	if (object)
 	{
 		LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
-		if (!use_autopilot || isAgentAvatarValid() && gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == object->getRoot())
+		if (!use_autopilot || (isAgentAvatarValid() && gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == object->getRoot()))
 		{
 			//we're already sitting on this object, so don't autopilot
 		}
