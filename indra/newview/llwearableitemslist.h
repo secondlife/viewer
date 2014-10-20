@@ -382,6 +382,10 @@ class LLWearableItemCreationDateComparator : public LLWearableItemNameComparator
 {
 	LOG_CLASS(LLWearableItemCreationDateComparator);
 
+public:
+	// clang demands a default ctor here 
+	LLWearableItemCreationDateComparator() {}
+
 protected:
 	/*virtual*/ bool doCompare(const LLPanelInventoryListItemBase* item1, const LLPanelInventoryListItemBase* item2) const;
 };
