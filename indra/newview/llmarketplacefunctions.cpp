@@ -1030,13 +1030,13 @@ void LLMarketplaceInventoryImporter::updateImport()
                 }
             }
 		}
-
-		// Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
-		if (mStatusChangedSignal)
-		{
-			(*mStatusChangedSignal)(mImportInProgress);
-		}
 	}
+    
+    // Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
+    if (mStatusChangedSignal)
+    {
+        (*mStatusChangedSignal)(mImportInProgress);
+    }
 }
 
 //
