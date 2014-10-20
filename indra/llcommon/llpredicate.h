@@ -139,10 +139,9 @@ namespace LLPredicate
 		Rule()
 		{}
 
-		void require(ENUM e)
+		void require(ENUM e, bool match)
 		{
-			// TEMP XCODE6FIX checkin while i figure out what the heck this is supposed to mean
-			// mRule.set(e, require);
+			mRule.set(e, match);
 		}
 
 		void allow(ENUM e)

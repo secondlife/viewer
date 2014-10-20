@@ -1,12 +1,8 @@
-* Remove references to Xcode < 6 from CMake (and everywhere else I guess)
-
-* /Users/callum/work/Linden/viewer-tools-update-callum/indra/llcommon/llpredicate.h:144:17 trying to decipher correct code here. (via Richard)
+* Build with tests on (LL_TESTS:BOOL=ON) and fix
 
 * Missed off some #if LL_DARWINs around #pragmas to turn off non-useful warnings for OS X - will fix when build Windows viewer
 
 * Remove explicit code to turn off unused funcs for tut.hpp (#pragma clang diagnostic ignored "-Wunused-function") - I moved it to package itself
-
-* Port llQtWebKit with SSL3/TLS fix to hacked version and include in autobuild (Oz)
 
 * Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q)
 
@@ -15,6 +11,9 @@
 	* remove unused variables 78-81
 	* remove pointer to hacked version in vewer autobuild.xml
 
-* clang demands default ctor here: https://bitbucket.org/callum_linden/viewer-tools-update-callum/src/c58560da7bb6e00deffcbbc1c25cbf87bf2e96ec/indra/newview/llgrouplist.cpp?at=default#cl-53   side effects?
-
 * Nat to look at this please: https://bitbucket.org/callum_linden/viewer-tools-update-callum/commits/3d2fb85943d527e7db9908ff2824bc54afe916f1
+
+* Rebuild with CMake 3.0.2
+
+* Remove -Wno-sign-compare from indra/cmake/00-Common.cmake and see if it builds.  (Why did this switched off still catch U32 v; if ( v < 0 ) {  })
+
