@@ -229,8 +229,6 @@ void LLManipScale::render()
 		const F32 BOX_HANDLE_BASE_SIZE		= 50.0f;   // box size in pixels = BOX_HANDLE_BASE_SIZE * BOX_HANDLE_BASE_FACTOR
 		const F32 BOX_HANDLE_BASE_FACTOR	= 0.2f;
 
-		LLVector3 center_agent = gAgent.getPosAgentFromGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal());
-
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			for (S32 i = 0; i < NUM_MANIPULATORS; i++)
