@@ -67,7 +67,6 @@ const F32 LLNetMap::MAP_SCALE_MIN = 32;
 const F32 LLNetMap::MAP_SCALE_MID = 1024;
 const F32 LLNetMap::MAP_SCALE_MAX = 4096;
 
-const F32 MAP_SCALE_INCREMENT = 16;
 const F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
 const F32 MIN_DOT_RADIUS = 3.5f;
 const F32 DOT_SCALE = 0.75f;
