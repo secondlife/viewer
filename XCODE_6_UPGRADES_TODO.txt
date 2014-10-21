@@ -1,12 +1,9 @@
 * autobuild configure with tests on (LL_TESTS:BOOL=ON) and fix errors
 
-* Get release build working (RelWithDebInfo works) - rel build linker fails on KDU error
-
 * Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q), rebuild package and point autobuild.xml at original version
 
-* Nat to look at this please: https://bitbucket.org/callum_linden/viewer-tools-update-callum/commits/3d2fb85943d527e7db9908ff2824bc54afe916f1
+* Investigates: https://bitbucket.org/callum_linden/viewer-tools-update-callum/commits/3d2fb85943d527e7db9908ff2824bc54afe916f1
 
-Weird folder name "build-darwin-i386/newview/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Second Life.app" - likely causes because those $() should be ${} for CMake?
+Weird folder name "build-darwin-i386/newview/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Second Life.app" - likely causes because those $() should be ${} for CMake? - No, it's something else - lots of occurences in build-darwin folder but where do they come from? ....
 
 libjpeg is placed in lib folder vs lib/release - change it to match others
-
