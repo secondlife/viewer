@@ -814,9 +814,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2bcd8b78492d43618694293cf998506a</string>
+              <string>dfe1796d5eeb0a13a3798449fa1ac20e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glui_3p-update-glui/rev/295075/arch/Darwin/installer/glui-2.36.295075-darwin-295075.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glui_3p-update-glui/rev/295773/arch/Darwin/installer/glui-2.36.295773-darwin-295773.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -847,7 +847,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>2.36.295075</string>
+        <string>2.36.295773</string>
       </map>
       <key>google_breakpad</key>
       <map>
