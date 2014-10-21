@@ -1262,9 +1262,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0f11be92eab4711897c1ccf384880f89</string>
+              <string>d76dece7c914d786719e5faf76e796f7</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/295042/arch/Darwin/installer/kdu-7.2.295042-darwin-295042.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/295789/arch/Darwin/installer/kdu-7.2.295789-darwin-295789.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1295,7 +1295,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>7.2.295042</string>
+        <string>7.2.295789</string>
       </map>
       <key>libhunspell</key>
       <map>
