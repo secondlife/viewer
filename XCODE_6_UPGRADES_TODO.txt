@@ -6,4 +6,7 @@
 
 * Nat to look at this please: https://bitbucket.org/callum_linden/viewer-tools-update-callum/commits/3d2fb85943d527e7db9908ff2824bc54afe916f1
 
-* Remove -Wno-sign-compare from indra/cmake/00-Common.cmake and see if it builds.  (Why did this, switched off, still catch code like U32 v; if ( v < 0 ) {  })
+Weird folder name "build-darwin-i386/newview/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Second Life.app" - likely causes because those $() should be ${} for CMake?
+
+libjpeg is placed in lib folder vs lib/release - change it to match others
+
