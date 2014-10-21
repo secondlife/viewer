@@ -3028,7 +3028,7 @@
         </map>
       </map>
       <key>version_file</key>
-      <string>VERSION.txt</string>
+      <string>newview/viewer_version.txt</string>
     </map>
     <key>type</key>
     <string>autobuild</string>
