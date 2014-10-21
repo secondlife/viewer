@@ -99,8 +99,6 @@ const char MEMINFO_FILE[] = "/proc/meminfo";
 extern int errno;
 #endif
 
-
-static const S32 CPUINFO_BUFFER_SIZE = 16383;
 LLCPUInfo gSysCPU;
 
 // Don't log memory info any more often than this. It also serves as our
@@ -671,8 +669,6 @@ const std::string& LLOSInfo::getOSVersionString() const
 {
 	return mOSVersionString;
 }
-
-const S32 STATUS_SIZE = 8192;
 
 //static
 U32 LLOSInfo::getProcessVirtualSizeKB()

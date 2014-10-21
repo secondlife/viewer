@@ -807,7 +807,7 @@ std::streamsize llstdio_filebuf::xsgetn(char_type* __s, std::streamsize __n)
 	return __ret;
 }
 
-std::streamsize llstdio_filebuf::xsputn(char_type* __s, std::streamsize __n)
+std::streamsize llstdio_filebuf::xsputn(const char_type* __s, std::streamsize __n)
 {
 	// Optimization in the always_noconv() case, to be generalized in the
 	// future: when __n is sufficiently large we write directly instead of

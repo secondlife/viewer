@@ -61,12 +61,6 @@ LLCoordGL LLFontGL::sCurOrigin;
 F32 LLFontGL::sCurDepth;
 std::vector<std::pair<LLCoordGL, F32> > LLFontGL::sOriginStack;
 
-const F32 EXT_X_BEARING = 1.f;
-const F32 EXT_Y_BEARING = 0.f;
-const F32 EXT_KERNING = 1.f;
-const F32 PIXEL_BORDER_THRESHOLD = 0.0001f;
-const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
-
 const F32 PAD_UVY = 0.5f; // half of vertical padding between glyphs in the glyph texture
 const F32 DROP_SHADOW_SOFT_STRENGTH = 0.3f;
 

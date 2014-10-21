@@ -338,7 +338,7 @@ private:
 
 		// Threads:  Ttf
 		DecodeResponder(LLTextureFetch* fetcher, const LLUUID& id, LLTextureFetchWorker* worker)
-			: mFetcher(fetcher), mID(id), mWorker(worker)
+			: mFetcher(fetcher), mID(id)
 		{
 		}
 
@@ -354,7 +354,6 @@ private:
 	private:
 		LLTextureFetch* mFetcher;
 		LLUUID mID;
-		LLTextureFetchWorker* mWorker; // debug only (may get deleted from under us, use mFetcher/mID)
 	};
 
 	struct Compare

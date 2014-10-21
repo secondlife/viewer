@@ -38,7 +38,6 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 
-const F32 MAX_TIME_FOR_SINGLE_FETCH = 10.f;
 const S32 MAX_FETCH_RETRIES = 10;
 
 LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch() :

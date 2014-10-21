@@ -396,9 +396,6 @@ void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
 	mTrunkLOD = trunk_LOD;
 }
 
-const F32 TREE_BLEND_MIN = 1.f;
-const F32 TREE_BLEND_RANGE = 1.f;
-
 void LLVOTree::render(LLAgent &agent)
 {
 }

@@ -2164,10 +2164,6 @@ LLControlVariable *LLView::findControl(const std::string& name)
 	return control_group.getControl(name);	
 }
 
-const S32 FLOATER_H_MARGIN = 15;
-const S32 MIN_WIDGET_HEIGHT = 10;
-const S32 VPAD = 4;
-
 void LLView::initFromParams(const LLView::Params& params)
 {
 	LLRect required_rect = getRequiredRect();

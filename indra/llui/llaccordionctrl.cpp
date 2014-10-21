@@ -36,24 +36,16 @@
 
 #include "boost/bind.hpp"
 
-static const S32 DRAGGER_BAR_MARGIN = 4;
-static const S32 DRAGGER_BAR_HEIGHT = 5;
 static const S32 BORDER_MARGIN = 2;
 static const S32 PARENT_BORDER_MARGIN = 5;
-
-static const S32 panel_delta = DRAGGER_BAR_MARGIN;  // Distanse between two panels 
-
-static const S32 HORIZONTAL_MULTIPLE = 8;
 static const S32 VERTICAL_MULTIPLE = 16;
 static const F32 MIN_AUTO_SCROLL_RATE = 120.f;
 static const F32 MAX_AUTO_SCROLL_RATE = 500.f;
 static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 
-
 // LLAccordionCtrl =================================================================|
 
 static LLDefaultChildRegistry::Register<LLAccordionCtrl>	t2("accordion");
-
 
 LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mFitParent(params.fit_parent)

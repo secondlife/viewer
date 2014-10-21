@@ -103,7 +103,6 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
 LLFontFreetype::LLFontFreetype()
 :	LLTrace::MemTrackable<LLFontFreetype>("LLFontFreetype"),
 	mFontBitmapCachep(new LLFontBitmapCache),
-	mValid(FALSE),
 	mAscender(0.f),
 	mDescender(0.f),
 	mLineHeight(0.f),

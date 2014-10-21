@@ -75,9 +75,6 @@
 
 #include "llsdserialize.h"
 
-const S32 BLACK_BORDER_HEIGHT = 160;
-const S32 MAX_PASSWORD = 16;
-
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 

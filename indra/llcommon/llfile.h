@@ -188,7 +188,7 @@ protected:
 	/*virtual*/ int sync();
 
 	std::streamsize xsgetn(char_type*, std::streamsize);
-	std::streamsize xsputn(char_type*, std::streamsize);
+	std::streamsize xsputn(const char_type*, std::streamsize);
 #endif
 };
 

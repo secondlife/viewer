@@ -44,14 +44,8 @@
 
 extern BOOL gDebugWindowProc;
 
-// culled from winuser.h
-//const S32	WHEEL_DELTA = 120;     /* Value for rolling one detent */
-// On the Mac, the scroll wheel reports a delta of 1 for each detent.
-// There's also acceleration for faster scrolling, based on a slider in the system preferences.
-const S32	WHEEL_DELTA = 1;     /* Value for rolling one detent */
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;
-
 
 //
 // LLWindowMacOSX

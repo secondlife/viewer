@@ -48,7 +48,6 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-static const S32 HORIZONTAL_MULTIPLE = 8;
 static const S32 VERTICAL_MULTIPLE = 16;
 static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 

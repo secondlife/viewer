@@ -45,10 +45,7 @@ const F32 TIME_EPSILON = 0.001f;				// minumum frame time
 const F32 MAX_TIME_DELTA = 2.f;					// max two seconds a frame for calculating interpolation
 F32 SPEED_ADJUST_MAX_SEC = 2.f;					// maximum adjustment to walk animation playback speed for a second
 F32 ANIM_SPEED_MAX = 1.5f;						// absolute upper limit on animation speed
-const F32 DRIFT_COMP_MAX_TOTAL = 0.1f;			// maximum drift compensation overall, in any direction 
-const F32 DRIFT_COMP_MAX_SPEED = 4.f;			// speed at which drift compensation total maxes out
 const F32 MAX_ROLL = 0.6f;
-const F32 PELVIS_COMPENSATION_WIEGHT = 0.7f; 	// proportion of foot drift that is compensated by moving the avatar directly
 const F32 SPEED_ADJUST_TIME_CONSTANT = 0.1f; 	// time constant for speed adjustment interpolation
 
 //-----------------------------------------------------------------------------

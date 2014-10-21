@@ -1,0 +1,9 @@
+* autobuild configure with tests on (LL_TESTS:BOOL=ON) and fix errors
+
+* Get release build working (RelWithDebInfo works) - rel build linker fails on KDU error
+
+* Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q), rebuild package and point autobuild.xml at original version
+
+* Nat to look at this please: https://bitbucket.org/callum_linden/viewer-tools-update-callum/commits/3d2fb85943d527e7db9908ff2824bc54afe916f1
+
+* Remove -Wno-sign-compare from indra/cmake/00-Common.cmake and see if it builds.  (Why did this, switched off, still catch code like U32 v; if ( v < 0 ) {  })

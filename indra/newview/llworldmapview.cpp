@@ -67,7 +67,6 @@ const F32 OCEAN_GREEN = (F32)(0x47)/255.f;
 const F32 OCEAN_BLUE  = (F32)(0x5F)/255.f;
 
 const F32 GODLY_TELEPORT_HEIGHT = 200.f;
-const S32 SCROLL_HINT_WIDTH = 65;
 const F32 BIG_DOT_RADIUS = 5.f;
 BOOL LLWorldMapView::sHandledLastClick = FALSE;
 

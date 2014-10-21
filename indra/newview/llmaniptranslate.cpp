@@ -65,7 +65,6 @@
 
 const S32 NUM_AXES = 3;
 const S32 MOUSE_DRAG_SLOP = 2;       // pixels
-const F32 HANDLE_HIDE_ANGLE = 0.15f; // radians
 const F32 SELECTED_ARROW_SCALE = 1.3f;
 const F32 MANIPULATOR_HOTSPOT_START = 0.2f;
 const F32 MANIPULATOR_HOTSPOT_END = 1.2f;

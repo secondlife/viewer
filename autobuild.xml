@@ -1590,11 +1590,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ca74ac91efcf2fab89544b79426460a5</string>
+              <string>b6b3623231cc07809443245db54ec45d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295454/arch/Darwin/installer/llphysicsextensions_source-1.0.295454-darwin-295454.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295732/arch/Darwin/installer/llphysicsextensions_source-1.0.295732-darwin-295732.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1625,7 +1625,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.0.295454</string>
+        <string>1.0.295732</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -2148,9 +2148,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4d13804d6224156b94d9eac2538da68e</string>
+              <string>ff1ecca950d779721267ef854eb2d845</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/tut_3p-update-tut/rev/294542/arch/Linux/installer/tut-2008.11.30-common-294542.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/tut_3p-update-tut/rev/295661/arch/Linux/installer/tut-2008.11.30-common-295661.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
