@@ -225,7 +225,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   # Create the test running command
   SET(test_command ${ARGN})
-  SET(TEST_EXE <TARGET_FILE:INTEGRATION_TEST_${testname}>)
+  SET(TEST_EXE $<TARGET_FILE:INTEGRATION_TEST_${testname}>)
   LIST(FIND test_command "{}" test_exe_pos)
   IF(test_exe_pos LESS 0)
     # The {} marker means "the full pathname of the test executable."
