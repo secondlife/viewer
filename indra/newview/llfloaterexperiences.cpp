@@ -224,7 +224,9 @@ void LLFloaterExperiences::refreshContents()
 		if(!lookup_url.empty())
 		{
 			nameMap["experience_ids"]="Owned_Experiences_Tab";
-			LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
+			LLExperienceListResponder* responder = new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap, "ExperienceAcquireFailed");
+			responder->mCallback = boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2);
+			LLHTTPClient::get(lookup_url, responder);
 		}
     }
 }
