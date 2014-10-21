@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_script_colors" title="COLORI SCRIPT">
+	<text name="color_pickers_label">
+		Seleziona i colori desiderati:
+	</text>
+	<text name="text_label">
+		Testo
+	</text>
+	<text name="cursor_label">
+		Cursore
+	</text>
+	<text name="background_label">
+		Sfondo
+	</text>
+	<text name="datatype_label">
+		Tipi di dati
+	</text>
+	<text name="event_label">
+		Eventi
+	</text>
+	<text name="string_literal_label">
+		Espressioni letterali stringa
+	</text>
+	<text name="constant_label">
+		Costante
+	</text>
+	<text name="flow_control_label">
+		Controllo di flusso
+	</text>
+	<text name="function_label">
+		Funzione
+	</text>
+	<text name="comment_label">
+		Commento
+	</text>
+	<script_editor name="Script Preview">
+		/* Uno script di esempio */
+default
+{
+    state_entry()
+    {
+        // Comment
+        string greeting = &quot;Salve&quot;;
+        llSay(PUBLIC_CHANNEL, greeting);
+    }
+}
+	</script_editor>
+</floater>

@@ -21,6 +21,7 @@
 	<context_menu label="管理" name="Remove">
 		<menu_item_call label="嫌がらせの報告" name="Report Abuse..."/>
 		<menu_item_call label="ブロック" name="Object Mute"/>
+		<menu_item_call label="ブロック解除" name="Object Unmute"/>
 		<menu_item_call label="返却" name="Return..."/>
 	</context_menu>
 	<menu_item_call label="取る" name="Pie Object Take"/>

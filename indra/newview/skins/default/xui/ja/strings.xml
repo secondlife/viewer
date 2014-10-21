@@ -334,6 +334,75 @@ support@secondlife.com にお問い合わせください。
 	<string name="TestingDisconnect">
 		ビューワの接続を切るテスト中
 	</string>
+	<string name="SocialFlickrConnecting">
+		Flickr に接続中...
+	</string>
+	<string name="SocialFlickrPosting">
+		投稿中...
+	</string>
+	<string name="SocialFlickrDisconnecting">
+		Flickr から切断中...
+	</string>
+	<string name="SocialFlickrErrorConnecting">
+		Flickr への接続時のエラー
+	</string>
+	<string name="SocialFlickrErrorPosting">
+		Flickr への投稿時のエラー
+	</string>
+	<string name="SocialFlickrErrorDisconnecting">
+		Flickr からの切断時のエラー
+	</string>
+	<string name="SocialTwitterConnecting">
+		Twitter に接続中...
+	</string>
+	<string name="SocialTwitterPosting">
+		投稿中...
+	</string>
+	<string name="SocialTwitterDisconnecting">
+		Twitter から切断中...
+	</string>
+	<string name="SocialTwitterErrorConnecting">
+		Twitter への接続時のエラー
+	</string>
+	<string name="SocialTwitterErrorPosting">
+		Twitter への投稿時のエラー
+	</string>
+	<string name="SocialTwitterErrorDisconnecting">
+		Twitter からの切断時のエラー
+	</string>
+	<string name="BlackAndWhite">
+		白黒
+	</string>
+	<string name="Colors1970">
+		1970 年代のカラー
+	</string>
+	<string name="Intense">
+		強調
+	</string>
+	<string name="Newspaper">
+		新聞紙
+	</string>
+	<string name="Sepia">
+		セピア
+	</string>
+	<string name="Spotlight">
+		スポットライト
+	</string>
+	<string name="Video">
+		ビデオ
+	</string>
+	<string name="Autocontrast">
+		オートコントラスト
+	</string>
+	<string name="LensFlare">
+		レンズフレア
+	</string>
+	<string name="Miniature">
+		ミニチュア
+	</string>
+	<string name="Toycamera">
+		おもちゃのカメラ
+	</string>
 	<string name="TooltipPerson">
 		人
 	</string>
@@ -884,6 +953,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="use_texture">
 		テクスチャを使用
+	</string>
+	<string name="manip_hint1">
+		マウスカーソルをルーラに合わせて
+	</string>
+	<string name="manip_hint2">
+		グリッドにスナップ
 	</string>
 	<string name="texture_loading">
 		ローディング...
@@ -4082,6 +4157,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="share_alert">
 		インベントリからここにアイテムをドラッグします
 	</string>
+	<string name="flickr_post_success">
+		Flickr に投稿しました。
+	</string>
+	<string name="twitter_post_success">
+		Twitter に投稿しました。
+	</string>
 	<string name="no_session_message">
 		（IM セッションが存在しません）
 	</string>
@@ -4538,6 +4619,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="LocalEstimateUSD">
 		US$ [AMOUNT]
 	</string>
+	<string name="Group Ban">
+		グループへの立入禁止
+	</string>
 	<string name="Membership">
 		会員
 	</string>
@@ -4960,6 +5044,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Destinations_Label">
 		行き先
 	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
+	</string>
+	<string name="Command_Flickr_Label">
+		Flickr
+	</string>
 	<string name="Command_Gestures_Label">
 		ジェスチャー
 	</string>
@@ -5008,6 +5098,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Command_Speak_Label">
 		話す
 	</string>
+	<string name="Command_Twitter_Label">
+		Twitter
+	</string>
 	<string name="Command_View_Label">
 		カメラコントロール
 	</string>
@@ -5037,6 +5130,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		行ってみたい場所
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Facebook へ投稿
+	</string>
+	<string name="Command_Flickr_Tooltip">
+		Flickr にアップロード
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		アバターのジェスチャー
@@ -5085,6 +5184,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Speak_Tooltip">
 		マイクを使って近くの人と話す
+	</string>
+	<string name="Command_Twitter_Tooltip">
+		Twitter
 	</string>
 	<string name="Command_View_Tooltip">
 		カメラの角度を変更

@@ -30,14 +30,10 @@
 		<combo_box.item label="Generell und Moderat" name="Desired_Mature"/>
 		<combo_box.item label="Generell" name="Desired_PG"/>
 	</combo_box>
-	<text name="start_location_textbox">
-		Startstandort:
+	<check_box label="Lieblingsstandorte auf dem Anmeldebildschirm anzeigen" name="favorites_on_login_check"/>
+	<text name="favorites_check_extra_text">
+		(Andere, die Ihren Computer benutzen, sehen sie ebenfalls)
 	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item label="Mein letzter Standort" name="MyLastLocation" tool_tip="Als Standardeinstellung in letztem Standort anmelden."/>
-		<combo_box.item label="Mein Zuhause" name="MyHome" tool_tip="Als Standardeinstellung in Zuhauseposition anmelden."/>
-	</combo_box>
-	<check_box initial_value="true" label="Beim Anmelden anzeigen" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
 		Avatarnamen:
 	</text>

@@ -57,7 +57,7 @@
 	<check_box label="Editar las partes enlazadas" name="checkbox edit linked parts"/>
 	<button label="Enlazar" name="link_btn"/>
 	<button label="Desenlazar" name="unlink_btn" width="95"/>
-	<check_box label="" name="checkbox uniform"/>
+	<check_box label="Estirar ambos lados" name="checkbox uniform"/>
 	<text label="Estirar ambos lados" name="checkbox uniform label">
 		Estirar ambos lados
 	</text>

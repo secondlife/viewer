@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_login">
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=pt
+	</panel.string>
+	<layout_stack name="logo_stack">
+		<layout_panel name="parent_panel2">
+			<layout_stack name="widget_stack">
+				<layout_panel name="widget_container">
+					<combo_box label="Nome de usuário" name="username_combo" tool_tip="O nome de usuário que você escolheu ao fazer seu cadastro, como zecazc12 ou Magia Solar"/>
+					<line_editor label="Senha" name="password_edit"/>
+					<button label="Login" name="connect_btn"/>
+					<check_box label="Lembrar-me" name="remember_check"/>
+					<text name="forgot_password_text">
+						Senha esquecida
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="parent_panel3">
+			<layout_stack name="images_stack">
+				<layout_panel name="images_container">
+					<text name="image_caption_left">
+						Sua primeira parada é a Ilha da Educação. Encontre o portal de saída!
+					</text>
+					<text name="image_caption_right">
+						Em seguida, explore a Ilha Social e encontre novos residentes!
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

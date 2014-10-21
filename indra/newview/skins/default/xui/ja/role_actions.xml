@@ -3,6 +3,7 @@
 	<action_set description="これらの能力には、グループメンバーを追加、排除し、招待状なしに新メンバーの参加を認める権限が含まれます。" name="Membership">
 		<action description="このグループに人を招待" longdescription="「役割」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite" value="1"/>
 		<action description="メンバーをこのグループから追放" longdescription="「役割」セクションの「メンバー」タブ内にある「追放」ボタンを押して、このグループからメンバーを追放します。 「オーナー」は、他の「オーナー」以外は誰でも追放できます。 「オーナー」ではない人が「全員（Everyone）」にしか役割がない場合、メンバーはグループから追放されることがあります。 「役割」からメンバーを削除するには、「役割からメンバーを削除」の能力が与えられている必要があります。" name="member eject" value="2"/>
+		<action description="立入禁止リストの管理" longdescription="グループのメンバーに、このグループから住人を立入禁止/立入禁止解除できるようにします。" name="allow ban" value="51"/>
 		<action description="「自由参加」と「入会費」の切り替え" longdescription="「自由参加」に切り替えると、招待されなくても新しいメンバーが入会できます。「入会費」は「一般」セクションで変更します。" name="member options" value="3"/>
 	</action_set>
 	<action_set description="これらの能力には、グループ内の役割を追加、削除、変更し、役割にメンバーを追加、削除し、さらに役割へ能力を割り当てる権限が含まれます。" name="Roles">

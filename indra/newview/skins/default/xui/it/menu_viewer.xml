@@ -36,6 +36,9 @@
 		<menu_item_check label="Chat nei dintorni..." name="Nearby Chat"/>
 		<menu_item_check label="Parla" name="Speak"/>
 		<menu_item_check label="Registro conversazioni..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Manipolazione voce" name="VoiceMorphing">
 			<menu_item_check label="Nessuna manipolazione voce" name="NoVoiceMorphing"/>
 			<menu_item_check label="Anteprima..." name="Preview"/>
@@ -150,7 +153,8 @@
 			<menu_item_check label="Posiziona nella griglia" name="Snap to Grid"/>
 			<menu_item_call label="Posiziona coordinate XY dell&apos;oggetto sulla griglia" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Usa la selezione per la griglia" name="Use Selection for Grid"/>
-			<menu_item_call label="Opzioni della griglia" name="Grid Options"/>
+			<menu_item_call label="Opzioni della griglia..." name="Grid Options"/>
+			<menu_item_call label="Imposta diritti predefiniti..." name="Set default permissions"/>
 		</menu>
 		<menu label="Carica sul server" name="Upload">
 			<menu_item_call label="Immagine ([COST] L$)..." name="Upload Image"/>
@@ -158,7 +162,6 @@
 			<menu_item_call label="Animazione ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modella..." name="Upload Model"/>
 			<menu_item_call label="In blocco ([COST] L$ per file)..." name="Bulk Upload"/>
-			<menu_item_call label="Definisci diritti di caricamento predefiniti" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Annulla" name="Undo"/>
 		<menu_item_call label="Ripeti" name="Redo"/>
@@ -288,6 +291,7 @@
 			<menu_item_check label="Aggiorna tipo" name="Update Type"/>
 			<menu_item_check label="Info livello dettaglio" name="LOD Info"/>
 			<menu_item_check label="Crea coda" name="Build Queue"/>
+			<menu_item_check label="Particelle" name="Particles"/>
 			<menu_item_check label="Giunti" name="Joints"/>
 			<menu_item_check label="Vettori vento" name="Wind Vectors"/>
 			<menu_item_check label="Complessità rendering" name="rendercomplexity"/>
