@@ -136,33 +136,37 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	}
 
 	// Marketplace folder filtering
-    S32 depth = depth_nesting_in_marketplace(folder_id);
-    if (depth > 0)
+    const U32 filterTypes = mFilterOps.mFilterTypes;
+    const U32 marketplace_filter = FILTERTYPE_MARKETPLACE_ACTIVE | FILTERTYPE_MARKETPLACE_INACTIVE | FILTERTYPE_MARKETPLACE_UNASSOCIATED;
+    if (filterTypes & marketplace_filter)
     {
-        const U32 filterTypes = mFilterOps.mFilterTypes;
-        LLUUID listing_uuid = nested_parent_id(folder_id, depth);
-        if (filterTypes & FILTERTYPE_MARKETPLACE_ACTIVE)
+        S32 depth = depth_nesting_in_marketplace(folder_id);
+        if (depth > 0)
         {
-            if (!LLMarketplaceData::instance().getActivationState(listing_uuid))
+            LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+            if (filterTypes & FILTERTYPE_MARKETPLACE_ACTIVE)
             {
-                return false;
+                if (!LLMarketplaceData::instance().getActivationState(listing_uuid))
+                {
+                    return false;
+                }
+            }
+            else if (filterTypes & FILTERTYPE_MARKETPLACE_INACTIVE)
+            {
+                if (!LLMarketplaceData::instance().isListed(listing_uuid) || LLMarketplaceData::instance().getActivationState(listing_uuid))
+                {
+                    return false;
+                }
+            }
+            else if (filterTypes & FILTERTYPE_MARKETPLACE_UNASSOCIATED)
+            {
+                if (LLMarketplaceData::instance().isListed(listing_uuid))
+                {
+                    return false;
+                }
             }
         }
-        else if (filterTypes & FILTERTYPE_MARKETPLACE_INACTIVE)
-        {
-            if (!LLMarketplaceData::instance().isListed(listing_uuid) || LLMarketplaceData::instance().getActivationState(listing_uuid))
-            {
-                return false;
-            }
-        }
-        else if (filterTypes & FILTERTYPE_MARKETPLACE_UNASSOCIATED)
-        {
-            if (LLMarketplaceData::instance().isListed(listing_uuid))
-            {
-                return false;
-            }
-        }
-	}
+    }
     
 	// Always check against the clipboard
 	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
