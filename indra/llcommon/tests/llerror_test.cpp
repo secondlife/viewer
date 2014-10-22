@@ -38,14 +38,6 @@
 
 namespace
 {
-	void test_that_error_h_includes_enough_things_to_compile_a_message()
-	{
-		LL_INFOS() << "!" << LL_ENDL;
-	}
-}
-
-namespace
-{
 	static bool fatalWasCalled;
 	void fatalCall(const std::string&) { fatalWasCalled = true; }
 }
@@ -381,8 +373,6 @@ namespace
 	};
 
 	std::string logFromNamespace(bool id) { return Foo::logFromNamespace(id); }
-	std::string logFromClassWithNoLogTypeMember(bool id) { ClassWithNoLogType c; return c.logFromMember(id); }
-	std::string logFromClassWithNoLogTypeStatic(bool id) { return ClassWithNoLogType::logFromStatic(id); }
 	std::string logFromClassWithLogTypeMember(bool id) { ClassWithLogType c; return c.logFromMember(id); }
 	std::string logFromClassWithLogTypeStatic(bool id) { return ClassWithLogType::logFromStatic(id); }
 
@@ -435,9 +425,6 @@ namespace tut
 		testLogName(mRecorder, logFromStatic);
 		testLogName(mRecorder, logFromAnon);
 		testLogName(mRecorder, logFromNamespace);
-		//testLogName(mRecorder, logFromClassWithNoLogTypeMember, "ClassWithNoLogType");
-		//testLogName(mRecorder, logFromClassWithNoLogTypeStatic, "ClassWithNoLogType");
-			// XXX: figure out what the exepcted response is for these
 		testLogName(mRecorder, logFromClassWithLogTypeMember, "ClassWithLogType");
 		testLogName(mRecorder, logFromClassWithLogTypeStatic, "ClassWithLogType");
 	}
