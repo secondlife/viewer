@@ -123,7 +123,6 @@ kdu_block_encoder::kdu_block_encoder() { }
 kdu_block_decoder::kdu_block_decoder() { }
 void kdu_block::set_max_passes(int , bool ) { }
 void kdu_block::set_max_bytes(int , bool ) { }
-void kdu_block::set_max_samples(int ) { }
 void kdu_tile::close(kdu_thread_env* ) { }
 int kdu_tile::get_num_components() { return 0; }
 bool kdu_tile::get_ycc() { return false; }
@@ -166,7 +165,7 @@ void kdu_codestream::get_valid_tiles(kdu_dims& ) { }
 void kdu_codestream::create(kdu_compressed_source*, kdu_thread_env*) { }
 void kdu_codestream::apply_input_restrictions( int, int, int, int, kdu_dims*, kdu_component_access_mode ) { }
 void kdu_codestream::get_subsampling(int , kdu_coords&, bool ) { }
-void kdu_codestream::flush(kdu_long *, int , kdu_uint16 *, bool, bool, double, kdu_thread_env*) { }
+void kdu_codestream::flush(kdu_long *, int, kdu_uint16 *, bool, bool, double, kdu_thread_env*, int) { }
 void kdu_codestream::set_resilient(bool ) { }
 int kdu_codestream::get_num_components(bool ) { return 0; }
 kdu_long kdu_codestream::get_total_bytes(bool ) { return 0; }
@@ -184,8 +183,7 @@ kdu_block* kdu_subband::open_block(kdu_coords, int*, kdu_thread_env*) { return N
 bool kdu_codestream_comment::put_text(const char*) { return false; }
 void kdu_customize_warnings(kdu_message*) { }
 void kdu_customize_errors(kdu_message*) { }
-
-kdu_long kdu_multi_analysis::create(kdu_codestream, kdu_tile, bool, kdu_roi_image*, bool, int, kdu_thread_env*, kdu_thread_queue*, bool ) { kdu_long a = 0; return a; }
+kdu_long kdu_multi_analysis::create(kdu_codestream, kdu_tile, kdu_thread_env*, kdu_thread_queue*, int, kdu_roi_image*, int) { kdu_long a = 0; return a; }
 siz_params::siz_params() : kdu_params(NULL, false, false, false, false, false) { }
 void siz_params::finalize(bool ) { }
 void siz_params::copy_with_xforms(kdu_params*, int, int, bool, bool, bool) { }
