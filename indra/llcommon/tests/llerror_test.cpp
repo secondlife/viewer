@@ -485,7 +485,9 @@ namespace tut
 		// handle nested logging
 	void ErrorTestObject::test<7>()
 	{
-		skip("Fails on clang TODO");
+#if LL_DARWIN
+		skip("Skip known failure on clang and intelc due to operator << differences");
+#endif
 		outerLogger();
 		ensure_message_contains(0, "inside");
 		ensure_message_contains(1, "outside(moo)");
