@@ -28,7 +28,16 @@
 #include "linden_common.h"
 // Class to test 
 #include "llimagej2ckdu.h"
+
+#if LL_DARWIN
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include "llkdumem.h"
+#pragma clang diagnostic pop
+#elif
+#include "llkdumem.h"
+#endif
+
 #include "kdu_block_coding.h"
 // Tut header
 #include "lltut.h"
