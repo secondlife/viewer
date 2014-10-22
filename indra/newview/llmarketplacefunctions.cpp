@@ -1487,6 +1487,17 @@ bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update_slm)
     return true;
 }
 
+bool LLMarketplaceData::deleteListing(S32 listing_id)
+{
+    if (listing_id == 0)
+    {
+        return false;
+    }
+    
+    LLUUID folder_id = getListingFolder(listing_id);
+    return deleteListing(folder_id);
+}
+
 // Accessors
 bool LLMarketplaceData::getActivationState(const LLUUID& folder_id)
 {

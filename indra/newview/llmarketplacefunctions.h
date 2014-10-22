@@ -197,6 +197,7 @@ public:
     bool associateListing(const LLUUID& folder_id, const LLUUID& source_folder_id, S32 listing_id);
     bool getListing(const LLUUID& folder_id);
     bool getListing(S32 listing_id);
+    bool deleteListing(S32 listing_id);
     
     // Probe the Marketplace data set to identify folders
     bool isListed(const LLUUID& folder_id); // returns true if folder_id is a Listing folder
