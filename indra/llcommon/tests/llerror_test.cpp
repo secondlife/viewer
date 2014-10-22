@@ -39,6 +39,14 @@
 namespace
 {
 #   pragma clang diagnostic ignored "-Wunused-function"
+	void test_that_error_h_includes_enough_things_to_compile_a_message()
+	{
+		LL_INFOS() << "!" << LL_ENDL;
+	}
+}
+
+namespace
+{
 	static bool fatalWasCalled;
 	void fatalCall(const std::string&) { fatalWasCalled = true; }
 }
