@@ -125,6 +125,7 @@ LLModelLoader::LLModelLoader(
 , mOpaqueData(opaque_userdata)
 , mNoNormalize(false)
 , mNoOptimize(false)
+, mCacheOnlyHitIfRigged(false)
 {
 	mJointMap["mPelvis"] = "mPelvis";
 	mJointMap["mTorso"] = "mTorso";

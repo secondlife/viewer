@@ -1733,7 +1733,12 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 	{
 		mModelLoader->mTrySLM = false;
 	}
-
+	else
+	{
+		//only try to load from slm if viewer is configured to do so and this is the 
+		//initial model load (not an LoD or physics shape)
+		mModelLoader->mTrySLM = gSavedSettings.getBOOL("MeshImportUseSLM") && mUploadData.empty();
+	}
 	mModelLoader->start();
 
 	mFMP->childSetTextArg("status", "[STATUS]", mFMP->getString("status_reading_file"));
