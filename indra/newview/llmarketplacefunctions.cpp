@@ -1059,7 +1059,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
     // once observers are called) we need to raise a flag in the inventory to signal that things have been dirtied.
 
     // That's the only changes that really do make sense for marketplace to worry about
-	if ((mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE)) != 0)
+	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
 	{
         const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
     
@@ -1068,24 +1068,27 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
         for (;id_it != id_end; ++id_it)
         {
             LLInventoryObject* obj = gInventory.getObject(*id_it);
-            if (LLAssetType::AT_CATEGORY == obj->getType())
+            if (obj)
             {
-                // If it's a folder known to the marketplace, let's check it's in proper shape
-                if (LLMarketplaceData::instance().isListed(*id_it) || LLMarketplaceData::instance().isVersionFolder(*id_it))
+                if (LLAssetType::AT_CATEGORY == obj->getType())
                 {
-                    LLInventoryCategory* cat = (LLInventoryCategory*)(obj);
-                    validate_marketplacelistings(cat);
+                    // If it's a folder known to the marketplace, let's check it's in proper shape
+                    if (LLMarketplaceData::instance().isListed(*id_it) || LLMarketplaceData::instance().isVersionFolder(*id_it))
+                    {
+                        LLInventoryCategory* cat = (LLInventoryCategory*)(obj);
+                        validate_marketplacelistings(cat);
+                    }
                 }
-            }
-            else
-            {
-                // If it's not a category, it's an item...
-                LLInventoryItem* item = (LLInventoryItem*)(obj);
-                // If it's a no copy item, we may need to update the label count of marketplace listings
-                if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+                else
                 {
-                    LLMarketplaceData::instance().setDirtyCount();
-                }   
+                    // If it's not a category, it's an item...
+                    LLInventoryItem* item = (LLInventoryItem*)(obj);
+                    // If it's a no copy item, we may need to update the label count of marketplace listings
+                    if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+                    {
+                        LLMarketplaceData::instance().setDirtyCount();
+                    }   
+                }
             }
         }
 	}
