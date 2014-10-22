@@ -200,7 +200,6 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 				match_start = start;
 				match_end = end;
 				match_entry = url_entry;
-				break;
 			}
 		}
 	}
