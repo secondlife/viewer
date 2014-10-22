@@ -1550,7 +1550,21 @@ void LLModelPreview::rebuildUploadData()
 						setLoadState( LLModelLoader::ERROR_MATERIALS );
 						mFMP->childDisable( "calculate_btn" );
 					}
-				}				
+					else
+					{
+						if (mBaseModel.size() == mModel[i].size())
+						{
+							for (U32 idx = 0; idx < mBaseModel.size(); ++idx)
+							{
+								if (mModel[i][idx] && !mModel[i][idx]->matchMaterialOrder(mBaseModel[idx], refFaceCnt, modelFaceCnt ) )
+								{
+									setLoadState( LLModelLoader::ERROR_MATERIALS );
+									mFMP->childDisable( "calculate_btn" );
+								}
+							}
+						}
+					}
+				}
 			}
 			instance.mTransform = mat;
 			mUploadData.push_back(instance);
