@@ -158,8 +158,8 @@ namespace tut
 		if( actual.find(expectedStart, 0) != 0 )
 		{
 			std::stringstream ss;
-			ss << msg << ": " << "expected to find " << expectedStart
-				<< " at start of actual " << actual;
+			ss << msg << ": " << "expected to find '" << expectedStart
+			   << "' at start of actual '" << actual << "'";
 			throw failure(ss.str().c_str());
 		}
 	}
@@ -172,8 +172,8 @@ namespace tut
 				!= (actual.size() - expectedEnd.size()) )
 		{
 			std::stringstream ss;
-			ss << msg << ": " << "expected to find " << expectedEnd
-				<< " at end of actual " << actual;
+			ss << msg << ": " << "expected to find '" << expectedEnd
+			   << "' at end of actual '" << actual << "'";
 			throw failure(ss.str().c_str());
 		}
 	}
@@ -184,8 +184,8 @@ namespace tut
 		if( actual.find(expectedSubString, 0) == std::string::npos )
 		{
 			std::stringstream ss;
-			ss << msg << ": " << "expected to find " << expectedSubString
-				<< " in actual " << actual;
+			ss << msg << ": " << "expected to find '" << expectedSubString
+			   << "' in actual '" << actual << "'";
 			throw failure(ss.str().c_str());
 		}
 	}
