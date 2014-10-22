@@ -38,6 +38,15 @@
 
 namespace
 {
+#   pragma clang diagnostic ignored "-Wunused-function"
+	void test_that_error_h_includes_enough_things_to_compile_a_message()
+	{
+		LL_INFOS() << "!" << LL_ENDL;
+	}
+}
+
+namespace
+{
 	static bool fatalWasCalled;
 	void fatalCall(const std::string&) { fatalWasCalled = true; }
 }
@@ -383,8 +392,8 @@ namespace
 		if (n1 == std::string::npos)
 		{
 			std::stringstream ss;
-			ss << message << ": " << "expected to find a copy of " << expected
-				<< " in actual " << actual;
+			ss << message << ": " << "expected to find a copy of '" << expected
+			   << "' in actual '" << actual << "'";
 			throw tut::failure(ss.str().c_str());
 		}
 	}
