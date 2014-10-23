@@ -52,12 +52,25 @@ namespace tut
 			actual.asString(), expected.asString());
 	}
 
+	// The lexical param types here intentionally diverge from the declaration
+	// in our header file. In lltut.h, LLSD is only a forward-declared type;
+	// we have no access to its LLSD::Binary nested type, and so must restate
+	// it explicitly to declare this overload. However, an overload that does
+	// NOT match LLSD::Binary does us no good whatsoever: it would never be
+	// engaged. Stating LLSD::Binary for this definition at least means that
+	// if the LLSD::Binary type ever diverges from what we expect in lltut.h,
+	// that divergence will produce an error: no definition will match that
+	// declaration.
 	void ensure_equals(const char* msg,
-		const std::vector<U8>& actual, const std::vector<U8>& expected)
+		const LLSD::Binary& actual, const LLSD::Binary& expected)
 	{
-		std::string s(msg);
-		
-		ensure_equals(s + " size", actual.size(), expected.size());
+		ensure_equals(std::string(msg? msg : ""), actual, expected);
+	}
+
+	void ensure_equals(const std::string& msg,
+		const LLSD::Binary& actual, const LLSD::Binary& expected)
+	{
+		ensure_equals(msg + " size", actual.size(), expected.size());
 		
 		std::vector<U8>::const_iterator i, j;
 		int k;
@@ -65,14 +78,14 @@ namespace tut
 			i != actual.end();
 			++i, ++j, ++k)
 		{
-			ensure_equals(s + " field", *i, *j);
+			ensure_equals(msg + " field", *i, *j);
 		}
 	}
 
 	void ensure_equals(const char* m, const LLSD& actual,
 		const LLSD& expected)
     {
-        ensure_equals(std::string(m), actual, expected);
+        ensure_equals(std::string(m? m : ""), actual, expected);
     }
 
 	void ensure_equals(const std::string& msg, const LLSD& actual,
