@@ -2699,7 +2699,12 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInve
 		const LLInventoryItem* item = item_array.at(i).get();
 		if (item->getIsLinkType() && item->getLinkedUUID() == item_id)
 		{
-			remove_inventory_item(item->getUUID(), cb);
+			bool immediate_delete = false;
+			if (item->getType() == LLAssetType::AT_OBJECT)
+			{
+				immediate_delete = true;
+			}
+			remove_inventory_item(item->getUUID(), cb, immediate_delete);
 		}
 	}
 }
