@@ -112,15 +112,15 @@ namespace tut
 
 	SDTestGroup sdTestGroup("LLSD(new)");
 	
-	template<> template<>
-	void SDTestObject::test<1>()
-		// construction and test of undefined
-	{
-		SDCleanupCheck check;
+	// template<> template<>
+	// void SDTestObject::test<1>()
+	// 	// construction and test of undefined
+	// {
+	// 	SDCleanupCheck check;
 		
-		LLSD u;
-		ensure("is undefined", u.isUndefined());
-	}
+	// 	LLSD u;
+	// 	ensure("is undefined", u.isUndefined());
+	// }
 	
 	template<> template<>
 	void SDTestObject::test<2>()
