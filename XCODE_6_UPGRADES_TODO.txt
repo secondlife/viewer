@@ -5,5 +5,3 @@
 * Should we be using libstdc++ (GNU) or libc++ (clang) - using the former but latter is more 'clang'y - see comments from Cinder in BB
 
 * Weird folder name "build-darwin-i386/newview/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Second Life.app" - likely causes because those $() should be ${} for CMake? - No, it's something else - lots of occurences in build-darwin folder but where do they come from? ....
-
-* libjpeg is placed in lib folder vs lib/release - change it to match others
