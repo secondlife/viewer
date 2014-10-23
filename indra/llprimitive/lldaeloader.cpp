@@ -257,13 +257,13 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 				LLVolumeFace& new_face = *face_list.rbegin();
 				if (!norm_source)
 				{
-					ll_aligned_free_16(new_face.mNormals);
+					//ll_aligned_free_16(new_face.mNormals);
 					new_face.mNormals = NULL;
 				}
 
 				if (!tc_source)
 				{
-					ll_aligned_free_16(new_face.mTexCoords);
+					//ll_aligned_free_16(new_face.mTexCoords);
 					new_face.mTexCoords = NULL;
 				}
 
@@ -288,13 +288,13 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		LLVolumeFace& new_face = *face_list.rbegin();
 		if (!norm_source)
 		{
-			ll_aligned_free_16(new_face.mNormals);
+			//ll_aligned_free_16(new_face.mNormals);
 			new_face.mNormals = NULL;
 		}
 
 		if (!tc_source)
 		{
-			ll_aligned_free_16(new_face.mTexCoords);
+			//ll_aligned_free_16(new_face.mTexCoords);
 			new_face.mTexCoords = NULL;
 		}
 	}
@@ -375,6 +375,11 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				cv.getPosition().set(v[idx[cur_idx+pos_offset]*3+0],
 									v[idx[cur_idx+pos_offset]*3+1],
 									v[idx[cur_idx+pos_offset]*3+2]);
+				if (!cv.getPosition().isFinite3())
+				{
+					LL_WARNS() << "Found NaN while loading position data from DAE-Model, invalid model." << LL_ENDL;
+					return LLModel::BAD_ELEMENT;
+				}
 			}
 
 			if (tc_source)
@@ -388,6 +393,12 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				cv.getNormal().set(n[idx[cur_idx+norm_offset]*3+0],
 									n[idx[cur_idx+norm_offset]*3+1],
 									n[idx[cur_idx+norm_offset]*3+2]);
+
+				if (!cv.getNormal().isFinite3())
+				{
+					LL_WARNS() << "Found NaN while loading normals from DAE-Model, invalid model." << LL_ENDL;
+					return LLModel::BAD_ELEMENT;
+				}
 			}
 			
 			cur_idx += idx_stride;
@@ -482,13 +493,13 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 				LLVolumeFace& new_face = *face_list.rbegin();
 				if (!norm_source)
 				{
-					ll_aligned_free_16(new_face.mNormals);
+					//ll_aligned_free_16(new_face.mNormals);
 					new_face.mNormals = NULL;
 				}
 
 				if (!tc_source)
 				{
-					ll_aligned_free_16(new_face.mTexCoords);
+					//ll_aligned_free_16(new_face.mTexCoords);
 					new_face.mTexCoords = NULL;
 				}
 
@@ -516,13 +527,13 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 		LLVolumeFace& new_face = *face_list.rbegin();
 		if (!norm_source)
 		{
-			ll_aligned_free_16(new_face.mNormals);
+			//ll_aligned_free_16(new_face.mNormals);
 			new_face.mNormals = NULL;
 		}
 
 		if (!tc_source)
 		{
-			ll_aligned_free_16(new_face.mTexCoords);
+			//ll_aligned_free_16(new_face.mTexCoords);
 			new_face.mTexCoords = NULL;
 		}
 	}
@@ -733,13 +744,13 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 		LLVolumeFace& new_face = *face_list.rbegin();
 		if (!n)
 		{
-			ll_aligned_free_16(new_face.mNormals);
+			//ll_aligned_free_16(new_face.mNormals);
 			new_face.mNormals = NULL;
 		}
 
 		if (!t)
 		{
-			ll_aligned_free_16(new_face.mTexCoords);
+			//ll_aligned_free_16(new_face.mTexCoords);
 			new_face.mTexCoords = NULL;
 		}
 	}
