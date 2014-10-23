@@ -230,7 +230,10 @@ void callFocus()
 
 void callFocusLost()
 {
-	gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
+	if (gWindowImplementation)
+	{
+		gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
+	}
 }
 
 void callRightMouseDown(float *pos, MASK mask)
