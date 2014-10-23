@@ -1154,9 +1154,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df84cdb8e6d34f76d0f80d9fd36a260b</string>
+              <string>612ae26d3a644ec68c99cd2fefb5a36c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/295494/arch/Darwin/installer/jpeglib-8c.295494-darwin-295494.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/295876/arch/Darwin/installer/jpeglib-8c.295876-darwin-295876.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1187,7 +1187,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>8c.295494</string>
+        <string>8c.295876</string>
       </map>
       <key>jsoncpp</key>
       <map>
