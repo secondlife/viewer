@@ -453,11 +453,6 @@ namespace
 		return "bar";
 	}
 
-	void uberLogger()
-	{
-		LL_INFOS() << "uber(" << outerLogger() << "," << innerLogger() << ")" << LL_ENDL;
-	}
-
 	class LogWhileLogging
 	{
 	public:
@@ -485,25 +480,15 @@ namespace tut
 		// handle nested logging
 	void ErrorTestObject::test<7>()
 	{
-#if LL_DARWIN
-		skip("Skip known failure on clang and intelc due to operator << differences");
-#endif
 		outerLogger();
 		ensure_message_contains(0, "inside");
 		ensure_message_contains(1, "outside(moo)");
 		ensure_message_count(2);
 
-		uberLogger();
-		ensure_message_contains(2, "inside");
-		ensure_message_contains(3, "inside");
-		ensure_message_contains(4, "outside(moo)");
-		ensure_message_contains(5, "uber(bar,moo)");
-		ensure_message_count(6);
-
 		metaLogger();
-		ensure_message_contains(6, "logging");
-		ensure_message_contains(7, "meta(baz)");
-		ensure_message_count(8);
+		ensure_message_contains(2, "logging");
+		ensure_message_contains(3, "meta(baz)");
+		ensure_message_count(4);
 	}
 
 	template<> template<>
