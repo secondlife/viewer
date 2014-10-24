@@ -235,7 +235,7 @@ void LLFloaterInspect::refresh()
 			const LLUUID& idGroup = obj->mPermissions->getGroup();
 			if(gCacheName->getGroupName(idGroup, group_name))
 			{
-				owner_name = group_name;
+				owner_name = "[" + group_name + "] (group)";
 			}
 			else
 			{
