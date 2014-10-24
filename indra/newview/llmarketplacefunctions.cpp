@@ -531,6 +531,9 @@ public:
             // Add the new association
             LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed);
             LLMarketplaceData::instance().setListingURL(folder_id, edit_url);
+
+            // Alert with DAMA informing the user that a version folder must be designated
+            LLNotificationsUtil::add("AlertMerchantAssociateNeedsVersion");
             it++;
         }
         

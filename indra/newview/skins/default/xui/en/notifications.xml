@@ -384,6 +384,18 @@ Initialization with the Marketplace failed because of a system or network error.
 
     <notification
         icon="alertmodal.tga"
+        name="AlertMerchantAssociateNeedsVersion"
+        type="alertmodal">
+        Before you can activate this listing or edit it on the Marketplace web site, you will need to activate a version folder.
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Alert about version folder requirements when I associate a listing with an existing listing id"
+        name="okignore"
+        yestext="OK"/>
+    </notification>
+
+    <notification
+        icon="alertmodal.tga"
         name="AlertMerchantListingNotUpdated"
         type="alertmodal">
 This listing could not be updated.
