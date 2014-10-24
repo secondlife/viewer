@@ -38,14 +38,14 @@
 
 namespace tut
 {
-	void ensure_equals(const char* msg, const LLDate& actual,
+	void ensure_equals(const std::string& msg, const LLDate& actual,
 		const LLDate& expected)
 	{
 		ensure_equals(msg,
 			actual.secondsSinceEpoch(), expected.secondsSinceEpoch());
 	}
 
-	void ensure_equals(const char* msg, const LLURI& actual,
+	void ensure_equals(const std::string& msg, const LLURI& actual,
 		const LLURI& expected)
 	{
 		ensure_equals(msg,
@@ -61,18 +61,12 @@ namespace tut
 	// if the LLSD::Binary type ever diverges from what we expect in lltut.h,
 	// that divergence will produce an error: no definition will match that
 	// declaration.
-	void ensure_equals(const char* msg,
-		const LLSD::Binary& actual, const LLSD::Binary& expected)
-	{
-		ensure_equals(std::string(msg? msg : ""), actual, expected);
-	}
-
 	void ensure_equals(const std::string& msg,
 		const LLSD::Binary& actual, const LLSD::Binary& expected)
 	{
 		ensure_equals(msg + " size", actual.size(), expected.size());
 		
-		std::vector<U8>::const_iterator i, j;
+		LLSD::Binary::const_iterator i, j;
 		int k;
 		for (i = actual.begin(), j = expected.begin(), k = 0;
 			i != actual.end();
@@ -81,12 +75,6 @@ namespace tut
 			ensure_equals(msg + " field", *i, *j);
 		}
 	}
-
-	void ensure_equals(const char* m, const LLSD& actual,
-		const LLSD& expected)
-    {
-        ensure_equals(std::string(m? m : ""), actual, expected);
-    }
 
 	void ensure_equals(const std::string& msg, const LLSD& actual,
 		const LLSD& expected)
