@@ -586,9 +586,9 @@ void LLFloaterTexturePicker::draw()
 			mTentativeLabel->setVisible( FALSE  );
 		}
 
-		getChildView("Default")->setEnabled(mImageAssetID != mOwner->getDefaultImageAssetID());
-		getChildView("Blank")->setEnabled(mImageAssetID != mOwner->getBlankImageAssetID());
-		getChildView("None")->setEnabled(mOwner->getAllowNoTexture() && !mImageAssetID.isNull() );
+		getChildView("Default")->setEnabled(mImageAssetID != mOwner->getDefaultImageAssetID() || mOwner->getTentative());
+		getChildView("Blank")->setEnabled(mImageAssetID != mOwner->getBlankImageAssetID() || mOwner->getTentative());
+		getChildView("None")->setEnabled(mOwner->getAllowNoTexture() && (!mImageAssetID.isNull() || mOwner->getTentative()));
 
 		LLFloater::draw();
 
