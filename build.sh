@@ -172,11 +172,14 @@ build()
 build_docs()
 {
   begin_section "Building Documentation"
-  begin_section "Stub documentation.txt"
-  # Stub code to generate docs
-  echo Hello world  > documentation.txt
-  upload_item docs documentation.txt text/plain
-  end_section "Stub documentation.txt"
+  begin_section "Autobuild metadata"
+  if [ -r "$build_dir/autobuild-package.xml" ]
+  then
+      upload_item docs "$build_dir/autobuild-package.xml" text/xml
+  else
+      record_event "no metadata at '$build_dir/autobuild-package.xml'"
+  fi
+  end_section "Autobuild metadata"
   record_dependencies_graph # defined in build.sh
   end_section "Building Documentation"
 }
