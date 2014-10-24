@@ -124,9 +124,15 @@ package_llphysicsextensions_tpv()
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$AUTOBUILD" package --verbose --config-file $llpetpvcfg > $PKGTMP
+      "$AUTOBUILD" package --verbose --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
       tpv_status=$?
-      sed -n -e 's/^wrote *//p' $PKGTMP > $build_dir/llphysicsextensions_package
+      if [ -r "${PKGTMP}" ]
+      then
+          cat "${PKGTMP}" >> "$build_log"
+          eval $(cat "${PKGTMP}") # sets autobuild_package_{name,filename,md5}
+          autobuild_package_filename="$(shell_path "${autobuild_package_filename}")"
+          echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
+      fi
   else
       echo "Do not provide llphysicsextensions_tpv for $variant"
       llphysicsextensions_package=""
