@@ -38,35 +38,24 @@ class LLURI;
 
 namespace tut
 {
-	template <class T,class Q>
 	void ensure_equals(const std::string& msg,
-		const Q& actual,const T& expected)
-		{ ensure_equals(msg.c_str(), actual, expected); }
-
-	void ensure_equals(const char* msg,
 		const LLDate& actual, const LLDate& expected);
 
-	void ensure_equals(const char* msg,
+	void ensure_equals(const std::string& msg,
 		const LLURI& actual, const LLURI& expected);
 
 	// std::vector<U8> is the current definition of LLSD::Binary. Because
 	// we're only forward-declaring LLSD in this header file, we can't
 	// directly reference that nested type. If the build complains that
-	// there's no definition for either of these declarations, it could be
-	// that LLSD::Binary has changed, and that these declarations must be
-	// adjusted to match.
-	void ensure_equals(const char* msg,
-		const std::vector<U8>& actual, const std::vector<U8>& expected);
-
+	// there's no definition for this declaration, it could be that
+	// LLSD::Binary has changed, and that this declaration must be adjusted to
+	// match.
 	void ensure_equals(const std::string& msg,
 		const std::vector<U8>& actual, const std::vector<U8>& expected);
 
-	void ensure_equals(const char* msg,
-		const LLSD& actual, const LLSD& expected);
-
 	void ensure_equals(const std::string& msg,
 		const LLSD& actual, const LLSD& expected);
-	
+
 	void ensure_starts_with(const std::string& msg,
 		const std::string& actual, const std::string& expectedStart);
 
