@@ -75,14 +75,14 @@
 	<floater.string name="linkset_choose_use">
 		Zastosowanie zbioru...
 	</floater.string>
-	<panel>
-		<text>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
 			Filtrowanie:
 		</text>
-		<text>
+		<text name="linksets_name_label">
 			Nazwa
 		</text>
-		<text>
+		<text name="linksets_desc_label">
 			Opis
 		</text>
 		<combo_box name="filter_by_linkset_use">
@@ -112,8 +112,8 @@
 		<button label="Zaznacz wszystko" name="select_all_objects" />
 		<button label="Odznacz wszystko" name="select_none_objects" />
 	</panel>
-	<panel>
-		<text>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
 			Akcje na zazn. zbiorach (jeśli zbiór jest usunięty ze świata jego atrybuty mogą być utracone):
 		</text>
 		<check_box label="Podświetlenie" name="show_beacon" />
@@ -123,8 +123,8 @@
 		<button label="Zwróć" name="return_objects" />
 		<button label="Usuń" name="delete_objects" />
 	</panel>
-	<panel>
-		<text>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
 			Zmień atrybuty zaznaczonych zbiorów i naciśnij na przycisk by zachować zmiany
 		</text>
 		<text name="walkability_coefficients_label">

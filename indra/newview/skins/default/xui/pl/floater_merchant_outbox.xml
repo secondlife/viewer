@@ -9,17 +9,17 @@
 	<string name="OutboxInitializing">
 		Inicjalizacja...
 	</string>
-	<panel>
-		<panel>
+	<panel name="panel_1">
+		<panel name="panel_2">
 			<panel name="outbox_inventory_placeholder_panel">
 				<text name="outbox_inventory_placeholder_title">
 					Ładowanie...
 				</text>
 			</panel>
 		</panel>
-		<panel>
+		<panel name="panel_3">
 			<panel name="outbox_generic_drag_target">
-				<text>
+				<text name="text_1">
 					Przeciągaj tu przedmioty by tworzyć foldery
 				</text>
 			</panel>

@@ -13,7 +13,7 @@
 		[NUM_SELECTED] zaznaczonych postaci z [NUM_TOTAL].
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
-		This region is not enabled for pathfinding.
+		Ten region nie ma włączonego odnajdywania ścieżek.
 	</floater.string>
 	<floater.string name="character_owner_loading">
 		[Ładowanie]
@@ -24,7 +24,7 @@
 	<floater.string name="character_owner_group">
 		[grupa]
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_chars_main">
 		<scroll_list name="objects_scroll_list">
 			<scroll_list.columns label="Nazwa" name="name" />
 			<scroll_list.columns label="Opis" name="description" />
@@ -38,7 +38,7 @@
 		<button label="Zaznacz wszystko" name="select_all_objects" />
 		<button label="Odznacz wszystko" name="select_none_objects" />
 	</panel>
-	<panel>
+	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
 			Operacje na zazn. postaciach:
 		</text>

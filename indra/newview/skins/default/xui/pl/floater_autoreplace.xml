@@ -13,10 +13,10 @@
 	</scroll_list>
 	<button name="autoreplace_add_entry" label="Dodaj"/>
 	<button name="autoreplace_delete_entry" label="Usuń"/>
-	<text>
+	<text name="autoreplace_keyword_txt">
 		Szukane:
 	</text>
-	<text>
+	<text name="autoreplace_replacement_txt">
 		Zamiennik:
 	</text>
 	<button name="autoreplace_save_entry" label="Zapisz pozycję" tool_tip="Zapisz tą pozycję."/>

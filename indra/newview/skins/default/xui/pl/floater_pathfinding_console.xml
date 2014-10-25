@@ -66,13 +66,13 @@
 	<floater.string name="pathing_error">
 		Wystąpił błąd podczas generowania ścieżki.
 	</floater.string>
-	<panel>
-		<text>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
 			Stan przeglądarki
 		</text>
 	</panel>
-	<panel>
-		<text>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
 			Stan symulatora
 		</text>
 	</panel>

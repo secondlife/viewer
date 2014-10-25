@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="perms default" title="DOMYŚLNE UPRAWNIENIA TWORZENIA">
 	<panel label="Domyślne uprawnienia" name="default permissions">
-		<text>
+		<text name="label_1">
 			Następny właściciel:
 		</text>
-		<text>
+		<text name="label_2">
 			Kopiowanie
 		</text>
-		<text>
+		<text name="label_3">
 			Modyfikacja
 		</text>
-		<text>
+		<text name="label_4">
 			Transferowanie
 		</text>    
-		<text>
+		<text name="label_5">
 			Udostępnianie grupie
 		</text>
-		<text>
+		<text name="label_6">
 			Każdy może kopiować
 		</text>
-		<text tool_tip="Domyślne uprawnienia dla nowych obiektów">
+		<text name="label_7" tool_tip="Domyślne uprawnienia dla nowych obiektów">
 			Obiekty
 		</text>
-		<text tool_tip="Domyślne uprawnienia dla nowych przedmiotów ładowanych z dysku">
+		<text name="label_8" tool_tip="Domyślne uprawnienia dla nowych przedmiotów ładowanych z dysku">
 			Z dysku
 		</text>
-		<text tool_tip="Domyślne uprawnienia dla nowych skryptów">
+		<text name="label_9" tool_tip="Domyślne uprawnienia dla nowych skryptów">
 			Skrypty
 		</text>
-		<text tool_tip="Domyślne uprawnienia dla nowych notek">
+		<text name="label_10" tool_tip="Domyślne uprawnienia dla nowych notek">
 			Notki
 		</text>
-		<text tool_tip="Domyślne uprawnienia dla nowych gestów">
+		<text name="label_11" tool_tip="Domyślne uprawnienia dla nowych gestów">
 			Gesty
 		</text>
-		<text tool_tip="Domyślne uprawnienia dla nowych ubrań i części ciała">
+		<text name="label_12" tool_tip="Domyślne uprawnienia dla nowych ubrań i części ciała">
 			Ubrania
 		</text>
 	</panel>
