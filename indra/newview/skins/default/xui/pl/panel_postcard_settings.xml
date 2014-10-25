@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_postcard_settings">
+	<combo_box label="Rozdzielczość" name="postcard_size_combo">
+		<combo_box.item label="Obecne okno" name="CurrentWindow" />
+		<combo_box.item label="Własna" name="Custom" />
+	</combo_box>
+	<spinner label="Szer. x Wys." name="postcard_snapshot_width" />
+	<check_box label="Zachowaj proporcje" name="postcard_keep_aspect_check" />
+	<slider label="Jakość:" name="image_quality_slider" />
+</panel>

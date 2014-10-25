@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="spellcheck_floater" title="Ustawienia sprawdzania pisowni">
+	<check_box label="Włącz sprawdzanie pisowni" name="spellcheck_enable" />
+	<text name="spellcheck_main">
+		Główny słownik:
+	</text>
+	<text label="Logi:" name="spellcheck_additional">
+		Słowniki dodatkowe:
+	</text>
+	<text name="spellcheck_available">
+		Dostępne
+	</text>
+	<text name="spellcheck_active">
+		Aktywne
+	</text>
+	<button label="Usuń" name="spellcheck_remove_btn" />
+	<button label="Importuj" name="spellcheck_import_btn" />
+</floater>

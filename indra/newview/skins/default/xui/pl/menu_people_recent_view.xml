@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="menu_group_plus">
+	<menu_item_check label="Sortuj według daty" name="sort_most" />
+	<menu_item_check label="Sortuj według imion" name="sort_name" />
+	<menu_item_check name="view_icons" label="Pokazuj ikonki" />
+</toggleable_menu>

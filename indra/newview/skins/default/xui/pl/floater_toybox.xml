@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Toybox" title="PRZYCISKI NA PASKACH">
+	<text name="toybox label 1">
+		Możesz dodać lub usunąć przycisk z paska poprzez przeciąganie.
+	</text>
+	<text name="toybox label 2">
+		Przyciski będą wyglądać jak te poniżej lub jak ikonki, zależnie od ustawienia paska.
+	</text>
+	<button label="Wyczyść paski" label_selected="Wyczyść paski" name="btn_clear_all" />
+	<button label="Przywróć domyślne" label_selected="Przywróć domyślne" name="btn_restore_defaults" />
+</floater>

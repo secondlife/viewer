@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu name="Mute Particle Pie">
+	<menu_item_call label="Blokuj właściciela cząsteczek" name="Mute Particle" />
+</context_menu>

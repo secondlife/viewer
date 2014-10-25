@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Edit Day cycle" title="Edytuj cykl dnia">
+	<string name="title_new">
+		Stwórz nowy cykl dnia
+	</string>
+	<string name="title_edit">
+		Edytuj cykl dnia
+	</string>
+	<string name="hint_new">
+		Nazwij cykl dnia, ustaw co trzeba i kliknij na "Zapisz".
+	</string>
+	<string name="hint_edit">
+		Aby edytować cykl dnia ustaw co trzeba i kliknij na "Zapisz".
+	</string>
+	<string name="combo_label">
+		-Wybierz Ustawienie-
+	</string>
+	<text name="label">
+		Nazwa:
+	</text>
+	<text name="note">
+		Uwaga: jeśli zmienisz nazwę Ustawienia, to zaczniesz tworzyć nowe, a obecne pozostanie bez zmian.
+	</text>
+	<text  name="hint_item1">
+		- Kliknij na zakładce, aby edytować ust. nieba i czas.
+	</text>
+	<text  name="hint_item2">
+		- Klikaj i przeciągaj zakładki, aby ustawić czasy przejść.
+	</text>
+	<text name="hint_item3">
+		- Użyj suwaka, aby podglądać cykl dnia.
+	</text>
+	<panel name="day_cycle_slider_panel">
+		<button label="Dodaj zakł." label_selected="Dodaj zakł." name="WLAddKey" />
+		<button label="Usuń zakł." label_selected="Usuń zakł." name="WLDeleteKey" />
+		<text name="WL12am">
+			24:00
+		</text>
+		<text name="WL3am">
+			3:00
+		</text>
+		<text name="WL6am">
+			6:00
+		</text>
+		<text name="WL9amHash">
+			9:00
+		</text>
+		<text name="WL12pmHash">
+			12:00
+		</text>
+		<text name="WL3pm">
+			15:00
+		</text>
+		<text name="WL6pm">
+			18:00
+		</text>
+		<text name="WL9pm">
+			21:00
+		</text>
+		<text name="WL12am2">
+			24:00
+		</text>
+	</panel>
+	<text name="WLCurKeyPresetText">
+		Niebo:
+	</text>
+	<combo_box label="Ustawienie" name="WLSkyPresets" />
+	<text name="WLCurKeyTimeText">
+		Czas:
+	</text>
+	<time name="time" value="6:00" /> 
+	<check_box label="Ustaw jako mój cykl dnia" name="make_default_cb" />
+	<button label="Zapisz" name="save" />
+	<button label="Anuluj" name="cancel" />
+ </floater>

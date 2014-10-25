@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="spellcheck_import" title="Import Słownika">
+	<text>
+		Słownik:
+	</text>
+	<button label="Przeglądaj" label_selected="Przeglądaj" name="dictionary_path_browse" />
+	<text>
+		Nazwa:
+	</text>
+	<text>
+		Język:
+	</text>
+	<button name="ok_btn" label="Importuj" />
+	<button name="cancel_btn" label="Anuluj" />
+</floater>

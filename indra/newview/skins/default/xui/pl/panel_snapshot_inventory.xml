@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_snapshot_inventory">
+	<text name="title">
+		Szafa
+	</text>
+	<combo_box label="Rozdzielczość" name="texture_size_combo">
+		<combo_box.item label="Mała (128x128)" name="Small(128x128)" />
+		<combo_box.item label="Średnia (256x256)" name="Medium(256x256)" />
+		<combo_box.item label="Duża (512x512)" name="Large(512x512)" />
+		<combo_box.item label="Własna" name="Custom" />
+	</combo_box>
+	<spinner label="Szer. x Wys." name="inventory_snapshot_width" />
+	<check_box label="Zachowaj proporcje" name="inventory_keep_aspect_check" />
+	<text name="hint_lbl">
+		Zapisanie zdjęcia do Szafy kosztuje [UPLOAD_COST]L$. Aby zapisać je jako teksturę wybierz jeden z kwadratowych formatów.
+	</text>
+	<button label="Anuluj" name="cancel_btn" />
+	<button label="Zapisz" name="save_btn" />
+</panel>

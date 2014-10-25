@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="SKRZYNKA NADAWCZA KUPCA">
+	<string name="OutboxFolderCountN">
+		Folderów: [NUM]
+	</string>
+	<string name="OutboxImporting">
+		Wysyłanie folderów...
+	</string>
+	<string name="OutboxInitializing">
+		Inicjalizacja...
+	</string>
+	<panel>
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					Ładowanie...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<panel name="outbox_generic_drag_target">
+				<text>
+					Przeciągaj tu przedmioty by tworzyć foldery
+				</text>
+			</panel>
+			<button label="Wyślij na Marketplace" tool_tip="Wyślij na witrynę Marketplace" name="outbox_import_btn" />
+		</panel>
+	</panel>
+</floater>

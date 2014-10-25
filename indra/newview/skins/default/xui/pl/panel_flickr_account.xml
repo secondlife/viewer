@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_flickr_account">
+	<string name="flickr_connected" value="Połączenie z Flickr jako:" />
+	<string name="flickr_disconnected" value="Brak połączenia z Flickr" />
+	<text name="account_caption_label">
+		Brak połączenia z Flickr.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Połącz..." name="connect_btn" />
+		<button label="Rozłącz" name="disconnect_btn" />
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Flickr/ta-p/2435609 Więcej o wysyłaniu na Flickr]
+		</text>
+	</panel>
+</panel>
