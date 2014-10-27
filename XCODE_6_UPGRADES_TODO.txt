@@ -1,7 +1,0 @@
-* Fix up commented out code in 'tut' package - tut/tut/tut_assert.hpp #82 & #84 (no operator << for T & Q), rebuild package and point autobuild.xml at original version
-
-* Fix and uncomment unit test in indra/test/llsd_new_tut.cpp
-
-* Should we be using libstdc++ (GNU) or libc++ (clang) - using the former but latter is more 'clang'y - see comments from Cinder in BB
-
-* Weird folder name "build-darwin-i386/newview/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/Second Life.app" - likely causes because those $() should be ${} for CMake? - No, it's something else - lots of occurences in build-darwin folder but where do they come from? ....
