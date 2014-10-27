@@ -2580,9 +2580,13 @@ static LLStringExplicit get_default_item_label(const std::string& item_name)
 
 bool enable_object_touch(LLUICtrl* ctrl)
 {
+	bool new_value = false;
 	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-
-	bool new_value = obj && obj->flagHandleTouch();
+	if (obj)
+	{
+		LLViewerObject* parent = (LLViewerObject*)obj->getParent();
+		new_value = obj->flagHandleTouch() || (parent && parent->flagHandleTouch());
+	}
 
 	std::string item_name = ctrl->getName();
 	init_default_item_label(item_name);
