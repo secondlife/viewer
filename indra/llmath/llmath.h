@@ -559,6 +559,7 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
 
 inline void	ll_nn2d_interpolation(const U8 *const src, U32 srcW, U32 srcH, U8 srcCh, U8 *const dst, U32 dstW, U32 dstH, U8 dstCh)
 {
+	llassert(NULL != src && NULL != dst);
 	llassert(srcCh>=dstCh);
 
 	S32 tmp_x = 0, tmp_y = 0, tmp_x1 = 0, tmp_x2 = 0;
