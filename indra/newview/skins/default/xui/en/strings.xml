@@ -4031,7 +4031,8 @@ Try enclosing path to the editor with double quotes.
   <string name="experience_tools_experience">Experience</string>
   <string name="ExperienceNameNull">(no experience)</string>
   <string name="ExperienceNameUntitled">(untitled experience)</string>
-  <string name="GRID_WIDE">Grid-wide</string>
+  <string name="Land-Scope">Land-Scope</string>
+  <string name="Grid-Scope">Grid-Scope</string>
   <string name="Allowed_Experiences_Tab">ALLOWED</string>
   <string name="Blocked_Experiences_Tab">BLOCKED</string>
   <string name="Contrib_Experiences_Tab">CONTRIBUTOR</string>

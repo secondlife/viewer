@@ -7326,7 +7326,7 @@ You do not have access to this destination. You may be allowed into the region b
    name="ScriptQuestionExperience"
    persist="false"
    type="notify">
-&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requests your participation in the [GRID_WIDE]experience:
+&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requests your participation in the [GRID_WIDE] experience:
 
 [EXPERIENCE]
 

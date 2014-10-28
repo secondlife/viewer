@@ -20,13 +20,13 @@ Additionally, if the estate does not allow public access, Residents participatin
    </panel.string>
    <panel.string
       name="allowed_estate_text">
-Only Experiences that are not Grid-Wide may be Allowed.
+Only Experiences that are Land-Scope may be Allowed.
 
 Allowed Experiences have permission to run on this estate.
    </panel.string>
    <panel.string
       name="blocked_estate_text">
-Only Grid-Wide Experiences may be Blocked.
+Only Grid-Scope Experiences may be Blocked.
       
 Blocked Experiences may not run on this estate.
    </panel.string>
@@ -35,12 +35,12 @@ Blocked Experiences may not run on this estate.
       Changes to settings on this tab will affect all regions in the estate.
    </panel.string>
    <panel.string
-      name="allowed_parcel_text">Only Experiences that are not Grid-Wide may be Allowed.
+      name="allowed_parcel_text">Only Experiences that are Land-Scope may be Allowed.
       
 Allowed Experiences have permission to run on this parcel if they are not Blocked by the estate.
    </panel.string>
    <panel.string
-      name="blocked_parcel_text">Only Grid-Wide Experiences may be Blocked.
+      name="blocked_parcel_text">Any Resident Experience may be Blocked.
       
 Blocked Experiences may not run on this parcel.
    </panel.string>

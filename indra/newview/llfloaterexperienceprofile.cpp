@@ -520,13 +520,19 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
     enable = getChild<LLCheckBoxCtrl>(EDIT BTN_PRIVATE);
     enable->set(properties & LLExperienceCache::PROPERTY_PRIVATE);  
+
+    topPanel->setVisible(TRUE);
+    child=getChild<LLTextBox>(TF_GRID_WIDE);
+    child->setVisible(TRUE);
+
     if(properties & LLExperienceCache::PROPERTY_GRID)
     {
-        topPanel->setVisible(TRUE);
-        child=getChild<LLTextBox>(TF_GRID_WIDE);
-        child->setVisible(TRUE);
-        child->setText(LLTrans::getString("GRID_WIDE"));
+        child->setText(LLTrans::getString("Grid-Scope"));
     }
+	else 
+	{
+        child->setText(LLTrans::getString("Land-Scope"));
+	}
 
 	if(getChild<LLButton>(BTN_EDIT)->getVisible())
 	{

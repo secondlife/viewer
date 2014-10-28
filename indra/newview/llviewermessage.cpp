@@ -6491,11 +6491,11 @@ void process_script_experience_details(const LLSD& experience_details, LLSD args
 {
 	if(experience_details[LLExperienceCache::PROPERTIES].asInteger() & LLExperienceCache::PROPERTY_GRID)
 	{
-		args["GRID_WIDE"] = LLTrans::getString("GRID_WIDE")+ " ";
+		args["GRID_WIDE"] = LLTrans::getString("Grid-Scope");
 	}
 	else
 	{
-		args["GRID_WIDE"] = "";
+		args["GRID_WIDE"] = LLTrans::getString("Land-Scope");
 	}
 	args["EXPERIENCE"] = LLSLURL("experience", experience_details[LLExperienceCache::EXPERIENCE_ID].asUUID(), "profile").getSLURLString();
 
