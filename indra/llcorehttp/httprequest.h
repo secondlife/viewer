@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -183,11 +183,38 @@ public:
 		/// Global only
 		PO_TRACE,
 
-		/// Suitable requests are allowed to pipeline on their
-		/// connections when they ask for it.
+		/// If greater than 1, suitable requests are allowed to
+		/// pipeline on their connections when they ask for it.
+		/// Value gives the maximum number of outstanding requests
+		/// on a connection.
+		///
+		/// There is some interaction between PO_CONNECTION_LIMIT,
+		/// PO_PER_HOST_CONNECTION_LIMIT, and PO_PIPELINING_DEPTH.
+		/// When PIPELINING_DEPTH is 0 or 1 (no pipelining), this
+		/// library manages connection lifecycle and honors the
+		/// PO_CONNECTION_LIMIT setting as the maximum in-flight
+		/// request limit.  Libcurl itself may be caching additional
+		/// connections under its connection cache policy.
+		///
+		/// When PIPELINING_DEPTH is 2 or more, libcurl performs
+		/// connection management and both PO_CONNECTION_LIMIT and
+		/// PO_PER_HOST_CONNECTION_LIMIT should be set and non-zero.
+		/// In this case (as of libcurl 7.37.0), libcurl will
+		/// open new connections in preference to pipelining, up
+		/// to the above limits at which time pipelining begins.
+		/// And as usual, an additional cache of open but inactive
+		/// connections may still be maintained within libcurl.
+		/// For SL, a good rule-of-thumb is to set
+		/// PO_PER_HOST_CONNECTION_LIMIT to the user-visible
+		/// concurrency value and PO_CONNECTION_LIMIT to twice
+		/// that for baked texture loads and region crossings where
+		/// additional connection load will be tolerated.  If
+		/// either limit is 0, libcurl will prefer pipelining
+		/// over connection creation, which is still interesting,
+		/// but won't be pursued at this time.
 		///
 		/// Per-class only
-		PO_ENABLE_PIPELINING,
+		PO_PIPELINING_DEPTH,
 
 		/// Controls whether client-side throttling should be
 		/// performed on this policy class.  Positive values

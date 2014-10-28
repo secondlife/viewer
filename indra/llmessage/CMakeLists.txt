@@ -6,6 +6,7 @@ include(00-Common)
 include(GoogleMock)
 include(LLAddBuildTest)
 include(LLCommon)
+include(LLCoreHttp)
 include(LLMath)
 include(LLMessage)
 include(LLVFS)
@@ -18,6 +19,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
@@ -36,6 +38,7 @@ set(llmessage_SOURCE_FILES
     llchainio.cpp
     llcircuit.cpp
     llclassifiedflags.cpp
+    llcorehttputil.cpp
     llcurl.cpp
     lldatapacker.cpp
     lldispatcher.cpp
@@ -124,6 +127,7 @@ set(llmessage_HEADER_FILES
     llcipher.h
     llcircuit.h
     llclassifiedflags.h
+    llcorehttputil.h
     llcurl.h
     lldatapacker.h
     lldbstrings.h

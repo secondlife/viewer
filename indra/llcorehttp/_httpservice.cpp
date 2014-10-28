@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,14 @@
 
 #include "lltimer.h"
 #include "llthread.h"
+
+
+namespace
+{
+
+static const char * const LOG_CORE("CoreHttp");
+
+} // end anonymous namespace
 
 
 namespace LLCore
@@ -87,8 +95,8 @@ HttpService::~HttpService()
 				// Failed to join, expect problems ahead so do a hard termination.
 				mThread->cancel();
 
-				LL_WARNS("CoreHttp") << "Destroying HttpService with running thread.  Expect problems."
-									 << LL_ENDL;
+				LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems."
+								   << LL_ENDL;
 			}
 		}
 	}
@@ -328,9 +336,9 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 
 			if (op->mTracing > HTTP_TRACE_OFF)
 			{
-				LL_INFOS("CoreHttp") << "TRACE, FromRequestQueue, Handle:  "
-									 << static_cast<HttpHandle>(op)
-									 << LL_ENDL;
+				LL_INFOS(LOG_CORE) << "TRACE, FromRequestQueue, Handle:  "
+								   << static_cast<HttpHandle>(op)
+								   << LL_ENDL;
 			}
 
 			// Stage
@@ -437,9 +445,13 @@ HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 		HttpPolicyClass & opts(mPolicy->getClassOptions(pclass));
 
 		status = opts.set(opt, value);
-		if (status && ret_value)
+		if (status)
 		{
-			status = opts.get(opt, ret_value);
+			mTransport->policyUpdated(pclass);
+			if (ret_value)
+			{
+				status = opts.get(opt, ret_value);
+			}
 		}
 	}
 
@@ -463,7 +475,7 @@ HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 		return status;
 	}
 
-	// Only string values are global at this time
+	// String values are always global (at this time).
 	if (pclass == HttpRequest::GLOBAL_POLICY_ID)
 	{
 		HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
