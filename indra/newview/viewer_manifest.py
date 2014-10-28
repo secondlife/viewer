@@ -883,7 +883,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                     try:
                         sign_attempts-=1;
                         self.run_command(
-                           'codesign --verbose --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
+                           'codesign --verbose --deep --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
                                'home_path' : home_path,
                                'identity': identity,
                                'bundle': self.get_dst_prefix()
