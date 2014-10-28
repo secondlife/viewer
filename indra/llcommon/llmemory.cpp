@@ -2184,8 +2184,6 @@ void* ll_aligned_malloc_fallback( size_t size, int align )
 		// call debugger
 		__asm int 3;
 	}
-	memset(p, 0xaa, for_alloc);
-	memset((void*)((char*)p + for_alloc), 0xbb, sysinfo.dwPageSize);
 	DWORD old;
 	BOOL Res = VirtualProtect((void*)((char*)p + for_alloc), sysinfo.dwPageSize, PAGE_NOACCESS, &old);
 	if(FALSE == Res) {

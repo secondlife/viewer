@@ -156,9 +156,9 @@ bool ll_get_stack_trace(std::vector<std::string>& lines)
 	return false;
 }
 
-void ll_get_stack_trace2(std::vector<std::string>& lines)
+void ll_get_stack_trace_internal(std::vector<std::string>& lines)
 {
-	return false;
+
 }
 
 #endif
