@@ -145,8 +145,11 @@ const int HTTP_CONNECTION_LIMIT_DEFAULT = 8;
 const int HTTP_CONNECTION_LIMIT_MIN = 1;
 const int HTTP_CONNECTION_LIMIT_MAX = 256;
 
-// Miscellaneous defaults
+// Pipelining limits
 const long HTTP_PIPELINING_DEFAULT = 0L;
+const long HTTP_PIPELINING_MAX = 20L;
+
+// Miscellaneous defaults
 const bool HTTP_USE_RETRY_AFTER_DEFAULT = true;
 const long HTTP_THROTTLE_RATE_DEFAULT = 0L;
 
