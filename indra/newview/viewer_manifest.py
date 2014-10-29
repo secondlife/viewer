@@ -858,49 +858,6 @@ class Darwin_i386_Manifest(ViewerManifest):
 
     def package_finish(self):
         global CHANNEL_VENDOR_BASE
-        # Sign the app if requested.
-        if 'signature' in self.args:
-            identity = self.args['signature']
-            if identity == '':
-                identity = 'Developer ID Application'
-
-            # Look for an environment variable set via build.sh when running in Team City.
-            try:
-                build_secrets_checkout = os.environ['build_secrets_checkout']
-            except KeyError:
-                pass
-            else:
-                # variable found so use it to unlock keyvchain followed by codesign
-                home_path = os.environ['HOME']
-                keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx','password.txt')
-                keychain_pwd = open(keychain_pwd_path).read().rstrip()
-
-                self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
-                signed=False
-                sign_attempts=3
-                sign_retry_wait=15
-                while (not signed) and (sign_attempts > 0):
-                    try:
-                        sign_attempts-=1;
-                        self.run_command(
-                           'codesign --verbose --deep --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
-                               'home_path' : home_path,
-                               'identity': identity,
-                               'bundle': self.get_dst_prefix()
-                               })
-                        signed=True # if no exception was raised, the codesign worked
-                    except ManifestError, err:
-                        if sign_attempts:
-                            print >> sys.stderr, "codesign failed, waiting %d seconds before retrying" % sign_retry_wait
-                            time.sleep(sign_retry_wait)
-                            sign_retry_wait*=2
-                        else:
-                            print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
-                            raise
-                self.run_command('spctl -a -texec -vv %(bundle)r' % { 'bundle': self.get_dst_prefix() })
-
-        imagename="SecondLife_" + '_'.join(self.args['version'])
-
         # MBW -- If the mounted volume name changes, it breaks the .DS_Store's background image and icon positioning.
         #  If we really need differently named volumes, we'll need to create multiple DS_Store file images, or use some other trick.
 
@@ -982,6 +939,56 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             # Set the disk image root's custom icon bit
             self.run_command('SetFile -a C %r' % volpath)
+
+            # Sign the app if requested; 
+            # do this in the copy that's in the .dmg so that the extended attributes used by 
+            # the signature are preserved; moving the files using python will leave them behind
+            # and invalidate the signatures.
+            if 'signature' in self.args:
+                app_in_dmg=os.path.join(volpath,self.get_dst_prefix())
+                print "Attempting to sign '%s'" % app_in_dmg
+                identity = self.args['signature']
+                if identity == '':
+                    identity = 'Developer ID Application'
+
+                # Look for an environment variable set via build.sh when running in Team City.
+                try:
+                    build_secrets_checkout = os.environ['build_secrets_checkout']
+                except KeyError:
+                    pass
+                else:
+                    # variable found so use it to unlock keychain followed by codesign
+                    home_path = os.environ['HOME']
+                    keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx','password.txt')
+                    keychain_pwd = open(keychain_pwd_path).read().rstrip()
+
+                    self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
+                    signed=False
+                    sign_attempts=3
+                    sign_retry_wait=15
+                    while (not signed) and (sign_attempts > 0):
+                        try:
+                            sign_attempts-=1;
+                            self.run_command(
+                               'codesign --verbose --deep --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
+                                   'home_path' : home_path,
+                                   'identity': identity,
+                                   'bundle': app_in_dmg
+                                   })
+                            signed=True # if no exception was raised, the codesign worked
+                        except ManifestError, err:
+                            if sign_attempts:
+                                print >> sys.stderr, "codesign failed, waiting %d seconds before retrying" % sign_retry_wait
+                                time.sleep(sign_retry_wait)
+                                sign_retry_wait*=2
+                            else:
+                                print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
+                                raisef
+                    self.run_command('spctl -a -texec -vv %(bundle)r' % { 'bundle': app_in_dmg })
+
+            imagename="SecondLife_" + '_'.join(self.args['version'])
+
+
         finally:
             # Unmount the image even if exceptions from any of the above 
             self.run_command('hdiutil detach -force %r' % devfile)
