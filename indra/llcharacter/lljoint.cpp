@@ -289,8 +289,9 @@ void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::str
 	{
 		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " removeAttachmentPosOverride for " << mesh_id << LL_ENDL;
 		m_attachmentOverrides.erase(it);
+		updatePos(av_info);
 	}
-	updatePos(av_info);
+
 }
 
 //--------------------------------------------------------------------
