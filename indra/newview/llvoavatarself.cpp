@@ -1154,8 +1154,6 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
 	if ( LLVOAvatar::detachObject(viewer_object) )
 	{
-		LLVOAvatar::cleanupAttachedMesh( viewer_object );
-		
 		// the simulator should automatically handle permission revocation
 		
 		stopMotionFromSource(attachment_id);

@@ -5058,6 +5058,37 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 
 	return jointp;
 }
+
+//-----------------------------------------------------------------------------
+// getRiggedMeshID
+//
+// If viewer object is a rigged mesh, set the mesh id and return true.
+// Otherwise, null out the id and return false.
+//-----------------------------------------------------------------------------
+// static
+bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
+{
+	mesh_id.setNull();
+	
+	//If a VO has a skin that we'll reset the joint positions to their default
+	if ( pVO && pVO->mDrawable )
+	{
+		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
+		if ( pVObj )
+		{
+			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
+			if (pSkinData 
+				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
+				&& pSkinData->mAlternateBindMatrix.size() > 0 )
+					{				
+						mesh_id = pSkinData->mMeshID;
+						return true;
+					}
+		}
+	}
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // resetJointPositionsOnDetach
 //-----------------------------------------------------------------------------
@@ -5735,31 +5766,18 @@ void LLVOAvatar::rebuildRiggedAttachments( void )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 {
-	//If a VO has a skin that we'll reset the joint positions to their default
-	if ( pVO && pVO->mDrawable )
+	LLUUID mesh_id;
+	if (getRiggedMeshID(pVO, mesh_id))
 	{
-		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
-		if ( pVObj )
+		resetJointPositionsOnDetach(mesh_id);
+		if ( gAgentCamera.cameraCustomizeAvatar() )
 		{
-			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
-			if (pSkinData 
-				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
-				&& pSkinData->mAlternateBindMatrix.size() > 0 )
-					{				
-						const LLUUID& mesh_id = pSkinData->mMeshID;
-						LLVOAvatar::resetJointPositionsOnDetach(mesh_id);							
-						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
-						//This handles the case where we detach a replacement rig.
-						if ( gAgentCamera.cameraCustomizeAvatar() )
-						{
-							gAgent.unpauseAnimation();
-							//Still want to refocus on head bone
-							gAgentCamera.changeCameraToCustomizeAvatar();
-						}
-					}
-				}
-			}				
+			gAgent.unpauseAnimation();
+			//Still want to refocus on head bone
+			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // detachObject()
