@@ -897,7 +897,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                         else:
                             print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                             raise
-                self.run_command('spctl -a -texec -vv %(bundle)r' % self.get_dst_prefix())
+                self.run_command('spctl -a -texec -vv %(bundle)r' % { 'bundle': self.get_dst_prefix() })
 
         imagename="SecondLife_" + '_'.join(self.args['version'])
 
