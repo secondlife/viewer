@@ -1867,7 +1867,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 			mModel[lod].clear();
 			mVertexBuffer[lod].clear();
 			
-			if (mModelLoader->mScene.begin()->second[0].mLOD[loaded_lod].notNull())
+			if (mModelLoader->mScene.begin()->second[0].mLOD[lod].notNull())
 			{ //if this LoD exists in the loaded scene
 
 				//copy scene to current LoD
