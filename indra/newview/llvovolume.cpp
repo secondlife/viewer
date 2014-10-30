@@ -4632,11 +4632,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 											//If joint is a pelvis then handle old/new pelvis to foot values
 											if ( lookingForJoint == "mPelvis" )
 											{	
-												if ( !pAvatarVO->hasPelvisOffset() )
-												{										
-													pAvatarVO->setPelvisOffset( true, jointPos, pelvisZOffset );
-													pelvisGotSet = true;											
-												}										
+												// FIXME move
+												pAvatarVO->addPelvisFixup( pelvisZOffset, mesh_id );
+												pelvisGotSet = true;											
 											}										
 										}										
 									}																

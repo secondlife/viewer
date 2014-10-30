@@ -708,7 +708,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mVisualComplexity(0),
 	mVisualComplexityStale(TRUE),
 	mLoadedCallbacksPaused(FALSE),
-	mHasPelvisOffset( FALSE ),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
@@ -770,10 +769,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
-	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
-	mLastPelvisToFoot = 0.0f;
-	mPelvisFixup = 0.0f;
-	mLastPelvisFixup = 0.0f;
 
     if(LLSceneMonitor::getInstance()->isEnabled())
 	{
@@ -1258,16 +1253,17 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	}
 	else if (isRoot())
 	{
-		if ( !mHasPelvisOffset )
-		{
-			return mDrawable->getPositionAgent();
-		}
-		else
+		F32 fixup;
+		if ( hasPelvisFixup( fixup) )
 		{
 			//Apply a pelvis fixup (as defined by the avs skin)
 			LLVector3 pos = mDrawable->getPositionAgent();
-			pos[VZ] += mPelvisFixup;
+			pos[VZ] += fixup;
 			return pos;
+		}
+		else
+		{
+			return mDrawable->getPositionAgent();
 		}
 	}
 	else
@@ -3724,21 +3720,6 @@ void LLVOAvatar::updateHeadOffset()
 	}
 }
 //------------------------------------------------------------------------
-// setPelvisOffset
-//------------------------------------------------------------------------
-void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount, F32 pelvisFixup ) 
-{
-	mHasPelvisOffset = hasOffset;
-	if ( mHasPelvisOffset )
-	{	
-		//Store off last pelvis to foot value
-		mLastPelvisToFoot = mPelvisToFoot;		
-		mPelvisOffset	  = offsetAmount;
-		mLastPelvisFixup  = mPelvisFixup;
-		mPelvisFixup	  = pelvisFixup;
-	}
-}
-//------------------------------------------------------------------------
 // postPelvisSetRecalc
 //------------------------------------------------------------------------
 void LLVOAvatar::postPelvisSetRecalc( void )
@@ -3746,15 +3727,6 @@ void LLVOAvatar::postPelvisSetRecalc( void )
 	mRoot->updateWorldMatrixChildren();			
 	computeBodySize();
 	dirtyMesh(2);
-}
-//------------------------------------------------------------------------
-// setPelvisOffset
-//------------------------------------------------------------------------
-void LLVOAvatar::setPelvisOffset( F32 pelvisFixupAmount )
-{		
-	mHasPelvisOffset  = true;
-	mLastPelvisFixup  = mPelvisFixup;	
-	mPelvisFixup	  = pelvisFixupAmount;	
 }
 //------------------------------------------------------------------------
 // updateVisibility()
@@ -5104,22 +5076,18 @@ void LLVOAvatar::resetJointPositionsOnDetach(const LLUUID& mesh_id)
 	{
 		LLJoint* pJoint = (*iter);
 		//Reset joints except for pelvis
-		if ( pJoint && pJoint != pJointPelvis)
+		if ( pJoint )
 		{			
 			pJoint->setId( LLUUID::null );
 			pJoint->removeAttachmentPosOverride(mesh_id, avString());
 		}		
-		else
 		if ( pJoint && pJoint == pJointPelvis)
 		{
-			pJoint->setId( LLUUID::null );
+			removePelvisFixup( mesh_id );
 			pJoint->setPosition( LLVector3( 0.0f, 0.0f, 0.0f) );
 		}		
 	}	
 		
-	//make sure we don't apply the joint offset
-	mHasPelvisOffset = false;
-	mPelvisFixup	 = mLastPelvisFixup;
 	postPelvisSetRecalc();	
 }
 //-----------------------------------------------------------------------------

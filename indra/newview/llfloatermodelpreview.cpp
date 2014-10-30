@@ -3244,7 +3244,11 @@ U32 LLModelPreview::calcResourceCost()
 	
 	if ( mFMP && mFMP->childGetValue("upload_joints").asBoolean() )
 	{
-		getPreviewAvatar()->setPelvisOffset( mPelvisZOffset );
+		// FIXME if preview avatar ever gets reused, this fake mesh ID stuff will fail.
+		// see also call to addAttachmentPosOverride.
+		LLUUID fake_mesh_id;
+		fake_mesh_id.generate();
+		getPreviewAvatar()->addPelvisFixup( mPelvisZOffset, fake_mesh_id );
 	}
 
 	F32 streaming_cost = 0.f;

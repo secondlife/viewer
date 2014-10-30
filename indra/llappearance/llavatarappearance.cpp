@@ -675,6 +675,42 @@ void LLAvatarAppearance::clearSkeleton()
 	mSkeleton.clear();
 }
 
+//------------------------------------------------------------------------
+// addPelvisFixup
+//------------------------------------------------------------------------
+void LLAvatarAppearance::addPelvisFixup( F32 fixup, const LLUUID& mesh_id ) 
+{
+	LLVector3 pos(0.0,0.0,fixup);
+	mPelvisFixups.add(mesh_id,pos);
+}
+
+//------------------------------------------------------------------------
+// addPelvisFixup
+//------------------------------------------------------------------------
+void LLAvatarAppearance::removePelvisFixup( const LLUUID& mesh_id )
+{
+	mPelvisFixups.remove(mesh_id);
+}
+
+//------------------------------------------------------------------------
+// hasPelvisFixup
+//------------------------------------------------------------------------
+bool LLAvatarAppearance::hasPelvisFixup( F32& fixup, LLUUID& mesh_id ) const
+{
+	LLVector3 pos;
+	if (mPelvisFixups.findActiveOverride(mesh_id,pos))
+	{
+		fixup = pos[2];
+		return true;
+	}
+	return false;
+}
+
+bool LLAvatarAppearance::hasPelvisFixup( F32& fixup ) const
+{
+	LLUUID mesh_id;
+	return hasPelvisFixup( fixup, mesh_id );
+}
 //-----------------------------------------------------------------------------
 // LLAvatarAppearance::buildCharacter()
 // Deferred initialization and rebuild of the avatar.
