@@ -125,8 +125,7 @@ bool AISCommand::isAPIAvailable()
 {
 	if (gAgent.getRegion())
 	{
-		bool force_disable = gSavedSettings.getBOOL("InventoryDisableAISv3");
-		return gAgent.getRegion()->isCapabilityAvailable("InventoryAPIv3") && !force_disable;
+		return gAgent.getRegion()->isCapabilityAvailable("InventoryAPIv3");
 	}
 	return false;
 }
