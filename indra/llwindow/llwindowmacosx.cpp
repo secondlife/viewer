@@ -901,6 +901,11 @@ void LLWindowMacOSX::swapBuffers()
 	CGLFlushDrawable(mContext);
 }
 
+void LLWindowMacOSX::restoreGLContext()
+{
+    CGLSetCurrentContext(mContext);
+}
+
 F32 LLWindowMacOSX::getGamma()
 {
 	F32 result = 2.2;	// Default to something sane
