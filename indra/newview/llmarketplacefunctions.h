@@ -147,6 +147,7 @@ private:
     S32 mListingId;
     LLUUID mVersionFolderId;
     bool mIsActive;
+    S32 mCountOnHand;
     std::string mEditURL;
 };
 // Notes:
@@ -195,6 +196,7 @@ public:
     bool clearListing(const LLUUID& folder_id);
     bool setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id);
     bool associateListing(const LLUUID& folder_id, const LLUUID& source_folder_id, S32 listing_id);
+    bool updateCountOnHand(const LLUUID& folder_id);
     bool getListing(const LLUUID& folder_id);
     bool getListing(S32 listing_id);
     bool deleteListing(S32 listing_id);
@@ -213,6 +215,7 @@ public:
     LLUUID getVersionFolder(const LLUUID& folder_id);
     std::string getListingURL(const LLUUID& folder_id);
     LLUUID getListingFolder(S32 listing_id);
+    S32 getCountOnHand(const LLUUID& folder_id);
     
     // Used to flag if stock count values for Marketplace have to be updated
     bool checkDirtyCount() { if (mDirtyCount) { mDirtyCount = false; return true; } else { return false; } }
@@ -228,12 +231,13 @@ private:
     bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
     bool setActivationState(const LLUUID& folder_id, bool activate);
     bool setListingURL(const LLUUID& folder_id, const std::string& edit_url);
+    bool setCountOnHand(const LLUUID& folder_id, S32 count);
     
     // Private SLM API : package data and get/post/put requests to the SLM Server through the SLM API
 	void setSLMStatus(U32 status);
     void createSLMListing(const LLUUID& folder_id);
     void getSLMListing(S32 listing_id);
-    void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
+    void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, S32 count);
     void associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id);
     void deleteSLMListing(S32 listing_id);
     std::string getSLMConnectURL(const std::string& route);

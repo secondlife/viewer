@@ -177,6 +177,11 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
             }
         }
     
+        // Check if the count on hand needs to be updated on SLM
+        if (compute_stock_count(listing_uuid) != LLMarketplaceData::instance().getCountOnHand(listing_uuid))
+        {
+            LLMarketplaceData::instance().updateCountOnHand(listing_uuid);
+        }
         // Update all descendents starting from the listing root
         update_marketplace_folder_hierarchy(listing_uuid);
     }

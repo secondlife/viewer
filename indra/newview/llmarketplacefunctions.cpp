@@ -1221,7 +1221,7 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
 	LLHTTPClient::postRaw(url, data, size, new LLSLMCreateListingsResponder(folder_id), headers);
 }
 
-void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed)
+void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, S32 count)
 {
 	LLSD headers = LLSD::emptyMap();
 	headers["Accept"] = "application/json";
@@ -1235,6 +1235,7 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
     root["listing"]["is_listed"] = is_listed;
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
     root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
+    root["listing"]["inventory_info"]["count_on_hand"] = count;
     
     std::string json_str = writer.write(root);
     
@@ -1264,6 +1265,7 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     root["listing"]["is_listed"] = false;
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
     root["listing"]["inventory_info"]["version_folder_id"] = LLUUID::null.asString();
+    root["listing"]["inventory_info"]["count_on_hand"] = -1;
     
     std::string json_str = writer.write(root);
     
@@ -1416,9 +1418,13 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
     }
     
     LLUUID version_uuid = getVersionFolder(listing_uuid);
+    
+    // Keep track of the count on hand
+    S32 count = compute_stock_count(folder_id);
+    setCountOnHand(folder_id, count);
 
     // Post the listing update request to SLM
-    updateSLMListing(listing_uuid, listing_id, version_uuid, activate);
+    updateSLMListing(listing_uuid, listing_id, version_uuid, activate, count);
     
     return true;
 }
@@ -1438,8 +1444,38 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     // Note: if the version_id is cleared, we need to unlist the listing, otherwise, state unchanged
     bool is_listed = (version_id.isNull() ? false : getActivationState(listing_uuid));
     
+    // Keep track of the count on hand
+    S32 count = compute_stock_count(version_id);
+    setCountOnHand(folder_id, count);
+    
     // Post the listing update request to SLM
-    updateSLMListing(listing_uuid, listing_id, version_id, is_listed);
+    updateSLMListing(listing_uuid, listing_id, version_id, is_listed, count);
+    
+    return true;
+}
+
+bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id)
+{
+    // Folder id can be the root of the listing or not so we need to retrieve the root first
+    S32 depth = depth_nesting_in_marketplace(folder_id);
+    LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+    S32 listing_id = getListingID(listing_uuid);
+    if (listing_id == 0)
+    {
+        // Listing doesn't exists -> exit with error
+        return false;
+    }
+    
+    // Get the unchanged values
+    bool is_listed = getActivationState(listing_uuid);
+    LLUUID version_uuid = getVersionFolder(listing_uuid);
+
+    // Update the count on hand
+    S32 count = compute_stock_count(folder_id);
+    setCountOnHand(folder_id, count);
+    
+    // Post the listing update request to SLM
+    updateSLMListing(listing_uuid, listing_id, version_uuid, is_listed, count);
     
     return true;
 }
@@ -1452,6 +1488,9 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
         return false;
     }
     
+    // Clear the count on hand in that case (we don't have a version folder anymore)
+    setCountOnHand(folder_id, -1);
+
     // Post the listing update request to SLM
     associateSLMListing(folder_id, listing_id, source_folder_id);
     
@@ -1527,6 +1566,12 @@ S32 LLMarketplaceData::getListingID(const LLUUID& folder_id)
 {
     marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
     return (it == mMarketplaceItems.end() ? 0 : (it->second).mListingId);
+}
+
+S32 LLMarketplaceData::getCountOnHand(const LLUUID& folder_id)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    return (it == mMarketplaceItems.end() ? -1 : (it->second).mCountOnHand);
 }
 
 LLUUID LLMarketplaceData::getVersionFolder(const LLUUID& folder_id)
@@ -1653,6 +1698,19 @@ bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id)
     
     update_marketplace_category(folder_id, false);
     gInventory.notifyObservers();
+    return true;
+}
+
+bool LLMarketplaceData::setCountOnHand(const LLUUID& folder_id, S32 count)
+{
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    if (it == mMarketplaceItems.end())
+    {
+        return false;
+    }
+    
+    (it->second).mCountOnHand = count;
+
     return true;
 }
 
