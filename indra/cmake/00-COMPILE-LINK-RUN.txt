@@ -115,12 +115,12 @@ Compilation
     ----------------------------------------------------------------------------
     Notes:
 
-    1.  We’re also building dylibs in a somewhat unusual way.  They’re
+    1.  We're also building dylibs in a somewhat unusual way.  They're
     currently being generated with a link path of
-    ‘@executable_path/../Resources/<library>’.  If we were to follow
-    the recommendations in dyld’s man page, we’d instead reference
-    ‘@loader_path/<library>’, use -rpath on the executable link
-    (pointing to the ‘Resources’ subdir of the main executable), and
+    '@executable_path/../Resources/<library>'.  If we were to follow
+    the recommendations in dyld's man page, we’d instead reference
+	'@loader_path/<library>', use -rpath on the executable link
+    (pointing to the 'Resources' subdir of the main executable), and
     be able to avoid some symlinking in the .app tree.
 
     2.  Use the -headerpad_max_install_names link option on all .dylibs.
@@ -184,7 +184,7 @@ Linking
     second, incompatible version of the library.  Switching colladadom
     to a static library ended the re-export problem.
 
-    *  Preventing re-export is not sufficient.  other libraries will
+    *  Preventing re-export is not sufficient.  Other libraries will
     still be shipped as shared and they can still have Singleton and
     Fragile Base Class issues.  A DLL may be built with a static
     archive of a library that has global data.  That same static
