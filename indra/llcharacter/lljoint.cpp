@@ -340,6 +340,14 @@ void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::str
 }
 
 //--------------------------------------------------------------------
+ // hasAttachmentPosOverride()
+ //--------------------------------------------------------------------
+bool LLJoint::hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const
+{
+	return m_attachmentOverrides.findActiveOverride(mesh_id,pos);
+}
+
+//--------------------------------------------------------------------
 // updatePos()
 //--------------------------------------------------------------------
 void LLJoint::updatePos(const std::string& av_info)

@@ -4613,6 +4613,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							{					
 								const int jointCnt = pSkinData->mJointNames.size();
 								const F32 pelvisZOffset = pSkinData->mPelvisOffset;
+								const LLUUID& mesh_id = pSkinData->mMeshID;
 								bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
 								if ( fullRig )
 								{								
@@ -4626,18 +4627,20 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 											const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
 											
 											//Set the joint position
-											const LLUUID& mesh_id = pSkinData->mMeshID;
 											pJoint->addAttachmentPosOverride( jointPos, mesh_id, pAvatarVO->avString() );
 									
 											//If joint is a pelvis then handle old/new pelvis to foot values
 											if ( lookingForJoint == "mPelvis" )
 											{	
-												// FIXME move
-												pAvatarVO->addPelvisFixup( pelvisZOffset, mesh_id );
 												pelvisGotSet = true;											
 											}										
 										}										
 									}																
+									if (pelvisZOffset != 0.0F)
+									{
+										pAvatarVO->addPelvisFixup( pelvisZOffset, mesh_id );
+										pelvisGotSet = true;											
+									}
 								}							
 							}
 						}

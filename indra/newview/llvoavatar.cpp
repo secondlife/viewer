@@ -7674,6 +7674,27 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 						 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
 	}
 
+	for (iter = mSkeleton.begin(); iter != end; ++iter)
+	{
+		LLJoint* pJoint = (*iter);
+		
+		LLVector3 pos;
+		LLUUID mesh_id;
+
+		if (pJoint->hasAttachmentPosOverride(pos,mesh_id))
+		{
+			apr_file_printf( file, "\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
+							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], mesh_id.asString().c_str());
+		}
+	}
+	F32 pelvis_fixup;
+	LLUUID mesh_id;
+	if (hasPelvisFixup(pelvis_fixup, mesh_id))
+	{
+		apr_file_printf( file, "\t\t<pelvis_fixup z=\"%f\" mesh_id=\"%s\"/>\n", 
+						 pelvis_fixup, mesh_id.asString().c_str());
+	}
+
 	apr_file_printf( file, "\t</archetype>\n" );
 	apr_file_printf( file, "\n</linden_genepool>\n" );
 
