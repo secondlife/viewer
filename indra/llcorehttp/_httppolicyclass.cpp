@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -78,8 +78,8 @@ HttpStatus HttpPolicyClass::set(HttpRequest::EPolicyOption opt, long value)
 		mPerHostConnectionLimit = llclamp(value, long(HTTP_CONNECTION_LIMIT_MIN), mConnectionLimit);
 		break;
 
-	case HttpRequest::PO_ENABLE_PIPELINING:
-		mPipelining = llclamp(value, 0L, 1L);
+	case HttpRequest::PO_PIPELINING_DEPTH:
+		mPipelining = llclamp(value, 0L, HTTP_PIPELINING_MAX);
 		break;
 
 	case HttpRequest::PO_THROTTLE_RATE:
@@ -106,7 +106,7 @@ HttpStatus HttpPolicyClass::get(HttpRequest::EPolicyOption opt, long * value) co
 		*value = mPerHostConnectionLimit;
 		break;
 
-	case HttpRequest::PO_ENABLE_PIPELINING:
+	case HttpRequest::PO_PIPELINING_DEPTH:
 		*value = mPipelining;
 		break;
 

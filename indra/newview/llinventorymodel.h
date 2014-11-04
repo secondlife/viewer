@@ -27,6 +27,11 @@
 #ifndef LL_LLINVENTORYMODEL_H
 #define LL_LLINVENTORYMODEL_H
 
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
 #include "llassettype.h"
 #include "llfoldertype.h"
 #include "llframetimer.h"
@@ -36,10 +41,11 @@
 #include "llviewerinventory.h"
 #include "llstring.h"
 #include "llmd5.h"
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+#include "httpcommon.h"
+#include "httprequest.h"
+#include "httpoptions.h"
+#include "httpheaders.h"
+#include "httphandler.h"
 
 class LLInventoryObserver;
 class LLInventoryObject;
@@ -60,9 +66,8 @@ class LLInventoryCollectFunctor;
 class LLInventoryModel
 {
 	LOG_CLASS(LLInventoryModel);
-public:
-	friend class LLInventoryModelFetchDescendentsResponder;
 
+public:
 	enum EHasChildren
 	{
 		CHILDREN_NO,
@@ -74,14 +79,31 @@ public:
 	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
 	typedef std::set<LLUUID> changed_items_t;
 
-	class fetchInventoryResponder : public LLCurl::Responder
+	// HTTP handler for individual item requests (inventory or library).
+	// Background item requests are derived from this in the background
+	// inventory system.  All folder requests are also located there
+	// but have their own handler derived from HttpHandler.
+	class FetchItemHttpHandler : public LLCore::HttpHandler
 	{
-		LOG_CLASS(fetchInventoryResponder);
 	public:
-		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
+		LOG_CLASS(FetchItemHttpHandler);
+
+		FetchItemHttpHandler(const LLSD & request_sd);
+		virtual ~FetchItemHttpHandler();
+
 	protected:
-		virtual void httpSuccess();
-		virtual void httpFailure();
+		FetchItemHttpHandler(const FetchItemHttpHandler &);				// Not defined
+		void operator=(const FetchItemHttpHandler &);					// Not defined
+
+	public:
+		virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
+	private:
+		void processData(LLSD & body, LLCore::HttpResponse * response);
+		void processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response);
+		void processFailure(const char * const reason, LLCore::HttpResponse * response);
+
+	private:
 		LLSD mRequestSD;
 	};
 
@@ -109,6 +131,9 @@ public:
 private:
 	bool mIsAgentInvUsable; // used to handle an invalid inventory state
 
+	// One-time initialization of HTTP system.
+	void initHttpRequest();
+	
 	//--------------------------------------------------------------------
 	// Root Folders
 	//--------------------------------------------------------------------
@@ -514,6 +539,41 @@ private:
 	observer_list_t mObservers;
 	
 /**                    Notifications
+ **                                                                            **
+ *******************************************************************************/
+
+
+/********************************************************************************
+ **                                                                            **
+ **                    HTTP Transport
+ **/
+public:
+	// Invoke handler completion method (onCompleted) for all
+	// requests that are ready.
+	void handleResponses(bool foreground);
+
+	// Request an inventory HTTP operation to either the
+	// foreground or background processor.  These are actually
+	// the same service queue but the background requests are
+	// seviced more slowly effectively de-prioritizing new
+	// requests.
+	LLCore::HttpHandle requestPost(bool foreground,
+								   const std::string & url,
+								   const LLSD & body,
+								   LLCore::HttpHandler * handler,
+								   const char * const message);
+	
+private:
+	// Usual plumbing for LLCore:: HTTP operations.
+	LLCore::HttpRequest *				mHttpRequestFG;
+	LLCore::HttpRequest *				mHttpRequestBG;
+	LLCore::HttpOptions *				mHttpOptions;
+	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
+	LLCore::HttpRequest::priority_t		mHttpPriorityFG;
+	LLCore::HttpRequest::priority_t		mHttpPriorityBG;
+	
+/**                    HTTP Transport
  **                                                                            **
  *******************************************************************************/
 
