@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -59,11 +59,13 @@ void usage(std::ostream & out);
 // Default command line settings
 static int concurrency_limit(40);
 static int highwater(100);
+static int pipeline_depth(0);
+static int tracing(0);
 static char url_format[1024] = "http://example.com/some/path?texture_id=%s.texture";
 
 #if defined(WIN32)
 
-#define	strncpy(_a, _b, _c)   strncpy_s(_a, _b, _c)
+#define	strncpy(_a, _b, _c)			strncpy_s(_a, _b, _c)
 #define strtok_r(_a, _b, _c)		strtok_s(_a, _b, _c)
 
 int getopt(int argc, char * const argv[], const char *optstring);
@@ -100,6 +102,7 @@ public:
 public:
 	bool						mVerbose;
 	bool						mRandomRange;
+	bool						mNoRange;
 	int							mRequestLowWater;
 	int							mRequestHighWater;
 	handle_set_t				mHandles;
@@ -160,10 +163,11 @@ int main(int argc, char** argv)
 {
 	LLCore::HttpStatus status;
 	bool do_random(false);
+	bool do_whole(false);
 	bool do_verbose(false);
 	
 	int option(-1);
-	while (-1 != (option = getopt(argc, argv, "u:c:h?RvH:")))
+	while (-1 != (option = getopt(argc, argv, "u:c:h?RwvH:p:t:")))
 	{
 		switch (option)
 		{
@@ -193,7 +197,7 @@ int main(int argc, char** argv)
 				char * end;
 
 				value = strtoul(optarg, &end, 10);
-				if (value < 1 || value > 100 || *end != '\0')
+				if (value < 1 || value > 200 || *end != '\0')
 				{
 					usage(std::cerr);
 					return 1;
@@ -202,8 +206,44 @@ int main(int argc, char** argv)
 			}
 			break;
 
+		case 'p':
+		    {
+				unsigned long value;
+				char * end;
+
+				value = strtoul(optarg, &end, 10);
+				if (value < 0 || value > 100 || *end != '\0')
+				{
+					usage(std::cerr);
+					return 1;
+				}
+				pipeline_depth = value;
+			}
+			break;
+
+		case '5':
+		    {
+				unsigned long value;
+				char * end;
+
+				value = strtoul(optarg, &end, 10);
+				if (value < 0 || value > 3 || *end != '\0')
+				{
+					usage(std::cerr);
+					return 1;
+				}
+				tracing = value;
+			}
+			break;
+
 		case 'R':
 			do_random = true;
+			do_whole = false;
+			break;
+
+		case 'w':
+			do_whole = true;
+			do_random = false;
 			break;
 
 		case 'v':
@@ -240,6 +280,24 @@ int main(int argc, char** argv)
 											   LLCore::HttpRequest::DEFAULT_POLICY_ID,
 											   concurrency_limit,
 											   NULL);
+	LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PER_HOST_CONNECTION_LIMIT,
+											   LLCore::HttpRequest::DEFAULT_POLICY_ID,
+											   concurrency_limit,
+											   NULL);
+	if (pipeline_depth)
+	{
+		LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
+												   LLCore::HttpRequest::DEFAULT_POLICY_ID,
+												   pipeline_depth,
+												   NULL);
+	}
+	if (tracing)
+	{
+		LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE,
+												   LLCore::HttpRequest::DEFAULT_POLICY_ID,
+												   tracing,
+												   NULL);
+	}
 	LLCore::HttpRequest::startThread();
 	
 	// Get service point
@@ -257,6 +315,7 @@ int main(int argc, char** argv)
 	ws.mUrl = url_format;
 	ws.loadAssetUuids(uuids);
 	ws.mRandomRange = do_random;
+	ws.mNoRange = do_whole;
 	ws.mVerbose = do_verbose;
 	ws.mRequestHighWater = highwater;
 	ws.mRequestLowWater = ws.mRequestHighWater / 2;
@@ -331,10 +390,15 @@ void usage(std::ostream & out)
 		" -u <url_format>       printf-style format string for URL generation\n"
 		"                       Default:  " << url_format << "\n"
 		" -R                    Issue GETs with random Range: headers\n"
+		" -w                    Issue GETs without Range: headers to get whole object\n"
 		" -c <limit>            Maximum connection concurrency.  Range:  [1..100]\n"
 		"                       Default:  " << concurrency_limit << "\n"
 		" -H <limit>            HTTP request highwater (requests fed to llcorehttp).\n"
-		"                       Range:  [1..100]  Default:  " << highwater << "\n"
+		"                       Range:  [1..200]  Default:  " << highwater << "\n"
+		" -p <depth>            If <depth> is positive, enables and sets pipelineing\n"
+		"                       depth on HTTP requests.  Default:  " << pipeline_depth << "\n"
+		" -t <level>            If <level> is positive ([1..3]), enables and sets HTTP\n"
+		"                       tracing on HTTP requests.  Default:  " << tracing << "\n"
 		" -v                    Verbose mode.  Issue some chatter while running\n"
 		" -h                    print this help\n"
 		"\n"
@@ -346,6 +410,7 @@ WorkingSet::WorkingSet()
 	: LLCore::HttpHandler(),
 	  mVerbose(false),
 	  mRandomRange(false),
+	  mNoRange(false),
 	  mRemaining(200),
 	  mLimit(200),
 	  mAt(0),
@@ -395,8 +460,12 @@ bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions * opt)
 #else
 		snprintf(buffer, sizeof(buffer), mUrl.c_str(), mAssets[mAt].mUuid.c_str());
 #endif
-		int offset(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mOffset);
-		int length(mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mLength);
+		int offset(mNoRange
+				   ? 0
+				   : (mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mOffset));
+		int length(mNoRange
+				   ? 0
+				   : (mRandomRange ? ((unsigned long) rand()) % 1000000UL : mAssets[mAt].mLength));
 
 		LLCore::HttpHandle handle;
 		if (offset || length)
