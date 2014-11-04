@@ -956,6 +956,10 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
 	const LLVector4a& normal4a = vf.mNormals[0];
 	const LLVector4a& tangent = vf.mTangents[0];
+	if (!&tangent)
+	{
+		return;
+	}
 
 	LLVector4a binormal4a;
 	binormal4a.setCross3(normal4a, tangent);
