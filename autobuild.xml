@@ -1050,9 +1050,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de8b96120c274e052abb4f692861be46</string>
+              <string>40ce26b33755caa4ed1282987922187a</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-darwin-20110131.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/296364/arch/Darwin/installer/jsoncpp-0.5.0-darwin-20141103.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1062,9 +1062,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>840cd9455638c0ea52c613cfddd07d5b</string>
+              <string>7dc97c06f06e6e1e2905631b7fe0767e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-linux-20110315.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/296364/arch/Linux/installer/jsoncpp-0.5.0-linux-20141103.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1074,9 +1074,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>afff2018e6a887c281b072eecdd9343e</string>
+              <string>72e6c12fe0c8eec565328fa73fedae16</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-windows-20110208.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jsoncpp/rev/296364/arch/CYGWIN/installer/jsoncpp-0.5.0-windows-20141103.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
