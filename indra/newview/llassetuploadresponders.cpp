@@ -652,7 +652,10 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 		  }
 		  else
 		  {
-			  LLLiveLSLEditor* preview = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", LLSD(item_id));
+			  LLSD floater_key;
+			  floater_key["taskid"] = task_id;
+			  floater_key["itemid"] = item_id;
+			  LLLiveLSLEditor* preview = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", floater_key);
 			  if (preview)
 			  {
 				  // Bytecode save completed

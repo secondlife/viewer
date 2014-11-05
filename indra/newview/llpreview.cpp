@@ -53,7 +53,7 @@
 
 LLPreview::LLPreview(const LLSD& key)
 :	LLFloater(key),
-	mItemUUID(key.asUUID()),
+	mItemUUID(key.has("itemid") ? key.get("itemid").asUUID() : key.asUUID()),
 	mObjectUUID(),			// set later by setObjectID()
 	mCopyToInvBtn( NULL ),
 	mForceClose(FALSE),

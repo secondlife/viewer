@@ -1107,7 +1107,10 @@ void LLTaskLSLBridge::openItem()
 	}
 	if (object->permModify() || gAgent.isGodlike())
 	{
-		LLLiveLSLEditor* preview = LLFloaterReg::showTypedInstance<LLLiveLSLEditor>("preview_scriptedit", LLSD(mUUID), TAKE_FOCUS_YES);
+		LLSD floater_key;
+		floater_key["taskid"] = mPanel->getTaskUUID();
+		floater_key["itemid"] = mUUID;
+		LLLiveLSLEditor* preview = LLFloaterReg::showTypedInstance<LLLiveLSLEditor>("preview_scriptedit", floater_key, TAKE_FOCUS_YES);
 		if (preview)
 		{
 			preview->setObjectID(mPanel->getTaskUUID());
