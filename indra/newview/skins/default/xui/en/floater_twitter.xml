@@ -10,21 +10,13 @@
   single_instance="true"
   reuse_instance="true"
   title="TWITTER"
-  height="502"
-  width="304">
-  <panel
-   height="502"
-   width="304"
-   visible="true"
-   name="background"
-   follows="all"
-   top="0"
-   left="0">
+  height="462"
+  width="272">
    <tab_container
      name="tabs"
      tab_group="1"
      tab_min_width="70"
-     tab_height="30"
+     tab_height="21"
      tab_position="top"
      top="7"
      height="457"
@@ -43,17 +35,13 @@
        label="ACCOUNT"
        name="panel_twitter_account"/>     
     </tab_container>
-    <panel
-     name="connection_status_panel"
-     follows="left|bottom|right"
-     height="24">
      <text
       name="connection_error_text"
       type="string"
       follows="left|bottom|right"
-      top="5"
-      left="9"
-      width="250"
+      bottom="-5"
+      left="10"
+      width="252"
       height="20"
       wrap="true"
       halign="left"
@@ -67,16 +55,16 @@
       height="24"
       width="24"
       name="connection_loading_indicator"
-      top="2"
-      left="9"
+      top_delta="-2"
+      left="10"
       visible="true"/>
      <text
       name="connection_loading_text"
       type="string"
       follows="left|bottom|right"
-      top="5"
+      top_delta="2"
       left_pad="5"
-      width="250"
+      width="223"
       height="20"
       wrap="true"
       halign="left"
@@ -85,6 +73,4 @@
       font="SansSerif">
       Loading...
     </text>
-  </panel>
- </panel>
 </floater>

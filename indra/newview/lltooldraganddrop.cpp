@@ -513,6 +513,7 @@ void LLToolDragAndDrop::onMouseCaptureLost()
 	mSource = SOURCE_AGENT;
 	mSourceID.setNull();
 	mObjectID.setNull();
+	mCustomMsg.clear();
 }
 
 BOOL LLToolDragAndDrop::handleMouseUp( S32 x, S32 y, MASK mask )
@@ -555,6 +556,12 @@ ECursorType LLToolDragAndDrop::acceptanceToCursor( EAcceptance acceptance )
 	case ACCEPT_NO_LOCKED:
 		mCursor = UI_CURSOR_NOLOCKED;
 		break;
+
+	case ACCEPT_NO_CUSTOM:
+		mToolTipMsg = mCustomMsg;
+		mCursor = UI_CURSOR_NO;
+		break;
+
 
 	case ACCEPT_NO:
 		mCursor = UI_CURSOR_NO;
@@ -630,6 +637,7 @@ BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 void LLToolDragAndDrop::handleDeselect()
 {
 	mToolTipMsg.clear();
+	mCustomMsg.clear();
 
 	LLToolTipMgr::instance().blockToolTips();
 }
@@ -2162,6 +2170,26 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	if (drop)
 	{
 		// TODO: investigate wearables may not be loaded at this point EXT-8231
+	}
+
+	U32 max_items = gSavedSettings.getU32("WearFolderLimit");
+	if (category->getDescendentCount()>max_items)
+	{
+		LLInventoryModel::cat_array_t cats;
+		LLInventoryModel::item_array_t items;
+		LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+		gInventory.collectDescendentsIf(category->getUUID(),
+			cats,
+			items,
+			LLInventoryModel::EXCLUDE_TRASH,
+			not_worn);
+		if (items.size() > max_items)
+		{
+			LLStringUtil::format_map_t args;
+			args["AMOUNT"] = llformat("%d", max_items);
+			mCustomMsg = LLTrans::getString("TooltipTooManyWearables",args);
+			return ACCEPT_NO_CUSTOM;
+		}
 	}
 
 	if(mSource == SOURCE_AGENT)

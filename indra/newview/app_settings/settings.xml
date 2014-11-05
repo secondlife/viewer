@@ -80,7 +80,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>AgentPause</key>
     <map>
@@ -4196,6 +4196,17 @@
       <key>Value</key>
       <integer>255</integer>
     </map>
+    <key>ForceLoginURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Force a specified URL for login page content - used if exists</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
     <key>ForceShowGrid</key>
     <map>
       <key>Comment</key>
@@ -4470,6 +4481,28 @@
       <string>String</string>
       <key>Value</key>
       <string />
+    </map>
+    <key>HttpPipelining</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, viewer will attempt to pipeline HTTP requests.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>HttpRangeRequestsDisable</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, viewer will not issue GET requests with 'Range:' headers for meshes and textures.  May resolve problems with certain ISPs and networking gear.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>IMShowTimestamps</key>
     <map>
@@ -5329,6 +5362,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>LoginContentVersion</key>
+  <map>
+    <key>Comment</key>
+    <string>Version of login page web based content to display</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>2</string>
+  </map>
+
   <key>LoginSRVTimeout</key>
   <map>
     <key>Comment</key>
@@ -6133,16 +6178,16 @@
     <integer>0</integer>
   </map>
   <key>MemoryLogFrequency</key>
-  <map>
-    <key>Comment</key>
-    <string>Seconds between display of Memory in log (0 for never)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
+        <map>
+        <key>Comment</key>
+            <string>Seconds between display of Memory in log (0 for never)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
     <real>30.0</real>
-  </map>
+        </map>
     <key>MemoryPrivatePoolEnabled</key>
     <map>
       <key>Comment</key>
@@ -11467,17 +11512,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SnapshotFiltersEnabled</key>
-    <map>
-        <key>Comment</key>
-        <string>Enable filters in the Snapshot Advanced panel (experimental).</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
-    </map>
     <key>SnapshotFormat</key>
     <map>
       <key>Comment</key>
@@ -13227,7 +13261,7 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>UseExternalBrowser</key>
+    <key>UseExternalBrowser</key> <!-- deprecated (see MAINT-4127) -->
     <map>
       <key>Comment</key>
       <string>Use default browser when opening web pages instead of in-world browser.</string>
@@ -13237,6 +13271,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <boolean>1</boolean>
+    </map>
+    <key>PreferredBrowserBehavior</key>
+    <map>
+      <key>Comment</key>
+      <string>Use system browser for any links (0), use builtin browser for SL links and system one for others (1) or use builtin browser only (2).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>UseFreezeFrame</key>
     <map>
@@ -14221,6 +14266,17 @@
     <map>
       <key>Comment</key>
       <string>Send a digest of texture info to the sim</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LeaveMouselook</key>
+    <map>
+      <key>Comment</key>
+      <string>Exit Mouselook mode via S or Down Arrow keys while sitting </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -15466,6 +15522,17 @@
       <key>Value</key>
       <string />
     </map>
+  <key>WearFolderLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Limits number of items in the folder that can be replaced/added to current outfit</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>125</integer>
+  </map>
     <key>EveryoneCopy</key>
       <map>
         <key>Comment</key>

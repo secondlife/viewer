@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -36,6 +36,14 @@
 #include "_httpinternal.h"
 
 #include "lltimer.h"
+
+
+namespace
+{
+
+static const char * const LOG_CORE("CoreHttp");
+
+} // end anonymous namespace
 
 
 namespace LLCore
@@ -94,8 +102,8 @@ void HttpOperation::stageFromRequest(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("CoreHttp") << "Default stageFromRequest method may not be called."
-						<< LL_ENDL;
+	LL_ERRS(LOG_CORE) << "Default stageFromRequest method may not be called."
+					  << LL_ENDL;
 }
 
 
@@ -104,8 +112,8 @@ void HttpOperation::stageFromReady(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("CoreHttp") << "Default stageFromReady method may not be called."
-						<< LL_ENDL;
+	LL_ERRS(LOG_CORE) << "Default stageFromReady method may not be called."
+					  << LL_ENDL;
 }
 
 
@@ -114,8 +122,8 @@ void HttpOperation::stageFromActive(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LL_ERRS("CoreHttp") << "Default stageFromActive method may not be called."
-						<< LL_ENDL;
+	LL_ERRS(LOG_CORE) << "Default stageFromActive method may not be called."
+					  << LL_ENDL;
 }
 
 
@@ -145,9 +153,9 @@ void HttpOperation::addAsReply()
 {
 	if (mTracing > HTTP_TRACE_OFF)
 	{
-		LL_INFOS("CoreHttp") << "TRACE, ToReplyQueue, Handle:  "
-							 << static_cast<HttpHandle>(this)
-							 << LL_ENDL;
+		LL_INFOS(LOG_CORE) << "TRACE, ToReplyQueue, Handle:  "
+						   << static_cast<HttpHandle>(this)
+						   << LL_ENDL;
 	}
 	
 	if (mReplyQueue)

@@ -22,7 +22,7 @@
 		Escolha que Função atribuir a eles:
 	</text>
 	<combo_box name="role_name" tool_tip="Selecione o cargo da lista de cargos que você pode designar a membros"/>
-	<button label="Mandar convites" name="ok_button"/>
+	<button label="Enviar convites" name="invite_button"/>
 	<button label="Cancelar" name="cancel_button"/>
 	<string name="GroupInvitation">
 		Convite

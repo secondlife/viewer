@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,69 +40,79 @@
 // be open at a time.
 
 const F64 LLAppCoreHttp::MAX_THREAD_WAIT_TIME(10.0);
+const long LLAppCoreHttp::PIPELINING_DEPTH(5L);
+
+//  Default and dynamic values for classes
 static const struct
 {
-	LLAppCoreHttp::EAppPolicy	mPolicy;
 	U32							mDefault;
 	U32							mMin;
 	U32							mMax;
 	U32							mRate;
+	bool						mPipelined;
 	std::string					mKey;
 	const char *				mUsage;
-} init_data[] =					//  Default and dynamic values for classes
+} init_data[LLAppCoreHttp::AP_COUNT] =
 {
-	{
-		LLAppCoreHttp::AP_DEFAULT,			8,		8,		8,		0,
+	{ // AP_DEFAULT
+		8,		8,		8,		0,		false,
 		"",
 		"other"
 	},
-	{
-		LLAppCoreHttp::AP_TEXTURE,			8,		1,		12,		0,
+	{ // AP_TEXTURE
+		8,		1,		12,		0,		true,
 		"TextureFetchConcurrency",
 		"texture fetch"
 	},
-	{
-		LLAppCoreHttp::AP_MESH1,			32,		1,		128,	100,
+	{ // AP_MESH1
+		32,		1,		128,	0,		false,
 		"MeshMaxConcurrentRequests",
 		"mesh fetch"
 	},
-	{
-		LLAppCoreHttp::AP_MESH2,			8,		1,		32,		100,
+	{ // AP_MESH2
+		8,		1,		32,		0,		true,	
 		"Mesh2MaxConcurrentRequests",
 		"mesh2 fetch"
 	},
-	{
-		LLAppCoreHttp::AP_LARGE_MESH,		2,		1,		8,		0,
+	{ // AP_LARGE_MESH
+		2,		1,		8,		0,		false,
 		"",
 		"large mesh fetch"
 	},
-	{
-		LLAppCoreHttp::AP_UPLOADS,			2,		1,		8,		0,
+	{ // AP_UPLOADS 
+		2,		1,		8,		0,		false,
 		"",
 		"asset upload"
 	},
-	{
-		LLAppCoreHttp::AP_LONG_POLL,		32,		32,		32,		0,
+	{ // AP_LONG_POLL
+		32,		32,		32,		0,		false,
 		"",
 		"long poll"
+	},
+	{ // AP_INVENTORY
+		4,		1,		4,		0,		false,
+		"",
+		"inventory"
 	}
 };
 
 static void setting_changed();
 
 
+LLAppCoreHttp::HttpClass::HttpClass()
+	: mPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+	  mConnLimit(0U),
+	  mPipelined(false)
+{}
+
+
 LLAppCoreHttp::LLAppCoreHttp()
 	: mRequest(NULL),
 	  mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
 	  mStopRequested(0.0),
-	  mStopped(false)
-{
-	for (int i(0); i < LL_ARRAY_SIZE(mPolicies); ++i)
-	{
-		mPolicies[i] = LLCore::HttpRequest::DEFAULT_POLICY_ID;
-		mSettings[i] = 0U;
-	}
-}
+	  mStopped(false),
+	  mPipelined(true)
+{}
 
 
 LLAppCoreHttp::~LLAppCoreHttp()
@@ -157,27 +167,28 @@ void LLAppCoreHttp::init()
 	}
 	
 	// Setup default policy and constrain if directed to
-	mPolicies[AP_DEFAULT] = LLCore::HttpRequest::DEFAULT_POLICY_ID;
+	mHttpClasses[AP_DEFAULT].mPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
 
 	// Setup additional policies based on table and some special rules
+	llassert(LL_ARRAY_SIZE(init_data) == AP_COUNT);
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
-		const EAppPolicy policy(init_data[i].mPolicy);
+		const EAppPolicy app_policy(static_cast<EAppPolicy>(i));
 
-		if (AP_DEFAULT == policy)
+		if (AP_DEFAULT == app_policy)
 		{
 			// Pre-created
 			continue;
 		}
 
-		mPolicies[policy] = LLCore::HttpRequest::createPolicyClass();
-		if (! mPolicies[policy])
+		mHttpClasses[app_policy].mPolicy = LLCore::HttpRequest::createPolicyClass();
+		if (! mHttpClasses[app_policy].mPolicy)
 		{
 			// Use default policy (but don't accidentally modify default)
 			LL_WARNS("Init") << "Failed to create HTTP policy class for " << init_data[i].mUsage
 							 << ".  Using default policy."
 							 << LL_ENDL;
-			mPolicies[policy] = mPolicies[AP_DEFAULT];
+			mHttpClasses[app_policy].mPolicy = mHttpClasses[AP_DEFAULT].mPolicy;
 			continue;
 		}
 	}
@@ -196,9 +207,27 @@ void LLAppCoreHttp::init()
 						<< LL_ENDL;
 	}
 
+	// Signal for global pipelining preference from settings
+	static const std::string http_pipelining("HttpPipelining");
+	if (gSavedSettings.controlExists(http_pipelining))
+	{
+		LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(http_pipelining);
+		if (cntrl_ptr.isNull())
+		{
+			LL_WARNS("Init") << "Unable to set signal on global setting '" << http_pipelining
+							 << "'" << LL_ENDL;
+		}
+		else
+		{
+			mPipelinedSignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&setting_changed));
+		}
+	}
+
 	// Register signals for settings and state changes
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
+		const EAppPolicy app_policy(static_cast<EAppPolicy>(i));
+
 		if (! init_data[i].mKey.empty() && gSavedSettings.controlExists(init_data[i].mKey))
 		{
 			LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(init_data[i].mKey);
@@ -209,7 +238,7 @@ void LLAppCoreHttp::init()
 			}
 			else
 			{
-				mSettingsSignal[i] = cntrl_ptr->getCommitSignal()->connect(boost::bind(&setting_changed));
+				mHttpClasses[app_policy].mSettingsSignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&setting_changed));
 			}
 		}
 	}
@@ -261,10 +290,11 @@ void LLAppCoreHttp::cleanup()
 		}
 	}
 
-	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
+	for (int i(0); i < LL_ARRAY_SIZE(mHttpClasses); ++i)
 	{
-		mSettingsSignal[i].disconnect();
+		mHttpClasses[i].mSettingsSignal.disconnect();
 	}
+	mPipelinedSignal.disconnect();
 	
 	delete mRequest;
 	mRequest = NULL;
@@ -278,30 +308,84 @@ void LLAppCoreHttp::cleanup()
 	}
 }
 
+
 void LLAppCoreHttp::refreshSettings(bool initial)
 {
 	LLCore::HttpStatus status;
+
+	// Global pipelining setting
+	bool pipeline_changed(false);
+	static const std::string http_pipelining("HttpPipelining");
+	if (gSavedSettings.controlExists(http_pipelining))
+	{
+		// Default to true (in ctor) if absent.
+		bool pipelined(gSavedSettings.getBOOL(http_pipelining));
+		if (pipelined != mPipelined)
+		{
+			mPipelined = pipelined;
+			pipeline_changed = true;
+		}
+	}
 	
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
-		const EAppPolicy policy(init_data[i].mPolicy);
+		const EAppPolicy app_policy(static_cast<EAppPolicy>(i));
 
-		// Set any desired throttle
-		if (initial && init_data[i].mRate)
+		if (initial)
 		{
-			// Init-time only, can use the static setters here
-			status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_THROTTLE_RATE,
-																mPolicies[policy],
-																init_data[i].mRate,
-																NULL);
-			if (! status)
+			// Init-time only settings, can use the static setters here
+
+			if (init_data[i].mRate)
 			{
-				LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
-								 << " throttle rate.  Reason:  " << status.toString()
-								 << LL_ENDL;
+				// Set any desired throttle
+				status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_THROTTLE_RATE,
+																	mHttpClasses[app_policy].mPolicy,
+																	init_data[i].mRate,
+																	NULL);
+				if (! status)
+				{
+					LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+									 << " throttle rate.  Reason:  " << status.toString()
+									 << LL_ENDL;
+				}
 			}
+
 		}
 
+		// Init- or run-time settings.  Must use the queued request API.
+
+		// Pipelining changes
+		if (initial || pipeline_changed)
+		{
+			const bool to_pipeline(mPipelined && init_data[i].mPipelined);
+			if (to_pipeline != mHttpClasses[app_policy].mPipelined)
+			{
+				// Pipeline election changing, set dynamic option via request
+
+				LLCore::HttpHandle handle;
+				const long new_depth(to_pipeline ? PIPELINING_DEPTH : 0);
+				
+				handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
+												   mHttpClasses[app_policy].mPolicy,
+												   new_depth,
+												   NULL);
+				if (LLCORE_HTTP_HANDLE_INVALID == handle)
+				{
+					status = mRequest->getStatus();
+					LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+									 << " pipelining.  Reason:  " << status.toString()
+									 << LL_ENDL;
+				}
+				else
+				{
+					LL_DEBUGS("Init") << "Changed " << init_data[i].mUsage
+									  << " pipelining.  New value:  " << new_depth
+									  << LL_ENDL;
+					mHttpClasses[app_policy].mPipelined = to_pipeline;
+				}
+			}
+		}
+		
 		// Get target connection concurrency value
 		U32 setting(init_data[i].mDefault);
 		if (! init_data[i].mKey.empty() && gSavedSettings.controlExists(init_data[i].mKey))
@@ -314,37 +398,60 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			}
 		}
 
-		if (! initial && setting == mSettings[policy])
+		if (initial || setting != mHttpClasses[app_policy].mConnLimit || pipeline_changed)
 		{
-			// Unchanged, try next setting
-			continue;
-		}
-		
-		// Set it and report
-		// *TODO:  These are intended to be per-host limits when we can
-		// support that in llcorehttp/libcurl.
-		LLCore::HttpHandle handle;
-		handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
-										   mPolicies[policy],
-										   setting, NULL);
-		if (LLCORE_HTTP_HANDLE_INVALID == handle)
-		{
-			status = mRequest->getStatus();
-			LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
-							 << " concurrency.  Reason:  " << status.toString()
-							 << LL_ENDL;
-		}
-		else
-		{
-			LL_DEBUGS("Init") << "Changed " << init_data[i].mUsage
-							  << " concurrency.  New value:  " << setting
-							  << LL_ENDL;
-			mSettings[policy] = setting;
-			if (initial && setting != init_data[i].mDefault)
+			// Set it and report.  Strategies depend on pipelining:
+			//
+			// No Pipelining.  Llcorehttp manages connections itself based
+			// on the PO_CONNECTION_LIMIT setting.  Set both limits to the
+			// same value for logical consistency.  In the future, may
+			// hand over connection management to libcurl after the
+			// connection cache has been better vetted.
+			//
+			// Pipelining.  Libcurl is allowed to manage connections to a
+			// great degree.  Steady state will connection limit based on
+			// the per-host setting.  Transitions (region crossings, new
+			// avatars, etc.) can request additional outbound connections
+			// to other servers via 2X total connection limit.
+			//
+			LLCore::HttpHandle handle;
+			handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
+											   mHttpClasses[app_policy].mPolicy,
+											   (mHttpClasses[app_policy].mPipelined ? 2 * setting : setting),
+											   NULL);
+			if (LLCORE_HTTP_HANDLE_INVALID == handle)
 			{
-				LL_INFOS("Init") << "Application settings overriding default " << init_data[i].mUsage
-								 << " concurrency.  New value:  " << setting
+				status = mRequest->getStatus();
+				LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+								 << " concurrency.  Reason:  " << status.toString()
 								 << LL_ENDL;
+			}
+			else
+			{
+				handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_PER_HOST_CONNECTION_LIMIT,
+												   mHttpClasses[app_policy].mPolicy,
+												   setting,
+												   NULL);
+				if (LLCORE_HTTP_HANDLE_INVALID == handle)
+				{
+					status = mRequest->getStatus();
+					LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+									 << " per-host concurrency.  Reason:  " << status.toString()
+									 << LL_ENDL;
+				}
+				else
+				{
+					LL_DEBUGS("Init") << "Changed " << init_data[i].mUsage
+									  << " concurrency.  New value:  " << setting
+									  << LL_ENDL;
+					mHttpClasses[app_policy].mConnLimit = setting;
+					if (initial && setting != init_data[i].mDefault)
+					{
+						LL_INFOS("Init") << "Application settings overriding default " << init_data[i].mUsage
+										 << " concurrency.  New value:  " << setting
+										 << LL_ENDL;
+					}
+				}
 			}
 		}
 	}

@@ -21,6 +21,7 @@
 	<context_menu label="Gérer" name="Remove">
 		<menu_item_call label="Signaler une infraction" name="Report Abuse..."/>
 		<menu_item_call label="Ignorer" name="Object Mute"/>
+		<menu_item_call label="Ne plus ignorer" name="Object Unmute"/>
 		<menu_item_call label="Retour" name="Return..."/>
 	</context_menu>
 	<menu_item_call label="Prendre" name="Pie Object Take"/>

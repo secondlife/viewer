@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="スナップショットのプレビュー">
+<floater name="Snapshot" title="スナップショット">
 	<floater.string name="unknown">
 		不明
 	</floater.string>
@@ -61,5 +61,11 @@
 		<check_box label="HUD" name="hud_check"/>
 		<check_box label="画面全体を静止" name="freeze_frame_check"/>
 		<check_box label="自動更新" name="auto_snapshot_check"/>
+		<text name="filter_list_label">
+			フィルター:
+		</text>
+		<combo_box name="filters_combobox" tool_tip="画像フィルター">
+			<combo_box.item label="フィルターなし" name="NoFilter"/>
+		</combo_box>
 	</panel>
 </floater>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Scene Load Statistics" title="STATISTICHE CARICAMENTO SCENA">
+	<button label="In pausa" name="playpause"/>
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view label="Di base" name="basic">
+				<stat_bar label="Differenza pixel tra fotogrammi" name="frame difference"/>
+				<stat_bar label="Dati UDP ricevuti" name="bandwidth"/>
+				<stat_bar label="Perdita pacchetti" name="packet_loss"/>
+			</stat_view>
+			<stat_view label="Avanzata" name="advanced">
+				<stat_view label="Render" name="render">
+					<stat_bar label="Totale oggetti" name="objs"/>
+					<stat_bar label="Nuovi oggetti" name="newobjs"/>
+					<stat_bar label="Hit rate della cache per l&apos;oggetto" name="object_cache_hits"/>
+				</stat_view>
+				<stat_view label="Texture" name="texture">
+					<stat_bar label="Hit rate della cache" name="texture_cache_hits"/>
+					<stat_bar label="Latenza di lettura della cache" name="texture_cache_read_latency"/>
+					<stat_bar label="Conteggio" name="numimagesstat"/>
+					<stat_bar label="Conteggio grezzo" name="numrawimagesstat"/>
+				</stat_view>
+				<stat_view label="Rete" name="network">
+					<stat_bar label="Pacchetti in ingresso" name="packetsinstat"/>
+					<stat_bar label="Pacchetti in uscita" name="packetsoutstat"/>
+					<stat_bar label="Oggetti" name="objectdatareceived"/>
+					<stat_bar label="Texture" name="texturedatareceived"/>
+					<stat_bar label="Risorsa" name="assetudpdatareceived"/>
+					<stat_bar label="Livelli" name="layersdatareceived"/>
+					<stat_bar label="Effettivi in ingresso" name="messagedatain"/>
+					<stat_bar label="Effettivi in uscita" name="messagedataout"/>
+					<stat_bar label="Operazioni VFS in sospeso" name="vfspendingoperations"/>
+				</stat_view>
+			</stat_view>
+			<stat_view label="Simulatore" name="sim">
+				<stat_bar label="Oggetti" name="simobjects"/>
+				<stat_bar label="Oggetti attivi" name="simactiveobjects"/>
+				<stat_bar label="Script attivi" name="simactivescripts"/>
+				<stat_bar label="Pacchetti in ingresso" name="siminpps"/>
+				<stat_bar label="Pacchetti in uscita" name="simoutpps"/>
+				<stat_bar label="Download in attesa" name="simpendingdownloads"/>
+				<stat_bar label="Caricamenti in attesa" name="simpendinguploads"/>
+				<stat_bar label="Numero totale byte non confermati (Unacked)" name="simtotalunackedbytes"/>
+				<stat_view label="Tempo (ms)" name="simperf">
+					<stat_bar label="Tempo totale Frame" name="simframemsec"/>
+					<stat_bar label="Tempo netto" name="simnetmsec"/>
+					<stat_bar label="Tempo motore fisico" name="simsimphysicsmsec"/>
+					<stat_bar label="Tempo simulazione" name="simsimothermsec"/>
+					<stat_bar label="Tempo agente" name="simagentmsec"/>
+					<stat_bar label="Tempo immagini" name="simimagesmsec"/>
+					<stat_bar label="Tempo script" name="simscriptmsec"/>
+					<stat_bar label="Tempo libero" name="simsparemsec"/>
+					<stat_view label="Dettagli tempo (ms)" name="timedetails">
+						<stat_bar label="Passaggio fisica" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Aggiorna forme fisica" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Altro fisica" name="simsimphysicsothermsec"/>
+						<stat_bar label="Tempo pausa" name="simsleepmsec"/>
+						<stat_bar label="IO pompa" name="simpumpiomsec"/>
+					</stat_view>
+				</stat_view>
+			</stat_view>
+		</container_view>
+	</scroll_container>
+</floater>

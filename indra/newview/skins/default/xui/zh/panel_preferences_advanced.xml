@@ -28,4 +28,5 @@
 	<check_box label="登入時顯示網格選擇" name="show_grid_selection_check"/>
 	<check_box label="顯示進階選單" name="show_advanced_menu_check"/>
 	<check_box label="顯示開發選單" name="show_develop_menu_check"/>
+	<button label="預設的創建權限" name="default_creation_permissions"/>
 </panel>

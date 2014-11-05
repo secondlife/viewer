@@ -72,7 +72,7 @@
 	<check_box label="Modification liée" name="checkbox edit linked parts"/>
 	<button label="Lien" name="link_btn"/>
 	<button label="Annuler le lien" name="unlink_btn"/>
-	<check_box label="" name="checkbox uniform"/>
+	<check_box label="Étirer les deux côtés" name="checkbox uniform"/>
 	<text label="Étirer les deux côtés" name="checkbox uniform label">
 		Étirer les deux côtés
 	</text>

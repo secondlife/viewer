@@ -114,13 +114,13 @@ Weitere Informationen finden Sie im [[MARKETPLACE_IMPORTS_URL] Fehlerprotokoll].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxImportFailed">
-		Übertragung fehlgeschlagen
+		Übertragung fehlgeschlagen mit Fehler „[ERROR_CODE]“
 
 Aufgrund eines System- oder Netzwerkfehlers wurden keine Ordner an den Marktplatz übertragen. Versuchen Sie es später erneut.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OutboxInitFailed">
-		Marktplatzinitialisierung fehlgeschlagen
+		Marktplatzinitialisierung fehlgeschlagen mit Fehler „[ERROR_CODE]“
 
 Marktplatzinitialisierung aufgrund eines System- oder Netzwerkfehlers fehlgeschlagen. Versuchen Sie es später erneut.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -215,6 +215,22 @@ Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 
 Der Rolle „[ROLE_NAME]“ diese Fähigkeit zuweisen?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
+	</notification>
+	<notification name="AssignBanAbilityWarning">
+		Sie sind im Begriff, der Rolle „[ROLE_NAME]“ die Fähigkeit „[ACTION_NAME]“ zuzuweisen.
+
+ *ACHTUNG*
+Jedem Mitglied in einer Rolle mit dieser Fähigkeit werden auch die Fähigkeiten „[ACTION_NAME_2]“ und „[ACTION_NAME_3]“ zugewiesen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		Sie sind im Begriff, die Fähigkeit „[ACTION_NAME]“ aus der Rolle „[ROLE_NAME]“ zu entfernen.
+
+ *ACHTUNG*
+Durch Entfernen dieser Fähigkeit werden die Fähigkeiten „[ACTION_NAME_2]“ und „[ACTION_NAME_3]“ NICHT entfernt.
+ 
+Wenn diese Rolle nicht mehr diese Fähigkeiten haben soll, deaktivieren Sie sie bitte umgehend.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Sie sind dabei, [AVATAR_NAME] aus der Gruppe hinauszuwerfen.
@@ -1591,6 +1607,14 @@ Diese Gruppe verlassen?
 		Sie können die Gruppe nicht verlassen, da Sie der letzte Besitzer der Gruppe sind. Weisen Sie die Besitzerrolle zuerst einem anderen Mitglied zu.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Kann Gruppe nicht verlassen: [reason].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		Sie haben die Gruppe „[group_name]“ verlassen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Möchten Sie WIRKLICH alle Benutzer aus dem Grid werfen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Alle Benutzer hinauswerfen"/>
@@ -1743,6 +1767,10 @@ womit Sie die Höchstgrenze von [LIMIT] überschreiten.
 	<notification name="TeleportFromLandmark">
 		Sind Sie sicher, dass Sie zu &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; teleportieren möchten?
 		<usetemplate ignoretext="Bestätigen, dass ich zu einer Landmarke teleportieren möchte" name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
+	</notification>
+	<notification name="TeleportViaSLAPP">
+		Möchten Sie wirklich zu &lt;nolink&gt;[LOCATION]&lt;/nolink&gt; teleportieren?
+		<usetemplate ignoretext="Bestätigen, dass ich via SLAPP teleportieren möchte" name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
 	</notification>
 	<notification name="TeleportToPick">
 		Nach [PICK] teleportieren?
@@ -1953,6 +1981,9 @@ Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belas
 	</notification>
 	<notification name="ProblemAddingEstateManager">
 		Es gibt Probleme beim Hinzufügen eines neuen Grundbesitzverwalters.  Bei mindestens einem Grundbesitz ist die Verwalterliste voll.
+	</notification>
+	<notification name="ProblemAddingEstateBanManager">
+		Grundbesitzer oder Grundstücksverwalter kann nicht auf die Bannliste gesetzt werden.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
 		Problem beim Hinzufügen zu dieser Grundbesitzliste.  Bei mindestens einem Grundbesitz ist die Liste voll.
@@ -2465,6 +2496,12 @@ Wählen Sie eine kleinere Landfläche.
 		Bitte wählen Sie mindestens eine Inhaltsart für die Suche aus (Generell, Moderat oder Adult).
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -3038,13 +3075,13 @@ Details finden Sie in der Protokolldatei.
 		Regionsfähigkeit „[CAPABILITY]“ konnte nicht abgerufen werden.
 	</notification>
 	<notification name="ShareItemsConfirmation">
-		Möchten Sie wirklich die folgenden Objekte:
+		Möchten Sie wirklich die folgenden Artikel:
 
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
-für folgende Einwohner freigeben:
+mit den folgenden Einwohnern teilen:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ShareFolderConfirmation">
@@ -3056,7 +3093,7 @@ Möchten Sie wirklich die folgenden Artikel:
 
 mit den folgenden Einwohnern teilen:
 
-[RESIDENTS]
+&lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -3510,10 +3547,6 @@ Warten Sie kurz und versuchen Sie es noch einmal.
 	<notification name="EjectComingSoon">
 		Sie nicht hier nicht mehr zugelassen und haben [EJECT_TIME] Sekunden Zeit, um zu gehen.
 	</notification>
-	<notification name="NoEnterServerFull">
-		Sie können diese Region nicht betreten, da 
-der Server voll ist.
-	</notification>
 	<notification name="SaveBackToInvDisabled">
 		Erneutes Speichern im Inventar ist deaktiviert.
 	</notification>
@@ -3702,6 +3735,9 @@ der Server voll ist.
 	</notification>
 	<notification name="LinkFailedTooMuchPhysics">
 		Objekt verwendet zu viele Physikressourcen – seine Dynamik wurde deaktiviert.
+	</notification>
+	<notification name="EstateManagerFailedllTeleportHome">
+		Das Objekt „[OBJECT_NAME]“ auf [SLURL] kann Grundstücksverwalter nicht nach Hause teleportieren.
 	</notification>
 	<notification name="TeleportedHomeByObjectOnParcel">
 		Sie wurden vom Objekt „[OBJECT_NAME]“ auf der Parzelle „[PARCEL_NAME]“ nach Hause teleportiert
@@ -3893,13 +3929,18 @@ der Server voll ist.
 		Auswahl enthält nicht genügend gemietete Parzellen zum Zusammenlegen.
 	</notification>
 	<notification name="CantDivideLandMultipleParcelsSelected">
-		Land kann nicht geteilt werden.\nMehr als eine Parzelle ist ausgewählt.\nWählen Sie ein kleineres Stück Land aus.
+		Land kann nicht geteilt werden.
+Mehr als eine Parzelle ist ausgewählt.
+Wählen Sie eine kleinere Landfläche aus.
 	</notification>
 	<notification name="CantDivideLandCantFindParcel">
-		Land kann nicht geteilt werden.\nParzelle nicht auffindbar.\nMelden Sie das Problem über „Hilfe“ -&gt; „Fehler melden“...
+		Land kann nicht geteilt werden.
+Parzelle kann nicht gefunden werden.
+Bitte melden Sie den Fehler über „Hilfe“ -&gt; „Fehler melden“.
 	</notification>
 	<notification name="CantDivideLandWholeParcelSelected">
-		Land kann nicht geteilt werden. Die gesamte Parzelle ist ausgewählt.\nWählen Sie ein kleineres Stück Land aus.
+		Land kann nicht geteilt werden. Die gesamte Parzelle ist ausgewählt.
+Wählen Sie eine kleinere Landfläche aus.
 	</notification>
 	<notification name="LandHasBeenDivided">
 		Land wurde geteilt.
@@ -4038,5 +4079,13 @@ der Server voll ist.
 	<notification name="PreferenceChatPathChanged">
 		Dateien können nicht verschoben werden. Vorheriger Pfad wurde wiederhergestellt.
 		<usetemplate ignoretext="Dateien können nicht verschoben werden. Vorheriger Pfad wurde wiederhergestellt." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Die Standardberechtigungen konnten aus folgendem Grund nicht gespeichert werden: [REASON].  Versuchen Sie später, die Standardberechtigungen einzustellen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ChatHistoryIsBusyAlert">
+		Chatverlaufsdatei ist noch mit vorheriger Operation beschäftigt. Versuchen Sie es in ein paar Minuten noch einmal oder chatten Sie mit einer anderen Person.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 </notifications>

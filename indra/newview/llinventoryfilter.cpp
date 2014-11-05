@@ -37,6 +37,7 @@
 #include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llviewerfoldertype.h"
+#include "llradiogroup.h"
 
 // linden library includes
 #include "llclipboard.h"
@@ -51,6 +52,7 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 	mMinDate(p.date_range.min_date),
 	mMaxDate(p.date_range.max_date),
 	mHoursAgo(p.hours_ago),
+	mDateSearchDirection(p.date_search_direction),
 	mShowFolderState(p.show_folder_state),
 	mPermissions(p.permissions),
 	mFilterTypes(p.types),
@@ -177,6 +179,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	// Pass if this item's type is of the correct filter type
 	if (filterTypes & FILTERTYPE_OBJECT)
 	{
+
 		// If it has no type, pass it, unless it's a link.
 		if (object_type == LLInventoryType::IT_NONE)
 		{
@@ -209,6 +212,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	{
 		const U16 HOURS_TO_SECONDS = 3600;
 		time_t earliest = time_corrected() - mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
+
 		if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
 		{
 			earliest = mFilterOps.mMinDate;
@@ -217,9 +221,19 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 		{
 			earliest = 0;
 		}
-		if (listener->getCreationDate() < earliest ||
-			listener->getCreationDate() > mFilterOps.mMaxDate)
-			return FALSE;
+
+		if (FILTERDATEDIRECTION_NEWER == mFilterOps.mDateSearchDirection || isSinceLogoff())
+		{
+			if (listener->getCreationDate() < earliest ||
+				listener->getCreationDate() > mFilterOps.mMaxDate)
+				return FALSE;
+		}
+		else
+		{
+			if (listener->getCreationDate() > earliest ||
+				listener->getCreationDate() > mFilterOps.mMaxDate)
+				return FALSE;
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -244,13 +258,25 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 			bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(listener->getPreferredType());
 			if (is_hidden_if_empty)
 			{
-				// Force the fetching of those folders so they are hidden iff they really are empty...
+				// Force the fetching of those folders so they are hidden if they really are empty...
 				gInventory.fetchDescendentsOf(object_id);
-				return FALSE;
+
+				LLInventoryModel::cat_array_t* cat_array = NULL;
+				LLInventoryModel::item_array_t* item_array = NULL;
+				gInventory.getDirectDescendentsOf(object_id,cat_array,item_array);
+				S32 descendents_actual = 0;
+				if(cat_array && item_array)
+				{
+					descendents_actual = cat_array->size() + item_array->size();
+				}
+				if (descendents_actual == 0)
+				{
+					return FALSE;
+				}
 			}
 		}
 	}
-	
+
 	return TRUE;
 }
 
@@ -629,11 +655,22 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 		bool are_date_limits_valid = mFilterOps.mMinDate == time_min() && mFilterOps.mMaxDate == time_max();
 
 		bool is_increasing = hours > mFilterOps.mHoursAgo;
+		bool is_decreasing = hours < mFilterOps.mHoursAgo;
 		bool is_increasing_from_zero = is_increasing && !mFilterOps.mHoursAgo && !isSinceLogoff();
 
 		// *NOTE: need to cache last filter time, in case filter goes stale
-		BOOL less_restrictive = (are_date_limits_valid && ((is_increasing && mFilterOps.mHoursAgo)) || !hours);
-		BOOL more_restrictive = (are_date_limits_valid && (!is_increasing && hours) || is_increasing_from_zero);
+		BOOL less_restrictive;
+		BOOL more_restrictive;
+		if (FILTERDATEDIRECTION_NEWER == mFilterOps.mDateSearchDirection)
+		{
+			less_restrictive = (are_date_limits_valid && ((is_increasing && mFilterOps.mHoursAgo)) || !hours);
+			more_restrictive = (are_date_limits_valid && (!is_increasing && hours) || is_increasing_from_zero);
+		}
+		else
+		{
+			less_restrictive = (are_date_limits_valid && ((is_decreasing && mFilterOps.mHoursAgo)) || !hours);
+			more_restrictive = (are_date_limits_valid && (!is_decreasing && hours) || is_increasing_from_zero);
+		}
 
 		mFilterOps.mHoursAgo = hours;
 		mFilterOps.mMinDate = time_min();
@@ -660,6 +697,20 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 	{
 		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
 	}
+}
+
+void LLInventoryFilter::setDateSearchDirection(U32 direction)
+{
+	if (direction != mFilterOps.mDateSearchDirection)
+	{
+		mFilterOps.mDateSearchDirection = direction;
+		setModified(FILTER_RESTART);
+	}
+}
+
+U32 LLInventoryFilter::getDateSearchDirection() const
+{
+	return mFilterOps.mDateSearchDirection;
 }
 
 void LLInventoryFilter::setFilterLinks(U64 filter_links)
@@ -926,6 +977,7 @@ LLInventoryFilter& LLInventoryFilter::operator=( const  LLInventoryFilter&  othe
 	setFilterObjectTypes(other.getFilterObjectTypes());
 	setDateRange(other.getMinDate(), other.getMaxDate());
 	setHoursAgo(other.getHoursAgo());
+	setDateSearchDirection(other.getDateSearchDirection());
 	setShowFolderState(other.getShowFolderState());
 	setFilterPermissions(other.getFilterPermissions());
 	setFilterSubString(other.getFilterSubString());
@@ -945,6 +997,7 @@ void LLInventoryFilter::toParams(Params& params) const
 	params.filter_ops.date_range.min_date = getMinDate();
 	params.filter_ops.date_range.max_date = getMaxDate();
 	params.filter_ops.hours_ago = getHoursAgo();
+	params.filter_ops.date_search_direction = getDateSearchDirection();
 	params.filter_ops.show_folder_state = getShowFolderState();
 	params.filter_ops.permissions = getFilterPermissions();
 	params.substring = getFilterSubString();
@@ -966,10 +1019,16 @@ void LLInventoryFilter::fromParams(const Params& params)
 	}
 	setDateRange(params.filter_ops.date_range.min_date,   params.filter_ops.date_range.max_date);
 	setHoursAgo(params.filter_ops.hours_ago);
+	setDateSearchDirection(params.filter_ops.date_search_direction);
 	setShowFolderState(params.filter_ops.show_folder_state);
 	setFilterPermissions(params.filter_ops.permissions);
 	setFilterSubString(params.substring);
 	setDateRangeLastLogoff(params.since_logoff);
+}
+
+U64 LLInventoryFilter::getFilterTypes() const
+{
+	return mFilterOps.mFilterTypes;
 }
 
 U64 LLInventoryFilter::getFilterObjectTypes() const

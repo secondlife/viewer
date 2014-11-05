@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Bannir des résidents" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(en cours de chargement...)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		Bannissements de groupe non envoyés : trop de résidents sélectionnés. Les bannissements de groupe sont limités à 100 par demande.
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		Bannissement de groupe non envoyé : vous ne disposez pas du pouvoir Gérer la liste des résidents bannis.
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		Bannissement de groupe non envoyé : votre groupe a atteint la limite des bannissements autorisés.
+	</panel.string>
+	<panel.string name="partial_ban">
+		Certains bannissements de groupe n&apos;ont pas été envoyés :
+[REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		Les bannissements de groupe n&apos;ont pas été envoyés :
+[REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- Le ou les résidents suivants sont déjà bannis : [RESIDENTS].
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- Limite de bannissements atteinte, les agents suivants ne sont pas bannis : [RESIDENTS].
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- Vous ne pouvez pas vous bannir vous-même d&apos;un groupe.
+	</panel.string>
+	<text name="help_text">
+		Vous pouvez sélectionner plusieurs résidents à bannir de votre groupe. Cliquez sur Choisir un résident pour commencer.
+	</text>
+	<button label="Choisir un résident" name="add_button"/>
+	<name_list name="banned_agent_list" tool_tip="Pour sélectionner plusieurs résidents, maintenez la touche Ctrl enfoncée et cliquez sur leurs noms"/>
+	<button label="Supprimer la sélection de la liste" name="remove_button" tool_tip="Supprime les résidents sélectionnés ci-dessus de la liste des résidents bannis"/>
+	<button label="Bannir des résidents" name="ban_button"/>
+	<button label="Annuler" name="cancel_button"/>
+	<string name="GroupBulkBan">
+		Bannissement de groupe
+	</string>
+</panel>

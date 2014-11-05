@@ -133,9 +133,9 @@ void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_gen
 	bool before = mPrevPassedAllFilters;
 	mPrevPassedAllFilters = passedFilter(filter_generation);
 
-    if (before != mPrevPassedAllFilters)
+	if (before != mPrevPassedAllFilters)
 	{
-        // Need to rearrange the folder if the filtered state of the item changed
+		// Need to rearrange the folder if the filtered state of the item changed
 		LLFolderViewFolder* parent_folder = mFolderViewItem->getParentFolder();
 		if (parent_folder)
 		{

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_flickr_account">
+	<string name="flickr_connected" value="Estás conectado a Flickr como:"/>
+	<string name="flickr_disconnected" value="No conectado a Flickr"/>
+	<text name="account_caption_label">
+		No estás conectado a Flickr.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Conectar..." name="connect_btn"/>
+		<button label="Desconectar" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Flickr/ta-p/2435609 Aprende a publicar en Flickr]
+		</text>
+	</panel>
+</panel>

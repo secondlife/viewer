@@ -37,6 +37,45 @@
 	<string name="StartupRequireDriverUpdate">
 		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
 	</string>
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [Sürüm Notları]]
+	</string>
+	<string name="AboutCompiler">
+		[COMPILER] [COMPILER_VERSION] sürümü ile oluşturuldu
+	</string>
+	<string name="AboutPosition">
+		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] konumundasınız
+SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
+(küresel koordinatlar [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</string>
+	<string name="AboutSystem">
+		CPU: [CPU]
+Bellek: [MEMORY_MB] MB
+İşl. Sis. Sürümü: [OS_VERSION]
+Grafik Kartı Üreticisi: [GRAPHICS_CARD_VENDOR]
+Grafik Kartı: [GRAPHICS_CARD]
+	</string>
+	<string name="AboutDriver">
+		Windows Grafik Sürücüsü Sürümü: [GRAPHICS_DRIVER_VERSION]
+	</string>
+	<string name="AboutLibs">
+		OpenGL Sürümü: [OPENGL_VERSION]
+
+libcurl Sürümü: [LIBCURL_VERSION]
+J2C Kod Çözücü Sürümü: [J2C_VERSION]
+Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
+Qt Web Kit Sürümü: [QT_WEBKIT_VERSION]
+Ses Sunucusu Sürümü: [VOICE_VERSION]
+	</string>
+	<string name="AboutTraffic">
+		Kaybolan Paketler: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</string>
+	<string name="ErrorFetchingServerReleaseNotesURL">
+		Sunucu sürümü notları URL&apos;si alınırken hata oluştu.
+	</string>
 	<string name="ProgressRestoring">
 		Geri yükleniyor...
 	</string>
@@ -295,6 +334,75 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="TestingDisconnect">
 		Görüntüleyici bağlantısının kesilmesi test ediliyor
+	</string>
+	<string name="SocialFlickrConnecting">
+		Flickr bağlantısı kuruluyor...
+	</string>
+	<string name="SocialFlickrPosting">
+		Yayınlanıyor...
+	</string>
+	<string name="SocialFlickrDisconnecting">
+		Flickr bağlantısı kesiliyor...
+	</string>
+	<string name="SocialFlickrErrorConnecting">
+		Flickr bağlantısı kurulurken sorun çıktı
+	</string>
+	<string name="SocialFlickrErrorPosting">
+		Flickr&apos;da yayınlarken sorun çıktı
+	</string>
+	<string name="SocialFlickrErrorDisconnecting">
+		Flickr bağlantısı kesilirken sorun çıktı
+	</string>
+	<string name="SocialTwitterConnecting">
+		Twitter bağlantısı kuruluyor...
+	</string>
+	<string name="SocialTwitterPosting">
+		Yayınlanıyor...
+	</string>
+	<string name="SocialTwitterDisconnecting">
+		Twitter bağlantısı kesiliyor...
+	</string>
+	<string name="SocialTwitterErrorConnecting">
+		Twitter bağlantısı kurulurken sorun çıktı
+	</string>
+	<string name="SocialTwitterErrorPosting">
+		Twitter&apos;da yayınlarken sorun çıktı
+	</string>
+	<string name="SocialTwitterErrorDisconnecting">
+		Twitter bağlantısı kesilirken sorun çıktı
+	</string>
+	<string name="BlackAndWhite">
+		Siyah Beyaz
+	</string>
+	<string name="Colors1970">
+		70&apos;lerin Renkleri
+	</string>
+	<string name="Intense">
+		Yoğun
+	</string>
+	<string name="Newspaper">
+		Gazete Baskısı
+	</string>
+	<string name="Sepia">
+		Sepya
+	</string>
+	<string name="Spotlight">
+		Spot Işıkları
+	</string>
+	<string name="Video">
+		Video
+	</string>
+	<string name="Autocontrast">
+		Otomatik Kontrast
+	</string>
+	<string name="LensFlare">
+		Mercek Parlaması
+	</string>
+	<string name="Miniature">
+		Minyatür
+	</string>
+	<string name="Toycamera">
+		Eğlence Kamerası
 	</string>
 	<string name="TooltipPerson">
 		Kişi
@@ -844,6 +952,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="use_texture">
 		Dokuyu kullan
 	</string>
+	<string name="manip_hint1">
+		Fare imlecini cetvelin üzerine getirerek
+	</string>
+	<string name="manip_hint2">
+		ağa uydur
+	</string>
 	<string name="texture_loading">
 		Yükleniyor...
 	</string>
@@ -934,14 +1048,14 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="ControlYourCamera">
 		Kameranızı kontrol etmek
 	</string>
+	<string name="TeleportYourAgent">
+		Sizi ışınlama
+	</string>
 	<string name="NotConnected">
 		Bağlı Değil
 	</string>
 	<string name="AgentNameSubst">
 		(Siz)
-	</string>
-	<string name="TeleportYourAgent">
-		Sizi ışınlama
 	</string>
 	<string name="JoinAnExperience">
 		Bir tecrübeye katıl
@@ -1267,8 +1381,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InventoryInboxNoItems">
 		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
 	</string>
-  <string name="Unconstrained">Kısıtsız</string>
-  <string name="MarketplaceURL">
+	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
@@ -1297,6 +1410,18 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InventoryOutboxNoItems">
 		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
 	</string>
+	<string name="InventoryOutboxInitializingTitle">
+		Pazaryeri Başlatılıyor.
+	</string>
+	<string name="InventoryOutboxInitializing">
+		[[MARKETPLACE_CREATE_STORE_URL] Mağazası] üzerindeki hesabınıza erişiyoruz.
+	</string>
+	<string name="InventoryOutboxErrorTitle">
+		Pazaryeri Hataları
+	</string>
+	<string name="InventoryOutboxError">
+		[[MARKETPLACE_CREATE_STORE_URL] Mağazası] hata döndürüyor.
+	</string>
 	<string name="Marketplace Error None">
 		Hata yok
 	</string>
@@ -1323,6 +1448,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="Open landmarks">
 		Açık yer imleri
+	</string>
+	<string name="Unconstrained">
+		Kısıtsız
 	</string>
 	<string name="no_transfer" value="(aktarım yok)"/>
 	<string name="no_modify" value="(değiştirme yok)"/>
@@ -1723,6 +1851,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="CompileQueueDownloadedCompiling">
 		Karşıdan yüklendi, şimdi derleniyor
+	</string>
+	<string name="CompileQueueServiceUnavailable">
+		Komut dosyası derleme hizmeti kullanılamıyor
 	</string>
 	<string name="CompileQueueScriptNotFound">
 		Komut dosyası sunucuda bulunamadı.
@@ -4024,6 +4155,12 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="share_alert">
 		Envanterinizden buraya öğeler sürükleyin
 	</string>
+	<string name="flickr_post_success">
+		Flickr&apos;da yayınladınız.
+	</string>
+	<string name="twitter_post_success">
+		Twitter&apos;da yayınladınız.
+	</string>
 	<string name="no_session_message">
 		(Aİ Oturumu Mevcut Değil)
 	</string>
@@ -4478,6 +4615,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="LocalEstimateUSD">
 		US$ [AMOUNT]
 	</string>
+	<string name="Group Ban">
+		Gruptan Yasakla
+	</string>
 	<string name="Membership">
 		Üyelik
 	</string>
@@ -4912,6 +5052,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Destinations_Label">
 		Hedef Konum
 	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
+	</string>
+	<string name="Command_Flickr_Label">
+		Flickr
+	</string>
 	<string name="Command_Gestures_Label">
 		Mimikler
 	</string>
@@ -4960,6 +5106,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Speak_Label">
 		Konuş
 	</string>
+	<string name="Command_Twitter_Label">
+		Twitter
+	</string>
 	<string name="Command_View_Label">
 		Kamera denetimleri
 	</string>
@@ -4989,6 +5138,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		İlgilendiğiniz hedef konumlar
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Facebook&apos;ta Yayınla
+	</string>
+	<string name="Command_Flickr_Tooltip">
+		Flickr&apos;a yükle
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		Avatarınız için mimikler
@@ -5037,6 +5192,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Speak_Tooltip">
 		Mikrofonunuzu kullanarak yakındaki kişilerle konuşun
+	</string>
+	<string name="Command_Twitter_Tooltip">
+		Twitter
 	</string>
 	<string name="Command_View_Tooltip">
 		Kamera açısını değiştirmek

@@ -67,7 +67,6 @@ private:
 
 	LLHandle<LLView> mPreviewHandle;
 
-	LLUICtrl * mSnapshotPanel;
 	LLUICtrl * mResolutionComboBox;
 	LLUICtrl * mFilterComboBox;
 	LLUICtrl * mRefreshBtn;

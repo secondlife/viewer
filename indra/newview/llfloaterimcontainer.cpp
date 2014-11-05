@@ -229,7 +229,9 @@ BOOL LLFloaterIMContainer::postBuild()
 	mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
 	mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
     mSpeakBtn = getChild<LLButton>("speak_btn");
-	mSpeakBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonClicked, this));
+
+	mSpeakBtn->setMouseDownCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonPressed, this));
+	mSpeakBtn->setMouseUpCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonReleased, this));
 
 	childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
@@ -352,11 +354,18 @@ void LLFloaterIMContainer::onStubCollapseButtonClicked()
 	collapseMessagesPane(true);
 }
 
-void LLFloaterIMContainer::onSpeakButtonClicked()
+void LLFloaterIMContainer::onSpeakButtonPressed()
 {
-	LLAgent::toggleMicrophone("speak");
+	LLVoiceClient::getInstance()->inputUserControlState(true);
 	updateSpeakBtnState();
 }
+
+void LLFloaterIMContainer::onSpeakButtonReleased()
+{
+	LLVoiceClient::getInstance()->inputUserControlState(false);
+	updateSpeakBtnState();
+}
+
 void LLFloaterIMContainer::onExpandCollapseButtonClicked()
 {
 	if (mConversationsPane->isCollapsed() && mMessagesPane->isCollapsed()
@@ -1396,6 +1405,10 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     else if ("can_call" == item)
     {
         return LLAvatarActions::canCall();
+    }
+    else if ("can_open_voice_conversation" == item)
+    {
+    	return is_single_select && LLAvatarActions::canCall();
     }
     else if ("can_open_voice_conversation" == item)
     {

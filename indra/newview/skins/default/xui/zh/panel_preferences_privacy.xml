@@ -7,7 +7,7 @@
 	<text name="cache_size_label_l">
 		（位置、圖像、網頁、搜尋的歷史紀錄）
 	</text>
-	<check_box label="顯示在搜索結果我的個人資料信息" name="online_searchresults"/>
+	<check_box label="將我的個人小檔案顯示在搜尋結果中" name="online_searchresults"/>
 	<check_box label="只有我的朋友和群組知道我上線" name="online_visibility"/>
 	<check_box label="只有我的朋友和群組可以 IM 或與我通話。" name="voice_call_friends_only_check"/>
 	<check_box label="當通話結束時關閉麥克風" name="auto_disengage_mic_check"/>

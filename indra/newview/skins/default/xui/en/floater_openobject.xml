@@ -6,7 +6,7 @@
  height="350"
  layout="topleft"
  min_height="160"
- min_width="270"
+ min_width="280"
  name="objectcontents"
  help_topic="objectcontents"
  save_rect="true"
@@ -40,10 +40,10 @@
     <button
      follows="bottom|left"
      height="23"
-     label="Copy To Inventory"
-     label_selected="Copy To Inventory"
+     label="Copy to inventory"
+     label_selected="Copy to inventory"
      layout="topleft"
-     left="20"
+     left="15"
      name="copy_to_inventory_button"
      tab_group="1"
      top_pad="5"
@@ -54,12 +54,12 @@
     <button
      follows="bottom|left"
      height="23"
-     label="Copy And Wear"
-     label_selected="Copy And Wear"
+     label="Copy and add to outfit"
+     label_selected="Copy and add to outfit"
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
      name="copy_and_wear_button"
-     width="120">
+     width="135">
         <button.commit_callback
          function="OpenObject.MoveAndWear" />
     </button>

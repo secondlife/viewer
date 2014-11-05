@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_login">
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php
+	</panel.string>
+	<layout_stack name="logo_stack">
+		<layout_panel name="parent_panel2">
+			<layout_stack name="widget_stack">
+				<layout_panel name="widget_container">
+					<combo_box label="使用者名稱" name="username_combo" tool_tip="使用者名稱是你註冊時所挑選的，例如 bobsmith12 或 Steller Sunshine"/>
+					<line_editor label="密碼" name="password_edit"/>
+					<button label="登入" name="connect_btn"/>
+					<check_box label="記得我" name="remember_check"/>
+					<text name="forgot_password_text">
+						忘記密碼
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="parent_panel3">
+			<layout_stack name="images_stack">
+				<layout_panel name="images_container">
+					<text name="image_caption_left">
+						你在「學習島」的第一步。 找到離開的傳送門！
+					</text>
+					<text name="image_caption_right">
+						接著，到「社交島」探索，認識新的居民朋友！
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

@@ -137,7 +137,7 @@ protected:
 	LLVector3			getPivotPoint();
 	void				getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3 &normal);
 	BOOL				getManipAxis(LLViewerObject* object, EManipPart manip, LLVector3 &axis);
-	F32					getSubdivisionLevel(const LLVector3 &reference_point, const LLVector3 &translate_axis, F32 grid_scale, S32 min_pixel_spacing = MIN_DIVISION_PIXEL_WIDTH);
+	F32					getSubdivisionLevel(const LLVector3 &reference_point, const LLVector3 &translate_axis, F32 grid_scale, S32 min_pixel_spacing = MIN_DIVISION_PIXEL_WIDTH, F32 min_subdivisions = sGridMinSubdivisionLevel, F32 max_subdivisions = sGridMaxSubdivisionLevel);
 	void				renderTickValue(const LLVector3& pos, F32 value, const std::string& suffix, const LLColor4 &color);
 	void				renderTickText(const LLVector3& pos, const std::string& suffix, const LLColor4 &color);
 	void				updateGridSettings();
