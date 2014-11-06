@@ -58,6 +58,7 @@ void LLFloaterBump::onOpen(const LLSD& key)
 	if (!list)
 		return;
 	list->deleteAllItems();
+	list->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 
 	if (gMeanCollisionList.empty())
 	{

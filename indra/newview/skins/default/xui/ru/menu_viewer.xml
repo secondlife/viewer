@@ -167,6 +167,7 @@
 		<menu_item_call label="Инструкции..." name="How To"/>
 		<menu_item_call label="Жалоба" name="Report Abuse"/>
 		<menu_item_call label="Сообщить об ошибке" name="Report Bug"/>
+		<menu_item_call label="Столкновения, толчки и удары" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="О [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Дополнительно" name="Advanced">
@@ -343,8 +344,7 @@
 			<menu_item_check label="Прикрепить объекты для интерполяции" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="Опустить пакет" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="Дамп камеры со скриптами" name="Dump Scripted Camera"/>
-		<menu_item_call label="Столкновения, толчки и удары" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="Дамп камеры со скриптами" name="Dump Scripted Camera"/>		
 		<menu label="Диктофон" name="Recorder">
 			<menu_item_call label="Начать воспроизведение" name="Start Playback"/>
 			<menu_item_call label="Остановить воспроизведение" name="Stop Playback"/>

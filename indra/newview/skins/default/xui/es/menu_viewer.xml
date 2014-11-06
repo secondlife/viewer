@@ -175,6 +175,7 @@
 		<menu_item_call label="Blogs de [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Denunciar una infracción" name="Report Abuse"/>
 		<menu_item_call label="Informar de un fallo" name="Report Bug"/>
+		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="Acerca de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzado" name="Advanced">
@@ -322,8 +323,7 @@
 		<menu label="Red" name="Network">
 			<menu_item_check label="Pause Avatar" name="AgentPause"/>
 			<menu_item_call label="Drop a Packet" name="Drop a Packet"/>
-		</menu>
-		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
+		</menu>		
 		<menu label="Mundo virtual" name="DevelopWorld">
 			<menu_item_check label="Anular el sol del Sim" name="Sim Sun Override"/>
 			<menu_item_check label="Meteorología fija" name="Fixed Weather"/>
