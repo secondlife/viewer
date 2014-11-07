@@ -12,11 +12,11 @@
   width="480">
    <panel.string
       name="trusted_estate_text">
-Any Experience may be Trusted.
+Any Experience may be Key.
 
-Trusted Experiences have permission to run on this estate.
+Key Experiences have permission to run on this estate.
 
-Additionally, if the estate does not allow public access, Residents participating in any Trusted Experience may enter the estate and can remain as long as they are in the Experience.
+Additionally, if the estate does not allow public access, Residents participating in any Key Experience may enter the estate and can remain as long as they are in a Key Experience.
    </panel.string>
    <panel.string
       name="allowed_estate_text">

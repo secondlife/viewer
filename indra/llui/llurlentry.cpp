@@ -1247,7 +1247,12 @@ std::string LLUrlEntryExperienceProfile::getLabel( const std::string &url, const
 
 void LLUrlEntryExperienceProfile::onExperienceDetails( const LLSD& experience_details )
 {
-    callObservers(experience_details[LLExperienceCache::EXPERIENCE_ID].asString(), experience_details[LLExperienceCache::NAME].asString(), LLStringUtil::null);
+	std::string name = experience_details[LLExperienceCache::NAME].asString();
+	if(name.empty())
+	{
+		name = LLTrans::getString("ExperienceNameUntitled");
+	}
+    callObservers(experience_details[LLExperienceCache::EXPERIENCE_ID].asString(), name, LLStringUtil::null);
 }
 
 
