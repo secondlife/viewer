@@ -282,9 +282,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f5a699c93beb1a854d0b51382b5cecc8</string>
+              <string>40b1c6b3727ebedafc2f1a172797ccd1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/Darwin/installer/curl-7.37.0-darwin-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/295367/arch/Darwin/installer/curl-7.38.0-darwin-20141010.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -294,9 +294,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2bc285edffd0e55e0cd6290f39854a89</string>
+              <string>06149da3d7a34adf40853f813ae55328</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/Linux/installer/curl-7.37.0-linux-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/295367/arch/Linux/installer/curl-7.38.0-linux-20141010.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -306,9 +306,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8d3b197d7a114d2b688d2831a0a59757</string>
+              <string>e4280eae792a5f13bc9d01d8cfb7c557</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/CYGWIN/installer/curl-7.37.0-windows-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/295367/arch/CYGWIN/installer/curl-7.38.0-windows-20141010.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
