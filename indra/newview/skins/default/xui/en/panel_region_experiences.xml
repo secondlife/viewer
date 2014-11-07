@@ -89,7 +89,7 @@ Blocked Experiences may not run on this parcel.
       </text>
     </layout_panel>
     <layout_panel
-      height="50"
+      height="110"
        min_height="50"
        follows="all"
       width="530">
@@ -111,7 +111,7 @@ Blocked Experiences may not run on this parcel.
       </text>
     </layout_panel>
     <layout_panel
-      height="50"
+      height="110"
        min_height="50"
        follows="all"
       width="530">
