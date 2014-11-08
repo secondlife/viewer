@@ -4718,7 +4718,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>100</integer>
+      <integer>200</integer>
     </map>
     <key>InventorySortOrder</key>
     <map>

@@ -199,7 +199,7 @@ public:
     bool updateCountOnHand(const LLUUID& folder_id);
     bool getListing(const LLUUID& folder_id);
     bool getListing(S32 listing_id);
-    bool deleteListing(S32 listing_id);
+    bool deleteListing(S32 listing_id, bool update = true);
     
     // Probe the Marketplace data set to identify folders
     bool isListed(const LLUUID& folder_id); // returns true if folder_id is a Listing folder
@@ -225,13 +225,13 @@ public:
 private:
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
     // Used internally only by SLM Responders when data are received from the SLM Server
-    bool addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed);
-    bool deleteListing(const LLUUID& folder_id, bool update_slm = true);
-    bool setListingID(const LLUUID& folder_id, S32 listing_id);
-    bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id);
-    bool setActivationState(const LLUUID& folder_id, bool activate);
-    bool setListingURL(const LLUUID& folder_id, const std::string& edit_url);
-    bool setCountOnHand(const LLUUID& folder_id, S32 count);
+    bool addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, bool update = true);
+    bool deleteListing(const LLUUID& folder_id, bool update = true);
+    bool setListingID(const LLUUID& folder_id, S32 listing_id, bool update = true);
+    bool setVersionFolderID(const LLUUID& folder_id, const LLUUID& version_id, bool update = true);
+    bool setActivationState(const LLUUID& folder_id, bool activate, bool update = true);
+    bool setListingURL(const LLUUID& folder_id, const std::string& edit_url, bool update = true);
+    bool setCountOnHand(const LLUUID& folder_id, S32 count, bool update = true);
     
     // Private SLM API : package data and get/post/put requests to the SLM Server through the SLM API
 	void setSLMStatus(U32 status);
