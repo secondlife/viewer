@@ -70,6 +70,7 @@ private:
     void onFilterEdit(const std::string& search_string);
     
     LLInventoryPanel* mAllPanel;
+    LLButton*         mAuditBtn;
 	LLFilterEditor*	  mFilterEditor;
 	std::string		  mFilterSubString;
     LLInventoryFilter::ESortOrderType mSortOrder;

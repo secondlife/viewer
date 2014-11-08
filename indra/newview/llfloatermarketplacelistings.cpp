@@ -67,6 +67,9 @@ BOOL LLPanelMarketplaceListings::postBuild()
 	mFilterEditor = getChild<LLFilterEditor>("filter_editor");
     mFilterEditor->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onFilterEdit, this, _2));
     
+    mAuditBtn = getChild<LLButton>("audit_btn");
+    mAuditBtn->setEnabled(FALSE);
+    
     return LLPanel::postBuild();
 }
 
@@ -134,6 +137,13 @@ void LLPanelMarketplaceListings::draw()
     {
         update_all_marketplace_count();
     }
+
+    // Get the audit button enabled only after the whole inventory is fetched
+    if (!mAuditBtn->getEnabled())
+    {
+        mAuditBtn->setEnabled(LLInventoryModelBackgroundFetch::instance().isEverythingFetched());
+    }
+    
 	LLPanel::draw();
 }
 
