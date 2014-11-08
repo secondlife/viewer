@@ -414,6 +414,14 @@ This listing could not be updated.
     </notification>
     
     <notification
+        icon="alertmodal.tga"
+        name="AlertMerchantListingInvalidID"
+        type="alertmodal">
+        Invalid listing ID.
+        <tag>fail</tag>
+    </notification>
+    
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">

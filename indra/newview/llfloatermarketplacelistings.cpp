@@ -569,6 +569,7 @@ BOOL LLFloaterAssociateListing::postBuild()
 {
 	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this, TRUE));
 	getChild<LLButton>("Cancel")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::cancel, this));
+	getChild<LLLineEditor>("listing_id")->setPrevalidate(&LLTextValidate::validatePositiveS32);
 	center();
     
 	return LLFloater::postBuild();
@@ -631,6 +632,10 @@ void LLFloaterAssociateListing::apply(BOOL user_confirm)
             // Update the folder widgets now that the action is launched
             update_marketplace_category(listing_uuid);
             update_marketplace_category(mUUID);
+        }
+        else
+        {
+            LLNotificationsUtil::add("AlertMerchantListingInvalidID");
         }
 	}
 	closeFloater();
