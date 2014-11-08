@@ -5968,15 +5968,17 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
         // Special Marketplace update notification
 		if (notificationID == "SLM_UPDATE_FOLDER")
         {
-            // In general, no message will be displayed, all we want is to get the listing updated in the marketplace floater
-            // If getListing() or deleteListing() fails though, the message of the alert will be shown by the caller of attempt_standard_notification()
             std::string state = llsdBlock["state"].asString();
             if (state == "deleted")
             {
-                return LLMarketplaceData::instance().deleteListing(llsdBlock["listing_id"].asInteger());
+                // Perform the deletion viewer side, no alert shown in this case
+                LLMarketplaceData::instance().deleteListing(llsdBlock["listing_id"].asInteger());
+                return true;
             }
             else
             {
+                // In general, no message will be displayed, all we want is to get the listing updated in the marketplace floater
+                // If getListing() fails though, the message of the alert will be shown by the caller of attempt_standard_notification()
                 return LLMarketplaceData::instance().getListing(llsdBlock["listing_id"].asInteger());
             }
         }
