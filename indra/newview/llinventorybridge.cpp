@@ -3159,7 +3159,10 @@ void LLFolderBridge::gatherMessage(std::string& message, LLError::ELevel log_lev
     {
         if (!mMessage.empty())
         {
-            mMessage += "\n";
+            // Currently, we do not gather all messages as it creates very long alerts
+            // Users can get to the whole list of errors on a listing using the "Check for Errors" audit button
+            //mMessage += "\n";
+            return;
         }
         // Take the leading spaces out...
         std::string::size_type start = message.find_first_not_of(" ");
