@@ -109,7 +109,8 @@ void log_SLM_warning(const std::string& request, U32 status, const std::string& 
     // Prompt the user with the warning (so they know why things are failing)
     LLSD subs;
     subs["[ERROR_REASON]"] = reason;
-    subs["[ERROR_DESCRIPTION]"] = description;
+    // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
+    subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : "");
     LLNotificationsUtil::add("MerchantTransactionFailed", subs);
     
 }
