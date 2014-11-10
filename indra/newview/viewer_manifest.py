@@ -983,7 +983,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 sign_retry_wait*=2
                             else:
                                 print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
-                                raisef
+                                raise
                     self.run_command('spctl -a -texec -vv %(bundle)r' % { 'bundle': app_in_dmg })
 
             imagename="SecondLife_" + '_'.join(self.args['version'])
