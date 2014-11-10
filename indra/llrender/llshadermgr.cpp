@@ -73,7 +73,11 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 {
 	llassert_always(shader != NULL);
 	LLShaderFeatures *features = & shader->mFeatures;
-	
+
+	if (features->attachNothing)
+	{
+		return TRUE;
+	}
 	//////////////////////////////////////
 	// Attach Vertex Shader Features First
 	//////////////////////////////////////
