@@ -1440,9 +1440,8 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
     
     LLUUID version_uuid = getVersionFolder(listing_uuid);
     
-    // Keep track of the count on hand
+    // Also update the count on hand
     S32 count = compute_stock_count(folder_id);
-    setCountOnHand(folder_id, count);
 
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_uuid, activate, count);
@@ -1465,9 +1464,8 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     // Note: if the version_id is cleared, we need to unlist the listing, otherwise, state unchanged
     bool is_listed = (version_id.isNull() ? false : getActivationState(listing_uuid));
     
-    // Keep track of the count on hand
+    // Also update the count on hand
     S32 count = compute_stock_count(version_id);
-    setCountOnHand(folder_id, count);
     
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_id, is_listed, count);
@@ -1491,9 +1489,8 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id)
     bool is_listed = getActivationState(listing_uuid);
     LLUUID version_uuid = getVersionFolder(listing_uuid);
 
-    // Update the count on hand
+    // Compute the new count on hand
     S32 count = compute_stock_count(folder_id);
-    setCountOnHand(folder_id, count);
     
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_uuid, is_listed, count);
@@ -1509,9 +1506,6 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
         return false;
     }
     
-    // Clear the count on hand in that case (we don't have a version folder anymore)
-    setCountOnHand(folder_id, -1);
-
     // Post the listing update request to SLM
     associateSLMListing(folder_id, listing_id, source_folder_id);
     
