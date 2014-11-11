@@ -879,13 +879,32 @@ void LLViewerObjectList::renderObjectBeacons()
 }
 
 
-void gpu_benchmark()
+F32 gpu_benchmark()
 {
-	if (!LLGLSLShader::sNoFixedFunction)
+	if (!gGLManager.mHasShaderObjects)
 	{ //don't bother benchmarking the fixed function
-		return;
+		return -1.f;
 	}
 
+	
+	if (gBenchmarkProgram.mProgramObject == 0)
+	{
+		LLViewerShaderMgr::instance()->initAttribsAndUniforms();
+
+		gBenchmarkProgram.mName = "Benchmark Shader";
+		gBenchmarkProgram.mFeatures.attachNothing = true;
+		gBenchmarkProgram.mShaderFiles.clear();
+		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER_ARB));
+		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gBenchmarkProgram.mShaderLevel = 1;
+		if (!gBenchmarkProgram.createShader(NULL, NULL))
+		{
+			return -1.f;
+		}
+	}
+
+	LLGLDisable blend(GL_BLEND);
+	
 	//measure memory bandwidth by:
 	// - allocating a batch of textures and render targets
 	// - rendering those textures to those render targets
@@ -909,7 +928,7 @@ void gpu_benchmark()
 	std::vector<F32> results;
 
 	//build a random texture
-	U8 pixels[res*res*4];
+	U8* pixels = new U8[res*res*4];
 
 	for (U32 i = 0; i < res*res*4; ++i)
 	{
@@ -931,6 +950,8 @@ void gpu_benchmark()
 		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	}
 
+    delete [] pixels;
+
 	//make a dummy triangle to draw with
 	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(3, 0, true);
@@ -951,6 +972,8 @@ void gpu_benchmark()
 	//wait for any previoius GL commands to finish
 	glFinish();
 	
+	bool busted_finish = false;
+
 	for (S32 c = -1; c < samples; ++c)
 	{
 		LLTimer timer;
@@ -965,7 +988,18 @@ void gpu_benchmark()
 		}
 		
 		//wait for current batch of copies to finish
-		glFinish();
+		if (busted_finish)
+		{
+			//read a pixel off the last target since some drivers seem to ignore glFinish
+			dest[count-1].bindTarget();
+			U32 pixel = 0;
+			glReadPixels(0,0,1,1,GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+			dest[count-1].flush();
+		}
+		else
+		{
+			glFinish();
+		}
 
 		F32 time = timer.getElapsedTimeF32();
 
@@ -976,13 +1010,20 @@ void gpu_benchmark()
 
 			F32 gbps = gb/time;
 
-			results.push_back(gbps);
+			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
+			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
+				busted_finish = true;
+			}
+			else
+			{
+				results.push_back(gbps);
+			}		
 		}
 	}
 
 	gBenchmarkProgram.unbind();
 
-	LLGLSLShader::finishProfile();
+	LLGLSLShader::finishProfile(false);
 	
 	LLImageGL::deleteTextures(count, source);
 
@@ -992,21 +1033,32 @@ void gpu_benchmark()
 	F32 gbps = results[results.size()/2];
 
 	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers" << LL_ENDL;
-	
-	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
-	F32 seconds = ms/1000.f;
-
-	F64 samples_drawn = res*res*count*samples;
-	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
-	gbps = samples_sec*8;
+  
+#if LL_DARWIN
+    if (gbps > 512.f)
+    { 
+        LL_INFOS() << "Memory bandwidth is improbably high and likely incorrect." << LL_ENDL;
+        //OSX is probably lying, discard result
+        gbps = -1.f;
+    }
+#endif
 
 	if (gGLManager.mHasTimerQuery)
 	{
+		F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
+		F32 seconds = ms/1000.f;
+
+		F64 samples_drawn = res*res*count*samples;
+		F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
+		gbps = samples_sec*8;
+
 		LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
 	}
 	else
 	{
 		LL_INFOS() << "ARB_timer_query unavailable." << LL_ENDL;
 	}
+
+	return gbps;
 }
 
