@@ -4467,6 +4467,28 @@
       <key>Value</key>
       <string />
     </map>
+    <key>HttpPipelining</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, viewer will attempt to pipeline HTTP requests.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>HttpRangeRequestsDisable</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, viewer will not issue GET requests with 'Range:' headers for meshes and textures.  May resolve problems with certain ISPs and networking gear.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>IMShowTimestamps</key>
     <map>
       <key>Comment</key>
@@ -9489,7 +9511,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>NameTagShowDisplayNames</key>
     <map>

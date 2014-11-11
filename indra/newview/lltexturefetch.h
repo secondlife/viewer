@@ -179,6 +179,9 @@ public:
 	// Threads:  T*
 	LLCore::HttpHeaders * getMetricsHeaders() const	{ return mHttpMetricsHeaders; }
 
+	// Threads:  T*
+	LLCore::HttpRequest::policy_t getMetricsPolicyClass() const { return mHttpMetricsPolicyClass; }
+
 	bool isQAMode() const				{ return mQAMode; }
 
 	// ----------------------------------
@@ -354,9 +357,12 @@ private:
 	LLCore::HttpOptions *				mHttpOptions;					// Ttf
 	LLCore::HttpOptions *				mHttpOptionsWithHeaders;		// Ttf
 	LLCore::HttpHeaders *				mHttpHeaders;					// Ttf
-	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*
-
+	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
+	LLCore::HttpRequest::policy_t		mHttpMetricsPolicyClass;		// T*
+	S32									mHttpHighWater;					// Ttf
+	S32									mHttpLowWater;					// Ttf
+	
 	// We use a resource semaphore to keep HTTP requests in
 	// WAIT_HTTP_RESOURCE2 if there aren't sufficient slots in the
 	// transport.  This keeps them near where they can be cheaply
@@ -364,7 +370,11 @@ private:
 	// where it's more expensive to get at them.  Requests in either
 	// SEND_HTTP_REQ or WAIT_HTTP_REQ charge against the semaphore
 	// and tracking state transitions is critical to liveness.
-	LLAtomicS32							mHttpSemaphore;					// Ttf + Tmain
+	//
+	// Originally implemented as a traditional semaphore (heading towards
+	// zero), it now is an outstanding request count that is allowed to
+	// exceed the high water level (but not go below zero).
+	LLAtomicS32							mHttpSemaphore;					// Ttf
 	
 	typedef std::set<LLUUID> wait_http_res_queue_t;
 	wait_http_res_queue_t				mHttpWaitResource;				// Mfnq

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2001-2013, Linden Research, Inc.
+ * Copyright (C) 2001-2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -203,6 +203,7 @@ extern const std::string HTTP_IN_HEADER_X_FORWARDED_FOR;
 
 extern const std::string HTTP_CONTENT_LLSD_XML;
 extern const std::string HTTP_CONTENT_OCTET_STREAM;
+extern const std::string HTTP_CONTENT_VND_LL_MESH;
 extern const std::string HTTP_CONTENT_XML;
 extern const std::string HTTP_CONTENT_JSON;
 extern const std::string HTTP_CONTENT_TEXT_HTML;
