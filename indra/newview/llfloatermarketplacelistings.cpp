@@ -569,7 +569,7 @@ BOOL LLFloaterAssociateListing::postBuild()
 {
 	getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this, TRUE));
 	getChild<LLButton>("Cancel")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::cancel, this));
-	getChild<LLLineEditor>("listing_id")->setPrevalidate(&LLTextValidate::validatePositiveS32);
+	getChild<LLLineEditor>("listing_id")->setPrevalidate(&LLTextValidate::validateNonNegativeS32);
 	center();
     
 	return LLFloater::postBuild();
