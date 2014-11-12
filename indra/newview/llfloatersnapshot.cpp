@@ -1193,6 +1193,22 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 void LLFloaterSnapshot::onClose(bool app_quitting)
 {
 	getParent()->setMouseOpaque(FALSE);
+
+	//unfreeze everything, hide fullscreen preview
+	LLSnapshotLivePreview* previewp = LLFloaterSnapshot::Impl::getPreviewView(this);
+	if (previewp)
+	{
+		previewp->setVisible(FALSE);
+		previewp->setEnabled(FALSE);
+	}
+
+	gSavedSettings.setBOOL("FreezeTime", FALSE);
+	impl.mAvatarPauseHandles.clear();
+
+	if (impl.mLastToolset)
+	{
+		LLToolMgr::getInstance()->setCurrentToolset(impl.mLastToolset);
+	}
 }
 
 // virtual
