@@ -7955,7 +7955,8 @@ void LLVOAvatar::idleUpdateRenderCost()
 	{
 		std::string render_info_text;
 		F32 worst_ratio = 0.f;
-		F32 red_level, green_level;
+		F32 red_level = 0.f;
+		F32 green_level = 0.f;
 		
 		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
 		render_info_text.append(llformat("%.1f KB%s", mAttachmentGeometryBytes/1024.f,
