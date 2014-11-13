@@ -2040,17 +2040,18 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
 {
-	S32 res = 0;
-	
-	if (pMaterialParams && getTEImage(te) && 3 == getTEImage(te)->getComponents() && pMaterialParams->getDiffuseAlphaMode()) 
+	if(pMaterialParams)
 	{
-		LLViewerObject::setTEMaterialID(te, LLMaterialID::null);
-		res = LLViewerObject::setTEMaterialParams(te, NULL);
+		LLViewerTexture* image = getTEImage(te);
+		LLGLenum image_format = image ? image->getPrimaryFormat() : GL_RGB;
+		LLMaterialPtr current_material = getTEMaterialParams(te);
+		const_cast<LLMaterialPtr&>(pMaterialParams)->setDiffuseAlphaMode(
+			current_material.isNull() ? (GL_RGB == image_format ? LLMaterial::DIFFUSE_ALPHA_MODE_NONE : LLMaterial::DIFFUSE_ALPHA_MODE_BLEND) 
+									  : current_material->getDiffuseAlphaMode()
+		);
 	}
-	else 
-	{
-		res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
-	}
+
+	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
 
 	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterialParams) ? pMaterialParams->asLLSD() : LLSD("null")) << " res " << res
 							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )

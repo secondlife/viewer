@@ -324,6 +324,11 @@ S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMateri
 	return mTextureList.setMaterialParams(index, pMaterialParams);
 }
 
+LLMaterialPtr LLPrimitive::getTEMaterialParams(const U8 index)
+{
+	return mTextureList.getMaterialParams(index);
+}
+
 //===============================================================
 S32  LLPrimitive::setTEBumpShinyFullbright(const U8 index, const U8 bump)
 {
