@@ -5064,6 +5064,34 @@ bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
 //-----------------------------------------------------------------------------
 // resetJointPositionsOnDetach
 //-----------------------------------------------------------------------------
+void LLVOAvatar::resetJointPositionsOnDetach(LLViewerObject *vo)
+{
+	LLVOAvatar *av = vo->getAvatarAncestor();
+	if (!av || (av != this))
+	{
+		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
+	}
+		
+	// Process all children
+	LLViewerObject::const_child_list_t& children = vo->getChildren();
+	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+		 it != children.end(); ++it)
+	{
+		LLViewerObject *childp = *it;
+		resetJointPositionsOnDetach(childp);
+	}
+
+	// Process self.
+	LLUUID mesh_id;
+	if (getRiggedMeshID(vo,mesh_id))
+	{
+		resetJointPositionsOnDetach(mesh_id);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// resetJointPositionsOnDetach
+//-----------------------------------------------------------------------------
 void LLVOAvatar::resetJointPositionsOnDetach(const LLUUID& mesh_id)
 {	
 	//Subsequent joints are relative to pelvis

@@ -1248,9 +1248,11 @@ void LLAgentWearables::userRemoveWearablesOfType(const LLWearableType::EType &ty
 	}
 }
 
-// Combines userRemoveMulipleAttachments() and userAttachMultipleAttachments() logic to
-// get attachments into desired state with minimal number of adds/removes.
-void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array)
+// Given a desired set of attachments, find what objects need to be
+// removed, and what additional inventory items need to be added.
+void LLAgentWearables::findAttachmentsAddRemoveInfo(LLInventoryModel::item_array_t& obj_item_array,
+													llvo_vec_t& objects_to_remove,
+													LLInventoryModel::item_array_t& items_to_add)
 {
 	// Possible cases:
 	// already wearing but not in request set -> take off.
@@ -1269,7 +1271,6 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 	}
 
 	// Build up list of objects to be removed and items currently attached.
-	llvo_vec_t objects_to_remove;
 	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
 		 iter != gAgentAvatarp->mAttachmentPoints.end();)
 	{
@@ -1309,7 +1310,6 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 		}
 	}
 
-	LLInventoryModel::item_array_t items_to_add;
 	for (LLInventoryModel::item_array_t::iterator it = obj_item_array.begin();
 		 it != obj_item_array.end();
 		 ++it)
@@ -1328,6 +1328,17 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 	// S32 remove_count = objects_to_remove.size();
 	// S32 add_count = items_to_add.size();
 	// LL_INFOS() << "remove " << remove_count << " add " << add_count << LL_ENDL;
+}
+
+// Combines userRemoveMulipleAttachments() and userAttachMultipleAttachments() logic to
+// get attachments into desired state with minimal number of adds/removes.
+void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array)
+{
+	llvo_vec_t objects_to_remove;
+	LLInventoryModel::item_array_t items_to_add;
+	findAttachmentsAddRemoveInfo(obj_item_array,
+								 objects_to_remove,
+								 items_to_add);
 
 	// Remove everything in objects_to_remove
 	userRemoveMultipleAttachments(objects_to_remove);
@@ -1353,6 +1364,7 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 		 ++it)
 	{
 		LLViewerObject *objectp = *it;
+		gAgentAvatarp->resetJointPositionsOnDetach(objectp);
 		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
 		gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
 	}

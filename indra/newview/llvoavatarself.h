@@ -86,8 +86,6 @@ public:
 	/*virtual*/ void 		requestStopMotion(LLMotion* motion);
 	/*virtual*/ LLJoint*	getJoint(const std::string &name);
 	
-				void		resetJointPositions( void );
-	
 	/*virtual*/ BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
 	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight);
 	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight);

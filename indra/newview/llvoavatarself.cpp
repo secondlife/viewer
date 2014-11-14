@@ -262,7 +262,7 @@ void LLVOAvatarSelf::markDead()
 {
 	BOOL success = LLVOAvatar::loadAvatar();
 
-	// set all parameters sotred directly in the avatar to have
+	// set all parameters stored directly in the avatar to have
 	// the isSelfParam to be TRUE - this is used to prevent
 	// them from being animated or trigger accidental rebakes
 	// when we copy params from the wearable to the base avatar.

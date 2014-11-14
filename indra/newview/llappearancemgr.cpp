@@ -807,6 +807,20 @@ void LLWearableHoldingPattern::onAllComplete()
 		}
 	}
 
+	LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
+	LLAgentWearables::llvo_vec_t objects_to_remove;
+	LLInventoryModel::item_array_t items_to_add;
+	if (isAgentAvatarValid())
+	{
+		LLAgentWearables::findAttachmentsAddRemoveInfo(mObjItems,
+													   objects_to_remove,
+													   items_to_add);
+
+		LL_DEBUGS("Avatar") << self_av_string() << "Removing " << objects_to_remove.size()
+							<< " attachments" << LL_ENDL;
+		LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
+	}
+
 	// Update wearables.
 	LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " updating agent wearables with " << mResolved << " wearable items " << LL_ENDL;
 	LLAppearanceMgr::instance().updateAgentWearables(this);
@@ -814,8 +828,8 @@ void LLWearableHoldingPattern::onAllComplete()
 	// Update attachments to match those requested.
 	if (isAgentAvatarValid())
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
-		LLAgentWearables::userUpdateAttachments(mObjItems);
+		LL_DEBUGS("Avatar") << self_av_string() << "Adding " << items_to_add.size() << " attachments" << LL_ENDL;
+		LLAgentWearables::userAttachMultipleAttachments(items_to_add);
 	}
 
 	if (isFetchCompleted() && isMissingCompleted())
