@@ -718,13 +718,8 @@ void LLVOAvatarSelf::updateVisualParams()
 	LLVOAvatar::updateVisualParams();
 }
 
-/*virtual*/
-void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
+void LLVOAvatarSelf::writeWearablesToAvatar()
 {
-	// Animate all top-level wearable visual parameters
-	gAgentWearables.animateAllWearableParams(calcMorphAmount());
-
-	// apply wearable visual params to avatar
 	for (U32 type = 0; type < LLWearableType::WT_COUNT; type++)
 	{
 		LLWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);
@@ -733,6 +728,17 @@ void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 			wearable->writeToAvatar(this);
 		}
 	}
+
+}
+
+/*virtual*/
+void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
+{
+	// Animate all top-level wearable visual parameters
+	gAgentWearables.animateAllWearableParams(calcMorphAmount());
+
+	// Apply wearable visual params to avatar
+	writeWearablesToAvatar();
 
 	//allow avatar to process updates
 	LLVOAvatar::idleUpdateAppearanceAnimation();

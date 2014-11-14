@@ -283,12 +283,23 @@ const LLVector3& LLJoint::getPosition()
 	return mXform.getPosition();
 }
 
+bool do_debug_joint(const std::string& name)
+{
+	return true;
+}
 
 //--------------------------------------------------------------------
 // setPosition()
 //--------------------------------------------------------------------
 void LLJoint::setPosition( const LLVector3& pos )
 {
+	if (pos != getPosition())
+	{
+		if (do_debug_joint(getName()))
+		{
+			LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
+		}
+	}
 	mXform.setPosition(pos);
 	touch(MATRIX_DIRTY | POSITION_DIRTY);
 }
@@ -312,11 +323,17 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
 	}
 	if (!m_attachmentOverrides.count())
 	{
-		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
+		if (do_debug_joint(getName()))
+		{
+			LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
+		}
 		m_posBeforeOverrides = getPosition();
 	}
 	m_attachmentOverrides.add(mesh_id,pos);
-	LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentPosOverride for mesh " << mesh_id << " pos " << pos << LL_ENDL;
+	if (do_debug_joint(getName()))
+	{
+		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentPosOverride for mesh " << mesh_id << " pos " << pos << LL_ENDL;
+	}
 	updatePos(av_info);
 }
 
@@ -331,9 +348,12 @@ void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::str
 	}
 	if (m_attachmentOverrides.remove(mesh_id))
 	{
-		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
-							<< " removeAttachmentPosOverride for " << mesh_id << LL_ENDL;
-		showJointPosOverrides(*this, "remove", av_info);
+		if (do_debug_joint(getName()))
+		{
+			LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
+								<< " removeAttachmentPosOverride for " << mesh_id << LL_ENDL;
+			showJointPosOverrides(*this, "remove", av_info);
+		}
 		updatePos(av_info);
 	}
 

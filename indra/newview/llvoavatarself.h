@@ -90,6 +90,7 @@ public:
 	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight);
 	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight);
 	/*virtual*/ void updateVisualParams();
+	void writeWearablesToAvatar();
 	/*virtual*/ void idleUpdateAppearanceAnimation();
 
 private:

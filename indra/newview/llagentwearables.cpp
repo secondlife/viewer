@@ -1088,7 +1088,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
-		gAgentAvatarp->updateVisualParams();
 
 		// If we have not yet declouded, we may want to use
 		// baked texture UUIDs sent from the first objectUpdate message
@@ -1105,6 +1104,12 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	mWearablesLoaded = TRUE; 
 
 	notifyLoadingFinished();
+
+	// Have to copy wearable params to avatar
+	gAgentAvatarp->writeWearablesToAvatar();
+
+	// ... before this will do anything.
+	gAgentAvatarp->updateVisualParams();
 
 	gAgentAvatarp->dumpAvatarTEs("setWearableOutfit");
 
