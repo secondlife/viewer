@@ -266,9 +266,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>40b1c6b3727ebedafc2f1a172797ccd1</string>
+              <string>37403a72882f9db3cda5bef4940bebba</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/295367/arch/Darwin/installer/curl-7.38.0-darwin-20141010.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/296787/arch/Darwin/installer/curl-7.38.0.296787-darwin-296787.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -278,9 +278,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>06149da3d7a34adf40853f813ae55328</string>
+              <string>d5328fae9c50e6cd6e0163d14c975815</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/295367/arch/Linux/installer/curl-7.38.0-linux-20141010.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/296787/arch/Linux/installer/curl-7.38.0.296787-linux-296787.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -290,16 +290,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e4280eae792a5f13bc9d01d8cfb7c557</string>
+              <string>642d6a95b7b7725f6daac73f128eac34</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/295367/arch/CYGWIN/installer/curl-7.38.0-windows-20141010.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/296787/arch/CYGWIN/installer/curl-7.38.0.296787-windows-296787.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.37.0.295245</string>
+        <string>7.38.0.296787</string>
       </map>
       <key>db</key>
       <map>
