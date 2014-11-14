@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# This is a the master build script - it is intended to be run by parabuild
+# This is a the master build script - it is intended to be run by the Linden
+# Lab build farm
 # It is called by a wrapper script in the shared repository which sets up
 # the environment from the various BuildParams files and does all the build 
 # result post-processing.
@@ -12,8 +13,6 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 # * This script relies heavily on parameters defined in BuildParams
-# * The basic convention is that the build name can be mapped onto a mercurial URL,
-#   which is also used as the "branch" name.
 
 check_for()
 {
@@ -125,9 +124,15 @@ package_llphysicsextensions_tpv()
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$AUTOBUILD" package --verbose --config-file $llpetpvcfg > $PKGTMP
+      "$AUTOBUILD" package --verbose --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
       tpv_status=$?
-      sed -n -e 's/^wrote *//p' $PKGTMP > $build_dir/llphysicsextensions_package
+      if [ -r "${PKGTMP}" ]
+      then
+          cat "${PKGTMP}" >> "$build_log"
+          eval $(cat "${PKGTMP}") # sets autobuild_package_{name,filename,md5}
+          autobuild_package_filename="$(shell_path "${autobuild_package_filename}")"
+          echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
+      fi
   else
       echo "Do not provide llphysicsextensions_tpv for $variant"
       llphysicsextensions_package=""
@@ -172,11 +177,17 @@ build()
 # This is called from the branch independent script upon completion of all platform builds.
 build_docs()
 {
-  begin_section Docs
-  # Stub code to generate docs
-  echo Hello world  > documentation.txt
-  upload_item docs documentation.txt text/plain
-  end_section Docs
+  begin_section "Building Documentation"
+  begin_section "Autobuild metadata"
+  if [ -r "$build_dir/autobuild-package.xml" ]
+  then
+      upload_item docs "$build_dir/autobuild-package.xml" text/xml
+  else
+      record_event "no metadata at '$build_dir/autobuild-package.xml'"
+  fi
+  end_section "Autobuild metadata"
+  record_dependencies_graph # defined in build.sh
+  end_section "Building Documentation"
 }
 
 
@@ -226,7 +237,9 @@ fi
 eval "$("$AUTOBUILD" source_environment)"
 
 # dump environment variables for debugging
+begin_section "Environment"
 env|sort
+end_section "Environment"
 
 # Now run the build
 succeeded=true
@@ -275,6 +288,8 @@ do
   fi
   end_section "Do$variant"
 done
+
+build_docs
 
 # If we are building variants in parallel, wait, then collect results.
 # This requires that the build dirs are variant specific
@@ -374,7 +389,6 @@ then
     echo skipping debian build due to failed build.
   fi
 fi
-
 
 # check status and upload results to S3
 if $succeeded

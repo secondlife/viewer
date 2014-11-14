@@ -78,10 +78,8 @@
 #include "llvocache.h"
 #include "llmaterialmgr.h"
 
-const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-const F32 MAX_LOD_DISTANCE = 24.f;
 U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 20;
 
 BOOL gAnimateTextures = TRUE;

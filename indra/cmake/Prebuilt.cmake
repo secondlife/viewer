@@ -33,13 +33,11 @@ macro (use_prebuilt_binary _binary)
       if(DEBUG_PREBUILT)
         message("cd ${CMAKE_SOURCE_DIR} && ${AUTOBUILD_EXECUTABLE} install
         --install-dir=${AUTOBUILD_INSTALL_DIR}
-        --skip-license-check
         ${_binary} ")
       endif(DEBUG_PREBUILT)
       execute_process(COMMAND "${AUTOBUILD_EXECUTABLE}"
         install
         --install-dir=${AUTOBUILD_INSTALL_DIR}
-        --skip-license-check
         ${_binary}
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
         RESULT_VARIABLE ${_binary}_installed

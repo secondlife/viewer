@@ -117,7 +117,6 @@ protected:
 
 
 S32 LLFloaterPay::sLastAmount = 0;
-const S32 MAX_AMOUNT_LENGTH = 10;
 const S32 FASTPAY_BUTTON_WIDTH = 80;
 
 LLFloaterPay::LLFloaterPay(const LLSD& key)

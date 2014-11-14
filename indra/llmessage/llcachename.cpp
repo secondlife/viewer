@@ -51,9 +51,6 @@ static const std::string NAME("name");
 // We won't re-request a name during this time
 const U32 PENDING_TIMEOUT_SECS = 5 * 60;
 
-// File version number
-const S32 CN_FILE_VERSION = 2;
-
 // Globals
 LLCacheName* gCacheName = NULL;
 std::map<std::string, std::string> LLCacheName::sCacheName;

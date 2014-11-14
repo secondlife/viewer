@@ -43,8 +43,6 @@
 #include "llresmgr.h"
 #include "lluictrlfactory.h"
 
-const U32 MAX_STRING_LENGTH = 10;
-
 static LLDefaultChildRegistry::Register<LLSliderCtrl> r("slider");
 
 LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)

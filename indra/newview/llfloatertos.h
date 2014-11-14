@@ -62,7 +62,6 @@ public:
 private:
 
 	std::string		mMessage;
-	int				mWebBrowserWindowId;
 	bool			mLoadingScreenLoaded;
 	bool			mSiteAlive;
 	bool			mRealNavigateBegun;

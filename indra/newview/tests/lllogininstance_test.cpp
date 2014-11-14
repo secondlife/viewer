@@ -488,7 +488,7 @@ namespace tut
     template<> template<>
     void lllogininstance_object::test<3>()
     {
-		skip();
+		skip("test fails with Xcode 6, skipping");
 		
 		set_test_name("Test Mandatory Update User Accepts");
 
@@ -517,7 +517,7 @@ namespace tut
 	template<> template<>
     void lllogininstance_object::test<4>()
     {
-		skip();
+		skip("test fails with Xcode 6, skipping");
 		
 		set_test_name("Test Mandatory Update User Decline");
 

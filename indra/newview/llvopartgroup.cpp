@@ -44,8 +44,6 @@
 #include "pipeline.h"
 #include "llspatialpartition.h"
 
-const F32 MAX_PART_LIFETIME = 120.f;
-
 extern U64MicrosecondsImplicit gFrameTime;
 
 LLPointer<LLVertexBuffer> LLVOPartGroup::sVB = NULL;

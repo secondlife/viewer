@@ -1298,7 +1298,7 @@ set(viewer_HEADER_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-# the viewer_version.txt file created here is for passing to viewer_manifest
+# the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
 # the summary.json file is created for the benefit of the TeamCity builds, where
 #   it is used to provide descriptive information to the build results page
 add_custom_target(generate_viewer_version ALL
@@ -1663,6 +1663,9 @@ if (WINDOWS)
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
         LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
+
+    add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
+
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
             ${VIEWER_BINARY_NAME}
@@ -1798,7 +1801,6 @@ if (WINDOWS)
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-        generate_viewer_version
         stage_third_party_libs
         ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
@@ -1870,10 +1872,9 @@ if (WINDOWS)
             ${COPY_INPUT_DEPENDENCIES}
         )
 
-      add_custom_target(package ALL DEPENDS
+      add_custom_target(llpackage ALL DEPENDS
         ${CMAKE_CFG_INTDIR}/touched.bat
         windows-setup-build-all
-        generate_viewer_version
         )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
@@ -1988,6 +1989,8 @@ if (LINUX)
     llcommon
     )
 
+  add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
+
   add_custom_command(
       OUTPUT ${product}.tar.bz2
       COMMAND ${PYTHON_EXECUTABLE}
@@ -2006,7 +2009,6 @@ if (LINUX)
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-        generate_viewer_version
         ${COPY_INPUT_DEPENDENCIES}
       )
 
@@ -2031,7 +2033,6 @@ if (LINUX)
       --source=${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      generate_viewer_version
       ${COPY_INPUT_DEPENDENCIES}
     COMMENT "Performing viewer_manifest copy"
     )
@@ -2039,10 +2040,10 @@ if (LINUX)
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
   if (PACKAGE)
-    add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
+    add_custom_target(llpackage ALL DEPENDS ${product}.tar.bz2)
     # Make sure we don't run two instances of viewer_manifest.py at the same time.
-    add_dependencies(package copy_l_viewer_manifest)
-    check_message_template(package)
+    add_dependencies(llpackage copy_l_viewer_manifest)
+    check_message_template(llpackage)
   endif (PACKAGE)
 endif (LINUX)
 
@@ -2073,6 +2074,8 @@ if (DARWIN)
      "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Info.plist"
     )
 
+  add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
+
   add_custom_command(
     TARGET ${VIEWER_BINARY_NAME} POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE}
@@ -2092,7 +2095,6 @@ if (DARWIN)
     DEPENDS
       ${VIEWER_BINARY_NAME}
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      generate_viewer_version
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit mac-crash-logger)
@@ -2104,11 +2106,11 @@ if (DARWIN)
   endif (ENABLE_SIGNING)
 
   if (PACKAGE)
-      add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME})
-      add_dependencies(package generate_viewer_version)
+      add_custom_target(llpackage ALL DEPENDS ${VIEWER_BINARY_NAME})
+      add_dependencies(llpackage generate_viewer_version)
 
       add_custom_command(
-        TARGET package POST_BUILD
+        TARGET llpackage POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -2127,7 +2129,6 @@ if (DARWIN)
           ${SIGNING_SETTING}
         DEPENDS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-          generate_viewer_version
       )
   endif (PACKAGE)
 endif (DARWIN)
@@ -2190,7 +2191,7 @@ if (PACKAGE)
 
   add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
   add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
-  add_dependencies(package generate_breakpad_symbols)
+  add_dependencies(llpackage generate_breakpad_symbols)
   endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
 endif (PACKAGE)
 

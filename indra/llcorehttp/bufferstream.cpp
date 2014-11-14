@@ -257,8 +257,6 @@ std::streampos BufferArrayStreamBuf::seekoff(std::streamoff off,
 			return ret;
 		}
 
-		if (pos < 0)
-			return ret;
 		if (pos > mBufferArray->size())
 		{
 			pos = mBufferArray->size();

@@ -107,8 +107,6 @@ const F32 FLEXIBLE_OBJECT_DEFAULT_LENGTH = 1.0f;
 const BOOL FLEXIBLE_OBJECT_DEFAULT_USING_COLLISION_SPHERE = FALSE;
 const BOOL FLEXIBLE_OBJECT_DEFAULT_RENDERING_COLLISION_SPHERE = FALSE;
 
-const S32 MAX_FACE_BITS = 9;
-
 const char *SCULPT_DEFAULT_TEXTURE = "be293869-d0d9-0a69-5989-ad27f1946fd4"; // old inverted texture: "7595d345-a24c-e7ef-f0bd-78793792133e";
 
 // Texture rotations are sent over the wire as a S16.  This is used to scale the actual float
@@ -993,8 +991,6 @@ BOOL LLPrimitive::setMaterial(U8 material)
 	}
 }
 
-const F32 LL_MAX_SCALE_S = 100.0f;
-const F32 LL_MAX_SCALE_T = 100.0f;
 S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const
 {
 	S32 face_index;

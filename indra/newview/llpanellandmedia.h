@@ -59,12 +59,10 @@ private:
 	LLButton*		mSetURLButton;
 	LLSpinCtrl*		mMediaHeightCtrl;
 	LLSpinCtrl*		mMediaWidthCtrl;
-	LLTextBox*		mMediaResetCtrlLabel;
 	LLTextBox*		mMediaSizeCtrlLabel;
 	LLTextureCtrl*	mMediaTextureCtrl;
 	LLCheckBoxCtrl*	mMediaAutoScaleCheck;
 	LLCheckBoxCtrl*	mMediaLoopCheck;
-	LLCheckBoxCtrl* mMediaUrlCheck;
 	LLHandle<LLFloater>	mURLEntryFloater;
 
 

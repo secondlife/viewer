@@ -30,7 +30,6 @@
 #include "llline.h"
 #include "llrand.h"
 
-const F32 SOME_SMALL_NUMBER = 1.0e-5f;
 const F32 SOME_VERY_SMALL_NUMBER = 1.0e-8f;
 
 LLLine::LLLine()

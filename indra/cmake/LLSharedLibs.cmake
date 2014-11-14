@@ -1,7 +1,7 @@
 # ll_deploy_sharedlibs_command
 # target_exe: the cmake target of the executable for which the shared libs will be deployed.
 macro(ll_deploy_sharedlibs_command target_exe) 
-  get_target_property(TARGET_LOCATION ${target_exe} LOCATION)
+  set(TARGET_LOCATION $<TARGET_FILE:${target_exe}>)
   get_filename_component(OUTPUT_PATH ${TARGET_LOCATION} PATH)
   
   if(DARWIN)

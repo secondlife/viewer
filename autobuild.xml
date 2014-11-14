@@ -3,56 +3,12 @@
 <map>
     <key>installables</key>
     <map>
-      <key>GLOD</key>
-      <map>
-        <key>license</key>
-        <string>GLOD</string>
-        <key>license_file</key>
-        <string>LICENSES/glod.txt</string>
-        <key>name</key>
-        <string>GLOD</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e6071abd822c0688390382a26f8a782c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/267984/arch/Darwin/installer/glod-1.0pre4-darwin-20121211.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>176736c52b3cde6ca8e7d9e173d91731</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/268002/arch/Linux/installer/glod-1.0pre4-linux-20121212.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>842208365f5b108dac4c7c733b99da9c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/232684/arch/CYGWIN/installer/glod-1.0pre4-windows-20110610.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>SDL</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1997-2012 Sam Lantinga</string>
+        <key>description</key>
+        <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
@@ -66,17 +22,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8da309d24fb0bad8eaaa667fb04c6dc7</string>
+              <string>5b191ad9d96627a0bb5b90377563e29b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-sdl-update/rev/290561/arch/Linux/installer/SDL-1.2.15-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/sdl_3p-update-sdl/rev/295310/arch/Linux/installer/SDL-1.2.15-linux-295310.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.2.15</string>
       </map>
       <key>apr_suite</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright © 2012 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</string>
+        <key>description</key>
+        <string>Apache portable runtime project</string>
         <key>license</key>
         <string>apache</string>
         <key>license_file</key>
@@ -90,9 +52,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2dfcd809e747f714b3fe0bf82a175812</string>
+              <string>9a4b02734c5d0648d3d683cb1dc014cc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/259951/arch/Darwin/installer/apr_suite-1.4.5-darwin-20120618.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/apr_3p-update-apr/rev/295252/arch/Darwin/installer/apr_suite-1.4.5.295252-darwin-295252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -122,9 +84,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.4.5.295252</string>
       </map>
       <key>ares</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 1998 by the Massachusetts Institute of Technology.</string>
+        <key>description</key>
+        <string>C-ares, an asynchronous resolver library.</string>
         <key>license</key>
         <string>c-ares</string>
         <key>license_file</key>
@@ -138,9 +106,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>127c6c37726b11a0750cd4d3b920beff</string>
+              <string>e7f3f98ea32e9b1a38658903915860b6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-ares-update/rev/290399/arch/Darwin/installer/ares-1.10.0-darwin-20140529.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295020/arch/Darwin/installer/ares-1.10.0.295020-darwin-295020.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -170,11 +138,17 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.10.0.295020</string>
       </map>
       <key>boost</key>
       <map>
+        <key>copyright</key>
+        <string>(see individual source files)</string>
+        <key>description</key>
+        <string>Boost C++ Libraries</string>
         <key>license</key>
-        <string>boost</string>
+        <string>boost 1.0</string>
         <key>license_file</key>
         <string>LICENSES/boost.txt</string>
         <key>name</key>
@@ -186,9 +160,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b57789bd22dd166aade4a35ec5d36fbb</string>
+              <string>a8252cb5f0eae61ada2f02163e67b752</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/290566/arch/Darwin/installer/boost-1.55.0-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/295616/arch/Darwin/installer/boost-1.56-darwin-295616.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -218,11 +192,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.56</string>
       </map>
       <key>colladadom</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
         <key>license</key>
-        <string>scea</string>
+        <string>SCEA</string>
         <key>license_file</key>
         <string>LICENSES/collada.txt</string>
         <key>name</key>
@@ -234,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>68dc13f49a686331df6f0128c5483da3</string>
+              <string>7e64506a22e23ed9d677643d12fad2a9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-colladadom-update/rev/290576/arch/Darwin/installer/colladadom-2.3-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/295634/arch/Darwin/installer/colladadom-2.3.295634-darwin-295634.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -266,9 +244,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2.3.295634</string>
       </map>
       <key>curl</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1996 - 2014, Daniel Stenberg, (daniel@haxx.se).</string>
+        <key>description</key>
+        <string>Library for transferring data specified with URL syntax</string>
         <key>license</key>
         <string>curl</string>
         <key>license_file</key>
@@ -314,6 +298,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>7.37.0.295245</string>
       </map>
       <key>db</key>
       <map>
@@ -339,14 +325,18 @@
           </map>
         </map>
       </map>
-      <key>dbusglib</key>
+      <key>dbus_glib</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) Red Hat Inc.</string>
+        <key>description</key>
+        <string>D-Bus bindings for glib</string>
         <key>license</key>
-        <string>AFL2.1</string>
+        <string>Academic Free License v. 2.1</string>
         <key>license_file</key>
         <string>LICENSES/dbus-glib.txt</string>
         <key>name</key>
-        <string>dbusglib</string>
+        <string>dbus_glib</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -354,33 +344,51 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>94b058b9a81114dc4567bd78e4335425</string>
+              <string>ad78620ba44f01e6284e575dbcc4f53a</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbus_glib-0.76-linux-20110310.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/294910/arch/Linux/installer/dbus_glib-0.76-linux-294910.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.76</string>
       </map>
       <key>dictionaries</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2014 Apache OpenOffice software</string>
+        <key>description</key>
+        <string>Spell checking dictionaries to bundled into the viewer</string>
         <key>license</key>
-        <string>various open</string>
+        <string>various open source</string>
         <key>license_file</key>
         <string>LICENSES/dictionaries.txt</string>
         <key>name</key>
         <string>dictionaries</string>
         <key>platforms</key>
         <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>1f300f7b8600a18cd4c958841bfa2a95</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-dictionaries/rev/292421/arch/Linux/installer/dictionaries-1-common-292421.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
           <key>darwin</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>06a6c49eb1873e95623d3d2d07aee903</string>
+              <string>8020ed54e8fa847566ad79f01cd3b5c7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Darwin/installer/dictionaries-1-darwin-20120616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dictionaries_3p-update-dictionaries/rev/295026/arch/Darwin/installer/dictionaries-1.295026-darwin-295026.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -390,26 +398,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4f0ca21d27e0cd0b002149062b0a4b25</string>
+              <string>ef326a36094238ce4ccfb0af69d2876f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/Linux/installer/dictionaries-1-linux-20120616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dictionaries_3p-update-dictionaries/rev/295189/arch/Linux/installer/dictionaries-1.295189-linux-295189.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7520d75f6af325328322201c888191d4</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-dictionaries/rev/259873/arch/CYGWIN/installer/dictionaries-1-windows-20120616.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
         </map>
+        <key>version</key>
+        <string>1.295189</string>
       </map>
       <key>elfio</key>
       <map>
@@ -437,8 +435,12 @@
       </map>
       <key>expat</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper - Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Expat maintainers.</string>
+        <key>description</key>
+        <string>Expat is an XML parser library written in C</string>
         <key>license</key>
-        <string>mit</string>
+        <string>expat</string>
         <key>license_file</key>
         <string>LICENSES/expat.txt</string>
         <key>name</key>
@@ -450,9 +452,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>180e03d0be1f1acfc3244e78742d7bef</string>
+              <string>96ab90f72ba55842e7a19bd2573e875d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Darwin/installer/expat-2.0.1-darwin-20110218.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/295018/arch/Darwin/installer/expat-2.0.1.295018-darwin-295018.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -462,9 +464,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9bd79781b58e556ab1c36084ec4a1c0c</string>
+              <string>1ed2b8d927659b331951f2a7bf1c4d73</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Linux/installer/expat-2.0.1-linux-20110219.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/295191/arch/Linux/installer/expat-2.0.1.295191-linux-295191.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -482,9 +484,13 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2.0.1.295191</string>
       </map>
       <key>fmodex</key>
       <map>
+        <key>copyright</key>
+        <string>COPYRIGHT 2014 FIRELIGHT TECHNOLOGIES PTY LTD. ALL RIGHTS RESERVED</string>
         <key>license</key>
         <string>fmodex</string>
         <key>license_file</key>
@@ -498,9 +504,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>862b9244ed8a27bec16b62883fe3580a</string>
+              <string>fdd524bd208787a932df5e05af387afe</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288122/arch/Darwin/installer/fmodex-4.44.31-darwin-20140314.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/fmodex_3p-update-fmodex/rev/295607/arch/Darwin/installer/fmodex-4.44.31.295607-darwin-295607.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -530,6 +536,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>4.44.31.295607</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -581,8 +589,12 @@
       </map>
       <key>freetype</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
+        <key>description</key>
+        <string>Font rendering library</string>
         <key>license</key>
-        <string>freetype</string>
+        <string>FreeType</string>
         <key>license_file</key>
         <string>LICENSES/freetype.txt</string>
         <key>name</key>
@@ -594,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71c8d80de052f0c2a49e4c7ddf1a56a0</string>
+              <string>3994d486207118a7683a255677c20ed0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-freetype-update/rev/290557/arch/Darwin/installer/freetype-2.4.4-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freetype_3p-update-freetype/rev/295248/arch/Darwin/installer/freetype-2.4.4.295248-darwin-295248.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -626,6 +638,8 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2.4.4.295248</string>
       </map>
       <key>glext</key>
       <map>
@@ -663,14 +677,18 @@
           </map>
         </map>
       </map>
-      <key>glh_linear</key>
+      <key>glh-linear</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2000 Cass Everitt</string>
+        <key>description</key>
+        <string>glh - is a platform-indepenedent C++ OpenGL helper library </string>
         <key>license</key>
-        <string>glh_linear</string>
+        <string>	Copyright (c) 2000 NVIDIA CorporationMIT</string>
         <key>license_file</key>
         <string>LICENSES/glh_linear.txt</string>
         <key>name</key>
-        <string>glh_linear</string>
+        <string>glh-linear</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -678,9 +696,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>366f940f2634b0e05954646927620bfd</string>
+              <string>f08e99dc09c0a0eedc8ba629ab7b04fc</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-darwin-20101004.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/295212/arch/Darwin/installer/glh_linear-0.0.0-darwin-295212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -690,9 +710,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1b1f1e9975e3a671c9faf32fcf4b6d43</string>
+              <string>2884f66f3535f3a8c33b0d9d5a7131db</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glh_linear/rev/263308/arch/Linux/installer/glh_linear-0.0.0-linux-20120810.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/295212/arch/Linux/installer/glh_linear-0.0.0-linux-295212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -702,19 +724,85 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>57f8be28bbaa2505ae3b59deb2c77cdf</string>
+              <string>22f347d243ed587e2b5e7d5329eaadb0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glh_linear-windows-20101011.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/295212/arch/CYGWIN/installer/glh_linear-0.0.0-windows-295212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.0.0</string>
+      </map>
+      <key>glod</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2003 Jonathan Cohen, Nat Duca, David Luebke, Brenden Schubert - Johns Hopkins University and University of Virginia</string>
+        <key>license</key>
+        <string>GLOD Open-Source License   Version 1.0</string>
+        <key>license_file</key>
+        <string>LICENSES/GLOD.txt</string>
+        <key>name</key>
+        <string>glod</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7de84f8270c99efd395220cf5e68cbf2</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glod_3p-update-glod/rev/295029/arch/Darwin/installer/glod-1.0pre4.295029-darwin-295029.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>04ba9cfdbf384a33a7527d8287213e4a</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glod_3p-update-glod/rev/295198/arch/Linux/installer/glod-1.0pre4.295198-linux-295198.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>22fb3b3dcd433792e20ceada808ba54f</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glod/rev/292477/arch/CYGWIN/installer/glod-1.0pre4-windows-292477.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0pre4.295198</string>
       </map>
       <key>glui</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2006 Paul Rademacher</string>
+        <key>description</key>
+        <string>GLUI is a GLUT-based C++ user interface library which provides controls such as buttons, checkboxes, radio buttons, and spinners to OpenGL applications.</string>
         <key>license</key>
-        <string>lgpl</string>
+        <string>ZLIB</string>
         <key>license_file</key>
         <string>LICENSES/glui.txt</string>
         <key>name</key>
@@ -726,12 +814,24 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bd2f84ef8bd308570e2e532a371dc2ef</string>
+              <string>dd31e1e9fa43ccb5f3dea5e816799cf4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-darwin-20110309.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glui_3p-update-glui/rev/295841/arch/Darwin/installer/glui-2.36.295841-darwin-295841.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ce746c9d80802127c7a14ee89ea6d5bc</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glui/rev/292474/arch/Linux/installer/glui-2.36-linux-292474.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
           </map>
           <key>windows</key>
           <map>
@@ -746,57 +846,15 @@
             <string>windows</string>
           </map>
         </map>
-      </map>
-      <key>gmock</key>
-      <map>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/gmock.txt</string>
-        <key>name</key>
-        <string>gmock</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>36b0ea1a8be38f5749a7b13536b871ab</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/Darwin/installer/gmock-1.7.0-darwin-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3de99704847b34c7acccf5ab87222f6c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/Linux/installer/gmock-1.7.0-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>5d91c1d03780aa26bcd5481145ee9e86</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/CYGWIN/installer/gmock-1.7.0-windows-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
+        <key>version</key>
+        <string>2.36.295841</string>
       </map>
       <key>google_breakpad</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2006, Google Inc.</string>
+        <key>description</key>
+        <string>Breakpad is a crossplatform library for capturing crash callstacks and runtime data.</string>
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
@@ -810,9 +868,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aff5566e04003de0383941981198e04e</string>
+              <string>c8ef73a589aa0023ecca876346f216df</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273073/arch/Darwin/installer/google_breakpad-0.0.0-rev1099-darwin-20130329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/296779/arch/Darwin/installer/google_breakpad-1398.296779-darwin-296779.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -842,17 +900,89 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1332.294995</string>
+      </map>
+      <key>googlemock</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2008, Google Inc.</string>
+        <key>description</key>
+        <string>a library for writing and using C++ mock classes</string>
+        <key>license</key>
+        <string>BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/gmock.txt</string>
+        <key>name</key>
+        <string>googlemock</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0b7abee7091e958ee21ccbd1650d8641</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/295633/arch/Darwin/installer/googlemock-1.7.0.295633-darwin-295633.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3de99704847b34c7acccf5ab87222f6c</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/Linux/installer/gmock-1.7.0-linux-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5d91c1d03780aa26bcd5481145ee9e86</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/CYGWIN/installer/gmock-1.7.0-windows-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.7.0.295633</string>
       </map>
       <key>gperftools</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2005, Google Inc.</string>
+        <key>description</key>
+        <string>Fast, multi-threaded malloc() and nifty performance analysis tools</string>
         <key>license</key>
-        <string>bsd</string>
+        <string>BSD</string>
         <key>license_file</key>
         <string>LICENSES/gperftools.txt</string>
         <key>name</key>
         <string>gperftools</string>
         <key>platforms</key>
         <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>35ff78da0366ba0452315133ba555f40</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-perftools_3p-update-google-perftools/rev/295031/arch/Darwin/installer/gperftools-2.0.295031-darwin-295031.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
@@ -878,11 +1008,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2.0.295031</string>
       </map>
       <key>gstreamer</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;</string>
         <key>license</key>
-        <string>lgpl</string>
+        <string>LGPL</string>
         <key>license_file</key>
         <string>LICENSES/gstreamer.txt</string>
         <key>name</key>
@@ -894,17 +1028,21 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ddbc0a64ad788107877fee777403592c</string>
+              <string>fb1479533a7699b44d34e3a550037eb7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gstreamer-linux-20101013.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/gstreamer_3p-update-gstreamer/rev/294903/arch/Linux/installer/gstreamer-0.10.6.294903-linux-294903.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.10.6.294903</string>
       </map>
       <key>gtk-atk-pango-glib</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (various, see sources)</string>
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
@@ -918,9 +1056,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>03694ade27f53199229c03cbbda89214</string>
+              <string>15af375116f5c943ea6f4190bc764224</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-linux-20101001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/gtk_3p-gtk-atk-pango-glib/rev/294804/arch/Linux/installer/gtk_atk_pango_glib-0.1-linux-294804.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -930,19 +1068,27 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c257d718abdde8cfe8a0af26175161a7</string>
+              <string>ff3ae04f176624e3f763b3e6471586d0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-windows-20101001a.tar.bz2</string>
+              <string>ttp://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-gtk-atk-pango-glib/rev/289881/arch/CYGWIN/installer/gtk_atk_pango_glib-0.0-windows-289881.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.0</string>
       </map>
       <key>havok-source</key>
       <map>
+        <key>copyright</key>
+        <string>The Havok software (the "Software") and the accompanying documentation (the "Documentation") supplied (collectively, the "Product") are protected by United States, Irish and international copyright laws, and the copyrights and other intellectual property rights are owned by Telekinesys Research Limited (trading as Havok) Third Floor, 6 Suffolk Street, Dublin 2, Ireland.</string>
+        <key>description</key>
+        <string>Havok source code for libs and demos</string>
         <key>license</key>
-        <string>havok-ares</string>
+        <string>havok</string>
         <key>license_file</key>
         <string>LICENSES/havok.txt</string>
         <key>name</key>
@@ -954,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e6feee3b452c2f70ce8558e30d6bc10a</string>
+              <string>04e7b4982cdd3b89c856978f81a8fdbf</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/lindenlab_3p-havok-source/rev/268409/arch/Darwin/installer/havok_source-2012.1-darwin-20121219.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/295468/arch/Darwin/installer/havok_source-2012.1-darwin-295468.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -986,9 +1132,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2012.1</string>
       </map>
       <key>jpeglib</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1991-2011, Thomas G. Lane, Guido Vollbeding.</string>
+        <key>description</key>
+        <string>JPEG encoding, decoding library</string>
         <key>license</key>
         <string>jpeglib</string>
         <key>license_file</key>
@@ -1002,9 +1154,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71bd6efbf508e1f2e7d98a6195a93e9e</string>
+              <string>612ae26d3a644ec68c99cd2fefb5a36c</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-8c-darwin-20110228.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/295876/arch/Darwin/installer/jpeglib-8c.295876-darwin-295876.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1034,11 +1186,17 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>8c.295876</string>
       </map>
       <key>jsoncpp</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2007-2010 Baptiste Lepilleur</string>
+        <key>description</key>
+        <string>jsoncpp is an implementation of a JSON (http://json.org) reader and writer in C++.</string>
         <key>license</key>
-        <string>jsoncpp</string>
+        <string>public domain</string>
         <key>license_file</key>
         <string>LICENSES/jsoncpp.txt</string>
         <key>name</key>
@@ -1050,9 +1208,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de8b96120c274e052abb4f692861be46</string>
+              <string>4087d30bdbe760a8e35e580ce0a67a64</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-darwin-20110131.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/295605/arch/Darwin/installer/jsoncpp-0.5.0-darwin-295605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1082,11 +1240,17 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.5.0</string>
       </map>
       <key>kdu</key>
       <map>
+        <key>copyright</key>
+        <string>Kakadu software</string>
+        <key>description</key>
+        <string>JPEG2000 library by Kakadu</string>
         <key>license</key>
-        <string>kdu</string>
+        <string>Kakadu</string>
         <key>license_file</key>
         <string>LICENSES/kdu.txt</string>
         <key>name</key>
@@ -1098,9 +1262,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a5b2dff0d97b643227a58473e5c57906</string>
+              <string>d76dece7c914d786719e5faf76e796f7</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256978/arch/Darwin/installer/kdu-7.0.0-darwin-20120515.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/295789/arch/Darwin/installer/kdu-7.2.295789-darwin-295789.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1130,11 +1294,17 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>7.2.295789</string>
       </map>
       <key>libhunspell</key>
       <map>
+        <key>copyright</key>
+        <string>See hunspell.txt</string>
+        <key>description</key>
+        <string>Spell checking library</string>
         <key>license</key>
-        <string>libhunspell</string>
+        <string>LGPL</string>
         <key>license_file</key>
         <string>LICENSES/hunspell.txt</string>
         <key>name</key>
@@ -1146,9 +1316,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6f5db0ef258df6e5c93c843ec559db6d</string>
+              <string>7eb001eb72ca5799da3229746bb494d3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/Darwin/installer/libhunspell-1.3.2-darwin-20120616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/hunspell_3p-update-hunspell/rev/295044/arch/Darwin/installer/libhunspell-1.3.2.295044-darwin-295044.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1158,9 +1328,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c432d2626aea2e91a56335879c92965</string>
+              <string>9b08232824d2a4e0397118d624778a33</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/Linux/installer/libhunspell-1.3.2-linux-20120616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/hunspell_3p-update-hunspell/rev/295044/arch/Linux/installer/libhunspell-1.3.2.295044-linux-295044.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1178,337 +1348,21 @@
             <string>windows</string>
           </map>
         </map>
-      </map>
-      <key>libpng</key>
-      <map>
-        <key>license</key>
-        <string>libpng</string>
-        <key>license_file</key>
-        <string>LICENSES/libpng.txt</string>
-        <key>name</key>
-        <string>libpng</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>80a84bbbb363e1a38f39bb6be8a3f166</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/290558/arch/Darwin/installer/libpng-1.6.8-darwin-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3368a25b361c22a03f7ec7e0f8d5ff9d</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/290558/arch/Linux/installer/libpng-1.6.8-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>596f4798f90941817b1ca5009c24d16a</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/290558/arch/CYGWIN/installer/libpng-1.6.8-windows-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>libuuid</key>
-      <map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/libuuid.txt</string>
-        <key>name</key>
-        <string>libuuid</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>873e8e99d29711df2efa30646dca1795</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/uuid-1.6.2-linux-20110315.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-      </map>
-      <key>libxml2</key>
-      <map>
-        <key>license</key>
-        <string>mit</string>
-        <key>license_file</key>
-        <string>LICENSES/libxml2.txt</string>
-        <key>name</key>
-        <string>libxml2</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>4a5880b8235beb5ca21f1e252a46e342</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/Darwin/installer/libxml2-2.9.1-darwin-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7eb90f075730f8d7d176f8fb7bad5ef5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/Linux/installer/libxml2-2.9.1-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ba20e2634b4c249a7064620d135f7972</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/CYGWIN/installer/libxml2-2.9.1-windows-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>llappearanceutility-source</key>
-      <map>
-        <key>license</key>
-        <string>TEMPORARY</string>
-        <key>license_file</key>
-        <string>LICENSES/llappearanceutility.txt</string>
-        <key>name</key>
-        <string>llappearanceutility-source</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>54e46715e72b7805d9d3f84d45b6b1b7</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearanceutility-source/rev/290120/arch/Linux/installer/llappearanceutility_source-0.1-linux-20140519.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
         <key>version</key>
-        <string>0.1</string>
+        <string>1.3.2.295044</string>
       </map>
-      <key>llphysicsextensions_source</key>
+      <key>libndofdev</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2007, 3Dconnexion, Inc. - All rights reserved.</string>
+        <key>description</key>
+        <string>3DConnexion SDK</string>
         <key>license</key>
-        <string>TEMPORARY</string>
-        <key>license_file</key>
-        <string>LICENSES/llphysicsextensions.txt</string>
-        <key>name</key>
-        <string>llphysicsextensions_source</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>0578fa67ef9906c6aaa326f51db2669f</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/263415/arch/Darwin/installer/llphysicsextensions_source-0.3-darwin-20120814.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>a6856b4d58a3b71321acad7e1fa9c8d4</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/265749/arch/Linux/installer/llphysicsextensions_source-0.3-linux-20121011.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>0cebd359ea732a7db363d88f9886a1ef</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source/rev/263415/arch/CYGWIN/installer/llphysicsextensions_source-0.3-windows-20120814.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>0.2</string>
-      </map>
-      <key>llphysicsextensions_stub</key>
-      <map>
-        <key>license</key>
-        <string>TEMPORARY</string>
-        <key>license_file</key>
-        <string>LICENSES/llphysicsextensions.txt</string>
-        <key>name</key>
-        <string>llphysicsextensions_stub</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3ae798d4dfb54a1d806ee5f8b31f7626</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub/rev/263415/arch/Darwin/installer/llphysicsextensions_stub-0.3-darwin-20120814.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>aa8a2f25e8629cf5e6a96cc0eb93de8e</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub/rev/263415/arch/Linux/installer/llphysicsextensions_stub-0.3-linux-20120814.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3ea4cee6a8dd4c89fbfd3ad6abd703c2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub/rev/263415/arch/CYGWIN/installer/llphysicsextensions_stub-0.3-windows-20120814.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>0.2</string>
-      </map>
-      <key>llqtwebkit</key>
-      <map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/llqtwebkit.txt</string>
-        <key>name</key>
-        <string>llqtwebkit</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3c2b6be4c78b2479c3fae612e1053d37</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20141015.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>d31358176b9ba8c676458cc061767c0b</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Linux/installer/llqtwebkit-4.7.1-linux-20141015.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>bb4e8c8006c8a7aef6d3e3c36a8cebbf</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20141015.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>mesa</key>
-      <map>
-        <key>license</key>
-        <string>mesa</string>
-        <key>license_file</key>
-        <string>LICENSES/mesa.txt</string>
-        <key>name</key>
-        <string>mesa</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1f600840463c7327ea17486821425750</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20100930.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-      </map>
-      <key>ndofdev</key>
-      <map>
-        <key>license</key>
-        <string>linden</string>
+        <string>BSD</string>
         <key>license_file</key>
         <string>LICENSES/libndofdev.txt</string>
         <key>name</key>
-        <string>ndofdev</string>
+        <string>libndofdev</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1516,9 +1370,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>674d37d2ba76a2df7f18c47bf50b5d03</string>
+              <string>465a303dee2be33c80900d3801b8976e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libndofdev-0.1-darwin-20110308.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/295599/arch/Darwin/installer/libndofdev-0.1.295599-darwin-295599.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1548,6 +1402,368 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.1.295599</string>
+      </map>
+      <key>libpng</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2004, 2006-2013 Glenn Randers-Pehrson</string>
+        <key>description</key>
+        <string>PNG Reference library</string>
+        <key>license</key>
+        <string>libpng</string>
+        <key>license_file</key>
+        <string>LICENSES/libpng.txt</string>
+        <key>name</key>
+        <string>libpng</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>acba0d1d5349a2b895680c25f8252b9a</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/295246/arch/Darwin/installer/libpng-1.6.8.295246-darwin-295246.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>82498b23cb74e6b957e62b8a676eaa66</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/295246/arch/Linux/installer/libpng-1.6.8.295246-linux-295246.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>596f4798f90941817b1ca5009c24d16a</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/290558/arch/CYGWIN/installer/libpng-1.6.8-windows-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.6.8.295246</string>
+      </map>
+      <key>libuuid</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2004-2008 The OSSP Project &lt;http://www.ossp.org/&gt;</string>
+        <key>description</key>
+        <string>OSSP uuid is a ISO-C:1999 application programming interface (API) and corresponding command line interface (CLI) for the generation of DCE 1.1, ISO/IEC 11578:1996 and RFC 4122 compliant Universally Unique Identifier (UUID). </string>
+        <key>license</key>
+        <string>UUID</string>
+        <key>license_file</key>
+        <string>LICENSES/uuid.txt</string>
+        <key>name</key>
+        <string>libuuid</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>71ec8174f8c4ad94b547f8cc24bdc254</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libuuid_3p-update-libuuid/rev/294912/arch/Linux/installer/libuuid-1.6.2-linux-294912.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.6.2</string>
+      </map>
+      <key>libxml2</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1998-2012 Daniel Veillard.  All Rights Reserved.</string>
+        <key>description</key>
+        <string>Libxml2 is the XML C parser and toolkit developed for the Gnome project.</string>
+        <key>license</key>
+        <string>mit</string>
+        <key>license_file</key>
+        <string>LICENSES/libxml2.txt</string>
+        <key>name</key>
+        <string>libxml2</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6f6c3409a09a6ddcb94301ead123c89f</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libxml_3p-update-libxml/rev/295247/arch/Darwin/installer/libxml2-2.9.1.295247-darwin-295247.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7eb90f075730f8d7d176f8fb7bad5ef5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/Linux/installer/libxml2-2.9.1-linux-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ba20e2634b4c249a7064620d135f7972</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/CYGWIN/installer/libxml2-2.9.1-windows-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2.9.1.295247</string>
+      </map>
+      <key>llappearance_utility</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2000-2012, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>Linden Lab appearance utility for server-side avatar baking services.</string>
+        <key>license</key>
+        <string>Proprietary</string>
+        <key>license_file</key>
+        <string>LICENSES/llappearanceutility.txt</string>
+        <key>name</key>
+        <string>llappearance_utility</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ce1261a54d877ab5530ae6a9134a77a3</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/294906/arch/Linux/installer/llappearance_utility-0.0.1-linux-294906.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.0.1</string>
+      </map>
+      <key>llphysicsextensions_source</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
+        <key>license</key>
+        <string>internal</string>
+        <key>license_file</key>
+        <string>LICENSES/llphysicsextensions.txt</string>
+        <key>name</key>
+        <string>llphysicsextensions_source</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>be17132d676dae95542143b97e212d7c</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295944/arch/Darwin/installer/llphysicsextensions_source-1.0.295944-darwin-295944.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>208b720407ec83fdff0f0325d5248d92</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295944/arch/Linux/installer/llphysicsextensions_source-1.0.295944-linux-295944.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6a380902c5c1f2486fdb98cfc7313bc3</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/295944/arch/CYGWIN/installer/llphysicsextensions_source-1.0.295944-windows-295944.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.295944</string>
+      </map>
+      <key>llphysicsextensions_stub</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
+        <key>license</key>
+        <string>internal</string>
+        <key>license_file</key>
+        <string>LICENSES/llphysicsextensions.txt</string>
+        <key>name</key>
+        <string>llphysicsextensions_stub</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>85f28cdf4b4bea23842709bee970fbd0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/295945/arch/Darwin/installer/llphysicsextensions_stub-1.0.295945-darwin-295945.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b6abed7266ee96cb2199ef19685c979f</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/295945/arch/Linux/installer/llphysicsextensions_stub-1.0.295945-linux-295945.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3494fbd0c94d65dcb0fd05c3216bfb87</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/295945/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.295945-windows-295945.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.295945</string>
+      </map>
+      <key>llqtwebkit</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).</string>
+        <key>description</key>
+        <string>QT cross-platform application and UI framework.</string>
+        <key>license</key>
+        <string>LGPL</string>
+        <key>license_file</key>
+        <string>LICENSES/llqtwebkit.txt</string>
+        <key>name</key>
+        <string>llqtwebkit</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3c2b6be4c78b2479c3fae612e1053d37</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20141015.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>d31358176b9ba8c676458cc061767c0b</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Linux/installer/llqtwebkit-4.7.1-linux-20141015.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>bb4e8c8006c8a7aef6d3e3c36a8cebbf</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20141015.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>4.7.1</string>
+      </map>
+      <key>mesa</key>
+      <map>
+        <key>license</key>
+        <string>mesa</string>
+        <key>license_file</key>
+        <string>LICENSES/mesa.txt</string>
+        <key>name</key>
+        <string>mesa</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>1f600840463c7327ea17486821425750</string>
+              <key>url</key>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20100930.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
       </map>
       <key>nvapi</key>
       <map>
@@ -1573,14 +1789,18 @@
           </map>
         </map>
       </map>
-      <key>ogg-vorbis</key>
+      <key>ogg_vorbis</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2002, Xiph.org Foundation</string>
+        <key>description</key>
+        <string>Audio encoding library</string>
         <key>license</key>
         <string>ogg-vorbis</string>
         <key>license_file</key>
         <string>LICENSES/ogg-vorbis.txt</string>
         <key>name</key>
-        <string>ogg-vorbis</string>
+        <string>ogg_vorbis</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1588,9 +1808,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e849bc2b779fb7cc5e81aeb021a542c0</string>
+              <string>ea79f875296c8686180c426694e7488d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2-darwin-20110510.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oggvorbis_3p-update-oggvorbis/rev/295493/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2.295493-darwin-295493.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1600,9 +1820,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71eaa462eb0bf8842277a3436483a354</string>
+              <string>f28d4e7c8c9a46f99ffbaebdd4a6535b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/Linux/installer/ogg_vorbis-1.2.2-1.3.2-linux-20110511.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-ogvorbis/rev/292448/arch/Linux/installer/ogg_vorbis-1.2.2-1.3.2-linux-292448.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1612,23 +1832,29 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>291dbba89dd8162b76f2c2d82e908c6f</string>
+              <string>25da868a1204203cfd31b449dad24d6d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/CYGWIN/installer/ogg_vorbis-1.2.2-1.3.2-windows-20110510.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-ogvorbis/rev/292448/arch/CYGWIN/installer/ogg_vorbis-1.2.2-1.3.2-windows-292448.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.2.2-1.3.2.295493</string>
       </map>
-      <key>openal_soft</key>
+      <key>openal</key>
       <map>
+        <key>copyright</key>
+        <string>Creative Labs</string>
+        <key>description</key>
+        <string>OpenAL is a cross-platform 3D audio API appropriate for use with gaming applications and many other types of audio applications.</string>
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
-        <string>LICENSES/OPENAL.txt</string>
+        <string>LICENSES/openal.txt</string>
         <key>name</key>
-        <string>openal_soft</string>
+        <string>openal</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -1636,11 +1862,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fccdca18a950ac9363c6fb39118b80e1</string>
+              <string>a0abe99bb40d04e7cbbc470583e39a42</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-3ad86a1c-linux-20110114.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openal_3p-update-openal/rev/295049/arch/Linux/installer/openal-1.12.854-1.1.0.295049-linux-295049.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1650,21 +1876,27 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>04df406f3e5d04cf176660bdac66c3a1</string>
+              <string>de26ec439e0ca030dcda6b960fa73e8b</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-1.12.854-1.1.0-windows-20110301.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-openal/rev/289850/arch/CYGWIN/installer/openal-1.12.854-1.1.0-windows-289850.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>3ad86a1c</string>
+        <string>1.12.854-1.1.0.295049</string>
       </map>
       <key>openjpeg</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2002-2007, Communications and Remote Sensing Laboratory, Universite catholique de Louvain (UCL), Belgium, Copyright (c) 2002-2007, Professor Benoit Macq, Copyright (c) 2001-2003, David Janssens, Copyright (c) 2002-2003, Yannick Verschueren, Copyright (c) 2003-2007, Francois-Olivier Devaux and Antonin Descampe, Copyright (c) 2005, Herve Drolon, FreeImage Team</string>
+        <key>description</key>
+        <string>The OpenJPEG library is an open-source JPEG 2000 codec written in C language.</string>
         <key>license</key>
-        <string>openjpeg</string>
+        <string>BSD</string>
         <key>license_file</key>
         <string>LICENSES/openjpeg.txt</string>
         <key>name</key>
@@ -1676,9 +1908,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4be51c7cca7d84831e30b63279df7ae5</string>
+              <string>f4abee9d9955bf62bea681d17e16f7ba</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.4-darwin-20110302.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openjpeg_3p-update-openjpeg/rev/295265/arch/Darwin/installer/openjpeg-1.4.295265-darwin-295265.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1708,9 +1940,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.4.295265</string>
       </map>
       <key>openssl</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1998-2011 The OpenSSL Project.  All rights reserved; Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)</string>
+        <key>description</key>
+        <string>Secure Sockets Layer (SSL v2/v3) and Transport Layer Security (TLS v1) Library</string>
         <key>license</key>
         <string>openssl</string>
         <key>license_file</key>
@@ -1724,9 +1962,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4db126327bbb125ea2490c79c73103bf</string>
+              <string>c992a53924cf180fbd644c5fcacd3d92</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290662/arch/Darwin/installer/openssl-1.0.1h-darwin-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openssl_3p-update-openssl/rev/295244/arch/Darwin/installer/openssl-1.0.1h.295244-darwin-295244.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1756,9 +1994,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.0.1h.295244</string>
       </map>
       <key>pcre</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1997-2014 University of Cambridge; Copyright(c) 2009-2014 Zoltan Herczeg; Copyright (c) 2007-2012, Google Inc.</string>
+        <key>description</key>
+        <string>PCRE Perl-compatible regular expression library</string>
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
@@ -1772,9 +2016,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>af0d38a4c56b52c4df40a4ff0d51efef</string>
+              <string>6e05137f8d30ef05b3b1c3f39860265d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-pcre-update/rev/290406/arch/Darwin/installer/pcre-8.35-darwin-20140529.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/pcre_3p-update-pcre/rev/295046/arch/Darwin/installer/pcre-8.35.-darwin-295046.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1804,6 +2048,8 @@
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>8.35.</string>
       </map>
       <key>quicktime</key>
       <map>
@@ -1831,8 +2077,12 @@
       </map>
       <key>slvoice</key>
       <map>
+        <key>copyright</key>
+        <string>2010 Vivox</string>
+        <key>description</key>
+        <string>Vivox SDK components</string>
         <key>license</key>
-        <string>vivox</string>
+        <string>Mixed</string>
         <key>license_file</key>
         <string>LICENSES/slvoice.txt</string>
         <key>name</key>
@@ -1844,9 +2094,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>88181b9f66b7db650e0d571bbb632bdc</string>
+              <string>9fd91e50ef6848ef5fe74455cc0042c9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/287264/arch/Darwin/installer/slvoice-4.6.0009.20030-darwin-20140226.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/294996/arch/Darwin/installer/slvoice-4.6.0009.20030.294996-darwin-294996.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1876,9 +2126,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>4.6.0009.20030.294996</string>
       </map>
       <key>tut</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2002-2006 Vladimir Dyuzhev, Copyright 2007 Denis Kononenko, Copyright 2008-2009 Michał Rzechonek</string>
+        <key>description</key>
+        <string>TUT is a small and portable unit test framework for C++.</string>
         <key>license</key>
         <string>bsd</string>
         <key>license_file</key>
@@ -1892,17 +2148,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5c6d3e606f027e78f056cb77b20f228e</string>
+              <string>253519023e73d03fcb3feb2f7a2a8835</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/tut-2008-11-30-common-20101001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/tut_3p-update-tut/rev/295891/arch/Linux/installer/tut-2008.11.30-common-295891.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2008.11.30</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright: (C) 2000 Epinions, Inc.</string>
+        <key>description</key>
+        <string>XMLRPC Library</string>
         <key>license</key>
         <string>xmlrpc-epi</string>
         <key>license_file</key>
@@ -1916,9 +2178,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3e0fb4b4a51b01690a99747a1cca531</string>
+              <string>4d0ef5415076e6593f2533c05c9a87ee</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc_epi-0.54.1-darwin-20110307.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/295632/arch/Darwin/installer/xmlrpc_epi-0.54.1.295632-darwin-295632.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1928,9 +2190,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>174ab797440157956eda7061dae37564</string>
+              <string>4de9b81e31fb9da981e96a3bdcecabfc</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc_epi-0.54.1-linux-20110314.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/295272/arch/Linux/installer/xmlrpc_epi-0.54.1.295272-linux-295272.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1948,9 +2210,15 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>0.54.1.295632</string>
       </map>
       <key>zlib</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
+        <key>description</key>
+        <string>Zlib Data Compression Library</string>
         <key>license</key>
         <string>zlib</string>
         <key>license_file</key>
@@ -1964,9 +2232,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6658071e3b54b1dd5f5279227aff402a</string>
+              <string>567f437d22d891c811aa9a70e2b63ad8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-zlib-update/rev/290556/arch/Darwin/installer/zlib-1.2.8-darwin-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/zlib_3p-update-zlib/rev/294883/arch/Darwin/installer/zlib-1.2.8.294883-darwin-294883.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1976,9 +2244,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>63a62bb3cbef2aad3cca49cb6f2d0aeb</string>
+              <string>ba68e85c1c32c9e1c8bf57c9e21b3d45</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-zlib-update/rev/290556/arch/Linux/installer/zlib-1.2.8-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/zlib_3p-update-zlib/rev/293925/arch/Linux/installer/zlib-1.2.8.293925-linux-293925.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1996,14 +2266,20 @@
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>1.2.8.293925</string>
       </map>
     </map>
     <key>package_description</key>
     <map>
+      <key>copyright</key>
+      <string>Copyright (c) 2014, Linden Research, Inc.</string>
       <key>description</key>
       <string>Second Life Viewer</string>
       <key>license</key>
       <string>LGPL</string>
+      <key>license_file</key>
+      <string>docs/LICENSE-source.txt</string>
       <key>name</key>
       <string>Second Life Viewer</string>
       <key>platforms</key>
@@ -2751,12 +3027,12 @@
           <string>windows</string>
         </map>
       </map>
-      <key>version</key>
-      <string>1.0</string>
+      <key>version_file</key>
+      <string>newview/viewer_version.txt</string>
     </map>
     <key>type</key>
     <string>autobuild</string>
     <key>version</key>
-    <string>1.2</string>
+    <string>1.3</string>
   </map>
 </llsd>

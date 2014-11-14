@@ -100,17 +100,10 @@ const std::string LLMenuGL::ARROW_DOWN("vvvvvvv");
 
 const F32 MAX_MOUSE_SLOPE_SUB_MENU = 0.9f;
 
-const S32 PIE_GESTURE_ACTIVATE_DISTANCE = 10;
-
 BOOL LLMenuGL::sKeyboardMode = FALSE;
 
 LLHandle<LLView> LLMenuHolderGL::sItemLastSelectedHandle;
 LLFrameTimer LLMenuHolderGL::sItemActivationTimer;
-//LLColor4 LLMenuGL::sBackgroundColor( 0.8f, 0.8f, 0.0f, 1.0f );
-
-const S32 PIE_CENTER_SIZE = 20;		// pixels, radius of center hole
-const F32 PIE_SCALE_FACTOR = 1.7f; // scale factor for pie menu when mouse is initially down
-const F32 PIE_SHRINK_TIME = 0.2f; // time of transition between unbounded and bounded display of pie menu
 
 const F32 ACTIVATE_HIGHLIGHT_TIME = 0.3f;
 

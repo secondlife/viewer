@@ -85,8 +85,7 @@ namespace {
 		class ReadyToInstall; 
 		class StartingUpdaterService;
 		class WaitingForDownload;
-		
-		LLLoginInstance & mLoginInstance;
+
 		boost::scoped_ptr<State> mState;
 		LLUpdaterService & mUpdaterService;
 		
@@ -145,7 +144,7 @@ namespace {
 		virtual void exit(void);
 		
 	private:
-		MandatoryUpdateMachine & mMachine;
+		//MandatoryUpdateMachine & mMachine;
 	};
 	
 	
@@ -193,7 +192,6 @@ std::string construct_start_string();
 
 
 MandatoryUpdateMachine::MandatoryUpdateMachine(LLLoginInstance & loginInstance, LLUpdaterService & updaterService):
-	mLoginInstance(loginInstance),
 	mUpdaterService(updaterService)
 {
 	; // No op.
@@ -349,8 +347,8 @@ void MandatoryUpdateMachine::Error::onButtonClicked(const LLSD &, const LLSD &)
 //-----------------------------------------------------------------------------
 
 
-MandatoryUpdateMachine::ReadyToInstall::ReadyToInstall(MandatoryUpdateMachine & machine):
-	mMachine(machine)
+MandatoryUpdateMachine::ReadyToInstall::ReadyToInstall(MandatoryUpdateMachine & machine) //:
+	//mMachine(machine)
 {
 	; // No op.
 }

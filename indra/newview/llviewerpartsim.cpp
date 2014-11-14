@@ -42,8 +42,6 @@
 #include "llvovolume.h"
 
 const F32 PART_SIM_BOX_SIDE = 16.f;
-const F32 PART_SIM_BOX_OFFSET = 0.5f*PART_SIM_BOX_SIDE;
-const F32 PART_SIM_BOX_RAD = 0.5f*F_SQRT3*PART_SIM_BOX_SIDE;
 
 //static
 S32 LLViewerPartSim::sMaxParticleCount = 0;
@@ -311,7 +309,6 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
 		if (part->mFlags & LLPartData::LL_PART_WIND_MASK)
 		{
-			LLVector3 tempVel(part->mVelocity);
 			part->mVelocity *= 1.f - 0.1f*dt;
 			part->mVelocity += 0.1f*dt*regionp->mWind.getVelocity(regionp->getPosRegionFromAgent(part->mPosAgent));
 		}

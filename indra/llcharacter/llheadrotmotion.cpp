@@ -43,11 +43,8 @@ const F32 TORSO_LAG	= 0.35f;	// torso rotation factor
 const F32 NECK_LAG = 0.5f;		// neck rotation factor
 const F32 HEAD_LOOKAT_LAG_HALF_LIFE	= 0.15f;		// half-life of lookat targeting for head
 const F32 TORSO_LOOKAT_LAG_HALF_LIFE	= 0.27f;		// half-life of lookat targeting for torso
-const F32 EYE_LOOKAT_LAG_HALF_LIFE = 0.06f;		// half-life of lookat targeting for eye
 const F32 HEAD_ROTATION_CONSTRAINT = F_PI_BY_TWO * 0.8f;	// limit angle for head rotation
-
 const F32 MIN_HEAD_LOOKAT_DISTANCE = 0.3f;	// minimum distance from head before we turn to look at it
-const F32 MAX_TIME_DELTA = 2.f; //max two seconds a frame for calculating interpolation
 const F32 EYE_JITTER_MIN_TIME = 0.3f; // min amount of time between eye "jitter" motions
 const F32 EYE_JITTER_MAX_TIME = 2.5f; // max amount of time between eye "jitter" motions
 const F32 EYE_JITTER_MAX_YAW = 0.08f; // max yaw of eye jitter motion

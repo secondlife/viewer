@@ -52,14 +52,9 @@
 #include "llinventorytype.h"
 
 const S32 PREVIEW_LINE_HEIGHT = 19;
-const S32 PREVIEW_CLOSE_BOX_SIZE = 16;
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
-const S32 PREVIEW_VPAD = 2;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
-const S32 PREVIEW_HEADER_SIZE = 3 * PREVIEW_LINE_HEIGHT + PREVIEW_VPAD;
-const S32 PREF_BUTTON_WIDTH = 64;
-const S32 PREF_BUTTON_HEIGHT = 16;
 
 //-----------------------------------------------------------------------------
 // LLFloaterNameDesc()

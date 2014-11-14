@@ -126,7 +126,7 @@ LL_COMMON_API std::string llsd_matches(const LLSD& prototype, const LLSD& data, 
 /// Deep equality. If you want to compare LLSD::Real values for approximate
 /// equality rather than bitwise equality, pass @a bits as for
 /// is_approx_equal_fraction().
-LL_COMMON_API bool llsd_equals(const LLSD& lhs, const LLSD& rhs, unsigned bits=-1);
+LL_COMMON_API bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits=-1);
 
 // Simple function to copy data out of input & output iterators if
 // there is no need for casting.

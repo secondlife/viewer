@@ -65,8 +65,7 @@ const std::string REGION_BLOCKS_TERRAFORM_MSG = "This region does not allow terr
 
 const S32 LAND_BRUSH_SIZE_COUNT = 3;
 const F32 LAND_BRUSH_SIZE[LAND_BRUSH_SIZE_COUNT] = {1.0f, 2.0f, 4.0f};
-const S32 LAND_STEPS = 3;
-const F32 LAND_METERS_PER_SECOND = 1.0f;
+
 enum
 {
 	E_LAND_LEVEL	= 0,

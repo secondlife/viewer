@@ -51,7 +51,6 @@ private:
 	LLCheckBoxCtrl* mCheckEstateDisabledVoice;
 	LLCheckBoxCtrl* mCheckParcelVoiceLocal;	
 	LLLineEditor*	mMusicURLEdit;
-	LLCheckBoxCtrl* mMusicUrlCheck;
 	LLCheckBoxCtrl* mCheckAVSoundAny;
 	LLCheckBoxCtrl* mCheckAVSoundGroup;
 

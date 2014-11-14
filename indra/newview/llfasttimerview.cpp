@@ -361,7 +361,6 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 static BlockTimerStatHandle FTM_RENDER_TIMER("Timers");
 static const S32 MARGIN = 10;
-static const S32 LEGEND_WIDTH = 220;
 
 static std::vector<LLColor4> sTimerColors;
 

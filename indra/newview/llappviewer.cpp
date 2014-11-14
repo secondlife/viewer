@@ -745,6 +745,15 @@ public:
 	}
 };
 
+namespace {
+// With Xcode 6, _exit() is too magical to use with boost::bind(), so provide
+// this little helper function.
+void fast_exit(int rc)
+{
+	_exit(rc);
+}
+}
+
 bool LLAppViewer::init()
 {	
 	setupErrorHandling(mSecondInstance);
@@ -801,10 +810,10 @@ bool LLAppViewer::init()
 	S32 rc(gSavedSettings.getS32("QAModeTermCode"));
 	if (rc >= 0)
 	{
-		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use _exit()
-		// rather than exit() because normal cleanup depends too much on
-		// successful startup!
-		LLError::setFatalFunction(boost::bind(_exit, rc));
+		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use
+		// fast_exit() rather than exit() because normal cleanup depends too
+		// much on successful startup!
+		LLError::setFatalFunction(boost::bind(fast_exit, rc));
 	}
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
@@ -1679,19 +1688,12 @@ bool LLAppViewer::cleanup()
 	//dump scene loading monitor results
 	LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
 
-	if (LLFastTimerView::sAnalyzePerformance)
-	{
-		LL_INFOS() << "Analyzing performance" << LL_ENDL;
-		std::string baseline_name = LLTrace::BlockTimer::sLogName + "_baseline.slp";
-		std::string current_name  = LLTrace::BlockTimer::sLogName + ".slp"; 
-		std::string report_name   = LLTrace::BlockTimer::sLogName + "_report.csv";
-
-		LLFastTimerView::doAnalysis(
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, baseline_name),
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, current_name),
-			gDirUtilp->getExpandedFilename(LL_PATH_LOGS, report_name));		
-	}
-	LLMetricPerformanceTesterBasic::cleanClass();
+	// There used to be an 'if (LLFastTimerView::sAnalyzePerformance)' block
+	// here, completely redundant with the one that occurs later in this same
+	// function. Presumably the duplication was due to an automated merge gone
+	// bad. Not knowing which instance to prefer, we chose to retain the later
+	// one because it happens just after mFastTimerLogThread is deleted. This
+	// comment is in case we guessed wrong, so we can move it here instead.
 
 	// remove any old breakpad minidump files from the log directory
 	if (! isError())
@@ -2036,7 +2038,7 @@ bool LLAppViewer::cleanup()
     sImageDecodeThread = NULL;
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
-	
+
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
 		LL_INFOS() << "Analyzing performance" << LL_ENDL;

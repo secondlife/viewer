@@ -336,7 +336,7 @@ namespace LLTextValidate
 		S32 len = str.length();
 		while(len--)
 		{
-			if (str[len] < 0x20 && str[len] != 0xA || str[len] > 0x7f)
+			if ((str[len] < 0x20 && str[len] != 0xA) || str[len] > 0x7f)
 			{
 				rv = FALSE;
 				break;
