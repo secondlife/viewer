@@ -314,6 +314,7 @@ void LLFloaterLand::refresh()
 	mPanelMedia->refresh();
 	mPanelAccess->refresh();
 	mPanelCovenant->refresh();
+	mPanelExperiences->refresh();
 }
 
 
