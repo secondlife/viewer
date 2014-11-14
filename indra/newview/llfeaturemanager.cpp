@@ -76,7 +76,9 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable%s.txt";
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable%s.%s.txt";
 #endif
 
+#if 0                               // consuming code in #if 0 below
 const char GPU_TABLE_FILENAME[] = "gpu_table.txt";
+#endif
 const char GPU_TABLE_VER_FILENAME[] = "gpu_table.%s.txt";
 
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const BOOL available, const F32 level)
