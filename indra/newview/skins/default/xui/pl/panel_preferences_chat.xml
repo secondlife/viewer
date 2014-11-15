@@ -90,7 +90,7 @@
 	</panel>
 	<panel name="log_settings">
 		<text name="logging_label">
-			Zapisywanie:
+			Zapisz:
 		</text>
 		<combo_box name="conversation_log_combo">
 			<item name="log_and_transcripts" label="Dziennik i logi rozmów" />
@@ -100,7 +100,7 @@
 		<button label="Wyczyść dziennik" name="clear_log" />
 		<button label="Usuń logi rozmów" name="delete_transcripts" />
 		<text name="log_location_label">
-			Miejsce zapisu:
+			Miejsce:
 		</text>
 		<button label="Przeglądaj" label_selected="Przeglądaj" name="log_path_button" />
 	</panel>
