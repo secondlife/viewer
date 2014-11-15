@@ -84,7 +84,6 @@ namespace tut
 	template<> template<>
 	void frametimer_object_t::test<3>()
 	{
-		skip("fails with Xcode 6.x builds");
 		F64 seconds_since_epoch = LLFrameTimer::getTotalSeconds();
 		seconds_since_epoch += 2.0;
 		LLFrameTimer timer;
