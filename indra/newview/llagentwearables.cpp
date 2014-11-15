@@ -1105,10 +1105,10 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 
 	notifyLoadingFinished();
 
-	// Have to copy wearable params to avatar
+	// Copy wearable params to avatar.
 	gAgentAvatarp->writeWearablesToAvatar();
 
-	// ... before this will do anything.
+	// Then update the avatar based on the copied params.
 	gAgentAvatarp->updateVisualParams();
 
 	gAgentAvatarp->dumpAvatarTEs("setWearableOutfit");
