@@ -12,7 +12,7 @@
 				<stat_view label="Rendering" name="render">
 					<stat_bar label="KTris na klatkę" name="ktrisframe" />
 					<stat_bar label="KTris na sekundę" name="ktrissec" />
-					<stat_bar label="Wszystkie obiekty" name="objs" />
+					<stat_bar label="Wszystkie obiekty" name="totalobjs" />
 					<stat_bar label="Obiekty w cache" name="cachedobjs" />
 					<stat_bar label="Nowe obiekty" name="newobjs" />
 					<stat_bar name="object_cache_hits" label="Wspł. trafień obiektów do cache" />

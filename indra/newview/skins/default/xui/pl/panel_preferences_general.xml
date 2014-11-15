@@ -32,13 +32,6 @@
 	<text name="favorites_check_extra_text">
 		(Inni używający tego komputera również będą je widzieć)
 	</text>
-	<text name="start_location_textbox">
-		Rozpocznij w:
-	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item label="Ostatnia lokalizacja" name="MyLastLocation" />
-		<combo_box.item label="Moje Miejsce Startu" name="MyHome" />
-	</combo_box>
 	<check_box label="Pokaż na ekranie logowania" name="show_location_checkbox" />
 	<text name="name_tags_textbox">
 		Imiona:

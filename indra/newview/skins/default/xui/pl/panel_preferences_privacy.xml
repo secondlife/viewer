@@ -7,7 +7,6 @@
 	<check_box label="Pokaż mój profil w wynikach wyszukiwarki" name="online_searchresults" />
 	<check_box label="Mój status online dostępny tylko dla znajomych i grup" name="online_visibility" />
 	<check_box label="Wyłącz mikrofon po zakończeniu rozmowy głosowej" name="auto_disengage_mic_check" />
-	<check_box label="Pokaż moje ulubione landmarki przy logowaniu (w rozwijanym menu &apos;Rozpocznij w&apos;)" name="favorites_on_login_check" />
 	<button label="Lista zablokowanych" name="block_list" />
 	<text name="block_list_label">
 		(Ludzie oraz/lub obiekty zablokowane przez Ciebie)
