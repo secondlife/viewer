@@ -266,9 +266,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2dd829506f7724cf2c51abf092ec8fec</string>
+              <string>37403a72882f9db3cda5bef4940bebba</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/295245/arch/Darwin/installer/curl-7.37.0.295245-darwin-295245.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/296787/arch/Darwin/installer/curl-7.38.0.296787-darwin-296787.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -278,9 +278,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2bc285edffd0e55e0cd6290f39854a89</string>
+              <string>d5328fae9c50e6cd6e0163d14c975815</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/Linux/installer/curl-7.37.0-linux-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/296787/arch/Linux/installer/curl-7.38.0.296787-linux-296787.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -290,16 +290,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8d3b197d7a114d2b688d2831a0a59757</string>
+              <string>642d6a95b7b7725f6daac73f128eac34</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/290664/arch/CYGWIN/installer/curl-7.37.0-windows-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/296787/arch/CYGWIN/installer/curl-7.38.0.296787-windows-296787.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.37.0.295245</string>
+        <string>7.38.0.296787</string>
       </map>
       <key>db</key>
       <map>
@@ -1700,11 +1700,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0babab42b66a643da74c8b287e412caa</string>
+              <string>3c2b6be4c78b2479c3fae612e1053d37</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-darwin-295522.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20141015.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1714,11 +1714,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>40540b9974ac7df477f0685b389b0766</string>
+              <string>d31358176b9ba8c676458cc061767c0b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-linux-295522.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Linux/installer/llqtwebkit-4.7.1-linux-20141015.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1728,11 +1728,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>19c035d15782ae35b45fd43f486292f6</string>
+              <string>bb4e8c8006c8a7aef6d3e3c36a8cebbf</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lecs.opensource.secondlife.com/package-hacks/llqtwebkit-4.7.1-windows-295522.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20141015.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

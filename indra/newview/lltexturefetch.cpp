@@ -56,13 +56,13 @@
 #include "llsdparam.h"
 #include "llsdutil.h"
 #include "llstartup.h"
-#include "llsdserialize.h"
 
 #include "httprequest.h"
 #include "httphandler.h"
 #include "httpresponse.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
+#include "llcorehttputil.h"
 
 #include "llhttpretrypolicy.h"
 
@@ -241,8 +241,10 @@ LLTrace::EventStatHandle<F64Milliseconds > LLTextureFetch::sCacheReadLatency("te
 
 // Tuning/Parameterization Constants
 
-static const S32 HTTP_REQUESTS_IN_QUEUE_HIGH_WATER = 40;		// Maximum requests to have active in HTTP
-static const S32 HTTP_REQUESTS_IN_QUEUE_LOW_WATER = 20;			// Active level at which to refill
+static const S32 HTTP_PIPE_REQUESTS_HIGH_WATER = 100;		// Maximum requests to have active in HTTP (pipelined)
+static const S32 HTTP_PIPE_REQUESTS_LOW_WATER = 50;			// Active level at which to refill
+static const S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER = 40;
+static const S32 HTTP_NONPIPE_REQUESTS_LOW_WATER = 20;
 
 // BUG-3323/SH-4375
 // *NOTE:  This is a heuristic value.  Texture fetches have a habit of using a
@@ -480,12 +482,12 @@ private:
 	bool acquireHttpSemaphore()
 		{
 			llassert(! mHttpHasResource);
-			if (mFetcher->mHttpSemaphore <= 0)
+			if (mFetcher->mHttpSemaphore >= mFetcher->mHttpHighWater)
 			{
 				return false;
 			}
 			mHttpHasResource = true;
-			mFetcher->mHttpSemaphore--;
+			mFetcher->mHttpSemaphore++;
 			return true;
 		}
 
@@ -495,7 +497,8 @@ private:
 		{
 			llassert(mHttpHasResource);
 			mHttpHasResource = false;
-			mFetcher->mHttpSemaphore++;
+			mFetcher->mHttpSemaphore--;
+			llassert_always(mFetcher->mHttpSemaphore >= 0);
 		}
 	
 private:
@@ -607,16 +610,16 @@ private:
 
 	LLCore::HttpHandle		mHttpHandle;				// Handle of any active request
 	LLCore::BufferArray	*	mHttpBufferArray;			// Refcounted pointer to response data 
-	S32							mHttpPolicyClass;
+	S32						mHttpPolicyClass;
 	bool					mHttpActive;				// Active request to http library
-	U32							mHttpReplySize,				// Actual received data size
-								mHttpReplyOffset;			// Actual received data offset
+	U32						mHttpReplySize,				// Actual received data size
+							mHttpReplyOffset;			// Actual received data offset
 	bool					mHttpHasResource;			// Counts against Fetcher's mHttpSemaphore
 
 	// State history
-	U32							mCacheReadCount,
-								mCacheWriteCount,
-								mResourceWaitCount;			// Requests entering WAIT_HTTP_RESOURCE2
+	U32						mCacheReadCount,
+							mCacheWriteCount,
+							mResourceWaitCount;			// Requests entering WAIT_HTTP_RESOURCE2
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1324,7 +1327,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 		}
 
-		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP", true);
+		static LLCachedControl<bool> use_http(gSavedSettings, "ImagePipelineUseHTTP", true);
 
 // 		if (mHost != LLHost::invalid) get_url = false;
 		if ( use_http && mCanUseHTTP && mUrl.empty())//get http url.
@@ -1345,20 +1348,20 @@ bool LLTextureFetchWorker::doWork(S32 param)
 						LL_WARNS(LOG_TXT) << "trying to seek a non-default texture on the sim. Bad!" << LL_ENDL;
 					}
 					setUrl(http_url + "/?texture_id=" + mID.asString().c_str());
-					LL_DEBUGS("Texture") << "Texture URL " << mUrl << LL_ENDL;
+					LL_DEBUGS(LOG_TXT) << "Texture URL: " << mUrl << LL_ENDL;
 					mWriteToCacheState = CAN_WRITE ; //because this texture has a fixed texture id.
 				}
 				else
 				{
 					mCanUseHTTP = false ;
-					LL_DEBUGS("Texture") << "Texture not available via HTTP: no URL " << mUrl << LL_ENDL;
+					LL_DEBUGS(LOG_TXT) << "Texture not available via HTTP: empty URL." << LL_ENDL;
 				}
 			}
 			else
 			{
 				// This will happen if not logged in or if a region deoes not have HTTP Texture enabled
 				//LL_WARNS(LOG_TXT) << "Region not found for host: " << mHost << LL_ENDL;
-				LL_DEBUGS("Texture") << "Texture not available via HTTP: no region " << mUrl << LL_ENDL;
+				LL_DEBUGS(LOG_TXT) << "Texture not available via HTTP: no region " << mUrl << LL_ENDL;
 				mCanUseHTTP = false;
 			}
 		}
@@ -1472,6 +1475,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == SEND_HTTP_REQ)
 	{
+		// Also used in llmeshrepository
+		static LLCachedControl<bool> disable_range_req(gSavedSettings, "HttpRangeRequestsDisable", false);
+		
 		if (! mCanUseHTTP)
 		{
 			releaseHttpSemaphore();
@@ -1527,22 +1533,47 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mRequestedOffset -= 1;
 			mRequestedSize += 1;
 		}
-		
 		mHttpHandle = LLCORE_HTTP_HANDLE_INVALID;
-		if (!mUrl.empty())
-		{
-			mRequestedTimer.reset();
-			mLoaded = FALSE;
-			mGetStatus = LLCore::HttpStatus();
-			mGetReason.clear();
-			LL_DEBUGS(LOG_TXT) << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
-							   << " Bytes: " << mRequestedSize
-							   << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
-							   << LL_ENDL;
 
-			// Will call callbackHttpGet when curl request completes
-			// Only server bake images use the returned headers currently, for getting retry-after field.
-			LLCore::HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
+		if (mUrl.empty())
+		{
+			// *FIXME:  This should not be reachable except it has become
+			// so after some recent 'work'.  Need to track this down
+			// and illuminate the unenlightened.
+			LL_WARNS(LOG_TXT) << "HTTP GET request failed for " << mID
+							  << " on empty URL." << LL_ENDL;
+			resetFormattedData();
+			releaseHttpSemaphore();
+			return true; // failed
+		}
+		
+		mRequestedTimer.reset();
+		mLoaded = FALSE;
+		mGetStatus = LLCore::HttpStatus();
+		mGetReason.clear();
+		LL_DEBUGS(LOG_TXT) << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
+						   << " Bytes: " << mRequestedSize
+						   << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
+						   << LL_ENDL;
+
+		// Will call callbackHttpGet when curl request completes
+		// Only server bake images use the returned headers currently, for getting retry-after field.
+		LLCore::HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
+		if (disable_range_req)
+		{
+			// 'Range:' requests may be disabled in which case all HTTP
+			// texture fetches result in full fetches.  This can be used
+			// by people with questionable ISPs or networking gear that
+			// doesn't handle these well.
+			mHttpHandle = mFetcher->mHttpRequest->requestGet(mHttpPolicyClass,
+															 mWorkPriority,
+															 mUrl,
+															 options,
+															 mFetcher->mHttpHeaders,
+															 this);
+		}
+		else
+		{
 			mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
 																	  mWorkPriority,
 																	  mUrl,
@@ -1556,7 +1587,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		if (LLCORE_HTTP_HANDLE_INVALID == mHttpHandle)
 		{
-			LL_WARNS(LOG_TXT) << "HTTP GET request failed for " << mID << LL_ENDL;
+			LLCore::HttpStatus status(mFetcher->mHttpRequest->getStatus());
+			LL_WARNS(LOG_TXT) << "HTTP GET request failed for " << mID
+							  << ", Status: " << status.toTerseString()
+							  << " Reason: '" << status.toString() << "'"
+							  << LL_ENDL;
 			resetFormattedData();
 			releaseHttpSemaphore();
 			return true; // failed
@@ -1612,10 +1647,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				else if (http_service_unavail == mGetStatus)
 				{
 					LL_INFOS_ONCE(LOG_TXT) << "Texture server busy (503): " << mUrl << LL_ENDL;
-					LL_INFOS(LOG_TXT) << "503: HTTP GET failed for: " << mUrl
-									  << " Status: " << mGetStatus.toHex()
-									  << " Reason: '" << mGetReason << "'"
-									  << LL_ENDL;
 				}
 				else if (http_not_sat == mGetStatus)
 				{
@@ -1773,7 +1804,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
-		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled", false);
+		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings, "TextureDecodeDisabled", false);
 
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		if (textures_decode_disabled)
@@ -2482,9 +2513,9 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mHttpOptions(NULL),
 	  mHttpOptionsWithHeaders(NULL),
 	  mHttpHeaders(NULL),
-	  mHttpMetricsHeaders(NULL),
 	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	  mHttpSemaphore(HTTP_REQUESTS_IN_QUEUE_HIGH_WATER),
+	  mHttpMetricsHeaders(NULL),
+	  mHttpMetricsPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	  mTotalCacheReadCount(0U),
 	  mTotalCacheWriteCount(0U),
 	  mTotalResourceWaitCount(0U),
@@ -2496,6 +2527,23 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));
 
+	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
+	mHttpRequest = new LLCore::HttpRequest;
+	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
+	mHttpOptionsWithHeaders->setWantHeaders(true);
+	mHttpHeaders = new LLCore::HttpHeaders;
+	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
+	mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_TEXTURE);
+	mHttpMetricsHeaders = new LLCore::HttpHeaders;
+	mHttpMetricsHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+	mHttpMetricsPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_REPORTING);
+	mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
+	mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
+	mHttpSemaphore = 0;
+
+	// Conditionally construct debugger object after 'this' is
+	// fully initialized.
 	LLTextureFetchDebugger::sDebuggerEnabled = gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
 	if(LLTextureFetchDebugger::isEnabled())
 	{
@@ -2508,16 +2556,6 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 		}
 		mOriginFetchSource = mFetchSource;
 	}
-	
-	mHttpRequest = new LLCore::HttpRequest;
-	mHttpOptions = new LLCore::HttpOptions;
-	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
-	mHttpOptionsWithHeaders->setWantHeaders(true);
-	mHttpHeaders = new LLCore::HttpHeaders;
-	mHttpHeaders->append("Accept", "image/x-j2c");
-	mHttpMetricsHeaders = new LLCore::HttpHeaders;
-	mHttpMetricsHeaders->append("Content-Type", "application/llsd+xml");
-	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_TEXTURE);
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -2989,6 +3027,20 @@ bool LLTextureFetch::runCondition()
 // Threads:  Ttf
 void LLTextureFetch::commonUpdate()
 {
+	// Update low/high water levels based on pipelining.  We pick
+	// up setting eventually, so the semaphore/request level can
+	// fall outside the [0..HIGH_WATER] range.  Expect that.
+	if (LLAppViewer::instance()->getAppCoreHttp().isPipelined(LLAppCoreHttp::AP_TEXTURE))
+	{
+		mHttpHighWater = HTTP_PIPE_REQUESTS_HIGH_WATER;
+		mHttpLowWater = HTTP_PIPE_REQUESTS_LOW_WATER;
+	}
+	else
+	{
+		mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
+		mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
+	}
+
 	// Release waiters
 	releaseHttpWaiters();
 	
@@ -3650,8 +3702,16 @@ void LLTextureFetch::releaseHttpWaiters()
 {
 	// Use mHttpSemaphore rather than mHTTPTextureQueue.size()
 	// to avoid a lock.  
-	if (mHttpSemaphore < (HTTP_REQUESTS_IN_QUEUE_HIGH_WATER - HTTP_REQUESTS_IN_QUEUE_LOW_WATER))
+	if (mHttpSemaphore >= mHttpLowWater)
 		return;
+	S32 needed(mHttpHighWater - mHttpSemaphore);
+	if (needed <= 0)
+	{
+		// Would only happen if High/LowWater were changed behind
+		// our back.  In that case, defer fill until usage falls within
+		// limits.
+		return;
+	}
 
 	// Quickly make a copy of all the LLUIDs.  Get off the
 	// mutex as early as possible.
@@ -3700,10 +3760,10 @@ void LLTextureFetch::releaseHttpWaiters()
 	tids.clear();
 
 	// Sort into priority order, if necessary and only as much as needed
-	if (tids2.size() > mHttpSemaphore)
+	if (tids2.size() > needed)
 	{
 		LLTextureFetchWorker::Compare compare;
-		std::partial_sort(tids2.begin(), tids2.begin() + mHttpSemaphore, tids2.end(), compare);
+		std::partial_sort(tids2.begin(), tids2.begin() + needed, tids2.end(), compare);
 	}
 
 	// Release workers up to the high water mark.  Since we aren't
@@ -3967,7 +4027,9 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 		
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
+	{
 		report_sequence = 0;
+	}
 	reporting_started = true;
 	
 	// Limit the size of the stats report if necessary.
@@ -3976,18 +4038,15 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 
 	if (! mCapsURL.empty())
 	{
-		LLCore::BufferArray * ba = new LLCore::BufferArray;
-		LLCore::BufferArrayStream bas(ba);
-		LLSDSerialize::toXML(sd, bas);
-		
-		fetcher->getHttpRequest().requestPost(fetcher->getPolicyClass(),
-											  report_priority,
-											  mCapsURL,
-											  ba,
-											  NULL,
-											  fetcher->getMetricsHeaders(),
-											  handler);
-		ba->release();
+		// Don't care about handle, this is a fire-and-forget operation.  
+		LLCoreHttpUtil::requestPostWithLLSD(&fetcher->getHttpRequest(),
+											fetcher->getMetricsPolicyClass(),
+											report_priority,
+											mCapsURL,
+											sd,
+											NULL,
+											fetcher->getMetricsHeaders(),
+											handler);
 		LLTextureFetch::svMetricsDataBreak = false;
 	}
 	else
@@ -3998,7 +4057,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// In QA mode, Metrics submode, log the result for ease of testing
 	if (fetcher->isQAMode())
 	{
-		LL_INFOS("Textures") << ll_pretty_print_sd(sd) << LL_ENDL;
+		LL_INFOS(LOG_TXT) << ll_pretty_print_sd(sd) << LL_ENDL;
 	}
 
 	return true;
@@ -4168,7 +4227,7 @@ void LLTextureFetchDebugger::init()
 	if (! mHttpHeaders)
 	{
 		mHttpHeaders = new LLCore::HttpHeaders;
-		mHttpHeaders->append("Accept", "image/x-j2c");
+		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
 	}
 }
 
@@ -4543,7 +4602,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 		mNbCurlCompleted = mFetchingHistory.size();
 		return 0;
 	}
-	if (mNbCurlRequests > HTTP_REQUESTS_IN_QUEUE_LOW_WATER)
+	if (mNbCurlRequests > HTTP_NONPIPE_REQUESTS_LOW_WATER)
 	{
 		return mNbCurlRequests;
 	}
@@ -4576,7 +4635,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 			mFetchingHistory[i].mHttpHandle = handle;
 			mFetchingHistory[i].mCurlState = FetchEntry::CURL_IN_PROGRESS;
 			mNbCurlRequests++;
-			if (mNbCurlRequests >= HTTP_REQUESTS_IN_QUEUE_HIGH_WATER)	// emulate normal pipeline
+			if (mNbCurlRequests >= HTTP_NONPIPE_REQUESTS_HIGH_WATER)	// emulate normal pipeline
 			{
 				break;
 			}

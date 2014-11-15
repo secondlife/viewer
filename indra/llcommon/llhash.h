@@ -27,26 +27,7 @@
 #ifndef LL_LLHASH_H
 #define LL_LLHASH_H
 
-#include "llpreprocessor.h" // for GCC_VERSION
-
-#if (LL_WINDOWS)
-#include <hash_map>
-#include <algorithm>
-#elif LL_DARWIN || LL_LINUX
-#  if GCC_VERSION >= 40300 // gcc 4.3 and up
-#    include <backward/hashtable.h>
-#  elif GCC_VERSION >= 30400 // gcc 3.4 and up
-#    include <ext/hashtable.h>
-#  elif __GNUC__ >= 3
-#    include <ext/stl_hashtable.h>
-#  else
-#    include <hashtable.h>
-#  endif
-#elif LL_SOLARIS
-#include <ext/hashtable.h>
-#else
-#error Please define your platform.
-#endif
+#include <boost/functional/hash.hpp>
 
 // Warning - an earlier template-based version of this routine did not do
 // the correct thing on Windows.   Since this is only used to get
@@ -55,17 +36,17 @@
 
 inline size_t llhash( const char * value )
 {
-#if LL_WINDOWS
-	return stdext::hash_value(value);
-#elif ( (defined _STLPORT_VERSION) || ((LL_LINUX) && (__GNUC__ <= 2)) )
-	std::hash<const char *> H;
-	return H(value);
-#elif LL_DARWIN || LL_LINUX || LL_SOLARIS
-	__gnu_cxx::hash<const char *> H;
-	return H(value);
-#else
-#error Please define your platform.
-#endif
+	// boost::hash is defined for std::string and for char, but there's no
+	// special overload for const char*. The lazy approach would be to
+	// instantiate a std::string and take its hash, but that might be more
+	// overhead than our callers want. Or we could use boost::hash_range() --
+	// but that would require a preliminary pass over the value to determine
+	// the end iterator. Instead, use boost::hash_combine() to hash individual
+	// characters.
+	std::size_t seed = 0;
+	for ( ; *value; ++value)
+		boost::hash_combine(seed, *value);
+	return seed;
 }
 
 #endif

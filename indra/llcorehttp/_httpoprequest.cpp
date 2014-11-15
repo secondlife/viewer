@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2012-2013, Linden Research, Inc.
+ * Copyright (C) 2012-2014, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -46,6 +46,19 @@
 
 #include "llhttpconstants.h"
 #include "llproxy.h"
+
+// *DEBUG:  "[curl:bugs] #1420" problem and testing.
+//
+// A pipelining problem, https://sourceforge.net/p/curl/bugs/1420/,
+// was a source of Core_9 failures.  Code related to this can be
+// identified and tested by:
+// * Looking for '[curl:bugs]' strings in source and following
+//   instructions there.
+// * Set 'QAModeHttpTrace' to 2 or 3 in settings.xml and look for
+//   'timed out' events in the log.
+// * Enable the HttpRangeRequestsDisable debug setting which causes
+//   full asset fetches.  These slow the pipelines down a bit.
+//
 
 namespace
 {
@@ -92,6 +105,8 @@ void os_strlower(char * str);
 
 // Error testing and reporting for libcurl status codes
 void check_curl_easy_code(CURLcode code, int curl_setopt_option);
+
+static const char * const LOG_CORE("CoreHttp");
 
 } // end anonymous namespace
 
@@ -154,6 +169,8 @@ HttpOpRequest::~HttpOpRequest()
 
 	if (mCurlHandle)
 	{
+		// Uncertain of thread context so free using
+		// safest method.
 		curl_easy_cleanup(mCurlHandle);
 		mCurlHandle = NULL;
 	}
@@ -375,6 +392,7 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 // Junk may be left around from a failed request and that
 // needs to be cleaned out.
 //
+// *TODO:  Move this to _httplibcurl where it belongs.
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
 	CURLcode code;
@@ -408,17 +426,19 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// *FIXME:  better error handling later
 	HttpStatus status;
 
-	// Get global policy options
-	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
+	// Get global and class policy options
+	HttpPolicyGlobal & gpolicy(service->getPolicy().getGlobalOptions());
+	HttpPolicyClass & cpolicy(service->getPolicy().getClassOptions(mReqPolicy));
 	
-	mCurlHandle = LLCurl::createStandardCurlHandle();
+	mCurlHandle = service->getTransport().getHandle();
 	if (! mCurlHandle)
 	{
 		// We're in trouble.  We'll continue but it won't go well.
-		LL_WARNS("CoreHttp") << "Failed to allocate libcurl easy handle.  Continuing."
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "Failed to allocate libcurl easy handle.  Continuing."
+						   << LL_ENDL;
 		return HttpStatus(HttpStatus::LLCORE, HE_BAD_ALLOC);
 	}
+
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 	check_curl_easy_code(code, CURLOPT_IPRESOLVE);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
@@ -459,30 +479,30 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
 
-	if (policy.mUseLLProxy)
+	if (gpolicy.mUseLLProxy)
 	{
 		// Use the viewer-based thread-safe API which has a
 		// fast/safe check for proxy enable.  Would like to
 		// encapsulate this someway...
 		LLProxy::getInstance()->applyProxySettings(mCurlHandle);
 	}
-	else if (policy.mHttpProxy.size())
+	else if (gpolicy.mHttpProxy.size())
 	{
 		// *TODO:  This is fine for now but get fuller socks5/
 		// authentication thing going later....
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, policy.mHttpProxy.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, gpolicy.mHttpProxy.c_str());
 		check_curl_easy_code(code, CURLOPT_PROXY);
 		code = curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
 		check_curl_easy_code(code, CURLOPT_PROXYTYPE);
 	}
-	if (policy.mCAPath.size())
+	if (gpolicy.mCAPath.size())
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, policy.mCAPath.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, gpolicy.mCAPath.c_str());
 		check_curl_easy_code(code, CURLOPT_CAPATH);
 	}
-	if (policy.mCAFile.size())
+	if (gpolicy.mCAFile.size())
 	{
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, policy.mCAFile.c_str());
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, gpolicy.mCAFile.c_str());
 		check_curl_easy_code(code, CURLOPT_CAINFO);
 	}
 	
@@ -537,9 +557,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		break;
 		
 	default:
-		LL_ERRS("CoreHttp") << "Invalid HTTP method in request:  "
-							<< int(mReqMethod)  << ".  Can't recover."
-							<< LL_ENDL;
+		LL_ERRS(LOG_CORE) << "Invalid HTTP method in request:  "
+						  << int(mReqMethod)  << ".  Can't recover."
+						  << LL_ENDL;
 		break;
 	}
 
@@ -600,6 +620,22 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	{
 		xfer_timeout = timeout;
 	}
+	if (cpolicy.mPipelining > 1L)
+	{
+		// Pipelining affects both connection and transfer timeout values.
+		// Requests that are added to a pipeling immediately have completed
+		// their connection so the connection delay tends to be less than
+		// the non-pipelined value.  Transfers are the opposite.  Transfer
+		// timeout starts once the connection is established and completion
+		// can be delayed due to the pipelined requests ahead.  So, it's
+		// a handwave but bump the transfer timeout up by the pipelining
+		// depth to give some room.
+		//
+		// *TODO:  Find a better scheme than timeouts to guarantee liveness.
+		xfer_timeout *= cpolicy.mPipelining;
+	}
+	// *DEBUG:  Enable following override for timeout handling and "[curl:bugs] #1420" tests
+	// xfer_timeout = 1L;
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, xfer_timeout);
 	check_curl_easy_code(code, CURLOPT_TIMEOUT);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, timeout);
@@ -660,8 +696,8 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 		{
 			// Warn but continue if the read position moves beyond end-of-body
 			// for some reason.
-			LL_WARNS("CoreHttp") << "Request body position beyond body size.  Truncating request body."
-								 << LL_ENDL;
+			LL_WARNS(LOG_CORE) << "Request body position beyond body size.  Truncating request body."
+							   << LL_ENDL;
 		}
 		return 0;
 	}
@@ -798,10 +834,10 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		else
 		{
 			// Ignore the unparsable.
-			LL_INFOS_ONCE("CoreHttp") << "Problem parsing odd Content-Range header:  '"
-									  << std::string(hdr_data, wanted_hdr_size)
-									  << "'.  Ignoring."
-									  << LL_ENDL;
+			LL_INFOS_ONCE(LOG_CORE) << "Problem parsing odd Content-Range header:  '"
+									<< std::string(hdr_data, wanted_hdr_size)
+									<< "'.  Ignoring."
+									<< LL_ENDL;
 		}
 	}
 
@@ -903,11 +939,11 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 
 	if (logit)
 	{
-		LL_INFOS("CoreHttp") << "TRACE, LibcurlDebug, Handle:  "
-							 << static_cast<HttpHandle>(op)
-							 << ", Type:  " << tag
-							 << ", Data:  " << safe_line
-							 << LL_ENDL;
+		LL_INFOS(LOG_CORE) << "TRACE, LibcurlDebug, Handle:  "
+						   << static_cast<HttpHandle>(op)
+						   << ", Type:  " << tag
+						   << ", Data:  " << safe_line
+						   << LL_ENDL;
 	}
 		
 	return 0;
@@ -1102,9 +1138,9 @@ void check_curl_easy_code(CURLcode code, int curl_setopt_option)
 		//
 		// linux appears to throw a curl error once per session for a bad initialization
 		// at a pretty random time (when enabling cookies).
-		LL_WARNS("CoreHttp") << "libcurl error detected:  " << curl_easy_strerror(code)
-							 << ", curl_easy_setopt option:  " << curl_setopt_option
-							 << LL_ENDL;
+		LL_WARNS(LOG_CORE) << "libcurl error detected:  " << curl_easy_strerror(code)
+						   << ", curl_easy_setopt option:  " << curl_setopt_option
+						   << LL_ENDL;
 	}
 }
 
