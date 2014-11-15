@@ -210,6 +210,22 @@ Aggiungi questo potere a &apos;[ROLE_NAME]&apos;?
 Aggiungi questo potere a &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
+	<notification name="AssignBanAbilityWarning">
+		Stai per aggiungere l&apos;abilità &apos;[ACTION_NAME]&apos; al ruolo &apos;[ROLE_NAME]&apos;.
+
+ *AVVISO*
+A tutti i membri che in un ruolo hanno questa abilità verranno concesse anche le abilità &apos;[ACTION_NAME_2]&apos; e &apos;[ACTION_NAME_3]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RemoveBanAbilityWarning">
+		Stai rimuovendo l&apos;abilità &apos;[ACTION_NAME]&apos; dal ruolo &apos;[ROLE_NAME]&apos;.
+
+ *AVVISO*
+Rimuovendo questa abilità, NON rimuovi le abilità &apos;[ACTION_NAME_2]&apos; e &apos;[ACTION_NAME_3]&apos;.
+ 
+Se non desideri che queste abilità siano assegnate a questo ruolo, disattivale immediatamente.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="EjectGroupMemberWarning">
 		Stai per espellere [AVATAR_NAME] dal gruppo.
 		<usetemplate ignoretext="Conferma l&apos;espulsione di un partecipante dal gruppo" name="okcancelignore" notext="Annulla" yestext="Espelli"/>
@@ -1580,6 +1596,14 @@ Lasciare il gruppo?
 		Impossibile abbandonare il gruppo. Non puoi abbandonare il gruppo perché sei l&apos;ultimo proprietario del gruppo. Devi prima assegnare a un altro membro il ruolo di proprietario.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="GroupDepartError">
+		Impossibile abbandonare il gruppo: [reason].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupDepart">
+		Hai abbandonato il gruppo [group_name].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmKick">
 		Vuoi veramente espellere tutti i residenti dalla griglia?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Espelli tutti i residenti"/>
@@ -2463,6 +2487,12 @@ Prova a selezionare una parte di terreno più piccola.
 		Seleziona almeno un tipo di contenuto per la ricerca (Generale, Moderato o Adulti).
 	</notification>
 	<notification name="SystemMessage">
+		[MESSAGE]
+	</notification>
+	<notification name="FlickrConnect">
+		[MESSAGE]
+	</notification>
+	<notification name="TwitterConnect">
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentReceived">
@@ -4041,6 +4071,10 @@ Prova a selezionare un pezzo di terreno più piccolo.
 	<notification name="PreferenceChatPathChanged">
 		Impossibile spostare i file. Il percorso precedente è stato ripristinato.
 		<usetemplate ignoretext="Impossibile spostare i file. Il percorso precedente è stato ripristinato." name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Si è verificato un problema nel salvare i diritti predefiniti per il motivo seguente: [REASON]. Riprova più tardi.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		Il file della cronologia del file sta ancora eseguendo l&apos;operazione precedente. Riprova nuovamente tra qualche minuto oppure chatta con un&apos;altra persona.

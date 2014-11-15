@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="ПРОСМОТР СНИМКА">
+<floater name="Snapshot" title="СНИМОК">
 	<floater.string name="unknown">
 		неизвестно
 	</floater.string>
@@ -61,5 +61,11 @@
 		<check_box label="Данные в игре" name="hud_check"/>
 		<check_box label="Стоп-кадр (полноэкранный)" name="freeze_frame_check"/>
 		<check_box label="Автообновление" name="auto_snapshot_check"/>
+		<text name="filter_list_label">
+			Фильтр:
+		</text>
+		<combo_box name="filters_combobox" tool_tip="Фильтры изображений">
+			<combo_box.item label="Без фильтра" name="NoFilter"/>
+		</combo_box>
 	</panel>
 </floater>

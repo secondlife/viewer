@@ -72,7 +72,7 @@
 	<check_box label="Verknüpfte Teile bearbeiten" name="checkbox edit linked parts"/>
 	<button label="Link" name="link_btn" width="30"/>
 	<button label="Verknüpfung auflösen" name="unlink_btn" width="126"/>
-	<check_box label="" name="checkbox uniform"/>
+	<check_box label="Beide Seiten dehnen" name="checkbox uniform"/>
 	<text label="Beide Seiten dehnen" name="checkbox uniform label">
 		Beide Seiten dehnen
 	</text>

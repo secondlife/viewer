@@ -22,7 +22,7 @@
 		割り当て先の役割を選択：
 	</text>
 	<combo_box name="role_name" tool_tip="メンバーに割り当てたい役割をリストから選んください"/>
-	<button label="招待を送信" name="ok_button"/>
+	<button label="招待状を送信" name="invite_button"/>
 	<button label="取り消し" name="cancel_button"/>
 	<string name="GroupInvitation">
 		グループへの招待

@@ -1,46 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=es
 	</panel.string>
-	<layout_stack name="login_widgets">
-		<layout_panel name="login">
-			<text name="log_in_text">
-				INICIAR SESIÓN
-			</text>
-			<text name="username_text">
-				Nombre de usuario:
-			</text>
-			<combo_box name="username_combo" tool_tip="El nombre de usuario que elegiste al registrarte, como bobsmith12 o Steller Sunshine"/>
-			<text name="password_text">
-				Contraseña:
-			</text>
-		</layout_panel>
-		<layout_panel name="start_location_panel">
-			<text name="start_location_text">
-				Empezar en:
-			</text>
-			<combo_box name="start_location_combo">
-				<combo_box.item label="Mi última posición" name="MyLastLocation"/>
-				<combo_box.item label="Mi Base" name="MyHome"/>
-				<combo_box.item label="&lt;Escribe el nombre de la región&gt;" name="Typeregionname"/>
-			</combo_box>
-		</layout_panel>
-		<layout_panel name="links_login_panel">
-			<text name="login_help">
-				¿Necesitas ayuda para conectarte?
-			</text>
+	<layout_stack name="ui_stack">
+		<layout_panel name="ui_container">
+			<combo_box label="Nombre de usuario" name="username_combo" tool_tip="El nombre de usuario que elegiste al registrarte, como bobsmith12 o Steller Sunshine"/>
+			<line_editor label="Contraseña" name="password_edit"/>
+			<check_box label="Recordarme" name="remember_check"/>
 			<text name="forgot_password_text">
-				¿Olvidaste el nombre de usuario o la contraseña?
+				Contraseña olvidada
 			</text>
 			<button label="Iniciar sesión" name="connect_btn"/>
-			<check_box label="Recordar la contraseña" name="remember_check"/>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_account_text">
-				CREA TU CUENTA
+			<text name="At_My_Last_Location_Label">
+				en mi última posición
 			</text>
-			<button label="Iniciar ahora" name="create_new_account_btn"/>
+			<combo_box label="Mis lugares favoritos" name="start_location_combo">
+				<combo_box.item label="Mi Base" name="MyHome"/>
+			</combo_box>
+			<button label="Iniciar sesión" name="connect_favorite_btn"/>
+			<line_editor label="Especifica una ubicación" name="location_edit"/>
+			<button label="Iniciar sesión" name="connect_location_btn"/>
+			<combo_box label="Seleccionar cuadrícula" name="server_combo"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

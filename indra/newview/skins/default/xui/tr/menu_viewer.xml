@@ -34,6 +34,9 @@
 		<menu_item_check label="Yakındaki Sohbet..." name="Nearby Chat"/>
 		<menu_item_check label="Konuş" name="Speak"/>
 		<menu_item_check label="Sohbet Günlüğü..." name="Conversation Log..."/>
+		<menu_item_call label="Facebook..." name="Facebook"/>
+		<menu_item_call label="Twitter..." name="Twitter"/>
+		<menu_item_call label="Flickr..." name="Flickr"/>
 		<menu label="Ses şekillendirme" name="VoiceMorphing">
 			<menu_item_check label="Ses şekillendirme yok" name="NoVoiceMorphing"/>
 			<menu_item_check label="Önizleme..." name="Preview"/>
@@ -148,7 +151,8 @@
 			<menu_item_check label="Ağa Uydur" name="Snap to Grid"/>
 			<menu_item_call label="XY Nesnesini Ağa Uydur" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Ağ İçin Seçimi Kullan" name="Use Selection for Grid"/>
-			<menu_item_call label="Ağ Seçenekleri" name="Grid Options"/>
+			<menu_item_call label="Ağ Seçenekleri..." name="Grid Options"/>
+			<menu_item_call label="Varsayılan İzinleri Ayarla..." name="Set default permissions"/>
 		</menu>
 		<menu label="Karşıya Yükle" name="Upload">
 			<menu_item_call label="Görüntü (L$[COST])..." name="Upload Image"/>
@@ -156,7 +160,6 @@
 			<menu_item_call label="Animasyon (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="Model..." name="Upload Model"/>
 			<menu_item_call label="Toplu (dosya başına L$[COST])..." name="Bulk Upload"/>
-			<menu_item_call label="Varsayılan Karşıya Yükleme İzinlerini Ayarla" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Geri Al" name="Undo"/>
 		<menu_item_call label="Yinele" name="Redo"/>
@@ -302,6 +305,7 @@
 			<menu_item_check label="Ayrıntı Seviyesi Bilgisi" name="LOD Info"/>
 			<menu_item_check label="İnşa Kuyruğu" name="Build Queue"/>
 			<menu_item_check label="Işıklar" name="Lights"/>
+			<menu_item_check label="Parçacıklar" name="Particles"/>
 			<menu_item_check label="Çarpışma İskeleti" name="Collision Skeleton"/>
 			<menu_item_check label="Eklemler" name="Joints"/>
 			<menu_item_check label="Işın Yayını" name="Raycast"/>

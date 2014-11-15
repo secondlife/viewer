@@ -22,7 +22,7 @@
 		Elegir qué rol asignarles:
 	</text>
 	<combo_box name="role_name" tool_tip="Elige el rol de entre la lista de aquellos que estás autorizado a asignar"/>
-	<button label="Enviar las invitaciones" name="ok_button"/>
+	<button label="Enviar invitaciones" name="invite_button"/>
 	<button label="Cancelar" name="cancel_button"/>
 	<string name="GroupInvitation">
 		Invitar al grupo

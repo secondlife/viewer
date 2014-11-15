@@ -19,6 +19,7 @@
 	<context_menu label="管理" name="Remove">
 		<menu_item_call label="違規舉報" name="Report Abuse..."/>
 		<menu_item_call label="封鎖" name="Object Mute"/>
+		<menu_item_call label="解除封鎖" name="Object Unmute"/>
 		<menu_item_call label="退回" name="Return..."/>
 	</context_menu>
 	<menu_item_call label="取得" name="Pie Object Take"/>

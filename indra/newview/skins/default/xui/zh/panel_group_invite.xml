@@ -22,7 +22,7 @@
 		選擇指派給他們的角色：
 	</text>
 	<combo_box name="role_name" tool_tip="從角色清單選擇你有權指派給成員的角色："/>
-	<button label="送出邀請" name="ok_button"/>
+	<button label="送出邀請" name="invite_button"/>
 	<button label="取消" name="cancel_button"/>
 	<string name="GroupInvitation">
 		群組邀請

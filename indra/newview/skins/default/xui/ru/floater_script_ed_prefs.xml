@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_script_colors" title="ЦВЕТА СКРИПТА">
+	<text name="color_pickers_label">
+		Выберите желаемые цвета:
+	</text>
+	<text name="text_label">
+		Текст
+	</text>
+	<text name="cursor_label">
+		Курсор
+	</text>
+	<text name="background_label">
+		Фон
+	</text>
+	<text name="datatype_label">
+		Типы данных
+	</text>
+	<text name="event_label">
+		События
+	</text>
+	<text name="string_literal_label">
+		Строковые литералы
+	</text>
+	<text name="constant_label">
+		Константа
+	</text>
+	<text name="flow_control_label">
+		Управление выполнением
+	</text>
+	<text name="function_label">
+		Функция
+	</text>
+	<text name="comment_label">
+		Комментарий
+	</text>
+	<script_editor name="Script Preview">
+		/* Пример скрипта */
+default
+{
+    state_entry()
+    {
+        // Комментарий
+        string greeting = &quot;Hello&quot;;
+        llSay(PUBLIC_CHANNEL, greeting);
+    }
+}
+	</script_editor>
+</floater>

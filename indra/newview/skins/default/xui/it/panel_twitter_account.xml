@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="panel_twitter_account">
+	<string name="twitter_connected" value="Sei in collegamento con Twitter come:"/>
+	<string name="twitter_disconnected" value="Non in collegamento con Twitter"/>
+	<text name="account_caption_label">
+		Non in collegamento con Twitter.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Collegamento..." name="connect_btn"/>
+		<button label="Interrompi collegamento" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Twitter/ta-p/2435453 Come pubblicare su Twitter]
+		</text>
+	</panel>
+</panel>
