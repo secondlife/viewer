@@ -3533,7 +3533,7 @@
                  function="Advanced.ToggleInfoDisplay"
                  parameter="agent target" />
             </menu_item_check>
-<!-- Appears not to exist anymore
+            <!-- Appears not to exist anymore
             <menu_item_check
              label="Debug Rotation"
              name="Debug Rotation">
@@ -3544,7 +3544,6 @@
                  function="ToggleControl"
                  parameter="DebugAvatarRotation" />
             </menu_item_check> -->
--->
             <menu_item_call
              label="Dump Attachments"
              name="Dump Attachments">
