@@ -55,6 +55,7 @@ public:
 	U32 count() const;
 	void add(const LLUUID& mesh_id, const LLVector3& pos);
 	bool remove(const LLUUID& mesh_id);
+	void clear();
 private:
 	typedef std::map<LLUUID,LLVector3> map_type;
 	map_type m_map;
@@ -202,6 +203,7 @@ public:
 	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info );
 	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
 	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
+	void clearAttachmentPosOverrides();
 
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }

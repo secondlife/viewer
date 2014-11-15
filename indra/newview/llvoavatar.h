@@ -199,8 +199,10 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	
+	void 					addAttachmentPosOverridesForObject(LLViewerObject *vo);
 	void					resetJointPositionsOnDetach(const LLUUID& mesh_id);
 	void					resetJointPositionsOnDetach(LLViewerObject *vo);
+	void					clearAttachmentPosOverrides();
 	
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);

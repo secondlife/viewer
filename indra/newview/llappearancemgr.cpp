@@ -809,22 +809,34 @@ void LLWearableHoldingPattern::onAllComplete()
 
 	LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
 	LLAgentWearables::llvo_vec_t objects_to_remove;
+	LLAgentWearables::llvo_vec_t objects_to_retain;
 	LLInventoryModel::item_array_t items_to_add;
 	if (isAgentAvatarValid())
 	{
 		LLAgentWearables::findAttachmentsAddRemoveInfo(mObjItems,
 													   objects_to_remove,
+													   objects_to_retain,
 													   items_to_add);
 
 		LL_DEBUGS("Avatar") << self_av_string() << "Removing " << objects_to_remove.size()
 							<< " attachments" << LL_ENDL;
+		gAgentAvatarp->clearAttachmentPosOverrides();
 		LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
 	}
 
 	// Update wearables.
 	LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " updating agent wearables with " << mResolved << " wearable items " << LL_ENDL;
 	LLAppearanceMgr::instance().updateAgentWearables(this);
-	
+
+	// Restore attachment pos overrides for the attachments that aren't going away.
+	for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin();
+		it != objects_to_retain.end();
+		++it)
+	{
+		LLViewerObject *objectp = *it;
+		gAgentAvatarp->addAttachmentPosOverridesForObject(objectp);
+	}
+
 	// Update attachments to match those requested.
 	if (isAgentAvatarValid())
 	{

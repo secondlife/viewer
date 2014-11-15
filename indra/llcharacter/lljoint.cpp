@@ -89,6 +89,11 @@ bool LLPosOverrideMap::remove(const LLUUID& mesh_id)
 	return (remove_count > 0);
 }
 
+void LLPosOverrideMap::clear()
+{
+	m_map.clear();
+}
+
 //-----------------------------------------------------------------------------
 // LLJoint()
 // Class Constructor
@@ -365,6 +370,18 @@ void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::str
 bool LLJoint::hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const
 {
 	return m_attachmentOverrides.findActiveOverride(mesh_id,pos);
+}
+
+//--------------------------------------------------------------------
+// clearAttachmentPosOverrides()
+//--------------------------------------------------------------------
+void LLJoint::clearAttachmentPosOverrides()
+{
+	if (m_attachmentOverrides.count())
+	{
+		m_attachmentOverrides.clear();
+		setPosition(m_posBeforeOverrides);
+	}
 }
 
 //--------------------------------------------------------------------

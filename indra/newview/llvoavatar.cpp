@@ -5061,6 +5061,99 @@ bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
 	return false;
 }
 
+void LLVOAvatar::clearAttachmentPosOverrides()
+{
+	//Subsequent joints are relative to pelvis
+	avatar_joint_list_t::iterator iter = mSkeleton.begin();
+	avatar_joint_list_t::iterator end  = mSkeleton.end();
+
+	for (; iter != end; ++iter)
+	{
+		LLJoint* pJoint = (*iter);
+		pJoint->clearAttachmentPosOverrides();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// addAttachmentPosOverridesForObject
+//-----------------------------------------------------------------------------
+void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
+{
+	LLVOAvatar *av = vo->getAvatarAncestor();
+	if (!av || (av != this))
+	{
+		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
+	}
+		
+	// Process all children
+	LLViewerObject::const_child_list_t& children = vo->getChildren();
+	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+		 it != children.end(); ++it)
+	{
+		LLViewerObject *childp = *it;
+		addAttachmentPosOverridesForObject(childp);
+	}
+
+	LLVOVolume *vobj = dynamic_cast<LLVOVolume*>(vo);
+	bool pelvisGotSet = false;
+
+	if (!vobj)
+	{
+		return;
+	}
+	if (vobj->isMesh() &&
+		((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
+	{
+		return;
+	}
+	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
+	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
+
+	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
+	{
+		const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
+		if ( bindCnt > 0 )
+		{					
+			const int jointCnt = pSkinData->mJointNames.size();
+			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
+			const LLUUID& mesh_id = pSkinData->mMeshID;
+			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
+			if ( fullRig )
+			{								
+				for ( int i=0; i<jointCnt; ++i )
+				{
+					std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
+					LLJoint* pJoint = getJoint( lookingForJoint );
+					if ( pJoint && pJoint->getId() != currentId )
+					{   									
+						pJoint->setId( currentId );
+						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
+						//Set the joint position
+						pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
+									
+						//If joint is a pelvis then handle old/new pelvis to foot values
+						if ( lookingForJoint == "mPelvis" )
+						{	
+							pelvisGotSet = true;											
+						}										
+					}										
+				}																
+				if (pelvisZOffset != 0.0F)
+				{
+					addPelvisFixup( pelvisZOffset, mesh_id );
+					pelvisGotSet = true;											
+				}
+			}							
+		}
+	}
+					
+	//Rebuild body data if we altered joints/pelvis
+	if ( pelvisGotSet ) 
+	{
+		postPelvisSetRecalc();
+	}		
+}
+
 //-----------------------------------------------------------------------------
 // resetJointPositionsOnDetach
 //-----------------------------------------------------------------------------
