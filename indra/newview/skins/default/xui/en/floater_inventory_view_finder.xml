@@ -301,6 +301,7 @@
      top_pad="4"
      width="64" />
     <text
+     name="label_hours"
      type="string"
      length="1"
      follows="left|top"
@@ -323,6 +324,7 @@
      left="8"
      width="64" />
     <text
+     name="label_days"
      type="string"
      length="1"
      follows="left|top"

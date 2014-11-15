@@ -23,10 +23,10 @@
 		<radio_item label="Nowsze niż" name="newer" />
 		<radio_item label="Starsze niż" name="older" />
 	</radio_group>
-	<text>
+	<text name="label_hours">
 		Godzin
 	</text>
-	<text>
+	<text name="label_days">
 		Dni
 	</text>
 	<button label="Zamknij" label_selected="Zamknij" name="Close" />

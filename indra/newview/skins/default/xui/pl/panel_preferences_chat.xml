@@ -89,17 +89,17 @@
 		<check_box label="Propozycja przedmiotu" name="inventory_offer" />
 	</panel>
 	<panel name="log_settings">
-		<text>
+		<text name="logging_label">
 			Zapisywanie:
 		</text>
-		<combo_box name="chat_font_size">
-			<item label="Dziennik i logi rozmów" />
-			<item label="Tylko dziennik" />
-			<item label="Nie zapisuj dziennika ani logów rozmów" />
+		<combo_box name="conversation_log_combo">
+			<item name="log_and_transcripts" label="Dziennik i logi rozmów" />
+			<item name="log_only" label="Tylko dziennik" />
+			<item name="no_log_or_transcript" label="Nie zapisuj dziennika ani logów rozmów" />
 		</combo_box>
 		<button label="Wyczyść dziennik" name="clear_log" />
 		<button label="Usuń logi rozmów" name="delete_transcripts" />
-		<text>
+		<text name="log_location_label">
 			Miejsce zapisu:
 		</text>
 		<button label="Przeglądaj" label_selected="Przeglądaj" name="log_path_button" />

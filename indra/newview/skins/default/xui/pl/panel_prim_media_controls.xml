@@ -34,7 +34,7 @@
 			<line_editor name="media_address_url" tool_tip="URL mediów" />
 			<icon name="media_secure_lock_flag" tool_tip="Bezpieczne przeglądanie" />
 			<layout_stack name="media_address_url_icons">
-				<layout_panel>
+				<layout_panel name="media_address_url_icons_wl">
 					<icon name="media_whitelist_flag" tool_tip="Biała lista aktywna" />
 				</layout_panel>
 			</layout_stack>

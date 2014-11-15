@@ -14,7 +14,7 @@
 	<radio_group name="preferred_browser_behavior">
 		<radio_item label="Własna (Chrome, Firefox, IE) dla wszystkich linków" name="internal" tool_tip="Używa domyślnej systemowej przeglądarki internetowej do przeglądania plików pomocy, otwierania linków itp. Nie jest zalecane zaznaczanie tej opcji, jeśli uruchamiasz Second Life na pełnym ekranie." />
 		<radio_item label="Wbudowana tylko dla linków Second Life" name="external" tool_tip="Używa domyślnej systemowej przeglądarki internetowej do przeglądania plików pomocy, otwierania linków itp. Przeglądarka wbudowana będzie używana tylko dla linków LindenLab/SecondLife." />
-		<radio_item label="Wbudowana dla wszystkich linków" name="internal" tool_tip="Używa wbudowanej przeglądarki internetowej do przeglądania plików pomocy, otwierania linków itp. Ta przeglądarka otwiera nowe okienko wewnątrz [APP_NAME]." />
+		<radio_item label="Wbudowana dla wszystkich linków" name="external_all" tool_tip="Używa wbudowanej przeglądarki internetowej do przeglądania plików pomocy, otwierania linków itp. Ta przeglądarka otwiera nowe okienko wewnątrz [APP_NAME]." />
 	</radio_group>
 	<check_box label="Włącz wtyczki" name="browser_plugins_enabled" />
 	<check_box label="Akceptuj ciasteczka" name="cookies_enabled" />
