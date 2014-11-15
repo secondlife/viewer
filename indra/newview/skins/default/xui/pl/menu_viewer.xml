@@ -63,7 +63,7 @@
 		<menu_item_call label="Kup działkę" name="Buy Land" />
 		<menu label="Pokaż więcej" name="LandShow">
 			<menu_item_check label="Linie zakazu" name="Ban Lines" />
-			<menu_item_check label="Emitery" name="beacons" />
+			<menu_item_check label="Emitery" name="beacons" shortcut="" />
 			<menu_item_check label="Granice działek" name="Property Lines" />
 			<menu_item_check label="Właściciele działek" name="Land Owners" />
 			<menu_item_check label="Współrzędne" name="Coordinates" />
@@ -355,7 +355,7 @@
 			<menu_item_call label="Wyłącz logowanie wiadomości" name="Disable Message Log" />
 			<menu_item_check label="Prędkość interpolacji obiektów" name="Velocity Interpolate Objects" />
 			<menu_item_check label="Pinguj pozycje interpolowanych obiektów" name="Ping Interpolate Object Positions" />
-			<menu_item_call label="Zagub pakiet" name="Drop a Packet" />
+			<menu_item_call label="Zagub pakiet" name="Drop a Packet" shortcut="" />
 		</menu>
 		<menu_item_call label="Zrzut oskryptowanej kamery" name="Dump Scripted Camera" />
 		<menu_item_call label="Zderzenia, popchnięcia i uderzenia" name="Bumps, Pushes &amp;amp; Hits" />
@@ -432,7 +432,7 @@
 			<menu_item_check label="Wyświetl cel Agenta" name="Display Agent Target" />
 			<menu_item_check label="Debugowanie rotacji" name="Debug Rotation" />
 			<menu_item_call label="Zrzut przyłączonych dodatków" name="Dump Attachments" />
-			<menu_item_call label="Debugowanie tekstur awatara" name="Debug Avatar Textures" />
+			<menu_item_call label="Debugowanie tekstur awatara" name="Debug Avatar Textures" shortcut="" />
 			<menu_item_call label="Zrzut lokalnych tekstur" name="Dump Local Textures" />
 		</menu>
 		<menu_item_check label="Tekstury przez HTTP" name="HTTP Textures" />
