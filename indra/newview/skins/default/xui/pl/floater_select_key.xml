@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="modal container" title="">
-	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="modal container">
 	<text name="Save item as:">
-		Naciśnij klawisz aby ustawić przełącznik Mówić.
+		Naciśnij przycisk, aby ustawić przełącznik Głosu.
 	</text>
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
 </floater>

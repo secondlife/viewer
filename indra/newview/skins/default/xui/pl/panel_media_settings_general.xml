@@ -1,32 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Ogólne" name="Media Settings General">
 	<text name="home_label">
 		Strona domowa:
 	</text>
 	<text name="home_fails_whitelist_label">
-		(ta strona nie została zaakceptowana przez filtr listy dostępowej (Biała Lista)
+		(Ta strona nie przeszła przez filtr białej listy)
 	</text>
-	<line_editor name="home_url" tool_tip="Strona domowa dla źródla mediów"/>
+	<line_editor name="home_url" tool_tip="Strona domowa dla źródła mediów" />
 	<text name="preview_label">
-		Pokaż
+		Podgląd
 	</text>
-	<text name="current_url_label">
+	<text  name="current_url_label">
 		Obecna strona:
 	</text>
-	<text name="current_url" tool_tip="The current page for this media source" value=""/>
-	<button label="Zresetuj" name="current_url_reset_btn"/>
-	<check_box initial_value="false" label="Pętla" name="auto_loop"/>
-	<check_box initial_value="false" label="Interakcja kliknięcia" name="first_click_interact"/>
-	<check_box initial_value="false" label="Autopowiększenie" name="auto_zoom"/>
-	<check_box initial_value="false" label="Automatyczne odtwarzanie mediów" name="auto_play"/>
+	<text name="current_url" tool_tip="Obecna strona dla tego źródła mediów" />
+	<button label="Zresetuj" name="current_url_reset_btn" />
+	<check_box label="Autopowtarzanie" name="auto_loop" />
+	<check_box label="Interakcja kliknięcia" name="first_click_interact" />
+	<check_box label="Autopowiększenie" name="auto_zoom" />
+	<check_box label="Autoodtwarzanie" name="auto_play" />
 	<text name="media_setting_note">
 		Pamiętaj: Rezydenci mogą zmienić to ustawienie
 	</text>
-	<check_box initial_value="false" label="Automatyczne dopasowanie mediów na twarzy lub obiekcie" name="auto_scale"/>
+	<check_box label="Autoskalowanie mediów na powierzchni obiektu" name="auto_scale" />
 	<text name="size_label">
 		Rozmiar:
-	</text>
-	<text name="X_label">
-		X
 	</text>
 </panel>

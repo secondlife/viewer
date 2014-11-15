@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview_sound">
 	<floater.string name="Title">
 		Dźwięk: [NAME]
@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Opis:
 	</text>
-	<button label="Odtwarzaj" label_selected="Odtwarzaj" left_delta="-136" name="Sound play btn" tool_tip="Dźwięk będzie słyszalny przez wszystkich." width="130"/>
-	<button label="Odtwarzaj lokalnie" label_selected="Odtwarzaj lokalnie" name="Sound audition btn" tool_tip="Dźwięk będzie słyszalny tylko dla Ciebie."/>
+	<button label="Odtwórz publicznie" label_selected="Zatrzymaj" name="Sound play btn" tool_tip="Dźwięk będzie słyszalny dla wszystkich." />
+	<button label="Odtwórz prywatnie" label_selected="Zatrzymaj" name="Sound audition btn" tool_tip="Dźwięk będzie słyszalny tylko dla Ciebie." />
 </floater>

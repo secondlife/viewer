@@ -1,18 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <panel label="Zaawansowane" name="advanced">
-	<panel.string name="aspect_ratio_text">
-		[NUM]:[DEN]
-	</panel.string>
-	<text name="UI Size:">
-		rozmiar UI:
+	<text name="Cache:">
+		Pamięć podręczna:
 	</text>
-	<check_box label="Pokaż błędy skryptu w:" name="show_script_errors"/>
+	<spinner label="Rozmiar (64 - 9984 MB)" name="cachesizespinner" />
+	<button label="Wyczyść" label_selected="Wyczyść" name="clear_cache" />
+	<text name="Cache location">
+		Położenie buforu pamięci podręcznej:
+	</text>
+	<button label="Przeglądaj" label_selected="Przeglądaj" name="set_cache" />
+	<button label="Domyślne" label_selected="Domyślne" name="default_cache_location" />
+	<text name="UI Size:">
+		Rozmiar interfejsu:
+	</text>
+	<check_box label="Pokaż błędy skryptów w:" name="show_script_errors" />
 	<radio_group name="show_location">
-		<radio_item label="Czat Lokalny" name="0"/>
-		<radio_item label="Osobne okno:" name="1"/>
+		<radio_item label="Czacie lokalnym" name="0" />
+		<radio_item label="Osobnym oknie" name="1" />
 	</radio_group>
-	<check_box label="Pozwól na wiele przeglądarek" name="allow_multiple_viewer_check"/>
-	<check_box label="Pokaż selekcję siatki przy logowaniu" name="show_grid_selection_check"/>
-	<check_box label="Pokaz menu Zaawansowane" name="show_advanced_menu_check"/>
-	<check_box label="Pokaz menu Rozwinięcie" name="show_develop_menu_check"/>
+	<check_box label="Zezwól na wiele Przeglądarek" name="allow_multiple_viewer_check" />
+	<check_box label="Zezwól na logowanie do innych siatek" name="show_grid_selection_check" />
+	<check_box label="Pokaż menu Zaawansowane" name="show_advanced_menu_check" />
+	<check_box label="Pokaż menu Programista" name="show_develop_menu_check" />
+	<button label="Domyślne uprawnienia tworzenia" name="default_creation_permissions" />
 </panel>

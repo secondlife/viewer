@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Scene Load Statistics" title="STATYSTYKI OBCIĄŻENIA SCENY">
+<floater name="Scene Load Statistics" title="Statystyki obciążenia sceny">
 	<button label="Pauza" name="playpause" />
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">

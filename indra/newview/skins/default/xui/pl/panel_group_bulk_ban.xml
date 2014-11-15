@@ -30,7 +30,7 @@
 		- Nie możesz zbanować samego/samej siebie.
 	</panel.string>
 	<text name="help_text">
-		Możesz wybrać wielu Rezydentów do zbanowania z Twojej grupy. Kliknij na &apos;Wybierz osoby&apos;, aby rozpocząć
+		Możesz wybrać wielu Rezydentów do zbanowania z grupy. Kliknij na &apos;Wybierz osoby&apos;, aby rozpocząć.
 	</text>
 	<button label="Wybierz osoby" name="add_button" />
 	<name_list name="banned_agent_list" tool_tip="Przytrzymaj klawisz Ctrl i klikaj na imionach Rezydentów, aby wybrać wiele pozycji" />

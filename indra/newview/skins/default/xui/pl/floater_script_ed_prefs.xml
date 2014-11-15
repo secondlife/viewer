@@ -19,13 +19,13 @@
 		Zdarzenia
 	</text>
 	<text name="string_literal_label">
-		Łańcuchy znaków
+		Łańcuchy
 	</text>
 	<text name="constant_label">
 		Stałe
 	</text>
 	<text name="flow_control_label">
-		Przepływ sterow.
+		Sterowanie
 	</text>
 	<text name="function_label">
 		Funkcje

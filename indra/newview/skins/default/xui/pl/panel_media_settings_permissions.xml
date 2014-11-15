@@ -1,29 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Dopasuj" name="Media settings for controls">
 	<text name="controls_label">
-		Ustawienia:
+		Kontrolki:
 	</text>
 	<combo_box name="controls">
 		<combo_item name="Standard">
 			Standardowe
 		</combo_item>
 		<combo_item name="Mini">
-			Mini
+			Małe
 		</combo_item>
 	</combo_box>
 	<text name="owner_label">
 		Właściciel
 	</text>
-	<check_box initial_value="false" label="Pozwól na nawigację &amp; interaktywność" name="perms_owner_interact"/>
-	<check_box initial_value="false" label="Pokaż pasek kontroli" name="perms_owner_control"/>
+	<check_box label="Pozwól na nawigację i interaktywność" name="perms_owner_interact" />
+	<check_box label="Pokaż pasek kontrolek" name="perms_owner_control" />
 	<text name="group_label">
 		Grupa:
 	</text>
-	<check_box initial_value="false" label="Pozwól na nawigację &amp; interaktywność" name="perms_group_interact"/>
-	<check_box initial_value="false" label="Pokaż pasek kontroli" name="perms_group_control"/>
+	<check_box label="Pozwól na nawigację i interaktywność" name="perms_group_interact" />
+	<check_box label="Pokaż pasek kontrolek" name="perms_group_control" />
 	<text name="anyone_label">
 		Każdy
 	</text>
-	<check_box initial_value="false" label="Pozwól na nawigację &amp; interaktywność" name="perms_anyone_interact"/>
-	<check_box initial_value="false" label="Pokaż pasek kontroli" name="perms_anyone_control"/>
+	<check_box label="Pozwól na nawigację i interaktywność" name="perms_anyone_interact" />
+	<check_box label="Pokaż pasek kontrolek" name="perms_anyone_control" />
 </panel>

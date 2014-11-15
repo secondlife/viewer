@@ -1,17 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php
-	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
 			<text name="log_in_text">
-				POŁĄCZ
+				ZALOGUJ SIĘ
 			</text>
 			<text name="username_text">
 				Użytkownik:
 			</text>
-			<combo_box name="username_combo" tool_tip="Nazwę użytkownika wybierasz przy rejestracji, np. bobsmith12 lub Steller Sunshine"/>
+			<combo_box tool_tip="Nazwa użytkownika wybrana przy rejestracji, np. bobsmith12 lub Steller Sunshine" name="username_combo" />
 			<text name="password_text">
 				Hasło:
 			</text>
@@ -21,28 +18,26 @@
 				Rozpocznij w:
 			</text>
 			<combo_box name="start_location_combo">
-				<combo_box.item label="Ostatnie Miejsce" name="MyLastLocation"/>
-				<combo_box.item label="Moje Miejsce Startu" name="MyHome"/>
-				<combo_box.item label="&lt;Wpisz Region&gt;" name="Typeregionname"/>
+				<combo_box.item label="Ostatnia lokalizacja" name="MyLastLocation" />
+				<combo_box.item label="Moje Miejsce Startu" name="MyHome" />
+				<combo_box.item label="&lt;Wpisz nazwę regionu&gt;" name="Typeregionname" />
 			</combo_box>
 		</layout_panel>
 		<layout_panel name="links_login_panel">
 			<text name="login_help">
-				Potrzebujesz pomocy z logowaniem się?
+				Potrzebujesz pomocy?
 			</text>
 			<text name="forgot_password_text">
-				Zapomniałeś swojej nazwy użytkownika lub hasła?
+				Zapomniałeś/aś nazwy lub hasła?
 			</text>
-			<button label="Połącz" name="connect_btn"/>
-			<check_box label="Zapamiętaj hasło" name="remember_check"/>
+			<button label="Zaloguj" name="connect_btn" />
+			<check_box label="Zapamiętaj hasło" name="remember_check" />
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_account_text">
-				CREATE YǾUR ACCǾUNT
+				UTWÓRZ KONTO
 			</text>
-			<button name="create_new_account_btn"
-					label="Utwórz nowe konto"
-					width="120"/>
+			<button label="Rozpocznij" name="create_new_account_btn" />
 		</layout_panel>
 	</layout_stack>
 </panel>

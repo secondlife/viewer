@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Model Preview" title="UPLOAD MODEL">
+<floater name="Model Preview" title="ŁADOWANIE MODELU">
 	<string name="status_parse_error">
 		Błąd: Problem z parsowaniem Dae, zobacz log.
 	</string>

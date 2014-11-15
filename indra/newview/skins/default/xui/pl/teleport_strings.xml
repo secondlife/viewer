@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
@@ -17,10 +17,11 @@ Jeśli nadal nie możesz się teleportować wyloguj się i ponownie zaloguj.
 			Przepraszamy, ale nie możemy znaleźć miejsca docelowego.
 		</message>
 		<message name="timeout_tport">
-			Przepraszamy, ale nie udało się przeprowadzić teleportacji. Spróbuj jeszcze raz.
+			Przepraszamy, ale nie udało się przeprowadzić teleportacji.
+Spróbuj jeszcze raz.
 		</message>
 		<message name="NoHelpIslandTP">
-		Brak możliwości ponownej teleportacji do Welcome Island.
+			Brak możliwości ponownej teleportacji do Welcome Island.
 Odwiedź &apos;Welcome Island Public&apos; by powtórzyć szkolenie.
 		</message>
 		<message name="noaccess_tport">
@@ -30,7 +31,7 @@ Odwiedź &apos;Welcome Island Public&apos; by powtórzyć szkolenie.
 			Czekamy na Twoje akcesoria. Możesz poczekać kilka minut lub zrobić relog przed następną próbą teleportacji.
 		</message>
 		<message name="too_many_uploads_tport">
-			Obecnie ten region ma problemy z ładowaniem obiektów, w związku z czym teleportacja bardzo sie opóźnia.
+			Obecnie ten region ma problemy z ładowaniem obiektów, w związku z czym teleportacja bardzo się opóźnia.
 Spróbuj jeszcze raz za kilka minut albo teleportuj się do mniej zatłoczonego miejsca.
 		</message>
 		<message name="expired_tport">
@@ -45,6 +46,12 @@ Spróbuj jeszcze raz za kilka minut.
 		</message>
 		<message name="no_inventory_host">
 			Szafa chwilowo nie działa.
+		</message>
+		<message name="MustGetAgeRegion">
+			Musisz mieć 18 lat lub więcej, aby wejść do tego regionu.
+		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			Nie można wejść do tego regionu. '[REGION_NAME]' jest miejscem z grami (Skill Gaming Region) - musisz spełnić określone wymagania, jeśli chcesz go odwiedzić. Aby dowiedzieć się więcej zapoznaj się z [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ].
 		</message>
 	</message_set>
 	<message_set name="progress">
@@ -80,6 +87,9 @@ Spróbuj jeszcze raz za kilka minut.
 		</message>
 		<message name="requesting">
 			Start teleportacji...
+		</message>
+		<message name="pending">
+			Teleport oczekuje...
 		</message>
 	</message_set>
 </teleport_messages>
