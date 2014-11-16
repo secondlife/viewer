@@ -1565,14 +1565,13 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     cb(message,LLError::LEVEL_ERROR);
                 }
             }
-            // If this is a legit but empty stock folder, raise an error
             else if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2))
             {
-                result = false;
+                // If this is a legit but empty stock folder, warn only (listing must stay searchable when empty)
                 if (cb)
                 {
                     std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Empty Stock");
-                    cb(message,LLError::LEVEL_ERROR);
+                    cb(message,LLError::LEVEL_WARN);
                 }
             }
             else if (cb)
