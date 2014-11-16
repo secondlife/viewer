@@ -100,6 +100,36 @@ void update_folder_cb(const LLUUID& dest_folder)
     gInventory.notifyObservers();
 }
 
+// Helper function : Count only the copyable items, i.e. skip the stock items (which are no copy)
+S32 count_copyable_items(LLInventoryModel::item_array_t& items)
+{
+    S32 count = 0;
+    for (LLInventoryModel::item_array_t::const_iterator it = items.begin(); it != items.end(); ++it)
+    {
+        LLViewerInventoryItem* item = *it;
+        if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+// Helper function : Count the number of stock folders
+S32 count_stock_folders(LLInventoryModel::cat_array_t& categories)
+{
+    S32 count = 0;
+    for (LLInventoryModel::cat_array_t::const_iterator it = categories.begin(); it != categories.end(); ++it)
+    {
+        LLInventoryCategory* cat = *it;
+        if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
 // Generates a string containing the path to the item specified by
 // item_id.
 void append_path(const LLUUID& id, std::string& path)
@@ -1127,7 +1157,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
             
             gInventory.collectDescendents(version_folder->getUUID(), existing_categories, existing_items, FALSE);
             
-            existing_item_count += existing_items.size();
+            existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
         }
         
         if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
@@ -1177,7 +1207,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         gInventory.collectDescendents(inv_cat->getUUID(), descendent_categories, descendent_items, FALSE);
     
         int dragged_folder_count = descendent_categories.size() + bundle_size;  // Note: We assume that we're moving a bunch of folders in. That might be wrong...
-        int dragged_item_count = descendent_items.size();
+        int dragged_item_count = count_copyable_items(descendent_items) + count_stock_folders(descendent_categories);
         int existing_item_count = 0;
         int existing_folder_count = 0;
     
@@ -1196,7 +1226,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             gInventory.collectDescendents(version_folder->getUUID(), existing_categories, existing_items, FALSE);
         
             existing_folder_count += existing_categories.size();
-            existing_item_count += existing_items.size();
+            existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
         }
     
         const int total_folder_count = existing_folder_count + dragged_folder_count;
