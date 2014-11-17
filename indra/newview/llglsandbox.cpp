@@ -920,7 +920,10 @@ F32 gpu_benchmark()
 	//number of samples to take
 	const S32 samples = 64;
 
-	LLGLSLShader::initProfile();
+	if (gGLManager.mHasTimerQuery)
+	{
+		LLGLSLShader::initProfile();
+	}
 
 	LLRenderTarget dest[count];
 	U32 source[count];
@@ -977,15 +980,18 @@ F32 gpu_benchmark()
 	buff->flush();
 
 	gBenchmarkProgram.bind();
-	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
-
-	//wait for any previoius GL commands to finish
-	glFinish();
 	
 	bool busted_finish = false;
 
+	LL_INFOS() << "GPU BENCHMARK START." << LL_ENDL;
+
 	for (S32 c = -1; c < samples; ++c)
 	{
+		buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+		glFinish();
+
+		LL_INFOS() << "GPU BENCHMARK ITERATION." << LL_ENDL;
+
 		LLTimer timer;
 		timer.start();
 
@@ -1023,9 +1029,11 @@ F32 gpu_benchmark()
 			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
+				LL_INFOS() << "GPU BENCHMARK DETECTED GL DRIVER WITH NOT SO MUCH WORKING glFinish." << LL_ENDL;
 			}
 			else
 			{
+				LL_INFOS() << "GPU BENCHMARK ESTIMATE." << gbps << " Gbps" << LL_ENDL;
 				results.push_back(gbps);
 			}		
 		}
@@ -1033,10 +1041,12 @@ F32 gpu_benchmark()
 
 	gBenchmarkProgram.unbind();
 
-	LLGLSLShader::finishProfile(false);
-	
-	LLImageGL::deleteTextures(count, source);
+	if (gGLManager.mHasTimerQuery)
+	{
+		LLGLSLShader::finishProfile(false);
+	}
 
+	LLImageGL::deleteTextures(count, source);
 
 	std::sort(results.begin(), results.end());
 
