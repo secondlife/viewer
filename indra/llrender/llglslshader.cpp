@@ -214,7 +214,7 @@ void LLGLSLShader::startProfile()
 //static
 void LLGLSLShader::stopProfile(U32 count, U32 mode)
 {
-	if (sProfileEnabled)
+	if (sProfileEnabled && sCurBoundShaderPtr)
 	{
 		sCurBoundShaderPtr->readProfileQuery(count, mode);
 	}
@@ -263,18 +263,29 @@ void LLGLSLShader::placeProfileQuery()
 
 
 	glBeginQueryARB(GL_SAMPLES_PASSED, mSamplesQuery);
-	glBeginQueryARB(GL_TIME_ELAPSED, mTimerQuery);
+
+	if (gGLManager.mHasTimerQuery)
+	{
+		glBeginQueryARB(GL_TIME_ELAPSED, mTimerQuery);
+	}
 #endif
 }
 
 void LLGLSLShader::readProfileQuery(U32 count, U32 mode)
 {
 #if !LL_DARWIN
-	glEndQueryARB(GL_TIME_ELAPSED);
+	if (gGLManager.mHasTimerQuery)
+	{
+		glEndQueryARB(GL_TIME_ELAPSED);
+	}
+
 	glEndQueryARB(GL_SAMPLES_PASSED);
 	
 	U64 time_elapsed = 0;
-	glGetQueryObjectui64v(mTimerQuery, GL_QUERY_RESULT, &time_elapsed);
+	if (gGLManager.mHasTimerQuery)
+	{
+		glGetQueryObjectui64v(mTimerQuery, GL_QUERY_RESULT, &time_elapsed);
+	}
 
 	U64 samples_passed = 0;
 	glGetQueryObjectui64v(mSamplesQuery, GL_QUERY_RESULT, &samples_passed);

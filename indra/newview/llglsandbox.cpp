@@ -954,7 +954,7 @@ F32 gpu_benchmark()
 
 	//make a dummy triangle to draw with
 	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
-	buff->allocateBuffer(3, 0, true);
+	buff->allocateBuffer(12, 0, true);
 
 	LLStrider<LLVector3> v;
 	LLStrider<LLVector2> tc;
@@ -964,6 +964,16 @@ F32 gpu_benchmark()
 	v[0].set(-1,1,0);
 	v[1].set(-1,-3,0);
 	v[2].set(3,1,0);
+	v[3].set(-1,1,0);
+	v[4].set(-1,-3,0);
+	v[5].set(3,1,0);
+	v[6].set(-1,1,0);
+	v[7].set(-1,-3,0);
+	v[8].set(3,1,0);
+	v[9].set(-1,1,0);
+	v[10].set(-1,-3,0);
+	v[11].set(3,1,0);
+
 	buff->flush();
 
 	gBenchmarkProgram.bind();
@@ -983,7 +993,7 @@ F32 gpu_benchmark()
 		{
 			dest[i].bindTarget();
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
-			buff->drawArrays(LLRender::TRIANGLES, 0, 3);
+			buff->drawArrays(LLRender::TRIANGLES, 0, 12);
 			dest[i].flush();
 		}
 		
