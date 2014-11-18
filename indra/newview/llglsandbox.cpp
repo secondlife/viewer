@@ -881,13 +881,14 @@ void LLViewerObjectList::renderObjectBeacons()
 
 F32 gpu_benchmark()
 {
-	if (!gGLManager.mHasShaderObjects)
-	{ //don't bother benchmarking the fixed function
+	if (!gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
+	{ // don't bother benchmarking the fixed function
+      // or venerable drivers which don't support accurate timing anyway
+      // and are likely to be correctly identified by the GPU table already.
 		return -1.f;
 	}
 
-	
-	if (gBenchmarkProgram.mProgramObject == 0)
+    if (gBenchmarkProgram.mProgramObject == 0)
 	{
 		LLViewerShaderMgr::instance()->initAttribsAndUniforms();
 
@@ -983,14 +984,10 @@ F32 gpu_benchmark()
 	
 	bool busted_finish = false;
 
-	LL_INFOS() << "GPU BENCHMARK START." << LL_ENDL;
-
 	for (S32 c = -1; c < samples; ++c)
 	{
 		buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 		glFinish();
-
-		LL_INFOS() << "GPU BENCHMARK ITERATION." << LL_ENDL;
 
 		LLTimer timer;
 		timer.start();
@@ -1029,11 +1026,10 @@ F32 gpu_benchmark()
 			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
-				LL_INFOS() << "GPU BENCHMARK DETECTED GL DRIVER WITH NOT SO MUCH WORKING glFinish." << LL_ENDL;
+				LL_INFOS() << "GPU Benchmark detected GL driver with broken glFinish implementation. Neat." << LL_ENDL;
 			}
 			else
 			{
-				LL_INFOS() << "GPU BENCHMARK ESTIMATE." << gbps << " Gbps" << LL_ENDL;
 				results.push_back(gbps);
 			}		
 		}
@@ -1063,21 +1059,14 @@ F32 gpu_benchmark()
     }
 #endif
 
-	if (gGLManager.mHasTimerQuery)
-	{
-		F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
-		F32 seconds = ms/1000.f;
+	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
+	F32 seconds = ms/1000.f;
 
-		F64 samples_drawn = res*res*count*samples;
-		F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
-		gbps = samples_sec*8;
+	F64 samples_drawn = res*res*count*samples;
+	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
+	gbps = samples_sec*8;
 
-		LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << "ARB_timer_query unavailable." << LL_ENDL;
-	}
+	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
 
 	return gbps;
 }

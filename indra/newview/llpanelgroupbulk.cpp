@@ -387,7 +387,7 @@ void LLPanelGroupBulk::addUsers(uuid_vec_t& agent_ids)
 			} 
 			else 
 			{
-				llwarns << "llPanelGroupBulk: Selected avatar has no name: " << dest->getID() << llendl;
+				LL_WARNS() << "llPanelGroupBulk: Selected avatar has no name: " << dest->getID() << LL_ENDL;
 				names.push_back("(Unknown)");
 			}
 		}

@@ -101,7 +101,7 @@ void LLFloaterGroupBulkBan::showForGroup(const LLUUID& group_id, uuid_vec_t* age
 	// Make sure group_id isn't null
 	if (group_id.isNull())
 	{
-		llwarns << "LLFloaterGroupInvite::showForGroup with null group_id!" << llendl;
+		LL_WARNS() << "LLFloaterGroupInvite::showForGroup with null group_id!" << LL_ENDL;
 		return;
 	}
 
