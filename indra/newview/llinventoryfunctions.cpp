@@ -1555,19 +1555,18 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     {
         if (cat_array->size() == 0)
         {
-            // If this is an empty version folder, raise an error
             if (depth == 2)
             {
-                result = false;
+                // If this is an empty version folder, warn only (listing won't be delivered by AIS, but only AIS should unlist)
                 if (cb)
                 {
                     std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Empty Version");
-                    cb(message,LLError::LEVEL_ERROR);
+                    cb(message,LLError::LEVEL_WARN);
                 }
             }
             else if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2))
             {
-                // If this is a legit but empty stock folder, warn only (listing must stay searchable when empty)
+                // If this is a legit but empty stock folder, warn only (listing must stay searchable when out of stock)
                 if (cb)
                 {
                     std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Empty Stock");

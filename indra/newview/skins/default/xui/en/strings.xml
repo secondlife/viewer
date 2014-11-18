@@ -2307,7 +2307,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Marketplace Validation Warning Unwrapped Item">: Warning: items must be contained by a version folder</string>
 	<string name="Marketplace Validation Error">: Error: </string>
 	<string name="Marketplace Validation Warning">: Warning: </string>
-	<string name="Marketplace Validation Error Empty Version">: Error: version folder must contain at least 1 item</string>
+	<string name="Marketplace Validation Error Empty Version">: Warning: version folder must contain at least 1 item</string>
 	<string name="Marketplace Validation Error Empty Stock">: Warning: stock folder must contain at least 1 item</string>
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Prefix">Error: </string>
