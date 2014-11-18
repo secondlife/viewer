@@ -368,7 +368,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 //-----------------------------------------------------------------------------
 // Select the object, parents and children.
 //-----------------------------------------------------------------------------
-LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, BOOL add_to_end)
+LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, BOOL add_to_end, BOOL ignore_select_owned)
 {
 	llassert( obj );
 
@@ -385,7 +385,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, 
 		return NULL;
 	}
 
-	if (!canSelectObject(obj))
+	if (!canSelectObject(obj,ignore_select_owned))
 	{
 		//make_ui_sound("UISndInvalidOp");
 		return NULL;
@@ -6771,29 +6771,32 @@ void LLSelectMgr::validateSelection()
 	getSelection()->applyToObjects(&func);	
 }
 
-BOOL LLSelectMgr::canSelectObject(LLViewerObject* object)
+BOOL LLSelectMgr::canSelectObject(LLViewerObject* object, BOOL ignore_select_owned)
 {
 	// Never select dead objects
 	if (!object || object->isDead())
 	{
 		return FALSE;
 	}
-	
+
 	if (mForceSelection)
 	{
 		return TRUE;
 	}
 
-	if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !object->permYouOwner()) ||
-		(gSavedSettings.getBOOL("SelectMovableOnly") && (!object->permMove() ||  object->isPermanentEnforced())))
+	if(!ignore_select_owned)
 	{
-		// only select my own objects
-		return FALSE;
+		if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !object->permYouOwner()) ||
+				(gSavedSettings.getBOOL("SelectMovableOnly") && (!object->permMove() ||  object->isPermanentEnforced())))
+		{
+			// only select my own objects
+			return FALSE;
+		}
 	}
 
 	// Can't select orphans
 	if (object->isOrphaned()) return FALSE;
-	
+
 	// Can't select avatars
 	if (object->isAvatar()) return FALSE;
 
