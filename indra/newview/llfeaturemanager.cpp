@@ -452,23 +452,23 @@ bool LLFeatureManager::loadGPUClass()
 		}
 #endif
 	}
-	else if (gbps < 5.f)
+	else if (gbps < 4.f)
 	{
 		mGPUClass = GPU_CLASS_0;
 	}
-	else if (gbps < 10.f)
+	else if (gbps < 8.f)
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps < 20.f)
+	else if (gbps < 16.f)
 	{
 		mGPUClass = GPU_CLASS_2;
 	}
-	else if (gbps < 40.f)
+	else if (gbps < 24.f)
 	{
 		mGPUClass = GPU_CLASS_3;
 	}
-	else if (gbps < 80.f)
+	else if (gbps < 30.f)
 	{
 		mGPUClass = GPU_CLASS_4;
 	}
@@ -476,7 +476,7 @@ bool LLFeatureManager::loadGPUClass()
 	{
 		mGPUClass = GPU_CLASS_5;
 	}
-	
+
 	// defaults
 	mGPUString = gGLManager.getRawGLString();
 	mGPUSupported = TRUE;
