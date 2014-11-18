@@ -3676,6 +3676,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
             disabled_items.push_back(std::string("Paste"));
             disabled_items.push_back(std::string("Delete"));
         }
+        else if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+        {
+            disabled_items.push_back(std::string("New Folder"));
+        }
     }
     if (marketplace_listings_id == mUUID)
     {
