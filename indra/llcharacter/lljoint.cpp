@@ -381,6 +381,7 @@ void LLJoint::clearAttachmentPosOverrides()
 	{
 		m_attachmentOverrides.clear();
 		setPosition(m_posBeforeOverrides);
+		setId( LLUUID::null );
 	}
 }
 
