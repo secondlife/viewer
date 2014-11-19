@@ -130,56 +130,29 @@ class LLThreadLocalSingletonPointer
 public:
 	LL_FORCE_INLINE static DERIVED_TYPE* getInstance()
 	{
-#if LL_DARWIN
-        createTLSKey();
-        return (DERIVED_TYPE*)pthread_getspecific(sInstanceKey);
-#else
 		return sInstance;
-#endif
 	}
 
 	static void setInstance(DERIVED_TYPE* instance)
 	{
-#if LL_DARWIN
-        createTLSKey();
-        pthread_setspecific(sInstanceKey, (void*)instance);
-#else
 		sInstance = instance;
-#endif
 	}
 
 private:
 
 #if LL_WINDOWS
 	static __declspec(thread) DERIVED_TYPE* sInstance;
-#elif LL_LINUX
+#else
 	static __thread DERIVED_TYPE* sInstance;
-#elif LL_DARWIN
-    static void TLSError()
-    {
-        LL_ERRS() << "Could not create thread local storage" << LL_ENDL;
-    }
-    static void createTLSKey()
-    {
-        static S32 key_created = pthread_key_create(&sInstanceKey, NULL);
-        if (key_created != 0)
-        {
-            LL_ERRS() << "Could not create thread local storage" << LL_ENDL;
-        }
-    }
-    static pthread_key_t sInstanceKey;
 #endif
 };
 
 #if LL_WINDOWS
 template<typename DERIVED_TYPE>
 __declspec(thread) DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
-#elif LL_LINUX
+#else
 template<typename DERIVED_TYPE>
 __thread DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
-#elif LL_DARWIN
-template<typename DERIVED_TYPE>
-pthread_key_t LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstanceKey;
 #endif
 
 #endif // LL_LLTHREADLOCALSTORAGE_H
