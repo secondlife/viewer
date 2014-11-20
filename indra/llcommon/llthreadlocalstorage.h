@@ -139,20 +139,10 @@ public:
 	}
 
 private:
-
-#if LL_WINDOWS
-	static __declspec(thread) DERIVED_TYPE* sInstance;
-#else
-	static __thread DERIVED_TYPE* sInstance;
-#endif
+	static LL_THREAD_LOCAL DERIVED_TYPE* sInstance;
 };
 
-#if LL_WINDOWS
 template<typename DERIVED_TYPE>
-__declspec(thread) DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
-#else
-template<typename DERIVED_TYPE>
-__thread DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
-#endif
+LL_THREAD_LOCAL DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
 
 #endif // LL_LLTHREADLOCALSTORAGE_H

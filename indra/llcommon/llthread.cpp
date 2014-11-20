@@ -92,11 +92,7 @@ void set_thread_name( DWORD dwThreadID, const char* threadName)
 // 
 //----------------------------------------------------------------------------
 
-#if LL_WINDOWS
-U32 __declspec(thread) sThreadID = 0;
-#else
-U32 __thread sThreadID = 0;
-#endif 
+U32 LL_THREAD_LOCAL sThreadID = 0;
 
 U32 LLThread::sIDIter = 0;
 
