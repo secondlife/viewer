@@ -53,6 +53,8 @@
 #pragma warning (default : 4264)
 #endif
 
+#include <boost/lexical_cast.hpp>
+
 #include "lldaeloader.h"
 #include "llsdserialize.h"
 #include "lljoint.h"
@@ -2128,19 +2130,24 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 
 	// if we have a parent, use it
 	daeElement* parent = element->getParent();
+	std::string index_string;
 	if (parent)
 	{
+		U32 ind = 0;
+		parent->getChildren().find(element, ind);
+		index_string = "_" + boost::lexical_cast<std::string>(ind);
+
 		// if parent has a name, use it
 		std::string name = parent->getAttribute("name");
 		if (name.length())
 		{
-			return name;
+			return name + index_string;
 		}
 
 		// if parent has an ID, use it
 		if (parent->getID())
 		{
-			return std::string(parent->getID());
+			return std::string(parent->getID()) + index_string;
 		}
 	}
 
@@ -2148,11 +2155,11 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 	daeString element_name = element->getElementName();
 	if (element_name)
 	{
-		return std::string(element_name);
+		return std::string(element_name) + index_string;
 	}
 
 	// if all else fails, use "object"
-	return std::string("object");
+	return std::string("object") + index_string;
 }
 
 LLColor4 LLDAELoader::getDaeColor(daeElement* element)
