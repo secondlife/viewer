@@ -2040,20 +2040,32 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 
 S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
 {
+	LLMaterialPtr pMaterial = const_cast<LLMaterialPtr&>(pMaterialParams);
+
 	if(pMaterialParams)
 	{
 		LLViewerTexture* image = getTEImage(te);
 		LLGLenum image_format = image ? image->getPrimaryFormat() : GL_RGB;
 		LLMaterialPtr current_material = getTEMaterialParams(te);
-		const_cast<LLMaterialPtr&>(pMaterialParams)->setDiffuseAlphaMode(
-			current_material.isNull() ? (GL_RGB == image_format ? LLMaterial::DIFFUSE_ALPHA_MODE_NONE : LLMaterial::DIFFUSE_ALPHA_MODE_BLEND) 
-									  : current_material->getDiffuseAlphaMode()
-		);
+
+		U8 new_diffuse_alpha_mode = pMaterialParams->getDiffuseAlphaMode();
+
+		if(new_diffuse_alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+		{
+			new_diffuse_alpha_mode = (GL_RGB == image_format || 0 == image_format ? LLMaterial::DIFFUSE_ALPHA_MODE_NONE : new_diffuse_alpha_mode);
+		}
+
+		if(pMaterialParams->getDiffuseAlphaMode() != new_diffuse_alpha_mode) {
+			//create new material
+			pMaterial = new LLMaterial(pMaterialParams->asLLSD());
+			pMaterial->setDiffuseAlphaMode(new_diffuse_alpha_mode);
+			LLMaterialMgr::getInstance()->put(getID(),te,*pMaterial);
+		}
 	}
 
-	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterialParams);
+	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterial);
 
-	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterialParams) ? pMaterialParams->asLLSD() : LLSD("null")) << " res " << res
+	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterial) ? pMaterial->asLLSD() : LLSD("null")) << " res " << res
 							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
 							 << LL_ENDL;
 	setChanged(ALL_CHANGED);
