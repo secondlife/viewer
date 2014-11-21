@@ -1084,7 +1084,7 @@
       <key>havok-source</key>
       <map>
         <key>copyright</key>
-        <string>The Havok software (the "Software") and the accompanying documentation (the "Documentation") supplied (collectively, the "Product") are protected by United States, Irish and international copyright laws, and the copyrights and other intellectual property rights are owned by Telekinesys Research Limited (trading as Havok) Third Floor, 6 Suffolk Street, Dublin 2, Ireland.</string>
+        <string>Uses Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors). All Rights Reserved. See www.havok.com for details.</string>
         <key>description</key>
         <string>Havok source code for libs and demos</string>
         <key>license</key>
@@ -1100,9 +1100,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>04e7b4982cdd3b89c856978f81a8fdbf</string>
+              <string>5b7753a810a86f25df54ece3190b7d6e</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/295468/arch/Darwin/installer/havok_source-2012.1-darwin-295468.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/296959/arch/Darwin/installer/havok_source-2012.1-darwin-296959.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1112,9 +1112,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c0d2058ba48446e274d6595d1d8063e</string>
+              <string>6b0f41ddddfa60d8424d8a2e0bc2077d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/lindenlab_3p-havok-source/rev/268409/arch/Linux/installer/havok_source-2012.1-linux-20121219.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/296959/arch/Linux/installer/havok_source-2012.1-linux-296959.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2078,7 +2078,7 @@
       <key>slvoice</key>
       <map>
         <key>copyright</key>
-        <string>2010 Vivox</string>
+        <string>2010 Vivox, including audio coding using Polycom¨ Siren14TM (ITU-T Rec. G.722.1 Annex C)</string>
         <key>description</key>
         <string>Vivox SDK components</string>
         <key>license</key>
@@ -2094,9 +2094,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9fd91e50ef6848ef5fe74455cc0042c9</string>
+              <string>ae89da43466a510fbb0a67eb27bb251f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/294996/arch/Darwin/installer/slvoice-4.6.0009.20030.294996-darwin-294996.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/296971/arch/Darwin/installer/slvoice-4.6.0009.20030.296971-darwin-296971.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2106,9 +2106,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>957773fff7148ffaca42b1ea4a18d192</string>
+              <string>c66d434b7df05351662c068d3a8d2183</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/270512/arch/Linux/installer/slvoice-4.5.0009.17865-linux-20130216.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/296971/arch/Linux/installer/slvoice-4.5.0006.17020.296971-linux-296971.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2118,16 +2118,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce89b881ee24977641d1ecbf8aff6dc7</string>
+              <string>d0ad191e40b5c98748bdd973d6762ade</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-slvoice/rev/287264/arch/CYGWIN/installer/slvoice-4.6.0009.20030-windows-20140227.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/296971/arch/CYGWIN/installer/slvoice-4.6.0009.20030.296971-windows-296971.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.6.0009.20030.294996</string>
+        <string>4.5.0006.17020.296971</string>
       </map>
       <key>tut</key>
       <map>
