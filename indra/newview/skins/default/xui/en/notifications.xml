@@ -4509,7 +4509,7 @@ Remove estate manager for this estate only or for [ALL_ESTATES]?
    label="Select estate"
    name="EstateTrustedExperienceAdd"
    type="alert">
-    Add to trusted list for this estate only or for [ALL_ESTATES]?
+    Add to key list for this estate only or for [ALL_ESTATES]?
     <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
@@ -4523,7 +4523,7 @@ Remove estate manager for this estate only or for [ALL_ESTATES]?
    label="Select estate"
    name="EstateTrustedExperienceRemove"
    type="alert">
-    Remove from trusted list for this estate only or for [ALL_ESTATES]?
+    Remove from key list for this estate only or for [ALL_ESTATES]?
     <tag>confirm</tag>
     <usetemplate
      canceltext="Cancel"
@@ -7283,7 +7283,7 @@ Unable to acquire a new experience:
     name="TrustedExperienceEntry"
     persist="false"
     type="notify">
-    You have been allowed into the region [region_name] by participating in the trusted experience secondlife:///app/experience/[public_id]/profile removing this experience may kick you from the region.
+    You have been allowed into the region [region_name] by participating in the key experience secondlife:///app/experience/[public_id]/profile removing this experience may kick you from the region.
     <form name="form">
       <ignore name="ignore"
               text="Allowed into a region by an experience"/>
