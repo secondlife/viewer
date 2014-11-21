@@ -51,7 +51,7 @@
     draw_heading="false"
     left="3"
     width="225"
-    height="77"
+    height="75"
     follows="all"
     name="experience_list">
     <columns
