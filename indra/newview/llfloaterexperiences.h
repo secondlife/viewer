@@ -39,6 +39,7 @@ public:
     virtual void onClose(bool app_quitting);
 
     virtual void onOpen(const LLSD& key);
+    static LLFloaterExperiences* findInstance();
 protected:
     void clearFromRecent(const LLSD& ids);
     void resizeToTabs();
@@ -50,6 +51,7 @@ protected:
     bool updatePermissions(const LLSD& permission);
 	void sendPurchaseRequest() const;
 	void checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content)const;
+	void updateInfo(std::string experiences, std::string tab);
 
 private:
 
