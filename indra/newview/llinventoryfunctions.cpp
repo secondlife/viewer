@@ -1124,6 +1124,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 {
     // Check stock folder type matches item type in marketplace listings or merchant outbox (even if of no use there for the moment)
     LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(dest_folder);
+    bool move_in_stock = (view_folder && (view_folder->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK));
     bool accept = (view_folder && view_folder->acceptItem(inv_item));
     if (!accept)
     {
@@ -1139,7 +1140,8 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
     // Check that the total amount of items won't violate the max limit on the marketplace
     if (accept)
     {
-        int existing_item_count = bundle_size;
+        // If the dest folder is a stock folder, we do not count the incoming items toward the total (stock items are seen as one)
+        int existing_item_count = (move_in_stock ? 0 : bundle_size);
         
         // Get the version folder: that's where the counts start from
         const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
