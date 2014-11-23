@@ -9737,13 +9737,13 @@
     <key>RenderTerrainDetail</key>
     <map>
       <key>Comment</key>
-      <string>Detail applied to terrain texturing (0 = none, 1 or 2 = full)</string>
+      <string>Detail applied to terrain texturing (0 = none, 1 = full)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>1</integer>
     </map>
     <key>RenderTerrainLODFactor</key>
     <map>

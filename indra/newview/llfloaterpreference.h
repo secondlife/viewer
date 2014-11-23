@@ -157,6 +157,8 @@ public:
 	void onChangeQuality(const LLSD& data);
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateReflectionsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateRenderShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();

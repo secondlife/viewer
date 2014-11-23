@@ -1099,8 +1099,7 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {	
-	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
-	LLRadioGroup* radio_reflection_detail = getChild<LLRadioGroup>("ReflectionDetailRadio");
+	LLUICtrl* ctrl_reflections = getChild<LLUICtrl>("Reflections");
 	
 	// Reflections
 	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
@@ -1112,8 +1111,6 @@ void LLFloaterPreference::refreshEnabledState()
 	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
 	bumpshiny_ctrl->setEnabled(bumpshiny ? TRUE : FALSE);
-	
-	radio_reflection_detail->setEnabled(reflections);
 	
 	// Avatar Mode
 	// Enable Avatar Shaders
@@ -1143,20 +1140,19 @@ void LLFloaterPreference::refreshEnabledState()
 	// Vertex Shaders
 	// Global Shader Enable
 	LLCheckBoxCtrl* ctrl_shader_enable   = getChild<LLCheckBoxCtrl>("BasicShaders");
-	// radio set for terrain detail mode
-	LLRadioGroup*   mRadioTerrainDetail = getChild<LLRadioGroup>("TerrainDetailRadio");   // can be linked with control var
+	LLSliderCtrl*   terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
 	
 	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
 	
 	BOOL shaders = ctrl_shader_enable->get();
 	if (shaders)
 	{
-		mRadioTerrainDetail->setValue(1);
-		mRadioTerrainDetail->setEnabled(FALSE);
+		terrain_detail->setValue(1);
+		terrain_detail->setEnabled(FALSE);
 	}
 	else
 	{
-		mRadioTerrainDetail->setEnabled(TRUE);		
+		terrain_detail->setEnabled(TRUE);		
 	}
 	
 	// WindLight
@@ -1209,7 +1205,7 @@ void LLFloaterPreference::refreshEnabledState()
 
 void LLFloaterPreference::disableUnavailableSettings()
 {	
-	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
+	LLUICtrl* ctrl_reflections   = getChild<LLUICtrl>("Reflections");
 	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
 	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
@@ -1360,6 +1356,8 @@ void LLFloaterPreference::refresh()
 {
 	LLPanel::refresh();
 
+	refreshEnabledState();
+
 	// sliders and their text boxes
 	//	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
 	// slider text boxes
@@ -1372,8 +1370,9 @@ void LLFloaterPreference::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
 	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
-	
-	refreshEnabledState();
+	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
+	updateReflectionsText(getChild<LLSliderCtrl>("Reflections",		true), getChild<LLTextBox>("ReflectionsText",			true));	
+	updateRenderShadowDetailText(getChild<LLSliderCtrl>("RenderShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true));	
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1623,6 +1622,23 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 void LLFloaterPreference::refreshUI()
 {
 	refresh();
+}
+
+void LLFloaterPreference::updateReflectionsText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+{
+	if (text_box == NULL || ctrl== NULL)
+		return;
+	
+	U32 value = (U32)ctrl->getValue().asInteger();
+	text_box->setText(getString("Reflections" + llformat("%d", value)));
+}
+void LLFloaterPreference::updateRenderShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+{
+	if (text_box == NULL || ctrl== NULL)
+		return;
+	
+	U32 value = (U32)ctrl->getValue().asInteger();
+	text_box->setText(getString("RenderShadowDetail" + llformat("%d", value)));
 }
 
 void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
@@ -2093,6 +2109,9 @@ static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preferenc
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {
+	LLComboBox* graphic_preset = getChild<LLComboBox>("graphic_preset_combo");
+	graphic_preset->setLabel(getString("graphic_preset_combo_label"));
+
 	return LLPanelPreference::postBuild();
 }
 void LLPanelPreferenceGraphics::draw()

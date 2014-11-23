@@ -11,7 +11,15 @@
  single_instance="true"
  title="PREFERENCES"
  width="658">
-    <button
+   <string name="Reflections0">Minimal</string>
+   <string name="Reflections1">Terrain and trees</string>
+   <string name="Reflections2">All static objects</string>
+   <string name="Reflections3">All avatars and objects</string>
+   <string name="Reflections4">Everything</string>
+   <string name="RenderShadowDetail0">None</string>
+   <string name="RenderShadowDetail1">Sun/Moon</string>
+   <string name="RenderShadowDetail2">Sun/Moon + Projectors</string>
+   <button
      follows="right|bottom"
      height="23"
      label="OK"
