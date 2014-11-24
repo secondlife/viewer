@@ -2298,6 +2298,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Marketplace Validation Log"></string>
 	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
 	<string name="Marketplace Validation Error Mixed Stock">: Error: all items in a stock folder must be no-copy and of the same type</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">: Error: stock folder cannot contain subfolders</string>
 	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any items</string>
 	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>
 	<string name="Marketplace Validation Warning Create Version">: Warning: creating version folder</string>

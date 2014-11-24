@@ -916,9 +916,12 @@ S32 compute_stock_count(LLUUID cat_uuid)
     }
     if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
-        // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here
+        // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here but we count only items (subfolders will be ignored)
         // Note: we *always* give a stock count for stock folders, it's useful even if the listing is unassociated
-        return cat->getDescendentCount();
+        LLInventoryModel::cat_array_t* cat_array;
+        LLInventoryModel::item_array_t* item_array;
+        gInventory.getDirectDescendentsOf(cat_uuid,cat_array,item_array);
+        return item_array->size();
     }
 
     // Grab marketplace data for this folder
@@ -1593,7 +1596,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         }
     }
     // If we have a single type of items of the right type in the right place, we're done
-    else if ((count == 1) && !has_bad_items && (((type == LLInventoryType::IT_COUNT) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2))))
+    else if ((count == 1) && !has_bad_items && (((type == LLInventoryType::IT_COUNT) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2) && (cat_array->size() == 0))))
     {
         // Done with that folder : Print out the folder name unless we already found an error here
         if (cb && result && (depth >= 1))
@@ -1646,6 +1649,18 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     gInventory.notifyObservers();
                 }
             }
+            // Stock folder should have no sub folder so reparent those up
+            if (folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
+            {
+                LLUUID parent_uuid = cat->getParentUUID();
+                LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+                for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+                {
+                    LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (*iter);
+                    gInventory.changeCategoryParent(viewer_cat, parent_uuid, false);
+                    // Note : those reparented folders will be recursively visited and validated at the end of this function
+                }
+            }
         }
         else if (cb)
         {
@@ -1658,6 +1673,13 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     // Report if a stock folder contains a mix of items
                     result = false;
                     std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Mixed Stock");
+                    cb(message,LLError::LEVEL_ERROR);
+                }
+                else if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (cat_array->size() != 0))
+                {
+                    // Report if a stock folder contains subfolders
+                    result = false;
+                    std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Subfolder In Stock");
                     cb(message,LLError::LEVEL_ERROR);
                 }
                 else
