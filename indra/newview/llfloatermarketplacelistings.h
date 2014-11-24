@@ -53,7 +53,7 @@ public:
     LLPanelMarketplaceListings();
 	BOOL postBuild();
 	void draw();
-	LLFolderView* getRootFolder() { return mAllPanel->getRootFolder(); }    // *TODO : Suppress and get DnD in here instead...
+	LLFolderView* getRootFolder() { return mRootFolder; }
     
     void buildAllPanels();
     
@@ -69,7 +69,7 @@ private:
     void onTabChange();
     void onFilterEdit(const std::string& search_string);
     
-    LLInventoryPanel* mAllPanel;
+    LLFolderView*     mRootFolder;
     LLButton*         mAuditBtn;
 	LLFilterEditor*	  mFilterEditor;
 	std::string		  mFilterSubString;

@@ -51,7 +51,7 @@
 static LLPanelInjector<LLPanelMarketplaceListings> t_panel_status("llpanelmarketplacelistings");
 
 LLPanelMarketplaceListings::LLPanelMarketplaceListings()
-: mAllPanel(NULL)
+: mRootFolder(NULL)
 , mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
 , mFilterType(LLInventoryFilter::FILTERTYPE_NONE)
 {
@@ -75,11 +75,14 @@ BOOL LLPanelMarketplaceListings::postBuild()
 
 void LLPanelMarketplaceListings::buildAllPanels()
 {
+    // Build the All panel first
+    LLInventoryPanel* panel_all_items;
+    panel_all_items = buildInventoryPanel("All Items", "panel_marketplace_listings_inventory.xml");
+	panel_all_items->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
+	panel_all_items->getFilter().markDefault();
+    
+    // Build the other panels
     LLInventoryPanel* panel;
-    panel = buildInventoryPanel("All Items", "panel_marketplace_listings_inventory.xml");
-	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
-	panel->getFilter().markDefault();
-    mAllPanel = panel;
     panel = buildInventoryPanel("Active Items", "panel_marketplace_listings_listed.xml");
 	panel->getFilter().setFilterMarketplaceActiveFolders();
 	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
@@ -92,10 +95,12 @@ void LLPanelMarketplaceListings::buildAllPanels()
 	panel->getFilter().setFilterMarketplaceUnassociatedFolders();
 	panel->getFilter().setEmptyLookupMessage("MarketplaceNoMatchingItems");
 	panel->getFilter().markDefault();
-    
-	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+
+    // Set the tab panel
+ 	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
 	tabs_panel->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onTabChange, this));
-    tabs_panel->selectTabPanel(mAllPanel);
+    tabs_panel->selectTabPanel(panel_all_items);      // All panel selected by default
+    mRootFolder = panel_all_items->getRootFolder();   // Keep the root of the all panel
 }
 
 LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::string& childname, const std::string& filename)
@@ -169,13 +174,18 @@ void LLPanelMarketplaceListings::onTabChange()
 
 void LLPanelMarketplaceListings::onAddButtonClicked()
 {
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-	llassert(marketplacelistings_id.notNull());
-    LLFolderType::EType preferred_type = LLFolderType::lookup("category");
-    LLUUID category = gInventory.createNewCategory(marketplacelistings_id, preferred_type, LLStringUtil::null);
-    gInventory.notifyObservers();
-    mAllPanel->setSelectionByID(category, TRUE);
-	mAllPanel->getRootFolder()->setNeedsAutoRename(TRUE);
+	// Find active panel
+	LLInventoryPanel* panel = (LLInventoryPanel*)getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
+	if (panel)
+	{
+        LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        llassert(marketplacelistings_id.notNull());
+        LLFolderType::EType preferred_type = LLFolderType::lookup("category");
+        LLUUID category = gInventory.createNewCategory(marketplacelistings_id, preferred_type, LLStringUtil::null);
+        gInventory.notifyObservers();
+        panel->setSelectionByID(category, TRUE);
+        panel->getRootFolder()->setNeedsAutoRename(TRUE);
+    }
 }
 
 void LLPanelMarketplaceListings::onAuditButtonClicked()
@@ -192,7 +202,16 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
 	if (chosen_item == "sort_by_stock_amount")
 	{
         mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
-        mAllPanel->setSortOrder(mSortOrder);
+        // Set each panel with that sort order
+        LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+        LLInventoryPanel* panel = (LLInventoryPanel*)tabs_panel->getPanelByName("All Items");
+        panel->setSortOrder(mSortOrder);
+        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Active Items");
+        panel->setSortOrder(mSortOrder);
+        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Inactive Items");
+        panel->setSortOrder(mSortOrder);
+        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Unassociated Items");
+        panel->setSortOrder(mSortOrder);
 	}
 }
 
