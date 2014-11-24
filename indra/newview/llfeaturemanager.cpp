@@ -452,31 +452,31 @@ bool LLFeatureManager::loadGPUClass()
 		}
 #endif
 	}
-	else if (gGLManager.mGLVersion < 2.f)
+	else if (gGLManager.mGLVersion <= 2.f)
 	{
 		mGPUClass = GPU_CLASS_0;
 	}
-	else if (gGLManager.mGLVersion < 3.f)
+	else if (gGLManager.mGLVersion <= 3.f)
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps < 5.f)
+	else if (gbps <= 5.f)
 	{
 		mGPUClass = GPU_CLASS_0;
 	}
-	else if (gbps < 16.f)
+	else if (gbps <= 8.f)
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps < 32.f)
+	else if (gbps <= 16.f)
 	{
 		mGPUClass = GPU_CLASS_2;
 	}
-	else if (gbps < 40.f)
+	else if (gbps <= 40.f)
 	{
 		mGPUClass = GPU_CLASS_3;
 	}
-	else if (gbps < 80.f)
+	else if (gbps <= 80.f)
 	{
 		mGPUClass = GPU_CLASS_4;
 	}
