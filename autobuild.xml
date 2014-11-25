@@ -452,9 +452,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>96ab90f72ba55842e7a19bd2573e875d</string>
+              <string>452d1910ef853329cd59858e6c5b2c48</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/295018/arch/Darwin/installer/expat-2.0.1.295018-darwin-295018.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/297014/arch/Darwin/installer/expat-2.0.1.297014-darwin-297014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -464,9 +464,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1ed2b8d927659b331951f2a7bf1c4d73</string>
+              <string>f546615d76bc0f9e8bc2b9ef89f0ca86</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/295191/arch/Linux/installer/expat-2.0.1.295191-linux-295191.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/297014/arch/Linux/installer/expat-2.0.1.297014-linux-297014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -476,16 +476,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e72db1bda49b205ebdf4945d4ed2b8f8</string>
+              <string>c70c72a8a0a1e508691a9b35739b373f</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-2.0.1-windows-20110215.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/297014/arch/CYGWIN/installer/expat-2.0.1.297014-windows-297014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.0.1.295191</string>
+        <string>2.0.1.297014</string>
       </map>
       <key>fmodex</key>
       <map>
