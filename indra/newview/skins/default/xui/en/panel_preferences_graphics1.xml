@@ -9,7 +9,7 @@
  name="Display panel"
  top="1"
  width="517">
-   <string name="graphic_preset_combo_label">-Select a preset-</string>
+   <string name="graphic_preset_combo_label">-None saved yet-</string>
 
 <!-- This block is always displayed -->
   <text
@@ -24,14 +24,13 @@
       Presets:
   </text>
   <combo_box
-   	allow_text_entry="true"
    	follows="top|left"
    	layout="topleft"
    	left_pad="0"
    	max_chars="100"
    	name="graphic_preset_combo"
    	top_delta="0"
-   	width="200"/>
+   	width="150"/>
   <button
     follows="top|left"
     height="23"
@@ -47,7 +46,7 @@
   <button
     follows="top|left"
     height="23"
-    label="Delete"
+    label="Delete..."
     layout="topleft"
     left_pad="5"
     name="PrefDeleteButton"
@@ -193,12 +192,41 @@
     <panel
       border="false"
       follows="all"
-      label="Basic Settings"
+      label="BASIC"
       layout="topleft"
       mouse_opaque="false"
       name="Basic"
       top="30"
       width="517">
+
+      <slider
+        control_name="RenderFarClip"
+        decimal_digits="0"
+        follows="left|top"
+        height="16"
+        increment="8"
+        initial_value="160"
+        label="Draw distance:"
+        label_width="90"
+        layout="topleft"
+        left="30"
+        min_val="64"
+        max_val="512"
+        name="DrawDistance"
+        top_delta="0"
+        width="330" />
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="12"
+        layout="topleft"
+        left_delta="330"
+        name="DrawDistanceMeterText2"
+        top_delta="0"
+        width="128">
+         m
+      </text>
 
       <slider
         control_name="RenderAvatarLODFactor"
@@ -212,7 +240,7 @@
         left="30"
         name="AvatarMeshDetail2"
         show_text="false"
-        top_delta="0"
+        top_delta="30"
         width="300">
         <slider.commit_callback
           function="Pref.UpdateSliderText"
@@ -229,35 +257,6 @@
         left_delta="304"
         width="128">
          Low
-      </text>
-
-      <slider
-        control_name="RenderFarClip"
-        decimal_digits="0"
-        follows="left|top"
-        height="16"
-        increment="8"
-        initial_value="160"
-        label="Draw distance:"
-        label_width="90"
-        layout="topleft"
-        left="30"
-        min_val="64"
-        max_val="512"
-        name="DrawDistance"
-        top_delta="30"
-        width="330" />
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="12"
-        layout="topleft"
-        left_delta="330"
-        name="DrawDistanceMeterText2"
-        top_delta="0"
-        width="128">
-         m
       </text>
 
       <check_box
@@ -295,7 +294,7 @@
     <panel
       border="false"
       follows="all"
-      label="Advanced Settings"
+      label="ADVANCED"
       layout="topleft"
       mouse_opaque="false"
       name="Advanced"
@@ -320,8 +319,8 @@
           label="CustomGraphics"
           layout="topleft"
           left="5"
-          name="CustomGraphics Panel"
-          top="106"
+          name="Advanced Panel"
+          top_delta="0"
           width="485">
 
           <text
@@ -331,7 +330,7 @@
             height="16"
             layout="topleft"
             name="OtherText"
-            top="10"
+            top="0"
             left="5"
             width="128">
              Other
