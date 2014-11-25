@@ -35,7 +35,7 @@
     </panel.string>
   <panel
     height="18"
-    left="-395"
+    left="-416"
     width="185"
     top="1"
     follows="right|top" 
@@ -105,6 +105,15 @@
      width="145">
         24:00 AM PST
     </text>
+    <button
+     follows="right|top"
+     height="16"
+     image_unselected="FastPrefs_Icon"
+     image_selected="FastPrefs_Icon"
+     left_pad="5"
+     top="2"
+     name="fastprefs_btn"
+     width="18" />
     <button
      follows="right|top"
      height="16"
