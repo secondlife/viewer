@@ -1508,9 +1508,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6f6c3409a09a6ddcb94301ead123c89f</string>
+              <string>9303f0dd174129e297eca6cc2eb1ab3f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libxml_3p-update-libxml/rev/295247/arch/Darwin/installer/libxml2-2.9.1.295247-darwin-295247.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libxml_3p-update-libxml/rev/297050/arch/Darwin/installer/libxml2-2.9.1.297050-darwin-297050.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1520,9 +1520,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7eb90f075730f8d7d176f8fb7bad5ef5</string>
+              <string>b8b584853dc1344bb3571c13b06ec39e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/Linux/installer/libxml2-2.9.1-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libxml_3p-update-libxml/rev/297050/arch/Linux/installer/libxml2-2.9.1.297050-linux-297050.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1532,16 +1532,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ba20e2634b4c249a7064620d135f7972</string>
+              <string>37fa0e86e54f5f283aa653d770fc8ed5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/CYGWIN/installer/libxml2-2.9.1-windows-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libxml_3p-update-libxml/rev/297050/arch/CYGWIN/installer/libxml2-2.9.1.297050-windows-297050.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.9.1.295247</string>
+        <string>2.9.1.297050</string>
       </map>
       <key>llappearance_utility</key>
       <map>
