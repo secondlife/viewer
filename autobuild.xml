@@ -2178,9 +2178,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4d0ef5415076e6593f2533c05c9a87ee</string>
+              <string>ffd3aab8e0c0ff6dadbce49ca2809078</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/295632/arch/Darwin/installer/xmlrpc_epi-0.54.1.295632-darwin-295632.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/297075/arch/Darwin/installer/xmlrpc_epi-0.54.1.297075-darwin-297075.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2190,9 +2190,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4de9b81e31fb9da981e96a3bdcecabfc</string>
+              <string>30bb26d6cc78c16047fc85a63f48fcdb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/295272/arch/Linux/installer/xmlrpc_epi-0.54.1.295272-linux-295272.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/297075/arch/Linux/installer/xmlrpc_epi-0.54.1.297075-linux-297075.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2202,16 +2202,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5181d1a8f2516928ac064d72acf164a4</string>
+              <string>a7e1a8369a5afd52e1b6fc1f14155033</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc_epi-0.54.1-windows-20110224.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/297075/arch/CYGWIN/installer/xmlrpc_epi-0.54.1.297075-windows-297075.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.54.1.295632</string>
+        <string>0.54.1.297075</string>
       </map>
       <key>zlib</key>
       <map>
