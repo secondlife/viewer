@@ -502,11 +502,11 @@ void LLSidepanelTaskInfo::refresh()
 		// If there are multiple items for sale then set text to PRICE PER UNIT.
 		if (num_for_sale > 1)
 		{
-			getChild<LLUICtrl>("Cost")->setValue(getString("Cost Per Unit"));
+			getChild<LLSpinCtrl>("Edit Cost")->setLabel(getString("Cost Per Unit"));
 		}
 		else
 		{
-			getChild<LLUICtrl>("Cost")->setValue(getString("Cost Default"));
+			getChild<LLSpinCtrl>("Edit Cost")->setLabel(getString("Cost Default"));
 		}
 		
 		LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
@@ -547,16 +547,15 @@ void LLSidepanelTaskInfo::refresh()
 
 		// If multiple items are for sale, set text to TOTAL PRICE.
 		if (num_for_sale > 1)
-			getChild<LLUICtrl>("Cost")->setValue(getString("Cost Total"));
+			getChild<LLSpinCtrl>("Edit Cost")->setLabel(getString("Cost Total"));
 		else
-			getChild<LLUICtrl>("Cost")->setValue(getString("Cost Default"));
+			getChild<LLSpinCtrl>("Edit Cost")->setLabel(getString("Cost Default"));
 	}
 	// This is a public object.
 	else
 	{
 		getChildView("Cost")->setEnabled(FALSE);
-		getChild<LLUICtrl>("Cost")->setValue(getString("Cost Default"));
-		
+		getChild<LLSpinCtrl>("Edit Cost")->setLabel(getString("Cost Default"));
 		getChild<LLUICtrl>("Edit Cost")->setValue(LLStringUtil::null);
 		getChildView("Edit Cost")->setEnabled(FALSE);
 	}
