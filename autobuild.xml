@@ -606,9 +606,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3994d486207118a7683a255677c20ed0</string>
+              <string>83618d16d974eb0af93926a10ac13297</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freetype_3p-update-freetype/rev/295248/arch/Darwin/installer/freetype-2.4.4.295248-darwin-295248.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freetype_3p-update-freetype/rev/297053/arch/Darwin/installer/freetype-2.4.4.297053-darwin-297053.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -618,9 +618,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>52f87a65cc61ec4b05721c079d015b19</string>
+              <string>1ac3152b440287c58509d8af0a50326d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-freetype-update/rev/290557/arch/Linux/installer/freetype-2.4.4-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freetype_3p-update-freetype/rev/297053/arch/Linux/installer/freetype-2.4.4.297053-linux-297053.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -630,16 +630,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6e9fc0fe628a7c88f6f614bf3b0450ae</string>
+              <string>207aa1a29bfe4ba63edbca38170970a1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-freetype-update/rev/290557/arch/CYGWIN/installer/freetype-2.4.4-windows-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freetype_3p-update-freetype/rev/297053/arch/CYGWIN/installer/freetype-2.4.4.297053-windows-297053.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.4.4.295248</string>
+        <string>2.4.4.297053</string>
       </map>
       <key>glext</key>
       <map>
