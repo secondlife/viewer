@@ -160,9 +160,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a8252cb5f0eae61ada2f02163e67b752</string>
+              <string>26dc7724d5b6b504b0989ab59ba209f3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/295616/arch/Darwin/installer/boost-1.56-darwin-295616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297087/arch/Darwin/installer/boost-1.57-darwin-297087.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -172,9 +172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2f076eae296600a1b810ce375dc4b42d</string>
+              <string>9c2a2297ee330c81d31c50ebb30e2725</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/290566/arch/Linux/installer/boost-1.55.0-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297087/arch/Linux/installer/boost-1.57-linux-297087.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -184,16 +184,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8af0500013739866a41cfc2ce90e4f4b</string>
+              <string>ee1ad887ab438fd76ec450c128b1fd4f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/290566/arch/CYGWIN/installer/boost-1.55.0-windows-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297087/arch/CYGWIN/installer/boost-1.57-windows-297087.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.56</string>
+        <string>1.57</string>
       </map>
       <key>colladadom</key>
       <map>
