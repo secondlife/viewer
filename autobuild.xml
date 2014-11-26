@@ -922,9 +922,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0b7abee7091e958ee21ccbd1650d8641</string>
+              <string>37ea2de6f0b4b249c73d6c11bbc68db6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/295633/arch/Darwin/installer/googlemock-1.7.0.295633-darwin-295633.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297089/arch/Darwin/installer/googlemock-1.7.0.297089-darwin-297089.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -934,9 +934,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3de99704847b34c7acccf5ab87222f6c</string>
+              <string>79cffa9cd8ef82d39af44700617220b2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/Linux/installer/gmock-1.7.0-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297089/arch/Linux/installer/googlemock-1.7.0.297089-linux-297089.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -946,16 +946,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5d91c1d03780aa26bcd5481145ee9e86</string>
+              <string>8376dda80c386f925cbe3f1bef6269f1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-google-mock-update/rev/290574/arch/CYGWIN/installer/gmock-1.7.0-windows-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297089/arch/CYGWIN/installer/googlemock-1.7.0.297089-windows-297089.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.295633</string>
+        <string>1.7.0.297089</string>
       </map>
       <key>gperftools</key>
       <map>
