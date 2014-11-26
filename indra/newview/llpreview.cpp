@@ -39,6 +39,7 @@
 #include "llradiogroup.h"
 #include "llassetstorage.h"
 #include "llviewerassettype.h"
+#include "llviewermessage.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "lldbstrings.h"
@@ -368,6 +369,20 @@ void LLPreview::onBtnCopyToInv(void* userdata)
 										 self->mNotecardObjectID,
 										 self->mNotecardInventoryID,
 										 item);
+		}
+		else if (self->mObjectUUID.notNull())
+		{
+			// item is in in-world inventory
+			LLViewerObject* object = gObjectList.findObject(self->mObjectUUID);
+			LLPermissions perm(item->getPermissions());
+			if(object
+				&&(perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
+				&& perm.allowTransferTo(gAgent.getID())))
+			{
+				// copy to default folder
+				set_dad_inventory_item(item, LLUUID::null);
+				object->moveInventory(LLUUID::null, item->getUUID());
+			}
 		}
 		else
 		{
