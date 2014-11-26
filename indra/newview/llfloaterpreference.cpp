@@ -108,6 +108,7 @@
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
+#include "llpresetsmanager.h"
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
@@ -661,7 +662,7 @@ void LLFloaterPreference::cancel()
 
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
-	
+
 	// this variable and if that follows it are used to properly handle do not disturb mode response message
 	static bool initialized = FALSE;
 	// if user is logged in and we haven't initialized do not disturb mode response yet, do it
@@ -739,6 +740,9 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// when the floater is opened.  That will make cancel do its
 	// job
 	saveSettings();
+
+	// Make sure there is a default preference file
+
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -1179,7 +1183,7 @@ void LLFloaterPreference::refreshEnabledState()
 
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
+	LLUICtrl* ctrl_shadow = getChild<LLUICtrl>("ShadowDetail");
 
 	// note, okay here to get from ctrl_deferred as it's twin, ctrl_deferred2 will alway match it
 	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
@@ -1213,7 +1217,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_avatar_impostors = getChild<LLCheckBoxCtrl>("AvatarImpostors");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLCheckBoxCtrl* ctrl_deferred2 = getChild<LLCheckBoxCtrl>("UseLightShaders2");
-	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
+	LLUICtrl* ctrl_shadows = getChild<LLUICtrl>("ShadowDetail");
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
 
@@ -1372,7 +1376,7 @@ void LLFloaterPreference::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
 	updateReflectionsText(getChild<LLSliderCtrl>("Reflections",		true), getChild<LLTextBox>("ReflectionsText",			true));	
-	updateRenderShadowDetailText(getChild<LLSliderCtrl>("RenderShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true));	
+	updateShadowDetailText(getChild<LLSliderCtrl>("ShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true));	
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1632,7 +1636,7 @@ void LLFloaterPreference::updateReflectionsText(LLSliderCtrl* ctrl, LLTextBox* t
 	U32 value = (U32)ctrl->getValue().asInteger();
 	text_box->setText(getString("Reflections" + llformat("%d", value)));
 }
-void LLFloaterPreference::updateRenderShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+void LLFloaterPreference::updateShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box)
 {
 	if (text_box == NULL || ctrl== NULL)
 		return;
@@ -2112,8 +2116,18 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 	LLComboBox* graphic_preset = getChild<LLComboBox>("graphic_preset_combo");
 	graphic_preset->setLabel(getString("graphic_preset_combo_label"));
 
+	std::string presets_dir = LLPresetsManager::getGraphicPresetsDir();
+	if (!presets_dir.empty())
+	{
+		LLPresetsManager::getInstance()->getPresetsFromDir(presets_dir);
+	}
+	else {
+		LL_WARNS() << "Could not obtain graphic presets path" << LL_ENDL;
+	}
+
 	return LLPanelPreference::postBuild();
 }
+
 void LLPanelPreferenceGraphics::draw()
 {
 	LLPanelPreference::draw();

@@ -916,7 +916,7 @@
             left="70"
             min_val="0"
             max_val="2"
-            name="RenderShadowDetail"
+            name="ShadowDetail"
             show_text="false"
             top_delta="16"
             width="260">

@@ -158,7 +158,7 @@ public:
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void updateReflectionsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateRenderShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();
@@ -248,6 +248,7 @@ public:
 	void cancel();
 	void saveSettings();
 	void setHardwareDefaults();
+	static const std::string getPresetsPath();
 protected:
 	bool hasDirtyChilds();
 	void resetDirtyChilds();
