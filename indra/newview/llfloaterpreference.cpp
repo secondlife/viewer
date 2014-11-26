@@ -2117,9 +2117,18 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 	graphic_preset->setLabel(getString("graphic_preset_combo_label"));
 
 	std::string presets_dir = LLPresetsManager::getGraphicPresetsDir();
+
 	if (!presets_dir.empty())
 	{
-		LLPresetsManager::getInstance()->getPresetsFromDir(presets_dir);
+		LLPresetsManager::getInstance()->loadPresetsFromDir(presets_dir);
+		std::list<std::string> preset_names;
+		LLPresetsManager::getInstance()->getPresetNames(preset_names);
+
+		for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
+		{
+			const std::string& name = *it;
+			graphic_preset->add(name, LLSD().with(0, name));
+		}
 	}
 	else {
 		LL_WARNS() << "Could not obtain graphic presets path" << LL_ENDL;

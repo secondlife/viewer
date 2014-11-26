@@ -53,12 +53,12 @@ std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
 	if (!gDirUtilp->fileExists(presets_path))
 	{
 		LLFile::mkdir(presets_path);
+	}
 
-		full_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, subdirectory);
-		if (!gDirUtilp->fileExists(full_path))
-		{
-			LLFile::mkdir(full_path);
-		}
+	full_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, subdirectory);
+	if (!gDirUtilp->fileExists(full_path))
+	{
+		LLFile::mkdir(full_path);
 	}
 
 	return full_path;
@@ -69,7 +69,13 @@ std::string LLPresetsManager::getGraphicPresetsDir()
 	return getUserDir(GRAPHIC_DIR);
 }
 
-void LLPresetsManager::getPresetsFromDir(const std::string& dir)
+void LLPresetsManager::getPresetNames(preset_name_list_t& presets) const
+{
+	presets = mPresetNames;
+
+}
+
+void LLPresetsManager::loadPresetsFromDir(const std::string& dir)
 {
 	LL_INFOS("AppInit") << "Loading presets from " << dir << LL_ENDL;
 
@@ -87,7 +93,6 @@ void LLPresetsManager::getPresetsFromDir(const std::string& dir)
 		std::string path = gDirUtilp->add(dir, file);
 		std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
 		mPresetNames.push_back(name);
-llwarns << "DBG " << name << llendl;
 	}
 }
 

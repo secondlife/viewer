@@ -28,6 +28,7 @@
 #define LL_PRESETSMANAGER_H
 
 #include <list>
+#include <map>
 
 class LLPresetsManager : public LLSingleton<LLPresetsManager>
 {
@@ -35,7 +36,8 @@ public:
 	typedef std::list<std::string> preset_name_list_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
-	void getPresetsFromDir(const std::string& dir);
+	void getPresetNames(preset_name_list_t& presets) const;
+	void loadPresetsFromDir(const std::string& dir);
 	void savePreset(const std::string & name);
 	static std::string getGraphicPresetsDir();
 	bool removeParamSet(const std::string& name, bool delete_from_disk);
@@ -45,7 +47,7 @@ public:
 
 	preset_name_list_t mPresetNames;
 
-private:
+//protected:
 	LLPresetsManager();
 	~LLPresetsManager();
 
