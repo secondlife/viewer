@@ -499,17 +499,19 @@ void LLSidepanelTaskInfo::refresh()
 	// You own these objects.
 	else if (self_owned || (group_owned && gAgent.hasPowerInGroup(group_id,GP_OBJECT_SET_SALE)))
 	{
+		LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
+
 		// If there are multiple items for sale then set text to PRICE PER UNIT.
 		if (num_for_sale > 1)
 		{
-			getChild<LLSpinCtrl>("Edit Cost")->setLabel(getString("Cost Per Unit"));
+			std::string label_text = is_sale_price_mixed? "Cost Mixed" :"Cost Per Unit";
+			edit_price->setLabel(getString(label_text));
 		}
 		else
 		{
-			getChild<LLSpinCtrl>("Edit Cost")->setLabel(getString("Cost Default"));
+			edit_price->setLabel(getString("Cost Default"));
 		}
 		
-		LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
 		if (!edit_price->hasFocus())
 		{
 			// If the sale price is mixed then set the cost to MIXED, otherwise
