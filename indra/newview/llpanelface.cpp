@@ -902,52 +902,22 @@ void LLPanelFace::updateUI()
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 				}
 			}
-            
-         if (shinytexture_ctrl)
-         {
-				if (identical_spec && (shiny == SHINY_TEXTURE))
-				{
-					shinytexture_ctrl->setTentative( FALSE );
-					shinytexture_ctrl->setEnabled( editable );
-					shinytexture_ctrl->setImageAssetID( specmap_id );
-					}
-            else if (specmap_id.isNull())
-				{
-               shinytexture_ctrl->setTentative( FALSE );
-               shinytexture_ctrl->setEnabled( editable );
-					shinytexture_ctrl->setImageAssetID( LLUUID::null );
-				}
-            else
-            {
-					shinytexture_ctrl->setTentative( TRUE );
-					shinytexture_ctrl->setEnabled( editable );
-					shinytexture_ctrl->setImageAssetID( specmap_id );
+
+			if (shinytexture_ctrl)
+			{
+				shinytexture_ctrl->setTentative( !identical_spec );
+				shinytexture_ctrl->setEnabled( editable );
+				shinytexture_ctrl->setImageAssetID( specmap_id );
+			}
+
+			if (bumpytexture_ctrl)
+			{
+				bumpytexture_ctrl->setTentative( !identical_norm );
+				bumpytexture_ctrl->setEnabled( editable );
+				bumpytexture_ctrl->setImageAssetID( normmap_id );
 			}
 		}
 
-         if (bumpytexture_ctrl)
-         {
-				if (identical_norm && (bumpy == BUMPY_TEXTURE))
-				{
-					bumpytexture_ctrl->setTentative( FALSE );
-					bumpytexture_ctrl->setEnabled( editable );
-					bumpytexture_ctrl->setImageAssetID( normmap_id );
-				}
-				else if (normmap_id.isNull())
-				{
-					bumpytexture_ctrl->setTentative( FALSE );
-					bumpytexture_ctrl->setEnabled( editable );
-					bumpytexture_ctrl->setImageAssetID( LLUUID::null );
-				}
-            else
-            {
-					bumpytexture_ctrl->setTentative( TRUE );
-					bumpytexture_ctrl->setEnabled( editable );
-					bumpytexture_ctrl->setImageAssetID( normmap_id );
-				}
-			}
-		}
-		
 		// planar align
 		bool align_planar = false;
 		bool identical_planar_aligned = false;
