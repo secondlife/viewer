@@ -26,16 +26,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/assign/list_of.hpp>
+
 #include "llpresetsmanager.h"
 
 #include "lldiriterator.h"
-#include "lluictrlfactory.h"
 #include "llsdserialize.h"
+#include "lluictrlfactory.h"
 #include "llviewercontrol.h"
-
-static const std::string PRESETS_DIR = "presets";
-static const std::string GRAPHIC_DIR = "graphic";
-static const std::string CAMERA_DIR = "camera";
 
 LLPresetsManager::LLPresetsManager()
 {
@@ -66,7 +64,7 @@ std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
 
 std::string LLPresetsManager::getGraphicPresetsDir()
 {
-	return getUserDir(GRAPHIC_DIR);
+	return getUserDir(PRESETS_GRAPHIC_DIR);
 }
 
 void LLPresetsManager::getPresetNames(preset_name_list_t& presets) const
@@ -75,43 +73,103 @@ void LLPresetsManager::getPresetNames(preset_name_list_t& presets) const
 
 }
 
-void LLPresetsManager::loadPresetsFromDir(const std::string& dir)
+void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir)
 {
 	LL_INFOS("AppInit") << "Loading presets from " << dir << LL_ENDL;
 
 	mPresetNames.clear();
 
 	LLDirIterator dir_iter(dir, "*.xml");
-	while (1)
+	bool found = true;
+	while (found)
 	{
 		std::string file;
-		if (!dir_iter.next(file))
-		{
-			break; // no more files
-		}
+		found = dir_iter.next(file);
 
-		std::string path = gDirUtilp->add(dir, file);
-		std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
-		mPresetNames.push_back(name);
+		if (found)
+		{
+			std::string path = gDirUtilp->add(dir, file);
+			std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
+			mPresetNames.push_back(name);
+		}
 	}
 }
 
-void LLPresetsManager::savePreset(const std::string & name)
+void LLPresetsManager::savePreset(const std::string& name)
 {
 	llassert(!name.empty());
 
+	// This ugliness is the current list of all the control variables in the graphics and hardware
+	// preferences floaters.  Additions or subtractions to the floaters must also be reflected here.
+	std::vector<std::string> name_list = boost::assign::list_of
+		("RenderQualityPerformance")
+		("RenderFarClip")
+		("RenderMaxPartCount")
+		("RenderGlowResolutionPow")
+		("RenderTerrainDetail")
+		("RenderAvatarLODFactor")
+		("RenderAvatarMaxVisible")
+		("RenderUseImpostors")
+		("RenderTerrainLODFactor")
+		("RenderTreeLODFactor")
+		("RenderVolumeLODFactor")
+		("RenderFlexTimeFactor")
+		("RenderTransparentWater")
+		("RenderObjectBump")
+		("RenderLocalLights")
+		("VertexShaderEnable")
+		("RenderAvatarVP")
+		("RenderAvatarCloth")
+		("RenderReflectionDetail")
+		("WindLightUseAtmosShaders")
+		("WLSkyDetail")
+		("RenderDeferred")
+		("RenderDeferredSSAO")
+		("RenderDepthOfField")
+		("RenderShadowDetail")
+
+		("RenderAnisotropic")
+		("RenderFSAASamples")
+		("RenderGamma")
+		("RenderVBOEnable")
+		("RenderCompressTextures")
+		("TextureMemory")
+		("RenderFogRatio");
+
 	// make an empty llsd
 	LLSD paramsData(LLSD::emptyMap());
-	std::string pathName(getUserDir(GRAPHIC_DIR) + LLURI::escape(name) + ".xml");
 
-// Get all graphic settings
-//	paramsData = mParamList[name].getAll();
+	for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
+	{
+		std::string ctrl_name = *it;
+		LLControlVariable* ctrl = gSavedSettings.getControl(ctrl_name).get();
+		std::string comment = ctrl->getComment();
+		std::string type = gSavedSettings.typeEnumToString(ctrl->type());
+		LLSD value = ctrl->getValue();
+
+		paramsData[ctrl_name]["Comment"] =  comment;
+		paramsData[ctrl_name]["Persist"] = 1;
+		paramsData[ctrl_name]["Type"] = type;
+		paramsData[ctrl_name]["Value"] = value;
+	}
+
+	std::string pathName(getUserDir(PRESETS_GRAPHIC_DIR) + "\\" + LLURI::escape(name) + ".xml");
 
 	// write to file
 	llofstream presetsXML(pathName);
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(paramsData, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
 	presetsXML.close();
+
+	// signal interested parties
+	mPresetListChangeSignal();
+}
+
+void LLPresetsManager::loadPreset(const std::string& name)
+{
+	std::string pathName(getUserDir(PRESETS_GRAPHIC_DIR) + "\\" + LLURI::escape(name) + ".xml");
+
+	gSavedSettings.loadFromFile(pathName, false, true);
 }
 
 bool LLPresetsManager::removeParamSet(const std::string& name, bool delete_from_disk)
@@ -129,7 +187,7 @@ bool LLPresetsManager::removeParamSet(const std::string& name, bool delete_from_
 	// remove from file system if requested
 	if (delete_from_disk)
 	{
-		if (gDirUtilp->deleteFilesInDir(getUserDir(GRAPHIC_DIR), LLURI::escape(name) + ".xml") < 1)
+		if (gDirUtilp->deleteFilesInDir(getUserDir(PRESETS_GRAPHIC_DIR), LLURI::escape(name) + ".xml") < 1)
 		{
 			LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;
 		}

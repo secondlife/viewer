@@ -30,7 +30,10 @@
    	max_chars="100"
    	name="graphic_preset_combo"
    	top_delta="0"
-   	width="150"/>
+   	width="150">
+    <combo_box.commit_callback
+      function="Pref.Preset" />
+  </combo_box>
   <button
     follows="top|left"
     height="23"
