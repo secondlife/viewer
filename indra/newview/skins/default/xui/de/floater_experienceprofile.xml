@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater title="EXPERIENCE PROFILE">
+	<floater.string name="empty_slurl">
+		(keines)
+	</floater.string>
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Light&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Light&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Light&quot;
+	</floater.string>
+	<text name="edit_title" value="Erlebnisprofil"/>
+	<tab_container name="tab_container">
+		<panel name="panel_experience_info">
+			<scroll_container name="xp_scroll">
+				<panel name="scrolling_panel">
+					<layout_stack>
+						<layout_panel name="top panel">
+							<button label="Bearbeiten" name="edit_btn"/>
+						</layout_panel>
+						<layout_panel name="maturity panel">
+							<text name="ContentRating">
+								Einstufung:
+							</text>
+						</layout_panel>
+						<layout_panel name="location panel">
+							<text name="Location">
+								Standort:
+							</text>
+						</layout_panel>
+						<layout_panel>
+							<text name="Owner">
+								Eigentümer:
+							</text>
+						</layout_panel>
+						<layout_panel name="group_panel">
+							<text name="Group">
+								Gruppe:
+							</text>
+						</layout_panel>
+						<layout_panel name="perm panel">
+							<button label="Zulassen" name="allow_btn"/>
+							<button label="Vergessen" name="forget_btn"/>
+							<button label="Blockieren" name="block_btn"/>
+							<text name="privileged">
+								Dieses Erlebnis ist für alle Einwohner aktiviert.
+							</text>
+							<button label="Missbrauch melden" name="report_btn"/>
+						</layout_panel>
+					</layout_stack>
+				</panel>
+			</scroll_container>
+		</panel>
+		<panel name="edit_panel_experience_info">
+			<scroll_container name="edit_xp_scroll">
+				<panel name="edit_scrolling_panel">
+					<text name="edit_experience_title_label" value="Name:"/>
+					<text name="edit_experience_desc_label" value="Beschreibung:"/>
+					<button label="Gruppe" name="Group_btn"/>
+					<text name="edit_ContentRating">
+						Einstufung:
+					</text>
+					<icons_combo_box label="Moderat" name="edit_ContentRatingText" tool_tip="Bei Erhöhung der Inhaltseinstufung eines Erlebnisses wird die Berechtigung für alle Einwohner zurückgesetzt, die das Erlebnis zugelassen haben.">
+						<icons_combo_box.item label="Adult" name="Adult" value="42"/>
+						<icons_combo_box.item label="Moderat" name="Mature" value="21"/>
+						<icons_combo_box.item label="Allgemein" name="PG" value="13"/>
+					</icons_combo_box>
+					<text name="edit_Location">
+						Standort:
+					</text>
+					<button label="Aktuellen Standort verwenden" name="location_btn"/>
+					<button label="Standort löschen" name="clear_btn"/>
+					<check_box label="Erlebnis aktivieren" name="edit_enable_btn" tool_tip=""/>
+					<check_box label="Aus Suche ausschließen" name="edit_private_btn"/>
+					<text name="changes" value="Es kann mehrere Minuten dauern, bis Erlebnisänderungen in allen Regionen umgesetzt werden."/>
+					<button label="Zurück" name="cancel_btn"/>
+					<button label="Speichern" name="save_btn"/>
+				</panel>
+			</scroll_container>
+		</panel>
+	</tab_container>
+</floater>

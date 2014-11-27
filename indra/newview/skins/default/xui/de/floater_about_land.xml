@@ -309,9 +309,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="push_restrict_region_text">
 				Kein Stoßen (regional)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Avatare auf anderen Parzellen können
-			</panel.string>
 			<text name="allow_label">
 				Anderen Einwohnern gestatten:
 			</text>
@@ -337,22 +334,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<check_box label="Sicher (kein Schaden)" name="check safe" tool_tip="Falls aktiviert, wird Land auf Option „Sicher“ eingestellt, Kampfschäden sind deaktiviert. Ansonsten sind Kampfschäden aktiviert."/>
 			<check_box label="Kein Stoßen" name="PushRestrictCheck" tool_tip="Verhindert Stoßen durch Skripte. Durch Aktivieren dieser Option verhindern Sie störendes Verhalten auf Ihrem Land."/>
 			<check_box label="Ort in Suche anzeigen (30 L$/Woche)" name="ShowDirectoryCheck" tool_tip="Diese Parzelle in Suchergebnissen anzeigen."/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="Alle Kategorien" name="item0"/>
-				<combo_box.item label="Lindenort" name="item1"/>
-				<combo_box.item label="Adult" name="item2"/>
-				<combo_box.item label="Kunst &amp; Kultur" name="item3"/>
-				<combo_box.item label="Business" name="item4"/>
-				<combo_box.item label="Bildung" name="item5"/>
-				<combo_box.item label="Spielen" name="item6"/>
-				<combo_box.item label="Treffpunkt" name="item7"/>
-				<combo_box.item label="Anfängergerecht" name="item8"/>
-				<combo_box.item label="Parks und Natur" name="item9"/>
-				<combo_box.item label="Wohngebiet" name="item10"/>
-				<combo_box.item label="Shopping" name="item11"/>
-				<combo_box.item label="Vermietung" name="item13"/>
-				<combo_box.item label="Sonstige" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="Alle Kategorien" name="item0"/>
 				<combo_box.item label="Lindenort" name="item1"/>
@@ -449,15 +430,9 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="access_estate_defined">
 				(Durch Grundbesitz festgelegt)
 			</panel.string>
-			<panel.string name="allow_public_access">
-				Öffentlichen Zugang erlauben ([MATURITY]) (Hinweis: Bei Deaktivierung dieser Option werden Bannlinien generiert)
-			</panel.string>
 			<panel.string name="estate_override">
 				Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				Zugang zu dieser Parzelle
-			</text>
 			<check_box label="Öffentlichen Zugang gestatten (bei Deaktivierung dieser Option werden Bannlinien generiert)" name="public_access"/>
 			<text name="Only Allow" width="400">
 				Zugang nur Einwohnern gestatten, die:
@@ -489,5 +464,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				<button label="Entfernen" label_selected="Entfernen" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="ERLEBNISSE" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

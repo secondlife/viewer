@@ -44,6 +44,14 @@
 			このロケーションのオーディオを再生する
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			コンテンツなし
+		</label>
+		<tooltip name="none_tooltip">
+			ここにメディアなし
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			リアルタイム・ストリーミング

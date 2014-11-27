@@ -76,7 +76,7 @@
 		<combo_box.item label="Terrain &gt; Empiètement &gt; Objets ou textures" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Terrain &gt; Empiètement &gt; Particules" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Terrain &gt; Empiètement &gt; Arbres/plantes" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Paris ou jeux d&apos;argent" name="Wagering_gambling"/>
+		<combo_box.item label="Violation du règlement pour les jeux" name="Wagering_gambling"/>
 		<combo_box.item label="Autre" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

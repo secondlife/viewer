@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="experince_list_editor">
+	<panel.string name="loading">
+		загрузка…
+	</panel.string>
+	<panel.string name="panel_allowed">
+		Разрешенные приключения:
+	</panel.string>
+	<panel.string name="panel_blocked">
+		Заблокированные приключения:
+	</panel.string>
+	<panel.string name="panel_trusted">
+		Ключевые приключения:
+	</panel.string>
+	<panel.string name="no_results">
+		(пусто)
+	</panel.string>
+	<text name="text_name">
+		Список приключений
+	</text>
+	<scroll_list name="experience_list">
+		<columns label="Название" name="experience_name"/>
+	</scroll_list>
+	<button label="Добавить..." name="btn_add"/>
+	<button label="Удалить" name="btn_remove"/>
+	<button label="Профиль…" name="btn_profile"/>
+</panel>

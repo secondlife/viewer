@@ -8,6 +8,7 @@
 		<menu_item_call label="Yeni Envanter Penceresi" name="NewInventoryWindow"/>
 		<menu_item_call label="Yerler..." name="Places"/>
 		<menu_item_call label="Favoriler..." name="Picks"/>
+		<menu_item_call label="Deneyimler..." name="Experiences"/>
 		<menu_item_call label="Kamera Denetimleri..." name="Camera Controls"/>
 		<menu label="Hareket" name="Movement">
 			<menu_item_call label="Otur" name="Sit Down Here"/>
@@ -46,7 +47,7 @@
 		<menu_item_check label="Arkadaşlar" name="My Friends"/>
 		<menu_item_check label="Gruplar" name="My Groups"/>
 		<menu_item_check label="Yakındaki kişiler" name="Active Speakers"/>
-		<menu_item_call label="Engelleme Listesi" name="Block List"/>
+		<menu_item_check label="Engelleme Listesi" name="Block List"/>
 		<menu_item_check label="Rahatsız Etme" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Dünya" name="World">

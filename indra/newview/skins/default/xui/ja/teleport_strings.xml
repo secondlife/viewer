@@ -50,6 +50,9 @@
 		<message name="MustGetAgeRegion">
 			この地域（リージョン）に入るには 18 才以上である必要があります。
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			リージョンに入ることができません。&apos;[REGION_NAME]&apos; はスキル ゲーミング リージョンであり、あなたはこのリージョンに入るための特定の基準を満たす必要があります。詳しくは、[http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life スキル ゲーミングのよくある質問] を参照してください。
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">

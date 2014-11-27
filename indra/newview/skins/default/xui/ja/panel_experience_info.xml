@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_experience_info">
+	<text name="title" value="体験プロフィール"/>
+	<scroll_container name="xp_scroll">
+		<panel name="scrolling_panel">
+			<layout_stack>
+				<layout_panel>
+					<text name="experience_title" value="Kyle&apos;s Superhero RPG"/>
+				</layout_panel>
+				<layout_panel name="location panel">
+					<text name="Location">
+						場所：
+					</text>
+					<text name="LocationTextText">
+						どこか
+					</text>
+					<button label="テレポート" name="teleport_btn"/>
+					<button label="地図" name="map_btn"/>
+				</layout_panel>
+				<layout_panel name="marketplace panel">
+					<text name="Location">
+						マーケットプレイスストア：
+					</text>
+					<text name="LocationTextText">
+						どこか
+					</text>
+				</layout_panel>
+				<layout_panel>
+					<text name="ContentRating">
+						評価：
+					</text>
+					<text name="ContentRatingText">
+						Adult
+					</text>
+					<text name="Owner">
+						所有者：
+					</text>
+					<text name="OwnerText">
+						Kyle
+					</text>
+					<button label="編集" name="edit_btn"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</scroll_container>
+</panel>

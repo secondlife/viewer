@@ -5,7 +5,7 @@
 	<menu_item_check label="新しい順に並べ替え" name="sort_by_recent"/>
 	<menu_item_check label="フォルダを常に名前順に並べる" name="sort_folders_by_name"/>
 	<menu_item_check label="システムフォルダを上にソートする" name="sort_system_folders_to_top"/>
-	<menu_item_call label="フィルターを表示" name="show_filters"/>
+	<menu_item_call label="フィルターを表示..." name="show_filters"/>
 	<menu_item_call label="フィルターをリセット" name="reset_filters"/>
 	<menu_item_call label="すべてのフォルダを閉じる" name="close_folders"/>
 	<menu_item_call label="紛失物を空にする" name="empty_lostnfound"/>

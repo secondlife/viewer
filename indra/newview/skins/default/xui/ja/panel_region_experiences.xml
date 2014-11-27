@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="体験" name="Experiences">
+	<panel.string name="trusted_estate_text">
+		どんな体験でもキーになる可能性があります。
+
+キー体験には、この不動産で動作する権限があります。
+
+さらに、不動産でパブリックアクセスが許可されない場合、キー体験に参加する住人は不動産に入って、キー体験にいる間滞在することができます。
+	</panel.string>
+	<panel.string name="allowed_estate_text">
+		ランドスコープとなる体験のみ許可されます。
+
+許可される体験には、この不動産で実行する権限があります。
+	</panel.string>
+	<panel.string name="blocked_estate_text">
+		グリッドスコープ体験のみブロックできます。
+      
+ブロックされた体験は、この不動産では実行できません。
+	</panel.string>
+	<panel.string name="estate_caption">
+		このタブの設定への変更は、不動産内のすべての地域に影響されます。
+	</panel.string>
+	<panel.string name="allowed_parcel_text">
+		ランドスコープとなる体験のみ許可されます。
+      
+許可された体験には、この不動産でブロックされていない場合、この区画で実行する権限があります。
+	</panel.string>
+	<panel.string name="blocked_parcel_text">
+		住人の体験をブロックできます。
+      
+ブロックされた体験は、この区画では実行できません。
+	</panel.string>
+</panel>

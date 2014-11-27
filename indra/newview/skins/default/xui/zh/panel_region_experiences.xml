@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="體驗" name="Experiences">
+	<panel.string name="trusted_estate_text">
+		任何體驗都可以成為金鑰體驗。
+
+金鑰體驗可在此領地執行。
+
+此外，即使這個領地平常不開放進入，參與任何鑰匙體驗的居民，只要維持處在「金鑰體驗」狀態，仍可進入領地停留。
+	</panel.string>
+	<panel.string name="allowed_estate_text">
+		只允准「土地範圍」的體驗。
+
+獲准的體驗可在此領地執行。
+	</panel.string>
+	<panel.string name="blocked_estate_text">
+		只封鎖「網格範圍」的體驗。
+      
+遭封鎖的體驗不得在此領地執行。
+	</panel.string>
+	<panel.string name="estate_caption">
+		變更此夜籤中的設定會影響這個領地內的全部地區設定。
+	</panel.string>
+	<panel.string name="allowed_parcel_text">
+		只允准「土地範圍」的體驗。
+      
+獲准的體驗若未被領地封鎖，就可在此地段執行。
+	</panel.string>
+	<panel.string name="blocked_parcel_text">
+		任何居民的體驗都可以加以封鎖。
+      
+遭封鎖的體驗不得在此地段執行。
+	</panel.string>
+</panel>
