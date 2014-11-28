@@ -2685,6 +2685,17 @@ void LLVolume::setMeshAssetLoaded(BOOL loaded)
 	mIsMeshAssetLoaded = loaded;
 }
 
+void LLVolume::copyFacesTo(std::vector<LLVolumeFace> &faces) const 
+{
+	faces = mVolumeFaces;
+}
+
+void LLVolume::copyFacesFrom(const std::vector<LLVolumeFace> &faces)
+{
+	mVolumeFaces = std::move(faces);
+	mSculptLevel = 0;
+}
+
 void LLVolume::copyVolumeFaces(const LLVolume* volume)
 {
 	mVolumeFaces = volume->mVolumeFaces;
