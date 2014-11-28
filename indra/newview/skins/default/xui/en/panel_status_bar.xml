@@ -105,14 +105,13 @@
      width="145">
         24:00 AM PST
     </text>
-    <button
+    <icon
      follows="right|top"
      height="16"
-     image_unselected="FastPrefs_Icon"
-     image_selected="FastPrefs_Icon"
+     image_name="Presets_Icon"
      left_pad="5"
      top="2"
-     name="fastprefs_btn"
+     name="presets_icon"
      width="18" />
     <button
      follows="right|top"

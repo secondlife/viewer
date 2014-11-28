@@ -37,14 +37,14 @@
   <button
     follows="top|left"
     height="23"
-    label="Save As..."
+    label="Save..."
     layout="topleft"
     left_pad="5"
-    name="PrefSaveAsButton"
+    name="PrefSaveButton"
     top_delta="0"
     width="115">
     <button.commit_callback
-      function="Pref.PrefSaveAs" />
+      function="Pref.PrefSave" />
   </button>
   <button
     follows="top|left"

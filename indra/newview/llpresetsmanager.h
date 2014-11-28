@@ -44,6 +44,7 @@ public:
 	void loadPresetNamesFromDir(const std::string& dir);
 	void savePreset(const std::string & name);
 	void loadPreset(const std::string & name);
+	static std::string getCameraPresetsDir();
 	static std::string getGraphicPresetsDir();
 	bool removeParamSet(const std::string& name, bool delete_from_disk);
 

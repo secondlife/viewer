@@ -62,6 +62,11 @@ std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
 	return full_path;
 }
 
+std::string LLPresetsManager::getCameraPresetsDir()
+{
+	return getUserDir(PRESETS_CAMERA_DIR);
+}
+
 std::string LLPresetsManager::getGraphicPresetsDir()
 {
 	return getUserDir(PRESETS_GRAPHIC_DIR);
@@ -70,7 +75,6 @@ std::string LLPresetsManager::getGraphicPresetsDir()
 void LLPresetsManager::getPresetNames(preset_name_list_t& presets) const
 {
 	presets = mPresetNames;
-
 }
 
 void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir)
@@ -90,7 +94,14 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir)
 		{
 			std::string path = gDirUtilp->add(dir, file);
 			std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
-			mPresetNames.push_back(name);
+			if ("Default" != name)
+			{
+				mPresetNames.push_back(name);
+			}
+			else
+			{
+				mPresetNames.insert(mPresetNames.begin(), name);
+			}
 		}
 	}
 }
