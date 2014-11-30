@@ -45,7 +45,8 @@ LLPresetsManager::~LLPresetsManager()
 {
 }
 
-std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
+//std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
+std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 {
 	std::string presets_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR);
 	std::string full_path;
@@ -64,22 +65,7 @@ std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
 	return full_path;
 }
 
-std::string LLPresetsManager::getCameraPresetsDir()
-{
-	return getUserDir(PRESETS_CAMERA);
-}
-
-std::string LLPresetsManager::getGraphicPresetsDir()
-{
-	return getUserDir(PRESETS_GRAPHIC);
-}
-
-void LLPresetsManager::getPresetNames(preset_name_list_t& presets) const
-{
-	presets = mPresetNames;
-}
-
-void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir)
+void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets)
 {
 	LL_INFOS("AppInit") << "Loading presets from " << dir << LL_ENDL;
 
@@ -106,48 +92,61 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir)
 			}
 		}
 	}
+
+	presets = mPresetNames;
 }
 
-void LLPresetsManager::savePreset(const std::string& name)
+void LLPresetsManager::savePreset(const std::string& subdirectory, const std::string& name)
 {
 	llassert(!name.empty());
 
+	std::vector<std::string> name_list;
 	// This ugliness is the current list of all the control variables in the graphics and hardware
-	// preferences floaters.  Additions or subtractions to the floaters must also be reflected here.
-	std::vector<std::string> name_list = boost::assign::list_of
-		("RenderQualityPerformance")
-		("RenderFarClip")
-		("RenderMaxPartCount")
-		("RenderGlowResolutionPow")
-		("RenderTerrainDetail")
-		("RenderAvatarLODFactor")
-		("RenderAvatarMaxVisible")
-		("RenderUseImpostors")
-		("RenderTerrainLODFactor")
-		("RenderTreeLODFactor")
-		("RenderVolumeLODFactor")
-		("RenderFlexTimeFactor")
-		("RenderTransparentWater")
-		("RenderObjectBump")
-		("RenderLocalLights")
-		("VertexShaderEnable")
-		("RenderAvatarVP")
-		("RenderAvatarCloth")
-		("RenderReflectionDetail")
-		("WindLightUseAtmosShaders")
-		("WLSkyDetail")
-		("RenderDeferred")
-		("RenderDeferredSSAO")
-		("RenderDepthOfField")
-		("RenderShadowDetail")
+	// preferences floaters or the settings for camera views.
+	// Additions or subtractions to the control variables in the floaters must also be reflected here.
+	if(PRESETS_GRAPHIC == subdirectory)
+	{
+		name_list = boost::assign::list_of
+			("RenderQualityPerformance")
+			("RenderFarClip")
+			("RenderMaxPartCount")
+			("RenderGlowResolutionPow")
+			("RenderTerrainDetail")
+			("RenderAvatarLODFactor")
+			("RenderAvatarMaxVisible")
+			("RenderUseImpostors")
+			("RenderTerrainLODFactor")
+			("RenderTreeLODFactor")
+			("RenderVolumeLODFactor")
+			("RenderFlexTimeFactor")
+			("RenderTransparentWater")
+			("RenderObjectBump")
+			("RenderLocalLights")
+			("VertexShaderEnable")
+			("RenderAvatarVP")
+			("RenderAvatarCloth")
+			("RenderReflectionDetail")
+			("WindLightUseAtmosShaders")
+			("WLSkyDetail")
+			("RenderDeferred")
+			("RenderDeferredSSAO")
+			("RenderDepthOfField")
+			("RenderShadowDetail")
 
-		("RenderAnisotropic")
-		("RenderFSAASamples")
-		("RenderGamma")
-		("RenderVBOEnable")
-		("RenderCompressTextures")
-		("TextureMemory")
-		("RenderFogRatio");
+			("RenderAnisotropic")
+			("RenderFSAASamples")
+			("RenderGamma")
+			("RenderVBOEnable")
+			("RenderCompressTextures")
+			("TextureMemory")
+			("RenderFogRatio");
+		}
+
+	if(PRESETS_CAMERA == subdirectory)
+	{
+		name_list = boost::assign::list_of
+			("Placeholder");
+	}
 
 	// make an empty llsd
 	LLSD paramsData(LLSD::emptyMap());
@@ -166,7 +165,7 @@ void LLPresetsManager::savePreset(const std::string& name)
 		paramsData[ctrl_name]["Value"] = value;
 	}
 
-	std::string pathName(getUserDir(PRESETS_GRAPHIC) + "\\" + LLURI::escape(name) + ".xml");
+	std::string pathName(getPresetsDir(subdirectory) + "\\" + LLURI::escape(name) + ".xml");
 
 	// write to file
 	llofstream presetsXML(pathName);
@@ -178,17 +177,16 @@ void LLPresetsManager::savePreset(const std::string& name)
 	mPresetListChangeSignal();
 }
 
-void LLPresetsManager::setPresetNamesInComboBox(LLComboBox* combo)
+void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo)
 {
 	combo->clearRows();
 
-	std::string presets_dir = getGraphicPresetsDir();
+	std::string presets_dir = getPresetsDir(subdirectory);
 
 	if (!presets_dir.empty())
 	{
-		loadPresetNamesFromDir(presets_dir);
 		std::list<std::string> preset_names;
-		getPresetNames(preset_names);
+		loadPresetNamesFromDir(presets_dir, preset_names);
 
 		combo->setLabel(LLTrans::getString("preset_combo_label"));
 
@@ -206,9 +204,9 @@ void LLPresetsManager::setPresetNamesInComboBox(LLComboBox* combo)
 
 void LLPresetsManager::loadPreset(const std::string& name)
 {
-	std::string pathName(getUserDir(PRESETS_GRAPHIC) + "\\" + LLURI::escape(name) + ".xml");
+	std::string full_path(getPresetsDir(PRESETS_GRAPHIC) + "\\" + LLURI::escape(name) + ".xml");
 
-	gSavedSettings.loadFromFile(pathName, false, true);
+	gSavedSettings.loadFromFile(full_path, false, true);
 }
 
 bool LLPresetsManager::deletePreset(const std::string& name)
@@ -221,10 +219,10 @@ bool LLPresetsManager::deletePreset(const std::string& name)
 		return false;
 	}
 
-	// (*TODO Should the name be escaped here?
-	if (gDirUtilp->deleteFilesInDir(getUserDir(PRESETS_GRAPHIC), name + ".xml") < 1)
+	if (gDirUtilp->deleteFilesInDir(getPresetsDir(PRESETS_GRAPHIC), LLURI::escape(name) + ".xml") < 1)
 	{
 		LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;
+		return false;
 	}
 	else
 	{

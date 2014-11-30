@@ -42,13 +42,11 @@ public:
 	typedef std::list<std::string> preset_name_list_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
-	void setPresetNamesInComboBox(LLComboBox* combo);
-	void getPresetNames(preset_name_list_t& presets) const;
-	void loadPresetNamesFromDir(const std::string& dir);
-	void savePreset(const std::string & name);
+	static std::string getPresetsDir(const std::string& subdirectory);
+	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo);
+	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets);
+	void savePreset(const std::string& subdirectory, const std::string & name);
 	void loadPreset(const std::string & name);
-	static std::string getCameraPresetsDir();
-	static std::string getGraphicPresetsDir();
 	bool deletePreset(const std::string& name);
 
 	/// Emitted when a preset gets loaded or deleted.
@@ -59,8 +57,6 @@ public:
 //protected:
 	LLPresetsManager();
 	~LLPresetsManager();
-
-	static std::string getUserDir(const std::string& subdirectory);
 
 	preset_list_signal_t mPresetListChangeSignal;
 };

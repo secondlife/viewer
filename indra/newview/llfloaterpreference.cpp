@@ -749,7 +749,9 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	{
 		LL_WARNS() << "No " << default_file << " found -- creating one" << LL_ENDL;
 		// Write current graphic settings to default.xml
-		LLPresetsManager::getInstance()->savePreset("Default");
+		// If this name is to be localized additional code will be needed to delete the old default
+		// when changing languages.
+		LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, "Default");
 	}
 }
 
@@ -2160,7 +2162,7 @@ void LLPanelPreferenceGraphics::setPresetNamesInComboBox()
 {
 	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
 
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(combo);
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_GRAPHIC, combo);
 }
 
 void LLPanelPreferenceGraphics::draw()

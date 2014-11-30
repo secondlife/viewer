@@ -49,14 +49,14 @@ BOOL LLFloaterDeletePrefPreset::postBuild()
 
 void LLFloaterDeletePrefPreset::onOpen(const LLSD& key)
 {
-	std::string param = key.asString();
-	std::string floater_title = getString(std::string("title_") + param);
+	std::string mSubdirectory = key.asString();
+	std::string floater_title = getString(std::string("title_") + mSubdirectory);
 
 	setTitle(floater_title);
 
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(combo);
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo);
 }
 
 void LLFloaterDeletePrefPreset::onBtnDelete()
@@ -64,6 +64,7 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 	std::string name = combo->getSimple();
 
+	// Ignore return status
 	LLPresetsManager::getInstance()->deletePreset(name);
 }
 
@@ -71,7 +72,7 @@ void LLFloaterDeletePrefPreset::onPresetsListChange()
 {
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(combo);
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo);
 }
 
 void LLFloaterDeletePrefPreset::onBtnCancel()

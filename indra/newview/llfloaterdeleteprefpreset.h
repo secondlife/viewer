@@ -46,6 +46,8 @@ public:
 
 private:
 	void onPresetsListChange();
+
+	std::string mSubdirectory;
 };
 
 #endif // LL_LLFLOATERDELETEPREFPRESET_H
