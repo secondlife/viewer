@@ -9,7 +9,6 @@
  name="Display panel"
  top="1"
  width="517">
-   <string name="graphic_preset_combo_label">-None saved yet-</string>
 
 <!-- This block is always displayed -->
   <text
@@ -56,7 +55,8 @@
     top_delta="0"
     width="115">
     <button.commit_callback
-      function="Pref.PrefDelete" />
+      function="Pref.PrefDelete"
+	  parameter="graphic"/>
   </button>
   <text
     type="string"

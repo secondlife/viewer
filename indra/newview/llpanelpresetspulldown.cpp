@@ -1,11 +1,10 @@
 /** 
  * @file llpanelpresetspulldown.cpp
- * @author Tofu Linden
  * @brief A panel showing a quick way to pick presets
  *
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2014, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,11 +28,9 @@
 
 #include "llpanelpresetspulldown.h"
 
-// Viewer libs
 #include "llviewercontrol.h"
 #include "llstatusbar.h"
 
-// Linden libs
 #include "llbutton.h"
 #include "lltabcontainer.h"
 #include "llfloaterreg.h"
@@ -102,8 +99,7 @@ void LLPanelPresetsPulldown::onMoveViewButtonClick(const LLSD& user_data)
 	setVisible(FALSE);
 
 	// bring up the prefs floater
-	LLFloaterPreference* prefsfloater = dynamic_cast<LLFloaterPreference*>
-		(LLFloaterReg::showInstance("preferences"));
+	LLFloater* prefsfloater = LLFloaterReg::showInstance("preferences");
 	if (prefsfloater)
 	{
 		// grab the 'move' panel from the preferences floater and
@@ -123,8 +119,7 @@ void LLPanelPresetsPulldown::onGraphicsButtonClick(const LLSD& user_data)
 	setVisible(FALSE);
 
 	// bring up the prefs floater
-	LLFloaterPreference* prefsfloater = dynamic_cast<LLFloaterPreference*>
-		(LLFloaterReg::showInstance("preferences"));
+	LLFloater* prefsfloater = LLFloaterReg::showInstance("preferences");
 	if (prefsfloater)
 	{
 		// grab the 'graphics' panel from the preferences floater and

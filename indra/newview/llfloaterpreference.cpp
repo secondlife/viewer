@@ -110,6 +110,7 @@
 #include "llsdserialize.h"
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
+#include "llpresetsmanager.h"
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
@@ -743,7 +744,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	saveSettings();
 
 	// Make sure there is a default preference file
-	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, PRESETS_GRAPHIC_DIR, "default.xml");
+	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, PRESETS_GRAPHIC, "default.xml");
 	if (!gDirUtilp->fileExists(default_file))
 	{
 		LL_WARNS() << "No " << default_file << " found -- creating one" << LL_ENDL;
@@ -1881,6 +1882,7 @@ LLPanelPreference::LLPanelPreference()
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
 	mCommitCallbackRegistrar.add("Pref.Preset",	boost::bind(&LLPanelPreference::onChangePreset, this));
+	mCommitCallbackRegistrar.add("Pref.PrefDelete",	boost::bind(&LLPanelPreference::onDeletePreset, this));
 }
 
 //virtual
@@ -2078,6 +2080,11 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 	}
 }
 
+void LLPanelPreference::onDeletePreset()
+{
+	LLFloaterReg::showInstance("delete_pref_preset", PRESETS_GRAPHIC);
+}
+
 void LLPanelPreference::onChangePreset()
 {
 	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
@@ -2135,9 +2142,9 @@ static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preferenc
 BOOL LLPanelPreferenceGraphics::postBuild()
 {
 	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
-	combo->setLabel(getString("graphic_preset_combo_label"));
+	combo->setLabel(LLTrans::getString("preset_combo_label"));
 
-	setPresetNamesInCombobox();
+	setPresetNamesInComboBox();
 
 	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
 
@@ -2146,31 +2153,14 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 
 void LLPanelPreferenceGraphics::onPresetsListChange()
 {
-	setPresetNamesInCombobox();
+	setPresetNamesInComboBox();
 }
 
-void LLPanelPreferenceGraphics::setPresetNamesInCombobox()
+void LLPanelPreferenceGraphics::setPresetNamesInComboBox()
 {
 	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
-	combo->clearRows();
 
-	std::string presets_dir = LLPresetsManager::getGraphicPresetsDir();
-
-	if (!presets_dir.empty())
-	{
-		LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir);
-		std::list<std::string> preset_names;
-		LLPresetsManager::getInstance()->getPresetNames(preset_names);
-
-		for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
-		{
-			const std::string& name = *it;
-			combo->add(name, LLSD().with(0, name));
-		}
-	}
-	else {
-		LL_WARNS() << "Could not obtain graphic presets path" << LL_ENDL;
-	}
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(combo);
 }
 
 void LLPanelPreferenceGraphics::draw()

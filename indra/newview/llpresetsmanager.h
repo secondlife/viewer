@@ -27,12 +27,14 @@
 #ifndef LL_PRESETSMANAGER_H
 #define LL_PRESETSMANAGER_H
 
+#include "llcombobox.h"
+
 #include <list>
 #include <map>
 
 static const std::string PRESETS_DIR = "presets";
-static const std::string PRESETS_GRAPHIC_DIR = "graphic";
-static const std::string PRESETS_CAMERA_DIR = "camera";
+static const std::string PRESETS_GRAPHIC = "graphic";
+static const std::string PRESETS_CAMERA = "camera";
 
 class LLPresetsManager : public LLSingleton<LLPresetsManager>
 {
@@ -40,13 +42,14 @@ public:
 	typedef std::list<std::string> preset_name_list_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
+	void setPresetNamesInComboBox(LLComboBox* combo);
 	void getPresetNames(preset_name_list_t& presets) const;
 	void loadPresetNamesFromDir(const std::string& dir);
 	void savePreset(const std::string & name);
 	void loadPreset(const std::string & name);
 	static std::string getCameraPresetsDir();
 	static std::string getGraphicPresetsDir();
-	bool removeParamSet(const std::string& name, bool delete_from_disk);
+	bool deletePreset(const std::string& name);
 
 	/// Emitted when a preset gets loaded or deleted.
 	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);

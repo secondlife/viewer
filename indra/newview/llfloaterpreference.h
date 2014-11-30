@@ -221,6 +221,7 @@ public:
 	// cancel() can restore them.
 	virtual void saveSettings();
 
+	void onDeletePreset();
 	void onChangePreset();
 
 	class Updater;
@@ -250,7 +251,7 @@ public:
 	void cancel();
 	void saveSettings();
 	void setHardwareDefaults();
-	void setPresetNamesInCombobox();
+	void setPresetNamesInComboBox();
 	static const std::string getPresetsPath();
 
 protected:

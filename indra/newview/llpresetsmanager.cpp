@@ -31,7 +31,9 @@
 #include "llpresetsmanager.h"
 
 #include "lldiriterator.h"
+#include "llfloater.h"
 #include "llsdserialize.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llviewercontrol.h"
 
@@ -64,12 +66,12 @@ std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
 
 std::string LLPresetsManager::getCameraPresetsDir()
 {
-	return getUserDir(PRESETS_CAMERA_DIR);
+	return getUserDir(PRESETS_CAMERA);
 }
 
 std::string LLPresetsManager::getGraphicPresetsDir()
 {
-	return getUserDir(PRESETS_GRAPHIC_DIR);
+	return getUserDir(PRESETS_GRAPHIC);
 }
 
 void LLPresetsManager::getPresetNames(preset_name_list_t& presets) const
@@ -164,7 +166,7 @@ void LLPresetsManager::savePreset(const std::string& name)
 		paramsData[ctrl_name]["Value"] = value;
 	}
 
-	std::string pathName(getUserDir(PRESETS_GRAPHIC_DIR) + "\\" + LLURI::escape(name) + ".xml");
+	std::string pathName(getUserDir(PRESETS_GRAPHIC) + "\\" + LLURI::escape(name) + ".xml");
 
 	// write to file
 	llofstream presetsXML(pathName);
@@ -176,14 +178,40 @@ void LLPresetsManager::savePreset(const std::string& name)
 	mPresetListChangeSignal();
 }
 
+void LLPresetsManager::setPresetNamesInComboBox(LLComboBox* combo)
+{
+	combo->clearRows();
+
+	std::string presets_dir = getGraphicPresetsDir();
+
+	if (!presets_dir.empty())
+	{
+		loadPresetNamesFromDir(presets_dir);
+		std::list<std::string> preset_names;
+		getPresetNames(preset_names);
+
+		combo->setLabel(LLTrans::getString("preset_combo_label"));
+
+		for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
+		{
+			const std::string& name = *it;
+			combo->add(name, LLSD().with(0, name));
+		}
+	}
+	else
+	{
+		LL_WARNS() << "Could not obtain graphic presets path" << LL_ENDL;
+	}
+}
+
 void LLPresetsManager::loadPreset(const std::string& name)
 {
-	std::string pathName(getUserDir(PRESETS_GRAPHIC_DIR) + "\\" + LLURI::escape(name) + ".xml");
+	std::string pathName(getUserDir(PRESETS_GRAPHIC) + "\\" + LLURI::escape(name) + ".xml");
 
 	gSavedSettings.loadFromFile(pathName, false, true);
 }
 
-bool LLPresetsManager::removeParamSet(const std::string& name, bool delete_from_disk)
+bool LLPresetsManager::deletePreset(const std::string& name)
 {
 	// remove from param list
 	preset_name_list_t::iterator it = find(mPresetNames.begin(), mPresetNames.end(), name);
@@ -193,15 +221,14 @@ bool LLPresetsManager::removeParamSet(const std::string& name, bool delete_from_
 		return false;
 	}
 
-	mPresetNames.erase(it);
-
-	// remove from file system if requested
-	if (delete_from_disk)
+	// (*TODO Should the name be escaped here?
+	if (gDirUtilp->deleteFilesInDir(getUserDir(PRESETS_GRAPHIC), name + ".xml") < 1)
 	{
-		if (gDirUtilp->deleteFilesInDir(getUserDir(PRESETS_GRAPHIC_DIR), LLURI::escape(name) + ".xml") < 1)
-		{
-			LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;
-		}
+		LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;
+	}
+	else
+	{
+		mPresetNames.erase(it);
 	}
 
 	// signal interested parties

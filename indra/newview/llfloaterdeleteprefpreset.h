@@ -1,6 +1,7 @@
 /** 
- * @file llpanelpresetspulldown.h
- * @brief A panel showing a quick way to pick presets
+ * @file llfloaterdeleteprefpreset.h
+ * @brief Floater to delete a graphics / camera preset
+
  *
  * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,33 +25,27 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPRESETSPULLDOWN_H
-#define LL_LLPANELPRESETSPULLDOWN_H
+#ifndef LL_LLFLOATERDELETPREFPRESET_H
+#define LL_LLFLOATERDELETEPREFPRESET_H
 
-#include "linden_common.h"
+#include "llfloater.h"
 
-#include "llpanel.h"
+class LLComboBox;
 
-class LLFrameTimer;
-
-class LLPanelPresetsPulldown : public LLPanel
+class LLFloaterDeletePrefPreset : public LLFloater
 {
- public:
-	LLPanelPresetsPulldown();
-	/*virtual*/ void draw();
-	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
-	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-	/*virtual*/ void onTopLost();
-	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
-	/*virtual*/ BOOL postBuild();
-	
- private:
-	void onGraphicsButtonClick(const LLSD& user_data);
-	void onMoveViewButtonClick(const LLSD& user_data);
 
-	LLFrameTimer mHoverTimer;
-	static const F32 sAutoCloseFadeStartTimeSec;
-	static const F32 sAutoCloseTotalTimeSec;
+public:
+	LLFloaterDeletePrefPreset(const LLSD &key);
+
+	/*virtual*/	BOOL	postBuild();
+	/*virtual*/ void	onOpen(const LLSD& key);
+
+	void onBtnDelete();
+	void onBtnCancel();
+
+private:
+	void onPresetsListChange();
 };
 
-#endif // LL_LLPANELPRESETSPULLDOWN_H
+#endif // LL_LLFLOATERDELETEPREFPRESET_H
