@@ -28,9 +28,11 @@
 
 #include "llfloaterdeleteprefpreset.h"
 
+#include "llpresetsmanager.h"
+
 #include "llbutton.h"
 #include "llcombobox.h"
-#include "llpresetsmanager.h"
+#include "llnotificationsutil.h"
 
 LLFloaterDeletePrefPreset::LLFloaterDeletePrefPreset(const LLSD &key)
 :	LLFloater(key)
@@ -49,7 +51,7 @@ BOOL LLFloaterDeletePrefPreset::postBuild()
 
 void LLFloaterDeletePrefPreset::onOpen(const LLSD& key)
 {
-	std::string mSubdirectory = key.asString();
+	mSubdirectory = key.asString();
 	std::string floater_title = getString(std::string("title_") + mSubdirectory);
 
 	setTitle(floater_title);
@@ -65,7 +67,11 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 	std::string name = combo->getSimple();
 
 	// Ignore return status
-	LLPresetsManager::getInstance()->deletePreset(name);
+	LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name);
+
+	LLSD args;
+	args["NAME"] = name;
+	LLNotificationsUtil::add("PresetDeleted", args);
 }
 
 void LLFloaterDeletePrefPreset::onPresetsListChange()

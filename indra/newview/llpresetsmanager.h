@@ -46,8 +46,8 @@ public:
 	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo);
 	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets);
 	void savePreset(const std::string& subdirectory, const std::string & name);
-	void loadPreset(const std::string & name);
-	bool deletePreset(const std::string& name);
+	void loadPreset(const std::string& subdirectory, const std::string & name);
+	bool deletePreset(const std::string& subdirectory, const std::string& name);
 
 	/// Emitted when a preset gets loaded or deleted.
 	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);

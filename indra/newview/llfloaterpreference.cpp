@@ -1883,8 +1883,9 @@ LLPanelPreference::LLPanelPreference()
 {
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
-	mCommitCallbackRegistrar.add("Pref.Preset",	boost::bind(&LLPanelPreference::onChangePreset, this));
-	mCommitCallbackRegistrar.add("Pref.PrefDelete",	boost::bind(&LLPanelPreference::onDeletePreset, this));
+	mCommitCallbackRegistrar.add("Pref.Preset",	boost::bind(&LLPanelPreference::onChangePreset, this, _2));
+	mCommitCallbackRegistrar.add("Pref.PrefDelete",	boost::bind(&LLPanelPreference::DeletePreset, this, _2));
+	mCommitCallbackRegistrar.add("Pref.PrefSave",	boost::bind(&LLPanelPreference::SavePreset, this, _2));
 }
 
 //virtual
@@ -2082,17 +2083,27 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 	}
 }
 
-void LLPanelPreference::onDeletePreset()
+void LLPanelPreference::DeletePreset(const LLSD& user_data)
 {
-	LLFloaterReg::showInstance("delete_pref_preset", PRESETS_GRAPHIC);
+	std::string subdirectory = user_data.asString();
+	LLFloaterReg::showInstance("delete_pref_preset", subdirectory);
 }
 
-void LLPanelPreference::onChangePreset()
+void LLPanelPreference::SavePreset(const LLSD& user_data)
 {
-	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
+	std::string subdirectory = user_data.asString();
+	LLFloaterReg::showInstance("save_pref_preset", subdirectory);
+}
+
+void LLPanelPreference::onChangePreset(const LLSD& user_data)
+{
+	std::string subdirectory = user_data.asString();
+
+	LLComboBox* combo = getChild<LLComboBox>(subdirectory + "_preset_combo");
 	std::string name = combo->getSimple();
 
-	LLPresetsManager::getInstance()->loadPreset(name);
+
+	LLPresetsManager::getInstance()->loadPreset(subdirectory, name);
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if (instance)
 	{

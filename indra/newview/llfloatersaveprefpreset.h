@@ -1,6 +1,6 @@
 /** 
- * @file llfloaterdeleteprefpreset.h
- * @brief Floater to delete a graphics / camera preset
+ * @file llfloatersaveprefpreset.h
+ * @brief Floater to save a graphics / camera preset
 
  *
  * $LicenseInfo:firstyear=2014&license=viewerlgpl$
@@ -25,29 +25,33 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERDELETEPREFPRESET_H
-#define LL_LLFLOATERDELETEPREFPRESET_H
+#ifndef LL_LLFLOATERSAVEPREFPRESET_H
+#define LL_LLFLOATERSAVEPREFPRESET_H
 
 #include "llfloater.h"
 
 class LLComboBox;
 
-class LLFloaterDeletePrefPreset : public LLFloater
+class LLFloaterSavePrefPreset : public LLFloater
 {
 
 public:
-	LLFloaterDeletePrefPreset(const LLSD &key);
+	LLFloaterSavePrefPreset(const LLSD &key);
 
 	/*virtual*/	BOOL	postBuild();
 	/*virtual*/ void	onOpen(const LLSD& key);
 
-	void onBtnDelete();
+	void onBtnSave();
 	void onBtnCancel();
 
 private:
+	LLComboBox*		mPresetCombo;
+	LLButton*		mSaveButton;
+
 	void onPresetsListChange();
+	void onPresetNameEdited();
 
 	std::string mSubdirectory;
 };
 
-#endif // LL_LLFLOATERDELETEPREFPRESET_H
+#endif // LL_LLFLOATERSAVEPREFPRESET_H

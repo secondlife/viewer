@@ -7659,6 +7659,20 @@ Attachment has been saved.
 
   <notification
     icon="alertmodal.tga"
+	name="PresetSaved"
+    type="alertmodal">
+Preset [NAME] has been saved.
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+	name="PresetDeleted"
+    type="alertmodal">
+Preset [NAME] has been deleted.
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
     name="UnableToFindHelpTopic"
     type="alertmodal">
 Unable to find the help topic for this element.

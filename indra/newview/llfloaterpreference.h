@@ -221,8 +221,9 @@ public:
 	// cancel() can restore them.
 	virtual void saveSettings();
 
-	void onDeletePreset();
-	void onChangePreset();
+	void onChangePreset(const LLSD& user_data);
+	void DeletePreset(const LLSD& user_data);
+	void SavePreset(const LLSD& user_data);
 
 	class Updater;
 

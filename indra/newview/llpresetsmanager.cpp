@@ -165,7 +165,7 @@ void LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 		paramsData[ctrl_name]["Value"] = value;
 	}
 
-	std::string pathName(getPresetsDir(subdirectory) + "\\" + LLURI::escape(name) + ".xml");
+	std::string pathName(getPresetsDir(subdirectory) + gDirUtilp->getDirDelimiter() + LLURI::escape(name) + ".xml");
 
 	// write to file
 	llofstream presetsXML(pathName);
@@ -188,45 +188,34 @@ void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 		std::list<std::string> preset_names;
 		loadPresetNamesFromDir(presets_dir, preset_names);
 
-		combo->setLabel(LLTrans::getString("preset_combo_label"));
-
-		for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
+		if (preset_names.begin() != preset_names.end())
 		{
-			const std::string& name = *it;
-			combo->add(name, LLSD().with(0, name));
+			for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
+			{
+				const std::string& name = *it;
+				combo->add(name, LLSD().with(0, name));
+			}
 		}
-	}
-	else
-	{
-		LL_WARNS() << "Could not obtain graphic presets path" << LL_ENDL;
+		else
+		{
+			combo->setLabel(LLTrans::getString("preset_combo_label"));
+		}
 	}
 }
 
-void LLPresetsManager::loadPreset(const std::string& name)
+void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::string& name)
 {
-	std::string full_path(getPresetsDir(PRESETS_GRAPHIC) + "\\" + LLURI::escape(name) + ".xml");
+	std::string full_path(getPresetsDir(subdirectory) + gDirUtilp->getDirDelimiter() + LLURI::escape(name) + ".xml");
 
 	gSavedSettings.loadFromFile(full_path, false, true);
 }
 
-bool LLPresetsManager::deletePreset(const std::string& name)
+bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::string& name)
 {
-	// remove from param list
-	preset_name_list_t::iterator it = find(mPresetNames.begin(), mPresetNames.end(), name);
-	if (it == mPresetNames.end())
-	{
-		LL_WARNS("Presets") << "No preset named " << name << LL_ENDL;
-		return false;
-	}
-
-	if (gDirUtilp->deleteFilesInDir(getPresetsDir(PRESETS_GRAPHIC), LLURI::escape(name) + ".xml") < 1)
+	if (gDirUtilp->deleteFilesInDir(getPresetsDir(subdirectory), LLURI::escape(name) + ".xml") < 1)
 	{
 		LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;
 		return false;
-	}
-	else
-	{
-		mPresetNames.erase(it);
 	}
 
 	// signal interested parties

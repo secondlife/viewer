@@ -31,7 +31,8 @@
    	top_delta="0"
    	width="150">
     <combo_box.commit_callback
-      function="Pref.Preset" />
+      function="Pref.Preset"
+      parameter="graphic" />
   </combo_box>
   <button
     follows="top|left"
@@ -43,7 +44,8 @@
     top_delta="0"
     width="115">
     <button.commit_callback
-      function="Pref.PrefSave" />
+      function="Pref.PrefSave"
+	  parameter="graphic"/>
   </button>
   <button
     follows="top|left"
