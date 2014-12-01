@@ -17,7 +17,7 @@
     height="16"
     layout="topleft"
     left="5"
-    name="label"
+    name="presets_text"
     top="10"
     width="60">
       Presets:
