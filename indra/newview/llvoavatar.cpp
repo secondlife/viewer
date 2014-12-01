@@ -7953,57 +7953,82 @@ void LLVOAvatar::idleUpdateRenderCost()
 {
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
 	{
-		std::string render_info_text;
-		F32 worst_ratio = 0.f;
-		F32 red_level = 0.f;
-		F32 green_level = 0.f;
+		std::string info_line;
+		F32 red_level;
+		F32 green_level;
+		LLColor4 info_color;
+		LLFontGL::StyleFlags info_style;
 		
-		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
-		render_info_text.append(llformat("%.1f KB%s", mAttachmentGeometryBytes/1024.f,
-										 (max_attachment_bytes > 0 && mAttachmentGeometryBytes > max_attachment_bytes) ? "!" : ""));
-
-		if (max_attachment_bytes != 0) // zero means don't care, so don't bother coloring based on this
+		if ( !mText )
 		{
-			if ((mAttachmentGeometryBytes/(F32)max_attachment_bytes) > worst_ratio)
-			{
-				worst_ratio = mAttachmentGeometryBytes/(F32)max_attachment_bytes;
-				green_level = 1.f-llclamp(((F32) mAttachmentGeometryBytes-(F32)max_attachment_bytes)/(F32)max_attachment_bytes, 0.f, 1.f);
-				red_level   = llmin((F32) mAttachmentGeometryBytes/(F32)max_attachment_bytes, 1.f);
-			}
+			initDebugTextHud();
+		}
+		else
+		{
+			mText->clearString(); // clear debug text
 		}
 		
+		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
+		info_line = llformat("%.1f KB", mAttachmentGeometryBytes/1024.f);
+		if (max_attachment_bytes != 0) // zero means don't care, so don't bother coloring based on this
+		{
+			green_level = 1.f-llclamp(((F32) mAttachmentGeometryBytes-(F32)max_attachment_bytes)/(F32)max_attachment_bytes, 0.f, 1.f);
+			red_level   = llmin((F32) mAttachmentGeometryBytes/(F32)max_attachment_bytes, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  mAttachmentGeometryBytes > max_attachment_bytes
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
+		}
+		else
+		{
+			info_color.setToWhite();
+			info_style = LLFontGL::NORMAL;
+		}
+		LL_DEBUGS() << "adding max bytes " << info_line << LL_ENDL;
+		mText->addLine(info_line, info_color);
+		
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0);
-		render_info_text.append(llformat(" %.2f m^2%s", mAttachmentSurfaceArea,
-										 (max_attachment_area > 0 && mAttachmentSurfaceArea > max_attachment_area) ? "!" : ""));
+		info_line = llformat("%.2f m^2", mAttachmentSurfaceArea);
 
 		if (max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
 		{
-			if ((mAttachmentSurfaceArea/max_attachment_area) > worst_ratio)
-			{
-				worst_ratio = mAttachmentSurfaceArea/max_attachment_area;
-				green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
-				red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
-			}
+			green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
+			red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  max_attachment_area > mAttachmentSurfaceArea
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
+
 		}
+		else
+		{
+			info_color.setToWhite();
+			info_style = LLFontGL::NORMAL;
+		}
+		LL_DEBUGS() << "adding max area " << info_line << LL_ENDL;
+		mText->addLine(info_line, info_color, info_style);
 
 		calculateUpdateRenderCost();				// Update mVisualComplexity if needed	
 
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
-		render_info_text.append(llformat(" %d%s", mVisualComplexity,
-										 (max_render_cost > 0 && mVisualComplexity > max_render_cost) ? "!" : ""));
+		info_line = llformat("%d arc", mVisualComplexity);
 
 		if (max_render_cost != 0) // zero means don't care, so don't bother coloring based on this
 		{
-			if (((F32)mVisualComplexity/(F32)max_render_cost) > worst_ratio)
-			{
-				worst_ratio = (F32)mVisualComplexity/(F32)max_render_cost;
-				green_level = 1.f-llclamp(((F32) mVisualComplexity-(F32)max_render_cost)/(F32)max_render_cost, 0.f, 1.f);
-				red_level   = llmin((F32) mVisualComplexity/(F32)max_render_cost, 1.f);
-			}
-		}
+			green_level = 1.f-llclamp(((F32) mVisualComplexity-(F32)max_render_cost)/(F32)max_render_cost, 0.f, 1.f);
+			red_level   = llmin((F32) mVisualComplexity/(F32)max_render_cost, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  mVisualComplexity > max_render_cost
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
 
-		setDebugText(render_info_text);
-		mText->setColor(worst_ratio != 0.f ? LLColor4(red_level,green_level,0,1) : LLColor4::green);
+		}
+		else
+		{
+			info_color.setToWhite();
+			info_style = LLFontGL::NORMAL;
+		}
+		LL_DEBUGS() << "adding max cost " << info_line << LL_ENDL;
+		mText->addLine(info_line, info_color, info_style);
+
+		updateText(); // corrects position
 	}
 }
 

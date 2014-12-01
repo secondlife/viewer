@@ -4926,18 +4926,23 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 
 	if (!mText)
 	{
-		mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-		mText->setFont(LLFontGL::getFontSansSerif());
-		mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
-		mText->setMaxLines(-1);
-		mText->setSourceObject(this);
-		mText->setOnHUDAttachment(isHUDAttachment());
+		initDebugTextHud();
 	}
 	mText->setColor(LLColor4::white);
 	mText->setString(utf8text);
 	mText->setZCompare(FALSE);
 	mText->setDoFade(FALSE);
 	updateText();
+}
+
+void LLViewerObject::initDebugTextHud()
+{
+	mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+	mText->setFont(LLFontGL::getFontSansSerif());
+	mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
+	mText->setMaxLines(-1);
+	mText->setSourceObject(this);
+	mText->setOnHUDAttachment(isHUDAttachment());
 }
 
 void LLViewerObject::setIcon(LLViewerTexture* icon_image)

@@ -398,6 +398,7 @@ public:
 
 	void setCanSelect(BOOL canSelect);
 
+	void initDebugTextHud();
 	void setDebugText(const std::string &utf8text);
 	void setIcon(LLViewerTexture* icon_image);
 	void clearIcon();
