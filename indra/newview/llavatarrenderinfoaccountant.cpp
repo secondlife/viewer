@@ -335,35 +335,6 @@ void LLAvatarRenderInfoAccountant::idle()
 		// We scanned all the regions, reset the request timer.
 		sRenderInfoReportTimer.resetWithExpiry(SECS_BETWEEN_REGION_SCANS);
 	}
-
-	static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions", 0);
-	static U32 prev_render_auto_mute_functions = (U32) -1;
-	if (prev_render_auto_mute_functions != render_auto_mute_functions)
-	{
-		prev_render_auto_mute_functions = render_auto_mute_functions;
-
-		// Adjust menus
-		BOOL show_items = (BOOL)(render_auto_mute_functions & 0x04);
-		gMenuAvatarOther->setItemVisible( std::string("Normal"), show_items);
-		gMenuAvatarOther->setItemVisible( std::string("Always use impostor"), show_items);
-		gMenuAvatarOther->setItemVisible( std::string("Never use impostor"), show_items);
-		gMenuAvatarOther->setItemVisible( std::string("Impostor seperator"), show_items);
-		
-		gMenuAttachmentOther->setItemVisible( std::string("Normal"), show_items);
-		gMenuAttachmentOther->setItemVisible( std::string("Always use impostor"), show_items);
-		gMenuAttachmentOther->setItemVisible( std::string("Never use impostor"), show_items);
-		gMenuAttachmentOther->setItemVisible( std::string("Impostor seperator"), show_items);
-
-		if (!show_items)
-		{	// Turning off visual muting
-			for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-					iter != LLCharacter::sInstances.end(); ++iter)
-			{	// Make sure all AVs have the setting cleared
-				LLVOAvatar* inst = (LLVOAvatar*) *iter;
-				inst->setCachedVisualMute(false);
-			}
-		}
-	}
 }
 
 

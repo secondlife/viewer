@@ -9911,17 +9911,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderAutoMuteFunctions</key>
-  <map>
-    <key>Comment</key>
-    <string>Developing feature to render some avatars using simple impostors or colored silhouettes.  (Set to 7 for all functionality)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>0</real>
-  </map>
   <key>RenderAutoMuteLogging</key>
   <map>
     <key>Comment</key>
