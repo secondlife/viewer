@@ -725,6 +725,8 @@ void LLVoiceChannelProximal::handleStatusChange(EStatusType status)
 		// do not notify user when leaving proximal channel
 		return;
 	case STATUS_VOICE_DISABLED:
+		LLVoiceClient::getInstance()->setUserPTTState(false);
+		gAgent.setVoiceConnected(false);
 		//skip showing "Voice not available at your current location" when agent voice is disabled (EXT-4749)
 		if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
 		{

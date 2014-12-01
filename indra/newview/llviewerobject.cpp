@@ -2281,7 +2281,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 	}
 
-	if ((new_rot != getRotation())
+	if ((new_rot.isNotEqualEps(getRotation(), F_ALMOST_ZERO))
 		|| (new_angv != old_angv))
 	{
 		if (new_rot != mPreviousRotation)

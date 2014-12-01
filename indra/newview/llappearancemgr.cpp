@@ -4094,17 +4094,33 @@ public:
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
-		LLPointer<LLInventoryCategory> category = new LLInventoryCategory(query_map["folder_id"],
-																		  LLUUID::null,
-																		  LLFolderType::FT_CLOTHING,
-																		  "Quick Appearance");
-		LLSD::UUID folder_uuid = query_map["folder_id"].asUUID();
-		if ( gInventory.getCategory( folder_uuid ) != NULL )
-		{
-			LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
+		LLSD::UUID folder_uuid;
 
-			// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
-			gAgent.setOutfitChosen(TRUE);
+		if (folder_uuid.isNull() && query_map.has("folder_name"))
+		{
+			std::string outfit_folder_name = query_map["folder_name"];
+			folder_uuid = findDescendentCategoryIDByName(
+				gInventory.getLibraryRootFolderID(),
+				outfit_folder_name);	
+		}
+		if (folder_uuid.isNull() && query_map.has("folder_id"))
+		{
+			folder_uuid = query_map["folder_id"].asUUID();
+		}
+		
+		if (folder_uuid.notNull())
+		{
+			LLPointer<LLInventoryCategory> category = new LLInventoryCategory(folder_uuid,
+																			  LLUUID::null,
+																			  LLFolderType::FT_CLOTHING,
+																			  "Quick Appearance");
+			if ( gInventory.getCategory( folder_uuid ) != NULL )
+			{
+				LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
+				
+				// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
+				gAgent.setOutfitChosen(TRUE);
+			}
 		}
 
 		// release avatar picker keyboard focus
