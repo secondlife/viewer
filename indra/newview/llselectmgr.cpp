@@ -4643,11 +4643,18 @@ struct LLSelectMgrApplyFlags : public LLSelectedObjectFunctor
 	BOOL mState;
 	virtual bool apply(LLViewerObject* object)
 	{
-		if ( object->permModify() &&	// preemptive permissions check
-			 object->isRoot()) 		// don't send for child objects
+		if ( object->permModify())
 		{
-			object->setFlags( mFlags, mState);
-		}
+			if (object->isRoot()) 		// don't send for child objects
+			{
+				object->setFlags( mFlags, mState);
+			}
+			else if (FLAGS_WORLD & mFlags && ((LLViewerObject*)object->getRoot())->isSelected())
+			{
+				// FLAGS_WORLD are shared by all items in linkset
+				object->setFlagsWithoutUpdate(FLAGS_WORLD & mFlags, mState);
+			}
+		};
 		return true;
 	}
 };
