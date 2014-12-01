@@ -61,4 +61,4 @@ public:
 	preset_list_signal_t mPresetListChangeSignal;
 };
 
-#endif LL_PRESETSMANAGER_H
+#endif // LL_PRESETSMANAGER_H
