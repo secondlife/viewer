@@ -84,7 +84,7 @@
 	callWindowUnfocus();
 }
 
-- (NSApplicationDelegateReply) applicationShouldTerminate:(NSApplication *)sender
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender
 {
 	if (!runMainLoop())
 	{
