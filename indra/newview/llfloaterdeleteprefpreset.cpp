@@ -58,7 +58,8 @@ void LLFloaterDeletePrefPreset::onOpen(const LLSD& key)
 
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo);
+	EDefaultOptions option = DEFAULT_HIDE;
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
 }
 
 void LLFloaterDeletePrefPreset::onBtnDelete()
@@ -66,19 +67,20 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 	std::string name = combo->getSimple();
 
-	// Ignore return status
-	LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name);
-
-	LLSD args;
-	args["NAME"] = name;
-	LLNotificationsUtil::add("PresetDeleted", args);
+	if (LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name))
+	{
+		LLSD args;
+		args["NAME"] = name;
+		LLNotificationsUtil::add("PresetDeleted", args);
+	}
 }
 
 void LLFloaterDeletePrefPreset::onPresetsListChange()
 {
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo);
+	EDefaultOptions option = DEFAULT_HIDE;
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
 }
 
 void LLFloaterDeletePrefPreset::onBtnCancel()

@@ -962,9 +962,9 @@
     <button
       follows="left|bottom"
       height="23"
-      label="Reset"
+      label="Undo"
       layout="topleft"
-       left_pad="5"
+      left_pad="5"
       name="Defaults"
       top="310"
       width="115">

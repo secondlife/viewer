@@ -744,15 +744,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	saveSettings();
 
 	// Make sure there is a default preference file
-	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, PRESETS_GRAPHIC, "default.xml");
-	if (!gDirUtilp->fileExists(default_file))
-	{
-		LL_WARNS() << "No " << default_file << " found -- creating one" << LL_ENDL;
-		// Write current graphic settings to default.xml
-		// If this name is to be localized additional code will be needed to delete the old default
-		// when changing languages.
-		LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, "Default");
-	}
+	LLPresetsManager::getInstance()->createMissingDefault();
 
 	bool started = (LLStartUp::getStartupState() == STATE_STARTED);
 
@@ -2121,6 +2113,10 @@ void LLPanelPreference::onChangePreset(const LLSD& user_data)
 	}
 }
 
+void LLPanelPreference::setHardwareDefaults()
+{
+}
+
 class LLPanelPreferencePrivacy : public LLPanelPreference
 {
 public:
@@ -2183,7 +2179,8 @@ void LLPanelPreferenceGraphics::setPresetNamesInComboBox()
 {
 	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
 
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_GRAPHIC, combo);
+	EDefaultOptions option = DEFAULT_POSITION_TOP;
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_GRAPHIC, combo, option);
 }
 
 void LLPanelPreferenceGraphics::draw()

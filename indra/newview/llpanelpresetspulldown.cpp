@@ -35,6 +35,7 @@
 #include "lltabcontainer.h"
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h"
+#include "llpresetsmanager.h"
 #include "llsliderctrl.h"
 
 /* static */ const F32 LLPanelPresetsPulldown::sAutoCloseFadeStartTimeSec = 4.0f;
@@ -56,6 +57,9 @@ LLPanelPresetsPulldown::LLPanelPresetsPulldown()
 
 BOOL LLPanelPresetsPulldown::postBuild()
 {
+	// Make sure there is a default preference file
+	LLPresetsManager::getInstance()->createMissingDefault();
+
 	return LLPanel::postBuild();
 }
 

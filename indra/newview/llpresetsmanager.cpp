@@ -45,7 +45,19 @@ LLPresetsManager::~LLPresetsManager()
 {
 }
 
-//std::string LLPresetsManager::getUserDir(const std::string& subdirectory)
+void LLPresetsManager::createMissingDefault()
+{
+	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, PRESETS_GRAPHIC, "default.xml");
+	if (!gDirUtilp->fileExists(default_file))
+	{
+		LL_WARNS() << "No " << default_file << " found -- creating one" << LL_ENDL;
+		// Write current graphic settings to default.xml
+		// If this name is to be localized additional code will be needed to delete the old default
+		// when changing languages.
+		LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
+	}
+}
+
 std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 {
 	std::string presets_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR);
@@ -65,7 +77,7 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 	return full_path;
 }
 
-void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets)
+void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option)
 {
 	LL_INFOS("AppInit") << "Loading presets from " << dir << LL_ENDL;
 
@@ -82,13 +94,26 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 		{
 			std::string path = gDirUtilp->add(dir, file);
 			std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
-			if ("Default" != name)
+			if (PRESETS_DEFAULT != name)
 			{
 				mPresetNames.push_back(name);
 			}
 			else
 			{
-				mPresetNames.insert(mPresetNames.begin(), name);
+				switch (default_option)
+				{
+					case DEFAULT_POSITION_TOP:
+						mPresetNames.insert(mPresetNames.begin(), name);
+						break;
+
+					case DEFAULT_POSITION_NORMAL:
+						mPresetNames.push_back(name);
+						break;
+
+					case DEFAULT_HIDE:
+					default:
+						break;
+				}
 			}
 		}
 	}
@@ -177,7 +202,7 @@ void LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 	mPresetListChangeSignal();
 }
 
-void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo)
+void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option)
 {
 	combo->clearRows();
 
@@ -186,7 +211,7 @@ void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 	if (!presets_dir.empty())
 	{
 		std::list<std::string> preset_names;
-		loadPresetNamesFromDir(presets_dir, preset_names);
+		loadPresetNamesFromDir(presets_dir, preset_names, default_option);
 
 		if (preset_names.begin() != preset_names.end())
 		{
@@ -212,6 +237,12 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
 
 bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::string& name)
 {
+	if (PRESETS_DEFAULT == name)
+	{
+		LL_WARNS("Presets") << "You are not allowed to delete the default preset." << LL_ENDL;
+		return false;
+	}
+
 	if (gDirUtilp->deleteFilesInDir(getPresetsDir(subdirectory), LLURI::escape(name) + ".xml") < 1)
 	{
 		LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;

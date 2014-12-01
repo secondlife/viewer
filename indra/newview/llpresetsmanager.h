@@ -32,19 +32,29 @@
 #include <list>
 #include <map>
 
+static const std::string PRESETS_DEFAULT = "Default";
 static const std::string PRESETS_DIR = "presets";
 static const std::string PRESETS_GRAPHIC = "graphic";
 static const std::string PRESETS_CAMERA = "camera";
 
+enum EDefaultOptions
+{
+	DEFAULT_POSITION_TOP,		// Put "Default" as the first item in the combobox
+	DEFAULT_POSITION_NORMAL,	// No special positioning
+	DEFAULT_HIDE				// Do not display "Default" in the combobox
+};
+
 class LLPresetsManager : public LLSingleton<LLPresetsManager>
 {
 public:
+
 	typedef std::list<std::string> preset_name_list_t;
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
+	void createMissingDefault();
 	static std::string getPresetsDir(const std::string& subdirectory);
-	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo);
-	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets);
+	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option);
+	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option);
 	void savePreset(const std::string& subdirectory, const std::string & name);
 	void loadPreset(const std::string& subdirectory, const std::string & name);
 	bool deletePreset(const std::string& subdirectory, const std::string& name);
