@@ -1017,7 +1017,7 @@ F32 gpu_benchmark()
 			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
-				LL_INFOS() << "GPU Benchmark detected GL driver with broken glFinish implementation. Neat." << LL_ENDL;
+				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
 			}
 			else
 			{
@@ -1044,7 +1044,7 @@ F32 gpu_benchmark()
 #if LL_DARWIN
     if (gbps > 512.f)
     { 
-        LL_INFOS() << "Memory bandwidth is improbably high and likely incorrect." << LL_ENDL;
+        LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
         //OSX is probably lying, discard result
         gbps = -1.f;
     }
