@@ -2133,7 +2133,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 	std::string index_string;
 	if (parent)
 	{
-		U32 ind = 0;
+		size_t ind = 0;
 		parent->getChildren().find(element, ind);
 		index_string = "_" + boost::lexical_cast<std::string>(ind);
 
