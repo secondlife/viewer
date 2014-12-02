@@ -3862,7 +3862,7 @@ void LLModelPreview::generateNormals()
 			{
 				v_LLVolumeFace_t faces;
 				(*it)->copyFacesTo(faces);
-				mBaseModelFacesCopy.push_back(std::move(faces));
+				mBaseModelFacesCopy.push_back(faces);
 			}
 		}
 
@@ -3885,7 +3885,7 @@ void LLModelPreview::generateNormals()
 		{
 			v_LLVolumeFace_t faces;
 			(*it)->copyFacesTo(faces);
-			mModelFacesCopy[which_lod].push_back(std::move(faces));
+			mModelFacesCopy[which_lod].push_back(faces);
 		}
 
 		(*it)->generateNormals(angle_cutoff);
@@ -3915,10 +3915,10 @@ void LLModelPreview::restoreNormals()
 		{
 			(*it)->copyFacesFrom((*itF));
 		}
+
+		mBaseModelFacesCopy.clear();
 	}
-	mBaseModelFacesCopy.clear();
-
-
+	
 	if(!mModelFacesCopy[which_lod].empty())
 	{
 		vv_LLVolumeFace_t::const_iterator itF = mModelFacesCopy[which_lod].begin();
@@ -3926,9 +3926,10 @@ void LLModelPreview::restoreNormals()
 		{
 			(*it)->copyFacesFrom((*itF));
 		}
-	}
-	mModelFacesCopy[which_lod].clear();
 
+		mModelFacesCopy[which_lod].clear();
+	}
+	
 	mVertexBuffer[which_lod].clear();
 	refresh();
 	updateStatusMessages();
