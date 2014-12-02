@@ -152,11 +152,17 @@ protected:
 	BOOL				mIsBuilt; // state of deferred character building
 	typedef std::vector<LLAvatarJoint*> avatar_joint_list_t;
 	avatar_joint_list_t	mSkeleton;
-	
+	LLPosOverrideMap	mPelvisFixups;
+
 	//--------------------------------------------------------------------
 	// Pelvis height adjustment members.
 	//--------------------------------------------------------------------
 public:
+	void				addPelvisFixup( F32 fixup, const LLUUID& mesh_id );
+	void 				removePelvisFixup( const LLUUID& mesh_id );
+	bool 				hasPelvisFixup( F32& fixup, LLUUID& mesh_id ) const;
+	bool 				hasPelvisFixup( F32& fixup ) const;
+	
 	LLVector3			mBodySize;
 	LLVector3			mAvatarOffset;
 protected:

@@ -4528,7 +4528,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	//Determine if we've received skininfo that contains an
 	//alternate bind matrix - if it does then apply the translational component
 	//to the joints of the avatar.
+#if 0
 	bool pelvisGotSet = false;
+#endif
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_FACE_LIST);
@@ -4613,54 +4615,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					//get drawpool of avatar with rigged face
 					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);				
 					
+					// FIXME should this be inside the face loop?
+					// doesn't seem to depend on any per-face state.
 					if ( pAvatarVO )
 					{
-						LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
-						const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
-						if ( pSkinData )
-						{
-							const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
-							if ( bindCnt > 0 )
-							{					
-								const int jointCnt = pSkinData->mJointNames.size();
-								const F32 pelvisZOffset = pSkinData->mPelvisOffset;
-								bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
-								if ( fullRig )
-								{								
-									for ( int i=0; i<jointCnt; ++i )
-									{
-										std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
-										LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
-										if ( pJoint && pJoint->getId() != currentId )
-										{   									
-											pJoint->setId( currentId );
-											const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-											
-											//Set the joint position
-											const std::string& attachment_name = drawablep->getVObj()->getAttachmentItemName();				
-											pJoint->addAttachmentPosOverride( jointPos, attachment_name );
-									
-											//If joint is a pelvis then handle old/new pelvis to foot values
-											if ( lookingForJoint == "mPelvis" )
-											{	
-												if ( !pAvatarVO->hasPelvisOffset() )
-												{										
-													pAvatarVO->setPelvisOffset( true, jointPos, pelvisZOffset );
-													pelvisGotSet = true;											
-												}										
-											}										
-										}										
-									}																
-								}							
-							}
-						}
+						pAvatarVO->addAttachmentPosOverridesForObject(vobj);
 					}
-					
-					//Rebuild body data if we altered joints/pelvis
-					if ( pelvisGotSet && pAvatarVO ) 
-					{
-						pAvatarVO->postPelvisSetRecalc();
-					}		
 
 					if (pool)
 					{
@@ -5018,14 +4978,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			}
 			
 		}
-
-		
-		
-			
-		
-					
-
-		
 	}
 
 	group->mBufferUsage = useage;

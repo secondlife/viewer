@@ -36,18 +36,62 @@
 S32 LLJoint::sNumUpdates = 0;
 S32 LLJoint::sNumTouches = 0;
 
-
-//-----------------------------------------------------------------------------
-// LLJoint::AttachmentOverrideRecord::AttachmentOverrideRecord()
-//-----------------------------------------------------------------------------
-LLJoint::AttachmentOverrideRecord::AttachmentOverrideRecord()
+template <class T> 
+bool attachment_map_iter_compare_key(const T& a, const T& b)
 {
+	return a.first < b.first;
 }
 
-template <class T> 
-bool attachment_map_iter_compare_name(const T& a, const T& b)
+bool LLPosOverrideMap::findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const
 {
-	return a.second.name < b.second.name;
+	pos = LLVector3(0,0,0);
+	mesh_id = LLUUID();
+	bool found = false;
+	
+	map_type::const_iterator it = std::max_element(m_map.begin(),
+												   m_map.end(),
+												   attachment_map_iter_compare_key<map_type::value_type>);
+	if (it != m_map.end())
+	{
+		found = true;
+		pos = it->second;
+		mesh_id = it->first;
+	}
+	return found;
+}
+
+void LLPosOverrideMap::showJointPosOverrides( std::ostringstream& os ) const
+{
+	map_type::const_iterator max_it = std::max_element(m_map.begin(),
+													   m_map.end(),
+													   attachment_map_iter_compare_key<map_type::value_type>);
+	for (map_type::const_iterator it = m_map.begin();
+		 it != m_map.end(); ++it)
+	{
+		const LLVector3& pos = it->second;
+		os << " " << "[" << it->first <<": " << pos << "]" << ((it==max_it) ? "*" : "");
+	}
+}
+
+U32 LLPosOverrideMap::count() const
+{
+	return m_map.size();
+}
+
+void LLPosOverrideMap::add(const LLUUID& mesh_id, const LLVector3& pos)
+{
+	m_map[mesh_id] = pos;
+}
+
+bool LLPosOverrideMap::remove(const LLUUID& mesh_id)
+{
+	U32 remove_count = m_map.erase(mesh_id);
+	return (remove_count > 0);
+}
+
+void LLPosOverrideMap::clear()
+{
+	m_map.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -244,74 +288,118 @@ const LLVector3& LLJoint::getPosition()
 	return mXform.getPosition();
 }
 
+bool do_debug_joint(const std::string& name)
+{
+	return true;
+}
 
 //--------------------------------------------------------------------
 // setPosition()
 //--------------------------------------------------------------------
 void LLJoint::setPosition( const LLVector3& pos )
 {
+	if (pos != getPosition())
+	{
+		if (do_debug_joint(getName()))
+		{
+			LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
+		}
+	}
 	mXform.setPosition(pos);
 	touch(MATRIX_DIRTY | POSITION_DIRTY);
+}
+
+void showJointPosOverrides( const LLJoint& joint, const std::string& note, const std::string& av_info )
+{
+        std::ostringstream os;
+        os << joint.m_posBeforeOverrides;
+        joint.m_attachmentOverrides.showJointPosOverrides(os);
+        LL_DEBUGS("Avatar") << av_info << " joint " << joint.getName() << " " << note << " " << os.str() << LL_ENDL;
 }
 
 //--------------------------------------------------------------------
 // addAttachmentPosOverride()
 //--------------------------------------------------------------------
-void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const std::string& attachment_name )
+void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info )
 {
-	if (attachment_name.empty())
+	if (mesh_id.isNull())
 	{
 		return;
 	}
-	if (m_attachmentOverrides.empty())
+	if (!m_attachmentOverrides.count())
 	{
-		LL_DEBUGS("Avatar") << getName() << " saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
+		if (do_debug_joint(getName()))
+		{
+			LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
+		}
 		m_posBeforeOverrides = getPosition();
 	}
-	AttachmentOverrideRecord rec;
-	rec.name = attachment_name;
-	rec.pos = pos;
-	m_attachmentOverrides[attachment_name] = rec;
-	LL_DEBUGS("Avatar") << getName() << " addAttachmentPosOverride for " << attachment_name << " pos " << pos << LL_ENDL;
-	updatePos();
+	m_attachmentOverrides.add(mesh_id,pos);
+	if (do_debug_joint(getName()))
+	{
+		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentPosOverride for mesh " << mesh_id << " pos " << pos << LL_ENDL;
+	}
+	updatePos(av_info);
 }
 
 //--------------------------------------------------------------------
 // removeAttachmentPosOverride()
 //--------------------------------------------------------------------
-void LLJoint::removeAttachmentPosOverride( const std::string& attachment_name )
+void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info )
 {
-	if (attachment_name.empty())
+	if (mesh_id.isNull())
 	{
 		return;
 	}
-	attachment_map_t::iterator it = m_attachmentOverrides.find(attachment_name);
-	if (it != m_attachmentOverrides.end())
+	if (m_attachmentOverrides.remove(mesh_id))
 	{
-		LL_DEBUGS("Avatar") << getName() << " removeAttachmentPosOverride for " << attachment_name << LL_ENDL;
-		m_attachmentOverrides.erase(it);
+		if (do_debug_joint(getName()))
+		{
+			LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
+								<< " removeAttachmentPosOverride for " << mesh_id << LL_ENDL;
+			showJointPosOverrides(*this, "remove", av_info);
+		}
+		updatePos(av_info);
 	}
-	updatePos();
+
+}
+
+//--------------------------------------------------------------------
+ // hasAttachmentPosOverride()
+ //--------------------------------------------------------------------
+bool LLJoint::hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const
+{
+	return m_attachmentOverrides.findActiveOverride(mesh_id,pos);
+}
+
+//--------------------------------------------------------------------
+// clearAttachmentPosOverrides()
+//--------------------------------------------------------------------
+void LLJoint::clearAttachmentPosOverrides()
+{
+	if (m_attachmentOverrides.count())
+	{
+		m_attachmentOverrides.clear();
+		setPosition(m_posBeforeOverrides);
+		setId( LLUUID::null );
+	}
 }
 
 //--------------------------------------------------------------------
 // updatePos()
 //--------------------------------------------------------------------
-void LLJoint::updatePos()
+void LLJoint::updatePos(const std::string& av_info)
 {
-	LLVector3 pos;
-	attachment_map_t::iterator it = std::max_element(m_attachmentOverrides.begin(),
-													 m_attachmentOverrides.end(),
-													 attachment_map_iter_compare_name<LLJoint::attachment_map_t::value_type>);
-	if (it != m_attachmentOverrides.end())
+	LLVector3 pos, found_pos;
+	LLUUID mesh_id;
+	if (m_attachmentOverrides.findActiveOverride(mesh_id,found_pos))
 	{
-		AttachmentOverrideRecord& rec = it->second;
-		LL_DEBUGS("Avatar") << getName() << " updatePos, winner of " << m_attachmentOverrides.size() << " is attachment " << rec.name << " pos " << rec.pos << LL_ENDL;
-		pos = rec.pos;
+		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner of " << m_attachmentOverrides.count() << " is mesh " << mesh_id << " pos " << found_pos << LL_ENDL;
+		pos = found_pos;
 	}
 	else
 	{
-		LL_DEBUGS("Avatar") << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
+		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
 		pos = m_posBeforeOverrides;
 	}
 	setPosition(pos);
