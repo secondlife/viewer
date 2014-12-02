@@ -2692,7 +2692,7 @@ void LLVolume::copyFacesTo(std::vector<LLVolumeFace> &faces) const
 
 void LLVolume::copyFacesFrom(const std::vector<LLVolumeFace> &faces)
 {
-	mVolumeFaces = std::move(faces);
+	mVolumeFaces = faces;
 	mSculptLevel = 0;
 }
 
