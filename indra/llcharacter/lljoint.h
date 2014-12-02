@@ -46,6 +46,21 @@ const U32 LL_FACE_JOINT_NUM = 30;
 const S32 LL_CHARACTER_MAX_PRIORITY = 7;
 const F32 LL_MAX_PELVIS_OFFSET = 5.f;
 
+class LLPosOverrideMap
+{
+public:
+	LLPosOverrideMap() {}
+	bool findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const;
+	void showJointPosOverrides(std::ostringstream& os) const;
+	U32 count() const;
+	void add(const LLUUID& mesh_id, const LLVector3& pos);
+	bool remove(const LLUUID& mesh_id);
+	void clear();
+private:
+	typedef std::map<LLUUID,LLVector3> map_type;
+	map_type m_map;
+};
+
 //-----------------------------------------------------------------------------
 // class LLJoint
 //-----------------------------------------------------------------------------
@@ -99,13 +114,7 @@ public:
 	static S32		sNumTouches;
 	static S32		sNumUpdates;
 
-	struct AttachmentOverrideRecord
-	{
-		AttachmentOverrideRecord();
-		LLVector3 pos;
-	};
-	typedef std::map<LLUUID,AttachmentOverrideRecord> attachment_map_t;
-	attachment_map_t m_attachmentOverrides;
+	LLPosOverrideMap m_attachmentOverrides;
 	LLVector3 m_posBeforeOverrides;
 
 	void updatePos(const std::string& av_info);
@@ -193,6 +202,8 @@ public:
 
 	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info );
 	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
+	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
+	void clearAttachmentPosOverrides();
 
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }

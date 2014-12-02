@@ -135,6 +135,8 @@ public:
 
 	virtual LLVOAvatar* asAvatar();
 
+	LLVOAvatar* getAvatarAncestor();
+
 	static void initVOClasses();
 	static void cleanupVOClasses();
 

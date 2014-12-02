@@ -394,11 +394,13 @@ void remove_inventory_items(
 
 void remove_inventory_item(
 	LLPointer<LLInventoryObject> obj,
-	LLPointer<LLInventoryCallback> cb);
+	LLPointer<LLInventoryCallback> cb,
+	bool immediate_delete = false);
 
 void remove_inventory_item(
 	const LLUUID& item_id,
-	LLPointer<LLInventoryCallback> cb);
+	LLPointer<LLInventoryCallback> cb,
+	bool immediate_delete = false);
 	
 void remove_inventory_category(
 	const LLUUID& cat_id,

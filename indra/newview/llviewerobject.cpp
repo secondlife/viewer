@@ -359,9 +359,16 @@ void LLViewerObject::markDead()
 		//LL_INFOS() << "Marking self " << mLocalID << " as dead." << LL_ENDL;
 		
 		// Root object of this hierarchy unlinks itself.
+		LLVOAvatar *av = getAvatarAncestor();
 		if (getParent())
 		{
 			((LLViewerObject *)getParent())->removeChild(this);
+		}
+		LLUUID mesh_id;
+		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
+		{
+			// This case is needed for indirectly attached mesh objects.
+			av->resetJointPositionsOnDetach(mesh_id);
 		}
 
 		// Mark itself as dead
@@ -5012,6 +5019,22 @@ void LLViewerObject::updateText()
 
 LLVOAvatar* LLViewerObject::asAvatar()
 {
+	return NULL;
+}
+
+// If this object is directly or indirectly parented by an avatar, return it.
+LLVOAvatar* LLViewerObject::getAvatarAncestor()
+{
+	LLViewerObject *pobj = (LLViewerObject*) getParent();
+	while (pobj)
+	{
+		LLVOAvatar *av = pobj->asAvatar();
+		if (av)
+		{
+			return av;
+		}
+		pobj =  (LLViewerObject*) pobj->getParent();
+	}
 	return NULL;
 }
 
