@@ -111,6 +111,7 @@
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
 #include "llpresetsmanager.h"
+#include "llfeaturemanager.h"
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
@@ -342,6 +343,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareSettings",		boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
+	mCommitCallbackRegistrar.add("Pref.Recommended",			boost::bind(&LLFloaterPreference::setRecommended, this));
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",		boost::bind(&LLFloaterPreference::refreshUI,this));
@@ -796,6 +798,15 @@ void LLFloaterPreference::setHardwareDefaults()
 		if (panel)
 			panel->setHardwareDefaults();
 	}
+}
+
+void LLFloaterPreference::setRecommended()
+{
+	LLFeatureManager::getInstance()->applyRecommendedSettings();
+
+	refreshEnabledGraphics();
+
+	LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
 }
 
 //virtual

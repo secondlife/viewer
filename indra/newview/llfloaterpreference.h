@@ -114,6 +114,7 @@ protected:
 	void onOpenHardwareSettings();
 	// callback for defaults
 	void setHardwareDefaults();
+	void setRecommended();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
 

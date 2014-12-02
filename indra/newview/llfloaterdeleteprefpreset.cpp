@@ -69,11 +69,7 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 
 	if (LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name))
 	{
-		std::string preset = mSubdirectory;
-		preset[0] = std::toupper(preset[0]);
-
 		LLSD args;
-		args["TYPE"] = preset;
 		args["NAME"] = name;
 		LLNotificationsUtil::add("PresetDeleted", args);
 	}
@@ -87,14 +83,7 @@ void LLFloaterDeletePrefPreset::onPresetsListChange()
 	EDefaultOptions option = DEFAULT_HIDE;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
 
-	if(0 != combo->getItemCount())
-	{
-		delete_btn->setEnabled(TRUE);
-	}
-	else
-	{
-		delete_btn->setEnabled(FALSE);
-	}
+	delete_btn->setEnabled(0 != combo->getItemCount());
 }
 
 void LLFloaterDeletePrefPreset::onBtnCancel()

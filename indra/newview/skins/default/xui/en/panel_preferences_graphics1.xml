@@ -972,12 +972,24 @@
         function="Pref.HardwareDefaults" />
     </button>
     <button
+      follows="left|bottom"
+      height="23"
+      label="Recommended"
+      layout="topleft"
+      left_pad="5"
+      name="Recommended"
+      top="310"
+      width="115">
+      <button.commit_callback
+        function="Pref.Recommended" />
+    </button>
+    <button
       follows="right|bottom"
       height="23"
       label="Hardware..."
       label_selected="Hardware"
       layout="topleft"
-      left_pad="150"
+      left_pad="25"
       name="GraphicsHardwareButton"
       top="310"
       width="115">

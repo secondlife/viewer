@@ -54,7 +54,7 @@ void LLPresetsManager::createMissingDefault()
 		// Write current graphic settings to default.xml
 		// If this name is to be localized additional code will be needed to delete the old default
 		// when changing languages.
-		LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
+		savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
 	}
 }
 
