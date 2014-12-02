@@ -65,6 +65,7 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mShowKeepDiscard(FALSE),
 	  mCopyToInv(FALSE),
 	  mIsCopyable(FALSE),
+	  mIsFullPerm(FALSE),
 	  mUpdateDimensions(TRUE),
 	  mLastHeight(0),
 	  mLastWidth(0),
@@ -269,7 +270,7 @@ void LLPreviewTexture::draw()
 // virtual
 BOOL LLPreviewTexture::canSaveAs() const
 {
-	return mIsCopyable && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
+	return mIsFullPerm && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
 }
 
 
@@ -516,6 +517,11 @@ void LLPreviewTexture::loadAsset()
 	mUpdateDimensions = TRUE;
 	updateDimensions();
 	getChildView("save_tex_btn")->setEnabled(canSaveAs());
+	if (mObjectUUID.notNull())
+	{
+		// check that we can copy inworld items into inventory
+		getChildView("Keep")->setEnabled(mIsCopyable);
+	}
 }
 
 LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()
@@ -580,7 +586,9 @@ void LLPreviewTexture::updateImageID()
 		mShowKeepDiscard = TRUE;
 
 		mCopyToInv = FALSE;
-		mIsCopyable = item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+		LLPermissions perm(item->getPermissions());
+		mIsCopyable = perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID()) && perm.allowTransferTo(gAgent.getID());
+		mIsFullPerm = item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
 	}
 	else // not an item, assume it's an asset id
 	{
@@ -588,6 +596,7 @@ void LLPreviewTexture::updateImageID()
 		mShowKeepDiscard = FALSE;
 		mCopyToInv = TRUE;
 		mIsCopyable = TRUE;
+		mIsFullPerm = TRUE;
 	}
 
 }
