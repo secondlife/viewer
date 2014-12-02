@@ -82,7 +82,11 @@ void LLFloaterSavePrefPreset::onBtnSave()
 
 	LLPresetsManager::getInstance()->savePreset(mSubdirectory, name);
 
+	std::string preset = mSubdirectory;
+	preset[0] = std::toupper(preset[0]);
+
 	LLSD args;
+	args["TYPE"] = preset;
 	args["NAME"] = name;
 	LLNotificationsUtil::add("PresetSaved", args);
 }

@@ -7661,14 +7661,14 @@ Attachment has been saved.
     icon="notifytip.tga"
 	name="PresetSaved"
     type="notifytip">
-Preset [NAME] has been saved.
+[TYPE] preset [NAME] has been saved.
   </notification>
 
   <notification
     icon="notifytip.tga"
 	name="PresetDeleted"
     type="notifytip">
-Preset [NAME] has been deleted.
+[TYPE] preset [NAME] has been deleted.
   </notification>
 
   <notification

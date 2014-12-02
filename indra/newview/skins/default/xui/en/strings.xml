@@ -4043,6 +4043,6 @@ Try enclosing path to the editor with double quotes.
   </string>
 
   <!-- Presets graphic/camera -->
-  <string name="preset_combo_label">-None saved yet-</string>
+  <string name="preset_combo_label">-Empty list-</string>
 
   </strings>
