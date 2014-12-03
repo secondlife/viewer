@@ -2016,9 +2016,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6ee270f437848da0298ed8f80b007819</string>
+              <string>6d2b38897f1adf354b299345d5fc759b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/pcre_3p-update-pcre/rev/297101/arch/Darwin/installer/pcre-8.35.-darwin-297101.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/pcre_3p-update-pcre/rev/297155/arch/Darwin/installer/pcre-8.35.-darwin-297155.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2028,9 +2028,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c7505851906789946d08ceb389d796de</string>
+              <string>b82817bcc2f63094d9c915d018d0b036</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/pcre_3p-update-pcre/rev/297101/arch/Linux/installer/pcre-8.35.-linux-297101.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/pcre_3p-update-pcre/rev/297155/arch/Linux/installer/pcre-8.35.-linux-297155.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2040,9 +2040,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>65626c999316fd849200859bf3710f3f</string>
+              <string>96ed836c89a99dfc22f9c16a0d7272d3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/pcre_3p-update-pcre/rev/297101/arch/CYGWIN/installer/pcre-8.35.-windows-297101.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/pcre_3p-update-pcre/rev/297155/arch/CYGWIN/installer/pcre-8.35.-windows-297155.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
