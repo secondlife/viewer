@@ -8285,6 +8285,10 @@ class LLWorldEnableEnvSettings : public view_listener_t
 			{
 				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Midnight");
 			}
+			else if (tod == "region")
+			{
+				return false;
+			}
 			else
 			{
 				LL_WARNS() << "Unknown time-of-day item:  " << tod << LL_ENDL;
