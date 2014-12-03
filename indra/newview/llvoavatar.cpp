@@ -7948,7 +7948,6 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 	angle.mV[2] = da;
 }
 
-
 void LLVOAvatar::idleUpdateRenderCost()
 {
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
@@ -7962,50 +7961,13 @@ void LLVOAvatar::idleUpdateRenderCost()
 		if ( !mText )
 		{
 			initDebugTextHud();
+			mText->setFadeDistance(15.0, 5.0); // limit clutter in large crowds
 		}
 		else
 		{
 			mText->clearString(); // clear debug text
 		}
 		
-		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
-		info_line = llformat("%.1f KB", mAttachmentGeometryBytes/1024.f);
-		if (max_attachment_bytes != 0) // zero means don't care, so don't bother coloring based on this
-		{
-			green_level = 1.f-llclamp(((F32) mAttachmentGeometryBytes-(F32)max_attachment_bytes)/(F32)max_attachment_bytes, 0.f, 1.f);
-			red_level   = llmin((F32) mAttachmentGeometryBytes/(F32)max_attachment_bytes, 1.f);
-			info_color.set(red_level, green_level, 0.0, 1.0);
-			info_style = (  mAttachmentGeometryBytes > max_attachment_bytes
-						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
-		}
-		else
-		{
-			info_color.setToWhite();
-			info_style = LLFontGL::NORMAL;
-		}
-		LL_DEBUGS() << "adding max bytes " << info_line << LL_ENDL;
-		mText->addLine(info_line, info_color);
-		
-		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0);
-		info_line = llformat("%.2f m^2", mAttachmentSurfaceArea);
-
-		if (max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
-		{
-			green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
-			red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
-			info_color.set(red_level, green_level, 0.0, 1.0);
-			info_style = (  max_attachment_area > mAttachmentSurfaceArea
-						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
-
-		}
-		else
-		{
-			info_color.setToWhite();
-			info_style = LLFontGL::NORMAL;
-		}
-		LL_DEBUGS() << "adding max area " << info_line << LL_ENDL;
-		mText->addLine(info_line, info_color, info_style);
-
 		calculateUpdateRenderCost();				// Update mVisualComplexity if needed	
 
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
@@ -8022,12 +7984,50 @@ void LLVOAvatar::idleUpdateRenderCost()
 		}
 		else
 		{
-			info_color.setToWhite();
+			info_color.set(LLColor4::grey);
 			info_style = LLFontGL::NORMAL;
 		}
 		LL_DEBUGS() << "adding max cost " << info_line << LL_ENDL;
 		mText->addLine(info_line, info_color, info_style);
 
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0);
+		info_line = llformat("%.2f m^2", mAttachmentSurfaceArea);
+
+		if (max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
+		{
+			green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
+			red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  mAttachmentSurfaceArea > max_attachment_area
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
+
+		}
+		else
+		{
+			info_color.set(LLColor4::grey);
+			info_style = LLFontGL::NORMAL;
+		}
+		LL_DEBUGS() << "adding max area " << info_line << LL_ENDL;
+		mText->addLine(info_line, info_color, info_style);
+
+		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
+		info_line = llformat("%.1f KB", mAttachmentGeometryBytes/1024.f);
+		if (max_attachment_bytes != 0) // zero means don't care, so don't bother coloring based on this
+		{
+			green_level = 1.f-llclamp(((F32) mAttachmentGeometryBytes-(F32)max_attachment_bytes)/(F32)max_attachment_bytes, 0.f, 1.f);
+			red_level   = llmin((F32) mAttachmentGeometryBytes/(F32)max_attachment_bytes, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  mAttachmentGeometryBytes > max_attachment_bytes
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
+		}
+		else
+		{
+			info_color.set(LLColor4::grey);
+			info_style = LLFontGL::NORMAL;
+		}
+		LL_DEBUGS() << "adding max bytes " << info_line << LL_ENDL;
+		mText->addLine(info_line, info_color);
+		
 		updateText(); // corrects position
 	}
 }

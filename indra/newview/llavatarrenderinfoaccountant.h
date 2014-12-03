@@ -46,8 +46,6 @@ public:
 
     static void idle();
 
-	static bool logRenderInfo();
-
 private:
 	// Send data updates about once per minute, only need per-frame resolution
 	static LLFrameTimer sRenderInfoReportTimer;
