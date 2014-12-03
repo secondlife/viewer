@@ -600,6 +600,9 @@ std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //
             allowedv->push_back("slg");
             break;
 #endif
+        case FFLOAD_XML:
+            allowedv->push_back("xml");
+            break;
         case FFLOAD_RAW:
             allowedv->push_back("raw");
             break;
@@ -702,7 +705,14 @@ bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filena
 			creator = "\?\?\?\?";
 			extension = "slg";
 			break;
-#endif		
+#endif	
+			
+		case FFSAVE_XML:
+			type = "\?\?\?\?";
+			creator = "\?\?\?\?";
+			extension = "xml";
+			break;
+			
 		case FFSAVE_RAW:
 			type = "\?\?\?\?";
 			creator = "\?\?\?\?";
@@ -1100,6 +1110,12 @@ static std::string add_anim_filter_to_gtkchooser(GtkWindow *picker)
 	return filtername;
 }
 
+static std::string add_xml_filter_to_gtkchooser(GtkWindow *picker)
+{
+	return add_simple_pattern_filter_to_gtkchooser(picker,  "*.xml",
+												   LLTrans::getString("xml_files") + " (*.xml)");
+}
+
 static std::string add_collada_filter_to_gtkchooser(GtkWindow *picker)
 {
 	return add_simple_pattern_filter_to_gtkchooser(picker,  "*.dae",
@@ -1292,6 +1308,9 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 			break;
 		case FFLOAD_ANIM:
 			filtername = add_anim_filter_to_gtkchooser(picker);
+			break;
+		case FFLOAD_XML:
+			filtername = add_xml_filter_to_gtkchooser(picker);
 			break;
 		case FFLOAD_COLLADA:
 			filtername = add_collada_filter_to_gtkchooser(picker);
