@@ -149,6 +149,8 @@ void camera_move_forward( EKeystate s );
 
 void agent_push_forward( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
+
 	//in free camera control mode we need to intercept keyboard events for avatar movements
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
@@ -164,6 +166,8 @@ void camera_move_backward( EKeystate s );
 
 void agent_push_backward( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
+
 	//in free camera control mode we need to intercept keyboard events for avatar movements
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
@@ -199,12 +203,14 @@ static void agent_slide_leftright( EKeystate s, S32 direction, LLAgent::EDoubleT
 
 void agent_slide_left( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
 	agent_slide_leftright(s, 1, LLAgent::DOUBLETAP_SLIDELEFT);
 }
 
 
 void agent_slide_right( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
 	agent_slide_leftright(s, -1, LLAgent::DOUBLETAP_SLIDERIGHT);
 }
 
@@ -218,6 +224,8 @@ void agent_turn_left( EKeystate s )
 		camera_spin_around_cw(s);
 		return;
 	}
+
+	if(gAgent.isMovementLocked()) return;
 
 	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
@@ -246,6 +254,8 @@ void agent_turn_right( EKeystate s )
 		camera_spin_around_ccw(s);
 		return;
 	}
+
+	if(gAgent.isMovementLocked()) return;
 
 	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
