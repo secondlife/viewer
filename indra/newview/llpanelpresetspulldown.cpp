@@ -37,6 +37,7 @@
 #include "llfloaterpreference.h"
 #include "llpresetsmanager.h"
 #include "llsliderctrl.h"
+#include "llscrolllistctrl.h"
 
 /* static */ const F32 LLPanelPresetsPulldown::sAutoCloseFadeStartTimeSec = 4.0f;
 /* static */ const F32 LLPanelPresetsPulldown::sAutoCloseTotalTimeSec = 5.0f;
@@ -50,17 +51,51 @@ LLPanelPresetsPulldown::LLPanelPresetsPulldown()
 {
 	mHoverTimer.stop();
 
-	mCommitCallbackRegistrar.add("Presets.GoMoveViewPrefs", boost::bind(&LLPanelPresetsPulldown::onMoveViewButtonClick, this, _2));
 	mCommitCallbackRegistrar.add("Presets.GoGraphicsPrefs", boost::bind(&LLPanelPresetsPulldown::onGraphicsButtonClick, this, _2));
+	mCommitCallbackRegistrar.add("Presets.RowClick", boost::bind(&LLPanelPresetsPulldown::onRowClick, this, _2));
+
 	buildFromFile( "panel_presets_pulldown.xml");
 }
 
 BOOL LLPanelPresetsPulldown::postBuild()
 {
+	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelPresetsPulldown::populatePanel, this));
 	// Make sure there is a default preference file
 	LLPresetsManager::getInstance()->createMissingDefault();
 
+	populatePanel();
+
 	return LLPanel::postBuild();
+}
+
+void LLPanelPresetsPulldown::populatePanel()
+{
+	std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_GRAPHIC);
+	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_POSITION_NORMAL);
+
+	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_list");
+
+	if (scroll && mPresetNames.begin() != mPresetNames.end())
+	{
+		scroll->clearRows();
+
+		for (std::list<std::string>::const_iterator it = mPresetNames.begin(); it != mPresetNames.end(); ++it)
+		{
+			const std::string& name = *it;
+
+			LLSD row;
+			row["columns"][0]["column"] = "preset_name";
+			row["columns"][0]["value"] = name;
+
+			if (name == gSavedSettings.getString("PresetGraphicActive"))
+			{
+				row["columns"][1]["column"] = "active_name";
+				row["columns"][1]["value"] = "X";
+			}
+
+			scroll->addElement(row);
+		}
+	}
 }
 
 /*virtual*/
@@ -97,22 +132,26 @@ void LLPanelPresetsPulldown::onVisibilityChange ( BOOL new_visibility )
 	}
 }
 
-void LLPanelPresetsPulldown::onMoveViewButtonClick(const LLSD& user_data)
+void LLPanelPresetsPulldown::onRowClick(const LLSD& user_data)
 {
-	// close the minicontrol, we're bringing up the big one
-	setVisible(FALSE);
+	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_list");
 
-	// bring up the prefs floater
-	LLFloater* prefsfloater = LLFloaterReg::showInstance("preferences");
-	if (prefsfloater)
+	if (scroll)
 	{
-		// grab the 'move' panel from the preferences floater and
-		// bring it the front!
-		LLTabContainer* tabcontainer = prefsfloater->getChild<LLTabContainer>("pref core");
-		LLPanel* movepanel = prefsfloater->getChild<LLPanel>("move");
-		if (tabcontainer && movepanel)
+		LLScrollListItem* item = scroll->getFirstSelected();
+		if (item)
 		{
-			tabcontainer->selectTabPanel(movepanel);
+			std::string name = item->getColumn(1)->getValue().asString();
+
+			LLPresetsManager::getInstance()->loadPreset(PRESETS_GRAPHIC, name);
+			LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+			if (instance)
+			{
+				instance->refreshEnabledGraphics();
+			}
+			setVisible(FALSE);
+			// This line shouldn't be necessary but it is.
+			populatePanel();
 		}
 	}
 }

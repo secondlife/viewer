@@ -28,11 +28,11 @@
 
 #include "llfloaterdeleteprefpreset.h"
 
-#include "llpresetsmanager.h"
-
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llnotificationsutil.h"
+#include "llpresetsmanager.h"
+#include "llviewercontrol.h"
 
 LLFloaterDeletePrefPreset::LLFloaterDeletePrefPreset(const LLSD &key)
 :	LLFloater(key)
@@ -69,6 +69,11 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 
 	if (LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name))
 	{
+		if (name == gSavedSettings.getString("PresetGraphicActive"))
+		{
+			LLPresetsManager::getInstance()->savePreset(mSubdirectory, PRESETS_DEFAULT);
+		}
+
 		LLSD args;
 		args["NAME"] = name;
 		LLNotificationsUtil::add("PresetDeleted", args);

@@ -97,7 +97,6 @@ public:
 protected:	
 	void		onBtnOK();
 	void		onBtnCancel();
-	void		onBtnApply();
 
 	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
@@ -248,8 +247,6 @@ class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
 	BOOL postBuild();
-	void draw();
-	void apply();
 	void cancel();
 	void saveSettings();
 	void setHardwareDefaults();

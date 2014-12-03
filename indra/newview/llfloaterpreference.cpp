@@ -325,7 +325,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 		registered_dialog = true;
 	}
 	
-	mCommitCallbackRegistrar.add("Pref.Apply",				boost::bind(&LLFloaterPreference::onBtnApply, this));
 	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this));
 	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this));
 	
@@ -788,6 +787,7 @@ void LLFloaterPreference::setHardwareDefaults()
 {
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
 	refreshEnabledGraphics();
+
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
 	child_list_t::const_iterator end = tabcontainer->getChildList()->end();
@@ -884,24 +884,11 @@ void LLFloaterPreference::onBtnOK()
 		LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
 		pPathfindingConsole->onRegionBoundaryCross();
 	}
-	
-}
 
-// static 
-void LLFloaterPreference::onBtnApply( )
-{
-	if (hasFocus())
+	if (LLStartUp::getStartupState() == STATE_STARTED)
 	{
-		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-		if (cur_focus && cur_focus->acceptsTextInput())
-		{
-			cur_focus->onCommit();
-		}
+		LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, gSavedSettings.getString("PresetGraphicActive"));
 	}
-	apply();
-	saveSettings();
-
-	LLPanelLogin::updateLocationSelectorsVisibility();
 }
 
 // static 
@@ -2115,7 +2102,6 @@ void LLPanelPreference::onChangePreset(const LLSD& user_data)
 	LLComboBox* combo = getChild<LLComboBox>(subdirectory + "_preset_combo");
 	std::string name = combo->getSimple();
 
-
 	LLPresetsManager::getInstance()->loadPreset(subdirectory, name);
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if (instance)
@@ -2194,19 +2180,6 @@ void LLPanelPreferenceGraphics::setPresetNamesInComboBox()
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_GRAPHIC, combo, option);
 }
 
-void LLPanelPreferenceGraphics::draw()
-{
-	LLPanelPreference::draw();
-	
-	LLButton* button_apply = findChild<LLButton>("Apply");
-	
-	if (button_apply && button_apply->getVisible())
-	{
-		bool enable = hasDirtyChilds();
-
-		button_apply->setEnabled(enable);
-	}
-}
 bool LLPanelPreferenceGraphics::hasDirtyChilds()
 {
 	std::list<LLView*> view_stack;
@@ -2256,11 +2229,7 @@ void LLPanelPreferenceGraphics::resetDirtyChilds()
 		}
 	}	
 }
-void LLPanelPreferenceGraphics::apply()
-{
-	resetDirtyChilds();
-	LLPanelPreference::apply();
-}
+
 void LLPanelPreferenceGraphics::cancel()
 {
 	resetDirtyChilds();

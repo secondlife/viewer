@@ -45,9 +45,11 @@ class LLPanelPresetsPulldown : public LLPanel
 	/*virtual*/ BOOL postBuild();
 	
  private:
+	void populatePanel();
 	void onGraphicsButtonClick(const LLSD& user_data);
-	void onMoveViewButtonClick(const LLSD& user_data);
+	void onRowClick(const LLSD& user_data);
 
+	std::list<std::string> mPresetNames;
 	LLFrameTimer mHoverTimer;
 	static const F32 sAutoCloseFadeStartTimeSec;
 	static const F32 sAutoCloseTotalTimeSec;

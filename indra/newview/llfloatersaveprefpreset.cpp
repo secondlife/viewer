@@ -85,6 +85,8 @@ void LLFloaterSavePrefPreset::onBtnSave()
 	LLSD args;
 	args["NAME"] = name;
 	LLNotificationsUtil::add("PresetSaved", args);
+
+	closeFloater();
 }
 
 void LLFloaterSavePrefPreset::onPresetsListChange()

@@ -56,6 +56,11 @@ void LLPresetsManager::createMissingDefault()
 		// when changing languages.
 		savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
 	}
+
+	if (gSavedSettings.getString("PresetGraphicActive").empty())
+	{
+		gSavedSettings.setString("PresetGraphicActive", PRESETS_DEFAULT);
+	}
 }
 
 std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
@@ -93,7 +98,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 		if (found)
 		{
 			std::string path = gDirUtilp->add(dir, file);
-			std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
+			std::string name = gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true);
 			if (PRESETS_DEFAULT != name)
 			{
 				mPresetNames.push_back(name);
@@ -131,6 +136,8 @@ void LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 	// Additions or subtractions to the control variables in the floaters must also be reflected here.
 	if(PRESETS_GRAPHIC == subdirectory)
 	{
+		gSavedSettings.setString("PresetGraphicActive", name);
+
 		name_list = boost::assign::list_of
 			("RenderQualityPerformance")
 			("RenderFarClip")
@@ -164,7 +171,9 @@ void LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 			("RenderVBOEnable")
 			("RenderCompressTextures")
 			("TextureMemory")
-			("RenderFogRatio");
+			("RenderFogRatio")
+
+			("PresetGraphicActive");
 		}
 
 	if(PRESETS_CAMERA == subdirectory)

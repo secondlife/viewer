@@ -37,7 +37,7 @@
   <button
     follows="top|left"
     height="23"
-    label="Save..."
+    label="SaveAs..."
     layout="topleft"
     left_pad="5"
     name="PrefSaveButton"
@@ -949,22 +949,9 @@
     <button
       follows="left|bottom"
       height="23"
-      label="Apply"
-      label_selected="Apply"
-      layout="topleft"
-      left="10"
-      name="Apply"
-      top="310"
-      width="115">
-      <button.commit_callback
-        function="Pref.Apply" />
-    </button>
-    <button
-      follows="left|bottom"
-      height="23"
       label="Undo"
       layout="topleft"
-      left_pad="5"
+      left="10"
       name="Defaults"
       top="310"
       width="115">
@@ -974,12 +961,12 @@
     <button
       follows="left|bottom"
       height="23"
-      label="Recommended"
+      label="Recommended Settings"
       layout="topleft"
       left_pad="5"
       name="Recommended"
       top="310"
-      width="115">
+      width="190">
       <button.commit_callback
         function="Pref.Recommended" />
     </button>
