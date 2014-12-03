@@ -1962,9 +1962,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c992a53924cf180fbd644c5fcacd3d92</string>
+              <string>0a77d56769e6075957f614be6575423e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openssl_3p-update-openssl/rev/295244/arch/Darwin/installer/openssl-1.0.1h.295244-darwin-295244.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openssl_3p-update-openssl/rev/297168/arch/Darwin/installer/openssl-1.0.1h.297168-darwin-297168.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1974,9 +1974,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0665c18f8cdbe2f90cb0a2f088cfe1a6</string>
+              <string>c310ba9971cbd796b303c3be67fb11c6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290662/arch/Linux/installer/openssl-1.0.1h-linux-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openssl_3p-update-openssl/rev/297168/arch/Linux/installer/openssl-1.0.1h.297168-linux-297168.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1986,16 +1986,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>138997e1a73c65525d45c00f43f08010</string>
+              <string>398743f47578cbb44f5504128780369f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290662/arch/CYGWIN/installer/openssl-1.0.1h-windows-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openssl_3p-update-openssl/rev/297168/arch/CYGWIN/installer/openssl-1.0.1h.297168-windows-297168.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.1h.295244</string>
+        <string>1.0.1h.297168</string>
       </map>
       <key>pcre</key>
       <map>
