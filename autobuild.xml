@@ -1072,7 +1072,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>ttp://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-gtk-atk-pango-glib/rev/289881/arch/CYGWIN/installer/gtk_atk_pango_glib-0.0-windows-289881.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-gtk-atk-pango-glib/rev/289881/arch/CYGWIN/installer/gtk_atk_pango_glib-0.0-windows-289881.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
