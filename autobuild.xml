@@ -160,9 +160,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>26dc7724d5b6b504b0989ab59ba209f3</string>
+              <string>23f92889da917d0ebe542a77dab951ab</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297087/arch/Darwin/installer/boost-1.57-darwin-297087.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297177/arch/Darwin/installer/boost-1.57-darwin-297177.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -172,9 +172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9c2a2297ee330c81d31c50ebb30e2725</string>
+              <string>cf9b03e79742944200ad3ab214b06a07</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297087/arch/Linux/installer/boost-1.57-linux-297087.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297177/arch/Linux/installer/boost-1.57-linux-297177.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -184,9 +184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ee1ad887ab438fd76ec450c128b1fd4f</string>
+              <string>37ea0a0d2e276bdc3aaf7cbf29ad8b1a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297087/arch/CYGWIN/installer/boost-1.57-windows-297087.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297177/arch/CYGWIN/installer/boost-1.57-windows-297177.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
