@@ -242,6 +242,9 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
 	std::string full_path(getPresetsDir(subdirectory) + gDirUtilp->getDirDelimiter() + LLURI::escape(name) + ".xml");
 
 	gSavedSettings.loadFromFile(full_path, false, true);
+
+	// signal interested parties
+	mPresetListChangeSignal();
 }
 
 bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::string& name)

@@ -150,8 +150,6 @@ void LLPanelPresetsPulldown::onRowClick(const LLSD& user_data)
 				instance->refreshEnabledGraphics();
 			}
 			setVisible(FALSE);
-			// This line shouldn't be necessary but it is.
-			populatePanel();
 		}
 	}
 }
