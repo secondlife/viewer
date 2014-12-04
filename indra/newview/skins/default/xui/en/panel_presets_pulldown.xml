@@ -38,12 +38,10 @@
     left_delta="0"
     name="preset_list">
     <scroll_list.columns
-      width="10"
-      label="Active"
-      name="active_name" />
+      name="icon"
+      width="16" />
     <scroll_list.columns
-      width="200"
-      label="Preset Name"
+      relative_width="1"
       name="preset_name" />
       <scroll_list.commit_callback
       function="Presets.RowClick" />

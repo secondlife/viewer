@@ -64,7 +64,6 @@ public:
 
 	preset_name_list_t mPresetNames;
 
-//protected:
 	LLPresetsManager();
 	~LLPresetsManager();
 

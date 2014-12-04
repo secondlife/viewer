@@ -37,7 +37,7 @@
   <button
     follows="top|left"
     height="23"
-    label="SaveAs..."
+    label="Save As..."
     layout="topleft"
     left_pad="5"
     name="PrefSaveButton"
@@ -949,7 +949,7 @@
     <button
       follows="left|bottom"
       height="23"
-      label="Undo"
+      label="Recommended Settings"
       layout="topleft"
       left="10"
       name="Defaults"
@@ -957,18 +957,6 @@
       width="115">
       <button.commit_callback
         function="Pref.HardwareDefaults" />
-    </button>
-    <button
-      follows="left|bottom"
-      height="23"
-      label="Recommended Settings"
-      layout="topleft"
-      left_pad="5"
-      name="Recommended"
-      top="310"
-      width="190">
-      <button.commit_callback
-        function="Pref.Recommended" />
     </button>
     <button
       follows="right|bottom"

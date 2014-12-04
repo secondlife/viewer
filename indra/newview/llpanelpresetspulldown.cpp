@@ -89,8 +89,9 @@ void LLPanelPresetsPulldown::populatePanel()
 
 			if (name == gSavedSettings.getString("PresetGraphicActive"))
 			{
-				row["columns"][1]["column"] = "active_name";
-				row["columns"][1]["value"] = "X";
+				row["columns"][1]["column"] = "icon";
+				row["columns"][1]["type"] = "icon";
+				row["columns"][1]["value"] = "Inv_Landmark";
 			}
 
 			scroll->addElement(row);
