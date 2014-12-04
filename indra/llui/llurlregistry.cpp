@@ -44,6 +44,8 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryNoLink());
 	mUrlEntryIcon = new LLUrlEntryIcon();
 	registerUrl(mUrlEntryIcon);
+	mLLUrlEntryInvalidSLURL = new LLUrlEntryInvalidSLURL();
+	registerUrl(mLLUrlEntryInvalidSLURL);
 	registerUrl(new LLUrlEntrySLURL());
 
 	// decorated links for host names like: secondlife.com and lindenlab.com
@@ -188,6 +190,14 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 			// does this match occur in the string before any other match
 			if (start < match_start || match_entry == NULL)
 			{
+
+				if((mLLUrlEntryInvalidSLURL == *it))
+				{
+					if(url_entry && url_entry->isSLURLvalid(text.substr(start, end - start + 1)))
+					{
+						continue;
+					}
+				}
 
 				if((mUrlEntryHTTPLabel == *it) || (mUrlEntrySLLabel == *it))
 				{

@@ -107,6 +107,8 @@ public:
 
 	bool isWikiLinkCorrect(std::string url);
 
+	virtual bool isSLURLvalid(const std::string &url) const { return TRUE; };
+
 protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;
@@ -167,6 +169,17 @@ public:
 	/*virtual*/ std::string getQuery(const std::string &url) const;
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ std::string getTooltip(const std::string &url) const;
+};
+
+class LLUrlEntryInvalidSLURL : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryInvalidSLURL();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getUrl(const std::string &string) const;
+	/*virtual*/ std::string getTooltip(const std::string &url) const;
+
+	bool isSLURLvalid(const std::string &url) const;
 };
 
 ///
