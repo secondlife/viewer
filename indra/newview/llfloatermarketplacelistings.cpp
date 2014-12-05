@@ -346,7 +346,7 @@ void LLFloaterMarketplaceListings::fetchContents()
 	}
 }
 
-void LLFloaterMarketplaceListings::setup()
+void LLFloaterMarketplaceListings::setRootFolder()
 {
     if (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
 	{
@@ -362,7 +362,7 @@ void LLFloaterMarketplaceListings::setup()
 		LL_ERRS("SLM") << "Inventory problem: failure to create the marketplace listings folder for a merchant!" << LL_ENDL;
 		return;
 	}
-
+    
 	// No longer need to observe new category creation
 	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
 	{
@@ -377,18 +377,27 @@ void LLFloaterMarketplaceListings::setup()
         LL_WARNS("SLM") << "Inventory warning: Marketplace listings folder already set" << LL_ENDL;
         return;
     }
+    
     mRootFolderId = marketplacelistings_id;
+}
+
+void LLFloaterMarketplaceListings::setPanels()
+{
+    if (mRootFolderId.isNull())
+    {
+        return;
+    }
     
     // Consolidate Marketplace listings
     // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention,
     // things get messy and conventions get broken down eventually
-    gInventory.consolidateForType(marketplacelistings_id, LLFolderType::FT_MARKETPLACE_LISTINGS);
+    gInventory.consolidateForType(mRootFolderId, LLFolderType::FT_MARKETPLACE_LISTINGS);
     
     // Now that we do have a non NULL root, we can build the inventory panels
     mPanelListings->buildAllPanels();
 	
 	// Create observer for marketplace listings modifications
-    if (!mCategoriesObserver && mRootFolderId.notNull())
+    if (!mCategoriesObserver)
     {
         mCategoriesObserver = new LLInventoryCategoriesObserver();
         llassert(mCategoriesObserver);
@@ -433,7 +442,7 @@ void LLFloaterMarketplaceListings::updateView()
     // Get or create the root folder if we are a merchant and it hasn't been done already
     if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
     {
-        setup();
+        setRootFolder();
     }
 
     // Update the bottom initializing status and progress dial
@@ -454,9 +463,7 @@ void LLFloaterMarketplaceListings::updateView()
         if (mFirstViewListings)
         {
             // We need to rebuild the tabs cleanly the first time we make them visible
-            // setup() does it if the root is nixed first
-            mRootFolderId.setNull();
-            setup();
+            setPanels();
             mFirstViewListings = false;
         }
 		mPanelListings->setVisible(TRUE);

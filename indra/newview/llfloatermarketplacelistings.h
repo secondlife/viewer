@@ -103,7 +103,8 @@ public:
 	void onMouseLeave(S32 x, S32 y, MASK mask);
     
 protected:
-	void setup();
+	void setRootFolder();
+	void setPanels();
 	void fetchContents();
     
 	void setStatusString(const std::string& statusString);
