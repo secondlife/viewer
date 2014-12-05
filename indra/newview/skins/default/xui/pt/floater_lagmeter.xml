@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="LAG - Índice">
 	<floater.string name="max_title_msg">
-		Medidor de Atraso
+		Lag Meter
 	</floater.string>
 	<floater.string name="max_width_px">
 		360
 	</floater.string>
 	<floater.string name="min_title_msg">
-		Atraso
+		Lag
 	</floater.string>
 	<floater.string name="min_width_px">
 		90
@@ -22,28 +22,28 @@
 		15
 	</floater.string>
 	<floater.string name="client_frame_time_window_bg_msg">
-		Normal, janela por baixo
+		Normal, janela em segundo plano
 	</floater.string>
 	<floater.string name="client_frame_time_critical_msg">
-		Taxa de quadros do Cliente abaixo de [CLIENT_FRAME_RATE_CRITICAL]
+		Taxa de quadros do cliente menor que [CLIENT_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="client_frame_time_warning_msg">
-		Taxa de quadros do Cliente entre [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
+		Taxa de quadros do cliente entre [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
 		Normal
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		Causa possível: Distância de desenho ajustada muito alta
+		Possível causa: distância de desenho definida com um valor muito alto
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
-		Causa possível: Carregamento de Imagens
+		Possível causa: imagens em carregamento
 	</floater.string>
 	<floater.string name="client_texture_memory_cause_msg">
-		Causa possível: Muitas imagens na memória
+		Possível causa: muitas imagens na memória
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		Causa possível: Muitos objetos complexos na cena
+		Possível causa: muitos objetos complexos na cena
 	</floater.string>
 	<floater.string name="network_text_msg">
 		Rede
@@ -55,10 +55,10 @@
 		5
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_msg">
-		Conexão está caindo para cerca de [NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
+		A conexão está caindo devido a [NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
 	</floater.string>
 	<floater.string name="network_packet_loss_warning_msg">
-		Conexão está caindo [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
+		A conexão está caindo devido a [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% de pacotes
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
 		Normal
@@ -70,16 +70,16 @@
 		300
 	</floater.string>
 	<floater.string name="network_ping_critical_msg">
-		Tempo de conexão de ping é cerca de  [NETWORK_PING_CRITICAL] ms
+		Ping time da conexão com mais de [NETWORK_PING_CRITICAL] ms
 	</floater.string>
 	<floater.string name="network_ping_warning_msg">
-		Tempo de conexão de ping é [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
+		Ping time da conexão com mais de [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
 	</floater.string>
 	<floater.string name="network_packet_loss_cause_msg">
-		Possível conexão ruim ou &apos;Largura de Banda&apos; escolhida muito alta.
+		Possível conexão ruim ou pref de &apos;Banda larga&apos; muito alta
 	</floater.string>
 	<floater.string name="network_ping_cause_msg">
-		Possível conexão ruim ou aplicativos compartilhando arquivos.
+		Possível conexão ruim ou app de compartilhamento de arquivo
 	</floater.string>
 	<floater.string name="server_text_msg">
 		Servidor
@@ -94,31 +94,31 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		Taxa de quadros abaixo de [SERVER_FRAME_RATE_CRITICAL]
+		Taxa de quadros de simulador abaixo de [SERVER_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
-		Taxa de quadros entre [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
+		Taxa de quadros de simulador entre [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
 		Normal
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
-		Causa possível: Muitos objetos físicos
+		Possível causa: muitos objetos físicos
 	</floater.string>
 	<floater.string name="server_scripts_cause_msg">
-		Causa possível: Muitos objetos com scripts
+		Possível causa: muitos objetos de script
 	</floater.string>
 	<floater.string name="server_net_cause_msg">
-		Causa possível: Muito tráfego na rede
+		Possível causa: tráfego de rede intenso
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		Causa possível: Muitas pessoas se movendo na região
+		Possível causa: muitas pessoas se movendo na região
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		Causa possível: Muitos cálculos de imagem
+		Possível causa: muitos cálculos de imagem
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
-		Causa possível: Carga no simulador muito pesada
+		Possível causa: carga do simulador muito pesada
 	</floater.string>
 	<floater.string name="smaller_label">
 		&gt;&gt;
@@ -126,7 +126,7 @@
 	<floater.string name="bigger_label">
 		&lt;&lt;
 	</floater.string>
-	<button label="" label_selected="" name="client_lagmeter" tool_tip="Status de atraso no Cliente"/>
+	<button label="" label_selected="" name="client_lagmeter" tool_tip="Status do lag do cliente"/>
 	<text name="client">
 		Cliente
 	</text>
@@ -134,7 +134,7 @@
 		Normal
 	</text>
 	<text left="30" name="client_lag_cause" right="-10"/>
-	<button label="" label_selected="" name="network_lagmeter" tool_tip="Status de atraso na rede"/>
+	<button label="" label_selected="" name="network_lagmeter" tool_tip="Status do lag da rede"/>
 	<text name="network">
 		Rede
 	</text>
@@ -142,7 +142,7 @@
 		Normal
 	</text>
 	<text left="30" name="network_lag_cause" right="-10"/>
-	<button label="" label_selected="" name="server_lagmeter" tool_tip="Status de atraso no servidor"/>
+	<button label="" label_selected="" name="server_lagmeter" tool_tip="Status do lag do servidor"/>
 	<text name="server">
 		Servidor
 	</text>

@@ -8,6 +8,7 @@
 		<menu_item_call label="新收納區視窗" name="NewInventoryWindow"/>
 		<menu_item_call label="地點…" name="Places"/>
 		<menu_item_call label="精選地點…" name="Picks"/>
+		<menu_item_call label="體驗…" name="Experiences"/>
 		<menu_item_call label="攝影機控制…" name="Camera Controls"/>
 		<menu label="動作" name="Movement">
 			<menu_item_call label="坐下" name="Sit Down Here"/>
@@ -46,7 +47,7 @@
 		<menu_item_check label="朋友" name="My Friends"/>
 		<menu_item_check label="群組" name="My Groups"/>
 		<menu_item_check label="附近的人群" name="Active Speakers"/>
-		<menu_item_call label="封鎖清單" name="Block List"/>
+		<menu_item_check label="封鎖清單" name="Block List"/>
 		<menu_item_check label="請勿打擾" name="Do Not Disturb"/>
 	</menu>
 	<menu label="世界" name="World">

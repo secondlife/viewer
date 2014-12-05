@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_place">
-	<layout_stack name="stack_place">
-		<layout_panel name="place_detail_panel">
-			<text name="place_caption_label">
-				Diga algo sobre onde você está:
-			</text>
-		</layout_panel>
-		<layout_panel name="place_map_panel">
-			<check_box initial_value="false" label="" name="add_place_view_cb"/>
-		</layout_panel>
-		<layout_panel name="place_button_panel">
-			<button label="Postar" name="post_place_btn"/>
-			<button label="Cancelar" name="cancel_place_btn"/>
-		</layout_panel>
-	</layout_stack>
+	<text name="place_caption_label">
+		Diga algo sobre onde você está:
+	</text>
+	<check_box initial_value="false" label="Incluir vista abstrata da localização" name="add_place_view_cb"/>
+	<button label="Postar" name="post_place_btn"/>
+	<button label="Cancelar" name="cancel_place_btn"/>
 </panel>

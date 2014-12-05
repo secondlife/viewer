@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Esperienze" name="Experiences">
+	<panel.string name="trusted_estate_text">
+		Qualunque esperienza può essere un&apos;esperienza chiave.
+
+Le esperienze chiave dispongono di autorizzazione per l&apos;esecuzione in questa proprietà immobiliare.
+
+Inoltre, se la proprietà immobiliare non consente l&apos;accesso pubblico, i Residenti che partecipano a un&apos;esperienza chiave possono accedere alla proprietà e restarvi per tutto il tempo durante il quale partecipano all&apos;esperienza chiave.
+	</panel.string>
+	<panel.string name="allowed_estate_text">
+		Sono consentite solo le esperienze a livello di terreno.
+
+Le esperienze consentite dispongono di autorizzazione per l&apos;esecuzione in questa proprietà immobiliare.
+	</panel.string>
+	<panel.string name="blocked_estate_text">
+		Possono essere bloccate solo le esperienze a livello di griglia.
+      
+Le esperienze bloccate non possono essere eseguite su questa proprietà immobiliare.
+	</panel.string>
+	<panel.string name="estate_caption">
+		Le modifiche apportate in questa scheda saranno valide per tutte le regioni in questa proprietà.
+	</panel.string>
+	<panel.string name="allowed_parcel_text">
+		Sono consentite solo le esperienze a livello di terreno.
+      
+Le esperienze consentite dispongono di autorizzazione per l&apos;esecuzione su questo lotto se non sono bloccate a livello di proprietà immobiliare.
+	</panel.string>
+	<panel.string name="blocked_parcel_text">
+		Qualsiasi esperienza residente può essere bloccata.
+      
+Le esperienze bloccate non possono essere eseguite su questo lotto.
+	</panel.string>
+</panel>

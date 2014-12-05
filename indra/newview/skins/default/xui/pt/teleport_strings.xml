@@ -46,6 +46,9 @@ Vá para a &apos;Ilha Welcome Pública&apos; para repetir o tutorial.
 		<message name="MustGetAgeRegion">
 			Você deve ter 18 anos ou mais para acessar esta região.
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			Não é possível inserir a região. &apos;[REGION_NAME]&apos; é uma Região de Skill Gaming, portanto você deve atender certos critérios para poder entrar. Para maiores detalhes, consulte as [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ].
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">

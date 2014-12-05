@@ -130,6 +130,8 @@ void LLPanelExperienceListEditor::onRemove()
 			mRemovedCallback((*it)->getValue());
 		}
 	}
+	mItems->selectFirstItem();
+	checkButtonsEnabled();
 	//onItems();
 }
 

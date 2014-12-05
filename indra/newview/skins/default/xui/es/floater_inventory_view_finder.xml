@@ -5,8 +5,8 @@
 	<check_box label="Ropa" name="check_clothing"/>
 	<check_box label="Gestos" name="check_gesture"/>
 	<check_box label="Hitos" name="check_landmark"/>
-	<check_box label="Redes" name="check_mesh"/>
 	<check_box label="Notas" name="check_notecard"/>
+	<check_box label="Redes" name="check_mesh"/>
 	<check_box label="Objetos" name="check_object"/>
 	<check_box label="Scripts" name="check_script"/>
 	<check_box label="Sonidos" name="check_sound"/>
@@ -19,6 +19,10 @@
 	<text name="- OR -">
 		- o -
 	</text>
+	<radio_group name="date_search_direction">
+		<radio_item label="Posteriores a" name="newer"/>
+		<radio_item label="Anteriores a" name="older"/>
+	</radio_group>
 	<spinner label="horas atrás" name="spin_hours_ago"/>
 	<spinner label="días atrás" name="spin_days_ago"/>
 	<button bottom_delta="-30" label="Cerrar" label_selected="Cerrar" name="Close"/>

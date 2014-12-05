@@ -44,6 +44,14 @@
 			Воспроизвести звук для этого места
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Нет контента
+		</label>
+		<tooltip name="none_tooltip">
+			Здесь нет медиа
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Поток RealTime

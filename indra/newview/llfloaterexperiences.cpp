@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterexperiences.h"
+#include "llfloaterreg.h"
 
 #include "llagent.h"
 #include "llevents.h"
@@ -206,19 +207,8 @@ void LLFloaterExperiences::refreshContents()
             LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
         }
 
-        lookup_url = region->getCapability("GetAdminExperiences"); 
-        if(!lookup_url.empty())
-        {
-            nameMap["experience_ids"]="Admin_Experiences_Tab";
-            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
-        }
-
-        lookup_url = region->getCapability("GetCreatorExperiences"); 
-        if(!lookup_url.empty())
-        {
-            nameMap["experience_ids"]="Contrib_Experiences_Tab";
-            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
-        }
+        updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
+        updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
 
 		lookup_url = region->getCapability("AgentExperiences"); 
 		if(!lookup_url.empty())
@@ -308,6 +298,24 @@ void LLFloaterExperiences::onClose( bool app_quitting )
 void LLFloaterExperiences::checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content) const
 {
 	panel->enableButton(content.has("purchase"));
+
+	LLFloaterExperiences::findInstance()->updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
+	LLFloaterExperiences::findInstance()->updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
+}
+
+void LLFloaterExperiences::updateInfo(std::string experiences, std::string tab)
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
+	{
+		LLExperienceListResponder::NameMap nameMap;
+		std::string lookup_url = region->getCapability(experiences);
+		if(!lookup_url.empty())
+		{
+			nameMap["experience_ids"]=tab;
+			LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
+		}
+	}
 }
 
 void LLFloaterExperiences::sendPurchaseRequest() const
@@ -324,4 +332,9 @@ void LLFloaterExperiences::sendPurchaseRequest() const
 		responder->mCallback = boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2);
 		LLHTTPClient::post(url, content, responder);
 	}
+}
+
+LLFloaterExperiences* LLFloaterExperiences::findInstance()
+{
+	return LLFloaterReg::findTypedInstance<LLFloaterExperiences>("experiences");
 }

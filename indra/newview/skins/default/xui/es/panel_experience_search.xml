@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="SEARCH">
+	<string name="not_found">
+		&apos;[TEXT]&apos; no encontrado
+	</string>
+	<string name="no_results">
+		No hay resultados
+	</string>
+	<string name="searching">
+		Buscando...
+	</string>
+	<string name="loading">
+		Cargando...
+	</string>
+	<string name="maturity_icon_general">
+		&quot;Parcel_PG_Light&quot;
+	</string>
+	<string name="maturity_icon_moderate">
+		&quot;Parcel_M_Light&quot;
+	</string>
+	<string name="maturity_icon_adult">
+		&quot;Parcel_R_Light&quot;
+	</string>
+	<panel name="search_panel">
+		<button label="Ir" name="find"/>
+		<icons_combo_box label="Moderado" name="maturity">
+			<icons_combo_box.item label="Adulto" name="Adult" value="42"/>
+			<icons_combo_box.item label="Moderado" name="Mature" value="21"/>
+			<icons_combo_box.item label="General" name="PG" value="13"/>
+		</icons_combo_box>
+		<scroll_list name="search_results">
+			<columns label="Nombre" name="experience_name"/>
+			<columns label="Propietario" name="owner"/>
+		</scroll_list>
+		<button label="OK" label_selected="OK" name="ok_btn"/>
+		<button label="Cancelar" name="cancel_btn"/>
+		<button label="Ver el perfil" name="profile_btn"/>
+		<button label="&lt;" name="left_btn"/>
+		<button label="&gt;" name="right_btn"/>
+	</panel>
+</panel>
