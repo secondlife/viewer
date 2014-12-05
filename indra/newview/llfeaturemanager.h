@@ -162,9 +162,6 @@ protected:
 	bool parseFeatureTable(std::string filename);
 	///< @returns TRUE is file parsed correctly, FALSE if not
 
-	bool parseGPUTable(std::string filename);
-	///< @returns true if file parsed correctly, false if not - does not reflect whether or not the gpu was recognized
-
 	void initBaseMask();
 
 
