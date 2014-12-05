@@ -131,15 +131,19 @@ vec4 correctWithGamma(vec4 col)
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret = correctWithGamma(ret);
-
-	vec2 dist = tc-vec2(0.5);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
-	float det = max(1.0-lod/(proj_lod*0.5), 0.0);
+	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
-	float d = dot(dist,dist);
-		
-	ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0)+det, 1.0);
+	float det = min(lod/(proj_lod*0.5), 1.0);
+	
+	float d = min(dist.x, dist.y);
+    
+    d *= min(1, d * (proj_lod - lod));
+	
+	float edge = 0.25*det;
+    
+	ret *= clamp(d/edge, 0.0, 1.0);
 	
 	return ret;
 }
@@ -334,25 +338,21 @@ void main()
 			vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
 			
 			vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
-			stc /= stc.w;
 
 			if (stc.z > 0.0)
 			{
-				float fatten = clamp(envIntensity*envIntensity+envIntensity*0.25, 0.25, 1.0);
-
-				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
+                stc /= stc.w;
 								
 				if (stc.x < 1.0 &&
 					stc.y < 1.0 &&
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					col += color.rgb*texture2DLodSpecular(projectionMap, stc.xy, proj_lod).rgb*shadow*spec.rgb;										
+					col += color.rgb * texture2DLodSpecular(projectionMap, stc.xy, (1 - spec.a) * (proj_lod * 0.6)).rgb * shadow * envIntensity;
 				}
 			}
 		}
 	}
-	
 
 	//not sure why, but this line prevents MATBUG-194
 	col = max(col, vec3(0.0));

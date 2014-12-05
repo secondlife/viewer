@@ -843,9 +843,11 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 	{
 		LL_RECORD_BLOCK_TIME(FTM_GL_DRAW_ARRAYS);
 		stop_glerror();
-	LLGLSLShader::startProfile();
+		LLGLSLShader::startProfile();
+		stop_glerror();
 		glDrawArrays(sGLMode[mode], first, count);
-	LLGLSLShader::stopProfile(count, mode);
+		stop_glerror();
+		LLGLSLShader::stopProfile(count, mode);
 	}
 
 	stop_glerror();
