@@ -52,9 +52,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9a4b02734c5d0648d3d683cb1dc014cc</string>
+              <string>0c53148aa00e51c06fa246c4130915be</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/apr_3p-update-apr/rev/295252/arch/Darwin/installer/apr_suite-1.4.5.295252-darwin-295252.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/apr_3p-update-apr/rev/297252/arch/Darwin/installer/apr_suite-1.4.5.297252-darwin-297252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -64,9 +64,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f38c966a430012dc157fdc104f23a59b</string>
+              <string>402552cf158e2fe953b7224f4615a957</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/259951/arch/Linux/installer/apr_suite-1.4.5-linux-20120618.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/apr_3p-update-apr/rev/297252/arch/Linux/installer/apr_suite-1.4.5.297252-linux-297252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -76,16 +76,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4a9d040582342699c58c886c5ccd2caf</string>
+              <string>8f865b509bb5011caf3dd95a22a4589d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/259951/arch/CYGWIN/installer/apr_suite-1.4.5-windows-20120618.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/apr_3p-update-apr/rev/297252/arch/CYGWIN/installer/apr_suite-1.4.5.297252-windows-297252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.5.295252</string>
+        <string>1.4.5.297252</string>
       </map>
       <key>ares</key>
       <map>
