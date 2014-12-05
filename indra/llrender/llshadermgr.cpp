@@ -73,7 +73,11 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 {
 	llassert_always(shader != NULL);
 	LLShaderFeatures *features = & shader->mFeatures;
-	
+
+	if (features->attachNothing)
+	{
+		return TRUE;
+	}
 	//////////////////////////////////////
 	// Attach Vertex Shader Features First
 	//////////////////////////////////////
@@ -670,12 +674,17 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	if (defines)
 	{
 		for (boost::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
-	{
-		std::string define = "#define " + iter->first + " " + iter->second + "\n";
-		text[count++] = (GLcharARB *) strdup(define.c_str());
-	}
+		{
+			std::string define = "#define " + iter->first + " " + iter->second + "\n";
+			text[count++] = (GLcharARB *) strdup(define.c_str());
+		}
 	}
 
+	if( gGLManager.mIsATI )
+	{
+		text[ count++ ] = strdup( "#define IS_AMD_CARD 1\n" );
+	}
+	
 	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
 	{
 		//use specified number of texture channels for indexed texture rendering

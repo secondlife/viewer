@@ -76,9 +76,6 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable%s.txt";
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable%s.%s.txt";
 #endif
 
-const char GPU_TABLE_FILENAME[] = "gpu_table.txt";
-const char GPU_TABLE_VER_FILENAME[] = "gpu_table.%s.txt";
-
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const BOOL available, const F32 level)
 	: mValid(TRUE), mName(name), mAvailable(available), mRecommendedLevel(level)
 {
@@ -417,196 +414,83 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	return parse_ok;
 }
 
+F32 gpu_benchmark();
+
 bool LLFeatureManager::loadGPUClass()
 {
+	//get memory bandwidth from benchmark
+	F32 gbps = gpu_benchmark();
+
+	if (gbps < 0.f)
+	{ //couldn't bench, use GLVersion
+#if LL_DARWIN
+        //GLVersion is misleading on OSX, just default to class 3 if we can't bench
+		LL_WARNS() << "Unable to get an accurate benchmark; defaulting to class 3" << LL_ENDL;
+        mGPUClass = GPU_CLASS_3;
+#else
+		if (gGLManager.mGLVersion < 2.f)
+		{
+			mGPUClass = GPU_CLASS_0;
+		}
+		else if (gGLManager.mGLVersion < 3.f)
+		{
+			mGPUClass = GPU_CLASS_1;
+		}
+		else if (gGLManager.mGLVersion < 3.3f)
+		{
+			mGPUClass = GPU_CLASS_2;
+		}
+		else if (gGLManager.mGLVersion < 4.f)
+		{
+			mGPUClass = GPU_CLASS_3;
+		}
+		else 
+		{
+			mGPUClass = GPU_CLASS_4;
+		}
+#endif
+	}
+	else if (gGLManager.mGLVersion <= 2.f)
+	{
+		mGPUClass = GPU_CLASS_0;
+	}
+	else if (gGLManager.mGLVersion <= 3.f)
+	{
+		mGPUClass = GPU_CLASS_1;
+	}
+	else if (gbps <= 5.f)
+	{
+		mGPUClass = GPU_CLASS_0;
+	}
+	else if (gbps <= 8.f)
+	{
+		mGPUClass = GPU_CLASS_1;
+	}
+	else if (gbps <= 16.f)
+	{
+		mGPUClass = GPU_CLASS_2;
+	}
+	else if (gbps <= 40.f)
+	{
+		mGPUClass = GPU_CLASS_3;
+	}
+	else if (gbps <= 80.f)
+	{
+		mGPUClass = GPU_CLASS_4;
+	}
+	else 
+	{
+		mGPUClass = GPU_CLASS_5;
+	}
+
 	// defaults
-	mGPUClass = GPU_CLASS_UNKNOWN;
 	mGPUString = gGLManager.getRawGLString();
-	mGPUSupported = FALSE;
+	mGPUSupported = TRUE;
 
-	// first table is in the app dir
-	std::string app_path = gDirUtilp->getAppRODataDir();
-	app_path += gDirUtilp->getDirDelimiter();
-	app_path += GPU_TABLE_FILENAME;
-	
-	// second table is downloaded with HTTP
-	std::string http_filename = llformat(GPU_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
-	std::string http_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, http_filename);
-
-	// use HTTP table if it exists
-	std::string path;
-	bool parse_ok = false;
-	if (gDirUtilp->fileExists(http_path))
-	{
-		parse_ok = parseGPUTable(http_path);
-		if (!parse_ok)
-		{
-			// the HTTP table failed to parse, so delete it
-			LLFile::remove(http_path);
-			LL_WARNS("RenderInit") << "Removed invalid gpu table '" << http_path << "'" << LL_ENDL;
-	}
-	}
-
-	if (!parse_ok)
-	{
-		parse_ok = parseGPUTable(app_path);
-	}
-
-	return parse_ok; // indicates that the file parsed correctly, not that the gpu was recognized
+	return true; // indicates that a gpu value was established
 }
 
 	
-bool LLFeatureManager::parseGPUTable(std::string filename)
-{
-	llifstream file;
-		
-	LL_INFOS("RenderInit") << "Attempting to parse GPU table from " << filename << LL_ENDL;
-	file.open(filename);
-
-	if (file)
-	{
-		const char recognizer[] = "//GPU_TABLE";
-		char first_line[MAX_STRING];
-		file.getline(first_line, MAX_STRING);
-		if (0 != strncmp(first_line, recognizer, strlen(recognizer)))
-		{
-			LL_WARNS("RenderInit") << "Invalid GPU table: " << filename << "!" << LL_ENDL;
-			return false;
-		}
-	}
-	else
-	{
-		LL_WARNS("RenderInit") << "Unable to open GPU table: " << filename << "!" << LL_ENDL;
-		return false;
-	}
-
-	std::string rawRenderer = gGLManager.getRawGLString();
-	std::string renderer = rawRenderer;
-	for (std::string::iterator i = renderer.begin(); i != renderer.end(); ++i)
-	{
-		*i = tolower(*i);
-	}
-
-#if LL_EXPORT_GPU_TABLE
-	llofstream json;
-	json.open("gpu_table.json");
-
-	json << "var gpu_table = [" << std::endl;
-#endif
-
-	bool gpuFound;
-	U32 lineNumber;
-	for (gpuFound = false, lineNumber = 0; !gpuFound && !file.eof(); lineNumber++)
-	{
-		char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
-		buffer[0] = 0;
-
-		file.getline(buffer, MAX_STRING);
-		
-		if (strlen(buffer) >= 2 && 	 /*Flawfinder: ignore*/
-			buffer[0] == '/' && 
-			buffer[1] == '/')
-		{
-			// This is a comment.
-			continue;
-		}
-
-		if (strlen(buffer) == 0)	 /*Flawfinder: ignore*/
-		{
-			// This is a blank line
-			continue;
-		}
-
-		// setup the tokenizer
-		std::string buf(buffer);
-		std::string cls, label, expr, supported, stats_based, expected_gl_version;
-		boost_tokenizer tokens(buf, boost::char_separator<char>("\t\n"));
-		boost_tokenizer::iterator token_iter = tokens.begin();
-
-		// grab the label, pseudo regular expression, and class
-		if(token_iter != tokens.end())
-		{
-			label = *token_iter++;
-		}
-		if(token_iter != tokens.end())
-		{
-			expr = *token_iter++;
-		}
-		if(token_iter != tokens.end())
-		{
-			cls = *token_iter++;
-		}
-		if(token_iter != tokens.end())
-		{
-			supported = *token_iter++;
-		}
-		if (token_iter != tokens.end())
-		{
-			stats_based = *token_iter++;
-		}
-		if (token_iter != tokens.end())
-		{
-			expected_gl_version = *token_iter++;
-		}
-
-		if (label.empty() || expr.empty() || cls.empty() || supported.empty())
-		{
-			LL_WARNS("RenderInit") << "invald gpu_table.txt:" << lineNumber << ": '" << buffer << "'" << LL_ENDL;
-			continue;
-		}
-#if LL_EXPORT_GPU_TABLE
-		json << "{'label' : '" << label << "',\n" << 
-			"'regexp' : '" << expr << "',\n" <<
-			"'class' : '" << cls << "',\n" <<
-			"'supported' : '" << supported << "',\n" <<
-			"'stats_based' : " << stats_based <<  ",\n" <<
-			"'gl_version' : " << expected_gl_version << "\n},\n";
-#endif
-
-		for (U32 i = 0; i < expr.length(); i++)	 /*Flawfinder: ignore*/
-		{
-			expr[i] = tolower(expr[i]);
-		}
-
-		// run the regular expression against the renderer
-		boost::regex re(expr.c_str());
-		if(boost::regex_search(renderer, re))
-		{
-			// if we found it, stop!
-#if !LL_EXPORT_GPU_TABLE
-			gpuFound = true;
-#endif
-			mGPUString = label;
-			mGPUClass = (EGPUClass) strtol(cls.c_str(), NULL, 10);
-			mGPUSupported = (BOOL) strtol(supported.c_str(), NULL, 10);
-			sscanf(expected_gl_version.c_str(), "%f", &mExpectedGLVersion);
-		}
-	}
-#if LL_EXPORT_GPU_TABLE
-	json << "];\n\n";
-	json.close();
-#endif
-	file.close();
-
-	if ( gpuFound )
-	{
-		LL_INFOS("RenderInit") << "GPU '" << rawRenderer << "' recognized as '" << mGPUString << "'" << LL_ENDL;
-		if (!mGPUSupported)
-		{
-			LL_INFOS("RenderInit") << "GPU '" << mGPUString << "' is not supported." << LL_ENDL;
-		}
-	}
-	else
-	{
-		LL_WARNS("RenderInit") << "GPU '" << rawRenderer << "' not recognized" << LL_ENDL;
-	}
-
-#if LL_DARWIN // never go over "Mid" settings by default on OS X
-	mGPUClass = llmin(mGPUClass, GPU_CLASS_2);
-#endif
-	return true;
-}
-
 // responder saves table into file
 class LLHTTPFeatureTableResponder : public LLHTTPClient::Responder
 {
@@ -687,26 +571,11 @@ void fetch_feature_table(std::string table)
 	LLHTTPClient::get(url, new LLHTTPFeatureTableResponder(path));
 }
 
-void fetch_gpu_table(std::string table)
-{
-	const std::string base       = gSavedSettings.getString("FeatureManagerHTTPTable");
-
-	const std::string filename   = llformat(table.c_str(), LLVersionInfo::getVersion().c_str());
-
-	const std::string url        = base + "/" + filename;
-
-	const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
-
-	LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
-	
-	LLHTTPClient::get(url, new LLHTTPFeatureTableResponder(path));
-}
 
 // fetch table(s) from a website (S3)
 void LLFeatureManager::fetchHTTPTables()
 {
 	fetch_feature_table(FEATURE_TABLE_VER_FILENAME);
-	fetch_gpu_table(GPU_TABLE_VER_FILENAME);
 }
 
 
@@ -730,6 +599,7 @@ void LLFeatureManager::init()
 
 void LLFeatureManager::applyRecommendedSettings()
 {
+	loadGPUClass();
 	// apply saved settings
 	// cap the level at 2 (high)
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
