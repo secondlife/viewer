@@ -2760,7 +2760,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc100</string>
+          <string>build-vc120</string>
           <key>configurations</key>
           <map>
             <key>Debug</key>

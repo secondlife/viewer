@@ -32,7 +32,7 @@ build_dir_Linux()
 
 build_dir_CYGWIN()
 {
-  echo build-vc100
+  echo build-vc120
 }
 
 viewer_channel_suffix()
