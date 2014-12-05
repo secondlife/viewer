@@ -1081,7 +1081,7 @@
         <key>version</key>
         <string>0.0</string>
       </map>
-      <key>havok-source</key>
+      <key>havok_source</key>
       <map>
         <key>copyright</key>
         <string>Uses Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors). All Rights Reserved. See www.havok.com for details.</string>
@@ -1092,7 +1092,7 @@
         <key>license_file</key>
         <string>LICENSES/havok.txt</string>
         <key>name</key>
-        <string>havok-source</string>
+        <string>havok_source</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
