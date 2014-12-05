@@ -2148,9 +2148,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>253519023e73d03fcb3feb2f7a2a8835</string>
+              <string>2f32faa00e600911f838a7d82da5a8db</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/tut_3p-update-tut/rev/295891/arch/Linux/installer/tut-2008.11.30-common-295891.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/tut_3p-update-tut/rev/297257/arch/Linux/installer/tut-2008.11.30-common-297257.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
