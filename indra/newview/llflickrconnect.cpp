@@ -400,7 +400,7 @@ void LLFlickrConnect::uploadPhoto(LLPointer<LLImageFormatted> image, const std::
 	}
 	else
 	{
-		llwarns << "Image to upload is not a PNG or JPEG" << llendl;
+		LL_WARNS() << "Image to upload is not a PNG or JPEG" << LL_ENDL;
 		return;
 	}
 	
