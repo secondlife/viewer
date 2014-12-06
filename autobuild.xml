@@ -1743,8 +1743,12 @@
       </map>
       <key>mesa</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1999-2007  Brian Paul   All Rights Reserved.</string>
+        <key>description</key>
+        <string>Mesa is an open-source implementation of the OpenGL specification - a system for rendering interactive 3D graphics.</string>
         <key>license</key>
-        <string>mesa</string>
+        <string>Core libraries are MIT license, some of the demo programs vary.</string>
         <key>license_file</key>
         <string>LICENSES/mesa.txt</string>
         <key>name</key>
@@ -1756,14 +1760,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f600840463c7327ea17486821425750</string>
+              <string>60e1cad8e315793649cd871533479f5d</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/mesa_3p-update-mesa/rev/297283/arch/Linux/installer/mesa-7.11.1.297283-linux-297283.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>7.11.1.297283</string>
       </map>
       <key>nvapi</key>
       <map>
