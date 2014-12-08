@@ -1022,7 +1022,7 @@ void LLLoadHistoryThread::run()
 	{
 		loadHistory(mFileName, mMessages, mLoadParams);
 		int count = mMessages->size();
-		llinfos << "mMessages->size(): " << count << llendl;
+		LL_INFOS() << "mMessages->size(): " << count << LL_ENDL;
 		setFinished();
 	}
 }
