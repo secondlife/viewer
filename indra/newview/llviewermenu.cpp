@@ -4358,7 +4358,10 @@ static bool get_derezzable_objects(
 			break;
 
 		case DRD_RETURN_TO_OWNER:
-			can_derez_current = TRUE;
+			if(!object->isAttachment())
+			{
+				can_derez_current = TRUE;
+			}
 			break;
 
 		default:
@@ -4766,7 +4769,7 @@ BOOL enable_take()
 			&& object->permModify())
 			|| (node->mPermissions->getOwner() == gAgent.getID())))
 		{
-			return TRUE;
+			return !object->isAttachment();
 		}
 #endif
 	}
