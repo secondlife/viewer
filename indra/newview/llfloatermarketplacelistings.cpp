@@ -106,13 +106,7 @@ void LLPanelMarketplaceListings::buildAllPanels()
 LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::string& childname, const std::string& filename)
 {
 	LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
-    LLInventoryPanel* panel = getChild<LLInventoryPanel>(childname);
-    if (panel)
-    {
-        tabs_panel->removeTabPanel(panel);
-        delete panel;
-    }
-    panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>(filename, tabs_panel, LLInventoryPanel::child_registry_t::instance());
+    LLInventoryPanel* panel = LLUICtrlFactory::createFromFile<LLInventoryPanel>(filename, tabs_panel, LLInventoryPanel::child_registry_t::instance());
 	llassert(panel != NULL);
 	
 	// Set sort order and callbacks
