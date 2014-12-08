@@ -2797,13 +2797,13 @@ void LLTextBase::updateRects()
 		switch(mVAlign)
 		{
 		case LLFontGL::TOP:
-			delta_pos = llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
+			delta_pos = llmax(old_text_rect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
 			break;
 		case LLFontGL::VCENTER:
-			delta_pos = (llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
+			delta_pos = (llmax(old_text_rect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
 			break;
 		case LLFontGL::BOTTOM:
-			delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
+			delta_pos = old_text_rect.mBottom - mTextBoundingRect.mBottom;
 			break;
 		case LLFontGL::BASELINE:
 			// do nothing
