@@ -163,6 +163,8 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 {
 	mMotionController.mIsSelf = TRUE;
 
+	mHoverOffset = gSavedSettings.getVector3("AvatarPosFinalOffset");
+
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
 }
 

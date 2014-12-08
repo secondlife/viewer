@@ -30,6 +30,28 @@
 #include "llfloaterhoverheight.h"
 #include "llsliderctrl.h"
 #include "llviewercontrol.h"
+#include "llsdserialize.h"
+#include "llhttpclient.h"
+#include "llagent.h"
+#include "llviewerregion.h"
+#include "llvoavatarself.h"
+
+class LLHoverHeightResponder: public LLHTTPClient::Responder
+{
+public:
+	LLHoverHeightResponder(): LLHTTPClient::Responder() {}
+
+private:
+	void httpFailure()
+	{
+		LL_WARNS() << dumpResponse() << LL_ENDL;
+	}
+
+	void httpSuccess()
+	{
+		LL_INFOS() << dumpResponse() << LL_ENDL;
+	}
+};
 
 LLFloaterHoverHeight::LLFloaterHoverHeight(const LLSD& key) : LLFloater(key)
 {
@@ -53,12 +75,6 @@ BOOL LLFloaterHoverHeight::postBuild()
 // static
 void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 {
-	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
-	F32 value = sldrCtrl->getValueF32();
-
-	LLVector3 offset = gSavedSettings.getVector3("AvatarPosFinalOffset");
-	offset[2] = value;
-	gSavedSettings.setVector3("AvatarPosFinalOffset",offset);
 }
 
 // Do extra send-to-the-server work when slider drag completes, or new
@@ -66,4 +82,22 @@ void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 void LLFloaterHoverHeight::onFinalCommit()
 {
 	LL_INFOS() << "FINAL FINAL!!!" << LL_ENDL;
+	sendHoverHeightUpdate();
+}
+
+void LLFloaterHoverHeight::sendHoverHeightUpdate()
+{
+	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
+	F32 value = sldrCtrl->getValueF32();
+
+	std::string url = gAgent.getRegion()->getCapability("AgentPreferences");
+
+	if (!url.empty())
+	{
+		LLSD update = LLSD::emptyMap();
+		update["hover_height"] = value;
+
+		LL_INFOS() << "updating hover height to " << value << LL_ENDL;
+		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
+	}
 }

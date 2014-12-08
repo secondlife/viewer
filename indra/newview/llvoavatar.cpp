@@ -252,6 +252,8 @@ struct LLAppearanceMessageContents
 	//U32 appearance_flags = 0;
 	std::vector<F32> mParamWeights;
 	std::vector<LLVisualParam*> mParams;
+	LLVector3 mHoverOffset;
+	bool mHoverOffsetWasSet;
 };
 
 struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoint>
@@ -717,7 +719,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
 	mLastUpdateRequestCOFVersion(-1),
-	mLastUpdateReceivedCOFVersion(-1)
+	mLastUpdateReceivedCOFVersion(-1),
+	mHoverOffset(0.0, 0.0, 0.0)
 {
 	//VTResume();  // VTune
 	
@@ -1958,6 +1961,11 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
+
+	//LLTEContents tec;
+	//S32 te_retval = parseTEMessage(mesgsys, _PREHASH_ObjectData, block_num, tec);
+
+	LL_DEBUGS("Avatar") << avString() << update_type << LL_ENDL; 
 
 	// Print out arrival information once we have name of avatar.
 		if (has_name && getNVPair("FirstName"))
@@ -3411,7 +3419,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
 		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		root_pos += LLVector3d(gSavedSettings.getVector3("AvatarPosFinalOffset"));
+		root_pos += LLVector3d(mHoverOffset);
 		
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
 
@@ -3581,7 +3589,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	else if (mDrawable.notNull())
 	{
 		LLVector3 pos = mDrawable->getPosition();
-		pos += gSavedSettings.getVector3("AvatarPosFinalOffset");
+		pos += mHoverOffset;
 		mRoot->setPosition(pos);
 		mRoot->setRotation(mDrawable->getRotation());
 	}
@@ -7007,6 +7015,17 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		// For future use:
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
 	}
+
+	// Parse the AppearanceData field, if any.
+	contents.mHoverOffsetWasSet = false;
+	if (mesgsys->has(_PREHASH_AppearanceHover))
+	{
+		LLVector3 hover;
+		mesgsys->getVector3Fast(_PREHASH_AppearanceHover, _PREHASH_HoverHeight, hover);
+		LL_DEBUGS("Avatar") << avString() << " hover received " << hover.mV[ VX ] << "," << hover.mV[ VY ] << "," << hover.mV[ VZ ] << LL_ENDL;
+		contents.mHoverOffset = hover;
+		contents.mHoverOffsetWasSet = true;
+	}
 	
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
@@ -7306,6 +7325,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			LL_INFOS() << "That's okay, we already have a non-default shape for object: "  << getID() << LL_ENDL;
 			// we don't really care.
 		}
+	}
+
+	if (contents.mHoverOffsetWasSet)
+	{
+		mHoverOffset = contents.mHoverOffset;
 	}
 
 	setCompositeUpdatesEnabled( TRUE );

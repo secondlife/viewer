@@ -38,6 +38,8 @@ public:
 	static void onSliderMoved(LLUICtrl* ctrl, void* userData);
 
 	void onFinalCommit();
+
+	void sendHoverHeightUpdate();
 };
 
 #endif
