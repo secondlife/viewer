@@ -132,7 +132,7 @@ private:
 
 	LLUUID			mRootFolderId;
 	LLPanelMarketplaceListings * mPanelListings;
-    bool            mFirstViewListings;
+    bool            mPanelListingsSet;
 };
 
 //-----------------------------------------------------------------------------

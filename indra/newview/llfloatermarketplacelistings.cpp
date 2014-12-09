@@ -265,7 +265,7 @@ LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 , mInventoryText(NULL)
 , mInventoryTitle(NULL)
 , mPanelListings(NULL)
-, mFirstViewListings(true)
+, mPanelListingsSet(false)
 {
 }
 
@@ -401,6 +401,9 @@ void LLFloaterMarketplaceListings::setPanels()
 	
 	// Get the content of the marketplace listings folder
 	fetchContents();
+    
+    // Flag that this is done
+    mPanelListingsSet = true;
 }
 
 void LLFloaterMarketplaceListings::initializeMarketPlace()
@@ -454,11 +457,10 @@ void LLFloaterMarketplaceListings::updateView()
     // Update the middle portion : tabs or messages
 	if (getFolderCount() > 0)
 	{
-        if (mFirstViewListings)
+        if (!mPanelListingsSet)
         {
             // We need to rebuild the tabs cleanly the first time we make them visible
             setPanels();
-            mFirstViewListings = false;
         }
 		mPanelListings->setVisible(TRUE);
 		mInventoryPlaceholder->setVisible(FALSE);
@@ -538,6 +540,10 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
     {
         if (!mPanelListings->getVisible() && mRootFolderId.notNull())
         {
+            if (!mPanelListingsSet)
+            {
+                setPanels();
+            }
             LLFolderView* root_folder = mPanelListings->getRootFolder();
             handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
         }
