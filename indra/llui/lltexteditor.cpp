@@ -814,7 +814,7 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	BOOL	handled = FALSE;
 
 	// if I'm not currently selecting text
-	if (!(hasSelection() && hasMouseCapture()))
+	if (!(mIsSelecting && hasMouseCapture()))
 	{
 		// let text segments handle mouse event
 		handled = LLTextBase::handleMouseUp(x, y, mask);
