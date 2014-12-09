@@ -69,6 +69,7 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 
 	if (LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name))
 	{
+		// If you delete the active preset (which should never happen) then recreate it.
 		if (name == gSavedSettings.getString("PresetGraphicActive"))
 		{
 			LLPresetsManager::getInstance()->savePreset(mSubdirectory, PRESETS_DEFAULT);

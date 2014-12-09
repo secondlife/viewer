@@ -954,7 +954,7 @@
       left="10"
       name="Defaults"
       top="310"
-      width="115">
+      width="200">
       <button.commit_callback
         function="Pref.HardwareDefaults" />
     </button>

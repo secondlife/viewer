@@ -879,6 +879,9 @@ void LLFloaterPreference::onBtnOK()
 
 	if (LLStartUp::getStartupState() == STATE_STARTED)
 	{
+		// Write settings to currently defined preset.  This will recreate a missing preset file
+		// and ensure the preset file matches the current settings (which may have been changed
+		// via some other means).
 		LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, gSavedSettings.getString("PresetGraphicActive"));
 	}
 }

@@ -2,8 +2,8 @@
 <panel
  background_opaque="true"
  background_visible="true"
- bg_opaque_image="Volume_Background" 
- bg_alpha_image="Volume_Background" 
+ bg_opaque_image="Volume_Background"
+ bg_alpha_image="Volume_Background"
  border_visible="false"
  border="false"
  chrome="true"

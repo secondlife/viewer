@@ -55,7 +55,7 @@ public:
 	static std::string getPresetsDir(const std::string& subdirectory);
 	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option);
 	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option);
-	void savePreset(const std::string& subdirectory, const std::string & name);
+	bool savePreset(const std::string& subdirectory, const std::string & name);
 	void loadPreset(const std::string& subdirectory, const std::string & name);
 	bool deletePreset(const std::string& subdirectory, const std::string& name);
 

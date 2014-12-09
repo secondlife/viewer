@@ -126,7 +126,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 	presets = mPresetNames;
 }
 
-void LLPresetsManager::savePreset(const std::string& subdirectory, const std::string& name)
+bool LLPresetsManager::savePreset(const std::string& subdirectory, const std::string& name)
 {
 	llassert(!name.empty());
 
@@ -203,12 +203,20 @@ void LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 
 	// write to file
 	llofstream presetsXML(pathName);
+	if (!presetsXML.is_open())
+	{
+		LL_WARNS("Presets") << "Cannot open for output preset file " << pathName << LL_ENDL;
+		return false;
+	}
+
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(paramsData, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
 	presetsXML.close();
 
 	// signal interested parties
 	mPresetListChangeSignal();
+
+	return true;
 }
 
 void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option)
@@ -241,10 +249,10 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
 {
 	std::string full_path(getPresetsDir(subdirectory) + gDirUtilp->getDirDelimiter() + LLURI::escape(name) + ".xml");
 
-	gSavedSettings.loadFromFile(full_path, false, true);
-
-	// signal interested parties
-	mPresetListChangeSignal();
+	if(gSavedSettings.loadFromFile(full_path, false, true) > 0)
+	{
+		mPresetListChangeSignal();
+	}
 }
 
 bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::string& name)

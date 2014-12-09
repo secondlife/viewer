@@ -80,11 +80,12 @@ void LLFloaterSavePrefPreset::onBtnSave()
 {
 	std::string name = mPresetCombo->getSimple();
 
-	LLPresetsManager::getInstance()->savePreset(mSubdirectory, name);
-
-	LLSD args;
-	args["NAME"] = name;
-	LLNotificationsUtil::add("PresetSaved", args);
+	if (LLPresetsManager::getInstance()->savePreset(mSubdirectory, name))
+	{
+		LLSD args;
+		args["NAME"] = name;
+		LLNotificationsUtil::add("PresetSaved", args);
+	}
 
 	closeFloater();
 }
