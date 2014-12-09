@@ -55,7 +55,6 @@ class ViewerManifest(LLManifest):
     
     def construct(self):
         super(ViewerManifest, self).construct()
-        self.exclude("*.svn*")
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
@@ -74,26 +73,6 @@ class ViewerManifest(LLManifest):
                 contributions_path = "../../doc/contributions.txt"
                 contributor_names = self.extract_names(contributions_path)
                 self.put_in_file(contributor_names, "contributors.txt", src=contributions_path)
-                # include the extracted list of translators
-                translations_path = "../../doc/translations.txt"
-                translator_names = self.extract_names(translations_path)
-                self.put_in_file(translator_names, "translators.txt", src=translations_path)
-                # include the list of Lindens (if any)
-                #   see https://wiki.lindenlab.com/wiki/Generated_Linden_Credits
-                linden_names_path = os.getenv("LINDEN_CREDITS")
-                if not linden_names_path :
-                    print "No 'LINDEN_CREDITS' specified in environment, using built-in list"
-                else:
-                    try:
-                        linden_file = open(linden_names_path,'r')
-                    except IOError:
-                        print "No Linden names found at '%s', using built-in list" % linden_names_path
-                    else:
-                         # all names should be one line, but the join below also converts to a string
-                        linden_names = ', '.join(linden_file.readlines())
-                        self.put_in_file(linden_names, "lindens.txt", src=linden_names_path)
-                        linden_file.close()
-                        print "Linden names extracted from '%s'" % linden_names_path
 
                 # ... and the entire windlight directory
                 self.path("windlight")
@@ -106,6 +85,9 @@ class ViewerManifest(LLManifest):
                 if self.prefix(src=pkgdir,dst=""):
                     self.path("dictionaries")
                     self.end_prefix(pkgdir)
+
+                # include the extracted packages information (see BuildPackagesInfo.cmake)
+                self.path(src=os.path.join(self.args['build'],"packages-info.txt"), dst="packages-info.txt")
 
                 # CHOP-955: If we have "sourceid" or "viewer_channel" in the
                 # build process environment, generate it into

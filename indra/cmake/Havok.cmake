@@ -3,7 +3,7 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
-use_prebuilt_binary(havok-source)
+use_prebuilt_binary(havok_source)
 
 set(Havok_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/havok/Source)
 list(APPEND Havok_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/havok/Demo)
@@ -68,7 +68,7 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
       endif(DEBUG_PREBUILT)
     endif("${havok_${HAVOK_LIB}_extracted}" STREQUAL "" AND EXISTS "${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted")
 
-    if(${CMAKE_BINARY_DIR}/temp/havok-source_installed IS_NEWER_THAN ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
+    if(${CMAKE_BINARY_DIR}/temp/havok_source_installed IS_NEWER_THAN ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
       if(DEBUG_PREBUILT)
         MESSAGE(STATUS "Extracting ${HAVOK_LIB}...")
       endif(DEBUG_PREBUILT)
@@ -111,7 +111,7 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
       set(havok_${HAVOK_LIB}_extracted 0)
       file(WRITE ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted "${havok_${HAVOK_LIB}_extracted}")
 
-    endif(${CMAKE_BINARY_DIR}/temp/havok-source_installed IS_NEWER_THAN ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
+    endif(${CMAKE_BINARY_DIR}/temp/havok_source_installed IS_NEWER_THAN ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
 
             file(GLOB extracted_debug "${debug_dir}/*.o")
             file(GLOB extracted_release "${release_dir}/*.o")
