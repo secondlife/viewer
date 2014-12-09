@@ -374,52 +374,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f300f7b8600a18cd4c958841bfa2a95</string>
+              <string>a62723a6deea8187702a2f926e98a35f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-dictionaries/rev/292421/arch/Linux/installer/dictionaries-1-common-292421.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dictionaries_3p-update-dictionaries/rev/297347/arch/Linux/installer/dictionaries-1.297347-common-297347.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>8020ed54e8fa847566ad79f01cd3b5c7</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dictionaries_3p-update-dictionaries/rev/295026/arch/Darwin/installer/dictionaries-1.295026-darwin-295026.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ef326a36094238ce4ccfb0af69d2876f</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dictionaries_3p-update-dictionaries/rev/295189/arch/Linux/installer/dictionaries-1.295189-linux-295189.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b0e66bcb304bef0c7715e0475529f7a8</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dictionaries_3p-update-dictionaries/rev/296922/arch/CYGWIN/installer/dictionaries-1.296922-windows-296922.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
         </map>
         <key>version</key>
-        <string>1.296922</string>
+        <string>1.297347</string>
       </map>
       <key>elfio</key>
       <map>
