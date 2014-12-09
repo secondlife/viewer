@@ -130,16 +130,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>887c93c4075beefefa44b69fb2c0461e</string>
+              <string>f044de05e704d3f3fb6934adf42447c2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-ares-update/rev/290399/arch/CYGWIN/installer/ares-1.10.0-windows-20140529.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/CYGWIN/installer/ares-1.10.0.295506-windows-295506.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.10.0.295020</string>
+        <string>1.10.0.295506</string>
       </map>
       <key>boost</key>
       <map>
@@ -405,9 +405,21 @@
             <key>name</key>
             <string>linux</string>
           </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b0e66bcb304bef0c7715e0475529f7a8</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dictionaries_3p-update-dictionaries/rev/296922/arch/CYGWIN/installer/dictionaries-1.296922-windows-296922.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
         </map>
         <key>version</key>
-        <string>1.295189</string>
+        <string>1.296922</string>
       </map>
       <key>elfio</key>
       <map>
@@ -528,16 +540,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6c859cd17fb8c9cdd96b188c2a2c2838</string>
+              <string>5aa7b826e7c1cf95e9cd3ef77e314f35</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-fmodex-private/rev/288122/arch/CYGWIN/installer/fmodex-4.44.31-windows-20140314.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/fmodex_3p-update-fmodex/rev/297261/arch/CYGWIN/installer/fmodex-4.44.31.297261-windows-297261.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.44.31.295607</string>
+        <string>4.44.31.297261</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -565,8 +577,12 @@
       </map>
       <key>freeglut</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1999-2000 Pawel W. Olszta. All Rights Reserved.</string>
+        <key>description</key>
+        <string>freeglut is a completely OpenSourced alternative to the OpenGL Utility Toolkit (GLUT) library.</string>
         <key>license</key>
-        <string>mit</string>
+        <string>freeglut</string>
         <key>license_file</key>
         <string>LICENSES/freeglut.txt</string>
         <key>name</key>
@@ -578,14 +594,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>825d5a9bafcc5bfe28dc4c1c4f87c576</string>
+              <string>58e328a8b2f3788f932c57ad77e3e117</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-freeglut/rev/221064/arch/CYGWIN/installer/freeglut-2.6.0-windows-20110214.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freeglut_3p-update-freeglut/rev/295926/arch/CYGWIN/installer/freeglut-2.6.0.295926-windows-295926.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2.6.0.295926</string>
       </map>
       <key>freetype</key>
       <map>
@@ -643,8 +661,12 @@
       </map>
       <key>glext</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2007-2010 The Khronos Group Inc.</string>
+        <key>description</key>
+        <string>glext headers define function prototypes and constants for OpenGL extensions</string>
         <key>license</key>
-        <string>glext</string>
+        <string>Copyright (c) 2007-2010 The Khronos Group Inc.</string>
         <key>license_file</key>
         <string>LICENSES/glext.txt</string>
         <key>name</key>
@@ -668,14 +690,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5de58ca0fe19abf68b25956762ee0d29</string>
+              <string>6eb51c6f17e717a5617b112858d41c80</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glext-68-windows-20110406.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glext_3p-update-glext/rev/296893/arch/CYGWIN/installer/glext-68-windows-296893.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>68</string>
       </map>
       <key>glh-linear</key>
       <map>
@@ -724,11 +748,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>22f347d243ed587e2b5e7d5329eaadb0</string>
+              <string>156abbd261be10ce68873ff0867b3845</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/295212/arch/CYGWIN/installer/glh_linear-0.0.0-windows-295212.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297262/arch/CYGWIN/installer/glh_linear-0.0.0-windows-297262.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -782,18 +806,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>22fb3b3dcd433792e20ceada808ba54f</string>
+              <string>b0b32155319c6441997c034bdae28a22</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-glod/rev/292477/arch/CYGWIN/installer/glod-1.0pre4-windows-292477.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glod_3p-update-glod/rev/296895/arch/CYGWIN/installer/glod-1.0pre4.296895-windows-296895.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0pre4.295198</string>
+        <string>1.0pre4.296895</string>
       </map>
       <key>glui</key>
       <map>
@@ -838,16 +862,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e006635a741420a15f40bbdac13bd8d7</string>
+              <string>b9e44910f2bd5139d752ac2ea19b5d85</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-windows-20110214.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glui_3p-update-glui/rev/297126/arch/CYGWIN/installer/glui-2.36.297126-windows-297126.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.36.295841</string>
+        <string>2.36.297126</string>
       </map>
       <key>google_breakpad</key>
       <map>
@@ -892,16 +916,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a1e519d08c507c12f9d412b2ae8328c8</string>
+              <string>0af9ab8c34f4acb8b0c2ae56488ee0a9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/279804/arch/CYGWIN/installer/google_breakpad-0.0.0-rev1099-windows-20130813.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/295565/arch/CYGWIN/installer/google_breakpad-1332.295565-windows-295565.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1332.294995</string>
+        <string>1332.295565</string>
       </map>
       <key>googlemock</key>
       <map>
@@ -1000,16 +1024,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f62841804acb91e1309603a84f3f0ce8</string>
+              <string>2946f9bbf227dee8881af43856ebb3a1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/CYGWIN/installer/gperftools-2.0-windows-20120727.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-perftools_3p-update-google-perftools/rev/297263/arch/CYGWIN/installer/gperftools-2.0.297263-windows-297263.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.0.295031</string>
+        <string>2.0.297263</string>
       </map>
       <key>gstreamer</key>
       <map>
@@ -1124,9 +1148,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>88391b6e08d473506d406ca6f3e88cfb</string>
+              <string>b03798edda7f8e9dad0b2df46a5137f1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/lindenlab_3p-havok-source/rev/268409/arch/CYGWIN/installer/havok_source-2012.1-windows-20121219.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297157/arch/CYGWIN/installer/havok_source-2012.1-windows-297157.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1178,16 +1202,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a202ec58cef9097c94acfa958ed6da8d</string>
+              <string>98d3dc8d107d04b572fe47bd43a56e74</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-8c-windows-20110217.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/296854/arch/CYGWIN/installer/jpeglib-8c.296854-windows-296854.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>8c.295876</string>
+        <string>8c.296854</string>
       </map>
       <key>jsoncpp</key>
       <map>
@@ -1232,16 +1256,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>afff2018e6a887c281b072eecdd9343e</string>
+              <string>1a85cdf922d4b2e938766e543027bd3e</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-windows-20110208.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297124/arch/CYGWIN/installer/jsoncpp-0.5.0.297124-windows-297124.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.5.0</string>
+        <string>0.5.0.297124</string>
       </map>
       <key>kdu</key>
       <map>
@@ -1286,16 +1310,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6d80d35524e1c0c32d3385014d02d48c</string>
+              <string>a0e5c050a4975c81611d9f1862ac57fb</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256978/arch/CYGWIN/installer/kdu-7.0.0-windows-20120515.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/CYGWIN/installer/kdu-7.2.296932-windows-296932.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.2.295789</string>
+        <string>7.2.296932</string>
       </map>
       <key>libhunspell</key>
       <map>
@@ -1340,16 +1364,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6a140e5620826aa5e587b4157f57b389</string>
+              <string>ada0ad726842d902c09ab20a7ad5ac8f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/CYGWIN/installer/libhunspell-1.3.2-windows-20120616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/hunspell_3p-update-hunspell/rev/296916/arch/CYGWIN/installer/libhunspell-1.3.2.296916-windows-296916.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.3.2.295044</string>
+        <string>1.3.2.296916</string>
       </map>
       <key>libndofdev</key>
       <map>
@@ -1394,16 +1418,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a4bec9562ed6ac53e85abcb1afc5fc0</string>
+              <string>1c40c22fb7b84ccccefbf797e2478ec4</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libndofdev-0.1-windows-20110223.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/297264/arch/CYGWIN/installer/libndofdev-0.1.297264-windows-297264.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.1.295599</string>
+        <string>0.1.297264</string>
       </map>
       <key>libpng</key>
       <map>
@@ -1743,12 +1767,8 @@
       </map>
       <key>mesa</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (C) 1999-2007  Brian Paul   All Rights Reserved.</string>
-        <key>description</key>
-        <string>Mesa is an open-source implementation of the OpenGL specification - a system for rendering interactive 3D graphics.</string>
         <key>license</key>
-        <string>Core libraries are MIT license, some of the demo programs vary.</string>
+        <string>mesa</string>
         <key>license_file</key>
         <string>LICENSES/mesa.txt</string>
         <key>name</key>
@@ -1760,21 +1780,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>60e1cad8e315793649cd871533479f5d</string>
+              <string>1f600840463c7327ea17486821425750</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/mesa_3p-update-mesa/rev/297283/arch/Linux/installer/mesa-7.11.1.297283-linux-297283.tar.bz2</string>
+              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20100930.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
-        <key>version</key>
-        <string>7.11.1.297283</string>
       </map>
       <key>nvapi</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright © 2012 NVIDIA Corporation.  All rights reserved.</string>
+        <key>description</key>
+        <string>NVAPI provides an interface to NVIDIA devices.</string>
         <key>license</key>
-        <string>NVAPI</string>
+        <string>NVIDIA Corporation Software License Agreement – NVAPI SDK</string>
         <key>license_file</key>
         <string>LICENSES/NVAPI_SDK_License_Agreement.pdf</string>
         <key>name</key>
@@ -1786,14 +1808,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>baf519d36dffe4e4a59471450e391d01</string>
+              <string>9e30c9e228d6a825b6774b97ff052973</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-nvapi/rev/267102/arch/CYGWIN/installer/nvapi-304-windows-20121116.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/nvapi_3p-update-nvapi/rev/295118/arch/CYGWIN/installer/nvapi-304-windows-295118.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>304</string>
       </map>
       <key>ogg_vorbis</key>
       <map>
@@ -1838,16 +1862,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>25da868a1204203cfd31b449dad24d6d</string>
+              <string>f358717739c288ec7401d6d1936ef878</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-ogvorbis/rev/292448/arch/CYGWIN/installer/ogg_vorbis-1.2.2-1.3.2-windows-292448.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oggvorbis_3p-update-oggvorbis/rev/296878/arch/CYGWIN/installer/ogg_vorbis-1.2.2-1.3.2.296878-windows-296878.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.2.2-1.3.2.295493</string>
+        <string>1.2.2-1.3.2.296878</string>
       </map>
       <key>openal</key>
       <map>
@@ -1882,18 +1906,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de26ec439e0ca030dcda6b960fa73e8b</string>
+              <string>ca34d3f0f014ef6b8c445b6cacf4edc7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-openal/rev/289850/arch/CYGWIN/installer/openal-1.12.854-1.1.0-windows-289850.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openal_3p-update-openal/rev/296861/arch/CYGWIN/installer/openal-1.12.854-1.1.0.296861-windows-296861.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.12.854-1.1.0.295049</string>
+        <string>1.12.854-1.1.0.296861</string>
       </map>
       <key>openjpeg</key>
       <map>
@@ -1938,16 +1962,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ca5765af55f798724d601720afdf6953</string>
+              <string>b35adcf74d22c128045aa87aade74736</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.4-windows-20110302.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openjpeg_3p-update-openjpeg/rev/297018/arch/CYGWIN/installer/openjpeg-1.4.297018-windows-297018.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.295265</string>
+        <string>1.4.297018</string>
       </map>
       <key>openssl</key>
       <map>
@@ -2059,8 +2083,12 @@
       </map>
       <key>quicktime</key>
       <map>
+        <key>copyright</key>
+        <string>2010 Apple</string>
+        <key>description</key>
+        <string>QuickTime 7.3 SDK for Windows</string>
         <key>license</key>
-        <string>quicktime</string>
+        <string>unknown</string>
         <key>license_file</key>
         <string>LICENSES/quicktime.txt</string>
         <key>name</key>
@@ -2072,14 +2100,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>52e49ab6937b09882389da0dbaec17f5</string>
+              <string>3f8b52280cb1eff2d1acd0214bce1b16</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/quicktime-7.3-windows-20110127.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/quicktime_3p-update-quicktime/rev/296445/arch/CYGWIN/installer/quicktime-7.3-windows-296445.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
+        <key>version</key>
+        <string>7.3</string>
       </map>
       <key>slvoice</key>
       <map>
@@ -2133,7 +2163,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>4.5.0006.17020.296971</string>
+        <string>4.6.0009.20030.296971</string>
       </map>
       <key>tut</key>
       <map>
@@ -2802,7 +2832,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 10"</string>
+                  <string>"Visual Studio 12"</string>
                 </array>
               </map>
               <key>name</key>
@@ -2846,7 +2876,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 10"</string>
+                  <string>"Visual Studio 12"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
@@ -2887,7 +2917,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 10"</string>
+                  <string>"Visual Studio 12"</string>
                 </array>
               </map>
               <key>default</key>
@@ -2933,7 +2963,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 10"</string>
+                  <string>"Visual Studio 12"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -2975,7 +3005,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 10"</string>
+                  <string>"Visual Studio 12"</string>
                 </array>
               </map>
               <key>name</key>
@@ -3019,7 +3049,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 10"</string>
+                  <string>"Visual Studio 12"</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
