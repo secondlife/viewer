@@ -67,7 +67,7 @@ public:
     LLEventPumpOrPumpName() {}
     operator LLEventPump& () const { return *mPump; }
     LLEventPump& getPump() const { return *mPump; }
-    operator bool() const { return mPump; }
+    operator bool() const { return bool(mPump); }
     bool operator!() const { return ! mPump; }
 
 private:
