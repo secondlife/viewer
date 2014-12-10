@@ -183,12 +183,6 @@ void LLPreviewTexture::draw()
 
 		if ( mImage.notNull() )
 		{
-			// Automatically bring up SaveAs dialog if we opened this to save the texture.
-			if (mPreviewToSave)
-			{
-				mPreviewToSave = FALSE;
-				saveAs();
-			}
 			// Draw the texture
 			gGL.diffuseColor3f( 1.f, 1.f, 1.f );
 			gl_draw_scaled_image(interior.mLeft,
@@ -287,6 +281,12 @@ void LLPreviewTexture::saveAs()
 		// User canceled or we failed to acquire save file.
 		return;
 	}
+	if(mPreviewToSave)
+	{
+		mPreviewToSave = FALSE;
+		LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", item->getUUID());
+	}
+
 	// remember the user-approved/edited file name.
 	mSaveFileName = file_picker.getFirstFile();
 	mLoadingFullImage = TRUE;
