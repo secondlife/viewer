@@ -119,18 +119,18 @@ LLSD LLMaterial::asLLSD() const
 	LLSD material_data;
 
 	material_data[MATERIALS_CAP_NORMAL_MAP_FIELD] = mNormalID;
-	material_data[MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD] = llround(mNormalOffsetX * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD] = llround(mNormalOffsetY * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD] = llround(mNormalRepeatX * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD] = llround(mNormalRepeatY * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD] = llround(mNormalRotation * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_NORMAL_MAP_OFFSET_X_FIELD] = ll_round(mNormalOffsetX * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_NORMAL_MAP_OFFSET_Y_FIELD] = ll_round(mNormalOffsetY * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_NORMAL_MAP_REPEAT_X_FIELD] = ll_round(mNormalRepeatX * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_NORMAL_MAP_REPEAT_Y_FIELD] = ll_round(mNormalRepeatY * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_NORMAL_MAP_ROTATION_FIELD] = ll_round(mNormalRotation * MATERIALS_MULTIPLIER);
 
 	material_data[MATERIALS_CAP_SPECULAR_MAP_FIELD] = mSpecularID;
-	material_data[MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD] = llround(mSpecularOffsetX * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD] = llround(mSpecularOffsetY * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD] = llround(mSpecularRepeatX * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD] = llround(mSpecularRepeatY * MATERIALS_MULTIPLIER);
-	material_data[MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD] = llround(mSpecularRotation * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_SPECULAR_MAP_OFFSET_X_FIELD] = ll_round(mSpecularOffsetX * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_SPECULAR_MAP_OFFSET_Y_FIELD] = ll_round(mSpecularOffsetY * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_SPECULAR_MAP_REPEAT_X_FIELD] = ll_round(mSpecularRepeatX * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_SPECULAR_MAP_REPEAT_Y_FIELD] = ll_round(mSpecularRepeatY * MATERIALS_MULTIPLIER);
+	material_data[MATERIALS_CAP_SPECULAR_MAP_ROTATION_FIELD] = ll_round(mSpecularRotation * MATERIALS_MULTIPLIER);
 
 	material_data[MATERIALS_CAP_SPECULAR_COLOR_FIELD]     = mSpecularLightColor.getValue();
 	material_data[MATERIALS_CAP_SPECULAR_EXP_FIELD]       = mSpecularLightExponent;

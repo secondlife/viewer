@@ -605,7 +605,7 @@ BOOL LLAccordionCtrl::autoScroll		(S32 x, S32 y)
 
 		// autoscroll region should take up no more than one third of visible scroller area
 		S32 auto_scroll_region_height = llmin(rect_local.getHeight() / 3, 10);
-		S32 auto_scroll_speed = llround(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
+		S32 auto_scroll_speed = ll_round(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
 
 		LLRect bottom_scroll_rect = screen_local_extents;
 		bottom_scroll_rect.mTop = rect_local.mBottom + auto_scroll_region_height;

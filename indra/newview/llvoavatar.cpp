@@ -7066,7 +7066,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		if (it != contents.mParams.end())
 		{
 			S32 index = it - contents.mParams.begin();
-			contents.mParamAppearanceVersion = llround(contents.mParamWeights[index]);
+			contents.mParamAppearanceVersion = ll_round(contents.mParamWeights[index]);
 			LL_DEBUGS("Avatar") << "appversion req by appearance_version param: " << contents.mParamAppearanceVersion << LL_ENDL;
 		}
 	}

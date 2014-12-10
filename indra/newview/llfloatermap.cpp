@@ -153,8 +153,8 @@ void LLFloaterMap::setDirectionPos( LLTextBox* text_box, F32 rotation )
 	radius -= 8.f;
 
 	text_box->setOrigin( 
-		llround(map_half_width - text_half_width + radius * cos( rotation )),
-		llround(map_half_height - text_half_height + radius * sin( rotation )) );
+		ll_round(map_half_width - text_half_width + radius * cos( rotation )),
+		ll_round(map_half_height - text_half_height + radius * sin( rotation )) );
 }
 
 void LLFloaterMap::updateMinorDirections()

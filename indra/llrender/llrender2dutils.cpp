@@ -433,8 +433,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		F32 image_width = image->getWidth(0);
 		F32 image_height = image->getHeight(0);
 
-		S32 image_natural_width = llround(image_width * uv_width);
-		S32 image_natural_height = llround(image_height * uv_height);
+		S32 image_natural_width = ll_round(image_width * uv_width);
+		S32 image_natural_height = ll_round(image_height * uv_height);
 
 		LLRectf draw_center_rect(	uv_center_rect.mLeft * image_width,
 									uv_center_rect.mTop * image_height,
@@ -468,10 +468,10 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 			draw_center_rect.setCenterAndSize(uv_center_rect.getCenterX() * width, uv_center_rect.getCenterY() * height, scaled_width, scaled_height);
 		}
 
-		draw_center_rect.mLeft   = llround(ui_translation.mV[VX] + (F32)draw_center_rect.mLeft * ui_scale.mV[VX]);
-		draw_center_rect.mTop    = llround(ui_translation.mV[VY] + (F32)draw_center_rect.mTop * ui_scale.mV[VY]);
-		draw_center_rect.mRight  = llround(ui_translation.mV[VX] + (F32)draw_center_rect.mRight * ui_scale.mV[VX]);
-		draw_center_rect.mBottom = llround(ui_translation.mV[VY] + (F32)draw_center_rect.mBottom * ui_scale.mV[VY]);
+		draw_center_rect.mLeft   = ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mLeft * ui_scale.mV[VX]);
+		draw_center_rect.mTop    = ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mTop * ui_scale.mV[VY]);
+		draw_center_rect.mRight  = ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mRight * ui_scale.mV[VX]);
+		draw_center_rect.mBottom = ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mBottom * ui_scale.mV[VY]);
 
 		LLRectf draw_outer_rect(ui_translation.mV[VX], 
 								ui_translation.mV[VY] + height * ui_scale.mV[VY], 
@@ -703,8 +703,8 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 			ui_translation.mV[VY] += y;
 			ui_translation.scaleVec(ui_scale);
 			S32 index = 0;
-			S32 scaled_width = llround(width * ui_scale.mV[VX]);
-			S32 scaled_height = llround(height * ui_scale.mV[VY]);
+			S32 scaled_width = ll_round(width * ui_scale.mV[VX]);
+			S32 scaled_height = ll_round(height * ui_scale.mV[VY]);
 
 			uv[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
 			pos[index] = LLVector3(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY] + scaled_height, 0.f);

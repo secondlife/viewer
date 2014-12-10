@@ -898,8 +898,8 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	const char* buttonstatestr = "";
 	S32 x = pos.mX;
 	S32 y = pos.mY;
-	x = llround((F32)x / mDisplayScale.mV[VX]);
-	y = llround((F32)y / mDisplayScale.mV[VY]);
+	x = ll_round((F32)x / mDisplayScale.mV[VX]);
+	y = ll_round((F32)y / mDisplayScale.mV[VY]);
 
 	// only send mouse clicks to UI if UI is visible
 	if(gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
@@ -1065,8 +1065,8 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 {
 	S32 x = pos.mX;
 	S32 y = pos.mY;
-	x = llround((F32)x / mDisplayScale.mV[VX]);
-	y = llround((F32)y / mDisplayScale.mV[VY]);
+	x = ll_round((F32)x / mDisplayScale.mV[VX]);
+	y = ll_round((F32)y / mDisplayScale.mV[VY]);
 
 	BOOL down = TRUE;
 	BOOL handle = handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_RIGHT,down);
@@ -1263,8 +1263,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 	S32 x = pos.mX;
 	S32 y = pos.mY;
 
-	x = llround((F32)x / mDisplayScale.mV[VX]);
-	y = llround((F32)y / mDisplayScale.mV[VY]);
+	x = ll_round((F32)x / mDisplayScale.mV[VX]);
+	y = ll_round((F32)y / mDisplayScale.mV[VY]);
 
 	mMouseInWindow = TRUE;
 
@@ -1722,7 +1722,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		LLCoordWindow size;
 		mWindow->getSize(&size);
 		mWindowRectRaw.set(0, size.mY, size.mX, 0);
-		mWindowRectScaled.set(0, llround((F32)size.mY / mDisplayScale.mV[VY]), llround((F32)size.mX / mDisplayScale.mV[VX]), 0);
+		mWindowRectScaled.set(0, ll_round((F32)size.mY / mDisplayScale.mV[VY]), ll_round((F32)size.mX / mDisplayScale.mV[VX]), 0);
 	}
 	
 	LLFontManager::initClass();
@@ -2250,8 +2250,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		LLUI::setScaleFactor(mDisplayScale);
 
 		// update our window rectangle
-		mWindowRectScaled.mRight = mWindowRectScaled.mLeft + llround((F32)width / mDisplayScale.mV[VX]);
-		mWindowRectScaled.mTop = mWindowRectScaled.mBottom + llround((F32)height / mDisplayScale.mV[VY]);
+		mWindowRectScaled.mRight = mWindowRectScaled.mLeft + ll_round((F32)width / mDisplayScale.mV[VX]);
+		mWindowRectScaled.mTop = mWindowRectScaled.mBottom + ll_round((F32)height / mDisplayScale.mV[VY]);
 
 		setup2DViewport();
 
@@ -2444,8 +2444,8 @@ void LLViewerWindow::draw()
 		microsecondsToTimecodeString(gFrameTime,text);
 		const LLFontGL* font = LLFontGL::getFontSansSerif();
 		font->renderUTF8(text, 0,
-						llround((getWindowWidthScaled()/2)-100.f),
-						llround((getWindowHeightScaled()-60.f)),
+						ll_round((getWindowWidthScaled()/2)-100.f),
+						ll_round((getWindowHeightScaled()-60.f)),
 			LLColor4( 1.f, 1.f, 1.f, 1.f ),
 			LLFontGL::LEFT, LLFontGL::TOP);
 	}
@@ -2521,7 +2521,7 @@ void LLViewerWindow::draw()
 			const S32 DIST_FROM_TOP = 20;
 			LLFontGL::getFontSansSerifBig()->renderUTF8(
 				mOverlayTitle, 0,
-				llround( getWindowWidthScaled() * 0.5f),
+				ll_round( getWindowWidthScaled() * 0.5f),
 				getWindowHeightScaled() - DIST_FROM_TOP,
 				LLColor4(1, 1, 1, 0.4f),
 				LLFontGL::HCENTER, LLFontGL::TOP);
@@ -3373,7 +3373,7 @@ void LLViewerWindow::updateMouseDelta()
 		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
-		mCurrentMouseDelta.set(llround(fdx), llround(fdy));
+		mCurrentMouseDelta.set(ll_round(fdx), ll_round(fdy));
 		mouse_vel.setVec(fdx,fdy);
 	}
 	else
@@ -3488,10 +3488,10 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
 		new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);
 
-		new_world_rect.mLeft = llround((F32)new_world_rect.mLeft * mDisplayScale.mV[VX]);
-		new_world_rect.mRight = llround((F32)new_world_rect.mRight * mDisplayScale.mV[VX]);
-		new_world_rect.mBottom = llround((F32)new_world_rect.mBottom * mDisplayScale.mV[VY]);
-		new_world_rect.mTop = llround((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
+		new_world_rect.mLeft = ll_round((F32)new_world_rect.mLeft * mDisplayScale.mV[VX]);
+		new_world_rect.mRight = ll_round((F32)new_world_rect.mRight * mDisplayScale.mV[VX]);
+		new_world_rect.mBottom = ll_round((F32)new_world_rect.mBottom * mDisplayScale.mV[VY]);
+		new_world_rect.mTop = ll_round((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
 	}
 
 	if (mWorldViewRectRaw != new_world_rect)
@@ -5140,10 +5140,10 @@ void LLViewerWindow::calcDisplayScale()
 LLRect 	LLViewerWindow::calcScaledRect(const LLRect & rect, const LLVector2& display_scale)
 {
 	LLRect res = rect;
-	res.mLeft = llround((F32)res.mLeft / display_scale.mV[VX]);
-	res.mRight = llround((F32)res.mRight / display_scale.mV[VX]);
-	res.mBottom = llround((F32)res.mBottom / display_scale.mV[VY]);
-	res.mTop = llround((F32)res.mTop / display_scale.mV[VY]);
+	res.mLeft = ll_round((F32)res.mLeft / display_scale.mV[VX]);
+	res.mRight = ll_round((F32)res.mRight / display_scale.mV[VX]);
+	res.mBottom = ll_round((F32)res.mBottom / display_scale.mV[VY]);
+	res.mTop = ll_round((F32)res.mTop / display_scale.mV[VY]);
 
 	return res;
 }
@@ -5406,8 +5406,8 @@ void LLPickInfo::updateXYCoords()
 		LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::getFetchedTexture(tep->getID());
 		if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep.notNull())
 		{
-			mXYCoords.mX = llround(mUVCoords.mV[VX] * (F32)imagep->getWidth());
-			mXYCoords.mY = llround((1.f - mUVCoords.mV[VY]) * (F32)imagep->getHeight());
+			mXYCoords.mX = ll_round(mUVCoords.mV[VX] * (F32)imagep->getWidth());
+			mXYCoords.mY = ll_round((1.f - mUVCoords.mV[VY]) * (F32)imagep->getHeight());
 		}
 	}
 }
@@ -5436,7 +5436,7 @@ void LLPickInfo::getSurfaceInfo()
 
 	if (objectp)
 	{
-		if (gViewerWindow->cursorIntersect(llround((F32)mMousePt.mX), llround((F32)mMousePt.mY), 1024.f,
+		if (gViewerWindow->cursorIntersect(ll_round((F32)mMousePt.mX), ll_round((F32)mMousePt.mY), 1024.f,
 										   objectp, -1, mPickTransparent,
 										   &mObjectFace,
 										   &intersection,
@@ -5477,52 +5477,6 @@ void LLPickInfo::getSurfaceInfo()
 		}
 	}
 }
-
-
-/* code to get UV via a special UV render - removed in lieu of raycast method
-LLVector2 LLPickInfo::pickUV()
-{
-	LLVector2 result(-1.f, -1.f);
-
-	LLViewerObject* objectp = getObject();
-	if (!objectp)
-	{
-		return result;
-	}
-
-	if (mObjectFace > -1 &&
-		objectp->mDrawable.notNull() && objectp->getPCode() == LL_PCODE_VOLUME &&
-		mObjectFace < objectp->mDrawable->getNumFaces())
-	{
-		S32 scaled_x = llround((F32)mPickPt.mX * gViewerWindow->getDisplayScale().mV[VX]);
-		S32 scaled_y = llround((F32)mPickPt.mY * gViewerWindow->getDisplayScale().mV[VY]);
-		const S32 UV_PICK_WIDTH = 5;
-		const S32 UV_PICK_HALF_WIDTH = (UV_PICK_WIDTH - 1) / 2;
-		U8 uv_pick_buffer[UV_PICK_WIDTH * UV_PICK_WIDTH * 4];
-		LLFace* facep = objectp->mDrawable->getFace(mObjectFace);
-		if (facep)
-		{
-			LLGLState scissor_state(GL_SCISSOR_TEST);
-			scissor_state.enable();
-			LLViewerCamera::getInstance()->setPerspective(FOR_SELECTION, scaled_x - UV_PICK_HALF_WIDTH, scaled_y - UV_PICK_HALF_WIDTH, UV_PICK_WIDTH, UV_PICK_WIDTH, FALSE);
-			//glViewport(scaled_x - UV_PICK_HALF_WIDTH, scaled_y - UV_PICK_HALF_WIDTH, UV_PICK_WIDTH, UV_PICK_WIDTH);
-			glScissor(scaled_x - UV_PICK_HALF_WIDTH, scaled_y - UV_PICK_HALF_WIDTH, UV_PICK_WIDTH, UV_PICK_WIDTH);
-
-			glClear(GL_DEPTH_BUFFER_BIT);
-
-			facep->renderSelectedUV();
-
-			glReadPixels(scaled_x - UV_PICK_HALF_WIDTH, scaled_y - UV_PICK_HALF_WIDTH, UV_PICK_WIDTH, UV_PICK_WIDTH, GL_RGBA, GL_UNSIGNED_BYTE, uv_pick_buffer);
-			U8* center_pixel = &uv_pick_buffer[4 * ((UV_PICK_WIDTH * UV_PICK_HALF_WIDTH) + UV_PICK_HALF_WIDTH + 1)];
-
-			result.mV[VX] = (F32)((center_pixel[VGREEN] & 0xf) + (16.f * center_pixel[VRED])) / 4095.f;
-			result.mV[VY] = (F32)((center_pixel[VGREEN] >> 4) + (16.f * center_pixel[VBLUE])) / 4095.f;
-		}
-	}
-
-	return result;
-} */
-
 
 //static 
 bool LLPickInfo::isFlora(LLViewerObject* object)

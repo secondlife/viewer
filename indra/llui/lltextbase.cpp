@@ -1556,7 +1556,7 @@ void LLTextBase::reflow()
 											line_count));
 
 				line_start_index = segment->getStart() + seg_offset;
-				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+				cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
 				remaining_pixels = text_available_width;
 				line_height = 0;
 			}
@@ -1568,7 +1568,7 @@ void LLTextBase::reflow()
 											last_segment_char_on_line, 
 											line_rect, 
 											line_count));
-				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+				cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
 				break;
 			}
 			// ...or finished a segment and there are segments remaining on this line
@@ -1583,7 +1583,7 @@ void LLTextBase::reflow()
 												line_rect, 
 												line_count));
 					line_start_index = segment->getStart() + seg_offset;
-					cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+					cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
 					line_height = 0;
 					remaining_pixels = text_available_width;
 				}
