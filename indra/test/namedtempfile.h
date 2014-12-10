@@ -17,8 +17,8 @@
 #include "apr_file_io.h"
 #include <string>
 #include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
+#include <boost/phoenix/core/argument.hpp>
+#include <boost/phoenix/operator/bitwise.hpp>
 #include <boost/noncopyable.hpp>
 #include <iostream>
 #include <sstream>
@@ -34,19 +34,19 @@ public:
     NamedTempFile(const std::string& pfx, const std::string& content, apr_pool_t* pool=gAPRPoolp):
         mPool(pool)
     {
-        createFile(pfx, boost::lambda::_1 << content);
+        createFile(pfx, boost::phoenix::placeholders::arg1 << content);
     }
 
     // Disambiguate when passing string literal
     NamedTempFile(const std::string& pfx, const char* content, apr_pool_t* pool=gAPRPoolp):
         mPool(pool)
     {
-        createFile(pfx, boost::lambda::_1 << content);
+        createFile(pfx, boost::phoenix::placeholders::arg1 << content);
     }
 
     // Function that accepts an ostream ref and (presumably) writes stuff to
     // it, e.g.:
-    // (boost::lambda::_1 << "the value is " << 17 << '\n')
+    // (boost::phoenix::placeholders::arg1 << "the value is " << 17 << '\n')
     typedef boost::function<void(std::ostream&)> Streamer;
 
     NamedTempFile(const std::string& pfx, const Streamer& func, apr_pool_t* pool=gAPRPoolp):
