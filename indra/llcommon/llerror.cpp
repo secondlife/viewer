@@ -126,7 +126,7 @@ namespace {
 			mFile.close();
 		}
 		
-		bool okay() { return mFile; }
+		bool okay() { return mFile.good(); }
 		
 		virtual void recordMessage(LLError::ELevel level,
 									const std::string& message)
