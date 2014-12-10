@@ -3736,6 +3736,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		// This is the lost+found folder.
 		items.push_back(std::string("Empty Lost And Found"));
 
+		LLInventoryModel::cat_array_t* cat_array;
+		LLInventoryModel::item_array_t* item_array;
+		gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
+		if (0 == cat_array->size() && 0 == item_array->size())
+		{
+			disabled_items.push_back(std::string("Empty Lost And Found"));
+		}
+
 		disabled_items.push_back(std::string("New Folder"));
 		disabled_items.push_back(std::string("New Script"));
 		disabled_items.push_back(std::string("New Note"));
@@ -3780,6 +3788,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	{
 		// This is the trash.
 		items.push_back(std::string("Empty Trash"));
+
+		LLInventoryModel::cat_array_t* cat_array;
+		LLInventoryModel::item_array_t* item_array;
+		gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
+		if (0 == cat_array->size() && 0 == item_array->size())
+		{
+			disabled_items.push_back(std::string("Empty Trash"));
+		}
 	}
 	else if(isItemInTrash())
 	{

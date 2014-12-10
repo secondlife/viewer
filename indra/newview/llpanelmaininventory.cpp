@@ -1194,6 +1194,16 @@ bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
 BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 {
 	const std::string command_name = userdata.asString();
+	if (command_name == "not_empty")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item) return FALSE;
+		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
+		LLInventoryModel::cat_array_t* cat_array;
+		LLInventoryModel::item_array_t* item_array;
+		gInventory.getDirectDescendentsOf(item_id, cat_array, item_array);
+		return (0 == cat_array->size() && 0 == item_array->size());
+	}
 	if (command_name == "delete")
 	{
 		return getActivePanel()->isSelectionRemovable();
