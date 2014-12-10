@@ -2431,6 +2431,12 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			is_movable = FALSE;
 			// tooltip?
 		}
+		if (is_movable && (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK))
+		{
+            // One cannot move a folder into a stock folder
+			is_movable = FALSE;
+			// tooltip?
+        }
 		
 		LLInventoryModel::cat_array_t descendent_categories;
 		LLInventoryModel::item_array_t descendent_items;
@@ -2498,11 +2504,6 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 		}
-		if (is_movable && move_is_into_marketplacelistings)
-		{
-            // One cannot move a folder into a stock folder
-            is_movable = (getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK);
-        }
         
 		if (is_movable && (move_is_into_outbox || move_is_into_marketplacelistings))
 		{
@@ -3255,12 +3256,6 @@ LLUIImagePtr LLFolderBridge::getFolderIcon(BOOL is_open) const
         // We override the type when in the marketplace listings folder and only for version folder
         preferred_type = LLFolderType::FT_MARKETPLACE_VERSION;
     }
-    else if ((preferred_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth == -1))
-    {
-        // We override the type when a stock folder is outside of the marketplace listings root
-        // as we don't want to export that notion outside of marketplace
-        preferred_type = LLFolderType::FT_NONE;
-    }
 	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, is_open));
 }
 
@@ -3676,10 +3671,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
             disabled_items.push_back(std::string("Paste"));
             disabled_items.push_back(std::string("Delete"));
         }
-        else if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
-        {
-            disabled_items.push_back(std::string("New Folder"));
-        }
+    }
+    if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+    {
+        disabled_items.push_back(std::string("New Folder"));
     }
     if (marketplace_listings_id == mUUID)
     {
@@ -4370,7 +4365,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		accept = TRUE;
 
-		if (!is_movable) 
+		if (!is_movable)
 		{
 			accept = FALSE;
 		}
@@ -4393,6 +4388,13 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
             accept = can_move_item_to_marketplace(master_folder, dest_folder, inv_item, tooltip_msg, LLToolDragAndDrop::instance().getCargoCount());
 		}
 
+        // Check that the folder can accept this item based on folder/item type compatibility (e.g. stock folder compatibility)
+        if (accept)
+        {
+            LLViewerInventoryCategory * dest_folder = getCategory();
+            accept = dest_folder->acceptItem(inv_item);
+        }
+        
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 
 		// Check whether the item being dragged from active inventory panel
