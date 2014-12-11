@@ -3092,6 +3092,10 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		LLAppearanceMgr::instance().takeOffOutfit( cat->getLinkedUUID() );
 		return;
 	}
+	else if ("copyoutfittoclipboard" == action)
+	{
+		copyOutfitToClipboard();
+	}
 	else if ("purge" == action)
 	{
 		purgeItem(model, mUUID);
@@ -3247,6 +3251,39 @@ void LLFolderBridge::gatherMessage(std::string& message, S32 depth, LLError::ELe
         // Append the message
         mMessage += message.substr(start, message.length() - start);
     }
+}
+
+void LLFolderBridge::copyOutfitToClipboard()
+{
+	std::string text;
+
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
+
+	S32 item_count(0);
+	if( item_array )
+	{			
+		item_count = item_array->size();
+	}
+
+	if (item_count)
+	{
+		for (S32 i = 0; i < item_count;)
+		{
+			LLSD uuid =item_array->at(i)->getUUID();
+			LLViewerInventoryItem* item = gInventory.getItem(uuid);
+
+			i++;
+			if (item != NULL)
+			{
+				// Append a newline to all but the last line
+				text += i != item_count ? item->getName() + "\n" : item->getName();
+			}
+		}
+	}
+
+	LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text),0,text.size());
 }
 
 void LLFolderBridge::openItem()
@@ -3845,6 +3882,11 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 					disabled_items.push_back(std::string("Delete"));
 				}
 			}
+		}
+
+		if (model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT) == mUUID)
+		{
+			items.push_back(std::string("Copy outfit list to clipboard"));
 		}
 
 		//Added by aura to force inventory pull on right-click to display folder options correctly. 07-17-06
