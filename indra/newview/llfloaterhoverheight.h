@@ -39,7 +39,7 @@ public:
 
 	void onFinalCommit();
 
-	void sendHoverHeightUpdate();
+	static void syncFromPreferenceSetting(void *user_data);
 };
 
 #endif

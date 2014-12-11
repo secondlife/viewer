@@ -328,6 +328,8 @@ public:
 public:
 	bool			sendAppearanceMessage(LLMessageSystem *mesgsys) const;
 
+	void			sendHoverHeight() const;
+
 /**                    Appearance
  **                                                                            **
  *******************************************************************************/

@@ -3219,6 +3219,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{
 			debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
 		}
+		if (mHoverOffset[2] != 0.0)
+		{
+			debug_line += llformat(" hov_z: %f", mHoverOffset[2]);
+		}
 		addDebugText(debug_line);
 	}
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
@@ -3589,7 +3593,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	else if (mDrawable.notNull())
 	{
 		LLVector3 pos = mDrawable->getPosition();
-		pos += mHoverOffset;
+		pos += mHoverOffset * mDrawable->getRotation();
 		mRoot->setPosition(pos);
 		mRoot->setRotation(mDrawable->getRotation());
 	}
@@ -7327,9 +7331,20 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		}
 	}
 
-	if (contents.mHoverOffsetWasSet)
+	if (contents.mHoverOffsetWasSet && !isSelf())
 	{
+		// Got an update for some other avatar.
+		// (Ignore updates for self because they may be out of date.)
 		mHoverOffset = contents.mHoverOffset;
+	}
+
+	if (!contents.mHoverOffsetWasSet)
+	{
+		// If we don't get a value at all, we are presumably in a
+		// region that does not support hover height.
+// FIXME RESTORE AFTER TESTING
+		LL_WARNS() << "zeroing hover because not defined in appearance message" << LL_ENDL;
+		mHoverOffset = LLVector3(0.0, 0.0, 0.0);
 	}
 
 	setCompositeUpdatesEnabled( TRUE );

@@ -36,38 +36,35 @@
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 
-class LLHoverHeightResponder: public LLHTTPClient::Responder
-{
-public:
-	LLHoverHeightResponder(): LLHTTPClient::Responder() {}
-
-private:
-	void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-	}
-
-	void httpSuccess()
-	{
-		LL_INFOS() << dumpResponse() << LL_ENDL;
-	}
-};
-
 LLFloaterHoverHeight::LLFloaterHoverHeight(const LLSD& key) : LLFloater(key)
 {
 }
 
-BOOL LLFloaterHoverHeight::postBuild()
+void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data)
 {
-
 	LLVector3 offset = gSavedSettings.getVector3("AvatarPosFinalOffset");
 	F32 value = offset[2];
 
-	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
+	LLFloaterHoverHeight *self = static_cast<LLFloaterHoverHeight*>(user_data);
+	LLSliderCtrl* sldrCtrl = self->getChild<LLSliderCtrl>("HoverHeightSlider");
 	sldrCtrl->setValue(value,FALSE);
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->sendHoverHeight();
+	}
+}
+
+BOOL LLFloaterHoverHeight::postBuild()
+{
+	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
 	sldrCtrl->setSliderMouseUpCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
 	sldrCtrl->setSliderEditorCommitCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
 	childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, NULL);
+
+	// Initialize slider from pref setting.
+	syncFromPreferenceSetting(this);
+	// Update slider on future pref changes.
+	gSavedSettings.getControl("AvatarPosFinalOffset")->getCommitSignal()->connect(boost::bind(&syncFromPreferenceSetting, this));
 
 	return TRUE;
 }
@@ -75,29 +72,22 @@ BOOL LLFloaterHoverHeight::postBuild()
 // static
 void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 {
+	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
+	F32 value = sldrCtrl->getValueF32();
+	LLVector3 offset = gSavedSettings.getVector3("AvatarPosFinalOffset");
+	offset[2] = value;
+	gAgentAvatarp->mHoverOffset = offset;
 }
 
-// Do extra send-to-the-server work when slider drag completes, or new
+// Do send-to-the-server work when slider drag completes, or new
 // value entered as text.
 void LLFloaterHoverHeight::onFinalCommit()
 {
-	LL_INFOS() << "FINAL FINAL!!!" << LL_ENDL;
-	sendHoverHeightUpdate();
-}
-
-void LLFloaterHoverHeight::sendHoverHeightUpdate()
-{
 	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
 	F32 value = sldrCtrl->getValueF32();
-
-	std::string url = gAgent.getRegion()->getCapability("AgentPreferences");
-
-	if (!url.empty())
-	{
-		LLSD update = LLSD::emptyMap();
-		update["hover_height"] = value;
-
-		LL_INFOS() << "updating hover height to " << value << LL_ENDL;
-		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
-	}
+	LLVector3 offset = gSavedSettings.getVector3("AvatarPosFinalOffset");
+	offset[2] = value;
+	gSavedSettings.setVector3("AvatarPosFinalOffset",offset);
 }
+
+

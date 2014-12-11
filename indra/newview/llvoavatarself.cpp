@@ -127,6 +127,25 @@ struct LocalTextureData
 	LLTextureEntry *mTexEntry;
 };
 
+// TODO - this class doesn't really do anything, could just use a base
+// class responder if nothing else gets added.
+class LLHoverHeightResponder: public LLHTTPClient::Responder
+{
+public:
+	LLHoverHeightResponder(): LLHTTPClient::Responder() {}
+
+private:
+	void httpFailure()
+	{
+		LL_WARNS() << dumpResponse() << LL_ENDL;
+	}
+
+	void httpSuccess()
+	{
+		LL_INFOS() << dumpResponse() << LL_ENDL;
+	}
+};
+
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
@@ -162,8 +181,6 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	mInitialBakesLoaded(false)
 {
 	mMotionController.mIsSelf = TRUE;
-
-	mHoverOffset = gSavedSettings.getVector3("AvatarPosFinalOffset");
 
 	LL_DEBUGS() << "Marking avatar as self " << id << LL_ENDL;
 }
@@ -221,6 +238,8 @@ void LLVOAvatarSelf::initInstance()
 		LL_ERRS() << "Unable to load user's avatar" << LL_ENDL;
 		return;
 	}
+
+	mHoverOffset = gSavedSettings.getVector3("AvatarPosFinalOffset");
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
@@ -2687,6 +2706,22 @@ bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
 	return success;
 }
 
+//------------------------------------------------------------------------
+// sendHoverHeight()
+//------------------------------------------------------------------------
+void LLVOAvatarSelf::sendHoverHeight() const
+{
+	std::string url = gAgent.getRegion()->getCapability("AgentPreferences");
+
+	if (!url.empty())
+	{
+		LLSD update = LLSD::emptyMap();
+		update["hover_height"] = mHoverOffset[2];
+
+		LL_DEBUGS("Avatar") << "sending hover height value " << mHoverOffset[2] << LL_ENDL;
+		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
+	}
+}
 
 //------------------------------------------------------------------------
 // needsRenderBeam()
