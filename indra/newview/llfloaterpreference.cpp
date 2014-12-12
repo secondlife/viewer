@@ -48,7 +48,6 @@
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
-#include "llfloaterhardwaresettings.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterimsession.h"
 #include "llkeyboard.h"
@@ -112,6 +111,7 @@
 #include "llviewercontrol.h"
 #include "llpresetsmanager.h"
 #include "llfeaturemanager.h"
+#include "llviewertexturelist.h"
 
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
@@ -549,12 +549,6 @@ void LLFloaterPreference::apply()
 		if (panel)
 			panel->apply();
 	}
-	// hardware menu apply
-	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
-	if (hardware_settings)
-	{
-		hardware_settings->apply();
-	}
 	
 	gViewerWindow->requestResolutionUpdate(); // for UIScaleFactor
 
@@ -631,13 +625,6 @@ void LLFloaterPreference::cancel()
 	
 	// hide spellchecker settings folder
 	LLFloaterReg::hideInstance("prefs_spellchecker");
-	
-	// cancel hardware menu
-	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
-	if (hardware_settings)
-	{
-		hardware_settings->cancel();
-	}
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
@@ -921,11 +908,6 @@ void LLFloaterPreference::refreshEnabledGraphics()
 		instance->refresh();
 		//instance->refreshEnabledState();
 	}
-	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
-	if (hardware_settings)
-	{
-		hardware_settings->refreshEnabledState();
-	}
 }
 
 void LLFloaterPreference::onClickClearCache()
@@ -1201,7 +1183,61 @@ void LLFloaterPreference::refreshEnabledState()
 	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
 
 	ctrl_shadow->setEnabled(enabled);
-	
+
+	// Hardware settings
+	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
+	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
+
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
+		!gGLManager.mHasVertexBufferObject)
+	{
+		getChildView("vbo")->setEnabled(FALSE);
+	}
+
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
+		!gGLManager.mHasVertexBufferObject)
+	{
+		getChildView("texture compression")->setEnabled(FALSE);
+	}
+
+	// if no windlight shaders, turn off nighttime brightness, gamma, and fog distance
+	LLUICtrl* gamma_ctrl = getChild<LLUICtrl>("gamma");
+	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
+
+	/* Disabling this block of code because canUseAntiAliasing currently always returns true
+	// anti-aliasing
+	LLComboBox* fsaa_ctrl = getChild<LLComboBox>("fsaa");
+	LLTextBox* fsaa_text = getChild<LLTextBox>("antialiasing label");
+	LLTextBox* fsaa_restart = getChild<LLTextBox>("antialiasing restart");
+		
+	// Enable or disable the control, the "Antialiasing:" label and the restart warning
+	// based on code support for the feature on the current hardware.
+
+	if (gPipeline.canUseAntiAliasing())
+	{
+		fsaa_ctrl->setEnabled(TRUE);
+
+		LLColor4 color = LLUIColorTable::instance().getColor("LabelTextColor");
+		fsaa_text->setColor(color);
+
+		fsaa_restart->setVisible(!gSavedSettings.getBOOL("RenderDeferred"));
+	}
+	else
+	{
+		fsaa_ctrl->setEnabled(FALSE);
+		fsaa_ctrl->setValue((LLSD::Integer) 0);
+			
+		LLColor4 color = LLUIColorTable::instance().getColor("LabelDisabledColor");
+		fsaa_text->setColor(color);
+			
+		fsaa_restart->setVisible(FALSE);
+	}
+	*/
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
@@ -1365,23 +1401,26 @@ void LLFloaterPreference::refresh()
 {
 	LLPanel::refresh();
 
+	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
+
 	refreshEnabledState();
 
 	// sliders and their text boxes
 	//	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
 	// slider text boxes
-	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",		true), getChild<LLTextBox>("ObjectMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true));
-	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail2",		true), getChild<LLTextBox>("AvatarMeshDetailText2",		true));
-	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
-	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
-	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
-	updateReflectionsText(getChild<LLSliderCtrl>("Reflections",		true), getChild<LLTextBox>("ReflectionsText",			true));	
-	updateShadowDetailText(getChild<LLSliderCtrl>("ShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true));	
+	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",		true), getChild<LLTextBox>("ObjectMeshDetailText",		true), "ObjectMeshDetail");
+	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true), "FlexibleMeshDetail");
+	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true), "TreeMeshDetail");
+	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true), "AvatarMeshDetail");
+	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail2",		true), getChild<LLTextBox>("AvatarMeshDetailText2",		true), "AvatarMeshDetail2");
+	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true), "AvatarPhysicsDetail");
+	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true), "TerrainMeshDetail");
+	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true), "RenderPostProcess");
+	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true), "SkyMeshDetail");
+	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true), "TerrainDetail");	
+	updateSliderText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true), "MaximumARC");	
+	updateSliderText(getChild<LLSliderCtrl>("Reflections",		true), getChild<LLTextBox>("ReflectionsText",			true), "Reflections");	
+	updateSliderText(getChild<LLSliderCtrl>("ShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true), "ShadowDetail");	
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1633,24 +1672,7 @@ void LLFloaterPreference::refreshUI()
 	refresh();
 }
 
-void LLFloaterPreference::updateReflectionsText(LLSliderCtrl* ctrl, LLTextBox* text_box)
-{
-	if (text_box == NULL || ctrl== NULL)
-		return;
-	
-	U32 value = (U32)ctrl->getValue().asInteger();
-	text_box->setText(getString("Reflections" + llformat("%d", value)));
-}
-void LLFloaterPreference::updateShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box)
-{
-	if (text_box == NULL || ctrl== NULL)
-		return;
-	
-	U32 value = (U32)ctrl->getValue().asInteger();
-	text_box->setText(getString("RenderShadowDetail" + llformat("%d", value)));
-}
-
-void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box, const std::string& name)
 {
 	if (text_box == NULL || ctrl== NULL)
 		return;
@@ -1663,7 +1685,21 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	llassert(range > 0);
 	F32 midPoint = min + range / 3.0f;
 	F32 highPoint = min + (2.0f * range / 3.0f);
-	
+
+	if ("ShadowDetail" == name)
+	{
+		U32 value = (U32)ctrl->getValue().asInteger();
+		text_box->setText(getString("RenderShadowDetail" + llformat("%d", value)));
+		return;
+	}
+
+	if ("Reflections" == name)
+	{
+		U32 value = (U32)ctrl->getValue().asInteger();
+		text_box->setText(getString("Reflections" + llformat("%d", value)));
+		return;
+	}
+
 	// choose the right text
 	if (value < midPoint)
 	{
@@ -1676,6 +1712,22 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	else
 	{
 		text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
+	}
+
+	if ("MaximumARC" == name)
+	{
+		F32 control_value = value;
+		if (0.0f == control_value)
+		{
+			text_box->setText(LLTrans::getString("Off"));
+		}
+		else
+		{
+			// 13 is the maximum value of this control set in panel_preferences_graphics1.xml
+			control_value = exp(13.0f - control_value) + 20000.0f;
+		}
+
+		gSavedSettings.setU32("RenderAutoMuteRenderWeightLimit", (U32)control_value);
 	}
 }
 
@@ -2152,6 +2204,18 @@ static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preferenc
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {
+// Don't do this on Mac as their braindead GL versioning
+// sets this when 8x and 16x are indeed available
+//
+#if !LL_DARWIN
+	if (gGLManager.mIsIntel || gGLManager.mGLVersion < 3.f)
+	{ //remove FSAA settings above "4x"
+		LLComboBox* combo = getChild<LLComboBox>("fsaa");
+		combo->remove("8x");
+		combo->remove("16x");
+	}
+#endif
+
 	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
 	combo->setLabel(LLTrans::getString("preset_combo_label"));
 
@@ -2171,7 +2235,7 @@ void LLPanelPreferenceGraphics::setPresetNamesInComboBox()
 {
 	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
 
-	EDefaultOptions option = DEFAULT_POSITION_TOP;
+	EDefaultOptions option = DEFAULT_SHOW;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_GRAPHIC, combo, option);
 }
 

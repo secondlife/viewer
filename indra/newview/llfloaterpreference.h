@@ -156,9 +156,7 @@ public:
 	// if the quality radio buttons are changed
 	void onChangeQuality(const LLSD& data);
 	
-	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateReflectionsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateShadowDetailText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box, const std::string& name);
 	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();

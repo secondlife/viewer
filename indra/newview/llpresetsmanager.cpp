@@ -99,20 +99,26 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 		{
 			std::string path = gDirUtilp->add(dir, file);
 			std::string name = gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true);
+			// Two things are happening here:
+			// 1 - Always put the active preset at the top of the list
+			// 2 - Possibly hide the default preset
 			if (PRESETS_DEFAULT != name)
 			{
-				mPresetNames.push_back(name);
+				if (name != gSavedSettings.getString("PresetGraphicActive"))
+				{
+					mPresetNames.push_back(name);
+				}
+				else
+				{
+					mPresetNames.insert(mPresetNames.begin(), name);
+				}
 			}
 			else
 			{
 				switch (default_option)
 				{
-					case DEFAULT_POSITION_TOP:
-						mPresetNames.insert(mPresetNames.begin(), name);
-						break;
-
-					case DEFAULT_POSITION_NORMAL:
-						mPresetNames.push_back(name);
+					case DEFAULT_SHOW:
+						mPresetNames.push_back(LLTrans::getString(PRESETS_DEFAULT));
 						break;
 
 					case DEFAULT_HIDE:
@@ -164,6 +170,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 			("RenderDeferredSSAO")
 			("RenderDepthOfField")
 			("RenderShadowDetail")
+			("RenderAutoMuteRenderWeightLimit")
 
 			("RenderAnisotropic")
 			("RenderFSAASamples")

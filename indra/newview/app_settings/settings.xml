@@ -15562,6 +15562,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>MaximumARC</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls RenderAutoMuteRenderWeightLimit in a non-linear fashion</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
 </map>
 </llsd>
 

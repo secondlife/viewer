@@ -74,10 +74,12 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 		{
 			LLPresetsManager::getInstance()->savePreset(mSubdirectory, PRESETS_DEFAULT);
 		}
-
+	}
+	else
+	{
 		LLSD args;
 		args["NAME"] = name;
-		LLNotificationsUtil::add("PresetDeleted", args);
+		LLNotificationsUtil::add("PresetNotDeleted", args);
 	}
 }
 

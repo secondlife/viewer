@@ -39,9 +39,8 @@ static const std::string PRESETS_CAMERA = "camera";
 
 enum EDefaultOptions
 {
-	DEFAULT_POSITION_TOP,		// Put "Default" as the first item in the combobox
-	DEFAULT_POSITION_NORMAL,	// No special positioning
-	DEFAULT_HIDE				// Do not display "Default" in the combobox
+	DEFAULT_SHOW,
+	DEFAULT_HIDE				// Do not display "Default" in a list
 };
 
 class LLPresetsManager : public LLSingleton<LLPresetsManager>

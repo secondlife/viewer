@@ -71,7 +71,7 @@ BOOL LLPanelPresetsPulldown::postBuild()
 void LLPanelPresetsPulldown::populatePanel()
 {
 	std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_GRAPHIC);
-	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_POSITION_NORMAL);
+	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_SHOW);
 
 	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_list");
 
