@@ -128,11 +128,11 @@ namespace tut
 	void math_object::test<8>()
 	{
 		F32 val = 430903.2f;
-		S32 val1 = llround(val);
-		ensure("float llround value 1", (430903 == val1));
+		S32 val1 = ll_round(val);
+		ensure("float ll_round value 1", (430903 == val1));
 		val = -430903.9f;
-		val1 = llround(val);
-		ensure("float llround value 2", (-430904 == val1));
+		val1 = ll_round(val);
+		ensure("float ll_round value 2", (-430904 == val1));
 	}
 
 	template<> template<>
