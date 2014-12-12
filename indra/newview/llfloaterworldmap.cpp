@@ -63,6 +63,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexture.h"
+#include "llviewerwindow.h"
 #include "llworldmap.h"
 #include "llworldmapmessage.h"
 #include "llworldmapview.h"
@@ -1633,4 +1634,11 @@ void LLFloaterWorldMap::onChangeMaturity()
 	{
 		gSavedSettings.setBOOL("ShowAdultEvents", FALSE);
 	}
+}
+
+void LLFloaterWorldMap::onFocusLost()
+{
+	gViewerWindow->showCursor();
+	LLWorldMapView* map_panel = (LLWorldMapView*)gFloaterWorldMap->mPanel;
+	map_panel->mPanning = FALSE;
 }
