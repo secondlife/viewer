@@ -26,18 +26,41 @@ $/LicenseInfo$
 """
 import os
 import sys
+import errno
 import re
 import subprocess
 
-autobuild=os.getenv('AUTOBUILD',
+_autobuild=os.getenv('AUTOBUILD',
                     'autobuild' if not ( sys.platform == 'win32' or sys.platform == 'cygwin')
                     else 'autobuild.cmd')
 
 pkg_line=re.compile('^([\w-]+):\s+(.*)$')
 
+def autobuild(*args):
+    """
+    Launch autobuild with specified command-line arguments.
+    Return its stdout pipe from which the caller can read.
+    """
+    # subprocess wants a list, not a tuple
+    command = [_autobuild] + list(args)
+    try:
+        child = subprocess.Popen(command,
+                                 stdin=None, stdout=subprocess.PIPE,
+                                 universal_newlines=True)
+    except OSError as err:
+        if err.errno != errno.ENOENT:
+            # Don't attempt to interpret anything but ENOENT
+            raise
+        # Here it's ENOENT: subprocess can't find the autobuild executable.
+        print >>sys.stderr, "packages-formatter on %s: can't run autobuild:\n%s\n%s" % \
+              (sys.platform, ' '.join(command), err)
+        sys.exit(1)
+
+    # no exceptions yet, let caller read stdout
+    return child.stdout
+
 version={}
-versions=subprocess.Popen([autobuild, 'install', '--versions'],
-                            stdin=None, stdout=subprocess.PIPE, universal_newlines=True).stdout
+versions=autobuild('install', '--versions')
 for line in versions:
     pkg_info = pkg_line.match(line)
     if pkg_info:
@@ -50,8 +73,7 @@ for line in versions:
         sys.exit("Unrecognized --versions output: %s" % line)
 
 copyright={}
-copyrights=subprocess.Popen([autobuild, 'install', '--copyrights'],
-                            stdin=None, stdout=subprocess.PIPE, universal_newlines=True).stdout
+copyrights=autobuild('install', '--copyrights')
 viewer_copyright = copyrights.readline() # first line is the copyright for the viewer itself
 for line in copyrights:
     pkg_info = pkg_line.match(line)
