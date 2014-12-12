@@ -160,9 +160,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>23f92889da917d0ebe542a77dab951ab</string>
+              <string>c296845cad075250c1ae2620f175a957</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297177/arch/Darwin/installer/boost-1.57-darwin-297177.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297445/arch/Darwin/installer/boost-1.57-darwin-297445.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -172,9 +172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cf9b03e79742944200ad3ab214b06a07</string>
+              <string>fb1537f7ad0b490fcb4f096c15dce9cd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297177/arch/Linux/installer/boost-1.57-linux-297177.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297445/arch/Linux/installer/boost-1.57-linux-297445.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -184,9 +184,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>37ea0a0d2e276bdc3aaf7cbf29ad8b1a</string>
+              <string>76a607d8a625062b9a63a88b62819894</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297177/arch/CYGWIN/installer/boost-1.57-windows-297177.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297445/arch/CYGWIN/installer/boost-1.57-windows-297445.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -212,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7dfdc5abb5ee54ddb5cf34ff99fbf68e</string>
+              <string>66849777a83cb69cec3c06b07da7cd3d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297187/arch/Darwin/installer/colladadom-2.3.297187-darwin-297187.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Darwin/installer/colladadom-2.3.297450-darwin-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -224,9 +224,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>94323c795f5af2aa7073156731b7f8ac</string>
+              <string>d627c2a679f3afb8d3e090d42f53cd2e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297187/arch/Linux/installer/colladadom-2.3.297187-linux-297187.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Linux/installer/colladadom-2.3.297450-linux-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -236,16 +236,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>904fc9bb513fc07b9d72312fa07d001b</string>
+              <string>220897a1893a188aa9d31efb48909878</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297187/arch/CYGWIN/installer/colladadom-2.3.297187-windows-297187.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/CYGWIN/installer/colladadom-2.3.297450-windows-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.297187</string>
+        <string>2.3.297450</string>
       </map>
       <key>curl</key>
       <map>
