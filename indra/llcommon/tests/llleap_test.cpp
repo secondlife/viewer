@@ -17,7 +17,7 @@
 // std headers
 // external library headers
 #include <boost/assign/list_of.hpp>
-#include <boost/lambda/lambda.hpp>
+#include <boost/phoenix/core/argument.hpp>
 #include <boost/foreach.hpp>
 // other Linden headers
 #include "../test/lltut.h"
@@ -109,7 +109,7 @@ namespace tut
         llleap_data():
             reader(".py",
                    // This logic is adapted from vita.viewerclient.receiveEvent()
-                   boost::lambda::_1 <<
+                   boost::phoenix::placeholders::arg1 <<
                    "import re\n"
                    "import os\n"
                    "import sys\n"
@@ -403,7 +403,7 @@ namespace tut
         AckAPI api;
         Result result;
         NamedTempFile script("py",
-                             boost::lambda::_1 <<
+                             boost::phoenix::placeholders::arg1 <<
                              "from " << reader_module << " import *\n"
                              // make a request on our little API
                              "request(pump='" << api.getName() << "', data={})\n"
@@ -441,7 +441,7 @@ namespace tut
         ReqIDAPI api;
         Result result;
         NamedTempFile script("py",
-                             boost::lambda::_1 <<
+                             boost::phoenix::placeholders::arg1 <<
                              "import sys\n"
                              "from " << reader_module << " import *\n"
                              // Note that since reader imports llsd, this
@@ -484,7 +484,7 @@ namespace tut
         ReqIDAPI api;
         Result result;
         NamedTempFile script("py",
-                             boost::lambda::_1 <<
+                             boost::phoenix::placeholders::arg1 <<
                              "import sys\n"
                              "from " << reader_module << " import *\n"
                              // Generate a very large string value.
