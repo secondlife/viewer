@@ -1742,6 +1742,8 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 				}
 			}
 		}
+
+		genBBoxes(FALSE);
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local
 	else
@@ -4973,7 +4975,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					facep->clearVertexBuffer();
 				}		
 			}
-
+			
 			if (is_rigged)
 			{
 				if (!drawablep->isState(LLDrawable::RIGGED))
@@ -4989,7 +4991,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				drawablep->clearState(LLDrawable::RIGGED);
 			}
-			
 		}
 	}
 
@@ -5464,8 +5465,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 					flexi = flexi || facep->getViewerObject()->getVolume()->isUnique();
 				}
-				}
 			}
+		}
 
 
 		if (flexi && buffer_usage && buffer_usage != GL_STREAM_DRAW_ARB)
