@@ -864,13 +864,10 @@ void LLFloaterPreference::onBtnOK()
 		pPathfindingConsole->onRegionBoundaryCross();
 	}
 
-	if (LLStartUp::getStartupState() == STATE_STARTED)
-	{
-		// Write settings to currently defined preset.  This will recreate a missing preset file
-		// and ensure the preset file matches the current settings (which may have been changed
-		// via some other means).
-		LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, gSavedSettings.getString("PresetGraphicActive"));
-	}
+	// Write settings to currently defined preset.  This will recreate a missing preset file
+	// and ensure the preset file matches the current settings (which may have been changed
+	// via some other means).
+	LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, gSavedSettings.getString("PresetGraphicActive"));
 }
 
 // static 
@@ -1208,6 +1205,7 @@ void LLFloaterPreference::refreshEnabledState()
 	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
+	getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
 
 	/* Disabling this block of code because canUseAntiAliasing currently always returns true
 	// anti-aliasing
@@ -1408,19 +1406,19 @@ void LLFloaterPreference::refresh()
 	// sliders and their text boxes
 	//	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
 	// slider text boxes
-	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",		true), getChild<LLTextBox>("ObjectMeshDetailText",		true), "ObjectMeshDetail");
-	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true), "FlexibleMeshDetail");
-	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true), "TreeMeshDetail");
-	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true), "AvatarMeshDetail");
-	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail2",		true), getChild<LLTextBox>("AvatarMeshDetailText2",		true), "AvatarMeshDetail2");
-	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true), "AvatarPhysicsDetail");
-	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true), "TerrainMeshDetail");
-	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true), "RenderPostProcess");
-	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true), "SkyMeshDetail");
-	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true), "TerrainDetail");	
-	updateSliderText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true), "MaximumARC");	
-	updateSliderText(getChild<LLSliderCtrl>("Reflections",		true), getChild<LLTextBox>("ReflectionsText",			true), "Reflections");	
-	updateSliderText(getChild<LLSliderCtrl>("ShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true), "ShadowDetail");	
+	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",		true), getChild<LLTextBox>("ObjectMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true));
+	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail2",		true), getChild<LLTextBox>("AvatarMeshDetailText2",		true));
+	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
+	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
+	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
+	updateSliderText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true));	
+	updateSliderText(getChild<LLSliderCtrl>("Reflections",		true), getChild<LLTextBox>("ReflectionsText",			true));	
+	updateSliderText(getChild<LLSliderCtrl>("ShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true));	
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1672,19 +1670,12 @@ void LLFloaterPreference::refreshUI()
 	refresh();
 }
 
-void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box, const std::string& name)
+void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
 {
 	if (text_box == NULL || ctrl== NULL)
 		return;
 	
-	// get range and points when text should change
-	F32 value = (F32)ctrl->getValue().asReal();
-	F32 min = ctrl->getMinValue();
-	F32 max = ctrl->getMaxValue();
-	F32 range = max - min;
-	llassert(range > 0);
-	F32 midPoint = min + range / 3.0f;
-	F32 highPoint = min + (2.0f * range / 3.0f);
+	std::string name = ctrl->getName();
 
 	if ("ShadowDetail" == name)
 	{
@@ -1699,6 +1690,15 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 		text_box->setText(getString("Reflections" + llformat("%d", value)));
 		return;
 	}
+
+	// get range and points when text should change
+	F32 value = (F32)ctrl->getValue().asReal();
+	F32 min = ctrl->getMinValue();
+	F32 max = ctrl->getMaxValue();
+	F32 range = max - min;
+	llassert(range > 0);
+	F32 midPoint = min + range / 3.0f;
+	F32 highPoint = min + (2.0f * range / 3.0f);
 
 	// choose the right text
 	if (value < midPoint)
@@ -1723,8 +1723,21 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 		}
 		else
 		{
-			// 13 is the maximum value of this control set in panel_preferences_graphics1.xml
-			control_value = exp(13.0f - control_value) + 20000.0f;
+			// 100 is the maximum value of this control set in panel_preferences_graphics1.xml
+			F32 minp = 0.0f;
+			F32 maxp = 100.0f;
+
+			// The result should be between 20,000 and 500,000
+			F32 minv = log(20000.0f);
+			F32 maxv = log(500000.0f);
+
+			// calculate adjustment factor
+			F32 scale = (maxv - minv) / (maxp - minp);
+
+			control_value = exp(minv + scale * (control_value - minp));
+
+			// Invert result
+			control_value = 500000.0f - control_value;
 		}
 
 		gSavedSettings.setU32("RenderAutoMuteRenderWeightLimit", (U32)control_value);

@@ -550,13 +550,13 @@
             follows="left|top"
             height="16"
             initial_value="0"
-            increment=".1"
+            increment="1"
             label="Maximum ARC:"
             label_width="185"
             layout="topleft"
             left="30"
             min_val="0"
-            max_val="13"
+            max_val="100"
             name="MaximumARC"
             show_text="false"
             top_delta="16"
@@ -1158,6 +1158,5 @@
       <button.commit_callback
         function="Pref.HardwareDefaults" />
     </button>
-
   </tab_container>
 </panel>
