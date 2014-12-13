@@ -246,7 +246,7 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 	llofstream filtersFile(filterSaveName.str());
 	if(!LLSDSerialize::toPrettyXML(filterRoot, filtersFile))
 	{
-		LL_WARNS() << "Could not write to filters save file " << filterSaveName << LL_ENDL;
+		LL_WARNS() << "Could not write to filters save file " << filterSaveName.str() << LL_ENDL;
 	}
 	else
 		filtersFile.close();
