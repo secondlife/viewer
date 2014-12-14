@@ -1088,12 +1088,14 @@ void LLFloaterPreference::buildPopupLists()
 void LLFloaterPreference::refreshEnabledState()
 {	
 	LLUICtrl* ctrl_reflections = getChild<LLUICtrl>("Reflections");
+	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 	
 	// Reflections
 	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
 		&& gGLManager.mHasCubeMap
 		&& LLCubeMap::sUseCubeMaps;
 	ctrl_reflections->setEnabled(reflections);
+	reflections_text->setEnabled(reflections);
 	
 	// Bump & Shiny	
 	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
@@ -1129,6 +1131,7 @@ void LLFloaterPreference::refreshEnabledState()
 	// Global Shader Enable
 	LLCheckBoxCtrl* ctrl_shader_enable   = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLSliderCtrl*   terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
+	LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
 	
 	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
 	
@@ -1137,18 +1140,25 @@ void LLFloaterPreference::refreshEnabledState()
 	{
 		terrain_detail->setValue(1);
 		terrain_detail->setEnabled(FALSE);
+		terrain_text->setEnabled(false);
 	}
 	else
 	{
-		terrain_detail->setEnabled(TRUE);		
+		terrain_detail->setEnabled(TRUE);
+		terrain_text->setEnabled(true);
 	}
 	
 	// WindLight
 	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	
+	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
+	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
+
 	// *HACK just checks to see if we can use shaders... 
 	// maybe some cards that use shaders, but don't support windlight
 	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+
+	sky->setEnabled(ctrl_wind_light->get() && shaders);
+	sky_text->setEnabled(ctrl_wind_light->get() && shaders);
 
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
@@ -1168,6 +1178,7 @@ void LLFloaterPreference::refreshEnabledState()
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
 	LLUICtrl* ctrl_shadow = getChild<LLUICtrl>("ShadowDetail");
+	LLTextBox* shadow_text = getChild<LLTextBox>("RenderShadowDetailText");
 
 	// note, okay here to get from ctrl_deferred as it's twin, ctrl_deferred2 will alway match it
 	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
@@ -1180,6 +1191,7 @@ void LLFloaterPreference::refreshEnabledState()
 	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
 
 	ctrl_shadow->setEnabled(enabled);
+	shadow_text->setEnabled(enabled);
 
 	// Hardware settings
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
@@ -1249,6 +1261,7 @@ void LLFloaterPreference::refreshEnabledState()
 void LLFloaterPreference::disableUnavailableSettings()
 {	
 	LLUICtrl* ctrl_reflections   = getChild<LLUICtrl>("Reflections");
+	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
 	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
@@ -1257,8 +1270,11 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLCheckBoxCtrl* ctrl_deferred2 = getChild<LLCheckBoxCtrl>("UseLightShaders2");
 	LLUICtrl* ctrl_shadows = getChild<LLUICtrl>("ShadowDetail");
+	LLTextBox* shadows_text = getChild<LLTextBox>("RenderShadowDetailText");
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
+	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
+	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
 
 	// if vertex shaders off, disable all shader related products
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
@@ -1268,9 +1284,13 @@ void LLFloaterPreference::disableUnavailableSettings()
 		
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
-		
+
+		sky->setEnabled(false);
+		sky_text->setEnabled(false);
+
 		ctrl_reflections->setEnabled(FALSE);
 		ctrl_reflections->setValue(0);
+		reflections_text->setEnabled(false);
 		
 		ctrl_avatar_vp->setEnabled(FALSE);
 		ctrl_avatar_vp->setValue(FALSE);
@@ -1280,6 +1300,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(false);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
@@ -1299,9 +1320,13 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
 
+		sky->setEnabled(false);
+		sky_text->setEnabled(false);
+
 		//deferred needs windlight, disable deferred
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(false);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
@@ -1321,6 +1346,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(false);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
@@ -1346,6 +1372,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(false);
 	}
 
 	// disabled reflections
@@ -1353,6 +1380,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_reflections->setEnabled(FALSE);
 		ctrl_reflections->setValue(FALSE);
+		reflections_text->setEnabled(false);
 	}
 	
 	// disabled av
@@ -1367,6 +1395,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 		//deferred needs AvatarVP, disable deferred
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
+		shadows_text->setEnabled(false);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
