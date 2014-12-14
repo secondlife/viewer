@@ -187,6 +187,7 @@ public:
 	typedef boost::signals2::signal<void ()> status_updated_signal_t;
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
 	U32  getSLMStatus() const { return mMarketPlaceStatus; }
+	void setSLMStatus(U32 status);
     void getSLMListings();
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
     
@@ -234,7 +235,6 @@ private:
     bool setCountOnHand(const LLUUID& folder_id, S32 count, bool update = true);
     
     // Private SLM API : package data and get/post/put requests to the SLM Server through the SLM API
-	void setSLMStatus(U32 status);
     void createSLMListing(const LLUUID& folder_id);
     void getSLMListing(S32 listing_id);
     void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, S32 count);

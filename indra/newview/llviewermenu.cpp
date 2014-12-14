@@ -422,8 +422,10 @@ void check_merchant_status()
 {
     if (!gSavedSettings.getBOOL("InventoryOutboxDisplayBoth"))
     {
-        // Hide both merchant related menu items
-        gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(FALSE);
+        // Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
+        LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
+        
+        // Hide SLM related menu item
         gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
         
         // Also disable the toolbar button for Marketplace Listings
@@ -432,10 +434,17 @@ void check_merchant_status()
         
         // Launch an SLM test connection to get the merchant status
         LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
-        
-        // Launch a Merchant Outbox test connection to get the migration status
-        LLMarketplaceInventoryImporter::instance().setStatusReportCallback(boost::bind(&set_merchant_outbox_menu,_1, _2));
-        LLMarketplaceInventoryImporter::instance().initialize();
+
+        // Do the Merchant Outbox init only once per session
+        if (LLMarketplaceInventoryImporter::instance().getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+        {
+            // Hide merchant outbox related menu item
+            gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(FALSE);
+            
+            // Launch a Merchant Outbox test connection to get the migration status
+            LLMarketplaceInventoryImporter::instance().setStatusReportCallback(boost::bind(&set_merchant_outbox_menu,_1, _2));
+            LLMarketplaceInventoryImporter::instance().initialize();
+        }
     }
 }
 

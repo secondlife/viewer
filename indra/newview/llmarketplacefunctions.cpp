@@ -1178,10 +1178,13 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
     else
     {
         // Initiate SLM connection and set responder
-        mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
         std::string url = getSLMConnectURL("/merchant");
-        log_SLM_infos("LLHTTPClient::get", url, "");
-        LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
+        if (url != "")
+        {
+            mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
+            log_SLM_infos("LLHTTPClient::get", url, "");
+            LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
+        }
     }
 }
 
@@ -1325,16 +1328,10 @@ std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
     {
         // Get DirectDelivery cap
         url = regionp->getCapability("DirectDelivery");
-        // *TODO : Take this DirectDelivery cap coping mechanism hack out
-        if (url == "")
+        if (url != "")
         {
-            url = "https://marketplace.secondlife-staging.com/api/1/viewer/" + gAgentID.asString();
+            url += route;
         }
-        else
-        {
-            llinfos << "Merov : DD cap = " << url << ", agent = " << gAgentID.asString() << llendl;
-        }
-        url += route;
     }
 	return url;
 }

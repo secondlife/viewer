@@ -1876,11 +1876,8 @@ bool idle_startup()
 
 		display_startup();
         
-        // Init SLM Marketplace connection so we know which UI should be used for the user as a merchant
-        // Note: Eventually, all merchant will be migrated to the new SLM system and there will be no
-        // reason to show the old UI at all.
-        // *TODO : Suppress the Merchant Outbox UI completely
-        check_merchant_status();
+        // *TODO : Uncomment that line once the whole grid migrated to SLM and suppress it from LLAgent::handleTeleportFinished() (llagent.cpp)
+        //check_merchant_status();
 
 		display_startup();
 
