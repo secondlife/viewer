@@ -36,6 +36,8 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llviewercontrol.h"
+#include "llfloaterpreference.h"
+#include "llfloaterreg.h"
 
 LLPresetsManager::LLPresetsManager()
 {
@@ -137,51 +139,18 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 	llassert(!name.empty());
 
 	std::vector<std::string> name_list;
-	// This ugliness is the current list of all the control variables in the graphics and hardware
-	// preferences floaters or the settings for camera views.
-	// Additions or subtractions to the control variables in the floaters must also be reflected here.
+
 	if(PRESETS_GRAPHIC == subdirectory)
 	{
 		gSavedSettings.setString("PresetGraphicActive", name);
 
-		name_list = boost::assign::list_of
-			("RenderQualityPerformance")
-			("RenderFarClip")
-			("RenderMaxPartCount")
-			("RenderGlowResolutionPow")
-			("RenderTerrainDetail")
-			("RenderAvatarLODFactor")
-			("RenderAvatarMaxVisible")
-			("RenderUseImpostors")
-			("RenderTerrainLODFactor")
-			("RenderTreeLODFactor")
-			("RenderVolumeLODFactor")
-			("RenderFlexTimeFactor")
-			("RenderTransparentWater")
-			("RenderObjectBump")
-			("RenderLocalLights")
-			("VertexShaderEnable")
-			("RenderAvatarVP")
-			("RenderAvatarCloth")
-			("RenderReflectionDetail")
-			("WindLightUseAtmosShaders")
-			("WLSkyDetail")
-			("RenderDeferred")
-			("RenderDeferredSSAO")
-			("RenderDepthOfField")
-			("RenderShadowDetail")
-			("RenderAutoMuteRenderWeightLimit")
-
-			("RenderAnisotropic")
-			("RenderFSAASamples")
-			("RenderGamma")
-			("RenderVBOEnable")
-			("RenderCompressTextures")
-			("TextureMemory")
-			("RenderFogRatio")
-
-			("PresetGraphicActive");
+		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+		if (instance)
+		{
+			instance->getControlNames(name_list);
+			name_list.push_back("PresetGraphicActive");
 		}
+	}
 
 	if(PRESETS_CAMERA == subdirectory)
 	{

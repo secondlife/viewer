@@ -93,6 +93,7 @@ public:
 	void saveAvatarProperties( void );
 	void selectPrivacyPanel();
 	void selectChatPanel();
+	void getControlNames(std::vector<std::string>& names);
 
 protected:	
 	void		onBtnOK();
@@ -110,7 +111,6 @@ protected:
 	// if the custom settings box is clicked
 	void onChangeCustom();
 	void updateMeterText(LLUICtrl* ctrl);
-	void onOpenHardwareSettings();
 	// callback for defaults
 	void setHardwareDefaults();
 	void setRecommended();

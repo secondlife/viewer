@@ -340,7 +340,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
-	mCommitCallbackRegistrar.add("Pref.HardwareSettings",		boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
@@ -788,6 +787,42 @@ void LLFloaterPreference::setHardwareDefaults()
 	LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
 }
 
+void LLFloaterPreference::getControlNames(std::vector<std::string>& names)
+{
+	LLView* view = findChild<LLView>("display");
+	if (view)
+	{
+		std::list<LLView*> stack;
+		stack.push_back(view);
+		while(!stack.empty())
+		{
+			// Process view on top of the stack
+			LLView* curview = stack.front();
+			stack.pop_front();
+
+			LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+			if (ctrl)
+			{
+				LLControlVariable* control = ctrl->getControlVariable();
+				if (control)
+				{
+					std::string control_name = control->getName();
+					if (std::find(names.begin(), names.end(), control_name) == names.end())
+					{
+						names.push_back(control_name);
+					}
+				}
+			}
+
+			for (child_list_t::const_iterator iter = curview->getChildList()->begin();
+				iter != curview->getChildList()->end(); ++iter)
+			{
+				stack.push_back(*iter);
+			}
+		}
+	}
+}
+
 //virtual
 void LLFloaterPreference::onClose(bool app_quitting)
 {
@@ -799,11 +834,6 @@ void LLFloaterPreference::onClose(bool app_quitting)
 	}
 }
 
-void LLFloaterPreference::onOpenHardwareSettings()
-{
-	LLFloater* floater = LLFloaterReg::showInstance("prefs_hardware_settings");
-	addDependentFloater(floater, FALSE);
-}
 // static 
 void LLFloaterPreference::onBtnOK()
 {
