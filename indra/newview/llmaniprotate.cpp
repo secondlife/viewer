@@ -1240,10 +1240,10 @@ LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
 	F32 dist_from_sphere_center = sqrt(delta_x * delta_x + delta_y * delta_y);
 
 	LLVector3 axis = mMouseDown % mMouseCur;
+	F32 angle = atan2(sqrtf(axis * axis), mMouseDown * mMouseCur);
 	axis.normVec();
-	F32 angle = acos(mMouseDown * mMouseCur);
 	LLQuaternion sphere_rot( angle, axis );
-
+	
 	if (is_approx_zero(1.f - mMouseDown * mMouseCur))
 	{
 		return LLQuaternion::DEFAULT;
@@ -1636,9 +1636,9 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 			mInSnapRegime = FALSE;
 		}
 
-		angle = acos(mMouseCur * mMouseDown);
-
-		F32 dir = (mMouseDown % mMouseCur) * constraint_axis;  // cross product
+		LLVector3 cross_product = mMouseDown % mMouseCur;
+		angle = atan2(sqrtf(cross_product * cross_product), mMouseCur * mMouseDown);
+		F32 dir = cross_product * constraint_axis;  // cross product
 		if( dir < 0.f )
 		{
 			angle *= -1.f;
