@@ -3121,12 +3121,10 @@ bool LLVOAvatar::isVisuallyMuted()
 				else
 				{	// Determine if visually muted or not
 
-					U32 max_cost = (U32) (max_render_cost);
-
 					muted = LLMuteList::getInstance()->isMuted(getID()) ||
 						(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
 						(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f) ||
-						(mVisualComplexity > max_cost && max_render_cost > 0);
+						(mVisualComplexity > max_render_cost && max_render_cost > 0);
 
 					// Could be part of the grand || collection above, but yanked out to make the logic visible
 					if (!muted)
@@ -7967,11 +7965,17 @@ void LLVOAvatar::idleUpdateRenderCost()
 		{
 			mText->clearString(); // clear debug text
 		}
-		
+
+		/*
+		 * NOTE: the logic for whether or not each of the values below
+		 *       controls muting MUST match that in the isVisuallyMuted method.
+		 */
+
+		// Render Cost (ARC)
 		calculateUpdateRenderCost();				// Update mVisualComplexity if needed	
 
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
-		info_line = llformat("%d arc", mVisualComplexity);
+		info_line = llformat("%d ARC", mVisualComplexity);
 
 		if (max_render_cost != 0) // zero means don't care, so don't bother coloring based on this
 		{
@@ -7980,16 +7984,37 @@ void LLVOAvatar::idleUpdateRenderCost()
 			info_color.set(red_level, green_level, 0.0, 1.0);
 			info_style = (  mVisualComplexity > max_render_cost
 						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
-
 		}
 		else
 		{
 			info_color.set(LLColor4::grey);
 			info_style = LLFontGL::NORMAL;
 		}
-		LL_DEBUGS() << "adding max cost " << info_line << LL_ENDL;
 		mText->addLine(info_line, info_color, info_style);
 
+		// TEMPORARY Reported Cost
+		info_line = llformat("%d reported ARC", mReportedVisualComplexity);
+		mText->addLine(info_line, info_color /* same as real ARC */, LLFontGL::ITALIC);
+
+		// Visual rank
+		info_line = llformat("%d rank", mVisibilityRank);
+
+		if (sMaxVisible != 0) // zero means no limit, so don't bother coloring based on this
+		{
+			green_level = 1.f-llclamp(((F32)sMaxVisible-(F32)mVisibilityRank)/(F32)sMaxVisible, 0.f, 1.f);
+			red_level   = llmin((F32) mVisibilityRank/(F32)sMaxVisible, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  mVisibilityRank > sMaxVisible
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
+		}
+		else
+		{
+			info_color.set(LLColor4::grey);
+			info_style = LLFontGL::NORMAL;
+		}
+		mText->addLine(info_line, info_color, info_style);
+
+		// Attachment Surface Area
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0);
 		info_line = llformat("%.2f m^2", mAttachmentSurfaceArea);
 
@@ -8007,9 +8032,9 @@ void LLVOAvatar::idleUpdateRenderCost()
 			info_color.set(LLColor4::grey);
 			info_style = LLFontGL::NORMAL;
 		}
-		LL_DEBUGS() << "adding max area " << info_line << LL_ENDL;
 		mText->addLine(info_line, info_color, info_style);
 
+		// Attachment byte limit
 		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
 		info_line = llformat("%.1f KB", mAttachmentGeometryBytes/1024.f);
 		if (max_attachment_bytes != 0) // zero means don't care, so don't bother coloring based on this
@@ -8025,8 +8050,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 			info_color.set(LLColor4::grey);
 			info_style = LLFontGL::NORMAL;
 		}
-		LL_DEBUGS() << "adding max bytes " << info_line << LL_ENDL;
-		mText->addLine(info_line, info_color);
+		mText->addLine(info_line, info_color, info_style);
 		
 		updateText(); // corrects position
 	}
@@ -8049,7 +8073,8 @@ void LLVOAvatar::calculateUpdateRenderCost()
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
-		    const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+		    const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
+				= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
 			ETextureIndex tex_index = baked_dict->mTextureIndex;
 			if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
 			{
@@ -8061,11 +8086,11 @@ void LLVOAvatar::calculateUpdateRenderCost()
 		}
 
 
-		for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
-			 iter != mAttachmentPoints.end();
-			 ++iter)
+		for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+			 attachment_point != mAttachmentPoints.end();
+			 ++attachment_point)
 		{
-			LLViewerJointAttachment* attachment = iter->second;
+			LLViewerJointAttachment* attachment = attachment_point->second;
 			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
@@ -8095,10 +8120,12 @@ void LLVOAvatar::calculateUpdateRenderCost()
 								}
 							}
 
-							for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
+							for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+								 volume_texture != textures.end();
+								 ++volume_texture)
 							{
 								// add the cost of each individual texture in the linkset
-								cost += iter->second;
+								cost += volume_texture->second;
 							}
 						}
 					}
