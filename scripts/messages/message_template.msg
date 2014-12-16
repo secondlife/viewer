@@ -3595,7 +3595,7 @@ version 2.0
 		{	Flags				U32	}
 	}
 	{
-		AppearanceHover		Single
+		AppearanceHover		Variable
 		{	HoverHeight	LLVector3	}
 	}
 }

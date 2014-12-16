@@ -776,6 +776,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
+	mLastAppearanceMessageTimer.reset();
 	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
 	mLastPelvisToFoot = 0.0f;
 	mPelvisFixup = 0.0f;
@@ -3222,6 +3223,13 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		if (mHoverOffset[2] != 0.0)
 		{
 			debug_line += llformat(" hov_z: %f", mHoverOffset[2]);
+		}
+		F32 elapsed = mLastAppearanceMessageTimer.getElapsedTimeF32();
+		static char *elapsed_chars = "Xx*...";
+		U32 bucket = U32(elapsed*2);
+		if (bucket < strlen(elapsed_chars))
+		{
+			debug_line += llformat(" %c", elapsed_chars[bucket]);
 		}
 		addDebugText(debug_line);
 	}
@@ -7147,6 +7155,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
+	mLastAppearanceMessageTimer.reset();
+
 	ESex old_sex = getSex();
 
 	LLAppearanceMessageContents contents;
@@ -7331,6 +7341,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		}
 	}
 
+	if (isSelf())
+	{
+		LL_INFOS("Avatar") << "hover was set: " << contents.mHoverOffsetWasSet << " value_z " << contents.mHoverOffset[2] << LL_ENDL;
+	}
+	
 	if (contents.mHoverOffsetWasSet && !isSelf())
 	{
 		// Got an update for some other avatar.
