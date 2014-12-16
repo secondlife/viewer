@@ -3225,7 +3225,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			debug_line += llformat(" hov_z: %f", mHoverOffset[2]);
 		}
 		F32 elapsed = mLastAppearanceMessageTimer.getElapsedTimeF32();
-		static char *elapsed_chars = "Xx*...";
+		static const char *elapsed_chars = "Xx*...";
 		U32 bucket = U32(elapsed*2);
 		if (bucket < strlen(elapsed_chars))
 		{
