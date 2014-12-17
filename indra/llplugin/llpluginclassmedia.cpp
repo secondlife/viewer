@@ -32,8 +32,6 @@
 #include "llpluginclassmedia.h"
 #include "llpluginmessageclasses.h"
 
-#include "llqtwebkit.h"
-
 static int LOW_PRIORITY_TEXTURE_SIZE_DEFAULT = 256;
 
 static int nextPowerOf2( int value )

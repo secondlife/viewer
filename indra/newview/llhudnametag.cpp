@@ -310,7 +310,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	{
 		LLUIImagePtr rect_top_image = LLUI::getUIImage("Rounded_Rect_Top");
 		LLRect label_top_rect = screen_rect;
-		const S32 label_height = llround((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
+		const S32 label_height = ll_round((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
 		label_top_rect.mBottom = label_top_rect.mTop - label_height;
 		LLColor4 label_top_color = text_color;
 		label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;

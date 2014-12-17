@@ -1624,7 +1624,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			{
 				F32 w = weight[j][k];
 
-				idx[k] = llclamp((S32) floorf(w), 0, 63);
+				idx[k] = llclamp((S32) floorf(w), 0, JOINT_COUNT-1);
+
 				wght[k] = w - floorf(w);
 				scale += wght[k];
 			}

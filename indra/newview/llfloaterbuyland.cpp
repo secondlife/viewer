@@ -389,9 +389,9 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	}
 
 	mParcelBillableArea =
-		llround(mRegion->getBillableFactor() * mParcelActualArea);
+		ll_round(mRegion->getBillableFactor() * mParcelActualArea);
 
- 	mParcelSupportedObjects = llround(
+ 	mParcelSupportedObjects = ll_round(
 		parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()); 
  	// Can't have more than region max tasks, regardless of parcel 
  	// object bonus factor. 

@@ -281,7 +281,7 @@ S32 LLViewerParcelMgr::getSelectedArea() const
 		F64 width = mEastNorth.mdV[VX] - mWestSouth.mdV[VX];
 		F64 height = mEastNorth.mdV[VY] - mWestSouth.mdV[VY];
 		F32 area = (F32)(width * height);
-		rv = llround(area);
+		rv = ll_round(area);
 	}
 	return rv;
 }
@@ -301,10 +301,10 @@ void LLViewerParcelMgr::writeHighlightSegments(F32 west, F32 south, F32 east,
 											   F32 north)
 {
 	S32 x, y;
-	S32 min_x = llround( west / PARCEL_GRID_STEP_METERS );
-	S32 max_x = llround( east / PARCEL_GRID_STEP_METERS );
-	S32 min_y = llround( south / PARCEL_GRID_STEP_METERS );
-	S32 max_y = llround( north / PARCEL_GRID_STEP_METERS );
+	S32 min_x = ll_round( west / PARCEL_GRID_STEP_METERS );
+	S32 max_x = ll_round( east / PARCEL_GRID_STEP_METERS );
+	S32 min_y = ll_round( south / PARCEL_GRID_STEP_METERS );
+	S32 max_y = ll_round( north / PARCEL_GRID_STEP_METERS );
 
 	const S32 STRIDE = mParcelsPerEdge+1;
 
@@ -416,12 +416,12 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectParcelAt(const LLVector3d& pos_
 	LLVector3d northeast = pos_global;
 
 	southwest -= LLVector3d( PARCEL_GRID_STEP_METERS/2, PARCEL_GRID_STEP_METERS/2, 0 );
-	southwest.mdV[VX] = llround( southwest.mdV[VX], (F64)PARCEL_GRID_STEP_METERS );
-	southwest.mdV[VY] = llround( southwest.mdV[VY], (F64)PARCEL_GRID_STEP_METERS );
+	southwest.mdV[VX] = ll_round( southwest.mdV[VX], (F64)PARCEL_GRID_STEP_METERS );
+	southwest.mdV[VY] = ll_round( southwest.mdV[VY], (F64)PARCEL_GRID_STEP_METERS );
 
 	northeast += LLVector3d( PARCEL_GRID_STEP_METERS/2, PARCEL_GRID_STEP_METERS/2, 0 );
-	northeast.mdV[VX] = llround( northeast.mdV[VX], (F64)PARCEL_GRID_STEP_METERS );
-	northeast.mdV[VY] = llround( northeast.mdV[VY], (F64)PARCEL_GRID_STEP_METERS );
+	northeast.mdV[VX] = ll_round( northeast.mdV[VX], (F64)PARCEL_GRID_STEP_METERS );
+	northeast.mdV[VY] = ll_round( northeast.mdV[VY], (F64)PARCEL_GRID_STEP_METERS );
 
 	// Snap to parcel
 	return selectLand( southwest, northeast, TRUE );

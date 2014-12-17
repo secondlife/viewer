@@ -36,7 +36,7 @@
 #pragma clang diagnostic ignored "-Wunused-private-field"
 #include "kdu_image.h"
 #pragma clang diagnostic pop
-#elif
+#else
 #include "kdu_image.h"
 #endif
 

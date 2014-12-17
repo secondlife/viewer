@@ -153,7 +153,7 @@ U32 LLTimeCtrl::getMinutes() const
 void LLTimeCtrl::setTime24(F32 time)
 {
 	time = llclamp(time, 0.0f, 23.99f); // fix out of range values
-	mTime = llround(time * MINUTES_PER_HOUR); // fixes values like 4.99999
+	mTime = ll_round(time * MINUTES_PER_HOUR); // fixes values like 4.99999
 
 	updateText();
 }

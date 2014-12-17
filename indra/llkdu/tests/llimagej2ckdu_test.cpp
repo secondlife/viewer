@@ -34,7 +34,7 @@
 #pragma clang diagnostic ignored "-Wunused-private-field"
 #include "llkdumem.h"
 #pragma clang diagnostic pop
-#elif
+#else
 #include "llkdumem.h"
 #endif
 

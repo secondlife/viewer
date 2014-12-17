@@ -80,10 +80,10 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	S32 top =	llmax(y, mDragStartY);
 	S32 bottom =llmin(y, mDragStartY);
 
-	left = llround((F32) left * LLUI::getScaleFactor().mV[VX]);
-	right = llround((F32) right * LLUI::getScaleFactor().mV[VX]);
-	top = llround((F32) top * LLUI::getScaleFactor().mV[VY]);
-	bottom = llround((F32) bottom * LLUI::getScaleFactor().mV[VY]);
+	left = ll_round((F32) left * LLUI::getScaleFactor().mV[VX]);
+	right = ll_round((F32) right * LLUI::getScaleFactor().mV[VX]);
+	top = ll_round((F32) top * LLUI::getScaleFactor().mV[VY]);
+	bottom = ll_round((F32) bottom * LLUI::getScaleFactor().mV[VY]);
 
 	F32 old_far_plane = LLViewerCamera::getInstance()->getFar();
 	F32 old_near_plane = LLViewerCamera::getInstance()->getNear();
@@ -881,13 +881,14 @@ void LLViewerObjectList::renderObjectBeacons()
 
 F32 gpu_benchmark()
 {
-	if (!gGLManager.mHasShaderObjects)
-	{ //don't bother benchmarking the fixed function
+	if (!gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
+	{ // don't bother benchmarking the fixed function
+      // or venerable drivers which don't support accurate timing anyway
+      // and are likely to be correctly identified by the GPU table already.
 		return -1.f;
 	}
 
-	
-	if (gBenchmarkProgram.mProgramObject == 0)
+    if (gBenchmarkProgram.mProgramObject == 0)
 	{
 		LLViewerShaderMgr::instance()->initAttribsAndUniforms();
 
@@ -920,7 +921,10 @@ F32 gpu_benchmark()
 	//number of samples to take
 	const S32 samples = 64;
 
-	LLGLSLShader::initProfile();
+	if (gGLManager.mHasTimerQuery)
+	{
+		LLGLSLShader::initProfile();
+	}
 
 	LLRenderTarget dest[count];
 	U32 source[count];
@@ -964,15 +968,15 @@ F32 gpu_benchmark()
 	v[0].set(-1,1,0);
 	v[1].set(-1,-3,0);
 	v[2].set(3,1,0);
+
 	buff->flush();
 
 	gBenchmarkProgram.bind();
-	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
-
-	//wait for any previoius GL commands to finish
-	glFinish();
 	
 	bool busted_finish = false;
+
+	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+	glFinish();
 
 	for (S32 c = -1; c < samples; ++c)
 	{
@@ -1013,6 +1017,7 @@ F32 gpu_benchmark()
 			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
+				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
 			}
 			else
 			{
@@ -1023,10 +1028,12 @@ F32 gpu_benchmark()
 
 	gBenchmarkProgram.unbind();
 
-	LLGLSLShader::finishProfile(false);
-	
-	LLImageGL::deleteTextures(count, source);
+	if (gGLManager.mHasTimerQuery)
+	{
+		LLGLSLShader::finishProfile(false);
+	}
 
+	LLImageGL::deleteTextures(count, source);
 
 	std::sort(results.begin(), results.end());
 
@@ -1037,27 +1044,20 @@ F32 gpu_benchmark()
 #if LL_DARWIN
     if (gbps > 512.f)
     { 
-        LL_INFOS() << "Memory bandwidth is improbably high and likely incorrect." << LL_ENDL;
+        LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
         //OSX is probably lying, discard result
         gbps = -1.f;
     }
 #endif
 
-	if (gGLManager.mHasTimerQuery)
-	{
-		F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
-		F32 seconds = ms/1000.f;
+	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
+	F32 seconds = ms/1000.f;
 
-		F64 samples_drawn = res*res*count*samples;
-		F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
-		gbps = samples_sec*8;
+	F64 samples_drawn = res*res*count*samples;
+	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
+	gbps = samples_sec*8;
 
-		LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << "ARB_timer_query unavailable." << LL_ENDL;
-	}
+	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
 
 	return gbps;
 }

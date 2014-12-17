@@ -287,8 +287,8 @@ void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 	{
 		if (fmodf((decimal_val * test_denominator) + 0.01f, 1.f) < 0.02f)
 		{
-			numerator = llround(decimal_val * test_denominator);
-			denominator = llround(test_denominator);
+			numerator = ll_round(decimal_val * test_denominator);
+			denominator = ll_round(test_denominator);
 			break;
 		}
 	}

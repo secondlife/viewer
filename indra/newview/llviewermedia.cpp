@@ -924,7 +924,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 					{
 						F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
 					
-						pimpl->setLowPrioritySizeLimit(llround(approximate_interest_dimension));
+						pimpl->setLowPrioritySizeLimit(ll_round(approximate_interest_dimension));
 					}
 				}
 				else
@@ -2330,8 +2330,8 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
 		texture_y = 1.0 + texture_y;
 
 	// scale x and y to texel units.
-	*x = llround(texture_x * mMediaSource->getTextureWidth());
-	*y = llround((1.0f - texture_y) * mMediaSource->getTextureHeight());
+	*x = ll_round(texture_x * mMediaSource->getTextureWidth());
+	*y = ll_round((1.0f - texture_y) * mMediaSource->getTextureHeight());
 
 	// Adjust for the difference between the actual texture height and the amount of the texture in use.
 	*y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());

@@ -558,7 +558,7 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
 
 	// Scale to have size "match" scale.  Compensates to get object to generally fill bounding box.
 
-	S32 total_sides = llround(sides / ang_scale);	// Total number of sides all around
+	S32 total_sides = ll_round(sides / ang_scale);	// Total number of sides all around
 
 	if (total_sides < 8)
 	{

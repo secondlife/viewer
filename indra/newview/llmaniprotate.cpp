@@ -368,9 +368,9 @@ void LLManipRotate::render()
 	LLQuaternion object_rot = first_object->getRotationEdit();
 	object_rot.getEulerAngles(&(euler_angles.mV[VX]), &(euler_angles.mV[VY]), &(euler_angles.mV[VZ]));
 	euler_angles *= RAD_TO_DEG;
-	euler_angles.mV[VX] = llround(fmodf(euler_angles.mV[VX] + 360.f, 360.f), 0.05f);
-	euler_angles.mV[VY] = llround(fmodf(euler_angles.mV[VY] + 360.f, 360.f), 0.05f);
-	euler_angles.mV[VZ] = llround(fmodf(euler_angles.mV[VZ] + 360.f, 360.f), 0.05f);
+	euler_angles.mV[VX] = ll_round(fmodf(euler_angles.mV[VX] + 360.f, 360.f), 0.05f);
+	euler_angles.mV[VY] = ll_round(fmodf(euler_angles.mV[VY] + 360.f, 360.f), 0.05f);
+	euler_angles.mV[VZ] = ll_round(fmodf(euler_angles.mV[VZ] + 360.f, 360.f), 0.05f);
 
 	renderXYZ(euler_angles);
 }
@@ -1240,10 +1240,10 @@ LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
 	F32 dist_from_sphere_center = sqrt(delta_x * delta_x + delta_y * delta_y);
 
 	LLVector3 axis = mMouseDown % mMouseCur;
+	F32 angle = atan2(sqrtf(axis * axis), mMouseDown * mMouseCur);
 	axis.normVec();
-	F32 angle = acos(mMouseDown * mMouseCur);
 	LLQuaternion sphere_rot( angle, axis );
-
+	
 	if (is_approx_zero(1.f - mMouseDown * mMouseCur))
 	{
 		return LLQuaternion::DEFAULT;
@@ -1524,7 +1524,6 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 				F32 mouse_angle = fmodf(atan2(projected_mouse * axis1, projected_mouse * axis2) * RAD_TO_DEG + 360.f, 360.f);
 				
 				F32 relative_mouse_angle = fmodf(mouse_angle + (SNAP_ANGLE_DETENTE / 2), SNAP_ANGLE_INCREMENT);
-				//fmodf(llround(mouse_angle * RAD_TO_DEG, 7.5f) + 360.f, 360.f);
 	
 				LLVector3 object_axis;
 				getObjectAxisClosestToMouse(object_axis);
@@ -1608,7 +1607,6 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 			F32 mouse_angle = fmodf(atan2(projected_mouse * axis1, projected_mouse * axis2) * RAD_TO_DEG + 360.f, 360.f);
 			
 			F32 relative_mouse_angle = fmodf(mouse_angle + (SNAP_ANGLE_DETENTE / 2), SNAP_ANGLE_INCREMENT);
-			//fmodf(llround(mouse_angle * RAD_TO_DEG, 7.5f) + 360.f, 360.f);
 
 			LLVector3 object_axis;
 			getObjectAxisClosestToMouse(object_axis);
@@ -1638,9 +1636,9 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 			mInSnapRegime = FALSE;
 		}
 
-		angle = acos(mMouseCur * mMouseDown);
-
-		F32 dir = (mMouseDown % mMouseCur) * constraint_axis;  // cross product
+		LLVector3 cross_product = mMouseDown % mMouseCur;
+		angle = atan2(sqrtf(cross_product * cross_product), mMouseCur * mMouseDown);
+		F32 dir = cross_product * constraint_axis;  // cross product
 		if( dir < 0.f )
 		{
 			angle *= -1.f;

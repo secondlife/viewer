@@ -419,8 +419,8 @@ void LLWorldMapView::draw()
 			if (overlayimage)
 			{
 				// Inform the fetch mechanism of the size we need
-				S32 draw_size = llround(sMapScale);
-				overlayimage->setKnownDrawSize(llround(draw_size * LLUI::getScaleFactor().mV[VX]), llround(draw_size * LLUI::getScaleFactor().mV[VY]));
+				S32 draw_size = ll_round(sMapScale);
+				overlayimage->setKnownDrawSize(ll_round(draw_size * LLUI::getScaleFactor().mV[VX]), ll_round(draw_size * LLUI::getScaleFactor().mV[VY]));
 				// Draw something whenever we have enough info
 				if (overlayimage->hasGLTexture())
 				{
@@ -508,7 +508,7 @@ void LLWorldMapView::draw()
 	drawImage(pos_global, sAvatarYouImage);
 
 	LLVector3 pos_map = globalPosToView(pos_global);
-	if (!pointInView(llround(pos_map.mV[VX]), llround(pos_map.mV[VY])))
+	if (!pointInView(ll_round(pos_map.mV[VX]), ll_round(pos_map.mV[VY])))
 	{
 		drawTracking(pos_global,
 					 lerp(LLColor4::yellow, LLColor4::orange, 0.4f),
@@ -773,8 +773,8 @@ void LLWorldMapView::drawGenericItem(const LLItemInfo& item, LLUIImagePtr image)
 void LLWorldMapView::drawImage(const LLVector3d& global_pos, LLUIImagePtr image, const LLColor4& color)
 {
 	LLVector3 pos_map = globalPosToView( global_pos );
-	image->draw(llround(pos_map.mV[VX] - image->getWidth() /2.f),
-				llround(pos_map.mV[VY] - image->getHeight()/2.f),
+	image->draw(ll_round(pos_map.mV[VX] - image->getWidth() /2.f),
+				ll_round(pos_map.mV[VY] - image->getHeight()/2.f),
 				color);
 }
 
@@ -783,8 +783,8 @@ void LLWorldMapView::drawImageStack(const LLVector3d& global_pos, LLUIImagePtr i
 	LLVector3 pos_map = globalPosToView( global_pos );
 	for(U32 i=0; i<count; i++)
 	{
-		image->draw(llround(pos_map.mV[VX] - image->getWidth() /2.f),
-					llround(pos_map.mV[VY] - image->getHeight()/2.f + i*offset),
+		image->draw(ll_round(pos_map.mV[VX] - image->getWidth() /2.f),
+					ll_round(pos_map.mV[VY] - image->getHeight()/2.f + i*offset),
 					color);
 	}
 }
@@ -958,8 +958,8 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 								  const std::string& label, const std::string& tooltip, S32 vert_offset )
 {
 	LLVector3 pos_local = globalPosToView( pos_global );
-	S32 x = llround( pos_local.mV[VX] );
-	S32 y = llround( pos_local.mV[VY] );
+	S32 x = ll_round( pos_local.mV[VX] );
+	S32 y = ll_round( pos_local.mV[VY] );
 	LLFontGL* font = LLFontGL::getFontSansSerifSmall();
 	S32 text_x = x;
 	S32 text_y = (S32)(y - sTrackCircleImage->getHeight()/2 - font->getLineHeight());
@@ -1110,8 +1110,8 @@ static void drawDot(F32 x_pixels, F32 y_pixels,
 
 	if(-HEIGHT_THRESHOLD <= relative_z && relative_z <= HEIGHT_THRESHOLD)
 	{
-		dot_image->draw(llround(x_pixels) - dot_image->getWidth()/2,
-						llround(y_pixels) - dot_image->getHeight()/2, 
+		dot_image->draw(ll_round(x_pixels) - dot_image->getWidth()/2,
+						ll_round(y_pixels) - dot_image->getHeight()/2, 
 						color);
 	}
 	else
@@ -1166,9 +1166,9 @@ void LLWorldMapView::drawAvatar(F32 x_pixels,
 			dot_image = sAvatarAboveImage;
 		}
 	}
-	S32 dot_width = llround(dot_radius * 2.f);
-	dot_image->draw(llround(x_pixels - dot_radius),
-					llround(y_pixels - dot_radius),
+	S32 dot_width = ll_round(dot_radius * 2.f);
+	dot_image->draw(ll_round(x_pixels - dot_radius),
+					ll_round(y_pixels - dot_radius),
 					dot_width,
 					dot_width,
 					color);
@@ -1195,8 +1195,8 @@ void LLWorldMapView::drawIconName(F32 x_pixels,
 								  const std::string& second_line)
 {
 	const S32 VERT_PAD = 8;
-	S32 text_x = llround(x_pixels);
-	S32 text_y = llround(y_pixels
+	S32 text_x = ll_round(x_pixels);
+	S32 text_y = ll_round(y_pixels
 						 - BIG_DOT_RADIUS
 						 - VERT_PAD);
 
@@ -1384,8 +1384,8 @@ void LLWorldMapView::setDirectionPos( LLTextBox* text_box, F32 rotation )
 	F32 radius = llmin( map_half_height - text_half_height, map_half_width - text_half_width );
 
 	text_box->setOrigin( 
-		llround(map_half_width - text_half_width + radius * cos( rotation )),
-		llround(map_half_height - text_half_height + radius * sin( rotation )) );
+		ll_round(map_half_width - text_half_width + radius * cos( rotation )),
+		ll_round(map_half_height - text_half_height + radius * sin( rotation )) );
 }
 
 
@@ -1433,8 +1433,8 @@ void LLWorldMapView::reshape( S32 width, S32 height, BOOL called_from_parent )
 bool LLWorldMapView::checkItemHit(S32 x, S32 y, LLItemInfo& item, LLUUID* id, bool track)
 {
 	LLVector3 pos_view = globalPosToView(item.getGlobalPosition());
-	S32 item_x = llround(pos_view.mV[VX]);
-	S32 item_y = llround(pos_view.mV[VY]);
+	S32 item_x = ll_round(pos_view.mV[VX]);
+	S32 item_y = ll_round(pos_view.mV[VY]);
 
 	if (x < item_x - BIG_DOT_RADIUS) return false;
 	if (x > item_x + BIG_DOT_RADIUS) return false;
@@ -1598,8 +1598,8 @@ BOOL LLWorldMapView::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	gFocusMgr.setMouseCapture( this );
 
-	mMouseDownPanX = llround(sPanX);
-	mMouseDownPanY = llround(sPanY);
+	mMouseDownPanX = ll_round(sPanX);
+	mMouseDownPanY = ll_round(sPanY);
 	mMouseDownX = x;
 	mMouseDownY = y;
 	sHandledLastClick = TRUE;

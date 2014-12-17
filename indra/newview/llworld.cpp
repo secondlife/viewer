@@ -977,8 +977,8 @@ void LLWorld::updateWaterObjects()
 		}
 
 		// Resize and reshape the water objects
-		const S32 water_center_x = center_x + llround((wx + dim[0]) * 0.5f * gDirAxes[dir][0]);
-		const S32 water_center_y = center_y + llround((wy + dim[1]) * 0.5f * gDirAxes[dir][1]);
+		const S32 water_center_x = center_x + ll_round((wx + dim[0]) * 0.5f * gDirAxes[dir][0]);
+		const S32 water_center_y = center_y + ll_round((wy + dim[1]) * 0.5f * gDirAxes[dir][1]);
 		
 		LLVOWater* waterp = mEdgeWaterObjects[dir];
 		if (!waterp || waterp->isDead())

@@ -34,7 +34,7 @@
 #pragma clang diagnostic ignored "-Wdelete-incomplete"
 #include "lluictrlfactory.h"
 #pragma clang diagnostic pop
-#elif
+#else
 #include "lluictrlfactory.h"
 #endif
 

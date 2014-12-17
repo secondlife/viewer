@@ -46,6 +46,7 @@ $/LicenseInfo$
 
 import os
 import sys
+import errno
 import signal
 import subprocess
 
@@ -112,7 +113,23 @@ def main(command, libpath=[], vars={}):
     print "Running: %s" % " ".join(command)
     # Make sure we see all relevant output *before* child-process output.
     sys.stdout.flush()
-    return subprocess.call(command)
+    try:
+        return subprocess.call(command)
+    except OSError as err:
+        # If the caller is trying to execute a test program that doesn't
+        # exist, we want to produce a reasonable error message rather than a
+        # traceback. This happens when the build is halted by errors, but
+        # CMake tries to proceed with testing anyway <eyeroll/>. However, do
+        # NOT attempt to handle any error but "doesn't exist."
+        if err.errno != errno.ENOENT:
+            raise
+        # In practice, the pathnames into CMake's build tree are so long as to
+        # obscure the name of the test program. Just print its basename.
+        print "No such program %s; check for preceding build errors" % \
+              os.path.basename(command[0])
+        # What rc should we simulate for missing executable? Windows produces
+        # 9009.
+        return 9009
 
 # swiped from vita, sigh, seems like a Bad Idea to introduce dependency
 def translate_rc(rc):

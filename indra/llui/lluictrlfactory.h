@@ -189,7 +189,7 @@ public:
 #pragma clang diagnostic ignored "-Wdelete-incomplete"
 					delete view;
 #pragma clang diagnostic pop
-#elif
+#else
 					delete view;
 #endif
 					view = NULL;
