@@ -30,7 +30,3 @@ if (OPENAL)
     )
   endif()
 endif (OPENAL)
-
-if (OPENAL)
-  message(STATUS "Building with OpenAL audio support")
-endif (OPENAL)
