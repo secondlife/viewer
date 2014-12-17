@@ -108,6 +108,6 @@ void LLCommunicationChannel::onFilterFail(LLNotificationPtr pNotificationPtr)
 		|| (notificationType == "notifytoast"))
         && !pNotificationPtr->isCancelled())
 	{
-		mHistory.insert(std::make_pair<LLDate, LLNotificationPtr>(pNotificationPtr->getDate(), pNotificationPtr));
+		mHistory.insert(history_list_t::value_type(pNotificationPtr->getDate(), pNotificationPtr));
 	}
 }

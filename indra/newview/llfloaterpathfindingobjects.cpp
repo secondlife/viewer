@@ -406,7 +406,7 @@ void LLFloaterPathfindingObjects::addObjectToScrollList(const LLPathfindingObjec
 
 	if (pObjectPtr->hasOwner() && !pObjectPtr->hasOwnerName())
 	{
-		mMissingNameObjectsScrollListItems.insert(std::make_pair<std::string, LLScrollListItem *>(pObjectPtr->getUUID().asString(), scrollListItem));
+		mMissingNameObjectsScrollListItems.insert(scroll_list_item_map::value_type(pObjectPtr->getUUID().asString(), scrollListItem));
 		pObjectPtr->registerOwnerNameListener(boost::bind(&LLFloaterPathfindingObjects::handleObjectNameResponse, this, _1));
 	}
 }

@@ -33,18 +33,7 @@
 #include "llsdtraits.h"
 #include "llstring.h"
 
-#if LL_WINDOWS
-#include <float.h>
-namespace
-{
-	int fpclassify(double x)
-	{
-		return _fpclass(x);
-	}
-}
-#else
 using std::fpclassify;
-#endif
 
 namespace tut
 {

@@ -46,6 +46,7 @@ typedef U32 uint32_t;
 #include "boost/range.hpp"
 #include "boost/foreach.hpp"
 #include "boost/function.hpp"
+#include "boost/bind.hpp"
 #include "boost/phoenix/bind/bind_function.hpp"
 #include "boost/phoenix/core/argument.hpp"
 using namespace boost::phoenix;
@@ -1659,7 +1660,7 @@ namespace tut
                            // takes a callable. To this callable it passes the
                            // std::ostream with which it's writing the
                            // NamedTempFile.
-                           bind(writeLLSDArray, placeholders::arg1, cdata));
+                           boost::bind(writeLLSDArray, _1, cdata));
 
         python("read C++ notation",
                placeholders::arg1 <<
