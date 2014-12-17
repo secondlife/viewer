@@ -1063,20 +1063,6 @@
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ff3ae04f176624e3f763b3e6471586d0</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-gtk-atk-pango-glib/rev/289881/arch/CYGWIN/installer/gtk_atk_pango_glib-0.0-windows-289881.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
         </map>
         <key>version</key>
         <string>0.0</string>
