@@ -553,7 +553,7 @@ void LLFloaterSnapshot::Impl::onClickNewSnapshot(void* data)
 	{
 		view->impl.setStatus(Impl::STATUS_READY);
 		LL_DEBUGS() << "updating snapshot" << LL_ENDL;
-		previewp->updateSnapshot(TRUE);
+		previewp->mForceUpdateSnapshot = TRUE;
 	}
 }
 
