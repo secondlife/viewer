@@ -49,6 +49,17 @@
       <key>Value</key>
       <real>300</real>
     </map>
+    <key>AckCollectTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Ack messages collection and grouping time</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.1</real>
+    </map>
     <key>AdminMenu</key>
     <map>
       <key>Comment</key>
