@@ -1218,16 +1218,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b5803620f7bf79460145020ce38c7d87</string>
+              <string>e5a832cffe307a1e814ca0664be30b10</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297281/arch/CYGWIN/installer/jsoncpp-0.5.0.297281-windows-297281.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297580/arch/CYGWIN/installer/jsoncpp-0.5.0.297580-windows-297580.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.5.0.297281</string>
+        <string>0.5.0.297580</string>
       </map>
       <key>kdu</key>
       <map>

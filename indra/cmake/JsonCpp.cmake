@@ -11,8 +11,8 @@ else (USESYSTEMLIBS)
   use_prebuilt_binary(jsoncpp)
   if (WINDOWS)
     set(JSONCPP_LIBRARIES 
-      debug json_libmtd.lib
-      optimized json_libmt)
+      debug json_libmdd.lib
+      optimized json_libmd.lib)
   elseif (DARWIN)
     set(JSONCPP_LIBRARIES libjson_darwin_libmt.a)
   elseif (LINUX)
