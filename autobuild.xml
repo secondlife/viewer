@@ -1067,7 +1067,7 @@
         <key>version</key>
         <string>0.0</string>
       </map>
-      <key>havok_source</key>
+      <key>havok-source</key>
       <map>
         <key>copyright</key>
         <string>Uses Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors). All Rights Reserved. See www.havok.com for details.</string>
@@ -1078,7 +1078,7 @@
         <key>license_file</key>
         <string>LICENSES/havok.txt</string>
         <key>name</key>
-        <string>havok_source</string>
+        <string>-source</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1110,9 +1110,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb723dcc66dcddd9d372625644ba57b6</string>
+              <string>ab30ae74a665950d73ea559f019ff358</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297312/arch/CYGWIN/installer/havok_source-2012.1-windows-297312.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297566/arch/CYGWIN/installer/havok_source-2012.1-windows-297566.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
