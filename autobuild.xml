@@ -1063,25 +1063,11 @@
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ff3ae04f176624e3f763b3e6471586d0</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz-metadata_3p-gtk-atk-pango-glib/rev/289881/arch/CYGWIN/installer/gtk_atk_pango_glib-0.0-windows-289881.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
         </map>
         <key>version</key>
         <string>0.0</string>
       </map>
-      <key>havok_source</key>
+      <key>havok-source</key>
       <map>
         <key>copyright</key>
         <string>Uses Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors). All Rights Reserved. See www.havok.com for details.</string>
@@ -1092,7 +1078,7 @@
         <key>license_file</key>
         <string>LICENSES/havok.txt</string>
         <key>name</key>
-        <string>havok_source</string>
+        <string>-source</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
@@ -1124,9 +1110,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb723dcc66dcddd9d372625644ba57b6</string>
+              <string>ab30ae74a665950d73ea559f019ff358</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297312/arch/CYGWIN/installer/havok_source-2012.1-windows-297312.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297566/arch/CYGWIN/installer/havok_source-2012.1-windows-297566.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1232,16 +1218,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b5803620f7bf79460145020ce38c7d87</string>
+              <string>e5a832cffe307a1e814ca0664be30b10</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297281/arch/CYGWIN/installer/jsoncpp-0.5.0.297281-windows-297281.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297580/arch/CYGWIN/installer/jsoncpp-0.5.0.297580-windows-297580.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.5.0.297281</string>
+        <string>0.5.0.297580</string>
       </map>
       <key>kdu</key>
       <map>
