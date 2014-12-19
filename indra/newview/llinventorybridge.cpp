@@ -3406,11 +3406,11 @@ void LLFolderBridge::perform_pasteFromClipboard()
 		std::vector<LLUUID> objects;
 		LLClipboard::instance().pasteFromClipboard(objects);
         
+        LLViewerInventoryCategory * dest_folder = getCategory();
 		if (move_is_into_outbox || move_is_into_marketplacelistings)
 		{
             std::string error_msg;
             const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
-            LLViewerInventoryCategory * dest_folder = getCategory();
             for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
             {
                 const LLUUID& item_id = (*iter);
@@ -3434,6 +3434,25 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 return;
             }
 		}
+        else
+        {
+            // Check that all items can be moved into that folder : for the moment, only stock folder mismatch is checked
+            for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
+            {
+                const LLUUID& item_id = (*iter);
+                LLInventoryItem *item = model->getItem(item_id);
+                LLInventoryCategory *cat = model->getCategory(item_id);
+
+                if ((item && !dest_folder->acceptItem(item)) || (cat && (dest_folder->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)))
+                {
+                    std::string error_msg = LLTrans::getString("TooltipOutboxMixedStock");
+                    LLSD subs;
+                    subs["[ERROR_CODE]"] = error_msg;
+                    LLNotificationsUtil::add("StockPasteFailed", subs);
+                    return;
+                }
+            }
+        }
         
 		const LLUUID parent_id(mUUID);
         
@@ -3675,6 +3694,11 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         disabled_items.push_back(std::string("New Folder"));
+		disabled_items.push_back(std::string("New Script"));
+		disabled_items.push_back(std::string("New Note"));
+		disabled_items.push_back(std::string("New Gesture"));
+		disabled_items.push_back(std::string("New Clothes"));
+		disabled_items.push_back(std::string("New Body Parts"));
     }
     if (marketplace_listings_id == mUUID)
     {
