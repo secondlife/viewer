@@ -16,6 +16,13 @@ if ("${CMAKE_SOURCE_DIR}/../autobuild.xml" IS_NEWER_THAN "${PREBUILD_TRACKING_DI
   file(WRITE ${PREBUILD_TRACKING_DIR}/sentinel_installed "0")
 endif ("${CMAKE_SOURCE_DIR}/../autobuild.xml" IS_NEWER_THAN "${PREBUILD_TRACKING_DIR}/sentinel_installed")
 
+# <HACK> to debug use_prebuilt_binary failures on TC host
+IF (NOT DEFINED DEBUG_PREBUILT)
+  set(DEBUG_PREBUILT ON)
+  message(STATUS "AUTOBUILD = '$ENV{AUTOBUILD}'")
+ENDIF (NOT DEFINED DEBUG_PREBUILT)
+# </HACK>
+
 # The use_prebuilt_binary macro handles automated installation of package
 # dependencies using autobuild.  The goal is that 'autobuild install' should
 # only be run when we know we need to install a new package.  This should be
