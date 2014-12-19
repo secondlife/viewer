@@ -13,6 +13,9 @@ IF (NOT AUTOBUILD_EXECUTABLE)
   # If cmake was executed by autobuild, autobuild will have set the AUTOBUILD env var
   IF (DEFINED ENV{AUTOBUILD})
     SET(AUTOBUILD_EXECUTABLE $ENV{AUTOBUILD})
+    # In case $AUTOBUILD is a cygwin path, fix it back to Windows style
+    STRING(REGEX REPLACE "^/cygdrive/(.)/" "\\1:/" AUTOBUILD_EXECUTABLE
+           "${AUTOBUILD_EXECUTABLE}")
   ELSE (DEFINED ENV{AUTOBUILD})
     IF(WIN32)
       SET(AUTOBUILD_EXE_NAMES autobuild.cmd autobuild.exe)
