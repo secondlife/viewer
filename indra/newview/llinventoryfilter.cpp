@@ -128,6 +128,15 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewModelItem* item) const
 
 bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
+	// Always check against the clipboard
+	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
+	
+	// we're showing all folders, overriding filter
+	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
+	{
+		return passed_clipboard;
+	}
+
 	// when applying a filter, matching folders get their contents downloaded first
 	if (isNotDefault()
 		&& !gInventory.isCategoryComplete(folder_id))
@@ -168,15 +177,6 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
         }
     }
     
-	// Always check against the clipboard
-	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
-	
-	// we're showing all folders, overriding filter
-	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
-	{
-		return passed_clipboard;
-	}
-
 	// show folder links
 	LLViewerInventoryItem* item = gInventory.getItem(folder_id);
 	if (item && item->getActualType() == LLAssetType::AT_LINK_FOLDER)

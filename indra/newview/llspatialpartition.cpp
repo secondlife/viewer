@@ -1632,7 +1632,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 {
 	LLDrawInfo* params = NULL;
 
-	LLColor4 colors[] = {
+	static const LLColor4 colors[] = {
 		LLColor4::green,
 		LLColor4::green1,
 		LLColor4::green2,

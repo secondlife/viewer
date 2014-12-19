@@ -86,12 +86,11 @@ public:
 	/*virtual*/ void 		requestStopMotion(LLMotion* motion);
 	/*virtual*/ LLJoint*	getJoint(const std::string &name);
 	
-				void		resetJointPositions( void );
-	
 	/*virtual*/ BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
 	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight);
 	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight);
 	/*virtual*/ void updateVisualParams();
+	void writeWearablesToAvatar();
 	/*virtual*/ void idleUpdateAppearanceAnimation();
 
 private:
@@ -293,7 +292,7 @@ public:
 	void				addAttachmentRequest(const LLUUID& inv_item_id);
 	void				removeAttachmentRequest(const LLUUID& inv_item_id);
 	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id);
-	const std::string   getAttachedPointName(const LLUUID& inv_item_id) const;
+	bool				getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const;
 	/*virtual*/ const LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
 	/*virtual*/ BOOL 	detachObject(LLViewerObject *viewer_object);
 	static BOOL			detachAttachmentIntoInventory(const LLUUID& item_id);

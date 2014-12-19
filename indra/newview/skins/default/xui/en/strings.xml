@@ -2337,6 +2337,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="LoadingContents">Loading contents...</string>
 	<string name="NoContents">No contents</string>
 	<string name="WornOnAttachmentPoint" value=" (worn on [ATTACHMENT_POINT])" />
+	<string name="AttachmentErrorMessage" value=" ([ATTACHMENT_ERROR])" />
 	<string name="ActiveGesture" value="[GESLABEL] (active)"/>
 	<!-- Inventory permissions -->
 	<string name="PermYes">Yes</string>
@@ -2463,9 +2464,12 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
-    <string name="Neck">Neck</string>
-    <string name="Avatar Center">Avatar Center</string>
+        <string name="Neck">Neck</string>
+        <string name="Avatar Center">Avatar Center</string>
 	<string name="Invalid Attachment">Invalid Attachment Point</string>
+	<string name="ATTACHMENT_MISSING_ITEM">Error: missing item</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">Error: missing base item</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">Error: object is in current outfit but not attached</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
   <string name="YearsMonthsOld">[AGEYEARS] [AGEMONTHS] old</string>

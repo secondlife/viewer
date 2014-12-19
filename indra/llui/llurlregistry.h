@@ -94,6 +94,8 @@ private:
 
 	std::vector<LLUrlEntryBase *> mUrlEntry;
 	LLUrlEntryBase*	mUrlEntryIcon;
+	LLUrlEntryBase* mUrlEntryHTTPLabel;
+	LLUrlEntryBase* mUrlEntrySLLabel;
 };
 
 #endif

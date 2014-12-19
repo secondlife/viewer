@@ -807,15 +807,48 @@ void LLWearableHoldingPattern::onAllComplete()
 		}
 	}
 
-	// Update wearables.
-	LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " updating agent wearables with " << mResolved << " wearable items " << LL_ENDL;
-	LLAppearanceMgr::instance().updateAgentWearables(this);
-	
-	// Update attachments to match those requested.
 	if (isAgentAvatarValid())
 	{
 		LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
-		LLAgentWearables::userUpdateAttachments(mObjItems);
+		LLAgentWearables::llvo_vec_t objects_to_remove;
+		LLAgentWearables::llvo_vec_t objects_to_retain;
+		LLInventoryModel::item_array_t items_to_add;
+
+		LLAgentWearables::findAttachmentsAddRemoveInfo(mObjItems,
+													   objects_to_remove,
+													   objects_to_retain,
+													   items_to_add);
+
+		LL_DEBUGS("Avatar") << self_av_string() << "Removing " << objects_to_remove.size()
+							<< " attachments" << LL_ENDL;
+
+		// Here we remove the attachment pos overrides for *all*
+		// attachments, even those that are not being removed. This is
+		// needed to get joint positions all slammed down to their
+		// pre-attachment states.
+		gAgentAvatarp->clearAttachmentPosOverrides();
+
+		// Take off the attachments that will no longer be in the outfit.
+		LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
+		
+		// Update wearables.
+		LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " updating agent wearables with "
+						   << mResolved << " wearable items " << LL_ENDL;
+		LLAppearanceMgr::instance().updateAgentWearables(this);
+		
+		// Restore attachment pos overrides for the attachments that
+		// are remaining in the outfit.
+		for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin();
+			 it != objects_to_retain.end();
+			 ++it)
+		{
+			LLViewerObject *objectp = *it;
+			gAgentAvatarp->addAttachmentPosOverridesForObject(objectp);
+		}
+		
+		// Add new attachments to match those requested.
+		LL_DEBUGS("Avatar") << self_av_string() << "Adding " << items_to_add.size() << " attachments" << LL_ENDL;
+		LLAgentWearables::userAttachMultipleAttachments(items_to_add);
 	}
 
 	if (isFetchCompleted() && isMissingCompleted())
@@ -2699,7 +2732,12 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, LLPointer<LLInve
 		const LLInventoryItem* item = item_array.at(i).get();
 		if (item->getIsLinkType() && item->getLinkedUUID() == item_id)
 		{
-			remove_inventory_item(item->getUUID(), cb);
+			bool immediate_delete = false;
+			if (item->getType() == LLAssetType::AT_OBJECT)
+			{
+				immediate_delete = true;
+			}
+			remove_inventory_item(item->getUUID(), cb, immediate_delete);
 		}
 	}
 }
@@ -4056,17 +4094,33 @@ public:
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
-		LLPointer<LLInventoryCategory> category = new LLInventoryCategory(query_map["folder_id"],
-																		  LLUUID::null,
-																		  LLFolderType::FT_CLOTHING,
-																		  "Quick Appearance");
-		LLSD::UUID folder_uuid = query_map["folder_id"].asUUID();
-		if ( gInventory.getCategory( folder_uuid ) != NULL )
-		{
-			LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
+		LLSD::UUID folder_uuid;
 
-			// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
-			gAgent.setOutfitChosen(TRUE);
+		if (folder_uuid.isNull() && query_map.has("folder_name"))
+		{
+			std::string outfit_folder_name = query_map["folder_name"];
+			folder_uuid = findDescendentCategoryIDByName(
+				gInventory.getLibraryRootFolderID(),
+				outfit_folder_name);	
+		}
+		if (folder_uuid.isNull() && query_map.has("folder_id"))
+		{
+			folder_uuid = query_map["folder_id"].asUUID();
+		}
+		
+		if (folder_uuid.notNull())
+		{
+			LLPointer<LLInventoryCategory> category = new LLInventoryCategory(folder_uuid,
+																			  LLUUID::null,
+																			  LLFolderType::FT_CLOTHING,
+																			  "Quick Appearance");
+			if ( gInventory.getCategory( folder_uuid ) != NULL )
+			{
+				LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
+				
+				// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
+				gAgent.setOutfitChosen(TRUE);
+			}
 		}
 
 		// release avatar picker keyboard focus

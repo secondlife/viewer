@@ -1481,7 +1481,8 @@ void update_inventory_category(
 
 void remove_inventory_items(
 	LLInventoryObject::object_list_t& items_to_kill,
-	LLPointer<LLInventoryCallback> cb)
+	LLPointer<LLInventoryCallback> cb
+	)
 {
 	for (LLInventoryObject::object_list_t::iterator it = items_to_kill.begin();
 		 it != items_to_kill.end();
@@ -1493,12 +1494,13 @@ void remove_inventory_items(
 
 void remove_inventory_item(
 	const LLUUID& item_id,
-	LLPointer<LLInventoryCallback> cb)
+	LLPointer<LLInventoryCallback> cb,
+	bool immediate_delete)
 {
 	LLPointer<LLInventoryObject> obj = gInventory.getItem(item_id);
 	if (obj)
 	{
-		remove_inventory_item(obj, cb);
+		remove_inventory_item(obj, cb, immediate_delete);
 	}
 	else
 	{
@@ -1508,7 +1510,8 @@ void remove_inventory_item(
 
 void remove_inventory_item(
 	LLPointer<LLInventoryObject> obj,
-	LLPointer<LLInventoryCallback> cb)
+	LLPointer<LLInventoryCallback> cb,
+	bool immediate_delete)
 {
 	if(obj)
 	{
@@ -1518,6 +1521,11 @@ void remove_inventory_item(
 		{
 			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
 			cmd_ptr->run_command();
+
+			if (immediate_delete)
+			{
+				gInventory.onObjectDeletedFromServer(item_id);
+			}
 		}
 		else // no cap
 		{

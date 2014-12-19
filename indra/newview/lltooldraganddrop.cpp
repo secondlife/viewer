@@ -2188,23 +2188,20 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	}
 
 	U32 max_items = gSavedSettings.getU32("WearFolderLimit");
-	if (category->getDescendentCount()>max_items)
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+	gInventory.collectDescendentsIf(category->getUUID(),
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
+	if (items.size() > max_items)
 	{
-		LLInventoryModel::cat_array_t cats;
-		LLInventoryModel::item_array_t items;
-		LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
-		gInventory.collectDescendentsIf(category->getUUID(),
-			cats,
-			items,
-			LLInventoryModel::EXCLUDE_TRASH,
-			not_worn);
-		if (items.size() > max_items)
-		{
-			LLStringUtil::format_map_t args;
-			args["AMOUNT"] = llformat("%d", max_items);
-			mCustomMsg = LLTrans::getString("TooltipTooManyWearables",args);
-			return ACCEPT_NO_CUSTOM;
-		}
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", max_items);
+		mCustomMsg = LLTrans::getString("TooltipTooManyWearables",args);
+		return ACCEPT_NO_CUSTOM;
 	}
 
 	if(mSource == SOURCE_AGENT)

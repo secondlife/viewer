@@ -172,7 +172,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	if (!pos_source)
 	{
-		llwarns << "Unable to process mesh without position data; invalid model;  invalid model." << llendl;
+		LL_WARNS() << "Unable to process mesh without position data; invalid model;  invalid model." << LL_ENDL;
 		return LLModel::BAD_ELEMENT;
 	}
 	
@@ -180,20 +180,20 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 	domListOfUInts& idx = p->getValue();
 	
 	domListOfFloats  dummy ;
-	domListOfFloats& v = pos_source ? pos_source->getFloat_array()->getValue() : dummy ;
-	domListOfFloats& tc = tc_source ? tc_source->getFloat_array()->getValue() : dummy ;
-	domListOfFloats& n = norm_source ? norm_source->getFloat_array()->getValue() : dummy ;
+	domListOfFloats& v = (pos_source && pos_source->getFloat_array()) ? pos_source->getFloat_array()->getValue() : dummy ;
+	domListOfFloats& tc = (tc_source && tc_source->getFloat_array()) ? tc_source->getFloat_array()->getValue() : dummy ;
+	domListOfFloats& n = (norm_source && norm_source->getFloat_array()) ? norm_source->getFloat_array()->getValue() : dummy ;
 
 	LLVolumeFace::VertexMapData::PointMap point_map;
 		
 	U32 index_count  = idx.getCount();
-	U32 vertex_count = pos_source  ? v.getCount()  : 0;
-	U32 tc_count     = tc_source   ? tc.getCount() : 0;
-	U32 norm_count   = norm_source ? n.getCount()  : 0;
+	U32 vertex_count = (pos_source &&  pos_source->getFloat_array())	? v.getCount()	: 0;
+	U32 tc_count     = (tc_source && tc_source->getFloat_array()) 		? tc.getCount()	: 0;
+	U32 norm_count   = (norm_source && norm_source->getFloat_array()) 	? n.getCount(): 0;
 
-	if ((vertex_count == 0) || (tc_count == 0))
+	if ((vertex_count == 0))
 	{
-		llwarns << "Unable to process mesh with empty position array; invalid model." << llendl;
+		LL_WARNS() << "Unable to process mesh with empty position array; invalid model." << LL_ENDL;
 		return LLModel::BAD_ELEMENT;
 	}
 
@@ -229,7 +229,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		{
 			// guard against model data specifiying out of range indices or tcs
 			//
-			
+
 			if (((i + tc_offset) > index_count)
 			 || ((idx[i+tc_offset]*2+1) > tc_count))
 			{

@@ -178,6 +178,12 @@ bool LLUrlEntryBase::isLinkDisabled() const
 	return globally_disabled;
 }
 
+bool LLUrlEntryBase::isWikiLinkCorrect(std::string url)
+{
+	std::string label = getLabelFromWikiLink(url);
+	return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
+}
+
 static std::string getStringAfterToken(const std::string str, const std::string token)
 {
 	size_t pos = str.find(token);

@@ -698,6 +698,10 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	if(isItemRenameable())
 	{
 		items.push_back(std::string("Task Rename"));
+		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Task Rename"));
+		}
 	}
 	if(isItemRemovable())
 	{

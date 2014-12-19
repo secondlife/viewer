@@ -45,7 +45,8 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(mUrlEntryIcon);
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
-	registerUrl(new LLUrlEntryHTTPLabel());
+	mUrlEntryHTTPLabel = new LLUrlEntryHTTPLabel();
+	registerUrl(mUrlEntryHTTPLabel);
 	registerUrl(new LLUrlEntryAgentCompleteName());
 	registerUrl(new LLUrlEntryAgentDisplayName());
 	registerUrl(new LLUrlEntryAgentUserName());
@@ -64,7 +65,8 @@ LLUrlRegistry::LLUrlRegistry()
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());
-	registerUrl(new LLUrlEntrySLLabel());
+	mUrlEntrySLLabel = new LLUrlEntrySLLabel();
+	registerUrl(mUrlEntrySLLabel);
 	// most common pattern is a URL without any protocol,
 	// e.g., "secondlife.com"
 	registerUrl(new LLUrlEntryHTTPNoProtocol());	
@@ -128,6 +130,11 @@ static bool matchRegex(const char *text, boost::regex regex, U32 &start, U32 &en
 		end--;
 	}
 
+	else if (text[end] == ']' && std::string(text+start, end-start).find('[') == std::string::npos)
+	{
+			end--;
+	}
+
 	return true;
 }
 
@@ -175,6 +182,15 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 			// does this match occur in the string before any other match
 			if (start < match_start || match_entry == NULL)
 			{
+
+				if((mUrlEntryHTTPLabel == *it) || (mUrlEntrySLLabel == *it))
+				{
+					if(url_entry && !url_entry->isWikiLinkCorrect(text.substr(start, end - start + 1)))
+					{
+						continue;
+					}
+				}
+
 				match_start = start;
 				match_end = end;
 				match_entry = url_entry;

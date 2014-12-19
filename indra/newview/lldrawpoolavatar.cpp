@@ -375,7 +375,7 @@ void LLDrawPoolAvatar::endPostDeferredAlpha()
 
 void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 {
-	const S32 actual_pass[] =
+	static const S32 actual_pass[] =
 	{ //map post deferred pass numbers to what render() expects
 		2, //skinned
 		4, // rigged fullbright
@@ -1626,7 +1626,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			{
 				F32 w = weight[j][k];
 
-				idx[k] = llclamp((S32) floorf(w), 0, 63);
+				idx[k] = llclamp((S32) floorf(w), 0, JOINT_COUNT-1);
+
 				wght[k] = w - floorf(w);
 				scale += wght[k];
 			}

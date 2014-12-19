@@ -260,20 +260,19 @@ BOOL LLFolderViewItem::passedFilter(S32 filter_generation)
 
 BOOL LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
 {
-	// Item should be visible if:
-	// 1. item passed current filter
-	// 2. item was updated (gen < 0) but has descendants that passed filter
-	// 3. item was recently updated and was visible before update
-
+	if (filter_generation < 0)
+	{
+		filter_generation = getFolderViewModel()->getFilter().getFirstSuccessGeneration();
+	}
 	LLFolderViewModelItem* model = getViewModelItem();
-	if (model->getLastFilterGeneration() < 0 && !getFolderViewModel()->getFilter().isModified())
+	BOOL visible = model->passedFilter(filter_generation);
+	if (model->getMarkedDirtyGeneration() >= filter_generation)
 	{
-		return model->descendantsPassedFilter(filter_generation) || getVisible();
+		// unsure visibility state
+		// retaining previous visibility until item is updated or filter generation changes
+		visible |= getVisible();
 	}
-	else
-	{
-		return model->passedFilter(filter_generation);
-	}
+	return visible;
 }
 
 void LLFolderViewItem::refresh()

@@ -230,7 +230,10 @@ void callFocus()
 
 void callFocusLost()
 {
-	gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
+	if (gWindowImplementation)
+	{
+		gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
+	}
 }
 
 void callRightMouseDown(float *pos, MASK mask)
@@ -347,6 +350,22 @@ void callWindowFocus()
 void callWindowUnfocus()
 {
 	gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
+}
+
+void callWindowHide()
+{	
+	if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
+	{
+		gWindowImplementation->getCallbacks()->handleActivate(gWindowImplementation, false);
+	}
+}
+
+void callWindowUnhide()
+{	
+	if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
+	{
+		gWindowImplementation->getCallbacks()->handleActivate(gWindowImplementation, true);
+	}
 }
 
 void callDeltaUpdate(float *delta, MASK mask)
@@ -1805,8 +1824,6 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key)
 
 void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 {
-    allowDirectMarkedTextInput(b, mGLView);
-	
 	if (preeditor != mPreeditor && !b)
 	{
 		// This condition may occur by a call to
@@ -1836,6 +1853,7 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 		return;
 	}
 	mLanguageTextInputAllowed = b;
+    allowDirectMarkedTextInput(b, mGLView); // mLanguageTextInputAllowed and mMarkedTextAllowed should be updated at once (by Pell Smit
 }
 
 void LLWindowMacOSX::interruptLanguageTextInput()
