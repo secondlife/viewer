@@ -1685,6 +1685,15 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="Invalid Attachment">
 		Nieprawidłowy punkt dodatku
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Błąd: brakujący przedmiot
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Błąd: brakująca baza przedmiotu
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Błąd: obiekt jest w obecnym stroju, ale nie jest założony
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>

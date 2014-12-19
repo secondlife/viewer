@@ -1987,6 +1987,10 @@ Przenieść obiekty szafy?
 			<ignore name="ignore" text="Opcja &apos;Zapłać Obiektowi&apos; została aktywowana podczas budowania obiektów bez skryptu z funkcją money()." />
 		</form>
 	</notification>
+	<notification name="PayConfirmation">
+		Potwierdź, że na pewno chcesz zapłacić [AMOUNT]L$ dla [TARGET].
+		<usetemplate ignoretext="Potwierdź przed płaceniem (kwoty ponad 200 L$)" name="okcancelignore" notext="Anuluj" yestext="Zapłać" />
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		W tym obiekcie nie ma elementów które możesz skopiować.
 	</notification>

@@ -6,17 +6,24 @@
 	<string name="payee_resident">
 		Zapłać Rezydentowi
 	</string>
+	<text name="paying_text">
+		Płacisz:
+	</text>
 	<text name="object_name_label">
 		Przez obiekt:
 	</text>
 	<icon name="icon_object" tool_tip="Obiekty" />
-	<button label="1L$" label_selected="1L$" name="fastpay 1" />
-	<button label="5L$" label_selected="5L$" name="fastpay 5" />
-	<button label="10L$" label_selected="10L$" name="fastpay 10" />
-	<button label="20L$" label_selected="20L$" name="fastpay 20" />
-	<text name="amount text">
-		lub wpisz kwotę:
-	</text>
-	<button label="Zapłać" label_selected="Zapłać" name="pay btn" />
-	<button label="Anuluj" label_selected="Anuluj" name="cancel btn" />
+	<panel label="Szukaj" name="PatternsPanel">
+		<button label="Płać 1L$" label_selected="Płać 1L$" name="fastpay 1" />
+		<button label="Płać 5L$" label_selected="Płać 5L$" name="fastpay 5" />
+		<button label="Płać 10L$" label_selected="Płać 10L$" name="fastpay 10" />
+		<button label="Płać 20L$" label_selected="Płać 20L$" name="fastpay 20" />
+	</panel>
+	<panel label="Szukaj" name="InputPanel">
+		<text name="amount text">
+			Inna kwota:
+		</text>
+		<button label="Zapłać" label_selected="Zapłać" name="pay btn" />
+		<button label="Anuluj" label_selected="Anuluj" name="cancel btn" />
+	</panel>
 </floater>
