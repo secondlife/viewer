@@ -111,10 +111,9 @@ void main()
 
 #ifdef USE_INDEXED_TEX
 	passTextureIndex();
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-#else
-	vary_texcoord0 = texcoord0;
 #endif
+
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	vary_norm = norm;
 	vary_position = pos.xyz;

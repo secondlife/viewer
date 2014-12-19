@@ -663,12 +663,13 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	LLTextSegmentPtr segment = NULL;
 	std::vector<LLTextSegmentPtr> selected_segments;
 	mEditor->getSelectedSegments(selected_segments);
-
+	LLKeywordToken* token;
 	// try segments in selection range first
 	std::vector<LLTextSegmentPtr>::iterator segment_iter;
 	for (segment_iter = selected_segments.begin(); segment_iter != selected_segments.end(); ++segment_iter)
 	{
-		if((*segment_iter)->getToken() && (*segment_iter)->getToken()->getType() == LLKeywordToken::TT_WORD)
+		token = (*segment_iter)->getToken();
+		if(token && isKeyword(token))
 		{
 			segment = *segment_iter;
 			break;
@@ -679,7 +680,8 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	if (!segment)
 	{
 		const LLTextSegmentPtr test_segment = mEditor->getPreviousSegment();
-		if(test_segment->getToken() && test_segment->getToken()->getType() == LLKeywordToken::TT_WORD)
+		token = test_segment->getToken();
+		if(token && isKeyword(token))
 		{
 			segment = test_segment;
 		}
@@ -705,6 +707,24 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 		{
 			setHelpPage(LLStringUtil::null);
 		}
+	}
+}
+
+bool LLScriptEdCore::isKeyword(LLKeywordToken* token)
+{
+	switch(token->getType())
+	{
+		case LLKeywordToken::TT_CONSTANT:
+		case LLKeywordToken::TT_CONTROL:
+		case LLKeywordToken::TT_EVENT:
+		case LLKeywordToken::TT_FUNCTION:
+		case LLKeywordToken::TT_SECTION:
+		case LLKeywordToken::TT_TYPE:
+		case LLKeywordToken::TT_WORD:
+			return true;
+
+		default:
+			return false;
 	}
 }
 

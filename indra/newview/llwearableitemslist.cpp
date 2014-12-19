@@ -364,8 +364,14 @@ void LLPanelAttachmentListItem::updateItem(const std::string& name,
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(inv_item->getLinkedUUID()))
 	{
-		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(inv_item->getLinkedUUID()));
-		title_joint =  title_joint + " (" + joint + ")";
+		std::string found_name;
+		bool found = gAgentAvatarp->getAttachedPointName(inv_item->getLinkedUUID(),found_name);
+		std::string trans_name = LLTrans::getString(found_name);
+		if (!found)
+		{
+			LL_WARNS() << "invalid attachment joint, err " << found_name << LL_ENDL;
+		}
+		title_joint =  title_joint + " (" + trans_name + ")";
 	}
 
 	LLPanelInventoryListItemBase::updateItem(title_joint, item_state);

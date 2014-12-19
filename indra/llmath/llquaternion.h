@@ -71,6 +71,9 @@ public:
 	void quantize8(F32 lower, F32 upper);							// changes the vector to reflect quatization
 	void loadIdentity();											// Loads the quaternion that represents the identity rotation
 
+	bool isEqualEps(const LLQuaternion &quat, F32 epsilon) const;
+	bool isNotEqualEps(const LLQuaternion &quat, F32 epsilon) const;
+
 	const LLQuaternion&	set(F32 x, F32 y, F32 z, F32 w);		// Sets Quaternion to normalize(x, y, z, w)
 	const LLQuaternion&	set(const LLQuaternion &quat);			// Copies Quaternion
 	const LLQuaternion&	set(const F32 *q);						// Sets Quaternion to normalize(quat[VX], quat[VY], quat[VZ], quat[VW])
@@ -239,6 +242,21 @@ inline void LLQuaternion::loadIdentity()
 	mQ[VW] = 1.0f;
 }
 
+inline bool LLQuaternion::isEqualEps(const LLQuaternion &quat, F32 epsilon) const
+{
+	return ( fabs(mQ[VX] - quat.mQ[VX]) < epsilon
+		&&	 fabs(mQ[VY] - quat.mQ[VY]) < epsilon
+		&&	 fabs(mQ[VZ] - quat.mQ[VZ]) < epsilon
+		&&	 fabs(mQ[VS] - quat.mQ[VS]) < epsilon );
+}
+
+inline bool LLQuaternion::isNotEqualEps(const LLQuaternion &quat, F32 epsilon) const
+{
+	return (  fabs(mQ[VX] - quat.mQ[VX]) > epsilon
+		||    fabs(mQ[VY] - quat.mQ[VY]) > epsilon
+		||	  fabs(mQ[VZ] - quat.mQ[VZ]) > epsilon
+		||    fabs(mQ[VS] - quat.mQ[VS]) > epsilon );
+}
 
 inline const LLQuaternion&	LLQuaternion::set(F32 x, F32 y, F32 z, F32 w)
 {

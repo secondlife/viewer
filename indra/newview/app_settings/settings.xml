@@ -6193,7 +6193,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-    <real>30.0</real>
+            <real>600.0</real>
         </map>
     <key>MemoryPrivatePoolEnabled</key>
     <map>
@@ -13575,6 +13575,28 @@
       <string>String</string>
       <key>Value</key>
       <string>0</string>
+    </map>
+    <key>VivoxLogDirectory</key>
+    <map>
+        <key>Comment</key>
+        <string>Default log path is Application Support/SecondLife/logs specify alternate absolute path here.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+    </map>
+    <key>VivoxShutdownTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>shutdown timeout in miliseconds.  The amount of time to wait for the service to shutdown gracefully after the last disconnect</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>5</string>
     </map>
     <key>VivoxDebugSIPURIHostName</key>
     <map>

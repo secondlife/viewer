@@ -34,6 +34,7 @@
 #include "llsdutil.h"
 #include "llviewerregion.h"
 #include "llinventoryobserver.h"
+#include "llviewercontrol.h"
 
 ///----------------------------------------------------------------------------
 /// Classes for AISv3 support.
