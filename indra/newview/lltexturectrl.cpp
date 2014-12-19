@@ -118,7 +118,7 @@ public:
 	/*virtual*/ void	onClose(bool app_settings);
 	
 	// New functions
-	void setImageID( const LLUUID& image_asset_id);
+	void setImageID( const LLUUID& image_asset_id, bool set_selection = true);
 	void updateImageStats();
 	const LLUUID& getAssetID() { return mImageAssetID; }
 	const LLUUID& findItemID(const LLUUID& asset_id, BOOL copyable_only);
@@ -232,7 +232,7 @@ LLFloaterTexturePicker::~LLFloaterTexturePicker()
 {
 }
 
-void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
+void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selection /*=true*/)
 {
 	if( mImageAssetID != image_id && mActive)
 	{
@@ -253,6 +253,10 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id)
 				getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
 				mNoCopyTextureSelected = TRUE;
 			}
+		}
+
+		if (set_selection)
+		{
 			mInventoryPanel->setSelection(item_id, TAKE_FOCUS_NO);
 		}
 	}
@@ -461,7 +465,10 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 		// don't put keyboard focus on selected item, because the selection callback
 		// will assume that this was user input
-		mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
+		if(!mImageAssetID.isNull())
+		{
+			mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
+		}
 	}
 
 	mModeSelector = getChild<LLRadioGroup>("mode_selection");
@@ -820,7 +827,7 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 			{
 				mNoCopyTextureSelected = TRUE;
 			}
-			setImageID(itemp->getAssetUUID());
+			setImageID(itemp->getAssetUUID(),false);
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 			if (user_action && mCanPreview)
 			{
