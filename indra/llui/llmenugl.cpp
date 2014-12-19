@@ -1276,7 +1276,15 @@ void LLMenuItemBranchGL::openMenu()
 		{
 			// open upwards if menu extends past bottom
 			// adjust by the height of the menu item branch since it is a submenu
-			delta_y = branch_rect.getHeight() - getRect().getHeight();		
+			if (y + 2 * branch_rect.getHeight() - getRect().getHeight() > menu_region_rect.mTop)
+			{
+				// overlaps with top border, align with top
+				delta_y = menu_region_rect.mTop - y - branch_rect.getHeight();
+			}
+			else
+			{
+				delta_y = branch_rect.getHeight() - getRect().getHeight();
+			}
 		}
 
 		if( x + branch_rect.getWidth() > menu_region_rect.mRight )
@@ -3258,6 +3266,11 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 		CURSOR_WIDTH + MOUSE_CURSOR_PADDING * 2, 
 		CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
 	menu->translateIntoRectWithExclusion( menu_region_rect, mouse_rect );
+	if (menu->getRect().mTop > menu_region_rect.mTop)
+	{
+		// not enough space: align with top, ignore exclusion
+		menu->translateIntoRect( menu_region_rect );
+	}
 	menu->getParent()->sendChildToFront(menu);
 }
 

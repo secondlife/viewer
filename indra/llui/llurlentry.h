@@ -100,6 +100,8 @@ public:
 
 	bool isLinkDisabled() const;
 
+	bool isWikiLinkCorrect(std::string url);
+
 protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;
