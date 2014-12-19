@@ -443,7 +443,7 @@ void LLRenderPass::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_
 	}
 }
 
-void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
+void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 {
 	if (params.mModelMatrix != gGLLastMatrix)
 	{

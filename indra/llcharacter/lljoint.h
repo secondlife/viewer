@@ -46,6 +46,21 @@ const U32 LL_FACE_JOINT_NUM = 30;
 const S32 LL_CHARACTER_MAX_PRIORITY = 7;
 const F32 LL_MAX_PELVIS_OFFSET = 5.f;
 
+class LLPosOverrideMap
+{
+public:
+	LLPosOverrideMap() {}
+	bool findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const;
+	void showJointPosOverrides(std::ostringstream& os) const;
+	U32 count() const;
+	void add(const LLUUID& mesh_id, const LLVector3& pos);
+	bool remove(const LLUUID& mesh_id);
+	void clear();
+private:
+	typedef std::map<LLUUID,LLVector3> map_type;
+	map_type m_map;
+};
+
 //-----------------------------------------------------------------------------
 // class LLJoint
 //-----------------------------------------------------------------------------
@@ -79,16 +94,12 @@ protected:
 
 	// explicit transformation members
 	LLXformMatrix		mXform;
-	LLXformMatrix		mOldXform;
-	LLXformMatrix		mDefaultXform;
 
 	LLUUID				mId;
 
 public:
 	U32				mDirtyFlags;
 	BOOL			mUpdateXform;
-
-	BOOL			mResetAfterRestoreOldXform;
 
 	// describes the skin binding pose
 	LLVector3		mSkinOffset;
@@ -102,6 +113,11 @@ public:
 	// debug statics
 	static S32		sNumTouches;
 	static S32		sNumUpdates;
+
+	LLPosOverrideMap m_attachmentOverrides;
+	LLVector3 m_posBeforeOverrides;
+
+	void updatePos(const std::string& av_info);
 
 public:
 	LLJoint();
@@ -160,7 +176,7 @@ public:
 	// get/set local scale
 	const LLVector3& getScale();
 	void setScale( const LLVector3& scale );
-	void storeScaleForReset( const LLVector3& scale );
+
 	// get/set world matrix
 	const LLMatrix4 &getWorldMatrix();
 	void setWorldMatrix( const LLMatrix4& mat );
@@ -183,20 +199,16 @@ public:
 	virtual BOOL isAnimatable() const { return TRUE; }
 
 	S32 getJointNum() const { return mJointNum; }
-	
-	void restoreOldXform( void );
-	void setDefaultFromCurrentXform( void );
-	void storeCurrentXform( const LLVector3& pos );
+
+	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info );
+	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
+	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
+	void clearAttachmentPosOverrides();
 
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }
 	//Setter for the joints id
 	void setId( const LLUUID& id ) { mId = id;}
-
-	//If the old transform flag has been set, then the reset logic in avatar needs to be aware(test) of it
-	const BOOL doesJointNeedToBeReset( void ) const { return mResetAfterRestoreOldXform; }
-	void setJointResetFlag( bool val ) { mResetAfterRestoreOldXform = val; }
-	
 };
 #endif // LL_LLJOINT_H
 

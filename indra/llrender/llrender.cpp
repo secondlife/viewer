@@ -1168,7 +1168,7 @@ void LLRender::syncMatrices()
 {
 	stop_glerror();
 
-	U32 name[] = 
+	static const U32 name[] = 
 	{
 		LLShaderMgr::MODELVIEW_MATRIX,
 		LLShaderMgr::PROJECTION_MATRIX,
