@@ -3,7 +3,7 @@
 	<floater.string name="NoDevice">
 		nie wykryto urządzenia
 	</floater.string>
-	<check_box label="Aktywuj Joystick:" name="enable_joystick" />
+	<check_box label="Włącz joystick:" name="enable_joystick" />
 	<spinner label="Kalibruj oś X" name="JoystickAxis1" />
 	<spinner label="Kalibruj oś Y" name="JoystickAxis2" />
 	<spinner label="Kalibruj oś Z" name="JoystickAxis0" />
