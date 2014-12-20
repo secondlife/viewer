@@ -1151,9 +1151,6 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 }
 
 //-----------------------------------------------------------------------------
-											LLUUID fake_mesh_id;
-											fake_mesh_id.generate();
-											pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, gAgentAvatarp->avString());
 // LLModelPreview
 //-----------------------------------------------------------------------------
 

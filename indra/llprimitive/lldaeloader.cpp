@@ -1286,7 +1286,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 						LLJoint* pJoint = mJointLookupFunc(lookingForJoint,mOpaqueData);
 						if ( pJoint )
 						{   
-							pJoint->storeCurrentXform( jointTransform.getTranslation() );												
+							LLUUID fake_mesh_id;
+							fake_mesh_id.generate();
+							pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, "");
 						}
 						else
 						{
