@@ -199,7 +199,10 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	
-	void					resetJointPositionsToDefault( void );
+	void 					addAttachmentPosOverridesForObject(LLViewerObject *vo);
+	void					resetJointPositionsOnDetach(const LLUUID& mesh_id);
+	void					resetJointPositionsOnDetach(LLViewerObject *vo);
+	void					clearAttachmentPosOverrides();
 	
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);
@@ -357,19 +360,11 @@ protected:
 	/*virtual*/ LLAvatarJointMesh*	createAvatarJointMesh(); // Returns LLViewerJointMesh
 public:
 	void				updateHeadOffset();
-	void				setPelvisOffset( bool hasOffset, const LLVector3& translation, F32 offset ) ;
-	bool				hasPelvisOffset( void ) { return mHasPelvisOffset; }
 	void				postPelvisSetRecalc( void );
-	void				setPelvisOffset( F32 pelvixFixupAmount );
 
 	/*virtual*/ BOOL	loadSkeletonNode();
 	/*virtual*/ void	buildCharacter();
 
-	bool				mHasPelvisOffset;
-	LLVector3			mPelvisOffset;
-	F32					mLastPelvisToFoot;
-	F32					mPelvisFixup;
-	F32					mLastPelvisFixup;
 	LLVector3			mCurRootToHeadOffset;
 	LLVector3			mTargetRootToHeadOffset;
 
@@ -720,6 +715,7 @@ public:
 	void 				clampAttachmentPositions();
 	virtual const LLViewerJointAttachment* attachObject(LLViewerObject *viewer_object);
 	virtual BOOL 		detachObject(LLViewerObject *viewer_object);
+	static bool		    getRiggedMeshID( LLViewerObject* pVO, LLUUID& mesh_id );
 	void				cleanupAttachedMesh( LLViewerObject* pVO );
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type ) const;

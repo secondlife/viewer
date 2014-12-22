@@ -239,7 +239,8 @@ void LLVOAvatarSelf::initInstance()
 		return;
 	}
 
-	mHoverOffset = gSavedSettings.getVector3("AvatarPosFinalOffset");
+	mHoverOffset = gSavedPerAccountSettings.getVector3("AvatarPosFinalOffset");
+	LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << mHoverOffset[2] << LL_ENDL;
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
@@ -283,7 +284,7 @@ void LLVOAvatarSelf::markDead()
 {
 	BOOL success = LLVOAvatar::loadAvatar();
 
-	// set all parameters sotred directly in the avatar to have
+	// set all parameters stored directly in the avatar to have
 	// the isSelfParam to be TRUE - this is used to prevent
 	// them from being animated or trigger accidental rebakes
 	// when we copy params from the wearable to the base avatar.
@@ -739,13 +740,8 @@ void LLVOAvatarSelf::updateVisualParams()
 	LLVOAvatar::updateVisualParams();
 }
 
-/*virtual*/
-void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
+void LLVOAvatarSelf::writeWearablesToAvatar()
 {
-	// Animate all top-level wearable visual parameters
-	gAgentWearables.animateAllWearableParams(calcMorphAmount());
-
-	// apply wearable visual params to avatar
 	for (U32 type = 0; type < LLWearableType::WT_COUNT; type++)
 	{
 		LLWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);
@@ -754,6 +750,17 @@ void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 			wearable->writeToAvatar(this);
 		}
 	}
+
+}
+
+/*virtual*/
+void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
+{
+	// Animate all top-level wearable visual parameters
+	gAgentWearables.animateAllWearableParams(calcMorphAmount());
+
+	// Apply wearable visual params to avatar
+	writeWearablesToAvatar();
 
 	//allow avatar to process updates
 	LLVOAvatar::idleUpdateAppearanceAnimation();
@@ -1114,9 +1121,19 @@ LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
 	return NULL;
 }
 
-const std::string LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id) const
+bool LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const
 {
+	if (!gInventory.getItem(inv_item_id))
+	{
+		name = "ATTACHMENT_MISSING_ITEM";
+		return false;
+	}
 	const LLUUID& base_inv_item_id = gInventory.getLinkedItemID(inv_item_id);
+	if (!gInventory.getItem(base_inv_item_id))
+	{
+		name = "ATTACHMENT_MISSING_BASE_ITEM";
+		return false;
+	}
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end(); 
 		 ++iter)
@@ -1124,11 +1141,13 @@ const std::string LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id
 		const LLViewerJointAttachment* attachment = iter->second;
 		if (attachment->getAttachedObject(base_inv_item_id))
 		{
-			return attachment->getName();
+			name = attachment->getName();
+			return true;
 		}
 	}
 
-	return LLStringUtil::null;
+	name = "ATTACHMENT_NOT_ATTACHED";
+	return false;
 }
 
 //virtual
@@ -1163,8 +1182,6 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 	const LLUUID attachment_id = viewer_object->getAttachmentItemID();
 	if ( LLVOAvatar::detachObject(viewer_object) )
 	{
-		LLVOAvatar::cleanupAttachedMesh( viewer_object );
-		
 		// the simulator should automatically handle permission revocation
 		
 		stopMotionFromSource(attachment_id);
@@ -2718,7 +2735,7 @@ void LLVOAvatarSelf::sendHoverHeight() const
 		LLSD update = LLSD::emptyMap();
 		update["hover_height"] = mHoverOffset[2];
 
-		LL_DEBUGS("Avatar") << "sending hover height value " << mHoverOffset[2] << LL_ENDL;
+		LL_DEBUGS("Avatar") << avString() << "sending hover height value " << mHoverOffset[2] << LL_ENDL;
 		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
 	}
 }

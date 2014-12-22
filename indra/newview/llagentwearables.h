@@ -178,7 +178,10 @@ public:
 	
 	typedef std::vector<LLViewerObject*> llvo_vec_t;
 
-	static void 	userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array);
+	static void     findAttachmentsAddRemoveInfo(LLInventoryModel::item_array_t& obj_item_array,
+												 llvo_vec_t& objects_to_remove,
+												 llvo_vec_t& objects_to_retain,
+												 LLInventoryModel::item_array_t& items_to_add);
 	static void		userRemoveMultipleAttachments(llvo_vec_t& llvo_array);
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
 
