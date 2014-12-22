@@ -84,6 +84,12 @@ namespace tut
 	template<> template<>
 	void frametimer_object_t::test<3>()
 	{
+		clock_t t1 = clock();
+		ms_sleep(200);
+		clock_t t2 = clock();
+		clock_t elapsed = t2 - t1 + 1;
+		std::cout << "Note: using clock(), ms_sleep() actually took " << (long)elapsed << "ms" << std::endl;
+
 		F64 seconds_since_epoch = LLFrameTimer::getTotalSeconds();
 		seconds_since_epoch += 2.0;
 		LLFrameTimer timer;
