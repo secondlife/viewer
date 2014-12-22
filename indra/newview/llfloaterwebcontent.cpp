@@ -293,6 +293,7 @@ void LLFloaterWebContent::onOpen(const LLSD& key)
 void LLFloaterWebContent::onClose(bool app_quitting)
 {
     // If we close the web browsing window showing the facebook login, we need to signal to this object that the connection will not happen
+	// MAINT-3440 note change here to use findInstance and not getInstance - latter creates an instance if it's not there which is bad.
     LLFloater* fbc_web = LLFloaterReg::findInstance("fbc_web");
     if (fbc_web == this)
     {
@@ -302,7 +303,8 @@ void LLFloaterWebContent::onClose(bool app_quitting)
         }
     }
 	// Same with Flickr
-	LLFloater* flickr_web = LLFloaterReg::getInstance("flickr_web");
+	// MAINT-3440 note change here to use findInstance and not getInstance - latter creates an instance if it's not there which is bad.
+	LLFloater* flickr_web = LLFloaterReg::findInstance("flickr_web");
     if (flickr_web == this)
     {
         if (!LLFlickrConnect::instance().isConnected())
@@ -311,7 +313,8 @@ void LLFloaterWebContent::onClose(bool app_quitting)
         }
     }
 	// And Twitter
-	LLFloater* twitter_web = LLFloaterReg::getInstance("twitter_web");
+	// MAINT-3440 note change here to use findInstance and not getInstance - latter creates an instance if it's not there which is bad.
+	LLFloater* twitter_web = LLFloaterReg::findInstance("twitter_web");
     if (twitter_web == this)
     {
         if (!LLTwitterConnect::instance().isConnected())

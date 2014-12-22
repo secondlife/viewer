@@ -352,6 +352,22 @@ void callWindowUnfocus()
 	gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
 }
 
+void callWindowHide()
+{	
+	if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
+	{
+		gWindowImplementation->getCallbacks()->handleActivate(gWindowImplementation, false);
+	}
+}
+
+void callWindowUnhide()
+{	
+	if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
+	{
+		gWindowImplementation->getCallbacks()->handleActivate(gWindowImplementation, true);
+	}
+}
+
 void callDeltaUpdate(float *delta, MASK mask)
 {
 	gWindowImplementation->updateMouseDeltas(delta);

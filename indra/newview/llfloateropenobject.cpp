@@ -58,6 +58,8 @@ LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
 {
 	mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",	boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
 	mCommitCallbackRegistrar.add("OpenObject.MoveAndWear",		boost::bind(&LLFloaterOpenObject::onClickMoveAndWear, this));
+	mCommitCallbackRegistrar.add("OpenObject.ReplaceOutfit",	boost::bind(&LLFloaterOpenObject::onClickReplace, this));
+	mCommitCallbackRegistrar.add("OpenObject.Cancel",			boost::bind(&LLFloaterOpenObject::onClickCancel, this));
 }
 
 LLFloaterOpenObject::~LLFloaterOpenObject()
@@ -115,6 +117,7 @@ void LLFloaterOpenObject::refresh()
 	getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", name);
 	getChildView("copy_to_inventory_button")->setEnabled(enabled);
 	getChildView("copy_and_wear_button")->setEnabled(enabled);
+	getChildView("copy_and_replace_button")->setEnabled(enabled);
 
 }
 
@@ -135,7 +138,7 @@ void LLFloaterOpenObject::dirty()
 
 
 
-void LLFloaterOpenObject::moveToInventory(bool wear)
+void LLFloaterOpenObject::moveToInventory(bool wear, bool replace)
 {
 	if (mObjectSelection->getRootObjectCount() != 1)
 	{
@@ -163,7 +166,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 		parent_category_id = gInventory.getRootFolderID();
 	}
 
-	inventory_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear);
+	inventory_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear,replace);
 	LLUUID category_id = gInventory.createNewCategory(parent_category_id, 
 													  LLFolderType::FT_NONE, 
 													  name,
@@ -177,6 +180,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 		data->mCatID = category_id;
 		data->mWear = wear;
 		data->mFolderResponded = false;
+		data->mReplace = replace;
 
 		// Copy and/or move the items into the newly created folder.
 		// Ignore any "you're going to break this item" messages.
@@ -194,13 +198,14 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 }
 
 // static
-void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear)
+void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear, bool replace)
 {
 	LLCatAndWear* wear_data = new LLCatAndWear;
 
 	wear_data->mCatID = category_id;
 	wear_data->mWear = wear;
 	wear_data->mFolderResponded = true;
+	wear_data->mReplace = replace;
 	
 	// Copy and/or move the items into the newly created folder.
 	// Ignore any "you're going to break this item" messages.
@@ -241,7 +246,17 @@ void LLFloaterOpenObject::onClickMoveToInventory()
 
 void LLFloaterOpenObject::onClickMoveAndWear()
 {
-	moveToInventory(true);
+	moveToInventory(true, false);
 	closeFloater();
 }
 
+void LLFloaterOpenObject::onClickReplace()
+{
+	moveToInventory(true, true);
+	closeFloater();
+}
+
+void LLFloaterOpenObject::onClickCancel()
+{
+	closeFloater();
+}

@@ -4,7 +4,7 @@
  height="500"
  layout="topleft"
  name="Joystick"
- help_topic="joystick"
+ help_topic="Viewerhelp:Joystick_Configuration"
  title="JOYSTICK CONFIGURATION"
  width="569">
     <floater.string

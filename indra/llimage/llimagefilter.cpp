@@ -266,7 +266,7 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         }
         else
         {
-            llwarns << "Filter unknown, cannot execute filter command : " << filter_name << llendl;
+            LL_WARNS() << "Filter unknown, cannot execute filter command : " << filter_name << LL_ENDL;
         }
     }
 }

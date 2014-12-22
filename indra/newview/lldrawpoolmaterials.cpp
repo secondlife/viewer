@@ -96,7 +96,7 @@ void LLDrawPoolMaterials::endDeferredPass(S32 pass)
 
 void LLDrawPoolMaterials::renderDeferred(S32 pass)
 {
-	U32 type_list[] = 
+	static const U32 type_list[] = 
 	{
 		LLRenderPass::PASS_MATERIAL,
 		//LLRenderPass::PASS_MATERIAL_ALPHA,
