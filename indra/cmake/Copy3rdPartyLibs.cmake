@@ -233,11 +233,11 @@ elseif(LINUX)
 
     set(vivox_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(vivox_files
-        libsndfile.so.1
-        libortp.so
-        libvivoxoal.so.1
-        libvivoxplatform.so
-        libvivoxsdk.so
+        libsndfile.dylib
+        libortp.dylib
+        libvivoxoal.dylib
+        libvivoxplatform.dylib
+        libvivoxsdk.dylib
         SLVoice
         # ca-bundle.crt   #No cert for linux.  It is actually still 3.2SDK.
        )
