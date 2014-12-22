@@ -7457,7 +7457,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	if (isSelf())
 	{
-		LL_INFOS("Avatar") << "hover was set: " << contents.mHoverOffsetWasSet << " value_z " << contents.mHoverOffset[2] << LL_ENDL;
+		LL_INFOS("Avatar") << avString() << "hover was set: " << contents.mHoverOffsetWasSet << " value_z " << contents.mHoverOffset[2] << LL_ENDL;
 	}
 	
 	if (contents.mHoverOffsetWasSet && !isSelf())
@@ -7471,7 +7471,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	{
 		// If we don't get a value at all, we are presumably in a
 		// region that does not support hover height.
-// FIXME RESTORE AFTER TESTING
+
 		LL_WARNS() << "zeroing hover because not defined in appearance message" << LL_ENDL;
 		mHoverOffset = LLVector3(0.0, 0.0, 0.0);
 	}

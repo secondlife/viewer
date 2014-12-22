@@ -239,7 +239,8 @@ void LLVOAvatarSelf::initInstance()
 		return;
 	}
 
-	mHoverOffset = gSavedSettings.getVector3("AvatarPosFinalOffset");
+	mHoverOffset = gSavedPerAccountSettings.getVector3("AvatarPosFinalOffset");
+	LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << mHoverOffset[2] << LL_ENDL;
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
@@ -2734,7 +2735,7 @@ void LLVOAvatarSelf::sendHoverHeight() const
 		LLSD update = LLSD::emptyMap();
 		update["hover_height"] = mHoverOffset[2];
 
-		LL_DEBUGS("Avatar") << "sending hover height value " << mHoverOffset[2] << LL_ENDL;
+		LL_DEBUGS("Avatar") << avString() << "sending hover height value " << mHoverOffset[2] << LL_ENDL;
 		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
 	}
 }

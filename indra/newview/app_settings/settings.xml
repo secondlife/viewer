@@ -654,21 +654,6 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>AvatarPosFinalOffset</key>
-    <map>
-      <key>Comment</key>
-      <string>After-everything-else fixup for avatar position.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-      </array>
-    </map>
     <key>AvatarPickerURL</key>
     <map>
       <key>Comment</key>
