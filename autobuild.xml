@@ -1874,11 +1874,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9054bf56196fb3ce43a92e512db6ba13</string>
+              <string>15ebe611213c9577691ffbade081549d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openal_3p-update-openal/rev/296861/arch/Linux/installer/openal-1.12.854-1.1.0.296861-linux-296861.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openal_3p-update-openal/rev/297677/arch/Linux/installer/openal-1.12.854-1.1.0.297677-linux-297677.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1888,18 +1888,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ca34d3f0f014ef6b8c445b6cacf4edc7</string>
+              <string>3bf6e26aeec71f36c8b6e20c6b883fe9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openal_3p-update-openal/rev/296861/arch/CYGWIN/installer/openal-1.12.854-1.1.0.296861-windows-296861.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openal_3p-update-openal/rev/297677/arch/CYGWIN/installer/openal-1.12.854-1.1.0.297677-windows-297677.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.12.854-1.1.0.296861</string>
+        <string>1.12.854-1.1.0.297677</string>
       </map>
       <key>openjpeg</key>
       <map>
