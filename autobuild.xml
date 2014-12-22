@@ -1078,7 +1078,7 @@
         <key>license_file</key>
         <string>LICENSES/havok.txt</string>
         <key>name</key>
-        <string>-source</string>
+        <string>havok-source</string>
         <key>platforms</key>
         <map>
           <key>darwin</key>
