@@ -81,7 +81,7 @@ void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 {
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
 	F32 value = sldrCtrl->getValueF32();
-	LLVector3 offset = gSavedSettings.getVector3("AvatarPosFinalOffset");
+	LLVector3 offset = gSavedPerAccountSettings.getVector3("AvatarPosFinalOffset");
 	offset[2] = value;
 	gAgentAvatarp->mHoverOffset = offset;
 }
