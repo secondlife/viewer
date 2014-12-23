@@ -2194,6 +2194,12 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
                 LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
                 return;
             }
+            // Cutting or deleting a whole listing needs confirmation as SLM will be archived and inaccessible to the user
+            else if (LLMarketplaceData::instance().isListed(viewModel->getUUID()) && (("cut" == action) || ("delete" == action)))
+            {
+                LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+                return;
+           }
         }
     }
     

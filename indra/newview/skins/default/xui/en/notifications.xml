@@ -371,6 +371,19 @@ Initialization with the Marketplace failed because of a system or network error.
 
     <notification
         icon="alertmodal.tga"
+        name="ConfirmListingCutOrDelete"
+        type="alertmodal">
+        Moving or deleting a listing folder will delete your Marketplace listing. If you would like to keep the Marketplace listing, move or delete the contents of the version folder you would like to modify. Do you want to continue?
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Confirm before I move or delete a listing from the marketplace"
+        name="okcancelignore"
+        notext="Cancel"
+        yestext="OK"/>
+    </notification>
+    
+    <notification
+        icon="alertmodal.tga"
         name="ConfirmMerchantUnlist"
         type="alertmodal">
         This action will unlist this listing. Do you want to continue?

@@ -887,7 +887,6 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         // Options available at the Listing Folder level
         items.push_back(std::string("Marketplace Create Listing"));
         items.push_back(std::string("Marketplace Associate Listing"));
-        items.push_back(std::string("Marketplace Disassociate Listing"));
         items.push_back(std::string("Marketplace List"));
         items.push_back(std::string("Marketplace Unlist"));
         if (LLMarketplaceData::instance().isUpdating(mUUID))
@@ -895,7 +894,6 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
             // During SLM update, disable all marketplace related options
             disabled_items.push_back(std::string("Marketplace Create Listing"));
             disabled_items.push_back(std::string("Marketplace Associate Listing"));
-            disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
             disabled_items.push_back(std::string("Marketplace List"));
             disabled_items.push_back(std::string("Marketplace Unlist"));
         }
@@ -928,7 +926,6 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
             }
             else
             {
-                disabled_items.push_back(std::string("Marketplace Disassociate Listing"));
                 disabled_items.push_back(std::string("Marketplace List"));
                 disabled_items.push_back(std::string("Marketplace Unlist"));
                 if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
@@ -2583,6 +2580,12 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                 {
                     // Moving something in an active listed listing will modify it. Ask confirmation.
                     LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    return true;
+                }
+                if (move_is_from_marketplacelistings && LLMarketplaceData::instance().isListed(cat_id))
+                {
+                    // Moving a whole listing folder will result in archival of SLM data. Ask confirmation.
+                    LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     return true;
                 }
             }
