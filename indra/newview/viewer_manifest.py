@@ -604,9 +604,9 @@ class Windows_i686_Manifest(ViewerManifest):
         # http://www.scratchpaper.com/
         # Check two paths, one for Program Files, and one for Program Files (x86).
         # Yay 64bit windows.
-        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
+        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\makensis.exe')
         if not os.path.exists(NSIS_path):
-            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
+            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\makensis.exe')
         installer_created=False
         nsis_attempts=3
         nsis_retry_wait=15
