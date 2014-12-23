@@ -186,7 +186,12 @@ build_docs()
       record_event "no metadata at '$build_dir/autobuild-package.xml'"
   fi
   end_section "Autobuild metadata"
-  record_dependencies_graph # defined in build.sh
+  if [ "$arch" != "Linux" ]
+  then
+      record_dependencies_graph # defined in build.sh
+  else
+      echo "TBD - skipping linux graph (probable python version dependency)" 1>&2
+  fi
   end_section "Building Documentation"
 }
 
