@@ -677,6 +677,7 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 #if LL_WINDOWS
 #endif
 #if LL_LINUX
+#   define STATUS_SIZE 2048	
 	LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
 	if (status_filep)
 	{

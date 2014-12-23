@@ -778,7 +778,7 @@ private:
 			setInfo(eFamily, family);
 		}
  
-		setInfo(eFamilyName, compute_CPUFamilyName(cpuinfo["vendor_id"].c_str(), family));
+		setInfo(eFamilyName, compute_CPUFamilyName(cpuinfo["vendor_id"].c_str(), family, 0));
 
 		// setInfo(eExtendedModel, getSysctlInt("machdep.cpu.extmodel"));
 		// setInfo(eBrandID, getSysctlInt("machdep.cpu.brand"));

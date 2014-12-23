@@ -209,7 +209,7 @@ if (LINUX OR DARWIN)
   endif (CMAKE_CXX_COMPILER MATCHES ".*clang")
 
   if (CMAKE_COMPILER_IS_GNUCXX)
-  set(GCC_WARNINGS "-Wall -Wno-trigraphs")
+    set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
   elseif (CMAKE_COMPILER_IS_CLANGXX)
     set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
   endif()
