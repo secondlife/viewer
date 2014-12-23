@@ -1095,7 +1095,8 @@ void LLCircuit::sendAcks(F32 collect_time)
 	circuit_data_map::iterator it = mSendAckMap.begin();
 	while (it != mSendAckMap.end())
 	{
-		cd = (*it).second;
+		circuit_data_map::iterator cur_it = it++;
+		cd = (*cur_it).second;
 		S32 count = (S32)cd->mAcks.size();
 		F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
 		if (age > collect_time || count == 0)
@@ -1138,12 +1139,7 @@ void LLCircuit::sendAcks(F32 collect_time)
 				cd->mAckCreationTime = 0.f;
 			}
 			// remove data map
-			it = mSendAckMap.erase(it);
-		}
-		else
-		{
-			//continue collecting acks for this map
-			++it;
+			mSendAckMap.erase(cur_it);
 		}
 	}
 }
