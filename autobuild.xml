@@ -682,56 +682,26 @@
         <key>copyright</key>
         <string>Copyright (c) 2000 Cass Everitt</string>
         <key>description</key>
-        <string>glh - is a platform-indepenedent C++ OpenGL helper library </string>
+        <string>glh - is a platform-indepenedent C++ OpenGL helper library</string>
         <key>license</key>
-        <string>	Copyright (c) 2000 NVIDIA CorporationMIT</string>
+        <string>BSD</string>
         <key>license_file</key>
-        <string>LICENSES/glh_linear.txt</string>
+        <string>LICENSES/glh-linear.txt</string>
         <key>name</key>
         <string>glh-linear</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
+          <key>common</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>82d6a829726786944e2387c6ae89cf27</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>f577144536fd7c9d26d9f989acf17857</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297262/arch/Darwin/installer/glh_linear-0.0.0-darwin-297262.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297692/arch/Linux/installer/glh_linear-0.0.0-common-297692.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>41c5cd2b229bfb5373ecd7c7b57cb575</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297262/arch/Linux/installer/glh_linear-0.0.0-linux-297262.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>156abbd261be10ce68873ff0867b3845</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297262/arch/CYGWIN/installer/glh_linear-0.0.0-windows-297262.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
+            <string>common</string>
           </map>
         </map>
         <key>version</key>
