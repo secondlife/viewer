@@ -785,6 +785,22 @@
 		 parameter="copy_to_outbox" />
 	</menu_item_call>
 	<menu_item_call
+        label="Copy to Marketplace Listings"
+        layout="topleft"
+        name="Marketplace Copy">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="copy_to_marketplace_listings" />
+	</menu_item_call>
+	<menu_item_call
+        label="Move to Marketplace Listings"
+        layout="topleft"
+        name="Marketplace Move">
+		<menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="move_to_marketplace_listings" />
+	</menu_item_call>
+	<menu_item_call
      label="--no options--"
      layout="topleft"
      name="--no options--" />

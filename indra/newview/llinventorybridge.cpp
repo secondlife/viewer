@@ -737,11 +737,19 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			{
 				items.push_back(std::string("Marketplace Separator"));
 
-				items.push_back(std::string("Merchant Copy"));
-				if (!canListOnMarketplaceNow())
-				{
-					disabled_items.push_back(std::string("Merchant Copy"));
-				}
+                if (gMenuHolder->getChild<LLView>("MerchantOutbox")->getVisible())
+                {
+                    items.push_back(std::string("Merchant Copy"));
+                    if (!canListOnMarketplaceNow())
+                    {
+                        disabled_items.push_back(std::string("Merchant Copy"));
+                    }
+                }
+                if (gMenuHolder->getChild<LLView>("MarketplaceListings")->getVisible())
+                {
+                    items.push_back(std::string("Marketplace Copy"));
+                    items.push_back(std::string("Marketplace Move"));
+                }
 			}
 		}
 	}
@@ -1577,6 +1585,13 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_item_to_outbox(itemp, outbox_id, LLUUID::null, LLToolDragAndDrop::getOperationId());
 	}
+	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action))
+	{
+		LLInventoryItem* itemp = model->getItem(mUUID);
+		if (!itemp) return;
+        const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        move_item_to_marketplacelistings(itemp, marketplacelistings_id, ("copy_to_marketplace_listings" == action));
+    }
 	else if ("copy_slurl" == action)
 	{
 		LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
@@ -2588,6 +2603,11 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                     LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     return true;
                 }
+                if (move_is_into_marketplacelistings && !move_is_from_marketplacelistings)
+                {
+                    LLNotificationsUtil::add("ConfirmMerchantMoveInventory", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    return true;
+                }
             }
 			// Look for any gestures and deactivate them
 			if (move_is_into_trash)
@@ -3158,6 +3178,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_folder_to_outbox(cat, outbox_id, cat->getUUID(), LLToolDragAndDrop::getOperationId());
 	}
+	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action))
+	{
+		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
+		if (!cat) return;
+        const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("copy_to_marketplace_listings" == action));
+    }
 }
 
 void LLFolderBridge::gatherMessage(std::string& message, LLError::ELevel log_level)
@@ -4458,6 +4485,11 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
                     (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
                 {
                     LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));
+                    return true;
+                }
+                if (move_is_into_marketplacelistings && !move_is_from_marketplacelistings)
+                {
+                    LLNotificationsUtil::add("ConfirmMerchantMoveInventory", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));
                     return true;
                 }
             }
