@@ -130,6 +130,53 @@ S32 count_stock_folders(LLInventoryModel::cat_array_t& categories)
     return count;
 }
 
+// Helper function : Returns true if the hierarchy contains nocopy items
+bool contains_nocopy_items(const LLUUID& id)
+{
+    LLInventoryCategory* cat = gInventory.getCategory(id);
+
+    if (cat)
+    {
+        // Get the content
+        LLInventoryModel::cat_array_t* cat_array;
+        LLInventoryModel::item_array_t* item_array;
+        gInventory.getDirectDescendentsOf(id,cat_array,item_array);
+        
+        // Check all the items: returns true upon encountering a nocopy item
+        for (LLInventoryModel::item_array_t::iterator iter = item_array->begin(); iter != item_array->end(); iter++)
+        {
+            LLInventoryItem* item = *iter;
+            LLViewerInventoryItem * inv_item = (LLViewerInventoryItem *) item;
+            if (!inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+            {
+                return true;
+            }
+        }
+        
+        // Check all the sub folders recursively
+        for (LLInventoryModel::cat_array_t::iterator iter = cat_array->begin(); iter != cat_array->end(); iter++)
+        {
+            LLViewerInventoryCategory* cat = *iter;
+            if (contains_nocopy_items(cat->getUUID()))
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+		LLInventoryItem* item = gInventory.getItem(id);
+        LLViewerInventoryItem * inv_item = (LLViewerInventoryItem *) item;
+        if (!inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            return true;
+        }
+    }
+    
+    // Exit without meeting a nocopy item
+    return false;
+}
+
 // Generates a string containing the path to the item specified by
 // item_id.
 void append_path(const LLUUID& id, std::string& path)
@@ -2199,7 +2246,18 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
             {
                 LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
                 return;
-           }
+            }
+        }
+    }
+    // Copying to the marketplace needs confirmation if nocopy items are involved
+    if (user_confirm && ("copy_to_marketplace_listings" == action))
+    {
+        std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
+        LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
+        if (contains_nocopy_items(viewModel->getUUID()))
+        {
+            LLNotificationsUtil::add("ConfirmCopyToMarketplace", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+            return;
         }
     }
     
