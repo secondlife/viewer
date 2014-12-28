@@ -2380,6 +2380,14 @@ void LLTextEditor::removeTextFromEnd(S32 num_chars)
 
 //----------------------------------------------------------------------------
 
+void LLTextEditor::onSpellCheckPerformed()
+{
+	if (isPristine())
+	{
+		mBaseDocIsPristine = FALSE;
+	}
+}
+
 void LLTextEditor::makePristine()
 {
 	mPristineCmd = mLastCmd;

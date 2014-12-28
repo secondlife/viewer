@@ -185,6 +185,7 @@ Ansariel Hiller
 	BUG-3764
 	STORM-1984
 	STORM-1979
+	STORM-2094
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -718,6 +719,7 @@ Jonathan Yap
 	STORM-2030
 	STORM-2034
 	STORM-2018
+	STORM-2094
 Kadah Coba
 	STORM-1060
     STORM-1843

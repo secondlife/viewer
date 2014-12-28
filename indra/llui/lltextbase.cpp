@@ -1316,6 +1316,7 @@ void LLTextBase::replaceWithSuggestion(U32 index)
 
 
 			setCursorPos(it->first + (S32)suggestion.length());
+			onSpellCheckPerformed();
 
 			break;
 		}
