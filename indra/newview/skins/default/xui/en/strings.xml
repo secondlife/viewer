@@ -2287,6 +2287,9 @@ We are accessing your account on the [[MARKETPLACE_CREATE_STORE_URL] Marketplace
 	<string name="InventoryOutboxErrorTitle">Marketplace Errors.</string>
 	<string name="InventoryOutboxErrorTooltip"></string>
 	<string name="InventoryOutboxError">
+The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
+	</string>
+	<string name="InventoryMarketplaceError">
 This feature is currently in Beta. Please add your name to this [http://goo.gl/forms/FCQ7UXkakz Google form] if you would like to participate.
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">Your Marketplace Listings folder is empty.</string>

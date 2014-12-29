@@ -502,7 +502,7 @@ void LLFloaterMarketplaceListings::updateView()
         else
         {
             // "Errors!" message strings
-            text = LLTrans::getString("InventoryOutboxError", subs);
+            text = LLTrans::getString("InventoryMarketplaceError", subs);
             title = LLTrans::getString("InventoryOutboxErrorTitle");
             tooltip = LLTrans::getString("InventoryOutboxErrorTooltip");
         }
