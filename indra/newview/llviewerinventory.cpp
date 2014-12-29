@@ -810,8 +810,13 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 
 bool LLViewerInventoryCategory::acceptItem(LLInventoryItem* inv_item)
 {
-    bool accept = true;
+    if (!inv_item)
+    {
+        return false;
+    }
+
     // Only stock folders have limitation on which item they will accept
+    bool accept = true;
     if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         // If the item is copyable (i.e. non stock) do not accept the drop in a stock folder
