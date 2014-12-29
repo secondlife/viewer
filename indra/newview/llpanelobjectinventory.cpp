@@ -654,7 +654,7 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		return;
 	}
 
-	if(gAgent.allowOperation(PERM_OWNER, item->getPermissions(),
+	if(!gAgent.allowOperation(PERM_OWNER, item->getPermissions(),
 							 GP_OBJECT_MANIPULATE)
 	   && item->getSaleInfo().isForSale())
 	{
