@@ -1392,16 +1392,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a4a46193fd3c893c7cd2589d2e6d748d</string>
+              <string>c30a759dfd8ccdf44ced4210c15b6e04</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297051/arch/CYGWIN/installer/libpng-1.6.8.297051-windows-297051.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/CYGWIN/installer/libpng-1.6.8.297708-windows-297708.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.6.8.297051</string>
+        <string>1.6.8.297708</string>
       </map>
       <key>libuuid</key>
       <map>
