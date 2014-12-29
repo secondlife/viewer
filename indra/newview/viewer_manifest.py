@@ -595,7 +595,7 @@ class Windows_i686_Manifest(ViewerManifest):
         # it also does python-style % substitution
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
                 "%%VERSION%%":version_vars,
-                "%%SOURCE%%":self.get_src_sprefix(),
+                "%%SOURCE%%":self.get_src_prefix(),
                 "%%INST_VARS%%":inst_vars_template % substitution_strings,
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
