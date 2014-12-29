@@ -1392,7 +1392,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c30a759dfd8ccdf44ced4210c15b6e04</string>
+              <string>09eb65e66e0230ab01e57e643647a4f1</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/CYGWIN/installer/libpng-1.6.8.297708-windows-297708.tar.bz2</string>
             </map>
