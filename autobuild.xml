@@ -1368,9 +1368,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d837ee080fba5d521df4c43d5cb7fa78</string>
+              <string>14cb5c8686a472e9e60179e46cd196f7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297051/arch/Darwin/installer/libpng-1.6.8.297051-darwin-297051.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/Darwin/installer/libpng-1.6.8.297708-darwin-297708.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
