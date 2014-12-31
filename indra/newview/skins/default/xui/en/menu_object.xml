@@ -78,7 +78,7 @@
     <menu_item_call.on_enable
         function="EnableSelectInPathfindingLinksets"/>
     <menu_item_call.on_visible
-        function="EnableSelectInPathfindingLinksets"/>
+        function="VisibleSelectInPathfindingLinksets"/>
   </menu_item_call>
   <menu_item_call
       label="Show in characters"
