@@ -839,16 +839,16 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   			if ((objectp->getType() == LLAssetType::AT_CATEGORY) &&
   				(objectp->getActualType() != LLAssetType::AT_LINK_FOLDER))
   			{
-  				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
-  																				objectp->getType(),
+  				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
+                                            (mParams.use_marketplace_folders ? LLAssetType::AT_MARKETPLACE_FOLDER : LLAssetType::AT_CATEGORY),
   																				LLInventoryType::IT_CATEGORY,
   																				this,
-																			&mInventoryViewModel,
+                                                                                &mInventoryViewModel,
   																				mFolderRoot.get(),
   																				objectp->getUUID());
   				if (new_listener)
   				{
-				folder_view_item = createFolderViewFolder(new_listener,allow_drop);
+                    folder_view_item = createFolderViewFolder(new_listener,allow_drop);
   				}
   			}
   			else

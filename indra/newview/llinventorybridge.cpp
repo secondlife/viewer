@@ -1274,11 +1274,18 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_CATEGORY:
 			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
 			{
-				// Create a link folder handler instead.
+				// Create a link folder handler instead
 				new_listener = new LLLinkFolderBridge(inventory, root, uuid);
-				break;
 			}
-			new_listener = new LLFolderBridge(inventory, root, uuid);
+            else if (actual_asset_type == LLAssetType::AT_MARKETPLACE_FOLDER)
+            {
+				// Create a marketplace folder handler
+				new_listener = new LLMarketplaceFolderBridge(inventory, root, uuid);
+            }
+            else
+            {
+                new_listener = new LLFolderBridge(inventory, root, uuid);
+            }
 			break;
 		case LLAssetType::AT_LINK:
 		case LLAssetType::AT_LINK_FOLDER:
@@ -2090,70 +2097,13 @@ std::string LLFolderBridge::getLabelSuffix() const
         return llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str());
     }
     
-    if (isMarketplaceListingsFolder())
-    {
-        std::string suffix = "";
-        // Listing folder case
-        if (LLMarketplaceData::instance().isListed(getUUID()))
-        {
-            suffix = llformat("%d",LLMarketplaceData::instance().getListingID(getUUID()));
-            if (suffix.empty())
-            {
-                suffix = LLTrans::getString("MarketplaceNoID");
-            }
-            suffix = " (" +  suffix + ")";
-            if (LLMarketplaceData::instance().getActivationState(getUUID()))
-            {
-                suffix += " (" +  LLTrans::getString("MarketplaceLive") + ")";
-            }
-        }
-        // Version folder case
-        else if (LLMarketplaceData::instance().isVersionFolder(getUUID()))
-        {
-            suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
-        }
-        // Add stock amount
-        S32 stock_count = compute_stock_count(getUUID());
-        if (stock_count == 0)
-        {
-            suffix += " (" +  LLTrans::getString("MarketplaceNoStock") + ")";
-        }
-        else if (stock_count != -1)
-        {
-            if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
-            {
-                suffix += " (" +  LLTrans::getString("MarketplaceStock") + "=" + llformat("%d", stock_count) + ")";
-            }
-            else
-            {
-                suffix += " (" +  LLTrans::getString("MarketplaceMax") + "=" + llformat("%d", stock_count) + ")";
-            }
-        }
-        // Add updating suffix
-        if (LLMarketplaceData::instance().isUpdating(getUUID()))
-        {
-            suffix += " (" +  LLTrans::getString("MarketplaceUpdating") + ")";
-        }
-        return LLInvFVBridge::getLabelSuffix() + suffix;
-	}
-	else
-	{
-		return LLInvFVBridge::getLabelSuffix();
-	}
+    return LLInvFVBridge::getLabelSuffix();
 }
 
 LLFontGL::StyleFlags LLFolderBridge::getLabelStyle() const
 {
-	if (isMarketplaceListingsFolder() && LLMarketplaceData::instance().getActivationState(getUUID()))
-	{
-		return LLFontGL::BOLD;
-	}
-	else
-	{
-		return LLFontGL::NORMAL;
-	}
+    return LLFontGL::NORMAL;
 }
-
 
 void LLFolderBridge::update()
 {
@@ -3283,12 +3233,6 @@ LLUIImagePtr LLFolderBridge::getIconOpen() const
 LLUIImagePtr LLFolderBridge::getFolderIcon(BOOL is_open) const
 {
 	LLFolderType::EType preferred_type = getPreferredType();
-    S32 depth = depth_nesting_in_marketplace(mUUID);
-    if ((preferred_type == LLFolderType::FT_NONE) && (depth == 2))
-    {
-        // We override the type when in the marketplace listings folder and only for version folder
-        preferred_type = LLFolderType::FT_MARKETPLACE_VERSION;
-    }
 	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, is_open));
 }
 
@@ -4183,6 +4127,96 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 
 	LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, append );
 }
+
+// +=================================================+
+// |        LLMarketplaceFolderBridge                |
+// +=================================================+
+
+// LLMarketplaceFolderBridge is a specialized LLFolderBridge for use in Marketplace Inventory panels
+
+LLUIImagePtr LLMarketplaceFolderBridge::getIcon() const
+{
+	return getMarketplaceFolderIcon(FALSE);
+}
+
+LLUIImagePtr LLMarketplaceFolderBridge::getIconOpen() const
+{
+	return getMarketplaceFolderIcon(TRUE);
+}
+
+LLUIImagePtr LLMarketplaceFolderBridge::getMarketplaceFolderIcon(BOOL is_open) const
+{
+	LLFolderType::EType preferred_type = getPreferredType();
+    S32 depth = depth_nesting_in_marketplace(mUUID);
+    if ((preferred_type == LLFolderType::FT_NONE) && (depth == 2))
+    {
+        // We override the type when in the marketplace listings folder and only for version folder
+        preferred_type = LLFolderType::FT_MARKETPLACE_VERSION;
+    }
+	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, is_open));
+}
+
+std::string LLMarketplaceFolderBridge::getLabelSuffix() const
+{
+    static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime", 0.5f);
+    
+    if (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= folder_loading_message_delay())
+    {
+        return llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str());
+    }
+    
+    std::string suffix = "";
+    // Listing folder case
+    if (LLMarketplaceData::instance().isListed(getUUID()))
+    {
+        suffix = llformat("%d",LLMarketplaceData::instance().getListingID(getUUID()));
+        if (suffix.empty())
+        {
+            suffix = LLTrans::getString("MarketplaceNoID");
+        }
+        suffix = " (" +  suffix + ")";
+        if (LLMarketplaceData::instance().getActivationState(getUUID()))
+        {
+            suffix += " (" +  LLTrans::getString("MarketplaceLive") + ")";
+        }
+    }
+    // Version folder case
+    else if (LLMarketplaceData::instance().isVersionFolder(getUUID()))
+    {
+        suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
+    }
+    // Add stock amount
+    S32 stock_count = compute_stock_count(getUUID());
+    if (stock_count == 0)
+    {
+        suffix += " (" +  LLTrans::getString("MarketplaceNoStock") + ")";
+    }
+    else if (stock_count != -1)
+    {
+        if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+        {
+            suffix += " (" +  LLTrans::getString("MarketplaceStock") + "=" + llformat("%d", stock_count) + ")";
+        }
+        else
+        {
+            suffix += " (" +  LLTrans::getString("MarketplaceMax") + "=" + llformat("%d", stock_count) + ")";
+        }
+    }
+    // Add updating suffix
+    if (LLMarketplaceData::instance().isUpdating(getUUID()))
+    {
+        suffix += " (" +  LLTrans::getString("MarketplaceUpdating") + ")";
+    }
+    return LLInvFVBridge::getLabelSuffix() + suffix;
+}
+
+LLFontGL::StyleFlags LLMarketplaceFolderBridge::getLabelStyle() const
+{
+    return (LLMarketplaceData::instance().getActivationState(getUUID()) ? LLFontGL::BOLD : LLFontGL::NORMAL);
+}
+
+
+
 
 // helper stuff
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv* move_inv)

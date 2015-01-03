@@ -362,7 +362,7 @@ public:
 	static LLHandle<LLFolderBridge> sSelf;
 	static void staticFolderOptionsMenu();
 
-private:
+protected:
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, LLError::ELevel log_level);
@@ -682,6 +682,29 @@ public:
 		const LLUUID& uuid,
 		U32 flags = 0x00) const;
 };
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Marketplace Inventory Panel related classes
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLMarketplaceFolderBridge : public LLFolderBridge
+{
+public:
+    // Overloads some display related methods specific to folders in a marketplace floater context
+	LLMarketplaceFolderBridge(LLInventoryPanel* inventory,
+							  LLFolderView* root,
+							  const LLUUID& uuid) :
+    LLFolderBridge(inventory, root, uuid) { }
+    
+	virtual LLUIImagePtr getIcon() const;
+	virtual LLUIImagePtr getIconOpen() const;
+	virtual std::string getLabelSuffix() const;
+	virtual LLFontGL::StyleFlags getLabelStyle() const;
+    
+private:
+    LLUIImagePtr getMarketplaceFolderIcon(BOOL is_open) const;
+};
+
 
 void rez_attachment(LLViewerInventoryItem* item, 
 					LLViewerJointAttachment* attachment,

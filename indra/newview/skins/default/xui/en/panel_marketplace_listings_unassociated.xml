@@ -11,6 +11,7 @@
     start_folder.name="Marketplace listings"
     show_empty_message="true"
     show_root_folder="true"
+    use_marketplace_folders="true"
     start_folder.type="merchant"
     bg_opaque_color="DkGray2"
     bg_alpha_color="DkGray2"
