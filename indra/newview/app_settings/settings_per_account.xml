@@ -1,9 +1,9 @@
 <llsd>
     <map>
-    <key>AvatarPosFinalOffset</key>
+    <key>AvatarHoverOffsetZ</key>
     <map>
       <key>Comment</key>
-      <string>After-everything-else fixup for avatar position.</string>
+      <string>After-everything-else fixup for avatar Z position.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

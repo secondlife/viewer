@@ -239,7 +239,7 @@ void LLVOAvatarSelf::initInstance()
 		return;
 	}
 
-	F32 hover_z = gSavedPerAccountSettings.getF32("AvatarPosFinalOffset");
+	F32 hover_z = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
 	mHoverOffset = LLVector3(0.0, 0.0, llclamp(hover_z,MIN_HOVER_Z,MAX_HOVER_Z));
 	LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << mHoverOffset[2] << LL_ENDL;
 

@@ -42,16 +42,16 @@ LLFloaterHoverHeight::LLFloaterHoverHeight(const LLSD& key) : LLFloater(key)
 
 void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data)
 {
-	F32 value = gSavedPerAccountSettings.getF32("AvatarPosFinalOffset");
+	F32 value = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
 
 	LLFloaterHoverHeight *self = static_cast<LLFloaterHoverHeight*>(user_data);
 	LLSliderCtrl* sldrCtrl = self->getChild<LLSliderCtrl>("HoverHeightSlider");
 	sldrCtrl->setValue(value,FALSE);
 
-	//value = sldrCtrl->getValueF32();
-	//gAgentAvatarp->mHoverOffset = LLVector3(0.0, 0.0, value);
 	if (isAgentAvatarValid())
 	{
+		LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
+		gAgentAvatarp->mHoverOffset = offset;
 		gAgentAvatarp->sendHoverHeight();
 	}
 }
@@ -68,13 +68,13 @@ BOOL LLFloaterHoverHeight::postBuild()
 	// Initialize slider from pref setting.
 	syncFromPreferenceSetting(this);
 	// Update slider on future pref changes.
-	if (gSavedPerAccountSettings.getControl("AvatarPosFinalOffset"))
+	if (gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ"))
 	{
-		gSavedPerAccountSettings.getControl("AvatarPosFinalOffset")->getCommitSignal()->connect(boost::bind(&syncFromPreferenceSetting, this));
+		gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ")->getCommitSignal()->connect(boost::bind(&syncFromPreferenceSetting, this));
 	}
 	else
 	{
-		LL_WARNS() << "Control not found for AvatarPosFinalOffset" << LL_ENDL;
+		LL_WARNS() << "Control not found for AvatarHoverOffsetZ" << LL_ENDL;
 	}
 
 	return TRUE;
@@ -95,7 +95,7 @@ void LLFloaterHoverHeight::onFinalCommit()
 {
 	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
 	F32 value = sldrCtrl->getValueF32();
-	gSavedPerAccountSettings.setF32("AvatarPosFinalOffset",value);
+	gSavedPerAccountSettings.setF32("AvatarHoverOffsetZ",value);
 }
 
 
