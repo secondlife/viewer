@@ -721,11 +721,11 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
 	mLastUpdateRequestCOFVersion(-1),
-	mLastUpdateReceivedCOFVersion(-1),
-	mHoverOffset(0.0, 0.0, 0.0)
+	mLastUpdateReceivedCOFVersion(-1)
+	//mHoverOffset(0.0, 0.0, 0.0)
 {
 	//VTResume();  // VTune
-	
+	mHoverOffset = LLVector3(0.0, 0.0, 0.0);
 	// mVoiceVisualizer is created by the hud effects manager and uses the HUD Effects pipeline
 	const BOOL needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
 	mVoiceVisualizer = ( LLVoiceVisualizer *)LLHUDManager::getInstance()->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );

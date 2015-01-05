@@ -213,8 +213,6 @@ public:
 	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
 	virtual void				updateVisualParams();
 
-	LLVector3 mHoverOffset;
-
 /**                    Inherited
  **                                                                            **
  *******************************************************************************/

@@ -261,6 +261,8 @@ public:
 	static std::vector< LLCharacter* > sInstances;
 	static BOOL sAllowInstancesChange ; //debug use
 
+	LLVector3 mHoverOffset;
+
 protected:
 	LLMotionController	mMotionController;
 
