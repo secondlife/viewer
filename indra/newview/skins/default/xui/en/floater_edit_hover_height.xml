@@ -23,8 +23,6 @@
      follows="top|left"
      height="15"
      increment="0.001"
-     max_val="2"
-     min_val="-2"
      initial_value="0.0"
      label="Height"
      label_width="60"

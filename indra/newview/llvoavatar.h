@@ -1021,6 +1021,9 @@ protected: // Shared with LLVOAvatarSelf
 extern const F32 SELF_ADDITIONAL_PRI;
 extern const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL;
 
+extern const F32 MAX_HOVER_Z;
+extern const F32 MIN_HOVER_Z;
+
 std::string get_sequential_numbered_file_name(const std::string& prefix,
 											  const std::string& suffix);
 void dump_sequential_xml(const std::string outprefix, const LLSD& content);

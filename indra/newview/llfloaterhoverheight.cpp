@@ -42,12 +42,14 @@ LLFloaterHoverHeight::LLFloaterHoverHeight(const LLSD& key) : LLFloater(key)
 
 void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data)
 {
-	LLVector3 offset = gSavedPerAccountSettings.getVector3("AvatarPosFinalOffset");
-	F32 value = offset[2];
+	F32 value = gSavedPerAccountSettings.getF32("AvatarPosFinalOffset");
 
 	LLFloaterHoverHeight *self = static_cast<LLFloaterHoverHeight*>(user_data);
 	LLSliderCtrl* sldrCtrl = self->getChild<LLSliderCtrl>("HoverHeightSlider");
 	sldrCtrl->setValue(value,FALSE);
+
+	//value = sldrCtrl->getValueF32();
+	//gAgentAvatarp->mHoverOffset = LLVector3(0.0, 0.0, value);
 	if (isAgentAvatarValid())
 	{
 		gAgentAvatarp->sendHoverHeight();
@@ -57,6 +59,8 @@ void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data)
 BOOL LLFloaterHoverHeight::postBuild()
 {
 	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
+	sldrCtrl->setMinValue(MIN_HOVER_Z);
+	sldrCtrl->setMaxValue(MAX_HOVER_Z);
 	sldrCtrl->setSliderMouseUpCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
 	sldrCtrl->setSliderEditorCommitCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
 	childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, NULL);
@@ -81,8 +85,7 @@ void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 {
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
 	F32 value = sldrCtrl->getValueF32();
-	LLVector3 offset = gSavedPerAccountSettings.getVector3("AvatarPosFinalOffset");
-	offset[2] = value;
+	LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
 	gAgentAvatarp->mHoverOffset = offset;
 }
 
@@ -92,9 +95,7 @@ void LLFloaterHoverHeight::onFinalCommit()
 {
 	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
 	F32 value = sldrCtrl->getValueF32();
-	LLVector3 offset = gSavedPerAccountSettings.getVector3("AvatarPosFinalOffset");
-	offset[2] = value;
-	gSavedPerAccountSettings.setVector3("AvatarPosFinalOffset",offset);
+	gSavedPerAccountSettings.setF32("AvatarPosFinalOffset",value);
 }
 
 

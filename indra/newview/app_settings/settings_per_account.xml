@@ -7,13 +7,9 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Vector3</string>
+      <string>F32</string>
       <key>Value</key>
-      <array>
         <real>0.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-      </array>
     </map>
     <key>DoNotDisturbResponseChanged</key>
         <map>
