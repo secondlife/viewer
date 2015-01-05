@@ -350,9 +350,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad78620ba44f01e6284e575dbcc4f53a</string>
+              <string>b4cc0620501f234bfa2e6cc1b0e9508e</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/294910/arch/Linux/installer/dbus_glib-0.76-linux-294910.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/297729/arch/Linux/installer/dbus_glib-0.76-linux-297729.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
