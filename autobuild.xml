@@ -350,9 +350,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b4cc0620501f234bfa2e6cc1b0e9508e</string>
+              <string>c11ff7e2e0bd59e6e59628f24902bbcd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/297729/arch/Linux/installer/dbus_glib-0.76-linux-297729.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/297768/arch/Linux/installer/dbus_glib-0.76-linux-297768.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -838,9 +838,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a41182ffaabaf72fd170535c0879eac0</string>
+              <string>48abe997aaa3903780d9fd5c009fd8d8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/294995/arch/Darwin/installer/google_breakpad-1332.294995-darwin-294995.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/297767/arch/Darwin/installer/google_breakpad-1398.297767-darwin-297767.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -850,9 +850,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>52257e5eb166a0b69c9c0c38f6e1920e</string>
+              <string>ca903a283435cdaafd79d7f1596a42d1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/297767/arch/Linux/installer/google_breakpad-1398.297767-linux-297767.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -862,16 +862,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0af9ab8c34f4acb8b0c2ae56488ee0a9</string>
+              <string>e07aed6bb74eadd9caf0c1d521976f9a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/295565/arch/CYGWIN/installer/google_breakpad-1332.295565-windows-295565.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/297767/arch/CYGWIN/installer/google_breakpad-1398.297767-windows-297767.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1332.295565</string>
+        <string>1398.297767</string>
       </map>
       <key>googlemock</key>
       <map>
