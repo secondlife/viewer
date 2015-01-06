@@ -523,6 +523,8 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 
 			LLScrollListCell::Params cell_params;
 			cell_params.font = LLFontGL::getFontSansSerif();
+			// Start out right justifying numeric displays
+			cell_params.font_halign = LLFontGL::RIGHT;
 
 			cell_params.column = "size";
 			cell_params.value = size;
@@ -532,6 +534,8 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 			cell_params.value = urls;
 			item_params.columns.add(cell_params);
 
+			cell_params.font_halign = LLFontGL::LEFT;
+			// The rest of the columns are text to left justify them
 			cell_params.column = "name";
 			cell_params.value = name_buf;
 			item_params.columns.add(cell_params);
@@ -546,7 +550,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 
 			cell_params.column = "location";
 			cell_params.value = has_locations
-				? llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z)
+				? llformat("<%0.0f, %0.0f, %0.0f>", location_x, location_y, location_z)
 				: "";
 			item_params.columns.add(cell_params);
 
@@ -623,13 +627,24 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 
 	if((mParcelMemoryUsed >= 0) && (mParcelMemoryMax >= 0))
 	{
-		S32 parcel_memory_available = mParcelMemoryMax - mParcelMemoryUsed;
-
 		LLStringUtil::format_map_t args_parcel_memory;
 		args_parcel_memory["[COUNT]"] = llformat ("%d", mParcelMemoryUsed);
-		args_parcel_memory["[MAX]"] = llformat ("%d", mParcelMemoryMax);
-		args_parcel_memory["[AVAILABLE]"] = llformat ("%d", parcel_memory_available);
-		std::string msg_parcel_memory = LLTrans::getString("ScriptLimitsMemoryUsed", args_parcel_memory);
+		std::string translate_message;
+
+		if (0 < mParcelMemoryMax)
+		{
+			S32 parcel_memory_available = mParcelMemoryMax - mParcelMemoryUsed;
+
+			args_parcel_memory["[MAX]"] = llformat ("%d", mParcelMemoryMax);
+			args_parcel_memory["[AVAILABLE]"] = llformat ("%d", parcel_memory_available);
+			translate_message = "ScriptLimitsMemoryUsed";
+		}
+		else
+		{
+			translate_message = "ScriptLimitsMemoryUsedSimple";
+		}
+
+		std::string msg_parcel_memory = LLTrans::getString(translate_message, args_parcel_memory);
 		getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_parcel_memory));
 	}
 
