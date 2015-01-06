@@ -186,6 +186,7 @@ Ansariel Hiller
 	STORM-1984
 	STORM-1979
 	STORM-2083
+	STORM-2094
 	MAINT-4677
 Aralara Rajal
 Arare Chantilly
@@ -722,6 +723,7 @@ Jonathan Yap
 	STORM-2034
 	STORM-2018
 	STORM-2086
+	STORM-2094
 	STORM-2099
 Kadah Coba
 	STORM-1060
