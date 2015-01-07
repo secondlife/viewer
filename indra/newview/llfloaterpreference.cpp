@@ -1117,7 +1117,7 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {	
-	LLUICtrl* ctrl_reflections = getChild<LLUICtrl>("Reflections");
+	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 	
 	// Reflections
@@ -1207,7 +1207,7 @@ void LLFloaterPreference::refreshEnabledState()
 
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-	LLUICtrl* ctrl_shadow = getChild<LLUICtrl>("ShadowDetail");
+	LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
 	LLTextBox* shadow_text = getChild<LLTextBox>("RenderShadowDetailText");
 
 	// note, okay here to get from ctrl_deferred as it's twin, ctrl_deferred2 will alway match it
@@ -1290,7 +1290,7 @@ void LLFloaterPreference::refreshEnabledState()
 
 void LLFloaterPreference::disableUnavailableSettings()
 {	
-	LLUICtrl* ctrl_reflections   = getChild<LLUICtrl>("Reflections");
+	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
@@ -1299,7 +1299,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_avatar_impostors = getChild<LLCheckBoxCtrl>("AvatarImpostors");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLCheckBoxCtrl* ctrl_deferred2 = getChild<LLCheckBoxCtrl>("UseLightShaders2");
-	LLUICtrl* ctrl_shadows = getChild<LLUICtrl>("ShadowDetail");
+	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
 	LLTextBox* shadows_text = getChild<LLTextBox>("RenderShadowDetailText");
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
@@ -1476,8 +1476,6 @@ void LLFloaterPreference::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
 	updateSliderText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true));	
-	updateSliderText(getChild<LLSliderCtrl>("Reflections",		true), getChild<LLTextBox>("ReflectionsText",			true));	
-	updateSliderText(getChild<LLSliderCtrl>("ShadowDetail",		true), getChild<LLTextBox>("RenderShadowDetailText",			true));	
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1735,20 +1733,6 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 		return;
 	
 	std::string name = ctrl->getName();
-
-	if ("ShadowDetail" == name)
-	{
-		U32 value = (U32)ctrl->getValue().asInteger();
-		text_box->setText(getString("RenderShadowDetail" + llformat("%d", value)));
-		return;
-	}
-
-	if ("Reflections" == name)
-	{
-		U32 value = (U32)ctrl->getValue().asInteger();
-		text_box->setText(getString("Reflections" + llformat("%d", value)));
-		return;
-	}
 
 	// get range and points when text should change
 	F32 value = (F32)ctrl->getValue().asReal();
