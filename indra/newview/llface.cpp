@@ -330,24 +330,52 @@ void LLFace::dirtyTexture()
 				{
 					vobj->mLODChanged = TRUE;
 
-			LLVOAvatar* avatar = vobj->getAvatar();
-			if (avatar)
-			{ //avatar render cost may have changed
-				avatar->updateVisualComplexity();
-			}
+					LLVOAvatar* avatar = vobj->getAvatar();
+					if (avatar)
+					{ //avatar render cost may have changed
+						avatar->updateVisualComplexity();
+					}
 				}
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 			}
 		}
 	}
-			
+
 	gPipeline.markTextured(drawablep);
+}
+
+void LLFace::notifyAboutCreatingTexture(LLViewerTexture *texture)
+{
+	LLDrawable* drawablep = getDrawable();
+	if(mVObjp.notNull() && mVObjp->getVolume())
+	{
+		LLVOVolume *vobj = drawablep->getVOVolume();
+		if(vobj && vobj->notifyAboutCreatingTexture(texture))
+		{
+			gPipeline.markTextured(drawablep);
+			gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME);
+		}
+	}
+}
+
+void LLFace::notifyAboutMissingAsset(LLViewerTexture *texture)
+{
+	LLDrawable* drawablep = getDrawable();
+	if(mVObjp.notNull() && mVObjp->getVolume())
+	{
+		LLVOVolume *vobj = drawablep->getVOVolume();
+		if(vobj && vobj->notifyAboutMissingAsset(texture))
+		{
+			gPipeline.markTextured(drawablep);
+			gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME);
+		}
+	}
 }
 
 void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 {
 	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
-	
+
 	if(mTexture[ch] == new_texture)
 	{
 		return ;
