@@ -629,7 +629,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	{
 		LLStringUtil::format_map_t args_parcel_memory;
 		args_parcel_memory["[COUNT]"] = llformat ("%d", mParcelMemoryUsed);
-		std::string translate_message;
+		std::string translate_message = "ScriptLimitsMemoryUsedSimple";
 
 		if (0 < mParcelMemoryMax)
 		{
@@ -638,10 +638,6 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 			args_parcel_memory["[MAX]"] = llformat ("%d", mParcelMemoryMax);
 			args_parcel_memory["[AVAILABLE]"] = llformat ("%d", parcel_memory_available);
 			translate_message = "ScriptLimitsMemoryUsed";
-		}
-		else
-		{
-			translate_message = "ScriptLimitsMemoryUsedSimple";
 		}
 
 		std::string msg_parcel_memory = LLTrans::getString(translate_message, args_parcel_memory);
@@ -1076,10 +1072,12 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 			element["columns"][0]["column"] = "size";
 			element["columns"][0]["value"] = llformat("%d", size);
 			element["columns"][0]["font"] = "SANSSERIF";
+			element["columns"][0]["halign"] = LLFontGL::RIGHT;
 
 			element["columns"][1]["column"] = "urls";
 			element["columns"][1]["value"] = llformat("%d", urls);
 			element["columns"][1]["font"] = "SANSSERIF";
+			element["columns"][1]["halign"] = LLFontGL::RIGHT;
 			
 			element["columns"][2]["column"] = "name";
 			element["columns"][2]["value"] = name;
@@ -1166,14 +1164,20 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 
 	if((mAttachmentMemoryUsed >= 0) && (mAttachmentMemoryMax >= 0))
 	{
-		S32 attachment_memory_available = mAttachmentMemoryMax - mAttachmentMemoryUsed;
-
 		LLStringUtil::format_map_t args_attachment_memory;
 		args_attachment_memory["[COUNT]"] = llformat ("%d", mAttachmentMemoryUsed);
-		args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
-		args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
-		std::string msg_attachment_memory = LLTrans::getString("ScriptLimitsMemoryUsed", args_attachment_memory);
-		getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_attachment_memory));
+		std::string translate_message = "ScriptLimitsMemoryUsedSimple";
+
+		if (0 < mAttachmentMemoryMax)
+		{
+			S32 attachment_memory_available = mAttachmentMemoryMax - mAttachmentMemoryUsed;
+
+			args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
+			args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
+			translate_message = "ScriptLimitsMemoryUsed";
+		}
+
+		getChild<LLUICtrl>("memory_used")->setValue(LLTrans::getString(translate_message, args_attachment_memory));
 	}
 
 	if((mAttachmentURLsUsed >= 0) && (mAttachmentURLsMax >= 0))

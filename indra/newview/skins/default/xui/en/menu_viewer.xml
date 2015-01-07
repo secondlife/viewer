@@ -410,7 +410,7 @@
      name="World"
      tear_off="true">
         <menu_item_call
-         label="Landmark This Place..."
+         label="Landmark This Place"
          name="Create Landmark Here">
             <menu_item_call.on_click
              function="World.CreateLandmark" />
@@ -425,7 +425,7 @@
              parameter="destinations" />
         </menu_item_call>
         <menu_item_check
-         label="World map..."
+         label="World map"
          name="World Map"
          shortcut="control|M"
          use_mac_ctrl="true">
@@ -487,21 +487,21 @@
         </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
-         label="Place profile..."
+         label="Place profile"
          layout="topleft"
          name="Place Profile">
             <menu_item_call.on_click
              function="World.PlaceProfile" />
         </menu_item_call>
         <menu_item_call
-         label="About land..."
+         label="About land"
          name="About Land">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="about_land" />
         </menu_item_call>
         <menu_item_call
-         label="Region / Estate..."
+         label="Region / Estate"
          name="RegionEstate">
             <menu_item_call.on_click
              function="Floater.Show"
