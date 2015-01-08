@@ -1614,16 +1614,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3494fbd0c94d65dcb0fd05c3216bfb87</string>
+              <string>fe3377f1455ab74de6cd08de0ed9be55</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/295945/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.295945-windows-295945.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/297894/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.297894-windows-297894.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.297367</string>
+        <string>1.0.297894</string>
       </map>
       <key>llqtwebkit</key>
       <map>
