@@ -206,12 +206,21 @@ void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 		std::list<std::string> preset_names;
 		loadPresetNamesFromDir(presets_dir, preset_names, default_option);
 
+		std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
+
 		if (preset_names.begin() != preset_names.end())
 		{
 			for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
 			{
 				const std::string& name = *it;
-				combo->add(name, LLSD().with(0, name));
+				if (name != preset_graphic_active)
+				{
+					combo->add(name, LLSD().with(0, name));
+				}
+				else
+				{
+					combo->add(name, LLSD().with(0, name), ADD_TOP);
+				}
 			}
 		}
 		else
