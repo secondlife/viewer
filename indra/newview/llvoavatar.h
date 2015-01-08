@@ -383,6 +383,7 @@ public:
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	bool		isVisuallyMuted();
+	bool 		isInMuteList();
 	void		setCachedVisualMute(bool muted)						{ mCachedVisualMute = muted;	};
 	void		forceUpdateVisualMuteSettings();
 
@@ -421,6 +422,9 @@ private:
 
 	bool		mCachedVisualMute;				// cached return value for isVisuallyMuted()
 	F64			mCachedVisualMuteUpdateTime;	// Time to update mCachedVisualMute
+
+	bool		mCachedInMuteList;
+	F64			mCachedMuteListUpdateTime;
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
