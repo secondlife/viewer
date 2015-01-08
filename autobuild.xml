@@ -1548,9 +1548,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6899d771cfdad3a5ea2741f9203f5f5b</string>
+              <string>36398845726a377fe37a60c675ad1499</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297366/arch/Linux/installer/llphysicsextensions_source-1.0.297366-linux-297366.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297895/arch/Linux/installer/llphysicsextensions_source-1.0.297895-linux-297895.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1569,7 +1569,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.0.297366</string>
+        <string>1.0.297895</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
