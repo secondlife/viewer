@@ -2063,6 +2063,38 @@
         <key>version</key>
         <string>7.3</string>
       </map>
+      <key>slplugins</key>
+      <map>
+        <key>copyright</key>
+        <string>Second Life Viewer Source Code - Copyright (C) 2010, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>Second Life Viewer Plugins and launcher</string>
+        <key>license</key>
+        <string>LGPL</string>
+        <key>license_file</key>
+        <string>LICENSES/slplugins-license.txt</string>
+        <key>name</key>
+        <string>slplugins</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>55358f8aca309a73f828929cc4b1b0d2</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slplugins_3p-update-slplugins/rev/297645/arch/CYGWIN/installer/slplugins-3.7.22.297128.297645-windows-297645.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3.7.22.297128.297645</string>
+      </map>
       <key>slvoice</key>
       <map>
         <key>copyright</key>
