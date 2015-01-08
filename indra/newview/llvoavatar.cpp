@@ -7470,7 +7470,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		mHoverOffset = contents.mHoverOffset;
 	}
 
-	if (!contents.mHoverOffsetWasSet && !isSelf())
+	if (!contents.mHoverOffsetWasSet)
 	{
 		// If we don't get a value at all, we are presumably in a
 		// region that does not support hover height.
