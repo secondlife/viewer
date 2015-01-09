@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+<panel
+  translate="false"
+  name="sys_well_item"
+  title="sys_well_item"
+  visible="true"
+  top="0"
+  left="0"
+  width="331"
+  height="50"
+  can_resize="false"
+  layout="topleft"
+  follows="left|right"
+  background_opaque="false"
+  background_visible="true"
+  bg_alpha_color="SysWellItemUnselected" >
+
+  <panel border="true" top="0" left="3" width="327" height="44" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="GroupNameNoticeTitlePanel">
+    <layout_stack top="0" left="0" width="325" height="50" orientation="horizontal" follows="left|top|right|bottom" name="HorizontalStack">
+      <layout_panel width="30" height="22" orientation="horizontal" follows="left|top|right|bottom" name="LayoutPanel">
+        <group_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="group_icon_small" tool_tip="Group" default_icon_name="Generic_Group"/>
+      </layout_panel>
+      <layout_panel width="260" height="50" orientation="horizontal" follows="left|top|right|bottom" name="LayoutPanel">
+        <panel border="false" top="0" width="260" height="38" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="MainInfoBlockPanel">
+          <panel border="false" top="0" left="0" width="260" height="19" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="GroupNameNoticeTitlePanel">
+            <text allow_scroll="false" font="SansSerifLarge" top="2" left="0" width="267" height="17" layout="topleft" follows="right|left" text_color="White"
+              use_ellipses="true" word_wrap="true" mouse_opaque="false" name="GroupName_NoticeTitle" >
+              Group Name:Notice Title
+            </text>
+            <icon top="0" right="-1" width="21" height="21" image_name="Icon_Attachment_Small" follows="right" mouse_opaque="true" name="icon_attachment_small" tool_tip="Attachment"/>
+          </panel>
+          <panel border="false" top="23" left="0" width="260" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="SenderAndTimePanel" height="15">
+            <text allow_scroll="false" font="SansSerifSmall" top="0" left="0" width="250" height="13"    layout="topleft"    follows="right|left"
+              use_ellipses="true" word_wrap="true" mouse_opaque="false" name="Sender_Resident" >
+              Sender.Resident
+            </text>
+            <text allow_scroll="false" font="SansSerifSmall" top="0" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
+              name="Time_Box" right="-5" value="2014/12/24 23:30" />
+          </panel>
+        </panel>
+      </layout_panel>
+      <layout_panel name="LayoutPanel3" width="18" height="39" orientation="horizontal" follows="left|top|right|bottom">
+        <panel name="CloseExpandButtonsPanel" border="false" top="0" left="0" width="17"  height="39" bevel_style="none" follows="left|top|right|bottom" layout="topleft">
+          <button top="0" left="0" width="17" height="17" layout="topleft" follows="top" name="close_btn" mouse_opaque="true"
+            tab_stop="false" image_unselected="Icon_Close_Foreground" image_selected="Icon_Close_Press" />
+          <button top="22" left="0" width="17" height="17" layout="topleft" follows="top" name="expand_btn" mouse_opaque="true"
+            tab_stop="false" image_unselected="Notification_Expand" image_selected="Notification_Expand" />
+        </panel>
+      </layout_panel>
+    </layout_stack>
+  </panel>
+</panel>

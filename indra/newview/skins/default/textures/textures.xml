@@ -795,4 +795,11 @@ with the same filename but different name
   <texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.png"/>
   <texture name="NavBar Separator" file_name="navbar/separator.png"/>
 
+  <texture name="Notification_Condense" file_name="icons/Icon_Notification_Condense.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="Notification_Expand" file_name="icons/Icon_Notification_Expand.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="Icon_Group_Small" file_name="icons/Icon_Group_Small.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="Icon_Group_Large" file_name="icons/Icon_Group_Large.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="Icon_Attachment_Small" file_name="icons/Icon_Attachment_Small.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="Icon_Attachment_Large" file_name="icons/Icon_Attachment_Large.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+
 </textures>

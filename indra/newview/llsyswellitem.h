@@ -32,6 +32,8 @@
 #include "llbutton.h"
 #include "lliconctrl.h"
 
+#include "llgroupmgr.h"
+
 #include <string>
 
 class LLSysWellItem : public LLPanel
@@ -74,6 +76,58 @@ private:
 	LLTextBox*	mTitle;
 	LLButton*	mCloseBtn;
 	LLUUID		mID;
+};
+
+class LLNotificationTabbedItem : public LLPanel
+{
+public:
+    struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
+    {
+        LLUUID        	notification_id;
+        LLUUID          group_id;
+        std::string		title;
+        std::string		sender;
+        LLDate time_stamp;
+        Params()        {};
+    };
+
+
+    LLNotificationTabbedItem(const Params& p);
+    virtual	~LLNotificationTabbedItem();
+
+    // title
+    void setTitle( std::string title );
+    void setGroupID(const LLUUID& group_id);
+    void setGroupIconID(const LLUUID& group_icon_id);
+    void setGroupName(const std::string& group_name);
+
+    // get item's ID
+    LLUUID getID() { return mID; }
+
+    // handlers
+    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual void onMouseEnter(S32 x, S32 y, MASK mask);
+    virtual void onMouseLeave(S32 x, S32 y, MASK mask);
+
+    //callbacks
+    typedef boost::function<void (LLNotificationTabbedItem* item)> item_callback_t;
+    typedef boost::signals2::signal<void (LLNotificationTabbedItem* item)> item_signal_t;
+    item_signal_t mOnItemClose;	
+    item_signal_t mOnItemClick;	
+    boost::signals2::connection setOnItemCloseCallback(item_callback_t cb) { return mOnItemClose.connect(cb); }
+    boost::signals2::connection setOnItemClickCallback(item_callback_t cb) { return mOnItemClick.connect(cb); }
+
+private:
+    static std::string buildNotificationDate(const LLDate&);
+    void onClickCloseBtn();
+
+    LLTextBox*	mTitle;
+    LLTextBox*	mSender;
+    LLTextBox*  mTimeBox;
+    LLIconCtrl* mGroupIcon;
+    LLButton*	mCloseBtn;
+    LLUUID		mID;
+    LLUUID		mGroupID;
 };
 
 #endif // LL_LLSYSWELLITEM_H
