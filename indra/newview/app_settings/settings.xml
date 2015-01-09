@@ -15607,7 +15607,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>HTTPNoProtocolShowGreyQuery</key>
+    <key>ShowGreyQueryInUrls</key>
     <map>
         <key>Comment</key>
         <string>Enable(disable) appearance of port, query and fragment parts of url for HTTP and HTTPNoProtocol entries in grey.</string>

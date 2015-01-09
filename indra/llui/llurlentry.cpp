@@ -49,7 +49,7 @@ std::string localize_slapp_label(const std::string& url, const std::string& full
 
 LLUrlEntryBase::LLUrlEntryBase()
 {
-	mGreyQuery = LLUI::sSettingGroups["config"]->getBOOL("HTTPNoProtocolShowGreyQuery");
+	mGreyQuery = LLUI::sSettingGroups["config"]->getBOOL("ShowGreyQueryInUrls");
 }
 
 LLUrlEntryBase::~LLUrlEntryBase()
@@ -503,12 +503,12 @@ LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
 
 std::string LLUrlEntrySecondlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	LLUriParser up(url);
-	up.extractParts();
+	return urlToLabelWithGreyQuery(url);
+}
 
-	std::string label;
-	up.glueFirst(label);
-	return label;
+std::string LLUrlEntrySecondlifeURL::getQuery(const std::string &url) const
+{
+	return urlToGreyQuery(url);
 }
 
 std::string LLUrlEntrySecondlifeURL::getTooltip(const std::string &url) const

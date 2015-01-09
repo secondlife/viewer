@@ -2065,7 +2065,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			// output the styled Url
 			appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
 
-			// show query part of url with gray color if enabled in global settings in "HTTPNoProtocolShowGreyQuery"
+			// show query part of url with gray color if enabled in global settings in "ShowGreyQueryInUrls"
 			// and only for LLUrlEntryHTTP and LLUrlEntryHTTPNoProtocol url entries
 			std::string label = match.getQuery();
 			if (label.size())
