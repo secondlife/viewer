@@ -2605,22 +2605,29 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
             if (move_is_from_marketplacelistings)
             {
-                // If we move from an active (listed) listing, checks that it's still valid, if not, unlist
-                LLUUID version_folder_id = LLMarketplaceData::instance().getActiveFolder(from_folder_uuid);
-                if (version_folder_id.notNull())
+                // If we are moving a folder at the listing folder level (i.e. its parent is the marketplace listings folder)
+                if (from_folder_uuid == marketplacelistings_id)
                 {
-                    LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
-                    if (!validate_marketplacelistings(cat,NULL))
+                    // Clear the folder from the marketplace in case it is a listing folder
+                    if (LLMarketplaceData::instance().isListed(cat_id))
                     {
-                        LLMarketplaceData::instance().activateListing(version_folder_id,false);
+                        LLMarketplaceData::instance().clearListing(cat_id);
                     }
                 }
-                // Update the listing we moved from anyway
-                update_marketplace_category(from_folder_uuid);
-                // Clear the folder from the marketplace in case it is a listing folder
-                if (LLMarketplaceData::instance().isListed(cat_id))
+                else
                 {
-                    LLMarketplaceData::instance().clearListing(cat_id);
+                    // If we move from within an active (listed) listing, checks that it's still valid, if not, unlist
+                    LLUUID version_folder_id = LLMarketplaceData::instance().getActiveFolder(from_folder_uuid);
+                    if (version_folder_id.notNull())
+                    {
+                        LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
+                        if (!validate_marketplacelistings(cat,NULL))
+                        {
+                            LLMarketplaceData::instance().activateListing(version_folder_id,false);
+                        }
+                    }
+                    // In all cases, update the listing we moved from so suffix are updated
+                    update_marketplace_category(from_folder_uuid);
                 }
             }
 		}
