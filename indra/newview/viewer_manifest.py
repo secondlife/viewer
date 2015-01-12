@@ -747,8 +747,12 @@ class Darwin_i386_Manifest(ViewerManifest):
                     # create a symlink to the real copy of the dylib.
                     resource_path = self.dst_path_of(os.path.join(app, "Contents", "Resources"))
                     for libfile in dylibs:
-                        symlinkf(os.path.join(os.pardir, os.pardir, os.pardir, libfile),
-                                 os.path.join(resource_path, libfile))
+                        src = os.path.join(os.pardir, os.pardir, os.pardir, libfile)
+                        dst = os.path.join(resource_path, libfile)
+                        try:
+                            symlinkf(src, dst)
+                        except OSError as err:
+                            print "Can't symlink %s -> %s: %s" % (src, dst, err)
                 # SLPlugin.app/Contents/Resources gets those Qt4 libraries it needs.
                 if self.prefix(src="", dst="SLPlugin.app/Contents/Resources"):
                     for libfile in ('libQtCore.4.dylib',
