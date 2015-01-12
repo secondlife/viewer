@@ -341,7 +341,7 @@ void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
     LLSD payload = toast->getNotification()->getPayload();
     LLDate time_stamp = toast->getNotification()->getDate();
     p.group_id = payload["group_id"];
-    p.sender = payload["name"];
+    p.sender = payload["name"].asString();
     p.time_stamp = time_stamp;
     addItem(p);
 }
