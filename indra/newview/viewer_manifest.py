@@ -331,14 +331,18 @@ class Windows_i686_Manifest(ViewerManifest):
     def construct(self):
         super(Windows_i686_Manifest, self).construct()
 
+        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        relpkgdir = os.path.join(pkgdir, "lib", "release")
+        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
         # Plugin host application
-        self.path2basename(os.path.join(os.pardir,
-                                        'llplugin', 'slplugin', self.args['configuration']),
-                           "slplugin.exe")
+        # The current slplugin package places slplugin.exe right into the
+        # packages base directory.
+        self.path2basename(pkgdir, "slplugin.exe")
         
         self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
         # Get shared libs from the shared libs staging directory
@@ -358,15 +362,10 @@ class Windows_i686_Manifest(ViewerManifest):
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
-                if self.args['configuration'].lower() == 'debug':
-                    self.path("libcollada14dom22-d.dll")
-                else:
-                    self.path("libcollada14dom22.dll")
-                    
                 self.path("glod.dll")
             except RuntimeError, err:
                 print err.message
-                print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
+                print "Skipping GLOD library (assumming linked statically)"
 
             # Get fmodex dll, continue if missing
             try:
@@ -425,82 +424,52 @@ class Windows_i686_Manifest(ViewerManifest):
         self.path("featuretable_xp.txt")
 
         # Media plugins - QuickTime
-        if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_quicktime.dll")
-            self.end_prefix()
-
         # Media plugins - WebKit/Qt
-        if self.prefix(src='../media_plugins/webkit/%s' % self.args['configuration'], dst="llplugin"):
+        if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="llplugin"):
+            self.path("media_plugin_quicktime.dll")
             self.path("media_plugin_webkit.dll")
-            self.end_prefix()
+            self.path("qtcore4.dll")
+            self.path("qtgui4.dll")
+            self.path("qtnetwork4.dll")
+            self.path("qtopengl4.dll")
+            self.path("qtwebkit4.dll")
+            self.path("qtxmlpatterns4.dll")
+
+            # For WebKit/Qt plugin runtimes (image format plugins)
+            if self.prefix(src="imageformats", dst="imageformats"):
+                self.path("qgif4.dll")
+                self.path("qico4.dll")
+                self.path("qjpeg4.dll")
+                self.path("qmng4.dll")
+                self.path("qsvg4.dll")
+                self.path("qtiff4.dll")
+                self.end_prefix()
+
+            # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+            if self.prefix(src="codecs", dst="codecs"):
+                self.path("qcncodecs4.dll")
+                self.path("qjpcodecs4.dll")
+                self.path("qkrcodecs4.dll")
+                self.path("qtwcodecs4.dll")
+                self.end_prefix()
+
+        self.end_prefix()
 
         # winmm.dll shim
         if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
             self.path("winmm.dll")
             self.end_prefix()
 
-
         if self.args['configuration'].lower() == 'debug':
-            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'debug'),
-                           dst="llplugin"):
+            if self.prefix(src=debpkgdir, dst="llplugin"):
                 self.path("libeay32.dll")
-                self.path("qtcored4.dll")
-                self.path("qtguid4.dll")
-                self.path("qtnetworkd4.dll")
-                self.path("qtopengld4.dll")
-                self.path("qtwebkitd4.dll")
-                self.path("qtxmlpatternsd4.dll")
                 self.path("ssleay32.dll")
-
-                # For WebKit/Qt plugin runtimes (image format plugins)
-                if self.prefix(src="imageformats", dst="imageformats"):
-                    self.path("qgifd4.dll")
-                    self.path("qicod4.dll")
-                    self.path("qjpegd4.dll")
-                    self.path("qmngd4.dll")
-                    self.path("qsvgd4.dll")
-                    self.path("qtiffd4.dll")
-                    self.end_prefix()
-
-                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-                if self.prefix(src="codecs", dst="codecs"):
-                    self.path("qcncodecsd4.dll")
-                    self.path("qjpcodecsd4.dll")
-                    self.path("qkrcodecsd4.dll")
-                    self.path("qtwcodecsd4.dll")
-                    self.end_prefix()
-
                 self.end_prefix()
+
         else:
-            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release'),
-                           dst="llplugin"):
+            if self.prefix(src=relpkgdir, dst="llplugin"):
                 self.path("libeay32.dll")
-                self.path("qtcore4.dll")
-                self.path("qtgui4.dll")
-                self.path("qtnetwork4.dll")
-                self.path("qtopengl4.dll")
-                self.path("qtwebkit4.dll")
-                self.path("qtxmlpatterns4.dll")
                 self.path("ssleay32.dll")
-
-                # For WebKit/Qt plugin runtimes (image format plugins)
-                if self.prefix(src="imageformats", dst="imageformats"):
-                    self.path("qgif4.dll")
-                    self.path("qico4.dll")
-                    self.path("qjpeg4.dll")
-                    self.path("qmng4.dll")
-                    self.path("qsvg4.dll")
-                    self.path("qtiff4.dll")
-                    self.end_prefix()
-
-                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-                if self.prefix(src="codecs", dst="codecs"):
-                    self.path("qcncodecs4.dll")
-                    self.path("qjpcodecs4.dll")
-                    self.path("qkrcodecs4.dll")
-                    self.path("qtwcodecs4.dll")
-                    self.end_prefix()
-
                 self.end_prefix()
 
         # pull in the crash logger and updater from other projects
