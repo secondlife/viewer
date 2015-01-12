@@ -891,7 +891,7 @@ void LLFloaterWorldMap::buildAvatarIDList()
 	end = collector.mMappable.end();
 	for( ; it != end; ++it)
 	{
-		list->addSimpleElement((*it).first, ADD_BOTTOM, (*it).second);
+		list->addSimpleElement((*it).second, ADD_BOTTOM, (*it).first);
 	}
 	
 	list->setCurrentByID( LLAvatarTracker::instance().getAvatarID() );

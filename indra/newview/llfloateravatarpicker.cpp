@@ -348,11 +348,11 @@ void LLFloaterAvatarPicker::populateFriend()
 	
 	for(it = collector.mOnline.begin(); it!=collector.mOnline.end(); it++)
 	{
-		friends_scroller->addStringUUIDItem(it->first, it->second);
+		friends_scroller->addStringUUIDItem(it->second, it->first);
 	}
 	for(it = collector.mOffline.begin(); it!=collector.mOffline.end(); it++)
 	{
-			friends_scroller->addStringUUIDItem(it->first, it->second);
+		friends_scroller->addStringUUIDItem(it->second, it->first);
 	}
 	friends_scroller->sortByColumnIndex(0, TRUE);
 }
