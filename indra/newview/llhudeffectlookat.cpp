@@ -39,8 +39,6 @@
 #include "llrendersphere.h"
 #include "llselectmgr.h"
 #include "llglheaders.h"
-#include "llfontgl.h"
-#include "llhudrender.h"
 #include "llxmltree.h"
 
 
@@ -497,15 +495,14 @@ void LLHUDEffectLookAt::render()
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		LLVOAvatar* source_avatar = ((LLVOAvatar*)(LLViewerObject*)mSourceObject);
-		LLVector3 target = mTargetPos + source_avatar->mHeadp->getWorldPosition();
+		LLVector3 target = mTargetPos + ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->mHeadp->getWorldPosition();
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
 		gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
 		gGL.scalef(0.3f, 0.3f, 0.3f);
-		LLColor3 color = (*mAttentions)[mTargetType].mColor;
 		gGL.begin(LLRender::LINES);
 		{
+			LLColor3 color = (*mAttentions)[mTargetType].mColor;
 			gGL.color3f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
 			gGL.vertex3f(-1.f, 0.f, 0.f);
 			gGL.vertex3f(1.f, 0.f, 0.f);
@@ -517,17 +514,6 @@ void LLHUDEffectLookAt::render()
 			gGL.vertex3f(0.f, 0.f, 1.f);
 		} gGL.end();
 		gGL.popMatrix();
-
-
-		if(!source_avatar->isSelf())
-		{
-			std::string av_name = source_avatar->getFullname();
-			const LLFontGL* big_fontp = LLFontGL::getFontSansSerif();
-			gGL.pushMatrix();
-			hud_render_utf8text(av_name,target+LLVector3(0.f,0.f,0.4f),*big_fontp,LLFontGL::NORMAL,LLFontGL::DROP_SHADOW_SOFT,-0.5*big_fontp->getWidthF32(av_name),3.f,color,FALSE);
-			gGL.popMatrix();
-		}
-
 	}
 }
 
