@@ -631,8 +631,23 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// a handwave but bump the transfer timeout up by the pipelining
 		// depth to give some room.
 		//
+		// BUG-7698, BUG-7688, BUG-7694 (others).  Scylla and Charybdis
+		// situation.  Operating against a CDN having service issues may
+		// lead to requests stalling for an arbitrarily long time with only
+		// the CURLOPT_TIMEOUT value leading to a closed connection.  Sadly
+		// for pipelining, libcurl (7.39.0 and earlier, at minimum) starts
+		// the clock on this value as soon as a request is started down
+		// the wire.  We want a short value to recover and retry from the
+		// CDN.  We need a long value to safely deal with a succession of
+		// piled-up pipelined requests.
+		//
 		// *TODO:  Find a better scheme than timeouts to guarantee liveness.
-		xfer_timeout *= cpolicy.mPipelining;
+		// Progress on the connection is what we really want, not timeouts.
+		// But we don't have access to that and the request progress indicators
+		// (various libcurl callbacks) have the same problem TIMEOUT does.
+		//
+		// xfer_timeout *= cpolicy.mPipelining;
+		xfer_timeout *= 2L;
 	}
 	// *DEBUG:  Enable following override for timeout handling and "[curl:bugs] #1420" tests
 	// xfer_timeout = 1L;

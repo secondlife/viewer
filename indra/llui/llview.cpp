@@ -885,7 +885,7 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			handled = handleKeyHere( key, mask );
 			if (handled)
 			{
-				LL_WARNS() << "Key handled by " << getName() << LL_ENDL;
+				LL_DEBUGS() << "Key handled by " << getName() << LL_ENDL;
 			}
 		}
 	}

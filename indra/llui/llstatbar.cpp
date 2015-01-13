@@ -638,7 +638,7 @@ void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_re
 
 void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 {
-	if (mAutoScaleMax || mAutoScaleMin)
+	if (!llisnan(min) && (mAutoScaleMax || mAutoScaleMin))
 	{
 		F32 u = LLSmoothInterpolation::getInterpolant(10.f);
 		mFloatingTargetMinBar = llmin(min, lerp(mFloatingTargetMinBar, min, u));

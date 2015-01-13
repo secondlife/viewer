@@ -700,7 +700,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mVisualComplexity(0),
 	mVisualComplexityStale(TRUE),
 	mLoadedCallbacksPaused(FALSE),
-	mHasPelvisOffset( FALSE ),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
@@ -762,10 +761,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
-	mPelvisOffset = LLVector3(0.0f,0.0f,0.0f);
-	mLastPelvisToFoot = 0.0f;
-	mPelvisFixup = 0.0f;
-	mLastPelvisFixup = 0.0f;
 
     if(LLSceneMonitor::getInstance()->isEnabled())
 	{
@@ -1251,16 +1246,17 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	}
 	else if (isRoot())
 	{
-		if ( !mHasPelvisOffset )
-		{
-			return mDrawable->getPositionAgent();
-		}
-		else
+		F32 fixup;
+		if ( hasPelvisFixup( fixup) )
 		{
 			//Apply a pelvis fixup (as defined by the avs skin)
 			LLVector3 pos = mDrawable->getPositionAgent();
-			pos[VZ] += mPelvisFixup;
+			pos[VZ] += fixup;
 			return pos;
+		}
+		else
+		{
+			return mDrawable->getPositionAgent();
 		}
 	}
 	else
@@ -3200,6 +3196,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{
 			debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
 		}
+		debug_line += llformat(" bsz-z: %f avofs-z: %f", mBodySize[2], mAvatarOffset[2]);
 		addDebugText(debug_line);
 	}
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
@@ -3710,21 +3707,6 @@ void LLVOAvatar::updateHeadOffset()
 	}
 }
 //------------------------------------------------------------------------
-// setPelvisOffset
-//------------------------------------------------------------------------
-void LLVOAvatar::setPelvisOffset( bool hasOffset, const LLVector3& offsetAmount, F32 pelvisFixup ) 
-{
-	mHasPelvisOffset = hasOffset;
-	if ( mHasPelvisOffset )
-	{	
-		//Store off last pelvis to foot value
-		mLastPelvisToFoot = mPelvisToFoot;		
-		mPelvisOffset	  = offsetAmount;
-		mLastPelvisFixup  = mPelvisFixup;
-		mPelvisFixup	  = pelvisFixup;
-	}
-}
-//------------------------------------------------------------------------
 // postPelvisSetRecalc
 //------------------------------------------------------------------------
 void LLVOAvatar::postPelvisSetRecalc( void )
@@ -3732,15 +3714,6 @@ void LLVOAvatar::postPelvisSetRecalc( void )
 	mRoot->updateWorldMatrixChildren();			
 	computeBodySize();
 	dirtyMesh(2);
-}
-//------------------------------------------------------------------------
-// setPelvisOffset
-//------------------------------------------------------------------------
-void LLVOAvatar::setPelvisOffset( F32 pelvisFixupAmount )
-{		
-	mHasPelvisOffset  = true;
-	mLastPelvisFixup  = mPelvisFixup;	
-	mPelvisFixup	  = pelvisFixupAmount;	
 }
 //------------------------------------------------------------------------
 // updateVisibility()
@@ -4871,6 +4844,12 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 		{
 			sitDown(FALSE);
 		}
+		if ((anim_id == ANIM_AGENT_DO_NOT_DISTURB) && gAgent.isDoNotDisturb())
+		{
+			// re-assert DND tag animation
+			gAgent.sendAnimationRequest(ANIM_AGENT_DO_NOT_DISTURB, ANIM_REQUEST_START);
+			return result;
+		}
 		stopMotion(anim_id);
 		result = TRUE;
 	}
@@ -5044,10 +5023,162 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 
 	return jointp;
 }
+
 //-----------------------------------------------------------------------------
-// resetJointPositionsToDefault
+// getRiggedMeshID
+//
+// If viewer object is a rigged mesh, set the mesh id and return true.
+// Otherwise, null out the id and return false.
 //-----------------------------------------------------------------------------
-void LLVOAvatar::resetJointPositionsToDefault( void )
+// static
+bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
+{
+	mesh_id.setNull();
+	
+	//If a VO has a skin that we'll reset the joint positions to their default
+	if ( pVO && pVO->mDrawable )
+	{
+		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
+		if ( pVObj )
+		{
+			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
+			if (pSkinData 
+				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
+				&& pSkinData->mAlternateBindMatrix.size() > 0 )
+					{				
+						mesh_id = pSkinData->mMeshID;
+						return true;
+					}
+		}
+	}
+	return false;
+}
+
+void LLVOAvatar::clearAttachmentPosOverrides()
+{
+	//Subsequent joints are relative to pelvis
+	avatar_joint_list_t::iterator iter = mSkeleton.begin();
+	avatar_joint_list_t::iterator end  = mSkeleton.end();
+
+	for (; iter != end; ++iter)
+	{
+		LLJoint* pJoint = (*iter);
+		pJoint->clearAttachmentPosOverrides();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// addAttachmentPosOverridesForObject
+//-----------------------------------------------------------------------------
+void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
+{
+	LLVOAvatar *av = vo->getAvatarAncestor();
+	if (!av || (av != this))
+	{
+		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
+	}
+		
+	// Process all children
+	LLViewerObject::const_child_list_t& children = vo->getChildren();
+	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+		 it != children.end(); ++it)
+	{
+		LLViewerObject *childp = *it;
+		addAttachmentPosOverridesForObject(childp);
+	}
+
+	LLVOVolume *vobj = dynamic_cast<LLVOVolume*>(vo);
+	bool pelvisGotSet = false;
+
+	if (!vobj)
+	{
+		return;
+	}
+	if (vobj->isMesh() &&
+		((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
+	{
+		return;
+	}
+	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
+	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
+
+	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
+	{
+		const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
+		if ( bindCnt > 0 )
+		{					
+			const int jointCnt = pSkinData->mJointNames.size();
+			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
+			const LLUUID& mesh_id = pSkinData->mMeshID;
+			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
+			if ( fullRig )
+			{								
+				for ( int i=0; i<jointCnt; ++i )
+				{
+					std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
+					LLJoint* pJoint = getJoint( lookingForJoint );
+					if ( pJoint && pJoint->getId() != currentId )
+					{   									
+						pJoint->setId( currentId );
+						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
+						//Set the joint position
+						pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
+									
+						//If joint is a pelvis then handle old/new pelvis to foot values
+						if ( lookingForJoint == "mPelvis" )
+						{	
+							pelvisGotSet = true;											
+						}										
+					}										
+				}																
+				if (pelvisZOffset != 0.0F)
+				{
+					addPelvisFixup( pelvisZOffset, mesh_id );
+					pelvisGotSet = true;											
+				}
+			}							
+		}
+	}
+					
+	//Rebuild body data if we altered joints/pelvis
+	if ( pelvisGotSet ) 
+	{
+		postPelvisSetRecalc();
+	}		
+}
+
+//-----------------------------------------------------------------------------
+// resetJointPositionsOnDetach
+//-----------------------------------------------------------------------------
+void LLVOAvatar::resetJointPositionsOnDetach(LLViewerObject *vo)
+{
+	LLVOAvatar *av = vo->getAvatarAncestor();
+	if (!av || (av != this))
+	{
+		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
+	}
+		
+	// Process all children
+	LLViewerObject::const_child_list_t& children = vo->getChildren();
+	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+		 it != children.end(); ++it)
+	{
+		LLViewerObject *childp = *it;
+		resetJointPositionsOnDetach(childp);
+	}
+
+	// Process self.
+	LLUUID mesh_id;
+	if (getRiggedMeshID(vo,mesh_id))
+	{
+		resetJointPositionsOnDetach(mesh_id);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// resetJointPositionsOnDetach
+//-----------------------------------------------------------------------------
+void LLVOAvatar::resetJointPositionsOnDetach(const LLUUID& mesh_id)
 {	
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
@@ -5059,23 +5190,18 @@ void LLVOAvatar::resetJointPositionsToDefault( void )
 	{
 		LLJoint* pJoint = (*iter);
 		//Reset joints except for pelvis
-		if ( pJoint && pJoint != pJointPelvis && pJoint->doesJointNeedToBeReset() )
+		if ( pJoint )
 		{			
 			pJoint->setId( LLUUID::null );
-			pJoint->restoreOldXform();
+			pJoint->removeAttachmentPosOverride(mesh_id, avString());
 		}		
-		else
-		if ( pJoint && pJoint == pJointPelvis && pJoint->doesJointNeedToBeReset() )
+		if ( pJoint && pJoint == pJointPelvis)
 		{
-			pJoint->setId( LLUUID::null );
+			removePelvisFixup( mesh_id );
 			pJoint->setPosition( LLVector3( 0.0f, 0.0f, 0.0f) );
-			pJoint->setJointResetFlag( false );
 		}		
 	}	
 		
-	//make sure we don't apply the joint offset
-	mHasPelvisOffset = false;
-	mPelvisFixup	 = mLastPelvisFixup;
 	postPelvisSetRecalc();	
 }
 //-----------------------------------------------------------------------------
@@ -5612,7 +5738,7 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 }
 
 //-----------------------------------------------------------------------------
-// attachObject()
+// getNumAttachments()
 //-----------------------------------------------------------------------------
 U32 LLVOAvatar::getNumAttachments() const
 {
@@ -5722,30 +5848,18 @@ void LLVOAvatar::rebuildRiggedAttachments( void )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 {
-	//If a VO has a skin that we'll reset the joint positions to their default
-	if ( pVO && pVO->mDrawable )
+	LLUUID mesh_id;
+	if (getRiggedMeshID(pVO, mesh_id))
 	{
-		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
-		if ( pVObj )
+		resetJointPositionsOnDetach(mesh_id);
+		if ( gAgentCamera.cameraCustomizeAvatar() )
 		{
-			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
-			if (pSkinData 
-				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
-				&& pSkinData->mAlternateBindMatrix.size() > 0 )
-					{				
-						LLVOAvatar::resetJointPositionsToDefault();							
-						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
-						//This handles the case where we detach a replacement rig.
-						if ( gAgentCamera.cameraCustomizeAvatar() )
-						{
-							gAgent.unpauseAnimation();
-							//Still want to refocus on head bone
-							gAgentCamera.changeCameraToCustomizeAvatar();
-						}
-					}
-				}
-			}				
+			gAgent.unpauseAnimation();
+			//Still want to refocus on head bone
+			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // detachObject()
@@ -7647,6 +7761,39 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 				}
 			}
 		}
+
+		avatar_joint_list_t::iterator iter = mSkeleton.begin();
+		avatar_joint_list_t::iterator end  = mSkeleton.end();
+		for (; iter != end; ++iter)
+		{
+			LLJoint* pJoint = (*iter);
+			const LLVector3& pos = pJoint->getPosition();
+			const LLVector3& scale = pJoint->getScale();
+			apr_file_printf( file, "\t\t<joint name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
+		}
+
+		for (iter = mSkeleton.begin(); iter != end; ++iter)
+		{
+			LLJoint* pJoint = (*iter);
+		
+			LLVector3 pos;
+			LLUUID mesh_id;
+
+			if (pJoint->hasAttachmentPosOverride(pos,mesh_id))
+			{
+				apr_file_printf( file, "\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
+								 pJoint->getName().c_str(), pos[0], pos[1], pos[2], mesh_id.asString().c_str());
+			}
+		}
+		F32 pelvis_fixup;
+		LLUUID mesh_id;
+		if (hasPelvisFixup(pelvis_fixup, mesh_id))
+		{
+			apr_file_printf( file, "\t\t<pelvis_fixup z=\"%f\" mesh_id=\"%s\"/>\n", 
+							 pelvis_fixup, mesh_id.asString().c_str());
+		}
+
 		apr_file_printf( file, "\t</archetype>\n" );
 		apr_file_printf( file, "\n</linden_genepool>\n" );
 
@@ -7656,8 +7803,8 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			// show the cloned params inside the wearables as well.
 			gAgentAvatarp->dumpWearableInfo(outfile);
 		}
-		outfile.close();
 	}
+	// File will close when handle goes out of scope
 }
 
 
