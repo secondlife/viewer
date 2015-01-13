@@ -40,6 +40,13 @@ public:
 	void onFinalCommit();
 
 	static void syncFromPreferenceSetting(void *user_data);
+
+	void onRegionChanged();
+	void onSimulatorFeaturesReceived(const LLUUID &region_id);
+	void updateEditEnabled();
+
+
+	boost::signals2::connection                   mRegionBoundarySlot;
 };
 
 #endif

@@ -18,6 +18,7 @@
  title="SET HOVER HEIGHT"
  width="515">
       <slider
+     enabled="false"
      control_name="HoverHeightSlider"
      decimal_digits="3"
      follows="top|left"

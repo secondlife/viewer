@@ -77,6 +77,13 @@ BOOL LLFloaterHoverHeight::postBuild()
 		LL_WARNS() << "Control not found for AvatarHoverOffsetZ" << LL_ENDL;
 	}
 
+	updateEditEnabled();
+
+	if (!mRegionBoundarySlot.connected())
+	{
+		mRegionBoundarySlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterHoverHeight::onRegionChanged,this));
+	}
+
 	return TRUE;
 }
 
@@ -96,6 +103,39 @@ void LLFloaterHoverHeight::onFinalCommit()
 	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
 	F32 value = sldrCtrl->getValueF32();
 	gSavedPerAccountSettings.setF32("AvatarHoverOffsetZ",value);
+}
+
+void LLFloaterHoverHeight::onRegionChanged()
+{
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region && region->simulatorFeaturesReceived())
+	{
+		updateEditEnabled();
+	}
+	else if (region)
+	{
+		region->setSimulatorFeaturesReceivedCallback(boost::bind(&LLFloaterHoverHeight::onSimulatorFeaturesReceived,this,_1));
+	}
+}
+
+void LLFloaterHoverHeight::onSimulatorFeaturesReceived(const LLUUID &region_id)
+{
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region && (region->getRegionID()==region_id))
+	{
+		updateEditEnabled();
+	}
+}
+
+void LLFloaterHoverHeight::updateEditEnabled()
+{
+	bool enabled = gAgent.getRegion() && gAgent.getRegion()->avatarHoverHeightEnabled();
+	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
+	sldrCtrl->setEnabled(enabled);
+	if (enabled)
+	{
+		syncFromPreferenceSetting(this);
+	}
 }
 
 

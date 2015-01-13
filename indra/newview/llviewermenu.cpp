@@ -3885,7 +3885,7 @@ class LLEnableHoverHeight : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return true;
+		return gAgent.getRegion() && gAgent.getRegion()->avatarHoverHeightEnabled();
 	}
 };
 

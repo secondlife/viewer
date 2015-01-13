@@ -3220,6 +3220,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
 		}
 		debug_line += llformat(" bsz-z: %f avofs-z: %f", mBodySize[2], mAvatarOffset[2]);
+		bool hover_enabled = getRegion() && getRegion()->avatarHoverHeightEnabled();
+		debug_line += hover_enabled ? " H" : " h";
 		if (mHoverOffset[2] != 0.0)
 		{
 			debug_line += llformat(" hov_z: %f", mHoverOffset[2]);
