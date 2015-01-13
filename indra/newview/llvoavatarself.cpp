@@ -158,8 +158,7 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	LLVOAvatar(id, pcode, regionp),
 	mScreenp(NULL),
 	mLastRegionHandle(0),
-	mRegionCrossingCount(0),
-	mInitialBakesLoaded(false)
+	mRegionCrossingCount(0)
 {
 	mMotionController.mIsSelf = TRUE;
 
