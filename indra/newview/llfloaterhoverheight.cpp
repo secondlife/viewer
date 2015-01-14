@@ -52,6 +52,7 @@ void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data)
 	{
 		LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
 		gAgentAvatarp->mHoverOffset = offset;
+		LL_INFOS("Avatar") << "set hover from preference setting" << offset[2] << LL_ENDL;
 		gAgentAvatarp->sendHoverHeight();
 	}
 }
@@ -79,9 +80,9 @@ BOOL LLFloaterHoverHeight::postBuild()
 
 	updateEditEnabled();
 
-	if (!mRegionBoundarySlot.connected())
+	if (!mRegionChangedSlot.connected())
 	{
-		mRegionBoundarySlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterHoverHeight::onRegionChanged,this));
+		mRegionChangedSlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterHoverHeight::onRegionChanged,this));
 	}
 
 	return TRUE;
@@ -93,6 +94,7 @@ void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 	LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
 	F32 value = sldrCtrl->getValueF32();
 	LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
+	LL_INFOS("Avatar") << "set hover from slider moved" << offset[2] << LL_ENDL;
 	gAgentAvatarp->mHoverOffset = offset;
 }
 

@@ -239,13 +239,38 @@ void LLVOAvatarSelf::initInstance()
 		return;
 	}
 
-	F32 hover_z = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
-	mHoverOffset = LLVector3(0.0, 0.0, llclamp(hover_z,MIN_HOVER_Z,MAX_HOVER_Z));
-	LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << mHoverOffset[2] << LL_ENDL;
+	setHoverIfRegionEnabled();
 
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
 	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
+}
+
+void LLVOAvatarSelf::setHoverIfRegionEnabled()
+{
+	if (getRegion() && getRegion()->simulatorFeaturesReceived())
+	{
+		if (getRegion()->avatarHoverHeightEnabled())
+		{
+			F32 hover_z = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
+			mHoverOffset = LLVector3(0.0, 0.0, llclamp(hover_z,MIN_HOVER_Z,MAX_HOVER_Z));
+			LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << mHoverOffset[2] << LL_ENDL;
+		}
+		else 
+		{
+			mHoverOffset = LLVector3(0.0, 0.0, 0.0);
+			LL_INFOS("Avatar") << avString() << " zeroing hover height, region does not support" << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_INFOS("Avatar") << avString() << " region or simulator features not known, no change on hover" << LL_ENDL;
+		if (getRegion())
+		{
+			getRegion()->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
+		}
+
+	}
 }
 
 bool LLVOAvatarSelf::checkStuckAppearance()
@@ -850,6 +875,12 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	}
 }
 
+void LLVOAvatarSelf::onSimulatorFeaturesReceived(const LLUUID& region_id)
+{
+	LL_INFOS("Avatar") << "simulator features received, setting hover based on region props" << LL_ENDL;
+	setHoverIfRegionEnabled();
+}
+
 //virtual
 void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 {
@@ -868,6 +899,17 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		//LL_INFOS() << "pos_from_old_region is " << global_pos_from_old_region
 		//	<< " while pos_from_new_region is " << pos_from_new_region
 		//	<< LL_ENDL;
+
+		// Update hover height, or schedule callback, based on whether
+		// it's supported in this region.
+		if (regionp->simulatorFeaturesReceived())
+		{
+			setHoverIfRegionEnabled();
+		}
+		else
+		{
+			regionp->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
+		}
 	}
 
 	if (!regionp || (regionp->getHandle() != mLastRegionHandle))

@@ -722,7 +722,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mUseLocalAppearance(FALSE),
 	mLastUpdateRequestCOFVersion(-1),
 	mLastUpdateReceivedCOFVersion(-1)
-	//mHoverOffset(0.0, 0.0, 0.0)
 {
 	//VTResume();  // VTune
 	mHoverOffset = LLVector3(0.0, 0.0, 0.0);
@@ -7460,19 +7459,15 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		}
 	}
 
-	if (isSelf())
-	{
-		LL_INFOS("Avatar") << avString() << "hover was set: " << contents.mHoverOffsetWasSet << " value_z " << contents.mHoverOffset[2] << LL_ENDL;
-	}
-	
 	if (contents.mHoverOffsetWasSet && !isSelf())
 	{
-		// Got an update for some other avatar.
-		// (Ignore updates for self because they may be out of date.)
+		// Got an update for some other avatar
+		// Ignore updates for self, because we have a more authoritative value in the preferences.
 		mHoverOffset = contents.mHoverOffset;
+		LL_INFOS("Avatar") << avString() << "setting hover from message" << mHoverOffset[2] << LL_ENDL;
 	}
 
-	if (!contents.mHoverOffsetWasSet)
+	if (!contents.mHoverOffsetWasSet && !isSelf())
 	{
 		// If we don't get a value at all, we are presumably in a
 		// region that does not support hover height.

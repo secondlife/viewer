@@ -46,7 +46,7 @@ public:
 	void updateEditEnabled();
 
 
-	boost::signals2::connection                   mRegionBoundarySlot;
+	boost::signals2::connection                   mRegionChangedSlot;
 };
 
 #endif
