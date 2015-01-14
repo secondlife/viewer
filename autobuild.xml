@@ -1534,11 +1534,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>700bce57e9db4a5add5f3b6a6f2871d1</string>
+              <string>cb503a2938a3e1ed54a88ecde25983ae</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297895/arch/Darwin/installer/llphysicsextensions_source-1.0.297895-darwin-297895.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298094/arch/Darwin/installer/llphysicsextensions_source-1.0.298094-darwin-298094.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1548,9 +1548,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>36398845726a377fe37a60c675ad1499</string>
+              <string>52f0fde3aa406dfe41f22c80f14a6008</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297895/arch/Linux/installer/llphysicsextensions_source-1.0.297895-linux-297895.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298094/arch/Linux/installer/llphysicsextensions_source-1.0.298094-linux-298094.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1560,16 +1560,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bc2e7d312e35c5622cc4b01feff65a89</string>
+              <string>be7452203712440a45bbf13209de507c</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297895/arch/CYGWIN/installer/llphysicsextensions_source-1.0.297895-windows-297895.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298094/arch/CYGWIN/installer/llphysicsextensions_source-1.0.298094-windows-298094.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.297895</string>
+        <string>1.0.298094</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -1588,11 +1588,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>200e25ae502af90db83e88274f0f1ecf</string>
+              <string>f362387b4ed04570b0d6282fea5ee80b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/297894/arch/Darwin/installer/llphysicsextensions_stub-1.0.297894-darwin-297894.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298093/arch/Darwin/installer/llphysicsextensions_stub-1.0.298093-darwin-298093.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1602,9 +1602,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5fd0fb6634d7fbc77f012a66e38063d8</string>
+              <string>b00fbb7aa72d76576865e598eda9960d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/297894/arch/Linux/installer/llphysicsextensions_stub-1.0.297894-linux-297894.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298093/arch/Linux/installer/llphysicsextensions_stub-1.0.298093-linux-298093.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1614,16 +1614,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4c33f540a54591b12e3a2bc08047cd80</string>
+              <string>2b082d184d776ef3f971c40a5bc63305</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/297894/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.297894-windows-297894.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298093/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.298093-windows-298093.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.297894</string>
+        <string>1.0.298093</string>
       </map>
       <key>llqtwebkit</key>
       <map>
