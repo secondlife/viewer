@@ -19,7 +19,7 @@
   left="0"
   name="ui_stack"
   orientation="horizontal"
-  top="0"
+  top="10"
   width="1024">
     <layout_panel
       height="172"
@@ -65,7 +65,7 @@
   <line_editor
     follows="left|top"
     height="32"
-    left_pad="0"
+    left_pad="-11"
     max_length_bytes="16"
     text_pad_left="8"
     name="password_edit"
@@ -111,19 +111,7 @@
     width="120"
     height="32"
   	left_pad="15"
-    bottom_delta="0" />
-  <combo_box
-    allow_text_entry="false"
-    font="SansSerifTiny"
-    follows="left|top"
-    height="26"
-    max_chars="128"
-    label="Select grid"
-    left_pad="15"
-    bottom_delta="0"
-    layout="topleft"
-    name="server_combo"
-    width="128" />
+    bottom_delta="0" />  
   <check_box
     control_name="RememberPassword"
     follows="left|top"
@@ -141,11 +129,23 @@
     text_color="EmphasisColor"
     height="16"
     name="forgot_password_text"
-    left="419"    
+    left="408"    
     bottom_delta="0"
     width="200">
     Forgotten password
   </text> 
+  <combo_box
+    allow_text_entry="false"
+    font="SansSerifTiny"
+    follows="left|top"
+    height="26"
+  	left="588"
+  	bottom_delta="10"
+    max_chars="128"
+    label="Select grid"    
+    layout="topleft"
+    name="server_combo"
+    width="149" />	
   </layout_panel>
   <layout_panel
       height="172"
