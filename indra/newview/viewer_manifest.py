@@ -619,12 +619,16 @@ class Darwin_i386_Manifest(ViewerManifest):
         # copy over the build result (this is a no-op if run within the xcode script)
         self.path(self.args['configuration'] + "/Second Life.app", dst="")
 
+        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        relpkgdir = os.path.join(pkgdir, "lib", "release")
+        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
             self.path("Info.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
-            self.path("../packages/lib/release/libndofdev.dylib", dst="Resources/libndofdev.dylib")
-            self.path("../packages/lib/release/libhunspell-1.3.0.dylib", dst="Resources/libhunspell-1.3.0.dylib")
+            self.path(os.path.join(relpkgdir, "libndofdev.dylib"), dst="Resources/libndofdev.dylib")
+            self.path(os.path.join(relpkgdir, "libhunspell-1.3.0.dylib"), dst="Resources/libhunspell-1.3.0.dylib")
 
             if self.prefix(dst="MacOS"):
                 self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
@@ -684,7 +688,6 @@ class Darwin_i386_Manifest(ViewerManifest):
                     print "Skipping %s" % dst
                     return []
 
-                libdir = "../packages/lib/release"
                 # dylibs is a list of all the .dylib files we expect to need
                 # in our bundled sub-apps. For each of these we'll create a
                 # symlink from sub-app/Contents/Resources to the real .dylib.
@@ -694,7 +697,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                                                "llcommon",
                                                                self.args['configuration'],
                                                                libfile),
-                                                               os.path.join(libdir, libfile)),
+                                                               os.path.join(relpkgdir, libfile)),
                                        dst=libfile)
 
                 for libfile in (
@@ -705,7 +708,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
                                 ):
-                    dylibs += path_optional(os.path.join(libdir, libfile), libfile)
+                    dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
                 # SLVoice and vivox lols, no symlinks needed
                 for libfile in (
@@ -717,30 +720,29 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 'ca-bundle.crt',
                                 'SLVoice',
                                 ):
-                     self.path2basename(libdir, libfile)
+                     self.path2basename(relpkgdir, libfile)
 
                 # dylibs that vary based on configuration
                 if self.args['configuration'].lower() == 'debug':
                     for libfile in (
                                 "libfmodexL.dylib",
                                 ):
-                        dylibs += path_optional(os.path.join("../packages/lib/debug",
-                                                             libfile), libfile)
+                        dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
                 else:
                     for libfile in (
                                 "libfmodex.dylib",
                                 ):
-                        dylibs += path_optional(os.path.join("../packages/lib/release",
-                                                             libfile), libfile)
+                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
                 
                 # our apps
-                for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
+                for app_bld_dir, app in ((os.path.join(os.pardir,
+                                                       "mac_crash_logger",
+                                                       self.args['configuration']),
+                                          "mac-crash-logger.app"),
                                          # plugin launcher
-                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
+                                         (pkgdir, "SLPlugin.app"),
                                          ):
-                    self.path2basename(os.path.join(os.pardir,
-                                                    app_bld_dir, self.args['configuration']),
-                                       app)
+                    self.path2basename(app_bld_dir, app)
 
                     # our apps dependencies on shared libs
                     # for each app, for each dylib we collected in dylibs,
@@ -769,26 +771,24 @@ class Darwin_i386_Manifest(ViewerManifest):
                                     'libQtWebKit.4.7.1.dylib',
                                     'libQtXml.4.dylib',
                                     'libQtXml.4.7.1.dylib'):
-                        self.path2basename("../packages/lib/release", libfile)
+                        self.path2basename(relpkgdir, libfile)
                     self.end_prefix("SLPlugin.app/Contents/Resources")
 
                 # Qt4 codecs go to llplugin.  Not certain why but this is the first
                 # location probed according to dtruss so we'll go with that.
-                if self.prefix(src="../packages/plugins/codecs/", dst="llplugin/codecs"):
+                if self.prefix(src=os.path.join(pkgdir, "llplugin/codecs/"), dst="llplugin/codecs"):
                     self.path("libq*.dylib")
                     self.end_prefix("llplugin/codecs")
 
                 # Similarly for imageformats.
-                if self.prefix(src="../packages/plugins/imageformats/", dst="llplugin/imageformats"):
+                if self.prefix(src=os.path.join(pkgdir, "llplugin/imageformats/"), dst="llplugin/imageformats"):
                     self.path("libq*.dylib")
                     self.end_prefix("llplugin/imageformats")
 
                 # SLPlugin plugins proper
-                if self.prefix(src="", dst="llplugin"):
-                    self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
-                                       "media_plugin_quicktime.dylib")
-                    self.path2basename("../media_plugins/webkit/" + self.args['configuration'],
-                                       "media_plugin_webkit.dylib")
+                if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="llplugin"):
+                    self.path("media_plugin_quicktime.dylib")
+                    self.path("media_plugin_webkit.dylib")
                     self.end_prefix("llplugin")
 
                 self.end_prefix("Resources")
