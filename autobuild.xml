@@ -838,9 +838,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e3beae52840e51cf0aff79b93033c679</string>
+              <string>171b39db6d0702535b41fad5b476e39d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/297966/arch/Darwin/installer/google_breakpad-1413.297966-darwin-297966.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/Darwin/installer/google_breakpad-1413.298033-darwin-298033.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -850,9 +850,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8ad86f0b671de2a66db956a9c1264be9</string>
+              <string>0bf69fbc829d964820b798a0494278c9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/297966/arch/Linux/installer/google_breakpad-1413.297966-linux-297966.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/Linux/installer/google_breakpad-1413.298033-linux-298033.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -862,16 +862,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2d4e64c149f5593bfd5d585b0e35b7a7</string>
+              <string>a124eaa547701f6d7827a7d0811d51c1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/297966/arch/CYGWIN/installer/google_breakpad-1413.297966-windows-297966.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/CYGWIN/installer/google_breakpad-1413.298033-windows-298033.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1413.297966</string>
+        <string>1332.295565</string>
       </map>
       <key>googlemock</key>
       <map>
@@ -1534,11 +1534,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>700bce57e9db4a5add5f3b6a6f2871d1</string>
+              <string>990b24876d56c2ca685f2734c9f86a9b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297895/arch/Darwin/installer/llphysicsextensions_source-1.0.297895-darwin-297895.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298097/arch/Darwin/installer/llphysicsextensions_source-1.0.298097-darwin-298097.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1548,9 +1548,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>36398845726a377fe37a60c675ad1499</string>
+              <string>19a56cfd6a6f0249ac02825f435202f1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297895/arch/Linux/installer/llphysicsextensions_source-1.0.297895-linux-297895.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298097/arch/Linux/installer/llphysicsextensions_source-1.0.298097-linux-298097.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1560,16 +1560,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bc2e7d312e35c5622cc4b01feff65a89</string>
+              <string>70b4b374c7bb3a34b8089784b69599c6</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/297895/arch/CYGWIN/installer/llphysicsextensions_source-1.0.297895-windows-297895.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298097/arch/CYGWIN/installer/llphysicsextensions_source-1.0.298097-windows-298097.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.297895</string>
+        <string>1.0.298097</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -1588,11 +1588,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>200e25ae502af90db83e88274f0f1ecf</string>
+              <string>00d185f885fc7b5cebf5ae3ee172a283</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/297894/arch/Darwin/installer/llphysicsextensions_stub-1.0.297894-darwin-297894.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298098/arch/Darwin/installer/llphysicsextensions_stub-1.0.298098-darwin-298098.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1602,9 +1602,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5fd0fb6634d7fbc77f012a66e38063d8</string>
+              <string>26bc7de44454c124ba8220cbf72c5924</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/297894/arch/Linux/installer/llphysicsextensions_stub-1.0.297894-linux-297894.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298098/arch/Linux/installer/llphysicsextensions_stub-1.0.298098-linux-298098.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1614,16 +1614,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4c33f540a54591b12e3a2bc08047cd80</string>
+              <string>9d6efef4e5aa74e1c846fd89558b6293</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/297894/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.297894-windows-297894.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298098/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.298098-windows-298098.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.297894</string>
+        <string>1.0.298098</string>
       </map>
       <key>llqtwebkit</key>
       <map>
@@ -2077,6 +2077,18 @@
         <string>slplugins</string>
         <key>platforms</key>
         <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>f6bfb026572f03a4c8ac6b2b7d7eb0ae</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slplugins_3p-update-slplugins/rev/298079/arch/Darwin/installer/slplugins-3.7.24.297623.298079-darwin-298079.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
@@ -2093,7 +2105,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>3.7.22.297128.297645</string>
+        <string>3.7.24.297623.298079</string>
       </map>
       <key>slvoice</key>
       <map>
