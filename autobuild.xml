@@ -2308,47 +2308,6 @@
         <map>
           <key>configurations</key>
           <map>
-            <key>Debug</key>
-            <map>
-              <key>build</key>
-              <map>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Debug</string>
-            </map>
-            <key>DebugOS</key>
-            <map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>command</key>
-                <string>cmake</string>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>DebugOS</string>
-            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -2441,60 +2400,6 @@
           <string>build-darwin-i386</string>
           <key>configurations</key>
           <map>
-            <key>Debug</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-configuration Debug</string>
-                  <string>-project SecondLife.xcodeproj</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Xcode'</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Debug</string>
-            </map>
-            <key>DebugOS</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>xcodebuild</string>
-                <key>options</key>
-                <array>
-                  <string>-configuration Debug</string>
-                  <string>-project SecondLife.xcodeproj</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Xcode'</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>DebugOS</string>
-            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -2619,54 +2524,6 @@
           <string>build-linux-i686</string>
           <key>configurations</key>
           <map>
-            <key>Debug</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>make</string>
-                <key>options</key>
-                <array>
-                  <string>-j 12</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Debug</string>
-            </map>
-            <key>DebugOS</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>command</key>
-                <string>make</string>
-                <key>options</key>
-                <array>
-                  <string>-j 7</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>DebugOS</string>
-            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -2783,91 +2640,6 @@
           <string>build-vc120</string>
           <key>configurations</key>
           <map>
-            <key>Debug</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>BuildConsole</string>
-                <key>options</key>
-                <array>
-                  <string>/build</string>
-                  <string>"/cfg=Debug|Win32"</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Debug</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 12"</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Debug</string>
-            </map>
-            <key>DebugOS</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
-                </array>
-                <key>command</key>
-                <string>msbuild.exe</string>
-                <key>options</key>
-                <array>
-                  <string>/p:Configuration=Debug</string>
-                  <string>/p:Platform=Win32</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/toolsversion:4.0</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
-                </array>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>SecondLife.sln</string>
-                  <string>--config</string>
-                  <string>Debug</string>
-                  <string>--startup</string>
-                  <string>secondlife-bin</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>"Visual Studio 12"</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
-                  <string>-DUSE_KDU=FALSE</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>DebugOS</string>
-            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>

@@ -13,8 +13,12 @@ Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 public_build = true
 build_docs = true
 
-# skip windows debug build until we can get a fix in.
+# disable all Debug builds (RelWithDebInfo is sufficient)
 build_CYGWIN_Debug = false
+build_Linux_Debug = false
+build_Darwin_Debug = false
+build_Debug = false
+
 
 # Update Public Inworld Build Status Indicators (setting should mirror "public_build")
 email_status_this_is_os = true
