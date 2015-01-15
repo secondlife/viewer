@@ -500,28 +500,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 
 void LLPreviewNotecard::deleteNotecard()
 {
-	if (mObjectUUID.isNull())
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(mItemUUID);
-		if (item != NULL)
-		{
-			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-			gInventory.changeItemParent(item, trash_id, FALSE);
-		}
-	}
-	else
-	{
-		LLViewerObject* object = gObjectList.findObject(mObjectUUID);
-		if(object)
-		{
-			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemUUID));
-			if (item != NULL)
-			{
-				object->removeInventory(mItemUUID);
-			}
-		}
-	}
-	closeFloater();
+	LLNotificationsUtil::add("DeleteNotecard", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleConfirmDeleteDialog,this, _1, _2));
 }
 
 // static
@@ -624,6 +603,45 @@ bool LLPreviewNotecard::handleSaveChangesDialog(const LLSD& notification, const 
 		LLAppViewer::instance()->abortQuit();
 		break;
 	}
+	return false;
+}
+
+bool LLPreviewNotecard::handleConfirmDeleteDialog(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		// canceled
+		return false;
+	}
+
+	if (mObjectUUID.isNull())
+	{
+		// move item from agent's inventory into trash
+		LLViewerInventoryItem* item = gInventory.getItem(mItemUUID);
+		if (item != NULL)
+		{
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			gInventory.changeItemParent(item, trash_id, FALSE);
+		}
+	}
+	else
+	{
+		// delete item from inventory of in-world object
+		LLViewerObject* object = gObjectList.findObject(mObjectUUID);
+		if(object)
+		{
+			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemUUID));
+			if (item != NULL)
+			{
+				object->removeInventory(mItemUUID);
+			}
+		}
+	}
+
+	// close floater, ignore unsaved changes
+	mForceClose = TRUE;
+	closeFloater();
 	return false;
 }
 
