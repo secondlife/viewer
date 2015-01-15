@@ -106,14 +106,8 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 			// 2 - Possibly hide the default preset
 			if (PRESETS_DEFAULT != name)
 			{
-				if (name != gSavedSettings.getString("PresetGraphicActive"))
-				{
-					mPresetNames.push_back(name);
-				}
-				else
-				{
-					mPresetNames.insert(mPresetNames.begin(), name);
-				}
+				mPresetNames.push_back(name);
+
 			}
 			else
 			{
@@ -121,6 +115,10 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 				{
 					case DEFAULT_SHOW:
 						mPresetNames.push_back(LLTrans::getString(PRESETS_DEFAULT));
+						break;
+
+					case DEFAULT_TOP:
+						mPresetNames.push_front(LLTrans::getString(PRESETS_DEFAULT));
 						break;
 
 					case DEFAULT_HIDE:

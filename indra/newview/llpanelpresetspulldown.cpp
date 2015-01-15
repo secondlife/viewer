@@ -39,8 +39,8 @@
 #include "llsliderctrl.h"
 #include "llscrolllistctrl.h"
 
-/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseFadeStartTimeSec = 4.0f;
-/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseTotalTimeSec = 5.0f;
+/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseFadeStartTimeSec = 2.0f;
+/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseTotalTimeSec = 3.0f;
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelPresetsPulldown
@@ -71,7 +71,7 @@ BOOL LLPanelPresetsPulldown::postBuild()
 void LLPanelPresetsPulldown::populatePanel()
 {
 	std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_GRAPHIC);
-	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_SHOW);
+	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_TOP);
 
 	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_list");
 
@@ -91,7 +91,7 @@ void LLPanelPresetsPulldown::populatePanel()
 			{
 				row["columns"][1]["column"] = "icon";
 				row["columns"][1]["type"] = "icon";
-				row["columns"][1]["value"] = "Inv_Landmark";
+				row["columns"][1]["value"] = "Checkbox_On";
 			}
 
 			scroll->addElement(row);

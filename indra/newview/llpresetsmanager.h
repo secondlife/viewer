@@ -40,6 +40,7 @@ static const std::string PRESETS_CAMERA = "camera";
 enum EDefaultOptions
 {
 	DEFAULT_SHOW,
+	DEFAULT_TOP,
 	DEFAULT_HIDE				// Do not display "Default" in a list
 };
 

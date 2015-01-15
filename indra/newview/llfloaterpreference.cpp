@@ -1475,7 +1475,7 @@ void LLFloaterPreference::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
-	updateSliderText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true));	
+	updateMaximumArcText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true));	
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1731,8 +1731,6 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 {
 	if (text_box == NULL || ctrl== NULL)
 		return;
-	
-	std::string name = ctrl->getName();
 
 	// get range and points when text should change
 	F32 value = (F32)ctrl->getValue().asReal();
@@ -1756,35 +1754,43 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	{
 		text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
 	}
+}
 
-	if ("MaximumARC" == name)
+void LLFloaterPreference::updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+{
+	F32 min_result = 20000.0f;
+	F32 max_result = 300000.0f;
+
+	F32 value = (F32)ctrl->getValue().asReal();
+
+	if (0.0f == value)
 	{
-		F32 control_value = value;
-		if (0.0f == control_value)
-		{
-			text_box->setText(LLTrans::getString("Off"));
-		}
-		else
-		{
-			// 100 is the maximum value of this control set in panel_preferences_graphics1.xml
-			F32 minp = 0.0f;
-			F32 maxp = 100.0f;
-
-			// The result should be between 20,000 and 500,000
-			F32 minv = log(20000.0f);
-			F32 maxv = log(500000.0f);
-
-			// calculate adjustment factor
-			F32 scale = (maxv - minv) / (maxp - minp);
-
-			control_value = exp(minv + scale * (control_value - minp));
-
-			// Invert result
-			control_value = 500000.0f - control_value;
-		}
-
-		gSavedSettings.setU32("RenderAutoMuteRenderWeightLimit", (U32)control_value);
+		text_box->setText(LLTrans::getString("Off"));
 	}
+	else
+	{
+
+		// Invert value because a higher value on the slider control needs a decreasing final
+		// value in order to obtain larger numbers of imposters
+		value = 100.0f - value;
+
+		// 100 is the maximum value of this control set in panel_preferences_graphics1.xml
+		F32 minp = 0.0f;
+		F32 maxp = 99.0f;
+
+		// The result should be between min_result and max_result
+		F32 minv = log(min_result);
+		F32 maxv = log(max_result);
+
+		// calculate adjustment factor
+		F32 scale = (maxv - minv) / (maxp - minp);
+
+		value = exp(minv + scale * (value - minp));
+
+		text_box->setText(llformat("%0.0f", value));
+	}
+
+	gSavedSettings.setU32("RenderAutoMuteRenderWeightLimit", (U32)value);
 }
 
 void LLFloaterPreference::onChangeMaturity()
