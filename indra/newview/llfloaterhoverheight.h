@@ -45,8 +45,8 @@ public:
 	void onSimulatorFeaturesReceived(const LLUUID &region_id);
 	void updateEditEnabled();
 
-
-	boost::signals2::connection                   mRegionChangedSlot;
+	/*virtual*/ void onClose(bool app_quitting);
+	boost::signals2::connection mRegionChangedSlot;
 };
 
 #endif

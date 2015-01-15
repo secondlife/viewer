@@ -724,7 +724,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastUpdateReceivedCOFVersion(-1)
 {
 	//VTResume();  // VTune
-	mHoverOffset = LLVector3(0.0, 0.0, 0.0);
+	setHoverOffset(LLVector3(0.0, 0.0, 0.0));
+
 	// mVoiceVisualizer is created by the hud effects manager and uses the HUD Effects pipeline
 	const BOOL needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
 	mVoiceVisualizer = ( LLVoiceVisualizer *)LLHUDManager::getInstance()->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );
@@ -3221,9 +3222,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		debug_line += llformat(" bsz-z: %f avofs-z: %f", mBodySize[2], mAvatarOffset[2]);
 		bool hover_enabled = getRegion() && getRegion()->avatarHoverHeightEnabled();
 		debug_line += hover_enabled ? " H" : " h";
-		if (mHoverOffset[2] != 0.0)
+		const LLVector3& hover_offset = getHoverOffset();
+		if (hover_offset[2] != 0.0)
 		{
-			debug_line += llformat(" hov_z: %f", mHoverOffset[2]);
+			debug_line += llformat(" hov_z: %f", hover_offset[2]);
 		}
 		F32 elapsed = mLastAppearanceMessageTimer.getElapsedTimeF32();
 		static const char *elapsed_chars = "Xx*...";
@@ -3432,7 +3434,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
 		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		root_pos += LLVector3d(mHoverOffset);
+		root_pos += LLVector3d(getHoverOffset());
 		
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
 
@@ -3602,7 +3604,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	else if (mDrawable.notNull())
 	{
 		LLVector3 pos = mDrawable->getPosition();
-		pos += mHoverOffset * mDrawable->getRotation();
+		pos += getHoverOffset() * mDrawable->getRotation();
 		mRoot->setPosition(pos);
 		mRoot->setRotation(mDrawable->getRotation());
 	}
@@ -7463,8 +7465,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	{
 		// Got an update for some other avatar
 		// Ignore updates for self, because we have a more authoritative value in the preferences.
-		mHoverOffset = contents.mHoverOffset;
-		LL_INFOS("Avatar") << avString() << "setting hover from message" << mHoverOffset[2] << LL_ENDL;
+		setHoverOffset(contents.mHoverOffset);
+		LL_INFOS("Avatar") << avString() << "setting hover from message" << contents.mHoverOffset[2] << LL_ENDL;
 	}
 
 	if (!contents.mHoverOffsetWasSet && !isSelf())
@@ -7472,7 +7474,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		// If we don't get a value at all, we are presumably in a
 		// region that does not support hover height.
 		LL_WARNS() << avString() << "zeroing hover because not defined in appearance message" << LL_ENDL;
-		mHoverOffset = LLVector3(0.0, 0.0, 0.0);
+		setHoverOffset(LLVector3(0.0, 0.0, 0.0));
 	}
 
 	setCompositeUpdatesEnabled( TRUE );

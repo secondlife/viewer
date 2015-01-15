@@ -333,6 +333,10 @@ public:
 	// -- care and feeding of hover height.
 	void 			setHoverIfRegionEnabled();
 	void			sendHoverHeight() const;
+	/*virtual*/ void setHoverOffset(const LLVector3& hover_offset, bool send_update=true);
+
+private:
+	mutable LLVector3 mLastHoverOffsetSent;
 
 /**                    Appearance
  **                                                                            **

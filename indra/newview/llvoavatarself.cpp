@@ -178,7 +178,10 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	mScreenp(NULL),
 	mLastRegionHandle(0),
 	mRegionCrossingCount(0),
-	mInitialBakesLoaded(false)
+	mInitialBakesLoaded(false),
+	// Value outside legal range, so will always be a mismatch the
+	// first time through.
+	mLastHoverOffsetSent(LLVector3(0.0f, 0.0f, -999.0f))
 {
 	mMotionController.mIsSelf = TRUE;
 
@@ -253,12 +256,12 @@ void LLVOAvatarSelf::setHoverIfRegionEnabled()
 		if (getRegion()->avatarHoverHeightEnabled())
 		{
 			F32 hover_z = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
-			mHoverOffset = LLVector3(0.0, 0.0, llclamp(hover_z,MIN_HOVER_Z,MAX_HOVER_Z));
-			LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << mHoverOffset[2] << LL_ENDL;
+			setHoverOffset(LLVector3(0.0, 0.0, llclamp(hover_z,MIN_HOVER_Z,MAX_HOVER_Z)));
+			LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << hover_z << LL_ENDL;
 		}
 		else 
 		{
-			mHoverOffset = LLVector3(0.0, 0.0, 0.0);
+			setHoverOffset(LLVector3(0.0, 0.0, 0.0));
 			LL_INFOS("Avatar") << avString() << " zeroing hover height, region does not support" << LL_ENDL;
 		}
 	}
@@ -2776,10 +2779,27 @@ void LLVOAvatarSelf::sendHoverHeight() const
 	if (!url.empty())
 	{
 		LLSD update = LLSD::emptyMap();
-		update["hover_height"] = mHoverOffset[2];
+		const LLVector3& hover_offset = getHoverOffset();
+		update["hover_height"] = hover_offset[2];
 
-		LL_DEBUGS("Avatar") << avString() << "sending hover height value " << mHoverOffset[2] << LL_ENDL;
+		LL_DEBUGS("Avatar") << avString() << "sending hover height value " << hover_offset[2] << LL_ENDL;
 		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
+
+		mLastHoverOffsetSent = hover_offset;
+	}
+}
+
+void LLVOAvatarSelf::setHoverOffset(const LLVector3& hover_offset, bool send_update)
+{
+	if (getHoverOffset() != hover_offset)
+	{
+		LL_INFOS("Avatar") << avString() << " setting hover due to change " << hover_offset[2] << LL_ENDL;
+		LLVOAvatar::setHoverOffset(hover_offset, send_update);
+	}
+	if (send_update && (hover_offset != mLastHoverOffsetSent))
+	{
+		LL_INFOS("Avatar") << avString() << " sending hover due to change " << hover_offset[2] << LL_ENDL;
+		sendHoverHeight();
 	}
 }
 
