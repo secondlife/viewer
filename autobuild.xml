@@ -862,16 +862,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a124eaa547701f6d7827a7d0811d51c1</string>
+              <string>c73a7c9aa53a4e266df2d5230a650fbf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/CYGWIN/installer/google_breakpad-1413.298033-windows-298033.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298127/arch/CYGWIN/installer/google_breakpad-1413.298127-windows-298127.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1332.295565</string>
+        <string>1413.298127</string>
       </map>
       <key>googlemock</key>
       <map>
