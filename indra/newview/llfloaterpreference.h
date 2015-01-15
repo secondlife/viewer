@@ -116,6 +116,8 @@ protected:
 	void setRecommended();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
+	// callback for when client turns on impostors
+	void onAvatarImpostorsEnable();
 
 	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
 	void onClickActionChange();

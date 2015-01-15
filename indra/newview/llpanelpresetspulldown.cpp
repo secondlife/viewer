@@ -91,7 +91,7 @@ void LLPanelPresetsPulldown::populatePanel()
 			{
 				row["columns"][1]["column"] = "icon";
 				row["columns"][1]["type"] = "icon";
-				row["columns"][1]["value"] = "Checkbox_On";
+				row["columns"][1]["value"] = "Check_Mark";
 			}
 
 			scroll->addElement(row);

@@ -341,6 +341,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
+	mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",	boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",		boost::bind(&LLFloaterPreference::refreshUI,this));
@@ -744,6 +745,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
+{
+	refreshEnabledGraphics();
+}
+
+void LLFloaterPreference::onAvatarImpostorsEnable()
 {
 	refreshEnabledGraphics();
 }
@@ -1223,6 +1229,13 @@ void LLFloaterPreference::refreshEnabledState()
 	ctrl_shadow->setEnabled(enabled);
 	shadow_text->setEnabled(enabled);
 
+	LLTextBox* maximum_arc_text = getChild<LLTextBox>("MaximumARCText");
+
+	enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors") && gSavedSettings.getBOOL("RenderUseImpostors");
+	getChildView("MaximumARC")->setEnabled(enabled);
+	maximum_arc_text->setEnabled(enabled);
+	getChildView("MaxNumberAvatarDrawn")->setEnabled(enabled);
+
 	// Hardware settings
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
 	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
@@ -1297,6 +1310,9 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	LLCheckBoxCtrl* ctrl_avatar_impostors = getChild<LLCheckBoxCtrl>("AvatarImpostors");
+	LLSliderCtrl* ctrl_maximum_arc = getChild<LLSliderCtrl>("MaximumARC");
+	LLTextBox* maximum_arc_text = getChild<LLTextBox>("MaximumARCText");
+	LLSliderCtrl* ctrl_max_visible = getChild<LLSliderCtrl>("MaxNumberAvatarDrawn");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLCheckBoxCtrl* ctrl_deferred2 = getChild<LLCheckBoxCtrl>("UseLightShaders2");
 	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
@@ -1451,6 +1467,9 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_avatar_impostors->setEnabled(FALSE);
 		ctrl_avatar_impostors->setValue(FALSE);
+		ctrl_maximum_arc->setEnabled(FALSE);
+		maximum_arc_text->setEnabled(FALSE);
+		ctrl_max_visible->setEnabled(FALSE);
 	}
 }
 
@@ -1770,13 +1789,9 @@ void LLFloaterPreference::updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* te
 	else
 	{
 
-		// Invert value because a higher value on the slider control needs a decreasing final
-		// value in order to obtain larger numbers of imposters
-		value = 100.0f - value;
-
 		// 100 is the maximum value of this control set in panel_preferences_graphics1.xml
-		F32 minp = 0.0f;
-		F32 maxp = 99.0f;
+		F32 minp = 1.0f;
+		F32 maxp = 100.0f;
 
 		// The result should be between min_result and max_result
 		F32 minv = log(min_result);

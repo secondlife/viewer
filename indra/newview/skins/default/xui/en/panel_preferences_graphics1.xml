@@ -453,6 +453,20 @@
              Avatar
           </text>
 
+          <check_box
+            control_name="RenderUseImpostors"
+            height="16"
+            initial_value="true"
+            label="Impostors"
+            layout="topleft"
+            left="30"
+            name="AvatarImpostors"
+            top_delta="20"
+            width="300">
+            <check_box.commit_callback
+              function="Pref.AvatarImpostorsEnable" />
+          </check_box>
+
           <slider
             control_name="MaximumARC"
             follows="left|top"
@@ -460,15 +474,15 @@
             initial_value="0"
             increment="1"
             label="Maximum ARC:"
-            label_width="185"
+            label_width="165"
             layout="topleft"
-            left="30"
+            left="50"
             min_val="0"
             max_val="100"
             name="MaximumARC"
             show_text="false"
             top_delta="16"
-            width="300">
+            width="280">
             <slider.commit_callback
               function="Pref.UpdateSliderText"
               parameter="MaximumARCText" />
@@ -480,11 +494,29 @@
             height="16"
             layout="topleft"
             top_delta="0"
-            left_delta="304"
+            left_delta="284"
+            text_readonly_color="LabelDisabledColor"
             name="MaximumARCText"
             width="128">
-               Low
+               0
           </text>
+
+          <slider
+            control_name="RenderAvatarMaxVisible"
+            decimal_digits="0"
+            follows="left|top"
+            height="16"
+            increment="1"
+            initial_value="12"
+            label="Max. # of non-impostors:"
+            label_width="165"
+            layout="topleft"
+            left="50"
+            min_val="1"
+            max_val="65"
+            name="MaxNumberAvatarDrawn"
+            top_delta="16"
+            width="305" />
 
           <slider
             control_name="RenderAvatarLODFactor"
@@ -547,34 +579,6 @@
             width="128">
                Low
           </text>
-
-          <slider
-            control_name="RenderAvatarMaxVisible"
-            decimal_digits="0"
-            follows="left|top"
-            height="16"
-            increment="1"
-            initial_value="12"
-            label="Max. # of non-impostor avatars:"
-            label_width="185"
-            layout="topleft"
-            left="30"
-            min_val="1"
-            max_val="65"
-            name="MaxNumberAvatarDrawn"
-            top_delta="16"
-            width="325" />
-
-          <check_box
-            control_name="RenderUseImpostors"
-            height="16"
-            initial_value="true"
-            label="Avatar impostors"
-            layout="topleft"
-            left="30"
-            name="AvatarImpostors"
-            top_delta="20"
-            width="300" />
 
           <text
             type="string"
