@@ -284,37 +284,6 @@
          m
       </text>
 
-      <slider
-        control_name="RenderAvatarLODFactor"
-        follows="left|top"
-        height="16"
-        increment="0.125"
-        initial_value="160"
-        label="Avatar detail:"
-        label_width="90"
-        layout="topleft"
-        left="30"
-        name="AvatarMeshDetail2"
-        show_text="false"
-        top_delta="30"
-        width="300">
-        <slider.commit_callback
-          function="Pref.UpdateSliderText"
-          parameter="AvatarMeshDetailText2" />
-      </slider>
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="12"
-        layout="topleft"
-        name="AvatarMeshDetailText2"
-        top_delta="0"
-        left_delta="304"
-        width="128">
-         Low
-      </text>
-
       <check_box
         control_name="WindLightUseAtmosShaders"
         height="16"
