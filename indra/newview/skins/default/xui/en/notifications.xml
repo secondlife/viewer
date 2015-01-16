@@ -474,6 +474,18 @@ This listing could not be updated.
     </notification>
     
     <notification
+        icon="alertmodal.tga"
+        name="AlertMerchantListingActivateRequired"
+        type="alertmodal">
+        There are several or no version folders in this listing. You will need to select and activate one independently later.
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Alert about version folder activation when I create a listing with several version folders"
+        name="okignore"
+        yestext="OK"/>
+    </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">

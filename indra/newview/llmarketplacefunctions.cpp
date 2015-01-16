@@ -101,6 +101,24 @@ LLSD getMarketplaceStringSubstitutions()
 	return marketplace_sub_map;
 }
 
+// Get the version folder: if there is only one subfolder, we will use it as a version folder
+LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
+{
+    LLUUID version_id = LLUUID::null;
+	LLInventoryModel::cat_array_t* categories;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(folder_id, categories, items);
+    if (categories->size() == 1)
+    {
+        version_id = categories->begin()->get()->getUUID();
+    }
+    else
+    {
+        LLNotificationsUtil::add("AlertMerchantListingActivateRequired");
+    }
+    return version_id;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // SLM Responders
 void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
@@ -1225,11 +1243,17 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
     
     LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
 
+    // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+    LLUUID version_id = getVersionFolderIfUnique(folder_id);
+    
+    // Build the json message
     Json::Value root;
     Json::FastWriter writer;
     
     root["listing"]["name"] = category->getName();
-    root["listing"]["inventory_info"]["listing_folder_id"] = category->getUUID().asString();
+    root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
+    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
+    root["listing"]["inventory_info"]["count_on_hand"] = -1;
     
     std::string json_str = writer.write(root);
     
@@ -1281,6 +1305,9 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
 	headers["Accept"] = "application/json";
 	headers["Content-Type"] = "application/json";
     
+    // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+    LLUUID version_id = getVersionFolderIfUnique(folder_id);
+
     Json::Value root;
     Json::FastWriter writer;
     
@@ -1288,7 +1315,7 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     root["listing"]["id"] = listing_id;
     root["listing"]["is_listed"] = false;
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-    root["listing"]["inventory_info"]["version_folder_id"] = LLUUID::null.asString();
+    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
     root["listing"]["inventory_info"]["count_on_hand"] = -1;
     
     std::string json_str = writer.write(root);
