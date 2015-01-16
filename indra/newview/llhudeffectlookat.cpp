@@ -39,7 +39,6 @@
 #include "llrendersphere.h"
 #include "llselectmgr.h"
 #include "llglheaders.h"
-
 #include "llxmltree.h"
 
 
