@@ -191,20 +191,12 @@ int siz_params::write_marker_segment(kdu_output*, kdu_params*, int) { return 0; 
 bool siz_params::check_marker_segment(kdu_uint16, int, kdu_byte a[], int&) { return false; }
 bool siz_params::read_marker_segment(kdu_uint16, int, kdu_byte a[], int) { return false; }
 
-#ifdef LL_LINUX
-// Linux use the old pre KDU v7.0.0
-// *TODO: Supress this legacy stubbs once Linux migrates to v7.0.0
-kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*) { }
-void kdu_codestream::create(siz_params*, kdu_compressed_target*, kdu_dims*, int, kdu_long ) { }
-void kdu_convert_ycc_to_rgb(kdu_line_buf&, kdu_line_buf&, kdu_line_buf&, int) { }
-#else
 kdu_decoder::kdu_decoder(kdu_subband , kdu_sample_allocator*, bool , float, int, kdu_thread_env*, kdu_thread_queue*, int) { }
 void kdu_codestream::create(siz_params*, kdu_compressed_target*, kdu_dims*, int, kdu_long, kdu_thread_env* ) { }
 void (*kdu_convert_ycc_to_rgb_rev16)(kdu_int16*,kdu_int16*,kdu_int16*,int);
 void (*kdu_convert_ycc_to_rgb_irrev16)(kdu_int16*,kdu_int16*,kdu_int16*,int);
 void (*kdu_convert_ycc_to_rgb_rev32)(kdu_int32*,kdu_int32*,kdu_int32*,int);
 void (*kdu_convert_ycc_to_rgb_irrev32)(float*,float*,float*,int);
-#endif
 
 // -------------------------------------------------------------------------------------------
 // TUT
