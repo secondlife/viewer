@@ -56,7 +56,7 @@
     layout="topleft"
     default_tab_group="1"
     width="308"
-    height="400">
+    height="350">
   <filter_editor
     text_pad_left="10"
     follows="left|top|right"
@@ -76,12 +76,42 @@
     left="0"
     top_pad="0"
     width="308"
-    height="370"
+    height="320"
     halign="center"
     tab_height="30"
     tab_group="1"
     tab_position="top"
     tab_min_width="50">
   </tab_container>
+  </panel>
+  <panel
+      name="marketplace_drop_zone"
+      mouse_opaque="false"
+      follows="bottom|left|right"
+      left="2"
+      width="306"
+      height="40"
+      background_visible="true"
+      background_opaque="true"
+      bg_alpha_image="none"
+      bg_alpha_color="EmphasisColor_35"
+      bg_opaque_image="Marketplace_Dropzone_Background"
+      border="true"
+      bevel_style="in"
+      visible="true">
+      <text
+          type="string"
+          follows="bottom|left|right"
+          layout="topleft"
+          top="13"
+          height="20"
+          left="2"
+          width="306"
+          halign="center"
+          font="SansSerifMedium"
+          font_shadow="hard"
+          valign="top">
+          Drop folders here to create new listings
+      </text>
   </panel>
 </panel>
