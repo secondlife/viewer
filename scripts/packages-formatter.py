@@ -30,11 +30,7 @@ import errno
 import re
 import subprocess
 
-_autobuild=os.getenv('AUTOBUILD',
-                    'autobuild' if not ( sys.platform == 'win32' or sys.platform == 'cygwin')
-                    else 'autobuild.cmd')
-# HACK: temporarily work around cygwin /cygdrive/c madness
-_autobuild = re.sub(r"^/cygdrive/(.)/", r"\1:/", _autobuild)
+_autobuild=os.getenv('AUTOBUILD', 'autobuild')
 
 pkg_line=re.compile('^([\w-]+):\s+(.*)$')
 
