@@ -88,6 +88,7 @@ LLLineEditor::Params::Params()
 	background_image("background_image"),
 	background_image_disabled("background_image_disabled"),
 	background_image_focused("background_image_focused"),
+	bg_image_always_focused("bg_image_always_focused", false),
 	select_on_focus("select_on_focus", false),
 	revert_on_esc("revert_on_esc", true),
 	spellcheck("spellcheck", false),
@@ -147,6 +148,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mBgImage( p.background_image ),
 	mBgImageDisabled( p.background_image_disabled ),
 	mBgImageFocused( p.background_image_focused ),
+	mShowImageFocused( p.bg_image_always_focused ),
 	mHaveHistory(FALSE),
 	mReplaceNewlinesWithSpaces( TRUE ),
 	mLabel(p.label),
@@ -1675,7 +1677,7 @@ void LLLineEditor::drawBackground()
 	{
 		image = mBgImageDisabled;
 	}
-	else if ( has_focus )
+	else if ( has_focus || mShowImageFocused)
 	{
 		image = mBgImageFocused;
 	}

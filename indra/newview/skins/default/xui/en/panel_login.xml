@@ -56,7 +56,8 @@
     name="username_combo"
     width="232">
     <combo_box.combo_editor
-      text_pad_left="8" />
+      text_pad_left="8" 
+      bg_image_always_focused="true"/>
     <combo_box.combo_button
       visible="false" />
     <combo_box.drop_down_button
@@ -70,6 +71,7 @@
     text_pad_left="8"
     name="password_edit"
     label="Password"
+  	bg_image_always_focused="true"
     font="SansSerifLarge"
     is_password="true"
     select_on_focus="true"
@@ -89,6 +91,8 @@
     name="start_location_combo"
     width="175"
     combo_button.scale_image="true">
+    <combo_box.combo_editor
+      bg_image_always_focused="true"/>
     <combo_box.item
       label="My last location"
       name="MyLastLocation"
