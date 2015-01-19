@@ -130,7 +130,6 @@ protected:
 	std::string                                    	mMenuName;
 	std::string                                    	mTooltip;
 	std::multimap<std::string, LLUrlEntryObserver>	mObservers;
-	bool											mGreyQuery;
 };
 
 ///
