@@ -1374,6 +1374,9 @@ if (LINUX)
     set(viewer_LIBRARIES
         Xinerama
         )
+    if (OPENAL)
+      LIST(APPEND viewer_LIBRARIES ${OPENAL_LIBRARIES})
+    endif (OPENAL)
 endif (LINUX)
 
 if (WINDOWS)
