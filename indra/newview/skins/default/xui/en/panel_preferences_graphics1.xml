@@ -235,7 +235,8 @@
 
   <tab_container
     follows="left|top"
-    height="400"
+    layout="topleft"
+    height="390"
     halign="center"
     left="0"
     name="PreferencesGraphicsTabs"
@@ -243,7 +244,7 @@
     tab_min_width="40"
     tab_position="top"
     tab_height="25"
-    top_delta="25"
+    top="80"
     width="517">
 
 <!-- This block shows Basic Settings -->
@@ -254,7 +255,7 @@
       layout="topleft"
       mouse_opaque="false"
       name="Basic"
-      top="30"
+      top="10"
       width="517">
 
       <button
@@ -264,7 +265,7 @@
         layout="topleft"
         left="10"
         name="Defaults"
-        top_delta="0"
+        top_delta="5"
         width="250">
         <button.commit_callback
           function="Pref.HardwareDefaults" />
@@ -338,12 +339,12 @@
       layout="topleft"
       mouse_opaque="false"
       name="Advanced"
-      top_delta="20"
+      top_delta="10"
       width="517">
 
       <scroll_container
         follows="top|left"
-        height="270"
+        height="260"
         label="CustomGraphics"
         layout="topleft"
         left="5"
@@ -368,7 +369,7 @@
             height="23"
             label="Reset all to recommended settings"
             layout="topleft"
-            left="0"
+            left="5"
             name="Defaults"
             top="0"
             width="250">
@@ -1217,7 +1218,7 @@
       layout="topleft"
       left="10"
       name="PrefSaveButton"
-      top="310"
+      top="300"
       width="250">
       <button.commit_callback
         function="Pref.PrefSave"

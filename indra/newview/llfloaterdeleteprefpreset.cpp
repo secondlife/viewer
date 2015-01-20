@@ -73,6 +73,8 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 		args["NAME"] = name;
 		LLNotificationsUtil::add("PresetNotDeleted", args);
 	}
+
+	closeFloater();
 }
 
 void LLFloaterDeletePrefPreset::onPresetsListChange()

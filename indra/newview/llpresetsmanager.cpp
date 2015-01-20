@@ -47,6 +47,11 @@ LLPresetsManager::~LLPresetsManager()
 {
 }
 
+void LLPresetsManager::triggerChangeSignal()
+{
+	mPresetListChangeSignal();
+}
+
 void LLPresetsManager::createMissingDefault()
 {
 	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, PRESETS_GRAPHIC, "default.xml");
@@ -86,7 +91,7 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 
 void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option)
 {
-	LL_INFOS("AppInit") << "Loading presets from " << dir << LL_ENDL;
+	LL_INFOS("AppInit") << "Loading list of preset names from " << dir << LL_ENDL;
 
 	mPresetNames.clear();
 
@@ -190,7 +195,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 	gSavedSettings.setString("PresetGraphicActive", name);
 
 	// signal interested parties
-	mPresetListChangeSignal();
+	triggerChangeSignal();
 
 	return true;
 }
@@ -240,7 +245,7 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
 		{
 			gSavedSettings.setString("PresetGraphicActive", name);
 		}
-		mPresetListChangeSignal();
+		triggerChangeSignal();
 	}
 }
 
@@ -265,7 +270,7 @@ bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::
 	}
 
 	// signal interested parties
-	mPresetListChangeSignal();
+	triggerChangeSignal();
 
 	return true;
 }

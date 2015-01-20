@@ -107,7 +107,6 @@
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
-#include "llpanelpresetspulldown.h"
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
 #include "llpresetsmanager.h"
@@ -1168,14 +1167,12 @@ void LLFloaterPreference::refreshEnabledState()
 	BOOL shaders = ctrl_shader_enable->get();
 	if (shaders)
 	{
-llwarns << "DBG terrain OFF" << llendl;
 		terrain_detail->setValue(1);
 		terrain_detail->setEnabled(FALSE);
 		terrain_text->setEnabled(FALSE);
 	}
 	else
 	{
-llwarns << "DBG terrain ON" << llendl;
 		terrain_detail->setEnabled(TRUE);
 		terrain_text->setEnabled(TRUE);
 	}
@@ -2282,7 +2279,9 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 	}
 #endif
 
+	resetDirtyChilds();
 	setPresetText();
+
 	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
 
 	return LLPanelPreference::postBuild();
@@ -2290,8 +2289,8 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 
 void LLPanelPreferenceGraphics::draw()
 {
-	LLPanelPreference::draw();
 	setPresetText();
+	LLPanelPreference::draw();
 }
 
 void LLPanelPreferenceGraphics::onPresetsListChange()
@@ -2307,13 +2306,9 @@ void LLPanelPreferenceGraphics::setPresetText()
 	if (hasDirtyChilds())
 	{
 		gSavedSettings.setString("PresetGraphicActive", "");
-
-		LLPanelPresetsPulldown* instance = LLFloaterReg::findTypedInstance<LLPanelPresetsPulldown>("presets_pulldown");
-		if (instance)
-		{
-llwarns << "DBG populate" << llendl;
-			instance->populatePanel();
-		}
+		// This doesn't seem to cause an infinite recursion.  This trigger is needed to cause the pulldown
+		// panel to update.
+		LLPresetsManager::getInstance()->triggerChangeSignal();
 	}
 
 	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
@@ -2326,8 +2321,6 @@ llwarns << "DBG populate" << llendl;
 	{
 		preset_text->setText(LLTrans::getString("none_paren_cap"));
 	}
-
-	preset_text->resetDirty();
 }
 
 bool LLPanelPreferenceGraphics::hasDirtyChilds()
@@ -2345,16 +2338,7 @@ bool LLPanelPreferenceGraphics::hasDirtyChilds()
 		{
 			if (ctrl->isDirty())
 			{
-				LLControlVariable* control = ctrl->getControlVariable();
-				if (control)
-				{
-					std::string control_name = control->getName();
-					if ((control_name != "RenderDeferred") && (control_name != "RenderTerrainDetail"))
-					{
-llwarns << "DBG " << control_name << llendl;
-						return true;
-					}
-				}
+					return true;
 			}
 		}
 		// Push children onto the end of the work stack
@@ -2363,7 +2347,7 @@ llwarns << "DBG " << control_name << llendl;
 		{
 			view_stack.push_back(*iter);
 		}
-	}	
+	}
 	return false;
 }
 

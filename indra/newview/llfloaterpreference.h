@@ -259,7 +259,9 @@ public:
 
 protected:
 	bool hasDirtyChilds();
+
 private:
+
 	void onPresetsListChange();
 };
 

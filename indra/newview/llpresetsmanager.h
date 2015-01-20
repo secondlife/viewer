@@ -52,6 +52,7 @@ public:
 	typedef boost::signals2::signal<void()> preset_list_signal_t;
 
 	void createMissingDefault();
+	void triggerChangeSignal();
 	static std::string getPresetsDir(const std::string& subdirectory);
 	void setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option);
 	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option);
