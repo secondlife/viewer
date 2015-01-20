@@ -107,6 +107,7 @@
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
+#include "llpanelpresetspulldown.h"
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
 #include "llpresetsmanager.h"
@@ -735,11 +736,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
 	bool started = (LLStartUp::getStartupState() == STATE_STARTED);
 
-	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
+	LLButton* load_btn = findChild<LLButton>("PrefLoadButton");	
 	LLButton* save_btn = findChild<LLButton>("PrefSaveButton");	
 	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");	
 
-	combo->setEnabled(started);
+	load_btn->setEnabled(started);
 	save_btn->setEnabled(started);
 	delete_btn->setEnabled(started);
 }
@@ -789,8 +790,6 @@ void LLFloaterPreference::setHardwareDefaults()
 		if (panel)
 			panel->setHardwareDefaults();
 	}
-
-	LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
 }
 
 void LLFloaterPreference::getControlNames(std::vector<std::string>& names)
@@ -899,11 +898,6 @@ void LLFloaterPreference::onBtnOK()
 		LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
 		pPathfindingConsole->onRegionBoundaryCross();
 	}
-
-	// Write settings to currently defined preset.  This will recreate a missing preset file
-	// and ensure the preset file matches the current settings (which may have been changed
-	// via some other means).
-	LLPresetsManager::getInstance()->savePreset(PRESETS_GRAPHIC, gSavedSettings.getString("PresetGraphicActive"));
 }
 
 // static 
@@ -1156,11 +1150,11 @@ void LLFloaterPreference::refreshEnabledState()
 	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE || 
 		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
 	{
-		ctrl_avatar_cloth->setEnabled(false);
+		ctrl_avatar_cloth->setEnabled(FALSE);
 	} 
 	else
 	{
-		ctrl_avatar_cloth->setEnabled(true);
+		ctrl_avatar_cloth->setEnabled(TRUE);
 	}
 	
 	// Vertex Shaders
@@ -1174,14 +1168,16 @@ void LLFloaterPreference::refreshEnabledState()
 	BOOL shaders = ctrl_shader_enable->get();
 	if (shaders)
 	{
+llwarns << "DBG terrain OFF" << llendl;
 		terrain_detail->setValue(1);
 		terrain_detail->setEnabled(FALSE);
-		terrain_text->setEnabled(false);
+		terrain_text->setEnabled(FALSE);
 	}
 	else
 	{
+llwarns << "DBG terrain ON" << llendl;
 		terrain_detail->setEnabled(TRUE);
-		terrain_text->setEnabled(true);
+		terrain_text->setEnabled(TRUE);
 	}
 	
 	// WindLight
@@ -1331,12 +1327,12 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
 
-		sky->setEnabled(false);
-		sky_text->setEnabled(false);
+		sky->setEnabled(FALSE);
+		sky_text->setEnabled(FALSE);
 
 		ctrl_reflections->setEnabled(FALSE);
 		ctrl_reflections->setValue(0);
-		reflections_text->setEnabled(false);
+		reflections_text->setEnabled(FALSE);
 		
 		ctrl_avatar_vp->setEnabled(FALSE);
 		ctrl_avatar_vp->setValue(FALSE);
@@ -1346,7 +1342,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(false);
+		shadows_text->setEnabled(FALSE);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
@@ -1366,13 +1362,13 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
 
-		sky->setEnabled(false);
-		sky_text->setEnabled(false);
+		sky->setEnabled(FALSE);
+		sky_text->setEnabled(FALSE);
 
 		//deferred needs windlight, disable deferred
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(false);
+		shadows_text->setEnabled(FALSE);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
@@ -1392,7 +1388,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(false);
+		shadows_text->setEnabled(FALSE);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
@@ -1418,7 +1414,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(false);
+		shadows_text->setEnabled(FALSE);
 	}
 
 	// disabled reflections
@@ -1426,7 +1422,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_reflections->setEnabled(FALSE);
 		ctrl_reflections->setValue(FALSE);
-		reflections_text->setEnabled(false);
+		reflections_text->setEnabled(FALSE);
 	}
 	
 	// disabled av
@@ -1441,7 +1437,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 		//deferred needs AvatarVP, disable deferred
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(false);
+		shadows_text->setEnabled(FALSE);
 		
 		ctrl_ssao->setEnabled(FALSE);
 		ctrl_ssao->setValue(FALSE);
@@ -1488,7 +1484,6 @@ void LLFloaterPreference::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true));
 	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true));
 	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true));
-	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail2",		true), getChild<LLTextBox>("AvatarMeshDetailText2",		true));
 	updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
 	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
@@ -1782,8 +1777,11 @@ void LLFloaterPreference::updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* te
 
 	F32 value = (F32)ctrl->getValue().asReal();
 
-	if (0.0f == value)
+	if (101.0f == value)
 	{
+		// It has been decided that having the slider all the way to the right will be the off position, which
+		// is a value of 101, so it is necessary to change value to 0 disable impostor generation.
+		value = 0.0f;
 		text_box->setText(LLTrans::getString("Off"));
 	}
 	else
@@ -2007,9 +2005,9 @@ LLPanelPreference::LLPanelPreference()
 {
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
-	mCommitCallbackRegistrar.add("Pref.Preset",	boost::bind(&LLPanelPreference::onChangePreset, this, _2));
 	mCommitCallbackRegistrar.add("Pref.PrefDelete",	boost::bind(&LLPanelPreference::DeletePreset, this, _2));
 	mCommitCallbackRegistrar.add("Pref.PrefSave",	boost::bind(&LLPanelPreference::SavePreset, this, _2));
+	mCommitCallbackRegistrar.add("Pref.PrefLoad",	boost::bind(&LLPanelPreference::LoadPreset, this, _2));
 }
 
 //virtual
@@ -2219,19 +2217,10 @@ void LLPanelPreference::SavePreset(const LLSD& user_data)
 	LLFloaterReg::showInstance("save_pref_preset", subdirectory);
 }
 
-void LLPanelPreference::onChangePreset(const LLSD& user_data)
+void LLPanelPreference::LoadPreset(const LLSD& user_data)
 {
 	std::string subdirectory = user_data.asString();
-
-	LLComboBox* combo = getChild<LLComboBox>(subdirectory + "_preset_combo");
-	std::string name = combo->getSimple();
-
-	LLPresetsManager::getInstance()->loadPreset(subdirectory, name);
-	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-	if (instance)
-	{
-		instance->refreshEnabledGraphics();
-	}
+	LLFloaterReg::showInstance("load_pref_preset", subdirectory);
 }
 
 void LLPanelPreference::setHardwareDefaults()
@@ -2293,27 +2282,52 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 	}
 #endif
 
-	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
-	combo->setLabel(LLTrans::getString("preset_combo_label"));
-
-	setPresetNamesInComboBox();
-
+	setPresetText();
 	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
 
 	return LLPanelPreference::postBuild();
 }
 
-void LLPanelPreferenceGraphics::onPresetsListChange()
+void LLPanelPreferenceGraphics::draw()
 {
-	setPresetNamesInComboBox();
+	LLPanelPreference::draw();
+	setPresetText();
 }
 
-void LLPanelPreferenceGraphics::setPresetNamesInComboBox()
+void LLPanelPreferenceGraphics::onPresetsListChange()
 {
-	LLComboBox* combo = getChild<LLComboBox>("graphic_preset_combo");
+	resetDirtyChilds();
+	setPresetText();
+}
 
-	EDefaultOptions option = DEFAULT_SHOW;
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_GRAPHIC, combo, option);
+void LLPanelPreferenceGraphics::setPresetText()
+{
+	LLTextBox* preset_text = getChild<LLTextBox>("preset_text");
+
+	if (hasDirtyChilds())
+	{
+		gSavedSettings.setString("PresetGraphicActive", "");
+
+		LLPanelPresetsPulldown* instance = LLFloaterReg::findTypedInstance<LLPanelPresetsPulldown>("presets_pulldown");
+		if (instance)
+		{
+llwarns << "DBG populate" << llendl;
+			instance->populatePanel();
+		}
+	}
+
+	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
+
+	if (!preset_graphic_active.empty())
+	{
+		preset_text->setText(preset_graphic_active);
+	}
+	else
+	{
+		preset_text->setText(LLTrans::getString("none_paren_cap"));
+	}
+
+	preset_text->resetDirty();
 }
 
 bool LLPanelPreferenceGraphics::hasDirtyChilds()
@@ -2330,7 +2344,18 @@ bool LLPanelPreferenceGraphics::hasDirtyChilds()
 		if (ctrl)
 		{
 			if (ctrl->isDirty())
-				return true;
+			{
+				LLControlVariable* control = ctrl->getControlVariable();
+				if (control)
+				{
+					std::string control_name = control->getName();
+					if ((control_name != "RenderDeferred") && (control_name != "RenderTerrainDetail"))
+					{
+llwarns << "DBG " << control_name << llendl;
+						return true;
+					}
+				}
+			}
 		}
 		// Push children onto the end of the work stack
 		for (child_list_t::const_iterator iter = curview->getChildList()->begin();

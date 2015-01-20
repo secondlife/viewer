@@ -17,36 +17,37 @@
     height="16"
     layout="topleft"
     left="5"
-    name="presets_text"
     top="10"
-    width="60">
-      Presets:
+    width="100">
+      Preset in use:
   </text>
-  <combo_box
-   	follows="top|left"
-   	layout="topleft"
-   	left_pad="0"
-   	max_chars="100"
-   	name="graphic_preset_combo"
-   	top_delta="0"
-   	width="150">
-    <combo_box.commit_callback
-      function="Pref.Preset"
-      parameter="graphic" />
-  </combo_box>
+
+  <text
+    follows="top|left|right"
+    font="SansSerif"
+    height="16"
+    layout="topleft"
+    left_delta="110"
+    name="preset_text"
+    top="10"
+    width="120">
+      (None)
+  </text>
+
   <button
     follows="top|left"
     height="23"
-    label="Save As..."
+    label="Load preset..."
     layout="topleft"
     left_pad="5"
-    name="PrefSaveButton"
+    name="PrefLoadButton"
     top_delta="0"
     width="115">
     <button.commit_callback
-      function="Pref.PrefSave"
+      function="Pref.PrefLoad"
 	  parameter="graphic"/>
   </button>
+
   <button
     follows="top|left"
     height="23"
@@ -60,6 +61,7 @@
       function="Pref.PrefDelete"
 	  parameter="graphic"/>
   </button>
+
   <text
     type="string"
     length="1"
@@ -255,6 +257,19 @@
       top="30"
       width="517">
 
+      <button
+        follows="top|left"
+        height="23"
+        label="Reset all to recommended settings"
+        layout="topleft"
+        left="10"
+        name="Defaults"
+        top_delta="0"
+        width="250">
+        <button.commit_callback
+          function="Pref.HardwareDefaults" />
+      </button>
+
       <slider
         control_name="RenderFarClip"
         decimal_digits="0"
@@ -269,7 +284,7 @@
         min_val="64"
         max_val="512"
         name="DrawDistance"
-        top_delta="0"
+        top_delta="40"
         width="330" />
       <text
         type="string"
@@ -348,6 +363,19 @@
           top_delta="0"
           width="485">
 
+          <button
+            follows="top|left"
+            height="23"
+            label="Reset all to recommended settings"
+            layout="topleft"
+            left="0"
+            name="Defaults"
+            top="0"
+            width="250">
+            <button.commit_callback
+              function="Pref.HardwareDefaults" />
+          </button>
+
           <text
             type="string"
             length="1"
@@ -355,7 +383,7 @@
             height="16"
             layout="topleft"
             name="GeneralText"
-            top="0"
+            top_delta="25"
             left="5"
             width="128">
              General
@@ -471,14 +499,14 @@
             control_name="MaximumARC"
             follows="left|top"
             height="16"
-            initial_value="0"
+            initial_value="101"
             increment="1"
             label="Maximum ARC:"
             label_width="165"
             layout="topleft"
             left="50"
-            min_val="0"
-            max_val="100"
+            min_val="1"
+            max_val="101"
             name="MaximumARC"
             show_text="false"
             top_delta="16"
@@ -1185,14 +1213,15 @@
     <button
       follows="left|bottom"
       height="23"
-      label="Recommended Settings"
+      label="Save settings as a preset..."
       layout="topleft"
       left="10"
-      name="Defaults"
+      name="PrefSaveButton"
       top="310"
-      width="200">
+      width="250">
       <button.commit_callback
-        function="Pref.HardwareDefaults" />
+        function="Pref.PrefSave"
+        parameter="graphic" />
     </button>
   </tab_container>
 </panel>

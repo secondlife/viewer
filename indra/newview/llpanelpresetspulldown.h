@@ -43,9 +43,9 @@ class LLPanelPresetsPulldown : public LLPanel
 	/*virtual*/ void onTopLost();
 	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
 	/*virtual*/ BOOL postBuild();
+	void populatePanel();
 	
  private:
-	void populatePanel();
 	void onGraphicsButtonClick(const LLSD& user_data);
 	void onRowClick(const LLSD& user_data);
 

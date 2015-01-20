@@ -222,9 +222,9 @@ public:
 	// cancel() can restore them.
 	virtual void saveSettings();
 
-	void onChangePreset(const LLSD& user_data);
 	void DeletePreset(const LLSD& user_data);
 	void SavePreset(const LLSD& user_data);
+	void LoadPreset(const LLSD& user_data);
 
 	class Updater;
 
@@ -248,15 +248,18 @@ class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
 	BOOL postBuild();
+	void draw();
 	void cancel();
 	void saveSettings();
+	void resetDirtyChilds();
 	void setHardwareDefaults();
-	void setPresetNamesInComboBox();
+	void setPresetText();
+
 	static const std::string getPresetsPath();
 
 protected:
 	bool hasDirtyChilds();
-	void resetDirtyChilds();
+private:
 	void onPresetsListChange();
 };
 

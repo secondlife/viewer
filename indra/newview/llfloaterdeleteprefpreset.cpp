@@ -1,5 +1,5 @@
 /** 
- * @file llfloaterdeletprefpreset.cpp
+ * @file llfloaterdeleteprefpreset.cpp
  * @brief Floater to delete a graphics / camera preset
  *
  * $LicenseInfo:firstyear=2014&license=viewerlgpl$
@@ -67,15 +67,7 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 	std::string name = combo->getSimple();
 
-	if (LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name))
-	{
-		// If you delete the active preset (which should never happen) then recreate it.
-		if (name == gSavedSettings.getString("PresetGraphicActive"))
-		{
-			LLPresetsManager::getInstance()->savePreset(mSubdirectory, PRESETS_DEFAULT);
-		}
-	}
-	else
+	if (!LLPresetsManager::getInstance()->deletePreset(mSubdirectory, name))
 	{
 		LLSD args;
 		args["NAME"] = name;

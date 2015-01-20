@@ -54,14 +54,14 @@ void LLPresetsManager::createMissingDefault()
 	{
 		LL_WARNS() << "No " << default_file << " found -- creating one" << LL_ENDL;
 		// Write current graphic settings to default.xml
-		// If this name is to be localized additional code will be needed to delete the old default
+		// *TODO: If this name is to be localized additional code will be needed to delete the old default
 		// when changing languages.
 		savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
-	}
 
-	if (gSavedSettings.getString("PresetGraphicActive").empty())
-	{
-		gSavedSettings.setString("PresetGraphicActive", PRESETS_DEFAULT);
+		if (gSavedSettings.getString("PresetGraphicActive").empty())
+		{
+			gSavedSettings.setString("PresetGraphicActive", PRESETS_DEFAULT);
+		}
 	}
 }
 
@@ -187,6 +187,8 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 	formatter->format(paramsData, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
 	presetsXML.close();
 
+	gSavedSettings.setString("PresetGraphicActive", name);
+
 	// signal interested parties
 	mPresetListChangeSignal();
 
@@ -234,6 +236,10 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
 
 	if(gSavedSettings.loadFromFile(full_path, false, true) > 0)
 	{
+		if(PRESETS_GRAPHIC == subdirectory)
+		{
+			gSavedSettings.setString("PresetGraphicActive", name);
+		}
 		mPresetListChangeSignal();
 	}
 }
@@ -250,6 +256,12 @@ bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::
 	{
 		LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;
 		return false;
+	}
+
+	// If you delete the preset that is currently marked as loaded then also indicate that no preset is loaded.
+	if (gSavedSettings.getString("PresetGraphicActive") == name)
+	{
+		gSavedSettings.setString("PresetGraphicActive", "");
 	}
 
 	// signal interested parties

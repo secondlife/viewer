@@ -4046,4 +4046,5 @@ Try enclosing path to the editor with double quotes.
   <string name="preset_combo_label">-Empty list-</string>
   <string name="Default">Default</string>
   <string name="Off">Off</string>
+  <string name="none_paren_cap">(None)</string>
   </strings>

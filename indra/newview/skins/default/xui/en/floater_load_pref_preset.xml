@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater
+ legacy_header_height="18"
+ height="130"
+ help_topic="floater_load_pref"
+ layout="topleft"
+ name="Load Pref Preset"
+ save_rect="true"
+ title="LOAD PREF PRESET"
+ width="550">
+
+    <string name="title_graphic">Load Graphic Preset</string>
+    <string name="title_camera">Load Camera Preset</string>
+
+    <text
+     follows="top|left|right"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left="50"
+     name="Preset"
+     top="60"
+     width="60">
+     Preset:
+    </text>
+    <combo_box
+     follows="top|left"
+     layout="topleft"
+     left_pad="10"
+     name="preset_combo"
+     top_delta="-5"
+     width="200"/>
+    <button
+     follows="bottom|right"
+     height="23"
+     label="OK"
+     layout="topleft"
+     left_pad="15"
+     name="ok"
+     width="70"/>
+    <button
+     follows="bottom|right"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel"
+     width="70"/>
+</floater>
