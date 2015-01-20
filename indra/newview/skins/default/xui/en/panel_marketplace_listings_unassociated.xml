@@ -10,7 +10,7 @@
     left_delta="0"
     start_folder.name="Marketplace listings"
     show_empty_message="true"
-    show_root_folder="true"
+    show_root_folder="false"
     use_marketplace_folders="true"
     start_folder.type="merchant"
     bg_opaque_color="DkGray2"

@@ -54,6 +54,7 @@ public:
 	BOOL postBuild();
 	void draw();
 	LLFolderView* getRootFolder() { return mRootFolder; }
+    bool allowDropOnRoot();
     
     void buildAllPanels();
     

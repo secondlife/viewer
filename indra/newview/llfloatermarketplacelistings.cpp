@@ -151,6 +151,12 @@ void LLPanelMarketplaceListings::onSelectionChange(LLInventoryPanel *panel, cons
 	panel->onSelectionChange(items, user_action);
 }
 
+bool LLPanelMarketplaceListings::allowDropOnRoot()
+{
+	LLInventoryPanel* panel = (LLInventoryPanel*)getChild<LLTabContainer>("marketplace_filter_tabs")->getCurrentPanel();
+    return (panel ? panel->getAllowDropOnRoot() : false);
+}
+
 void LLPanelMarketplaceListings::onTabChange()
 {
 	// Find active panel
@@ -163,6 +169,19 @@ void LLPanelMarketplaceListings::onTabChange()
         
         // Set filter string on active panel
         panel->setFilterSubString(mFilterSubString);
+        
+        // Show/hide the drop zone and resize the inventory tabs panel accordingly
+        LLPanel* drop_zone = (LLPanel*)getChild<LLPanel>("marketplace_drop_zone");
+        bool drop_zone_visible = drop_zone->getVisible();
+        if (drop_zone_visible != panel->getAllowDropOnRoot())
+        {
+            LLPanel* tabs = (LLPanel*)getChild<LLPanel>("tab_container_panel");
+            S32 delta_height = drop_zone->getRect().getHeight();
+            delta_height = (drop_zone_visible ? delta_height : -delta_height);
+            tabs->reshape(tabs->getRect().getWidth(),tabs->getRect().getHeight() + delta_height);
+            tabs->translate(0,-delta_height);
+        }
+        drop_zone->setVisible(panel->getAllowDropOnRoot());
 	}
 }
 
@@ -538,14 +557,17 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
     // marketplace listings root folder
     if (!handled || !isAccepted(*accept))
     {
-        if (!mPanelListings->getVisible() && mRootFolderId.notNull())
+        if ((LLMarketplaceData::instance().getSLMStatus() >= MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) && mRootFolderId.notNull())
         {
             if (!mPanelListingsSet)
             {
                 setPanels();
             }
-            LLFolderView* root_folder = mPanelListings->getRootFolder();
-            handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+            if (mPanelListings->allowDropOnRoot())
+            {
+                LLFolderView* root_folder = mPanelListings->getRootFolder();
+                handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+            }
         }
     }
 	
