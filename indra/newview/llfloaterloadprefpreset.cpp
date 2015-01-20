@@ -82,11 +82,6 @@ void LLFloaterLoadPrefPreset::onBtnOk()
 	std::string name = combo->getSimple();
 
 	LLPresetsManager::getInstance()->loadPreset(mSubdirectory, name);
-	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-	if (instance)
-	{
-		instance->refreshEnabledGraphics();
-	}
 
 	closeFloater();
 }

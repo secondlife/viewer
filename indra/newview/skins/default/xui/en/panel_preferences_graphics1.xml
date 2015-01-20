@@ -51,7 +51,7 @@
   <button
     follows="top|left"
     height="23"
-    label="Delete..."
+    label="Delete preset..."
     layout="topleft"
     left_pad="5"
     name="PrefDeleteButton"
@@ -263,7 +263,7 @@
         height="23"
         label="Reset all to recommended settings"
         layout="topleft"
-        left="10"
+        left="5"
         name="Defaults"
         top_delta="5"
         width="250">
@@ -321,7 +321,7 @@
         label="Advanced Lighting Model"
         layout="topleft"
         left="50"
-        name="UseLightShaders2"
+        name="UseLightShaders"
         top_delta="20"
         width="256">
         <check_box.commit_callback
@@ -369,7 +369,7 @@
             height="23"
             label="Reset all to recommended settings"
             layout="topleft"
-            left="5"
+            left="0"
             name="Defaults"
             top="0"
             width="250">
@@ -782,7 +782,7 @@
             label="Atmospheric shaders"
             layout="topleft"
             left="50"
-            name="WindLightUseAtmosShaders"
+            name="WindLightUseAtmosShaders2"
             top_delta="16"
             width="280">
             <check_box.commit_callback
@@ -831,7 +831,7 @@
             label="Advanced Lighting Model"
             layout="topleft"
             left="70"
-            name="UseLightShaders"
+            name="UseLightShaders2"
             top_delta="16"
             width="260">
             <check_box.commit_callback

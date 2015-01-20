@@ -735,9 +735,9 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
 	bool started = (LLStartUp::getStartupState() == STATE_STARTED);
 
-	LLButton* load_btn = findChild<LLButton>("PrefLoadButton");	
-	LLButton* save_btn = findChild<LLButton>("PrefSaveButton");	
-	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");	
+	LLButton* load_btn = findChild<LLButton>("PrefLoadButton");
+	LLButton* save_btn = findChild<LLButton>("PrefSaveButton");
+	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");
 
 	load_btn->setEnabled(started);
 	save_btn->setEnabled(started);
@@ -925,14 +925,12 @@ void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_
 	}
 }
 
-
 void LLFloaterPreference::refreshEnabledGraphics()
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if (instance)
 	{
 		instance->refresh();
-		//instance->refreshEnabledState();
 	}
 }
 
@@ -1179,12 +1177,14 @@ void LLFloaterPreference::refreshEnabledState()
 	
 	// WindLight
 	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
+	LLCheckBoxCtrl* ctrl_wind_light2 = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders2");
 	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
 	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
 
 	// *HACK just checks to see if we can use shaders... 
 	// maybe some cards that use shaders, but don't support windlight
 	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+	ctrl_wind_light2->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
 
 	sky->setEnabled(ctrl_wind_light->get() && shaders);
 	sky_text->setEnabled(ctrl_wind_light->get() && shaders);
@@ -2002,9 +2002,9 @@ LLPanelPreference::LLPanelPreference()
 {
 	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 	mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
-	mCommitCallbackRegistrar.add("Pref.PrefDelete",	boost::bind(&LLPanelPreference::DeletePreset, this, _2));
-	mCommitCallbackRegistrar.add("Pref.PrefSave",	boost::bind(&LLPanelPreference::SavePreset, this, _2));
-	mCommitCallbackRegistrar.add("Pref.PrefLoad",	boost::bind(&LLPanelPreference::LoadPreset, this, _2));
+	mCommitCallbackRegistrar.add("Pref.PrefDelete",	boost::bind(&LLPanelPreference::deletePreset, this, _2));
+	mCommitCallbackRegistrar.add("Pref.PrefSave",	boost::bind(&LLPanelPreference::savePreset, this, _2));
+	mCommitCallbackRegistrar.add("Pref.PrefLoad",	boost::bind(&LLPanelPreference::loadPreset, this, _2));
 }
 
 //virtual
@@ -2202,19 +2202,19 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 	}
 }
 
-void LLPanelPreference::DeletePreset(const LLSD& user_data)
+void LLPanelPreference::deletePreset(const LLSD& user_data)
 {
 	std::string subdirectory = user_data.asString();
 	LLFloaterReg::showInstance("delete_pref_preset", subdirectory);
 }
 
-void LLPanelPreference::SavePreset(const LLSD& user_data)
+void LLPanelPreference::savePreset(const LLSD& user_data)
 {
 	std::string subdirectory = user_data.asString();
 	LLFloaterReg::showInstance("save_pref_preset", subdirectory);
 }
 
-void LLPanelPreference::LoadPreset(const LLSD& user_data)
+void LLPanelPreference::loadPreset(const LLSD& user_data)
 {
 	std::string subdirectory = user_data.asString();
 	LLFloaterReg::showInstance("load_pref_preset", subdirectory);
@@ -2303,15 +2303,16 @@ void LLPanelPreferenceGraphics::setPresetText()
 {
 	LLTextBox* preset_text = getChild<LLTextBox>("preset_text");
 
-	if (hasDirtyChilds())
+	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
+
+	if (hasDirtyChilds() && !preset_graphic_active.empty())
 	{
 		gSavedSettings.setString("PresetGraphicActive", "");
+		preset_graphic_active.clear();
 		// This doesn't seem to cause an infinite recursion.  This trigger is needed to cause the pulldown
 		// panel to update.
 		LLPresetsManager::getInstance()->triggerChangeSignal();
 	}
-
-	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
 
 	if (!preset_graphic_active.empty())
 	{
@@ -2321,6 +2322,8 @@ void LLPanelPreferenceGraphics::setPresetText()
 	{
 		preset_text->setText(LLTrans::getString("none_paren_cap"));
 	}
+
+	preset_text->resetDirty();
 }
 
 bool LLPanelPreferenceGraphics::hasDirtyChilds()
@@ -2338,7 +2341,15 @@ bool LLPanelPreferenceGraphics::hasDirtyChilds()
 		{
 			if (ctrl->isDirty())
 			{
-					return true;
+				LLControlVariable* control = ctrl->getControlVariable();
+				if (control)
+				{
+					std::string control_name = control->getName();
+					if (!control_name.empty())
+					{
+						return true;
+					}
+				}
 			}
 		}
 		// Push children onto the end of the work stack
@@ -2348,6 +2359,7 @@ bool LLPanelPreferenceGraphics::hasDirtyChilds()
 			view_stack.push_back(*iter);
 		}
 	}
+
 	return false;
 }
 
@@ -2377,7 +2389,6 @@ void LLPanelPreferenceGraphics::resetDirtyChilds()
 
 void LLPanelPreferenceGraphics::cancel()
 {
-	resetDirtyChilds();
 	LLPanelPreference::cancel();
 }
 void LLPanelPreferenceGraphics::saveSettings()

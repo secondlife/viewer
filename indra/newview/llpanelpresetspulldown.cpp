@@ -145,11 +145,7 @@ void LLPanelPresetsPulldown::onRowClick(const LLSD& user_data)
 			std::string name = item->getColumn(1)->getValue().asString();
 
 			LLPresetsManager::getInstance()->loadPreset(PRESETS_GRAPHIC, name);
-			LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-			if (instance)
-			{
-				instance->refreshEnabledGraphics();
-			}
+
 			setVisible(FALSE);
 		}
 	}

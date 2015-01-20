@@ -222,9 +222,9 @@ public:
 	// cancel() can restore them.
 	virtual void saveSettings();
 
-	void DeletePreset(const LLSD& user_data);
-	void SavePreset(const LLSD& user_data);
-	void LoadPreset(const LLSD& user_data);
+	void deletePreset(const LLSD& user_data);
+	void savePreset(const LLSD& user_data);
+	void loadPreset(const LLSD& user_data);
 
 	class Updater;
 

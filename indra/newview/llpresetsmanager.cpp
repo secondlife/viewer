@@ -58,9 +58,8 @@ void LLPresetsManager::createMissingDefault()
 	if (!gDirUtilp->fileExists(default_file))
 	{
 		LL_WARNS() << "No " << default_file << " found -- creating one" << LL_ENDL;
+
 		// Write current graphic settings to default.xml
-		// *TODO: If this name is to be localized additional code will be needed to delete the old default
-		// when changing languages.
 		savePreset(PRESETS_GRAPHIC, PRESETS_DEFAULT);
 
 		if (gSavedSettings.getString("PresetGraphicActive").empty())
@@ -106,13 +105,10 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 		{
 			std::string path = gDirUtilp->add(dir, file);
 			std::string name = gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true);
-			// Two things are happening here:
-			// 1 - Always put the active preset at the top of the list
-			// 2 - Possibly hide the default preset
+
 			if (PRESETS_DEFAULT != name)
 			{
 				mPresetNames.push_back(name);
-
 			}
 			else
 			{
@@ -244,6 +240,12 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
 		if(PRESETS_GRAPHIC == subdirectory)
 		{
 			gSavedSettings.setString("PresetGraphicActive", name);
+		}
+
+		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+		if (instance)
+		{
+			instance->refreshEnabledGraphics();
 		}
 		triggerChangeSignal();
 	}
