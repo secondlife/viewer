@@ -2126,9 +2126,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae89da43466a510fbb0a67eb27bb251f</string>
+              <string>68a8fab5ad3a180487598d3a3e0d57b1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/296971/arch/Darwin/installer/slvoice-4.6.0009.20030.296971-darwin-296971.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Darwin/installer/slvoice-4.6.0017.21209.298329-darwin-298329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2138,9 +2138,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c66d434b7df05351662c068d3a8d2183</string>
+              <string>48ed7ddcf93fa3c751d677f5eb5f9367</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/296971/arch/Linux/installer/slvoice-4.5.0006.17020.296971-linux-296971.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Linux/installer/slvoice-3.2.0002.10426.298329-linux-298329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2150,16 +2150,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d0ad191e40b5c98748bdd973d6762ade</string>
+              <string>399afab7047e6fa62e7b2fb1768059ea</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/296971/arch/CYGWIN/installer/slvoice-4.6.0009.20030.296971-windows-296971.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/CYGWIN/installer/slvoice-4.6.0017.21209.298329-windows-298329.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.6.0009.20030.296971</string>
+        <string>4.6.0017.21209.2988329</string>
       </map>
       <key>tut</key>
       <map>
