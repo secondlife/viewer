@@ -214,14 +214,7 @@ void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 			for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
 			{
 				const std::string& name = *it;
-				if (name != preset_graphic_active)
-				{
-					combo->add(name, LLSD().with(0, name));
-				}
-				else
-				{
-					combo->add(name, LLSD().with(0, name), ADD_TOP);
-				}
+				combo->add(name, LLSD().with(0, name));
 			}
 		}
 		else
