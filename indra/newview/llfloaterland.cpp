@@ -78,6 +78,8 @@
 
 #include "llgroupactions.h"
 
+const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;
+
 static std::string OWNER_ONLINE 	= "0";
 static std::string OWNER_OFFLINE	= "1";
 static std::string OWNER_GROUP 		= "2";
@@ -2883,12 +2885,21 @@ void LLPanelLandAccess::onClickRemoveBanned(void* data)
 //---------------------------------------------------------------------------
 LLPanelLandCovenant::LLPanelLandCovenant(LLParcelSelectionHandle& parcel)
 	: LLPanel(),
-	  mParcel(parcel)
-{	
+	  mParcel(parcel),
+	  mNextUpdateTime(0)
+{
 }
 
 LLPanelLandCovenant::~LLPanelLandCovenant()
 {
+}
+
+BOOL LLPanelLandCovenant::postBuild()
+{
+	mLastRegionID = LLUUID::null;
+	mNextUpdateTime = 0;
+
+	return TRUE;
 }
 
 // virtual
@@ -2937,14 +2948,23 @@ void LLPanelLandCovenant::refresh()
 			changeable_clause->setText(getString("can_not_change"));
 		}
 	}
-	
-	// send EstateCovenantInfo message
-	LLMessageSystem *msg = gMessageSystem;
-	msg->newMessage("EstateCovenantRequest");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
-	msg->sendReliable(region->getHost());
+
+	if (mLastRegionID != region->getRegionID()
+		|| mNextUpdateTime < LLTimer::getElapsedSeconds())
+	{
+		// Request Covenant Info
+		// Note: LLPanelLandCovenant doesn't change Covenant's content and any
+		// changes made by Estate floater should be requested by Estate floater
+		LLMessageSystem *msg = gMessageSystem;
+		msg->newMessage("EstateCovenantRequest");
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
+		msg->sendReliable(region->getHost());
+
+		mLastRegionID = region->getRegionID();
+		mNextUpdateTime = LLTimer::getElapsedSeconds() + COVENANT_REFRESH_TIME_SEC;
+	}
 }
 
 // static
