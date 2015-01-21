@@ -1154,11 +1154,11 @@ class Linux_i686_Manifest(LinuxManifest):
                 self.path("SLVoice")
                 self.end_prefix()
             if self.prefix(src="../packages/lib/release", dst="lib"):
-                self.path("libortp.dylib")
-                self.path("libsndfile.dylib")
+                self.path("libortp.so")
+                self.path("libsndfile.so.1")
                 #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
-                self.path("libvivoxsdk.dylib")
-                self.path("libvivoxplatform.dylib")
+                self.path("libvivoxsdk.so")
+                self.path("libvivoxplatform.so")
                 self.end_prefix("lib")
 
             # plugin runtime
