@@ -958,6 +958,11 @@ class Darwin_i386_Manifest(ViewerManifest):
 class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
+
+        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        relpkgdir = os.path.join(pkgdir, "lib", "release")
+        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+
         self.path("licenses-linux.txt","licenses.txt")
         if self.prefix("linux_tools", dst=""):
             self.path("client-readme.txt","README-linux.txt")
@@ -976,7 +981,7 @@ class LinuxManifest(ViewerManifest):
         if self.prefix(src="", dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin")
+            self.path2basename(pkgdir, "SLPlugin")
             self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
             self.end_prefix("bin")
 
@@ -996,9 +1001,9 @@ class LinuxManifest(ViewerManifest):
             self.end_prefix(icon_path)
 
         # plugins
-        if self.prefix(src="", dst="bin/llplugin"):
-            self.path2basename("../media_plugins/webkit", "libmedia_plugin_webkit.so")
-            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
+        if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="bin/llplugin"):
+            self.path("libmedia_plugin_webkit.so")
+            self.path("libmedia_plugin_gstreamer.so")
             self.end_prefix("bin/llplugin")
 
         # llcommon
@@ -1060,7 +1065,11 @@ class Linux_i686_Manifest(LinuxManifest):
     def construct(self):
         super(Linux_i686_Manifest, self).construct()
 
-        if self.prefix("../packages/lib/release", dst="lib"):
+        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        relpkgdir = os.path.join(pkgdir, "lib", "release")
+        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+
+        if self.prefix(relpkgdir, dst="lib"):
             self.path("libapr-1.so")
             self.path("libapr-1.so.0")
             self.path("libapr-1.so.0.4.5")
@@ -1123,10 +1132,10 @@ class Linux_i686_Manifest(LinuxManifest):
             self.end_prefix("lib")
 
             # Vivox runtimes
-            if self.prefix(src="../packages/lib/release", dst="bin"):
+            if self.prefix(src=relpkgdir, dst="bin"):
                 self.path("SLVoice")
                 self.end_prefix()
-            if self.prefix(src="../packages/lib/release", dst="lib"):
+            if self.prefix(src=relpkgdir, dst="lib"):
                 self.path("libortp.so")
                 self.path("libsndfile.so.1")
                 #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
@@ -1135,7 +1144,7 @@ class Linux_i686_Manifest(LinuxManifest):
                 self.end_prefix("lib")
 
             # plugin runtime
-            if self.prefix(src="../packages/lib/release", dst="lib"):
+            if self.prefix(src=os.path.join(pkgdir, "lib"), dst="lib"):
                 self.path("libQtCore.so*")
                 self.path("libQtGui.so*")
                 self.path("libQtNetwork.so*")
@@ -1146,7 +1155,8 @@ class Linux_i686_Manifest(LinuxManifest):
                 self.end_prefix("lib")
 
             # For WebKit/Qt plugin runtimes (image format plugins)
-            if self.prefix(src="../packages/plugins/imageformats", dst="bin/llplugin/imageformats"):
+            if self.prefix(src=os.path.join(pkgdir, "llplugin", "imageformats"),
+                           dst="bin/llplugin/imageformats"):
                 self.path("libqgif.so")
                 self.path("libqico.so")
                 self.path("libqjpeg.so")
@@ -1156,7 +1166,8 @@ class Linux_i686_Manifest(LinuxManifest):
                 self.end_prefix("bin/llplugin/imageformats")
 
             # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-            if self.prefix(src="../packages/plugins/codecs", dst="bin/llplugin/codecs"):
+            if self.prefix(src=os.path.join(pkgdir, "llplugin", "codecs"),
+                           dst="bin/llplugin/codecs"):
                 self.path("libqcncodecs.so")
                 self.path("libqjpcodecs.so")
                 self.path("libqkrcodecs.so")

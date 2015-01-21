@@ -2089,16 +2089,28 @@
             <key>name</key>
             <string>darwin</string>
           </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>64b8a3bac95b5888a7ede3d7661a18b8</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slplugins_3p-update-slplugins/rev/298079/arch/Linux/installer/slplugins-3.7.24.297623.298079-linux-298079.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>55358f8aca309a73f828929cc4b1b0d2</string>
+              <string>3a1ea3385303b78b0327c8cea929ef27</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slplugins_3p-update-slplugins/rev/297645/arch/CYGWIN/installer/slplugins-3.7.22.297128.297645-windows-297645.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slplugins_3p-update-slplugins/rev/298079/arch/CYGWIN/installer/slplugins-3.7.24.297623.298079-windows-298079.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
