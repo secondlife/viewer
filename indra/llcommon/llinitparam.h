@@ -435,7 +435,7 @@ namespace LLInitParam
 		typedef self_t type_value_t;
 
 		TypeValuesHelper(const std::string& val)
-		:	TypeValuesHelper(val)
+		:	base_t(val)
 		{}
 
 		void operator ()(const std::string& name)
