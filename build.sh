@@ -101,7 +101,7 @@ pre_build()
 
     check_for "Confirm dictionaries are installed before 'autobuild configure'" ${build_dir}/packages/dictionaries
 
-    "$AUTOBUILD" configure -c $variant -- \
+    "$autobuild" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
@@ -119,12 +119,12 @@ package_llphysicsextensions_tpv()
   if [ "$variant" = "Release" ]
   then 
       llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
-      "$AUTOBUILD" build --verbose --config-file $llpetpvcfg -c Tpv
+      "$autobuild" build --verbose --config-file $llpetpvcfg -c Tpv
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$AUTOBUILD" package --verbose --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
+      "$autobuild" package --verbose --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
       tpv_status=$?
       if [ -r "${PKGTMP}" ]
       then
@@ -148,7 +148,7 @@ build()
   then
     begin_section "Viewer$variant"
 
-    "$AUTOBUILD" build --no-configure -c $variant
+    "$autobuild" build --no-configure -c $variant
     build_ok=$?
     end_section "Viewer$variant"
 
@@ -216,30 +216,18 @@ fi
 # Check to see if we're skipping the platform
 eval '$build_'"$arch" || pass
 
-if [ -z "$AUTOBUILD" ]
+# ensure AUTOBUILD is in native path form for child processes
+AUTOBUILD="$(native_path "$AUTOBUILD")"
+# set "$autobuild" to cygwin path form for use locally in this script
+autobuild="$(shell_path "$AUTOBUILD")"
+if [ ! -x "$autobuild" ]
 then
-  export autobuild_dir="$here/../../../autobuild/bin/"
-  if [ -d "$autobuild_dir" ]
-  then
-    export AUTOBUILD="$autobuild_dir"autobuild
-    if [ -x "$AUTOBUILD" ]
-    then
-      # *HACK - bash doesn't know how to pass real pathnames to native windows python
-      case "$arch" in
-      CYGWIN) AUTOBUILD=$(cygpath -u $AUTOBUILD.cmd) ;;
-      esac
-    else
-      record_failure "Not executable: $AUTOBUILD"
-      exit 1
-    fi
-  else
-    record_failure "Not found: $autobuild_dir"
-    exit 1
-  fi
+  record_failure "AUTOBUILD not executable: '$autobuild'"
+  exit 1
 fi
 
-# load autbuild provided shell functions and variables
-eval "$("$AUTOBUILD" source_environment)"
+# load autobuild provided shell functions and variables
+eval "$("$autobuild" source_environment)"
 
 # dump environment variables for debugging
 begin_section "Environment"
