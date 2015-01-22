@@ -4045,5 +4045,17 @@ Try enclosing path to the editor with double quotes.
   <string name="loading_chat_logs">
     Loading...
   </string>
-  
-  </strings>
+
+  <string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+      The physics shape contains triangles which are too small. Try simplifying the physics model.
+  </string>
+
+  <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+      The physics shape contains bad confirmation data. Try to correct the physics model.
+  </string>
+
+  <string name="Mav_Details_MAV_UNKNOWN_VERSION">
+      The physics shape does not have correct version. Set the correct version for the physics model.
+  </string>
+
+</strings>
