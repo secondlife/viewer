@@ -216,6 +216,8 @@ fi
 # Check to see if we're skipping the platform
 eval '$build_'"$arch" || pass
 
+# ensure AUTOBUILD is in native path form for child processes
+AUTOBUILD="$(native_path "$AUTOBUILD")"
 # set "$autobuild" to cygwin path form for use locally in this script
 autobuild="$(shell_path "$AUTOBUILD")"
 if [ ! -x "$autobuild" ]
