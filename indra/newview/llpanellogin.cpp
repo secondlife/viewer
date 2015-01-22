@@ -369,6 +369,10 @@ void LLPanelLogin::addFavoritesToStartLocation()
 			{
 				mShowFavorites = true;
 				combo->add(label, value);
+				if ( LLStartUp::getStartSLURL().getSLURLString() == value)
+				{
+					combo->selectByValue(value);
+				}
 			}
 		}
 		break;
@@ -683,7 +687,6 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 	LL_DEBUGS("AppInit")<<new_start_slurl.asString()<<LL_ENDL;
 
 	LLComboBox* location_combo = sInstance->getChild<LLComboBox>("start_location_combo");
-	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
 	/*
 	 * Determine whether or not the new_start_slurl modifies the grid.
 	 *
@@ -715,7 +718,10 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 			}
 			if ( new_start_slurl.getLocationString().length() )
 			{
-				location_edit->setValue(new_start_slurl.getLocationString());
+				if (location_combo->getCurrentIndex() == -1)
+				{
+					location_combo->setLabel(new_start_slurl.getLocationString());
+				}
 				sInstance->mLocationLength = new_start_slurl.getLocationString().length();
 				sInstance->updateLoginButtons();
 			}

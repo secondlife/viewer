@@ -80,7 +80,7 @@
     width="165" />
   <combo_box
     allow_text_entry="true"
-    control_name="NextLoginLocation"
+    control_name="NextLoginLocation"    
     follows="left|top"
     label="My favorite places"
     height="32"
@@ -92,7 +92,8 @@
     width="175"
     combo_button.scale_image="true">
     <combo_box.combo_editor
-      bg_image_always_focused="true"/>
+      bg_image_always_focused="true"
+      text_pad_left="8"/>
     <combo_box.item
       label="My last location"
       name="MyLastLocation"
@@ -109,7 +110,7 @@
     image_hover="PushButton_Login_Over"
     label="Log In"
     label_color="White"
-    font="SansSerifBold"
+    font="SansSerifMedium"
     name="connect_btn"
     enabled="true"    
     width="120"
