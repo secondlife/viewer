@@ -237,7 +237,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		}
 	}
 	server_choice_combo->sortByName();
-	server_choice_combo->addSeparator(ADD_TOP);
 	LL_DEBUGS("AppInit")<<"adding current "<<current_grid<<LL_ENDL;
 	server_choice_combo->add(LLGridManager::getInstance()->getGridLabel(), 
 							 current_grid,

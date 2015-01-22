@@ -119,7 +119,7 @@
     name="At_My_Last_Location_Label"
     left_pad="8"
     bottom_delta="1"
-    width="120">
+    width="110">
     at last location
   </text>
   <combo_box
@@ -157,7 +157,7 @@
     follows="left|top"
     width="170"
     height="26"
-    left_pad="40"
+    left_pad="30"
     text_pad_left="8"
     name="location_edit"
     label="Type a location"
@@ -186,12 +186,12 @@
     height="26"
     max_chars="128"
     label="Select grid"
-    left_pad="40"
+    left_pad="30"
     bottom_delta="0"
     layout="topleft"
     top_pad="2"
     name="server_combo"
-    width="128" />
+    width="148" />
     </layout_panel>
     <layout_panel
       height="172"

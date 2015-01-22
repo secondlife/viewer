@@ -38,6 +38,31 @@ namespace
 static const char * const TEST_FILENAME("llviewernetwork_test.xml");
 
 }
+
+//
+// Stub implementation for LLTrans
+//
+class LLTrans
+{
+public:
+	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+};
+
+std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args)
+{
+	std::string grid_label = std::string();
+	if(xml_desc == "AgniGridLabel")
+	{
+		grid_label = "Second Life Main Grid (Agni)";
+	}
+	else if(xml_desc == "AditiGridLabel")
+	{
+		grid_label = "Second Life Beta Test Grid (Aditi)";
+	}
+
+	return grid_label;
+}
+
 //----------------------------------------------------------------------------
 // Mock objects for the dependencies of the code we're testing
 
