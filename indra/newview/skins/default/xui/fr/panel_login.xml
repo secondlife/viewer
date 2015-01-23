@@ -19,9 +19,9 @@
 				<combo_box.item label="Domicile" name="MyHome"/>
 			</combo_box>
 			<button label="Connexion" name="connect_favorite_btn"/>
-			<line_editor label="Tapez un emplacement" name="location_edit"/>
+			<line_editor label="Tapez un emplacement" name="location_edit" left_pad="20"/>
 			<button label="Connexion" name="connect_location_btn"/>
-			<combo_box label="Sélectionner la grille" name="server_combo"/>
+			<combo_box label="Sélectionner la grille" name="server_combo" left_pad="20"/>
 		</layout_panel>
 	</layout_stack>
 </panel>
