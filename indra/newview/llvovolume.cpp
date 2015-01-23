@@ -2150,6 +2150,9 @@ bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
 
 				mat->setSpecularID(LLUUID::null);
 			} break;
+		case LLRender::NUM_TEXTURE_CHANNELS:
+				//nothing to do, make compiler happy
+			break;
 		} //switch
 	} //for
 
