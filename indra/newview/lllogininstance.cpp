@@ -58,7 +58,6 @@
 #include "llmachineid.h"
 #include "llupdaterservice.h"
 #include "llevents.h"
-#include "llnotificationsutil.h"
 #include "llappviewer.h"
 
 #include <boost/scoped_ptr.hpp>
@@ -75,9 +74,14 @@ namespace {
 	{
 	public:
 		MandatoryUpdateMachine(LLLoginInstance & loginInstance, LLUpdaterService & updaterService);
-		
+
 		void start(void);
-		
+
+		LLNotificationsInterface& getNotificationsInterface() const
+		{
+			return mLoginInstance.getNotificationsInterface();
+		}
+
 	private:
 		class State;
 		class CheckingForUpdate;
@@ -87,6 +91,7 @@ namespace {
 		class WaitingForDownload;
 
 		boost::scoped_ptr<State> mState;
+		LLLoginInstance &  mLoginInstance;
 		LLUpdaterService & mUpdaterService;
 		
 		void setCurrentState(State * newState);
@@ -192,6 +197,7 @@ std::string construct_start_string();
 
 
 MandatoryUpdateMachine::MandatoryUpdateMachine(LLLoginInstance & loginInstance, LLUpdaterService & updaterService):
+	mLoginInstance(loginInstance),
 	mUpdaterService(updaterService)
 {
 	; // No op.
@@ -326,7 +332,7 @@ MandatoryUpdateMachine::Error::Error(MandatoryUpdateMachine & machine):
 void MandatoryUpdateMachine::Error::enter(void)
 {
 	LL_INFOS() << "entering error" << LL_ENDL;
-	LLNotificationsUtil::add("FailedRequiredUpdateInstall", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::Error::onButtonClicked, this, _1, _2));
+	mMachine.getNotificationsInterface().add("FailedRequiredUpdateInstall", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::Error::onButtonClicked, this, _1, _2));
 }
 
 
@@ -382,7 +388,7 @@ MandatoryUpdateMachine::StartingUpdaterService::StartingUpdaterService(Mandatory
 void MandatoryUpdateMachine::StartingUpdaterService::enter(void)
 {
 	LL_INFOS() << "entering start update service" << LL_ENDL;
-	LLNotificationsUtil::add("UpdaterServiceNotRunning", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::StartingUpdaterService::onButtonClicked, this, _1, _2));
+	mMachine.getNotificationsInterface().add("UpdaterServiceNotRunning", LLSD(), LLSD(), boost::bind(&MandatoryUpdateMachine::StartingUpdaterService::onButtonClicked, this, _1, _2));
 }
 
 
