@@ -895,6 +895,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         // Options available at the Listing Folder level
         items.push_back(std::string("Marketplace Create Listing"));
         items.push_back(std::string("Marketplace Associate Listing"));
+        items.push_back(std::string("Marketplace Check Listing"));
         items.push_back(std::string("Marketplace List"));
         items.push_back(std::string("Marketplace Unlist"));
         if (LLMarketplaceData::instance().isUpdating(mUUID))
@@ -3108,6 +3109,12 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("marketplace_associate_listing" == action)
 	{
         LLFloaterAssociateListing::show(mUUID);
+		return;
+	}
+	else if ("marketplace_check_listing" == action)
+	{
+        LLSD data(mUUID);
+        LLFloaterReg::showInstance("marketplace_validation", data);
 		return;
 	}
 	else if ("marketplace_edit_listing" == action)

@@ -163,6 +163,8 @@ private:
 //-----------------------------------------------------------------------------
 // LLFloaterMarketplaceValidation
 //-----------------------------------------------------------------------------
+// Note: The key is the UUID of the folder to validate. Validates the whole
+// marketplace listings content if UUID is null.
 // Note: For the moment, we just display the validation text. Eventually, we should
 // get the validation triggered on the server and display the html report.
 // *TODO : morph into an html/text window using the pattern in llfloatertos

@@ -698,6 +698,9 @@ void LLFloaterAssociateListing::cancel()
 // LLFloaterMarketplaceValidation
 //-----------------------------------------------------------------------------
 
+// Note: The key is the UUID of the folder to validate.
+// Validates the whole marketplace listings content if UUID is null.
+
 LLFloaterMarketplaceValidation::LLFloaterMarketplaceValidation(const LLSD& key)
 :	LLFloater(key),
 mEditor(NULL)
@@ -732,12 +735,18 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
 {
     // Clear the text panel
     mEditor->setValue(LLSD());
-
-    // Validates the marketplace
-	LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-    if (marketplacelistings_id.notNull())
+    
+    // Get the folder UUID to validate. Use the whole marketplace listing if none provided.
+    LLUUID cat_id(key.asUUID());
+    if (cat_id.isNull())
     {
-        LLViewerInventoryCategory* cat = gInventory.getCategory(marketplacelistings_id);
+        cat_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    }
+
+    // Validates the folder
+    if (cat_id.notNull())
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
         validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2), false);
     }
 }
