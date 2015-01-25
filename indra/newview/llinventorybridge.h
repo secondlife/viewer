@@ -365,7 +365,7 @@ public:
 protected:
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
-    void gatherMessage(std::string& message, LLError::ELevel log_level);
+    void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);
     LLUIImagePtr getFolderIcon(BOOL is_open) const;
 
 	bool							mCallingCards;

@@ -733,8 +733,8 @@ void LLFloaterMarketplaceValidation::draw()
 
 void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
 {
-    // Clear the text panel
-    mEditor->setValue(LLSD());
+    // Clear the messages
+    clearMessages();
     
     // Get the folder UUID to validate. Use the whole marketplace listing if none provided.
     LLUUID cat_id(key.asUUID());
@@ -747,8 +747,42 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
     if (cat_id.notNull())
     {
         LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-        validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2), false);
+        validate_marketplacelistings(cat, boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3), false);
     }
+    
+    // Handle the listing folder being processed
+    handleCurrentListing();
+    
+    // Dump result to the editor panel
+    if (mEditor)
+    {
+        mEditor->setValue(LLSD());
+        if (mMessages.empty())
+        {
+            // Display a no error message
+            mEditor->appendText(LLTrans::getString("Marketplace Validation No Error"), false);
+        }
+        else
+        {
+            // Print out all the messages to the panel
+            message_list_t::iterator mCurrentLine = mMessages.begin();
+            bool new_line = false;
+            while (mCurrentLine != mMessages.end())
+            {
+                // Errors are printed in bold, other messages in normal font
+                LLStyle::Params style;
+                LLFontDescriptor new_desc(mEditor->getFont()->getFontDesc());
+                new_desc.setStyle(mCurrentLine->mErrorLevel == LLError::LEVEL_ERROR ? LLFontGL::BOLD : LLFontGL::NORMAL);
+                LLFontGL* new_font = LLFontGL::getFont(new_desc);
+                style.font = new_font;
+                mEditor->appendText(mCurrentLine->mMessage, new_line, style);
+                new_line = true;
+                mCurrentLine++;
+            }
+        }
+    }
+    // We don't need the messages anymore
+    clearMessages();
 }
 
 // static
@@ -756,21 +790,50 @@ void LLFloaterMarketplaceValidation::onOK( void* userdata )
 {
 	// destroys this object
 	LLFloaterMarketplaceValidation* self = (LLFloaterMarketplaceValidation*) userdata;
+    self->clearMessages();
 	self->closeFloater();
 }
 
-void LLFloaterMarketplaceValidation::appendMessage(std::string& message, LLError::ELevel log_level)
+void LLFloaterMarketplaceValidation::appendMessage(std::string& message, S32 depth, LLError::ELevel log_level)
 {
-    if (mEditor)
+    // Dump previous listing messages if we're starting a new listing
+    if (depth == 1)
     {
-        // Errors are printed in bold, other messages in normal font
-		LLStyle::Params style;
-        LLFontDescriptor new_desc(mEditor->getFont()->getFontDesc());
-        new_desc.setStyle(log_level == LLError::LEVEL_ERROR ? LLFontGL::BOLD : LLFontGL::NORMAL);
-        LLFontGL* new_font = LLFontGL::getFont(new_desc);
-        style.font = new_font;
-        mEditor->appendText(message, true, style);
+        handleCurrentListing();
     }
+    
+    // Store the message in the current listing message list
+    Message current_message;
+    current_message.mErrorLevel = log_level;
+    current_message.mMessage = message;
+    mCurrentListingMessages.push_back(current_message);
+    mCurrentListingErrorLevel = (mCurrentListingErrorLevel < log_level ? log_level : mCurrentListingErrorLevel);
+}
+
+// Move the current listing messages to the general list if needs be and reset the current listing data
+void LLFloaterMarketplaceValidation::handleCurrentListing()
+{
+    // Dump the current folder messages to the general message list if level warrants it
+    if (mCurrentListingErrorLevel > LLError::LEVEL_INFO)
+    {
+        message_list_t::iterator mCurrentLine = mCurrentListingMessages.begin();
+        while (mCurrentLine != mCurrentListingMessages.end())
+        {
+            mMessages.push_back(*mCurrentLine);
+            mCurrentLine++;
+        }
+    }
+    
+    // Reset the current listing
+    mCurrentListingMessages.clear();
+    mCurrentListingErrorLevel = LLError::LEVEL_INFO;
+}
+
+void LLFloaterMarketplaceValidation::clearMessages()
+{
+    mMessages.clear();
+    mCurrentListingMessages.clear();
+    mCurrentListingErrorLevel = LLError::LEVEL_INFO;
 }
 
 //-----------------------------------------------------------------------------

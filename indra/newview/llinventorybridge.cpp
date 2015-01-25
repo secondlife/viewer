@@ -898,11 +898,13 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         items.push_back(std::string("Marketplace Check Listing"));
         items.push_back(std::string("Marketplace List"));
         items.push_back(std::string("Marketplace Unlist"));
-        if (LLMarketplaceData::instance().isUpdating(mUUID))
+        if (LLMarketplaceData::instance().isUpdating(mUUID) || ((flags & FIRST_SELECTED_ITEM) == 0))
         {
             // During SLM update, disable all marketplace related options
+            // Also disable all if multiple selected items
             disabled_items.push_back(std::string("Marketplace Create Listing"));
             disabled_items.push_back(std::string("Marketplace Associate Listing"));
+            disabled_items.push_back(std::string("Marketplace Check Listing"));
             disabled_items.push_back(std::string("Marketplace List"));
             disabled_items.push_back(std::string("Marketplace Unlist"));
         }
@@ -952,9 +954,10 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         {
             items.push_back(std::string("Marketplace Activate"));
             items.push_back(std::string("Marketplace Deactivate"));
-            if (LLMarketplaceData::instance().isUpdating(mUUID))
+            if (LLMarketplaceData::instance().isUpdating(mUUID) || ((flags & FIRST_SELECTED_ITEM) == 0))
             {
                 // During SLM update, disable all marketplace related options
+                // Also disable all if multiple selected items
                 disabled_items.push_back(std::string("Marketplace Activate"));
                 disabled_items.push_back(std::string("Marketplace Deactivate"));
             }
@@ -3051,7 +3054,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
             LLUUID version_folder_id = LLMarketplaceData::instance().getVersionFolder(mUUID);
             LLViewerInventoryCategory* cat = gInventory.getCategory(version_folder_id);
             mMessage = "";
-            if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2)))
+            if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3)))
             {
                 LLSD subs;
                 subs["[ERROR_CODE]"] = mMessage;
@@ -3151,14 +3154,14 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
     }
 }
 
-void LLFolderBridge::gatherMessage(std::string& message, LLError::ELevel log_level)
+void LLFolderBridge::gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level)
 {
     if (log_level >= LLError::LEVEL_ERROR)
     {
         if (!mMessage.empty())
         {
             // Currently, we do not gather all messages as it creates very long alerts
-            // Users can get to the whole list of errors on a listing using the "Check for Errors" audit button
+            // Users can get to the whole list of errors on a listing using the "Check for Errors" audit button or "Check listing" right click menu
             //mMessage += "\n";
             return;
         }

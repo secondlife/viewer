@@ -179,10 +179,24 @@ public:
 	virtual void draw();
 	virtual void onOpen(const LLSD& key);
     
-    void appendMessage(std::string& message, LLError::ELevel log_level);
+    void clearMessages();
+    void appendMessage(std::string& message, S32 depth, LLError::ELevel log_level);
 	static void	onOK( void* userdata );
     
 private:
+    struct Message {
+        LLError::ELevel mErrorLevel;
+        std::string mMessage;
+    };
+	typedef std::vector<Message> message_list_t;
+    
+    void handleCurrentListing();
+
+    message_list_t mCurrentListingMessages;
+    LLError::ELevel mCurrentListingErrorLevel;
+
+    message_list_t mMessages;
+
     LLTextEditor*	mEditor;
 };
 
