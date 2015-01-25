@@ -571,8 +571,6 @@ public:
             update_marketplace_category(folder_id, false);
             gInventory.notifyObservers();
 
-            // Alert with DAMA informing the user that a version folder must be designated
-            LLNotificationsUtil::add("AlertMerchantAssociateNeedsVersion");
             it++;
         }
         
