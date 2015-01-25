@@ -146,10 +146,20 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 
 	// Marketplace folder filtering
     const U32 filterTypes = mFilterOps.mFilterTypes;
-    const U32 marketplace_filter = FILTERTYPE_MARKETPLACE_ACTIVE | FILTERTYPE_MARKETPLACE_INACTIVE | FILTERTYPE_MARKETPLACE_UNASSOCIATED;
+    const U32 marketplace_filter = FILTERTYPE_MARKETPLACE_ACTIVE | FILTERTYPE_MARKETPLACE_INACTIVE |
+                                   FILTERTYPE_MARKETPLACE_UNASSOCIATED | FILTERTYPE_MARKETPLACE_LISTING_FOLDER;
     if (filterTypes & marketplace_filter)
     {
         S32 depth = depth_nesting_in_marketplace(folder_id);
+
+        if (filterTypes & FILTERTYPE_MARKETPLACE_LISTING_FOLDER)
+        {
+            if (depth > 1)
+            {
+                return false;
+            }
+        }
+        
         if (depth > 0)
         {
             LLUUID listing_uuid = nested_parent_id(folder_id, depth);
@@ -549,6 +559,20 @@ void LLInventoryFilter::setFilterMarketplaceInactiveFolders()
 void LLInventoryFilter::setFilterMarketplaceUnassociatedFolders()
 {
 	mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_UNASSOCIATED;
+}
+
+void LLInventoryFilter::setFilterMarketplaceListingFolders(bool select_only_listing_folders)
+{
+    if (select_only_listing_folders)
+    {
+        mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_LISTING_FOLDER;
+        setModified(FILTER_MORE_RESTRICTIVE);
+    }
+    else
+    {
+        mFilterOps.mFilterTypes &= ~FILTERTYPE_MARKETPLACE_LISTING_FOLDER;
+        setModified(FILTER_LESS_RESTRICTIVE);
+    }
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)

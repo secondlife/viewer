@@ -53,7 +53,7 @@ static LLPanelInjector<LLPanelMarketplaceListings> t_panel_status("llpanelmarket
 LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 : mRootFolder(NULL)
 , mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
-, mFilterType(LLInventoryFilter::FILTERTYPE_NONE)
+, mFilterListingFoldersOnly(false)
 {
 	mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
 	mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",	boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,	this, _2));
@@ -226,6 +226,21 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
         panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Unassociated Items");
         panel->setSortOrder(mSortOrder);
 	}
+    // Filter option
+    else if (chosen_item == "show_only_listing_folders")
+    {
+        mFilterListingFoldersOnly = !mFilterListingFoldersOnly;
+        // Set each panel with that filter flag
+        LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+        LLInventoryPanel* panel = (LLInventoryPanel*)tabs_panel->getPanelByName("All Items");
+        panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
+        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Active Items");
+        panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
+        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Inactive Items");
+        panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
+        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Unassociated Items");
+        panel->getFilter().setFilterMarketplaceListingFolders(mFilterListingFoldersOnly);
+    }
 }
 
 bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
@@ -233,7 +248,13 @@ bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
 	std::string chosen_item = userdata.asString();
     
 	if (chosen_item == "sort_by_stock_amount")
+    {
 		return mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
+    }
+    else if (chosen_item == "show_only_listing_folders")
+    {
+        return mFilterListingFoldersOnly;
+    }
 	return false;
 }
 

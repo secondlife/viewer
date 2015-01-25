@@ -13,4 +13,14 @@
          function="Marketplace.ViewSort.CheckItem"
          parameter="sort_by_stock_amount"/>
     </menu_item_check>
+    <menu_item_check
+        label="Show only listing folders"
+        name="show_only_listing_folders">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="show_only_listing_folders"/>
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="show_only_listing_folders"/>
+    </menu_item_check>
 </toggleable_menu>
