@@ -14116,6 +14116,17 @@
       <key>Value</key>
       <integer>-1</integer>
     </map>
+    <key>MaxFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Yield some time to the local host if we reach a threshold framerate.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-1.0</real>
+    </map>
     <key>ForcePeriodicRenderingTime</key>
     <map>
       <key>Comment</key>
