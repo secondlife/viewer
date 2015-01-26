@@ -733,14 +733,14 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				disabled_items.push_back(std::string("Cut"));
 			}
 
-			if (canListOnMarketplace() && !isMarketplaceListingsFolder())
+			if (canListOnMarketplace() && !isMarketplaceListingsFolder() && !isInboxFolder())
 			{
 				items.push_back(std::string("Marketplace Separator"));
 
                 if (gMenuHolder->getChild<LLView>("MerchantOutbox")->getVisible())
                 {
                     items.push_back(std::string("Merchant Copy"));
-                    if (!canListOnMarketplaceNow())
+                    if (!canListOnOutboxNow())
                     {
                         disabled_items.push_back(std::string("Merchant Copy"));
                     }
@@ -749,6 +749,11 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
                 {
                     items.push_back(std::string("Marketplace Copy"));
                     items.push_back(std::string("Marketplace Move"));
+                    if (!canListOnMarketplaceNow())
+                    {
+                        disabled_items.push_back(std::string("Marketplace Copy"));
+                        disabled_items.push_back(std::string("Marketplace Move"));
+                    }
                 }
 			}
 		}
@@ -1093,6 +1098,7 @@ BOOL LLInvFVBridge::isCOFFolder() const
 	return LLAppearanceMgr::instance().getIsInCOF(mUUID);
 }
 
+// *TODO : Suppress isInboxFolder() once Merchant Outbox is fully deprecated
 BOOL LLInvFVBridge::isInboxFolder() const
 {
 	const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false);
@@ -1380,23 +1386,13 @@ bool LLInvFVBridge::canListOnMarketplace() const
 {
 	LLInventoryModel * model = getInventoryModel();
 
-	const LLViewerInventoryCategory * cat = model->getCategory(mUUID);
+	LLViewerInventoryCategory * cat = model->getCategory(mUUID);
 	if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 	{
 		return false;
 	}
 
 	if (!isAgentInventory())
-	{
-		return false;
-	}
-	
-	if (getOutboxFolder().isNull())
-	{
-		return false;
-	}
-
-	if (isInboxFolder() || isOutboxFolder())
 	{
 		return false;
 	}
@@ -1418,7 +1414,8 @@ bool LLInvFVBridge::canListOnMarketplace() const
 	return true;
 }
 
-bool LLInvFVBridge::canListOnMarketplaceNow() const
+// *TODO : Suppress canListOnOutboxNow() once we deprecate Merchant Outbox completely
+bool LLInvFVBridge::canListOnOutboxNow() const
 {
 	bool can_list = true;
 
@@ -1461,6 +1458,49 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
 				
 				can_list = outbox_itemp->getViewModelItem()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
 			}
+		}
+	}
+	
+	return can_list;
+}
+
+bool LLInvFVBridge::canListOnMarketplaceNow() const
+{
+	bool can_list = true;
+    
+	const LLInventoryObject* obj = getInventoryObject();
+	can_list &= (obj != NULL);
+    
+	if (can_list)
+	{
+		const LLUUID& object_id = obj->getLinkedUUID();
+		can_list = object_id.notNull();
+        
+		if (can_list)
+		{
+			LLFolderViewFolder * object_folderp =   mInventoryPanel.get() ? mInventoryPanel.get()->getFolderByID(object_id) : NULL;
+			if (object_folderp)
+			{
+				can_list = !static_cast<LLFolderBridge*>(object_folderp->getViewModelItem())->isLoading();
+			}
+		}
+		
+		if (can_list)
+		{
+            std::string error_msg;
+            LLInventoryModel* model = getInventoryModel();
+            const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+            LLViewerInventoryCategory * master_folder = model->getCategory(marketplacelistings_id);
+            LLInventoryCategory *cat = model->getCategory(mUUID);
+            if (cat)
+            {
+                can_list = can_move_folder_to_marketplace(master_folder, master_folder, cat, error_msg);
+            }
+            else
+            {
+                LLInventoryItem *item = model->getItem(mUUID);
+                can_list = (item ? can_move_item_to_marketplace(master_folder, master_folder, item, error_msg) : false);
+            }
 		}
 	}
 	

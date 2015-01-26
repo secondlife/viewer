@@ -76,6 +76,7 @@ public:
 
 	bool canShare() const;
 	bool canListOnMarketplace() const;
+	bool canListOnOutboxNow() const;
 	bool canListOnMarketplaceNow() const;
 
 	//--------------------------------------------------------------------

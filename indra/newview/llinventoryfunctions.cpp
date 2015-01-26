@@ -724,6 +724,11 @@ void open_outbox()
 	LLFloaterReg::showInstance("outbox");
 }
 
+void open_marketplace_listings()
+{
+	LLFloaterReg::showInstance("marketplace_listings");
+}
+
 // Create a new folder in destFolderId with the same name as the item name and return the uuid of the new folder
 // Note: this is used locally in various situation where we need to wrap an item into a special folder
 LLUUID create_folder_for_item(LLInventoryItem* item, const LLUUID& destFolderId)
@@ -1468,6 +1473,8 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         LLNotificationsUtil::add("MerchantPasteFailed", subs);
         return false;
     }
+    
+    open_marketplace_listings();
     return true;
 }
 
@@ -1480,7 +1487,7 @@ bool sort_alpha(const LLViewerInventoryCategory* cat1, const LLViewerInventoryCa
 	return cat1->getName().compare(cat2->getName()) < 0;
 }
 
-bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_t cb, bool fix_hierarchy)
+bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_t cb, bool fix_hierarchy, S32 depth)
 {
     // Folder is valid unless issue is raised
     bool result = true;
@@ -1488,11 +1495,17 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     // Get the type and the depth of the folder
     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (cat);
 	const LLFolderType::EType folder_type = cat->getPreferredType();
-    S32 depth = depth_nesting_in_marketplace(cat->getUUID());
     if (depth < 0)
     {
-        // If the folder is not under the marketplace listings root, validation should not be applied
-        return result;
+        // If the depth argument was not provided, evaluate the depth directly
+        depth = depth_nesting_in_marketplace(cat->getUUID());
+    }
+    if (depth < 0)
+    {
+        // If the folder is not under the marketplace listings root, we run validation as if it was a listing folder and prevent any hierarchy fix
+        // This allows the function to be used to pre-validate a folder
+        depth = 1;
+        fix_hierarchy = false;
     }
     
     // Set the indentation for print output (typically, audit button in marketplace folder floater)
@@ -1533,7 +1546,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_NONE, cat->getName());
             LLInventoryCategory* new_cat = gInventory.getCategory(folder_uuid);
             gInventory.changeCategoryParent(viewer_cat, folder_uuid, false);
-            result &= validate_marketplacelistings(new_cat, cb, fix_hierarchy);
+            result &= validate_marketplacelistings(new_cat, cb, fix_hierarchy, depth + 1);
             return result;
         }
         else
@@ -1795,7 +1808,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
 	{
 		LLInventoryCategory* category = *iter;
-		result &= validate_marketplacelistings(category, cb, fix_hierarchy);
+		result &= validate_marketplacelistings(category, cb, fix_hierarchy, depth + 1);
 	}
     
     return result && !has_bad_items;

@@ -373,7 +373,7 @@ Initialization with the Marketplace failed because of a system or network error.
         icon="alertmodal.tga"
         name="ConfirmMerchantMoveInventory"
         type="alertmodal">
-        Items dragged to the Marketplace Items window are moved from their original locations, not copied. Do you want to continue?
+        Items dragged to the Marketplace Listings window are moved from their original locations, not copied. Do you want to continue?
         <tag>confirm</tag>
         <usetemplate
         ignoretext="Confirm before I move an item from the inventory to the marketplace"
