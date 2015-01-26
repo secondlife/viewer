@@ -980,10 +980,11 @@ void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-		if (!inst)
-			continue;
-		S32 rez_status = inst->getRezzedStatus();
-		counts[rez_status]++;
+		if (inst)
+		{
+			S32 rez_status = inst->getRezzedStatus();
+			counts[rez_status]++;
+		}
 	}
 }
 
@@ -1973,9 +1974,6 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 	}
 
-	//LL_INFOS() << getRotation() << LL_ENDL;
-	//LL_INFOS() << getPosition() << LL_ENDL;
-
 	return retval;
 }
 
@@ -1991,7 +1989,7 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 		result = gTextureList.findImage(uuid);
 	}
 	if (!result)
-{
+	{
 		const std::string url = getImageURL(te,uuid);
 
 		if (url.empty())
@@ -3087,17 +3085,16 @@ bool LLVOAvatar::isVisuallyMuted()
 {
 	bool muted = false;
 
+	// Priority order (highest priority first)
+	// * own avatar is never visually muted
+	// * if on the "always draw normally" list, draw them normally
+	// * if on the "always visually mute" list, mute them
+	// * draw them normally if they meet the following criteria:
+	//       - within the closest N avatars 
+	//       - AND aren't over the thresholds
+	// * otherwise visually mute all other avatars
 	if (!isSelf())
 	{
-			// Priority order (highest priority first)
-			// * own avatar is never visually muted
-			// * if on the "always draw normally" list, draw them normally
-			// * if on the "always visually mute" list, mute them
-			// * draw them normally if they meet the following criteria:
-			//       - within the closest N avatars OR on friends list OR in an IM chat
-			//       - AND aren't over the thresholds
-			// * otherwise visually mute all other avatars
-
 			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
 			static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0);
 			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
@@ -3121,30 +3118,12 @@ bool LLVOAvatar::isVisuallyMuted()
 				else
 				{	// Determine if visually muted or not
 
-					muted = LLMuteList::getInstance()->isMuted(getID()) ||
-						(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
-						(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f) ||
-						(mVisualComplexity > max_render_cost && max_render_cost > 0);
-
-					// Could be part of the grand || collection above, but yanked out to make the logic visible
-					if (!muted)
-					{
-						if (sMaxVisible > 0)
-						{	// They are above the visibilty rank - mute them
-							muted = (mVisibilityRank > sMaxVisible);
-						}
-			
-						// Always draw friends or those in IMs.  Needs UI?
-						if (muted || sMaxVisible == 0)		// Don't mute friends or IMs							
-						{
-							muted = !(LLAvatarTracker::instance().isBuddy(getID()));
-							if (muted)
-							{	// Not a friend, so they are muted ... are they in an IM?
-								LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,getID());
-								muted = !gIMMgr->hasSession(session_id);
-							}
-						}
-					}
+					muted = (   (sMaxVisible > 0           && mVisibilityRank > sMaxVisible)
+							 || (max_render_cost > 0       && mVisualComplexity > max_render_cost)
+							 || (max_attachment_bytes > 0  && mAttachmentGeometryBytes > max_attachment_bytes)
+							 || (max_attachment_area > 0.f && mAttachmentSurfaceArea > max_attachment_area)
+							 || LLMuteList::getInstance()->isMuted(getID())
+							 );
 
 					// Save visual mute state and set interval for updating
 					const F64 SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES = 1.5;
@@ -3328,7 +3307,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			removeAnimationData("Walk Speed");
 		}
 		mMotionController.setTimeStep(time_step);
-//		LL_INFOS() << "Setting timestep to " << time_quantum * pixel_area_scale << LL_ENDL;
+		//		LL_INFOS() << "Setting timestep to " << time_quantum * pixel_area_scale << LL_ENDL;
 	}
 
 	if (getParent() && !mIsSitting)
@@ -3469,7 +3448,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 						fwdDir.normalize();
 					}
 				}
-				
 			}
 
 			LLQuaternion root_rotation = mRoot->getWorldMatrix().quaternion();
@@ -3585,10 +3563,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	// update animations
 	if (mSpecialRenderMode == 1) // Animation Preview
+	{
 		updateMotions(LLCharacter::FORCE_UPDATE);
+	}
 	else
+	{
 		updateMotions(LLCharacter::NORMAL_UPDATE);
-
+	}
+	
 	// update head position
 	updateHeadOffset();
 
@@ -3685,10 +3667,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	//mesh vertices need to be reskinned
 	mNeedsSkin = TRUE;
-
-
-		
-	
 	return TRUE;
 }
 //-----------------------------------------------------------------------------
@@ -7992,10 +7970,6 @@ void LLVOAvatar::idleUpdateRenderCost()
 		}
 		mText->addLine(info_line, info_color, info_style);
 
-		// TEMPORARY Reported Cost
-		info_line = llformat("%d reported ARC", mReportedVisualComplexity);
-		mText->addLine(info_line, info_color /* same as real ARC */, LLFontGL::ITALIC);
-
 		// Visual rank
 		info_line = llformat("%d rank", mVisibilityRank);
 
@@ -8143,9 +8117,8 @@ void LLVOAvatar::calculateUpdateRenderCost()
 			for (LLVOVolume::texture_cost_t::iterator it = textures.begin(); it != textures.end(); ++it)
 			{
 				LLUUID image_id = it->first;
-				if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
-					continue;
-				if (all_textures.find(image_id) == all_textures.end())
+				if( ! (image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
+				   && (all_textures.find(image_id) == all_textures.end()))
 				{
 					// attachment texture not previously seen.
 					LL_INFOS() << "attachment_texture: " << image_id.asString() << LL_ENDL;
@@ -8211,15 +8184,17 @@ LLColor4 LLVOAvatar::calcMutedAVColor(F32 value, S32 range_low, S32 range_high)
 // static
 BOOL LLVOAvatar::isIndexLocalTexture(ETextureIndex index)
 {
-	if (index < 0 || index >= TEX_NUM_INDICES) return false;
-	return LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mIsLocalTexture;
+	return (index < 0 || index >= TEX_NUM_INDICES)
+		? false
+		: LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mIsLocalTexture;
 }
 
 // static
 BOOL LLVOAvatar::isIndexBakedTexture(ETextureIndex index)
 {
-	if (index < 0 || index >= TEX_NUM_INDICES) return false;
-	return LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mIsBakedTexture;
+	return (index < 0 || index >= TEX_NUM_INDICES)
+		? false
+		: LLAvatarAppearanceDictionary::getInstance()->getTexture(index)->mIsBakedTexture;
 }
 
 const std::string LLVOAvatar::getBakedStatusForPrintout() const
