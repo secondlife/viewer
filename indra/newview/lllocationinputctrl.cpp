@@ -862,11 +862,14 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		bool see_avs        = current_parcel->getSeeAVs();
 		bool pathfinding_dynamic_enabled = agent_region->dynamicPathfindingEnabled();
 
+		bool is_parcel_owner = (gAgent.getID() == current_parcel->getOwnerID());
+		bool allow_group_modify = (gAgent.isInGroup(current_parcel->getGroupID()) && current_parcel->getAllowGroupModify());
+
 		// Most icons are "block this ability"
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
 		mParcelIcon[FLY_ICON]->setVisible(     !allow_fly );
 		mParcelIcon[PUSH_ICON]->setVisible(    !allow_push );
-		mParcelIcon[BUILD_ICON]->setVisible(   !allow_build );
+		mParcelIcon[BUILD_ICON]->setVisible(   !allow_build && !is_parcel_owner && !allow_group_modify );
 		mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
 		mParcelIcon[PATHFINDING_DIRTY_ICON]->setVisible(mIsNavMeshDirty);
