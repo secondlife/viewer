@@ -3118,8 +3118,7 @@ bool LLVOAvatar::isVisuallyMuted()
 				else
 				{	// Determine if visually muted or not
 
-					muted = (   (sMaxVisible > 0           && mVisibilityRank > sMaxVisible)
-							 || (max_render_cost > 0       && mVisualComplexity > max_render_cost)
+					muted = (   (max_render_cost > 0       && mVisualComplexity > max_render_cost)
 							 || (max_attachment_bytes > 0  && mAttachmentGeometryBytes > max_attachment_bytes)
 							 || (max_attachment_area > 0.f && mAttachmentSurfaceArea > max_attachment_area)
 							 || LLMuteList::getInstance()->isMuted(getID())
@@ -7972,20 +7971,9 @@ void LLVOAvatar::idleUpdateRenderCost()
 
 		// Visual rank
 		info_line = llformat("%d rank", mVisibilityRank);
-
-		if (sMaxVisible != 0) // zero means no limit, so don't bother coloring based on this
-		{
-			green_level = 1.f-llclamp(((F32)sMaxVisible-(F32)mVisibilityRank)/(F32)sMaxVisible, 0.f, 1.f);
-			red_level   = llmin((F32) mVisibilityRank/(F32)sMaxVisible, 1.f);
-			info_color.set(red_level, green_level, 0.0, 1.0);
-			info_style = (  mVisibilityRank > sMaxVisible
-						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
-		}
-		else
-		{
-			info_color.set(LLColor4::grey);
-			info_style = LLFontGL::NORMAL;
-		}
+		// Use grey for imposters, white for normal rendering or no impostors
+		info_color.set((sMaxVisible > 0 && mVisibilityRank > sMaxVisible) ? LLColor4::grey : LLColor4::white);
+		info_style = LLFontGL::NORMAL;
 		mText->addLine(info_line, info_color, info_style);
 
 		// Attachment Surface Area
