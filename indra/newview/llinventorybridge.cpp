@@ -1636,11 +1636,12 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_item_to_outbox(itemp, outbox_id, LLUUID::null, LLToolDragAndDrop::getOperationId());
 	}
-	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action))
+	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
 	{
 		LLInventoryItem* itemp = model->getItem(mUUID);
 		if (!itemp) return;
         const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        // Note: For a single item, if it's not a copy, then it's a move
         move_item_to_marketplacelistings(itemp, marketplacelistings_id, ("copy_to_marketplace_listings" == action));
     }
 	else if ("copy_slurl" == action)
@@ -3185,12 +3186,12 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		copy_folder_to_outbox(cat, outbox_id, cat->getUUID(), LLToolDragAndDrop::getOperationId());
 	}
-	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action))
+	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
 	{
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
 		if (!cat) return;
         const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-        move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("copy_to_marketplace_listings" == action));
+        move_folder_to_marketplacelistings(cat, marketplacelistings_id, ("move_to_marketplace_listings" != action), (("copy_or_move_to_marketplace_listings" == action)));
     }
 }
 

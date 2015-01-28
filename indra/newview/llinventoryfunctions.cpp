@@ -346,7 +346,8 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 void copy_inventory_category(LLInventoryModel* model,
 							 LLViewerInventoryCategory* cat,
 							 const LLUUID& parent_id,
-							 const LLUUID& root_copy_id)
+							 const LLUUID& root_copy_id,
+                             bool move_no_copy_items )
 {
 	// Create the initial folder
 	LLUUID new_cat_uuid = gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName());
@@ -366,13 +367,27 @@ void copy_inventory_category(LLInventoryModel* model,
 	{
 		LLInventoryItem* item = *iter;
         LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_uuid));
-		copy_inventory_item(
-							gAgent.getID(),
-							item->getPermissions().getOwner(),
-							item->getUUID(),
-							new_cat_uuid,
-							std::string(),
-							cb);
+
+        if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            // If the item is nocopy, we do nothing or, optionally, move it
+            if (move_no_copy_items)
+            {
+                // Reparent the item
+                LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
+                gInventory.changeItemParent(viewer_inv_item, new_cat_uuid, true);
+            }
+        }
+        else
+        {
+            copy_inventory_item(
+                                gAgent.getID(),
+                                item->getPermissions().getOwner(),
+                                item->getUUID(),
+                                new_cat_uuid,
+                                std::string(),
+                                cb);
+        }
 	}
 	
 	// Copy all the folders
@@ -382,7 +397,7 @@ void copy_inventory_category(LLInventoryModel* model,
 		LLViewerInventoryCategory* category = *iter;
 		if (category->getUUID() != root_id)
 		{
-			copy_inventory_category(model, category, new_cat_uuid, root_id);
+			copy_inventory_category(model, category, new_cat_uuid, root_id, move_no_copy_items);
 		}
 	}
 }
@@ -1351,6 +1366,12 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
 		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
         viewer_inv_item = (linked_item != NULL ? linked_item : viewer_inv_item);
     
+        // If we want to copy but the item is no copy, fail silently (this is a common case that doesn't warrant notification)
+        if (copy && !viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            return false;
+        }
+        
         // Check that the agent has transfer permission on the item: this is required as a resident cannot
         // put on sale items she cannot transfer. Proceed with move if we have permission.
         std::string error_msg;
@@ -1373,7 +1394,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) &&
                 (dest_cat->getPreferredType() != LLFolderType::FT_MARKETPLACE_STOCK))
             {
-                // We need a stock folder
+                // We need to create a stock folder to move a no copy item
                 dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_MARKETPLACE_STOCK, viewer_inv_item->getName());
                 dest_cat = gInventory.getCategory(dest_folder);
                 depth++;
@@ -1425,7 +1446,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
     return true;
 }
 
-bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy)
+bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, bool copy, bool move_no_copy_items)
 {
     // Check that we have adequate permission on all items being moved. Proceed if we do.
     std::string error_msg;
@@ -1450,7 +1471,7 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         if (copy)
         {
             // Copy the folder
-            copy_inventory_category(&gInventory, viewer_inv_cat, dest_folder);
+            copy_inventory_category(&gInventory, viewer_inv_cat, dest_folder, LLUUID::null, move_no_copy_items);
         }
         else
         {
@@ -2211,6 +2232,19 @@ void LLInventoryAction::callback_doToSelected(const LLSD& notification, const LL
     }
 }
 
+void LLInventoryAction::callback_copySelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // YES, Move no copy item(s)
+    {
+        doToSelected(model, root, "copy_or_move_to_marketplace_listings", FALSE);
+    }
+    else if (option == 1) // NO, Don't move no copy item(s) (leave them behind)
+    {
+        doToSelected(model, root, "copy_to_marketplace_listings", FALSE);
+    }
+}
+
 void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, BOOL user_confirm)
 {
 	std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
@@ -2269,7 +2303,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
         if (contains_nocopy_items(viewModel->getUUID()))
         {
-            LLNotificationsUtil::add("ConfirmCopyToMarketplace", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+            LLNotificationsUtil::add("ConfirmCopyToMarketplace", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_copySelected, _1, _2, model, root, action));
             return;
         }
     }

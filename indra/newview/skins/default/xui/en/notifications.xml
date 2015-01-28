@@ -399,13 +399,14 @@ Initialization with the Marketplace failed because of a system or network error.
         icon="alertmodal.tga"
         name="ConfirmCopyToMarketplace"
         type="alertmodal">
-        No copy items contained in that selection will not be copied to the Marketplace. Do you want to continue?
+        You don't have permission to copy one or more of these items to the Marketplace. You can move them or leave them behind.
         <tag>confirm</tag>
         <usetemplate
         ignoretext="Confirm before I try to copy a selection containing no copy items to the marketplace"
-        name="okcancelignore"
-        notext="Cancel"
-        yestext="OK"/>
+        name="yesnocancelbuttons"
+        yestext="Move item(s)"
+        notext="Don't move item(s)"
+        canceltext="Cancel"/>
     </notification>
     
     <notification
