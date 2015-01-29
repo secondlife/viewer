@@ -17,7 +17,7 @@
     height="16"
     layout="topleft"
     left="5"
-    top="10"
+    top="5"
     width="100">
       Preset in use:
   </text>
@@ -29,7 +29,7 @@
     layout="topleft"
     left_delta="110"
     name="preset_text"
-    top="10"
+    top="5"
     width="120">
       (None)
   </text>
@@ -70,7 +70,7 @@
     layout="topleft"
     left="10"
     name="QualitySpeed"
-    top_delta="30" 
+    top_delta="35" 
     width="400">
       Quality &amp; speed:
   </text>
@@ -236,7 +236,7 @@
   <tab_container
     follows="left|top"
     layout="topleft"
-    height="390"
+    height="385"
     halign="center"
     left="0"
     name="PreferencesGraphicsTabs"
@@ -244,7 +244,7 @@
     tab_min_width="40"
     tab_position="top"
     tab_height="25"
-    top="80"
+    top="85"
     width="517">
 
 <!-- This block shows Basic Settings -->
@@ -344,7 +344,7 @@
 
       <scroll_container
         follows="top|left"
-        height="260"
+        height="255"
         label="CustomGraphics"
         layout="topleft"
         left="5"
@@ -1218,7 +1218,7 @@
       layout="topleft"
       left="10"
       name="PrefSaveButton"
-      top="300"
+      top="295"
       width="250">
       <button.commit_callback
         function="Pref.PrefSave"
