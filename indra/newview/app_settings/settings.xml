@@ -8298,7 +8298,9 @@
     <key>RenderAvatarMaxVisible</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of avatars to display at any one time</string>
+      <string>Maximum number of avatars to fully render at one time;
+      over this limit uses impostor rendering (simplified rendering
+      with less frequent updates)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9887,7 +9889,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>10000000</integer>
   </map>
   <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
@@ -9931,7 +9933,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <real>1.0E6</real>
   </map>
 
     <key>RenderVBOEnable</key>
