@@ -345,6 +345,17 @@ Initialization with the Marketplace failed because of a system or network error.
     
     <notification
         icon="OutboxStatus_Error"
+        name="MerchantUnprocessableEntity"
+        type="outbox">
+        We are unable to list this product. Usually this is caused by missing information in the listing description form. If you continue to see this error, try again later.
+        
+        <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
+
+    <notification
+        icon="OutboxStatus_Error"
         name="MerchantListingFailed"
         type="outbox">
         Listing to Marketplace failed with error :

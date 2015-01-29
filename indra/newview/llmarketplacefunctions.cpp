@@ -124,13 +124,20 @@ LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
 void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
     LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
-    // Prompt the user with the warning (so they know why things are failing)
-    LLSD subs;
-    subs["[ERROR_REASON]"] = reason;
-    // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
-    subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : "");
-    LLNotificationsUtil::add("MerchantTransactionFailed", subs);
-    
+    if (status == 422)
+    {
+        // Unprocessable Entity : Special case that error as it is a frequent answer when trying to list an incomplete listing
+        LLNotificationsUtil::add("MerchantUnprocessableEntity");
+    }
+    else
+    {
+        // Prompt the user with the warning (so they know why things are failing)
+        LLSD subs;
+        subs["[ERROR_REASON]"] = reason;
+        // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
+        subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : "");
+        LLNotificationsUtil::add("MerchantTransactionFailed", subs);
+    }
 }
 void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
 {
