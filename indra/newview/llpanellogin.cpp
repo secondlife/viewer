@@ -210,7 +210,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
-	favorites_combo->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+	favorites_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 	favorites_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
 	
 	LLComboBox* server_choice_combo = getChild<LLComboBox>("server_combo");

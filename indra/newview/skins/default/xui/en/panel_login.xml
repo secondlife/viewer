@@ -85,7 +85,7 @@
     label="My favorite places"
     height="32"
     max_chars="128"
-    combo_editor.font="SansSerifMedium"
+    combo_editor.font="SansSerifLarge"
     left_pad="15"
     bottom_delta="0"
     name="start_location_combo"
