@@ -315,7 +315,7 @@ public:
 	static void 	logPendingPhasesAllAvatars();
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
-	static LLColor4 calcMutedAVColor(F32 value, S32 range_low, S32 range_high);
+	static LLColor4 calcMutedAVColor(const LLUUID av_id);
 
 protected:
 	LLViewerStats::PhaseMap& getPhases() { return mPhases; }

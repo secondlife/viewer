@@ -784,8 +784,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mCachedVisualMuteUpdateTime = LLFrameTimer::getTotalSeconds() + 5.0;
 	mVisuallyMuteSetting = VISUAL_MUTE_NOT_SET;
 
-	F32 color_value = (F32) (getID().mData[0]);
-	mMutedAVColor = calcMutedAVColor(color_value, 0, 256);
+	mMutedAVColor = calcMutedAVColor(getID());
 }
 
 std::string LLVOAvatar::avString() const
@@ -8141,11 +8140,11 @@ void LLVOAvatar::calculateUpdateRenderCost()
 
 
 // static
-LLColor4 LLVOAvatar::calcMutedAVColor(F32 value, S32 range_low, S32 range_high)
+LLColor4 LLVOAvatar::calcMutedAVColor(const LLUUID av_id)
 {
-	F32 clamped_value = llmin(value, (F32) range_high);
-	clamped_value = llmax(value, (F32) range_low);
-	F32 spectrum = (clamped_value / range_high);		// spectrum is between 0 and 1.f
+	// select a color based on the first byte of the agents uuid so any muted agent is always the same color
+	F32 color_value = (F32) (av_id.mData[0]);
+	F32 spectrum = (color_value / 256.0);		// spectrum is between 0 and 1.f
 
 	// Array of colors.  These are arranged so only one RGB color changes between each step, 
 	// and it loops back to red so there is an even distribution.  It is not a heat map
@@ -8159,12 +8158,12 @@ LLColor4 LLVOAvatar::calcMutedAVColor(F32 value, S32 range_low, S32 range_high)
  
 	LLColor4 new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
 	new_color.normalize();
-	new_color *= 0.7f;		// Tone it down a bit
+	new_color *= 0.5f;		// Tone it down
 
-	//LL_INFOS() << "From value " << std::setprecision(3) << value << " returning color " << new_color 
-	//	<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2
-	//	<< " and fractBetween " << fractBetween
-	//	<< LL_ENDL;
+	LL_DEBUGS("AvatarMute") << "avatar "<< av_id << " color " << std::setprecision(3) << color_value << " returning color " << new_color 
+							<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2
+							<< " and fractBetween " << fractBetween
+							<< LL_ENDL;
 
 	return new_color;
 }
