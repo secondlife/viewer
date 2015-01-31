@@ -236,17 +236,17 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipTooManyWearables">You can't wear a folder containing more than [AMOUNT] items.  You can change this limit in Advanced > Show Debug Settings > WearFolderLimit.</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 
-	<string name="TooltipOutboxDragToWorld">You can't rez items on the marketplace</string>
+    <string name="TooltipOutboxDragToWorld">You can't rez items from the Marketplace Listings folder</string>
+    <string name="TooltipOutboxWorn">You can't put items you are wearing in the Marketplace Listings folder</string>
+    <string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]. Decrease the depth of folders-within-folders; box items if necessary.</string>
+    <string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]. Decrease the number of folders in your listing; box items if necessary.</string>
+    <string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]. In order to sell more than [AMOUNT] items in one listing, you must box some of them.</string>
+    <string name="TooltipOutboxCannotDropOnRoot">You can only drop items or folders in the ALL tab. Please select that tab and move your item(s) or folder(s) again.</string>
 	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
 	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>
-	<string name="TooltipOutboxWorn">You can't put items you are wearing on the marketplace</string>
 	<string name="TooltipOutboxLinked">You can't put linked items or folders on the marketplace</string>
 	<string name="TooltipOutboxCallingCard">You can't put calling cards on the marketplace</string>
-	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]</string>
-	<string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]</string>
-	<string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]</string>
 	<string name="TooltipOutboxDragActive">You can't move a listed listing</string>
-	<string name="TooltipOutboxCannotDropOnRoot">You can't drop items on filtered tabs root</string>
 	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
 	<string name="TooltipOutboxMixedStock">All items in a stock folder must have the same type and permission</string>
 	
@@ -2313,7 +2313,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Marketplace Validation Warning">: Warning: </string>
 	<string name="Marketplace Validation Error Empty Version">: Warning: version folder must contain at least 1 item</string>
 	<string name="Marketplace Validation Error Empty Stock">: Warning: stock folder must contain at least 1 item</string>
-	<string name="Marketplace Validation No Error">No error or warning to report</string>
+
+    <string name="Marketplace Validation No Error">No errors or warnings to report</string>
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Prefix">Error: </string>
 	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
