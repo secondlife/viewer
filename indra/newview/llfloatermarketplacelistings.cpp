@@ -73,6 +73,23 @@ BOOL LLPanelMarketplaceListings::postBuild()
     return LLPanel::postBuild();
 }
 
+BOOL LLPanelMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+                       EDragAndDropType cargo_type,
+                       void* cargo_data,
+                       EAcceptance* accept,
+                       std::string& tooltip_msg)
+{
+    LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+    BOOL handled = (handled_view != NULL);
+    // Special case the drop zone
+    if (handled && (handled_view->getName() == "marketplace_drop_zone"))
+    {
+        LLFolderView* root_folder = getRootFolder();
+        handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+    }
+    return handled;
+}
+
 void LLPanelMarketplaceListings::buildAllPanels()
 {
     // Build the All panel first
@@ -570,26 +587,22 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
 		return FALSE;
 	}
 	
+    tooltip_msg = "";
+    
     // Pass to the children
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	BOOL handled = (handled_view != NULL);
     
-	// If no one handled it or it was not accepted, we try to accept it at the floater level as if it was dropped on the
-    // marketplace listings root folder
-    if (!handled || !isAccepted(*accept))
+	// If no one handled it or it was not accepted and we drop on an empty panel, we try to accept it at the floater level
+    // as if it was dropped on the marketplace listings root folder
+    if ((!handled || !isAccepted(*accept)) && !mPanelListings->getVisible() && mRootFolderId.notNull())
     {
-        if ((LLMarketplaceData::instance().getSLMStatus() >= MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) && mRootFolderId.notNull())
+        if (!mPanelListingsSet)
         {
-            if (!mPanelListingsSet)
-            {
-                setPanels();
-            }
-            if (mPanelListings->allowDropOnRoot())
-            {
-                LLFolderView* root_folder = mPanelListings->getRootFolder();
-                handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-            }
+            setPanels();
         }
+        LLFolderView* root_folder = mPanelListings->getRootFolder();
+        handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
     }
 	
 	return handled;

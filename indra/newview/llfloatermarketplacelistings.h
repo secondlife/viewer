@@ -52,6 +52,11 @@ class LLPanelMarketplaceListings : public LLPanel
 public:
     LLPanelMarketplaceListings();
 	BOOL postBuild();
+	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+						   EDragAndDropType cargo_type,
+						   void* cargo_data,
+						   EAcceptance* accept,
+						   std::string& tooltip_msg);
 	void draw();
 	LLFolderView* getRootFolder() { return mRootFolder; }
     bool allowDropOnRoot();

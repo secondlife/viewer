@@ -86,7 +86,7 @@
   </panel>
   <panel
       name="marketplace_drop_zone"
-      mouse_opaque="false"
+      mouse_opaque="true"
       follows="bottom|left|right"
       left="2"
       width="306"
