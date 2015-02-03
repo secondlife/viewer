@@ -1,6 +1,6 @@
 /** 
  * @file llfloaternotificationstabbed.h
- * @brief                                    // TODO
+ * @brief                                  
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -32,6 +32,8 @@
 #include "llscreenchannel.h"
 #include "llsyswellitem.h"
 #include "lltransientdockablefloater.h"
+#include "llnotificationlistview.h"
+#include "lltabcontainer.h"
 
 class LLAvatarName;
 class LLChiclet;
@@ -39,6 +41,29 @@ class LLFlatListView;
 class LLIMChiclet;
 class LLScriptChiclet;
 class LLSysWellChiclet;
+
+class LLNotificationSeparator
+{
+public:
+    LLNotificationSeparator();
+    ~LLNotificationSeparator();
+    void initTaggedList(const std::string& tag, LLNotificationListView* list);
+    void initTaggedList(const std::set<std::string>& tags, LLNotificationListView* list);
+    void initUnTaggedList(LLNotificationListView* list);
+    bool addItem(std::string& tag, LLNotificationListItem* item);
+    LLPanel* findItemByID(std::string& tag, const LLUUID& id);
+    bool removeItemByID(std::string& tag, const LLUUID& id);
+    void getItems(std::vector<LLNotificationListItem*>& items) const;
+    U32 size() const;
+private:
+    static void getItemsFromList(std::vector<LLNotificationListItem*>& items, LLNotificationListView* list);
+
+    typedef std::map<std::string, LLNotificationListView*> notification_list_map_t;
+    notification_list_map_t mNotificationListMap;
+    typedef std::list<LLNotificationListView*> notification_list_list_t;
+    notification_list_list_t mNotificationLists;
+    LLNotificationListView* mUnTaggedList;
+};
 
 class LLFloaterNotificationsTabbed : public LLTransientDockableFloater
 {
@@ -54,8 +79,10 @@ public:
     bool isWindowEmpty();
 
     // Operating with items
-    void removeItemByID(const LLUUID& id);
-    LLPanel * findItemByID(const LLUUID& id);
+    void removeItemByID(const LLUUID& id, std::string type);
+    LLPanel * findItemByID(const LLUUID& id, std::string type);
+    void updateNotificationCounters();
+    void updateNotificationCounter(S32 panelIndex, S32 counterValue, std::string stringName);
 
     // Operating with outfit
     virtual void setVisible(BOOL visible);
@@ -67,14 +94,18 @@ public:
     /*virtual*/ void	handleReshape(const LLRect& rect, bool by_user);
 
     void onStartUpToastClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ void onAdd(LLNotificationPtr notify);
 
     void setSysWellChiclet(LLSysWellChiclet* chiclet);
+    void closeAll();
+
+    static LLFloaterNotificationsTabbed* getInstance(const LLSD& key = LLSD());
 
     // size constants for the window and for its elements
     static const S32 MAX_WINDOW_HEIGHT		= 200;
     static const S32 MIN_WINDOW_WIDTH		= 318;
 
-protected:
+private:
     // init Window's channel
     virtual void initChannel();
 
@@ -86,7 +117,6 @@ protected:
 
     // pointer to a corresponding channel's instance
     LLNotificationsUI::LLScreenChannel*	mChannel;
-    LLFlatListView*	mMessageList;
 
     /**
 	 * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
@@ -95,25 +125,12 @@ protected:
 
     bool mIsReshapedByUser;
 
-public:
-    static LLFloaterNotificationsTabbed* getInstance(const LLSD& key = LLSD());
-
-    /*virtual*/ //BOOL postBuild();
-    /*virtual*/ //void setVisible(BOOL visible);
-    /*virtual*/ void onAdd(LLNotificationPtr notify);
-    // Operating with items
-    void addItem(LLNotificationTabbedItem::Params p);
-
-    // Closes all notifications and removes them from the Notification Well
-    void closeAll();
-
-protected:
     struct NotificationTabbedChannel : public LLNotificationChannel
     {
         NotificationTabbedChannel(LLFloaterNotificationsTabbed*);
         void onDelete(LLNotificationPtr notify)
         {
-            mNotificationsTabbedWindow->removeItemByID(notify->getID());
+            mNotificationsTabbedWindow->removeItemByID(notify->getID(), notify->getName());
         } 
 
         LLFloaterNotificationsTabbed* mNotificationsTabbedWindow;
@@ -122,19 +139,29 @@ protected:
     LLNotificationChannelPtr mNotificationUpdates;
     virtual const std::string& getAnchorViewName() { return NOTIFICATION_TABBED_ANCHOR_NAME; }
 
-private:
     // init Window's channel
     // void initChannel();
     void clearScreenChannels();
+    // Operating with items
+    void addItem(LLNotificationListItem::Params p);
+
+    // Closes all notifications and removes them from the Notification Well
+    void closeAllOnCurrentTab();
 
     void onStoreToast(LLPanel* info_panel, LLUUID id);
-
+    void onClickDeleteAllBtn();
     // Handlers
-    void onItemClick(LLNotificationTabbedItem* item);
-    void onItemClose(LLNotificationTabbedItem* item);
-
+    void onItemClick(LLNotificationListItem* item);
+    void onItemClose(LLNotificationListItem* item);
     // ID of a toast loaded by user (by clicking notification well item)
     LLUUID mLoadedToastId;
+
+    LLNotificationListView*	mInviteMessageList;
+    LLNotificationListView*	mTransactionMessageList;
+    LLNotificationListView*	mSystemMessageList;
+    LLNotificationSeparator* mNotificationsSeparator;
+    LLTabContainer* mNotificationsTabContainer;
+    LLButton*	mDeleteAllBtn;
 };
 
 #endif // LL_FLOATERNOTIFICATIONSTABBED_H

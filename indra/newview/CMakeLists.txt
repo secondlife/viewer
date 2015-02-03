@@ -397,6 +397,8 @@ set(viewer_SOURCE_FILES
     llnotificationgrouphandler.cpp
     llnotificationhandlerutil.cpp
     llnotificationhinthandler.cpp
+    llnotificationlistitem.cpp
+    llnotificationlistview.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
@@ -999,6 +1001,8 @@ set(viewer_HEADER_FILES
     llnavigationbar.h
     llnetmap.h
     llnotificationhandler.h
+    llnotificationlistitem.h
+    llnotificationlistview.h
     llnotificationmanager.h
     llnotificationstorage.h
     lloutfitslist.h

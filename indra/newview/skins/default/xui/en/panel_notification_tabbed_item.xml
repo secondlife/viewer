@@ -2,8 +2,8 @@
 <!-- All our XML is utf-8 encoded. -->
 <panel
   translate="false"
-  name="sys_well_item"
-  title="sys_well_item"
+  name="panel_notification_tabbed_item"
+  title="panel_notification_tabbed_item"
   visible="true"
   top="0"
   left="0"
@@ -15,6 +15,10 @@
   background_opaque="false"
   background_visible="true"
   bg_alpha_color="SysWellItemUnselected" >
+  <panel.string
+    name="sender_resident_text">
+    Sender: "[SENDER_RESIDENT]"
+  </panel.string>
 
   <panel border="true" top="0" left="3" width="327" height="44" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="GroupNameNoticeTitlePanel">
     <layout_stack top="0" left="0" width="325" height="50" orientation="horizontal" follows="left|top|right|bottom" name="HorizontalStack">
@@ -24,16 +28,16 @@
       <layout_panel width="260" height="50" orientation="horizontal" follows="left|top|right|bottom" name="LayoutPanel">
         <panel border="false" top="0" width="260" height="38" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="MainInfoBlockPanel">
           <panel border="false" top="0" left="0" width="260" height="19" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="GroupNameNoticeTitlePanel">
-            <text allow_scroll="false" font="SansSerifLarge" top="2" left="0" width="267" height="17" layout="topleft" follows="right|left" text_color="White"
+            <text allow_scroll="false" font="SansSerifSmall" top="6" left="0" width="245" height="12" layout="topleft" follows="right|left" text_color="White"
               use_ellipses="true" word_wrap="true" mouse_opaque="false" name="GroupName_NoticeTitle" >
-              Group Name:Notice Title
+              Group Name:Notice Title N o t i c e T i t l e N o t i c e T i t l e N o t i c e T i t l e N oticeTitle
             </text>
-            <icon top="0" right="-1" width="21" height="21" image_name="Icon_Attachment_Small" follows="right" mouse_opaque="true" name="icon_attachment_small" tool_tip="Attachment"/>
+            <icon top="0" left="242" width="21" height="21" image_name="Icon_Attachment_Small" follows="right" mouse_opaque="true" name="icon_attachment_small" tool_tip="Attachment"/>
           </panel>
           <panel border="false" top="23" left="0" width="260" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="SenderAndTimePanel" height="15">
             <text allow_scroll="false" font="SansSerifSmall" top="0" left="0" width="250" height="13"    layout="topleft"    follows="right|left"
               use_ellipses="true" word_wrap="true" mouse_opaque="false" name="Sender_Resident" >
-              Sender.Resident
+              Sender:Resident
             </text>
             <text allow_scroll="false" font="SansSerifSmall" top="0" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
               name="Time_Box" right="-5" value="2014/12/24 23:30" />

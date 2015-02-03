@@ -19,9 +19,22 @@
  save_visibility="true"
  single_instance="true"
 >
+  <floater.string
+    name="system_tab_title">
+    System ([COUNT])
+  </floater.string>
+  <floater.string
+    name="transactions_tab_title">
+    Transactions ([COUNT])
+  </floater.string>
+  <floater.string
+    name="invitations_tab_title">
+    Invitations ([COUNT])
+  </floater.string>
+
   <string
    name="title_notification_tabbed_window">
-    NOTIFICATIONS TABBED
+    NOTIFICATIONS
   </string>
   <layout_stack width="336" height="550" enabled="true" orientation="vertical" name="TabButtonsStack" follows="left|top|right|bottom">
   <layout_panel width="336" height="550" enabled="true" name="TabButtonsLayoutPanel">
@@ -35,35 +48,53 @@
      width="336"
      height="491"
      mouse_opaque="true"
-     name="NotificationsTab">
+     name="notifications_tab_container">
       <panel
        border="true"
        bevel_style="none"
        follows="left|top|right|bottom"
-       label="System (2)"
+       label="System (0)"
        layout="topleft"
-       name="SystemNotificationsTab">        
-      </panel>
-      <panel
-       border="true"
-       bevel_style="none"
-       follows="left|top|right|bottom"
-       label="Transactions (15)"
-       layout="topleft"
-       name="TransactionNotificationsTab">
-      </panel>
-      <panel
-       border="true"
-       bevel_style="none"
-       follows="left|top|right|bottom"
-       label="Invites (2)"
-       layout="topleft"
-       name="InviteNotificationsTab">
-        <flat_list_view
+       name="system_notification_list_tab">
+        <notification_list_view
           color="FloaterDefaultBackgroundColor"
           follows="all"
           layout="topleft"
-          name="notification_list"
+          name="system_notification_list"
+          left="0"
+          top="5"
+          height="0"
+          width="330"/>
+      </panel>
+      <panel
+       border="true"
+       bevel_style="none"
+       follows="left|top|right|bottom"
+       label="Transactions (0)"
+       layout="topleft"
+       name="TransactionNotificationsTab">
+        <notification_list_view
+          color="FloaterDefaultBackgroundColor"
+          follows="all"
+          layout="topleft"
+          name="transaction_notification_list"
+          left="0"
+          top="5"
+          height="0"
+          width="330"/>
+      </panel>
+      <panel
+       border="true"
+       bevel_style="none"
+       follows="left|top|right|bottom"
+       label="Invitations (0)"
+       layout="topleft"
+       name="InviteNotificationsTab">
+        <notification_list_view
+          color="FloaterDefaultBackgroundColor"
+          follows="all"
+          layout="topleft"
+          name="invite_notification_list"
           left="0"
           top="5"
           height="0"
@@ -73,15 +104,15 @@
     
     <layout_stack width="336" height="26" enabled="true" orientation="horizontal"  follows="left|right" name="ButtonsStack">
       <layout_panel width="336" height="30" enabled="true" orientation="horizontal" name="CondenseAllButtonPanel">
-        <button width="93" height="21" left="2" label="Condense All" name="CondenseAllButton">
+        <button width="93" height="21" left="2" label="Collapse all" name="CondenseAllButton">
         </button>
       </layout_panel>
       <layout_panel width="336" height="30" enabled="true" orientation="horizontal" name="GapLayoutPanel">
-        <panel width="90" height="21" left="2" label="Condense All" border="false" name="GapPanel">
+        <panel width="90" height="21" left="2" label="Gap Panel" border="false" name="GapPanel">
         </panel>
       </layout_panel>
       <layout_panel width="336" height="30" enabled="true" orientation="horizontal" name="DeleteAllButtonPanel">
-        <button width="93" height="21" left="2" label="Delete All" name="DeleteAllButton">
+        <button width="93" height="21" left="2" label="Delete all" name="delete_all_button">
         </button>
       </layout_panel>
     </layout_stack>

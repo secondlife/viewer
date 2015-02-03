@@ -228,7 +228,7 @@ bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNo
 	if (   (notification->getName() == "ScriptDialog") // special case for scripts
 		// if there is no toast window for the notification, filter it
 		//|| (!LLNotificationWellWindow::getInstance()->findItemByID(notification->getID()))
-        || (!LLFloaterNotificationsTabbed::getInstance()->findItemByID(notification->getID()))
+        || (!LLFloaterNotificationsTabbed::getInstance()->findItemByID(notification->getID(), notification->getName()))
 		)
 	{
 		displayNotification = false;
