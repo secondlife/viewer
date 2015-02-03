@@ -8202,17 +8202,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>RenderAvatarComplexityLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
   <key>RenderComplexityColorMin</key>
     <map>
       <key>Comment</key>

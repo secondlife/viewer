@@ -297,7 +297,6 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
-	bool			isTooComplex() const;
 	bool 			visualParamWeightsAreDefault();
 	virtual BOOL	getIsCloud() const;
 	BOOL			isFullyTextured() const;

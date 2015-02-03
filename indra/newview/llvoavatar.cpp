@@ -780,7 +780,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 		    LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
 	}
 
-	mCachedVisualMute = !isSelf();
+	mCachedVisualMute = !isSelf(); // default to muting everyone? hmmm....
 	mCachedVisualMuteUpdateTime = LLFrameTimer::getTotalSeconds() + 5.0;
 	mVisuallyMuteSetting = VISUAL_MUTE_NOT_SET;
 
@@ -2534,7 +2534,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-			if (!isTooComplex()) // do not generate particles for overly-complex avatars
+			if (!isVisuallyMuted()) // if we are muting the avatar, don't render particles
 			{
 				setParticleSource(particle_parameters, getID());
 			}
@@ -3088,10 +3088,7 @@ bool LLVOAvatar::isVisuallyMuted()
 	// * own avatar is never visually muted
 	// * if on the "always draw normally" list, draw them normally
 	// * if on the "always visually mute" list, mute them
-	// * draw them normally if they meet the following criteria:
-	//       - within the closest N avatars 
-	//       - AND aren't over the thresholds
-	// * otherwise visually mute all other avatars
+	// * check against the render cost and attachment limits
 	if (!isSelf())
 	{
 			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
@@ -6052,8 +6049,9 @@ BOOL LLVOAvatar::getIsCloud() const
 		return TRUE;
 	}
 
-	if (isTooComplex())
+	if (isVisuallyMuted())
 	{
+		// we can render the muted representation
 		return TRUE;
 	}
 	return FALSE;
@@ -6303,16 +6301,6 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 BOOL LLVOAvatar::isFullyLoaded() const
 {
 	return (mRenderUnloadedAvatar || mFullyLoaded);
-}
-
-bool LLVOAvatar::isTooComplex() const
-{
-	if (gSavedSettings.getS32("RenderAvatarComplexityLimit") > 0 && mVisualComplexity >= gSavedSettings.getS32("RenderAvatarComplexityLimit"))
-	{
-		return true;
-	}
-
-	return false;
 }
 
 
@@ -7935,7 +7923,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 		if ( !mText )
 		{
 			initDebugTextHud();
-			mText->setFadeDistance(15.0, 5.0); // limit clutter in large crowds
+			mText->setFadeDistance(20.0, 5.0); // limit clutter in large crowds
 		}
 		else
 		{
