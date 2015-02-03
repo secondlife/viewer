@@ -458,7 +458,6 @@ set(viewer_SOURCE_FILES
     llpanelsnapshotinventory.cpp
     llpanelsnapshotlocal.cpp
     llpanelsnapshotoptions.cpp
-    llpanelsnapshotpostcard.cpp
     llpanelsnapshotprofile.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
