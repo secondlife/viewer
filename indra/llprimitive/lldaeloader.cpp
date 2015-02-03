@@ -2135,21 +2135,35 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 	std::string index_string;
 	if (parent)
 	{
+		// retrieve index to distinguish items inside same parent
 		size_t ind = 0;
 		parent->getChildren().find(element, ind);
 		index_string = "_" + boost::lexical_cast<std::string>(ind);
 
-		// if parent has a name, use it
+		// if parent has a name or ID, use it
 		std::string name = parent->getAttribute("name");
-		if (name.length())
+		if (!name.length())
 		{
-			return name + index_string;
+			name = std::string(parent->getID());
 		}
 
-		// if parent has an ID, use it
-		if (parent->getID())
+		if (name.length())
 		{
-			return std::string(parent->getID()) + index_string;
+			// make sure that index won't mix up with pre-named lod extensions
+			size_t ext_pos = name.find("_LOD");
+			if (ext_pos == -1)
+			{
+				ext_pos = name.find("_PHYS");
+			}
+
+			if (ext_pos == -1)
+			{
+				return name + index_string;
+			}
+			else
+			{
+				return name.insert(ext_pos, index_string);
+			}
 		}
 	}
 
