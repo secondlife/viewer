@@ -63,7 +63,6 @@ public:
 	static void postPanelSwitch();
 	static LLPointer<LLImageFormatted> getImageData();
 	static const LLVector3d& getPosTakenGlobal();
-	static void setAgentEmail(const std::string& email);
 
 	static const LLRect& getThumbnailPlaceholderRect() { return sThumbnailPlaceholder->getRect(); }
 

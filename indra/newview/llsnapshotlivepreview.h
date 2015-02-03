@@ -42,7 +42,7 @@ class LLSnapshotLivePreview : public LLView
 public:
 	enum ESnapshotType
 	{
-		SNAPSHOT_POSTCARD,
+		SNAPSHOT_POSTCARD_DEPRECIATED,
 		SNAPSHOT_TEXTURE,
 		SNAPSHOT_LOCAL,
 		SNAPSHOT_WEB

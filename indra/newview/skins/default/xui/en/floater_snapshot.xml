@@ -267,12 +267,6 @@
        name="panel_snapshot_profile"
        filename="panel_snapshot_profile.xml" />
       <panel
-       class="llpanelsnapshotpostcard"
-       follows="all"
-       layout="topleft"
-       name="panel_snapshot_postcard"
-       filename="panel_snapshot_postcard.xml" />
-      <panel
        class="llpanelsnapshotinventory"
        follows="all"
        layout="topleft"

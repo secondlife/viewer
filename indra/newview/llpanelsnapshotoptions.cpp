@@ -56,7 +56,6 @@ private:
 	void updateUploadCost();
 	void openPanel(const std::string& panel_name);
 	void onSaveToProfile();
-	void onSaveToEmail();
 	void onSaveToInventory();
 	void onSaveToComputer();
 	void onSendToFacebook();
@@ -69,7 +68,6 @@ static LLPanelInjector<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptio
 LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 {
 	mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",		boost::bind(&LLPanelSnapshotOptions::onSaveToProfile,	this));
-	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SendToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
@@ -118,11 +116,6 @@ void LLPanelSnapshotOptions::openPanel(const std::string& panel_name)
 void LLPanelSnapshotOptions::onSaveToProfile()
 {
 	openPanel("panel_snapshot_profile");
-}
-
-void LLPanelSnapshotOptions::onSaveToEmail()
-{
-	openPanel("panel_snapshot_postcard");
 }
 
 void LLPanelSnapshotOptions::onSaveToInventory()
