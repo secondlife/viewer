@@ -1229,7 +1229,6 @@ void LLFloaterPreference::refreshEnabledState()
 	enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors") && gSavedSettings.getBOOL("RenderUseImpostors");
 	getChildView("MaximumARC")->setEnabled(enabled);
 	maximum_arc_text->setEnabled(enabled);
-	getChildView("MaxNumberAvatarDrawn")->setEnabled(enabled);
 
 	// Hardware settings
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
@@ -1304,10 +1303,8 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
 	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLCheckBoxCtrl* ctrl_avatar_impostors = getChild<LLCheckBoxCtrl>("AvatarImpostors");
 	LLSliderCtrl* ctrl_maximum_arc = getChild<LLSliderCtrl>("MaximumARC");
 	LLTextBox* maximum_arc_text = getChild<LLTextBox>("MaximumARCText");
-	LLSliderCtrl* ctrl_max_visible = getChild<LLSliderCtrl>("MaxNumberAvatarDrawn");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLCheckBoxCtrl* ctrl_deferred2 = getChild<LLCheckBoxCtrl>("UseLightShaders2");
 	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
@@ -1460,11 +1457,8 @@ void LLFloaterPreference::disableUnavailableSettings()
 	// disabled impostors
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors"))
 	{
-		ctrl_avatar_impostors->setEnabled(FALSE);
-		ctrl_avatar_impostors->setValue(FALSE);
 		ctrl_maximum_arc->setEnabled(FALSE);
 		maximum_arc_text->setEnabled(FALSE);
-		ctrl_max_visible->setEnabled(FALSE);
 	}
 }
 
@@ -1473,8 +1467,6 @@ void LLFloaterPreference::refresh()
 	LLPanel::refresh();
 
 	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
-
-	refreshEnabledState();
 
 	// sliders and their text boxes
 	//	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
@@ -1488,7 +1480,10 @@ void LLFloaterPreference::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
+	updateImpostorsText(getChild<LLSliderCtrl>("MaxNumberAvatarDrawn",		true), getChild<LLTextBox>("ImpostorsText",			true));	
 	updateMaximumArcText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true));	
+
+	refreshEnabledState();
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
@@ -1769,6 +1764,25 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	}
 }
 
+void LLFloaterPreference::updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+{
+	F32 value = (F32)ctrl->getValue().asReal();
+
+	if (value < IMPOSTORS_OFF)
+	{
+		text_box->setText(llformat("%0.0f", value));
+		if (!gSavedSettings.getBOOL("RenderUseImpostors"))
+		{
+			gSavedSettings.setBOOL("RenderUseImpostors", true);
+		}
+	}
+	else
+	{
+		text_box->setText(LLTrans::getString("no_limit"));
+		gSavedSettings.setBOOL("RenderUseImpostors", false);
+	}
+}
+
 void LLFloaterPreference::updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box)
 {
 	F32 min_result = 20000.0f;
@@ -1781,7 +1795,7 @@ void LLFloaterPreference::updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* te
 		// It has been decided that having the slider all the way to the right will be the off position, which
 		// is a value of 101, so it is necessary to change value to 0 disable impostor generation.
 		value = 0.0f;
-		text_box->setText(LLTrans::getString("Off"));
+		text_box->setText(LLTrans::getString("no_limit"));
 	}
 	else
 	{

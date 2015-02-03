@@ -58,6 +58,9 @@ typedef enum
 		
 	} EGraphicsSettings;
 
+// 65 is the maximum value for impostors set in the xml file.  When the slider reaches this
+// value impostors are turned off.
+const U32	IMPOSTORS_OFF = 66;
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
@@ -159,6 +162,7 @@ public:
 	void onChangeQuality(const LLSD& data);
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
 
