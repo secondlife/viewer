@@ -1348,7 +1348,6 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     
     // Note : we're assuming that sending unchanged info won't break anything server side...
     root["listing"]["id"] = listing_id;
-    root["listing"]["is_listed"] = false;
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
     root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
     root["listing"]["inventory_info"]["count_on_hand"] = -1;

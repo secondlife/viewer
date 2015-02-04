@@ -636,6 +636,15 @@ void LLFloaterMarketplaceListings::onChanged()
 // LLFloaterAssociateListing
 //-----------------------------------------------------------------------------
 
+// Tell if a listing has one only version folder
+bool hasUniqueVersionFolder(const LLUUID& folder_id)
+{
+	LLInventoryModel::cat_array_t* categories;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(folder_id, categories, items);
+    return (categories->size() == 1);
+}
+
 LLFloaterAssociateListing::LLFloaterAssociateListing(const LLSD& key)
 : LLFloater(key)
 , mUUID()
@@ -703,7 +712,7 @@ void LLFloaterAssociateListing::apply(BOOL user_confirm)
             // Check if the id exists in the merchant SLM DB: note that this record might exist in the LLMarketplaceData
             // structure even if unseen in the UI, for instance, if its listing_uuid doesn't exist in the merchant inventory
             LLUUID listing_uuid = LLMarketplaceData::instance().getListingFolder(id);
-            if (listing_uuid.notNull() && user_confirm && LLMarketplaceData::instance().getActivationState(listing_uuid))
+            if (listing_uuid.notNull() && user_confirm && LLMarketplaceData::instance().getActivationState(listing_uuid) && !hasUniqueVersionFolder(mUUID))
             {
                 // Look for user confirmation before unlisting
                 LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFloaterAssociateListing::callback_apply, this, _1, _2));
