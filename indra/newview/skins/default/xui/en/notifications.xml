@@ -7671,6 +7671,20 @@ Attachment has been saved.
   </notification>
 
   <notification
+    icon="notifytip.tga"
+	name="PresetNotSaved"
+    type="notifytip">
+Error saving preset [NAME].
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+	name="PresetNotDeleted"
+    type="notifytip">
+Error deleting preset [NAME].
+  </notification>
+
+  <notification
     icon="alertmodal.tga"
     name="UnableToFindHelpTopic"
     type="alertmodal">

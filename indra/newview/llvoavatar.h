@@ -300,7 +300,6 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
-	bool			isTooComplex() const;
 	bool 			visualParamWeightsAreDefault();
 	virtual BOOL	getIsCloud() const;
 	BOOL			isFullyTextured() const;
@@ -318,7 +317,7 @@ public:
 	static void 	logPendingPhasesAllAvatars();
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
-	static LLColor4 calcMutedAVColor(F32 value, S32 range_low, S32 range_high);
+	static LLColor4 calcMutedAVColor(const LLUUID av_id);
 
 protected:
 	LLViewerStats::PhaseMap& getPhases() { return mPhases; }
@@ -381,7 +380,7 @@ public:
 
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
-	bool		isVisuallyMuted();
+	bool		isVisuallyMuted() const;
 	void		setCachedVisualMute(bool muted)						{ mCachedVisualMute = muted;	};
 	void		forceUpdateVisualMuteSettings();
 
@@ -418,8 +417,9 @@ private:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
-	bool		mCachedVisualMute;				// cached return value for isVisuallyMuted()
-	F64			mCachedVisualMuteUpdateTime;	// Time to update mCachedVisualMute
+	// the isVisuallyMuted method uses these mutable values to avoid recalculating too frequently
+	mutable bool mCachedVisualMute;	// cached return value for isVisuallyMuted()
+	mutable F64 mCachedVisualMuteUpdateTime; // Time to update mCachedVisualMute
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 

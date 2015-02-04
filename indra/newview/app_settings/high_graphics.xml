@@ -26,8 +26,11 @@
 	<RenderTerrainLODFactor value="2"/>
 	<!--Default for now-->
 	<RenderTreeLODFactor value="0.5"/>
-	<!--Try Impostors-->
+	<!--Avater Impostors and Visual Muting Limits-->
 	<RenderUseImpostors value="TRUE"/>
+    <RenderAvatarMaxVisible          value="20"/>
+    <RenderAutoMuteRenderWeightLimit value="350000"/>
+    <RenderAutoMuteSurfaceAreaLimit  value="300"/>
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="1.125"/>
 	<!--NO SHADERS-->

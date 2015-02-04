@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater
+ legacy_header_height="18"
+ height="130"
+ help_topic="floater_delete_preset"
+ layout="topleft"
+ name="Delete Pref Preset"
+ save_rect="true"
+ title="DELETE PREF PRESET"
+ width="300">
+
+    <string name="title_graphic">Delete Graphic Preset</string>
+    <string name="title_camera">Delete Camera Preset</string>
+
+    <text
+     follows="top|left|right"
+     height="10"
+     layout="topleft"
+     left="20"
+     name="Preset"
+     top="30"
+     width="200">
+     Select a preset
+    </text>
+    <combo_box
+     follows="top|left"
+     layout="topleft"
+     left="20"
+     name="preset_combo"
+     top_delta="20"
+     width="200"/>
+    <button
+     follows="top|left"
+     height="23"
+     label="Delete"
+     layout="topleft"
+     top_delta="40"
+     left="20"
+     name="delete"
+     width="70"/>
+    <button
+     follows="top|left"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="20"
+     name="cancel"
+     width="70"/>
+</floater>

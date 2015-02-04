@@ -5095,7 +5095,7 @@ void LLAppViewer::idle()
 	}
 
 	// Update AV render info
-	LLAvatarRenderInfoAccountant::idle();
+	LLAvatarRenderInfoAccountant::getInstance()->idle();
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_AUDIO_UPDATE);

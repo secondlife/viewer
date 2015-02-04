@@ -8202,17 +8202,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>RenderAvatarComplexityLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
   <key>RenderComplexityColorMin</key>
     <map>
       <key>Comment</key>
@@ -8298,7 +8287,9 @@
     <key>RenderAvatarMaxVisible</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of avatars to display at any one time</string>
+      <string>Maximum number of avatars to fully render at one time;
+      over this limit uses impostor rendering (simplified rendering
+      with less frequent updates)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9737,13 +9728,13 @@
     <key>RenderTerrainDetail</key>
     <map>
       <key>Comment</key>
-      <string>Detail applied to terrain texturing (0 = none, 1 or 2 = full)</string>
+      <string>Detail applied to terrain texturing (0 = none, 1 = full)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>1</integer>
     </map>
     <key>RenderTerrainLODFactor</key>
     <map>
@@ -9887,7 +9878,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>10000000</integer>
   </map>
   <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
@@ -9911,17 +9902,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderAutoMuteFunctions</key>
-  <map>
-    <key>Comment</key>
-    <string>Developing feature to render some avatars using simple impostors or colored silhouettes.  (Set to 7 for all functionality)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>0</real>
-  </map>
   <key>RenderAutoMuteLogging</key>
   <map>
     <key>Comment</key>
@@ -9942,7 +9922,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <real>1.0E6</real>
   </map>
 
     <key>RenderVBOEnable</key>
@@ -10526,17 +10506,6 @@
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowAdvancedGraphicsSettings</key>
-    <map>
-      <key>Comment</key>
-      <string>Show advanced graphics settings</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -15595,7 +15564,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
+  <key>PresetGraphicActive</key>
+    <map>
+      <key>Comment</key>
+      <string>Name of currently selected preference</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>MaximumARC</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls RenderAutoMuteRenderWeightLimit in a non-linear fashion</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
 </map>
 </llsd>
 

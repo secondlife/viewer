@@ -58,6 +58,9 @@ typedef enum
 		
 	} EGraphicsSettings;
 
+// 65 is the maximum value for impostors set in the xml file.  When the slider reaches this
+// value impostors are turned off.
+const U32	IMPOSTORS_OFF = 66;
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
@@ -93,11 +96,11 @@ public:
 	void saveAvatarProperties( void );
 	void selectPrivacyPanel();
 	void selectChatPanel();
+	void getControlNames(std::vector<std::string>& names);
 
 protected:	
 	void		onBtnOK();
 	void		onBtnCancel();
-	void		onBtnApply();
 
 	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
@@ -111,11 +114,13 @@ protected:
 	// if the custom settings box is clicked
 	void onChangeCustom();
 	void updateMeterText(LLUICtrl* ctrl);
-	void onOpenHardwareSettings();
 	// callback for defaults
 	void setHardwareDefaults();
+	void setRecommended();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
+	// callback for when client turns on impostors
+	void onAvatarImpostorsEnable();
 
 	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
 	void onClickActionChange();
@@ -157,6 +162,8 @@ public:
 	void onChangeQuality(const LLSD& data);
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();
@@ -209,7 +216,7 @@ public:
 	virtual void apply();
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
-	virtual void setHardwareDefaults(){};
+	virtual void setHardwareDefaults();
 
 	// Disables "Allow Media to auto play" check box only when both
 	// "Streaming Music" and "Media" are unchecked. Otherwise enables it.
@@ -218,7 +225,11 @@ public:
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.
 	virtual void saveSettings();
-	
+
+	void deletePreset(const LLSD& user_data);
+	void savePreset(const LLSD& user_data);
+	void loadPreset(const LLSD& user_data);
+
 	class Updater;
 
 protected:
@@ -242,14 +253,20 @@ class LLPanelPreferenceGraphics : public LLPanelPreference
 public:
 	BOOL postBuild();
 	void draw();
-	void apply();
 	void cancel();
 	void saveSettings();
+	void resetDirtyChilds();
 	void setHardwareDefaults();
+	void setPresetText();
+
+	static const std::string getPresetsPath();
+
 protected:
 	bool hasDirtyChilds();
-	void resetDirtyChilds();
-	
+
+private:
+
+	void onPresetsListChange();
 };
 
 class LLFloaterPreferenceProxy : public LLFloater

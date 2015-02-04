@@ -4045,5 +4045,10 @@ Try enclosing path to the editor with double quotes.
   <string name="loading_chat_logs">
     Loading...
   </string>
-  
+
+  <!-- Presets graphic/camera -->
+  <string name="preset_combo_label">-Empty list-</string>
+  <string name="Default">Default</string>
+  <string name="none_paren_cap">(None)</string>
+  <string name="no_limit">No Limit</string>
   </strings>
