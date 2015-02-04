@@ -130,6 +130,25 @@ S32 count_stock_folders(LLInventoryModel::cat_array_t& categories)
     return count;
 }
 
+// Helper funtion : Count the number of items (not folders) in the descending hierarchy
+S32 count_descendants_items(const LLUUID& cat_id)
+{
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat_id,cat_array,item_array);
+    
+    S32 count = item_array->size();
+    
+    LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+    {
+		LLViewerInventoryCategory* category = *iter;
+        count += count_descendants_items(category->getUUID());
+    }
+    
+    return count;
+}
+
 // Helper function : Returns true if the hierarchy contains nocopy items
 bool contains_nocopy_items(const LLUUID& id)
 {
@@ -360,6 +379,12 @@ void copy_inventory_category(LLInventoryModel* model,
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
 	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
+    
+    // If root_copy_id is null, tell the marketplace model we'll be waiting for new items to be copied over for this folder
+    if (root_copy_id.isNull())
+    {
+        LLMarketplaceData::instance().setValidationWaiting(root_id,count_descendants_items(cat->getUUID()));
+    }
 
 	// Copy all the items
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
@@ -377,6 +402,8 @@ void copy_inventory_category(LLInventoryModel* model,
                 LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
                 gInventory.changeItemParent(viewer_inv_item, new_cat_uuid, true);
             }
+            // Decrement the count in root_id since that one item won't be copied over
+            LLMarketplaceData::instance().decrementValidationWaiting(root_id);
         }
         else
         {
@@ -1443,6 +1470,8 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
             return false;
         }
     }
+    
+    open_marketplace_listings();
     return true;
 }
 
@@ -1477,10 +1506,9 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
         {
             // Reparent the folder
             gInventory.changeCategoryParent(viewer_inv_cat, dest_folder, false);
+            // Check the destination folder recursively for no copy items and promote the including folders if any
+            validate_marketplacelistings(dest_cat);
         }
-
-        // Check the destination folder recursively for no copy items and promote the including folders if any
-        validate_marketplacelistings(dest_cat);
 
         // Update the modified folders
         update_marketplace_category(src_folder);

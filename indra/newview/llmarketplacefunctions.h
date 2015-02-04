@@ -223,6 +223,10 @@ public:
     void setDirtyCount() { mDirtyCount = true; }
     void setUpdating(const LLUUID& folder_id, bool isUpdating);
     
+    // Used to decide when to run a validation on listing folders
+    void setValidationWaiting(const LLUUID& folder_id, S32 count);
+    void decrementValidationWaiting(const LLUUID& folder_id, S32 count = 1);
+    
 private:
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
     // Used internally only by SLM Responders when data are received from the SLM Server
@@ -250,6 +254,10 @@ private:
     
     // Update data
     std::set<LLUUID> mPendingUpdateSet;
+
+    // Listing folders waiting for validation
+    typedef std::map<LLUUID,S32> waiting_list_t;
+    waiting_list_t mValidationWaitingList;
     
     // The cache of SLM data (at last...)
     marketplace_items_list_t mMarketplaceItems;

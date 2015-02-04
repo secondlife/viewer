@@ -1099,13 +1099,43 @@ public:
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
 {
+    // When things are added to the marketplace, we might need to re-validate and fix the containing listings
+	if (mask & LLInventoryObserver::ADD)
+	{
+        const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
+        
+        std::set<LLUUID>::const_iterator id_it = changed_items.begin();
+        std::set<LLUUID>::const_iterator id_end = changed_items.end();
+        // First, count the number of items in this list...
+        S32 count = 0;
+        for (;id_it != id_end; ++id_it)
+        {
+            LLInventoryObject* obj = gInventory.getObject(*id_it);
+            if (obj && (LLAssetType::AT_CATEGORY != obj->getType()))
+            {
+                count++;
+            }
+        }
+        // Then, decrement the folders of that amount
+        // Note that of all of those, only one folder will be a listing folder (if at all).
+        // The other will be ignored by the decrement method.
+        id_it = changed_items.begin();
+        for (;id_it != id_end; ++id_it)
+        {
+            LLInventoryObject* obj = gInventory.getObject(*id_it);
+            if (obj && (LLAssetType::AT_CATEGORY == obj->getType()))
+            {
+                LLMarketplaceData::instance().decrementValidationWaiting(obj->getUUID(),count);
+            }
+        }
+	}
+    
     // When things are changed in the inventory, this can trigger a host of changes in the marketplace listings folder:
     // * stock counts changing : no copy items coming in and out will change the stock count on folders
     // * version and listing folders : moving those might invalidate the marketplace data itself
     // Since we should cannot raise inventory change while the observer is called (the list will be cleared
     // once observers are called) we need to raise a flag in the inventory to signal that things have been dirtied.
-
-    // That's the only changes that really do make sense for marketplace to worry about
+    
 	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
 	{
         const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
@@ -1134,7 +1164,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
                     if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
                     {
                         LLMarketplaceData::instance().setDirtyCount();
-                    }   
+                    }
                 }
             }
         }
@@ -1729,6 +1759,28 @@ void LLMarketplaceData::setUpdating(const LLUUID& folder_id, bool isUpdating)
     if (isUpdating)
     {
         mPendingUpdateSet.insert(folder_id);
+    }
+}
+
+void LLMarketplaceData::setValidationWaiting(const LLUUID& folder_id, S32 count)
+{
+    mValidationWaitingList[folder_id] = count;
+}
+
+void LLMarketplaceData::decrementValidationWaiting(const LLUUID& folder_id, S32 count)
+{
+    waiting_list_t::iterator found = mValidationWaitingList.find(folder_id);
+    if (found != mValidationWaitingList.end())
+    {
+        found->second -= count;
+        if (found->second <= 0)
+        {
+            mValidationWaitingList.erase(found);
+            LLInventoryCategory *cat = gInventory.getCategory(folder_id);
+            validate_marketplacelistings(cat);
+            update_marketplace_category(folder_id);
+            gInventory.notifyObservers();
+        }
     }
 }
 
