@@ -1554,24 +1554,83 @@ void LLModelPreview::rebuildUploadData()
 						setLoadState( LLModelLoader::ERROR_MATERIALS );
 						mFMP->childDisable( "calculate_btn" );
 					}
-					else
-					{
-						if (mBaseModel.size() == mModel[i].size())
-						{
-							for (U32 idx = 0; idx < mBaseModel.size(); ++idx)
-							{
-								if (mModel[i][idx] && !mModel[i][idx]->matchMaterialOrder(mBaseModel[idx], refFaceCnt, modelFaceCnt ) )
-								{
-									setLoadState( LLModelLoader::ERROR_MATERIALS );
-									mFMP->childDisable( "calculate_btn" );
-								}
-							}
-						}
-					}
 				}
 			}
 			instance.mTransform = mat;
 			mUploadData.push_back(instance);
+		}
+	}
+
+	// Since sub-models affect verification, we need to know number of original/primary models
+	U32 base_primary_count = 0;
+	U32 base_total_count = mBaseModel.size();
+	for (U32 base_ind = 0; base_ind < base_total_count; ++base_ind)
+	{
+		if (mBaseModel[base_ind] && !mBaseModel[base_ind]->mSubmodelID)
+		{
+			base_primary_count++;
+		}
+	}
+
+	//reorder materials to match mBaseModel
+	for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
+	{
+		int refFaceCnt = 0;
+		int modelFaceCnt = 0;
+
+		U32 model_primary_count = 0;
+		U32 model_total_count = mModel[i].size();
+		for (U32 model_ind = 0; model_ind < model_total_count; ++model_ind)
+		{
+			if (mModel[i][model_ind] && !mModel[i][model_ind]->mSubmodelID)
+			{
+				model_primary_count++;
+			}
+		}
+
+		// Since we don't have a reliable method to check sub-models, check only original/primary models
+		//
+		// Note: we can matchMaterialOrder() for sub-models if they have same id and same label,
+		// but since sub-models are leftovers from original models with random material order, we
+		// can't warranty that checking sub-models is valid.
+		// Original model retains full material list, so we should get ERROR_MATERIALS even
+		// if we don't check sub-models. See LLDAELoader::loadModelsFromDomMesh()
+		if (base_primary_count == model_primary_count)
+		{
+			U32 model_ind = 0;
+			U32 base_ind = 0;
+			U32 models_matched = 0;
+
+			while (models_matched < base_primary_count)
+			{
+				// filter out sub-models
+				while (mModel[i][model_ind]
+						&& mModel[i][model_ind]->mSubmodelID
+						&& model_ind < model_primary_count)
+				{
+					model_ind++;
+				}
+				while (mBaseModel[base_ind]
+						&& mBaseModel[base_ind]->mSubmodelID
+						&& base_ind < base_total_count)
+				{
+					base_ind++;
+				}
+				if (model_ind >= model_total_count || base_ind >= base_total_count)
+				{
+					// Safeguard, shouldn't happen unless something is wrong with models in the list
+					LL_WARNS() << "Materials of some models were not verified and reordered" << LL_ENDL;
+					break;
+				}
+				if (mModel[i][model_ind] && !mModel[i][model_ind]->matchMaterialOrder(mBaseModel[base_ind], refFaceCnt, modelFaceCnt ) )
+				{
+					setLoadState( LLModelLoader::ERROR_MATERIALS );
+					mFMP->childDisable( "calculate_btn" );
+				}
+				models_matched++;
+				model_ind++;
+				base_ind++;
+			}
 		}
 	}
 
@@ -1901,6 +1960,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 						}
 
 						mModel[lod][idx] = list_iter->mModel;
+						mModel[lod][idx]->mLabel = list_iter->mLabel;
 						if (!list_iter->mModel->mSkinWeights.empty())
 						{
 							skin_weights = true;
