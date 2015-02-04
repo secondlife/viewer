@@ -291,8 +291,8 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
 	}
-    // hide marketplace listing box, unless we want to show it (note: hacky as show_root_folder is only used for marketplace...)
-	if (!gSavedSettings.getBOOL("InventoryOutboxMakeVisible") && !mParams.show_root_folder)
+    // hide marketplace listing box, unless we are a marketplace panel
+	if (!gSavedSettings.getBOOL("InventoryOutboxMakeVisible") && !mParams.use_marketplace_folders)
 	{
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS));
     }
