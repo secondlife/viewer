@@ -3080,7 +3080,7 @@ void LLVOAvatar::slamPosition()
 	mRoot->updateWorldMatrixChildren();
 }
 
-bool LLVOAvatar::isVisuallyMuted()
+bool LLVOAvatar::isVisuallyMuted() const
 {
 	bool muted = false;
 
