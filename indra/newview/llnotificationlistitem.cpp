@@ -179,7 +179,7 @@ LLInviteNotificationListItem::LLInviteNotificationListItem(const Params& p)
     if (!p.sender.empty())
     {
         LLStringUtil::format_map_t string_args;
-        string_args["[SENDER_RESIDENT]"] = llformat("%s", p.sender);
+        string_args["[SENDER_RESIDENT]"] = llformat("%s", p.sender.c_str());
         std::string sender_text = getString("sender_resident_text", string_args);
         mSenderBox->setValue(sender_text);
         mSenderBox->setVisible(TRUE);

@@ -60,8 +60,8 @@ public:
 
     // get item's ID
     LLUUID getID() { return mID; }
-    std::string getTitle() { return mTitle; }
-    std::string getNotificationName() { return mNotificationName; }
+    std::string& getTitle() { return mTitle; }
+    std::string& getNotificationName() { return mNotificationName; }
 
     // handlers
     virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
