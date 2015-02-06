@@ -1619,7 +1619,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     // * have stock items nested at depth 2 at least
     // * never ever move the non-stock items
     
-    std::vector<std::vector<LLViewerInventoryItem*> > items_vector;
+    std::vector<std::vector<LLUUID> > items_vector;
     items_vector.resize(LLInventoryType::IT_COUNT+1);
 
     // Parse the items and create vectors of items to sort copyable items and stock items of various types
@@ -1649,7 +1649,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             // Get the item type for stock items
             type = viewer_inv_item->getInventoryType();
         }
-        items_vector[type].push_back(viewer_inv_item);
+        items_vector[type].push_back(viewer_inv_item->getUUID());
 	}
     
     // How many types of folders? Which type is it if only one?
@@ -1725,7 +1725,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 {
                     // Create a new folder
                     LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
-                    LLViewerInventoryItem* viewer_inv_item = items_vector[i].back();
+                    LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector[i].back());
                     std::string folder_name = (depth > 1 ? viewer_cat->getName() : viewer_inv_item->getName());
                     LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
                     if (cb)
@@ -1742,10 +1742,11 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                         cb(message,depth,LLError::LEVEL_WARN);
                     }
                     LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, folder_name);
+                    
                     // Move each item to the new folder
                     while (!items_vector[i].empty())
                     {
-                        LLViewerInventoryItem* viewer_inv_item = items_vector[i].back();
+                        LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector[i].back());
                         if (cb)
                         {
                             std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
