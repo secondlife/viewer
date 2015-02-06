@@ -767,7 +767,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 		    LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
 	}
 
-	mCachedVisualMute = !isSelf(); // default to muting everyone? hmmm....
+	mCachedVisualMute = !isSelf(); // default to muting everyone else? hmmm....
 	mCachedVisualMuteUpdateTime = LLFrameTimer::getTotalSeconds() + 5.0;
 	mVisuallyMuteSetting = VISUAL_MUTE_NOT_SET;
 
@@ -2475,19 +2475,22 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	// update visibility when avatar is partially loaded
 	if (updateIsFullyLoaded()) // changed?
 	{
-		if (isFullyLoaded() && mFirstFullyVisible && isSelf())
-		{
-			LL_INFOS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
-			mFirstFullyVisible = FALSE;
-				LLAppearanceMgr::instance().onFirstFullyVisible();
-			}
-		if (isFullyLoaded() && mFirstFullyVisible && !isSelf())
-		{
-			LL_INFOS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
-			mFirstFullyVisible = FALSE;
-		}
 		if (isFullyLoaded())
 		{
+			if (mFirstFullyVisible)
+			{
+				mFirstFullyVisible = FALSE;
+				if (isSelf())
+				{
+					LL_INFOS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+					LLAppearanceMgr::instance().onFirstFullyVisible();
+				}
+				else
+				{
+					LL_INFOS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+				}
+			}
+
 			deleteParticleSource();
 			updateLOD();
 		}
@@ -2520,10 +2523,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-			if (!isVisuallyMuted()) // if we are muting the avatar, don't render particles
-			{
-				setParticleSource(particle_parameters, getID());
-			}
+			setParticleSource(particle_parameters, getID());
 		}
 	}
 }	
@@ -6135,27 +6135,14 @@ BOOL LLVOAvatar::isVisible() const
 }
 
 // Determine if we have enough avatar data to render
-BOOL LLVOAvatar::getIsCloud() const
+bool LLVOAvatar::getIsCloud() const
 {
-	// Do we have a shape?
-	if ((const_cast<LLVOAvatar*>(this))->visualParamWeightsAreDefault())
-	{
-		return TRUE;
-	}
-
-	if (!isTextureDefined(TEX_LOWER_BAKED) || 
-		!isTextureDefined(TEX_UPPER_BAKED) || 
-		!isTextureDefined(TEX_HEAD_BAKED))
-	{
-		return TRUE;
-	}
-
-	if (isVisuallyMuted())
-	{
-		// we can render the muted representation
-		return TRUE;
-	}
-	return FALSE;
+	return (   ((const_cast<LLVOAvatar*>(this))->visualParamWeightsAreDefault())// Do we have a shape?
+			|| (   !isTextureDefined(TEX_LOWER_BAKED)
+				|| !isTextureDefined(TEX_UPPER_BAKED)
+				|| !isTextureDefined(TEX_HEAD_BAKED)
+				)
+			);
 }
 
 void LLVOAvatar::updateRezzedStatusTimers()
@@ -6333,7 +6320,7 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 // returns true if the value has changed.
 BOOL LLVOAvatar::updateIsFullyLoaded()
 {
-	const BOOL loading = getIsCloud();
+	const bool loading = getIsCloud();
 	updateRezzedStatusTimers();
 	updateRuthTimer(loading);
 	return processFullyLoadedChange(loading);
@@ -8269,7 +8256,7 @@ LLColor4 LLVOAvatar::calcMutedAVColor(const LLUUID av_id)
 	new_color.normalize();
 	new_color *= 0.5f;		// Tone it down
 
-	LL_DEBUGS("AvatarMute") << "avatar "<< av_id << " color " << std::setprecision(3) << color_value << " returning color " << new_color 
+	LL_DEBUGS("AvatarRender") << "avatar "<< av_id << " color " << std::setprecision(3) << color_value << " returning color " << new_color 
 							<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2
 							<< " and fractBetween " << fractBetween
 							<< LL_ENDL;

@@ -301,7 +301,7 @@ public:
 public:
 	BOOL			isFullyLoaded() const;
 	bool 			visualParamWeightsAreDefault();
-	virtual BOOL	getIsCloud() const;
+	virtual bool	getIsCloud() const;
 	BOOL			isFullyTextured() const;
 	BOOL			hasGray() const; 
 	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
