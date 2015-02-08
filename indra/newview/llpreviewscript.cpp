@@ -53,7 +53,6 @@
 #include "llscrolllistcell.h"
 #include "llsdserialize.h"
 #include "llslider.h"
-#include "lscript_rt_interface.h"
 #include "lltooldraganddrop.h"
 #include "llvfile.h"
 
@@ -1474,10 +1473,6 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
 		{
 			uploadAssetViaCaps(url, filename, mItemUUID);
 		}
-		else if (gAssetStorage)
-		{
-			uploadAssetLegacy(filename, mItemUUID, tid);
-		}
 	}
 }
 
@@ -1491,91 +1486,6 @@ void LLPreviewLSL::uploadAssetViaCaps(const std::string& url,
 	body["target"] = "lsl2";
 	LLHTTPClient::post(url, body, new LLUpdateAgentInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
 }
-
-void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
-									  const LLUUID& item_id,
-									  const LLTransactionID& tid)
-{
-	LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
-	LLScriptSaveInfo* info = new LLScriptSaveInfo(item_id,
-								descEditor->getText(),
-								tid);
-	gAssetStorage->storeAssetData(filename,	tid,
-								  LLAssetType::AT_LSL_TEXT,
-								  &LLPreviewLSL::onSaveComplete,
-								  info);
-
-	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id.asString());
-	std::string dst_filename = llformat("%s.lso", filepath.c_str());
-	std::string err_filename = llformat("%s.out", filepath.c_str());
-
-	const BOOL compile_to_mono = FALSE;
-	if(!lscript_compile(filename.c_str(),
-						dst_filename.c_str(),
-						err_filename.c_str(),
-						compile_to_mono,
-						asset_id.asString().c_str(),
-						gAgent.isGodlike()))
-	{
-		LL_INFOS() << "Compile failed!" << LL_ENDL;
-		//char command[256];
-		//sprintf(command, "type %s\n", err_filename.c_str());
-		//system(command);
-
-		// load the error file into the error scrolllist
-		LLFILE* fp = LLFile::fopen(err_filename, "r");
-		if(fp)
-		{
-			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			std::string line;
-			while(!feof(fp)) 
-			{
-				if (fgets(buffer, MAX_STRING, fp) == NULL)
-				{
-					buffer[0] = '\0';
-				}
-				if(feof(fp))
-				{
-					break;
-				}
-				else
-				{
-					line.assign(buffer);
-					LLStringUtil::stripNonprintable(line);
-
-					LLSD row;
-					row["columns"][0]["value"] = line;
-					row["columns"][0]["font"] = "OCRA";
-					mScriptEd->mErrorList->addElement(row);
-				}
-			}
-			fclose(fp);
-			mScriptEd->selectFirstError();
-		}
-	}
-	else
-	{
-		LL_INFOS() << "Compile worked!" << LL_ENDL;
-		if(gAssetStorage)
-		{
-			getWindow()->incBusyCount();
-			mPendingUploads++;
-			LLUUID* this_uuid = new LLUUID(mItemUUID);
-			gAssetStorage->storeAssetData(dst_filename,
-										  tid,
-										  LLAssetType::AT_LSL_BYTECODE,
-										  &LLPreviewLSL::onSaveBytecodeComplete,
-										  (void**)this_uuid);
-		}
-	}
-
-	// get rid of any temp files left lying around
-	LLFile::remove(filename);
-	LLFile::remove(err_filename);
-	LLFile::remove(dst_filename);
-}
-
 
 // static
 void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
@@ -2170,10 +2080,6 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 	{
 		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running);
 	}
-	else if (gAssetStorage)
-	{
-		uploadAssetLegacy(filename, object, tid, is_running);
-	}
 }
 
 void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
@@ -2190,105 +2096,6 @@ void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
 	body["target"] = monoChecked() ? "mono" : "lsl2";
 	LLHTTPClient::post(url, body,
 		new LLUpdateTaskInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
-}
-
-void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
-										LLViewerObject* object,
-										const LLTransactionID& tid,
-										BOOL is_running)
-{
-	LLLiveLSLSaveData* data = new LLLiveLSLSaveData(mObjectUUID,
-													mItem,
-													is_running);
-	gAssetStorage->storeAssetData(filename, tid,
-								  LLAssetType::AT_LSL_TEXT,
-								  &onSaveTextComplete,
-								  (void*)data,
-								  FALSE);
-
-	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id.asString());
-	std::string dst_filename = llformat("%s.lso", filepath.c_str());
-	std::string err_filename = llformat("%s.out", filepath.c_str());
-
-	LLFILE *fp;
-	const BOOL compile_to_mono = FALSE;
-	if(!lscript_compile(filename.c_str(),
-						dst_filename.c_str(),
-						err_filename.c_str(),
-						compile_to_mono,
-						asset_id.asString().c_str(),
-						gAgent.isGodlike()))
-	{
-		// load the error file into the error scrolllist
-		LL_INFOS() << "Compile failed!" << LL_ENDL;
-		if(NULL != (fp = LLFile::fopen(err_filename, "r")))
-		{
-			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			std::string line;
-			while(!feof(fp)) 
-			{
-				
-				if (fgets(buffer, MAX_STRING, fp) == NULL)
-				{
-					buffer[0] = '\0';
-				}
-				if(feof(fp))
-				{
-					break;
-				}
-				else
-				{
-					line.assign(buffer);
-					LLStringUtil::stripNonprintable(line);
-				
-					LLSD row;
-					row["columns"][0]["value"] = line;
-					row["columns"][0]["font"] = "OCRA";
-					mScriptEd->mErrorList->addElement(row);
-				}
-			}
-			fclose(fp);
-			mScriptEd->selectFirstError();
-			// don't set the asset id, because we want to save the
-			// script, even though the compile failed.
-			//mItem->setAssetUUID(LLUUID::null);
-			object->saveScript(mItem, FALSE, false);
-			dialog_refresh_all();
-		}
-	}
-	else
-	{
-		LL_INFOS() << "Compile worked!" << LL_ENDL;
-		mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessfulSaving"));
-		if(gAssetStorage)
-		{
-			LL_INFOS() << "LLLiveLSLEditor::saveAsset "
-					<< mItem->getAssetUUID() << LL_ENDL;
-			getWindow()->incBusyCount();
-			mPendingUploads++;
-			LLLiveLSLSaveData* data = NULL;
-			data = new LLLiveLSLSaveData(mObjectUUID,
-										 mItem,
-										 is_running);
-			gAssetStorage->storeAssetData(dst_filename,
-										  tid,
-										  LLAssetType::AT_LSL_BYTECODE,
-										  &LLLiveLSLEditor::onSaveBytecodeComplete,
-										  (void*)data);
-			dialog_refresh_all();
-		}
-	}
-
-	// get rid of any temp files left lying around
-	LLFile::remove(filename);
-	LLFile::remove(err_filename);
-	LLFile::remove(dst_filename);
-
-	// If we successfully saved it, then we should be able to check/uncheck the running box!
-	LLCheckBoxCtrl* runningCheckbox = getChild<LLCheckBoxCtrl>( "running");
-	runningCheckbox->setLabel(getString("script_running"));
-	runningCheckbox->setEnabled(TRUE);
 }
 
 void LLLiveLSLEditor::onSaveTextComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)

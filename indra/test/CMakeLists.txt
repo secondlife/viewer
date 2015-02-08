@@ -9,7 +9,6 @@ include(LLMath)
 include(LLMessage)
 include(LLVFS)
 include(LLXML)
-include(LScript)
 include(Linking)
 include(Tut)
 include(LLAddBuildTest)
@@ -47,7 +46,6 @@ set(test_SOURCE_FILES
     llpermissions_tut.cpp
     llpipeutil.cpp
     llsaleinfo_tut.cpp
-    llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp
     llsdmessagereader_tut.cpp
     llsd_new_tut.cpp

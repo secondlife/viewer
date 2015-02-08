@@ -202,9 +202,6 @@ protected:
 	void uploadAssetViaCaps(const std::string& url,
 							const std::string& filename, 
 							const LLUUID& item_id);
-	void uploadAssetLegacy(const std::string& filename,
-							const LLUUID& item_id,
-							const LLTransactionID& tid);
 
 	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
@@ -260,10 +257,6 @@ private:
 							const LLUUID& task_id,
 							const LLUUID& item_id,
 							BOOL is_running);
-	void uploadAssetLegacy(const std::string& filename,
-						   LLViewerObject* object,
-						   const LLTransactionID& tid,
-						   BOOL is_running);
 	BOOL monoChecked() const;
 
 

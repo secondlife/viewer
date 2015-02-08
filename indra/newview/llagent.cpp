@@ -63,6 +63,7 @@
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
+#include "llscriptruntimeperms.h"
 #include "llsdmessage.h"
 #include "llsdutil.h"
 #include "llsky.h"
@@ -92,7 +93,6 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "lscript_byteformat.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
 
