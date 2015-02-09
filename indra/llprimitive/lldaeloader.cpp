@@ -169,6 +169,11 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	if (pos_source)
 	{
+		if(!pos_source->getFloat_array() || (v.getCount() == 0))
+		{
+			return LLModel::BAD_ELEMENT;
+		}
+
 		face.mExtents[0].set(v[0], v[1], v[2]);
 		face.mExtents[1].set(v[0], v[1], v[2]);
 	}
@@ -2202,7 +2207,7 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh)
 		domTrianglesRef& tri = tris.get(i);
 
 		status = load_face_from_dom_triangles(pModel->getVolumeFaces(), pModel->getMaterialList(), tri);
-
+		pModel->mStatus = status;
 		if(status != LLModel::NO_ERRORS)
 		{
 			pModel->ClearFacesAndMaterials();
