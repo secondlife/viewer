@@ -1552,7 +1552,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     if (depth < 0)
     {
         // If the folder is not under the marketplace listings root, we run validation as if it was a listing folder and prevent any hierarchy fix
-        // This allows the function to be used to pre-validate a folder
+        // This allows the function to be used to pre-validate a folder anywhere in the inventory
         depth = 1;
         fix_hierarchy = false;
     }
@@ -1609,20 +1609,20 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         }
     }
     
-	LLInventoryModel::cat_array_t* cat_array;
-	LLInventoryModel::item_array_t* item_array;
-	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
-    
-    // Stock items : sorting and moving the various stock items is complicated as the set of constraints is high
-    // For each folder, we need to:
+    // Item sorting and validation : sorting and moving the various stock items is complicated as the set of constraints is high
+    // We need to:
     // * separate non stock items, stock items per types in different folders
     // * have stock items nested at depth 2 at least
     // * never ever move the non-stock items
     
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
+    
     std::vector<std::vector<LLUUID> > items_vector;
     items_vector.resize(LLInventoryType::IT_COUNT+1);
 
-    // Parse the items and create vectors of items to sort copyable items and stock items of various types
+    // Parse the items and create vectors of item UUIDs sorting copyable items and stock items of various types
     bool has_bad_items = false;
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
 	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
@@ -1652,7 +1652,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         items_vector[type].push_back(viewer_inv_item->getUUID());
 	}
     
-    // How many types of folders? Which type is it if only one?
+    // How many types of items? Which type is it if only one?
     S32 count = 0;
     LLInventoryType::EType type = LLInventoryType::IT_COUNT;
     for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
@@ -1669,6 +1669,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     {
         if (cat_array->size() == 0)
         {
+            // So we have no item and no folder. That's at least a warning.
             if (depth == 2)
             {
                 // If this is an empty version folder, warn only (listing won't be delivered by AIS, but only AIS should unlist)
@@ -1718,51 +1719,56 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     {
         if (fix_hierarchy && !has_bad_items)
         {
-            // Create one folder per vector at the right depth and of the right type
-            for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
+            // If we have more than 1 type of items or we are at the listing level, wrap the items in subfolders
+            if ((count > 1) || (depth == 1))
             {
-                if (!items_vector[i].empty())
+                // Create one folder per vector at the right depth and of the right type
+                for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
                 {
-                    // Create a new folder
-                    LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
-                    LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector[i].back());
-                    std::string folder_name = (depth > 1 ? viewer_cat->getName() : viewer_inv_item->getName());
-                    LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
-                    if (cb)
+                    if (!items_vector[i].empty())
                     {
-                        std::string message = "";
-                        if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
-                        {
-                            message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Stock");
-                        }
-                        else
-                        {
-                            message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Version");
-                        }
-                        cb(message,depth,LLError::LEVEL_WARN);
-                    }
-                    LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, folder_name);
-                    
-                    // Move each item to the new folder
-                    while (!items_vector[i].empty())
-                    {
+                        // Create a new folder
+                        LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
                         LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector[i].back());
+                        std::string folder_name = (depth > 1 ? viewer_cat->getName() : viewer_inv_item->getName());
+                        LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
                         if (cb)
                         {
-                            std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
+                            std::string message = "";
+                            if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
+                            {
+                                message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Stock");
+                            }
+                            else
+                            {
+                                message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Version");
+                            }
                             cb(message,depth,LLError::LEVEL_WARN);
                         }
-                        gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
-                        items_vector[i].pop_back();
+                        LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, folder_name);
+                        
+                        // Move each item to the new folder
+                        while (!items_vector[i].empty())
+                        {
+                            LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector[i].back());
+                            if (cb)
+                            {
+                                std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
+                                cb(message,depth,LLError::LEVEL_WARN);
+                            }
+                            gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
+                            items_vector[i].pop_back();
+                        }
+                        update_marketplace_category(folder_uuid);
+                        gInventory.notifyObservers();
                     }
-                    update_marketplace_category(folder_uuid);
-                    gInventory.notifyObservers();
                 }
             }
             // Stock folder should have no sub folder so reparent those up
             if (folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
             {
                 LLUUID parent_uuid = cat->getParentUUID();
+                gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
                 LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
                 for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
                 {
@@ -1851,6 +1857,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     }
 
     // Recursion : Perform the same validation on each nested folder
+    gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
     // Sort the folders in alphabetical order first
     std::sort(cat_array_copy.begin(), cat_array_copy.end(), sort_alpha);
