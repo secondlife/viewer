@@ -357,14 +357,6 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 		return false;
 	}
 
-	// Set name.
-	std::string name = data["name"];
-	if (!name.empty())
-	{
-		model[LLModel::LOD_HIGH][0]->mLabel = name;
-	}
-	
-
 	//load instance list
 	model_instance_list instance_list;
 
@@ -377,6 +369,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
 		//match up model instance pointers
 		S32 idx = instance_list[i].mLocalMeshID;
+		std::string instance_label = instance_list[i].mLabel;
 
 		for (U32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
 		{
@@ -394,13 +387,39 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 					}					
 					continue;
 				}
+
+				if (model[lod][idx]
+					&& model[lod][idx]->mLabel.empty()
+					&& !instance_label.empty())
+				{
+					// restore model names
+					std::string name = instance_label;
+					switch (lod)
+					{
+					case LLModel::LOD_IMPOSTOR: name += "_LOD0"; break;
+					case LLModel::LOD_LOW:      name += "_LOD1"; break;
+					case LLModel::LOD_MEDIUM:   name += "_LOD2"; break;
+					case LLModel::LOD_PHYSICS:  name += "_PHYS"; break;
+					case LLModel::LOD_HIGH:                      break;
+					}
+					model[lod][idx]->mLabel = name;
+				}
+
 				instance_list[i].mLOD[lod] = model[lod][idx];
 			}
 		}
 
 		if (!instance_list[i].mModel)
 			instance_list[i].mModel = model[LLModel::LOD_HIGH][idx];
-	}		
+	}
+
+	// Set name.
+	std::string name = data["name"];
+	if (!name.empty() && model[LLModel::LOD_HIGH][0]->mLabel.empty())
+	{
+		// fall back value, should be reset later by names from instances
+		model[LLModel::LOD_HIGH][0]->mLabel = name;
+	}
 
 
 	//convert instance_list to mScene

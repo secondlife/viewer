@@ -1960,7 +1960,6 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 						}
 
 						mModel[lod][idx] = list_iter->mModel;
-						mModel[lod][idx]->mLabel = list_iter->mLabel;
 						if (!list_iter->mModel->mSkinWeights.empty())
 						{
 							skin_weights = true;
