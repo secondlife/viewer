@@ -35,25 +35,26 @@
 #include "lluicolortable.h"
 
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
+    mParams(p),
     mTitleBox(NULL),
-    mCloseBtn(NULL),
-    mSenderBox(NULL)
+    mCloseBtn(NULL)
 {
-    buildFromFile( "panel_notification_tabbed_item.xml");
-
-    mTitleBox = getChild<LLTextBox>("GroupName_NoticeTitle");
-    mTimeBox = getChild<LLTextBox>("Time_Box");
-    mCloseBtn = getChild<LLButton>("close_btn");
-    mSenderBox = getChild<LLTextBox>("Sender_Resident");
-
-    mTitleBox->setValue(p.title);
-    mTimeBox->setValue(buildNotificationDate(p.time_stamp));
-    mSenderBox->setVisible(FALSE);
-
-    mCloseBtn->setClickedCallback(boost::bind(&LLNotificationListItem::onClickCloseBtn,this));
-
     mID = p.notification_id;
     mNotificationName = p.notification_name;
+}
+
+BOOL LLNotificationListItem::postBuild()
+{
+    BOOL rv = LLPanel::postBuild();
+    mTitleBox = getChild<LLTextBox>("notification_title");
+    mTimeBox = getChild<LLTextBox>("notification_time");
+    mCloseBtn = getChild<LLButton>("close_btn");
+
+    mTitleBox->setValue(mParams.title);
+    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp));
+
+    mCloseBtn->setClickedCallback(boost::bind(&LLNotificationListItem::onClickCloseBtn,this));
+    return rv;
 }
 
 LLNotificationListItem::~LLNotificationListItem()
@@ -151,46 +152,87 @@ std::set<std::string> LLTransactionNotificationListItem::getTypes()
 std::set<std::string> LLSystemNotificationListItem::getTypes()
 {
     std::set<std::string> types;
-    types.insert("AddPrimitiveFailure");
-    types.insert("AddToNavMeshNoCopy");
-    types.insert("AssetServerTimeoutObjReturn");
-    types.insert("AvatarEjected");
-    types.insert("AutoUnmuteByIM");
-    types.insert("AutoUnmuteByInventory");
-    types.insert("AutoUnmuteByMoney");
-    types.insert("BuyInventoryFailedNoMoney");
-    types.insert("DeactivatedGesturesTrigger");
-    types.insert("DeedFailedNoPermToDeedForGroup");
-    types.insert("WhyAreYouTryingToWearShrubbery");
-    types.insert("YouDiedAndGotTPHome");
-    types.insert("YouFrozeAvatar");
-
-    types.insert("OfferCallingCard");
-    //ExpireExplanation
+    //types.insert("AddPrimitiveFailure");
+    //types.insert("AddToNavMeshNoCopy");
+    //types.insert("AssetServerTimeoutObjReturn");
+    //types.insert("AvatarEjected");
+    //types.insert("AutoUnmuteByIM");
+    //types.insert("AutoUnmuteByInventory");
+    //types.insert("AutoUnmuteByMoney");
+    //types.insert("BuyInventoryFailedNoMoney");
+    //types.insert("DeactivatedGesturesTrigger");
+    //types.insert("DeedFailedNoPermToDeedForGroup");
+    //types.insert("WhyAreYouTryingToWearShrubbery");
+    //types.insert("YouDiedAndGotTPHome");
+    //types.insert("YouFrozeAvatar");
+    //types.insert("OfferCallingCard");
     return types;
 }
 
 LLInviteNotificationListItem::LLInviteNotificationListItem(const Params& p)
-    : LLNotificationListItem(p)
+	: LLNotificationListItem(p),
+	mSenderBox(NULL)
 {
-    mGroupIcon = getChild<LLIconCtrl>("group_icon_small");
-    mGroupIcon->setValue(p.group_id);
-    mGroupID = p.group_id;
-    if (!p.sender.empty())
+	buildFromFile("panel_notification_list_item.xml");
+}
+
+BOOL LLInviteNotificationListItem::postBuild()
+{
+    BOOL rv = LLNotificationListItem::postBuild();
+    mGroupIcon = getChild<LLGroupIconCtrl>("group_icon");
+    mGroupIcon->setValue(mParams.group_id);
+	mGroupIcon->setVisible(TRUE);
+    mGroupID = mParams.group_id;
+	mSenderBox = getChild<LLTextBox>("sender_resident");
+    if (!mParams.sender.empty())
     {
         LLStringUtil::format_map_t string_args;
-        string_args["[SENDER_RESIDENT]"] = llformat("%s", p.sender.c_str());
+        string_args["[SENDER_RESIDENT]"] = llformat("%s", mParams.sender.c_str());
         std::string sender_text = getString("sender_resident_text", string_args);
         mSenderBox->setValue(sender_text);
         mSenderBox->setVisible(TRUE);
-    }
+    } else {
+		mSenderBox->setVisible(FALSE);
+	}
+    return rv;
 }
 
 LLTransactionNotificationListItem::LLTransactionNotificationListItem(const Params& p)
-    : LLNotificationListItem(p)
-{}
+    : LLNotificationListItem(p),
+	mTransactionIcon(NULL)
+{
+	buildFromFile("panel_notification_list_item.xml");
+}
+
+BOOL LLTransactionNotificationListItem::postBuild()
+{
+	BOOL rv = LLNotificationListItem::postBuild();
+	if (mParams.notification_name == "PaymentReceived")
+	{
+		mTransactionIcon = getChild<LLIconCtrl>("incoming_transaction_icon");
+	}
+	else if (mParams.notification_name == "PaymentSent")
+	{
+		mTransactionIcon = getChild<LLIconCtrl>("outcoming_transaction_icon");
+	}
+	if(mTransactionIcon)
+		mTransactionIcon->setVisible(TRUE);
+	return rv;
+}
 
 LLSystemNotificationListItem::LLSystemNotificationListItem(const Params& p)
-    :LLNotificationListItem(p)
-{}
+    : LLNotificationListItem(p),
+	mSystemNotificationIcon(NULL)
+{
+	buildFromFile("panel_notification_list_item.xml");
+}
+
+BOOL LLSystemNotificationListItem::postBuild()
+{
+	BOOL rv = LLNotificationListItem::postBuild();
+	mSystemNotificationIcon = getChild<LLIconCtrl>("system_notification_icon");
+	if (mSystemNotificationIcon)
+		mSystemNotificationIcon->setVisible(TRUE);
+	return rv;
+}
 

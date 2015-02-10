@@ -30,7 +30,7 @@
 #include "llpanel.h"
 #include "lltextbox.h"
 #include "llbutton.h"
-#include "lliconctrl.h"
+#include "llgroupiconctrl.h"
 
 #include "llgroupmgr.h"
 
@@ -76,6 +76,7 @@ public:
     boost::signals2::connection setOnItemCloseCallback(item_callback_t cb) { return mOnItemClose.connect(cb); }
     boost::signals2::connection setOnItemClickCallback(item_callback_t cb) { return mOnItemClick.connect(cb); }
 
+    virtual BOOL postBuild();
 protected:
     LLNotificationListItem(const Params& p);
     virtual	~LLNotificationListItem();
@@ -83,13 +84,13 @@ protected:
     static std::string buildNotificationDate(const LLDate&);
     void onClickCloseBtn();
 
+    Params      mParams;
     LLTextBox*	mTitleBox;
     LLTextBox*  mTimeBox;
     LLButton*	mCloseBtn;
     LLUUID		mID;
     std::string mTitle;
     std::string mNotificationName;
-    LLTextBox*	mSenderBox;
 };
 
 class LLInviteNotificationListItem : public LLNotificationListItem
@@ -99,36 +100,43 @@ public:
     //void setGroupIconID(const LLUUID& group_icon_id);
     //void setGroupName(const std::string& group_name);
     static std::set<std::string> getTypes();
+
+    virtual BOOL postBuild();
 private:
     friend class LLNotificationListItem;
     LLInviteNotificationListItem(const Params& p);
     LLInviteNotificationListItem(const LLInviteNotificationListItem &);
     LLInviteNotificationListItem & operator=(LLInviteNotificationListItem &);
 
-    LLIconCtrl* mGroupIcon;
+    LLGroupIconCtrl* mGroupIcon;
     LLUUID		mGroupID;
+	LLTextBox*	mSenderBox;
 };
 
 class LLTransactionNotificationListItem : public LLNotificationListItem
 {
 public:
     static std::set<std::string> getTypes();
+	virtual BOOL postBuild();
 private:
     friend class LLNotificationListItem;
     LLTransactionNotificationListItem(const Params& p);
     LLTransactionNotificationListItem(const LLTransactionNotificationListItem &);
     LLTransactionNotificationListItem & operator=(LLTransactionNotificationListItem &);
+	LLIconCtrl* mTransactionIcon;
 };
 
 class LLSystemNotificationListItem : public LLNotificationListItem
 {
 public:
     static std::set<std::string> getTypes();
+	virtual BOOL postBuild();
 private:
     friend class LLNotificationListItem;
     LLSystemNotificationListItem(const Params& p);
     LLSystemNotificationListItem(const LLSystemNotificationListItem &);
     LLSystemNotificationListItem & operator=(LLSystemNotificationListItem &);
+	LLIconCtrl* mSystemNotificationIcon;
 };
 
 #endif // LL_LLNOTIFICATIONLISTITEM_H
