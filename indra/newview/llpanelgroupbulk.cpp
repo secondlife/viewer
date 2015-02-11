@@ -97,6 +97,7 @@ void LLPanelGroupBulkImpl::callbackClickAdd(void* userdata)
 		if(picker)
 		{
 			root_floater->addDependentFloater(picker);
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(panelp->mImplementation->mGroupID);
 		}
 	}
 }
