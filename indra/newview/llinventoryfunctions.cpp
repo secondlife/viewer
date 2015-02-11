@@ -1719,6 +1719,11 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     {
         if (fix_hierarchy && !has_bad_items)
         {
+            // Alert the user when an existing stock folder has to be split
+            if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && ((count >= 2) || (cat_array->size() > 0)))
+            {
+                LLNotificationsUtil::add("AlertMerchantStockFolderSplit");
+            }
             // If we have more than 1 type of items or we are at the listing level, wrap the items in subfolders
             if ((count > 1) || (depth == 1))
             {

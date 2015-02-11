@@ -486,6 +486,18 @@ This listing could not be updated.
     </notification>
 
     <notification
+        icon="alertmodal.tga"
+        name="AlertMerchantStockFolderSplit"
+        type="alertmodal">
+        We have separated stock items of different types into separate stock folders, so your folder is arranged in a way that we can list it.
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Alert when stock folder is being split before being listed"
+        name="okignore"
+        yestext="OK"/>
+    </notification>
+    
+    <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">
