@@ -27,12 +27,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Compiler flags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SetOverwrite on				; overwrite files
-SetCompress auto			; compress iff saves space
-SetCompressor /solid lzma	; compress whole installer as one block
-SetDatablockOptimize off	; only saves us 0.1%, not worth it
-XPStyle on                  ; add an XP manifest to the installer
-RequestExecutionLevel admin	; on Vista we must be admin because we write to Program Files
+SetOverwrite on				; Overwrite files
+SetCompress auto			; Compress if saves space
+SetCompressor /solid lzma	; Compress whole installer as one block
+SetDatablockOptimize off	; Only saves us 0.1%, not worth it
+XPStyle on                  ; Add an XP manifest to the installer
+RequestExecutionLevel admin	; For when we write to Program Files
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project flags
@@ -118,7 +118,6 @@ Var DO_UNINSTALL_V2     ; If non-null, path to a previous Viewer 2 installation 
 !insertmacro GetParameters
 !insertmacro GetOptions
 !include WinVer.nsh			; For OS and SP detection
-!include x64.nsh			; For 64bit OS detection
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; After install completes, launch app
@@ -145,26 +144,18 @@ FunctionEnd
 ; Currently: Windows 32bit XP SP3, 64bit XP SP2 and Server 2003 SP2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsVersion
-  ${If} ${AtMostWin2000}
+  ${If} ${AtMostWin2003}
     MessageBox MB_OK $(CheckWindowsVersionMB)
     Quit
   ${EndIf}
 
-  ${If} ${IsWinXP}
-  ${AndIfNot} ${RunningX64}
-  ${AndIfNot} ${IsServicePack} 3
-    MessageBox MB_OK $(CheckWindowsVersionMB)
-    Quit
-  ${EndIf}
-
-  ${If} ${IsWinXP}
-  ${AndIf} ${RunningX64}
+  ${If} ${IsWinVista}
   ${AndIfNot} ${IsServicePack} 2
     MessageBox MB_OK $(CheckWindowsVersionMB)
     Quit
   ${EndIf}
 
-  ${If} ${IsWin2003}
+  ${If} ${IsWin2008}
   ${AndIfNot} ${IsServicePack} 2
     MessageBox MB_OK $(CheckWindowsVersionMB)
     Quit
@@ -175,20 +166,6 @@ FunctionEnd
 ;Recommend Upgrading Service Pack
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsServPack
-  ${If} ${IsWinVista}
-  ${AndIfNot} ${IsServicePack} 2
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
-
-  ${If} ${IsWin2008}
-  ${AndIfNot} ${IsServicePack} 2
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
-
   ${If} ${IsWin7}
   ${AndIfNot} ${IsServicePack} 1
     MessageBox MB_OK $(CheckWindowsServPackMB)
