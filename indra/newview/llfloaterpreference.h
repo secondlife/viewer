@@ -117,10 +117,10 @@ protected:
 	// callback for defaults
 	void setHardwareDefaults();
 	void setRecommended();
-	// callback for when client turns on shaders
-	void onVertexShaderEnable();
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
+		// callback for when client turns on shaders
+	void onVertexShaderEnable();
 
 	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
 	void onClickActionChange();
@@ -128,7 +128,7 @@ protected:
 	void updateClickActionSettings();
 	// updates click/double-click action controls depending on values from settings.xml
 	void updateClickActionControls();
-	
+
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
 	void saveSettings();
@@ -155,15 +155,11 @@ public:
 	void enableHistory();
 	void setPersonalInfo(const std::string& visibility, bool im_via_email);
 	void refreshEnabledState();
-	void disableUnavailableSettings();
 	void onCommitWindowedMode();
 	void refresh();	// Refresh enable/disable
 	// if the quality radio buttons are changed
 	void onChangeQuality(const LLSD& data);
 	
-	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();
@@ -177,6 +173,7 @@ public:
 	void onClickPermsDefault();
 	void onClickAutoReplace();
 	void onClickSpellChecker();
+	void onClickAdvanced();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void onLogChatHistorySaved();	
@@ -267,6 +264,24 @@ protected:
 private:
 
 	void onPresetsListChange();
+};
+
+class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
+{
+public: 
+	LLFloaterPreferenceGraphicsAdvanced(const LLSD& key);
+	~LLFloaterPreferenceGraphicsAdvanced();
+
+	void disableUnavailableSettings();
+	void refreshEnabledGraphics();
+	void refreshEnabledState();
+	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void draw();
+	void refresh();
+	// callback for when client turns on shaders
+	void onVertexShaderEnable();
 };
 
 class LLFloaterPreferenceProxy : public LLFloater
