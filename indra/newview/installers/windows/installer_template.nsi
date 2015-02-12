@@ -769,8 +769,6 @@ Call un.RemovePassword
 
 Call un.ProgramFiles
 
-# End of uninstall section
-
 SectionEnd 				
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
