@@ -86,7 +86,6 @@ WindowIcon on							# Show our icon in left corner
 BGGradient off							# No big background window
 CRCCheck on								# Make sure CRC is OK
 InstProgressFlags smooth colored		# New colored smooth look
-ShowInstDetails nevershow				# No details, no "show" button
 SetOverwrite on							# Overwrite files by default
 AutoCloseWindow true					# After all files install, close window
 
@@ -725,7 +724,6 @@ FunctionEnd
 ;; Uninstall settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 UninstallText $(UninstallTextMsg)
-ShowUninstDetails show
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Uninstall Section
