@@ -4184,6 +4184,9 @@ Try enclosing path to the editor with double quotes.
     Loading...
   </string>
 
+  <!-- Statistics -->
+  <string name="na">n/a</string>
+
   <!-- Presets graphic/camera -->
   <string name="preset_combo_label">-Empty list-</string>
   <string name="Default">Default</string>

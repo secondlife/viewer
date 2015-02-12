@@ -40,6 +40,7 @@
 #include "lltooltip.h"
 #include "lllocalcliprect.h"
 #include <iostream>
+#include "lltrans.h"
 
 // rate at which to update display of value that is rapidly changing
 const F32 MEAN_VALUE_UPDATE_TIME = 1.f / 4.f; 
@@ -619,19 +620,19 @@ void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_re
 
 	std::string value_str	= !llisnan(value)
 							? llformat("%10.*f %s", decimal_digits, value, label.c_str())
-							: "n/a";
+							: LLTrans::getString("na");
 
 	// Draw the current value.
 	if (mOrientation == HORIZONTAL)
 	{
 		LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, bar_rect.mRight, getRect().getHeight(), 
-			LLColor4(1.f, 1.f, 1.f, 0.5f),
+			LLColor4(1.f, 1.f, 1.f, 1.f),
 			LLFontGL::RIGHT, LLFontGL::TOP);
 	}
 	else
 	{
 		LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, bar_rect.mRight, getRect().getHeight(), 
-			LLColor4(1.f, 1.f, 1.f, 0.5f),
+			LLColor4(1.f, 1.f, 1.f, 1.f),
 			LLFontGL::RIGHT, LLFontGL::TOP);
 	}
 }
