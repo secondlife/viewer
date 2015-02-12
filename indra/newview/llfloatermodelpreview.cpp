@@ -1356,6 +1356,8 @@ void LLModelPreview::rebuildUploadData()
 
 	F32 max_scale = 0.f;
 
+	BOOL importerDebug = gSavedSettings.getBOOL("ImporterDebug");
+
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
 	{ //for each transform in scene
 		LLMatrix4 mat		= iter->first;
@@ -1417,8 +1419,6 @@ void LLModelPreview::rebuildUploadData()
                 }
 
                 FindModel(mScene[i], name_to_match, lod_model, transform);
-
-                BOOL importerDebug = gSavedSettings.getBOOL("ImporterDebug");                    
 
                 // Fall back to old method of index-based association if
                 // we could not find a match based on the mesh names
@@ -1561,75 +1561,30 @@ void LLModelPreview::rebuildUploadData()
 		}
 	}
 
-	// Since sub-models affect verification, we need to know number of original/primary models
-	U32 base_primary_count = 0;
-	U32 base_total_count = mBaseModel.size();
-	for (U32 base_ind = 0; base_ind < base_total_count; ++base_ind)
+	for (U32 lod = 0; lod < LLModel::NUM_LODS-1; lod++)
 	{
-		if (mBaseModel[base_ind] && !mBaseModel[base_ind]->mSubmodelID)
+		// Search for models that are not included into upload data
+		// If we found any, that means something we loaded is not a sub-model.
+		for (U32 model_ind = 0; model_ind < mModel[lod].size(); ++model_ind)
 		{
-			base_primary_count++;
-		}
-	}
-
-	//reorder materials to match mBaseModel
-	for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
-	{
-		int refFaceCnt = 0;
-		int modelFaceCnt = 0;
-
-		U32 model_primary_count = 0;
-		U32 model_total_count = mModel[i].size();
-		for (U32 model_ind = 0; model_ind < model_total_count; ++model_ind)
-		{
-			if (mModel[i][model_ind] && !mModel[i][model_ind]->mSubmodelID)
+			bool found_model = false;
+			for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
 			{
-				model_primary_count++;
-			}
-		}
-
-		// Since we don't have a reliable method to check sub-models, check only original/primary models
-		//
-		// Note: we can matchMaterialOrder() for sub-models if they have same id and same label,
-		// but since sub-models are leftovers from original models with random material order, we
-		// can't warranty that checking sub-models is valid.
-		// Original model retains full material list, so we should get ERROR_MATERIALS even
-		// if we don't check sub-models. See LLDAELoader::loadModelsFromDomMesh()
-		if (base_primary_count == model_primary_count)
-		{
-			U32 model_ind = 0;
-			U32 base_ind = 0;
-			U32 models_matched = 0;
-
-			while (models_matched < base_primary_count)
-			{
-				// filter out sub-models
-				while (mModel[i][model_ind]
-						&& mModel[i][model_ind]->mSubmodelID
-						&& model_ind < model_primary_count)
+				LLModelInstance& instance = *iter;
+				if (instance.mLOD[lod] == mModel[lod][model_ind])
 				{
-					model_ind++;
-				}
-				while (mBaseModel[base_ind]
-						&& mBaseModel[base_ind]->mSubmodelID
-						&& base_ind < base_total_count)
-				{
-					base_ind++;
-				}
-				if (model_ind >= model_total_count || base_ind >= base_total_count)
-				{
-					// Safeguard, shouldn't happen unless something is wrong with models in the list
-					LL_WARNS() << "Materials of some models were not verified and reordered" << LL_ENDL;
+					found_model = true;
 					break;
 				}
-				if (mModel[i][model_ind] && !mModel[i][model_ind]->matchMaterialOrder(mBaseModel[base_ind], refFaceCnt, modelFaceCnt ) )
+			}
+			if (!found_model && mModel[lod][model_ind] && !mModel[lod][model_ind]->mSubmodelID)
+			{
+				if (importerDebug)
 				{
-					setLoadState( LLModelLoader::ERROR_MATERIALS );
-					mFMP->childDisable( "calculate_btn" );
+					LL_INFOS() << "Model " << mModel[lod][model_ind]->mLabel << " was not used - mismatching lod models." <<  LL_ENDL;
 				}
-				models_matched++;
-				model_ind++;
-				base_ind++;
+				setLoadState( LLModelLoader::ERROR_MATERIALS );
+				mFMP->childDisable( "calculate_btn" );
 			}
 		}
 	}
