@@ -842,14 +842,15 @@ Function un.onInit
 	StrCpy $LANGUAGE $0
 lbl_end:
     Return
+
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Default Section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Section ""						# (default section)
+Section ""
 
-SetShellVarContext all			# install for all users (if you change this, change it in the uninstall as well)
+SetShellVarContext all			# Install for all users (if you change this, change it in the uninstall as well)
 
 # Start with some default values.
 StrCpy $INSTPROG "${INSTNAME}"
@@ -858,11 +859,11 @@ StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
 Call CheckCPUFlags				# Make sure we have SSE2 support
 Call CheckIfAdministrator		# Make sure the user can install/uninstall
-Call CheckIfAlreadyCurrent		# Make sure that we haven't already installed this version
-Call CloseSecondLife			# Make sure we're not running
-Call CheckNetworkConnection		# ping secondlife.com
-Call CheckWillUninstallV2		# See if a V2 install exists and will be removed.
-Call CheckOldExeName            # Clean up a previous version of the exe
+Call CheckIfAlreadyCurrent		# Make sure this version is not already installed
+Call CloseSecondLife			# Make sure Second Life not currently running
+Call CheckNetworkConnection		# Ping secondlife.com
+Call CheckWillUninstallV2		# Check if SecondLife is already installed
+Call CheckOldExeName            # Clean up a previous version of the exeicutable
 
 StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
   Call PreserveUserFiles
@@ -870,8 +871,7 @@ PRESERVE_DONE:
 
 # Don't remove cache files during a regular install,
 # removing the inventory cache on upgrades results in lots of damage to the servers.
-;Call RemoveCacheFiles			# Installing over removes potentially corrupted
-								# VFS and cache files.
+;Call RemoveCacheFiles			# Installing over removes potentially corrupted VFS and cache files.
 
 # Need to clean out shader files from previous installs to fix DEV-5663
 Call RemoveOldShaders
@@ -951,7 +951,6 @@ StrCmp $DO_UNINSTALL_V2 "" REMOVE_SLV2_DONE
   Call RemoveTempUserFiles
 REMOVE_SLV2_DONE:
 
-# end of default section
 SectionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
