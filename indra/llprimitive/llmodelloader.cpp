@@ -413,12 +413,11 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 			instance_list[i].mModel = model[LLModel::LOD_HIGH][idx];
 	}
 
-	// Set name.
+	// Set name for UI to use
 	std::string name = data["name"];
-	if (!name.empty() && model[LLModel::LOD_HIGH][0]->mLabel.empty())
+	if (!name.empty())
 	{
-		// fall back value, should be reset later by names from instances
-		model[LLModel::LOD_HIGH][0]->mLabel = name;
+		model[LLModel::LOD_HIGH][0]->mRequestedLabel = name;
 	}
 
 
