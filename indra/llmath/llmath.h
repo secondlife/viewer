@@ -32,7 +32,6 @@
 #include <vector>
 #include <limits>
 #include "lldefs.h"
-#include "llerror.h"
 //#include "llstl.h" // *TODO: Remove when LLString is gone
 //#include "llstring.h" // *TODO: Remove when LLString is gone
 // lltut.h uses is_approx_equal_fraction(). This was moved to its own header
@@ -554,35 +553,6 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
 	if (i > 0)
 	{
 		data.erase(data.begin(), data.begin()+i);
-	}
-}
-
-inline void	ll_nn2d_interpolation(const U8 *const src, U32 srcW, U32 srcH, U8 srcCh, U8 *const dst, U32 dstW, U32 dstH, U8 dstCh)
-{
-	llassert(srcCh>=dstCh);
-
-	S32 tmp_x = 0, tmp_y = 0, tmp_x1 = 0, tmp_x2 = 0;
-
-	const S32 x_r = ((srcW<<16)/dstW)+1;
-	const S32 y_r = ((srcH<<16)/dstH)+1;
-	const S32 srcW_ch = srcW*srcCh;
-	const S32 dstW_ch = dstW*dstCh;
-
-	for(U32 y = 0; y < dstH; ++y)
-	{
-		tmp_y = ((y*y_r)>>16)*srcW_ch;
-		tmp_x1 = y*dstW_ch;
-
-		for(U32 x = 0; x < dstW; x++)
-		{
-			tmp_x = (((x*x_r)>>16)*srcCh)+tmp_y;
-			tmp_x2 = tmp_x1+x*dstCh;
-
-			for(U8 c = 0; c < dstCh; ++c)
-			{
-				dst[tmp_x2+c] = src[tmp_x+c];
-			}
-		}
 	}
 }
 
