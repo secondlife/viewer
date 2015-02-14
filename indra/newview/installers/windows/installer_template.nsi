@@ -91,6 +91,7 @@ AutoCloseWindow true					# After all files install, close window
 
 InstallDir "$PROGRAMFILES\${INSTNAME}"
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" ""
+UninstallText $(UninstallTextMsg)
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
 Page directory dirPre
 Page instfiles
@@ -118,34 +119,6 @@ Var DO_UNINSTALL_V2     # If non-null, path to a previous Viewer 2 installation 
 !include WinVer.nsh			# For OS and SP detection
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; After install completes, launch app
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function .onInstSuccess
-Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
-    Push $R0					# Option value, unused
-
-    StrCmp $SKIP_DIALOGS "true" label_launch 
-
-    ${GetOptions} $COMMANDLINE "/AUTOSTART" $R0
-    # If parameter was there (no error) just launch
-    # Otherwise ask
-    IfErrors label_ask_launch label_launch
-    
-label_ask_launch:
-    # Don't launch by default when silent
-    IfSilent label_no_launch
-	MessageBox MB_YESNO $(InstSuccesssQuestion) \
-        IDYES label_launch IDNO label_no_launch
-        
-label_launch:
-# Assumes SetOutPath $INSTDIR
-	Exec '"$INSTDIR\$INSTEXE" $SHORTCUT_LANG_PARAM'
-label_no_launch:
-	Pop $R0
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Pre-directory page callback
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function dirPre
@@ -153,6 +126,91 @@ Function dirPre
 	Abort
 
 FunctionEnd    
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Prep Installer Section
+;;
+;; Note: to add new languages, add a language file include to the list 
+;; at the top of this file, add an entry to the menu and then add an 
+;; entry to the language ID selector below
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function .onInit
+Call CheckCPUFlags							# Make sure we have SSE2 support
+Call CheckWindowsVersion					# Don't install On unsupported systems
+    Push $0
+    ${GetParameters} $COMMANDLINE			# Get our command line
+
+    ${GetOptions} $COMMANDLINE "/SKIP_DIALOGS" $0   
+    IfErrors +2 0	# If error jump past setting SKIP_DIALOGS
+        StrCpy $SKIP_DIALOGS "true"
+
+    ${GetOptions} $COMMANDLINE "/LANGID=" $0	# /LANGID=1033 implies US English
+
+# If no language (error), then proceed
+    IfErrors lbl_configure_default_lang
+# No error means we got a language, so use it
+    StrCpy $LANGUAGE $0
+    Goto lbl_return
+
+lbl_configure_default_lang:
+# If we currently have a version of SL installed, default to the language of that install
+# Otherwise don't change $LANGUAGE and it will default to the OS UI language.
+    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+    IfErrors +2 0	# If error skip the copy instruction 
+	StrCpy $LANGUAGE $0
+
+# For silent installs, no language prompt, use default
+    IfSilent lbl_return
+    StrCmp $SKIP_DIALOGS "true" lbl_return
+  
+lbl_build_menu:
+	Push ""
+# Use separate file so labels can be UTF-16 but we can still merge changes into this ASCII file. JC
+    !include "%%SOURCE%%\installers\windows\language_menu.nsi"
+    
+	Push A	# A means auto count languages for the auto count to work the first empty push (Push "") must remain
+	LangDLL::LangDialog $(InstallerLanguageTitle) $(SelectInstallerLanguage)
+	Pop $0
+	StrCmp $0 "cancel" 0 +2
+		Abort
+    StrCpy $LANGUAGE $0
+
+# save language in registry		
+	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage" $LANGUAGE
+lbl_return:
+    Pop $0
+    Return
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Prep Uninstaller Section
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function un.onInit
+# Read language from registry and set for uninstaller. Key will be removed on successful uninstall
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+    IfErrors lbl_end
+	StrCpy $LANGUAGE $0
+lbl_end:
+    Return
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Checks for CPU valid (must have SSE2 support)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function CheckCPUFlags
+    Push $1
+    System::Call 'kernel32::IsProcessorFeaturePresent(i) i(10) .r1'
+    IntCmp $1 1 OK_SSE2
+    MessageBox MB_OKCANCEL $(MissingSSE2) /SD IDOK IDOK OK_SSE2
+    Quit
+
+  OK_SSE2:
+    Pop $1
+    Return
+
+FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make sure this computer meets the minimum system requirements.
@@ -179,24 +237,155 @@ Function CheckWindowsVersion
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Recommend Upgrading to Service Pack 1 for Windows 7, if not present
+;; Install Section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckWindowsServPack
-  ${If} ${IsWin7}
-  ${AndIfNot} ${IsServicePack} 1
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
+Section ""
 
-  ${If} ${IsWin2008R2}
-  ${AndIfNot} ${IsServicePack} 1
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
+SetShellVarContext all			# Install for all users (if you change this, change it in the uninstall as well)
 
-FunctionEnd
+# Start with some default values.
+StrCpy $INSTPROG "${INSTNAME}"
+StrCpy $INSTEXE "${INSTEXE}"
+StrCpy $INSTSHORTCUT "${SHORTCUT}"
+
+Call CheckIfAdministrator		# Make sure the user can install/uninstall
+Call CheckIfAlreadyCurrent		# Make sure this version is not already installed
+Call CloseSecondLife			# Make sure Second Life not currently running
+Call CheckNetworkConnection		# Ping secondlife.com
+Call CheckWillUninstallV2		# Check if SecondLife is already installed
+Call CheckOldExeName            # Clean up a previous version of the exeicutable
+
+StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
+  Call PreserveUserFiles
+PRESERVE_DONE:
+
+# Don't remove cache files during a regular install,
+# removing the inventory cache on upgrades results in lots of damage to the servers.
+;Call RemoveCacheFiles			# Installing over removes potentially corrupted VFS and cache files.
+
+# Need to clean out shader files from previous installs to fix DEV-5663
+Call RemoveOldShaders
+
+# Need to clean out old XUI files that predate skinning
+Call RemoveOldXUI
+
+# Clear out old releasenotes.txt files. These are now on the public wiki.
+Call RemoveOldReleaseNotes
+
+# This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
+%%INSTALL_FILES%%
+
+# Pass the installer's language to the client to use as a default
+StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
+
+# Shortcuts in start menu
+CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
+SetOutPath "$INSTDIR"
+CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
+				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
+
+
+WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Account.url" \
+				"InternetShortcut" "URL" \
+				"http://join.secondlife.com/"
+WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
+				"InternetShortcut" "URL" \
+				"http://www.secondlife.com/account/"
+WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.url" \
+				"InternetShortcut" "URL" \
+                "http://wiki.secondlife.com/wiki/LSL_Portal"
+CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
+				'"$INSTDIR\uninst.exe"' ''
+
+# Other shortcuts
+SetOutPath "$INSTDIR"
+CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" \
+        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
+CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
+        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
+CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
+				'"$INSTDIR\uninst.exe"' ''
+
+# Write registry
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$INSTEXE"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG (remove only)"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe"'
+
+# Write URL registry info
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
+
+# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
+WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info"(default)" "URL:Second Life"
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
+
+# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
+WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
+
+# Write out uninstaller
+WriteUninstaller "$INSTDIR\uninst.exe"
+
+# Uninstall existing "Second Life Viewer 2" install if needed.
+StrCmp $DO_UNINSTALL_V2 "" REMOVE_SLV2_DONE
+  ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S _?=$PROGRAMFILES\SecondLifeViewer2'
+  Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"	# with _? option above, uninst.exe will be left behind.
+  RMDir "$PROGRAMFILES\SecondLifeViewer2"	# will remove only if empty.
+
+  Call RestoreUserFiles
+  Call RemoveTempUserFiles
+REMOVE_SLV2_DONE:
+
+SectionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Uninstall Section
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Section Uninstall
+
+# Start with some default values.
+StrCpy $INSTPROG "${INSTNAME}"
+StrCpy $INSTEXE "${INSTEXE}"
+StrCpy $INSTSHORTCUT "${SHORTCUT}"
+
+# Make sure the user can install/uninstall
+Call un.CheckIfAdministrator		
+
+# Uninstall for all users (if you change this, change it in the install as well)
+SetShellVarContext all			
+
+# Make sure we're not running
+Call un.CloseSecondLife
+
+# Clean up registry keys and subkeys (these should all be !defines somewhere)
+DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG"
+DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
+
+# Clean up shortcuts
+Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
+RMDir  "$SMPROGRAMS\$INSTSHORTCUT"
+
+Delete "$DESKTOP\$INSTSHORTCUT.lnk"
+Delete "$INSTDIR\$INSTSHORTCUT.lnk"
+Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
+
+# Clean up cache and log files, but leave them in-place for non AGNI installs.
+
+!ifdef UNINSTALL_SETTINGS
+Call un.DocumentsAndSettingsFolder
+!endif
+
+# Remove stored password on uninstall
+Call un.RemovePassword
+
+Call un.ProgramFiles
+
+SectionEnd 				
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make sure the user can install
@@ -246,18 +435,24 @@ continue_install:
 FunctionEnd
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Checks for CPU valid (must have SSE2 support)
+;; Function CheckWillUninstallV2               
+;;
+;; If called through auto-update, need to uninstall any existing V2 installation.
+;; Don't want to end up with SecondLifeViewer2 and SecondLifeViewer installations
+;;  existing side by side with no indication on which to use.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckCPUFlags
-    Push $1
-    System::Call 'kernel32::IsProcessorFeaturePresent(i) i(10) .r1'
-    IntCmp $1 1 OK_SSE2
-    MessageBox MB_OKCANCEL $(MissingSSE2) /SD IDOK IDOK OK_SSE2
-    Quit
+Function CheckWillUninstallV2
 
-  OK_SSE2:
-    Pop $1
-    Return
+  StrCpy $DO_UNINSTALL_V2 ""
+
+  StrCmp $SKIP_DIALOGS "true" 0 CHECKV2_DONE
+  StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" CHECKV2_DONE	# Don't uninstall our own install dir.
+  IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" CHECKV2_FOUND CHECKV2_DONE
+
+CHECKV2_FOUND:
+  StrCpy $DO_UNINSTALL_V2 "true"
+
+CHECKV2_DONE:
 
 FunctionEnd
 
@@ -278,6 +473,35 @@ Function CloseSecondLife
 
   CLOSE:
     DetailPrint $(CloseSecondLifeInstDP)
+    SendMessage $0 16 0 0
+
+  LOOP:
+	  FindWindow $0 "Second Life" ""
+	  IntCmp $0 0 DONE
+	  Sleep 500
+	  Goto LOOP
+
+  DONE:
+    Pop $0
+    Return
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Close the program, if running. Modifies no variables.
+;; Allows user to bail out of uninstall process.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function un.CloseSecondLife
+  Push $0
+  FindWindow $0 "Second Life" ""
+  IntCmp $0 0 DONE
+  MessageBox MB_OKCANCEL $(CloseSecondLifeUnInstMB) IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
+
+  CANCEL_UNINSTALL:
+    Quit
+
+  CLOSE:
+    DetailPrint $(CloseSecondLifeUnInstDP)
     SendMessage $0 16 0 0
 
   LOOP:
@@ -324,45 +548,6 @@ Function CheckNetworkConnection
     Pop $1
     Pop $0
     Return
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function CheckOldExeName
-;; Viewer versions < 3.6.12 used the name 'SecondLife.exe'
-;; If that name is found in the install folder, delete it to invalidate any
-;;  old shortcuts to it that may be in non-standard locations. This is to prevent
-;;  the userpotentially getting caught in an infinite update loop). See MAINT-3575
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-Function CheckOldExeName
-  IfFileExists "$INSTDIR\SecondLife.exe" CHECKOLDEXE_FOUND CHECKOLDEXE_DONE
-
-CHECKOLDEXE_FOUND:
-  Delete "$INSTDIR\SecondLife.exe"
-CHECKOLDEXE_DONE:
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function CheckWillUninstallV2               
-;;
-;; If called through auto-update, need to uninstall any existing V2 installation.
-;; Don't want to end up with SecondLifeViewer2 and SecondLifeViewer installations
-;;  existing side by side with no indication on which to use.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckWillUninstallV2
-
-  StrCpy $DO_UNINSTALL_V2 ""
-
-  StrCmp $SKIP_DIALOGS "true" 0 CHECKV2_DONE
-  StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" CHECKV2_DONE	# Don't uninstall our own install dir.
-  IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" CHECKV2_FOUND CHECKV2_DONE
-
-CHECKV2_FOUND:
-  StrCpy $DO_UNINSTALL_V2 "true"
-
-CHECKV2_DONE:
 
 FunctionEnd
 
@@ -496,46 +681,21 @@ Pop $0
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Clobber user files - TEST ONLY
-;; This is here for testing, DO NOT USE UNLESS YOU KNOW WHAT YOU ARE TESTING FOR!
+;; Function CheckOldExeName
+;; Viewer versions < 3.6.12 used the name 'SecondLife.exe'
+;; If that name is found in the install folder, delete it to invalidate any
+;;  old shortcuts to it that may be in non-standard locations. This is to prevent
+;;  the userpotentially getting caught in an infinite update loop). See MAINT-3575
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;Function ClobberUserFilesTESTONLY
 
-;Push $0
-;Push $1
-;Push $2
-;
-;    StrCpy $0 0	# Index number used to iterate via EnumRegKey
-;
-;  LOOP:
-;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-;    StrCmp $1 "" DONE               # no more users
-;
-;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-;    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
-;
-;# Required since ProfileImagePath is of type REG_EXPAND_SZ
-;    ExpandEnvStrings $2 $2
-;
-;    RMDir /r "$2\Application Data\SecondLife\"
-;
-;  CONTINUE:
-;    IntOp $0 $0 + 1
-;    Goto LOOP
-;  DONE:
-;
-;Pop $2
-;Pop $1
-;Pop $0
-;
-;# Copy files in Documents and Settings\All Users\SecondLife
-;Push $0
-;    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-;    StrCmp $0 "" +2
-;    RMDir /r "$2\Application Data\SecondLife\"
-;Pop $0
-;
-;FunctionEnd
+Function CheckOldExeName
+  IfFileExists "$INSTDIR\SecondLife.exe" CHECKOLDEXE_FOUND CHECKOLDEXE_DONE
+
+CHECKOLDEXE_FOUND:
+  Delete "$INSTDIR\SecondLife.exe"
+CHECKOLDEXE_DONE:
+
+FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete the installed shader files
@@ -634,35 +794,6 @@ RMDir /r "$WINDIR\Application Data\SecondLife"
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Close the program, if running. Modifies no variables.
-;; Allows user to bail out of uninstall process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.CloseSecondLife
-  Push $0
-  FindWindow $0 "Second Life" ""
-  IntCmp $0 0 DONE
-  MessageBox MB_OKCANCEL $(CloseSecondLifeUnInstMB) IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
-
-  CANCEL_UNINSTALL:
-    Quit
-
-  CLOSE:
-    DetailPrint $(CloseSecondLifeUnInstDP)
-    SendMessage $0 16 0 0
-
-  LOOP:
-	  FindWindow $0 "Second Life" ""
-	  IntCmp $0 0 DONE
-	  Sleep 500
-	  Goto LOOP
-
-  DONE:
-    Pop $0
-    Return
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete the stored password for the current Windows user
 ;; DEV-10821 -- Unauthorised user can gain access to an SL account after a real user has uninstalled
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -735,228 +866,93 @@ NOFOLDER:
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Uninstall settings
+;; After install completes, launch app
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-UninstallText $(UninstallTextMsg)
+Function .onInstSuccess
+Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
+    Push $R0					# Option value, unused
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Uninstall Section
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Section Uninstall
+    StrCmp $SKIP_DIALOGS "true" label_launch 
 
-# Start with some default values.
-StrCpy $INSTPROG "${INSTNAME}"
-StrCpy $INSTEXE "${INSTEXE}"
-StrCpy $INSTSHORTCUT "${SHORTCUT}"
-
-# Make sure the user can install/uninstall
-Call un.CheckIfAdministrator		
-
-# uninstall for all users (if you change this, change it in the install as well)
-SetShellVarContext all			
-
-# Make sure we're not running
-Call un.CloseSecondLife
-
-# Clean up registry keys and subkeys (these should all be !defines somewhere)
-DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG"
-DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
-
-# Clean up shortcuts
-Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
-RMDir  "$SMPROGRAMS\$INSTSHORTCUT"
-
-Delete "$DESKTOP\$INSTSHORTCUT.lnk"
-Delete "$INSTDIR\$INSTSHORTCUT.lnk"
-Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
-
-# Clean up cache and log files, but leave them in-place for non AGNI installs.
-
-!ifdef UNINSTALL_SETTINGS
-Call un.DocumentsAndSettingsFolder
-!endif
-
-# Remove stored password on uninstall
-Call un.RemovePassword
-
-Call un.ProgramFiles
-
-SectionEnd 				
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Prep Installer Section
-;;
-;; Note: to add new languages, add a language file include to the list 
-;; at the top of this file, add an entry to the menu and then add an 
-;; entry to the language ID selector below
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function .onInit
-Call CheckWindowsVersion					# Don't install On unsupported systems
-    Push $0
-    ${GetParameters} $COMMANDLINE			# Get our command line
-
-    ${GetOptions} $COMMANDLINE "/SKIP_DIALOGS" $0   
-    IfErrors +2 0	# If error jump past setting SKIP_DIALOGS
-        StrCpy $SKIP_DIALOGS "true"
-
-    ${GetOptions} $COMMANDLINE "/LANGID=" $0	# /LANGID=1033 implies US English
-
-# If no language (error), then proceed
-    IfErrors lbl_configure_default_lang
-# No error means we got a language, so use it
-    StrCpy $LANGUAGE $0
-    Goto lbl_return
-
-lbl_configure_default_lang:
-# If we currently have a version of SL installed, default to the language of that install
-# Otherwise don't change $LANGUAGE and it will default to the OS UI language.
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
-    IfErrors +2 0	# If error skip the copy instruction 
-	StrCpy $LANGUAGE $0
-
-# For silent installs, no language prompt, use default
-    IfSilent lbl_return
-    StrCmp $SKIP_DIALOGS "true" lbl_return
-  
-lbl_build_menu:
-	Push ""
-# Use separate file so labels can be UTF-16 but we can still merge changes into this ASCII file. JC
-    !include "%%SOURCE%%\installers\windows\language_menu.nsi"
+    ${GetOptions} $COMMANDLINE "/AUTOSTART" $R0
+    # If parameter was there (no error) just launch
+    # Otherwise ask
+    IfErrors label_ask_launch label_launch
     
-	Push A	# A means auto count languages for the auto count to work the first empty push (Push "") must remain
-	LangDLL::LangDialog $(InstallerLanguageTitle) $(SelectInstallerLanguage)
-	Pop $0
-	StrCmp $0 "cancel" 0 +2
-		Abort
-    StrCpy $LANGUAGE $0
-
-# save language in registry		
-	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage" $LANGUAGE
-lbl_return:
-    Pop $0
-    Return
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Prep Uninstaller Section
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.onInit
-# Read language from registry and set for uninstaller. Key will be removed on successful uninstall
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
-    IfErrors lbl_end
-	StrCpy $LANGUAGE $0
-lbl_end:
-    Return
+label_ask_launch:
+    # Don't launch by default when silent
+    IfSilent label_no_launch
+	MessageBox MB_YESNO $(InstSuccesssQuestion) \
+        IDYES label_launch IDNO label_no_launch
+        
+label_launch:
+# Assumes SetOutPath $INSTDIR
+	Exec '"$INSTDIR\$INSTEXE" $SHORTCUT_LANG_PARAM'
+label_no_launch:
+	Pop $R0
 
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Default Section
+;; Recommend Upgrading to Service Pack 1 for Windows 7, if not present
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Section ""
+Function CheckWindowsServPack
+  ${If} ${IsWin7}
+  ${AndIfNot} ${IsServicePack} 1
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
 
-SetShellVarContext all			# Install for all users (if you change this, change it in the uninstall as well)
+  ${If} ${IsWin2008R2}
+  ${AndIfNot} ${IsServicePack} 1
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
 
-# Start with some default values.
-StrCpy $INSTPROG "${INSTNAME}"
-StrCpy $INSTEXE "${INSTEXE}"
-StrCpy $INSTSHORTCUT "${SHORTCUT}"
+FunctionEnd
 
-Call CheckCPUFlags				# Make sure we have SSE2 support
-Call CheckIfAdministrator		# Make sure the user can install/uninstall
-Call CheckIfAlreadyCurrent		# Make sure this version is not already installed
-Call CloseSecondLife			# Make sure Second Life not currently running
-Call CheckNetworkConnection		# Ping secondlife.com
-Call CheckWillUninstallV2		# Check if SecondLife is already installed
-Call CheckOldExeName            # Clean up a previous version of the exeicutable
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Clobber user files - TEST ONLY
+;; This is here for testing, DO NOT USE UNLESS YOU KNOW WHAT YOU ARE TESTING FOR!
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Function ClobberUserFilesTESTONLY
 
-StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
-  Call PreserveUserFiles
-PRESERVE_DONE:
-
-# Don't remove cache files during a regular install,
-# removing the inventory cache on upgrades results in lots of damage to the servers.
-;Call RemoveCacheFiles			# Installing over removes potentially corrupted VFS and cache files.
-
-# Need to clean out shader files from previous installs to fix DEV-5663
-Call RemoveOldShaders
-
-# Need to clean out old XUI files that predate skinning
-Call RemoveOldXUI
-
-# Clear out old releasenotes.txt files. These are now on the public wiki.
-Call RemoveOldReleaseNotes
-
-# This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
-%%INSTALL_FILES%%
-
-# Pass the installer's language to the client to use as a default
-StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
-
-# Shortcuts in start menu
-CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
-SetOutPath "$INSTDIR"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
-				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
-
-
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Account.url" \
-				"InternetShortcut" "URL" \
-				"http://join.secondlife.com/"
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
-				"InternetShortcut" "URL" \
-				"http://www.secondlife.com/account/"
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.url" \
-				"InternetShortcut" "URL" \
-                "http://wiki.secondlife.com/wiki/LSL_Portal"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' ''
-
-# Other shortcuts
-SetOutPath "$INSTDIR"
-CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
-CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
-CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' ''
-
-# Write registry
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$INSTEXE"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG (remove only)"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe"'
-
-# Write URL registry info
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
-
-# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info"(default)" "URL:Second Life"
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
-
-# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
-
-# write out uninstaller
-WriteUninstaller "$INSTDIR\uninst.exe"
-
-# Uninstall existing "Second Life Viewer 2" install if needed.
-StrCmp $DO_UNINSTALL_V2 "" REMOVE_SLV2_DONE
-  ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S _?=$PROGRAMFILES\SecondLifeViewer2'
-  Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"	# with _? option above, uninst.exe will be left behind.
-  RMDir "$PROGRAMFILES\SecondLifeViewer2"	# will remove only if empty.
-
-  Call RestoreUserFiles
-  Call RemoveTempUserFiles
-REMOVE_SLV2_DONE:
-
-SectionEnd
+;Push $0
+;Push $1
+;Push $2
+;
+;    StrCpy $0 0	# Index number used to iterate via EnumRegKey
+;
+;  LOOP:
+;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+;    StrCmp $1 "" DONE               # no more users
+;
+;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+;    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
+;
+;# Required since ProfileImagePath is of type REG_EXPAND_SZ
+;    ExpandEnvStrings $2 $2
+;
+;    RMDir /r "$2\Application Data\SecondLife\"
+;
+;  CONTINUE:
+;    IntOp $0 $0 + 1
+;    Goto LOOP
+;  DONE:
+;
+;Pop $2
+;Pop $1
+;Pop $0
+;
+;# Copy files in Documents and Settings\All Users\SecondLife
+;Push $0
+;    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+;    StrCmp $0 "" +2
+;    RMDir /r "$2\Application Data\SecondLife\"
+;Pop $0
+;
+;FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
