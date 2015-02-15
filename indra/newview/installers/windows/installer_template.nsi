@@ -255,7 +255,6 @@ Call CheckNetworkConnection		# Ping secondlife.com
 Call CheckWillUninstallV2		# Check if SecondLife is already installed
 
 StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
-  Call PreserveUserFiles
 PRESERVE_DONE:
 
 Call RemoveProgFilesOnInst		# Remove existing files to prevent certain errors when running the new version of the viewer
@@ -325,8 +324,6 @@ StrCmp $DO_UNINSTALL_V2 "" REMOVE_SLV2_DONE
   Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"	# with _? option above, uninst.exe will be left behind.
   RMDir "$PROGRAMFILES\SecondLifeViewer2"	# will remove only if empty.
 
-  Call RestoreUserFiles
-  Call RemoveTempUserFiles
 REMOVE_SLV2_DONE:
 
 SectionEnd
@@ -535,135 +532,6 @@ Function CheckNetworkConnection
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Save user files to temp location
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function PreserveUserFiles
-
-Push $0
-Push $1
-Push $2
-
-    RMDir /r "$TEMP\SecondLifeSettingsBackup"		# Clear out any old data that might be there
-    CreateDirectory "$TEMP\SecondLifeSettingsBackup"
-    StrCpy $0 0		# Index number used to iterate via EnumRegKey
-
-  LOOP:
-    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-    StrCmp $1 "" DONE               # no more users
-
-    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
-
-# Required since ProfileImagePath is of type REG_EXPAND_SZ
-    ExpandEnvStrings $2 $2
-
-    CreateDirectory "$TEMP\SecondLifeSettingsBackup\$0"
-    CopyFiles /SILENT "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\$0"
-
-  CONTINUE:
-    IntOp $0 $0 + 1
-    Goto LOOP
-  DONE:
-
-Pop $2
-Pop $1
-Pop $0
-
-# Copy files in Documents and Settings\All Users\SecondLife
-Push $0
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-    StrCmp $0 "" +2
-    CreateDirectory "$TEMP\SecondLifeSettingsBackup\AllUsers\"
-    CopyFiles /SILENT "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\AllUsers\"
-Pop $0
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Restore user files from temp location
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function RestoreUserFiles
-
-Push $0
-Push $1
-Push $2
-
-    StrCpy $0 0		# Index number used to iterate via EnumRegKey
-
-  LOOP:
-    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-    StrCmp $1 "" DONE               # no more users
-
-    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
-
-# Required since ProfileImagePath is of type REG_EXPAND_SZ
-    ExpandEnvStrings $2 $2
-
-    CreateDirectory "$2\Application Data\SecondLife\"
-    CopyFiles /SILENT "$TEMP\SecondLifeSettingsBackup\$0\*" "$2\Application Data\SecondLife\" 
-
-  CONTINUE:
-    IntOp $0 $0 + 1
-    Goto LOOP
-  DONE:
-
-Pop $2
-Pop $1
-Pop $0
-
-# Copy files in Documents and Settings\All Users\SecondLife
-Push $0
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-    StrCmp $0 "" +2
-    CreateDirectory "$2\Application Data\SecondLife\"
-    CopyFiles /SILENT "$TEMP\SecondLifeSettingsBackup\AllUsers\*" "$2\Application Data\SecondLife\" 
-Pop $0
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Remove temp directories
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function RemoveTempUserFiles
-
-Push $0
-Push $1
-Push $2
-
-    StrCpy $0 0		# Index number used to iterate via EnumRegKey
-
-  LOOP:
-    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-    StrCmp $1 "" DONE               # no more users
-
-    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
-
-# Required since ProfileImagePath is of type REG_EXPAND_SZ
-    ExpandEnvStrings $2 $2
-
-    RMDir /r "$TEMP\SecondLifeSettingsBackup\$0\*"
-
-  CONTINUE:
-    IntOp $0 $0 + 1
-    Goto LOOP
-  DONE:
-
-Pop $2
-Pop $1
-Pop $0
-
-# Copy files in Documents and Settings\All Users\SecondLife
-Push $0
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-    StrCmp $0 "" +2
-    RMDir /r "$TEMP\SecondLifeSettingsBackup\AllUsers\*"
-Pop $0
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete files on install if previous isntall exsists to prevent undesiered behavior
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function RemoveProgFilesOnInst
@@ -687,6 +555,8 @@ FunctionEnd
 ;; Delete files in \Users\<User>\AppData\
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.UserSettingsFiles
+
+StrCmp $DO_UNINSTALL_V2 "" Keep			# don't remove user's settings files on auto upgrade
 
 # Ask if user wants to keep data files or not
 MessageBox MB_YESNO|MB_ICONQUESTION $(RemoveDataFilesMB) IDYES Remove IDNO Keep
