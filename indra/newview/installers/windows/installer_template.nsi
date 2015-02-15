@@ -21,7 +21,7 @@
 ;; NSIS Unicode 2.46.5 or higher required
 ;; http://www.scratchpaper.com/
 ;;
-;; Author: James Cook, Don Kjer, Callum Prentice
+;; Author: James Cook, TankMaster Finesmith, Don Kjer, Callum Prentice
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
