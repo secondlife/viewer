@@ -363,14 +363,9 @@ Delete "$INSTDIR\$INSTSHORTCUT.lnk"
 Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
 
 # Clean up cache and log files, but leave them in-place for non AGNI installs.
+Call un.UserSettingsFiles
 
-!ifdef UNINSTALL_SETTINGS
-Call un.DocumentsAndSettingsFolder
-!endif
-
-# Remove stored password on uninstall
-Call un.RemovePassword
-
+# Remove the main instalation directory
 Call un.ProgramFiles
 
 SectionEnd 				
@@ -691,14 +686,17 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete files in \Users\<User>\AppData\
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.DocumentsAndSettingsFolder
+Function un.UserSettingsFiles
 
-# Delete files in \Users\<User>\AppData\Roaming\SecondLife
+# Ask if user wants to keep data files or not
+MessageBox MB_YESNO|MB_ICONQUESTION $(RemoveDataFilesMB) IDYES Remove IDNO Keep
+
+Remove:
 Push $0
 Push $1
 Push $2
 
-  DetailPrint "Deleting Second Life files"
+  DetailPrint "Deleting Second Life data files"
 
   StrCpy $0 0	# Index number used to iterate via EnumRegKey
 
@@ -712,15 +710,18 @@ Push $2
 # Required since ProfileImagePath is of type REG_EXPAND_SZ
     ExpandEnvStrings $2 $2
 
+# Delete files in \Users\<User>\AppData\Roaming\SecondLife
 # Remove all settings files but leave any other .txt files to preserve the chat logs
-;    RMDir /r "$2\Application Data\SecondLife\logs"
-    RMDir /r "$2\Application Data\SecondLife\browser_profile"
-    RMDir /r "$2\Application Data\SecondLife\user_settings"
-    Delete  "$2\Application Data\SecondLife\*.xml"
-    Delete  "$2\Application Data\SecondLife\*.bmp"
-    Delete  "$2\Application Data\SecondLife\search_history.txt"
-    Delete  "$2\Application Data\SecondLife\plugin_cookies.txt"
-    Delete  "$2\Application Data\SecondLife\typed_locations.txt"
+;    RMDir /r "$2\AppData\Roaming\SecondLife\logs"
+    RMDir /r "$2\AppData\Roaming\SecondLife\browser_profile"
+    RMDir /r "$2\AppData\Roaming\SecondLife\user_settings"
+    Delete  "$2\AppData\Roaming\SecondLife\*.xml"
+    Delete  "$2\AppData\Roaming\SecondLife\*.bmp"
+    Delete  "$2\AppData\Roaming\SecondLife\search_history.txt"
+    Delete  "$2\AppData\Roaming\SecondLife\plugin_cookies.txt"
+    Delete  "$2\AppData\Roaming\SecondLife\typed_locations.txt"
+# Delete files in \Users\<User>\AppData\Local\SecondLife
+    RmDir /r  "$2\AppData\Local\SecondLife"							#Delete the cache folder
 
   CONTINUE:
     IntOp $0 $0 + 1
@@ -731,26 +732,14 @@ Pop $2
 Pop $1
 Pop $0
 
-# Delete files in Program Data folder
+# Delete files in ProgramData\Secondlife
 Push $0
   ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
   StrCmp $0 "" +2
   RMDir /r "$0\SecondLife"
 Pop $0
 
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Delete the stored password for the current Windows user
-;; DEV-10821 -- Unauthorised user can gain access to an SL account after a real user has uninstalled
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.RemovePassword
-
-DetailPrint "Removing Second Life password"
-
-SetShellVarContext current
-Delete "$APPDATA\SecondLife\user_settings\password.dat"
-SetShellVarContext all
+Keep:
 
 FunctionEnd
 
