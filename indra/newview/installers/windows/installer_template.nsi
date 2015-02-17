@@ -556,7 +556,7 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.UserSettingsFiles
 
-StrCmp $DO_UNINSTALL_V2 "" Keep			# Don't remove user's settings files on auto upgrade
+StrCmp $DO_UNINSTALL_V2 "true" Keep			# Don't remove user's settings files on auto upgrade
 
 # Ask if user wants to keep data files or not
 MessageBox MB_YESNO|MB_ICONQUESTION $(RemoveDataFilesMB) IDYES Remove IDNO Keep
