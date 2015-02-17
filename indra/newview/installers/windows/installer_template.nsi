@@ -681,7 +681,7 @@ label_ask_launch:
         
 label_launch:
 # Assumes SetOutPath $INSTDIR
-	Exec '"$INSTDIR\$INSTEXE" $SHORTCUT_LANG_PARAM'
+	Exec '"$WINDIR\explorer.exe" "$INSTDIR\$INSTEXE"'
 label_no_launch:
 	Pop $R0
 
