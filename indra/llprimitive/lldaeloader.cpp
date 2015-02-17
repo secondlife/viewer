@@ -1845,7 +1845,8 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 			}
 		}
 
-		mTransform *= matrix_transform;
+		matrix_transform *= mTransform;
+		mTransform = matrix_transform;
 		mTransform.condition();
 	}
 
