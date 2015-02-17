@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; secondlife setup.nsi
+;; Second Life setup.nsi
 ;; Copyright 2004-2015, Linden Research, Inc.
 ;;
 ;; This library is free software; you can redistribute it and/or
@@ -252,7 +252,7 @@ Call CheckIfAdministrator		# Make sure the user can install/uninstall
 Call CheckIfAlreadyCurrent		# Make sure this version is not already installed
 Call CloseSecondLife			# Make sure Second Life not currently running
 Call CheckNetworkConnection		# Ping secondlife.com
-Call CheckWillUninstallV2		# Check if SecondLife is already installed
+Call CheckWillUninstallV2		# Check if Second Life is already installed
 
 StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
 PRESERVE_DONE:
@@ -362,7 +362,7 @@ Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
 # Clean up cache and log files, but leave them in-place for non AGNI installs.
 Call un.UserSettingsFiles
 
-# Remove the main instalation directory
+# Remove the main installation directory
 Call un.ProgramFiles
 
 SectionEnd 				
@@ -532,7 +532,7 @@ Function CheckNetworkConnection
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Delete files on install if previous isntall exsists to prevent undesiered behavior
+;; Delete files on install if previous install exists to prevent undesired behavior
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function RemoveProgFilesOnInst
 
@@ -618,7 +618,7 @@ FunctionEnd
 ;; This deletes the uninstall executable, but it works because it is copied to temp directory before running
 ;;
 ;; Note:  You must list all files here, because we only want to delete our files,
-;; not things users left in the application directories.
+;; not things users left in the program directory.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.ProgramFiles
 
