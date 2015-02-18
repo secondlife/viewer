@@ -1172,7 +1172,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 {
 	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
-	
+
 	// Reflections
 	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
 		&& gGLManager.mHasCubeMap
@@ -1213,9 +1213,9 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	// Vertex Shaders
 	// Global Shader Enable
 	LLCheckBoxCtrl* ctrl_shader_enable   = getChild<LLCheckBoxCtrl>("BasicShaders");
-	LLSliderCtrl*   terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
+	LLSliderCtrl* terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
 	LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
-	
+
 	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
 	
 	BOOL shaders = ctrl_shader_enable->get();
@@ -1304,36 +1304,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
-
-	/* Disabling this block of code because canUseAntiAliasing currently always returns true
-	// anti-aliasing
-	LLComboBox* fsaa_ctrl = getChild<LLComboBox>("fsaa");
-	LLTextBox* fsaa_text = getChild<LLTextBox>("antialiasing label");
-	LLTextBox* fsaa_restart = getChild<LLTextBox>("antialiasing restart");
-		
-	// Enable or disable the control, the "Antialiasing:" label and the restart warning
-	// based on code support for the feature on the current hardware.
-
-	if (gPipeline.canUseAntiAliasing())
-	{
-		fsaa_ctrl->setEnabled(TRUE);
-
-		LLColor4 color = LLUIColorTable::instance().getColor("LabelTextColor");
-		fsaa_text->setColor(color);
-
-		fsaa_restart->setVisible(!gSavedSettings.getBOOL("RenderDeferred"));
-	}
-	else
-	{
-		fsaa_ctrl->setEnabled(FALSE);
-		fsaa_ctrl->setValue((LLSD::Integer) 0);
-			
-		LLColor4 color = LLUIColorTable::instance().getColor("LabelDisabledColor");
-		fsaa_text->setColor(color);
-			
-		fsaa_restart->setVisible(FALSE);
-	}
-	*/
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
@@ -1506,12 +1476,11 @@ void LLFloaterPreference::refresh()
 {
 	LLPanel::refresh();
 	refreshEnabledState();
-}
-
-void LLFloaterPreferenceGraphicsAdvanced::draw()
-{
-	refresh();
-	LLFloater::draw();
+	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+	if (advanced)
+	{
+		advanced->refresh();
+	}
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refresh()
@@ -2182,7 +2151,10 @@ void LLPanelPreference::saveSettings()
 	mSavedValues.clear();
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	view_stack.push_back(advanced);
+	if (advanced)
+	{
+		view_stack.push_back(advanced);
+	}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack
@@ -2410,7 +2382,10 @@ bool LLPanelPreferenceGraphics::hasDirtyChilds()
 	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	view_stack.push_back(advanced);
+	if (advanced)
+	{
+		view_stack.push_back(advanced);
+	}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack
@@ -2449,7 +2424,10 @@ void LLPanelPreferenceGraphics::resetDirtyChilds()
 	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	view_stack.push_back(advanced);
+	if (advanced)
+	{
+		view_stack.push_back(advanced);
+	}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack

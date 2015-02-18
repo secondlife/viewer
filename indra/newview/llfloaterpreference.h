@@ -278,7 +278,6 @@ public:
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void draw();
 	void refresh();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
