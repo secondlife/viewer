@@ -7,7 +7,7 @@
   single_instance="true"
   save_rect="true"
   title="ADVANCED GRAPHICS PREFERENCES"
-  width="450">
+  width="400">
 
 <!-- This block shows Advanced Settings -->
 
@@ -32,7 +32,7 @@
     layout="topleft"
     name="GeneralText"
     top_delta="35"
-    left="5"
+    left="10"
     width="128">
      General
   </text>
@@ -62,7 +62,7 @@
     name="DrawDistanceMeterText2"
     top_delta="0"
     left_delta="330"
-    width="102">
+    width="20">
       m
   </text> 
 
@@ -112,7 +112,7 @@
     name="PostProcessText"
     top_delta="0"
     left_delta="304"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -124,7 +124,7 @@
     layout="topleft"
     name="AvatarText"
     top_delta="20"
-    left="5"
+    left="10"
     width="128">
      Avatar
   </text>
@@ -159,7 +159,7 @@
     left_delta="304"
     text_readonly_color="LabelDisabledColor"
     name="MaximumARCText"
-    width="128">
+    width="65">
        0
   </text>
 
@@ -194,7 +194,7 @@
     left_delta="304"
     text_readonly_color="LabelDisabledColor"
     name="ImpostorsText"
-    width="128">
+    width="65">
        0
   </text>
 
@@ -225,7 +225,7 @@
     name="AvatarMeshDetailText"
     top_delta="0"
     left_delta="304"
-    width="128">
+    width="65">
      Low
   </text>
 
@@ -256,7 +256,7 @@
     top_delta="0"
     left_delta="304"
     name="AvatarPhysicsDetailText"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -268,7 +268,7 @@
     layout="topleft"
     name="ShadersText"
     top_delta="20"
-    left="5"
+    left="10"
     width="128">
      Shaders
   </text>
@@ -354,7 +354,7 @@
     left_delta="284"
     name="TerrainDetailText"
     text_readonly_color="LabelDisabledColor"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -471,7 +471,7 @@
     name="SkyMeshDetailText"
     text_readonly_color="LabelDisabledColor"
     top_delta="0"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -560,7 +560,7 @@
     layout="topleft"
     name="AvatarText"
     top_delta="20"
-    left="5"
+    left="10"
     width="128">
      Mesh
   </text>
@@ -595,7 +595,7 @@
     text_readonly_color="LabelDisabledColor"
     top_delta="0"
     left_delta="304"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -626,7 +626,7 @@
     name="TreeMeshDetailText"
     top_delta="0"
     left_delta="304"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -658,7 +658,7 @@
     name="ObjectMeshDetailText"
     top_delta="0"
     left_delta="304"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -688,7 +688,7 @@
     name="FlexibleMeshDetailText"
     top_delta="0"
     left_delta="304"
-    width="128">
+    width="65">
        Low
   </text>
 
@@ -700,7 +700,7 @@
     layout="topleft"
     name="ShadersText"
     top_delta="20"
-    left="5"
+    left="10"
     width="128">
      Hardware
   </text>
@@ -764,7 +764,7 @@
     left="30"
     name="(brightness, lower is brighter)"
     top_delta="16"
-    width="230">
+    width="260">
       (0 = default brightness, lower = brighter)
   </text>
 
@@ -854,8 +854,8 @@
     left_pad="10"
     name="antialiasing restart"
     top_delta="0"
-    width="190">
-     (requires viewer restart)
+    width="130">
+     (requires restart)
   </text>
 <!-- End of Advanced Settings block -->
 
