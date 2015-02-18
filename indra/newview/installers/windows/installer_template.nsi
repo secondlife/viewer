@@ -654,7 +654,7 @@ Delete "$INSTDIR\SecondLife.exe"
 Delete "$INSTDIR\VivoxVoiceService-*.log"
 
 # Remove entire help directory
-RMDir  "$INSTDIR\help"
+RMDir /r  "$INSTDIR\help"
 
 Delete "$INSTDIR\uninst.exe"
 RMDir "$INSTDIR"
