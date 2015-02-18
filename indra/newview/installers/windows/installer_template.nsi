@@ -348,7 +348,7 @@ StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
 # Make sure the user can install/uninstall
-Call un.CheckIfAdministrator		
+Call un.CheckIfAdministrator
 
 # Uninstall for all users (if you change this, change it in the install as well)
 SetShellVarContext all			
@@ -370,13 +370,13 @@ Delete "$DESKTOP\$INSTSHORTCUT.lnk"
 Delete "$INSTDIR\$INSTSHORTCUT.lnk"
 Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
 
-# Clean up cache and log files, but leave them in-place for non AGNI installs.
-Call un.UserSettingsFiles
-
 # Remove the main installation directory
 Call un.ProgramFiles
 
-SectionEnd 				
+# Clean up cache and log files, but leave them in-place for non AGNI installs.
+Call un.UserSettingsFiles
+
+SectionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make sure the user can install
@@ -734,7 +734,7 @@ FunctionEnd
 ;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
 ;    StrCmp $1 "" DONE               # no more users
 ;
-;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath"
 ;    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
 ;
 ;# Required since ProfileImagePath is of type REG_EXPAND_SZ
