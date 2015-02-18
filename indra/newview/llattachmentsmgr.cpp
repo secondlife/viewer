@@ -60,6 +60,8 @@ void LLAttachmentsMgr::onIdle(void *)
 	LLAttachmentsMgr::instance().onIdle();
 }
 
+// FIXME this is basically the same code as LLAgentWearables::userAttachMultipleAttachments(),
+// should consolidate.
 void LLAttachmentsMgr::onIdle()
 {
 	// Make sure we got a region before trying anything else
@@ -73,7 +75,8 @@ void LLAttachmentsMgr::onIdle()
 	{
 		return;
 	}
-	
+	LL_DEBUGS("Avatar") << "attaching multiple, total obj_count " << obj_count << LL_ENDL;
+
 	// Limit number of packets to send
 	const S32 MAX_PACKETS_TO_SEND = 10;
 	const S32 OBJECTS_PER_PACKET = 4;
@@ -113,6 +116,8 @@ void LLAttachmentsMgr::onIdle()
 			LL_INFOS() << "Attempted to add non-existant item ID:" << attachment.mItemID << LL_ENDL;
 			continue;
 		}
+		LL_DEBUGS("Avatar") << "requesting " << item->getName()
+							<< " " << item->getLinkedUUID() << LL_ENDL;
 		S32 attachment_pt = attachment.mAttachmentPt;
 		if (attachment.mAdd) 
 			attachment_pt |= ATTACHMENT_ADD;
