@@ -1231,6 +1231,7 @@ Sovereign Engineer
     STORM-1972
     OPEN-195
     OPEN-217
+    OPEN-295
 SpacedOut Frye
 	VWR-34
 	VWR-45
