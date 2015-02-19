@@ -246,16 +246,19 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
 
 bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::string& name)
 {
+	bool sts = true;
+
 	if (PRESETS_DEFAULT == name)
 	{
+		// This code should never execute
 		LL_WARNS("Presets") << "You are not allowed to delete the default preset." << LL_ENDL;
-		return false;
+		sts = false;
 	}
 
 	if (gDirUtilp->deleteFilesInDir(getPresetsDir(subdirectory), LLURI::escape(name) + ".xml") < 1)
 	{
 		LL_WARNS("Presets") << "Error removing preset " << name << " from disk" << LL_ENDL;
-		return false;
+		sts = false;
 	}
 
 	// If you delete the preset that is currently marked as loaded then also indicate that no preset is loaded.
@@ -267,7 +270,7 @@ bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::
 	// signal interested parties
 	triggerChangeSignal();
 
-	return true;
+	return sts;
 }
 
 boost::signals2::connection LLPresetsManager::setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb)
