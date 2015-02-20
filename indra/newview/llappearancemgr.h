@@ -311,6 +311,15 @@ private:
 	LLUUID mItemID;
 };
 
+class LLRequestAppearanceUpdateOnDestroy: public LLInventoryCallback
+{
+public:
+	LLRequestAppearanceUpdateOnDestroy() {}
+	~LLRequestAppearanceUpdateOnDestroy();
+
+	/* virtual */ void fire(const LLUUID& item_id) {}
+};
+
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);
 
 // Invoke a given callable after category contents are fully fetched.

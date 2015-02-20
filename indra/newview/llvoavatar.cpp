@@ -5730,10 +5730,21 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 //-----------------------------------------------------------------------------
 const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_object)
 {
+	if (isSelf())
+	{
+		const LLUUID& item_id = viewer_object->getAttachmentItemID();
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		LL_DEBUGS("Avatar") << "ATT attaching object "
+							<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;	
+	}
 	LLViewerJointAttachment* attachment = getTargetAttachmentPoint(viewer_object);
 
 	if (!attachment || !attachment->addObject(viewer_object))
 	{
+		const LLUUID& item_id = viewer_object->getAttachmentItemID();
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		LL_DEBUGS("Avatar") << "ATT attach failed "
+							<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;	
 		return 0;
 	}
 
@@ -5793,6 +5804,13 @@ void LLVOAvatar::lazyAttach()
 		LLPointer<LLViewerObject> cur_attachment = mPendingAttachment[i];
 		if (cur_attachment->mDrawable)
 		{
+			if (isSelf())
+			{
+				const LLUUID& item_id = cur_attachment->getAttachmentItemID();
+				LLViewerInventoryItem *item = gInventory.getItem(item_id);
+				LL_DEBUGS("Avatar") << "ATT attaching object "
+									<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+			}
 			if (!attachObject(cur_attachment))
 			{	// Drop it
 				LL_WARNS() << "attachObject() failed for " 

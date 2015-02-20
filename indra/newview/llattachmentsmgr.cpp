@@ -47,6 +47,10 @@ void LLAttachmentsMgr::addAttachment(const LLUUID& item_id,
 									 const U8 attachment_pt,
 									 const BOOL add)
 {
+	LLViewerInventoryItem *item = gInventory.getItem(item_id);
+	LL_DEBUGS("Avatar") << "ATT adding attachment to mPendingAttachments "
+						<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+
 	AttachmentsInfo attachment;
 	attachment.mItemID = item_id;
 	attachment.mAttachmentPt = attachment_pt;
@@ -75,7 +79,7 @@ void LLAttachmentsMgr::onIdle()
 	{
 		return;
 	}
-	LL_DEBUGS("Avatar") << "attaching multiple, total obj_count " << obj_count << LL_ENDL;
+	LL_DEBUGS("Avatar") << "ATT [RezMultipleAttachmentsFromInv] attaching multiple from mPendingAttachments, total obj_count " << obj_count << LL_ENDL;
 
 	// Limit number of packets to send
 	const S32 MAX_PACKETS_TO_SEND = 10;
@@ -113,10 +117,10 @@ void LLAttachmentsMgr::onIdle()
 		LLViewerInventoryItem* item = gInventory.getItem(attachment.mItemID);
 		if (!item)
 		{
-			LL_INFOS() << "Attempted to add non-existant item ID:" << attachment.mItemID << LL_ENDL;
+			LL_INFOS() << "Attempted to add non-existent item ID:" << attachment.mItemID << LL_ENDL;
 			continue;
 		}
-		LL_DEBUGS("Avatar") << "requesting " << item->getName()
+		LL_DEBUGS("Avatar") << "ATT requesting from mPendingAttachments " << item->getName()
 							<< " " << item->getLinkedUUID() << LL_ENDL;
 		S32 attachment_pt = attachment.mAttachmentPt;
 		if (attachment.mAdd) 

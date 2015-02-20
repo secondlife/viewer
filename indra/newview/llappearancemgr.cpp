@@ -525,6 +525,12 @@ LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnD
 {
 }
 
+LLRequestAppearanceUpdateOnDestroy::~LLRequestAppearanceUpdateOnDestroy()
+{
+	LL_DEBUGS("Avatar") << "ATT requesting server appearance update" << LL_ENDL;
+	LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+}
+
 void edit_wearable_and_customize_avatar(LLUUID item_id)
 {
 	// Start editing the item if previously requested.
@@ -827,6 +833,12 @@ void LLWearableHoldingPattern::onAllComplete()
 		// needed to get joint positions all slammed down to their
 		// pre-attachment states.
 		gAgentAvatarp->clearAttachmentPosOverrides();
+
+		if (objects_to_remove.size() || items_to_add.size())
+		{
+			LL_DEBUGS("Avatar") << "ATT will remove " << objects_to_remove.size()
+								<< " and add " << items_to_add.size() << " items" << LL_ENDL;
+		}
 
 		// Take off the attachments that will no longer be in the outfit.
 		LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
@@ -1402,20 +1414,26 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear,
 		break;
 
 		case LLAssetType::AT_BODYPART:
-		// TODO: investigate wearables may not be loaded at this point EXT-8231
-		
-		// Remove the existing wearables of the same type.
-		// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
-		removeCOFLinksOfType(item_to_wear->getWearableType());
-		if (!cb && do_update)
 		{
-			cb = new LLUpdateAppearanceAndEditWearableOnDestroy(item_id_to_wear);
+			// TODO: investigate wearables may not be loaded at this point EXT-8231
+			
+			// Remove the existing wearables of the same type.
+			// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
+			removeCOFLinksOfType(item_to_wear->getWearableType());
+			if (!cb && do_update)
+			{
+				cb = new LLUpdateAppearanceAndEditWearableOnDestroy(item_id_to_wear);
+			}
+			addCOFItemLink(item_to_wear, cb);
 		}
-		addCOFItemLink(item_to_wear, cb);
 		break;
 
 		case LLAssetType::AT_OBJECT:
-		rez_attachment(item_to_wear, NULL, replace);
+		{
+			LL_DEBUGS("Avatar") << "ATT wearing object. calling rez_attachment, item " << item_to_wear->getName()
+								<< " id " << item_to_wear->getLinkedUUID() << LL_ENDL;
+			rez_attachment(item_to_wear, NULL, replace);
+		}
 		break;
 
 		default: return false;;
@@ -3230,7 +3248,7 @@ void RequestAgentUpdateAppearanceResponder::onRequestRequested()
 	}
 
 	// Actually send the request.
-	LL_DEBUGS("Avatar") << "Will send request for cof_version " << cof_version << LL_ENDL;
+	LL_DEBUGS("Avatar") << "ATT sending bake request for cof_version " << cof_version << LL_ENDL;
 	mRetryPolicy->reset();
 	sendRequest();
 }
@@ -3899,7 +3917,7 @@ void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 {
 	LLViewerInventoryItem *item = gInventory.getItem(item_id);
-	LL_DEBUGS("Avatar") << "registering attachment "
+	LL_DEBUGS("Avatar") << "ATT registering attachment "
 						<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
@@ -3910,10 +3928,10 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 		// But it is not acceptable solution. See EXT-7777
 		if (!isLinkedInCOF(item_id))
 		{
-			LL_DEBUGS("Avatar") << "adding COF link for attachment "
+			LL_DEBUGS("Avatar") << "ATT adding COF link for attachment "
 								<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
 			// FIXME replace with just a call to request bake update?
-			LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy();
+			LLPointer<LLInventoryCallback> cb = new LLRequestAppearanceUpdateOnDestroy();
 			LLAppearanceMgr::addCOFItemLink(item_id, cb);  // Add COF link for item.
 		}
 	}
