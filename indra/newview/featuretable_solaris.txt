@@ -129,7 +129,7 @@ RenderUseFBO		1	0
 list low
 RenderVBO			1	0
 RenderAniso			1	0
-RenderAvatarMaxVisible      1   3
+RenderAvatarMaxNonImpostors 1   3
 RenderLighting		1	0
 
 list medium

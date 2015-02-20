@@ -263,7 +263,7 @@ public:
 	
 	S32				getUpdatePeriod()				{ return mUpdatePeriod;			};
 	const LLColor4 &  getMutedAVColor()				{ return mMutedAVColor;			};
-
+	static void     updateImpostorRendering(U32 newMaxNonImpostorsValue);
 
 	void 			idleUpdateBelowWater();
 
@@ -273,10 +273,12 @@ public:
 public:
 	static S32		sRenderName;
 	static BOOL		sRenderGroupTitles;
-	static U32		sMaxVisible; //(affected by control "RenderAvatarMaxVisible")
+	static const U32 IMPOSTORS_OFF; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
+									 * slider in panel_preferences_graphics1.xml */
+	static U32		sMaxNonImpostors; //(affected by control "RenderAvatarMaxNonImpostors")
 	static F32		sRenderDistance; //distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static BOOL		sUseImpostors; //use impostors for far away avatars
+	static bool		sUseImpostors; //use impostors for far away avatars
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
 	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;

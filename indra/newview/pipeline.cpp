@@ -569,7 +569,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderAutoMaskAlphaDeferred");
 	connectRefreshCachedSettingsSafe("RenderAutoMaskAlphaNonDeferred");
 	connectRefreshCachedSettingsSafe("RenderUseFarClip");
-	connectRefreshCachedSettingsSafe("RenderAvatarMaxVisible");
+	connectRefreshCachedSettingsSafe("RenderAvatarMaxNonImpostors");
 	connectRefreshCachedSettingsSafe("RenderDelayVBUpdate");
 	connectRefreshCachedSettingsSafe("UseOcclusion");
 	connectRefreshCachedSettingsSafe("VertexShaderEnable");
@@ -1081,7 +1081,8 @@ void LLPipeline::refreshCachedSettings()
 	LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
 	LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
 	LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
-	LLVOAvatar::sMaxVisible = (U32)gSavedSettings.getS32("RenderAvatarMaxVisible");
+	LLVOAvatar::sMaxNonImpostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
+	LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
 	LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
 
 	LLPipeline::sUseOcclusion = 
@@ -11357,7 +11358,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_MARK_VISIBLE);
 		markVisible(avatar->mDrawable, *viewer_camera);
-		LLVOAvatar::sUseImpostors = FALSE;
+		LLVOAvatar::sUseImpostors = false; // @TODO why?
 
 		LLVOAvatar::attachment_map_t::iterator iter;
 		for (iter = avatar->mAttachmentPoints.begin();
@@ -11594,7 +11595,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	avatar->setImpostorDim(tdim);
 
-	LLVOAvatar::sUseImpostors = TRUE;
+	LLVOAvatar::sUseImpostors = true; // @TODO why?
 	sUseOcclusion = occlusion;
 	sReflectionRender = FALSE;
 	sImpostorRender = FALSE;

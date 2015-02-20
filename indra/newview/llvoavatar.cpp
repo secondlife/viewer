@@ -613,7 +613,7 @@ private:
 //-----------------------------------------------------------------------------
 LLAvatarAppearanceDictionary *LLVOAvatar::sAvatarDictionary = NULL;
 S32 LLVOAvatar::sFreezeCounter = 0;
-U32 LLVOAvatar::sMaxVisible = 12;
+U32 LLVOAvatar::sMaxNonImpostors = 12; // overridden based on graphics setting
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
@@ -640,7 +640,7 @@ BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
-BOOL LLVOAvatar::sUseImpostors = FALSE;
+bool LLVOAvatar::sUseImpostors = false;
 BOOL LLVOAvatar::sJointDebug = FALSE;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
@@ -3079,7 +3079,7 @@ bool LLVOAvatar::isVisuallyMuted() const
 	{
 			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
 			static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0);
-			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
+			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
 
 			if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
 			{	// Always want to see this AV as an impostor
@@ -3234,18 +3234,18 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{ // visually muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible ||
-			mDrawable->mDistanceWRTCamera < 1.f + mag)
-		{ //first 25% of max visible avatars are not impostored
-			//also, don't impostor avatars whose bounding box may be penetrating the 
-			//impostor camera near clip plane
+		else if (   mVisibilityRank <= LLVOAvatar::sMaxNonImpostors
+				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
+		{   // first 25% of max visible avatars are not impostored
+			// also, don't impostor avatars whose bounding box may be penetrating the 
+			// impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
-		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 4)
+		else if (mVisibilityRank > LLVOAvatar::sMaxNonImpostors * 4)
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
 		}
-		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 3)
+		else if (mVisibilityRank > LLVOAvatar::sMaxNonImpostors * 3)
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
 		}
@@ -8019,6 +8019,34 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 	angle.mV[2] = da;
 }
 
+// static
+const U32 LLVOAvatar::IMPOSTORS_OFF = 66; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
+										   * slider in panel_preferences_graphics1.xml */
+
+// static
+void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
+{
+	U32  oldmax = sMaxNonImpostors;
+	bool oldflg = sUseImpostors;
+	
+	if (IMPOSTORS_OFF <= newMaxNonImpostorsValue)
+	{
+		sMaxNonImpostors = 0;
+	}
+	else
+	{
+		sMaxNonImpostors = newMaxNonImpostorsValue;
+	}
+	// the sUseImpostors flag depends on whether or not sMaxNonImpostors is set to the no-limit value (0)
+	sUseImpostors = (0 != sMaxNonImpostors);
+
+	LL_DEBUGS("AvatarRender")
+		<< "was " << (oldflg ? "use" : "don't use" ) << " impostors (max " << oldmax << "); "
+		<< "now " << (sUseImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
+		<< LL_ENDL;
+}
+
+
 void LLVOAvatar::idleUpdateRenderCost()
 {
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
@@ -8047,7 +8075,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 		// Render Cost (ARC)
 		calculateUpdateRenderCost();				// Update mVisualComplexity if needed	
 
-		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
+		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
 		info_line = llformat("%d ARC", mVisualComplexity);
 
 		if (max_render_cost != 0) // zero means don't care, so don't bother coloring based on this
@@ -8068,7 +8096,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 		// Visual rank
 		info_line = llformat("%d rank", mVisibilityRank);
 		// Use grey for imposters, white for normal rendering or no impostors
-		info_color.set((sMaxVisible > 0 && mVisibilityRank > sMaxVisible) ? LLColor4::grey : LLColor4::white);
+		info_color.set((sMaxNonImpostors > 0 && mVisibilityRank > sMaxNonImpostors) ? LLColor4::grey : LLColor4::white);
 		info_style = LLFontGL::NORMAL;
 		mText->addLine(info_line, info_color, info_style);
 

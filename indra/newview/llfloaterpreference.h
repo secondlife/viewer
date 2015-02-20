@@ -58,10 +58,6 @@ typedef enum
 		
 	} EGraphicsSettings;
 
-// 65 is the maximum value for impostors set in the xml file.  When the slider reaches this
-// value impostors are turned off.
-const U32	IMPOSTORS_OFF = 66;
-
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
 {
@@ -162,8 +158,14 @@ public:
 	void onChangeQuality(const LLSD& data);
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateMaximumNonImpostors();
+	void setMaximumNonImpostorsText(U32 value, LLTextBox* text_box);
+	void updateMaxComplexity();
+	void setMaxComplexityText(U32 value, LLTextBox* text_box);
+	static void setIndirectControls();
+	static void setIndirectMaxNonImpostors();
+	static void setIndirectMaxArc();
+	
 	void refreshUI();
 
 	void onCommitParcelMediaAutoPlayEnable();
@@ -203,6 +205,7 @@ private:
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
+	LOG_CLASS(LLFloaterPreference);
 };
 
 class LLPanelPreference : public LLPanel
@@ -246,6 +249,7 @@ private:
 	string_color_map_t mSavedColors;
 
 	Updater* mBandWidthUpdater;
+	LOG_CLASS(LLPanelPreference);
 };
 
 class LLPanelPreferenceGraphics : public LLPanelPreference
@@ -267,6 +271,7 @@ protected:
 private:
 
 	void onPresetsListChange();
+	LOG_CLASS(LLPanelPreferenceGraphics);
 };
 
 class LLFloaterPreferenceProxy : public LLFloater
@@ -294,7 +299,7 @@ private:
 	bool mSocksSettingsDirty;
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;
-
+	LOG_CLASS(LLFloaterPreferenceProxy);
 };
 
 
