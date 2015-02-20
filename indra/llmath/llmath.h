@@ -556,7 +556,6 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
 	}
 }
 
-	llassert(NULL != src && NULL != dst);
 // Include simd math header
 #include "llsimdmath.h"
 
