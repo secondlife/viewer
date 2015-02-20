@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Scene Load Statistics" title="Statystyki obciążenia sceny">
+	<button label="Pauza" name="playpause" />
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view name="basic" label="Podstawowe">
+				<stat_bar name="frame difference" label="Różnica pomiędzy klatkami" />
+				<stat_bar label="Przepustowość" name="bandwidth" />
+				<stat_bar label="Utracone pakiety" name="packet_loss" />
+			</stat_view>
+			<stat_view name="advanced" label="Zaawansowane">
+				<stat_view name="render" label="Rendering">
+					<stat_bar name="objs" label="Wszystkie obiekty" />
+					<stat_bar name="newobjs" label="Nowe obiekty" unit_label="/sek" />
+					<stat_bar name="object_cache_hits" label="Wspł. trafień obiektów do cache" />
+				</stat_view>
+				<stat_view name="texture" label="Tekstura">
+					<stat_bar name="texture_cache_hits" label="Wspł. trafień do cache" />
+					<stat_bar name="texture_cache_read_latency" label="Opóźnienie odczytu cache" />
+					<stat_bar name="numimagesstat" label="Suma" />
+					<stat_bar name="numrawimagesstat" label="Suma surowych" />
+				</stat_view>
+				<stat_view name="network" label="Sieć">
+					<stat_bar name="packetsinstat" label="Pakiety wchodzące" unit_label="/sek" />
+					<stat_bar name="packetsoutstat" label="Pakiety wychodzące" unit_label="/sek" />
+					<stat_bar name="objectdatareceived" label="Obiekty" />
+					<stat_bar name="texturedatareceived" label="Tekstury" />
+					<stat_bar name="assetudpdatareceived" label="Dane (assety)" />
+					<stat_bar name="layersdatareceived" label="Warstwy" />
+					<stat_bar name="messagedatain" label="Aktualna il. wchodząca" />
+					<stat_bar name="messagedataout" label="Aktualna il. wychodząca" />
+					<stat_bar name="vfspendingoperations" label="Operacje oczekujące VFS" unit_label=" op." />
+				</stat_view>
+			</stat_view>
+			<stat_view name="sim" label="Symulator">
+				<stat_bar name="simobjects" label="Obiekty" />
+				<stat_bar name="simactiveobjects" label="Aktywne obiekty" />
+				<stat_bar name="simactivescripts" label="Aktywne skrypty" />
+				<stat_bar name="siminpps" label="Pakiety wchodzące" unit_label="pkt/sek" />
+				<stat_bar name="simoutpps" label="Pakiety wychodzące" unit_label="pkt/sek" />
+				<stat_bar name="simpendingdownloads" label="Oczekujące pobrania" />
+				<stat_bar name="simpendinguploads" label="Oczekujące załadowania" />
+				<stat_bar name="simtotalunackedbytes" label="Wszystkie niepotwierdzone bajty" />
+				<stat_view label="Czas (ms)" name="simperf">
+					<stat_bar label="Całkowity czas klatek" name="simframemsec" />
+					<stat_bar label="Czas sieci" name="simnetmsec" />
+					<stat_bar label="Czas fizyki" name="simsimphysicsmsec" />
+					<stat_bar label="Czas symulatora" name="simsimothermsec" />
+					<stat_bar label="Czas agenta" name="simagentmsec" />
+					<stat_bar label="Czas obrazu" name="simimagesmsec" />
+					<stat_bar label="Czas skryptu" name="simscriptmsec" />
+					<stat_bar name="simsparemsec" label="Czas wolny" />
+					<stat_view name="timedetails" label="Szczegóły czasu">
+						<stat_bar name="simsimphysicsstepmsec" label="  Skok fizyki" />
+						<stat_bar name="simsimphysicsshapeupdatemsec" label="  Akt. kształtów fizyki" />
+						<stat_bar name="simsimphysicsothermsec" label="  Inna fizyka" />
+						<stat_bar name="simsleepmsec" label="  Czas pauzy" />
+						<stat_bar name="simpumpiomsec" label="  Skok IO" />
+					</stat_view>
+				</stat_view>
+			</stat_view>
+		</container_view>
+	</scroll_container>
+</floater>

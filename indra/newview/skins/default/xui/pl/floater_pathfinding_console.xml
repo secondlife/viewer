@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_pathfinding_console" title="Podgląd odnajdywania ścieżek">
+	<floater.string name="navmesh_viewer_status_library_not_implemented">
+		Nie można znaleźć implementacji biblioteki szukania ścieżek.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_region_not_enabled">
+		Ten region ma wyłączone odnajdywanie ścieżek.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_region_loading">
+		Oczekiwanie na dokończenie ładowania regionu.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_checking_version">
+		Sprawdzanie statusu Navmesha.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_downloading">
+		Pobieranie Navmesha.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_updating">
+		Navmesh zmienił się na serwerze, pobieranie najnowszego.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_has_navmesh">
+		Najnowszy Navmesh został pobrany.
+	</floater.string>
+	<floater.string name="navmesh_viewer_status_error">
+		Nie można pobrać Navmesha.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_pending">
+		Navmesh ma oczekujące zmiany.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_building">
+		Navmesh się tworzy.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_some_pending">
+		Niektóre regiony Navmesha mają oczekujące zmiany.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_some_building">
+		Niektóre regiony Navmesha się tworzą.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_pending_and_building">
+		Niektóre regiony Navmesha mają oczekujące zmiany, a inne się tworzą.
+	</floater.string>
+	<floater.string name="navmesh_simulator_status_complete">
+		Navmesh jest aktualny.
+	</floater.string>
+	<floater.string name="pathing_library_not_implemented">
+		Nie można znaleźć implementacji biblioteki szukania ścieżek.
+	</floater.string>
+	<floater.string name="pathing_region_not_enabled">
+		Ten region ma wyłączone odnajdywanie ścieżek.
+	</floater.string>
+	<floater.string name="pathing_choose_start_and_end_points">
+		Wybierz punkt startowy i końcowy.
+	</floater.string>
+	<floater.string name="pathing_choose_start_point">
+		Wybierz punkt startowy.
+	</floater.string>
+	<floater.string name="pathing_choose_end_point">
+		Wybierz punkt końcowy.
+	</floater.string>
+	<floater.string name="pathing_path_valid">
+		Ścieżka jest pomarańczowa.
+	</floater.string>
+	<floater.string name="pathing_path_invalid">
+		Ścieżka pomiędzy punktami nie może zostać znaleziona.
+	</floater.string>
+	<floater.string name="pathing_error">
+		Wystąpił błąd podczas generowania ścieżki.
+	</floater.string>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
+			Stan przeglądarki
+		</text>
+	</panel>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
+			Stan symulatora
+		</text>
+	</panel>
+	<tab_container name="view_test_tab_container">
+		<panel name="view_panel" label="Widok">
+			<text name="show_label">
+				Pokaż:
+			</text>
+			<check_box label="Świat" name="show_world" />
+			<check_box label="Tylko ruchome" name="show_world_movables_only" />
+			<text name="show_walkability_label">
+				Pokaż mapę dostępności:
+			</text>
+			<combo_box name="show_heatmap_mode">
+				<combo_box.item label="Nie pokazuj" name="show_heatmap_mode_none" />
+				<combo_box.item label="Typ postaci A" name="show_heatmap_mode_a" />
+				<combo_box.item label="Typ postaci B" name="show_heatmap_mode_b" />
+				<combo_box.item label="Typ postaci C" name="show_heatmap_mode_c" />
+				<combo_box.item label="Typ postaci D" name="show_heatmap_mode_d" />
+			</combo_box>
+			<check_box label="Dostępne do przejścia" name="show_walkables" />
+			<check_box label="Objętości materiałów" name="show_material_volumes" />
+			<check_box label="Statyczne przeszkody" name="show_static_obstacles" />
+			<check_box label="Objętości wykluczenia" name="show_exclusion_volumes" />
+			<check_box label="Wody gruntowe" name="show_water_plane" />
+			<check_box label="Tryb rentgenowski" name="show_xray" />
+		</panel>
+		<panel name="test_panel" label="Test ścieżki">
+			<text name="ctrl_click_label">
+				Ctrl-klik aby wybrać punkt startu.
+			</text>
+			<text name="shift_click_label">
+				Shift-klik aby wybrać punkt końca.
+			</text>
+			<text name="character_width_label">
+				Szerokość postaci
+			</text>
+			<text name="character_type_label">
+				Typ postaci
+			</text>
+			<combo_box name="path_character_type">
+				<combo_box.item label="Brak" name="path_character_type_none" />
+			</combo_box>
+			<button label="Czyść ścieżkę" name="clear_path" />
+		</panel>
+	</tab_container>
+</floater>

@@ -1,48 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php
-	</panel.string>
-	<layout_stack name="login_widgets">
-		<layout_panel name="login">
-			<text name="log_in_text">
-				POŁĄCZ
-			</text>
-			<text name="username_text">
-				Użytkownik:
-			</text>
-			<combo_box name="username_combo" tool_tip="Nazwę użytkownika wybierasz przy rejestracji, np. bobsmith12 lub Steller Sunshine"/>
-			<text name="password_text">
-				Hasło:
-			</text>
-		</layout_panel>
-		<layout_panel name="start_location_panel">
-			<text name="start_location_text">
-				Rozpocznij w:
-			</text>
-			<combo_box name="start_location_combo">
-				<combo_box.item label="Ostatnie Miejsce" name="MyLastLocation"/>
-				<combo_box.item label="Moje Miejsce Startu" name="MyHome"/>
-				<combo_box.item label="&lt;Wpisz Region&gt;" name="Typeregionname"/>
-			</combo_box>
-		</layout_panel>
-		<layout_panel name="links_login_panel">
-			<text name="login_help">
-				Potrzebujesz pomocy z logowaniem się?
-			</text>
+	<layout_stack name="ui_stack">
+		<layout_panel name="ui_container">
+			<combo_box label="Użytkownik" tool_tip="Nazwa użytkownika wybrana przy rejestracji, np. bobsmith12 lub Steller Sunshine" name="username_combo" />
+			<line_editor name="password_edit" label="Hasło" />
+			<check_box label="Zapamiętaj mnie" name="remember_check" />
 			<text name="forgot_password_text">
-				Zapomniałeś swojej nazwy użytkownika lub hasła?
+				Zapomniałem/am hasła
 			</text>
-			<button label="Połącz" name="connect_btn"/>
-			<check_box label="Zapamiętaj hasło" name="remember_check"/>
-		</layout_panel>
-		<layout_panel name="links">
-			<text name="create_account_text">
-				CREATE YǾUR ACCǾUNT
+			<button label="Zaloguj" name="connect_btn" />
+			<text name="At_My_Last_Location_Label">
+				w lokalizacji
 			</text>
-			<button name="create_new_account_btn"
-					label="Utwórz nowe konto"
-					width="120"/>
+			<combo_box label="Moje ulubione miejsca" name="start_location_combo">
+				<combo_box.item label="Moje miejsce startu" name="MyHome" />
+			</combo_box>
+			<button label="Zaloguj" name="connect_favorite_btn" />
+			<line_editor name="location_edit" label="Wpisz lokalizację" />
+			<button label="Zaloguj" name="connect_location_btn" />
+			<combo_box label="Wybierz siatkę" name="server_combo" />
 		</layout_panel>
 	</layout_stack>
 </panel>

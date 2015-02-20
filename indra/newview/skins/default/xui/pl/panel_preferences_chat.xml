@@ -1,58 +1,110 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Czat/IM" name="chat">
-	<text name="font_size">
-		Rozmiar czcionki:
-	</text>
-	<radio_group name="chat_font_size">
-		<radio_item label="Mała" name="radio" value="0"/>
-		<radio_item label="Średnia" name="radio2" value="1"/>
-		<radio_item label="Duża" name="radio3" value="2"/>
-	</radio_group>
-	<check_box initial_value="true" label="Używaj animacji podczas pisania" name="play_typing_animation"/>
-	<check_box label="Wysyłaj wszystkie wiadomości (IM) na moją skrzynkę pocztową kiedy jestem niedostępny" name="send_im_to_email"/>
-	<check_box label="Zwykły tekst IM i historia czatu" name="plain_text_chat_history"/>
-	<check_box label="Czat chmurkowy" name="bubble_text_chat"/>
-	<text name="show_ims_in_label">
-		Pokaż wiadomości (IM) w:
-	</text>
-	<text name="requires_restart_label">
-		(restart wymagany)
-	</text>
-	<radio_group name="chat_window" tool_tip="Pokaż wiadomości IM osobno lub razem (restart wymagany)">
-		<radio_item label="Osobne okna" name="radio" value="0"/>
-		<radio_item label="Etykiety" name="radio2" value="1"/>
-	</radio_group>
-	<text name="disable_toast_label">
-		Uaktywnij wyskakujące okienka rozpoczynających się rozmów:
-	</text>
-	<check_box label="Czat grupy" name="EnableGroupChatPopups" tool_tip="Zaznacz aby widzieć wyskakuące okienka kiedy czat grupy się pojawia"/>
-	<check_box label="Czat IM" name="EnableIMChatPopups" tool_tip="Zaznacz aby widzieć wyskakujące okienka kiedy IM się pojawia"/>
-	<spinner label="Czas widoczności czatu w pobliżu:" name="nearby_toasts_lifetime"/>
-	<spinner label="Czas znikania czatu w pobliżu:" name="nearby_toasts_fadingtime"/>
-	<check_box name="translate_chat_checkbox"/>
-	<text name="translate_chb_label">
-		Użyj translatora podczas rozmowy
-	</text>
-	<text name="translate_language_text">
-		Przetłumacz czat na:
-	</text>
-	<combo_box name="translate_language_combobox">
-		<combo_box.item label="Domyślny" name="System Default Language"/>
-		<combo_box.item label="English (Angielski)" name="English"/>
-		<combo_box.item label="Dansk (Duński)" name="Danish"/>
-		<combo_box.item label="Deutsch (Niemiecki)" name="German"/>
-		<combo_box.item label="Español (Hiszpański)" name="Spanish"/>
-		<combo_box.item label="Français (Francuski)" name="French"/>
-		<combo_box.item label="Italiano (Włoski)" name="Italian"/>
-		<combo_box.item label="Magyar (Węgierski)" name="Hungarian"/>
-		<combo_box.item label="Nederlands (Holenderski)" name="Dutch"/>
-		<combo_box.item label="Polski" name="Polish"/>
-		<combo_box.item label="Português (Portugalski)" name="Portugese"/>
-		<combo_box.item label="Русский (Rosyjski)" name="Russian"/>
-		<combo_box.item label="Türkçe (Turecki)" name="Turkish"/>
-		<combo_box.item label="Українська (Ukraiński)" name="Ukrainian"/>
-		<combo_box.item label="中文 (正體) (Chiński)" name="Chinese"/>
-		<combo_box.item label="日本語 (Japoński)" name="Japanese"/>
-		<combo_box.item label="한국어 (Koreański)" name="Korean"/>
-	</combo_box>
+	<panel name="general_chat_settings">
+		<check_box label="Używaj animacji podczas pisania" name="play_typing_animation" />
+		<check_box label="Ślij IM-y na mój e-mail, gdy jestem offline" name="send_im_to_email" />
+		<check_box label="Tylko znajomi i grupy mogą do mnie pisać lub dzwonić" name="voice_call_friends_only_check" />
+		<text name="font_size">
+			Rozmiar czcionki:
+		</text>
+		<combo_box name="chat_font_size">
+			<item label="Mała" name="Small" />
+			<item label="Średnia" name="Medium" />
+			<item label="Duża" name="Large" />  
+		</combo_box>
+		<check_box label="Czat ponad awatarami" name="bubble_text_chat" />
+	</panel>
+	<panel name="im_notification_settings">
+		<text name="friend_ims">
+			Czat od znajomych:
+		</text>
+		<combo_box name="FriendIMOptions">
+			<item label="Otwórz okno rozmów" name="OpenConversationsWindow" />      
+			<item label="Pokaż wiadomość" name="PopUpMessage" />
+			<item label="Mrugaj przyciskiem na pasku" name="FlashToolbarButton" />
+			<item label="Brak akcji" name="NoAction" />
+		</combo_box>
+		<check_box label="Odtwórz dźwięk" name="play_sound_friend_im" />
+		<text name="non_friend_ims">
+			Czat od nieznajomych:
+		</text>
+		<combo_box name="NonFriendIMOptions">
+			<item label="Otwórz okno rozmów" name="OpenConversationsWindow" />
+			<item label="Pokaż wiadomość" name="PopUpMessage" />
+			<item label="Mrugaj przyciskiem na pasku" name="FlashToolbarButton" />
+			<item label="Brak akcji" name="NoAction" />
+		</combo_box>
+		<check_box label="Odtwórz dźwięk" name="play_sound_non_friend_im" />
+		<text name="conference_ims">
+			Czat konferencji:
+		</text>
+		<combo_box name="ConferenceIMOptions">
+			<item label="Otwórz okno rozmów" name="OpenConversationsWindow" />
+			<item label="Pokaż wiadomość" name="PopUpMessage" />
+			<item label="Mrugaj przyciskiem na pasku" name="FlashToolbarButton" />
+			<item label="Brak akcji" name="NoAction" />
+		</combo_box>
+		<check_box label="Odtwórz dźwięk" name="play_sound_conference_im" />
+		<text name="group_chat">
+			Czat grupowy:
+		</text>
+		<combo_box name="GroupChatOptions">
+			<item label="Otwórz okno rozmów" name="OpenConversationsWindow" />
+			<item label="Pokaż wiadomość" name="PopUpMessage" />
+			<item label="Mrugaj przyciskiem na pasku" name="FlashToolbarButton" />
+			<item label="Brak akcji" name="NoAction" />
+		</combo_box>
+		<check_box label="Odtwórz dźwięk" name="play_sound_group_chat_im" />
+		<text name="nearby_chat">
+			Czat w pobliżu:
+		</text>
+		<combo_box name="NearbyChatOptions">
+			<item label="Otwórz okno rozmów" name="OpenConversationsWindow" />
+			<item label="Pokaż wiadomość" name="PopUpMessage" />
+			<item label="Mrugaj przyciskiem na pasku" name="FlashToolBarButton" />
+			<item label="Brak akcji" name="NoAction" />
+		</combo_box>
+		<check_box label="Odtwórz dźwięk" name="play_sound_nearby_chat_im" />
+		<text name="object_ims">
+			Czat od obiektów:
+		</text>
+		<combo_box name="ObjectIMOptions">
+			<item label="Otwórz okno rozmów" name="OpenConversationsWindow" />
+			<item label="Pokaż wiadomość" name="PopUpMessage" />
+			<item label="Mrugaj przyciskiem na pasku" name="FlashToolBarButton" />
+			<item label="Brak akcji" name="NoAction" />
+		</combo_box>
+		<check_box label="Odtwórz dźwięk" name="play_sound_object_im" />
+		<text name="notifications_alert">
+			Aby tymczasowo wstrzymać powiadomienia włącz Komunikacja &gt; Zajęty lub Niedostępny
+		</text>
+	</panel>
+	<panel name="play_sound_settings">
+		<text name="play_sound">
+			Odtwórz dźwięk:
+		</text>
+		<check_box label="Nowa rozmowa tekstowa" name="new_conversation" />
+		<check_box label="Nowa rozmowa głosowa" name="incoming_voice_call" />
+		<check_box label="Propozycja teleportacji" name="teleport_offer" />
+		<check_box label="Propozycja przedmiotu" name="inventory_offer" />
+	</panel>
+	<panel name="log_settings">
+		<text name="logging_label">
+			Zapisz:
+		</text>
+		<combo_box name="conversation_log_combo">
+			<item name="log_and_transcripts" label="Dziennik i logi rozmów" />
+			<item name="log_only" label="Tylko dziennik" />
+			<item name="no_log_or_transcript" label="Nie zapisuj dziennika ani logów rozmów" />
+		</combo_box>
+		<button label="Wyczyść dziennik" name="clear_log" />
+		<button label="Usuń logi rozmów" name="delete_transcripts" />
+		<text name="log_location_label">
+			Miejsce:
+		</text>
+		<button label="Przeglądaj" label_selected="Przeglądaj" name="log_path_button" />
+	</panel>
+	<button label="Tłumaczenie..." name="ok_btn" />
+	<button name="autoreplace_showgui" label="Autokorekta" />
+	<button name="spellcheck_showgui" label="Sprawdzanie pisowni" />
 </panel>

@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="avatarpicker" title="WYBIERZ REZYDENTA">
 	<floater.string name="not_found">
 		&apos;[TEXT]&apos; nie zostało odnalezione
 	</floater.string>
 	<floater.string name="no_one_near">
-		Nie ma nikogo w pobliżu
+		Nikogo w pobliżu
 	</floater.string>
 	<floater.string name="no_results">
 		Brak wyników
@@ -12,7 +12,7 @@
 	<floater.string name="searching">
 		Wyszukiwanie...
 	</floater.string>
-	<string label="Wybierz" label_selected="Wybierz" name="Select">
+	<string name="Select">
 		Wybierz
 	</string>
 	<string name="Close">
@@ -23,10 +23,10 @@
 			<text name="InstructSearchResidentName">
 				Wpisz fragment imienia:
 			</text>
-			<button label="Szukaj" label_selected="Szukaj" name="Find"/>
+			<button label="Szukaj" label_selected="Szukaj" name="Find" />
 			<scroll_list name="SearchResults">
-				<columns label="Imię" name="name"/>
-				<columns label="Nazwa użytkownika" name="username"/>
+				<columns label="Imię" name="name" />
+				<columns label="Nazwa użytkownika" name="username" />
 			</scroll_list>
 		</panel>
 		<panel label="Znajomi" name="FriendsPanel">
@@ -34,21 +34,19 @@
 				Wybierz osobę:
 			</text>
 		</panel>
-		<panel label="Obok mnie:" name="NearMePanel">
+		<panel label="Obok mnie" name="NearMePanel">
 			<text name="InstructSelectResident">
 				Wybierz osobę w pobliżu:
 			</text>
-			<slider label="Zasięg" name="near_me_range"/>
+			<slider label="Zasięg" name="near_me_range" />
 			<text name="meters">
 				Metry
 			</text>
-			<button label="Odśwież" label_selected="Odśwież" name="Refresh"/>
 			<scroll_list name="NearMe">
-				<columns label="Imię" name="name"/>
-				<columns label="Nazwa użytkownika" name="username"/>
+				<columns label="Imię" name="name" />
+				<columns label="Nazwa użytkownika" name="username" />
 			</scroll_list>
 		</panel>
 	</tab_container>
-	<button label="OK" label_selected="OK" name="ok_btn"/>
-	<button label="Cofnij" label_selected="Cofnij" name="cancel_btn"/>
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
 </floater>

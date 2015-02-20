@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Model Preview" title="ŁADOWANIE MODELU">
+	<string name="status_parse_error">
+		Błąd: Problem z parsowaniem Dae, zobacz log.
+	</string>
+	<string name="status_material_mismatch">
+		Błąd: Materiał nie jest podzbiorem modelu referencyjnego.
+	</string>
+	<string name="status_reading_file">
+		Wczytywanie...
+	</string>
+	<string name="status_generating_meshes">
+		Generowanie meszy...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Błąd: Ilość wierzchołków większa niż 65534, przerwano!
+	</string>
+	<string name="bad_element">
+		Błąd: element nieprawidłowy
+	</string>
+	<string name="high">
+		Wysokie
+	</string>
+	<string name="medium">
+		Średnie
+	</string>
+	<string name="low">
+		Niskie
+	</string>
+	<string name="lowest">
+		Najniższe
+	</string>
+	<string name="mesh_status_good">
+		Dostarcz!
+	</string>
+	<string name="mesh_status_na">
+		???
+	</string>
+	<string name="mesh_status_none">
+		Brak
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Poziomy detali mają inną liczbę stron do teksturowania.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Poziomy detali mają inną liczbę instancji meszy.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Poziomy detali mają za dużo wierzchołków.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Brakuje poziomu detali.
+	</string>
+	<string name="mesh_status_invalid_material_list">
+		Materiały LOD nie są podzbiorem modelu referencyjnego.
+	</string>
+	<string name="layer_all">
+		Wszystko
+	</string>
+	<string name="decomposing">
+		Analizowanie...
+	</string>
+	<string name="simplifying">
+		Upraszczanie...
+	</string>
+	<panel name="left_panel">
+		<panel name="model_name_representation_panel">
+			<text name="name_label">
+				Nazwa modelu:
+			</text>
+			<text name="model_category_label">
+				Ten model to...
+			</text>
+			<combo_box name="model_category_combo">
+				<combo_item name="Choose one" label="Wybierz..." />
+				<combo_item name="Avatar shape" label="Kształt awatara" />
+				<combo_item name="Avatar attachment" label="Dodatek awatara" />
+				<combo_item name="Moving object (vehicle, animal)" label="Poruszający się obiekt (pojazd, zwierzę)" />
+				<combo_item name="Building Component" label="Element budynku" />
+				<combo_item name="Large, non moving etc" label="Duży obiekt, statyczny" />
+				<combo_item name="Smaller, non-moving etc" label="Mały obiekt, statyczny" />
+				<combo_item name="Not really any of these" label="Żadne z powyższych" />
+			</combo_box>
+		</panel>
+		<tab_container name="import_tab">
+			<panel label="Poziom detali" name="lod_panel" title="Poziom detali">
+				<text initial_value="Źródło" name="source" value="Źródło" />
+				<text initial_value="Trójkąty" name="triangles" value="Trójkąty" />
+				<text initial_value="Wierzchołki" name="vertices" value="Wierzchołki" />
+				<text initial_value="Wysoki" name="high_label" value="Wysoki" />
+				<combo_box name="lod_source_high">
+					<item name="Load from file" label="Ładuj z pliku" />
+					<item name="Generate" label="Generuj" />
+				</combo_box>
+				<button label="Przeglądaj" name="lod_browse_high" />
+				<combo_box name="lod_mode_high">
+					<item name="Triangle Limit" label="Limit trójkątów" />
+					<item name="Error Threshold" label="Próg błędu" />
+				</combo_box>
+				<text initial_value="Średni" name="medium_label" value="Średni" />
+				<combo_box name="lod_source_medium">
+					<item name="Load from file" label="Ładuj z pliku" />
+					<item name="Generate" label="Generuj" />
+					<item name="Use LoD above" label="Użyj poziomu detali (LoD) powyżej" />
+				</combo_box>
+				<button label="Przeglądaj" name="lod_browse_medium" />
+				<combo_box name="lod_mode_medium">
+					<item name="Triangle Limit" label="Limit trójkątów" />
+					<item name="Error Threshold" label="Próg błędu" />
+				</combo_box>
+				<text initial_value="Niski" name="low_label" value="Niski" />
+				<combo_box name="lod_source_low">
+					<item name="Load from file" label="Ładuj z pliku" />
+					<item name="Generate" label="Generuj" />
+					<item name="Use LoD above" label="Użyj poziomu detali (LoD) powyżej" />
+				</combo_box>
+				<button label="Przeglądaj" name="lod_browse_low" />
+				<combo_box name="lod_mode_low">
+					<item name="Triangle Limit" label="Limit trójkątów" />
+					<item name="Error Threshold" label="Próg błędu" />
+				</combo_box>
+				<text initial_value="Najniższy" name="lowest_label" value="Najniższy" />
+				<combo_box name="lod_source_lowest">
+					<item name="Load from file" label="Ładuj z pliku" />
+					<item name="Generate" label="Generuj" />
+					<item name="Use LoD above" label="Użyj poziomu detali (LoD) powyżej" />
+				</combo_box>
+				<button label="Przeglądaj" name="lod_browse_lowest" />
+				<combo_box name="lod_mode_lowest">
+					<item name="Triangle Limit" label="Limit trójkątów" />
+					<item name="Error Threshold" label="Próg błędu" />
+				</combo_box>
+				<check_box label="Generuj wektory normalne" name="gen_normals" />
+				<text initial_value="Kąt zagnieceń:" name="crease_label" value="Kąt zagnieceń:" />
+			</panel>
+			<panel label="Fizyka" name="physics_panel">
+				<panel name="physics geometry">
+					<text name="first_step_name">
+						Krok 1: Poziom detali
+					</text>
+					<combo_box name="physics_lod_combo" tool_tip="Poziom detali (LoD) używany dla kształtu fizycznego">
+						<combo_item name="choose_one">Wybierz...</combo_item>
+						<combo_item name="physics_high">Wysoki</combo_item>
+						<combo_item name="physics_medium">Średni</combo_item>
+						<combo_item name="physics_low">Niski</combo_item>
+						<combo_item name="physics_lowest">Najniższy</combo_item>
+						<combo_item name="load_from_file">Z pliku</combo_item>
+					</combo_box>
+					<button name="physics_browse" label="Przeglądaj" />
+					<check_box name="physics_optimize" label="Optymalizuj" />
+					<check_box name="physics_use_hull" label="Użyj powłoki wypukłej" />
+				</panel>
+				<panel name="physics analysis">
+					<text name="method_label">
+						Krok 2: Analiza
+					</text>
+					<text name="analysis_method_label">
+						Metoda:
+					</text>
+					<text name="quality_label">
+						Jakość:
+					</text>
+					<text name="smooth_method_label">
+						Wygładź:
+					</text>
+					<check_box label="Domknij otwory" name="Close Holes (Slow)" />
+					<button label="Analizuj" name="Decompose" />
+					<button label="Anuluj" name="decompose_cancel" />
+				</panel>
+				<panel name="physics simplification">
+					<text name="second_step_label">
+						Krok 3: Upraszczanie
+					</text>
+					<text name="simp_method_header">
+						Metoda:
+					</text>
+					<text name="pass_method_header">
+						Przejść:
+					</text>
+					<text name="Detail Scale label">
+						Skala detali:
+					</text>
+					<text name="Retain%_label">
+						Utrzymaj:
+					</text>
+					<button label="Uprość" name="Simplify" />
+					<button label="Anuluj" name="simplify_cancel" />
+				</panel>
+				<panel name="physics info">
+					<text name="results_text">
+						Wyniki:
+					</text>
+					<text name="physics_triangles">
+						Trójkąty: [TRIANGLES],
+					</text>
+					<text name="physics_points">
+						Wierzch.: [POINTS],
+					</text>
+					<text name="physics_hulls">
+						Powłoki: [HULLS]
+					</text>
+				</panel>
+			</panel>
+			<panel label="Opcje ładowania" name="modifiers_panel">
+				<text name="scale_label">
+					Skala (1=bez skali):
+				</text>
+				<text name="dimensions_label">
+					Wymiary:
+				</text>
+				<check_box name="upload_textures" label="Dołącz tekstury" />
+				<text name="include_label">
+					Tylko dla modeli awatarów:
+				</text>
+				<check_box label="Dołącz wagę skórki" name="upload_skin" />
+				<check_box label="Dołącz pozycje stawów" name="upload_joints" />
+				<text name="pelvis_offset_label">
+					Przesunięcie Z (podnieś/obniż awatara):
+				</text>
+			</panel>
+		</tab_container>
+		<panel name="weights_and_warning_panel">
+			<button label="Przelicz wagi i opłatę" name="calculate_btn" tool_tip="Przelicz wagi i opłatę" />
+			<button label="Anuluj" name="cancel_btn" />
+			<button label="Załaduj" name="ok_btn" tool_tip="Załaduj na serwer" />
+			<button label="Wyczyść i zresetuj" name="reset_btn" />
+			<text name="upload_fee">
+				Opłata: [FEE]L$
+			</text>
+			<text name="prim_weight">
+				Ziemia/wpływ: [EQ]
+			</text>
+			<text name="download_weight">
+				Ściąganie: [ST]
+			</text>
+			<text name="physics_weight">
+				Fizyka: [PH]
+			</text>
+			<text name="server_weight">
+				Serwer: [SIM]
+			</text>
+			<text name="warning_title">
+				UWAGA:
+			</text>
+			<text name="warning_message">
+				Nie masz uprawnień do ładowania modeli meszowych. [[VURL] Zobacz jak] uzyskać certyfikat.
+			</text>
+		</panel>
+	</panel>
+	<text name="lod_label">
+		Podgląd:
+	</text>
+	<panel name="right_panel">
+		<combo_box name="preview_lod_combo" tool_tip="Poziom detali (LOD) do wyświetlania w podglądzie">
+			<combo_item name="high">Wysoki</combo_item>
+			<combo_item name="medium">Średni</combo_item>
+			<combo_item name="low">Niski</combo_item>
+			<combo_item name="lowest">Najniższy</combo_item>
+		</combo_box>
+		<text name="label_display">
+			Pokaż...
+		</text>
+		<check_box label="Krawędzie" name="show_edges"/>
+		<check_box label="Fizykę" name="show_physics"/>
+		<check_box label="Tekstury" name="show_textures"/>
+		<check_box label="Wagę skórki" name="show_skin_weight"/>
+		<check_box label="Stawy/przeguby" name="show_joint_positions"/>
+		<text name="physics_explode_label">
+			Rozpiętość podglądu:
+		</text>
+	</panel>
+</floater>

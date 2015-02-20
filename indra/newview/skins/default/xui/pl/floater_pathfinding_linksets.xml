@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_pathfinding_linksets" title="Zbiory części odnajdywania ścieżek">
+	<floater.string name="messaging_get_inprogress">
+		Odpytywanie o zbiory części odnajdywania ścieżek...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Błąd podczas odpytywanie o zbiory części odnajdywania ścieżek.
+	</floater.string>
+	<floater.string name="messaging_set_inprogress">
+		Modyfikowanie wybranych zbiorów części odnajdywania ścieżek...
+	</floater.string>
+	<floater.string name="messaging_set_error">
+		Błąd podczas modyfikowania wybranych zbiorów części odnajdywania ścieżek.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Brak zbiorów części odnajdywania ścieżek.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] zbiorów wybranych z [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		Ten region nie ma włączonego odnajdywania ścieżek.
+	</floater.string>
+	<floater.string name="linkset_terrain_name">
+		[Podłoże]
+	</floater.string>
+	<floater.string name="linkset_owner_loading">
+		[Ładowanie]
+	</floater.string>
+	<floater.string name="linkset_owner_unknown">
+		[Nieznane]
+	</floater.string>
+	<floater.string name="linkset_owner_group">
+		[grupa]
+	</floater.string>
+	<floater.string name="linkset_is_scripted">
+		Tak
+	</floater.string>
+	<floater.string name="linkset_is_not_scripted">
+		Nie
+	</floater.string>
+	<floater.string name="linkset_is_unknown_scripted">
+		Nieznane
+	</floater.string>
+	<floater.string name="linkset_use_walkable">
+		Dostępne do przejścia
+	</floater.string>
+	<floater.string name="linkset_use_static_obstacle">
+		Statyczna przeszkoda
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_obstacle">
+		Ruchoma przeszkoda
+	</floater.string>
+	<floater.string name="linkset_use_material_volume">
+		Objętość materiału
+	</floater.string>
+	<floater.string name="linkset_use_exclusion_volume">
+		Objętość wykluczenia
+	</floater.string>
+	<floater.string name="linkset_use_dynamic_phantom">
+		Ruchomy widmowy
+	</floater.string>
+	<floater.string name="linkset_is_terrain">
+		[niemodyfikowalny]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_state">
+		[ograniczony]
+	</floater.string>
+	<floater.string name="linkset_is_non_volume_state">
+		[wklęsły]
+	</floater.string>
+	<floater.string name="linkset_is_restricted_non_volume_state">
+		[ograniczony,wklęsły]
+	</floater.string>
+	<floater.string name="linkset_choose_use">
+		Zastosowanie zbioru...
+	</floater.string>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			Filtrowanie:
+		</text>
+		<text name="linksets_name_label">
+			Nazwa
+		</text>
+		<text name="linksets_desc_label">
+			Opis
+		</text>
+		<combo_box name="filter_by_linkset_use">
+			<combo_box.item label="Filtr po zastosowaniu zbioru..." name="filter_by_linkset_use_none" />
+			<combo_box.item label="Dostępne do przejścia" name="filter_by_linkset_use_walkable" />
+			<combo_box.item label="Statyczna przeszkoda" name="filter_by_linkset_use_static_obstacle" />
+			<combo_box.item label="Ruchoma przeszkoda" name="filter_by_linkset_use_dynamic_obstacle" />
+			<combo_box.item label="Objętość materiału" name="filter_by_linkset_use_material_volume" />
+			<combo_box.item label="Objętość wykluczenia" name="filter_by_linkset_use_exclusion_volume" />
+			<combo_box.item label="Ruchomy widmowy" name="filter_by_linkset_use_dynamic_phantom" />
+		</combo_box>
+		<button label="Zastosuj" name="apply_filters" />
+		<button label="Czyść" name="clear_filters" />
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Nazwa (gł. prima)" name="name" />
+			<scroll_list.columns label="Opis (gł. prima)" name="description" />
+			<scroll_list.columns label="Właściciel" name="owner" />
+			<scroll_list.columns label="Skrypty" name="scripted" />
+			<scroll_list.columns label="Wpływ" name="land_impact" />
+			<scroll_list.columns label="Odległość" name="dist_from_you" />
+			<scroll_list.columns label="Zastosowanie" name="linkset_use" />
+		</scroll_list>
+		<text name="messaging_status">
+			Zbiory:
+		</text>
+		<button label="Odśwież listę" name="refresh_objects_list" />
+		<button label="Zaznacz wszystko" name="select_all_objects" />
+		<button label="Odznacz wszystko" name="select_none_objects" />
+	</panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			Akcje na zazn. zbiorach (jeśli zbiór jest usunięty ze świata jego atrybuty mogą być utracone):
+		</text>
+		<check_box label="Podświetlenie" name="show_beacon" />
+		<button label="Weź" name="take_objects" />
+		<button label="Weź kopię" name="take_copy_objects" />
+		<button label="Teleportuj mnie" name="teleport_me_to_object" />
+		<button label="Zwróć" name="return_objects" />
+		<button label="Usuń" name="delete_objects" />
+	</panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			Zmień atrybuty zaznaczonych zbiorów i naciśnij na przycisk by zachować zmiany
+		</text>
+		<text name="walkability_coefficients_label">
+			Dostępność:
+		</text>
+		<line_editor name="edit_a_value" tool_tip="Możliwość przejścia dla postaci typu A. Przykładowa postać jest humanoidem." />
+		<line_editor name="edit_b_value" tool_tip="Możliwość przejścia dla postaci typu B. Przykładowa postać jest stworzeniem." />
+		<line_editor name="edit_c_value" tool_tip="Możliwość przejścia dla postaci typu C. Przykładowa postać jest mechaniczna." />
+		<line_editor name="edit_d_value" tool_tip="Możliwość przejścia dla postaci typu D. Przykładowa postać jest inna." />
+		<button label="Zastosuj zmiany" name="apply_edit_values" />
+		<text name="suggested_use_b_label">
+			(Stworzenie)
+		</text>
+		<text name="suggested_use_c_label">
+			(Mechaniczna)
+		</text>
+		<text name="suggested_use_d_label">
+			(Inna)
+		</text>
+	</panel>
+</floater>

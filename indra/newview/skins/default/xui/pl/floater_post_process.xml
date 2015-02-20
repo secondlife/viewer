@@ -1,62 +1,49 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Post-Process Floater" title="USTAWIENIA PRZETWARZANIA KOŃCOWEGO">
 	<tab_container name="Post-Process Tabs">
-		<panel label="Kolor filtra" name="wmiColorFilterPanel">
-			<check_box label="Udostępnij" name="wmiColorFilterToggle" />
+		<panel label="Filtr koloru" name="wmiColorFilterPanel">
+			<check_box label="Włącz" name="wmiColorFilterToggle" />
 			<text name="wmiColorFilterBrightnessText">
 				Jasność
 			</text>
-			<slider label="" name="wmiColorFilterBrightness" />
 			<text name="wmiColorFilterSaturationText">
 				Nasycenie
 			</text>
-			<slider label="" name="wmiColorFilterSaturation" />
 			<text name="wmiColorFilterContrastText">
 				Kontrast
 			</text>
-			<slider label="" name="wmiColorFilterContrast" />
 			<text name="wmiColorFilterBaseText">
 				Kontrast koloru podstawowego
 			</text>
-			<slider label="R" name="wmiColorFilterBaseR" />
-			<slider label="G" name="wmiColorFilterBaseG" />
-			<slider label="B" name="wmiColorFilterBaseB" />
-			<slider label="I" name="wmiColorFilterBaseI" />
 		</panel>
-		<panel label="Wizja nocna" name="wmiNightVisionPanel">
-			<check_box label="Udostępnij" name="wmiNightVisionToggle" />
+		<panel label="Noktowizja" name="wmiNightVisionPanel">
+			<check_box label="Włącz" name="wmiNightVisionToggle" />
 			<text name="wmiNightVisionBrightMultText">
 				Wielokrotne wzmocnienie światła
 			</text>
-			<slider label="" name="wmiNightVisionBrightMult" />
 			<text name="wmiNightVisionNoiseSizeText">
 				Rozmiar szumu
 			</text>
-			<slider label="" name="wmiNightVisionNoiseSize" />
 			<text name="wmiNightVisionNoiseStrengthText">
 				Moc szumu
 			</text>
-			<slider label="" name="wmiNightVisionNoiseStrength" />
 		</panel>
-		<panel label="Bloom" name="wmiBloomPanel">
-			<check_box label="Udostępnij" name="wmiBloomToggle" />
+		<panel label="Poświata" name="wmiBloomPanel">
+			<check_box label="Włącz" name="wmiBloomToggle" />
 			<text name="wmiBloomExtractText">
 				Ekstracja luminacji
 			</text>
-			<slider label="" name="wmiBloomExtract" />
 			<text name="wmiBloomSizeText">
-				Rozmiar rozmazania obrazu
+				Rozmiar poświaty
 			</text>
-			<slider label="" name="wmiBloomSize" />
 			<text name="wmiBloomStrengthText">
-				Moc rozmazania obrazu
+				Moc poświaty
 			</text>
-			<slider label="" name="wmiBloomStrength" />
 		</panel>
 		<panel label="Dodatki" name="Extras">
-			<button label="ZaładujEfekt" label_selected="ZaładujEfekt" name="PPLoadEffect" />
-			<button label="ZapiszEfekt" label_selected="ZapiszEfekt" name="PPSaveEffect" />
-			<line_editor label="Nazwa Efektu" name="PPEffectNameEditor" />
+			<button label="Wczytaj efekt" label_selected="Wczytaj efekt" name="PPLoadEffect" />
+			<button label="Zapisz efekt" label_selected="Zapisz efekt" name="PPSaveEffect" />
+			<line_editor label="Nazwa efektu" name="PPEffectNameEditor" />
 		</panel>
 	</tab_container>
 </floater>

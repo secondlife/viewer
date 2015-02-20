@@ -1,72 +1,69 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Ogólne" name="general_panel">
 	<text name="language_textbox">
 		Język:
 	</text>
 	<combo_box name="language_combobox">
-		<combo_box.item label="Domyślny" name="System Default Language"/>
-		<combo_box.item label="English (Angielski)" name="English"/>
-		<combo_box.item label="Dansk (Duński) - Beta" name="Danish"/>
-		<combo_box.item label="Deutsch (Niemiecki) - Beta" name="Deutsch(German)"/>
-		<combo_box.item label="Español (Hiszpański) - Beta" name="Spanish"/>
-		<combo_box.item label="Français (Francuski) - Beta" name="French"/>
-		<combo_box.item label="Italiano (Włoski) - Beta" name="Italian"/>
-		<combo_box.item label="Polski - Beta" name="Polish"/>
-		<combo_box.item label="Português (Portugalski) - Beta" name="Portugese"/>
-		<combo_box.item label="日本語 (Japoński) - Beta" name="(Japanese)"/>
+		<combo_box.item label="Domyślny" name="System Default Language" />
+		<combo_box.item label="English (Angielski)" name="English" />
+		<combo_box.item label="Dansk (Duński) - Beta" name="Danish" />
+		<combo_box.item label="Deutsch (Niemiecki) - Beta" name="Deutsch(German)" />
+		<combo_box.item label="Español (Hiszpański) - Beta" name="Spanish" />
+		<combo_box.item label="Français (Francuski) - Beta" name="French" />
+		<combo_box.item label="Italiano (Włoski) - Beta" name="Italian" />
+		<combo_box.item label="Polski - Beta" name="Polish" />
+		<combo_box.item label="Português (Portugalski) - Beta" name="Portugese" />
+		<combo_box.item label="Русский (Rosyjski) - Beta" name="Russian" />
+		<combo_box.item label="Türkçe (Turecki) - Beta" name="Turkish" />
+		<combo_box.item label="日本語 (Japoński) - Beta" name="(Japanese)" />
+		<combo_box.item label="正體中文 (Tradycyjny chiński) - Beta" name="Traditional Chinese" />
 	</combo_box>
 	<text name="language_textbox2">
 		(Restart wymagany)
 	</text>
 	<text name="maturity_desired_prompt">
-		Chcę uzyskać dostęp do miejsc zakwalifikowanych jako:
+		Chcę mieć dostęp do miejsc:
 	</text>
-	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="&apos;General&apos;, &apos;Mature&apos; oraz &apos;Adult&apos;" name="Desired_Adult"/>
-		<combo_box.item label="&apos;General&apos; i &apos;Mature&apos;" name="Desired_Mature"/>
-		<combo_box.item label="&apos;General&apos;" name="Desired_PG"/>
+		<combo_box.item label="General, Moderate oraz Adult" name="Desired_Adult" />
+		<combo_box.item label="General oraz Moderate" name="Desired_Mature" />
 	</combo_box>
-	<text name="start_location_textbox">
-		Miejsce Startu:
+	<check_box label="Pokaż moje ulubione landmarki przy logowaniu" name="favorites_on_login_check" />
+	<text name="favorites_check_extra_text">
+		(Inni używający tego komputera również będą je widzieć)
 	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item label="Ostatnie Miejsce" name="MyLastLocation" tool_tip="Domyślnie loguj mnie w ostatnio odwiedzonym miejscu."/>
-		<combo_box.item label="Mój Start" name="MyHome" tool_tip="Domyślnie loguj mnie w moim Miejscu Startu."/>
-	</combo_box>
-	<check_box initial_value="true" label="Pokaż przy zalogowaniu" name="show_location_checkbox"/>
+	<check_box label="Pokaż na ekranie logowania" name="show_location_checkbox" />
 	<text name="name_tags_textbox">
 		Imiona:
 	</text>
 	<radio_group name="Name_Tag_Preference">
-		<radio_item label="Wyłącz" name="radio" value="0"/>
-		<radio_item label="Włącz" name="radio2" value="1"/>
-		<radio_item label="Pokaż w skrócie" name="radio3" value="2"/>
+		<radio_item label="Wyłącz" name="radio" />
+		<radio_item label="Włącz" name="radio2" />
+		<radio_item label="Pokaż na chwilę" name="radio3" />
 	</radio_group>
-	<check_box label="Wyświetl moje imię" name="show_my_name_checkbox1"/>
-	<check_box label="Nazwy użytkowników" name="show_slids" tool_tip="Pokaż nazwy użytkowników, np. bobsmith123"/>
-	<check_box label="Wyświetl tytuł grupowy" name="show_all_title_checkbox1" tool_tip="Wyświetl tytuł grupowy np. oficer"/>
-	<check_box label="Zaznacz znajomych" name="show_friends" tool_tip="Zaznacz imiona swoich znajomych"/>
-	<check_box label="Pokaż wyświetlane nazwy" name="display_names_check" tool_tip="Pokaż wyświetlane nazwy w czacie, IM, imionach, etc."/>
-	<check_box label="Uaktywnij wskazówki UI" name="viewer_hints_check"/>
+	<check_box label="Pokaż moje imię" name="show_my_name_checkbox1" />
+	<check_box label="Nazwy użytkowników" name="show_slids" tool_tip="Pokaż nazwy kont użytkowników, np. bobsmith123" />
+	<check_box label="Pokaż tytuły grupowe" name="show_all_title_checkbox1" tool_tip="Pokaż tytuły grupowe, takie jak Officer czy Member" />
+	<check_box label="Podświetl znajomych" name="show_friends" tool_tip="Podświetlaj imiona Twoich znajomych" />
+	<check_box label="Imiona Wyświetlane" name="display_names_check" tool_tip="Pokaż Imiona Wyświetlane (Display Names) w czacie, IM, tagach ponad awatarami itd." />
 	<text name="inworld_typing_rg_label">
-		Wciśnięcie klawiszy liter:
+		Naciskanie liter:
 	</text>
 	<radio_group name="inworld_typing_preference">
-		<radio_item label="Włącza czat lokalny" name="radio_start_chat" value="1"/>
-		<radio_item label="Wpływ na ruch (WASD)" name="radio_move" value="0"/>
+		<radio_item label="Rozpoczyna czat" name="radio_start_chat" />
+		<radio_item label="Wpływa na ruch (tzn. WASD)" name="radio_move" />
 	</radio_group>
 	<text name="title_afk_text">
-		Zasypiaj w czasie:
+		Zasypiaj po czasie:
 	</text>
-	<combo_box label="Czas Trybu Oddalenia:" name="afk">
-		<combo_box.item label="2 minuty" name="item0"/>
-		<combo_box.item label="5 minut" name="item1"/>
-		<combo_box.item label="10 minut" name="item2"/>
-		<combo_box.item label="30 minut" name="item3"/>
-		<combo_box.item label="nigdy" name="item4"/>
+	<combo_box label="Limit dla Zaśnięcia:" name="afk">
+		<combo_box.item label="2 minuty" name="item0" />
+		<combo_box.item label="5 minut" name="item1" />
+		<combo_box.item label="10 minut" name="item2" />
+		<combo_box.item label="30 minut" name="item3" />
+		<combo_box.item label="Nigdy" name="item4" />
 	</combo_box>
 	<text name="text_box3">
-		Odpowiedź w trybie pracy:
+		Autoodpowiedź trybu zajętości:
 	</text>
 </panel>

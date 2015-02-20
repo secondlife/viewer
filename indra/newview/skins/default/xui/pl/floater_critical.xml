@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="modal container" title="">
+<floater name="modal container">
 	<button label="Kontynuuj" label_selected="Kontynuuj" name="Continue" />
-	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
 	<text name="tos_heading">
-		Proszę przeczytać poniższą wiadomość dokładnie.
+		Przeczytaj uważnie poniższą wiadomość.
 	</text>
-	<text_editor name="tos_text">
-		TOS_TEXT
-	</text_editor>
 </floater>

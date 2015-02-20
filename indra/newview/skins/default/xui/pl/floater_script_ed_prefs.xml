@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_script_colors" title="KOLORY SKRYPTÓW">
+	<text name="color_pickers_label">
+		Wybierz żądane kolory:
+	</text>
+	<text name="text_label">
+		Tekst
+	</text>
+	<text name="cursor_label">
+		Kursor
+	</text>
+	<text name="background_label">
+		Tło
+	</text>
+	<text name="datatype_label">
+		Typy danych
+	</text>
+	<text name="event_label">
+		Zdarzenia
+	</text>
+	<text name="string_literal_label">
+		Łańcuchy
+	</text>
+	<text name="constant_label">
+		Stałe
+	</text>
+	<text name="flow_control_label">
+		Sterowanie
+	</text>
+	<text name="function_label">
+		Funkcje
+	</text>
+	<text name="comment_label">
+		Komentarze
+	</text>
+</floater>

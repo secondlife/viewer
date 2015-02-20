@@ -1,27 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater height="300" min_height="300" name="telehub" title="TELPORTER">
-	<text name="status_text_connected" width="250">
-		Teleporter połączony z obiektem [OBJECT]
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="telehub" title="TELPORTER / TELEHUB">
+	<text name="status_text_connected">
+		Teleport połączony z obiektem [OBJECT]
 	</text>
-	<text name="status_text_not_connected" width="250">
-		Brak połączenia z teleporterem
+	<text name="status_text_not_connected">
+		Brak połączenia z teleportem
 	</text>
 	<text name="help_text_connected">
 		By usunąć wybierz Rozłącz.
 	</text>
 	<text name="help_text_not_connected">
-		Wybierz obiekt i kliknij Połącz z teleporterem
+		Wybierz obiekt i kliknij Połącz z teleportem
 	</text>
-	<button label="Połącz z teleporterem" name="connect_btn" width="132"/>
-	<button label="Rozłącz" left="152" name="disconnect_btn" width="88"/>
-	<text name="spawn_points_text" width="250">
-		Punkty składowe (pozycje - nie obiekty!):
+	<button label="Połącz z teleportem" name="connect_btn" />
+	<button label="Rozłącz" name="disconnect_btn" />
+	<text name="spawn_points_text">
+		Punkty przybywania (pozycje, nie obiekty):
 	</text>
-	<button label="Dodaj punkt" name="add_spawn_point_btn"/>
-	<button label="Usuń punkt" name="remove_spawn_point_btn"/>
+	<button label="Dodaj punkt" name="add_spawn_point_btn" />
+	<button label="Usuń punkt" name="remove_spawn_point_btn" />
 	<text name="spawn_point_help">
-		Wybierz obiekt i wybierz &quot;Dodaj&quot; by sprecyzować pozycję.
-Możesz przesunąć lub usunąć obiekt.
+		Wybierz obiekt i wybierz "Dodaj" by określić pozycję.
+Możesz po tym przesuwać lub usunąć obiekt.
 Pozycje są relatywne do części centralnej teleportera.
 Wybierz obiekt z listy by zobaczyć jego pozycję w świecie.
 	</text>

@@ -1,48 +1,36 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Ustawienia" name="Input panel">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Środowisko" name="Input panel">
 	<text name="Network:">
 		Sieć:
 	</text>
 	<text name="Maximum bandwidth">
-		Maksymalna przepustowość
+		Maks. przepustowość
 	</text>
-	<text name="text_box2">
-		kbps
-	</text>
-	<check_box label="Port dedykowany dla aplikacji" name="connection_port_enabled"/>
-	<spinner label="Numer Portu:" name="connection_port"/>
-	<text name="cache_size_label_l">
-		Rozmiar bufora danych
-	</text>
-	<text name="text_box5">
-		MB
-	</text>
-	<text name="Cache location">
-		Lokalizacja bufora danych:
-	</text>
-	<button label="Ustaw" label_selected="Ustaw" name="set_cache"/>
-	<button label="Zresetuj" label_selected="Zresetuj" name="reset_cache"/>
+	<check_box label="Własny port" name="connection_port_enabled" />
+	<spinner label="Numer portu:" name="connection_port" />
 	<text name="Web:">
-		Internet:
+		WWW:
 	</text>
-	<radio_group name="use_external_browser">
-		<radio_item label="Użyj zewnętrznej przeglądarki (IE, Firefox, Safari)" name="external" tool_tip="Używaj zewnętrznej przeglądarki. Nie jest to rekomendowane w trybie pełnoekranowym." value="true"/>
-		<radio_item label="Używaj wbudowanej przeglądarki." name="internal" tool_tip="Używaj wbudowanej przeglądarki. Ta przeglądarka otworzy nowe okno w [APP_NAME]." value=""/>
+	<radio_group name="preferred_browser_behavior">
+		<radio_item label="Własna (Chrome, Firefox, IE) dla wszystkich linków" name="internal" tool_tip="Używa domyślnej systemowej przeglądarki internetowej do przeglądania plików pomocy, otwierania linków itp. Nie jest zalecane zaznaczanie tej opcji, jeśli uruchamiasz Second Life na pełnym ekranie." />
+		<radio_item label="Wbudowana tylko dla linków Second Life" name="external" tool_tip="Używa domyślnej systemowej przeglądarki internetowej do przeglądania plików pomocy, otwierania linków itp. Przeglądarka wbudowana będzie używana tylko dla linków LindenLab/SecondLife." />
+		<radio_item label="Wbudowana dla wszystkich linków" name="external_all" tool_tip="Używa wbudowanej przeglądarki internetowej do przeglądania plików pomocy, otwierania linków itp. Ta przeglądarka otwiera nowe okienko wewnątrz [APP_NAME]." />
 	</radio_group>
-	<check_box initial_value="true" label="Zezwalaj na wtyczki" name="browser_plugins_enabled"/>
-	<check_box initial_value="true" label="Akceptuj ciasteczka z Internetu" name="cookies_enabled"/>
-	<check_box initial_value="true" label="Zezwalaj na Javascript" name="browser_javascript_enabled"/>
-	<check_box initial_value="false" label="Zezwól na wyskakujące okienka przeglądarki mediów" name="media_popup_enabled"/>
-	<text name="Proxy location">
-		Lokalizacja proxy:
-	</text>
-	<line_editor name="web_proxy_editor" tool_tip="Nazwa lub IP proxy, którego chcesz użyć"/>
-	<spinner label="Numer portu:" name="web_proxy_port"/>
+	<check_box label="Włącz wtyczki" name="browser_plugins_enabled" />
+	<check_box label="Akceptuj ciasteczka" name="cookies_enabled" />
+	<check_box label="Włącz Javascript" name="browser_javascript_enabled" />
+	<check_box label="Włącz wyskakujące okienka przeglądarki mediów" name="media_popup_enabled" />
 	<text name="Software updates:">
-		Aktualizaje oprogramowania:
+		Aktualizacje:
 	</text>
 	<combo_box name="updater_service_combobox">
-		<combo_box.item label="Zainstauj automatycznie" name="Install_automatically"/>
-		<combo_box.item label="Pobierz i zainstaluj aktualizacje ręcznie" name="Install_manual"/>
+		<combo_box.item label="Instaluj automatycznie" name="Install_automatically" />
+		<!-- <combo_box.item label="Pytaj przed instalacją" name="Install_ask" /> -->
+		<combo_box.item label="Pobieraj i instaluj łatki ręcznie" name="Install_manual" />
 	</combo_box>
+	<check_box label="Chcę aktualizować do wersji testowych" name="update_willing_to_test" />
+	<text name="Proxy Settings:">
+		Ustawienia proxy:
+	</text>
+	<button label="Dostosuj ustawienia" label_selected="Przeglądaj" name="set_proxy" />
 </panel>

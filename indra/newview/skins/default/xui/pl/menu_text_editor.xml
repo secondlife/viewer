@@ -1,8 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <context_menu name="Text editor context menu">
-	<menu_item_call label="Wytnij" name="Cut"/>
-	<menu_item_call label="Kopiuj" name="Copy"/>
-	<menu_item_call label="Wklej" name="Paste"/>
-	<menu_item_call label="Usuń" name="Delete"/>
-	<menu_item_call label="Zaznacz wszystko" name="Select All"/>
+	<menu_item_call label="(nieznane)" name="Suggestion 1" />
+	<menu_item_call label="(nieznane)" name="Suggestion 2" />
+	<menu_item_call label="(nieznane)" name="Suggestion 3" />
+	<menu_item_call label="(nieznane)" name="Suggestion 4" />
+	<menu_item_call label="(nieznane)" name="Suggestion 5" />
+	<menu_item_call label="Dodaj do słownika" name="Add to Dictionary" />
+	<menu_item_call label="Dodaj do ignorowanych" name="Add to Ignore" />
+	<menu_item_call label="Wytnij" name="Cut" />
+	<menu_item_call label="Kopiuj" name="Copy" />
+	<menu_item_call label="Wklej" name="Paste" />
+	<menu_item_call label="Usuń" name="Delete" />
+	<menu_item_call label="Zaznacz wszystko" name="Select All" />
 </context_menu>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<floater name="floater_people" title="LUDZIE">
+	<panel_container name="main_panel">
+		<panel name="panel_group_info_sidetray" label="Profil grupy"/>
+	</panel_container>
+</floater>

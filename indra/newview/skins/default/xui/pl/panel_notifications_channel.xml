@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="notifications_panel">
+	<layout_stack name="stack1">
+		<layout_panel name="notifications_list_panel">
+			<scroll_list name="notifications_list">
+				<scroll_list.columns label="Nazwa" name="name" />
+				<scroll_list.columns label="Zawartość" name="content" />
+				<scroll_list.columns label="Data" name="date" />
+			</scroll_list>
+		</layout_panel>
+		<layout_panel name="rejects_list_panel">
+			<scroll_list name="notification_rejects_list">
+				<scroll_list.columns label="Nazwa" name="name" />
+				<scroll_list.columns label="Zawartość" name="content" />
+				<scroll_list.columns label="Data" name="date" />
+			</scroll_list>
+		</layout_panel>
+	</layout_stack>
+</panel>

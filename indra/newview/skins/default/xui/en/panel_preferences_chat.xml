@@ -453,6 +453,7 @@
       width="505">
 
     <text
+        name="logging_label"
         layout="topleft"
         left="0"
         text_color="White"
@@ -468,16 +469,19 @@
         height="23"
         layout="topleft"
         left_pad="5"
-        name="chat_font_size"
+        name="conversation_log_combo"
         top="0"
         width="165">
         <item
+            name="log_and_transcripts"
             label="Log and transcripts"
             value="2"/>
         <item
+            name="log_only"
             label="Log only"
             value="1"/>
         <item
+            name="no_log_or_transcript"
             label="No log or transcripts"
             value="0"/>
     </combo_box>
@@ -509,6 +513,7 @@
     </button>
   
     <text
+        name="log_location_label"
         layout="topleft"
         left="0"
         text_color="White"

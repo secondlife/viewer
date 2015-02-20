@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="queue" title="ZRESETUJ PRACĘ W TOKU">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="queue" title="POSTĘP RESETOWANIA">
 	<floater.string name="Starting">
-		Rozpoczęcie [START] [COUNT] elementów.
+		[START] w [COUNT] obiektach.
 	</floater.string>
 	<floater.string name="Done">
-		Wykonane.
+		Gotowe.
 	</floater.string>
 	<floater.string name="Resetting">
-		Trwa resetowanie
+		Resetowanie
 	</floater.string>
 	<floater.string name="Running">
-		Skrypt działa
+		Włączanie
 	</floater.string>
 	<floater.string name="NotRunning">
-		Skrypt nie działa
+		Wyłączanie
 	</floater.string>
-	<button label="Zamknij" label_selected="Zamknij" name="close"/>
+	<button label="Zamknij" label_selected="Zamknij" name="close" />
 </floater>

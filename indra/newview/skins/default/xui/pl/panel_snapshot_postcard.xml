@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_snapshot_postcard">
+	<string name="default_subject">
+		Pocztówka od [SECOND_LIFE].
+	</string>
+	<string name="default_message">
+		Zerknij na to!
+	</string>
+	<string name="upload_message">
+		Wysyłanie...
+	</string>
+	<tab_container name="postcard_tabs">
+		<panel label="Wiadomość" name="panel_postcard_message" />
+		<panel label="Ustawienia" name="panel_postcard_settings" />
+	</tab_container>
+	<button label="Anuluj" name="cancel_btn" />
+	<button label="Wyślij" name="send_btn" />
+</panel>

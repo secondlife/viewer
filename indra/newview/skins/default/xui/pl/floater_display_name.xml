@@ -1,18 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Display Name" title="ZMIEŃ WYŚWIETLANĄ NAZWĘ">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Display Name" title="ZMIEŃ WYŚWIETLANE IMIĘ">
 	<text name="info_text">
-		Nazwa, którą nadałaś/nadałeś Twojemu awatarowi jest określana jako wyświetlana nazwa. Możesz ją zmieniać raz w tygodniu.
+		Imię, które nadałaś/eś Twojemu awatarowi jest nazywane Wyświetlanym Imieniem. Możesz je zmienić raz w tygodniu.
 	</text>
 	<text name="lockout_text">
-		Nie możesz zmienić swojej wyświetlanej nazwy do: [TIME].
+		Nie możesz zmienić swojego Imienia do: [TIME].
 	</text>
 	<text name="set_name_label">
-		Nowa wyświetlana nazwa:
+		Nowe Wyświetlane Imię:
 	</text>
 	<text name="name_confirm_label">
-		Wpisz Twoją nową nazwę aby potwierdzić:
+		Wpisz Twoje nowe Imię aby potwierdzić:
 	</text>
-	<button label="Zapisz" name="save_btn" tool_tip="Zapisz swoją nową wyświetlaną nazwę"/>
-	<button label="Resetuj" name="reset_btn" tool_tip="Uczyń wyświetlaną nazwę taką samą jak nazwa użytkownika"/>
-	<button label="Cofnij" name="cancel_btn"/>
+	<button label="Zapisz" name="save_btn" tool_tip="Zapisz swoje nowe Wyświetlane Imię" />
+	<button label="Resetuj" name="reset_btn" tool_tip="Uczyń Wyświetlane Imię takim samym, jak nazwa konta użytkownika" />
+	<button label="Anuluj" name="cancel_btn" />
 </floater>

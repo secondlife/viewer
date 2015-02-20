@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="home_tab">
+	<layout_stack name="stack">
+		<layout_panel name="browser_layout">
+			<web_browser name="browser" start_url="data:text/html,%3Chtml%3E%3Cbody bgcolor=%22#2A2A2A%22 text=%22eeeeee%22%3E %3Ch3%3E %0D%0A%0D%0AWczytywanie... %3C/h3%3E %3C/body%3E%3C/html%3E" />
+		</layout_panel>
+	</layout_stack>
+</panel>

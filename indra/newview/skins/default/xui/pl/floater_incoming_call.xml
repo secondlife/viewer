@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="incoming call" title="Rozmowa głosowa">
-	<floater.string name="lifetime">
-		5
-	</floater.string>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="incoming call">
 	<floater.string name="localchat">
 		Rozmowy głosowe w pobliżu
 	</floater.string>
@@ -13,21 +10,21 @@
 		dzwoni.
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
-		rozpoczął rozmowę głosową w czacie konferencji.
+		dołączył do rozmowy głosowej w czacie konferencji.
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		dołączył/dołączyła do &apos;[GROUP]&apos; rozmowy głosowej.
+		dołączył/a do rozmowy głosowej '[GROUP]'.
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionGroup">
-		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do rozmowy z &apos;[GROUP]&apos;?
+		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do rozmowy z '[GROUP]'?
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionDefault">
 		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do tej rozmowy głosowej?
 	</floater.string>
+	<button label="Odbierz" label_selected="Odbierz" name="Accept" />
+	<button label="Odrzuć" label_selected="Odrzuć" name="Reject" />
+	<button label="Rozpocznij IM" name="Start IM" />
 	<text name="question">
-		Czy chcesz opuścić [CURRENT_CHAT] i dołączyć do tej rozmowy głosowej?
+		Jeśli odbierzesz, to zostaniesz rozłączony/a z obecnej rozmowy głosowej.
 	</text>
-	<button label="Zaakceptuj" label_selected="Zaakceptuj" name="Accept"/>
-	<button label="Odmów" label_selected="Odmów" name="Reject"/>
-	<button label="Rozpocznij IM" name="Start IM"/>
 </floater>

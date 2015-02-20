@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_snapshot_local">
+	<text name="title">
+		Dysk
+	</text>
+	<combo_box label="Rozdzielczość" name="local_size_combo">
+		<combo_box.item label="Obecne okno" name="CurrentWindow" />
+		<combo_box.item label="Własna" name="Custom" />
+	</combo_box>
+	<spinner label="Szer. x Wys." name="local_snapshot_width" />
+	<check_box label="Zachowaj proporcje" name="local_keep_aspect_check" />
+	<combo_box name="local_format_combo">
+		<combo_box.item label="PNG (bezstratny)" name="PNG" />
+		<combo_box.item label="BMP (bezstratny)" name="BMP" />
+	</combo_box>
+	<slider label="Jakość:" name="image_quality_slider" />
+	<button label="Anuluj" name="cancel_btn" />
+	<flyout_button label="Zapisz" name="save_btn" tool_tip="Zapisz obraz do pliku">
+		<flyout_button.item label="Zapisz" name="save_item" />
+		<flyout_button.item label="Zapisz jako..." name="saveas_item" />
+	</flyout_button>
+</panel>

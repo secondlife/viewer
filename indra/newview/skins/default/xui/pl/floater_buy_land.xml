@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="KUP POSIADŁOŚĆ">
+<floater name="buy land" title="KUP DZIAŁKĘ">
 	<floater.string name="can_resell">
 		Może być odsprzedana.
 	</floater.string>
@@ -13,47 +13,47 @@
 		Nie mogą być łączone ani dzielone.
 	</floater.string>
 	<floater.string name="cant_buy_for_group">
-		Nie masz pozwolenia na zakup Posiadłości dla Twojej aktywnej Grupy.
+		Nie masz pozwolenia na zakup działki dla Twojej aktywnej Grupy.
 	</floater.string>
 	<floater.string name="no_land_selected">
 		Obszar nie jest wybrany.
 	</floater.string>
 	<floater.string name="multiple_parcels_selected">
-		Wybrałeś wiele różnych Posiadłości.
+		Wybrałeś/aś wiele różnych działek.
 Spróbuj wybrać mniejszy obszar.
 	</floater.string>
 	<floater.string name="no_permission">
-		Nie masz pozwolenia na zakup Posiadłości dla Twojej aktywnej Grupy.
+		Nie masz pozwolenia na zakup działki dla Twojej aktywnej Grupy.
 	</floater.string>
 	<floater.string name="parcel_not_for_sale">
-		Wybrana Posiadłość nie jest na sprzedaż.
+		Wybrana działka nie jest na sprzedaż.
 	</floater.string>
 	<floater.string name="group_already_owns">
-		Ta Posiadłość już należy do Grupy.
+		Ta działka już należy do Grupy.
 	</floater.string>
 	<floater.string name="you_already_own">
-		Ta Posiadłość już należy do Ciebie.
+		Ta działka już należy do Ciebie.
 	</floater.string>
 	<floater.string name="set_to_sell_to_other">
-		Wybrana Posiadłość będzie sprzedana komuś innemu.
+		Wybrana działka będzie sprzedana komuś innemu.
 	</floater.string>
 	<floater.string name="no_public_land">
-		Wybrany obszar nie ma publicznych Posiadłości.
+		Wybrany obszar nie ma publicznych działek.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Wybrałeś Posiadłość, której Właścicielem jest inny Rezydent.
-Spróbuj wybrać ponownie mniejszą powierzchnię Posiadłości.
+		Wybrałeś/aś działkę, której Właścicielem jest inny Rezydent.
+Spróbuj wybrać ponownie mniejszą powierzchnię działki.
 	</floater.string>
 	<floater.string name="processing">
 		Przetwarzanie Twojego zakupu...
- 
+
 (Może zająć kilka minut)
 	</floater.string>
 	<floater.string name="fetching_error">
-		Błąd podczas wczytywania informacji zakupu Posiadłości.
+		Błąd podczas wczytywania informacji zakupu działki.
 	</floater.string>
 	<floater.string name="buying_will">
-		Zakup tej Posiadłości spowoduje:
+		Zakup tej działki spowoduje:
 	</floater.string>
 	<floater.string name="buying_for_group">
 		Zakup ziemi dla Grupy:
@@ -68,28 +68,28 @@ Spróbuj wybrać ponownie mniejszą powierzchnię Posiadłości.
 		Poprawność danych.
 	</floater.string>
 	<floater.string name="must_upgrade">
-		Musisz mieć konto Premium żebyś mógł mieć Posiadłości.
+		Musisz mieć konto Premium żebyś mógł/mogła mieć działki.
 	</floater.string>
 	<floater.string name="cant_own_land">
-		Twoje konto pozwala Ci mieć Posiadłości.
+		Twoje konto pozwala Ci mieć działki.
 	</floater.string>
 	<floater.string name="land_holdings">
 		Jesteś właścicielem [BUYER] m² ziemi.
 	</floater.string>
 	<floater.string name="pay_to_for_land">
-		Zapłać [SELLER] [AMOUNT]L$ za Posiadłość
+		Zapłać [SELLER] [AMOUNT]L$ za działkę
 	</floater.string>
 	<floater.string name="buy_for_US">
 		Kup L$ [AMOUNT] za [LOCAL_AMOUNT],
 	</floater.string>
 	<floater.string name="parcel_meters">
-		Podana posiadłość to [AMOUNT] m² ziemi.
+		Podana działka to [AMOUNT] m² ziemi.
 	</floater.string>
 	<floater.string name="premium_land">
-		Podana posiadłość jest w cenie premium adekwatnie jak za [AMOUNT] m².
+		Podana działka jest w cenie premium adekwatnie jak za [AMOUNT] m².
 	</floater.string>
 	<floater.string name="discounted_land">
-		Wybrana posiadłość jest w cenie zniżkowej adekwatnie jak za [AMOUNT] m².
+		Wybrana działka jest w cenie zniżkowej adekwatnie jak za [AMOUNT] m².
 	</floater.string>
 	<floater.string name="meters_supports_object">
 		[AMOUNT] m²
@@ -101,17 +101,11 @@ wspiera [AMOUNT2] obiektów
 	<floater.string name="sold_without_objects">
 		obiekty nie są zawarte w sprzedaży
 	</floater.string>
-	<floater.string name="info_price_string">
-		L$ [PRICE]
-(L$ [PRICE_PER_SQM]/m²)
-[SOLD_WITH_OBJECTS]
-	</floater.string>
 	<floater.string name="insufficient_land_credits">
-		Grupa [GROUP] musi mieć wystarczający kredyt na
-używanie Posiadłości żeby sfinalizować ten zakup.
+		Grupa [GROUP] musi mieć wystarczający kredyt na używanie działki, żeby sfinalizować ten zakup.
 	</floater.string>
 	<floater.string name="have_enough_lindens">
-		Masz [AMOUNT]L$ co wystarcza na zakup tej Posiadłości.
+		Masz [AMOUNT]L$ co wystarcza na zakup tej działki.
 	</floater.string>
 	<floater.string name="not_enough_lindens">
 		Masz tylko [AMOUNT]L$ i potrzebujesz [AMOUNT2]L$ dodatkowo.
@@ -120,14 +114,11 @@ używanie Posiadłości żeby sfinalizować ten zakup.
 		Po zakupie zostanie Ci [AMOUNT]L$.
 	</floater.string>
 	<floater.string name="balance_needed">
-		Musisz dokupić [AMOUNT]L$ żeby kupić tą Posiadłość.
+		Musisz dokupić [AMOUNT]L$ żeby kupić tą działkę.
 	</floater.string>
 	<floater.string name="no_parcel_selected">
-		(Posiadłość nie została wybrana)
+		(niczego nie wybrano)
 	</floater.string>
-	<text name="region_name_label">
-		Region:
-	</text>
 	<text name="region_name_text">
 		(brak danych)
 	</text>
@@ -144,19 +135,19 @@ używanie Posiadłości żeby sfinalizować ten zakup.
 		(brak danych)
 	</text>
 	<text name="estate_owner_label">
-		Właściciel Majątku:
+		Właśc. Majątku:
 	</text>
 	<text name="estate_owner_text">
 		(brak danych)
 	</text>
 	<text name="resellable_changeable_label">
-		Posiadłości zakupione w tym Regionie:
+		Działki zakupione w tym Regionie:
 	</text>
 	<text name="resellable_clause">
-		Posiadłość może lub nie może być odsprzedana.
+		Działka może lub nie może być odsprzedana.
 	</text>
 	<text name="changeable_clause">
-		Posiadłość może lub nie może być dzielona i łączona.
+		Działka może lub nie może być dzielona i łączona.
 	</text>
 	<text name="covenant_text">
 		Musisz zaakceptować Umowę z Majątku:
@@ -164,71 +155,62 @@ używanie Posiadłości żeby sfinalizować ten zakup.
 	<text_editor name="covenant_editor">
 		Ładowanie...
 	</text_editor>
-	<check_box label="Zgadzam się na Powyższą Umowę." name="agree_covenant"/>
-	<text name="info_parcel_label" width="60">
-		Posiadłość:
-	</text>
-	<text left_delta="62" name="info_parcel">
-		Scotopteryx 138,204
+	<check_box label="Zgadzam się na powyższą umowę." name="agree_covenant" />
+	<text name="info_parcel_label">
+		Działka:
 	</text>
 	<text name="info_size_label">
 		Obszar:
 	</text>
-	<text left_delta="62" name="info_size">
-		1024 m²
-	</text>
 	<text name="info_price_label">
 		Cena:
 	</text>
-	<text left_delta="62" name="info_price">
+	<text name="info_price">
 		L$ 1500
 (L$ 1.1/m²)
 sprzedaż z obiektami
 	</text>
 	<text name="info_action">
-		Zakup tej Posiadłości spowoduje:
+		Zakup tej działki spowoduje:
 	</text>
 	<text name="error_message">
 		Wystąpił błąd.
 	</text>
-	<button label="Idź na stronę www" name="error_web"/>
+	<button label="Idź na stronę www" name="error_web" />
 	<text name="account_action">
 		Zmianę Twojego konta na Premium.
 	</text>
 	<text name="account_reason">
-		Tylko członkowie z kontem Premium mogą mieć Posiadłosci.
+		Tylko osoby z kontem Premium mogą mieć działki.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item label="US$9.95/miesięcznie, naliczane miesięcznie" name="US$9.95/month,billedmonthly"/>
-		<combo_box.item label="US$7.50/miesięcznie, naliczane kwartalnie" name="US$7.50/month,billedquarterly"/>
-		<combo_box.item label="US$6.00/miesięcznie, naliczane rocznie" name="US$6.00/month,billedannually"/>
+		<combo_box.item label="US$9.95/miesięcznie, naliczane miesięcznie" name="US$9.95/month,billedmonthly" />
+		<combo_box.item label="US$7.50/miesięcznie, naliczane kwartalnie" name="US$7.50/month,billedquarterly" />
+		<combo_box.item label="US$6.00/miesięcznie, naliczane rocznie" name="US$6.00/month,billedannually" />
 	</combo_box>
 	<text name="land_use_action">
-		Zwiększ opłatę za używanie Posiadłości do 40US$/miesiąc.
+		Zwiększy opłatę za używanie działek do 40 US$/miesiąc.
 	</text>
 	<text name="land_use_reason">
-		Jesteś właścicielem  1309 m² ziemi. 
-Posiadłość ta zawiera 512 m² ziemi.
+		Jesteś właścicielem 1309 m² ziemi. 
+Działka ta zawiera 512 m² ziemi.
 	</text>
 	<text name="purchase_action">
-		Pay Joe Resident L$ 4000 for the land
+		Zapłać Joe Resident 4000 L$ za działkę
 	</text>
 	<text name="currency_reason">
-		You have L$ 2,100.
+		Masz 2,100 L$.
 	</text>
 	<text name="currency_action">
 		Kup więcej L$
 	</text>
-	<line_editor name="currency_amt">
-		1000
-	</line_editor>
 	<text name="currency_est">
 		za [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
-		Masz 2,100L$.
+		Masz 2,100 L$.
 	</text>
-	<check_box label="Usuń [AMOUNT] m² z kontrybucji w grupie." name="remove_contribution"/>
-	<button label="Zakup" name="buy_btn"/>
-	<button label="Anuluj" name="cancel_btn"/>
+	<check_box label="Usuń [AMOUNT] m² z kontrybucji w grupie." name="remove_contribution" />
+	<button label="Zakup" name="buy_btn" />
+	<button label="Anuluj" name="cancel_btn" />
 </floater>
