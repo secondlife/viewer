@@ -120,6 +120,18 @@ char const* const VISIBILITY_HIDDEN = "hidden";
 //control value for middle mouse as talk2push button
 const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
 
+/// This must equal the maximum value set for the IndirectMaxComplexity slider in panel_preferences_graphics1.xml
+static const U32 INDIRECT_MAX_ARC_OFF = 101; // all the way to the right == disabled
+static const U32 MIN_INDIRECT_ARC_LIMIT = 1; // must match minimum of IndirectMaxComplexity in panel_preferences_graphics1.xml
+static const U32 MAX_INDIRECT_ARC_LIMIT = INDIRECT_MAX_ARC_OFF-1; // one short of all the way to the right...
+
+/// These are the effective range of values for RenderAvatarMaxComplexity
+static const F32 MIN_ARC_LIMIT =  20000.0f;
+static const F32 MAX_ARC_LIMIT = 300000.0f;
+static const F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
+static const F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
+static const F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);
+
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
 public:
@@ -793,6 +805,10 @@ void LLFloaterPreference::updateShowFavoritesCheckbox(bool val)
 void LLFloaterPreference::setHardwareDefaults()
 {
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
+
+	// reset indirects before refresh because we may have changed what they control
+	LLFloaterPreferenceGraphicsAdvanced::setIndirectControls(); 
+
 	refreshEnabledGraphics();
 	gSavedSettings.setString("PresetGraphicActive", "");
 	LLPresetsManager::getInstance()->triggerChangeSignal();
@@ -805,7 +821,9 @@ void LLFloaterPreference::setHardwareDefaults()
 		LLView* view = *iter;
 		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
 		if (panel)
+		{
 			panel->setHardwareDefaults();
+		}
 	}
 }
 
@@ -1273,12 +1291,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	ctrl_shadow->setEnabled(enabled);
 	shadow_text->setEnabled(enabled);
 
-	LLTextBox* maximum_arc_text = getChild<LLTextBox>("MaximumARCText");
-
-	enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors") && gSavedSettings.getBOOL("RenderUseImpostors");
-	getChildView("MaximumARC")->setEnabled(enabled);
-	maximum_arc_text->setEnabled(enabled);
-
 	// Hardware settings
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
 	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
@@ -1314,6 +1326,48 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
 }
 
+// static
+void LLFloaterPreferenceGraphicsAdvanced::setIndirectControls()
+{
+	/*
+	 * We have controls that have an indirect relationship between the control
+	 * values and adjacent text and the underlying setting they influence.
+	 * In each case, the control and its associated setting are named Indirect<something>
+	 * This method interrogates the controlled setting and establishes the
+	 * appropriate value for the indirect control. It must be called whenever the
+	 * underlying setting may have changed other than through the indirect control,
+	 * such as when the 'Reset all to recommended settings' button is used...
+	 */
+	setIndirectMaxNonImpostors();
+	setIndirectMaxArc();
+}
+
+// static
+void LLFloaterPreferenceGraphicsAdvanced::setIndirectMaxNonImpostors()
+{
+	U32 max_non_impostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
+	// for this one, we just need to make zero, which means off, the max value of the slider
+	U32 indirect_max_non_impostors = (0 == max_non_impostors) ? LLVOAvatar::IMPOSTORS_OFF : max_non_impostors;
+	gSavedSettings.setU32("IndirectMaxNonImpostors", indirect_max_non_impostors);
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::setIndirectMaxArc()
+{
+	U32 max_arc = gSavedSettings.getU32("RenderAvatarMaxComplexity");
+	U32 indirect_max_arc;
+	if (0 == max_arc)
+	{
+		// the off position is all the way to the right, so set to control max
+		indirect_max_arc = INDIRECT_MAX_ARC_OFF;
+	}
+	else
+	{
+		// This is the inverse of the calculation in updateMaxComplexity
+		indirect_max_arc = (U32)((log(max_arc) - MIN_ARC_LOG) / ARC_LIMIT_MAP_SCALE) + MIN_INDIRECT_ARC_LIMIT;
+	}
+	gSavedSettings.setU32("IndirectMaxComplexity", indirect_max_arc);
+}
+
 void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 {	
 	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
@@ -1322,8 +1376,6 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
 	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLSliderCtrl* ctrl_maximum_arc = getChild<LLSliderCtrl>("MaximumARC");
-	LLTextBox* maximum_arc_text = getChild<LLTextBox>("MaximumARCText");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
 	LLTextBox* shadows_text = getChild<LLTextBox>("RenderShadowDetailText");
@@ -1463,13 +1515,6 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
 	}
-
-	// disabled impostors
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors"))
-	{
-		ctrl_maximum_arc->setEnabled(FALSE);
-		maximum_arc_text->setEnabled(FALSE);
-	}
 }
 
 void LLFloaterPreference::refresh()
@@ -1485,8 +1530,6 @@ void LLFloaterPreference::refresh()
 
 void LLFloaterPreferenceGraphicsAdvanced::refresh()
 {
-	refreshEnabledState();
-
 	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
 
 	// sliders and their text boxes
@@ -1501,9 +1544,9 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
-	updateImpostorsText(getChild<LLSliderCtrl>("MaxNumberAvatarDrawn",		true), getChild<LLTextBox>("ImpostorsText",			true));	
-	updateMaximumArcText(getChild<LLSliderCtrl>("MaximumARC",		true), getChild<LLTextBox>("MaximumARCText",			true));	
-
+	setIndirectControls();
+	setMaxNonImpostorsText(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));	
+	setMaxComplexityText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),getChild<LLTextBox>("IndirectMaxComplexityText", true));	
 	refreshEnabledState();
 }
 
@@ -1785,59 +1828,70 @@ void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, L
 	}
 }
 
-void LLFloaterPreferenceGraphicsAdvanced::updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+void LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors()
 {
-	F32 value = (F32)ctrl->getValue().asReal();
+	// Called when the IndirectMaxNonImpostors control changes
+	// Responsible for fixing the slider label (IndirectMaxNonImpostorsText) and setting RenderAvatarMaxNonImpostors
+	LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxNonImpostors",true);
+	U32 value = ctrl->getValue().asInteger();
 
-	if (value < IMPOSTORS_OFF)
+	if (0 == value || LLVOAvatar::IMPOSTORS_OFF <= value)
 	{
-		text_box->setText(llformat("%0.0f", value));
-		if (!gSavedSettings.getBOOL("RenderUseImpostors"))
-		{
-			gSavedSettings.setBOOL("RenderUseImpostors", true);
-		}
+		value=0;
+	}
+	gSavedSettings.setU32("RenderAvatarMaxNonImpostors", value);
+	LLVOAvatar::updateImpostorRendering(value); // make it effective immediately
+	setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)
+{
+	if (0 == value)
+	{
+		text_box->setText(LLTrans::getString("no_limit"));
 	}
 	else
 	{
-		text_box->setText(LLTrans::getString("no_limit"));
-		gSavedSettings.setBOOL("RenderUseImpostors", false);
+		text_box->setText(llformat("%d", value));
 	}
 }
 
-void LLFloaterPreferenceGraphicsAdvanced::updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box)
+void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
 {
-	F32 min_result = 20000.0f;
-	F32 max_result = 300000.0f;
-
-	F32 value = (F32)ctrl->getValue().asReal();
-
-	if (101.0f == value)
+	// Called when the IndirectMaxComplexity control changes
+	// Responsible for fixing the slider label (IndirectMaxComplexityText) and setting RenderAvatarMaxComplexity
+	LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxComplexity");
+	U32 indirect_value = ctrl->getValue().asInteger();
+	U32 max_arc;
+	
+	if (INDIRECT_MAX_ARC_OFF == indirect_value)
 	{
-		// It has been decided that having the slider all the way to the right will be the off position, which
-		// is a value of 101, so it is necessary to change value to 0 disable impostor generation.
-		value = 0.0f;
+		// The 'off' position is when the slider is all the way to the right, 
+		// which is a value of INDIRECT_MAX_ARC_OFF,
+		// so it is necessary to set max_arc to 0 disable muted avatars.
+		max_arc = 0;
+	}
+	else
+	{
+		// if this is changed, the inverse calculation in setIndirectMaxArc
+		// must be changed to match
+		max_arc = (U32)exp(MIN_ARC_LOG + (ARC_LIMIT_MAP_SCALE * (indirect_value - MIN_INDIRECT_ARC_LIMIT)));
+	}
+
+	gSavedSettings.setU32("RenderAvatarMaxComplexity", (U32)max_arc);
+	setMaxComplexityText(max_arc, getChild<LLTextBox>("IndirectMaxComplexityText"));
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::setMaxComplexityText(U32 value, LLTextBox* text_box)
+{
+	if (0 == value)
+	{
 		text_box->setText(LLTrans::getString("no_limit"));
 	}
 	else
 	{
-
-		// 100 is the maximum value of this control set in panel_preferences_graphics1.xml
-		F32 minp = 1.0f;
-		F32 maxp = 100.0f;
-
-		// The result should be between min_result and max_result
-		F32 minv = log(min_result);
-		F32 maxv = log(max_result);
-
-		// calculate adjustment factor
-		F32 scale = (maxv - minv) / (maxp - minp);
-
-		value = exp(minv + scale * (value - minp));
-
-		text_box->setText(llformat("%0.0f", value));
+		text_box->setText(llformat("%d", value));
 	}
-
-	gSavedSettings.setU32("RenderAutoMuteRenderWeightLimit", (U32)value);
 }
 
 void LLFloaterPreference::onChangeMaturity()
@@ -2460,13 +2514,14 @@ void LLPanelPreferenceGraphics::saveSettings()
 void LLPanelPreferenceGraphics::setHardwareDefaults()
 {
 	resetDirtyChilds();
-	LLPanelPreference::setHardwareDefaults();
 }
 
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
 	: LLFloater(key)
 {
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable, this));
+	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
+	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
 }
 
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()

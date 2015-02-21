@@ -1281,13 +1281,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	llassert(LLPipeline::sImpostorRender || !avatarp->isVisuallyMuted());
-
-	/*if (single_avatar && avatarp->mSpecialRenderMode >= 1) // 1=anim preview, 2=image preview,  3=morph view
-	{
-		gPipeline.enableLightsAvatarEdit(LLColor4(.5f, .5f, .5f, 1.f));
-	}*/
-	
 	if (pass == 1)
 	{
 		// render rigid meshes (eyeballs) first

@@ -606,7 +606,7 @@ void LLFeatureManager::applyRecommendedSettings()
 	// cap the level at 2 (high)
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 
-	LL_INFOS() << "Applying Recommended Features" << LL_ENDL;
+	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
 	setGraphicsLevel(level, false);
 	gSavedSettings.setU32("RenderQualityPerformance", level);
@@ -813,7 +813,7 @@ void LLFeatureManager::applyBaseMasks()
 	if (osInfo.mMajorVer == 10 && osInfo.mMinorVer < 7)
 	{
 		maskFeatures("OSX_10_6_8");
-        }
+	}
 #endif
 
 	// now mask by gpu string

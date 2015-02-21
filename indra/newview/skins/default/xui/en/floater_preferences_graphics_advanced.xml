@@ -130,24 +130,24 @@
   </text>
 
   <slider
-    control_name="MaximumARC"
+    control_name="IndirectMaxComplexity"
     follows="left|top"
     height="16"
     initial_value="101"
     increment="1"
-    label="Maximum ARC:"
+    label="Maximum Complexity:"
     label_width="185"
     layout="topleft"
     left="30"
     min_val="1"
     max_val="101"
-    name="MaximumARC"
+    name="IndirectMaxComplexity"
     show_text="false"
     top_delta="16"
     width="300">
     <slider.commit_callback
-      function="Pref.UpdateSliderText"
-      parameter="MaximumARCText" />
+      function="Pref.UpdateIndirectMaxComplexity"
+      parameter="IndirectMaxComlexityText" />
   </slider>
   <text
     type="string"
@@ -158,13 +158,13 @@
     top_delta="0"
     left_delta="304"
     text_readonly_color="LabelDisabledColor"
-    name="MaximumARCText"
+    name="IndirectMaxComplexityText"
     width="65">
        0
   </text>
 
   <slider
-    control_name="RenderAvatarMaxVisible"
+    control_name="IndirectMaxNonImpostors"
     decimal_digits="0"
     follows="left|top"
     height="16"
@@ -176,13 +176,13 @@
     left="30"
     min_val="1"
     max_val="66"
-    name="MaxNumberAvatarDrawn"
+    name="IndirectMaxNonImpostors"
     show_text="false"
     top_delta="16"
     width="300">
     <slider.commit_callback
-      function="Pref.UpdateSliderText"
-      parameter="ImpostorsText" />
+      function="Pref.UpdateIndirectMaxNonImpostors"
+      parameter="IndirectNonImpostorsText" />
   </slider>
   <text
     type="string"
@@ -193,7 +193,7 @@
     top_delta="0"
     left_delta="304"
     text_readonly_color="LabelDisabledColor"
-    name="ImpostorsText"
+    name="IndirectMaxNonImpostorsText"
     width="65">
        0
   </text>

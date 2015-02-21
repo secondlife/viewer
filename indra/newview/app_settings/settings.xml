@@ -8287,15 +8287,13 @@
     <key>RenderAvatarMaxVisible</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of avatars to fully render at one time;
-      over this limit uses impostor rendering (simplified rendering
-      with less frequent updates)</string>
+      <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>12</integer>
+      <integer>0</integer>
     </map>
     <key>RenderAvatarPhysicsLODFactor</key>
     <map>
@@ -9846,29 +9844,28 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-    <key>RenderUseFarClip</key>
-    <map>
-      <key>Comment</key>
-      <string>If false, frustum culling will ignore far clip plane.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>RenderUseImpostors</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether we want to use impostors for far away avatars.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-  
+  <key>RenderUseFarClip</key>
+  <map>
+    <key>Comment</key>
+    <string>If false, frustum culling will ignore far clip plane.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderUseImpostors</key>
+  <map>
+    <key>Comment</key>
+    <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors and RenderAvatarMaxComplexity.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
@@ -9880,10 +9877,35 @@
     <key>Value</key>
     <integer>10000000</integer>
   </map>
+  <key>RenderAvatarMaxNonImpostors</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of avatars to fully render at one time;
+    over this limit uses impostor rendering (simplified rendering
+    with less frequent updates), reducing client lag.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>12</integer>
+  </map>
   <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum render weight before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
+    <string>OBSOLETE. This setting has been renamed RenderAvatarMaxNonImpostors.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAvatarMaxComplexity</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum Avatar Complexity; above this value, the avatar is
+    rendered as a solid color outline (0 to disable this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -15575,12 +15597,25 @@
       <key>Value</key>
       <string />
     </map>
-    <key>MaximumARC</key>
+    <key>IndirectMaxComplexity</key>
     <map>
       <key>Comment</key>
-      <string>Controls RenderAutoMuteRenderWeightLimit in a non-linear fashion</string>
+      <string>Controls RenderAvatarMaxComplexity in a non-linear fashion (do
+      not set this value)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>IndirectMaxNonImpostors</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls RenderAvatarMaxNonImpostors in a non-linear fashion (do
+      not set this value)</string>
+      <key>Persist</key>
+      <integer>0</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>

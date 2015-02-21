@@ -248,7 +248,7 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 					!avatar->isDead() &&								// Not dead yet
 					avatar->getObjectHost() == regionp->getHost())		// Ensure it's on the same region
 				{
-					avatar->calculateUpdateRenderCost();			// Make sure the numbers are up-to-date
+					avatar->calculateUpdateRenderComplexity();			// Make sure the numbers are up-to-date
 
 					LLSD info = LLSD::emptyMap();
 					if (avatar->getVisualComplexity() > 0)

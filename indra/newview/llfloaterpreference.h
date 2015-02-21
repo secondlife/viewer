@@ -58,10 +58,6 @@ typedef enum
 		
 	} EGraphicsSettings;
 
-// 65 is the maximum value for impostors set in the xml file.  When the slider reaches this
-// value impostors are turned off.
-const U32	IMPOSTORS_OFF = 66;
-
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
 {
@@ -117,10 +113,10 @@ protected:
 	// callback for defaults
 	void setHardwareDefaults();
 	void setRecommended();
+	// callback for when client turns on shaders
+	void onVertexShaderEnable();
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
-		// callback for when client turns on shaders
-	void onVertexShaderEnable();
 
 	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
 	void onClickActionChange();
@@ -200,6 +196,7 @@ private:
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
+	LOG_CLASS(LLFloaterPreference);
 };
 
 class LLPanelPreference : public LLPanel
@@ -243,6 +240,7 @@ private:
 	string_color_map_t mSavedColors;
 
 	Updater* mBandWidthUpdater;
+	LOG_CLASS(LLPanelPreference);
 };
 
 class LLPanelPreferenceGraphics : public LLPanelPreference
@@ -264,6 +262,7 @@ protected:
 private:
 
 	void onPresetsListChange();
+	LOG_CLASS(LLPanelPreferenceGraphics);
 };
 
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
@@ -276,11 +275,17 @@ public:
 	void refreshEnabledGraphics();
 	void refreshEnabledState();
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateImpostorsText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateMaximumArcText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void updateMaxNonImpostors();
+	void setMaxNonImpostorsText(U32 value, LLTextBox* text_box);
+	void updateMaxComplexity();
+	void setMaxComplexityText(U32 value, LLTextBox* text_box);
+	static void setIndirectControls();
+	static void setIndirectMaxNonImpostors();
+	static void setIndirectMaxArc();
 	void refresh();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
+	LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 };
 
 class LLFloaterPreferenceProxy : public LLFloater
@@ -308,7 +313,7 @@ private:
 	bool mSocksSettingsDirty;
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;
-
+	LOG_CLASS(LLFloaterPreferenceProxy);
 };
 
 
