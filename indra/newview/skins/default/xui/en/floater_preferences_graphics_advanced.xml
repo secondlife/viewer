@@ -122,7 +122,7 @@
     height="16"
     initial_value="101"
     increment="1"
-    label="Maximum Complexity:"
+    label="Maximum complexity:"
     label_width="185"
     layout="topleft"
     left="30"
