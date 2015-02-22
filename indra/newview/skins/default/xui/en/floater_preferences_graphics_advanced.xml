@@ -11,19 +11,6 @@
 
 <!-- This block shows Advanced Settings -->
 
-  <button
-    follows="top|left"
-    height="23"
-    label="Reset all to recommended settings"
-    layout="topleft"
-    left="10"
-    name="Defaults"
-    top="5"
-    width="250">
-    <button.commit_callback
-      function="Pref.HardwareDefaults" />
-  </button>
-
   <text
     type="string"
     length="1"
@@ -31,7 +18,7 @@
     height="16"
     layout="topleft"
     name="GeneralText"
-    top_delta="35"
+    top="5"
     left="10"
     width="128">
      General
@@ -858,5 +845,46 @@
      (requires restart)
   </text>
 <!-- End of Advanced Settings block -->
+
+  <button
+    follows="top|left"
+    height="23"
+    label="Reset to recommended settings"
+    layout="topleft"
+    left="10"
+    name="Defaults"
+    top_delta="25"
+    width="210">
+    <button.commit_callback
+      function="Pref.HardwareDefaults" />
+  </button>
+
+  <button
+    follows="right|bottom"
+    height="23"
+    label="OK"
+    label_selected="OK"
+    layout="topleft"
+    left_pad="5"
+    name="OK"
+    top_delta="0"
+    width="80">
+      <button.commit_callback
+        function="Pref.OK" />
+   </button>
+
+   <button
+    follows="right|bottom"
+    height="23"
+    label="Cancel"
+    label_selected="Cancel"
+    layout="topleft"
+    left_pad="5"
+    name="Cancel"
+    top_delta="0"
+    width="80" >
+      <button.commit_callback
+        function="Pref.Cancel" />
+   </button>
 
 </floater>

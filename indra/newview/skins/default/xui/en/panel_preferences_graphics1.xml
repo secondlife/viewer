@@ -233,12 +233,12 @@
   <button
     follows="top|left"
     height="23"
-    label="Reset all to recommended settings"
+    label="Reset to recommended settings"
     layout="topleft"
     left="5"
     name="Defaults"
     top_delta="30"
-    width="250">
+    width="210">
     <button.commit_callback
       function="Pref.HardwareDefaults" />
   </button>
