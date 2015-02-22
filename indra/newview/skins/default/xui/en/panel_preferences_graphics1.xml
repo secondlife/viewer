@@ -31,34 +31,6 @@
       (None)
   </text>
 
-  <button
-    follows="top|left"
-    height="23"
-    label="Load preset..."
-    layout="topleft"
-    left_pad="5"
-    name="PrefLoadButton"
-    top_delta="0"
-    width="115">
-    <button.commit_callback
-      function="Pref.PrefLoad"
-	  parameter="graphic"/>
-  </button>
-
-  <button
-    follows="top|left"
-    height="23"
-    label="Delete preset..."
-    layout="topleft"
-    left_pad="5"
-    name="PrefDeleteButton"
-    top_delta="0"
-    width="115">
-    <button.commit_callback
-      function="Pref.PrefDelete"
-	  parameter="graphic"/>
-  </button>
-
   <text
     type="string"
     length="1"
@@ -230,19 +202,6 @@
 
 <!-- This block shows Basic Settings -->
 
-  <button
-    follows="top|left"
-    height="23"
-    label="Reset to recommended settings"
-    layout="topleft"
-    left="5"
-    name="Defaults"
-    top_delta="30"
-    width="210">
-    <button.commit_callback
-      function="Pref.HardwareDefaults" />
-  </button>
-
   <slider
     control_name="RenderFarClip"
     decimal_digits="0"
@@ -303,30 +262,72 @@
 <!-- End of Basic Settings block -->
 
   <button
-    follows="left|bottom"
+    follows="top|left"
+    height="23"
+    label="Save settings as a preset..."
+    layout="topleft"
+    left="10"
+    name="PrefSaveButton"
+    top="310"
+    width="200">
+    <button.commit_callback
+      function="Pref.PrefSave"
+      parameter="graphic" />
+  </button>
+
+  <button
+    follows="top|left"
+    height="23"
+    label="Load preset..."
+    layout="topleft"
+    left_pad="10"
+    name="PrefLoadButton"
+    top_delta="0"
+    width="115">
+    <button.commit_callback
+      function="Pref.PrefLoad"
+	  parameter="graphic"/>
+  </button>
+
+  <button
+    follows="top|left"
+    height="23"
+    label="Delete preset..."
+    layout="topleft"
+    left_pad="10"
+    name="PrefDeleteButton"
+    top_delta="0"
+    width="115">
+    <button.commit_callback
+      function="Pref.PrefDelete"
+	  parameter="graphic"/>
+  </button>
+
+  <button
+    follows="top|left"
+    height="23"
+    label="Reset to recommended settings"
+    layout="topleft"
+    left="10"
+    name="Defaults"
+    top_delta="65"
+    width="210">
+    <button.commit_callback
+      function="Pref.HardwareDefaults" />
+  </button>
+
+  <button
+    follows="top|left"
     height="23"
     label="Advanced Settings..."
     layout="topleft"
-    left="10"
+    left_pad="10"
     name="AdvancedSettings"
-    top_delta="60"
+    top_delta="0"
     width="200">
     <button.commit_callback
       function="Pref.Advanced"
       parameter="advanced" />
   </button>
 
-  <button
-    follows="left|bottom"
-    height="23"
-    label="Save settings as a preset..."
-    layout="topleft"
-    left="10"
-    name="PrefSaveButton"
-    top="295"
-    width="200">
-    <button.commit_callback
-      function="Pref.PrefSave"
-      parameter="graphic" />
-  </button>
 </panel>

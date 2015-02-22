@@ -42,7 +42,11 @@ LLFloaterLoadPrefPreset::LLFloaterLoadPrefPreset(const LLSD &key)
 
 // virtual
 BOOL LLFloaterLoadPrefPreset::postBuild()
-{
+{	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+	if (preferences)
+	{
+		preferences->addDependentFloater(this);
+	}
 	getChild<LLButton>("ok")->setCommitCallback(boost::bind(&LLFloaterLoadPrefPreset::onBtnOk, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterLoadPrefPreset::onBtnCancel, this));
 	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterLoadPrefPreset::onPresetsListChange, this));

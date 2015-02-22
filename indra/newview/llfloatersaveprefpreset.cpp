@@ -30,6 +30,8 @@
 
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "llfloaterpreference.h"
+#include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llpresetsmanager.h"
 
@@ -40,7 +42,11 @@ LLFloaterSavePrefPreset::LLFloaterSavePrefPreset(const LLSD &key)
 
 // virtual
 BOOL LLFloaterSavePrefPreset::postBuild()
-{
+{	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+	if (preferences)
+	{
+		preferences->addDependentFloater(this);
+	}
 	getChild<LLComboBox>("preset_combo")->setTextEntryCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
 	getChild<LLComboBox>("preset_combo")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
 	getChild<LLButton>("save")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnSave, this));
