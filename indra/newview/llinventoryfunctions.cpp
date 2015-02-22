@@ -274,7 +274,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
         }
     
         // Check if the count on hand needs to be updated on SLM
-        if (!LLMarketplaceData::instance().isUpdating(listing_uuid) &&
+        if (perform_consistency_enforcement && !LLMarketplaceData::instance().isUpdating(listing_uuid) &&
             (compute_stock_count(listing_uuid) != LLMarketplaceData::instance().getCountOnHand(listing_uuid)))
         {
             LLMarketplaceData::instance().updateCountOnHand(listing_uuid);

@@ -257,12 +257,7 @@ public:
             LLUUID version_id(version_uuid_string);
             if (folder_id.notNull())
             {
-                LLMarketplaceData::instance().deleteListing(folder_id,false);
-                LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,false);
-                LLMarketplaceData::instance().setListingURL(folder_id, edit_url,false);
-                LLMarketplaceData::instance().setCountOnHand(folder_id,count,false);
-                update_marketplace_category(folder_id, false);
-                gInventory.notifyObservers();
+                LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
             }
             it++;
         }
@@ -331,9 +326,7 @@ public:
             
             LLUUID folder_id(folder_uuid_string);
             LLUUID version_id(version_uuid_string);
-            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed, false);
-            LLMarketplaceData::instance().setListingURL(folder_id, edit_url, false);
-            LLMarketplaceData::instance().setCountOnHand(folder_id,count,false);
+            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
             update_marketplace_category(folder_id, false);
             gInventory.notifyObservers();
             it++;
@@ -572,9 +565,7 @@ public:
             }
             
             // Add the new association
-            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed, false);
-            LLMarketplaceData::instance().setListingURL(folder_id, edit_url, false);
-            LLMarketplaceData::instance().setCountOnHand(folder_id,count,false);
+            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
             update_marketplace_category(folder_id, false);
             gInventory.notifyObservers();
 
@@ -1571,31 +1562,20 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
 }
 
 // Methods privately called or called by SLM responders to perform changes
-bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, bool update)
+bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed,  const std::string& edit_url, S32 count)
 {
-    if (isListed(folder_id))
-    {
-        // Listing already exists -> exit with error
-        return false;
-    }
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
-
-    if (update)
-    {
-        update_marketplace_category(folder_id, false);
-        gInventory.notifyObservers();
-    }
+    mMarketplaceItems[folder_id].mEditURL = edit_url;
+    mMarketplaceItems[folder_id].mCountOnHand = count;
     return true;
 }
 
 bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update)
 {
-    if (!isListed(folder_id))
+	if (mMarketplaceItems.erase(folder_id) != 1)
     {
-        // Listing doesn't exist -> exit with error
         return false;
     }
-	mMarketplaceItems.erase(folder_id);
 
     if (update)
     {
