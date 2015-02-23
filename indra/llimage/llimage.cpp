@@ -40,7 +40,6 @@
 #include "llimagedxt.h"
 #include "llmemory.h"
 
-#include <boost/static_assert.hpp>
 #include <boost/preprocessor.hpp>
 
 //..................................................................................
@@ -86,7 +85,7 @@
 
 #define UNROLL_GEN_TPL(name, args_seq, operation, spec_seq) \
 	/*general specialization - should not be implemented!*/ \
-	template<U8> struct name { inline void operator()(_UNROL_GEN_TPL_TYPE_ARGS(args_seq)) { boost::static_assert(!"Should not be instantiated.");  } }; \
+	template<U8> struct name { inline void operator()(_UNROL_GEN_TPL_TYPE_ARGS(args_seq)) { /*static_assert(!"Should not be instantiated.");*/  } }; \
 	BOOST_PP_SEQ_FOR_EACH(_UNROLL_GEN_TPL_foreach_seq_macro, (name)(args_seq)(operation), spec_seq)
 //..................................................................................
 //..................................................................................
@@ -252,24 +251,24 @@ inline void bilinear_scale(
 				for(x = 0; x < dstW; ++x)
 				{
 					//for(c = 0; c < ch; ++c) cx[c] = comp[c] = 0;
-					scale_info_t::uroll_zeroze_cx_comp_t()(cx, comp);
+					typename scale_info_t::uroll_zeroze_cx_comp_t()(cx, comp);
 
 					if(0 < info.xapoints[x])
 					{
 						pix = info.ystrides[y] + info.xpoints[x] * ch;
 
 						//for(c = 0; c < ch; ++c) comp[c] = pix[c] * (256 - info.xapoints[x]);
-						scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, 256 - info.xapoints[x]);
+						typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, 256 - info.xapoints[x]);
 
 						pix += ch;
 
 						//for(c = 0; c < ch; ++c) comp[c] += pix[c] * info.xapoints[x];
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, info.xapoints[x]);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, info.xapoints[x]);
 
 						pix += srcStride;
 
 						//for(c = 0; c < ch; ++c) cx[c] = pix[c] * info.xapoints[x];
-						scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, info.xapoints[x]);
+						typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, info.xapoints[x]);
 
 						pix -= ch;
 
@@ -278,16 +277,16 @@ inline void bilinear_scale(
 						//	comp[c] = ((cx[c] * info.yapoints[y]) + (comp[c] * (256 - info.yapoints[y]))) >> 16;
 						//	*dptr++ = comp[c]&0xff;
 						//}
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, 256 - info.xapoints[x]);
-						scale_info_t::uroll_comp_asgn_cx_mul_apoint_plus_comp_mul_inv_apoint_allshifted_16_r_t()(comp, cx, info.yapoints[y]);
-						scale_info_t::uroll_uref_dptr_inc_asgn_comp_and_ff_t()(dptr, comp);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, 256 - info.xapoints[x]);
+						typename scale_info_t::uroll_comp_asgn_cx_mul_apoint_plus_comp_mul_inv_apoint_allshifted_16_r_t()(comp, cx, info.yapoints[y]);
+						typename scale_info_t::uroll_uref_dptr_inc_asgn_comp_and_ff_t()(dptr, comp);
 					}
 					else
 					{
 						pix = info.ystrides[y] + info.xpoints[x] * ch;
 
 						//for(c = 0; c < ch; ++c) comp[c] = pix[c] * (256 - info.yapoints[y]);
-						scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, 256-info.yapoints[y]);
+						typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, 256-info.yapoints[y]);
 
 						pix += srcStride;
 
@@ -295,8 +294,8 @@ inline void bilinear_scale(
 						//	comp[c] = (comp[c] + pix[c] * info.yapoints[y]) >> 8;
 						//	*dptr++ = comp[c]&0xff;
 						//}
-						scale_info_t::uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r_t()(comp, pix, info.yapoints[y]);
-						scale_info_t::uroll_uref_dptr_inc_asgn_comp_and_ff_t()(dptr, comp);
+						typename scale_info_t::uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r_t()(comp, pix, info.yapoints[y]);
+						typename scale_info_t::uroll_uref_dptr_inc_asgn_comp_and_ff_t()(dptr, comp);
 					}
 				}
 			}
@@ -313,14 +312,14 @@ inline void bilinear_scale(
 						//	comp[c] = (comp[c] + pix[c] * info.xapoints[x]) >> 8;
 						//	*dptr++ = comp[c]&0xff;
 						//}
-						scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, 256 - info.xapoints[x]);
-						scale_info_t::uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r_t()(comp, pix, info.xapoints[x]);
-						scale_info_t::uroll_uref_dptr_inc_asgn_comp_and_ff_t()(dptr, comp);
+						typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, 256 - info.xapoints[x]);
+						typename scale_info_t::uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r_t()(comp, pix, info.xapoints[x]);
+						typename scale_info_t::uroll_uref_dptr_inc_asgn_comp_and_ff_t()(dptr, comp);
 					}
 					else 
 					{
 						//for(c = 0; c < ch; ++c) *dptr++ = (sptr[info.xpoints[x]*ch + c])&0xff;
-						scale_info_t::uroll_uref_dptr_inc_asgn_sptr_apoint_plus_idx_alland_ff_t()(dptr, sptr, info.xpoints[x]*ch);
+						typename scale_info_t::uroll_uref_dptr_inc_asgn_sptr_apoint_plus_idx_alland_ff_t()(dptr, sptr, info.xpoints[x]*ch);
 					}
 				}
 			}
@@ -343,53 +342,53 @@ inline void bilinear_scale(
 				pix = info.ystrides[y] + info.xpoints[x] * ch;
 
 				//for(c = 0; c < ch; ++c) comp[c] = pix[c] * yap;
-				scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, yap);
+				typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, yap);
 
 				pix += srcStride;
 
 				for(j = (1 << 14) - yap; j > Cy; j -= Cy, pix += srcStride)
 				{
 					//for(c = 0; c < ch; ++c) comp[c] += pix[c] * Cy;
-					scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, Cy);
+					typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, Cy);
 				}
 
 				if(j > 0)
 				{
 					//for(c = 0; c < ch; ++c) comp[c] += pix[c] * j;
-					scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, j);
+					typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, j);
 				}
 
 				if(info.xapoints[x] > 0)
 				{
 					pix = info.ystrides[y] + info.xpoints[x]*ch + ch;
 					//for(c = 0; c < ch; ++c) cx[c] = pix[c] * yap;
-					scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, yap);
+					typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, yap);
 
 					pix += srcStride;
 					for(j = (1 << 14) - yap; j > Cy; j -= Cy)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * Cy;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cy);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cy);
 						pix += srcStride;
 					}
 
 					if(j > 0)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * j;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, j);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, j);
 					}
 
 					//for(c = 0; c < ch; ++c) comp[c] = ((comp[c]*(256 - info.xapoints[x])) + ((cx[c] * info.xapoints[x]))) >> 12;
-					scale_info_t::uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r_t()(comp, info.xapoints[x], cx);
+					typename scale_info_t::uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r_t()(comp, info.xapoints[x], cx);
 				}
 				else
 				{
 					//for(c = 0; c < ch; ++c) comp[c] >>= 4;
-					scale_info_t::uroll_comp_rshftasgn_constval_t()(comp, 4);
+					typename scale_info_t::uroll_comp_rshftasgn_constval_t()(comp, 4);
 				}
 
 				//for(c = 0; c < ch; ++c) *dptr++ = (comp[c]>>10)&0xff;
-				scale_info_t::uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t()(dptr, comp, 10);
+				typename scale_info_t::uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t()(dptr, comp, 10);
 			}
 		}
 	}
@@ -410,53 +409,53 @@ inline void bilinear_scale(
 				pix = info.ystrides[y] + info.xpoints[x] * ch;
 
 				//for(c = 0; c < ch; ++c) comp[c] = pix[c] * xap;
-				scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, xap);
+				typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(comp, pix, xap);
 
 				pix+=ch;
 				for(j = (1 << 14) - xap; j > Cx; j -= Cx)
 				{
 					//for(c = 0; c < ch; ++c) comp[c] += pix[c] * Cx;
-					scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, Cx);
+					typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, Cx);
 					pix+=ch;
 				}
 
 				if(j > 0)
 				{
 					//for(c = 0; c < ch; ++c) comp[c] += pix[c] * j;
-					scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, j);
+					typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(comp, pix, j);
 				}
 
 				if(info.yapoints[y] > 0)
 				{
 					pix = info.ystrides[y] + info.xpoints[x]*ch + srcStride;
 					//for(c = 0; c < ch; ++c) cx[c] = pix[c] * xap;
-					scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
+					typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
 
 					pix+=ch;
 					for(j = (1 << 14) - xap; j > Cx; j -= Cx)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * Cx;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
 						pix+=ch;
 					}
 
 					if(j > 0)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * j;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, j);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, j);
 					}
 
 					//for(c = 0; c < ch; ++c) comp[c] = ((comp[c] * (256 - info.yapoints[y])) + ((cx[c] * info.yapoints[y]))) >> 12;
-					scale_info_t::uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r_t()(comp, info.yapoints[y], cx);
+					typename scale_info_t::uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r_t()(comp, info.yapoints[y], cx);
 				}
 				else
 				{
 					//for(c = 0; c < ch; ++c) comp[c] >>= 4;
-					scale_info_t::uroll_comp_rshftasgn_constval_t()(comp, 4);
+					typename scale_info_t::uroll_comp_rshftasgn_constval_t()(comp, 4);
 				}
 
 				//for(c = 0; c < ch; ++c) *dptr++ = (comp[c]>>10)&0xff;
-				scale_info_t::uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t()(dptr, comp, 10);
+				typename scale_info_t::uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t()(dptr, comp, 10);
 			}
 		}
 	}
@@ -481,24 +480,24 @@ inline void bilinear_scale(
 				sptr += srcStride;
 
 				//for(c = 0; c < ch; ++c) cx[c] = pix[c] * xap;
-				scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
+				typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
 
 				pix+=ch;
 				for(i = (1 << 14) - xap; i > Cx; i -= Cx)
 				{
 					//for(c = 0; c < ch; ++c) cx[c] += pix[c] * Cx;
-					scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
+					typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
 					pix+=ch;
 				}
 
 				if(i > 0)
 				{
 					//for(c = 0; c < ch; ++c) cx[c] += pix[c] * i;
-					scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, i);
+					typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, i);
 				}
 
 				//for(c = 0; c < ch; ++c) comp[c] = (cx[c] >> 5) * yap;
-				scale_info_t::uroll_comp_asgn_cx_rshft_cval_all_mul_val_t()(comp, cx, 5, yap);
+				typename scale_info_t::uroll_comp_asgn_cx_rshft_cval_all_mul_val_t()(comp, cx, 5, yap);
 
 				for(j = (1 << 14) - yap; j > Cy; j -= Cy)
 				{
@@ -506,24 +505,24 @@ inline void bilinear_scale(
 					sptr += srcStride;
 
 					//for(c = 0; c < ch; ++c) cx[c] = pix[c] * xap;
-					scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
+					typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
 
 					pix+=ch;
 					for(i = (1 << 14) - xap; i > Cx; i -= Cx)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * Cx;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
 						pix+=ch;
 					}
 
 					if(i > 0)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * i;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, i);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, i);
 					}
 
 					//for(c = 0; c < ch; ++c) comp[c] += (cx[c] >> 5) * Cy;
-					scale_info_t::uroll_comp_plusasgn_cx_rshft_cval_all_mul_val_t()(comp, cx, 5, Cy);
+					typename scale_info_t::uroll_comp_plusasgn_cx_rshft_cval_all_mul_val_t()(comp, cx, 5, Cy);
 				}
 
 				if(j > 0)
@@ -532,28 +531,28 @@ inline void bilinear_scale(
 					sptr += srcStride;
 
 					//for(c = 0; c < ch; ++c) cx[c] = pix[c] * xap;
-					scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
+					typename scale_info_t::uroll_inp_asgn_pix_mul_val_t()(cx, pix, xap);
 
 					pix+=ch;
 					for(i = (1 << 14) - xap; i > Cx; i -= Cx)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * Cx;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, Cx);
 						pix+=ch;
 					}
 
 					if(i > 0)
 					{
 						//for(c = 0; c < ch; ++c) cx[c] += pix[c] * i;
-						scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, i);
+						typename scale_info_t::uroll_inp_plusasgn_pix_mul_val_t()(cx, pix, i);
 					}
 
 					//for(c = 0; c < ch; ++c) comp[c] += (cx[c] >> 5) * j;
-					scale_info_t::uroll_comp_plusasgn_cx_rshft_cval_all_mul_val_t()(comp, cx, 5, j);
+					typename scale_info_t::uroll_comp_plusasgn_cx_rshft_cval_all_mul_val_t()(comp, cx, 5, j);
 				}
 
 				//for(c = 0; c < ch; ++c) *dptr++ = (comp[c]>>23)&0xff;
-				scale_info_t::uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t()(dptr, comp, 23);
+				typename scale_info_t::uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t()(dptr, comp, 23);
 			}
 		}
 	} //else
