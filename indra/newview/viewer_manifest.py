@@ -1090,7 +1090,7 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libdirect-1.4.so.5*")
             self.path("libhunspell-1.3.so*")
             self.path("libalut.so*")
-            self.path("libopenal.so", "libopenal.so.1")
+            self.path("libopenal.so*")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
             # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
             # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
