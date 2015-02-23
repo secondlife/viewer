@@ -86,7 +86,7 @@
 
 #define UNROLL_GEN_TPL(name, args_seq, operation, spec_seq) \
 	/*general specialization - should not be implemented!*/ \
-	template<U8> struct name { inline void operator()(_UNROL_GEN_TPL_TYPE_ARGS(args_seq)) { boost::static_assert(!"Should not be instantiated.");  } }; \
+	template<U8> struct name { inline void operator()(_UNROL_GEN_TPL_TYPE_ARGS(args_seq)) { BOOST_STATIC_ASSERT(false, "Should not be instantiated."); } }; \
 	BOOST_PP_SEQ_FOR_EACH(_UNROLL_GEN_TPL_foreach_seq_macro, (name)(args_seq)(operation), spec_seq)
 //..................................................................................
 //..................................................................................
