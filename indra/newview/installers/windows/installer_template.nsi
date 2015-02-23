@@ -105,8 +105,8 @@ Var INSTEXE
 Var INSTSHORTCUT
 Var COMMANDLINE         # Command line passed to this installer, set in .onInit
 Var SHORTCUT_LANG_PARAM # "--set InstallLanguage de", Passes language to viewer
-Var SKIP_DIALOGS        # Set from command line in  .onInit. autoinstall 
-                        # GUI and the defaults.
+Var SKIP_DIALOGS        # Set from command line in  .onInit. autoinstall GUI and the defaults.
+Var SKIP_AUTORUN		# Skip automatic launch of the viewer after install
 Var DO_UNINSTALL_V2     # If non-null, path to a previous Viewer 2 installation that will be uninstalled.
 
 # Function definitions should go before file includes, because calls to
@@ -144,6 +144,10 @@ Call CheckWindowsVersion					# Don't install On unsupported systems
     ${GetOptions} $COMMANDLINE "/SKIP_DIALOGS" $0   
     IfErrors +2 0	# If error jump past setting SKIP_DIALOGS
         StrCpy $SKIP_DIALOGS "true"
+
+	${GetOptions} $COMMANDLINE "/SKIP_AUTORUN" $0
+	IfErrors +2 0 ; If error jump past setting SKIP_AUTORUN
+		StrCpy $SKIP_AUTORUN "true"
 
     ${GetOptions} $COMMANDLINE "/LANGID=" $0	# /LANGID=1033 implies US English
 
@@ -348,7 +352,7 @@ StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
 # Make sure the user can install/uninstall
-Call un.CheckIfAdministrator		
+Call un.CheckIfAdministrator
 
 # Uninstall for all users (if you change this, change it in the install as well)
 SetShellVarContext all			
@@ -370,13 +374,13 @@ Delete "$DESKTOP\$INSTSHORTCUT.lnk"
 Delete "$INSTDIR\$INSTSHORTCUT.lnk"
 Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
 
-# Clean up cache and log files, but leave them in-place for non AGNI installs.
-Call un.UserSettingsFiles
-
 # Remove the main installation directory
 Call un.ProgramFiles
 
-SectionEnd 				
+# Clean up cache and log files, but leave them in-place for non AGNI installs.
+Call un.UserSettingsFiles
+
+SectionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make sure the user can install
@@ -654,7 +658,7 @@ Delete "$INSTDIR\SecondLife.exe"
 Delete "$INSTDIR\VivoxVoiceService-*.log"
 
 # Remove entire help directory
-RMDir  "$INSTDIR\help"
+RMDir /r  "$INSTDIR\help"
 
 Delete "$INSTDIR\uninst.exe"
 RMDir "$INSTDIR"
@@ -675,25 +679,10 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
 Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
-    Push $R0					# Option value, unused
-
-    StrCmp $SKIP_DIALOGS "true" label_launch 
-
-    ${GetOptions} $COMMANDLINE "/AUTOSTART" $R0
-    # If parameter was there (no error) just launch
-    # Otherwise ask
-    IfErrors label_ask_launch label_launch
-    
-label_ask_launch:
-    # Don't launch by default when silent
-    IfSilent label_no_launch
-	MessageBox MB_YESNO $(InstSuccesssQuestion) \
-        IDYES label_launch IDNO label_no_launch
-        
-label_launch:
+	Push $R0					# Option value, unused
+	StrCmp $SKIP_AUTORUN "true" +2;
 # Assumes SetOutPath $INSTDIR
 	Exec '"$WINDIR\explorer.exe" "$INSTDIR\$INSTEXE"'
-label_no_launch:
 	Pop $R0
 
 FunctionEnd
@@ -734,7 +723,7 @@ FunctionEnd
 ;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
 ;    StrCmp $1 "" DONE               # no more users
 ;
-;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath"
 ;    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
 ;
 ;# Required since ProfileImagePath is of type REG_EXPAND_SZ
