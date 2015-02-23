@@ -634,9 +634,9 @@ void LLFloaterModelPreview::draw()
 			childSetTextArg("status", "[STATUS]", getString("status_material_mismatch"));
 		}
 		else
-		if ( mModelPreview->getLoadState() > LLModelLoader::ERROR_PARSING )
-		{		
-			childSetTextArg("status", "[STATUS]", getString(LLModel::getStatusString(mModelPreview->getLoadState() - LLModelLoader::ERROR_PARSING)));
+		if ( mModelPreview->getLoadState() > LLModelLoader::ERROR_MODEL )
+		{
+			childSetTextArg("status", "[STATUS]", getString(LLModel::getStatusString(mModelPreview->getLoadState() - LLModelLoader::ERROR_MODEL)));
 		}
 		else
 		if ( mModelPreview->getLoadState() == LLModelLoader::ERROR_PARSING )

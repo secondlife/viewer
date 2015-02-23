@@ -89,7 +89,8 @@ public:
 		ERROR_LOADER_SETUP,
 		ERROR_INVALID_PARAMETERS,
 		ERROR_OUT_OF_RANGE,
-		ERROR_FILE_VERSION_INVALID
+		ERROR_FILE_VERSION_INVALID,
+		ERROR_MODEL // this error should always be last in this list, error code is passed as ERROR_MODEL+error_code
 	} eLoadState;
 
 	U32 mState;
