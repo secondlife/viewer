@@ -982,6 +982,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	S32 matched = 0, mismatched = 0;
 	const S32 arr_size = LLWearableType::WT_COUNT;
 	S32 type_counts[arr_size];
+	BOOL update_inventory = FALSE;
 	std::fill(type_counts,type_counts+arr_size,0);
 	for (S32 i = 0; i < count; i++)
 	{
@@ -1009,10 +1010,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			continue;
 		}
 
-		// Don't care about this case - ordering of wearables with the same asset id has no effect.
+		// Update only inventory in this case - ordering of wearables with the same asset id has no effect.
 		// Causes the two-alphas error case in MAINT-4158.
 		// We should actually disallow wearing two wearables with the same asset id.
-#if 0
 		if (curr_wearable->getName() != new_item->getName() ||
 			curr_wearable->getItemID() != new_item->getUUID())
 		{
@@ -1020,10 +1020,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 								<< curr_wearable->getName() << " vs " << new_item->getName()
 								<< " item ids " << curr_wearable->getItemID() << " vs " << new_item->getUUID()
 								<< LL_ENDL;
-			mismatched++;
+			update_inventory = TRUE;
 			continue;
 		}
-#endif
 		// If we got here, everything matches.
 		matched++;
 	}
@@ -1037,14 +1036,15 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			mismatched++;
 		}
 	}
-	if (mismatched == 0)
+	if (mismatched == 0 && !update_inventory)
 	{
 		LL_DEBUGS("Avatar") << "no changes, bailing out" << LL_ENDL;
 		mCOFChangeInProgress = false;
 		return;
 	}
-	
-	
+
+	// updating inventory
+
 	// TODO: Removed check for ensuring that teens don't remove undershirt and underwear. Handle later
 	// note: shirt is the first non-body part wearable item. Update if wearable order changes.
 	// This loop should remove all clothing, but not any body parts
@@ -1084,6 +1084,15 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	}
 
 	gInventory.notifyObservers();
+
+	if (mismatched == 0)
+	{
+		LL_DEBUGS("Avatar") << "inventory updated, wearable assets not changed, bailing out" << LL_ENDL;
+		mCOFChangeInProgress = false;
+		return;
+	}
+
+	// updating agent avatar
 
 	if (isAgentAvatarValid())
 	{
