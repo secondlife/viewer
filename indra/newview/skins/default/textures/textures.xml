@@ -802,7 +802,10 @@ with the same filename but different name
   <texture name="Icon_Attachment_Small" file_name="icons/Icon_Attachment_Small.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
   <texture name="Icon_Attachment_Large" file_name="icons/Icon_Attachment_Large.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
   <texture name="System_Notification_Small" file_name="icons/System_Notification_Small.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="System_Notification_Large" file_name="icons/System_Notification_Large.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
   <texture name="Incoming_Transaction_Small" file_name="icons/Incoming_Transaction_Small.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="Incoming_Transaction_Large" file_name="icons/Incoming_Transaction_Large.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
   <texture name="Outcoming_Transaction_Small" file_name="icons/Outcoming_Transaction_Small.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
+  <texture name="Outcoming_Transaction_Large" file_name="icons/Outcoming_Transaction_Large.png"	preload="true" scale.left="2" scale.top="13" scale.right="13" scale.bottom="2" />
 
 </textures>

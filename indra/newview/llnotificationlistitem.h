@@ -28,6 +28,7 @@
 #define LL_LLNOTIFICATIONLISTITEM_H
 
 #include "llpanel.h"
+#include "lllayoutstack.h"
 #include "lltextbox.h"
 #include "llbutton.h"
 #include "llgroupiconctrl.h"
@@ -59,7 +60,7 @@ public:
     void setTitle( std::string title );
 
     // get item's ID
-    LLUUID getID() { return mID; }
+    LLUUID getID() { return mParams.notification_id; }
     std::string& getTitle() { return mTitle; }
     std::string& getNotificationName() { return mNotificationName; }
 
@@ -82,18 +83,34 @@ protected:
     virtual	~LLNotificationListItem();
 
     static std::string buildNotificationDate(const LLDate&);
+    void setExpanded(BOOL value);
+	void onClickExpandBtn();
+	void onClickCondenseBtn();
     void onClickCloseBtn();
 
     Params      mParams;
     LLTextBox*	mTitleBox;
+    LLTextBox*	mTitleBoxExp;
+    LLTextBox*	mNoticeTextExp;
     LLTextBox*  mTimeBox;
+    LLTextBox*  mTimeBoxExp;
+	LLButton*	mExpandBtn;
+	LLButton*	mCondenseBtn;
     LLButton*	mCloseBtn;
-    LLUUID		mID;
+	LLButton*	mCloseBtnExp;
+    LLLayoutStack* mVerticalStack;
+    LLPanel*    mCondensedViewPanel;
+	LLPanel*    mExpandedViewPanel;
+    LLPanel*    mMainPanel;
+    //LLUUID		mID;
     std::string mTitle;
     std::string mNotificationName;
+    S32 mCondensedHeight;
+    S32 mExpandedHeight;
 };
 
-class LLInviteNotificationListItem : public LLNotificationListItem
+class LLInviteNotificationListItem
+    : public LLNotificationListItem, public LLGroupMgrObserver
 {
 public:
     //void setGroupID(const LLUUID& group_id);
@@ -102,15 +119,24 @@ public:
     static std::set<std::string> getTypes();
 
     virtual BOOL postBuild();
+
+    void setGroupId(const LLUUID& value);
+    // LLGroupMgrObserver observer trigger
+    virtual void changed(LLGroupChange gc);
 private:
     friend class LLNotificationListItem;
     LLInviteNotificationListItem(const Params& p);
     LLInviteNotificationListItem(const LLInviteNotificationListItem &);
     LLInviteNotificationListItem & operator=(LLInviteNotificationListItem &);
 
+    bool updateFromCache();
+
     LLGroupIconCtrl* mGroupIcon;
-    LLUUID		mGroupID;
+    LLGroupIconCtrl* mGroupIconExp;
+    LLUUID		mGroupId;
 	LLTextBox*	mSenderBox;
+    LLTextBox*	mSenderBoxExp;
+    LLTextBox*	mGroupNameBoxExp;
 };
 
 class LLTransactionNotificationListItem : public LLNotificationListItem
@@ -124,6 +150,7 @@ private:
     LLTransactionNotificationListItem(const LLTransactionNotificationListItem &);
     LLTransactionNotificationListItem & operator=(LLTransactionNotificationListItem &);
 	LLIconCtrl* mTransactionIcon;
+    LLIconCtrl* mTransactionIconExp;
 };
 
 class LLSystemNotificationListItem : public LLNotificationListItem
@@ -137,6 +164,7 @@ private:
     LLSystemNotificationListItem(const LLSystemNotificationListItem &);
     LLSystemNotificationListItem & operator=(LLSystemNotificationListItem &);
 	LLIconCtrl* mSystemNotificationIcon;
+    LLIconCtrl* mSystemNotificationIconExp;
 };
 
 #endif // LL_LLNOTIFICATIONLISTITEM_H

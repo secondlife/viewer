@@ -52,7 +52,7 @@ LLGroupIconCtrl::LLGroupIconCtrl(const LLGroupIconCtrl::Params& p)
 	{
 		LLSD value(p.group_id);
 		setValue(value);
-	}
+    }
 	else
 	{
 		LLIconCtrl::setValue(mDefaultIconName);
