@@ -889,4 +889,29 @@
         parameter="closeadvanced" />
    </button>
 
+<!-- These two check boxes are dummies and will never be displayed.  They are here so the control variables
+are saved in a preset file. -->
+  <check_box
+    control_name="RenderAvatarMaxComplexity"
+    visible="false"
+    height="0"
+    label="RenderAvatarMaxComplexity"
+    layout="topleft"
+    left="0"
+    name="RenderAvatarMaxNonImpostors"
+    top_delta="0"
+    width="0">
+  </check_box>
+
+  <check_box
+    control_name="RenderAvatarMaxNonImpostors"
+    visible="false"
+    height="0"
+    label="RenderAvatarMaxNonImpostors"
+    layout="topleft"
+    left="0"
+    name="RenderAvatarMaxNonImpostors"
+    top_delta="0"
+    width="0">
+  </check_box>
 </floater>
