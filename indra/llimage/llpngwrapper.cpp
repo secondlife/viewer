@@ -87,6 +87,12 @@ void LLPngWrapper::errorHandler(png_structp png_ptr, png_const_charp msg)
 void LLPngWrapper::readDataCallback(png_structp png_ptr, png_bytep dest, png_size_t length)
 {
 	PngDataInfo *dataInfo = (PngDataInfo *) png_get_io_ptr(png_ptr);
+	if(dataInfo->mOffset + length > dataInfo->mDataSize)
+	{
+		png_error(png_ptr, "Data read error. Requested data size exceeds available data size.");
+		return;
+	}
+
 	U8 *src = &dataInfo->mData[dataInfo->mOffset];
 	memcpy(dest, src, length);
 	dataInfo->mOffset += static_cast<U32>(length);
@@ -114,7 +120,7 @@ void LLPngWrapper::writeFlush(png_structp png_ptr)
 // The scanline also begins at the bottom of
 // the image (per SecondLife conventions) instead of at the top, so we
 // must assign row-pointers in "reverse" order.
-BOOL LLPngWrapper::readPng(U8* src, LLImageRaw* rawImage, ImageInfo *infop)
+BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInfo *infop)
 {
 	try
 	{
@@ -133,6 +139,7 @@ BOOL LLPngWrapper::readPng(U8* src, LLImageRaw* rawImage, ImageInfo *infop)
 		PngDataInfo dataPtr;
 		dataPtr.mData = src;
 		dataPtr.mOffset = 0;
+		dataPtr.mDataSize = dataSize;
 
 		png_set_read_fn(mReadPngPtr, &dataPtr, &readDataCallback);
 		png_set_sig_bytes(mReadPngPtr, 0);

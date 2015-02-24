@@ -229,6 +229,8 @@ with the same filename but different name
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
   <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
 
+  <texture name="Hand" file_name="icons/hand.png" preload="false" />
+  
   <texture name="Help_Press" file_name="navbar/Help_Press.png" preload="false" />
 
   <texture name="Hierarchy_View_Disabled" file_name="icons/Hierarchy_View_Disabled.png" preload="false" />

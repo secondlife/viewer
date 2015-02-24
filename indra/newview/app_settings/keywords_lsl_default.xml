@@ -10980,7 +10980,7 @@
                </map>
             </array>
             <key>tooltip</key>
-            <string>Rez directly off of a UUID if owner has dog-bit set.</string>
+            <string>Rez directly off of a UUID if owner has god-bit set.</string>
          </map>
          <key>llGround</key>
          <map>
