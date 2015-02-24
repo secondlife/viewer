@@ -5371,7 +5371,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 		(gAgentAvatarp->attachmentWasRequested(item_id) ||
 		 gAgentAvatarp->isWearingAttachment(item_id)))
 	{
-		LL_WARNS() << "duplicate attachment request, ignoring" << LL_ENDL;
+		LL_WARNS() << "ATT duplicate attachment request, ignoring" << LL_ENDL;
 		return;
 	}
 

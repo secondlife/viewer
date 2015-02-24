@@ -28,6 +28,7 @@
 #include "llattachmentsmgr.h"
 
 #include "llagent.h"
+#include "llappearancemgr.h"
 #include "llinventorymodel.h"
 #include "lltooldraganddrop.h" // pack_permissions_slam
 #include "llviewerinventory.h"
@@ -64,8 +65,6 @@ void LLAttachmentsMgr::onIdle(void *)
 	LLAttachmentsMgr::instance().onIdle();
 }
 
-// FIXME this is basically the same code as LLAgentWearables::userAttachMultipleAttachments(),
-// should consolidate.
 void LLAttachmentsMgr::onIdle()
 {
 	// Make sure we got a region before trying anything else
@@ -74,12 +73,89 @@ void LLAttachmentsMgr::onIdle()
 		return;
 	}
 
-	S32 obj_count = mPendingAttachments.size();
+	linkPendingAttachments();
+}
+
+class LLAttachAfterLinkCallback: public LLInventoryCallback
+{
+public:
+	LLAttachAfterLinkCallback(const LLAttachmentsMgr::attachments_vec_t& to_link_and_attach):
+		mToLinkAndAttach(to_link_and_attach)
+	{
+	}
+
+	~LLAttachAfterLinkCallback()
+	{
+		LL_DEBUGS("Avatar") << "destructor" << LL_ENDL; 
+		for (LLAttachmentsMgr::attachments_vec_t::const_iterator it = mToLinkAndAttach.begin();
+			 it != mToLinkAndAttach.end(); ++it)
+		{
+			const LLAttachmentsMgr::AttachmentsInfo& att_info = *it;
+			if (!LLAppearanceMgr::instance().isLinkedInCOF(att_info.mItemID))
+			{
+				LLViewerInventoryItem *item = gInventory.getItem(att_info.mItemID);
+				LL_WARNS() << "ATT COF link creation failed for att item " << (item ? item->getName() : "UNKNOWN") << " id "
+						   << att_info.mItemID << LL_ENDL;
+			}
+		}
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+		LLAttachmentsMgr::instance().requestAttachments(mToLinkAndAttach);
+	}
+
+	/* virtual */ void fire(const LLUUID& inv_item)
+	{
+		LL_DEBUGS("Avatar") << inv_item << LL_ENDL;
+	}
+
+private:
+	LLAttachmentsMgr::attachments_vec_t mToLinkAndAttach;
+};
+
+void LLAttachmentsMgr::linkPendingAttachments()
+{
+	if (mPendingAttachments.size())
+	{
+		LLPointer<LLInventoryCallback> cb = new LLAttachAfterLinkCallback(mPendingAttachments);
+		LLInventoryObject::const_object_list_t inv_items_to_link;
+		for (attachments_vec_t::const_iterator it = mPendingAttachments.begin();
+			 it != mPendingAttachments.end(); ++it)
+		{
+			const AttachmentsInfo& att_info = *it;
+			LLViewerInventoryItem *item = gInventory.getItem(att_info.mItemID);
+			if (item)
+			{
+				inv_items_to_link.push_back(item);
+			}
+			else
+			{
+				LL_WARNS() << "ATT unable to link requested attachment " << att_info.mItemID
+						   << ", item not found in inventory" << LL_ENDL;
+			}
+		}
+		link_inventory_array(LLAppearanceMgr::instance().getCOF(), inv_items_to_link, cb);
+
+		mPendingAttachments.clear();
+	}
+
+}
+
+// FIXME this is basically the same code as LLAgentWearables::userAttachMultipleAttachments(),
+// should consolidate.
+void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_requests)
+{
+	// Make sure we got a region before trying anything else
+	if( !gAgent.getRegion() )
+	{
+		return;
+	}
+
+	S32 obj_count = attachment_requests.size();
 	if (obj_count == 0)
 	{
 		return;
 	}
-	LL_DEBUGS("Avatar") << "ATT [RezMultipleAttachmentsFromInv] attaching multiple from mPendingAttachments, total obj_count " << obj_count << LL_ENDL;
+	LL_DEBUGS("Avatar") << "ATT [RezMultipleAttachmentsFromInv] attaching multiple from attachment_requests,"
+		" total obj_count " << obj_count << LL_ENDL;
 
 	// Limit number of packets to send
 	const S32 MAX_PACKETS_TO_SEND = 10;
@@ -96,8 +172,8 @@ void LLAttachmentsMgr::onIdle()
 
 	
 	S32 i = 0;
-	for (attachments_vec_t::const_iterator iter = mPendingAttachments.begin();
-		 iter != mPendingAttachments.end();
+	for (attachments_vec_t::const_iterator iter = attachment_requests.begin();
+		 iter != attachment_requests.end();
 		 ++iter)
 	{
 		if( 0 == (i % OBJECTS_PER_PACKET) )
@@ -120,7 +196,7 @@ void LLAttachmentsMgr::onIdle()
 			LL_INFOS() << "Attempted to add non-existent item ID:" << attachment.mItemID << LL_ENDL;
 			continue;
 		}
-		LL_DEBUGS("Avatar") << "ATT requesting from mPendingAttachments " << item->getName()
+		LL_DEBUGS("Avatar") << "ATT requesting from attachment_requests " << item->getName()
 							<< " " << item->getLinkedUUID() << LL_ENDL;
 		S32 attachment_pt = attachment.mAttachmentPt;
 		if (attachment.mAdd) 
@@ -141,6 +217,4 @@ void LLAttachmentsMgr::onIdle()
 		}
 		i++;
 	}
-
-	mPendingAttachments.clear();
 }

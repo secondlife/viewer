@@ -49,24 +49,28 @@ class LLViewerInventoryItem;
 class LLAttachmentsMgr: public LLSingleton<LLAttachmentsMgr>
 {
 public:
-	LLAttachmentsMgr();
-	virtual ~LLAttachmentsMgr();
-
-	void addAttachment(const LLUUID& item_id,
-					   const U8 attachment_pt,
-					   const BOOL add);
-	static void onIdle(void *);
-protected:
-	void onIdle();
-private:
 	struct AttachmentsInfo
 	{
 		LLUUID mItemID;
 		U8 mAttachmentPt;
 		BOOL mAdd;
 	};
-
 	typedef std::vector<AttachmentsInfo> attachments_vec_t;
+
+	LLAttachmentsMgr();
+	virtual ~LLAttachmentsMgr();
+
+	void addAttachment(const LLUUID& item_id,
+					   const U8 attachment_pt,
+					   const BOOL add);
+	void requestAttachments(const attachments_vec_t& attachment_requests);
+	static void onIdle(void *);
+
+protected:
+	void onIdle();
+	void linkPendingAttachments();
+
+private:
 	attachments_vec_t mPendingAttachments;
 };
 
