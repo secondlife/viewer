@@ -95,8 +95,8 @@ public:
 	void getControlNames(std::vector<std::string>& names);
 
 protected:	
-	void		onBtnOK();
-	void		onBtnCancel();
+	void		onBtnOK(const LLSD& userdata);
+	void		onBtnCancel(const LLSD& userdata);
 
 	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above

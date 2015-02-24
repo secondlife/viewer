@@ -333,8 +333,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 		registered_dialog = true;
 	}
 	
-	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this));
-	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this));
+	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this, _2));
+	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this, _2));
 	
 	mCommitCallbackRegistrar.add("Pref.ClearCache",				boost::bind(&LLFloaterPreference::onClickClearCache, this));
 	mCommitCallbackRegistrar.add("Pref.WebClearCache",			boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
@@ -877,7 +877,7 @@ void LLFloaterPreference::onClose(bool app_quitting)
 }
 
 // static 
-void LLFloaterPreference::onBtnOK()
+void LLFloaterPreference::onBtnOK(const LLSD& userdata)
 {
 	// commit any outstanding text entry
 	if (hasFocus())
@@ -893,7 +893,15 @@ void LLFloaterPreference::onBtnOK()
 	{
 		saveSettings();
 		apply();
-		closeFloater(false);
+		
+		if (userdata.asString() == "closeadvanced")
+		{
+			LLFloaterReg::hideInstance("prefs_graphics_advanced");
+		}
+		else
+		{
+			closeFloater(false);
+		}
 
 		//Conversation transcript and log path changed so reload conversations based on new location
 		if(mPriorInstantMessageLogPath.length())
@@ -938,7 +946,7 @@ void LLFloaterPreference::onBtnOK()
 }
 
 // static 
-void LLFloaterPreference::onBtnCancel()
+void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 {
 	if (hasFocus())
 	{
@@ -950,7 +958,15 @@ void LLFloaterPreference::onBtnCancel()
 		refresh();
 	}
 	cancel();
-	closeFloater();
+
+	if (userdata.asString() == "closeadvanced")
+	{
+		LLFloaterReg::hideInstance("prefs_graphics_advanced");
+	}
+	else
+	{
+		closeFloater();
+	}
 }
 
 // static 
@@ -1545,8 +1561,8 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
 	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
 	updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
 	setIndirectControls();
-	setMaxNonImpostorsText(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));	
-	setMaxComplexityText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),getChild<LLTextBox>("IndirectMaxComplexityText", true));	
+	setMaxNonImpostorsText(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));
+	setMaxComplexityText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),getChild<LLTextBox>("IndirectMaxComplexityText", true));
 	refreshEnabledState();
 }
 

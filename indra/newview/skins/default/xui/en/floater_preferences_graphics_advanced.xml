@@ -870,7 +870,8 @@
     top_delta="0"
     width="80">
       <button.commit_callback
-        function="Pref.OK" />
+        function="Pref.OK"
+        parameter="closeadvanced" />
    </button>
 
    <button
@@ -884,7 +885,8 @@
     top_delta="0"
     width="80" >
       <button.commit_callback
-        function="Pref.Cancel" />
+        function="Pref.Cancel"
+        parameter="closeadvanced" />
    </button>
 
 </floater>
