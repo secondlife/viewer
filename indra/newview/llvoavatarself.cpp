@@ -755,6 +755,13 @@ void LLVOAvatarSelf::requestStopMotion(LLMotion* motion)
 }
 
 // virtual
+bool LLVOAvatarSelf::hasMotionFromSource(const LLUUID& source_id)
+{
+	AnimSourceIterator motion_it = mAnimationSources.find(source_id);
+	return motion_it != mAnimationSources.end();
+}
+
+// virtual
 void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 {
 	for (AnimSourceIterator motion_it = mAnimationSources.find(source_id); motion_it != mAnimationSources.end(); )
@@ -762,6 +769,7 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 		gAgent.sendAnimationRequest(motion_it->second, ANIM_REQUEST_STOP);
 		mAnimationSources.erase(motion_it++);
 	}
+
 
 	LLViewerObject* object = gObjectList.findObject(source_id);
 	if (object)

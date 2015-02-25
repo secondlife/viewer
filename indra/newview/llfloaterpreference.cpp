@@ -701,13 +701,13 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 				maturity_list->deleteItems(LLSD(SIM_ACCESS_ADULT));
 			}
 		}
-		getChildView("maturity_desired_combobox")->setVisible( true);
+		getChildView("maturity_desired_combobox")->setEnabled( true);
 		getChildView("maturity_desired_textbox")->setVisible( false);
 	}
 	else
 	{
 		getChild<LLUICtrl>("maturity_desired_textbox")->setValue(maturity_combo->getSelectedItemLabel());
-		getChildView("maturity_desired_combobox")->setVisible( false);
+		getChildView("maturity_desired_combobox")->setEnabled( false);
 	}
 
 	// Forget previous language changes.
@@ -2011,6 +2011,12 @@ void LLPanelPreference::cancel()
 	{
 		LLControlVariable* control = iter->first;
 		LLSD ctrl_value = iter->second;
+
+		if((control->getName() == "InstantMessageLogPath") && (ctrl_value.asString() == ""))
+		{
+			continue;
+		}
+
 		control->set(ctrl_value);
 	}
 

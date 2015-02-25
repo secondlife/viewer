@@ -37,6 +37,7 @@
        <stat_bar name="bandwidth"
                   label="UDP Data Received"
                   stat="activemessagedatareceived"
+                  decimal_digits="0"
                   show_bar="true"/>
         <stat_bar name="packet_loss"
                   label="Packet Loss"
