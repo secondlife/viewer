@@ -392,7 +392,7 @@ public:
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
-	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
+	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list); //adds entry into list if it is safe to move into cache
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
 	void killCacheEntry(LLVOCacheEntry* entry, bool for_rendering = false); //physically delete the cache entry	
 	void killInvisibleObjects(F32 max_time);

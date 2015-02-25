@@ -85,6 +85,7 @@ public:
 	// LLCharacter interface and related
 	//--------------------------------------------------------------------
 public:
+	/*virtual*/ bool 		hasMotionFromSource(const LLUUID& source_id);
 	/*virtual*/ void 		stopMotionFromSource(const LLUUID& source_id);
 	/*virtual*/ void 		requestStopMotion(LLMotion* motion);
 	/*virtual*/ LLJoint*	getJoint(const std::string &name);
