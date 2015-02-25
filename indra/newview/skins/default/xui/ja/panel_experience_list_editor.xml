@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="experince_list_editor">
+	<panel.string name="loading">
+		ローディング...
+	</panel.string>
+	<panel.string name="panel_allowed">
+		許可された体験：
+	</panel.string>
+	<panel.string name="panel_blocked">
+		ブロックされた体験：
+	</panel.string>
+	<panel.string name="panel_trusted">
+		キー体験：
+	</panel.string>
+	<panel.string name="no_results">
+		(空)
+	</panel.string>
+	<text name="text_name">
+		体験リスト
+	</text>
+	<scroll_list name="experience_list">
+		<columns label="名前" name="experience_name"/>
+	</scroll_list>
+	<button label="追加..." name="btn_add"/>
+	<button label="削除" name="btn_remove"/>
+	<button label="プロフィール..." name="btn_profile"/>
+</panel>

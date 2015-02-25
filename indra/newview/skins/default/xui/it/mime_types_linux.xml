@@ -44,6 +44,14 @@
 			Riproduci l&apos;audio di questo luogo
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Nessun contenuto
+		</label>
+		<tooltip name="none_tooltip">
+			Nessun contenuto multimediale qui
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Streaming in tempo reale

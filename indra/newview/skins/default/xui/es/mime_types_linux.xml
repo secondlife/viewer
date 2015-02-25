@@ -44,6 +44,14 @@
 			Oír el audio de este sitio
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			No hay contenido
+		</label>
+		<tooltip name="none_tooltip">
+			Aquí no hay contenido multimedia
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Streaming en &apos;Real Time&apos;

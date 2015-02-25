@@ -105,6 +105,7 @@
 // Linden library includes
 #include "llavatarnamecache.h"
 #include "lldiriterator.h"
+#include "llexperiencecache.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -4666,7 +4667,7 @@ void LLAppViewer::loadNameCache()
 }
 
 void LLAppViewer::saveNameCache()
-	{
+{
 	// display names cache
 	std::string filename =
 		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
@@ -4674,7 +4675,7 @@ void LLAppViewer::saveNameCache()
 	if(name_cache_stream.is_open())
 	{
 		LLAvatarNameCache::exportFile(name_cache_stream);
-}
+	}
 
 	if (!gCacheName) return;
 
@@ -4686,6 +4687,32 @@ void LLAppViewer::saveNameCache()
 		gCacheName->exportFile(cache_file);
 	}
 }
+
+
+void LLAppViewer::saveExperienceCache()
+{
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "experience_cache.xml");
+	LL_INFOS("ExperienceCache") << "Saving " << filename << LL_ENDL;
+	llofstream cache_stream(filename);
+	if(cache_stream.is_open())
+	{
+		LLExperienceCache::exportFile(cache_stream);
+	}
+}
+
+void LLAppViewer::loadExperienceCache()
+{
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "experience_cache.xml");
+	LL_INFOS("ExperienceCache") << "Loading " << filename << LL_ENDL;
+	llifstream cache_stream(filename);
+	if(cache_stream.is_open())
+	{
+		LLExperienceCache::importFile(cache_stream);
+	}
+}
+
 
 /*!	@brief		This class is an LLFrameTimer that can be created with
 				an elapsed time that starts counting up from the given value
@@ -4880,7 +4907,7 @@ void LLAppViewer::idle()
 	    // floating throughout the various object lists.
 	    //
 		idleNameCache();
-    
+		idleExperienceCache();
 		idleNetwork();
 	    	        
 
@@ -5310,6 +5337,22 @@ void LLAppViewer::idleNameCache()
 	LLAvatarNameCache::idle();
 }
 
+void LLAppViewer::idleExperienceCache()
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region) return;
+	
+	std::string lookup_url=region->getCapability("GetExperienceInfo"); 
+	if(!lookup_url.empty() && *lookup_url.rbegin() != '/')
+	{
+		lookup_url += '/';
+	}
+	
+	LLExperienceCache::setLookupURL(lookup_url);
+
+	LLExperienceCache::idle();
+}
+
 //
 // Handle messages, and all message related stuff
 //
@@ -5472,6 +5515,7 @@ void LLAppViewer::disconnectViewer()
 	}
 
 	saveNameCache();
+	saveExperienceCache();
 
 	// close inventory interface, close all windows
 	LLFloaterInventory::cleanup();

@@ -71,4 +71,8 @@
 		<action description="加入群組語音聊天" longdescription="身負具這能力的角色的成員，可以加入群組的語音聊天會話。  注意：欲加入語音聊天會話，需有「加入群組聊天」能力。" name="join voice chat" value="27"/>
 		<action description="適度成人內容的群組聊天" longdescription="身負具這能力的角色的成員，可以控制誰可加入群組語音和文字聊天會話。" name="moderate group chat" value="37"/>
 	</action_set>
+	<action_set description="這些能力包括修改本群組所擁有的體驗的權限" name="experience_tools_experience">
+		<action description="體驗管理" longdescription="擔任有此能力的角色的成員，可以編輯一個體驗的元資料。" name="experience admin" value="49"/>
+		<action description="體驗貢獻者" longdescription="擔任有此能力的角色的成員，可以為一個體驗貢獻腳本。" name="experience contributor" value="50"/>
+	</action_set>
 </role_actions>

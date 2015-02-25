@@ -23,6 +23,7 @@
 				<accordion_tab name="group_roles_tab" title="Roller ve Üyeler"/>
 				<accordion_tab name="group_notices_tab" title="Bildirimler"/>
 				<accordion_tab name="group_land_tab" title="Arazi/Varlıklar"/>
+				<accordion_tab name="group_experiences_tab" title="Deneyimler"/>
 			</accordion>
 		</layout_panel>
 	</layout_stack>

@@ -4456,6 +4456,90 @@ Remove estate manager for this estate only or for [ALL_ESTATES]?
 
   <notification
    icon="alert.tga"
+   label="Select estate"
+   name="EstateAllowedExperienceAdd"
+   type="alert">
+    Add to allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateAllowedExperienceRemove"
+   type="alert">
+    Remove from allowed list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateBlockedExperienceAdd"
+   type="alert">
+    Add to blocked list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateBlockedExperienceRemove"
+   type="alert">
+    Remove from blocked list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateTrustedExperienceAdd"
+   type="alert">
+    Add to key list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   label="Select estate"
+   name="EstateTrustedExperienceRemove"
+   type="alert">
+    Remove from key list for this estate only or for [ALL_ESTATES]?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="All Estates"
+     yestext="This Estate"/>
+  </notification>  
+
+  <notification
+   icon="alert.tga"
    label="Confirm Kick"
    name="EstateKickUser"
    type="alert">
@@ -7146,6 +7230,154 @@ Is this OK?
        index="2"
        name="Mute"
        text="Block"/>
+    </form>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="ExperienceAcquireFailed"
+    type="alertmodal">
+Unable to acquire a new experience:
+    [ERROR_MESSAGE]
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="NotInGroupExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    A change to the experience group was ignored because the owner is not a member of the selected group.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="UneditableExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    The uneditable field '[field]' was ignored when updating the experience profile.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="RestrictedToOwnerExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    Ignored changes to the field '[field]' which can only be set by the experience owner.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="MaturityRatingExceedsOwnerExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    You may not set the maturity rating of an experience higher than that of the owner.
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="RestrictedTermExperienceProfileMessage"
+    persist="false"
+    type="notify">
+    The following terms prevented the update of the experience profile name and/or description: [extra_info]
+  </notification>
+  
+  <notification
+    icon="notify.tga"
+    name="TeleportedHomeExperienceRemoved"
+    persist="false"
+    type="notify">
+    You have been teleported from the region [region_name] for removing the experience secondlife:///app/experience/[public_id]/profile and are no longer permitted in the region.
+    <form name="form">
+      <ignore name="ignore"
+              text="Kicked from region for removing an experience"/>
+    </form>
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="TrustedExperienceEntry"
+    persist="false"
+    type="notify">
+    You have been allowed into the region [region_name] by participating in the key experience secondlife:///app/experience/[public_id]/profile removing this experience may kick you from the region.
+    <form name="form">
+      <ignore name="ignore"
+              text="Allowed into a region by an experience"/>
+    </form>
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="TrustedExperiencesAvailable"
+    persist="false"
+    type="notify">
+You do not have access to this destination. You may be allowed into the region by Accepting an experience below:
+
+[EXPERIENCE_LIST]
+
+Other Key Experiences may be available.
+  </notification>
+    
+
+  <notification
+    icon="notify.tga"
+    name="ExperienceEvent"
+    persist="false"
+    type="notifytip">
+    An object was allowed to [EventType] by the secondlife:///app/experience/[public_id]/profile experience.
+    Owner: secondlife:///app/agent/[OwnerID]/inspect
+    Object Name: [ObjectName]
+    Parcel Name: [ParcelName]
+  </notification>
+
+  <notification
+    icon="notify.tga"
+    name="ExperienceEventAttachment"
+    persist="false"
+    type="notifytip">
+    An attachment was allowed to [EventType] by the secondlife:///app/experience/[public_id]/profile experience.
+    Owner: secondlife:///app/agent/[OwnerID]/inspect
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="ScriptQuestionExperience"
+   persist="false"
+   type="notify">
+&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, requests your participation in the [GRID_WIDE] experience:
+
+[EXPERIENCE]
+
+Once permission is granted you will not see this message again for this experience unless it is revoked from the experience profile.
+
+Scripts associated with this experience will be able to do the following on regions where the experience is active: 
+
+[QUESTIONS]Is this OK?
+
+  <unique combine="combine_with_new">
+    <context>experience</context>
+  </unique>
+  <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="3"
+       name="BlockExperience"
+       text="Block Experience"/>
+      <button
+        index="2"
+        name="Mute"
+        text="Block Object"/>
+      <button
+       index="0"
+       name="Yes"
+       text="Yes"/>
+      <button
+       index="1"
+       name="No"
+       text="No"/>
     </form>
   </notification>
 

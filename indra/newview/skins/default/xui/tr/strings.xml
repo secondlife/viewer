@@ -449,6 +449,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="TooltipMustSingleDrop">
 		Buraya sadece bir öğe sürüklenebilir.
 	</string>
+	<string name="TooltipTooManyWearables">
+		[AMOUNT] öğeden fazlasını içeren bir klasörü kullanamazsınız.  Bu limiti Gelişmiş &gt; Hata Ayıklama Ayarlarını Göster &gt; KullanılabilirKlasörLimiti öğesinden değiştirebilirsiniz.
+	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
 	<string name="TooltipOutboxDragToWorld">
 		Satıcı giden kutunuzda öğeler oluşturamazsınız
@@ -1057,9 +1060,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="AgentNameSubst">
 		(Siz)
 	</string>
-	<string name="JoinAnExperience">
-		Bir tecrübeye katıl
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Gayri menkul erişim listelerini yönetirken uyarıları bastır
 	</string>
@@ -1869,6 +1870,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		Karşıdan yüklerken bilinmeyen hata
+	</string>
+	<string name="CompileNoExperiencePerm">
+		[SCRIPT] komut dizisi [EXPERIENCE] deneyimiyle atlanıyor.
 	</string>
 	<string name="CompileQueueTitle">
 		Tekrar Derleme İlerlemesi
@@ -5270,6 +5274,87 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="UserDictionary">
 		[User]
+	</string>
+	<string name="experience_tools_experience">
+		Deneyim
+	</string>
+	<string name="ExperienceNameNull">
+		(deneyim yok)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(başlıksız deneyim)
+	</string>
+	<string name="Land-Scope">
+		Arazi Kapsamında
+	</string>
+	<string name="Grid-Scope">
+		Ağ Kapsamında
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		İZİN VERİLEN
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		ENGELLENMİŞ
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		KATKIDA BULUNAN
+	</string>
+	<string name="Admin_Experiences_Tab">
+		YÖNETİCİ
+	</string>
+	<string name="Recent_Experiences_Tab">
+		SON
+	</string>
+	<string name="Owned_Experiences_Tab">
+		SAHİBİ
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], maks. [MAXEXPERIENCES])
+	</string>
+	<string name="ExperiencePermission1">
+		kontrollerinizi ele alma
+	</string>
+	<string name="ExperiencePermission3">
+		avatarınızdaki animasyonları tetikleme
+	</string>
+	<string name="ExperiencePermission4">
+		avatarınıza ekleme
+	</string>
+	<string name="ExperiencePermission9">
+		kameranızı takip etmek
+	</string>
+	<string name="ExperiencePermission10">
+		kameranızı kontrol etme
+	</string>
+	<string name="ExperiencePermission11">
+		sizi ışınlama
+	</string>
+	<string name="ExperiencePermission12">
+		deneyim izinlerini otomatik olarak kabul et
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		bilinmeyen bir işlem gerçekleştirdi: [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Kontrolü Al
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Animasyonları Tetikle
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Ekle
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Kamera Takibi
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Kamera Kontrolü
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Işınla
+	</string>
+	<string name="ExperiencePermissionShort12">
+		İzin
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.

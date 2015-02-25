@@ -3,6 +3,6 @@
 	<text name="object_name">
 		[DESC]:
 	</text>
-	<button label="Envantere Kopyala" label_selected="Envantere Kopyala" name="copy_to_inventory_button"/>
-	<button label="Kopyala ve Giy" label_selected="Kopyala ve Giy" name="copy_and_wear_button"/>
+	<button label="Envantere kopyala" label_selected="Envantere kopyala" name="copy_to_inventory_button"/>
+	<button label="Kopyala ve dış görünüme ekle" label_selected="Kopyala ve dış görünüme ekle" name="copy_and_wear_button"/>
 </floater>

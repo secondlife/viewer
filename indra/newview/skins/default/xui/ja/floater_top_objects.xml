@@ -21,6 +21,12 @@
 	<floater.string name="none_descriptor">
 		何も見つかりませんでした。
 	</floater.string>
+	<floater.string name="URLs">
+		URL
+	</floater.string>
+	<floater.string name="memory">
+		メモリ（KB）
+	</floater.string>
 	<text name="title_text">
 		ロード中．．．
 	</text>
@@ -30,7 +36,7 @@
 		<scroll_list.columns label="所有者" name="owner"/>
 		<scroll_list.columns label="ロケーション" name="location"/>
 		<scroll_list.columns label="区画" name="parcel"/>
-		<scroll_list.columns label="時間" name="time"/>
+		<scroll_list.columns label="日付" name="time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
 		<scroll_list.columns label="メモリ（KB）" name="memory"/>
 	</scroll_list>

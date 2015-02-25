@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="MISURATORE LAG">
 	<floater.string name="max_title_msg">
-		Misuratore del lag
+		Misuratore lag
 	</floater.string>
 	<floater.string name="max_width_px">
 		360
@@ -13,7 +13,7 @@
 		90
 	</floater.string>
 	<floater.string name="client_text_msg">
-		Programma in locale
+		Client
 	</floater.string>
 	<floater.string name="client_frame_rate_critical_fps">
 		10
@@ -22,31 +22,31 @@
 		15
 	</floater.string>
 	<floater.string name="client_frame_time_window_bg_msg">
-		Normale, finestra sullo sfondo
+		Normale, finestra in background
 	</floater.string>
 	<floater.string name="client_frame_time_critical_msg">
-		Velocità dei frame al di sotto di [CLIENT_FRAME_RATE_CRITICAL]
+		Frame rate del client inferiore a [CLIENT_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="client_frame_time_warning_msg">
-		Velocità dei frame tra [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
+		Frame rate del client tra [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
 		Normale
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		Possibile causa: Campo visivo impostato troppo alto
+		Causa possibile: Distanza di visualizzazione impostata su un valore troppo alto
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
-		Possibile causa: Caricamento immagini
+		Causa possibile: Caricamento immagini in corso
 	</floater.string>
 	<floater.string name="client_texture_memory_cause_msg">
-		Possibile causa: Troppe immagini in memoria
+		Causa possibile: Troppe immagini in memoria
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		Possibile causa: Troppi oggetti complessi intorno
+		Causa possibile: Troppi oggetti complessi in una scena
 	</floater.string>
 	<floater.string name="network_text_msg">
-		Network
+		Rete
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_pct">
 		10
@@ -55,10 +55,10 @@
 		5
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_msg">
-		La connessione sta calando al di sotto del [NETWORK_PACKET_LOSS_CRITICAL]% di pacchetti
+		Il collegamento perde più del [NETWORK_PACKET_LOSS_CRITICAL]% dei pacchetti
 	</floater.string>
 	<floater.string name="network_packet_loss_warning_msg">
-		La connessione sta calando tra il [NETWORK_PACKET_LOSS_WARNING]% e il [NETWORK_PACKET_LOSS_CRITICAL]% di pacchetti
+		Il collegamento perde [NETWORK_PACKET_LOSS_WARNING]%-[NETWORK_PACKET_LOSS_CRITICAL]% dei pacchetti
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
 		Normale
@@ -70,16 +70,16 @@
 		300
 	</floater.string>
 	<floater.string name="network_ping_critical_msg">
-		Il tempo di ping della connessione è al di sopra di [NETWORK_PING_CRITICAL] ms
+		Tempo di ping del collegamento superiore a [NETWORK_PING_CRITICAL] ms
 	</floater.string>
 	<floater.string name="network_ping_warning_msg">
-		Il tempo di ping della connessione è tra [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
+		Tempo di ping del collegamento pari a [NETWORK_PING_WARNING]-[NETWORK_PING_CRITICAL] ms
 	</floater.string>
 	<floater.string name="network_packet_loss_cause_msg">
-		Possibile cattiva connessione o la larghezza di banda impostata nelle preferenze troppo alta.
+		Collegamento scadente oppure valore della larghezza di banda troppo alto.
 	</floater.string>
 	<floater.string name="network_ping_cause_msg">
-		Possibile cattiva connessione o l&apos;apertura di un programma di scambio files.
+		Collegamento scadente oppure problemi di app di condivisione file.
 	</floater.string>
 	<floater.string name="server_text_msg">
 		Server
@@ -94,31 +94,31 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		Velocità dei frame al di sotto di [SERVER_FRAME_RATE_CRITICAL]
+		Frame rate del simulatore inferiore a [SERVER_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
-		Velocità dei frame tra [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
+		Frame rate del simulatore tra [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
 		Normale
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
-		Possibile causa: troppi oggetti fisici
+		Causa possibile: Troppi oggetti fisici
 	</floater.string>
 	<floater.string name="server_scripts_cause_msg">
-		Possibile causa: troppi oggetti scriptati
+		Causa possibile: Troppi oggetti scriptati
 	</floater.string>
 	<floater.string name="server_net_cause_msg">
-		Possibile causa: eccessivo traffico sulla rete
+		Causa possibile: Troppo traffico di rete
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		Possibile causa: troppi residenti in movimento nella regione
+		Causa possibile: Troppe persone in movimento nella regione
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		Possibile causa: troppe elaborazioni di immagini
+		Causa possibile: Troppi calcoli delle immagini
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
-		Possibile causa: carico eccessivo del simulatore
+		Causa possibile: Carico eccessivo del simulatore
 	</floater.string>
 	<floater.string name="smaller_label">
 		&gt;&gt;
@@ -126,7 +126,7 @@
 	<floater.string name="bigger_label">
 		&lt;&lt;
 	</floater.string>
-	<button label="" label_selected="" name="client_lagmeter" tool_tip="Stato del lag del programma in locale"/>
+	<button label="" label_selected="" name="client_lagmeter" tool_tip="Stato del lag del client"/>
 	<text name="client">
 		Client
 	</text>
@@ -134,7 +134,7 @@
 		Normale
 	</text>
 	<text left="30" name="client_lag_cause" right="-10"/>
-	<button label="" label_selected="" name="network_lagmeter" tool_tip="Stato del lag del network"/>
+	<button label="" label_selected="" name="network_lagmeter" tool_tip="Stato del lag della rete"/>
 	<text name="network">
 		Rete
 	</text>

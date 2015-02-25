@@ -86,19 +86,22 @@
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "llfloatergotoline.h"
+#include "llexperiencecache.h"
+#include "llfloaterexperienceprofile.h"
+#include "llexperienceassociationresponder.h"
 
 const std::string HELLO_LSL =
 	"default\n"
 	"{\n"
-	"    state_entry()\n"
-    "    {\n"
-    "        llSay(0, \"Hello, Avatar!\");\n"
-    "    }\n"
+	"	state_entry()\n"
+	"	{\n"
+	"		llSay(0, \"Hello, Avatar!\");\n"
+	"	}\n"
 	"\n"
-	"    touch_start(integer total_number)\n"
-	"    {\n"
-	"        llSay(0, \"Touched.\");\n"
-	"    }\n"
+	"	touch_start(integer total_number)\n"
+	"	{\n"
+	"		llSay(0, \"Touched.\");\n"
+	"	}\n"
 	"}\n";
 const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
 
@@ -117,6 +120,26 @@ static bool have_script_upload_cap(LLUUID& object_id)
 	LLViewerObject* object = gObjectList.findObject(object_id);
 	return object && (! object->getRegion()->getCapability("UpdateScriptTask").empty());
 }
+
+
+class ExperienceResponder : public LLHTTPClient::Responder
+{
+public:
+	ExperienceResponder(const LLHandle<LLLiveLSLEditor>& parent):mParent(parent)
+	{
+	}
+
+	LLHandle<LLLiveLSLEditor> mParent;
+
+	/*virtual*/ void httpSuccess()
+	{
+		LLLiveLSLEditor* parent = mParent.get();
+		if(!parent)
+			return;
+
+		parent->setExperienceIds(getContent()["experience_ids"]);		
+	}
+};
 
 /// ---------------------------------------------------------------------------
 /// LLLiveLSLFile
@@ -196,7 +219,7 @@ private:
 protected:
 	LLLineEditor*			mSearchBox;
 	LLLineEditor*			mReplaceBox;
-        void onSearchBoxCommit();
+		void onSearchBoxCommit();
 };
 
 LLFloaterScriptSearch* LLFloaterScriptSearch::sInstance = NULL;
@@ -403,6 +426,55 @@ LLScriptEdCore::~LLScriptEdCore()
 	{
 		mSyntaxIDConnection.disconnect();
 	}
+}
+
+void LLLiveLSLEditor::experienceChanged()
+{
+	if(mScriptEd->getAssociatedExperience() != mExperiences->getSelectedValue().asUUID())
+	{
+		mScriptEd->enableSave(getIsModifiable());
+		//getChildView("Save_btn")->setEnabled(TRUE);
+		mScriptEd->setAssociatedExperience(mExperiences->getSelectedValue().asUUID());
+		updateExperiencePanel();
+	}
+}
+
+void LLLiveLSLEditor::onViewProfile( LLUICtrl *ui, void* userdata )
+{
+	LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+
+	LLUUID id;
+	if(self->mExperienceEnabled->get())
+	{
+		id=self->mScriptEd->getAssociatedExperience();
+		if(id.notNull())
+		{
+			 LLFloaterReg::showInstance("experience_profile", id, true);
+		}
+	}
+
+}
+
+void LLLiveLSLEditor::onToggleExperience( LLUICtrl *ui, void* userdata )
+{
+	LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+
+	LLUUID id;
+	if(self->mExperienceEnabled->get())
+	{
+		if(self->mScriptEd->getAssociatedExperience().isNull())
+		{
+			id=self->mExperienceIds.beginArray()->asUUID();
+		}
+	}
+
+	if(id != self->mScriptEd->getAssociatedExperience())
+	{
+		self->mScriptEd->enableSave(self->getIsModifiable());
+	}
+	self->mScriptEd->setAssociatedExperience(id);
+
+	self->updateExperiencePanel();
 }
 
 BOOL LLScriptEdCore::postBuild()
@@ -831,7 +903,7 @@ bool LLScriptEdCore::handleSaveChangesDialog(const LLSD& notification, const LLS
 	case 2: // "Cancel"
 	default:
 		// If we were quitting, we didn't really mean it.
-        LLAppViewer::instance()->abortQuit();
+		LLAppViewer::instance()->abortQuit();
 		break;
 	}
 	return false;
@@ -866,8 +938,8 @@ void LLScriptEdCore::onBtnDynamicHelp()
 		LLKeywordToken *token;
 		LLKeywords::keyword_iterator_t token_it;
 		for (token_it = mEditor->keywordsBegin(); 
-		     token_it != mEditor->keywordsEnd(); 
-		     ++token_it)
+			 token_it != mEditor->keywordsEnd(); 
+			 ++token_it)
 		{
 			token = token_it->second;
 			help_combo->add(wstring_to_utf8str(token->getToken()));
@@ -1219,6 +1291,141 @@ bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
 	return (self && self->mEditor) ? self->mEditor->canLoadOrSaveToFile() : FALSE;
 }
 
+LLUUID LLScriptEdCore::getAssociatedExperience()const
+{
+	return mAssociatedExperience;
+}
+
+void LLLiveLSLEditor::setExperienceIds( const LLSD& experience_ids )
+{
+	mExperienceIds=experience_ids;
+	updateExperiencePanel();
+}
+
+
+void LLLiveLSLEditor::updateExperiencePanel()
+{
+	if(mScriptEd->getAssociatedExperience().isNull())
+	{
+		mExperienceEnabled->set(FALSE);
+		mExperiences->setVisible(FALSE);
+		if(mExperienceIds.size()>0)
+		{
+			mExperienceEnabled->setEnabled(TRUE);
+			mExperienceEnabled->setToolTip(getString("add_experiences"));
+		}
+		else
+		{
+			mExperienceEnabled->setEnabled(FALSE);
+			mExperienceEnabled->setToolTip(getString("no_experiences"));
+		}
+		getChild<LLButton>("view_profile")->setVisible(FALSE);
+	}
+	else
+	{
+		mExperienceEnabled->setToolTip(getString("experience_enabled"));
+		mExperienceEnabled->setEnabled(getIsModifiable());
+		mExperiences->setVisible(TRUE);
+		mExperienceEnabled->set(TRUE);
+		getChild<LLButton>("view_profile")->setToolTip(getString("show_experience_profile"));
+		buildExperienceList();
+	}
+}
+
+void LLLiveLSLEditor::buildExperienceList()
+{
+	mExperiences->clearRows();
+	bool foundAssociated=false;
+	const LLUUID& associated = mScriptEd->getAssociatedExperience();
+	LLUUID last;
+	LLScrollListItem* item;
+	for(LLSD::array_const_iterator it = mExperienceIds.beginArray(); it != mExperienceIds.endArray(); ++it)
+	{
+		LLUUID id = it->asUUID();
+		EAddPosition position = ADD_BOTTOM;
+		if(id == associated)
+		{
+			foundAssociated = true;
+			position = ADD_TOP;
+		}
+		
+		const LLSD& experience = LLExperienceCache::get(id);
+		if(experience.isUndefined())
+		{
+			mExperiences->add(getString("loading"), id, position);
+			last = id;
+		}
+		else
+		{
+			std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
+			if (experience_name_string.empty())
+			{
+				experience_name_string = LLTrans::getString("ExperienceNameUntitled");
+			}
+			mExperiences->add(experience_name_string, id, position);
+		} 
+	}
+
+	if(!foundAssociated )
+	{
+		const LLSD& experience = LLExperienceCache::get(associated);
+		if(experience.isDefined())
+		{
+			std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
+			if (experience_name_string.empty())
+			{
+				experience_name_string = LLTrans::getString("ExperienceNameUntitled");
+			}
+			item=mExperiences->add(experience_name_string, associated, ADD_TOP);
+		} 
+		else
+		{
+			item=mExperiences->add(getString("loading"), associated, ADD_TOP);
+			last = associated;
+		}
+		item->setEnabled(FALSE);
+	}
+
+	if(last.notNull())
+	{
+		mExperiences->setEnabled(FALSE);
+		LLExperienceCache::get(last, boost::bind(&LLLiveLSLEditor::buildExperienceList, this));  
+	}
+	else
+	{
+		mExperiences->setEnabled(TRUE);
+		getChild<LLButton>("view_profile")->setVisible(TRUE);
+	}
+}
+
+
+void LLScriptEdCore::setAssociatedExperience( const LLUUID& experience_id )
+{
+	mAssociatedExperience = experience_id;
+}
+
+
+
+void LLLiveLSLEditor::requestExperiences()
+{
+	if (!getIsModifiable())
+	{
+		return;
+	}
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
+	{
+		std::string lookup_url=region->getCapability("GetCreatorExperiences"); 
+		if(!lookup_url.empty())
+		{
+			LLHTTPClient::get(lookup_url, new ExperienceResponder(getDerivedHandle<LLLiveLSLEditor>()));
+		}
+	}
+}
+
+
+
 /// ---------------------------------------------------------------------------
 /// LLScriptEdContainer
 /// ---------------------------------------------------------------------------
@@ -1237,7 +1444,7 @@ std::string LLScriptEdContainer::getTmpFileName()
 	std::string script_id = mObjectUUID.asString() + "_" + mItemUUID.asString();
 
 	// Use MD5 sum to make the file name shorter and not exceed maximum path length.
-	char script_id_hash_str[33];               /* Flawfinder: ignore */
+	char script_id_hash_str[33];			   /* Flawfinder: ignore */
 	LLMD5 script_id_hash((const U8 *)script_id.c_str());
 	script_id_hash.hex_digest(script_id_hash_str);
 
@@ -1775,6 +1982,16 @@ BOOL LLLiveLSLEditor::postBuild()
 	mScriptEd->mEditor->makePristine();
 	mScriptEd->mEditor->setFocus(TRUE);
 
+
+	mExperiences = getChild<LLComboBox>("Experiences...");
+	mExperiences->setCommitCallback(boost::bind(&LLLiveLSLEditor::experienceChanged, this));
+	
+	mExperienceEnabled = getChild<LLCheckBoxCtrl>("enable_xp");
+	
+	childSetCommitCallback("enable_xp", onToggleExperience, this);
+	childSetCommitCallback("view_profile", onViewProfile, this);
+	
+
 	return LLPreview::postBuild();
 }
 
@@ -1818,60 +2035,59 @@ void LLLiveLSLEditor::loadAsset()
 		if(object)
 		{
 			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemUUID));
-			if(item 
-				&& (gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE)
-				   || gAgent.isGodlike()))
-			{
-				mItem = new LLViewerInventoryItem(item);
-				//LL_INFOS() << "asset id " << mItem->getAssetUUID() << LL_ENDL;
-			}
 
-			if(!gAgent.isGodlike()
-			   && (item
-				   && (!gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE)
-					   || !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))))
+			if(item)
 			{
-				mItem = new LLViewerInventoryItem(item);
-				mScriptEd->setScriptText(getString("not_allowed"), FALSE);
-				mScriptEd->mEditor->makePristine();
-				mScriptEd->enableSave(FALSE);
-				mAssetStatus = PREVIEW_ASSET_LOADED;
+				ExperienceAssociationResponder::fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
+				
+				bool isGodlike = gAgent.isGodlike();
+				bool copyManipulate = gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE);
+				mIsModifiable = gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE);
+				
+				if(!isGodlike && (!copyManipulate || !mIsModifiable))
+				{
+					mItem = new LLViewerInventoryItem(item);
+					mScriptEd->setScriptText(getString("not_allowed"), FALSE);
+					mScriptEd->mEditor->makePristine();
+					mScriptEd->enableSave(FALSE);
+					mAssetStatus = PREVIEW_ASSET_LOADED;
+				}
+				else if(copyManipulate || isGodlike)
+				{
+					mItem = new LLViewerInventoryItem(item);
+					// request the text from the object
+					LLUUID* user_data = new LLUUID(mItemUUID); //  ^ mObjectUUID
+					gAssetStorage->getInvItemAsset(object->getRegion()->getHost(),
+						gAgent.getID(),
+						gAgent.getSessionID(),
+						item->getPermissions().getOwner(),
+						object->getID(),
+						item->getUUID(),
+						item->getAssetUUID(),
+						item->getType(),
+						&LLLiveLSLEditor::onLoadComplete,
+						(void*)user_data,
+						TRUE);
+					LLMessageSystem* msg = gMessageSystem;
+					msg->newMessageFast(_PREHASH_GetScriptRunning);
+					msg->nextBlockFast(_PREHASH_Script);
+					msg->addUUIDFast(_PREHASH_ObjectID, mObjectUUID);
+					msg->addUUIDFast(_PREHASH_ItemID, mItemUUID);
+					msg->sendReliable(object->getRegion()->getHost());
+					mAskedForRunningInfo = TRUE;
+					mAssetStatus = PREVIEW_ASSET_LOADING;
+				}
 			}
-			else if(item && mItem.notNull())
-			{
-				// request the text from the object
-				LLUUID* user_data = new LLUUID(mItemUUID); //  ^ mObjectUUID
-				gAssetStorage->getInvItemAsset(object->getRegion()->getHost(),
-											   gAgent.getID(),
-											   gAgent.getSessionID(),
-											   item->getPermissions().getOwner(),
-											   object->getID(),
-											   item->getUUID(),
-											   item->getAssetUUID(),
-											   item->getType(),
-											   &LLLiveLSLEditor::onLoadComplete,
-											   (void*)user_data,
-											   TRUE);
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessageFast(_PREHASH_GetScriptRunning);
-				msg->nextBlockFast(_PREHASH_Script);
-				msg->addUUIDFast(_PREHASH_ObjectID, mObjectUUID);
-				msg->addUUIDFast(_PREHASH_ItemID, mItemUUID);
-				msg->sendReliable(object->getRegion()->getHost());
-				mAskedForRunningInfo = TRUE;
-				mAssetStatus = PREVIEW_ASSET_LOADING;
-			}
-			else
+			
+			if(mItem.isNull())
 			{
 				mScriptEd->setScriptText(LLStringUtil::null, FALSE);
 				mScriptEd->mEditor->makePristine();
 				mAssetStatus = PREVIEW_ASSET_LOADED;
+				mIsModifiable = FALSE;
 			}
 
-			mIsModifiable = item && gAgent.allowOperation(PERM_MODIFY, 
-										item->getPermissions(),
-				   						GP_OBJECT_MANIPULATE);
-
+			refreshFromItem();
 			// This is commented out, because we don't completely
 			// handle script exports yet.
 			/*
@@ -1908,6 +2124,8 @@ void LLLiveLSLEditor::loadAsset()
 										  time_corrected());
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
+
+	requestExperiences();
 }
 
 // static
@@ -2171,7 +2389,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
 	if (!url.empty())
 	{
-		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running);
+		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running, mScriptEd->getAssociatedExperience());
 	}
 	else if (gAssetStorage)
 	{
@@ -2183,7 +2401,8 @@ void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
 										 const std::string& filename,
 										 const LLUUID& task_id,
 										 const LLUUID& item_id,
-										 BOOL is_running)
+										 BOOL is_running,
+										 const LLUUID& experience_public_id )
 {
 	LL_INFOS() << "Update Task Inventory via capability " << url << LL_ENDL;
 	LLSD body;
@@ -2191,6 +2410,7 @@ void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
 	body["item_id"] = item_id;
 	body["is_script_running"] = is_running;
 	body["target"] = monoChecked() ? "mono" : "lsl2";
+	body["experience"] = experience_public_id;
 	LLHTTPClient::post(url, body,
 		new LLUpdateTaskInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
 }
@@ -2441,4 +2661,19 @@ BOOL LLLiveLSLEditor::monoChecked() const
 		return mMonoCheckbox->getValue()? TRUE : FALSE;
 	}
 	return FALSE;
+}
+
+void LLLiveLSLEditor::setAssociatedExperience( LLHandle<LLLiveLSLEditor> editor, const LLSD& experience )
+{
+	LLLiveLSLEditor* scriptEd = editor.get();
+	if(scriptEd)
+	{
+		LLUUID id;
+		if(experience.has(LLExperienceCache::EXPERIENCE_ID))
+		{
+			id=experience[LLExperienceCache::EXPERIENCE_ID].asUUID();
+		}
+		scriptEd->mScriptEd->setAssociatedExperience(id);
+		scriptEd->updateExperiencePanel();
+	}
 }

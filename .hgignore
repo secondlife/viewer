@@ -1,6 +1,5 @@
 syntax: glob
 
-
 # WinMerge temp files
 *.bak
 # Compiled python bytecode
