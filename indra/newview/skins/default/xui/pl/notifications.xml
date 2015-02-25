@@ -3569,9 +3569,11 @@ Spróbuj ponownie za minutę.
 	</notification>
 	<notification name="TeleportedByAttachment">
 		Zostałeś/aś teleportowany/a przez dodatek na [ITEM_ID]
+		<usetemplate ignoretext="Teleport: Zostałeś/aś teleportowany/a przez dodatek" name="notifyignore" />
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		Zostałeś/aś teleportowany/a przez obiekt '[OBJECT_NAME]' na działce '[PARCEL_NAME]'
+		<usetemplate ignoretext="Teleport: Zostałeś/aś teleportowany/a przez obiekt na działce" name="notifyignore" />
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		Zostałeś/aś teleportowany/a przez obiekt '[OBJECT_NAME]' należący do [OWNER_ID]
