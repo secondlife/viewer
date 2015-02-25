@@ -96,7 +96,6 @@ public:
 private:
 	void			renderCorners( const LLBBox& local_bbox );
 	void			renderFaces( const LLBBox& local_bbox );
-	void			renderEdges( const LLBBox& local_bbox );
 	void			renderBoxHandle( F32 x, F32 y, F32 z );
 	void			renderAxisHandle( U32 part, const LLVector3& start, const LLVector3& end );
 	void			renderGuidelinesPart( const LLBBox& local_bbox );
@@ -172,6 +171,9 @@ private:
 	ESnapRegimes	mSnapRegime; //<! Which, if any, snap regime the cursor is currently residing in.
 	F32				mManipulatorScales[NUM_MANIPULATORS];
 	F32				mBoxHandleSize[NUM_MANIPULATORS];		// The size of the handles at the corners of the bounding box
+	S32				mFirstClickX;
+	S32				mFirstClickY;
+	bool			mIsFirstClick;
 };
 
 #endif  // LL_MANIPSCALE_H

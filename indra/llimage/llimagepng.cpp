@@ -67,7 +67,7 @@ BOOL LLImagePNG::updateData()
 	}
 
 	LLPngWrapper::ImageInfo infop;
-	if (! pngWrapper.readPng(getData(), NULL, &infop))
+	if (! pngWrapper.readPng(getData(), getDataSize(), NULL, &infop))
 	{
 		setLastError(pngWrapper.getErrorMessage());
 		return FALSE;
@@ -102,7 +102,7 @@ BOOL LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
 		return FALSE;
 	}
 
-	if (! pngWrapper.readPng(getData(), raw_image))
+	if (! pngWrapper.readPng(getData(), getDataSize(), raw_image))
 	{
 		setLastError(pngWrapper.getErrorMessage());
 		return FALSE;
