@@ -5365,7 +5365,21 @@ You cannot undo this action.
      notext="Cancel"
      yestext="OK"/>
   </notification>
-
+  
+  <notification
+     icon="alertmodal.tga"
+     name="ConfirmUnlink"
+     type="alertmodal">
+    <unique/>
+    This is a large linkset. If you unlink it, you may not be able to link it again. You may wish to take a copy of the linkset into your inventory as a precaution.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm when unlinking a linkset"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Unlink"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseEmailLL"

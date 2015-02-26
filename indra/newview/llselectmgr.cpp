@@ -622,8 +622,39 @@ bool LLSelectMgr::linkObjects()
 
 bool LLSelectMgr::unlinkObjects()
 {
+	LLViewerObject *object = mSelectedObjects->getFirstRootObject();
+	if (!object) return false;
+
+	S32 min_objects_for_confirm = gSavedSettings.getS32("MinObjectsForUnlinkConfirm");
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();  iter != getSelection()->root_end(); iter++)
+	{
+		object = (*iter)->getObject();
+		if(object)
+		{
+			S32 objects_in_linkset = object->numChildren() + 1;
+			if(objects_in_linkset >= min_objects_for_confirm)
+			{
+				LLNotificationsUtil::add("ConfirmUnlink", LLSD(), LLSD(), boost::bind(&LLSelectMgr::confirmUnlinkObjects, this, _1, _2));
+				return true;
+			}
+		}
+	}
+
 	LLSelectMgr::getInstance()->sendDelink();
 	return true;
+}
+
+void LLSelectMgr::confirmUnlinkObjects(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	// if Cancel pressed
+	if (option == 1)
+	{
+		return;
+	}
+
+	LLSelectMgr::getInstance()->sendDelink();
+	return;
 }
 
 // in order to link, all objects must have the same owner, and the
