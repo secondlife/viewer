@@ -80,12 +80,15 @@ public:
 	/// Should this link text be underlined only when mouse is hovered over it?
 	bool underlineOnHoverOnly() const { return mUnderlineOnHoverOnly; }
 
+	/// Return true if Url is trusted.
+	bool isTrusted() const { return mTrusted; }
+
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
 				   const LLStyle::Params& style, const std::string &menu, 
 				   const std::string &location, const LLUUID& id,
-				   bool underline_on_hover_only = false );
+				   bool underline_on_hover_only = false, bool trusted = false );
 
 	const LLUUID& getID() const { return mID; }
 private:
@@ -100,6 +103,7 @@ private:
 	LLUUID		mID;
 	LLStyle::Params mStyle;
 	bool		mUnderlineOnHoverOnly;
+	bool		mTrusted;
 };
 
 #endif

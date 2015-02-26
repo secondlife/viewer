@@ -66,6 +66,7 @@
 #include "llviewerstatsrecorder.h"
 #include "llvlmanager.h"
 #include "llvlcomposition.h"
+#include "llvoavatarself.h"
 #include "llvocache.h"
 #include "llworld.h"
 #include "llspatialpartition.h"
@@ -1483,16 +1484,27 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 
 	if(drawablep && !drawablep->getParent())
 	{
-		LLViewerObject::const_child_list_t& child_list = drawablep->getVObj()->getChildren();
+		LLViewerObject* v_obj = drawablep->getVObj();
+		if (v_obj->isSelected()
+			|| (v_obj->flagAnimSource() && isAgentAvatarValid() && gAgentAvatarp->hasMotionFromSource(v_obj->getID())))
+		{
+			// do not remove objects user is interacting with
+			((LLViewerOctreeEntryData*)drawablep)->setVisible();
+			return;
+		}
+		LLViewerObject::const_child_list_t& child_list = v_obj->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
 			iter != child_list.end(); iter++)
 		{
 			LLViewerObject* child = *iter;
 			if(child->mDrawable)
 			{
-				if(!child->mDrawable->getEntry() || !child->mDrawable->getEntry()->hasVOCacheEntry())
+				if( !child->mDrawable->getEntry()
+					|| !child->mDrawable->getEntry()->hasVOCacheEntry()
+					|| child->isSelected()
+					|| (child->flagAnimSource() && isAgentAvatarValid() && gAgentAvatarp->hasMotionFromSource(child->getID())))
 				{
-					//do not remove parent if any of its children non-cacheable
+					//do not remove parent if any of its children non-cacheable, animating or selected
 					//especially for the case that an avatar sits on a cache-able object
 					((LLViewerOctreeEntryData*)drawablep)->setVisible();
 					return;
