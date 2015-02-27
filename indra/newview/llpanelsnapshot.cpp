@@ -37,6 +37,19 @@
 #include "llsidetraypanelcontainer.h"
 #include "llviewercontrol.h" // gSavedSettings
 
+const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
+
+S32 power_of_two(S32 sz, S32 upper)
+{
+	S32 res = upper;
+	while( upper >= sz)
+	{
+		res = upper;
+		upper >>= 1;
+	}
+	return res;
+}
+
 // virtual
 BOOL LLPanelSnapshot::postBuild()
 {
@@ -164,8 +177,26 @@ void LLPanelSnapshot::cancel()
 void LLPanelSnapshot::onCustomResolutionCommit()
 {
 	LLSD info;
-	info["w"] = getChild<LLUICtrl>(getWidthSpinnerName())->getValue().asInteger();
-	info["h"] = getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
+	LLSpinCtrl *widthSpinner = getChild<LLSpinCtrl>(getWidthSpinnerName());
+	LLSpinCtrl *heightSpinner = getChild<LLSpinCtrl>(getHeightSpinnerName());
+	if (getName() == "panel_snapshot_inventory")
+	{
+		S32 width = widthSpinner->getValue().asInteger();
+		width = power_of_two(width, MAX_TEXTURE_SIZE);
+		info["w"] = width;
+		widthSpinner->setIncrement(width >> 1);
+		widthSpinner->forceSetValue(width);
+		S32 height =  heightSpinner->getValue().asInteger();
+		height = power_of_two(height, MAX_TEXTURE_SIZE);
+		heightSpinner->setIncrement(height >> 1);
+		heightSpinner->forceSetValue(height);
+		info["h"] = height;
+	}
+	else
+	{
+		info["w"] = widthSpinner->getValue().asInteger();
+		info["h"] = heightSpinner->getValue().asInteger();
+	}
 	LLFloaterSnapshot::getInstance()->notify(LLSD().with("custom-res-change", info));
 }
 

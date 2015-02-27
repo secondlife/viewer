@@ -49,6 +49,7 @@ include(CMakeCopyIfDifferent)
 include(LLAppearance)
 include(PNG)
 include(ZLIB)
+include(URIPARSER)
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -1925,6 +1926,7 @@ endif (WINDOWS)
 target_link_libraries(${VIEWER_BINARY_NAME}
     ${PNG_PRELOAD_ARCHIVES}
     ${ZLIB_PRELOAD_ARCHIVES}
+    ${URIPARSER_PRELOAD_ARCHIVES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}

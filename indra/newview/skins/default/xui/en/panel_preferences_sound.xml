@@ -398,7 +398,7 @@
      follows="left|top"
      layout="topleft"
      left_delta="-168"
-     width="221"
+     width="360"
      height="20"
      name="ear_location">
     <radio_item

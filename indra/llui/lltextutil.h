@@ -64,7 +64,15 @@ namespace LLTextUtil
 	 */
 	const std::string& formatPhoneNumber(const std::string& phone_str);
 
-	bool processUrlMatch(LLUrlMatch* match,LLTextBase* text_base, bool is_content_trusted);
+	/**
+	 * Adds icon before url if need.
+	 *
+	 * @param[in] match an object with results of matching
+	 * @param[in] text_base pointer to UI text object
+	 * @param[in] is_content_trusted true if context is trusted
+	 * @return reference to string with formatted phone number
+	 */
+	bool processUrlMatch(LLUrlMatch* match, LLTextBase* text_base, bool is_content_trusted);
 
 	class TextHelpers
 	{
