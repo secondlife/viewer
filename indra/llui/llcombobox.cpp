@@ -788,6 +788,11 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 		// since the dropdown button eats the key
 		if (key == KEY_RETURN)
 		{
+			if (mask == MASK_NONE)
+			{
+				mOnReturnSignal(this, getValue());
+			}
+
 			// don't show list and don't eat key input when committing
 			// free-form text entry with RETURN since user already knows
             // what they are trying to select

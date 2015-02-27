@@ -383,12 +383,20 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 			S32 w = gViewerWindow->getWindowWidthRaw();
 			LL_DEBUGS() << "Initializing width spinner (" << width_ctrl->getName() << "): " << w << LL_ENDL;
 			width_ctrl->setValue(w);
+			if(getActiveSnapshotType(floater) == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
+			{
+				width_ctrl->setIncrement(w >> 1);
+			}
 		}
 		if (height_ctrl->getValue().asInteger() == 0)
 		{
 			S32 h = gViewerWindow->getWindowHeightRaw();
 			LL_DEBUGS() << "Initializing height spinner (" << height_ctrl->getName() << "): " << h << LL_ENDL;
 			height_ctrl->setValue(h);
+			if(getActiveSnapshotType(floater) == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
+			{
+				height_ctrl->setIncrement(h >> 1);
+			}
 		}
 
 		// Clamp snapshot resolution to window size when showing UI or HUD in snapshot.
@@ -823,6 +831,11 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		{
 			getWidthSpinner(view)->setValue(width);
 			getHeightSpinner(view)->setValue(height);
+			if (getActiveSnapshotType(view) == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
+			{
+				getWidthSpinner(view)->setIncrement(width >> 1);
+				getHeightSpinner(view)->setIncrement(height >> 1);
+			}
 		}
 
 		if(original_width != width || original_height != height)
@@ -942,6 +955,11 @@ void LLFloaterSnapshot::Impl::setImageSizeSpinnersValues(LLFloaterSnapshot *view
 {
 	getWidthSpinner(view)->forceSetValue(width);
 	getHeightSpinner(view)->forceSetValue(height);
+	if (getActiveSnapshotType(view) == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
+	{
+		getWidthSpinner(view)->setIncrement(width >> 1);
+		getHeightSpinner(view)->setIncrement(height >> 1);
+	}
 }
 
 // static

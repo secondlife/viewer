@@ -51,7 +51,7 @@
      v_pad="4"
      top="0"
      wrap="false" 
-     value="L$20" 
+     value="L$??" 
      width="40" />
     <button
      halign="center"

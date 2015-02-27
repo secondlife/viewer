@@ -60,6 +60,7 @@
 #include "v2math.h"
 #include <set>
 #include <boost/tokenizer.hpp>
+#include <boost/foreach.hpp>
 
 // static
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
@@ -2031,15 +2032,7 @@ void LLMenuGL::arrange( void )
 
 		// torn off menus are not constrained to the size of the screen
 		U32 max_width = getTornOff() ? U32_MAX : menu_region_rect.getWidth();
-		U32 max_height = U32_MAX;
-		if (!getTornOff())
-		{
-			max_height = getRect().mTop - menu_region_rect.mBottom;
-			if (menu_region_rect.mTop - getRect().mTop > (S32)max_height)
-			{
-				max_height = menu_region_rect.mTop - getRect().mTop;
-			}
-		}
+		U32 max_height = getTornOff() ? U32_MAX: menu_region_rect.getHeight();
 
 		// *FIX: create the item first and then ask for its dimensions?
 		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::getFontSansSerif()->getWidth( std::string("More") ); // *TODO: Translate
@@ -2097,13 +2090,15 @@ void LLMenuGL::arrange( void )
 		}
 		else
 		{
+			BOOST_FOREACH(LLMenuItemGL* itemp, mItems)
+			{
+				// do first so LLMenuGLItemCall can call on_visible to determine if visible
+				itemp->buildDrawLabel();
+			}
 			item_list_t::iterator item_iter;
 
 			for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
 			{
-				// do first so LLMenuGLItemCall can call on_visible to determine if visible
-				(*item_iter)->buildDrawLabel();
-		
 				if ((*item_iter)->getVisible())
 				{
 					if (!getTornOff() 
@@ -2111,33 +2106,42 @@ void LLMenuGL::arrange( void )
 						&& *item_iter != mSpilloverBranch
 						&& height + (*item_iter)->getNominalHeight() > max_height - spillover_item_height)
 					{
-						// no room for any more items
-						createSpilloverBranch();
-
-						std::vector<LLMenuItemGL*> items_to_remove;
-						std::copy(item_iter, mItems.end(), std::back_inserter(items_to_remove));
-						std::vector<LLMenuItemGL*>::iterator spillover_iter;
-						for (spillover_iter= items_to_remove.begin(); spillover_iter != items_to_remove.end(); ++spillover_iter)
+						// don't show only one item
+						int visible_items = 0;
+						item_list_t::iterator count_iter;
+						for (count_iter = item_iter; count_iter != mItems.end(); ++count_iter)
 						{
-							LLMenuItemGL* itemp = (*spillover_iter);
-							removeChild(itemp);
-							mSpilloverMenu->addChild(itemp);
+							if((*count_iter)->getVisible())
+								visible_items++;
 						}
+						if (visible_items>1)
+						{
+							// no room for any more items
+							createSpilloverBranch();
+
+							std::vector<LLMenuItemGL*> items_to_remove;
+							std::copy(item_iter, mItems.end(), std::back_inserter(items_to_remove));
+							std::vector<LLMenuItemGL*>::iterator spillover_iter;
+							for (spillover_iter= items_to_remove.begin(); spillover_iter != items_to_remove.end(); ++spillover_iter)
+							{
+								LLMenuItemGL* itemp = (*spillover_iter);
+								removeChild(itemp);
+								mSpilloverMenu->addChild(itemp);
+							}
 
 
-						addChild(mSpilloverBranch);
+							addChild(mSpilloverBranch);
 
-						height += mSpilloverBranch->getNominalHeight();
-						width = llmax( width, mSpilloverBranch->getNominalWidth() );
+							height += mSpilloverBranch->getNominalHeight();
+							width = llmax( width, mSpilloverBranch->getNominalWidth() );
 
-						break;
+							break;
+						}
 					}
-					else
-					{
-						// track our rect
-						height += (*item_iter)->getNominalHeight();
-						width = llmax( width, (*item_iter)->getNominalWidth() );
-					}
+
+					// track our rect
+					height += (*item_iter)->getNominalHeight();
+					width = llmax( width, (*item_iter)->getNominalWidth() );
 
 					if (mScrollable)
 					{
@@ -2362,7 +2366,9 @@ void LLMenuGL::createSpilloverBranch()
 		branch_params.label = label;
 		branch_params.branch = mSpilloverMenu;
 		branch_params.font.style = "italic";
-
+		branch_params.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+		branch_params.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
+		branch_params.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
 
 		mSpilloverBranch = LLUICtrlFactory::create<LLMenuItemBranchGL>(branch_params);
 	}

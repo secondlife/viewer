@@ -81,8 +81,8 @@ public:
 		SUCCESS,
 		BAD_HEADER
 	};
-	BOOL				exportFile(LLFILE* file) const;
-	EImportResult		importFile(LLFILE* file, LLAvatarAppearance* avatarp );
+	BOOL				exportFile(const std::string& filename) const;
+	EImportResult		importFile(const std::string& filename, LLAvatarAppearance* avatarp );
 	virtual BOOL				exportStream( std::ostream& output_stream ) const;
 	virtual EImportResult		importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
 

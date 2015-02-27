@@ -358,6 +358,7 @@ Decro Schmooz
 Denim Kamachi
 DiJodi Dubratt
 Dil Spitz
+	MAINT-4455
 Dimitrio Lewis
 Dirk
 Draconis Neurocam
@@ -1233,6 +1234,7 @@ Sovereign Engineer
     STORM-1972
     OPEN-195
     OPEN-217
+    OPEN-295
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1274,6 +1276,7 @@ TankMaster Finesmith
 	OPEN-140
 	OPEN-142
 	OPEN-154
+	OPEN-295
 	STORM-1100
 	STORM-1258
 	STORM-1602
