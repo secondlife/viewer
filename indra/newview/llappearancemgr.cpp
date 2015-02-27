@@ -3975,6 +3975,8 @@ BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
 	return FALSE;
 }
 
+// FIXME apparent duplicate of isLinkedInCOF()
+
 // static
 bool LLAppearanceMgr::isLinkInCOF(const LLUUID& obj_id)
 {

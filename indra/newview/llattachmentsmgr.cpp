@@ -117,6 +117,7 @@ void LLAttachmentsMgr::linkPendingAttachments()
 	{
 		LLPointer<LLInventoryCallback> cb = new LLAttachAfterLinkCallback(mPendingAttachments);
 		LLInventoryObject::const_object_list_t inv_items_to_link;
+		LL_DEBUGS("Avatar") << "ATT requesting COF links for " << mPendingAttachments.size() << " object(s):" << LL_ENDL;
 		for (attachments_vec_t::const_iterator it = mPendingAttachments.begin();
 			 it != mPendingAttachments.end(); ++it)
 		{
@@ -124,6 +125,7 @@ void LLAttachmentsMgr::linkPendingAttachments()
 			LLViewerInventoryItem *item = gInventory.getItem(att_info.mItemID);
 			if (item)
 			{
+				LL_DEBUGS("Avatar") << "ATT - requesting COF link for " << item->getName() << LL_ENDL;
 				inv_items_to_link.push_back(item);
 			}
 			else

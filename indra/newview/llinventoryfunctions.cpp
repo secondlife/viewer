@@ -1060,6 +1060,34 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
+// Succeeds iff all selected items are bridges to objects, in which
+// case returns their corresponding uuids.
+bool get_selection_object_uuids(LLFolderView *root, uuid_vec_t& ids)
+{
+	uuid_vec_t results;
+	S32 non_object = 0;
+	LLFolderView::selected_items_t selectedItems = root->getSelectedItems();
+	for(LLFolderView::selected_items_t::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+	{
+		LLObjectBridge *view_model = dynamic_cast<LLObjectBridge *>((*it)->getViewModelItem());
+
+		if(view_model && view_model->getUUID().notNull())
+		{
+			results.push_back(view_model->getUUID());
+		}
+		else
+		{
+			non_object++;
+		}
+	}
+	if (non_object == 0)
+	{
+		ids = results;
+		return true;
+	}
+	return false;
+}
+
 void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action)
 {
 	if ("rename" == action)
@@ -1116,13 +1144,29 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
 	std::set<LLFolderViewItem*>::iterator set_iter;
 
-	for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+
+	// This rather warty piece of code is to allow items to be removed
+	// from the avatar in a batch, eliminating redundant
+	// updateAppearanceFromCOF() requests further down the line. (MAINT-4918)
+	//
+	// There are probably other cases where similar batching would be
+	// desirable, but the current item-by-item performAction()
+	// approach would need to be reworked.
+	uuid_vec_t object_uuids_to_remove;
+	if (isRemoveAction(action) && get_selection_object_uuids(root, object_uuids_to_remove))
 	{
-		LLFolderViewItem* folder_item = *set_iter;
-		if(!folder_item) continue;
-		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
-		if(!bridge) continue;
-		bridge->performAction(model, action);
+		LLAppearanceMgr::instance().removeItemsFromAvatar(object_uuids_to_remove);
+	}
+	else
+	{
+		for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+		{
+			LLFolderViewItem* folder_item = *set_iter;
+			if(!folder_item) continue;
+			LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+			if(!bridge) continue;
+			bridge->performAction(model, action);
+		}
 	}
 
 	LLFloater::setFloaterHost(NULL);

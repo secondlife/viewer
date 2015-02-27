@@ -687,4 +687,10 @@ void hide_context_entries(LLMenuGL& menu,
 						  const menuentry_vec_t &entries_to_show, 
 						  const menuentry_vec_t &disabled_entries);
 
+// Helper functions to classify actions.
+bool isAddAction(const std::string& action);
+bool isRemoveAction(const std::string& action);
+bool isMarketplaceCopyAction(const std::string& action);
+bool isMarketplaceSendAction(const std::string& action);
+
 #endif // LL_LLINVENTORYBRIDGE_H
