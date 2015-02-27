@@ -3975,16 +3975,6 @@ BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
 	return FALSE;
 }
 
-// FIXME apparent duplicate of isLinkedInCOF()
-
-// static
-bool LLAppearanceMgr::isLinkInCOF(const LLUUID& obj_id)
-{
-	const LLUUID& target_id = gInventory.getLinkedItemID(obj_id);
-	LLLinkedItemIDMatches find_links(target_id);
-	return gInventory.hasMatchingDirectDescendent(LLAppearanceMgr::instance().getCOF(), find_links);
-}
-
 BOOL LLAppearanceMgr::getIsProtectedCOFItem(const LLUUID& obj_id) const
 {
 	if (!getIsInCOF(obj_id)) return FALSE;
