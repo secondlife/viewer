@@ -4988,6 +4988,15 @@ BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 }
 
 //-----------------------------------------------------------------------------
+// hasMotionFromSource()
+//-----------------------------------------------------------------------------
+// virtual
+bool LLVOAvatar::hasMotionFromSource(const LLUUID& source_id)
+{
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // stopMotionFromSource()
 //-----------------------------------------------------------------------------
 // virtual

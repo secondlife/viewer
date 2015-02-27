@@ -165,6 +165,12 @@
 	</menu>
 	<menu label="Справка" name="Help">
 		<menu_item_call label="Инструкции..." name="How To"/>
+		<menu_item_call label="База знаний" name="Knowledge Base"/>
+		<menu_item_call label="Wiki" name="Wiki"/>
+		<menu_item_call label="Форумы сообщества" name="Community Forums"/>
+		<menu_item_call label="Портал поддержки" name="Support portal"/>
+		<menu_item_call label="Новости [SECOND_LIFE]" name="Second Life News"/>
+		<menu_item_call label="Блоги [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Жалоба" name="Report Abuse"/>
 		<menu_item_call label="Сообщить об ошибке" name="Report Bug"/>
 		<menu_item_call label="О [APP_NAME]" name="About Second Life"/>
@@ -395,6 +401,12 @@
 				<menu_item_call label="Проверка мужчины" name="Test Male"/>
 				<menu_item_call label="Проверка женщины" name="Test Female"/>
 				<menu_item_check label="Разрешить выбор аватара" name="Allow Select Avatar"/>
+			</menu>
+			<menu label="Скорость анимации" name="Animation Speed">
+				<menu_item_call label="Ускорить все анимации на 10%" name="All Animations 10 Faster"/>
+				<menu_item_call label="Замедлить все анимации на 10%" name="All Animations 10 Slower"/>
+				<menu_item_call label="Восстановить скорость анимаций" name="Reset All Animation Speed"/>
+				<menu_item_check label="Анимация медленных движений" name="Slow Motion Animations"/>
 			</menu>
 			<menu_item_call label="Скинуть параметры" name="Force Params to Default"/>
 			<menu_item_check label="Данные об анимации" name="Animation Info"/>
