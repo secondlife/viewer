@@ -722,10 +722,77 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
     GLint activeCount;
     glGetObjectParameterivARB(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
 
+	//........................................................................................................................................
+	//........................................................................................
+
+	/*
+	EXPLANATION:
+	This is part of code is temporary because as the final result the mapUniform() should be rewrited. 
+	But it's a huge a volume of work which is need to be a more carefully performed for avoid possible 
+	regression's (i.e. it should be formalized a separate ticket in JIRA).
+
+	RESON:
+	The reason of this code is that SL engine is very sensitive to fact that "diffuseMap" should be appear 
+	first as uniform parameter which is should get 0-"texture channel" index (see mapUniformTextureChannel() and mActiveTextureChannels) 
+	it influence to which is texture matrix will be updated during rendering.
+
+	But, order of indexe's of uniform variables is not defined and GLSL compiler can change it as want
+	, even if the "diffuseMap" will be appear and use first in shader code.
+
+	As example where this situation appear see: "Deferred Material Shader 28/29/30/31"
+	And tickets: MAINT-4165, MAINT-4839
+	*/
+	
+
+	S32 diffuseMap = glGetUniformLocationARB(mProgramObject, "diffuseMap");
+	S32 bumpMap = glGetUniformLocationARB(mProgramObject, "bumpMap");
+
+	std::set<S32> skip_index;
+
+	if(diffuseMap != -1 && bumpMap != -1)
+	{
+		GLenum type;
+		GLsizei length;
+		GLint size = -1;
+		char name[1024];        
+
+		//diffuse map
+		for (S32 i = 0; i < activeCount; i++)
+		{
+			name[0] = 0;
+			
+			glGetActiveUniformARB(mProgramObject, i, 1024, &length, &size, &type, (GLcharARB *)name);
+
+			if(std::string(name) == "diffuseMap") {
+				diffuseMap = i;
+			}
+
+			if(std::string(name) == "bumpMap") {
+				bumpMap = i;
+			}
+		}
+		
+		if(bumpMap < diffuseMap)
+		{
+			mapUniform(diffuseMap, uniforms);
+			mapUniform(bumpMap, uniforms);
+
+			skip_index.insert(diffuseMap);
+			skip_index.insert(bumpMap);
+		}
+	}
+
+	//........................................................................................
+	
     for (S32 i = 0; i < activeCount; i++)
     {
+		//........................................................................................
+		if(skip_index.end() != skip_index.find(i)) continue;
+		//........................................................................................
+		
         mapUniform(i, uniforms);
     }
+	//........................................................................................................................................
 
     unbind();
 
