@@ -111,10 +111,13 @@ private:
 	LLAttachmentsMgr::attachments_vec_t mToLinkAndAttach;
 };
 
+//#define COF_LINK_FIRST
+
 void LLAttachmentsMgr::linkPendingAttachments()
 {
 	if (mPendingAttachments.size())
 	{
+#ifdef COF_LINK_FIRST
 		LLPointer<LLInventoryCallback> cb = new LLAttachAfterLinkCallback(mPendingAttachments);
 		LLInventoryObject::const_object_list_t inv_items_to_link;
 		LL_DEBUGS("Avatar") << "ATT requesting COF links for " << mPendingAttachments.size() << " object(s):" << LL_ENDL;
@@ -135,7 +138,9 @@ void LLAttachmentsMgr::linkPendingAttachments()
 			}
 		}
 		link_inventory_array(LLAppearanceMgr::instance().getCOF(), inv_items_to_link, cb);
-
+#else
+		requestAttachments(mPendingAttachments);
+#endif
 		mPendingAttachments.clear();
 	}
 

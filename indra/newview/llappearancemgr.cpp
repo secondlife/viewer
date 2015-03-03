@@ -3948,13 +3948,13 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 {
 	LLViewerInventoryItem *item = gInventory.getItem(item_id);
-	LL_DEBUGS("Avatar") << "unregistering attachment "
+	LL_DEBUGS("Avatar") << "ATT unregistering attachment "
 						<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	if (mAttachmentInvLinkEnabled)
 	{
-		LL_DEBUGS("Avatar") << "removing COF link for attachment "
+		LL_DEBUGS("Avatar") << "ATT removing COF link for attachment "
 							<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
 		LLAppearanceMgr::removeCOFItemLinks(item_id);
 	}
