@@ -995,9 +995,15 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		return TRUE;
 	}
 
-	// In case the inventory has not been updated (e.g. due to some recent operation
-	// causing a dirty inventory), stall the user while fetching the inventory.
-	if (hit_obj->isInventoryDirty())
+	// In case the inventory has not been loaded (e.g. due to some recent operation
+	// causing a dirty inventory) and we can do an update, stall the user
+	// while fetching the inventory.
+	//
+	// Note: fetch only if inventory is both dirty and not present since previously checked faces
+	// could have requested new fetch for same item (removed inventory and marked as dirty=false).
+	// Objects without listeners (dirty==true and inventory!=NULL. In this specific case - before
+	// first fetch) shouldn't be updated either since we won't receive any changes.
+	if (hit_obj->isInventoryDirty() && hit_obj->getInventoryRoot() == NULL)
 	{
 		hit_obj->fetchInventoryFromServer();
 		LLSD args;
