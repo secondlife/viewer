@@ -720,9 +720,6 @@ void LLFloaterAssociateListing::apply(BOOL user_confirm)
             }
             // Associate the id with the user chosen folder
             LLMarketplaceData::instance().associateListing(mUUID,listing_uuid,id);
-            // Update the folder widgets now that the action is launched
-            update_marketplace_category(listing_uuid);
-            update_marketplace_category(mUUID);
         }
         else
         {
