@@ -108,14 +108,6 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 {
 }
 
-// static
-void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
-{
-	if ( LLFloaterReg::instanceVisible("reporter") )
-	{
-		LLNotificationsUtil::add("HelpReportAbuseEmailLL");
-	};
-}
 // virtual
 BOOL LLFloaterReporter::postBuild()
 {
@@ -149,16 +141,6 @@ BOOL LLFloaterReporter::postBuild()
 
 	mDefaultSummary = getChild<LLUICtrl>("details_edit")->getValue().asString();
 
-	// send a message and ask for information about this region - 
-	// result comes back in processRegionInfo(..)
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("RequestRegionInfo");
-	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID", gAgent.getID());
-	msg->addUUID("SessionID", gAgent.getSessionID());
-	gAgent.sendReliableMessage();
-	
-	
 	// abuser name is selected from a list
 	LLUICtrl* le = getChild<LLUICtrl>("abuser_name_edit");
 	le->setEnabled( false );

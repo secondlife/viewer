@@ -5379,17 +5379,6 @@ You cannot undo this action.
      notext="Cancel"
      yestext="Unlink"/>
   </notification>
-  
-  <notification
-   icon="alertmodal.tga"
-   name="HelpReportAbuseEmailLL"
-   type="alert">
-    <unique/>
-    
-Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
-
-All reported abuses are investigated and resolved.
-  </notification>
 
   <notification
    icon="alertmodal.tga"
