@@ -194,6 +194,7 @@ protected:
 private:
 	bool mCanApply;
 	bool mCanPreview;
+	bool mPreviewSettingChanged;
 	texture_selected_callback mTextureSelectedCallback;
 };
 
@@ -221,7 +222,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mContextConeOpacity(0.f),
 	mSelectedItemPinned( FALSE ),
 	mCanApply(true),
-	mCanPreview(true)
+	mCanPreview(true),
+	mPreviewSettingChanged(false)
 {
 	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
@@ -829,6 +831,16 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 			}
 			setImageID(itemp->getAssetUUID(),false);
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+
+			if(!mPreviewSettingChanged)
+			{
+				mCanPreview = gSavedSettings.getBOOL("TextureLivePreview");
+			}
+			else
+			{
+				mPreviewSettingChanged = false;
+			}
+
 			if (user_action && mCanPreview)
 			{
 				// only commit intentional selections, not implicit ones
@@ -985,6 +997,7 @@ void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply)
 
 	mCanApply = can_apply;
 	mCanPreview = can_preview ? gSavedSettings.getBOOL("TextureLivePreview") : false;
+	mPreviewSettingChanged = true;
 }
 
 void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
