@@ -2054,7 +2054,7 @@ bool LLVOVolume::notifyAboutCreatingTexture(LLViewerTexture *texture)
 		LLMaterialPtr cur_material = getTEMaterialParams(range_it->second.te);
 
 		//here we just interesting in DIFFUSE_MAP only!
-		if(LLRender::DIFFUSE_MAP == range_it->second.map && GL_RGBA != texture->getPrimaryFormat())
+		if(NULL != cur_material.get() && LLRender::DIFFUSE_MAP == range_it->second.map && GL_RGBA != texture->getPrimaryFormat())
 		{ //ok let's check the diffuse mode
 			switch(cur_material->getDiffuseAlphaMode())
 			{
