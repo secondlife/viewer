@@ -49,7 +49,6 @@ std::string localize_slapp_label(const std::string& url, const std::string& full
 
 LLUrlEntryBase::LLUrlEntryBase()
 {
-	mGreyQuery = LLUI::sSettingGroups["config"]->getBOOL("ShowGreyQueryInUrls");
 }
 
 LLUrlEntryBase::~LLUrlEntryBase()
@@ -206,11 +205,8 @@ std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
 	LLUriParser up(unescapeUrl(url));
 
 	std::string query;
-	if (mGreyQuery)
-	{
-		up.extractParts();
-		up.glueSecond(query);
-	}
+	up.extractParts();
+	up.glueSecond(query);
 
 	return query;
 }
