@@ -984,7 +984,6 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	{
 	case CONSTRAINT_TARGET_TYPE_GROUND:
 		target_pos = mCharacter->getPosAgentFromGlobal(constraint->mGroundPos);
-		target_pos += mCharacter->getHoverOffset();
 //		LL_INFOS() << "Target Pos " << constraint->mGroundPos << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
 		break;
 	case CONSTRAINT_TARGET_TYPE_BODY:

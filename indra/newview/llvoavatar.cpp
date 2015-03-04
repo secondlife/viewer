@@ -3178,12 +3178,8 @@ void	LLVOAvatar::forceUpdateVisualMuteSettings()
 }
 
 
-//------------------------------------------------------------------------
-// updateCharacter()
-// called on both your avatar and other avatars
-//------------------------------------------------------------------------
-BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
-{	
+void LLVOAvatar::updateDebugText()
+{
 	// clear debug text
 	mDebugText.clear();
 
@@ -3226,6 +3222,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		if (hover_offset[2] != 0.0)
 		{
 			debug_line += llformat(" hov_z: %f", hover_offset[2]);
+			debug_line += llformat(" %s", (mIsSitting ? "S" : "T"));
+			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
 		}
 		F32 elapsed = mLastAppearanceMessageTimer.getElapsedTimeF32();
 		static const char *elapsed_chars = "Xx*...";
@@ -3241,7 +3239,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		if (!mBakedTextureDebugText.empty())
 			addDebugText(mBakedTextureDebugText);
 	}
-				 
+
 	if (LLVOAvatar::sShowAnimationDebug)
 	{
 		for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
@@ -3270,6 +3268,27 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 	}
 
+	if (!mDebugText.size() && mText.notNull())
+	{
+		mText->markDead();
+		mText = NULL;
+	}
+	else if (mDebugText.size())
+	{
+		setDebugText(mDebugText);
+	}
+	mDebugText.clear();
+
+}
+
+//------------------------------------------------------------------------
+// updateCharacter()
+// called on both your avatar and other avatars
+//------------------------------------------------------------------------
+BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
+{	
+	updateDebugText();
+	
 	if (!mIsBuilt)
 	{
 		return FALSE;
@@ -3378,9 +3397,15 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	LLVector3 xyVel = getVelocity();
 	xyVel.mV[VZ] = 0.0f;
 	speed = xyVel.length();
-
+	// remembering the value here prevents a display glitch if the
+	// animation gets toggled during this update.
+	bool was_sit_ground_constrained = isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
+	
 	if (!(mIsSitting && getParent()))
 	{
+		// This case includes all configurations except sitting on an
+		// object, so does include ground sit.
+
 		//--------------------------------------------------------------------
 		// get timing info
 		// handle initial condition case
@@ -3434,7 +3459,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
 		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		root_pos += LLVector3d(getHoverOffset());
+		if (!mIsSitting && !was_sit_ground_constrained)
+		{
+			root_pos += LLVector3d(getHoverOffset());
+		}
 		
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
 
@@ -3624,7 +3652,21 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	{
 		updateMotions(LLCharacter::NORMAL_UPDATE);
 	}
-	
+
+	// Special handling for sitting on ground.
+	if (!getParent() && (mIsSitting || was_sit_ground_constrained))
+	{
+		
+		F32 off_z = LLVector3d(getHoverOffset()).mdV[VZ];
+		if (off_z != 0.0)
+		{
+			LLVector3 pos = mRoot->getWorldPosition();
+			pos.mV[VZ] += off_z;
+			mRoot->touch();
+			mRoot->setWorldPosition(pos);
+		}
+	}
+
 	// update head position
 	updateHeadOffset();
 
@@ -3707,17 +3749,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 
 	mRoot->updateWorldMatrixChildren();
-
-	if (!mDebugText.size() && mText.notNull())
-	{
-		mText->markDead();
-		mText = NULL;
-	}
-	else if (mDebugText.size())
-	{
-		setDebugText(mDebugText);
-	}
-	mDebugText.clear();
 
 	//mesh vertices need to be reskinned
 	mNeedsSkin = TRUE;
