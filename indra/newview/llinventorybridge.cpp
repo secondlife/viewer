@@ -5770,7 +5770,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 					if (LLWearableType::getAllowMultiwear(mWearableType))
 					{
 						items.push_back(std::string("Wearable Add"));
-						if (gAgentWearables.getWearableCount(mWearableType) >= LLAgentWearables::MAX_CLOTHING_PER_TYPE)
+						if (!gAgentWearables.canAddWearable(mWearableType))
 						{
 							disabled_items.push_back(std::string("Wearable Add"));
 						}

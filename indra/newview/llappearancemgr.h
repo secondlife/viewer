@@ -67,7 +67,8 @@ public:
 	void addCategoryToCurrentOutfit(const LLUUID& cat_id);
 	S32 findExcessOrDuplicateItems(const LLUUID& cat_id,
 								   LLAssetType::EType type,
-								   S32 max_items,
+								   S32 max_items_per_type,
+								   S32 max_items_total,
 								   LLInventoryObject::object_list_t& items_to_kill);
 	void findAllExcessOrDuplicateItems(const LLUUID& cat_id,
 									  LLInventoryObject::object_list_t& items_to_kill);
@@ -235,7 +236,7 @@ protected:
 
 private:
 
-	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
+	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type, S32 max_total);
 	
 	void getDescendentsOfAssetType(const LLUUID& category, 
 										  LLInventoryModel::item_array_t& items,

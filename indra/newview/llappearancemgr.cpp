@@ -1388,9 +1388,9 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear,
 			{
 				cb = new LLUpdateAppearanceAndEditWearableOnDestroy(item_id_to_wear);
 			}
-			S32 wearable_count = gAgentWearables.getWearableCount(item_to_wear->getWearableType());
-			if ((replace && wearable_count != 0) ||
-				(wearable_count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE) )
+			LLWearableType::EType type = item_to_wear->getWearableType();
+			S32 wearable_count = gAgentWearables.getWearableCount(type);
+			if ((replace && wearable_count != 0) || !gAgentWearables.canAddWearable(type))
 			{
 				LLUUID item_id = gAgentWearables.getWearableItemID(item_to_wear->getWearableType(),
 																   wearable_count-1);
@@ -1804,25 +1804,39 @@ void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLIn
 // Keep the last N wearables of each type.  For viewer 2.0, N is 1 for
 // both body parts and clothing items.
 void LLAppearanceMgr::filterWearableItems(
-	LLInventoryModel::item_array_t& items, S32 max_per_type)
+	LLInventoryModel::item_array_t& items, S32 max_per_type, S32 max_total)
 {
-	// Divvy items into arrays by wearable type.
-	std::vector<LLInventoryModel::item_array_t> items_by_type(LLWearableType::WT_COUNT);
-	divvyWearablesByType(items, items_by_type);
+    // Restrict by max total items first.
+    if ((max_total > 0) && (items.size() > max_total))
+    {
+        LLInventoryModel::item_array_t items_to_keep;
+        for (S32 i=0; i<max_total; i++)
+        {
+            items_to_keep.push_back(items[i]);
+        }
+        items = items_to_keep;
+    }
 
-	// rebuild items list, retaining the last max_per_type of each array
-	items.clear();
-	for (S32 i=0; i<LLWearableType::WT_COUNT; i++)
-	{
-		S32 size = items_by_type[i].size();
-		if (size <= 0)
-			continue;
-		S32 start_index = llmax(0,size-max_per_type);
-		for (S32 j = start_index; j<size; j++)
-		{
-			items.push_back(items_by_type[i][j]);
-		}
-	}
+    if (max_per_type > 0)
+    {
+        // Divvy items into arrays by wearable type.
+        std::vector<LLInventoryModel::item_array_t> items_by_type(LLWearableType::WT_COUNT);
+        divvyWearablesByType(items, items_by_type);
+
+        // rebuild items list, retaining the last max_per_type of each array
+        items.clear();
+        for (S32 i=0; i<LLWearableType::WT_COUNT; i++)
+        {
+            S32 size = items_by_type[i].size();
+            if (size <= 0)
+                continue;
+            S32 start_index = llmax(0,size-max_per_type);
+            for (S32 j = start_index; j<size; j++)
+            {
+                items.push_back(items_by_type[i][j]);
+            }
+        }
+    }
 }
 
 void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
@@ -1864,7 +1878,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 		reverse(body_items.begin(), body_items.end());
 	// Reduce body items to max of one per type.
 	removeDuplicateItems(body_items);
-	filterWearableItems(body_items, 1);
+	filterWearableItems(body_items, 1, 0);
 
 	// - Wearables: include COF contents only if appending.
 	LLInventoryModel::item_array_t wear_items;
@@ -1873,7 +1887,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	getDescendentsOfAssetType(category, wear_items, LLAssetType::AT_CLOTHING);
 	// Reduce wearables to max of one per type.
 	removeDuplicateItems(wear_items);
-	filterWearableItems(wear_items, LLAgentWearables::MAX_CLOTHING_PER_TYPE);
+	filterWearableItems(wear_items, 0, LLAgentWearables::MAX_CLOTHING_LAYERS);
 
 	// - Attachments: include COF contents only if appending.
 	LLInventoryModel::item_array_t obj_items;
@@ -2062,7 +2076,8 @@ void item_array_diff(LLInventoryModel::item_array_t& full_list,
 
 S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
 												 LLAssetType::EType type,
-												 S32 max_items,
+												 S32 max_items_per_type,
+												 S32 max_items_total,
 												 LLInventoryObject::object_list_t& items_to_kill)
 {
 	S32 to_kill_count = 0;
@@ -2071,9 +2086,9 @@ S32 LLAppearanceMgr::findExcessOrDuplicateItems(const LLUUID& cat_id,
 	getDescendentsOfAssetType(cat_id, items, type);
 	LLInventoryModel::item_array_t curr_items = items;
 	removeDuplicateItems(items);
-	if (max_items > 0)
+	if (max_items_per_type > 0 || max_items_total > 0)
 	{
-		filterWearableItems(items, max_items);
+		filterWearableItems(items, max_items_per_type, max_items_total);
 	}
 	LLInventoryModel::item_array_t kill_items;
 	item_array_diff(curr_items,items,kill_items);
@@ -2092,11 +2107,11 @@ void LLAppearanceMgr::findAllExcessOrDuplicateItems(const LLUUID& cat_id,
 													LLInventoryObject::object_list_t& items_to_kill)
 {
 	findExcessOrDuplicateItems(cat_id,LLAssetType::AT_BODYPART,
-							   1, items_to_kill);
+							   1, 0, items_to_kill);
 	findExcessOrDuplicateItems(cat_id,LLAssetType::AT_CLOTHING,
-							   LLAgentWearables::MAX_CLOTHING_PER_TYPE, items_to_kill);
+							   0, LLAgentWearables::MAX_CLOTHING_LAYERS, items_to_kill);
 	findExcessOrDuplicateItems(cat_id,LLAssetType::AT_OBJECT,
-							   -1, items_to_kill);
+							   0, 0, items_to_kill);
 }
 
 void LLAppearanceMgr::enforceCOFItemRestrictions(LLPointer<LLInventoryCallback> cb)
@@ -2588,7 +2603,6 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item,
 								  item_array,
 								  LLInventoryModel::EXCLUDE_TRASH);
 	bool linked_already = false;
-	U32 count = 0;
 	for (S32 i=0; i<item_array.size(); i++)
 	{
 		// Are these links to the same object?
@@ -2608,14 +2622,13 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item,
 		// type? If so, new item will replace old.
 		else if ((vitem->isWearableType()) && (vitem->getWearableType() == wearable_type))
 		{
-			++count;
-			if (is_body_part && inv_item->getIsLinkType()  && (vitem->getWearableType() == wearable_type))
+			if (is_body_part && inv_item->getIsLinkType())
 			{
 				remove_inventory_item(inv_item->getUUID(), cb);
 			}
-			else if (count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE)
+			else if (!gAgentWearables.canAddWearable(wearable_type))
 			{
-				// MULTI-WEARABLES: make sure we don't go over MAX_CLOTHING_PER_TYPE
+				// MULTI-WEARABLES: make sure we don't go over clothing limits
 				remove_inventory_item(inv_item->getUUID(), cb);
 			}
 		}

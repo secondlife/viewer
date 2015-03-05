@@ -1011,7 +1011,7 @@ bool LLWearableItemsList::ContextMenu::canAddWearables(const uuid_vec_t& item_id
 	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	U32 n_objects = 0;
-	boost::unordered_map<LLWearableType::EType, U32> clothes_by_type;
+	U32 n_clothes = 0;
 
 	// Count given clothes (by wearable type) and objects.
 	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
@@ -1028,7 +1028,7 @@ bool LLWearableItemsList::ContextMenu::canAddWearables(const uuid_vec_t& item_id
 		}
 		else if (item->getType() == LLAssetType::AT_CLOTHING)
 		{
-			++clothes_by_type[item->getWearableType()];
+			++n_clothes;
 		}
 		else
 		{
@@ -1044,25 +1044,8 @@ bool LLWearableItemsList::ContextMenu::canAddWearables(const uuid_vec_t& item_id
 	}
 
 	// Check whether we can add all the clothes.
-	boost::unordered_map<LLWearableType::EType, U32>::const_iterator m_it;
-	for (m_it = clothes_by_type.begin(); m_it != clothes_by_type.end(); ++m_it)
-	{
-		LLWearableType::EType w_type	= m_it->first;
-		U32 n_clothes					= m_it->second;
-
-		U32 wearable_count = gAgentWearables.getWearableCount(w_type);
-		if ((wearable_count > 0) && !LLWearableType::getAllowMultiwear(w_type))
-		{
-			return false;
-		}
-		if ((wearable_count + n_clothes) > LLAgentWearables::MAX_CLOTHING_PER_TYPE)
-		{
-			return false;
-		}
-
-	}
-
-	return true;
+    U32 sum_clothes = n_clothes + gAgentWearables.getClothingLayerCount();
+    return sum_clothes <= LLAgentWearables::MAX_CLOTHING_LAYERS;
 }
 
 // EOF
