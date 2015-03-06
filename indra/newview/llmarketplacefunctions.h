@@ -73,6 +73,17 @@ namespace MarketplaceStatusCodes
 	};
 }
 
+namespace MarketplaceFetchCodes
+{
+	enum sCode
+	{
+		MARKET_FETCH_NOT_DONE = 0,
+		MARKET_FETCH_LOADING = 1,
+		MARKET_FETCH_FAILED = 2,
+		MARKET_FETCH_DONE = 3
+	};
+}
+
 
 class LLMarketplaceInventoryImporter
 	: public LLSingleton<LLMarketplaceInventoryImporter>
@@ -190,6 +201,9 @@ public:
 	void setSLMStatus(U32 status);
     void getSLMListings();
     bool isEmpty() { return (mMarketplaceItems.size() == 0); }
+    void setDataFetchedSignal(const status_updated_signal_t::slot_type& cb);
+    void setSLMDataFetched(U32 status);
+    U32 getSLMDataFetched() { return mMarketPlaceDataFetched; }
     
     // High level create/delete/set Marketplace data: each method returns true if the function succeeds, false if error
     bool createListing(const LLUUID& folder_id);
@@ -253,6 +267,8 @@ private:
     bool mDirtyCount;   // If true, stock count value need to be updated at the next check
     
     // Update data
+    U32 mMarketPlaceDataFetched;
+	status_updated_signal_t* mDataFetchedSignal;
     std::set<LLUUID> mPendingUpdateSet;
 
     // Listing folders waiting for validation

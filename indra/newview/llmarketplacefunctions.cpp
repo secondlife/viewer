@@ -154,10 +154,6 @@ void log_SLM_infos(const std::string& request, const std::string& url, const std
     }
 }
 
-// Merov: This is a temporary hack used by dev while secondlife-staging is down...
-// *TODO : Suppress that before shipping!
-static bool sBypassMerchant = false;
-
 class LLSLMGetMerchantResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLSLMGetMerchantResponder);
@@ -168,13 +164,7 @@ public:
 protected:
     virtual void httpFailure()
     {
-        if (sBypassMerchant)
-        {
-            // *TODO : Suppress that before shipping!
-            log_SLM_infos("Get /merchant", getStatus(), "SLM Connection error bypassed (debug only)");
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
-        }
-        else if (HTTP_NOT_FOUND == getStatus())
+        if (HTTP_NOT_FOUND == getStatus())
         {
             log_SLM_infos("Get /merchant", getStatus(), "User is not a merchant");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
@@ -222,6 +212,7 @@ public:
 		if (!isGoodStatus())
 		{
             log_SLM_warning("Get /listings", getStatus(), getReason(), "", body);
+            LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
             update_marketplace_category(mExpectedFolderId, false);
             gInventory.notifyObservers();
             return;
@@ -232,6 +223,7 @@ public:
         if (!reader.parse(body,root))
         {
             log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
+            LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
             update_marketplace_category(mExpectedFolderId, false);
             gInventory.notifyObservers();
             return;
@@ -263,6 +255,7 @@ public:
         }
         
         // Update all folders under the root
+        LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_DONE);
         update_marketplace_category(mExpectedFolderId, false);
         gInventory.notifyObservers();        
     }
@@ -1194,7 +1187,9 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 // Data map
 LLMarketplaceData::LLMarketplaceData() : 
  mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
+ mMarketPlaceDataFetched(MarketplaceFetchCodes::MARKET_FETCH_NOT_DONE),
  mStatusUpdatedSignal(NULL),
+ mDataFetchedSignal(NULL),
  mDirtyCount(false)
 {
     mInventoryObserver = new LLMarketplaceInventoryObserver;
@@ -1230,6 +1225,15 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
             LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
         }
     }
+}
+
+void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)
+{
+	if (mDataFetchedSignal == NULL)
+	{
+		mDataFetchedSignal = new status_updated_signal_t();
+	}
+	mDataFetchedSignal->connect(cb);
 }
 
 // Get/Post/Put requests to the SLM Server using the SLM API
@@ -1394,6 +1398,15 @@ void LLMarketplaceData::setSLMStatus(U32 status)
     if (mStatusUpdatedSignal)
     {
         (*mStatusUpdatedSignal)();
+    }
+}
+
+void LLMarketplaceData::setSLMDataFetched(U32 status)
+{
+    mMarketPlaceDataFetched = status;
+    if (mDataFetchedSignal)
+    {
+        (*mDataFetchedSignal)();
     }
 }
 

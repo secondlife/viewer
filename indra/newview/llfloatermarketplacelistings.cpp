@@ -357,7 +357,7 @@ BOOL LLFloaterMarketplaceListings::postBuild()
 	mCategoryAddedObserver = new LLMarketplaceListingsAddedObserver(this);
 	gInventory.addObserver(mCategoryAddedObserver);
 	
-    // Debug : fetch aggressively so we can create test data right onOpen()
+    // Fetch aggressively so we can interact with listings right onOpen()
 	fetchContents();
 
 	return TRUE;
@@ -389,10 +389,13 @@ void LLFloaterMarketplaceListings::onFocusReceived()
 
 void LLFloaterMarketplaceListings::fetchContents()
 {
-	if (mRootFolderId.notNull())
+	if (mRootFolderId.notNull() &&
+        (LLMarketplaceData::instance().getSLMDataFetched() != MarketplaceFetchCodes::MARKET_FETCH_LOADING) &&
+        (LLMarketplaceData::instance().getSLMDataFetched() != MarketplaceFetchCodes::MARKET_FETCH_DONE))
 	{
+        LLMarketplaceData::instance().setDataFetchedSignal(boost::bind(&LLFloaterMarketplaceListings::updateView, this));
+        LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_LOADING);
 		LLInventoryModelBackgroundFetch::instance().start(mRootFolderId);
-        // Get all the SLM Listings
         LLMarketplaceData::instance().getSLMListings();
 	}
 }
@@ -492,6 +495,7 @@ void LLFloaterMarketplaceListings::setStatusString(const std::string& statusStri
 void LLFloaterMarketplaceListings::updateView()
 {
     U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
+    U32 data_fetched = LLMarketplaceData::instance().getSLMDataFetched();
     
     // Get or create the root folder if we are a merchant and it hasn't been done already
     if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
@@ -500,14 +504,18 @@ void LLFloaterMarketplaceListings::updateView()
     }
 
     // Update the bottom initializing status and progress dial
-    if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
+    if ((mkt_status == MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING) ||
+        (data_fetched == MarketplaceFetchCodes::MARKET_FETCH_NOT_DONE) ||
+        (data_fetched == MarketplaceFetchCodes::MARKET_FETCH_LOADING))
     {
-        setStatusString(getString("MarketplaceListingsInitializing"));
+        // Just show the loading indicator in that case and fetch the data (fetch will be skipped if it's already loading)
         mInventoryInitializationInProgress->setVisible(true);
+        mPanelListings->setVisible(FALSE);
+        fetchContents();
+        return;
     }
     else
     {
-        setStatusString("");
         mInventoryInitializationInProgress->setVisible(false);
     }
     

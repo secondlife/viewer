@@ -13,7 +13,6 @@
   save_rect="true"
   save_visibility="false"
   reuse_instance="true">
-  <string name="MarketplaceListingsInitializing">Initializing...</string>
   <panel
     name="marketplace_listings_panel"
     follows="all"
