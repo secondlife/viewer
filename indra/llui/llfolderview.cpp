@@ -1809,7 +1809,9 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 	}
 
 	// Successively filter out invalid options
-
+	// FIXME this item-by-item approach does not allow options to be enabled/disabled based on the selection as a whole - for example,
+	// if avatar has room for one more wearable, and the selection includes two wearables, add should be disabled.
+	// llwearableitemslist.cpp has a more holistic approach here.
 	U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
 	U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
 	for (selected_items_t::iterator item_itor = mSelectedItems.begin();
