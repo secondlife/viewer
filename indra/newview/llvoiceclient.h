@@ -214,7 +214,7 @@ public:
 	//@{
 	virtual BOOL isSessionTextIMPossible(const LLUUID& id)=0;
 	virtual BOOL isSessionCallBackPossible(const LLUUID& id)=0;
-	virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
+	//virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
 	virtual void endUserIMSession(const LLUUID &uuid)=0;	
 	//@}
 	
@@ -431,7 +431,7 @@ public:
 	//@{
 	BOOL isSessionTextIMPossible(const LLUUID& id);
 	BOOL isSessionCallBackPossible(const LLUUID& id);
-	BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message);
+	//BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
 	void endUserIMSession(const LLUUID &uuid);	
 	//@}
 	

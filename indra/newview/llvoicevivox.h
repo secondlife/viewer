@@ -109,7 +109,7 @@ public:
 	virtual bool isParticipant(const LLUUID& speaker_id);
 
 	// Send a text message to the specified user, initiating the session if necessary.
-	virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message);
+	// virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
 	
 	// close any existing text IM session with the specified user
 	virtual void endUserIMSession(const LLUUID &uuid);
@@ -261,6 +261,8 @@ protected:
 		streamStateIdle = 1,
 		streamStateConnected = 2,
 		streamStateRinging = 3,
+		streamStateConnecting = 6,  // same as Vivox session_media_connecting enum
+		streamStateDisconnecting = 7,  //Same as Vivox session_media_disconnecting enum
 	};	
 	struct participantState
 	{
@@ -325,7 +327,7 @@ protected:
 		LLUUID		mCallerID;
 		int			mErrorStatusCode;
 		int			mMediaStreamState;
-		int			mTextStreamState;
+		int			mTextStreamState;    // obsolete
 		bool		mCreateInProgress;	// True if a Session.Create has been sent for this session and no response has been received yet.
 		bool		mMediaConnectInProgress;	// True if a Session.MediaConnect has been sent for this session and no response has been received yet.
 		bool		mVoiceInvitePending;	// True if a voice invite is pending for this session (usually waiting on a name lookup)
@@ -480,7 +482,7 @@ protected:
 	void accountLoginStateChangeEvent(std::string &accountHandle, int statusCode, std::string &statusString, int state);
 	void mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType);
 	void mediaStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, int statusCode, std::string &statusString, int state, bool incoming);
-	void textStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, bool enabled, int state, bool incoming);
+	//obsolete void textStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, bool enabled, int state, bool incoming);
 	void sessionAddedEvent(std::string &uriString, std::string &alias, std::string &sessionHandle, std::string &sessionGroupHandle, bool isChannel, bool incoming, std::string &nameString, std::string &applicationString);
 	void sessionGroupAddedEvent(std::string &sessionGroupHandle);
 	void sessionRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle);
@@ -596,7 +598,7 @@ protected:
 	void sessionTerminateSendMessage(sessionState *session);
 	void sessionGroupTerminateSendMessage(sessionState *session);
 	void sessionMediaDisconnectSendMessage(sessionState *session);
-	void sessionTextDisconnectSendMessage(sessionState *session);
+	// void sessionTextDisconnectSendMessage(sessionState *session);
 
 	
 	
@@ -760,7 +762,7 @@ private:
 	// start a text IM session with the specified user
 	// This will be asynchronous, the session may be established at a future time.
 	sessionState* startUserIMSession(const LLUUID& uuid);
-	void sendQueuedTextMessages(sessionState *session);
+	// obsolete void sendQueuedTextMessages(sessionState *session);
 	
 	void enforceTether(void);
 	
