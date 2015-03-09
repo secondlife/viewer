@@ -330,17 +330,17 @@ void LLFace::dirtyTexture()
 				{
 					vobj->mLODChanged = TRUE;
 
-			LLVOAvatar* avatar = vobj->getAvatar();
-			if (avatar)
-			{ //avatar render cost may have changed
-				avatar->updateVisualComplexity();
-			}
+					LLVOAvatar* avatar = vobj->getAvatar();
+					if (avatar)
+					{ //avatar render cost may have changed
+						avatar->updateVisualComplexity();
+					}
 				}
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 			}
 		}
 	}
-			
+
 	gPipeline.markTextured(drawablep);
 }
 
