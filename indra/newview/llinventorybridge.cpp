@@ -1120,7 +1120,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			{
 				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
-			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, (LLWearableType::EType)flags);
+			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, LLWearableType::inventoryFlagsToWearableType(flags));
 			break;
 		case LLAssetType::AT_CATEGORY:
 			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)

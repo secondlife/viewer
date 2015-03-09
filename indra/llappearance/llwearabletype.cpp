@@ -27,6 +27,7 @@
 #include "linden_common.h"
 #include "llwearabletype.h"
 #include "llinventorytype.h"
+#include "llinventorydefines.h"
 
 static LLTranslationBridge* sTrans = NULL;
 
@@ -167,5 +168,11 @@ BOOL LLWearableType::getAllowMultiwear(LLWearableType::EType type)
 	const WearableEntry *entry = dict->lookup(type);
 	if (!entry) return FALSE;
 	return entry->mAllowMultiwear;
+}
+
+// static
+LLWearableType::EType LLWearableType::inventoryFlagsToWearableType(U32 flags)
+{
+    return  (LLWearableType::EType)(flags & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }
 
