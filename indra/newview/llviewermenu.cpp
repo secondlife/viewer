@@ -2695,6 +2695,7 @@ void handle_object_edit()
 
 	if (gAgentCamera.getFocusOnAvatar() && !LLToolMgr::getInstance()->inEdit())
 	{
+		LLFloaterTools::sPreviousFocusOnAvatar = true;
 		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 
 		if (selection->getSelectType() == SELECT_TYPE_HUD || !gSavedSettings.getBOOL("EditCameraMovement"))
