@@ -972,8 +972,8 @@ void LLVivoxVoiceClient::stateMachine()
 				}
 				else
 				{
-					// duration parameter is currently unused, per Mike S.
-					tuningCaptureStartSendMessage(10000);
+					// loop mic back to render device.
+					tuningCaptureStartSendMessage(1);  // 1-loop, zero, don't loop
 
 					setState(stateMicTuningRunning);
 				}
@@ -2143,14 +2143,15 @@ void LLVivoxVoiceClient::tuningRenderStopSendMessage()
 	writeString(stream.str());
 }
 
-void LLVivoxVoiceClient::tuningCaptureStartSendMessage(int duration)
+void LLVivoxVoiceClient::tuningCaptureStartSendMessage(int loop)
 {
 	LL_DEBUGS("Voice") << "sending CaptureAudioStart" << LL_ENDL;
 	
 	std::ostringstream stream;
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStart.1\">"
-    << "<Duration>" << duration << "</Duration>"
+	<< "<Duration>-1</Duration>"
+    << "<LoopToRenderDevice>" << loop << "</LoopToRenderDevice>"
 	<< "</Request>\n\n\n";
 	
 	writeString(stream.str());
@@ -2372,6 +2373,8 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 {	
 	std::ostringstream stream;
 	
+	if (getState() != stateRunning) return;   // don't send position updates if we are transitioning between out of running.
+
 	if(mSpatialCoordsDirty)
 	{
 		LLVector3 l, u, a, vel;
