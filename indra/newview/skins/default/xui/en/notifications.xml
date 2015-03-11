@@ -783,7 +783,7 @@ Objects: [N]
    icon="alertmodal.tga"
    name="ReturnAllTopObjects"
    type="alertmodal">
-Are you sure you want to return all listed objects back to their owner&apos;s inventory?
+Are you sure you want to return all listed objects back to their owner&apos;s inventory? This will return ALL scripted objects in the region!
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
