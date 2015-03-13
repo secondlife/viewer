@@ -1782,6 +1782,49 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 	return items.size() > 0;
 }
 
+// Moved from LLWearableList::ContextMenu for wider utility.
+bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids)
+{
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
+
+	U32 n_objects = 0;
+	U32 n_clothes = 0;
+
+	// Count given clothes (by wearable type) and objects.
+	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(*it);
+		if (!item)
+		{
+			return false;
+		}
+
+		if (item->getType() == LLAssetType::AT_OBJECT)
+		{
+			++n_objects;
+		}
+		else if (item->getType() == LLAssetType::AT_CLOTHING)
+		{
+			++n_clothes;
+		}
+		else
+		{
+			LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
+			return false;
+		}
+	}
+
+	// Check whether we can add all the objects.
+	if (!isAgentAvatarValid() || !gAgentAvatarp->canAttachMoreObjects(n_objects))
+	{
+		return false;
+	}
+
+	// Check whether we can add all the clothes.
+    U32 sum_clothes = n_clothes + gAgentWearables.getClothingLayerCount();
+    return sum_clothes <= LLAgentWearables::MAX_CLOTHING_LAYERS;
+}
+
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category, LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;

@@ -1809,14 +1809,6 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 		(*menu_itor)->setEnabled(TRUE);
 	}
 
-
-	// FIXME this item-by-item approach does not allow options to be
-	// enabled/disabled based on the selection as a whole - for
-	// example, if avatar has room for one more wearable, and the
-	// selection includes two wearables, add should be disabled.
-	// canAddWearables() in llwearableitemslist.cpp has a more
-	// holistic approach to this.
-
 	// Successively filter out invalid options
 	U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
 	U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
@@ -1829,19 +1821,14 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 		flags = multi_select_flag;
 	}
 
+	// This adds a check for restrictions based on the entire
+	// selection set - for example, any one wearable may not push you
+	// over the limit, but all wearables together still might.
     if (getFolderViewGroupedItemModel())
     {
         getFolderViewGroupedItemModel()->groupFilterContextMenu(mSelectedItems,*menu);
     }
-#if 0
-    selected_items_t::iterator item_itor = mSelectedItems.begin();
-    if (item_itor != mSelectedItems.end())
-    {
-		LLFolderViewItem* selected_item = (*item_itor);
-		selected_item->getViewModelItem()->groupFilterContextMenu(mSelectedItems,*menu);
-    }
-#endif
-    
+
 	addNoOptions(menu);
 }
 

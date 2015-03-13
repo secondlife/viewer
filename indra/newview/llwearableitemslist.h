@@ -410,8 +410,6 @@ public:
 		ContextMenu();
 		/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
 
-        // FIXME logic should live somewhere more generally useful.
-		static bool canAddWearables(const uuid_vec_t& item_ids);
 	protected:
 		enum {
 			MASK_CLOTHING		= 0x01,

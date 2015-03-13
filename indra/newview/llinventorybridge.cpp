@@ -6515,7 +6515,7 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
 	menuentry_vec_t disabled_items;
     if (get_selection_item_uuids(selected_items, ids))
     {
-        if (!LLWearableItemsList::ContextMenu::canAddWearables(ids))
+        if (!LLAppearanceMgr::instance().canAddWearables(ids))
         {
 			disabled_items.push_back(std::string("Wearable Add"));
         }

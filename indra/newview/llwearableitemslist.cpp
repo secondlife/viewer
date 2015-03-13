@@ -894,13 +894,13 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0 && can_be_worn);
 	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
 	setMenuItemVisible(menu, "wear_add",			wear_add_visible);
-	setMenuItemEnabled(menu, "wear_add",			canAddWearables(ids));
+	setMenuItemEnabled(menu, "wear_add",			LLAppearanceMgr::instance().canAddWearables(ids));
 	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0 && can_be_worn);
 	//visible only when one item selected and this item is worn
 	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
 	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
 	setMenuItemVisible(menu, "create_new",			mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
-	setMenuItemEnabled(menu, "create_new",			canAddWearables(ids));
+	setMenuItemEnabled(menu, "create_new",			LLAppearanceMgr::instance().canAddWearables(ids));
 	setMenuItemVisible(menu, "show_original",		!standalone);
 	setMenuItemEnabled(menu, "show_original",		n_items == 1 && n_links == n_items);
 	setMenuItemVisible(menu, "take_off",			mask == MASK_CLOTHING && n_worn == n_items);
@@ -1002,50 +1002,6 @@ void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 	if (!item || !item->isWearableType()) return;
 
 	LLAgentWearables::createWearable(item->getWearableType(), true);
-}
-
-// Returns true if all the given objects and clothes can be added.
-// static
-bool LLWearableItemsList::ContextMenu::canAddWearables(const uuid_vec_t& item_ids)
-{
-	// TODO: investigate wearables may not be loaded at this point EXT-8231
-
-	U32 n_objects = 0;
-	U32 n_clothes = 0;
-
-	// Count given clothes (by wearable type) and objects.
-	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		if (!item)
-		{
-			return false;
-		}
-
-		if (item->getType() == LLAssetType::AT_OBJECT)
-		{
-			++n_objects;
-		}
-		else if (item->getType() == LLAssetType::AT_CLOTHING)
-		{
-			++n_clothes;
-		}
-		else
-		{
-			LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
-			return false;
-		}
-	}
-
-	// Check whether we can add all the objects.
-	if (!isAgentAvatarValid() || !gAgentAvatarp->canAttachMoreObjects(n_objects))
-	{
-		return false;
-	}
-
-	// Check whether we can add all the clothes.
-    U32 sum_clothes = n_clothes + gAgentWearables.getClothingLayerCount();
-    return sum_clothes <= LLAgentWearables::MAX_CLOTHING_LAYERS;
 }
 
 // EOF
