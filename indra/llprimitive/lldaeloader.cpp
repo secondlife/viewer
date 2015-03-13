@@ -2271,11 +2271,30 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 
 	models_out.clear();
 
-	LLModel* ret = new LLModel(volume_params, 0.f); 
+	LLModel* ret = new LLModel(volume_params, 0.f);
 
-    ret->mLabel = getElementLabel(mesh);    
+	std::string model_name = getElementLabel(mesh);
+	ret->mLabel = model_name;
 
-    llassert(!ret->mLabel.empty());
+	llassert(!ret->mLabel.empty());
+
+	// extract actual name and suffix for future use in submodels
+	std::string name_base, name_suffix;
+	size_t ext_pos = model_name.find("_LOD");
+	if (ext_pos == -1)
+	{
+		ext_pos = model_name.find("_PHYS");
+	}
+
+	if (ext_pos == -1)
+	{
+		name_base = model_name;
+	}
+	else
+	{
+		name_base = model_name.substr(0, ext_pos);
+		name_suffix = model_name.substr(ext_pos, model_name.length() - ext_pos);
+	}
 
 	// Like a monkey, ready to be shot into space
 	//
@@ -2324,6 +2343,7 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 		{
 			LLModel* next = new LLModel(volume_params, 0.f);
 			next->mSubmodelID = ++submodelID;
+			next->mLabel = name_base + (char)((int)'a' + next->mSubmodelID) + name_suffix;
 			next->getVolumeFaces() = remainder;
 			next->mNormalizedScale = ret->mNormalizedScale;
 			next->mNormalizedTranslation = ret->mNormalizedTranslation;
