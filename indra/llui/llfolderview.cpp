@@ -171,7 +171,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mDraggingOverItem(NULL),
 	mStatusTextBox(NULL),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
-	mViewModel(p.view_model)
+	mViewModel(p.view_model),
+    mGroupedItemModel(p.grouped_item_model)
 {
 	claimMem(mViewModel);
     LLPanel* panel = p.parent_panel;
@@ -1828,6 +1829,19 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 		flags = multi_select_flag;
 	}
 
+    if (getFolderViewGroupedItemModel())
+    {
+        getFolderViewGroupedItemModel()->groupFilterContextMenu(mSelectedItems,*menu);
+    }
+#if 0
+    selected_items_t::iterator item_itor = mSelectedItems.begin();
+    if (item_itor != mSelectedItems.end())
+    {
+		LLFolderViewItem* selected_item = (*item_itor);
+		selected_item->getViewModelItem()->groupFilterContextMenu(mSelectedItems,*menu);
+    }
+#endif
+    
 	addNoOptions(menu);
 }
 
