@@ -119,7 +119,6 @@ protected:
 };
 
 
-const S32 MAX_AMOUNT_LENGTH = 10;
 const S32 FASTPAY_BUTTON_WIDTH = 80;
 const S32 PAY_AMOUNT_NOTIFICATION = 200;
 

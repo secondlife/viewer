@@ -52,17 +52,12 @@
 
 
 const F32 SPRING_STRENGTH = 0.7f;
-const F32 RESTORATION_SPRING_TIME_CONSTANT = 0.1f;
 const F32 HORIZONTAL_PADDING = 16.f;
 const F32 VERTICAL_PADDING = 12.f;
 const F32 LINE_PADDING = 3.f;			// aka "leading"
 const F32 BUFFER_SIZE = 2.f;
-const F32 MIN_EDGE_OVERLAP = 3.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
-const F32 HUD_TEXT_MAX_WIDTH_NO_BUBBLE = 1000.f;
-const F32 RESIZE_TIME = 0.f;
 const S32 NUM_OVERLAP_ITERATIONS = 10;
-const F32 NEIGHBOR_FORCE_FRACTION = 1.f;
 const F32 POSITION_DAMPING_TC = 0.2f;
 const F32 MAX_STABLE_CAMERA_VELOCITY = 0.1f;
 const F32 LOD_0_SCREEN_COVERAGE = 0.15f;
@@ -315,7 +310,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	{
 		LLUIImagePtr rect_top_image = LLUI::getUIImage("Rounded_Rect_Top");
 		LLRect label_top_rect = screen_rect;
-		const S32 label_height = llround((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
+		const S32 label_height = ll_round((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
 		label_top_rect.mBottom = label_top_rect.mTop - label_height;
 		LLColor4 label_top_color = text_color;
 		label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;

@@ -28,7 +28,9 @@
  
 #include <tut/tut.hpp>
 #include "linden_common.h"
+
 #include "lltut.h"
+
 #include "message.h"
 #include "llpermissions.h"
 

@@ -86,6 +86,12 @@ public:
 	static  const char * tmpdir();
 };
 
+// Remove ll[io]fstream support for [LL]FILE*, preparing to remove dependency
+// on GNU's standard library.
+#if ! defined(llstream_LLFILE)
+#define llstream_LLFILE 0
+#endif
+
 /**
  *  @brief Provides a layer of compatibility for C/POSIX.
  *
@@ -188,7 +194,7 @@ protected:
 	/*virtual*/ int sync();
 
 	std::streamsize xsgetn(char_type*, std::streamsize);
-	std::streamsize xsputn(char_type*, std::streamsize);
+	std::streamsize xsputn(const char_type*, std::streamsize);
 #endif
 };
 
@@ -228,6 +234,7 @@ public:
 	explicit llifstream(const char* _Filename,
 			ios_base::openmode _Mode = ios_base::in);
 
+#if llstream_LLFILE
 	/**
 	 *  @brief  Create a stream using an open c file stream.
 	 *  @param  File  An open @c FILE*.
@@ -253,6 +260,7 @@ public:
 			//size_t _Size = static_cast<size_t>(BUFSIZ));
 			size_t _Size = static_cast<size_t>(1));
 #endif
+#endif // llstream_LLFILE
 
 	/**
 	 *  @brief  The destructor does nothing.
@@ -263,6 +271,7 @@ public:
 	virtual ~llifstream() {}
 
 	// Members:
+#if llstream_LLFILE
 	/**
 	 *  @brief  Accessing the underlying buffer.
 	 *  @return  The current basic_filebuf buffer.
@@ -271,6 +280,7 @@ public:
 	*/
 	llstdio_filebuf* rdbuf() const
 	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
+#endif // llstream_LLFILE
 
 	/**
 	 *  @brief  Wrapper to test for an open file.
@@ -340,6 +350,7 @@ public:
 	explicit llofstream(const char* _Filename,
 			ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 
+#if llstream_LLFILE
 	/**
 	 *  @brief  Create a stream using an open c file stream.
 	 *  @param  File  An open @c FILE*.
@@ -365,6 +376,7 @@ public:
 			//size_t _Size = static_cast<size_t>(BUFSIZ));
 			size_t _Size = static_cast<size_t>(1));
 #endif
+#endif // llstream_LLFILE
 
 	/**
 	 *  @brief  The destructor does nothing.
@@ -375,6 +387,7 @@ public:
 	virtual ~llofstream() {}
 
 	// Members:
+#if llstream_LLFILE
 	/**
 	 *  @brief  Accessing the underlying buffer.
 	 *  @return  The current basic_filebuf buffer.
@@ -383,6 +396,7 @@ public:
 	*/
 	llstdio_filebuf* rdbuf() const
 	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
+#endif // llstream_LLFILE
 
 	/**
 	 *  @brief  Wrapper to test for an open file.

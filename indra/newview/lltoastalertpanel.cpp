@@ -48,7 +48,6 @@
 
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
-const S32 MSG_PAD = 8;
 
 /*static*/ LLControlGroup* LLToastAlertPanel::sSettings = NULL;
 /*static*/ LLToastAlertPanel::URLLoader* LLToastAlertPanel::sURLLoader;

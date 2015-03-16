@@ -111,7 +111,7 @@ void LLStatGraph::draw()
 	
 	color = it->mColor;
 	gGL.color4fv(color.mV);
-	gl_rect_2d(1, llround(frac*getRect().getHeight()), getRect().getWidth() - 1, 0, TRUE);
+	gl_rect_2d(1, ll_round(frac*getRect().getHeight()), getRect().getWidth() - 1, 0, TRUE);
 }
 
 void LLStatGraph::setMin(const F32 min)

@@ -44,10 +44,7 @@
 #include <typeinfo>
 #include <map>
 #include <boost/scoped_ptr.hpp>
-#include <boost/lambda/core.hpp>
-#include <boost/lambda/bind.hpp>
-
-namespace bll = boost::lambda;
+#include <boost/bind.hpp>
 
 LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)
 	: LLEventAPI("LLWindow", "Inject input events into the LLWindow instance"),
@@ -358,6 +355,30 @@ static WhichButton buttons;
 
 typedef boost::function<bool(LLCoordGL, MASK)> MouseFunc;
 
+// Wrap a function returning 'void' to return 'true' instead. I'm sure there's
+// a more generic way to accomplish this, but generically handling the
+// arguments seems to require variadic templates and perfect forwarding. (We
+// used to be able to write (boost::lambda::bind(...), true), counting on
+// boost::lambda's comma operator overload, until
+// https://svn.boost.org/trac/boost/ticket/10864. And boost::phoenix doesn't
+// seem to overload comma the same way; or at least not with bind().)
+class MouseFuncTrue
+{
+    typedef boost::function<void(LLCoordGL, MASK)> MouseFuncVoid;
+    MouseFuncVoid mFunc;
+
+public:
+    MouseFuncTrue(const MouseFuncVoid& func):
+        mFunc(func)
+    {}
+
+    bool operator()(LLCoordGL coords, MASK mask) const
+    {
+        mFunc(coords, mask);
+        return true;
+    }
+};
+
 static void mouseEvent(const MouseFunc& func, const LLSD& request)
 {
 	// Ensure we send response
@@ -464,11 +485,11 @@ void LLWindowListener::mouseDown(LLSD const & request)
 	if (actions.valid)
 	{
 		// Normally you can pass NULL to an LLWindow* without compiler
-		// complaint, but going through boost::lambda::bind() evidently
+		// complaint, but going through boost::bind() evidently
 		// bypasses that special case: it only knows you're trying to pass an
 		// int to a pointer. Explicitly cast NULL to the desired pointer type.
-		mouseEvent(bll::bind(actions.down, mWindow,
-							 static_cast<LLWindow*>(NULL), bll::_1, bll::_2),
+		mouseEvent(boost::bind(actions.down, mWindow,
+							 static_cast<LLWindow*>(NULL), _1, _2),
 				   request);
 	}
 }
@@ -478,8 +499,8 @@ void LLWindowListener::mouseUp(LLSD const & request)
 	Actions actions(buttons.lookup(request["button"]));
 	if (actions.valid)
 	{
-		mouseEvent(bll::bind(actions.up, mWindow,
-							 static_cast<LLWindow*>(NULL), bll::_1, bll::_2),
+		mouseEvent(boost::bind(actions.up, mWindow,
+							 static_cast<LLWindow*>(NULL), _1, _2),
 				   request);
 	}
 }
@@ -489,12 +510,10 @@ void LLWindowListener::mouseMove(LLSD const & request)
 	// We want to call the same central mouseEvent() routine for
 	// handleMouseMove() as for button clicks. But handleMouseMove() returns
 	// void, whereas mouseEvent() accepts a function returning bool -- and
-	// uses that bool return. Use (void-lambda-expression, true) to construct
-	// a callable that returns bool anyway. Pass 'true' because we expect that
-	// our caller will usually treat 'false' as a problem.
-	mouseEvent((bll::bind(&LLWindowCallbacks::handleMouseMove, mWindow,
-						  static_cast<LLWindow*>(NULL), bll::_1, bll::_2),
-				true),
+	// uses that bool return. Use MouseFuncTrue to construct a callable that
+	// returns bool anyway.
+	mouseEvent(MouseFuncTrue(boost::bind(&LLWindowCallbacks::handleMouseMove, mWindow,
+						  static_cast<LLWindow*>(NULL), _1, _2)),
 			   request);
 }
 

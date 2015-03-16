@@ -56,11 +56,8 @@ void pump_debug(const char *file, S32 line);
 /**
  * intrusive pointer support
  */
-namespace boost
-{
-	void intrusive_ptr_add_ref(LLIOPipe* p);
-	void intrusive_ptr_release(LLIOPipe* p);
-};
+void intrusive_ptr_add_ref(LLIOPipe* p);
+void intrusive_ptr_release(LLIOPipe* p);
 
 /** 
  * @class LLIOPipe
@@ -251,68 +248,21 @@ protected:
 		LLPumpIO* pump) = 0;
 
 private:
-	friend void boost::intrusive_ptr_add_ref(LLIOPipe* p);
-	friend void boost::intrusive_ptr_release(LLIOPipe* p);
+	friend void intrusive_ptr_add_ref(LLIOPipe* p);
+	friend void intrusive_ptr_release(LLIOPipe* p);
 	U32 mReferenceCount;
 };
 
-namespace boost
+inline void intrusive_ptr_add_ref(LLIOPipe* p)
 {
-	inline void intrusive_ptr_add_ref(LLIOPipe* p)
-	{
-		++p->mReferenceCount;
-	}
-	inline void intrusive_ptr_release(LLIOPipe* p)
-	{
-		if(p && 0 == --p->mReferenceCount)
-		{
-			delete p;
-		}
-	}
-};
-
-
-#if 0
-/** 
- * @class LLIOBoiler
- * @brief This class helps construct new LLIOPipe specializations
- * @see LLIOPipe
- *
- * THOROUGH_DESCRIPTION
- */
-class LLIOBoiler : public LLIOPipe
-{
-public:
-	LLIOBoiler();
-	virtual ~LLIOBoiler();
-
-protected:
-	/* @name LLIOPipe virtual implementations
-	 */
-	//@{
-	/** 
-	 * @brief Process the data in buffer
-	 */
-	virtual EStatus process_impl(
-		const LLChannelDescriptors& channels,
-		buffer_ptr_t& buffer,
-		bool& eos,
-		LLSD& context,
-		LLPumpIO* pump);
-	//@}
-};
-
-// virtual
-LLIOPipe::EStatus process_impl(
-	const LLChannelDescriptors& channels,
-	buffer_ptr_t& buffer,
-	bool& eos,
-	LLSD& context,
-	LLPumpIO* pump)
-{
-	return STATUS_NOT_IMPLEMENTED;
+	++p->mReferenceCount;
 }
-
-#endif // #if 0 - use this block as a boilerplate
+inline void intrusive_ptr_release(LLIOPipe* p)
+{
+	if(p && 0 == --p->mReferenceCount)
+	{
+		delete p;
+	}
+}
 
 #endif // LL_LLIOPIPE_H

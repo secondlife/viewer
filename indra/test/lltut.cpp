@@ -38,42 +38,43 @@
 
 namespace tut
 {
-	void ensure_equals(const char* msg, const LLDate& actual,
+	void ensure_equals(const std::string& msg, const LLDate& actual,
 		const LLDate& expected)
 	{
 		ensure_equals(msg,
 			actual.secondsSinceEpoch(), expected.secondsSinceEpoch());
 	}
 
-	void ensure_equals(const char* msg, const LLURI& actual,
+	void ensure_equals(const std::string& msg, const LLURI& actual,
 		const LLURI& expected)
 	{
 		ensure_equals(msg,
 			actual.asString(), expected.asString());
 	}
 
-	void ensure_equals(const char* msg,
-		const std::vector<U8>& actual, const std::vector<U8>& expected)
+	// The lexical param types here intentionally diverge from the declaration
+	// in our header file. In lltut.h, LLSD is only a forward-declared type;
+	// we have no access to its LLSD::Binary nested type, and so must restate
+	// it explicitly to declare this overload. However, an overload that does
+	// NOT match LLSD::Binary does us no good whatsoever: it would never be
+	// engaged. Stating LLSD::Binary for this definition at least means that
+	// if the LLSD::Binary type ever diverges from what we expect in lltut.h,
+	// that divergence will produce an error: no definition will match that
+	// declaration.
+	void ensure_equals(const std::string& msg,
+		const LLSD::Binary& actual, const LLSD::Binary& expected)
 	{
-		std::string s(msg);
+		ensure_equals(msg + " size", actual.size(), expected.size());
 		
-		ensure_equals(s + " size", actual.size(), expected.size());
-		
-		std::vector<U8>::const_iterator i, j;
+		LLSD::Binary::const_iterator i, j;
 		int k;
 		for (i = actual.begin(), j = expected.begin(), k = 0;
 			i != actual.end();
 			++i, ++j, ++k)
 		{
-			ensure_equals(s + " field", *i, *j);
+			ensure_equals(msg + " field", *i, *j);
 		}
 	}
-
-	void ensure_equals(const char* m, const LLSD& actual,
-		const LLSD& expected)
-    {
-        ensure_equals(std::string(m), actual, expected);
-    }
 
 	void ensure_equals(const std::string& msg, const LLSD& actual,
 		const LLSD& expected)
@@ -158,8 +159,8 @@ namespace tut
 		if( actual.find(expectedStart, 0) != 0 )
 		{
 			std::stringstream ss;
-			ss << msg << ": " << "expected to find " << expectedStart
-				<< " at start of actual " << actual;
+			ss << msg << ": " << "expected to find '" << expectedStart
+			   << "' at start of actual '" << actual << "'";
 			throw failure(ss.str().c_str());
 		}
 	}
@@ -172,8 +173,8 @@ namespace tut
 				!= (actual.size() - expectedEnd.size()) )
 		{
 			std::stringstream ss;
-			ss << msg << ": " << "expected to find " << expectedEnd
-				<< " at end of actual " << actual;
+			ss << msg << ": " << "expected to find '" << expectedEnd
+			   << "' at end of actual '" << actual << "'";
 			throw failure(ss.str().c_str());
 		}
 	}
@@ -184,8 +185,8 @@ namespace tut
 		if( actual.find(expectedSubString, 0) == std::string::npos )
 		{
 			std::stringstream ss;
-			ss << msg << ": " << "expected to find " << expectedSubString
-				<< " in actual " << actual;
+			ss << msg << ": " << "expected to find '" << expectedSubString
+			   << "' in actual '" << actual << "'";
 			throw failure(ss.str().c_str());
 		}
 	}

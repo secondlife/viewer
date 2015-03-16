@@ -807,7 +807,7 @@ std::streamsize llstdio_filebuf::xsgetn(char_type* __s, std::streamsize __n)
 	return __ret;
 }
 
-std::streamsize llstdio_filebuf::xsputn(char_type* __s, std::streamsize __n)
+std::streamsize llstdio_filebuf::xsputn(const char_type* __s, std::streamsize __n)
 {
 	// Optimization in the always_noconv() case, to be generalized in the
 	// future: when __n is sufficiently large we write directly instead of
@@ -919,6 +919,7 @@ llifstream::llifstream(const char* _Filename,
 #endif
 
 
+#if llstream_LLFILE
 // explicit
 llifstream::llifstream(_Filet *_File,
 		ios_base::openmode _Mode, size_t _Size) :
@@ -942,6 +943,7 @@ llifstream::llifstream(int __fd,
 	this->init(&_M_filebuf);
 }
 #endif
+#endif // llstream_LLFILE
 
 bool llifstream::is_open() const
 {	// test if C stream has been opened
@@ -1039,6 +1041,7 @@ llofstream::llofstream(const char* _Filename,
 }
 #endif
 
+#if llstream_LLFILE
 // explicit
 llofstream::llofstream(_Filet *_File,
 			ios_base::openmode _Mode, size_t _Size) :
@@ -1062,6 +1065,7 @@ llofstream::llofstream(int __fd,
 	this->init(&_M_filebuf);
 }
 #endif
+#endif // llstream_LLFILE
 
 bool llofstream::is_open() const
 {	// test if C stream has been opened

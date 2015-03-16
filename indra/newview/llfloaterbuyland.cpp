@@ -65,9 +65,6 @@
 
 // NOTE: This is duplicated in lldatamoney.cpp ...
 const F32 GROUP_LAND_BONUS_FACTOR = 1.1f;
-const F64 CURRENCY_ESTIMATE_FREQUENCY = 0.5;
-	// how long of a pause in typing a currency buy amount before an
-	// estimate is fetched from the server
 
 class LLFloaterBuyLandUI
 :	public LLFloater
@@ -392,9 +389,9 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	}
 
 	mParcelBillableArea =
-		llround(mRegion->getBillableFactor() * mParcelActualArea);
+		ll_round(mRegion->getBillableFactor() * mParcelActualArea);
 
- 	mParcelSupportedObjects = llround(
+ 	mParcelSupportedObjects = ll_round(
 		parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()); 
  	// Can't have more than region max tasks, regardless of parcel 
  	// object bonus factor. 

@@ -72,12 +72,6 @@
 #include "llfloaterreg.h"
 #include "lllocalbitmaps.h"
 
-static const S32 HPAD = 4;
-static const S32 VPAD = 4;
-static const S32 LINE = 16;
-static const S32 FOOTER_HEIGHT = 100;
-static const S32 BORDER_PAD = HPAD;
-static const S32 TEXTURE_INVENTORY_PADDING = 30;
 static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
 static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
 static const F32 CONTEXT_FADE_TIME = 0.08f;

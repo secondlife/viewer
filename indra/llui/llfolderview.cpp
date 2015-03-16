@@ -53,7 +53,6 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-const S32 RENAME_WIDTH_PAD = 4;
 const S32 RENAME_HEIGHT_PAD = 1;
 const S32 AUTO_OPEN_STACK_DEPTH = 16;
 
@@ -307,18 +306,18 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 	LLFolderViewFolder::arrange(&mMinWidth, &target_height);
 
 	LLRect scroll_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
-	reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
+	reshape( llmax(scroll_rect.getWidth(), mMinWidth), ll_round(mCurHeight) );
 
 	LLRect new_scroll_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 	if (new_scroll_rect.getWidth() != scroll_rect.getWidth())
 	{
-		reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
+		reshape( llmax(scroll_rect.getWidth(), mMinWidth), ll_round(mCurHeight) );
 	}
 
 	// move item renamer text field to item's new position
 	updateRenamerPosition();
 
-	return llround(mTargetHeight);
+	return ll_round(mTargetHeight);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_FILTER("Filter Folder View");
@@ -341,7 +340,7 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
 	width  = llmax(mMinWidth, scroll_rect.getWidth());
-	height = llmax(llround(mCurHeight), scroll_rect.getHeight());
+	height = llmax(ll_round(mCurHeight), scroll_rect.getHeight());
 
 	// Restrict width within scroll container's width
 	if (mUseEllipses && mScrollContainer)

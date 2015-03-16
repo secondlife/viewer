@@ -183,7 +183,15 @@ public:
 				if (!widget) 
 				{
 					LL_WARNS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
+
+#if LL_DARWIN
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdelete-incomplete"
 					delete view;
+#pragma clang diagnostic pop
+#else
+					delete view;
+#endif
 					view = NULL;
 				}
 			}

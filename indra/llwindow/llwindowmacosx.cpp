@@ -44,14 +44,8 @@
 
 extern BOOL gDebugWindowProc;
 
-// culled from winuser.h
-//const S32	WHEEL_DELTA = 120;     /* Value for rolling one detent */
-// On the Mac, the scroll wheel reports a delta of 1 for each detent.
-// There's also acceleration for faster scrolling, based on a slider in the system preferences.
-const S32	WHEEL_DELTA = 1;     /* Value for rolling one detent */
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;
-
 
 //
 // LLWindowMacOSX
@@ -244,8 +238,8 @@ void callRightMouseDown(float *pos, MASK mask)
     }
     
 	LLCoordGL		outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	gWindowImplementation->getCallbacks()->handleRightMouseDown(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 }
 
@@ -257,8 +251,8 @@ void callRightMouseUp(float *pos, MASK mask)
     }
     
 	LLCoordGL		outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	gWindowImplementation->getCallbacks()->handleRightMouseUp(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 }
 
@@ -270,8 +264,8 @@ void callLeftMouseDown(float *pos, MASK mask)
     }
     
 	LLCoordGL		outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	gWindowImplementation->getCallbacks()->handleMouseDown(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 }
 
@@ -283,8 +277,8 @@ void callLeftMouseUp(float *pos, MASK mask)
     }
     
 	LLCoordGL		outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	gWindowImplementation->getCallbacks()->handleMouseUp(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 	
 }
@@ -297,8 +291,8 @@ void callDoubleClick(float *pos, MASK mask)
     }
     
 	LLCoordGL	outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	gWindowImplementation->getCallbacks()->handleDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 }
 
@@ -313,8 +307,8 @@ void callResize(unsigned int width, unsigned int height)
 void callMouseMoved(float *pos, MASK mask)
 {
 	LLCoordGL		outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	float deltas[2];
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
@@ -376,8 +370,8 @@ void callDeltaUpdate(float *delta, MASK mask)
 void callMiddleMouseDown(float *pos, MASK mask)
 {
 	LLCoordGL		outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	float deltas[2];
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
@@ -388,8 +382,8 @@ void callMiddleMouseDown(float *pos, MASK mask)
 void callMiddleMouseUp(float *pos, MASK mask)
 {
 	LLCoordGL outCoords;
-	outCoords.mX = llround(pos[0]);
-	outCoords.mY = llround(pos[1]);
+	outCoords.mX = ll_round(pos[0]);
+	outCoords.mY = ll_round(pos[1]);
 	float deltas[2];
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
@@ -525,8 +519,8 @@ void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 {
 	if (mCursorDecoupled)
 	{
-		mCursorLastEventDeltaX = llround(deltas[0]);
-		mCursorLastEventDeltaY = llround(-deltas[1]);
+		mCursorLastEventDeltaX = ll_round(deltas[0]);
+		mCursorLastEventDeltaY = ll_round(-deltas[1]);
 		
 		if (mCursorIgnoreNextDelta)
 		{

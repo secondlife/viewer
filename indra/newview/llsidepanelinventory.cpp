@@ -70,10 +70,7 @@ static LLPanelInjector<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
 static const char * const INBOX_BUTTON_NAME = "inbox_btn";
 static const char * const INBOX_LAYOUT_PANEL_NAME = "inbox_layout_panel";
-static const char * const MAIN_INVENTORY_LAYOUT_PANEL_NAME = "main_inventory_layout_panel";
-
 static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
-
 static const char * const MARKETPLACE_INBOX_PANEL = "marketplace_inbox";
 
 //

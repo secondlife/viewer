@@ -36,24 +36,16 @@
 
 #include "boost/bind.hpp"
 
-static const S32 DRAGGER_BAR_MARGIN = 4;
-static const S32 DRAGGER_BAR_HEIGHT = 5;
 static const S32 BORDER_MARGIN = 2;
 static const S32 PARENT_BORDER_MARGIN = 5;
-
-static const S32 panel_delta = DRAGGER_BAR_MARGIN;  // Distanse between two panels 
-
-static const S32 HORIZONTAL_MULTIPLE = 8;
 static const S32 VERTICAL_MULTIPLE = 16;
 static const F32 MIN_AUTO_SCROLL_RATE = 120.f;
 static const F32 MAX_AUTO_SCROLL_RATE = 500.f;
 static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 
-
 // LLAccordionCtrl =================================================================|
 
 static LLDefaultChildRegistry::Register<LLAccordionCtrl>	t2("accordion");
-
 
 LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mFitParent(params.fit_parent)
@@ -613,7 +605,7 @@ BOOL LLAccordionCtrl::autoScroll		(S32 x, S32 y)
 
 		// autoscroll region should take up no more than one third of visible scroller area
 		S32 auto_scroll_region_height = llmin(rect_local.getHeight() / 3, 10);
-		S32 auto_scroll_speed = llround(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
+		S32 auto_scroll_speed = ll_round(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
 
 		LLRect bottom_scroll_rect = screen_local_extents;
 		bottom_scroll_rect.mTop = rect_local.mBottom + auto_scroll_region_height;

@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 				char * end;
 
 				value = strtoul(optarg, &end, 10);
-				if (value < 0 || value > 100 || *end != '\0')
+				if (value > 100 || *end != '\0')
 				{
 					usage(std::cerr);
 					return 1;
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 				char * end;
 
 				value = strtoul(optarg, &end, 10);
-				if (value < 0 || value > 3 || *end != '\0')
+				if (value > 3 || *end != '\0')
 				{
 					usage(std::cerr);
 					return 1;
