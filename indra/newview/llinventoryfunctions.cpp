@@ -1267,6 +1267,19 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
             tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
             accept = false;
         }
+        
+        if (move_in_stock)
+        {
+            int stock_size = bundle_size + count_descendants_items(dest_folder->getUUID());
+            if (stock_size > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
+            {
+                LLStringUtil::format_map_t args;
+                U32 amount = gSavedSettings.getU32("InventoryOutboxMaxStockItemCount");
+                args["[AMOUNT]"] = llformat("%d",amount);
+                tooltip_msg = LLTrans::getString("TooltipOutboxTooManyStockItems", args);
+                accept = false;
+            }
+        }
     }
 
     return accept;
@@ -1801,6 +1814,15 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     // Report if a stock folder contains subfolders
                     result = false;
                     std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Subfolder In Stock");
+                    cb(message,depth,LLError::LEVEL_ERROR);
+                }
+                else if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (item_array->size() > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount")))
+                {
+                    // Report if a stock folder has too many items
+                    result = false;
+                    LLStringUtil::format_map_t args;
+                    args["[AMOUNT]"] = llformat("%d",gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"));
+                    std::string message = indent + cat->getName() + LLTrans::getString("TooltipOutboxTooManyStockItems", args);
                     cb(message,depth,LLError::LEVEL_ERROR);
                 }
                 else
