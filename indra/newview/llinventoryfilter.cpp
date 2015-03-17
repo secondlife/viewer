@@ -68,7 +68,8 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 :	mName(p.name),
 	mFilterModified(FILTER_NONE),
 	mEmptyLookupMessage("InventoryNoMatchingItems"),
-    mFilterOps(p.filter_ops),
+	mFilterOps(p.filter_ops),
+	mBackupFilterOps(mFilterOps),
 	mFilterSubString(p.substring),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
@@ -546,17 +547,27 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 			setModified(FILTER_RESTART);
 		}
 
+		// Cancel out filter links once the search string is modified
+		if (mFilterOps.mFilterLinks == FILTERLINK_ONLY_LINKS)
+		{
+			if (mBackupFilterOps.mFilterLinks == FILTERLINK_ONLY_LINKS)
+			{
+				// we started viewer/floater in 'only links' mode
+				mFilterOps.mFilterLinks = FILTERLINK_INCLUDE_LINKS;
+			}
+			else
+			{
+				mFilterOps = mBackupFilterOps;
+				setModified(FILTER_RESTART);
+			}
+		}
+
 		// Cancel out UUID once the search string is modified
 		if (mFilterOps.mFilterTypes == FILTERTYPE_UUID)
 		{
 			mFilterOps.mFilterTypes &= ~FILTERTYPE_UUID;
 			mFilterOps.mFilterUUID == LLUUID::null;
 			setModified(FILTER_RESTART);
-		}
-
-		// Cancel out filter links once the search string is modified
-		{
-			mFilterOps.mFilterLinks = FILTERLINK_INCLUDE_LINKS;
 		}
 	}
 }
@@ -746,6 +757,22 @@ void LLInventoryFilter::setShowFolderState(EFolderShow state)
 			setModified();
 		}
 	}
+}
+
+void LLInventoryFilter::setFindAllLinksMode(const std::string &search_name, const LLUUID& search_id)
+{
+	// Save a copy of settings so that we will be able to restore it later
+	// but make sure we are not searching for links already
+	if(mFilterOps.mFilterLinks != FILTERLINK_ONLY_LINKS)
+	{
+		mBackupFilterOps = mFilterOps;
+	}
+	
+	// set search options
+	setFilterSubString(search_name);
+	setFilterUUID(search_id);
+	setShowFolderState(SHOW_NON_EMPTY_FOLDERS);
+	setFilterLinks(FILTERLINK_ONLY_LINKS);
 }
 
 void LLInventoryFilter::markDefault()

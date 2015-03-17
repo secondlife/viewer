@@ -193,6 +193,9 @@ public:
 	void 				setFilterLinks(U64 filter_link);
 	U64					getFilterLinks() const;
 
+	// sets params for Link-only search and backs up search settings for future restoration
+	void				setFindAllLinksMode(const std::string &search_name, const LLUUID& search_id);
+
 	// +-------------------------------------------------------------------+
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
@@ -267,6 +270,7 @@ private:
 
 	FilterOps				mFilterOps;
 	FilterOps				mDefaultFilterOps;
+	FilterOps				mBackupFilterOps; // for backup purposes when leaving 'search link' mode
 
 	std::string				mFilterSubString;
 	std::string				mFilterSubStringOrig;

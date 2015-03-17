@@ -1134,14 +1134,12 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		const LLUUID& item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
 		const std::string &item_name = current_item->getViewModelItem()->getName();
 		mFilterSubString = item_name;
-		LLInventoryFilter &filter = mActivePanel->getFilter();
-		filter.setFilterSubString(item_name);
-		mFilterEditor->setText(item_name);
 
+		LLInventoryFilter &filter = mActivePanel->getFilter();
+		filter.setFindAllLinksMode(item_name, item_id);
+
+		mFilterEditor->setText(item_name);
 		mFilterEditor->setFocus(TRUE);
-		filter.setFilterUUID(item_id);
-		filter.setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		filter.setFilterLinks(LLInventoryFilter::FILTERLINK_ONLY_LINKS);
 	}
 }
 
