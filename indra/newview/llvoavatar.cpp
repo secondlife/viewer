@@ -716,7 +716,9 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
 	mLastUpdateRequestCOFVersion(-1),
-	mLastUpdateReceivedCOFVersion(-1)
+	mLastUpdateReceivedCOFVersion(-1),
+	mCachedMuteListUpdateTime(0),
+	mCachedInMuteList(false)
 {
 	//VTResume();  // VTune
 	
