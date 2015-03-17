@@ -241,7 +241,7 @@ Please try logging in again in a minute.</string>
     <string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]. Decrease the depth of folders-within-folders; box items if necessary.</string>
     <string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]. Decrease the number of folders in your listing; box items if necessary.</string>
     <string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]. In order to sell more than [AMOUNT] items in one listing, you must box some of them.</string>
-    <string name="TooltipOutboxTooManyStockItems">Stock folder count exceeds [AMOUNT].</string>
+    <string name="TooltipOutboxTooManyStockItems">Stock items count exceeds [AMOUNT].</string>
     <string name="TooltipOutboxCannotDropOnRoot">You can only drop items or folders in the ALL tab. Please select that tab and move your item(s) or folder(s) again.</string>
 	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
 	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>

@@ -115,6 +115,21 @@ S32 count_copyable_items(LLInventoryModel::item_array_t& items)
     return count;
 }
 
+// Helper function : Count only the non-copyable items, i.e. the stock items, skip the others
+S32 count_stock_items(LLInventoryModel::item_array_t& items)
+{
+    S32 count = 0;
+    for (LLInventoryModel::item_array_t::const_iterator it = items.begin(); it != items.end(); ++it)
+    {
+        LLViewerInventoryItem* item = *it;
+        if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
 // Helper function : Count the number of stock folders
 S32 count_stock_folders(LLInventoryModel::cat_array_t& categories)
 {
@@ -1240,6 +1255,9 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
         // If the dest folder is a stock folder, we do not count the incoming items toward the total (stock items are seen as one)
         int existing_item_count = (move_in_stock ? 0 : bundle_size);
         
+        // If the dest folder is a stock folder, we do assume that the incoming items are also stock items (they should anyway)
+        int existing_stock_count = (move_in_stock ? bundle_size : 0);
+        
         // Get the version folder: that's where the counts start from
         const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
 
@@ -1257,6 +1275,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
             gInventory.collectDescendents(version_folder->getUUID(), existing_categories, existing_items, FALSE);
             
             existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
+            existing_stock_count += count_stock_items(existing_items);
         }
         
         if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
@@ -1267,18 +1286,13 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
             tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
             accept = false;
         }
-        
-        if (move_in_stock)
+        else if (existing_stock_count > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
         {
-            int stock_size = bundle_size + count_descendants_items(dest_folder->getUUID());
-            if (stock_size > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
-            {
-                LLStringUtil::format_map_t args;
-                U32 amount = gSavedSettings.getU32("InventoryOutboxMaxStockItemCount");
-                args["[AMOUNT]"] = llformat("%d",amount);
-                tooltip_msg = LLTrans::getString("TooltipOutboxTooManyStockItems", args);
-                accept = false;
-            }
+            LLStringUtil::format_map_t args;
+            U32 amount = gSavedSettings.getU32("InventoryOutboxMaxStockItemCount");
+            args["[AMOUNT]"] = llformat("%d",amount);
+            tooltip_msg = LLTrans::getString("TooltipOutboxTooManyStockItems", args);
+            accept = false;
         }
     }
 
@@ -1320,7 +1334,9 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
     
         int dragged_folder_count = descendent_categories.size() + bundle_size;  // Note: We assume that we're moving a bunch of folders in. That might be wrong...
         int dragged_item_count = count_copyable_items(descendent_items) + count_stock_folders(descendent_categories);
+        int dragged_stock_count = count_stock_items(descendent_items);
         int existing_item_count = 0;
+        int existing_stock_count = 0;
         int existing_folder_count = 0;
     
         if (version_folder)
@@ -1330,6 +1346,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
                 // Clear those counts or they will be counted twice because we're already inside the version category
                 dragged_folder_count = 0;
                 dragged_item_count = 0;
+                dragged_stock_count = 0;
             }
         
             // Tally the total number of categories and items inside the root folder
@@ -1339,10 +1356,12 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         
             existing_folder_count += existing_categories.size();
             existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
+            existing_stock_count += count_stock_items(existing_items);
         }
     
         const int total_folder_count = existing_folder_count + dragged_folder_count;
         const int total_item_count = existing_item_count + dragged_item_count;
+        const int total_stock_count = existing_stock_count + dragged_stock_count;
     
         if (total_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
         {
@@ -1358,6 +1377,14 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             U32 amount = gSavedSettings.getU32("InventoryOutboxMaxItemCount");
             args["[AMOUNT]"] = llformat("%d",amount);
             tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects", args);
+            accept = false;
+        }
+        else if (total_stock_count > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"))
+        {
+            LLStringUtil::format_map_t args;
+            U32 amount = gSavedSettings.getU32("InventoryOutboxMaxStockItemCount");
+            args["[AMOUNT]"] = llformat("%d",amount);
+            tooltip_msg = LLTrans::getString("TooltipOutboxTooManyStockItems", args);
             accept = false;
         }
         
@@ -1677,7 +1704,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         }
     }
     
-    // If we have no items in there (only folders or empty), analyze a bit further 
+    // If we have no items in there (only folders or empty), analyze a bit further
     if ((count == 0) && !has_bad_items)
     {
         if (cat_array->size() == 0)
@@ -1814,15 +1841,6 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     // Report if a stock folder contains subfolders
                     result = false;
                     std::string message = indent + cat->getName() + LLTrans::getString("Marketplace Validation Error Subfolder In Stock");
-                    cb(message,depth,LLError::LEVEL_ERROR);
-                }
-                else if ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (item_array->size() > gSavedSettings.getU32("InventoryOutboxMaxStockItemCount")))
-                {
-                    // Report if a stock folder has too many items
-                    result = false;
-                    LLStringUtil::format_map_t args;
-                    args["[AMOUNT]"] = llformat("%d",gSavedSettings.getU32("InventoryOutboxMaxStockItemCount"));
-                    std::string message = indent + cat->getName() + LLTrans::getString("TooltipOutboxTooManyStockItems", args);
                     cb(message,depth,LLError::LEVEL_ERROR);
                 }
                 else
