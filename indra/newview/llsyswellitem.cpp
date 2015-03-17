@@ -31,7 +31,6 @@
 
 #include "llwindow.h"
 #include "v4color.h"
-#include "lltrans.h"
 #include "lluicolortable.h"
 
 //---------------------------------------------------------------------------------
@@ -90,3 +89,5 @@ void LLSysWellItem::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 //---------------------------------------------------------------------------------
+
+

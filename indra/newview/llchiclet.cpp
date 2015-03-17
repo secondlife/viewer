@@ -166,8 +166,7 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	mNotificationChannel.reset(new ChicletNotificationChannel(this));
 	// ensure that notification well window exists, to synchronously
 	// handle toast add/delete events.
-	//LLNotificationWellWindow::getInstance()->setSysWellChiclet(this);
-    LLFloaterNotificationsTabbed::getInstance()->setSysWellChiclet(this);
+	LLFloaterNotificationsTabbed::getInstance()->setSysWellChiclet(this);
 }
 
 void LLNotificationChiclet::onMenuItemClicked(const LLSD& user_data)
@@ -175,8 +174,7 @@ void LLNotificationChiclet::onMenuItemClicked(const LLSD& user_data)
 	std::string action = user_data.asString();
 	if("close all" == action)
 	{
-		//LLNotificationWellWindow::getInstance()->closeAll();
-        LLFloaterNotificationsTabbed::getInstance()->closeAll();
+		LLFloaterNotificationsTabbed::getInstance()->closeAll();
 		LLIMWellWindow::getInstance()->closeAll();
 	}
 }

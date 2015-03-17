@@ -2,9 +2,9 @@
  * @file llfloaternotificationstabbed.h
  * @brief                                  
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2015, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -68,11 +68,11 @@ private:
 class LLFloaterNotificationsTabbed : public LLTransientDockableFloater
 {
 public:
-	LOG_CLASS(LLFloaterNotificationsTabbed);
+    LOG_CLASS(LLFloaterNotificationsTabbed);
 
     LLFloaterNotificationsTabbed(const LLSD& key);
     virtual ~LLFloaterNotificationsTabbed();
-	BOOL postBuild();
+    BOOL postBuild();
 
     // other interface functions
     // check is window empty
@@ -86,12 +86,11 @@ public:
 
     // Operating with outfit
     virtual void setVisible(BOOL visible);
-    void adjustWindowPosition();//not used - ?
 
-    /*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
+    /*virtual*/ void    setDocked(bool docked, bool pop_on_undock = true);
     // override LLFloater's minimization according to EXT-1216
-    /*virtual*/ void	setMinimized(BOOL minimize);
-    /*virtual*/ void	handleReshape(const LLRect& rect, bool by_user);
+    /*virtual*/ void    setMinimized(BOOL minimize);
+    /*virtual*/ void    handleReshape(const LLRect& rect, bool by_user);
 
     void onStartUpToastClick(S32 x, S32 y, MASK mask);
     /*virtual*/ void onAdd(LLNotificationPtr notify);
@@ -102,8 +101,8 @@ public:
     static LLFloaterNotificationsTabbed* getInstance(const LLSD& key = LLSD());
 
     // size constants for the window and for its elements
-    static const S32 MAX_WINDOW_HEIGHT		= 200;
-    static const S32 MIN_WINDOW_WIDTH		= 318;
+    static const S32 MAX_WINDOW_HEIGHT      = 200;
+    static const S32 MIN_WINDOW_WIDTH       = 318;
 
 private:
     // init Window's channel
@@ -119,9 +118,9 @@ private:
     LLNotificationsUI::LLScreenChannel*	mChannel;
 
     /**
-	 * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
-	 */
-	LLSysWellChiclet* mSysWellChiclet;
+     * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
+     */
+    LLSysWellChiclet* mSysWellChiclet;
 
     bool mIsReshapedByUser;
 
@@ -144,12 +143,15 @@ private:
     void clearScreenChannels();
     // Operating with items
     void addItem(LLNotificationListItem::Params p);
+    void getAllItemsOnCurrentTab(std::vector<LLPanel*>& items) const;
 
     // Closes all notifications and removes them from the Notification Well
     void closeAllOnCurrentTab();
+    void collapseAllOnCurrentTab();
 
     void onStoreToast(LLPanel* info_panel, LLUUID id);
     void onClickDeleteAllBtn();
+    void onClickCollapseAllBtn();
     // Handlers
     void onItemClick(LLNotificationListItem* item);
     void onItemClose(LLNotificationListItem* item);
@@ -162,6 +164,7 @@ private:
     LLNotificationSeparator* mNotificationsSeparator;
     LLTabContainer* mNotificationsTabContainer;
     LLButton*	mDeleteAllBtn;
+    LLButton*	mCollapseAllBtn;
 };
 
 #endif // LL_FLOATERNOTIFICATIONSTABBED_H

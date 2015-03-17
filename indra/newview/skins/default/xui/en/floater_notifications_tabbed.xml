@@ -81,7 +81,7 @@
           left="0"
           top="5"
           height="0"
-          width="330"/>
+          width="328"/>
       </panel>
       <panel
        border="true"
@@ -98,13 +98,13 @@
           left="0"
           top="5"
           height="0"
-          width="330"/>
+          width="328"/>
       </panel>
     </tab_container>
     
     <layout_stack width="336" height="26" enabled="true" orientation="horizontal"  follows="left|right" name="ButtonsStack">
       <layout_panel width="336" height="30" enabled="true" orientation="horizontal" name="CondenseAllButtonPanel">
-        <button width="93" height="21" left="2" label="Collapse all" name="CondenseAllButton">
+        <button width="93" height="21" left="2" label="Collapse all" name="collapse_all_button">
         </button>
       </layout_panel>
       <layout_panel width="336" height="30" enabled="true" orientation="horizontal" name="GapLayoutPanel">
@@ -118,48 +118,4 @@
     </layout_stack>
   </layout_panel>
   </layout_stack>
-  </floater>
-
-<!--
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater
- legacy_header_height="18"
- bevel_style="in"
- layout="topleft"
- name="notifications_tabbed_window"
- help_topic="notification_chiclet"
- save_rect="true"
- title="NOTIFICATIONS"
- width="320"
- min_width="320"
- height="23"
- can_minimize="false"
- can_tear_off="false"
- can_resize="true"
- can_drag_on_left="false"
- can_dock="true"
- save_dock_state="true"
- save_visibility="true"
- single_instance="true"
->
-  <string
-   name="title_im_well_window">
-    CONVERSATIONS
-  </string>
-  <string
-   name="title_notification_well_window">
-    NOTIFICATIONS1
-  </string>
-
-  <flat_list_view
-    color="FloaterDefaultBackgroundColor"
-    follows="all"
-    layout="topleft"
-    name="notification_list"
-    left="1"
-    top="20"
-    height="0"
-    width="318"/>
 </floater>
--->
-

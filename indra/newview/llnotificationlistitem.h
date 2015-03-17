@@ -1,8 +1,8 @@
 /** 
  * @file llnotificationlistitem.h
- * @brief                                    // TODO
+ * @brief                                    
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
  * 
@@ -32,6 +32,7 @@
 #include "lltextbox.h"
 #include "llbutton.h"
 #include "llgroupiconctrl.h"
+#include "llavatariconctrl.h"
 
 #include "llgroupmgr.h"
 
@@ -40,13 +41,15 @@
 class LLNotificationListItem : public LLPanel
 {
 public:
-    struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
+    struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {
-        LLUUID        	notification_id;
+        LLUUID          notification_id;
         LLUUID          group_id;
-        std::string		notification_name;
-        std::string		title;
-        std::string		sender;
+        LLUUID          paid_from_id;
+        LLUUID          paid_to_id;
+        std::string     notification_name;
+        std::string     title;
+        std::string     sender;
         LLDate time_stamp;
         Params()        {};
     };
@@ -65,44 +68,41 @@ public:
     std::string& getNotificationName() { return mNotificationName; }
 
     // handlers
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-    virtual void onMouseLeave(S32 x, S32 y, MASK mask);
+    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
     //callbacks
     typedef boost::function<void (LLNotificationListItem* item)> item_callback_t;
     typedef boost::signals2::signal<void (LLNotificationListItem* item)> item_signal_t;
-    item_signal_t mOnItemClose;	
-    item_signal_t mOnItemClick;	
+    item_signal_t mOnItemClose;
+    item_signal_t mOnItemClick;
     boost::signals2::connection setOnItemCloseCallback(item_callback_t cb) { return mOnItemClose.connect(cb); }
     boost::signals2::connection setOnItemClickCallback(item_callback_t cb) { return mOnItemClick.connect(cb); }
-
+    
+    void setExpanded(BOOL value);
     virtual BOOL postBuild();
 protected:
     LLNotificationListItem(const Params& p);
-    virtual	~LLNotificationListItem();
+    virtual ~LLNotificationListItem();
 
     static std::string buildNotificationDate(const LLDate&);
-    void setExpanded(BOOL value);
-	void onClickExpandBtn();
-	void onClickCondenseBtn();
+    void onClickExpandBtn();
+    void onClickCondenseBtn();
     void onClickCloseBtn();
 
     Params      mParams;
-    LLTextBox*	mTitleBox;
-    LLTextBox*	mTitleBoxExp;
-    LLTextBox*	mNoticeTextExp;
+    LLTextBox*  mTitleBox;
+    LLTextBox*  mTitleBoxExp;
+    LLTextBox*  mNoticeTextExp;
     LLTextBox*  mTimeBox;
     LLTextBox*  mTimeBoxExp;
-	LLButton*	mExpandBtn;
-	LLButton*	mCondenseBtn;
-    LLButton*	mCloseBtn;
-	LLButton*	mCloseBtnExp;
+    LLButton*   mExpandBtn;
+    LLButton*   mCondenseBtn;
+    LLButton*   mCloseBtn;
+    LLButton*   mCloseBtnExp;
     LLLayoutStack* mVerticalStack;
     LLPanel*    mCondensedViewPanel;
-	LLPanel*    mExpandedViewPanel;
+    LLPanel*    mExpandedViewPanel;
     LLPanel*    mMainPanel;
-    //LLUUID		mID;
     std::string mTitle;
     std::string mNotificationName;
     S32 mCondensedHeight;
@@ -113,11 +113,7 @@ class LLInviteNotificationListItem
     : public LLNotificationListItem, public LLGroupMgrObserver
 {
 public:
-    //void setGroupID(const LLUUID& group_id);
-    //void setGroupIconID(const LLUUID& group_icon_id);
-    //void setGroupName(const std::string& group_name);
     static std::set<std::string> getTypes();
-
     virtual BOOL postBuild();
 
     void setGroupId(const LLUUID& value);
@@ -129,41 +125,43 @@ private:
     LLInviteNotificationListItem(const LLInviteNotificationListItem &);
     LLInviteNotificationListItem & operator=(LLInviteNotificationListItem &);
 
+    void setSender(std::string sender);
+    void setGroupName(std::string name);
+
     bool updateFromCache();
 
     LLGroupIconCtrl* mGroupIcon;
     LLGroupIconCtrl* mGroupIconExp;
-    LLUUID		mGroupId;
-	LLTextBox*	mSenderBox;
-    LLTextBox*	mSenderBoxExp;
-    LLTextBox*	mGroupNameBoxExp;
+    LLUUID      mGroupId;
+    LLTextBox*  mSenderBox;
+    LLTextBox*  mSenderBoxExp;
+    LLTextBox*  mGroupNameBoxExp;
 };
 
 class LLTransactionNotificationListItem : public LLNotificationListItem
 {
 public:
     static std::set<std::string> getTypes();
-	virtual BOOL postBuild();
+    virtual BOOL postBuild();
 private:
     friend class LLNotificationListItem;
     LLTransactionNotificationListItem(const Params& p);
     LLTransactionNotificationListItem(const LLTransactionNotificationListItem &);
     LLTransactionNotificationListItem & operator=(LLTransactionNotificationListItem &);
-	LLIconCtrl* mTransactionIcon;
-    LLIconCtrl* mTransactionIconExp;
+    LLAvatarIconCtrl* mAvatarIcon;
+    LLAvatarIconCtrl* mAvatarIconExp;
 };
 
 class LLSystemNotificationListItem : public LLNotificationListItem
 {
 public:
-    static std::set<std::string> getTypes();
-	virtual BOOL postBuild();
+    virtual BOOL postBuild();
 private:
     friend class LLNotificationListItem;
     LLSystemNotificationListItem(const Params& p);
     LLSystemNotificationListItem(const LLSystemNotificationListItem &);
     LLSystemNotificationListItem & operator=(LLSystemNotificationListItem &);
-	LLIconCtrl* mSystemNotificationIcon;
+    LLIconCtrl* mSystemNotificationIcon;
     LLIconCtrl* mSystemNotificationIconExp;
 };
 

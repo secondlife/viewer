@@ -32,8 +32,6 @@
 #include "llbutton.h"
 #include "lliconctrl.h"
 
-#include "llgroupmgr.h"
-
 #include <string>
 
 class LLSysWellItem : public LLPanel

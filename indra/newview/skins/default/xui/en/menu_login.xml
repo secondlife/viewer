@@ -303,7 +303,7 @@
       <menu_item_call
         label="Show Notifications Console"
         name="Show Notifications Console"
-        visible="true"
+        visible="false"
         shortcut="control|shift|5">
         <on_click
          function="Floater.Toggle"

@@ -1,9 +1,9 @@
 /** 
  * @file llfloaternotificationstabbed.cpp
  * @brief                                  
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2015, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -51,7 +51,7 @@ LLFloaterNotificationsTabbed::LLFloaterNotificationsTabbed(const LLSD& key) : LL
     mIsReshapedByUser(false)
 
 {
-	setOverlapsScreenChannel(true);
+    setOverlapsScreenChannel(true);
     mNotificationUpdates.reset(new NotificationTabbedChannel(this));
     mNotificationsSeparator = new LLNotificationSeparator();
 }
@@ -70,12 +70,15 @@ BOOL LLFloaterNotificationsTabbed::postBuild()
     mDeleteAllBtn = getChild<LLButton>("delete_all_button");
     mDeleteAllBtn->setClickedCallback(boost::bind(&LLFloaterNotificationsTabbed::onClickDeleteAllBtn,this));
 
+    mCollapseAllBtn = getChild<LLButton>("collapse_all_button");
+    mCollapseAllBtn->setClickedCallback(boost::bind(&LLFloaterNotificationsTabbed::onClickCollapseAllBtn,this));
+
     // get a corresponding channel
     initChannel();
     BOOL rv = LLTransientDockableFloater::postBuild();
     
     setTitle(getString("title_notification_tabbed_window"));
-	return rv;
+    return rv;
 }
 
 //---------------------------------------------------------------------------------
@@ -98,6 +101,7 @@ void LLFloaterNotificationsTabbed::onStartUpToastClick(S32 x, S32 y, MASK mask)
     setVisible(TRUE);
 }
 
+//---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::setSysWellChiclet(LLSysWellChiclet* chiclet) 
 { 
     mSysWellChiclet = chiclet;
@@ -208,29 +212,6 @@ void LLFloaterNotificationsTabbed::setDocked(bool docked, bool pop_on_undock)
 //---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::reshapeWindow()
 {
-    // save difference between floater height and the list height to take it into account while calculating new window height
-    // it includes height from floater top to list top and from floater bottom and list bottom
-    //static S32 parent_list_delta_height = getRect().getHeight() - mInviteMessageList->getRect().getHeight();
-
-    //if (!mIsReshapedByUser) // Don't reshape Well window, if it ever was reshaped by user. See EXT-5715.
-    //{
-    //    S32 notif_list_height = mInviteMessageList->getItemsRect().getHeight() + 2 * mInviteMessageList->getBorderWidth();
-
-    //    LLRect curRect = getRect();
-
-    //    S32 new_window_height = notif_list_height + parent_list_delta_height;
-
-    //    if (new_window_height > MAX_WINDOW_HEIGHT)
-    //    {
-    //        new_window_height = MAX_WINDOW_HEIGHT;
-    //    }
-    //    S32 newWidth = curRect.getWidth() < MIN_WINDOW_WIDTH ? MIN_WINDOW_WIDTH	: curRect.getWidth();
-
-    //    curRect.setLeftTopAndSize(curRect.mLeft, curRect.mTop, newWidth, new_window_height);
-    //    reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
-    //    setRect(curRect);
-    //}
-
     // update notification channel state
     // update on a window reshape is important only when a window is visible and docked
     if(mChannel && getVisible() && isDocked())
@@ -245,8 +226,9 @@ bool LLFloaterNotificationsTabbed::isWindowEmpty()
     return mNotificationsSeparator->size() == 0;
 }
 
+//---------------------------------------------------------------------------------
 LLFloaterNotificationsTabbed::NotificationTabbedChannel::NotificationTabbedChannel(LLFloaterNotificationsTabbed* notifications_tabbed_window)
-    :	LLNotificationChannel(LLNotificationChannel::Params().name(notifications_tabbed_window->getPathname())),
+    : LLNotificationChannel(LLNotificationChannel::Params().name(notifications_tabbed_window->getPathname())),
     mNotificationsTabbedWindow(notifications_tabbed_window)
 {
     connectToChannel("Notifications");
@@ -255,11 +237,13 @@ LLFloaterNotificationsTabbed::NotificationTabbedChannel::NotificationTabbedChann
 }
 
 // static
+//---------------------------------------------------------------------------------
 LLFloaterNotificationsTabbed* LLFloaterNotificationsTabbed::getInstance(const LLSD& key /*= LLSD()*/)
 {
     return LLFloaterReg::getTypedInstance<LLFloaterNotificationsTabbed>("notification_well_window", key);
 }
 
+//---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::updateNotificationCounter(S32 panelIndex, S32 counterValue, std::string stringName)
 {
     LLStringUtil::format_map_t string_args;
@@ -268,6 +252,7 @@ void LLFloaterNotificationsTabbed::updateNotificationCounter(S32 panelIndex, S32
     mNotificationsTabContainer->setPanelTitle(panelIndex, label);
 }
 
+//---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::updateNotificationCounters()
 {
     updateNotificationCounter(0, mSystemMessageList->size(), "system_tab_title");
@@ -304,6 +289,7 @@ void LLFloaterNotificationsTabbed::addItem(LLNotificationListItem::Params p)
     }
 }
 
+//---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::closeAll()
 {
     // Need to clear notification channel, to add storable toasts into the list.
@@ -319,11 +305,8 @@ void LLFloaterNotificationsTabbed::closeAll()
 }
 
 //---------------------------------------------------------------------------------
-void LLFloaterNotificationsTabbed::closeAllOnCurrentTab()
+void LLFloaterNotificationsTabbed::getAllItemsOnCurrentTab(std::vector<LLPanel*>& items) const
 {
-    // Need to clear notification channel, to add storable toasts into the list.
-    clearScreenChannels();
-    std::vector<LLPanel*> items;
     switch (mNotificationsTabContainer->getCurrentPanelIndex())
     {
     case 0:
@@ -336,14 +319,37 @@ void LLFloaterNotificationsTabbed::closeAllOnCurrentTab()
         mInviteMessageList->getItems(items);
         break;
     default:
-        return;
+        break;
     }
+}
+
+//---------------------------------------------------------------------------------
+void LLFloaterNotificationsTabbed::closeAllOnCurrentTab()
+{
+    // Need to clear notification channel, to add storable toasts into the list.
+    clearScreenChannels();
+    std::vector<LLPanel*> items;
+    getAllItemsOnCurrentTab(items);
     std::vector<LLPanel*>::iterator iter = items.begin();
     for (; iter != items.end(); ++iter)
     {
         LLNotificationListItem* notify_item = dynamic_cast<LLNotificationListItem*>(*iter);
         if (notify_item)
             onItemClose(notify_item);
+    }
+}
+
+//---------------------------------------------------------------------------------
+void LLFloaterNotificationsTabbed::collapseAllOnCurrentTab()
+{
+    std::vector<LLPanel*> items;
+    getAllItemsOnCurrentTab(items);
+    std::vector<LLPanel*>::iterator iter = items.begin();
+    for (; iter != items.end(); ++iter)
+    {
+        LLNotificationListItem* notify_item = dynamic_cast<LLNotificationListItem*>(*iter);
+        if (notify_item)
+            notify_item->setExpanded(FALSE);
     }
 }
 
@@ -375,6 +381,8 @@ void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
     p.group_id = payload["group_id"];
     p.sender = payload["name"].asString();
     p.time_stamp = notify->getDate();
+    p.paid_from_id = payload["from_id"];
+    p.paid_to_id = payload["dest_id"];
     addItem(p);
 }
 
@@ -403,22 +411,32 @@ void LLFloaterNotificationsTabbed::onItemClose(LLNotificationListItem* item)
 
 }
 
+//---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::onAdd( LLNotificationPtr notify )
 {
     removeItemByID(notify->getID(), notify->getName());
 }
 
+//---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::onClickDeleteAllBtn()
 {
     closeAllOnCurrentTab();
 }
 
+//---------------------------------------------------------------------------------
+void LLFloaterNotificationsTabbed::onClickCollapseAllBtn()
+{
+    collapseAllOnCurrentTab();
+}
+
+//---------------------------------------------------------------------------------
 void LLNotificationSeparator::initTaggedList(const std::string& tag, LLNotificationListView* list)
 {
     mNotificationListMap.insert(notification_list_map_t::value_type(tag, list));
     mNotificationLists.push_back(list);
 }
 
+//---------------------------------------------------------------------------------
 void LLNotificationSeparator::initTaggedList(const std::set<std::string>& tags, LLNotificationListView* list)
 {
     std::set<std::string>::const_iterator it = tags.begin();
@@ -428,11 +446,13 @@ void LLNotificationSeparator::initTaggedList(const std::set<std::string>& tags, 
     }
 }
 
+//---------------------------------------------------------------------------------
 void LLNotificationSeparator::initUnTaggedList(LLNotificationListView* list)
 {
     mUnTaggedList = list;
 }
 
+//---------------------------------------------------------------------------------
 bool LLNotificationSeparator::addItem(std::string& tag, LLNotificationListItem* item)
 {
     notification_list_map_t::iterator it = mNotificationListMap.find(tag);
@@ -447,6 +467,7 @@ bool LLNotificationSeparator::addItem(std::string& tag, LLNotificationListItem* 
     return false;
 }
 
+//---------------------------------------------------------------------------------
 bool LLNotificationSeparator::removeItemByID(std::string& tag, const LLUUID& id)
 {
     notification_list_map_t::iterator it = mNotificationListMap.find(tag);
@@ -461,6 +482,7 @@ bool LLNotificationSeparator::removeItemByID(std::string& tag, const LLUUID& id)
     return false;
 }
 
+//---------------------------------------------------------------------------------
 U32 LLNotificationSeparator::size() const
 {
     U32 size = 0;
@@ -476,6 +498,7 @@ U32 LLNotificationSeparator::size() const
     return size;
 }
 
+//---------------------------------------------------------------------------------
 LLPanel* LLNotificationSeparator::findItemByID(std::string& tag, const LLUUID& id)
 {
     notification_list_map_t::iterator it = mNotificationListMap.find(tag);
@@ -492,6 +515,7 @@ LLPanel* LLNotificationSeparator::findItemByID(std::string& tag, const LLUUID& i
 }
 
 //static
+//---------------------------------------------------------------------------------
 void LLNotificationSeparator::getItemsFromList(std::vector<LLNotificationListItem*>& items, LLNotificationListView* list)
 {
     std::vector<LLPanel*> list_items;
@@ -505,6 +529,7 @@ void LLNotificationSeparator::getItemsFromList(std::vector<LLNotificationListIte
     }
 }
 
+//---------------------------------------------------------------------------------
 void LLNotificationSeparator::getItems(std::vector<LLNotificationListItem*>& items) const
 {
     items.clear();
@@ -519,9 +544,11 @@ void LLNotificationSeparator::getItems(std::vector<LLNotificationListItem*>& ite
     }
 }
 
+//---------------------------------------------------------------------------------
 LLNotificationSeparator::LLNotificationSeparator()
     : mUnTaggedList(NULL)
 {}
 
+//---------------------------------------------------------------------------------
 LLNotificationSeparator::~LLNotificationSeparator()
 {}

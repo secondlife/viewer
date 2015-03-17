@@ -1,8 +1,8 @@
 /** 
  * @file llnotificationlistitem.cpp
- * @brief                                    // TODO
+ * @brief                                   
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
  * 
@@ -109,35 +109,16 @@ std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_sta
     return timeStr;
 }
 
-//---------------------------------------------------------------------------------
-//void LLNotificationTabbedItem::setTitle( std::string title )
-//{
-//    mTitleBox->setValue(title);
-//}
-
 void LLNotificationListItem::onClickCloseBtn()
 {
     mOnItemClose(this);
 }
 
-BOOL LLNotificationListItem::handleMouseDown(S32 x, S32 y, MASK mask)
+BOOL LLNotificationListItem::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL res = LLPanel::handleMouseDown(x, y, mask);
-    //if(!mCloseBtn->getRect().pointInRect(x, y))
-    //if(!mCloseBtn->getLocalRect().pointInRect(x, y))
-        //mOnItemClick(this);
-
+    BOOL res = LLPanel::handleMouseUp(x, y, mask);
+    mOnItemClick(this);
     return res;
-}
-
-void LLNotificationListItem::onMouseEnter(S32 x, S32 y, MASK mask)
-{
-    //setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemSelected" ));
-}
-
-void LLNotificationListItem::onMouseLeave(S32 x, S32 y, MASK mask)
-{
-    //setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
 }
 
 //static
@@ -176,23 +157,18 @@ void LLNotificationListItem::onClickCondenseBtn()
     setExpanded(FALSE);
 }
 
-void setPanelSize(LLView* panel, S32 width, S32 height, BOOL called_from_parent)
-{
-    LLRect rect = panel->getRect();
-    panel->reshape(width, height, called_from_parent);
-}
-
 void LLNotificationListItem::setExpanded(BOOL value)
 {
     mCondensedViewPanel->setVisible(!value);
     mExpandedViewPanel->setVisible(value);
+    S32 width = this->getRect().getWidth();
     if (value)
     {
-        setPanelSize(this, 331, mExpandedHeight, FALSE);
+        this->reshape(width, mExpandedHeight, FALSE);
     }
-    else 
+    else
     {
-        setPanelSize(this, 331, mCondensedHeight, FALSE);
+        this->reshape(width, mCondensedHeight, FALSE);
     }
 }
 
@@ -211,31 +187,11 @@ std::set<std::string> LLTransactionNotificationListItem::getTypes()
     return types;
 }
 
-std::set<std::string> LLSystemNotificationListItem::getTypes()
-{
-    std::set<std::string> types;
-    //types.insert("AddPrimitiveFailure");
-    //types.insert("AddToNavMeshNoCopy");
-    //types.insert("AssetServerTimeoutObjReturn");
-    //types.insert("AvatarEjected");
-    //types.insert("AutoUnmuteByIM");
-    //types.insert("AutoUnmuteByInventory");
-    //types.insert("AutoUnmuteByMoney");
-    //types.insert("BuyInventoryFailedNoMoney");
-    //types.insert("DeactivatedGesturesTrigger");
-    //types.insert("DeedFailedNoPermToDeedForGroup");
-    //types.insert("WhyAreYouTryingToWearShrubbery");
-    //types.insert("YouDiedAndGotTPHome");
-    //types.insert("YouFrozeAvatar");
-    //types.insert("OfferCallingCard");
-    return types;
-}
-
 LLInviteNotificationListItem::LLInviteNotificationListItem(const Params& p)
-	: LLNotificationListItem(p),
-	mSenderBox(NULL)
+    : LLNotificationListItem(p),
+    mSenderBox(NULL)
 {
-	buildFromFile("panel_notification_list_item.xml");
+    buildFromFile("panel_notification_list_item.xml");
 }
 
 BOOL LLInviteNotificationListItem::postBuild()
@@ -256,19 +212,8 @@ BOOL LLInviteNotificationListItem::postBuild()
 
     mSenderBox = getChild<LLTextBox>("sender_resident");
     mSenderBoxExp = getChild<LLTextBox>("sender_resident_exp");
-    if (!mParams.sender.empty())
-    {
-        LLStringUtil::format_map_t string_args;
-        string_args["[SENDER_RESIDENT]"] = llformat("%s", mParams.sender.c_str());
-        std::string sender_text = getString("sender_resident_text", string_args);
-        mSenderBox->setValue(sender_text);
-        mSenderBox->setVisible(TRUE);
-        mSenderBoxExp->setValue(sender_text);
-        mSenderBoxExp->setVisible(TRUE);
-    } else {
-        mSenderBox->setVisible(FALSE);
-        mSenderBoxExp->setVisible(FALSE);
-    }
+
+    setSender(mParams.sender);
 
     LLSD value(mParams.group_id);
     setGroupId(value);
@@ -288,18 +233,7 @@ bool LLInviteNotificationListItem::updateFromCache()
 {
     LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(mGroupId);
     if (!group_data) return false;
-    if (!group_data->mName.empty())
-    {
-        LLStringUtil::format_map_t string_args;
-        string_args["[GROUP_NAME]"] = llformat("%s", group_data->mName.c_str());
-        std::string group_name = getString("group_name_text", string_args);
-        mGroupNameBoxExp->setValue(group_name);
-        mGroupNameBoxExp->setVisible(TRUE);
-    }
-    else
-    {
-        mGroupNameBoxExp->setValue(LLStringUtil::null);
-    }
+    setGroupName(group_data->mName);
     return true;
 }
 
@@ -311,7 +245,7 @@ void LLInviteNotificationListItem::setGroupId(const LLUUID& value)
         gm->removeObserver(this);
     }
 
-    mID = mGroupId; // set LLGroupMgrObserver::mID to make callbacks work
+    mID = mGroupId;
 
     // Check if cache already contains image_id for that group
     if (!updateFromCache())
@@ -321,9 +255,45 @@ void LLInviteNotificationListItem::setGroupId(const LLUUID& value)
     }
 }
 
+void LLInviteNotificationListItem::setGroupName(std::string name)
+{
+    if (!name.empty())
+    {
+        LLStringUtil::format_map_t string_args;
+        string_args["[GROUP_NAME]"] = llformat("%s", name.c_str());
+        std::string group_box_str = getString("group_name_text", string_args);
+        mGroupNameBoxExp->setValue(group_box_str);
+        mGroupNameBoxExp->setVisible(TRUE);
+    }
+    else
+    {
+        mGroupNameBoxExp->setValue(LLStringUtil::null);
+        mGroupNameBoxExp->setVisible(FALSE);
+    }
+}
+
+void LLInviteNotificationListItem::setSender(std::string sender)
+{
+    if (!sender.empty())
+    {
+        LLStringUtil::format_map_t string_args;
+        string_args["[SENDER_RESIDENT]"] = llformat("%s", sender.c_str());
+        std::string sender_text = getString("sender_resident_text", string_args);
+        mSenderBox->setValue(sender_text);
+        mSenderBox->setVisible(TRUE);
+        mSenderBoxExp->setValue(sender_text);
+        mSenderBoxExp->setVisible(TRUE);
+    } else {
+        mSenderBox->setValue(LLStringUtil::null);
+        mSenderBoxExp->setValue(LLStringUtil::null);
+        mSenderBox->setVisible(FALSE);
+        mSenderBoxExp->setVisible(FALSE);
+    }
+}
+
 LLTransactionNotificationListItem::LLTransactionNotificationListItem(const Params& p)
     : LLNotificationListItem(p),
-    mTransactionIcon(NULL)
+    mAvatarIcon(NULL)
 {
     buildFromFile("panel_notification_list_item.xml");
 }
@@ -331,20 +301,20 @@ LLTransactionNotificationListItem::LLTransactionNotificationListItem(const Param
 BOOL LLTransactionNotificationListItem::postBuild()
 {
     BOOL rv = LLNotificationListItem::postBuild();
+    mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
+    mAvatarIconExp = getChild<LLAvatarIconCtrl>("avatar_icon_exp");
     if (mParams.notification_name == "PaymentReceived")
     {
-        mTransactionIcon = getChild<LLIconCtrl>("incoming_transaction_icon");
-        mTransactionIconExp = getChild<LLIconCtrl>("incoming_transaction_icon_exp");
+        mAvatarIcon->setValue(mParams.paid_from_id);
+        mAvatarIconExp->setValue(mParams.paid_from_id);
     }
     else if (mParams.notification_name == "PaymentSent")
     {
-        mTransactionIcon = getChild<LLIconCtrl>("outcoming_transaction_icon");
-        mTransactionIconExp = getChild<LLIconCtrl>("outcoming_transaction_icon_exp");
+        mAvatarIcon->setValue(mParams.paid_to_id);
+        mAvatarIconExp->setValue(mParams.paid_to_id);
     }
-    if(mTransactionIcon)
-        mTransactionIcon->setVisible(TRUE);
-    if(mTransactionIconExp)
-        mTransactionIconExp->setVisible(TRUE);
+    mAvatarIcon->setVisible(TRUE);
+    mAvatarIconExp->setVisible(TRUE);
     return rv;
 }
 
