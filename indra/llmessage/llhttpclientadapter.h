@@ -30,6 +30,7 @@
 #include "llhttpclientinterface.h"
 #include "llsingleton.h"	// LLSingleton<>
 
+/*
 class LLHTTPClientAdapter : public LLHTTPClientInterface, public LLSingleton<LLHTTPClientAdapter>
 {
 public:
@@ -46,6 +47,7 @@ public:
 		const std::string& url,
 		LLCurl::ResponderPtr responder);
 };
+*/
 
 #endif
 

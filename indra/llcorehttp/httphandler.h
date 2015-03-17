@@ -45,7 +45,7 @@ class HttpResponse;
 /// be shared by any number of requests and across instances
 /// of HttpRequest running in the same thread.
 ///
-/// Threading:  HttpHandler itself is pure interface and is
+/// Threading:  HttpHandler itself is interface and is
 /// tread-compatible.  Most derivations, however, will have
 /// different constraints.
 ///
@@ -58,7 +58,7 @@ class HttpHandler
 {
 public:
 	virtual ~HttpHandler()
-		{}
+	{ }
 
 	/// Method invoked during calls to @see update().  Each invocation
 	/// represents the completion of some requested operation.  Caller

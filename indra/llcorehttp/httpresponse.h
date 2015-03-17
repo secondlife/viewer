@@ -69,6 +69,18 @@ protected:
 	void operator=(const HttpResponse &);				// Not defined
 	
 public:
+	/// Statistics for the HTTP 
+	struct TransferStats
+	{
+		typedef std::shared_ptr<TransferStats> ptr_t;
+
+		TransferStats() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
+		F64 mSizeDownload;
+		F64 mTotalTime;
+		F64 mSpeedDownload;
+	};
+
+
 	/// Returns the final status of the requested operation.
 	///
 	HttpStatus getStatus() const
@@ -168,6 +180,17 @@ public:
 			m503Retries = retries_503;
 		}
 
+	void setTransferStats(TransferStats::ptr_t &stats) 
+		{
+			mStats = stats;
+		}
+
+	TransferStats::ptr_t getTransferStats()
+		{
+			return mStats;
+		}
+
+
 protected:
 	// Response data here
 	HttpStatus			mStatus;
@@ -179,6 +202,8 @@ protected:
 	std::string			mContentType;
 	unsigned int		mRetries;
 	unsigned int		m503Retries;
+
+	TransferStats::ptr_t	mStats;
 };
 
 

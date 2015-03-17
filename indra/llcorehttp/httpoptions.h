@@ -61,6 +61,8 @@ class HttpOptions : public LLCoreInt::RefCounted
 public:
 	HttpOptions();
 
+	typedef boost::intrusive_ptr<HttpOptions> ptr_t;
+
 protected:
 	virtual ~HttpOptions();						// Use release()
 	
@@ -109,6 +111,31 @@ public:
 		{
 			return mUseRetryAfter;
 		}
+
+	// Default: false
+	void				setFollowRedirects(bool follow_redirect);
+	bool				getFollowRedirects() const
+		{
+			return mFollowRedirects;
+		}
+
+	void				setSSLVerifyPeer(bool verify);
+	bool				getSSLVerifyPeer() const
+		{
+			return mVerifyPeer;
+		}
+
+	void				setSSLVerifyHost(unsigned int type);
+	unsigned int		getSSLVerifyHost() const
+		{
+			return mVerifyHost;
+		}
+
+	void				setDNSCacheTimeout(int timeout);
+	int					getDNSCacheTimeout() const
+		{
+			return mDNSCacheTimeout;
+		}
 	
 protected:
 	bool				mWantHeaders;
@@ -117,6 +144,10 @@ protected:
 	unsigned int		mTransferTimeout;
 	unsigned int		mRetries;
 	bool				mUseRetryAfter;
+	bool				mFollowRedirects;
+	bool				mVerifyPeer;
+	unsigned int		mVerifyHost;
+	int					mDNSCacheTimeout;
 }; // end class HttpOptions
 
 

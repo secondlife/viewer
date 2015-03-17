@@ -32,14 +32,14 @@
 
 #include <string>
 
-class LLHTTPClientInterface
-{
-public:
-	virtual ~LLHTTPClientInterface() {}
-	virtual void get(const std::string& url, LLCurl::ResponderPtr responder) = 0;
-	virtual void get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers) = 0;
-	virtual void put(const std::string& url, const LLSD& body, LLCurl::ResponderPtr responder) = 0;
-};
+// class LLHTTPClientInterface
+// {
+// public:
+// 	virtual ~LLHTTPClientInterface() {}
+// 	virtual void get(const std::string& url, LLCurl::ResponderPtr responder) = 0;
+// 	virtual void get(const std::string& url, LLCurl::ResponderPtr responder, const LLSD& headers) = 0;
+// 	virtual void put(const std::string& url, const LLSD& body, LLCurl::ResponderPtr responder) = 0;
+// };
 
 #endif // LL_LLHTTPCLIENTINTERFACE_H
 

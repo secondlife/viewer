@@ -309,6 +309,7 @@ private:
 	static void deleteAllFreeHandles();
 };
 
+#if 1
 class LLCurl::Multi
 {
 	LOG_CLASS(Multi);
@@ -379,6 +380,7 @@ private:
 	LLFrameTimer mIdleTimer ;
 	F32 mIdleTimeOut;
 };
+#endif
 
 class LLCurlThread : public LLQueuedThread
 {
@@ -417,7 +419,7 @@ private:
 	void cleanupMulti(LLCurl::Multi* multi) ;
 } ;
 
-
+#if 0
 class LLCurlRequest
 {
 public:
@@ -446,7 +448,9 @@ private:
 	S32 mActiveRequestCount;
 	BOOL mProcessing;
 };
+#endif
 
+#if 0
 //for texture fetch only
 class LLCurlTextureRequest : public LLCurlRequest
 {
@@ -511,6 +515,7 @@ private:
 
 	LLFrameTimer mGlobalTimer;
 };
+#endif 
 
 class LLCurlEasyRequest
 {
@@ -550,7 +555,7 @@ private:
 namespace LLCurlFF
 {
 	void check_easy_code(CURLcode code);
-	void check_multi_code(CURLMcode code);
+	//void check_multi_code(CURLMcode code);
 }
 
 #endif // LL_LLCURL_H

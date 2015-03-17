@@ -191,7 +191,6 @@
 
 #include <string>
 
-
 namespace LLCore
 {
 
@@ -292,35 +291,35 @@ struct HttpStatus
 	typedef unsigned short type_enum_t;
 	
 	HttpStatus()
-		: mType(LLCORE),
-		  mStatus(HE_SUCCESS)
-		{}
+		{
+			mDetails = std::unique_ptr<Details>(new Details(LLCORE, HE_SUCCESS));
+		}
 
 	HttpStatus(type_enum_t type, short status)
-		: mType(type),
-		  mStatus(status)
-		{}
+		{
+			mDetails = std::unique_ptr<Details>(new Details(type, status));
+		}
 	
 	HttpStatus(int http_status)
-		: mType(http_status),
-		  mStatus(http_status >= 200 && http_status <= 299
-				  ? HE_SUCCESS
-				  : HE_REPLY_ERROR)
 		{
+			mDetails = std::unique_ptr<Details>(new Details(http_status, 
+				(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
 			llassert(http_status >= 100 && http_status <= 999);
 		}
 	
 	HttpStatus(const HttpStatus & rhs)
-		: mType(rhs.mType),
-		  mStatus(rhs.mStatus)
-		{}
+		{
+			mDetails = std::unique_ptr<Details>(new Details(*rhs.mDetails));
+		}
 
 	HttpStatus & operator=(const HttpStatus & rhs)
 		{
 			// Don't care if lhs & rhs are the same object
+			mDetails->mType = rhs.mDetails->mType;
+			mDetails->mStatus = rhs.mDetails->mStatus;
+			mDetails->mMessage = rhs.mDetails->mMessage;
+			mDetails->mErrorData = rhs.mDetails->mErrorData;
 
-			mType = rhs.mType;
-			mStatus = rhs.mStatus;
 			return *this;
 		}
 	
@@ -328,10 +327,6 @@ struct HttpStatus
 	static const type_enum_t EXT_CURL_MULTI = 1;		///< mStatus is an error from a curl_multi_*() call
 	static const type_enum_t LLCORE = 2;				///< mStatus is an HE_* error code
 														///< 100-999 directly represent HTTP status codes
-	
-	type_enum_t			mType;
-	short				mStatus;
-
 	/// Test for successful status in the code regardless
 	/// of error source (internal, libcurl).
 	///
@@ -339,7 +334,7 @@ struct HttpStatus
 	///
 	operator bool() const
 	{
-		return 0 == mStatus;
+		return 0 == mDetails->mStatus;
 	}
 
 	/// Inverse of previous operator.
@@ -347,14 +342,15 @@ struct HttpStatus
 	/// @return			'true' on any error condition
 	bool operator !() const
 	{
-		return 0 != mStatus;
+		return 0 != mDetails->mStatus;
 	}
 
 	/// Equality and inequality tests to bypass bool conversion
 	/// which will do the wrong thing in conditional expressions.
 	bool operator==(const HttpStatus & rhs) const
 	{
-		return mType == rhs.mType && mStatus == rhs.mStatus;
+		return (mDetails->mType == rhs.mDetails->mType) && 
+			(mDetails->mStatus == rhs.mDetails->mStatus);
 	}
 
 	bool operator!=(const HttpStatus & rhs) const
@@ -395,7 +391,7 @@ struct HttpStatus
 	/// HTTP response status (100 - 999).
 	bool isHttpStatus() const
 	{
-		return 	mType >= type_enum_t(100) && mType <= type_enum_t(999);
+		return 	mDetails->mType >= type_enum_t(100) && mDetails->mType <= type_enum_t(999);
 	}
 
 	/// Returns true if the status is one that will be retried
@@ -403,7 +399,77 @@ struct HttpStatus
 	/// where that logic needs to be replicated.  Only applies
 	/// to failed statuses, successful statuses will return false.
 	bool isRetryable() const;
-	
+
+	/// Returns the currently set status code as a raw number
+	///
+	short getStatus() const
+	{
+		return mDetails->mStatus;
+	}
+
+	/// Returns the currently set status type 
+	/// 
+	type_enum_t getType() const
+	{
+		return mDetails->mType;
+	}
+
+	// TODO: There must be a better way to do this.  Don't want to set these 
+	// values here since they increase the size of a structure that is already 
+	// being passed on the stack.  Consider my options
+	/// Returns an optional error message if one has been set.
+	///
+	std::string getMessage() const
+	{
+		return mDetails->mMessage;
+	}
+
+	/// Sets an optional error message
+	/// 
+	void setMessage(const std::string &message)
+	{
+		mDetails->mMessage = message;
+	}
+
+	/// Retrieves an optionally recorded SSL certificate.
+	void * getErrorData() const
+	{
+		return mDetails->mErrorData;
+	}
+
+	/// Optionally sets an SSL certificate on this status.
+	void setErrorData(void *data)
+	{
+		mDetails->mErrorData = data;
+	}
+
+private:
+
+	struct Details
+	{
+		Details(type_enum_t type, short status):
+			mType(type),
+			mStatus(status),
+			mMessage(),
+			mErrorData(NULL)
+		{}
+
+		Details(const Details &rhs) :
+			mType(rhs.mType),
+			mStatus(rhs.mStatus),
+			mMessage(rhs.mMessage),
+			mErrorData(rhs.mErrorData)
+		{}
+
+
+		type_enum_t	mType;
+		short		mStatus;
+		std::string	mMessage;
+		void *		mErrorData;
+	};
+
+	std::unique_ptr<Details>	mDetails;
+
 }; // end struct HttpStatus
 
 }  // end namespace LLCore

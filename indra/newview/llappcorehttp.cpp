@@ -31,6 +31,10 @@
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 
+#include <openssl/x509_vfy.h>
+#include <openssl/ssl.h>
+#include "llsecapi.h"
+#include <curl/curl.h>
 
 // Here is where we begin to get our connection usage under control.
 // This establishes llcorehttp policy classes that, among other
@@ -149,6 +153,15 @@ void LLAppCoreHttp::init()
 	{
 		LL_WARNS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
 						 << LL_ENDL;
+	}
+
+	// Set up SSL Verification call back.
+	status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_SSL_VERIFY_CALLBACK,
+														LLCore::HttpRequest::GLOBAL_POLICY_ID,
+														sslVerify, NULL);
+	if (!status)
+	{
+		LL_WARNS("Init") << "Failed to set SSL Verification.  Reason:  " << status.toString() << LL_ENDL;
 	}
 
 	// Tracing levels for library & libcurl (note that 2 & 3 are beyond spammy):
@@ -456,6 +469,62 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 		}
 	}
 }
+
+LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url, 
+	LLCore::HttpHandler const * const handler, void *appdata)
+{
+	X509_STORE_CTX *ctx = static_cast<X509_STORE_CTX *>(appdata);
+	LLCore::HttpStatus result;
+	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
+	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
+	LLSD validation_params = LLSD::emptyMap();
+	LLURI uri(url);
+
+	validation_params[CERT_HOSTNAME] = uri.hostName();
+
+	// *TODO*: In the case of an exception while validating the cert, we need a way
+	// to pass the offending(?) cert back out. *Rider*
+
+	try
+	{
+		// don't validate hostname.  Let libcurl do it instead.  That way, it'll handle redirects
+		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
+	}
+	catch (LLCertValidationTrustException &cert_exception)
+	{
+		// this exception is is handled differently than the general cert
+		// exceptions, as we allow the user to actually add the certificate
+		// for trust.
+		// therefore we pass back a different error code
+		// NOTE: We're currently 'wired' to pass around CURL error codes.  This is
+		// somewhat clumsy, as we may run into errors that do not map directly to curl
+		// error codes.  Should be refactored with login refactoring, perhaps.
+		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_CACERT);
+		result.setMessage(cert_exception.getMessage());
+		LLPointer<LLCertificate> cert = cert_exception.getCert();
+		cert->ref(); // adding an extra ref here
+		result.setErrorData(cert.get());
+		// We should probably have a more generic way of passing information
+		// back to the error handlers.
+	}
+	catch (LLCertException &cert_exception)
+	{
+		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_PEER_CERTIFICATE);
+		result.setMessage(cert_exception.getMessage());
+		LLPointer<LLCertificate> cert = cert_exception.getCert();
+		cert->ref(); // adding an extra ref here
+		result.setErrorData(cert.get());
+	}
+	catch (...)
+	{
+		// any other odd error, we just handle as a connect error.
+		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_CONNECT_ERROR);
+	}
+
+	return result;
+}
+
+
 
 
 void LLAppCoreHttp::onCompleted(LLCore::HttpHandle, LLCore::HttpResponse *)

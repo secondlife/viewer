@@ -60,8 +60,10 @@ private:
 public:
 	HttpStatus set(HttpRequest::EPolicyOption opt, long value);
 	HttpStatus set(HttpRequest::EPolicyOption opt, const std::string & value);
+	HttpStatus set(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback value);
 	HttpStatus get(HttpRequest::EPolicyOption opt, long * value) const;
 	HttpStatus get(HttpRequest::EPolicyOption opt, std::string * value) const;
+	HttpStatus get(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback * value) const;
 	
 public:
 	long				mConnectionLimit;
@@ -70,6 +72,7 @@ public:
 	std::string			mHttpProxy;
 	long				mTrace;
 	long				mUseLLProxy;
+	HttpRequest::policyCallback	mSslCtxCallback;
 };  // end class HttpPolicyGlobal
 
 }  // end namespace LLCore

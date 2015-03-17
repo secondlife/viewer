@@ -117,6 +117,15 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 	return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
 }
 
+HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass, policyCallback value, policyCallback * ret_value)
+{
+	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
+
+	return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
+}
 
 HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
 										long value, HttpHandler * handler)
@@ -195,7 +204,7 @@ HttpHandle HttpRequest::requestGet(policy_t policy_id,
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest * op = new HttpOpRequest(this);
 	if (! (status = op->setupGet(policy_id, priority, url, options, headers)))
 	{
 		op->release();
@@ -229,7 +238,7 @@ HttpHandle HttpRequest::requestGetByteRange(policy_t policy_id,
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest * op = new HttpOpRequest(this);
 	if (! (status = op->setupGetByteRange(policy_id, priority, url, offset, len, options, headers)))
 	{
 		op->release();
@@ -262,7 +271,7 @@ HttpHandle HttpRequest::requestPost(policy_t policy_id,
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest * op = new HttpOpRequest(this);
 	if (! (status = op->setupPost(policy_id, priority, url, body, options, headers)))
 	{
 		op->release();
@@ -295,7 +304,7 @@ HttpHandle HttpRequest::requestPut(policy_t policy_id,
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest * op = new HttpOpRequest(this);
 	if (! (status = op->setupPut(policy_id, priority, url, body, options, headers)))
 	{
 		op->release();

@@ -120,7 +120,18 @@ inline void RefCounted::destroySelf()
 	delete this;
 }
 
+inline void intrusive_ptr_add_ref(RefCounted* p)
+{
+	p->addRef();
+}
+
+inline void intrusive_ptr_release(RefCounted* p)
+{
+	p->release();
+}
+
 } // end namespace LLCoreInt
+
 
 #endif	// LLCOREINT__REFCOUNTED_H_
 

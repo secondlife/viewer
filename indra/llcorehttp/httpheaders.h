@@ -92,6 +92,7 @@ public:
 	/// the instance.
 	HttpHeaders();
 
+	typedef boost::intrusive_ptr<HttpHeaders> ptr_t;
 protected:
 	virtual ~HttpHeaders();						// Use release()
 

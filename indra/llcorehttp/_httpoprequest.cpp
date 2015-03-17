@@ -115,8 +115,9 @@ namespace LLCore
 {
 
 
-HttpOpRequest::HttpOpRequest()
+HttpOpRequest::HttpOpRequest(HttpRequest const * const request)
 	: HttpOperation(),
+	  mRequest(request),
 	  mProcFlags(0U),
 	  mReqMethod(HOR_GET),
 	  mReqBody(NULL),
@@ -139,7 +140,8 @@ HttpOpRequest::HttpOpRequest()
 	  mPolicyRetries(0),
 	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
-	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT)
+	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT),
+	  mCallbackSSLVerify(NULL)
 {
 	// *NOTE:  As members are added, retry initialization/cleanup
 	// may need to be extended in @see prepareRequest().
@@ -267,6 +269,14 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setContentType(mReplyConType);
 		response->setRetries(mPolicyRetries, mPolicy503Retries);
 		
+		HttpResponse::TransferStats::ptr_t stats = HttpResponse::TransferStats::ptr_t(new HttpResponse::TransferStats);
+
+		curl_easy_getinfo(mCurlHandle, CURLINFO_SIZE_DOWNLOAD, &stats->mSizeDownload);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_TOTAL_TIME, &stats->mTotalTime);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_SPEED_DOWNLOAD, &stats->mSpeedDownload);
+
+		response->setTransferStats(stats);
+
 		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
 		response->release();
@@ -452,18 +462,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 	check_curl_easy_code(code, CURLOPT_ENCODING);
 
-	// The Linksys WRT54G V5 router has an issue with frequent
-	// DNS lookups from LAN machines.  If they happen too often,
-	// like for every HTTP request, the router gets annoyed after
-	// about 700 or so requests and starts issuing TCP RSTs to
-	// new connections.  Reuse the DNS lookups for even a few
-	// seconds and no RSTs.
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
-	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	check_curl_easy_code(code, CURLOPT_AUTOREFERER);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
 	check_curl_easy_code(code, CURLOPT_MAXREDIRS);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
@@ -474,10 +474,48 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	check_curl_easy_code(code, CURLOPT_READFUNCTION);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
 	check_curl_easy_code(code, CURLOPT_READDATA);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
+
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_COOKIEFILE, "");
+	check_curl_easy_code(code, CURLOPT_COOKIEFILE);
+
+	if (gpolicy.mSslCtxCallback)
+	{
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_FUNCTION, curlSslCtxCallback);
+		check_curl_easy_code(code, CURLOPT_SSL_CTX_FUNCTION);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_DATA, this);
+		check_curl_easy_code(code, CURLOPT_SSL_CTX_DATA);
+		mCallbackSSLVerify = gpolicy.mSslCtxCallback;
+	}
+
+	long follow_redirect(1L);
+	long sslPeerV(0L);
+	long sslHostV(0L);
+	long dnsCacheTimeout(15L);
+
+	if (mReqOptions)
+	{
+		follow_redirect = mReqOptions->getFollowRedirects() ? 1L : 0L;
+		sslPeerV = mReqOptions->getSSLVerifyHost() ? 0L : 1L;
+		sslHostV = mReqOptions->getSSLVerifyHost();
+		dnsCacheTimeout = mReqOptions->getDNSCacheTimeout();
+	}
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, follow_redirect);
+	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
+
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, sslPeerV);
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYPEER);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, sslHostV);
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
+
+	// The Linksys WRT54G V5 router has an issue with frequent
+	// DNS lookups from LAN machines.  If they happen too often,
+	// like for every HTTP request, the router gets annoyed after
+	// about 700 or so requests and starts issuing TCP RSTs to
+	// new connections.  Reuse the DNS lookups for even a few
+	// seconds and no RSTs.
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout);
+	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
+
 
 	if (gpolicy.mUseLLProxy)
 	{
@@ -872,6 +910,35 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	return hdr_size;
 }
 
+
+CURLcode HttpOpRequest::curlSslCtxCallback(CURL *curl, void *sslctx, void *userdata)
+{
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+
+	if (op->mCallbackSSLVerify)
+	{
+		SSL_CTX * ctx = (SSL_CTX *)sslctx;
+		// disable any default verification for server certs
+		SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+		// set the verification callback.
+		SSL_CTX_set_cert_verify_callback(ctx, sslCertVerifyCallback, userdata);
+		// the calls are void
+	}
+
+	return CURLE_OK;
+}
+
+int HttpOpRequest::sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
+{
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(param));
+
+	if (op->mCallbackSSLVerify)
+	{
+		op->mStatus = op->mCallbackSSLVerify(op->mReqURL, op->mUserHandler, ctx);
+	}
+
+	return (op->mStatus) ? 1 : 0;
+}
 
 int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffer, size_t len, void * userdata)
 {

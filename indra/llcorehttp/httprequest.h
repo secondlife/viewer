@@ -97,6 +97,7 @@ public:
 	typedef unsigned int policy_t;
 	typedef unsigned int priority_t;
 	
+	typedef std::shared_ptr<HttpRequest> ptr_t;
 public:
 	/// @name PolicyMethods
 	/// @{
@@ -163,7 +164,7 @@ public:
 
 		/// Long value that if non-zero enables the use of the
 		/// traditional LLProxy code for http/socks5 support.  If
-		// enabled, has priority over GP_HTTP_PROXY.
+		/// enabled, has priority over GP_HTTP_PROXY.
 		///
 		/// Global only
 		PO_LLPROXY,
@@ -219,14 +220,24 @@ public:
 		/// Controls whether client-side throttling should be
 		/// performed on this policy class.  Positive values
 		/// enable throttling and specify the request rate
-		/// (requests per second) that should be targetted.
+		/// (requests per second) that should be targeted.
 		/// A value of zero, the default, specifies no throttling.
 		///
 		/// Per-class only
 		PO_THROTTLE_RATE,
 		
+		/// Controls the callback function used to control SSL CTX 
+		/// certificate verification.
+		///
+		/// Global only
+		PO_SSL_VERIFY_CALLBACK,
+
 		PO_LAST  // Always at end
 	};
+
+	/// Prototype for policy based callbacks.  The callback methods will be executed
+	/// on the worker thread so no modifications should be made to the HttpHandler object.
+	typedef HttpStatus(*policyCallback)(const std::string &, HttpHandler const * const, void *);
 
 	/// Set a policy option for a global or class parameter at
 	/// startup time (prior to thread start).
@@ -243,6 +254,8 @@ public:
 											long value, long * ret_value);
 	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
 											const std::string & value, std::string * ret_value);
+	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											policyCallback value, policyCallback * ret_value);;
 
 	/// Set a parameter on a class-based policy option.  Calls
 	/// made after the start of the servicing thread are

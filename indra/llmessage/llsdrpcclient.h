@@ -37,7 +37,9 @@
 #include "llchainio.h"
 #include "llfiltersd2xmlrpc.h"
 #include "lliopipe.h"
-#include "llurlrequest.h"
+#if 0
+//#include "llurlrequest.h"
+#endif
 
 /** 
  * @class LLSDRPCClientResponse
@@ -218,6 +220,7 @@ protected:
 	LLIOPipe::ptr_t mResponse;
 };
 
+#if 0
 /** 
  * @class LLSDRPCClientFactory
  * @brief Basic implementation for making an SD RPC client factory
@@ -267,7 +270,9 @@ public:
 protected:
 	std::string mURL;
 };
+#endif
 
+#if 0
 /** 
  * @class LLXMLSDRPCClientFactory
  * @brief Basic implementation for making an XMLRPC to SD RPC client factory
@@ -319,5 +324,6 @@ public:
 protected:
 	std::string mURL;
 };
+#endif
 
 #endif // LL_LLSDRPCCLIENT_H
