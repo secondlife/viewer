@@ -1011,7 +1011,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		}
 
 		// Update only inventory in this case - ordering of wearables with the same asset id has no effect.
-		// Causes the two-alphas error case in MAINT-4158.
+		// Updating wearables in this case causes the two-alphas error in MAINT-4158.
 		// We should actually disallow wearing two wearables with the same asset id.
 		if (curr_wearable->getName() != new_item->getName() ||
 			curr_wearable->getItemID() != new_item->getUUID())
@@ -1065,7 +1065,8 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		if (new_wearable)
 		{
 			const LLWearableType::EType type = new_wearable->getType();
-		
+
+			LLUUID old_wearable_id = new_wearable->getItemID();
 			new_wearable->setName(new_item->getName());
 			new_wearable->setItemID(new_item->getUUID());
 
@@ -1073,11 +1074,18 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			{
 				// exactly one wearable per body part
 				setWearable(type,0,new_wearable);
+				if (old_wearable_id.notNull())
+				{
+					// we changed id before setting wearable, update old item manually
+					// to complete the swap.
+					gInventory.addChangedMask(LLInventoryObserver::LABEL, old_wearable_id);
+				}
 			}
 			else
 			{
 				pushWearable(type,new_wearable);
 			}
+
 			const BOOL removed = FALSE;
 			wearableUpdated(new_wearable, removed);
 		}
