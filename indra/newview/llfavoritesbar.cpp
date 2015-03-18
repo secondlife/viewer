@@ -1653,6 +1653,17 @@ void LLFavoritesOrderStorage::cleanup()
 	mSortIndexes.swap(aTempMap);
 }
 
+// See also LLInventorySort where landmarks in the Favorites folder are sorted.
+class LLViewerInventoryItemSort
+{
+public:
+	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
+	{
+		return LLFavoritesOrderStorage::instance().getSortIndex(a->getUUID())
+			< LLFavoritesOrderStorage::instance().getSortIndex(b->getUUID());
+	}
+};
+
 void LLFavoritesOrderStorage::saveOrder()
 {
 	LLInventoryModel::cat_array_t cats;
@@ -1660,6 +1671,7 @@ void LLFavoritesOrderStorage::saveOrder()
 	LLIsType is_type(LLAssetType::AT_LANDMARK);
 	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+	std::sort(items.begin(), items.end(), LLViewerInventoryItemSort());
 	saveItemsOrder(items);
 }
 
@@ -1685,16 +1697,7 @@ void LLFavoritesOrderStorage::saveItemsOrder( const LLInventoryModel::item_array
 
 	gInventory.notifyObservers();
 }
-// See also LLInventorySort where landmarks in the Favorites folder are sorted.
-class LLViewerInventoryItemSort
-{
-public:
-	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
-	{
-		return LLFavoritesOrderStorage::instance().getSortIndex(a->getUUID()) 
-			< LLFavoritesOrderStorage::instance().getSortIndex(b->getUUID());
-	}
-};
+
 
 // * @param source_item_id - LLUUID of the source item to be moved into new position
 // * @param target_item_id - LLUUID of the target item before which source item should be placed.
