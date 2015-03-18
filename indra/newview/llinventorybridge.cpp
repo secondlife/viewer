@@ -3446,20 +3446,22 @@ void LLFolderBridge::perform_pasteFromClipboard()
 		{
             std::string error_msg;
             const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
+            int index = 0;
             for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
             {
                 const LLUUID& item_id = (*iter);
                 LLInventoryItem *item = model->getItem(item_id);
                 LLInventoryCategory *cat = model->getCategory(item_id);
                 
-                if (item && !can_move_item_to_marketplace(master_folder, dest_folder, item, error_msg, objects.size(), true))
+                if (item && !can_move_item_to_marketplace(master_folder, dest_folder, item, error_msg, objects.size() - index, true))
                 {
                     break;
                 }
-                if (cat && !can_move_folder_to_marketplace(master_folder, dest_folder, cat, error_msg, objects.size(), true, true))
+                if (cat && !can_move_folder_to_marketplace(master_folder, dest_folder, cat, error_msg, objects.size() - index, true, true))
                 {
                     break;
                 }
+                ++index;
 			}
             if (!error_msg.empty())
             {
@@ -4532,7 +4534,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		{
             const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
             LLViewerInventoryCategory * dest_folder = getCategory();
-            accept = can_move_item_to_marketplace(master_folder, dest_folder, inv_item, tooltip_msg, LLToolDragAndDrop::instance().getCargoCount());
+            accept = can_move_item_to_marketplace(master_folder, dest_folder, inv_item, tooltip_msg, LLToolDragAndDrop::instance().getCargoCount() - LLToolDragAndDrop::instance().getCargoIndex());
 		}
 
         // Check that the folder can accept this item based on folder/item type compatibility (e.g. stock folder compatibility)
