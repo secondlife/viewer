@@ -402,7 +402,8 @@ void LLFloaterMarketplaceListings::fetchContents()
 
 void LLFloaterMarketplaceListings::setRootFolder()
 {
-    if (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT)
+    if ((LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) &&
+        (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT))
 	{
 		// If we are *not* a merchant or we have no market place connection established yet, do nothing
 		return;
@@ -495,18 +496,17 @@ void LLFloaterMarketplaceListings::setStatusString(const std::string& statusStri
 void LLFloaterMarketplaceListings::updateView()
 {
     U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
+    bool is_merchant = (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) || (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT);
     U32 data_fetched = LLMarketplaceData::instance().getSLMDataFetched();
     
     // Get or create the root folder if we are a merchant and it hasn't been done already
-    if (mRootFolderId.isNull() && (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT))
+    if (mRootFolderId.isNull() && is_merchant)
     {
         setRootFolder();
     }
 
-    // Update the bottom initializing status and progress dial
-    if ((mkt_status == MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING) ||
-        (data_fetched == MarketplaceFetchCodes::MARKET_FETCH_NOT_DONE) ||
-        (data_fetched == MarketplaceFetchCodes::MARKET_FETCH_LOADING))
+    // Update the bottom initializing status and progress dial if we are initializing or if we're a merchant and still loading
+    if ((mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING) || (is_merchant && (data_fetched <= MarketplaceFetchCodes::MARKET_FETCH_LOADING)) )
     {
         // Just show the loading indicator in that case and fetch the data (fetch will be skipped if it's already loading)
         mInventoryInitializationInProgress->setVisible(true);
