@@ -306,11 +306,11 @@ private:
 	LLUUID mItemID;
 };
 
-class LLRequestAppearanceUpdateOnDestroy: public LLInventoryCallback
+class LLRequestServerAppearanceUpdateOnDestroy: public LLInventoryCallback
 {
 public:
-	LLRequestAppearanceUpdateOnDestroy() {}
-	~LLRequestAppearanceUpdateOnDestroy();
+	LLRequestServerAppearanceUpdateOnDestroy() {}
+	~LLRequestServerAppearanceUpdateOnDestroy();
 
 	/* virtual */ void fire(const LLUUID& item_id) {}
 };

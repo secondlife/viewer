@@ -60,18 +60,31 @@ public:
 	LLAttachmentsMgr();
 	virtual ~LLAttachmentsMgr();
 
-	void addAttachment(const LLUUID& item_id,
-					   const U8 attachment_pt,
-					   const BOOL add);
+	void addAttachmentRequest(const LLUUID& item_id,
+                              const U8 attachment_pt,
+                              const BOOL add);
 	void requestAttachments(const attachments_vec_t& attachment_requests);
 	static void onIdle(void *);
 
-protected:
-	void onIdle();
-	void linkPendingAttachments();
+	BOOL attachmentWasRequestedRecently(const LLUUID& inv_item_id, F32 seconds) const;
+	void addAttachmentRequestTime(const LLUUID& inv_item_id);
+    void onAttachmentArrived(const LLUUID& inv_item_id);
 
 private:
+	void removeAttachmentRequestTime(const LLUUID& inv_item_id);
+	void onIdle();
+	void requestPendingAttachments();
+	void linkRecentlyArrivedAttachments();
+
+    // Attachments that we are planning to rez but haven't requested from the server yet.
 	attachments_vec_t mPendingAttachments;
+
+	// Attachments that have been requested from server but have not arrived yet.
+	std::map<LLUUID,LLTimer> mAttachmentRequests;
+
+    // Attachments that have arrived but have not been linked in the COF yet.
+    std::set<LLUUID> mRecentlyArrivedAttachments;
+    LLTimer mCOFLinkBatchTimer;
 };
 
 #endif

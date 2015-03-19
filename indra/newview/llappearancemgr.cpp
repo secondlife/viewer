@@ -525,7 +525,7 @@ LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnD
 {
 }
 
-LLRequestAppearanceUpdateOnDestroy::~LLRequestAppearanceUpdateOnDestroy()
+LLRequestServerAppearanceUpdateOnDestroy::~LLRequestServerAppearanceUpdateOnDestroy()
 {
 	LL_DEBUGS("Avatar") << "ATT requesting server appearance update" << LL_ENDL;
 	LLAppearanceMgr::instance().requestServerAppearanceUpdate();
@@ -3925,24 +3925,7 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 						<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
-	if (mAttachmentInvLinkEnabled)
-	{
-		// we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
-		// it will trigger gAgentWariables.notifyLoadingFinished()
-		// But it is not acceptable solution. See EXT-7777
-		if (!isLinkedInCOF(item_id))
-		{
-			LL_DEBUGS("Avatar") << "ATT adding COF link for attachment "
-								<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
-			// FIXME replace with just a call to request bake update?
-			LLPointer<LLInventoryCallback> cb = new LLRequestAppearanceUpdateOnDestroy();
-			LLAppearanceMgr::addCOFItemLink(item_id, cb);  // Add COF link for item.
-		}
-	}
-	else
-	{
-		//LL_INFOS() << "no link changes, inv link not enabled" << LL_ENDL;
-	}
+	LLAttachmentsMgr::instance().onAttachmentArrived(item_id);
 }
 
 void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)

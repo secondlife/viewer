@@ -5367,16 +5367,14 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	const LLUUID& item_id = item->getLinkedUUID();
 
 	// Check for duplicate request.
+	const F32 MAX_TIME_SINCE_REQUEST = 5.0F;
 	if (isAgentAvatarValid() &&
-		(gAgentAvatarp->attachmentWasRequested(item_id) ||
+		(LLAttachmentsMgr::instance().attachmentWasRequestedRecently(item_id, MAX_TIME_SINCE_REQUEST) ||
 		 gAgentAvatarp->isWearingAttachment(item_id)))
 	{
 		LL_WARNS() << "ATT duplicate attachment request, ignoring" << LL_ENDL;
 		return;
 	}
-
-	LL_DEBUGS("Avatar") << "ATT add rez request for " << item->getName() << " id " << item_id << LL_ENDL;
-	gAgentAvatarp->addAttachmentRequest(item_id);
 
 	S32 attach_pt = 0;
 	if (isAgentAvatarValid() && attachment)
@@ -5432,10 +5430,8 @@ bool confirm_attachment_rez(const LLSD& notification, const LLSD& response)
 			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
 			BOOL is_add = notification["payload"]["is_add"].asBoolean();
 
-			LL_DEBUGS("Avatar") << "ATT calling addAttachment " << (itemp ? itemp->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
-			LLAttachmentsMgr::instance().addAttachment(item_id,
-													   attachment_pt,
-													   is_add);
+			LL_DEBUGS("Avatar") << "ATT calling addAttachmentRequest " << (itemp ? itemp->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+			LLAttachmentsMgr::instance().addAttachmentRequest(item_id, attachment_pt, is_add);
 		}
 	}
 	return false;
