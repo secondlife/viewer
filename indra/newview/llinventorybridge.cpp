@@ -3113,7 +3113,17 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         if (depth_nesting_in_marketplace(mUUID) == 2)
         {
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
-            LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), mUUID);
+            mMessage = "";
+            if (!validate_marketplacelistings(category,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),false,2))
+            {
+                LLSD subs;
+                subs["[ERROR_CODE]"] = mMessage;
+                LLNotificationsUtil::add("MerchantFolderActivationFailed", subs);
+            }
+            else
+            {
+                LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), mUUID);
+            }
         }
 		return;
 	}
