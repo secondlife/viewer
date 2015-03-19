@@ -294,6 +294,8 @@ void LLAttachmentsMgr::expireOldAttachmentRequests()
         ++it;
         if (it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
         {
+            LL_DEBUGS("Avatar") << "ATT expiring request for attachment item_id " << curr_it->first
+                                << " after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds" << LL_ENDL;
             mAttachmentRequests.erase(curr_it);
         }
     }
