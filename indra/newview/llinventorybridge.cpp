@@ -5367,10 +5367,8 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	const LLUUID& item_id = item->getLinkedUUID();
 
 	// Check for duplicate request.
-	const F32 MAX_TIME_SINCE_REQUEST = 5.0F;
 	if (isAgentAvatarValid() &&
-		(LLAttachmentsMgr::instance().attachmentWasRequestedRecently(item_id, MAX_TIME_SINCE_REQUEST) ||
-		 gAgentAvatarp->isWearingAttachment(item_id)))
+		gAgentAvatarp->isWearingAttachment(item_id))
 	{
 		LL_WARNS() << "ATT duplicate attachment request, ignoring" << LL_ENDL;
 		return;

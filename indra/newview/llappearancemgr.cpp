@@ -3935,7 +3935,7 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 						<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
-	if (mAttachmentInvLinkEnabled)
+	if (mAttachmentInvLinkEnabled && isLinkedInCOF(item_id))
 	{
 		LL_DEBUGS("Avatar") << "ATT removing COF link for attachment "
 							<< (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;

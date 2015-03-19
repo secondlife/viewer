@@ -32,23 +32,38 @@
 
 class LLViewerInventoryItem;
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//--------------------------------------------------------------------------------
 // LLAttachmentsMgr
 // 
-// The sole purpose of this class is to take attachment
-// requests, queue them up, and send them all at once.
-// This handles situations where the viewer may request
-// a bunch of attachments at once in a short period of
-// time, where each of the requests would normally be
-// sent as a separate message versus being batched into
-// one single message.
-// 
-// The intent of this batching is to reduce viewer->server
-// traffic.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// This class manages batching up of requests at two stages of
+// attachment rezzing.
+//
+// First, attachments requested to rez get saved in
+// mPendingAttachments and sent as a single
+// RezMultipleAttachmentsFromInv request. This batching is needed
+// mainly because of weaknessing the UI element->inventory item
+// handling, such that we don't always know when we are requesting
+// multiple items. Now they just pile up and get swept into a single
+// request during the idle loop.
+//
+// Second, after attachments arrive, we need to generate COF links for
+// them. There are both efficiency and UI correctness reasons why it
+// is better to request all the COF links at once and run a single
+// callback after they all complete. Given the vagaries of the
+// attachment system, there is no guarantee that we will get all the
+// attachments we ask for, but we frequently do. So in the common case
+// that all the desired attachments arrive fairly quickly, we generate
+// a single batched request for COF links. If attachments arrive late
+// or not at all, we will still issue COF link requests once a timeout
+// value has been exceeded.
+//
+// To handle attachments that never arrive, we forget about requests
+// that exceed a timeout value.
+//--------------------------------------------------------------------------------
 class LLAttachmentsMgr: public LLSingleton<LLAttachmentsMgr>
 {
 public:
+    // Stores info for attachments that will be requested during idle.
 	struct AttachmentsInfo
 	{
 		LLUUID mItemID;
@@ -66,7 +81,7 @@ public:
 	void requestAttachments(const attachments_vec_t& attachment_requests);
 	static void onIdle(void *);
 
-	BOOL attachmentWasRequestedRecently(const LLUUID& inv_item_id, F32 seconds) const;
+	BOOL attachmentWasRequestedRecently(const LLUUID& inv_item_id) const;
 	void addAttachmentRequestTime(const LLUUID& inv_item_id);
     void onAttachmentArrived(const LLUUID& inv_item_id);
 
@@ -75,6 +90,7 @@ private:
 	void onIdle();
 	void requestPendingAttachments();
 	void linkRecentlyArrivedAttachments();
+    void expireOldAttachmentRequests();
 
     // Attachments that we are planning to rez but haven't requested from the server yet.
 	attachments_vec_t mPendingAttachments;

@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llattachmentsmgr.h"
 
+#include "llvoavatarself.h"
 #include "llagent.h"
 #include "llappearancemgr.h"
 #include "llinventorymodel.h"
@@ -35,6 +36,9 @@
 #include "llviewerregion.h"
 #include "message.h"
 
+const F32 COF_LINK_BATCH_TIME = 5.0F;
+const F32 MAX_ATTACHMENT_REQUEST_LIFETIME = 30.0F;
+const F32 MIN_RETRY_REQUEST_TIME = 5.0F;
 
 LLAttachmentsMgr::LLAttachmentsMgr()
 {
@@ -49,6 +53,14 @@ void LLAttachmentsMgr::addAttachmentRequest(const LLUUID& item_id,
                                             const BOOL add)
 {
 	LLViewerInventoryItem *item = gInventory.getItem(item_id);
+
+    if (attachmentWasRequestedRecently(item_id))
+    {
+        LL_DEBUGS("Avatar") << "ATT not adding attachment to mPendingAttachments, recent request is already pending: "
+                            << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+        return;
+    }
+
 	LL_DEBUGS("Avatar") << "ATT adding attachment to mPendingAttachments "
 						<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
 
@@ -78,42 +90,9 @@ void LLAttachmentsMgr::onIdle()
 	requestPendingAttachments();
 
     linkRecentlyArrivedAttachments();
+
+    expireOldAttachmentRequests();
 }
-
-class LLAttachAfterLinkCallback: public LLInventoryCallback
-{
-public:
-	LLAttachAfterLinkCallback(const LLAttachmentsMgr::attachments_vec_t& to_link_and_attach):
-		mToLinkAndAttach(to_link_and_attach)
-	{
-	}
-
-	~LLAttachAfterLinkCallback()
-	{
-		LL_DEBUGS("Avatar") << "destructor" << LL_ENDL; 
-		for (LLAttachmentsMgr::attachments_vec_t::const_iterator it = mToLinkAndAttach.begin();
-			 it != mToLinkAndAttach.end(); ++it)
-		{
-			const LLAttachmentsMgr::AttachmentsInfo& att_info = *it;
-			if (!LLAppearanceMgr::instance().isLinkedInCOF(att_info.mItemID))
-			{
-				LLViewerInventoryItem *item = gInventory.getItem(att_info.mItemID);
-				LL_WARNS() << "ATT COF link creation failed for att item " << (item ? item->getName() : "UNKNOWN") << " id "
-						   << att_info.mItemID << LL_ENDL;
-			}
-		}
-		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
-		LLAttachmentsMgr::instance().requestAttachments(mToLinkAndAttach);
-	}
-
-	/* virtual */ void fire(const LLUUID& inv_item)
-	{
-		LL_DEBUGS("Avatar") << inv_item << LL_ENDL;
-	}
-
-private:
-	LLAttachmentsMgr::attachments_vec_t mToLinkAndAttach;
-};
 
 void LLAttachmentsMgr::requestPendingAttachments()
 {
@@ -124,53 +103,10 @@ void LLAttachmentsMgr::requestPendingAttachments()
 	}
 }
 
-void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
-{
-    const F32 COF_LINK_BATCH_TIME = 5.0F;
-    
-    // One or more attachments have arrived but not been processed for COF links
-    if (mRecentlyArrivedAttachments.size())
-    {
-        if (mAttachmentRequests.empty())
-        {
-            // Not waiting for more
-            LL_DEBUGS("Avatar") << "ATT all pending attachments have arrived" << LL_ENDL;
-        }
-        else if (mCOFLinkBatchTimer.getElapsedTimeF32() > COF_LINK_BATCH_TIME)
-        {
-            LL_DEBUGS("Avatar") << mAttachmentRequests.size()
-                                << "ATT pending attachments have not arrived but wait time exceeded" << LL_ENDL;
-        }
-        else
-        {
-            return;
-        }
-
-        LL_DEBUGS("Avatar") << "ATT requesting COF links for " << mRecentlyArrivedAttachments.size() << LL_ENDL;
-		LLInventoryObject::const_object_list_t inv_items_to_link;
-        for (std::set<LLUUID>::iterator it = mRecentlyArrivedAttachments.begin();
-             it != mRecentlyArrivedAttachments.end(); ++it)
-        {
-            if (!LLAppearanceMgr::instance().isLinkedInCOF(*it))
-            {
-                LLUUID item_id = *it;
-                LLViewerInventoryItem *item = gInventory.getItem(item_id);
-                LL_DEBUGS("Avatar") << "ATT adding COF link for attachment "
-                                    << (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
-                inv_items_to_link.push_back(item);
-            }
-        }
-        if (inv_items_to_link.size())
-        {
-            LLPointer<LLInventoryCallback> cb = new LLRequestServerAppearanceUpdateOnDestroy();
-            link_inventory_array(LLAppearanceMgr::instance().getCOF(), inv_items_to_link, cb);
-        }
-        mRecentlyArrivedAttachments.clear();
-    }
-}
-
-// FIXME this is basically the same code as LLAgentWearables::userAttachMultipleAttachments(),
-// should consolidate.
+// Send request(s) for a group of attachments. As coded, this can
+// request at most 40 attachments and the rest will be
+// ignored. Currently the max attachments per avatar is 38, so the 40
+// limit should not be hit in practice.
 void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_requests)
 {
 	// Make sure we got a region before trying anything else
@@ -184,8 +120,6 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 	{
 		return;
 	}
-	LL_DEBUGS("Avatar") << "ATT [RezMultipleAttachmentsFromInv] attaching multiple from attachment_requests,"
-		" total obj_count " << obj_count << LL_ENDL;
 
 	// Limit number of packets to send
 	const S32 MAX_PACKETS_TO_SEND = 10;
@@ -193,8 +127,15 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 	const S32 MAX_OBJECTS_TO_SEND = MAX_PACKETS_TO_SEND * OBJECTS_PER_PACKET;
 	if( obj_count > MAX_OBJECTS_TO_SEND )
 	{
+        LL_WARNS() << "Too many attachments requested: " << attachment_requests.size()
+                   << " exceeds limit of " << MAX_OBJECTS_TO_SEND << LL_ENDL;
+        LL_WARNS() << "Excess requests will be ignored" << LL_ENDL;
+
 		obj_count = MAX_OBJECTS_TO_SEND;
 	}
+
+	LL_DEBUGS("Avatar") << "ATT [RezMultipleAttachmentsFromInv] attaching multiple from attachment_requests,"
+		" total obj_count " << obj_count << LL_ENDL;
 
 	LLUUID compound_msg_id;
 	compound_msg_id.generate();
@@ -249,6 +190,52 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 	}
 }
 
+void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
+{
+    if (mRecentlyArrivedAttachments.size())
+    {
+        // One or more attachments have arrived but have not yet been
+        // processed for COF links
+        if (mAttachmentRequests.empty())
+        {
+            // Not waiting for any more.
+            LL_DEBUGS("Avatar") << "ATT all pending attachments have arrived after "
+                                << mCOFLinkBatchTimer.getElapsedTimeF32() << " seconds" << LL_ENDL;
+        }
+        else if (mCOFLinkBatchTimer.getElapsedTimeF32() > COF_LINK_BATCH_TIME)
+        {
+            LL_DEBUGS("Avatar") << "ATT " << mAttachmentRequests.size()
+                                << " pending attachments have not arrived, but wait time exceeded" << LL_ENDL;
+        }
+        else
+        {
+            return;
+        }
+
+        LL_DEBUGS("Avatar") << "ATT checking COF linkability for " << mRecentlyArrivedAttachments.size() << " recently arrived items" << LL_ENDL;
+		LLInventoryObject::const_object_list_t inv_items_to_link;
+        for (std::set<LLUUID>::iterator it = mRecentlyArrivedAttachments.begin();
+             it != mRecentlyArrivedAttachments.end(); ++it)
+        {
+            if (gAgentAvatarp->isWearingAttachment(*it) &&
+                !LLAppearanceMgr::instance().isLinkedInCOF(*it))
+            {
+                LLUUID item_id = *it;
+                LLViewerInventoryItem *item = gInventory.getItem(item_id);
+                LL_DEBUGS("Avatar") << "ATT adding COF link for attachment "
+                                    << (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
+                inv_items_to_link.push_back(item);
+            }
+        }
+        if (inv_items_to_link.size())
+        {
+            LLPointer<LLInventoryCallback> cb = new LLRequestServerAppearanceUpdateOnDestroy();
+            link_inventory_array(LLAppearanceMgr::instance().getCOF(), inv_items_to_link, cb);
+        }
+        mRecentlyArrivedAttachments.clear();
+    }
+}
+
 void LLAttachmentsMgr::addAttachmentRequestTime(const LLUUID& inv_item_id)
 {
     LLInventoryItem *item = gInventory.getItem(inv_item_id);
@@ -264,17 +251,17 @@ void LLAttachmentsMgr::removeAttachmentRequestTime(const LLUUID& inv_item_id)
 	mAttachmentRequests.erase(inv_item_id);
 }
 
-BOOL LLAttachmentsMgr::attachmentWasRequestedRecently(const LLUUID& inv_item_id, F32 seconds) const
+BOOL LLAttachmentsMgr::attachmentWasRequestedRecently(const LLUUID& inv_item_id) const
 {
 	std::map<LLUUID,LLTimer>::const_iterator it = mAttachmentRequests.find(inv_item_id);
 	if (it != mAttachmentRequests.end())
 	{
 		const LLTimer& request_time = it->second;
 		F32 request_time_elapsed = request_time.getElapsedTimeF32();
-		if (request_time_elapsed > seconds)
+		if (request_time_elapsed > MIN_RETRY_REQUEST_TIME)
 		{
             LLInventoryItem *item = gInventory.getItem(inv_item_id);
-            LL_DEBUGS("Avatar") << "ATT time ignored, exceeded " << seconds
+            LL_DEBUGS("Avatar") << "ATT time ignored, exceeded " << MIN_RETRY_REQUEST_TIME
                                 << " " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
 			return FALSE;
 		}
@@ -289,11 +276,37 @@ BOOL LLAttachmentsMgr::attachmentWasRequestedRecently(const LLUUID& inv_item_id,
 	}
 }
 
+// If we've been waiting for an attachment a long time, we want to
+// forget the request, because if the request is invalid (say the
+// object does not exist), the existence of a request that never goes
+// away will gum up the COF batch logic, causing it to always wait for
+// the timeout. Expiring a request means if the item does show up
+// late, the COF link request may not get properly batched up, but
+// behavior will be no worse than before we had the batching mechanism
+// in place; the COF link will still be created, but extra
+// requestServerAppearanceUpdate() calls may occur.
+void LLAttachmentsMgr::expireOldAttachmentRequests()
+{
+	for (std::map<LLUUID,LLTimer>::iterator it = mAttachmentRequests.begin();
+         it != mAttachmentRequests.end(); )
+    {
+        std::map<LLUUID,LLTimer>::iterator curr_it = it;
+        ++it;
+        if (it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
+        {
+            mAttachmentRequests.erase(curr_it);
+        }
+    }
+}
+
+// When an attachment arrives, we want to stop waiting for it, and add
+// it to the set of recently arrived items.
 void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
 {
     removeAttachmentRequestTime(inv_item_id);
     if (mRecentlyArrivedAttachments.empty())
     {
+        // Start the timer for sending off a COF link batch.
         mCOFLinkBatchTimer.reset();
     }
     mRecentlyArrivedAttachments.insert(inv_item_id);

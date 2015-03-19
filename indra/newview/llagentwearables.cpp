@@ -1366,8 +1366,6 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 	gMessageSystem->sendReliable(gAgent.getRegionHost());
 }
 
-// FIXME this is basically the same code as LLAttachmentsMgr::onIdle()
-// should consolidate.
 void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array)
 {
 	// Build a compound message to send all the objects that need to be rezzed.
