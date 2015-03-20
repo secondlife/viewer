@@ -164,6 +164,17 @@ public:
 		/// Pipelined:       no
 		AP_INVENTORY,
 		AP_REPORTING = AP_INVENTORY,	// Piggy-back on inventory
+
+		/// Material resource requests and puts.  
+		///
+		/// Destination:     simhost:12043
+		/// Protocol:        https:
+		/// Transfer size:   KB
+		/// Long poll:       no
+		/// Concurrency:     low
+		/// Request rate:    low
+		/// Pipelined:       no
+		AP_MATERIALS,
 		
 		AP_COUNT						// Must be last
 	};

@@ -38,7 +38,6 @@
 #include "llworld.h"
 #include "llhttpsdhandler.h"
 #include "httpcommon.h"
-#include "httpheaders.h"
 #include "llcorehttputil.h"
 
 /**
@@ -120,10 +119,29 @@ void LLMaterialHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::H
 /**
  * LLMaterialMgr class
  */
-
-LLMaterialMgr::LLMaterialMgr()
+LLMaterialMgr::LLMaterialMgr():
+	mGetQueue(),
+	mGetPending(),
+	mGetCallbacks(),
+	mGetTECallbacks(),
+	mGetAllQueue(),
+	mGetAllRequested(),
+	mGetAllPending(),
+	mGetAllCallbacks(),
+	mPutQueue(),
+	mMaterials(),
+	mHttpRequest(NULL),
+	mHttpHeaders(NULL),
+	mHttpOptions(NULL),
+	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+	mHttpPriority(0)
 {
-	mRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
+	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
+
+	mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
+	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
+	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_MATERIALS);
 
 	mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(LLMaterialID::null, LLMaterialPtr(NULL)));
 	gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, NULL);
@@ -558,7 +576,7 @@ void LLMaterialMgr::onIdle(void*)
 		instancep->processPutQueue();
 	}
 
-	instancep->mRequest->update(0L);
+	instancep->mHttpRequest->update(0L);
 }
 
 void LLMaterialMgr::processGetQueue()
@@ -639,19 +657,17 @@ void LLMaterialMgr::processGetQueue()
 				boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
 				);
 
-		LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-
 		LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
 			<< "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
 
-		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(mRequest.get(), 
-				LLCore::HttpRequest::DEFAULT_POLICY_ID, 0, capURL, 
-				postData, NULL, headers.get(), handler);
+		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(mHttpRequest, 
+				mHttpPolicy, mHttpPriority, capURL, 
+				postData, mHttpOptions, mHttpHeaders, handler);
 
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{
 			delete handler;
-			LLCore::HttpStatus status = mRequest->getStatus();
+			LLCore::HttpStatus status = mHttpRequest->getStatus();
 			LL_ERRS("Meterials") << "Failed to execute material POST. Status = " <<
 				status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
 		}
@@ -695,15 +711,13 @@ void LLMaterialMgr::processGetAllQueue()
 			boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *itRegion)
 			);
 
-		LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-
-		LLCore::HttpHandle handle = mRequest->requestGet(LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
-				capURL, NULL, headers.get(), handler);
+		LLCore::HttpHandle handle = mHttpRequest->requestGet(mHttpPolicy, mHttpPriority, capURL,
+				mHttpOptions.get(), mHttpHeaders.get(), handler);
 
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{
 			delete handler;
-			LLCore::HttpStatus status = mRequest->getStatus();
+			LLCore::HttpStatus status = mHttpRequest->getStatus();
 			LL_ERRS("Meterials") << "Failed to execute material GET. Status = " <<
 				status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
 		}
@@ -800,15 +814,14 @@ void LLMaterialMgr::processPutQueue()
 					boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
 					);
 
-			LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-
-			LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(mRequest.get(), LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
-				capURL, putData, NULL, headers.get(), handler);
+			LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(
+				mHttpRequest, mHttpPolicy, mHttpPriority, capURL,
+				putData, mHttpOptions, mHttpHeaders, handler);
 
 			if (handle == LLCORE_HTTP_HANDLE_INVALID)
 			{
 				delete handler;
-				LLCore::HttpStatus status = mRequest->getStatus();
+				LLCore::HttpStatus status = mHttpRequest->getStatus();
 				LL_ERRS("Meterials") << "Failed to execute material PUT. Status = " << 
 					status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
 			}

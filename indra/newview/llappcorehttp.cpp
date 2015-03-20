@@ -97,6 +97,11 @@ static const struct
 		4,		1,		4,		0,		false,
 		"",
 		"inventory"
+	},
+	{ // AP_MATERIALS
+		2,		1,		8,		0,		false,
+		"RenderMaterials",
+		"material manager requests"
 	}
 };
 
@@ -195,6 +200,8 @@ void LLAppCoreHttp::init()
 		}
 
 		mHttpClasses[app_policy].mPolicy = LLCore::HttpRequest::createPolicyClass();
+		// We have run out of available HTTP policies. Adjust HTTP_POLICY_CLASS_LIMIT in _httpinternal.h
+		llassert(mHttpClasses[app_policy].mPolicy != LLCore::HttpRequest::INVALID_POLICY_ID);
 		if (! mHttpClasses[app_policy].mPolicy)
 		{
 			// Use default policy (but don't accidentally modify default)

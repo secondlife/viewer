@@ -109,6 +109,15 @@ LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest * request,
 									   LLCore::HttpHeaders * headers,
 									   LLCore::HttpHandler * handler);
 
+LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & request,
+	LLCore::HttpRequest::policy_t policy_id,
+	LLCore::HttpRequest::priority_t priority,
+	const std::string & url,
+	const LLSD & body,
+	LLCore::HttpOptions::ptr_t & options,
+	LLCore::HttpHeaders::ptr_t & headers,
+	LLCore::HttpHandler * handler);
+
 /// Issue a standard HttpRequest::requestPut() call but using
 /// and LLSD object as the request body.  Conventions are the
 /// same as with that method.  Caller is expected to provide
@@ -132,6 +141,15 @@ LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest * request,
 	const LLSD & body,
 	LLCore::HttpOptions * options,
 	LLCore::HttpHeaders * headers,
+	LLCore::HttpHandler * handler);
+
+LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
+	LLCore::HttpRequest::policy_t policy_id,
+	LLCore::HttpRequest::priority_t priority,
+	const std::string & url,
+	const LLSD & body,
+	LLCore::HttpOptions::ptr_t & options,
+	LLCore::HttpHeaders::ptr_t & headers,
 	LLCore::HttpHandler * handler);
 
 } // end namespace LLCoreHttpUtil
