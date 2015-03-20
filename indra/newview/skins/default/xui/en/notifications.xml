@@ -353,7 +353,7 @@ Initialization with the Marketplace failed because of a system or network error.
         icon="OutboxStatus_Error"
         name="MerchantUnprocessableEntity"
         type="outbox">
-        We are unable to list this product. Usually this is caused by missing information in the listing description form. If you continue to see this error, try again later.
+        We are unable to list this product or activate the version folder. Usually this is caused by missing information in the listing description form, but it may be due to errors in the folder structure. Either edit the listing or check the listing folder for errors.
         
         <usetemplate
         name="okbutton"
