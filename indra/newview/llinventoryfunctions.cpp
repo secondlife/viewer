@@ -1764,8 +1764,10 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             {
                 LLNotificationsUtil::add("AlertMerchantStockFolderSplit");
             }
-            // If we have more than 1 type of items or we are at the listing level, wrap the items in subfolders
-            if ((count > 1) || (depth == 1))
+            // If we have more than 1 type of items or we are at the listing level or we have stok/no stock type mismatch, wrap the items in subfolders
+            if ((count > 1) || (depth == 1) ||
+                ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (type == LLInventoryType::IT_COUNT)) ||
+                ((folder_type != LLFolderType::FT_MARKETPLACE_STOCK) && (type != LLInventoryType::IT_COUNT)))
             {
                 // Create one folder per vector at the right depth and of the right type
                 for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
@@ -1819,7 +1821,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 {
                     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (*iter);
                     gInventory.changeCategoryParent(viewer_cat, parent_uuid, false);
-                    // Note : those reparented folders will be recursively visited and validated at the end of this function
+                    result &= validate_marketplacelistings(viewer_cat, cb, fix_hierarchy, depth);
                 }
             }
         }
