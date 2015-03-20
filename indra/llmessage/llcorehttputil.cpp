@@ -88,6 +88,32 @@ HttpHandle requestPostWithLLSD(HttpRequest * request,
 	return handle;
 }
 
+HttpHandle requestPutWithLLSD(HttpRequest * request,
+							   HttpRequest::policy_t policy_id,
+							   HttpRequest::priority_t priority,
+							   const std::string & url,
+							   const LLSD & body,
+							   HttpOptions * options,
+							   HttpHeaders * headers,
+							   HttpHandler * handler)
+{
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	BufferArray * ba = new BufferArray();
+	BufferArrayStream bas(ba);
+	LLSDSerialize::toXML(body, bas);
+
+	handle = request->requestPut(policy_id,
+		priority,
+		url,
+		ba,
+		options,
+		headers,
+		handler);
+	ba->release();
+	return handle;
+}
+
 
 std::string responseToString(LLCore::HttpResponse * response)
 {

@@ -312,7 +312,6 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 	: mHttpRequest(0),
 	  mStatus(LLXMLRPCTransaction::StatusNotStarted),
 	  mURI(uri),
-//	  mRequestText(0), 
 	  mResponse(0)
 {
 	init(request, useGzip);
@@ -324,7 +323,6 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 	: mHttpRequest(0),
 	  mStatus(LLXMLRPCTransaction::StatusNotStarted),
 	  mURI(uri),
-//	  mRequestText(0), 
 	  mResponse(0)
 {
 	XMLRPC_REQUEST request = XMLRPC_RequestNew();
@@ -485,12 +483,14 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 	CURLcode code = static_cast<CURLcode>(status.toULong());
 	std::string message;
 	std::string uri = "http://secondlife.com/community/support.php";
+	LLURI failuri(mURI);
+
 
 	switch (code)
 	{
 	case CURLE_COULDNT_RESOLVE_HOST:
 		message =
-			"DNS could not resolve the host name.\n"
+			std::string("DNS could not resolve the host name(") + failuri.hostName() + ").\n"
 			"Please verify that you can connect to the www.secondlife.com\n"
 			"web site.  If you can, but continue to receive this error,\n"
 			"please go to the support section and report this problem.";

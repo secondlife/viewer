@@ -105,7 +105,7 @@ void HttpHeaders::appendNormal(const char * header, size_t size)
 
 // Find from end to simulate a tradition of using single-valued
 // std::map for this in the past.
-const std::string * HttpHeaders::find(const char * name) const
+const std::string * HttpHeaders::find(const std::string &name) const
 {
 	const_reverse_iterator iend(rend());
 	for (const_reverse_iterator iter(rbegin()); iend != iter; ++iter)

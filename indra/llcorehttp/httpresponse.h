@@ -104,6 +104,10 @@ public:
 			return mBufferArray;
 		}
 
+	/// Safely get the size of the body buffer.  If the body buffer is missing
+	/// return 0 as the size.
+	size_t getBodySize() const;
+
 	/// Set the response data in the instance.  Will drop the reference
 	/// count to any existing data and increment the count of that passed
 	/// in.  It is legal to set the data to NULL.

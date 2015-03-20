@@ -89,5 +89,9 @@ void HttpResponse::setHeaders(HttpHeaders * headers)
 	mHeaders = headers;
 }
 
+size_t HttpResponse::getBodySize() const
+{
+	return (mBufferArray) ? mBufferArray->size() : 0;
+}
 
 }   // end namespace LLCore

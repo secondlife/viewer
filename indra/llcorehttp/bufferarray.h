@@ -131,6 +131,7 @@ protected:
 
 	container_t			mBlocks;
 	size_t				mLen;
+
 };  // end class BufferArray
 
 
