@@ -129,9 +129,9 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 	const S32 MAX_OBJECTS_TO_SEND = MAX_PACKETS_TO_SEND * OBJECTS_PER_PACKET;
 	if( obj_count > MAX_OBJECTS_TO_SEND )
 	{
-        LL_WARNS() << "Too many attachments requested: " << attachment_requests.size()
+        LL_WARNS() << "ATT Too many attachments requested: " << attachment_requests.size()
                    << " exceeds limit of " << MAX_OBJECTS_TO_SEND << LL_ENDL;
-        LL_WARNS() << "Excess requests will be ignored" << LL_ENDL;
+        LL_WARNS() << "ATT Excess requests will be ignored" << LL_ENDL;
 
 		obj_count = MAX_OBJECTS_TO_SEND;
 	}
@@ -310,7 +310,9 @@ void LLAttachmentsMgr::expireOldAttachmentRequests()
         ++it;
         if (it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
         {
-            LL_DEBUGS("Avatar") << "ATT expiring request for attachment item_id " << curr_it->first
+            LLInventoryItem *item = gInventory.getItem(curr_it->first);
+            LL_DEBUGS("Avatar") << "ATT expiring request for attachment "
+                                << (item ? item->getName() : "UNKNOWN") << "item_id " << curr_it->first
                                 << " after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds" << LL_ENDL;
             mAttachmentRequests.erase(curr_it);
         }
@@ -321,6 +323,13 @@ void LLAttachmentsMgr::expireOldAttachmentRequests()
 // it to the set of recently arrived items.
 void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
 {
+    LLTimer timer;
+    if (!mAttachmentRequests.getTime(inv_item_id, timer))
+    {
+        LLInventoryItem *item = gInventory.getItem(inv_item_id);
+        LL_WARNS() << "ATT Attachment was unexpected or arrived after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds: "
+                   << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
+    }
     mAttachmentRequests.removeTime(inv_item_id);
     if (mRecentlyArrivedAttachments.empty())
     {
@@ -347,8 +356,7 @@ void LLAttachmentsMgr::onDetachCompleted(const LLUUID& inv_item_id)
     }
     else
     {
-        LL_WARNS("Avatar") << "ATT unexpected detach for "
-                           << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
+        LL_WARNS() << "ATT unexpected detach for "
+                   << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
     }
-
 }
