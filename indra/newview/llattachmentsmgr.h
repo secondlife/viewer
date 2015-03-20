@@ -81,11 +81,27 @@ public:
 	void requestAttachments(const attachments_vec_t& attachment_requests);
 	static void onIdle(void *);
 
-	BOOL attachmentWasRequestedRecently(const LLUUID& inv_item_id) const;
-	void addAttachmentRequestTime(const LLUUID& inv_item_id);
     void onAttachmentArrived(const LLUUID& inv_item_id);
 
+    void onDetachRequested(const LLUUID& inv_item_id);
+    void onDetachCompleted(const LLUUID& inv_item_id);
+
 private:
+
+    class LLItemRequestTimes: public std::map<LLUUID,LLTimer>
+    {
+    public:
+        LLItemRequestTimes(const std::string& op_name, F32 timeout);
+        void addTime(const LLUUID& inv_item_id);
+        void removeTime(const LLUUID& inv_item_id);
+        BOOL wasRequestedRecently(const LLUUID& item_id) const;
+        BOOL getTime(const LLUUID& inv_item_id, LLTimer& timer) const;
+
+    private:
+        F32 mTimeout;
+        std::string mOpName;
+    };
+
 	void removeAttachmentRequestTime(const LLUUID& inv_item_id);
 	void onIdle();
 	void requestPendingAttachments();
@@ -96,11 +112,15 @@ private:
 	attachments_vec_t mPendingAttachments;
 
 	// Attachments that have been requested from server but have not arrived yet.
-	std::map<LLUUID,LLTimer> mAttachmentRequests;
+	LLItemRequestTimes mAttachmentRequests;
+
+    // Attachments that have been requested to detach but have not gone away yet.
+	LLItemRequestTimes mDetachRequests;
 
     // Attachments that have arrived but have not been linked in the COF yet.
     std::set<LLUUID> mRecentlyArrivedAttachments;
     LLTimer mCOFLinkBatchTimer;
+
 };
 
 #endif

@@ -1362,6 +1362,7 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 		const LLUUID& item_id = objectp->getAttachmentItemID();
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		LL_DEBUGS("Avatar") << "ATT removing object, item is " << (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
+        LLAttachmentsMgr::instance().onDetachRequested(item_id);
 	}
 	gMessageSystem->sendReliable(gAgent.getRegionHost());
 }

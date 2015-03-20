@@ -40,7 +40,9 @@ const F32 COF_LINK_BATCH_TIME = 5.0F;
 const F32 MAX_ATTACHMENT_REQUEST_LIFETIME = 30.0F;
 const F32 MIN_RETRY_REQUEST_TIME = 5.0F;
 
-LLAttachmentsMgr::LLAttachmentsMgr()
+LLAttachmentsMgr::LLAttachmentsMgr():
+    mAttachmentRequests("attach",MIN_RETRY_REQUEST_TIME),
+    mDetachRequests("detach",MIN_RETRY_REQUEST_TIME)
 {
 }
 
@@ -54,7 +56,7 @@ void LLAttachmentsMgr::addAttachmentRequest(const LLUUID& item_id,
 {
 	LLViewerInventoryItem *item = gInventory.getItem(item_id);
 
-    if (attachmentWasRequestedRecently(item_id))
+    if (mAttachmentRequests.wasRequestedRecently(item_id))
     {
         LL_DEBUGS("Avatar") << "ATT not adding attachment to mPendingAttachments, recent request is already pending: "
                             << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
@@ -70,7 +72,7 @@ void LLAttachmentsMgr::addAttachmentRequest(const LLUUID& item_id,
 	attachment.mAdd = add;
 	mPendingAttachments.push_back(attachment);
 
-    addAttachmentRequestTime(item_id);
+    mAttachmentRequests.addTime(item_id);
 }
 
 // static
@@ -212,7 +214,8 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
             return;
         }
 
-        LL_DEBUGS("Avatar") << "ATT checking COF linkability for " << mRecentlyArrivedAttachments.size() << " recently arrived items" << LL_ENDL;
+        LL_DEBUGS("Avatar") << "ATT checking COF linkability for " << mRecentlyArrivedAttachments.size()
+                            << " recently arrived items" << LL_ENDL;
 		LLInventoryObject::const_object_list_t inv_items_to_link;
         for (std::set<LLUUID>::iterator it = mRecentlyArrivedAttachments.begin();
              it != mRecentlyArrivedAttachments.end(); ++it)
@@ -236,44 +239,57 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
     }
 }
 
-void LLAttachmentsMgr::addAttachmentRequestTime(const LLUUID& inv_item_id)
+LLAttachmentsMgr::LLItemRequestTimes::LLItemRequestTimes(const std::string& op_name, F32 timeout):
+    mOpName(op_name),
+    mTimeout(timeout)
+{
+}
+
+void LLAttachmentsMgr::LLItemRequestTimes::addTime(const LLUUID& inv_item_id)
 {
     LLInventoryItem *item = gInventory.getItem(inv_item_id);
-    LL_DEBUGS("Avatar") << "ATT add request time " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
+    LL_DEBUGS("Avatar") << "ATT " << mOpName << " adding request time " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
 	LLTimer current_time;
-	mAttachmentRequests[inv_item_id] = current_time;
+	(*this)[inv_item_id] = current_time;
 }
 
-void LLAttachmentsMgr::removeAttachmentRequestTime(const LLUUID& inv_item_id)
+void LLAttachmentsMgr::LLItemRequestTimes::removeTime(const LLUUID& inv_item_id)
 {
     LLInventoryItem *item = gInventory.getItem(inv_item_id);
-    LL_DEBUGS("Avatar") << "ATT remove request time " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
-	mAttachmentRequests.erase(inv_item_id);
+    LL_DEBUGS("Avatar") << "ATT " << mOpName << " removing request time "
+                        << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
+	(*this).erase(inv_item_id);
 }
 
-BOOL LLAttachmentsMgr::attachmentWasRequestedRecently(const LLUUID& inv_item_id) const
+BOOL LLAttachmentsMgr::LLItemRequestTimes::getTime(const LLUUID& inv_item_id, LLTimer& timer) const
 {
-	std::map<LLUUID,LLTimer>::const_iterator it = mAttachmentRequests.find(inv_item_id);
-	if (it != mAttachmentRequests.end())
+	std::map<LLUUID,LLTimer>::const_iterator it = (*this).find(inv_item_id);
+	if (it != (*this).end())
 	{
-		const LLTimer& request_time = it->second;
+        timer = it->second;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+BOOL LLAttachmentsMgr::LLItemRequestTimes::wasRequestedRecently(const LLUUID& inv_item_id) const
+{
+    LLTimer request_time;
+    if (getTime(inv_item_id, request_time))
+    {
 		F32 request_time_elapsed = request_time.getElapsedTimeF32();
-		if (request_time_elapsed > MIN_RETRY_REQUEST_TIME)
+		if (request_time_elapsed >= mTimeout)
 		{
             LLInventoryItem *item = gInventory.getItem(inv_item_id);
-            LL_DEBUGS("Avatar") << "ATT time ignored, exceeded " << MIN_RETRY_REQUEST_TIME
+            LL_DEBUGS("Avatar") << "ATT " << mOpName << " request time ignored, exceeded " << mTimeout
                                 << " " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
-			return FALSE;
-		}
-		else
-		{
-			return TRUE;
-		}
-	}
-	else
-	{
-		return FALSE;
-	}
+        }
+        return request_time_elapsed < mTimeout;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 // If we've been waiting for an attachment a long time, we want to
@@ -305,11 +321,34 @@ void LLAttachmentsMgr::expireOldAttachmentRequests()
 // it to the set of recently arrived items.
 void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
 {
-    removeAttachmentRequestTime(inv_item_id);
+    mAttachmentRequests.removeTime(inv_item_id);
     if (mRecentlyArrivedAttachments.empty())
     {
         // Start the timer for sending off a COF link batch.
         mCOFLinkBatchTimer.reset();
     }
     mRecentlyArrivedAttachments.insert(inv_item_id);
+}
+
+void LLAttachmentsMgr::onDetachRequested(const LLUUID& inv_item_id)
+{
+    mDetachRequests.addTime(inv_item_id);
+}
+
+void LLAttachmentsMgr::onDetachCompleted(const LLUUID& inv_item_id)
+{
+    LLTimer timer;
+    LLInventoryItem *item = gInventory.getItem(inv_item_id);
+    if (mDetachRequests.getTime(inv_item_id, timer))
+    {
+        LL_DEBUGS("Avatar") << "ATT detach completed after " << timer.getElapsedTimeF32()
+                            << " seconds for " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
+        mDetachRequests.removeTime(inv_item_id);
+    }
+    else
+    {
+        LL_WARNS("Avatar") << "ATT unexpected detach for "
+                           << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
+    }
+
 }
