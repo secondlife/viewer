@@ -4520,27 +4520,27 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		
 		//--------------------------------------------------------------------------------
 		// Determine if item can be moved & dropped
-		//
+		// Note: if user_confirm is false, we already went through those accept logic test and can skip them
 
 		accept = TRUE;
 
-		if (!is_movable)
+		if (user_confirm && !is_movable)
 		{
 			accept = FALSE;
 		}
-		else if ((mUUID == inv_item->getParentUUID()) && !move_is_into_favorites)
+		else if (user_confirm && (mUUID == inv_item->getParentUUID()) && !move_is_into_favorites)
 		{
 			accept = FALSE;
 		}
-		else if (move_is_into_current_outfit || move_is_into_outfit)
+		else if (user_confirm && (move_is_into_current_outfit || move_is_into_outfit))
 		{
 			accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
 		}
-		else if (move_is_into_favorites || move_is_into_landmarks)
+		else if (user_confirm && (move_is_into_favorites || move_is_into_landmarks))
 		{
 			accept = can_move_to_landmarks(inv_item);
 		}
-		else if (move_is_into_outbox || move_is_into_marketplacelistings)
+		else if (user_confirm && (move_is_into_outbox || move_is_into_marketplacelistings))
 		{
             const LLViewerInventoryCategory * master_folder = (move_is_into_outbox ? model->getFirstDescendantOf(outbox_id, mUUID) : model->getFirstDescendantOf(marketplacelistings_id, mUUID));
             LLViewerInventoryCategory * dest_folder = getCategory();
@@ -4548,7 +4548,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 
         // Check that the folder can accept this item based on folder/item type compatibility (e.g. stock folder compatibility)
-        if (accept)
+        if (user_confirm && accept)
         {
             LLViewerInventoryCategory * dest_folder = getCategory();
             accept = dest_folder->acceptItem(inv_item);
@@ -4558,7 +4558,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		// Check whether the item being dragged from active inventory panel
 		// passes the filter of the destination panel.
-		if (accept && active_panel && use_filter)
+		if (user_confirm && accept && active_panel && use_filter)
 		{
 			LLFolderViewItem* fv_item =   active_panel->getItemByID(inv_item->getUUID());
 			if (!fv_item) return false;
@@ -4578,9 +4578,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
                         // RN: a better solution would be to deselect automatically when an   item is moved
 			// and then select any item that is dropped only in the panel that it   is dropped in
 			if (active_panel && (destination_panel != active_panel))
-				{
-					active_panel->unSelectAll();
-				}
+            {
+                active_panel->unSelectAll();
+            }
             // Dropping in or out of marketplace needs (sometimes) confirmation
             if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
             {
