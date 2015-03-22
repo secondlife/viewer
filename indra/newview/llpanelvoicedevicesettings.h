@@ -53,6 +53,8 @@ protected:
 
 	void onCommitInputDevice();
 	void onCommitOutputDevice();
+	void onOutputDevicesClicked();
+	void onInputDevicesClicked();
 
 	F32 mMicVolume;
 	std::string mInputDevice;

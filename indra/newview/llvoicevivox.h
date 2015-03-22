@@ -91,6 +91,7 @@ public:
 	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
 	// i.e. when the daemon is running and connected, and the device lists are populated.
 	virtual bool deviceSettingsAvailable();
+	virtual bool deviceSettingsUpdated();  //return if the list has been updated and never fetched,  only to be called from the voicepanel.
 	
 	// Requery the vivox daemon for the current list of input/output devices.
 	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
@@ -327,7 +328,6 @@ protected:
 		LLUUID		mCallerID;
 		int			mErrorStatusCode;
 		int			mMediaStreamState;
-		int			mTextStreamState;    // obsolete
 		bool		mCreateInProgress;	// True if a Session.Create has been sent for this session and no response has been received yet.
 		bool		mMediaConnectInProgress;	// True if a Session.MediaConnect has been sent for this session and no response has been received yet.
 		bool		mVoiceInvitePending;	// True if a voice invite is pending for this session (usually waiting on a name lookup)
@@ -459,14 +459,15 @@ protected:
 	void clearCaptureDevices();
 	void addCaptureDevice(const std::string& name);
 	void clearRenderDevices();
+	void setDevicesListUpdated(bool state);
 	void addRenderDevice(const std::string& name);	
 	void buildSetAudioDevices(std::ostringstream &stream);
 	
 	void getCaptureDevicesSendMessage();
 	void getRenderDevicesSendMessage();
 	
-	// local audio updates
-	void buildLocalAudioUpdates(std::ostringstream &stream);		
+	// local audio updates, mic mute, speaker mute, mic volume and speaker volumes
+	void sendLocalAudioUpdates();
 
 
 	/////////////////////////////
@@ -482,7 +483,6 @@ protected:
 	void accountLoginStateChangeEvent(std::string &accountHandle, int statusCode, std::string &statusString, int state);
 	void mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType);
 	void mediaStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, int statusCode, std::string &statusString, int state, bool incoming);
-	//obsolete void textStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, bool enabled, int state, bool incoming);
 	void sessionAddedEvent(std::string &uriString, std::string &alias, std::string &sessionHandle, std::string &sessionGroupHandle, bool isChannel, bool incoming, std::string &nameString, std::string &applicationString);
 	void sessionGroupAddedEvent(std::string &sessionGroupHandle);
 	void sessionRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle);
@@ -678,7 +678,9 @@ private:
 	bool mTuningMicVolumeDirty;
 	int mTuningSpeakerVolume;
 	bool mTuningSpeakerVolumeDirty;
-	state mTuningExitState;					// state to return to when we leave tuning mode.
+	state mTuningExitState;			    // state to return to when we leave tuning mode.
+	bool mDevicesListUpdated;			// set to true when the device list has been updated
+										// and false when the panelvoicedevicesettings has queried for an update status.
 	
 	std::string mSpatialSessionURI;
 	std::string mSpatialSessionCredentials;
@@ -762,7 +764,6 @@ private:
 	// start a text IM session with the specified user
 	// This will be asynchronous, the session may be established at a future time.
 	sessionState* startUserIMSession(const LLUUID& uuid);
-	// obsolete void sendQueuedTextMessages(sessionState *session);
 	
 	void enforceTether(void);
 	

@@ -266,6 +266,18 @@ bool LLVoiceClient::deviceSettingsAvailable()
 	}
 }
 
+bool LLVoiceClient::deviceSettingsUpdated()
+{
+	if (mVoiceModule)
+	{
+		return mVoiceModule->deviceSettingsUpdated();
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void LLVoiceClient::refreshDeviceLists(bool clearCurrentList)
 {
 	if (mVoiceModule) mVoiceModule->refreshDeviceLists(clearCurrentList);
