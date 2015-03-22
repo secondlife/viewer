@@ -318,7 +318,7 @@
 		</panel>
 		<panel label="Cechy" name="Features">
 			<panel.string name="None">
-				Żadny
+				Żaden
 			</panel.string>
 			<panel.string name="Prim">
 				Prima
