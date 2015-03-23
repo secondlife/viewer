@@ -188,7 +188,6 @@
 ///
 
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
-
 #include <string>
 
 namespace LLCore
@@ -292,24 +291,29 @@ struct HttpStatus
 	
 	HttpStatus()
 		{
-			mDetails = std::unique_ptr<Details>(new Details(LLCORE, HE_SUCCESS));
-		}
+			mDetails = new Details(LLCORE, HE_SUCCESS);
+	}
 
 	HttpStatus(type_enum_t type, short status)
 		{
-			mDetails = std::unique_ptr<Details>(new Details(type, status));
+			mDetails = new Details(type, status);
 		}
 	
 	HttpStatus(int http_status)
 		{
-			mDetails = std::unique_ptr<Details>(new Details(http_status, 
-				(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+			mDetails = new Details(http_status, 
+				(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);
 			llassert(http_status >= 100 && http_status <= 999);
 		}
 	
 	HttpStatus(const HttpStatus & rhs)
 		{
-			mDetails = std::unique_ptr<Details>(new Details(*rhs.mDetails));
+			mDetails = new Details(*rhs.mDetails);
+		}
+
+	~HttpStatus()
+		{
+			delete mDetails;
 		}
 
 	HttpStatus & operator=(const HttpStatus & rhs)
@@ -468,7 +472,8 @@ private:
 		void *		mErrorData;
 	};
 
-	std::unique_ptr<Details>	mDetails;
+	//boost::unique_ptr<Details>	mDetails;
+	Details * mDetails;
 
 }; // end struct HttpStatus
 
