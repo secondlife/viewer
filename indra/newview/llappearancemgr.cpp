@@ -3154,6 +3154,7 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id,
 		
 }
 
+#if 1
 class RequestAgentUpdateAppearanceResponder: public LLHTTPClient::Responder
 {
 	LOG_CLASS(RequestAgentUpdateAppearanceResponder);
@@ -3423,6 +3424,10 @@ void RequestAgentUpdateAppearanceResponder::onFailure()
 		LL_WARNS() << "giving up after too many retries" << LL_ENDL;
 	}
 }	
+#else
+
+
+#endif
 
 
 LLSD LLAppearanceMgr::dumpCOF() const
