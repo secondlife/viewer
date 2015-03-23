@@ -261,6 +261,9 @@ public:
 	static std::vector< LLCharacter* > sInstances;
 	static BOOL sAllowInstancesChange ; //debug use
 
+	virtual void	setHoverOffset(const LLVector3& hover_offset, bool send_update=true) { mHoverOffset = hover_offset; }
+	const LLVector3& getHoverOffset() const { return mHoverOffset; }
+
 protected:
 	LLMotionController	mMotionController;
 
@@ -273,7 +276,6 @@ protected:
 	U32					mSkeletonSerialNum;
 	LLAnimPauseRequest	mPauseRequest;
 
-
 private:
 	// visual parameter stuff
 	typedef std::map<S32, LLVisualParam *> 		visual_param_index_map_t;
@@ -284,6 +286,8 @@ private:
 	visual_param_name_map_t  					mVisualParamNameMap;
 
 	static LLStringTable sVisualParamNames;	
+
+	LLVector3 mHoverOffset;
 };
 
 #endif // LL_LLCHARACTER_H
