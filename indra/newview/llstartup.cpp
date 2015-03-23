@@ -2215,6 +2215,8 @@ bool idle_startup()
 		llassert(LLPathfindingManager::getInstance() != NULL);
 		LLPathfindingManager::getInstance()->initSystem();
 
+		gAgentAvatarp->sendHoverHeight();
+
 		return TRUE;
 	}
 
