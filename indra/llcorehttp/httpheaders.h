@@ -28,8 +28,8 @@
 #define	_LLCORE_HTTP_HEADERS_H_
 
 
+#include "httpcommon.h"
 #include <string>
-
 #include "_refcounted.h"
 
 
