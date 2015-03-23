@@ -69,6 +69,8 @@ std::string colladaVersion[VERSIONTYPE_COUNT+1] =
 	"Unsupported"
 };
 
+const U32 LIMIT_MATERIALS_OUTPUT = 12;
+
 bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S32& tc_offset, S32& norm_offset, S32 &idx_stride,
 	domSource* &pos_source, domSource* &tc_source, domSource* &norm_source)
 {
@@ -947,11 +949,16 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	model_list::iterator model_iter = mModelList.begin();
 	while (model_iter != mModelList.end())
 	{
-		LL_INFOS() << "Importing " << (*model_iter)->mLabel << LL_ENDL;
-		std::vector<std::string>::iterator mat_iter = (*model_iter)->mMaterialList.begin();
-		while (mat_iter != (*model_iter)->mMaterialList.end())
+		LLModel* mdl = *model_iter;
+		U32 material_count = mdl->mMaterialList.size();
+		LL_INFOS() << "Importing " << mdl->mLabel << " model with " << material_count << " material references" << LL_ENDL;
+		std::vector<std::string>::iterator mat_iter = mdl->mMaterialList.begin();
+		std::vector<std::string>::iterator end_iter = material_count > LIMIT_MATERIALS_OUTPUT
+														? mat_iter + LIMIT_MATERIALS_OUTPUT
+														: mdl->mMaterialList.end();
+		while (mat_iter != end_iter)
 		{
-			LL_INFOS() << (*model_iter)->mLabel << " references " << (*mat_iter) << LL_ENDL;
+			LL_INFOS() << mdl->mLabel << " references " << (*mat_iter) << LL_ENDL;
 			mat_iter++;
 		}
 		model_iter++;
