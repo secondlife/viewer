@@ -130,9 +130,9 @@ LLMaterialMgr::LLMaterialMgr():
 	mGetAllCallbacks(),
 	mPutQueue(),
 	mMaterials(),
-	mHttpRequest(NULL),
-	mHttpHeaders(NULL),
-	mHttpOptions(NULL),
+	mHttpRequest(),
+	mHttpHeaders(),
+	mHttpOptions(),
 	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	mHttpPriority(0)
 {
