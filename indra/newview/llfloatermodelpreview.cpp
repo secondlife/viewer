@@ -93,6 +93,8 @@
 S32 LLFloaterModelPreview::sUploadAmount = 10;
 LLFloaterModelPreview* LLFloaterModelPreview::sInstance = NULL;
 
+bool LLModelPreview::sIgnoreLoadedCallback = false;
+
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
@@ -788,7 +790,14 @@ BOOL LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 /*virtual*/
 void LLFloaterModelPreview::onOpen(const LLSD& key)
 {
+	LLModelPreview::sIgnoreLoadedCallback = false;
 	requestAgentUploadPermissions();
+}
+
+/*virtual*/
+void LLFloaterModelPreview::onClose(bool app_quitting)
+{
+	LLModelPreview::sIgnoreLoadedCallback = true;
 }
 
 //static
@@ -3193,7 +3202,7 @@ void LLModelPreview::loadedCallback(
 	void* opaque)
 {
 	LLModelPreview* pPreview = static_cast< LLModelPreview* >(opaque);
-	if (pPreview)
+	if (pPreview && !LLModelPreview::sIgnoreLoadedCallback)
 	{
 		pPreview->loadModelCallback(lod);
 	}	

@@ -89,6 +89,7 @@ public:
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 	
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
@@ -297,6 +298,8 @@ public:
 	
 	LLVector3 getTranslationForJointOffset( std::string joint );
 
+	static bool 		sIgnoreLoadedCallback;
+
 protected:
 
 	static void			loadedCallback(LLModelLoader::scene& scene,LLModelLoader::model_list& model_list, S32 lod, void* opaque);
@@ -388,7 +391,7 @@ private:
 	bool		mLegacyRigValid;
 
 	bool		mLastJointUpdate;
-	
+
 	JointSet				mJointsFromNode;
 	JointTransformMap	mJointTransformMap;
 
