@@ -218,51 +218,6 @@ void LLHTTPClient::setCertVerifyCallback(LLURLRequest::SSLCertVerifyCallback cal
 	LLHTTPClient::mCertVerifyCallback = callback;
 }
 
-#if 0
-typedef std::shared_ptr<LLCore::HttpRequest> HttpRequestPtr_t;
-typedef std::unique_ptr<LLCore::HttpOptions> HttpOptionsPtr_t;
-typedef std::unique_ptr<Injector> InjectorPtr_t;
-
-static void request_(
-	const std::string& url,
-	EHTTPMethod method,
-	Injector* body_injector,
-	LLCurl::ResponderPtr responder,
-	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS,
-	const LLSD& headers = LLSD(),
-	bool follow_redirects = true
-	)
-{
-	HttpRequestPtr_t httpReq = HttpRequestPtr_t(new LLCore::HttpRequest());
-
-	HttpOptionsPtr_t httpOpts = HttpOptionsPtr_t(new LLCore::HttpOptions());
-
-	httpOpts->setFollowRedirects(follow_redirects);
-	httpOpts->setRetries(12);
-	httpOpts->setUseRetryAfter(true);
-	// for the moment lets just truncate.  60 seconds vs 60.5 seconds 
-	httpOpts->setTransferTimeout((unsigned int)timeout); 
-
-	switch (method)
-	{
-	case HTTP_GET:
-		httpReq->requestGet(0, 0, url, httpOpts.get(), headers, handler);
-		break;
-	case HTTP_HEAD:
-		httpReq->requestHead(0, 0, url, httpOpts.get(), headers, handler);
-		break;
-	case HTTP_PUT:
-		httpReq->requestPut(0, 0, url, );
-		break;
-	case HTTP_POST:
-		httpReq->requestPost(0, 0, url, null, httpOpts.get(), headers, handler);
-		break;
-	}
-
-
-}
-#endif 
-
 static void request(
 	const std::string& url,
 	EHTTPMethod method,

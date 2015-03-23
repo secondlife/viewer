@@ -72,7 +72,7 @@ public:
 	/// Statistics for the HTTP 
 	struct TransferStats
 	{
-		typedef std::shared_ptr<TransferStats> ptr_t;
+		typedef boost::shared_ptr<TransferStats> ptr_t;
 
 		TransferStats() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
 		F64 mSizeDownload;
