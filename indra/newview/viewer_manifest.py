@@ -340,9 +340,9 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
         # Plugin host application
-        # The current slplugin package places slplugin.exe right into the
-        # packages base directory.
-        self.path2basename(pkgdir, "slplugin.exe")
+        self.path2basename(os.path.join(os.pardir,
+                                        'llplugin', 'slplugin', self.args['configuration']),
+                           "slplugin.exe")
         
         self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
         # Get shared libs from the shared libs staging directory
@@ -424,16 +424,63 @@ class Windows_i686_Manifest(ViewerManifest):
         self.path("featuretable_xp.txt")
 
         # Media plugins - QuickTime
-        # Media plugins - WebKit/Qt
-        if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="llplugin"):
+        if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
+            self.end_prefix()
+
+        # Media plugins - WebKit/Qt
+        if self.prefix(src='../media_plugins/webkit/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_webkit.dll")
-            self.path("qtcore4.dll")
-            self.path("qtgui4.dll")
-            self.path("qtnetwork4.dll")
-            self.path("qtopengl4.dll")
-            self.path("qtwebkit4.dll")
-            self.path("qtxmlpatterns4.dll")
+            self.end_prefix()
+
+        # winmm.dll shim
+        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
+            self.path("winmm.dll")
+            self.end_prefix()
+
+
+        if self.args['configuration'].lower() == 'debug':
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'debug'),
+                           dst="llplugin"):
+                self.path("libeay32.dll")
+                self.path("qtcored4.dll")
+                self.path("qtguid4.dll")
+                self.path("qtnetworkd4.dll")
+                self.path("qtopengld4.dll")
+                self.path("qtwebkitd4.dll")
+                self.path("qtxmlpatternsd4.dll")
+                self.path("ssleay32.dll")
+
+                # For WebKit/Qt plugin runtimes (image format plugins)
+                if self.prefix(src="imageformats", dst="imageformats"):
+                    self.path("qgifd4.dll")
+                    self.path("qicod4.dll")
+                    self.path("qjpegd4.dll")
+                    self.path("qmngd4.dll")
+                    self.path("qsvgd4.dll")
+                    self.path("qtiffd4.dll")
+                    self.end_prefix()
+
+                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecsd4.dll")
+                    self.path("qjpcodecsd4.dll")
+                    self.path("qkrcodecsd4.dll")
+                    self.path("qtwcodecsd4.dll")
+                    self.end_prefix()
+
+                self.end_prefix()
+        else:
+            if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'release'),
+                           dst="llplugin"):
+                self.path("libeay32.dll")
+                self.path("qtcore4.dll")
+                self.path("qtgui4.dll")
+                self.path("qtnetwork4.dll")
+                self.path("qtopengl4.dll")
+                self.path("qtwebkit4.dll")
+                self.path("qtxmlpatterns4.dll")
+                self.path("ssleay32.dll")
 
             # For WebKit/Qt plugin runtimes (image format plugins)
             if self.prefix(src="imageformats", dst="imageformats"):
@@ -454,23 +501,6 @@ class Windows_i686_Manifest(ViewerManifest):
                 self.end_prefix()
 
         self.end_prefix()
-
-        # winmm.dll shim
-        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
-            self.path("winmm.dll")
-            self.end_prefix()
-
-        if self.args['configuration'].lower() == 'debug':
-            if self.prefix(src=debpkgdir, dst="llplugin"):
-                self.path("libeay32.dll")
-                self.path("ssleay32.dll")
-                self.end_prefix()
-
-        else:
-            if self.prefix(src=relpkgdir, dst="llplugin"):
-                self.path("libeay32.dll")
-                self.path("ssleay32.dll")
-                self.end_prefix()
 
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
@@ -735,14 +765,13 @@ class Darwin_i386_Manifest(ViewerManifest):
                         dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
                 
                 # our apps
-                for app_bld_dir, app in ((os.path.join(os.pardir,
-                                                       "mac_crash_logger",
-                                                       self.args['configuration']),
-                                          "mac-crash-logger.app"),
+                for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
                                          # plugin launcher
-                                         (pkgdir, "SLPlugin.app"),
+                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
                                          ):
-                    self.path2basename(app_bld_dir, app)
+                    self.path2basename(os.path.join(os.pardir,
+                                                    app_bld_dir, self.args['configuration']),
+                                       app)
 
                     # our apps dependencies on shared libs
                     # for each app, for each dylib we collected in dylibs,
@@ -776,19 +805,21 @@ class Darwin_i386_Manifest(ViewerManifest):
 
                 # Qt4 codecs go to llplugin.  Not certain why but this is the first
                 # location probed according to dtruss so we'll go with that.
-                if self.prefix(src=os.path.join(pkgdir, "llplugin/codecs/"), dst="llplugin/codecs"):
+                if self.prefix(src="../packages/plugins/codecs/", dst="llplugin/codecs"):
                     self.path("libq*.dylib")
                     self.end_prefix("llplugin/codecs")
 
                 # Similarly for imageformats.
-                if self.prefix(src=os.path.join(pkgdir, "llplugin/imageformats/"), dst="llplugin/imageformats"):
+                if self.prefix(src="../packages/plugins/imageformats/", dst="llplugin/imageformats"):
                     self.path("libq*.dylib")
                     self.end_prefix("llplugin/imageformats")
 
                 # SLPlugin plugins proper
-                if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="llplugin"):
-                    self.path("media_plugin_quicktime.dylib")
-                    self.path("media_plugin_webkit.dylib")
+                if self.prefix(src="", dst="llplugin"):
+                    self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
+                                       "media_plugin_quicktime.dylib")
+                    self.path2basename("../media_plugins/webkit/" + self.args['configuration'],
+                                       "media_plugin_webkit.dylib")
                     self.end_prefix("llplugin")
 
                 self.end_prefix("Resources")
@@ -981,7 +1012,7 @@ class LinuxManifest(ViewerManifest):
         if self.prefix(src="", dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename(pkgdir, "SLPlugin")
+            self.path2basename("../llplugin/slplugin", "SLPlugin")
             self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
             self.end_prefix("bin")
 
@@ -1001,9 +1032,9 @@ class LinuxManifest(ViewerManifest):
             self.end_prefix(icon_path)
 
         # plugins
-        if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="bin/llplugin"):
-            self.path("libmedia_plugin_webkit.so")
-            self.path("libmedia_plugin_gstreamer.so")
+        if self.prefix(src="", dst="bin/llplugin"):
+            self.path2basename("../media_plugins/webkit", "libmedia_plugin_webkit.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
             self.end_prefix("bin/llplugin")
 
         # llcommon
