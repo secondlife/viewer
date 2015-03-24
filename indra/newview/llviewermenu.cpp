@@ -3890,6 +3890,14 @@ class LLEnableEditShape : public view_listener_t
 	}
 };
 
+class LLEnableHoverHeight : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gAgent.getRegion() && gAgent.getRegion()->avatarHoverHeightEnabled();
+	}
+};
+
 class LLEnableEditPhysics : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -6085,6 +6093,11 @@ void handle_edit_outfit()
 void handle_edit_shape()
 {
 	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_shape"));
+}
+
+void handle_hover_height()
+{
+	LLFloaterReg::showInstance("edit_hover_height");
 }
 
 void handle_edit_physics()
@@ -8583,10 +8596,12 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
 	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
+	view_listener_t::addMenu(new LLEnableHoverHeight(), "Edit.EnableHoverHeight");
 	view_listener_t::addMenu(new LLEnableEditPhysics(), "Edit.EnableEditPhysics");
 	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
 	commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
 	commit.add("EditShape", boost::bind(&handle_edit_shape));
+	commit.add("HoverHeight", boost::bind(&handle_hover_height));
 	commit.add("EditPhysics", boost::bind(&handle_edit_physics));
 
 	// View menu
