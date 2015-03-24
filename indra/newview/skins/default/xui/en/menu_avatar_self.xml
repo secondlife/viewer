@@ -229,6 +229,14 @@
        <menu_item_call.on_enable
         function="Edit.EnableEditShape" />
    </menu_item_call>
+   <menu_item_call label="Hover Height"
+     layout="topleft"
+     name="Hover Height">
+     <menu_item_call.on_click
+      function="HoverHeight" />
+     <menu_item_call.on_enable
+      function="Edit.EnableHoverHeight" />
+   </menu_item_call>
    <menu_item_call
      label="My Friends"
      layout="topleft"
