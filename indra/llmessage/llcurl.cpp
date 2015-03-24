@@ -75,7 +75,7 @@ static const U32 EASY_HANDLE_POOL_SIZE		= 5;
 static const S32 MULTI_PERFORM_CALL_REPEAT	= 5;
 static const S32 CURL_REQUEST_TIMEOUT = 120; // seconds per operation
 static const S32 CURL_CONNECT_TIMEOUT = 30; //seconds to wait for a connection
-static const S32 MAX_ACTIVE_REQUEST_COUNT = 100;
+//static const S32 MAX_ACTIVE_REQUEST_COUNT = 100;
 
 // DEBUG //
 S32 gCurlEasyCount = 0;
