@@ -247,6 +247,7 @@ set(viewer_SOURCE_FILES
     llfloaterhandler.cpp
     llfloaterhardwaresettings.cpp
     llfloaterhelpbrowser.cpp
+    llfloaterhoverheight.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterimsessiontab.cpp
@@ -852,6 +853,7 @@ set(viewer_HEADER_FILES
     llfloaterhandler.h
     llfloaterhardwaresettings.h
     llfloaterhelpbrowser.h
+    llfloaterhoverheight.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterimnearbychat.h

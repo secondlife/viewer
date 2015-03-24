@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ positioning="cascading"
+ ignore_ui_scale="false"
+ legacy_header_height="225"
+ can_minimize="true"
+ can_close="true"
+ can_resize="true"
+ min_height="65"
+ min_width="515"
+ height="65"
+ layout="topleft"
+ name="HoverHeight"
+ single_instance="true"
+ help_topic="hover_height"
+ save_rect="true"
+ save_visibility="true"
+ title="SET HOVER HEIGHT"
+ width="515">
+      <slider
+     enabled="false"
+     control_name="HoverHeightSlider"
+     decimal_digits="3"
+     follows="top|left"
+     height="15"
+     increment="0.001"
+     initial_value="0.0"
+     label="Height"
+     label_width="60"
+     left="10"
+     width="501"
+     layout="topleft"
+     name="HoverHeightSlider"
+     top="35"
+     can_edit_text="true"
+     >
+    </slider>
+</floater>
