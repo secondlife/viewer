@@ -49,6 +49,7 @@ include(CMakeCopyIfDifferent)
 include(LLAppearance)
 include(PNG)
 include(ZLIB)
+include(URIPARSER)
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -244,6 +245,7 @@ set(viewer_SOURCE_FILES
     llfloaterhandler.cpp
     llfloaterhardwaresettings.cpp
     llfloaterhelpbrowser.cpp
+    llfloaterhoverheight.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterimsessiontab.cpp
@@ -849,6 +851,7 @@ set(viewer_HEADER_FILES
     llfloaterhandler.h
     llfloaterhardwaresettings.h
     llfloaterhelpbrowser.h
+    llfloaterhoverheight.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterimnearbychat.h
@@ -1924,6 +1927,7 @@ endif (WINDOWS)
 target_link_libraries(${VIEWER_BINARY_NAME}
     ${PNG_PRELOAD_ARCHIVES}
     ${ZLIB_PRELOAD_ARCHIVES}
+    ${URIPARSER_PRELOAD_ARCHIVES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}

@@ -591,6 +591,7 @@ protected:
 	
 	void							appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
 	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);
+	S32 normalizeUri(std::string& uri);
 	
 
 protected:

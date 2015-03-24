@@ -66,6 +66,7 @@
 #include "llviewerstatsrecorder.h"
 #include "llvlmanager.h"
 #include "llvlcomposition.h"
+#include "llvoavatarself.h"
 #include "llvocache.h"
 #include "llworld.h"
 #include "llspatialpartition.h"
@@ -424,6 +425,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mCacheDirty(FALSE),
 	mReleaseNotesRequested(FALSE),
 	mCapabilitiesReceived(false),
+	mSimulatorFeaturesReceived(false),
 	mBitsReceived(0.f),
 	mPacketsReceived(0.f),
 	mDead(FALSE),
@@ -1485,16 +1487,27 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 
 	if(drawablep && !drawablep->getParent())
 	{
-		LLViewerObject::const_child_list_t& child_list = drawablep->getVObj()->getChildren();
+		LLViewerObject* v_obj = drawablep->getVObj();
+		if (v_obj->isSelected()
+			|| (v_obj->flagAnimSource() && isAgentAvatarValid() && gAgentAvatarp->hasMotionFromSource(v_obj->getID())))
+		{
+			// do not remove objects user is interacting with
+			((LLViewerOctreeEntryData*)drawablep)->setVisible();
+			return;
+		}
+		LLViewerObject::const_child_list_t& child_list = v_obj->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
 			iter != child_list.end(); iter++)
 		{
 			LLViewerObject* child = *iter;
 			if(child->mDrawable)
 			{
-				if(!child->mDrawable->getEntry() || !child->mDrawable->getEntry()->hasVOCacheEntry())
+				if( !child->mDrawable->getEntry()
+					|| !child->mDrawable->getEntry()->hasVOCacheEntry()
+					|| child->isSelected()
+					|| (child->flagAnimSource() && isAgentAvatarValid() && gAgentAvatarp->hasMotionFromSource(child->getID())))
 				{
-					//do not remove parent if any of its children non-cacheable
+					//do not remove parent if any of its children non-cacheable, animating or selected
 					//especially for the case that an avatar sits on a cache-able object
 					((LLViewerOctreeEntryData*)drawablep)->setVisible();
 					return;
@@ -2027,6 +2040,26 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
+boost::signals2::connection LLViewerRegion::setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb)
+{
+	return mSimulatorFeaturesReceivedSignal.connect(cb);
+}
+
+void LLViewerRegion::setSimulatorFeaturesReceived(bool received)
+{
+	mSimulatorFeaturesReceived = received;
+	if (received)
+	{
+		mSimulatorFeaturesReceivedSignal(getRegionID());
+		mSimulatorFeaturesReceivedSignal.disconnect_all_slots();
+	}
+}
+
+bool LLViewerRegion::simulatorFeaturesReceived() const
+{
+	return mSimulatorFeaturesReceived;
+}
+
 void LLViewerRegion::getSimulatorFeatures(LLSD& sim_features) const
 {
 	sim_features = mSimulatorFeatures;
@@ -2040,6 +2073,9 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	LLSDSerialize::toPrettyXML(sim_features, str);
 	LL_INFOS() << str.str() << LL_ENDL;
 	mSimulatorFeatures = sim_features;
+
+	setSimulatorFeaturesReceived(true);
+	
 }
 
 //this is called when the parent is not cacheable.
@@ -3087,6 +3123,12 @@ bool LLViewerRegion::dynamicPathfindingEnabled() const
 {
 	return ( mSimulatorFeatures.has("DynamicPathfindingEnabled") &&
 			 mSimulatorFeatures["DynamicPathfindingEnabled"].asBoolean());
+}
+
+bool LLViewerRegion::avatarHoverHeightEnabled() const
+{
+	return ( mSimulatorFeatures.has("AvatarHoverHeightEnabled") &&
+			 mSimulatorFeatures["AvatarHoverHeightEnabled"].asBoolean());
 }
 /* Static Functions */
 

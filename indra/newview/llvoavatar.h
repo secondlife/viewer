@@ -191,6 +191,7 @@ public:
 	/*virtual*/ LLUUID			remapMotionID(const LLUUID& id);
 	/*virtual*/ BOOL			startMotion(const LLUUID& id, F32 time_offset = 0.f);
 	/*virtual*/ BOOL			stopMotion(const LLUUID& id, BOOL stop_immediate = FALSE);
+	virtual bool			hasMotionFromSource(const LLUUID& source_id);
 	virtual void			stopMotionFromSource(const LLUUID& source_id);
 	virtual void			requestStopMotion(LLMotion* motion);
 	LLMotion*				findMotion(const LLUUID& id) const;
@@ -213,7 +214,6 @@ public:
 	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
 	virtual void				updateVisualParams();
 
-
 /**                    Inherited
  **                                                                            **
  *******************************************************************************/
@@ -233,6 +233,7 @@ private: //aligned members
 	// Updates
 	//--------------------------------------------------------------------
 public:
+	void			updateDebugText();
 	virtual BOOL 	updateCharacter(LLAgent &agent);
 	void 			idleUpdateVoiceVisualizer(bool voice_enabled);
 	void 			idleUpdateMisc(bool detailed_update);
@@ -987,6 +988,7 @@ public:
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
+	LLFrameTimer	mLastAppearanceMessageTimer; // Time since last appearance message received.
 
 	//--------------------------------------------------------------------
 	// COF monitoring
@@ -1018,6 +1020,9 @@ protected: // Shared with LLVOAvatarSelf
 }; // LLVOAvatar
 extern const F32 SELF_ADDITIONAL_PRI;
 extern const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL;
+
+extern const F32 MAX_HOVER_Z;
+extern const F32 MIN_HOVER_Z;
 
 std::string get_sequential_numbered_file_name(const std::string& prefix,
 											  const std::string& suffix);

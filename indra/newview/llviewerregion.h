@@ -309,11 +309,18 @@ public:
 	bool meshRezEnabled() const;
 	bool meshUploadEnabled() const;
 
+	// has region received its simulator features list? Requires an additional query after caps received.
+	void setSimulatorFeaturesReceived(bool);
+	bool simulatorFeaturesReceived() const;
+	boost::signals2::connection setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb);
+	
 	void getSimulatorFeatures(LLSD& info) const;	
 	void setSimulatorFeatures(const LLSD& info);
 
 	
 	bool dynamicPathfindingEnabled() const;
+
+	bool avatarHoverHeightEnabled() const;
 
 	typedef enum
 	{
@@ -385,7 +392,7 @@ public:
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
-	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list);	
+	void killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list); //adds entry into list if it is safe to move into cache
 	void removeFromVOCacheTree(LLVOCacheEntry* entry);
 	void killCacheEntry(LLVOCacheEntry* entry, bool for_rendering = false); //physically delete the cache entry	
 	void killInvisibleObjects(F32 max_time);
@@ -512,6 +519,7 @@ private:
 	BOOL                                    mCacheDirty;
 	BOOL	mAlive;					// can become false if circuit disconnects
 	BOOL	mCapabilitiesReceived;
+	BOOL	mSimulatorFeaturesReceived;
 	BOOL    mReleaseNotesRequested;
 	BOOL    mDead;  //if true, this region is in the process of deleting.
 	BOOL    mPaused; //pause processing the objects in the region
@@ -532,11 +540,13 @@ private:
 	CacheMissItem::cache_miss_list_t   mCacheMissList;
 	
 	caps_received_signal_t mCapabilitiesReceivedSignal;		
+	caps_received_signal_t mSimulatorFeaturesReceivedSignal;		
+
 	LLSD mSimulatorFeatures;
 
 	// the materials capability throttle
 	LLFrameTimer mMaterialsCapThrottleTimer;
-LLFrameTimer	mRenderInfoRequestTimer;
+	LLFrameTimer mRenderInfoRequestTimer;
 };
 
 inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const
