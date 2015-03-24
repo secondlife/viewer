@@ -118,6 +118,12 @@ void LLUriParser::fragment(const std::string& s)
 
 void LLUriParser::textRangeToString(UriTextRangeA& textRange, std::string& str)
 {
+	if(&textRange == NULL)
+	{
+		LL_WARNS() << "textRange is NULL for uri: " << mNormalizedUri << LL_ENDL;
+		return;
+	}
+
 	S32 len = textRange.afterLast - textRange.first;
 	if (len)
 	{
@@ -128,6 +134,12 @@ void LLUriParser::textRangeToString(UriTextRangeA& textRange, std::string& str)
 
 void LLUriParser::extractParts()
 {
+	if(&mUri == NULL)
+	{
+		LL_WARNS() << "mUri is NULL for uri: " << mNormalizedUri << LL_ENDL;
+		return;
+	}
+
 	if (mTmpScheme)
 	{
 		mScheme.clear();
