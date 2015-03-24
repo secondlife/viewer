@@ -69,7 +69,7 @@
 		Połysk
 	</text>
 	<combo_box name="combobox shininess">
-		<combo_box.item label="Żadny" name="None" />
+		<combo_box.item label="Żaden" name="None" />
 		<combo_box.item label="Niski" name="Low" />
 		<combo_box.item label="Średni" name="Medium" />
 		<combo_box.item label="Wysoki" name="High" />

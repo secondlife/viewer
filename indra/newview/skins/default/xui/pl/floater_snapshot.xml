@@ -31,22 +31,22 @@
 		Zapisano do Szafy!
 	</string>
 	<string name="local_succeeded_str">
-		Zapisano na komputerze!
+		Zapisano na dysku!
 	</string>
 	<string name="facebook_failed_str">
-		Publikacja obrazu na osi czasu nie powiodła się.
+		Publikacja nie powiodła się.
 	</string>
 	<string name="profile_failed_str">
-		Publikacja obrazu na kanale nie powiodła się.
+		Publikacja nie powiodła się.
 	</string>
 	<string name="postcard_failed_str">
-		Wysyłanie maila nie powiodło się.
+		Wysyłanie maila nieudane.
 	</string>
 	<string name="inventory_failed_str">
-		Zapis do Szafy nie powiódł się.
+		Zapis do Szafy nieudany.
 	</string>
 	<string name="local_failed_str">
-		Zapis na komputerze nie powiódł się.
+		Zapis na dysku nieudany.
 	</string>
 	<button label="ODŚWIEŻ" name="new_snapshot_btn" />
 	<panel name="advanced_options_panel">
