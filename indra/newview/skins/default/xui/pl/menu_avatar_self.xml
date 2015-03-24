@@ -24,6 +24,7 @@
 	<menu_item_call label="Mój wygląd" name="Chenge Outfit" />
 	<menu_item_call label="Edytuj strój" name="Edit Outfit" />
 	<menu_item_call label="Edytuj kształt" name="Edit My Shape" />
+	<menu_item_call label="Uniesienie" name="Hover Height"/>
 	<menu_item_call label="Znajomi" name="Friends..." />
 	<menu_item_call label="Grupy" name="Groups..." />
 	<menu_item_call label="Profil" name="Profile..." />
