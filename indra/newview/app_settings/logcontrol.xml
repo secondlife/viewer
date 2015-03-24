@@ -43,6 +43,7 @@
 					<key>tags</key>
 						<array>
 						<!-- sample entry for debugging specific items	
+						     <string>Avatar</string>
 						     <string>Inventory</string>
 						     <string>SceneLoadTiming</string>
 						     <string>Avatar</string>

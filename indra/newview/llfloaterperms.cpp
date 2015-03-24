@@ -35,6 +35,8 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
+#include "llvoavatar.h"
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
@@ -171,8 +173,9 @@ public:
 private:
 	static	std::string sPreviousReason;
 
-	void error(U32 status, const std::string& reason)
+	void httpFailure()
 	{
+		const std::string& reason = getReason();
 		// Do not display the same error more than once in a row
 		if (reason != sPreviousReason)
 		{
@@ -182,8 +185,12 @@ private:
 			LLNotificationsUtil::add("DefaultObjectPermissions", args);
 		}
 	}
-	void result(const LLSD& content)
+
+	void httpSuccess()
 	{
+		//const LLSD& content = getContent();
+		//dump_sequential_xml("perms_responder_result.xml", content);
+
 		// Since we have had a successful POST call be sure to display the next error message
 		// even if it is the same as a previous one.
 		sPreviousReason = "";
