@@ -1245,6 +1245,165 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 	items = new_items;
 }
 
+//=========================================================================
+class LLAppearanceMgrHttpHandler : public LLHttpSDHandler
+{
+public:
+	LLAppearanceMgrHttpHandler(const std::string& capabilityURL, LLAppearanceMgr *mgr) :
+		LLHttpSDHandler(capabilityURL),
+		mManager(mgr)
+	{ }
+
+	virtual ~LLAppearanceMgrHttpHandler()
+	{ }
+
+	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
+protected:
+	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
+	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
+
+private:
+	static void debugCOF(const LLSD& content);
+
+	LLAppearanceMgr *mManager;
+
+};
+
+//-------------------------------------------------------------------------
+void LLAppearanceMgrHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+{
+	mManager->decrementInFlightCounter();
+
+	LLHttpSDHandler::onCompleted(handle, response);
+}
+
+void LLAppearanceMgrHttpHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
+{
+	if (!content.isMap())
+	{
+		LLCore::HttpStatus status = LLCore::HttpStatus(HTTP_INTERNAL_ERROR, "Malformed response contents");
+		response->setStatus(status);
+		onFailure(response, status);
+		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+		{
+			debugCOF(content);
+		}
+		return;
+	}
+	if (content["success"].asBoolean())
+	{
+		LL_DEBUGS("Avatar") << "succeeded" << LL_ENDL;
+		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+		{
+			dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
+		}
+	}
+	else
+	{
+		LLCore::HttpStatus status = LLCore::HttpStatus(HTTP_INTERNAL_ERROR, "Non-success response");
+		response->setStatus(status);
+		onFailure(response, status);
+		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+		{
+			debugCOF(content);
+		}
+		return;
+	}
+}
+
+void LLAppearanceMgrHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
+{
+	LL_WARNS("Avatar") << "Appearance Mgr request failed to " << getUri()
+		<< ". Reason code: (" << status.toTerseString() << ") "
+		<< status.toString() << LL_ENDL;
+}
+
+void LLAppearanceMgrHttpHandler::debugCOF(const LLSD& content)
+{
+	dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
+
+	LL_INFOS("Avatar") << "AIS COF, version received: " << content["expected"].asInteger()
+		<< " ================================= " << LL_ENDL;
+	std::set<LLUUID> ais_items, local_items;
+	const LLSD& cof_raw = content["cof_raw"];
+	for (LLSD::array_const_iterator it = cof_raw.beginArray();
+		it != cof_raw.endArray(); ++it)
+	{
+		const LLSD& item = *it;
+		if (item["parent_id"].asUUID() == LLAppearanceMgr::instance().getCOF())
+		{
+			ais_items.insert(item["item_id"].asUUID());
+			if (item["type"].asInteger() == 24) // link
+			{
+				LL_INFOS("Avatar") << "AIS Link: item_id: " << item["item_id"].asUUID()
+					<< " linked_item_id: " << item["asset_id"].asUUID()
+					<< " name: " << item["name"].asString()
+					<< LL_ENDL;
+			}
+			else if (item["type"].asInteger() == 25) // folder link
+			{
+				LL_INFOS("Avatar") << "AIS Folder link: item_id: " << item["item_id"].asUUID()
+					<< " linked_item_id: " << item["asset_id"].asUUID()
+					<< " name: " << item["name"].asString()
+					<< LL_ENDL;
+			}
+			else
+			{
+				LL_INFOS("Avatar") << "AIS Other: item_id: " << item["item_id"].asUUID()
+					<< " linked_item_id: " << item["asset_id"].asUUID()
+					<< " name: " << item["name"].asString()
+					<< " type: " << item["type"].asInteger()
+					<< LL_ENDL;
+			}
+		}
+	}
+	LL_INFOS("Avatar") << LL_ENDL;
+	LL_INFOS("Avatar") << "Local COF, version requested: " << content["observed"].asInteger()
+		<< " ================================= " << LL_ENDL;
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
+		cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH);
+	for (S32 i = 0; i < item_array.size(); i++)
+	{
+		const LLViewerInventoryItem* inv_item = item_array.at(i).get();
+		local_items.insert(inv_item->getUUID());
+		LL_INFOS("Avatar") << "LOCAL: item_id: " << inv_item->getUUID()
+			<< " linked_item_id: " << inv_item->getLinkedUUID()
+			<< " name: " << inv_item->getName()
+			<< " parent: " << inv_item->getParentUUID()
+			<< LL_ENDL;
+	}
+	LL_INFOS("Avatar") << " ================================= " << LL_ENDL;
+	S32 local_only = 0, ais_only = 0;
+	for (std::set<LLUUID>::iterator it = local_items.begin(); it != local_items.end(); ++it)
+	{
+		if (ais_items.find(*it) == ais_items.end())
+		{
+			LL_INFOS("Avatar") << "LOCAL ONLY: " << *it << LL_ENDL;
+			local_only++;
+		}
+	}
+	for (std::set<LLUUID>::iterator it = ais_items.begin(); it != ais_items.end(); ++it)
+	{
+		if (local_items.find(*it) == local_items.end())
+		{
+			LL_INFOS("Avatar") << "AIS ONLY: " << *it << LL_ENDL;
+			ais_only++;
+		}
+	}
+	if (local_only == 0 && ais_only == 0)
+	{
+		LL_INFOS("Avatar") << "COF contents identical, only version numbers differ (req "
+			<< content["observed"].asInteger()
+			<< " rcv " << content["expected"].asInteger()
+			<< ")" << LL_ENDL;
+	}
+}
+
+//=========================================================================
+
 const LLUUID LLAppearanceMgr::getCOF() const
 {
 	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
@@ -3157,165 +3316,6 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id,
 		
 }
 
-//=========================================================================
-class LLAppearanceMgrHttpHandler : public LLHttpSDHandler
-{
-public:
-	LLAppearanceMgrHttpHandler(const std::string& capabilityURL, LLAppearanceMgr *mgr) :
-		LLHttpSDHandler(capabilityURL),
-		mManager(mgr)
-	{ }
-
-	virtual ~LLAppearanceMgrHttpHandler()
-	{ }
-
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
-
-protected:
-	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
-	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
-
-private:
-	static void debugCOF(const LLSD& content);
-
-	LLAppearanceMgr *mManager;
-
-};
-
-//-------------------------------------------------------------------------
-void LLAppearanceMgrHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
-{
-	mManager->decrementInFlightCounter();
-
-	LLHttpSDHandler::onCompleted(handle, response);
-}
-
-void LLAppearanceMgrHttpHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
-{
-	if (!content.isMap())
-	{
-		LLCore::HttpStatus status = LLCore::HttpStatus(HTTP_INTERNAL_ERROR, "Malformed response contents");
-		response->setStatus(status);
-		onFailure(response, status);
-		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
-		{
-			debugCOF(content);
-		}
-		return;
-	}
-	if (content["success"].asBoolean())
-	{
-		LL_DEBUGS("Avatar") << "succeeded" << LL_ENDL;
-		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
-		{
-			dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", content);
-		}
-	}
-	else
-	{
-		LLCore::HttpStatus status = LLCore::HttpStatus(HTTP_INTERNAL_ERROR, "Non-success response");
-		response->setStatus(status);
-		onFailure(response, status);
-		if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
-		{
-			debugCOF(content);
-		}
-		return;
-	}
-}
-
-void LLAppearanceMgrHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
-{
-	LL_WARNS("Avatar") << "Appearance Mgr request failed to " << getUri()
-		<< ". Reason code: (" << status.toTerseString() << ") "
-		<< status.toString() << LL_ENDL;
-}
-
-void LLAppearanceMgrHttpHandler::debugCOF(const LLSD& content)
-{
-	dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
-
-	LL_INFOS("Avatar") << "AIS COF, version received: " << content["expected"].asInteger()
-		<< " ================================= " << LL_ENDL;
-	std::set<LLUUID> ais_items, local_items;
-	const LLSD& cof_raw = content["cof_raw"];
-	for (LLSD::array_const_iterator it = cof_raw.beginArray();
-		it != cof_raw.endArray(); ++it)
-	{
-		const LLSD& item = *it;
-		if (item["parent_id"].asUUID() == LLAppearanceMgr::instance().getCOF())
-		{
-			ais_items.insert(item["item_id"].asUUID());
-			if (item["type"].asInteger() == 24) // link
-			{
-				LL_INFOS("Avatar") << "AIS Link: item_id: " << item["item_id"].asUUID()
-					<< " linked_item_id: " << item["asset_id"].asUUID()
-					<< " name: " << item["name"].asString()
-					<< LL_ENDL; 
-			}
-			else if (item["type"].asInteger() == 25) // folder link
-			{
-				LL_INFOS("Avatar") << "AIS Folder link: item_id: " << item["item_id"].asUUID()
-					<< " linked_item_id: " << item["asset_id"].asUUID()
-					<< " name: " << item["name"].asString()
-					<< LL_ENDL; 
-			}
-			else
-			{
-				LL_INFOS("Avatar") << "AIS Other: item_id: " << item["item_id"].asUUID()
-					<< " linked_item_id: " << item["asset_id"].asUUID()
-					<< " name: " << item["name"].asString()
-					<< " type: " << item["type"].asInteger()
-					<< LL_ENDL; 
-			}
-		}
-	}
-	LL_INFOS("Avatar") << LL_ENDL;
-	LL_INFOS("Avatar") << "Local COF, version requested: " << content["observed"].asInteger() 
-		<< " ================================= " << LL_ENDL;
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
-		cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i=0; i<item_array.size(); i++)
-	{
-		const LLViewerInventoryItem* inv_item = item_array.at(i).get();
-		local_items.insert(inv_item->getUUID());
-		LL_INFOS("Avatar") << "LOCAL: item_id: " << inv_item->getUUID()
-			<< " linked_item_id: " << inv_item->getLinkedUUID()
-			<< " name: " << inv_item->getName()
-			<< " parent: " << inv_item->getParentUUID()
-			<< LL_ENDL;
-	}
-	LL_INFOS("Avatar") << " ================================= " << LL_ENDL;
-	S32 local_only = 0, ais_only = 0;
-	for (std::set<LLUUID>::iterator it = local_items.begin(); it != local_items.end(); ++it)
-	{
-		if (ais_items.find(*it) == ais_items.end())
-		{
-			LL_INFOS("Avatar") << "LOCAL ONLY: " << *it << LL_ENDL;
-			local_only++;
-		}
-	}
-	for (std::set<LLUUID>::iterator it = ais_items.begin(); it != ais_items.end(); ++it)
-	{
-		if (local_items.find(*it) == local_items.end())
-		{
-			LL_INFOS("Avatar") << "AIS ONLY: " << *it << LL_ENDL;
-			ais_only++;
-		}
-	}
-	if (local_only==0 && ais_only==0)
-	{
-		LL_INFOS("Avatar") << "COF contents identical, only version numbers differ (req "
-			<< content["observed"].asInteger()
-			<< " rcv " << content["expected"].asInteger()
-			<< ")" << LL_ENDL;
-	}
-}
-
-//=========================================================================
-
 
 LLSD LLAppearanceMgr::dumpCOF() const
 {
@@ -3492,99 +3492,6 @@ bool LLAppearanceMgr::onIdle()
 	mHttpRequest->update(0L);
 	return false;
 }
-
-class LLIncrementCofVersionResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLIncrementCofVersionResponder);
-public:
-	LLIncrementCofVersionResponder() : LLHTTPClient::Responder()
-	{
-		mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 16.0, 2.0, 5);
-	}
-
-	virtual ~LLIncrementCofVersionResponder()
-	{
-	}
-
-protected:
-	virtual void httpSuccess()
-	{
-		LL_INFOS() << "Successfully incremented agent's COF." << LL_ENDL;
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		S32 new_version = content["category"]["version"].asInteger();
-
-		// cof_version should have increased
-		llassert(new_version > gAgentAvatarp->mLastUpdateRequestCOFVersion);
-
-		gAgentAvatarp->mLastUpdateRequestCOFVersion = new_version;
-	}
-
-	virtual void httpFailure()
-	{
-		LL_WARNS("Avatar") << "While attempting to increment the agent's cof we got an error "
-						   << dumpResponse() << LL_ENDL;
-		F32 seconds_to_wait;
-		mRetryPolicy->onFailure(getStatus(), getResponseHeaders());
-		if (mRetryPolicy->shouldRetry(seconds_to_wait))
-		{
-			LL_INFOS() << "retrying" << LL_ENDL;
-			doAfterInterval(boost::bind(&LLAppearanceMgr::incrementCofVersion,
-										LLAppearanceMgr::getInstance(),
-										LLHTTPClient::ResponderPtr(this)),
-										seconds_to_wait);
-		}
-		else
-		{
-			LL_WARNS() << "giving up after too many retries" << LL_ENDL;
-		}
-	}
-
-private:
-	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
-};
-
-void LLAppearanceMgr::incrementCofVersion(LLHTTPClient::ResponderPtr responder_ptr)
-{
-	// If we don't have a region, report it as an error
-	if (gAgent.getRegion() == NULL)
-	{
-		LL_WARNS() << "Region not set, cannot request cof_version increment" << LL_ENDL;
-		return;
-	}
-
-	std::string url = gAgent.getRegion()->getCapability("IncrementCofVersion");
-	if (url.empty())
-	{
-		LL_WARNS() << "No cap for IncrementCofVersion." << LL_ENDL;
-		return;
-	}
-
-	LL_INFOS() << "Requesting cof_version be incremented via capability to: "
-			<< url << LL_ENDL;
-	LLSD headers;
-	LLSD body = LLSD::emptyMap();
-
-	if (!responder_ptr.get())
-	{
-		responder_ptr = LLHTTPClient::ResponderPtr(new LLIncrementCofVersionResponder());
-	}
-
-	LLHTTPClient::get(url, body, responder_ptr, headers, 30.0f);
-}
-
-U32 LLAppearanceMgr::getNumAttachmentsInCOF()
-{
-	const LLUUID cof = getCOF();
-	LLInventoryModel::item_array_t obj_items;
-	getDescendentsOfAssetType(cof, obj_items, LLAssetType::AT_OBJECT);
-	return obj_items.size();
-}
-
 
 std::string LLAppearanceMgr::getAppearanceServiceURL() const
 {
