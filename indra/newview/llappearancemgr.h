@@ -227,7 +227,7 @@ public:
 
 
 	bool testCOFRequestVersion() const;
-	void LLAppearanceMgr::decrementInFlightCounter()
+	void decrementInFlightCounter()
 	{
 		mInFlightCounter = llmax(mInFlightCounter - 1, 0);
 	}
