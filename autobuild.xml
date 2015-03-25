@@ -1625,65 +1625,37 @@
         <key>version</key>
         <string>1.0.298370</string>
       </map>
-      <key>llqtwebkit</key>
+      <key>cef</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).</string>
+        <string>>Copyright (c) 2008-2014 Marshall A. Greenblatt. Portions Copyright (c) 2006-2009 Google Inc. All rights reserved</string>
         <key>description</key>
-        <string>QT cross-platform application and UI framework.</string>
+        <string>Chromium Embedded Framework (CEF) Standard Binary Distribution</string>
         <key>license</key>
-        <string>LGPL</string>
+        <string>BSD</string>
         <key>license_file</key>
-        <string>LICENSES/llqtwebkit.txt</string>
+        <string>LICENSES/BSD.txt</string>
         <key>name</key>
-        <string>llqtwebkit</string>
+        <string>cef</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3c2b6be4c78b2479c3fae612e1053d37</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20141015.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>d31358176b9ba8c676458cc061767c0b</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/Linux/installer/llqtwebkit-4.7.1-linux-20141015.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bb4e8c8006c8a7aef6d3e3c36a8cebbf</string>
+              <string>bb6eda4480a04068e76a1d14c908e591</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/canonical_3p-llqtwebkit2/rev/295522/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20141015.tar.bz2</string>
+              <string>https://callum-linden.s3.amazonaws.com/cef-3.2272.2035.80000-windows-800000.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.7.1</string>
+        <string>3.2272.2035.999999</string>
       </map>
       <key>mesa</key>
       <map>
