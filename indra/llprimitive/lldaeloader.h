@@ -55,7 +55,8 @@ public:
 		LLModelLoader::state_callback_t		state_cb,
 		void*											opaque_userdata,
 		JointTransformMap&						jointMap,
-		JointSet&									jointsFromNodes);
+		JointSet&									jointsFromNodes,
+		U32									modelLimit);
 	virtual ~LLDAELoader() ;
 
 	virtual bool OpenFile(const std::string& filename);
@@ -93,11 +94,12 @@ protected:
 	// Loads a mesh breaking it into one or more models as necessary
 	// to get around volume face limitations while retaining >8 materials
 	//
-	bool loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out);
+	bool loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out, U32 submodel_limit);
 
 	static std::string getElementLabel(daeElement *element);	
 
 private:
+	U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
 
 };
 #endif  // LL_LLDAELLOADER_H

@@ -779,7 +779,8 @@ LLDAELoader::LLDAELoader(
 	state_callback_t		state_cb,
 	void*						opaque_userdata,
 	JointTransformMap&	jointMap,
-	JointSet&				jointsFromNodes )
+	JointSet&				jointsFromNodes,
+	U32					modelLimit)
 : LLModelLoader(
 		filename,
 		lod,
@@ -789,7 +790,8 @@ LLDAELoader::LLDAELoader(
 		state_cb,
 		opaque_userdata,
 		jointMap,
-		jointsFromNodes)
+		jointsFromNodes),
+mGeneratedModelLimit(modelLimit)
 {
 }
 
@@ -911,6 +913,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
 	mTransform.condition();	
 
+	U32 submodel_limit = count > 0 ? mGeneratedModelLimit/count : 0;
 	for (daeInt idx = 0; idx < count; ++idx)
 	{ //build map of domEntities to LLModel
 		domMesh* mesh = NULL;
@@ -921,7 +924,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
 			std::vector<LLModel*> models;
 
-			loadModelsFromDomMesh(mesh, models);
+			loadModelsFromDomMesh(mesh, models, submodel_limit);
 
 			std::vector<LLModel*>::iterator i;
 			i = models.begin();
@@ -2270,7 +2273,7 @@ LLModel* LLDAELoader::loadModelFromDomMesh(domMesh *mesh)
 //static diff version supports creating multiple models when material counts spill
 // over the 8 face server-side limit
 //
-bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out)
+bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out, U32 submodel_limit)
 {
 
 	LLVolumeParams volume_params;
@@ -2321,6 +2324,10 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 	bool normalized = false;
 
     int submodelID = 0;
+
+	// remove all faces that definitely won't fit into one model and submodel limit
+	ret->setNumVolumeFaces((submodel_limit + 1) * LL_SCULPT_MESH_MAX_FACES);
+
 	LLVolume::face_list_t remainder;
 	do 
 	{

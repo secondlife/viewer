@@ -1754,7 +1754,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		&LLModelPreview::stateChangedCallback,
 		this,
 		mJointTransformMap,
-		mJointsFromNode );	
+		mJointsFromNode,
+		gSavedSettings.getU32("ImporterModelLimit"));
 
 	if (force_disable_slm)
 	{

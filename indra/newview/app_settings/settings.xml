@@ -13,6 +13,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>ImporterModelLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Limits amount of importer generated models for dae files</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>768</integer>
+  </map>
   <key>IMShowTime</key>
   <map>
     <key>Comment</key>
