@@ -401,14 +401,6 @@ LLXMLRPCTransaction::Impl::~Impl()
 	{
 		XMLRPC_RequestFree(mResponse, 1);
 	}
-	
-	//if (mRequestText)
-	//{
-	//	XMLRPC_Free(mRequestText);
-	//}
-	
-	//delete mCurlRequest;
-	//mCurlRequest = NULL ;
 }
 
 bool LLXMLRPCTransaction::Impl::process()

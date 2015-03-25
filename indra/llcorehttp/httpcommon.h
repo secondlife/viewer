@@ -286,6 +286,8 @@ enum HttpError
 /// 5.  Construct an HTTP 301 status code to be treated as success:
 ///				HttpStatus(301, HE_SUCCESS);
 ///
+/// 6.	Construct a failed status of HTTP Status 499 with a custom error message
+///				HttpStatus(499, "Failed LLSD Response");
 
 struct HttpStatus
 {
@@ -306,6 +308,14 @@ struct HttpStatus
 			mDetails = new Details(http_status, 
 				(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);
 			llassert(http_status >= 100 && http_status <= 999);
+		}
+
+	HttpStatus(int http_status, const std::string &message)
+		{
+			mDetails = new Details(http_status,
+				(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);
+			llassert(http_status >= 100 && http_status <= 999);
+			mDetails->mMessage = message;
 		}
 	
 	HttpStatus(const HttpStatus & rhs)
@@ -420,9 +430,6 @@ struct HttpStatus
 		return mDetails->mType;
 	}
 
-	// TODO: There must be a better way to do this.  Don't want to set these 
-	// values here since they increase the size of a structure that is already 
-	// being passed on the stack.  Consider my options
 	/// Returns an optional error message if one has been set.
 	///
 	std::string getMessage() const

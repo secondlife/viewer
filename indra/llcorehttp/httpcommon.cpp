@@ -149,6 +149,10 @@ std::string HttpStatus::toString() const
 	default:
 		if (isHttpStatus())
 		{
+			// special handling for status 499 "Linden Catchall"
+			if ((getType() == 499) && (!getMessage().empty()))
+				return getMessage();
+
 			// Binary search for the error code and string
 			int bottom(0), top(http_errors_count);
 			while (true)

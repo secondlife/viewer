@@ -660,7 +660,7 @@ void LLMaterialMgr::processGetQueue()
 		LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
 			<< "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
 
-		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(mHttpRequest, 
+		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, 
 				mHttpPolicy, mHttpPriority, capURL, 
 				postData, mHttpOptions, mHttpHeaders, handler);
 

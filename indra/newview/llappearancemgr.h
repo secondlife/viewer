@@ -225,9 +225,22 @@ public:
 	void setAppearanceServiceURL(const std::string& url) { mAppearanceServiceURL = url; }
 	std::string getAppearanceServiceURL() const;
 
+
+	bool testCOFRequestVersion() const;
+	void LLAppearanceMgr::decrementInFlightCounter()
+	{
+		mInFlightCounter = llmax(mInFlightCounter - 1, 0);
+	}
+
+
 private:
 	std::string		mAppearanceServiceURL;
 	
+	LLCore::HttpRequest::ptr_t		mHttpRequest;
+	LLCore::HttpHeaders::ptr_t		mHttpHeaders;
+	LLCore::HttpOptions::ptr_t		mHttpOptions;
+	LLCore::HttpRequest::policy_t	mHttpPolicy;
+	LLCore::HttpRequest::priority_t	mHttpPriority;
 
 protected:
 	LLAppearanceMgr();
@@ -248,17 +261,20 @@ private:
 
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
+	bool onIdle();
+
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
-
-	LLPointer<RequestAgentUpdateAppearanceResponder> mAppearanceResponder;
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed
 	 * to avoid unsynchronized outfit state or performing duplicate operations.
 	 */
 	bool mOutfitLocked;
+	S32  mInFlightCounter;
+	LLTimer mInFlightTimer;
+	static bool mActive;
 
 	std::auto_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 

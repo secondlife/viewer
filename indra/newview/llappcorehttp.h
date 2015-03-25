@@ -175,7 +175,18 @@ public:
 		/// Request rate:    low
 		/// Pipelined:       no
 		AP_MATERIALS,
-		
+
+		/// Appearance resource requests and puts.  
+		///
+		/// Destination:     simhost:12043
+		/// Protocol:        https:
+		/// Transfer size:   KB
+		/// Long poll:       no
+		/// Concurrency:     mid
+		/// Request rate:    low
+		/// Pipelined:       yes
+		AP_AVATAR,
+
 		AP_COUNT						// Must be last
 	};
 	

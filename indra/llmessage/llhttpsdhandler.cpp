@@ -76,7 +76,9 @@ void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 		this->onSuccess(response, resplsd);
 	}
 
-	// The handler must destroy itself when it is done.
+	// The handler must destroy itself when it is done. 
+	// *TODO: I'm not fond of this pattern. A class shooting itself in the head 
+	// outside of a smart pointer always makes me nervous.
 	delete this;
 }
 
