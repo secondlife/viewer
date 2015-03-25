@@ -428,9 +428,9 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("media_plugin_quicktime.dll")
             self.end_prefix()
 
-        # Media plugins - WebKit/Qt
-        if self.prefix(src='../media_plugins/webkit/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_webkit.dll")
+        # Media plugins - CEF
+        if self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
+            self.path("media_plugin_cef.dll")
             self.end_prefix()
 
         # winmm.dll shim

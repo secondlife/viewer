@@ -2,7 +2,9 @@
 
 add_subdirectory(base)
 
-### add_subdirectory(webkit)
+if (WINDOWS)
+    add_subdirectory(cef)
+endif (WINDOWS)
 
 if (LINUX)
     add_subdirectory(gstreamer010)
