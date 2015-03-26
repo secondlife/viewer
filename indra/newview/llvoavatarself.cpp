@@ -127,6 +127,25 @@ struct LocalTextureData
 	LLTextureEntry *mTexEntry;
 };
 
+// TODO - this class doesn't really do anything, could just use a base
+// class responder if nothing else gets added.
+class LLHoverHeightResponder: public LLHTTPClient::Responder
+{
+public:
+	LLHoverHeightResponder(): LLHTTPClient::Responder() {}
+
+private:
+	void httpFailure()
+	{
+		LL_WARNS() << dumpResponse() << LL_ENDL;
+	}
+
+	void httpSuccess()
+	{
+		LL_INFOS() << dumpResponse() << LL_ENDL;
+	}
+};
+
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
@@ -158,7 +177,10 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	LLVOAvatar(id, pcode, regionp),
 	mScreenp(NULL),
 	mLastRegionHandle(0),
-	mRegionCrossingCount(0)
+	mRegionCrossingCount(0),
+	// Value outside legal range, so will always be a mismatch the
+	// first time through.
+	mLastHoverOffsetSent(LLVector3(0.0f, 0.0f, -999.0f))
 {
 	mMotionController.mIsSelf = TRUE;
 
@@ -219,9 +241,38 @@ void LLVOAvatarSelf::initInstance()
 		return;
 	}
 
+	setHoverIfRegionEnabled();
+
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
 	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
+}
+
+void LLVOAvatarSelf::setHoverIfRegionEnabled()
+{
+	if (getRegion() && getRegion()->simulatorFeaturesReceived())
+	{
+		if (getRegion()->avatarHoverHeightEnabled())
+		{
+			F32 hover_z = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
+			setHoverOffset(LLVector3(0.0, 0.0, llclamp(hover_z,MIN_HOVER_Z,MAX_HOVER_Z)));
+			LL_INFOS("Avatar") << avString() << " set hover height from debug setting " << hover_z << LL_ENDL;
+		}
+		else 
+		{
+			setHoverOffset(LLVector3(0.0, 0.0, 0.0));
+			LL_INFOS("Avatar") << avString() << " zeroing hover height, region does not support" << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_INFOS("Avatar") << avString() << " region or simulator features not known, no change on hover" << LL_ENDL;
+		if (getRegion())
+		{
+			getRegion()->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
+		}
+
+	}
 }
 
 bool LLVOAvatarSelf::checkStuckAppearance()
@@ -834,6 +885,12 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	}
 }
 
+void LLVOAvatarSelf::onSimulatorFeaturesReceived(const LLUUID& region_id)
+{
+	LL_INFOS("Avatar") << "simulator features received, setting hover based on region props" << LL_ENDL;
+	setHoverIfRegionEnabled();
+}
+
 //virtual
 void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 {
@@ -852,6 +909,17 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 		//LL_INFOS() << "pos_from_old_region is " << global_pos_from_old_region
 		//	<< " while pos_from_new_region is " << pos_from_new_region
 		//	<< LL_ENDL;
+
+		// Update hover height, or schedule callback, based on whether
+		// it's supported in this region.
+		if (regionp->simulatorFeaturesReceived())
+		{
+			setHoverIfRegionEnabled();
+		}
+		else
+		{
+			regionp->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
+		}
 	}
 
 	if (!regionp || (regionp->getHandle() != mLastRegionHandle))
@@ -2708,6 +2776,39 @@ bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
 	return success;
 }
 
+//------------------------------------------------------------------------
+// sendHoverHeight()
+//------------------------------------------------------------------------
+void LLVOAvatarSelf::sendHoverHeight() const
+{
+	std::string url = gAgent.getRegion()->getCapability("AgentPreferences");
+
+	if (!url.empty())
+	{
+		LLSD update = LLSD::emptyMap();
+		const LLVector3& hover_offset = getHoverOffset();
+		update["hover_height"] = hover_offset[2];
+
+		LL_DEBUGS("Avatar") << avString() << "sending hover height value " << hover_offset[2] << LL_ENDL;
+		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
+
+		mLastHoverOffsetSent = hover_offset;
+	}
+}
+
+void LLVOAvatarSelf::setHoverOffset(const LLVector3& hover_offset, bool send_update)
+{
+	if (getHoverOffset() != hover_offset)
+	{
+		LL_INFOS("Avatar") << avString() << " setting hover due to change " << hover_offset[2] << LL_ENDL;
+		LLVOAvatar::setHoverOffset(hover_offset, send_update);
+	}
+	if (send_update && (hover_offset != mLastHoverOffsetSent))
+	{
+		LL_INFOS("Avatar") << avString() << " sending hover due to change " << hover_offset[2] << LL_ENDL;
+		sendHoverHeight();
+	}
+}
 
 //------------------------------------------------------------------------
 // needsRenderBeam()
