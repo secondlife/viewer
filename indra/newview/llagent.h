@@ -35,6 +35,9 @@
 #include "llavatarappearancedefines.h"
 #include "llpermissionsflags.h"
 #include "v3dmath.h"
+#include "httprequest.h"
+#include "httpheaders.h"
+#include "httpoptions.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -112,6 +115,10 @@ public:
 	void			init();
 	void			cleanup();
 
+private:
+	bool			onIdle();
+
+	static bool		mActive;
 	//--------------------------------------------------------------------
 	// Login
 	//--------------------------------------------------------------------
@@ -754,11 +761,16 @@ private:
 	unsigned int                    mMaturityPreferenceNumRetries;
 	U8                              mLastKnownRequestMaturity;
 	U8                              mLastKnownResponseMaturity;
+	LLCore::HttpRequest::ptr_t		mHttpRequest;
+	LLCore::HttpHeaders::ptr_t		mHttpHeaders;
+	LLCore::HttpOptions::ptr_t		mHttpOptions;
+	LLCore::HttpRequest::policy_t	mHttpPolicy;
+	LLCore::HttpRequest::priority_t	mHttpPriority;
 
 	bool            isMaturityPreferenceSyncedWithServer() const;
 	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity);
 
-	friend class LLMaturityPreferencesResponder;
+	friend class	LLMaturityHttpHandler;
 	void            handlePreferredMaturityResult(U8 pServerMaturity);
 	void            handlePreferredMaturityError();
 	void            reportPreferredMaturitySuccess();

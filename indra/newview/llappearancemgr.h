@@ -34,7 +34,6 @@
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llviewerinventory.h"
-#include "llhttpclient.h"
 
 class LLWearableHoldingPattern;
 class LLInventoryCallback;

@@ -95,6 +95,8 @@
 #include "lscript_byteformat.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
+#include "llhttpsdhandler.h"
+#include "llcorehttputil.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -323,6 +325,7 @@ bool LLAgent::isMicrophoneOn(const LLSD& sdname)
 // For a toggled version, see viewer.h for the
 // TOGGLE_HACKED_GODLIKE_VIEWER define, instead.
 // ************************************************************
+bool LLAgent::mActive = true;
 
 // Constructors and Destructors
 
@@ -361,7 +364,12 @@ LLAgent::LLAgent() :
 	mMaturityPreferenceNumRetries(0U),
 	mLastKnownRequestMaturity(SIM_ACCESS_MIN),
 	mLastKnownResponseMaturity(SIM_ACCESS_MIN),
-	mTeleportState( TELEPORT_NONE ),
+	mHttpRequest(),
+	mHttpHeaders(),
+	mHttpOptions(),
+	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+	mHttpPriority(0),
+	mTeleportState(TELEPORT_NONE),
 	mRegionp(NULL),
 
 	mAgentOriginGlobal(),
@@ -459,6 +467,15 @@ void LLAgent::init()
 		mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLAgent::handleTeleportFailed, this));
 	}
 
+	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
+
+	mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
+	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
+	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AVATAR);
+
+	doOnIdleRepeating(boost::bind(&LLAgent::onIdle, this));
+
 	mInitialized = TRUE;
 }
 
@@ -467,6 +484,7 @@ void LLAgent::init()
 //-----------------------------------------------------------------------------
 void LLAgent::cleanup()
 {
+	mActive = false;
 	mRegionp = NULL;
 	if (mTeleportFinishedSlot.connected())
 	{
@@ -496,6 +514,17 @@ LLAgent::~LLAgent()
 	mEffectColor = NULL;
 	delete mTeleportSourceSLURL;
 	mTeleportSourceSLURL = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Idle processing
+//-----------------------------------------------------------------------------
+bool LLAgent::onIdle()
+{
+	if (!LLAgent::mActive)
+		return true;
+	mHttpRequest->update(0L);
+	return false;
 }
 
 // Handle any actions that need to be performed when the main app gains focus
@@ -2515,66 +2544,61 @@ int LLAgent::convertTextToMaturity(char text)
 	return LLAgentAccess::convertTextToMaturity(text);
 }
 
-class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
+//=========================================================================
+class LLMaturityHttpHandler : public LLHttpSDHandler
 {
-	LOG_CLASS(LLMaturityPreferencesResponder);
 public:
-	LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity);
-	virtual ~LLMaturityPreferencesResponder();
+	LLMaturityHttpHandler(const std::string& capabilityURL, LLAgent *agent, U8 preferred, U8 previous):
+		LLHttpSDHandler(capabilityURL),
+		mAgent(agent),
+		mPreferredMaturity(preferred),
+		mPreviousMaturity(previous)
+	{ }
+
+	virtual ~LLMaturityHttpHandler()
+	{ }
 
 protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-
-protected:
+	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
+	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
 private:
-	U8 parseMaturityFromServerResponse(const LLSD &pContent) const;
+	U8 LLMaturityHttpHandler::parseMaturityFromServerResponse(const LLSD &pContent) const;
 
-	LLAgent                                  *mAgent;
-	U8                                       mPreferredMaturity;
-	U8                                       mPreviousMaturity;
+	LLAgent *	mAgent;
+	U8			mPreferredMaturity;
+	U8          mPreviousMaturity;
+
 };
 
-LLMaturityPreferencesResponder::LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity)
-	: LLHTTPClient::Responder(),
-	mAgent(pAgent),
-	mPreferredMaturity(pPreferredMaturity),
-	mPreviousMaturity(pPreviousMaturity)
+//-------------------------------------------------------------------------
+void LLMaturityHttpHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
 {
-}
-
-LLMaturityPreferencesResponder::~LLMaturityPreferencesResponder()
-{
-}
-
-void LLMaturityPreferencesResponder::httpSuccess()
-{
-	U8 actualMaturity = parseMaturityFromServerResponse(getContent());
+	U8 actualMaturity = parseMaturityFromServerResponse(content);
 
 	if (actualMaturity != mPreferredMaturity)
 	{
 		LL_WARNS() << "while attempting to change maturity preference from '"
-				   << LLViewerRegion::accessToString(mPreviousMaturity)
-				   << "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
-				   << "', the server responded with '"
-				   << LLViewerRegion::accessToString(actualMaturity) 
-				   << "' [value:" << static_cast<U32>(actualMaturity) 
-				   << "], " << dumpResponse() << LL_ENDL;
+			<< LLViewerRegion::accessToString(mPreviousMaturity)
+			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity)
+			<< "', the server responded with '"
+			<< LLViewerRegion::accessToString(actualMaturity)
+			<< "' [value:" << static_cast<U32>(actualMaturity)
+			<< "], " << LL_ENDL;
 	}
 	mAgent->handlePreferredMaturityResult(actualMaturity);
 }
 
-void LLMaturityPreferencesResponder::httpFailure()
+void LLMaturityHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
 {
-	LL_WARNS() << "while attempting to change maturity preference from '" 
-			   << LLViewerRegion::accessToString(mPreviousMaturity)
-			   << "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) 
-			<< "', " << dumpResponse() << LL_ENDL;
+	LL_WARNS() << "while attempting to change maturity preference from '"
+		<< LLViewerRegion::accessToString(mPreviousMaturity)
+		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity)
+		<< "', " << LL_ENDL;
 	mAgent->handlePreferredMaturityError();
 }
 
-U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent) const
+U8 LLMaturityHttpHandler::parseMaturityFromServerResponse(const LLSD &pContent) const
 {
 	U8 maturity = SIM_ACCESS_MIN;
 
@@ -2595,6 +2619,7 @@ U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &p
 
 	return maturity;
 }
+//=========================================================================
 
 void LLAgent::handlePreferredMaturityResult(U8 pServerMaturity)
 {
@@ -2724,38 +2749,41 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		// Update the last know maturity request
 		mLastKnownRequestMaturity = pPreferredMaturity;
 
-		// Create a response handler
-		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(this, pPreferredMaturity, mLastKnownResponseMaturity));
-
 		// If we don't have a region, report it as an error
 		if (getRegion() == NULL)
 		{
-			responderPtr->failureResult(0U, "region is not defined", LLSD());
+			LL_WARNS("Agent") << "Region is not defined, can not change Maturity setting." << LL_ENDL;
+			return;
 		}
-		else
+		std::string url = getRegion()->getCapability("UpdateAgentInformation");
+
+		// If the capability is not defined, report it as an error
+		if (url.empty())
 		{
-			// Find the capability to send maturity preference
-			std::string url = getRegion()->getCapability("UpdateAgentInformation");
+			LL_WARNS("Agent") << "'UpdateAgentInformation' is not defined for region" << LL_ENDL;
+			return;
+		}
 
-			// If the capability is not defined, report it as an error
-			if (url.empty())
-			{
-				responderPtr->failureResult(0U, 
-							"capability 'UpdateAgentInformation' is not defined for region", LLSD());
-			}
-			else
-			{
-				// Set new access preference
-				LLSD access_prefs = LLSD::emptyMap();
-				access_prefs["max"] = LLViewerRegion::accessToShortString(pPreferredMaturity);
+		LLMaturityHttpHandler * handler = new LLMaturityHttpHandler(url, this, pPreferredMaturity, mLastKnownResponseMaturity);
 
-				LLSD body = LLSD::emptyMap();
-				body["access_prefs"] = access_prefs;
-				LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
-					<< "' via capability to: " << url << LL_ENDL;
-				LLSD headers;
-				LLHTTPClient::post(url, body, responderPtr, headers, 30.0f);
-			}
+		LLSD access_prefs = LLSD::emptyMap();
+		access_prefs["max"] = LLViewerRegion::accessToShortString(pPreferredMaturity);
+
+		LLSD postData = LLSD::emptyMap();
+		postData["access_prefs"] = access_prefs;
+		LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
+			<< "' via capability to: " << url << LL_ENDL;
+
+		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
+			mHttpPolicy, mHttpPriority, url,
+			postData, mHttpOptions, mHttpHeaders, handler);
+
+		if (handle == LLCORE_HTTP_HANDLE_INVALID)
+		{
+			delete handler;
+			LLCore::HttpStatus status = mHttpRequest->getStatus();
+			LL_WARNS("Avatar") << "Maturity request post failed Reason " << status.toTerseString()
+				<< " \"" << status.toString() << "\"" << LL_ENDL;
 		}
 	}
 }
