@@ -63,6 +63,7 @@ class LLSLURL;
 class LLPauseRequestHandle;
 class LLUIColor;
 class LLTeleportRequest;
+class LLHttpSDHandler;
 
 typedef boost::shared_ptr<LLTeleportRequest> LLTeleportRequestPtr;
 
@@ -914,6 +915,20 @@ public:
 	static void		processScriptControlChange(LLMessageSystem *msg, void **);
 	
 /**                    Messaging
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    UTILITY
+ **/
+public:
+	/// Utilities for allowing the the agent sub managers to post and get via
+	/// HTTP using the agent's policy settings and headers.
+	LLCore::HttpHandle	requestPostCapibility(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr = NULL);
+	//LLCore::HttpHandle	httpGetCapibility(const std::string &cap, const LLURI &uri, LLHttpSDHandler *usrhndlr = NULL);
+
+/**                    Utility
  **                                                                            **
  *******************************************************************************/
 

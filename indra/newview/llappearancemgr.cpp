@@ -3442,6 +3442,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	llassert(cof_version >= gAgentAvatarp->mLastUpdateRequestCOFVersion);
 	gAgentAvatarp->mLastUpdateRequestCOFVersion = cof_version;
 
+	// *TODO: use the unified call in LLAgent (?) 
 	LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
 		mHttpPolicy, mHttpPriority, url,
 		postData, mHttpOptions, mHttpHeaders, handler);
@@ -3778,7 +3779,7 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
 	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
 	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
-	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AVATAR);
+	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
 
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 	// unlock outfit on save operation completed

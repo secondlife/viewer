@@ -185,7 +185,7 @@ public:
 		/// Concurrency:     mid
 		/// Request rate:    low
 		/// Pipelined:       yes
-		AP_AVATAR,
+		AP_AGENT,
 
 		AP_COUNT						// Must be last
 	};

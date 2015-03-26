@@ -30,8 +30,12 @@
 #include "httphandler.h"
 #include "lluri.h"
 
+/// Handler class LLCore's HTTP library. Splitting with separate success and 
+/// failure routines and parsing the result body into LLSD on success.  It 
+/// is intended to be subclassed for specific capability handling.
 /// 
-///
+// *TODO: This class self deletes at the end of onCompleted method.  This is 
+// less than ideal and should be revisited.
 class LLHttpSDHandler : public LLCore::HttpHandler
 {
 public:
@@ -52,5 +56,19 @@ private:
 	LLURI	mUri;
 };
 
+/// A trivial implementation of LLHttpSDHandler. This success and failure 
+/// methods log the action taken, the URI accessed and the status code retuned 
+/// in the response.
+class LLHttpSDGenericHandler : public LLHttpSDHandler
+{
+public: 
+	LLHttpSDGenericHandler(const LLURI &uri, const std::string &action);
 
+protected:
+	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
+	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
+
+private:
+	std::string mCaps;
+};
 #endif

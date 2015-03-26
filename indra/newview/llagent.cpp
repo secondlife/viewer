@@ -472,7 +472,7 @@ void LLAgent::init()
 	mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
 	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
 	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
-	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AVATAR);
+	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
 
 	doOnIdleRepeating(boost::bind(&LLAgent::onIdle, this));
 
@@ -2563,7 +2563,7 @@ protected:
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
 private:
-	U8 LLMaturityHttpHandler::parseMaturityFromServerResponse(const LLSD &pContent) const;
+	U8			parseMaturityFromServerResponse(const LLSD &pContent) const;
 
 	LLAgent *	mAgent;
 	U8			mPreferredMaturity;
@@ -2774,19 +2774,38 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
 			<< "' via capability to: " << url << LL_ENDL;
 
-		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
-			mHttpPolicy, mHttpPriority, url,
-			postData, mHttpOptions, mHttpHeaders, handler);
+		LLCore::HttpHandle handle = requestPostCapibility("UpdateAgentInformation", url, postData, handler);
 
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{
 			delete handler;
-			LLCore::HttpStatus status = mHttpRequest->getStatus();
-			LL_WARNS("Avatar") << "Maturity request post failed Reason " << status.toTerseString()
-				<< " \"" << status.toString() << "\"" << LL_ENDL;
+			LL_WARNS("Avatar") << "Maturity request post failed." << LL_ENDL;
 		}
 	}
 }
+
+LLCore::HttpHandle LLAgent::requestPostCapibility(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr)
+{
+	LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(url, cap);
+	LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
+		mHttpPolicy, mHttpPriority, url,
+		postData, mHttpOptions, mHttpHeaders, handler);
+
+	if (handle == LLCORE_HTTP_HANDLE_INVALID)
+	{
+		if (!usrhndlr)
+			delete handler;
+		LLCore::HttpStatus status = mHttpRequest->getStatus();
+		LL_WARNS("Avatar") << "'" << cap << "' request POST failed. Reason " 
+			<< status.toTerseString() << " \"" << status.toString() << "\"" << LL_ENDL;
+	}
+	return handle;
+}
+
+//LLCore::HttpHandle LLAgent::httpGetCapibility(const std::string &cap, const LLURI &uri, LLHttpSDHandler *usrhndlr)
+//{
+//}
+
 
 BOOL LLAgent::getAdminOverride() const	
 { 

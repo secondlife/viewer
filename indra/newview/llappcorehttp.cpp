@@ -103,10 +103,10 @@ static const struct
 		"RenderMaterials",
 		"material manager requests"
 	},
-	{ // AP_AVATAR
+	{ // AP_AGENT
 		2,		1,		32,		0,		true,
-		"Avatar",
-		"Avatar requests"
+		"Agent",
+		"Agent requests"
 	}
 };
 

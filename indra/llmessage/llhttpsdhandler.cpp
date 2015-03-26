@@ -82,3 +82,24 @@ void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 	delete this;
 }
 
+//========================================================================
+LLHttpSDGenericHandler::LLHttpSDGenericHandler(const LLURI &uri, const std::string &caps) :
+	LLHttpSDHandler(uri),
+	mCaps(caps)
+{
+}
+
+void LLHttpSDGenericHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
+{
+	LL_DEBUGS() << mCaps << " Success." << LL_ENDL;
+}
+
+void LLHttpSDGenericHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
+{
+	LL_WARNS()
+		<< "\n--------------------------------------------------------------------------\n"
+		<< mCaps << " Error[" << status.toULong() << "] cannot access cap with url '" 
+		<< getUri() << "' because " << status.toString()
+		<< "\n--------------------------------------------------------------------------"
+		<< LL_ENDL;
+}
