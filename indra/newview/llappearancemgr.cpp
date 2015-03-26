@@ -3442,17 +3442,12 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	llassert(cof_version >= gAgentAvatarp->mLastUpdateRequestCOFVersion);
 	gAgentAvatarp->mLastUpdateRequestCOFVersion = cof_version;
 
-	// *TODO: use the unified call in LLAgent (?) 
-	LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
-		mHttpPolicy, mHttpPriority, url,
-		postData, mHttpOptions, mHttpHeaders, handler);
+
+	LLCore::HttpHandle handle = gAgent.requestPostCapibility("UpdateAvatarAppearance", url, postData, handler);
 
 	if (handle == LLCORE_HTTP_HANDLE_INVALID)
 	{
 		delete handler;
-		LLCore::HttpStatus status = mHttpRequest->getStatus();
-		LL_WARNS("Avatar") << "Appearance request post failed Reason " << status.toTerseString()
-			<< " \"" << status.toString() << "\"" << LL_ENDL;
 	}
 }
 
@@ -3484,14 +3479,6 @@ bool LLAppearanceMgr::testCOFRequestVersion() const
 	// Actually send the request.
 	LL_DEBUGS("Avatar") << "Will send request for cof_version " << cof_version << LL_ENDL;
 	return true;
-}
-
-bool LLAppearanceMgr::onIdle()
-{
-	if (!LLAppearanceMgr::mActive)
-		return true;
-	mHttpRequest->update(0L);
-	return false;
 }
 
 std::string LLAppearanceMgr::getAppearanceServiceURL() const
@@ -3766,21 +3753,8 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mOutfitLocked(false),
 	mInFlightCounter(0),
 	mInFlightTimer(),
-	mIsInUpdateAppearanceFromCOF(false),
-	//mAppearanceResponder(new RequestAgentUpdateAppearanceResponder),
-	mHttpRequest(),
-	mHttpHeaders(),
-	mHttpOptions(),
-	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	mHttpPriority(0)
+	mIsInUpdateAppearanceFromCOF(false)
 {
-	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
-
-	mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
-	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
-
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 	// unlock outfit on save operation completed
 	outfit_observer.addCOFSavedCallback(boost::bind(
@@ -3790,7 +3764,6 @@ LLAppearanceMgr::LLAppearanceMgr():
 			"OutfitOperationsTimeout")));
 
 	gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
-	doOnIdleRepeating(boost::bind(&LLAppearanceMgr::onIdle, this));
 }
 
 LLAppearanceMgr::~LLAppearanceMgr()

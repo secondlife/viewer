@@ -226,12 +226,6 @@ public:
 private:
 	std::string		mAppearanceServiceURL;
 	
-	LLCore::HttpRequest::ptr_t		mHttpRequest;
-	LLCore::HttpHeaders::ptr_t		mHttpHeaders;
-	LLCore::HttpOptions::ptr_t		mHttpOptions;
-	LLCore::HttpRequest::policy_t	mHttpPolicy;
-	LLCore::HttpRequest::priority_t	mHttpPriority;
-
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
@@ -250,8 +244,6 @@ private:
 								   LLInventoryModel::item_array_t& gest_items);
 
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
-
-	bool onIdle();
 
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;

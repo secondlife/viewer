@@ -32,6 +32,7 @@
 #include "llviewerregion.h"
 // library includes
 #include "llui.h"					// getLanguage()
+#include "httpcommon.h"
 
 // static
 void LLAgentLanguage::init()
@@ -69,7 +70,12 @@ bool LLAgentLanguage::update()
 		body["language"] = language;
 		body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
 		
-		LLHTTPClient::post(url, body, new LLHTTPClient::Responder);
+		//LLHTTPClient::post(url, body, new LLHTTPClient::Responder);
+		LLCore::HttpHandle handle = gAgent.requestPostCapibility("UpdateAgentLanguage", url, body);
+		if (handle == LLCORE_HTTP_HANDLE_INVALID)
+		{
+			LL_WARNS() << "Unable to change language." << LL_ENDL;
+		}
 	}
     return true;
 }
