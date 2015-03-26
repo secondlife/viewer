@@ -13,6 +13,11 @@ else (USESYSTEMLIBS)
 endif (USESYSTEMLIBS)
 
 if (WINDOWS)
+    set(CEF_PLUGIN_LIBRARIES
+        libcef.lib
+        libcef_dll_wrapper.lib
+        llceflib.lib
+    )
 elseif (DARWIN)
 elseif (LINUX)
 endif (WINDOWS)
