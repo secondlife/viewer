@@ -2326,7 +2326,11 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
     int submodelID = 0;
 
 	// remove all faces that definitely won't fit into one model and submodel limit
-	ret->setNumVolumeFaces((submodel_limit + 1) * LL_SCULPT_MESH_MAX_FACES);
+	U32 face_limit = (submodel_limit + 1) * LL_SCULPT_MESH_MAX_FACES;
+	if (face_limit < volume_faces)
+	{
+		ret->setNumVolumeFaces(face_limit);
+	}
 
 	LLVolume::face_list_t remainder;
 	do 
