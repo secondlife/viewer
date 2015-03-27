@@ -29,7 +29,7 @@
 #include "linden_common.h"
 #include "lluriparser.h"
 
-LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mRes(0)
+LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedTmp(false), mRes(0)
 {
 	mState.uri = &mUri;
 
@@ -140,7 +140,7 @@ void LLUriParser::extractParts()
 		return;
 	}
 
-	if (mTmpScheme)
+	if (mTmpScheme || mNormalizedTmp)
 	{
 		mScheme.clear();
 	}
@@ -169,6 +169,7 @@ void LLUriParser::extractParts()
 
 S32 LLUriParser::normalize()
 {
+	mNormalizedTmp = mTmpScheme;
 	if (!mRes)
 	{
 		mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
