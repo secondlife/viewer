@@ -1911,31 +1911,24 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
                     llassert(!label.empty());
 
                     if (model->mSubmodelID)
-                    {
-                        // CHECK FOR _LODX and _PHYS here to ensure we bolt the submodel 'salt' at the right loc
-                        //
-                        if ((label.find("_LOD") != -1) || (label.find("_PHYS") != -1))
-                        {
-                            std::string labelStart;
-                            std::string markup;
-                            size_t underscore_offset = label.rfind('_');
-                            if (underscore_offset != -1)
-                            {
-                                markup = label.substr(underscore_offset + 1, 4);
-                                label.erase(label.begin() + underscore_offset, label.end());
-                                label +=(char)((int)'a' + model->mSubmodelID);
-                                label += "_";
-                                label += markup;
-                            }
-                            else
-                            {
-                                label +=(char)((int)'a' + model->mSubmodelID);
-                            }                            
-                        }
-                        else
-                        {
-                            label += (char)((int)'a' + model->mSubmodelID);
-                        }
+					{
+						// CHECK FOR _LODX and _PHYS here to ensure we bolt the submodel 'salt' at the right loc
+						//
+						std::string labelStart;
+						std::string markup;
+						size_t label_offset = getSuffixPosition(label);
+						if (label_offset != -1)
+						{
+							markup = label.substr(label_offset + 1, 4);
+							label.erase(label.begin() + label_offset, label.end());
+							label +=(char)((int)'a' + model->mSubmodelID);
+							label += "_";
+							label += markup;
+						}
+						else
+						{
+							label +=(char)((int)'a' + model->mSubmodelID);
+						}
                     }
 
                     model->mLabel = label;
@@ -2166,11 +2159,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 		if (name.length())
 		{
 			// make sure that index won't mix up with pre-named lod extensions
-			size_t ext_pos = name.find("_LOD");
-			if (ext_pos == -1)
-			{
-				ext_pos = name.find("_PHYS");
-			}
+			size_t ext_pos = getSuffixPosition(name);
 
 			if (ext_pos == -1)
 			{
@@ -2192,6 +2181,16 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 
 	// if all else fails, use "object"
 	return std::string("object") + index_string;
+}
+
+// static
+size_t LLDAELoader::getSuffixPosition(std::string label)
+{
+	if ((label.find("_LOD") != -1) || (label.find("_PHYS") != -1))
+	{
+		return label.rfind('_');
+	}
+	return -1;
 }
 
 LLColor4 LLDAELoader::getDaeColor(daeElement* element)
@@ -2290,11 +2289,7 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 
 	// extract actual name and suffix for future use in submodels
 	std::string name_base, name_suffix;
-	size_t ext_pos = model_name.find("_LOD");
-	if (ext_pos == -1)
-	{
-		ext_pos = model_name.find("_PHYS");
-	}
+	size_t ext_pos = getSuffixPosition(model_name);
 
 	if (ext_pos == -1)
 	{

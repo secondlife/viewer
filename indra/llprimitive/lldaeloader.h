@@ -97,6 +97,7 @@ protected:
 	bool loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out, U32 submodel_limit);
 
 	static std::string getElementLabel(daeElement *element);	
+	static size_t getSuffixPosition(std::string label);
 
 private:
 	U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
