@@ -106,7 +106,7 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, const std::stri
 	return HttpStatus();
 }
 
-HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback value)
+HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t value)
 {
 	switch (opt)
 	{
@@ -169,7 +169,7 @@ HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, std::string * v
 }
 
 
-HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback * value) const
+HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t * value) const
 {
 	switch (opt)
 	{

@@ -29,6 +29,8 @@
 #if ! defined(LL_llavatarrenderinfoaccountant_H)
 #define LL_llavatarrenderinfoaccountant_H
 
+#include "httpcommon.h"
+
 class LLViewerRegion;
 
 // Class to gather avatar rendering information 
@@ -36,8 +38,6 @@ class LLViewerRegion;
 class LLAvatarRenderInfoAccountant
 {
 public:
-	LLAvatarRenderInfoAccountant()	{};
-	~LLAvatarRenderInfoAccountant()	{};
 
 	static void sendRenderInfoToRegion(LLViewerRegion * regionp);
 	static void getRenderInfoFromRegion(LLViewerRegion * regionp);
@@ -49,8 +49,14 @@ public:
 	static bool logRenderInfo();
 
 private:
+	LLAvatarRenderInfoAccountant() {};
+	~LLAvatarRenderInfoAccountant()	{};
+
 	// Send data updates about once per minute, only need per-frame resolution
 	static LLFrameTimer sRenderInfoReportTimer;
+
+//	static LLCore::HttpRequest::ptr_t	sHttpRequest;
+
 };
 
 #endif /* ! defined(LL_llavatarrenderinfoaccountant_H) */

@@ -190,6 +190,7 @@
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
 #include "boost/intrusive_ptr.hpp"
 #include "boost/shared_ptr.hpp"
+#include "boost/function.hpp"
 #include <string>
 
 namespace LLCore
@@ -294,50 +295,50 @@ struct HttpStatus
 	typedef unsigned short type_enum_t;
 	
 	HttpStatus()
-		{
-			mDetails = new Details(LLCORE, HE_SUCCESS);
-	}
+	{
+		mDetails = boost::shared_ptr<Details>(new Details(LLCORE, HE_SUCCESS));
+    }
 
 	HttpStatus(type_enum_t type, short status)
-		{
-			mDetails = new Details(type, status);
-		}
+	{
+        mDetails = boost::shared_ptr<Details>(new Details(type, status));
+	}
 	
 	HttpStatus(int http_status)
-		{
-			mDetails = new Details(http_status, 
-				(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);
-			llassert(http_status >= 100 && http_status <= 999);
-		}
+	{
+        mDetails = boost::shared_ptr<Details>(new Details(http_status, 
+			(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+		llassert(http_status >= 100 && http_status <= 999);
+	}
 
 	HttpStatus(int http_status, const std::string &message)
-		{
-			mDetails = new Details(http_status,
-				(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);
-			llassert(http_status >= 100 && http_status <= 999);
-			mDetails->mMessage = message;
-		}
+	{
+        mDetails = boost::shared_ptr<Details>(new Details(http_status,
+			(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+		llassert(http_status >= 100 && http_status <= 999);
+		mDetails->mMessage = message;
+	}
 	
 	HttpStatus(const HttpStatus & rhs)
-		{
-			mDetails = new Details(*rhs.mDetails);
-		}
+	{
+		mDetails = rhs.mDetails;
+	}
 
 	~HttpStatus()
-		{
-			delete mDetails;
-		}
+	{
+	}
 
 	HttpStatus & operator=(const HttpStatus & rhs)
-		{
-			// Don't care if lhs & rhs are the same object
-			mDetails->mType = rhs.mDetails->mType;
-			mDetails->mStatus = rhs.mDetails->mStatus;
-			mDetails->mMessage = rhs.mDetails->mMessage;
-			mDetails->mErrorData = rhs.mDetails->mErrorData;
+	{
+        mDetails = rhs.mDetails;
+		return *this;
+	}
 
-			return *this;
-		}
+    HttpStatus & clone(const HttpStatus &rhs)
+    {
+        mDetails = boost::shared_ptr<Details>(new Details(*rhs.mDetails));
+        return *this;
+    }
 	
 	static const type_enum_t EXT_CURL_EASY = 0;			///< mStatus is an error from a curl_easy_*() call
 	static const type_enum_t EXT_CURL_MULTI = 1;		///< mStatus is an error from a curl_multi_*() call
@@ -365,8 +366,7 @@ struct HttpStatus
 	/// which will do the wrong thing in conditional expressions.
 	bool operator==(const HttpStatus & rhs) const
 	{
-		return (mDetails->mType == rhs.mDetails->mType) && 
-			(mDetails->mStatus == rhs.mDetails->mStatus);
+        return (*mDetails == *rhs.mDetails); 
 	}
 
 	bool operator!=(const HttpStatus & rhs) const
@@ -474,6 +474,10 @@ private:
 			mErrorData(rhs.mErrorData)
 		{}
 
+        bool operator == (const Details &rhs) const
+        {
+            return (mType == rhs.mType) && (mStatus == rhs.mStatus);
+        }
 
 		type_enum_t	mType;
 		short		mStatus;
@@ -481,8 +485,7 @@ private:
 		void *		mErrorData;
 	};
 
-	//boost::unique_ptr<Details>	mDetails;
-	Details * mDetails;
+    boost::shared_ptr<Details> mDetails;
 
 }; // end struct HttpStatus
 

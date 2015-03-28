@@ -115,9 +115,8 @@ namespace LLCore
 {
 
 
-HttpOpRequest::HttpOpRequest(HttpRequest const * const request)
+HttpOpRequest::HttpOpRequest()
 	: HttpOperation(),
-	  mRequest(request),
 	  mProcFlags(0U),
 	  mReqMethod(HOR_GET),
 	  mReqBody(NULL),
@@ -490,13 +489,13 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	long follow_redirect(1L);
 	long sslPeerV(0L);
 	long sslHostV(0L);
-	long dnsCacheTimeout(15L);
+    long dnsCacheTimeout(-1L);
 
 	if (mReqOptions)
 	{
 		follow_redirect = mReqOptions->getFollowRedirects() ? 1L : 0L;
-		sslPeerV = mReqOptions->getSSLVerifyHost() ? 0L : 1L;
-		sslHostV = mReqOptions->getSSLVerifyHost();
+		sslPeerV = mReqOptions->getSSLVerifyPeer() ? 1L : 0L;
+		sslHostV = mReqOptions->getSSLVerifyHost() ? 2L : 0L;
 		dnsCacheTimeout = mReqOptions->getDNSCacheTimeout();
 	}
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, follow_redirect);
@@ -515,7 +514,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// seconds and no RSTs.
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout);
 	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
-
 
 	if (gpolicy.mUseLLProxy)
 	{

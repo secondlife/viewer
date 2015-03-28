@@ -237,7 +237,7 @@ public:
 
 	/// Prototype for policy based callbacks.  The callback methods will be executed
 	/// on the worker thread so no modifications should be made to the HttpHandler object.
-	typedef HttpStatus(*policyCallback)(const std::string &, HttpHandler const * const, void *);
+    typedef boost::function<HttpStatus(const std::string &, HttpHandler const * const, void *)> policyCallback_t;
 
 	/// Set a policy option for a global or class parameter at
 	/// startup time (prior to thread start).
@@ -255,7 +255,7 @@ public:
 	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
 											const std::string & value, std::string * ret_value);
 	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
-											policyCallback value, policyCallback * ret_value);;
+											policyCallback_t value, policyCallback_t * ret_value);;
 
 	/// Set a parameter on a class-based policy option.  Calls
 	/// made after the start of the servicing thread are

@@ -494,7 +494,7 @@ LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url,
 
 	validation_params[CERT_HOSTNAME] = uri.hostName();
 
-	// *TODO*: In the case of an exception while validating the cert, we need a way
+	// *TODO: In the case of an exception while validating the cert, we need a way
 	// to pass the offending(?) cert back out. *Rider*
 
 	try

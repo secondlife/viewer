@@ -1260,7 +1260,7 @@ public:
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
 protected:
-	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
+	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
 private:
@@ -1278,7 +1278,7 @@ void LLAppearanceMgrHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::
 	LLHttpSDHandler::onCompleted(handle, response);
 }
 
-void LLAppearanceMgrHttpHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
+void LLAppearanceMgrHttpHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
 	if (!content.isMap())
 	{
@@ -3443,7 +3443,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	gAgentAvatarp->mLastUpdateRequestCOFVersion = cof_version;
 
 
-	LLCore::HttpHandle handle = gAgent.requestPostCapibility("UpdateAvatarAppearance", url, postData, handler);
+	LLCore::HttpHandle handle = gAgent.requestPostCapability("UpdateAvatarAppearance", url, postData, handler);
 
 	if (handle == LLCORE_HTTP_HANDLE_INVALID)
 	{

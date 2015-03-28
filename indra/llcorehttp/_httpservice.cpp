@@ -415,7 +415,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 }
 
 HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
-	HttpRequest::policyCallback * ret_value)
+	HttpRequest::policyCallback_t * ret_value)
 {
 	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
 
@@ -520,7 +520,7 @@ HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 }
 
 HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
-	HttpRequest::policyCallback value, HttpRequest::policyCallback * ret_value)
+	HttpRequest::policyCallback_t value, HttpRequest::policyCallback_t * ret_value)
 {
 	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
 

@@ -89,7 +89,7 @@ LLHttpSDGenericHandler::LLHttpSDGenericHandler(const LLURI &uri, const std::stri
 {
 }
 
-void LLHttpSDGenericHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
+void LLHttpSDGenericHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
 	LL_DEBUGS() << mCaps << " Success." << LL_ENDL;
 }

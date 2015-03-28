@@ -75,7 +75,7 @@ public:
 	virtual ~LLMaterialHttpHandler();
 
 protected:
-	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
+	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
 private:
@@ -95,7 +95,7 @@ LLMaterialHttpHandler::~LLMaterialHttpHandler()
 {
 }
 
-void LLMaterialHttpHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
+void LLMaterialHttpHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
 	LL_DEBUGS("Materials") << LL_ENDL;
 	mCallback(true, content);

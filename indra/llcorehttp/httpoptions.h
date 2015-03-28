@@ -69,72 +69,86 @@ protected:
 	void operator=(const HttpOptions &);		// Not defined
 
 public:
+
 	// Default:   false
 	void				setWantHeaders(bool wanted);
 	bool				getWantHeaders() const
-		{
-			return mWantHeaders;
-		}
+	{
+		return mWantHeaders;
+	}
 
 	// Default:  0
 	void				setTrace(int long);
 	int					getTrace() const
-		{
-			return mTracing;
-		}
+	{
+		return mTracing;
+	}
 
 	// Default:  30
 	void				setTimeout(unsigned int timeout);
 	unsigned int		getTimeout() const
-		{
-			return mTimeout;
-		}
+	{
+		return mTimeout;
+	}
 
 	// Default:  0
 	void				setTransferTimeout(unsigned int timeout);
 	unsigned int		getTransferTimeout() const
-		{
-			return mTransferTimeout;
-		}
+	{
+		return mTransferTimeout;
+	}
 
+    /// Sets the number of retries on an LLCore::HTTPRequest before the 
+    /// request fails.
 	// Default:  8
 	void				setRetries(unsigned int retries);
 	unsigned int		getRetries() const
-		{
-			return mRetries;
-		}
+	{
+		return mRetries;
+	}
 
 	// Default:  true
 	void				setUseRetryAfter(bool use_retry);
 	bool				getUseRetryAfter() const
-		{
-			return mUseRetryAfter;
-		}
+	{
+		return mUseRetryAfter;
+	}
 
-	// Default: false
+    /// Instructs the LLCore::HTTPRequest to follow redirects 
+	/// Default: false
 	void				setFollowRedirects(bool follow_redirect);
 	bool				getFollowRedirects() const
-		{
-			return mFollowRedirects;
-		}
+	{
+		return mFollowRedirects;
+	}
 
-	void				setSSLVerifyPeer(bool verify);
+    /// Instructs the LLCore::HTTPRequest to verify that the exchanged security
+    /// certificate is authentic. 
+    /// Default: false
+    void				setSSLVerifyPeer(bool verify);
 	bool				getSSLVerifyPeer() const
-		{
-			return mVerifyPeer;
-		}
+	{
+		return mVerifyPeer;
+	}
 
-	void				setSSLVerifyHost(unsigned int type);
-	unsigned int		getSSLVerifyHost() const
-		{
-			return mVerifyHost;
-		}
+    /// Instructs the LLCore::HTTPRequest to verify that the name in the 
+    /// security certificate matches the name of the host contacted.
+    /// Default: false
+    void				setSSLVerifyHost(bool verify);
+	bool	        	getSSLVerifyHost() const
+	{
+		return mVerifyHost;
+	}
 
+    /// Sets the time for DNS name caching in seconds.  Setting this value
+    /// to 0 will disable name caching.  Setting this value to -1 causes the 
+    /// name cache to never time out.
+    /// Default: -1
 	void				setDNSCacheTimeout(int timeout);
 	int					getDNSCacheTimeout() const
-		{
-			return mDNSCacheTimeout;
-		}
+	{
+		return mDNSCacheTimeout;
+	}
 	
 protected:
 	bool				mWantHeaders;
@@ -145,7 +159,7 @@ protected:
 	bool				mUseRetryAfter;
 	bool				mFollowRedirects;
 	bool				mVerifyPeer;
-	unsigned int		mVerifyHost;
+	bool        		mVerifyHost;
 	int					mDNSCacheTimeout;
 }; // end class HttpOptions
 

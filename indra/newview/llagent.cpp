@@ -2559,7 +2559,7 @@ public:
 	{ }
 
 protected:
-	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
+	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
 private:
@@ -2572,7 +2572,7 @@ private:
 };
 
 //-------------------------------------------------------------------------
-void LLMaturityHttpHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
+void LLMaturityHttpHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
 	U8 actualMaturity = parseMaturityFromServerResponse(content);
 
@@ -2774,7 +2774,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
 			<< "' via capability to: " << url << LL_ENDL;
 
-		LLCore::HttpHandle handle = requestPostCapibility("UpdateAgentInformation", url, postData, handler);
+		LLCore::HttpHandle handle = requestPostCapability("UpdateAgentInformation", url, postData, handler);
 
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{
@@ -2784,7 +2784,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 	}
 }
 
-LLCore::HttpHandle LLAgent::requestPostCapibility(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr)
+LLCore::HttpHandle LLAgent::requestPostCapability(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr)
 {
 	LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(url, cap);
 	LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
@@ -2793,6 +2793,9 @@ LLCore::HttpHandle LLAgent::requestPostCapibility(const std::string &cap, const 
 
 	if (handle == LLCORE_HTTP_HANDLE_INVALID)
 	{
+        // If no handler was passed in we delete the handler default handler allocated 
+        // at the start of this function.
+        // *TODO: Change this metaphore to use boost::shared_ptr<> for handlers.  Requires change in LLCore::HTTP
 		if (!usrhndlr)
 			delete handler;
 		LLCore::HttpStatus status = mHttpRequest->getStatus();

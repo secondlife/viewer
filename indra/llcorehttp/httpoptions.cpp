@@ -42,8 +42,8 @@ HttpOptions::HttpOptions() : RefCounted(true),
 	mUseRetryAfter(HTTP_USE_RETRY_AFTER_DEFAULT),
 	mFollowRedirects(false),
 	mVerifyPeer(false),
-	mVerifyHost(0),
-	mDNSCacheTimeout(15)
+	mVerifyHost(false),
+    mDNSCacheTimeout(-1L)
 {}
 
 
@@ -95,9 +95,9 @@ void HttpOptions::setSSLVerifyPeer(bool verify)
 	mVerifyPeer = verify;
 }
 
-void HttpOptions::setSSLVerifyHost(unsigned int type)
+void HttpOptions::setSSLVerifyHost(bool verify)
 {
-	mVerifyHost = llclamp<unsigned int>(type, 0, 2);
+	mVerifyHost = verify;
 }
 
 void HttpOptions::setDNSCacheTimeout(int timeout)
