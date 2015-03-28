@@ -83,21 +83,21 @@ void HttpStatusTestObjectType::test<1>()
 }
 
 
+// template <> template <>
+// void HttpStatusTestObjectType::test<2>()
+// {
+// 	set_test_name("HttpStatus memory structure");
+// 
+// 	// Require that an HttpStatus object can be trivially
+// 	// returned as a function return value in registers.
+// 	// One should fit in an int on all platforms.
+// 
+// 	//ensure(sizeof(HttpStatus) <= sizeof(int));
+// }
+
+
 template <> template <>
 void HttpStatusTestObjectType::test<2>()
-{
-	set_test_name("HttpStatus memory structure");
-
-	// Require that an HttpStatus object can be trivially
-	// returned as a function return value in registers.
-	// One should fit in an int on all platforms.
-
-	ensure(sizeof(HttpStatus) <= sizeof(int));
-}
-
-
-template <> template <>
-void HttpStatusTestObjectType::test<3>()
 {
 	set_test_name("HttpStatus valid status string conversion");
 	
@@ -124,7 +124,7 @@ void HttpStatusTestObjectType::test<3>()
 
 
 template <> template <>
-void HttpStatusTestObjectType::test<4>()
+void HttpStatusTestObjectType::test<3>()
 {
 	set_test_name("HttpStatus invalid status string conversion");
 	
@@ -145,7 +145,7 @@ void HttpStatusTestObjectType::test<4>()
 }
 
 template <> template <>
-void HttpStatusTestObjectType::test<5>()
+void HttpStatusTestObjectType::test<4>()
 {
 	set_test_name("HttpStatus equality/inequality testing");
 
@@ -164,7 +164,7 @@ void HttpStatusTestObjectType::test<5>()
 }
 
 template <> template <>
-void HttpStatusTestObjectType::test<6>()
+void HttpStatusTestObjectType::test<5>()
 {
 	set_test_name("HttpStatus basic HTTP status encoding");
 	
@@ -205,7 +205,7 @@ void HttpStatusTestObjectType::test<6>()
 }
 
 template <> template <>
-void HttpStatusTestObjectType::test<7>()
+void HttpStatusTestObjectType::test<6>()
 {
 	set_test_name("HttpStatus HTTP status text strings");
 
@@ -237,7 +237,7 @@ void HttpStatusTestObjectType::test<7>()
 
 
 template <> template <>
-void HttpStatusTestObjectType::test<8>()
+void HttpStatusTestObjectType::test<7>()
 {
 	set_test_name("HttpStatus toHex() nominal function");
 	
@@ -249,7 +249,7 @@ void HttpStatusTestObjectType::test<8>()
 
 
 template <> template <>
-void HttpStatusTestObjectType::test<9>()
+void HttpStatusTestObjectType::test<8>()
 {
 	set_test_name("HttpStatus toTerseString() nominal function");
 	
