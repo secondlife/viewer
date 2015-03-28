@@ -1,30 +1,30 @@
 /**
- * @file media_plugin_cef.cpp
- * @brief CEF (Chromium Embedding Framework) plugin for LLMedia API plugin system
- *
- * @cond
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$
- * @endcond
- */
+* @file media_plugin_cef.cpp
+* @brief CEF (Chromium Embedding Framework) plugin for LLMedia API plugin system
+*
+* @cond
+* $LicenseInfo:firstyear=2008&license=viewerlgpl$
+* Second Life Viewer Source Code
+* Copyright (C) 2010, Linden Research, Inc.
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation;
+* version 2.1 of the License only.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*
+* Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+* $/LicenseInfo$
+* @endcond
+*/
 
 #include "linden_common.h"
 
@@ -37,7 +37,7 @@
 #include <functional>
 #include "llCEFLib.h"
 
-#include <time.h>
+#include <time.h>  // remove me
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -48,19 +48,21 @@ public:
 	MediaPluginCEF(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data);
 	~MediaPluginCEF();
 
-	/*virtual*/ void receiveMessage(const char* message_string);
+	/*virtual*/
+	void receiveMessage(const char* message_string);
 
 private:
 	bool init();
-	void update(F64 milliseconds);
-	bool mFirstTime;
 
-    // TODO FIX ME
+	// TODO FIX ME
 	void pageChangedCallback(unsigned char* pixels, int width, int height)
 	{
 		if (mPixels && pixels)
 		{
-			memcpy(mPixels, pixels, width * height * mDepth);
+			if (mWidth == width && mHeight == height)
+			{
+				memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
+			}
 			setDirty(0, 0, mWidth, mHeight);
 		}
 	}
@@ -80,7 +82,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mHeight = 0;
 	mDepth = 4;
 	mPixels = 0;
-	mEnableMediaPluginDebugging = false;
+	mEnableMediaPluginDebugging = true;
 
 	mLLCEFLib = new LLCEFLib();
 }
@@ -96,7 +98,7 @@ MediaPluginCEF::~MediaPluginCEF()
 //
 void MediaPluginCEF::postDebugMessage(const std::string& msg)
 {
-	if (mEnableMediaPluginDebugging)
+	//if (mEnableMediaPluginDebugging)
 	{
 		std::stringstream str;
 		str << "@Media Msg> " << msg;
@@ -160,7 +162,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				{
 					if (mPixels == iter->second.mAddress)
 					{
-						// This is the currently active pixel buffer.  Make sure we stop drawing to it.
 						mPixels = NULL;
 						mTextureSegmentName.clear();
 					}
@@ -168,17 +169,16 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 				else
 				{
-					//                  std::cerr << "MediaPluginWebKit::receiveMessage: unknown shared memory region!" << std::endl;
+					//std::cerr << "MediaPluginWebKit::receiveMessage: unknown shared memory region!" << std::endl;
 				}
 
-				// Send the response so it can be cleaned up.
 				LLPluginMessage message("base", "shm_remove_response");
 				message.setValue("name", name);
 				sendMessage(message);
 			}
 			else
 			{
-				//              std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
+				//std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
 			}
 		}
 		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA)
@@ -191,7 +191,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				bool result = mLLCEFLib->init(1024, 1024);
 				if (!result)
 				{
-					MessageBoxA(0, "FAIL INIT", 0, 0);
+					//MessageBoxA(0, "FAIL INIT", 0, 0);
 				}
 
 				// Plugin gets to decide the texture parameters to use.
@@ -252,14 +252,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
 
-
-
 				//std::string modifiers = message_in.getValue("modifiers");
 
 				if (event == "down")
 				{
 					mLLCEFLib->mouseButton(0, true, x, y);
-
+					mLLCEFLib->setFocus(true);
 					std::stringstream str;
 					str << "Mouse down at = " << x << ", " << y;
 					postDebugMessage(str.str());
@@ -276,15 +274,61 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 					mLLCEFLib->mouseMove(x, y);
 				}
 			}
-			else
-				if (message_name == "enable_media_plugin_debugging")
+			else if (message_name == "scroll_event")
+			{
+				S32 y = message_in.getValueS32("y");
+				const int scaling_factor = 40;
+				y *= -scaling_factor;
+
+				mLLCEFLib->mouseWheel(y);
+			}
+			else if (message_name == "text_event")
+			{
+				std::string event = message_in.getValue("event");
+				S32 key = message_in.getValue("text")[0];
+				std::string modifiers = message_in.getValue("modifiers");
+				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
+
+				//int native_scan_code = (uint32_t)(native_key_data["scan_code"].asInteger());
+
+				//if (event == "down")
 				{
-					mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
+					mLLCEFLib->keyPress(key, true);
 				}
+				//else
+				//if (event == "up")
+				{
+					mLLCEFLib->keyPress(key, false);
+				}
+			}
+			else if (message_name == "key_event")
+			{
+				std::string event = message_in.getValue("event");
+				//S32 key = message_in.getValueS32("key");
+				std::string modifiers = message_in.getValue("modifiers");
+				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
+
+				int native_scan_code = (uint32_t)(native_key_data["scan_code"].asInteger());
+				native_scan_code = 8;
+
+				if (event == "down")
+				{
+					mLLCEFLib->keyPress(native_scan_code, true);
+				}
+				else
+				if (event == "up")
+				{
+					mLLCEFLib->keyPress(native_scan_code, false);
+				}
+			}
+			else if (message_name == "enable_media_plugin_debugging")
+			{
+				mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
+			}
 		}
 		else
 		{
-			//          std::cerr << "MediaPluginWebKit::receiveMessage: unknown message class: " << message_class << std::endl;
+			//std::cerr << "MediaPluginWebKit::receiveMessage: unknown message class: " << message_class << std::endl;
 		};
 	}
 }

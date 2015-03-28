@@ -1644,11 +1644,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f80eb840c1924e3727fff65246f01c12</string>
+              <string>13da924b4d075b1557bf710e94aa98d9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://callum-linden.s3.amazonaws.com/cef-3.2272.2035.888888-windows-888888.tar.bz2</string>
+              <string>https://callum-linden.s3.amazonaws.com/cef-3.2272.2035.900001-windows-900001.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
