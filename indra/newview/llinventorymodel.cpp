@@ -41,6 +41,7 @@
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llnotificationsutil.h"
+#include "llmarketplacefunctions.h"
 #include "llwindow.h"
 #include "llviewercontrol.h"
 #include "llpreview.h" 
@@ -3059,6 +3060,15 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		LL_DEBUGS("Inventory") << "unpacked folder '" << tfolder->getName() << "' ("
 							   << tfolder->getUUID() << ") in " << tfolder->getParentUUID()
 							   << LL_ENDL;
+        
+        // If the parent folder is a listing folder, we also need to update the SLM data
+        if (LLMarketplaceData::instance().isListed(tfolder->getParentUUID()))
+        {
+            // Trigger an SLM listing update
+            S32 listing_id = LLMarketplaceData::instance().getListingID(tfolder->getParentUUID());
+            LLMarketplaceData::instance().getListing(listing_id);
+        }
+            
 		if(tfolder->getUUID().notNull())
 		{
 			folders.push_back(tfolder);
