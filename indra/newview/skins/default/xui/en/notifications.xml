@@ -8017,7 +8017,7 @@ We cannot display a preview of this texture because it is no-copy and/or no-tran
   <notification
    icon="alertmodal.tga"
    name="ConfirmLeaveCall"
-   type="alert">
+   type="alertmodal">
 Are you sure you want to leave this call?
     <tag>confirm</tag>
     <tag>voice</tag>
