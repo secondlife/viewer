@@ -51,7 +51,3 @@ LLWindowHeadless::~LLWindowHeadless()
 void LLWindowHeadless::swapBuffers()
 {
 }
-
-void LLWindowHeadless::restoreGLContext()
-{
-}

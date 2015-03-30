@@ -1344,14 +1344,6 @@ void swap()
 	gDisplaySwapBuffers = TRUE;
 }
 
-void restoreGLContext()
-{
-	if(gViewerWindow && gViewerWindow->getWindow()) 
-	{
-		gViewerWindow->getWindow()->restoreGLContext();
-	}
-}
-
 void renderCoordinateAxes()
 {
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

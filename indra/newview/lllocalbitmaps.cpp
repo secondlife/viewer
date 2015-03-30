@@ -844,9 +844,6 @@ bool LLLocalBitmapMgr::addUnit()
 	LLFilePicker& picker = LLFilePicker::instance();
 	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
 	{
-		//For fix problem with Core Flow view on OSX
-        restoreGLContext();
-        
 		sTimer.stopTimer();
 
 		std::string filename = picker.getFirstFile();
