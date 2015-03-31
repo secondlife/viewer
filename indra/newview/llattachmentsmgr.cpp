@@ -94,6 +94,8 @@ void LLAttachmentsMgr::onIdle()
     linkRecentlyArrivedAttachments();
 
     expireOldAttachmentRequests();
+
+    expireOldDetachRequests();
 }
 
 void LLAttachmentsMgr::requestPendingAttachments()
@@ -308,13 +310,31 @@ void LLAttachmentsMgr::expireOldAttachmentRequests()
     {
         std::map<LLUUID,LLTimer>::iterator curr_it = it;
         ++it;
-        if (it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
+        if (curr_it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
         {
             LLInventoryItem *item = gInventory.getItem(curr_it->first);
             LL_DEBUGS("Avatar") << "ATT expiring request for attachment "
-                                << (item ? item->getName() : "UNKNOWN") << "item_id " << curr_it->first
+                                << (item ? item->getName() : "UNKNOWN") << " item_id " << curr_it->first
                                 << " after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds" << LL_ENDL;
             mAttachmentRequests.erase(curr_it);
+        }
+    }
+}
+
+void LLAttachmentsMgr::expireOldDetachRequests()
+{
+	for (std::map<LLUUID,LLTimer>::iterator it = mDetachRequests.begin();
+         it != mDetachRequests.end(); )
+    {
+        std::map<LLUUID,LLTimer>::iterator curr_it = it;
+        ++it;
+        if (curr_it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
+        {
+            LLInventoryItem *item = gInventory.getItem(curr_it->first);
+            LL_DEBUGS("Avatar") << "ATT expiring request for detach "
+                                << (item ? item->getName() : "UNKNOWN") << " item_id " << curr_it->first
+                                << " after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds" << LL_ENDL;
+            mDetachRequests.erase(curr_it);
         }
     }
 }

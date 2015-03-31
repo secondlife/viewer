@@ -107,6 +107,7 @@ private:
 	void requestPendingAttachments();
 	void linkRecentlyArrivedAttachments();
     void expireOldAttachmentRequests();
+    void expireOldDetachRequests();
 
     // Attachments that we are planning to rez but haven't requested from the server yet.
 	attachments_vec_t mPendingAttachments;
