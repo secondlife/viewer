@@ -458,7 +458,7 @@ void show_item_original(const LLUUID& item_uuid)
 	{
 		return;
 	}
-	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
+	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
 	
 	if(do_reset_inventory_filter)
 	{
