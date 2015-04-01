@@ -36,10 +36,8 @@
 #include "llcorehttputil.h"
 
 //========================================================================
-LLHttpSDHandler::LLHttpSDHandler(const LLURI &uri):
-	mUri(uri)
+LLHttpSDHandler::LLHttpSDHandler()
 {
-
 }
 
 void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
@@ -68,7 +66,7 @@ void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 			{
 				std::string thebody = LLCoreHttpUtil::responseToString(response);
 
-				LL_WARNS() << "Failed to deserialize . " << getUri() << " [status:" << response->getStatus().toString() << "] "
+				LL_WARNS() << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
 					<< " body: " << thebody << LL_ENDL;
 			}
 		}
@@ -83,8 +81,8 @@ void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 }
 
 //========================================================================
-LLHttpSDGenericHandler::LLHttpSDGenericHandler(const LLURI &uri, const std::string &caps) :
-	LLHttpSDHandler(uri),
+LLHttpSDGenericHandler::LLHttpSDGenericHandler(const std::string &caps) :
+	LLHttpSDHandler(),
 	mCaps(caps)
 {
 }
@@ -99,7 +97,7 @@ void LLHttpSDGenericHandler::onFailure(LLCore::HttpResponse * response, LLCore::
 	LL_WARNS()
 		<< "\n--------------------------------------------------------------------------\n"
 		<< mCaps << " Error[" << status.toULong() << "] cannot access cap with url '" 
-		<< getUri() << "' because " << status.toString()
+		<< response->getRequestURL() << "' because " << status.toString()
 		<< "\n--------------------------------------------------------------------------"
 		<< LL_ENDL;
 }

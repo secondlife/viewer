@@ -70,7 +70,7 @@ public:
 	typedef boost::function<void(bool, const LLSD&)> CallbackFunction;
 	typedef boost::shared_ptr<LLMaterialHttpHandler> ptr_t;
 
-	LLMaterialHttpHandler(const std::string& method, const std::string& capabilityURL, CallbackFunction cback);
+	LLMaterialHttpHandler(const std::string& method, CallbackFunction cback);
 
 	virtual ~LLMaterialHttpHandler();
 
@@ -83,8 +83,8 @@ private:
 	CallbackFunction mCallback;
 };
 
-LLMaterialHttpHandler::LLMaterialHttpHandler(const std::string& method, const std::string& capabilityURL, CallbackFunction cback):
-	LLHttpSDHandler(capabilityURL),
+LLMaterialHttpHandler::LLMaterialHttpHandler(const std::string& method, CallbackFunction cback):
+	LLHttpSDHandler(),
 	mMethod(method),
 	mCallback(cback)
 {
@@ -106,7 +106,7 @@ void LLMaterialHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::H
 	LL_WARNS("Materials")
 		<< "\n--------------------------------------------------------------------------\n"
 		<< mMethod << " Error[" << status.toULong() << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
-		<< "'\n  with url '" << getUri() << "' because " << status.toString()
+		<< "'\n  with url '" << response->getRequestURL() << "' because " << status.toString()
 		<< "\n--------------------------------------------------------------------------"
 		<< LL_ENDL;
 
@@ -653,7 +653,7 @@ void LLMaterialMgr::processGetQueue()
 		postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
 		LLMaterialHttpHandler * handler = 
-				new LLMaterialHttpHandler("POST", capURL,
+				new LLMaterialHttpHandler("POST",
 				boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
 				);
 
@@ -707,7 +707,7 @@ void LLMaterialMgr::processGetAllQueue()
 
 		LL_DEBUGS("Materials") << "GET all for region " << region_id << "url " << capURL << LL_ENDL;
 		LLMaterialHttpHandler *handler = 
-			new LLMaterialHttpHandler("GET", capURL,
+			new LLMaterialHttpHandler("GET",
 			boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *itRegion)
 			);
 
@@ -810,7 +810,7 @@ void LLMaterialMgr::processPutQueue()
 			LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces to region " << itRequest->first->getName() << LL_ENDL;
 
 			LLMaterialHttpHandler * handler =
-					new LLMaterialHttpHandler("PUT", capURL,
+					new LLMaterialHttpHandler("PUT",
 					boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
 					);
 

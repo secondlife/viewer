@@ -41,7 +41,8 @@ HttpResponse::HttpResponse()
 	  mBufferArray(NULL),
 	  mHeaders(NULL),
 	  mRetries(0U),
-	  m503Retries(0U)
+	  m503Retries(0U),
+      mRequestUrl()
 {}
 
 

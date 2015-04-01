@@ -1249,8 +1249,8 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 class LLAppearanceMgrHttpHandler : public LLHttpSDHandler
 {
 public:
-	LLAppearanceMgrHttpHandler(const std::string& capabilityURL, LLAppearanceMgr *mgr) :
-		LLHttpSDHandler(capabilityURL),
+	LLAppearanceMgrHttpHandler(LLAppearanceMgr *mgr) :
+		LLHttpSDHandler(),
 		mManager(mgr)
 	{ }
 
@@ -1314,7 +1314,7 @@ void LLAppearanceMgrHttpHandler::onSuccess(LLCore::HttpResponse * response, cons
 
 void LLAppearanceMgrHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
 {
-	LL_WARNS("Avatar") << "Appearance Mgr request failed to " << getUri()
+	LL_WARNS("Avatar") << "Appearance Mgr request failed to " << response->getRequestURL()
 		<< ". Reason code: (" << status.toTerseString() << ") "
 		<< status.toString() << LL_ENDL;
 }
@@ -3434,7 +3434,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 	}
 	LL_DEBUGS("Avatar") << "request url " << url << " my_cof_version " << cof_version << LL_ENDL;
 
-	LLAppearanceMgrHttpHandler * handler = new LLAppearanceMgrHttpHandler(url, this);
+	LLAppearanceMgrHttpHandler * handler = new LLAppearanceMgrHttpHandler(this);
 
 	mInFlightCounter++;
 	mInFlightTimer.setTimerExpirySec(60.0);

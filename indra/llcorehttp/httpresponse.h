@@ -194,6 +194,16 @@ public:
 			return mStats;
 		}
 
+    void setRequestURL(const std::string &url)
+        {
+            mRequestUrl = url;
+        }
+
+    const std::string &getRequestURL() const
+        {
+            return mRequestUrl;
+        }
+
 
 protected:
 	// Response data here
@@ -206,6 +216,7 @@ protected:
 	std::string			mContentType;
 	unsigned int		mRetries;
 	unsigned int		m503Retries;
+    std::string         mRequestUrl;
 
 	TransferStats::ptr_t	mStats;
 };

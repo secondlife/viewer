@@ -260,7 +260,9 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setStatus(mStatus);
 		response->setBody(mReplyBody);
 		response->setHeaders(mReplyHeaders);
-		if (mReplyOffset || mReplyLength)
+        response->setRequestURL(mReqURL);
+
+        if (mReplyOffset || mReplyLength)
 		{
 			// Got an explicit offset/length in response
 			response->setRange(mReplyOffset, mReplyLength, mReplyFullLength);

@@ -30,14 +30,16 @@
 #include <sstream>
 
 #include "llcorehttputil.h"
+#include "llhttpconstants.h"
 #include "llsdserialize.h"
-
 
 using namespace LLCore;
 
 
 namespace LLCoreHttpUtil
 {
+
+
 
 // *TODO:  Currently converts only from XML content.  A mode
 // to convert using fromBinary() might be useful as well.  Mesh
@@ -183,6 +185,98 @@ std::string responseToString(LLCore::HttpResponse * response)
 
 	// Default
 	return empty;
+}
+
+
+HttpCoroHandler::HttpCoroHandler(LLEventStream &reply) :
+    mReplyPump(reply)
+{
+}
+
+void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+{
+    LLSD result;
+
+    LLCore::HttpStatus status = response->getStatus();
+
+    if (!status)
+    {
+        result = LLSD::emptyMap();
+        LL_WARNS()
+            << "\n--------------------------------------------------------------------------\n"
+            << " Error[" << status.toULong() << "] cannot access url '" << response->getRequestURL() 
+            << "' because " << status.toString()
+            << "\n--------------------------------------------------------------------------"
+            << LL_ENDL;
+
+    }
+    else
+    {
+        const bool emit_parse_errors = false;
+
+        bool parsed = !((response->getBodySize() == 0) ||
+            !LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, result));
+
+        if (!parsed)
+        {
+            // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
+            LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
+            const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
+
+            if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
+            {
+                std::string thebody = LLCoreHttpUtil::responseToString(response);
+                LL_WARNS() << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
+                    << " body: " << thebody << LL_ENDL;
+
+                // Replace the status with a new one indicating the failure.
+                status = LLCore::HttpStatus(499, "Failed to deserialize LLSD.");
+            }
+        }
+
+        if (result.isUndefined())
+        {
+            // If we've gotten to this point and the result LLSD is still undefined 
+            // either there was an issue deserializing the body or the response was
+            // blank.  Create an empty map to hold the result either way.
+            result = LLSD::emptyMap();
+        }
+    }
+
+    buildStatusEntry(response, status, result);
+    mReplyPump.post(result);
+}
+
+void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result)
+{
+    LLSD httpresults = LLSD::emptyMap();
+
+    httpresults["success"] = static_cast<LLSD::Boolean>(status);
+    httpresults["type"] = static_cast<LLSD::Integer>(status.getType());
+    httpresults["status"] = static_cast<LLSD::Integer>(status.getStatus());
+    httpresults["message"] = static_cast<LLSD::String>(status.getMessage());
+    httpresults["url"] = static_cast<LLSD::String>(response->getRequestURL());
+
+    LLSD httpHeaders = LLSD::emptyMap();
+    LLCore::HttpHeaders * hdrs = response->getHeaders();
+
+    if (hdrs)
+    {
+        for (LLCore::HttpHeaders::iterator it = hdrs->begin(); it != hdrs->end(); ++it)
+        {
+            if (!(*it).second.empty())
+            {
+                httpHeaders[(*it).first] = (*it).second;
+            }
+            else
+            {
+                httpHeaders[(*it).first] = static_cast<LLSD::Boolean>(true);
+            }
+        }
+    }
+
+    httpresults["headers"] = httpHeaders;
+    result["http_result"] = httpresults;
 }
 
 

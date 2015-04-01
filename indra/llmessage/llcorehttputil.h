@@ -39,6 +39,7 @@
 #include "bufferarray.h"
 #include "bufferstream.h"
 #include "llsd.h"
+#include "llevents.h"
 
 ///
 /// The base llcorehttp library implements many HTTP idioms
@@ -151,6 +152,35 @@ LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
 	LLCore::HttpOptions::ptr_t & options,
 	LLCore::HttpHeaders::ptr_t & headers,
 	LLCore::HttpHandler * handler);
+
+/// The HttpCoroHandler is a specialization of the LLCore::HttpHandler for 
+/// interacting with coroutines. When the request is completed the response 
+/// will be posted onto the supplied Event Pump.
+/// 
+/// The LLSD posted back to the coroutine will have the following additions:
+/// llsd["http_result"] -+- ["message"] - An error message returned from the HTTP status
+///                      +- ["status"]  - The status code associated with the HTTP call
+///                      +- ["success"] - Success of failure of the HTTP call and LLSD parsing.
+///                      +- ["type"]    - The LLCore::HttpStatus type associted with the HTTP call
+///                      +- ["url"]     - The URL used to make the call.
+///                      +- ["headers"] - A map of name name value pairs with the HTTP headers.
+///                      
+
+/// 
+class HttpCoroHandler : public LLCore::HttpHandler
+{
+public:
+    HttpCoroHandler(LLEventStream &reply);
+
+    virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
+    typedef boost::shared_ptr<HttpCoroHandler> ptr_t;
+
+private:
+    void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
+
+    LLEventStream &mReplyPump;
+};
 
 } // end namespace LLCoreHttpUtil
 

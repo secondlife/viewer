@@ -39,21 +39,14 @@
 class LLHttpSDHandler : public LLCore::HttpHandler
 {
 public:
-	LLHttpSDHandler(const LLURI &uri);
+	LLHttpSDHandler();
 
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 	
-	inline const LLURI &getUri() const
-	{
-		return mUri;
-	}
-
 protected:
 	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content) = 0;
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) = 0;
 
-private:
-	LLURI	mUri;
 };
 
 /// A trivial implementation of LLHttpSDHandler. This success and failure 
@@ -62,7 +55,7 @@ private:
 class LLHttpSDGenericHandler : public LLHttpSDHandler
 {
 public: 
-	LLHttpSDGenericHandler(const LLURI &uri, const std::string &action);
+	LLHttpSDGenericHandler(const std::string &action);
 
 protected:
 	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);

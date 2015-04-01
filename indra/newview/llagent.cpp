@@ -325,7 +325,6 @@ bool LLAgent::isMicrophoneOn(const LLSD& sdname)
 // For a toggled version, see viewer.h for the
 // TOGGLE_HACKED_GODLIKE_VIEWER define, instead.
 // ************************************************************
-bool LLAgent::mActive = true;
 
 // Constructors and Destructors
 
@@ -474,7 +473,9 @@ void LLAgent::init()
 	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
 	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
 
-	doOnIdleRepeating(boost::bind(&LLAgent::onIdle, this));
+    // Now ensure that we get regular callbacks to poll for completion.
+    mBoundListener = LLEventPumps::instance().obtain("mainloop").
+        listen(LLEventPump::inventName(), boost::bind(&LLAgent::pollHttp, this, _1));
 
 	mInitialized = TRUE;
 }
@@ -484,7 +485,6 @@ void LLAgent::init()
 //-----------------------------------------------------------------------------
 void LLAgent::cleanup()
 {
-	mActive = false;
 	mRegionp = NULL;
 	if (mTeleportFinishedSlot.connected())
 	{
@@ -494,6 +494,10 @@ void LLAgent::cleanup()
 	{
 		mTeleportFailedSlot.disconnect();
 	}
+    if (mBoundListener.connected())
+    {
+        mBoundListener.disconnect();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -517,15 +521,15 @@ LLAgent::~LLAgent()
 }
 
 //-----------------------------------------------------------------------------
-// Idle processing
+// pollHttp
+//  Polling done once per frame on the "mainloop" to support HTTP processing.
 //-----------------------------------------------------------------------------
-bool LLAgent::onIdle()
+bool LLAgent::pollHttp(const LLSD&)
 {
-	if (!LLAgent::mActive)
-		return true;
-	mHttpRequest->update(0L);
-	return false;
+    mHttpRequest->update(0L);
+    return false;
 }
+
 
 // Handle any actions that need to be performed when the main app gains focus
 // (such as through alt-tab).
@@ -2548,8 +2552,8 @@ int LLAgent::convertTextToMaturity(char text)
 class LLMaturityHttpHandler : public LLHttpSDHandler
 {
 public:
-	LLMaturityHttpHandler(const std::string& capabilityURL, LLAgent *agent, U8 preferred, U8 previous):
-		LLHttpSDHandler(capabilityURL),
+	LLMaturityHttpHandler(LLAgent *agent, U8 preferred, U8 previous):
+		LLHttpSDHandler(),
 		mAgent(agent),
 		mPreferredMaturity(preferred),
 		mPreviousMaturity(previous)
@@ -2764,7 +2768,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 			return;
 		}
 
-		LLMaturityHttpHandler * handler = new LLMaturityHttpHandler(url, this, pPreferredMaturity, mLastKnownResponseMaturity);
+		LLMaturityHttpHandler * handler = new LLMaturityHttpHandler(this, pPreferredMaturity, mLastKnownResponseMaturity);
 
 		LLSD access_prefs = LLSD::emptyMap();
 		access_prefs["max"] = LLViewerRegion::accessToShortString(pPreferredMaturity);
@@ -2779,14 +2783,14 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{
 			delete handler;
-			LL_WARNS("Avatar") << "Maturity request post failed." << LL_ENDL;
+			LL_WARNS("Agent") << "Maturity request post failed." << LL_ENDL;
 		}
 	}
 }
 
 LLCore::HttpHandle LLAgent::requestPostCapability(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr)
 {
-	LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(url, cap);
+	LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(cap);
 	LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
 		mHttpPolicy, mHttpPriority, url,
 		postData, mHttpOptions, mHttpHeaders, handler);
@@ -2799,16 +2803,31 @@ LLCore::HttpHandle LLAgent::requestPostCapability(const std::string &cap, const 
 		if (!usrhndlr)
 			delete handler;
 		LLCore::HttpStatus status = mHttpRequest->getStatus();
-		LL_WARNS("Avatar") << "'" << cap << "' request POST failed. Reason " 
+		LL_WARNS("Agent") << "'" << cap << "' request POST failed. Reason " 
 			<< status.toTerseString() << " \"" << status.toString() << "\"" << LL_ENDL;
 	}
 	return handle;
 }
 
-//LLCore::HttpHandle LLAgent::httpGetCapibility(const std::string &cap, const LLURI &uri, LLHttpSDHandler *usrhndlr)
-//{
-//}
+LLCore::HttpHandle LLAgent::requestGetCapability(const std::string &cap, const std::string &url, LLHttpSDHandler *usrhndlr)
+{
+    LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(cap);
+    LLCore::HttpHandle handle = mHttpRequest->requestGet(mHttpPolicy, mHttpPriority, 
+            url, mHttpOptions.get(), mHttpHeaders.get(), handler);
 
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        // If no handler was passed in we delete the handler default handler allocated 
+        // at the start of this function.
+        // *TODO: Change this metaphore to use boost::shared_ptr<> for handlers.  Requires change in LLCore::HTTP
+        if (!usrhndlr)
+            delete handler;
+        LLCore::HttpStatus status = mHttpRequest->getStatus();
+        LL_WARNS("Agent") << "'" << cap << "' request GET failed. Reason "
+            << status.toTerseString() << " \"" << status.toString() << "\"" << LL_ENDL;
+    }
+    return handle;
+}
 
 BOOL LLAgent::getAdminOverride() const	
 { 

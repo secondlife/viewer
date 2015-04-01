@@ -33,8 +33,17 @@
 #include "llhttpclient.h"
 #include "llsd.h"
 #include "llsdserialize.h"
-
+#include "httpresponse.h"
+#include "llhttpsdhandler.h"
 #include <boost/tokenizer.hpp>
+
+#include "httpcommon.h"
+#include "httprequest.h"
+#include "httpheaders.h"
+#include "httpoptions.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
+#include "llcorehttputil.h"
 
 #include <map>
 #include <set>
@@ -90,6 +99,12 @@ namespace LLAvatarNameCache
 	// Time-to-live for a temp cache entry.
 	const F64 TEMP_CACHE_ENTRY_LIFETIME = 60.0;
 
+    LLCore::HttpRequest::ptr_t		sHttpRequest;
+    LLCore::HttpHeaders::ptr_t		sHttpHeaders;
+    LLCore::HttpOptions::ptr_t		sHttpOptions;
+    LLCore::HttpRequest::policy_t	sHttpPolicy;
+    LLCore::HttpRequest::priority_t	sHttpPriority;
+
 	//-----------------------------------------------------------------------
 	// Internal methods
 	//-----------------------------------------------------------------------
@@ -121,7 +136,13 @@ namespace LLAvatarNameCache
 	// Erase expired names from cache
 	void eraseUnrefreshed();
 
-	bool expirationFromCacheControl(const LLSD& headers, F64 *expires);
+    //bool expirationFromCacheControl(LLCore::HttpHeaders *headers, F64 *expires);
+    bool expirationFromCacheControl(const LLSD& headers, F64 *expires);
+
+    // This is a coroutine.  The only parameter that can be specified as a reference is the self
+    void requestAvatarNameCache_(LLCoros::self& self, std::string url, std::vector<LLUUID> agentIds);
+
+    void handleAvNameCacheSuccess(const LLSD &data, const LLSD &httpResult);
 }
 
 /* Sample response:
@@ -163,94 +184,125 @@ namespace LLAvatarNameCache
 </llsd>
 */
 
-class LLAvatarNameResponder : public LLHTTPClient::Responder
+// Coroutine for sending and processing avatar name cache requests.  
+// Do not call directly.  See documentation in lleventcoro.h and llcoro.h for
+// further explanation.
+void LLAvatarNameCache::requestAvatarNameCache_(LLCoros::self& self, std::string url, std::vector<LLUUID> agentIds)
 {
-	LOG_CLASS(LLAvatarNameResponder);
-private:
-	// need to store agent ids that are part of this request in case of
-	// an error, so we can flag them as unavailable
-	std::vector<LLUUID> mAgentIDs;
+    LLEventStream  replyPump("NameCacheReply", true);
+    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler = 
+        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
 
-public:
-	LLAvatarNameResponder(const std::vector<LLUUID>& agent_ids)
-	:	mAgentIDs(agent_ids)
-	{ }
-	
-protected:
-	/*virtual*/ void httpSuccess()
-	{
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		// Pull expiration out of headers if available
-		F64 expires = LLAvatarNameCache::nameExpirationFromHeaders(getResponseHeaders());
-		F64 now = LLFrameTimer::getTotalSeconds();
+    LL_DEBUGS("AvNameCache") << "Entering coroutine " << LLCoros::instance().getName(self)
+        << " with url '" << url << "', requesting " << agentIds.size() << " Agent Ids" << LL_ENDL;
 
-		const LLSD& agents = content["agents"];
-		LLSD::array_const_iterator it = agents.beginArray();
-		for ( ; it != agents.endArray(); ++it)
-		{
-			const LLSD& row = *it;
-			LLUUID agent_id = row["id"].asUUID();
+    try
+    {
+        bool success = true;
 
-			LLAvatarName av_name;
-			av_name.fromLLSD(row);
+        LLAvatarNameCache::sHttpRequest->requestGet(
+            LLAvatarNameCache::sHttpPolicy, LLAvatarNameCache::sHttpPriority, 
+            url, LLAvatarNameCache::sHttpOptions.get(), 
+            LLAvatarNameCache::sHttpHeaders.get(), httpHandler.get());
 
-			// Use expiration time from header
-			av_name.mExpires = expires;
+        LLSD results = waitForEventOn(self, replyPump);
+        LLSD httpResults;
 
-			LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result for " << agent_id << LL_ENDL;
-			av_name.dump();
-			
-			// cache it and fire signals
-			LLAvatarNameCache::processName(agent_id, av_name);
-		}
+        LL_DEBUGS() << results << LL_ENDL;
 
-		// Same logic as error response case
-		const LLSD& unresolved_agents = content["bad_ids"];
-		S32  num_unresolved = unresolved_agents.size();
-		if (num_unresolved > 0)
-		{
-            LL_WARNS("AvNameCache") << "LLAvatarNameResponder::result " << num_unresolved << " unresolved ids; "
-                                    << "expires in " << expires - now << " seconds"
-                                    << LL_ENDL;
-			it = unresolved_agents.beginArray();
-			for ( ; it != unresolved_agents.endArray(); ++it)
-			{
-				const LLUUID& agent_id = *it;
+        if (!results.isMap())
+        {
+            LL_WARNS("AvNameCache") << " Invalid result returned from LLCoreHttpUtil::HttpCoroHandler." << LL_ENDL;
+            success = false;
+        }
+        else
+        {
+            httpResults = results["http_result"];
+            success = httpResults["success"].asBoolean();
+            if (!success)
+            {
+                LL_WARNS("AvNameCache") << "Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                    << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
+            }
+        }
 
-				LL_WARNS("AvNameCache") << "LLAvatarNameResponder::result "
-                                        << "failed id " << agent_id
-                                        << LL_ENDL;
-
+        if (!success)
+        {   // on any sort of failure add dummy records for any agent IDs 
+            // in this request that we do not have cached already
+            std::vector<LLUUID>::const_iterator it = agentIds.begin();
+            for ( ; it != agentIds.end(); ++it)
+            {
+                const LLUUID& agent_id = *it;
                 LLAvatarNameCache::handleAgentError(agent_id);
-			}
-		}
-        LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result " 
-                                 << LLAvatarNameCache::sCache.size() << " cached names"
-                                 << LL_ENDL;
+            }
+            return;
+        }
+
+        LLAvatarNameCache::handleAvNameCacheSuccess(results, httpResults);
+
+    }
+    catch (std::exception e)
+    {
+        LL_WARNS() << "Caught exception '" << e.what() << "'" << LL_ENDL;
+    }
+    catch (...)
+    {
+        LL_WARNS() << "Caught unknown exception." << LL_ENDL;
+    }
+}
+
+void LLAvatarNameCache::handleAvNameCacheSuccess(const LLSD &data, const LLSD &httpResult)
+{
+
+    LLSD headers = httpResult["headers"];
+    // Pull expiration out of headers if available
+    F64 expires = LLAvatarNameCache::nameExpirationFromHeaders(headers);
+    F64 now = LLFrameTimer::getTotalSeconds();
+
+    const LLSD& agents = data["agents"];
+    LLSD::array_const_iterator it = agents.beginArray();
+    for (; it != agents.endArray(); ++it)
+    {
+        const LLSD& row = *it;
+        LLUUID agent_id = row["id"].asUUID();
+
+        LLAvatarName av_name;
+        av_name.fromLLSD(row);
+
+        // Use expiration time from header
+        av_name.mExpires = expires;
+
+        LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result for " << agent_id << LL_ENDL;
+        av_name.dump();
+
+        // cache it and fire signals
+        LLAvatarNameCache::processName(agent_id, av_name);
     }
 
-	/*virtual*/ void httpFailure()
-	{
-		// If there's an error, it might be caused by PeopleApi,
-		// or when loading textures on startup and using a very slow 
-		// network, this query may time out.
-		// What we should do depends on whether or not we have a cached name
-		LL_WARNS("AvNameCache") << dumpResponse() << LL_ENDL;
+    // Same logic as error response case
+    const LLSD& unresolved_agents = data["bad_ids"];
+    S32  num_unresolved = unresolved_agents.size();
+    if (num_unresolved > 0)
+    {
+        LL_WARNS("AvNameCache") << "LLAvatarNameResponder::result " << num_unresolved << " unresolved ids; "
+            << "expires in " << expires - now << " seconds"
+            << LL_ENDL;
+        it = unresolved_agents.beginArray();
+        for (; it != unresolved_agents.endArray(); ++it)
+        {
+            const LLUUID& agent_id = *it;
 
-		// Add dummy records for any agent IDs in this request that we do not have cached already
-		std::vector<LLUUID>::const_iterator it = mAgentIDs.begin();
-		for ( ; it != mAgentIDs.end(); ++it)
-		{
-			const LLUUID& agent_id = *it;
-			LLAvatarNameCache::handleAgentError(agent_id);
-		}
-	}
-};
+            LL_WARNS("AvNameCache") << "LLAvatarNameResponder::result "
+                << "failed id " << agent_id
+                << LL_ENDL;
+
+            LLAvatarNameCache::handleAgentError(agent_id);
+        }
+    }
+    LL_DEBUGS("AvNameCache") << "LLAvatarNameResponder::result "
+        << LLAvatarNameCache::sCache.size() << " cached names"
+        << LL_ENDL;
+}
 
 // Provide some fallback for agents that return errors
 void LLAvatarNameCache::handleAgentError(const LLUUID& agent_id)
@@ -353,12 +405,17 @@ void LLAvatarNameCache::requestNamesViaCapability()
 		}
 	}
 
-	if (!url.empty())
-	{
-		LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::requestNamesViaCapability requested "
-								 << ids << " ids"
-								 << LL_ENDL;
-		LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
+    if (!url.empty())
+    {
+        LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::requestNamesViaCapability requested "
+            << ids << " ids"
+            << LL_ENDL;
+
+        std::string coroname = 
+            LLCoros::instance().launch("LLAvatarNameCache::requestAvatarNameCache_",
+            boost::bind(&LLAvatarNameCache::requestAvatarNameCache_, _1, url, agent_ids));
+        LL_DEBUGS("AvNameCache") << coroname << " with  url '" << url << "', agent_ids.size()=" << agent_ids.size() << LL_ENDL;
+
 	}
 }
 
@@ -422,11 +479,20 @@ void LLAvatarNameCache::initClass(bool running, bool usePeopleAPI)
 {
 	sRunning = running;
 	sUsePeopleAPI = usePeopleAPI;
+
+    sHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
+    sHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
+    sHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
+    sHttpPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
+    sHttpPriority = 0;
 }
 
 void LLAvatarNameCache::cleanupClass()
 {
-	sCache.clear();
+    sHttpRequest.reset();
+    sHttpHeaders.reset();
+    sHttpOptions.reset();
+    sCache.clear();
 }
 
 void LLAvatarNameCache::importFile(std::istream& istr)
@@ -497,6 +563,8 @@ void LLAvatarNameCache::idle()
 {
 	// By convention, start running at first idle() call
 	sRunning = true;
+
+    sHttpRequest->update(0L);
 
 	// *TODO: Possibly re-enabled this based on People API load measurements
 	// 100 ms is the threshold for "user speed" operations, so we can
@@ -697,6 +765,50 @@ void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_na
 	sCache[agent_id] = av_name;
 }
 
+#if 0
+F64 LLAvatarNameCache::nameExpirationFromHeaders(LLCore::HttpHeaders *headers)
+{
+    F64 expires = 0.0;
+    if (expirationFromCacheControl(headers, &expires))
+    {
+        return expires;
+    }
+    else
+    {
+        // With no expiration info, default to an hour
+        const F64 DEFAULT_EXPIRES = 60.0 * 60.0;
+        F64 now = LLFrameTimer::getTotalSeconds();
+        return now + DEFAULT_EXPIRES;
+    }
+}
+
+bool LLAvatarNameCache::expirationFromCacheControl(LLCore::HttpHeaders *headers, F64 *expires)
+{
+    bool fromCacheControl = false;
+    F64 now = LLFrameTimer::getTotalSeconds();
+
+    // Allow the header to override the default
+    const std::string *cache_control;
+    
+    cache_control = headers->find(HTTP_IN_HEADER_CACHE_CONTROL);
+
+    if (cache_control && !cache_control->empty())
+    {
+        S32 max_age = 0;
+        if (max_age_from_cache_control(*cache_control, &max_age))
+        {
+            *expires = now + (F64)max_age;
+            fromCacheControl = true;
+        }
+    }
+    LL_DEBUGS("AvNameCache")
+        << ( fromCacheControl ? "expires based on cache control " : "default expiration " )
+        << "in " << *expires - now << " seconds"
+        << LL_ENDL;
+
+    return fromCacheControl;
+}
+#else
 F64 LLAvatarNameCache::nameExpirationFromHeaders(const LLSD& headers)
 {
 	F64 expires = 0.0;
@@ -741,7 +853,7 @@ bool LLAvatarNameCache::expirationFromCacheControl(const LLSD& headers, F64 *exp
 	
 	return fromCacheControl;
 }
-
+#endif
 
 void LLAvatarNameCache::addUseDisplayNamesCallback(const use_display_name_signal_t::slot_type& cb) 
 { 
