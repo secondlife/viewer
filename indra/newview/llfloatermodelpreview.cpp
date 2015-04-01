@@ -3787,7 +3787,7 @@ BOOL LLModelPreview::render()
 
 					if (!model->mSkinWeights.empty())
 					{
-						for (U32 i = 0; i < mVertexBuffer[mPreviewLOD][model].size(); ++i)
+						for (U32 i = 0, e = mVertexBuffer[mPreviewLOD][model].size(); i < e; ++i)
 						{
 							LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 
@@ -3856,6 +3856,7 @@ BOOL LLModelPreview::render()
 								position[j] = v;
 							}
 
+							llassert(model->mMaterialList.size() > i); 
 							const std::string& binding = instance.mModel->mMaterialList[i];
 							const LLImportMaterial& material = instance.mMaterial[binding];
 

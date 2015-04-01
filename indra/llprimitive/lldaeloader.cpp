@@ -260,25 +260,33 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		}
 
 		if (indices.size()%3 == 0 && verts.size() >= 65532)
+		{
+			std::string material;
+
+			if (tri->getMaterial())
 			{
-				face_list.push_back(face);
-				face_list.rbegin()->fillFromLegacyData(verts, indices);
-				LLVolumeFace& new_face = *face_list.rbegin();
-				if (!norm_source)
-				{
-					//ll_aligned_free_16(new_face.mNormals);
-					new_face.mNormals = NULL;
-				}
-
-				if (!tc_source)
-				{
-					//ll_aligned_free_16(new_face.mTexCoords);
-					new_face.mTexCoords = NULL;
-				}
-
-				face = LLVolumeFace();
-				point_map.clear();
+				material = std::string(tri->getMaterial());
 			}
+
+			materials.push_back(material);
+			face_list.push_back(face);
+			face_list.rbegin()->fillFromLegacyData(verts, indices);
+			LLVolumeFace& new_face = *face_list.rbegin();
+			if (!norm_source)
+			{
+				//ll_aligned_free_16(new_face.mNormals);
+				new_face.mNormals = NULL;
+			}
+
+			if (!tc_source)
+			{
+				//ll_aligned_free_16(new_face.mTexCoords);
+				new_face.mTexCoords = NULL;
+			}
+
+			face = LLVolumeFace();
+			point_map.clear();
+		}
 	}
 
 	if (!verts.empty())
@@ -497,6 +505,14 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 
 			if (indices.size()%3 == 0 && indices.size() >= 65532)
 			{
+				std::string material;
+
+				if (poly->getMaterial())
+				{
+					material = std::string(poly->getMaterial());
+				}
+
+				materials.push_back(material);
 				face_list.push_back(face);
 				face_list.rbegin()->fillFromLegacyData(verts, indices);
 				LLVolumeFace& new_face = *face_list.rbegin();
