@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import sys
+import os
+import argparse
+import xml.etree.ElementTree as xml
+
+try:
+    from llbase import llsd
+except ImportError:
+    try:
+        from indra.base import llsd
+    except ImportError:
+        sys.exit("""Failed to import python llsd module from llbase or indra.base.
+Try
+   pip install llbase
+or
+   sudo pip install llbase
+""")
+
+def warning(*objs):
+    print(*objs, file=sys.stderr)
+    
+def xml_is_ok(file):
+    # Check that the XML file is well formed.
+    try :
+        elements = xml.parse(file)
+    except IOError as read_error:
+        warning("XML not readable '%s':\n   %s" % (file, read_error))
+        return False
+    except xml.ParseError as parse_error :
+        warning("XML not well-formed '%s':\n   %s" % (file, parse_error.msg))
+        return False
+
+    root = elements.getroot()
+    if root.tag == 'llsd':
+        # if it's LLSD, we should be able to also validate that
+        with open(file, "r") as llsd_file:
+            llsd_content=llsd_file.read()
+        try:
+            llsd.parse(llsd_content)
+        except Exception as validity_error:
+            warning("LLSD not valid '%s':\n   %s" % (file, validity_error))
+            return False
+    elif arg.verbosity == 'verbose':
+        warning("  %s is not a document type that can be validated" % root.tag)
+
+    return True
+
+cmd_line = argparse.ArgumentParser(description='Checks all xml files found in viewer settings and cache directories ',
+                                   prog='check-viewer-xml',
+                                   )
+cmd_line.add_argument('directory', nargs='*', default=None,
+                      help='additional directories to check')
+verbosity_options=cmd_line.add_mutually_exclusive_group()
+verbosity_options.add_argument('-v', '--verbose', 
+                        help='verbose output', action='store_const', const='verbose', dest='verbosity')
+verbosity_options.add_argument('-q', '--quiet',
+                    help='output errors only', action='store_const', const='quiet', dest='verbosity', default='normal')
+
+arg = cmd_line.parse_args()
+
+if sys.platform == 'darwin':
+    CheckDirs = [ os.path.expanduser('~/Library/Caches/SecondLife'),
+                  os.path.expanduser('~/Library/Application Support/SecondLife'),
+                  ]
+elif sys.platform == 'linux2':
+    CheckDirs = [ os.path.expanduser('~/.secondlife'),
+                  ]
+elif sys.platform == 'win32' or sys.platform == 'cygwin':  
+    CheckDirs = [ os.path.expanduser('~\\Local Settings\\Temp'),
+                  os.path.expanduser('~\\Application\\Data\\Secondlife'),
+                  os.path.expanduser('~\\AppData\\Roaming\\Secondlife'),
+                  os.path.expanduser('~\\AppData\\Local\\Secondlife'),
+                  ]
+else:
+    sys.exit("unrecognized platform '%s'" % sys.platform)
+
+if arg.directory:
+    CheckDirs.extend(arg.directory)
+
+checked_files = 0
+invalid_files = 0
+for root in filter(os.path.isdir, CheckDirs):
+    if arg.verbosity == 'verbose':
+        print("Searching '%s'" % root)
+    for directory, dirs, files in os.walk(root):
+        for file in files:
+            if file.endswith('.xml'):
+                xml_file = os.path.join(directory,file)
+                if arg.verbosity == 'verbose':
+                    print("Checking '%s'" % xml_file)
+                checked_files += 1
+                if not xml_is_ok(xml_file):
+                    invalid_files += 1
+
+if arg.verbosity != 'quiet':
+    print("Checked %d files, %d errors found." % (checked_files, invalid_files))
+
+sys.exit(invalid_files)
+
+                
