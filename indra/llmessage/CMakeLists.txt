@@ -245,18 +245,9 @@ if (LL_TESTS)
 
   
   #    set(TEST_DEBUG on)
-if (LINUX)	
-  # llcommon uses `clock_gettime' which is provided by librt on linux.
-  set(LIBRT_LIBRARY
-    rt
-	)
-#else 
-	set (LIBRT_LIBRARY )
-endif (LINUX)
   
   set(test_libs
     ${WINDOWS_LIBRARIES}
-	${LIBRT_LIBRARY}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${CURL_LIBRARIES}
