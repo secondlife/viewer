@@ -124,6 +124,18 @@ void LLUriParser::textRangeToString(UriTextRangeA& textRange, std::string& str)
 		return;
 	}
 
+	if(textRange.first == NULL)
+	{
+		LL_WARNS() << "textRange.first is NULL for uri: " << mNormalizedUri << LL_ENDL;
+		return;
+	}
+
+	if(textRange.afterLast == NULL)
+	{
+		LL_WARNS() << "textRange.afterLast is NULL for uri: " << mNormalizedUri << LL_ENDL;
+		return;
+	}
+
 	S32 len = textRange.afterLast - textRange.first;
 	if (len)
 	{
