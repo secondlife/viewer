@@ -258,9 +258,12 @@ void LLAttachmentsMgr::LLItemRequestTimes::addTime(const LLUUID& inv_item_id)
 void LLAttachmentsMgr::LLItemRequestTimes::removeTime(const LLUUID& inv_item_id)
 {
     LLInventoryItem *item = gInventory.getItem(inv_item_id);
-    LL_DEBUGS("Avatar") << "ATT " << mOpName << " removing request time "
-                        << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
-	(*this).erase(inv_item_id);
+	S32 remove_count = (*this).erase(inv_item_id);
+    if (remove_count)
+    {
+        LL_DEBUGS("Avatar") << "ATT " << mOpName << " removing request time "
+                            << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
+    }
 }
 
 BOOL LLAttachmentsMgr::LLItemRequestTimes::getTime(const LLUUID& inv_item_id, LLTimer& timer) const
@@ -313,7 +316,7 @@ void LLAttachmentsMgr::expireOldAttachmentRequests()
         if (curr_it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
         {
             LLInventoryItem *item = gInventory.getItem(curr_it->first);
-            LL_DEBUGS("Avatar") << "ATT expiring request for attachment "
+            LL_WARNS("Avatar") << "ATT expiring request for attachment "
                                 << (item ? item->getName() : "UNKNOWN") << " item_id " << curr_it->first
                                 << " after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds" << LL_ENDL;
             mAttachmentRequests.erase(curr_it);
@@ -331,7 +334,7 @@ void LLAttachmentsMgr::expireOldDetachRequests()
         if (curr_it->second.getElapsedTimeF32() > MAX_ATTACHMENT_REQUEST_LIFETIME)
         {
             LLInventoryItem *item = gInventory.getItem(curr_it->first);
-            LL_DEBUGS("Avatar") << "ATT expiring request for detach "
+            LL_WARNS("Avatar") << "ATT expiring request for detach "
                                 << (item ? item->getName() : "UNKNOWN") << " item_id " << curr_it->first
                                 << " after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds" << LL_ENDL;
             mDetachRequests.erase(curr_it);
@@ -344,13 +347,19 @@ void LLAttachmentsMgr::expireOldDetachRequests()
 void LLAttachmentsMgr::onAttachmentArrived(const LLUUID& inv_item_id)
 {
     LLTimer timer;
-    if (!mAttachmentRequests.getTime(inv_item_id, timer))
+    bool expected = mAttachmentRequests.getTime(inv_item_id, timer);
+    if (!expected)
     {
         LLInventoryItem *item = gInventory.getItem(inv_item_id);
         LL_WARNS() << "ATT Attachment was unexpected or arrived after " << MAX_ATTACHMENT_REQUEST_LIFETIME << " seconds: "
                    << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
     }
     mAttachmentRequests.removeTime(inv_item_id);
+    if (expected && mAttachmentRequests.empty())
+    {
+        // mAttachmentRequests just emptied out
+        LL_DEBUGS("Avatar") << "ATT all active attachment requests have completed" << LL_ENDL;
+    }
     if (mRecentlyArrivedAttachments.empty())
     {
         // Start the timer for sending off a COF link batch.
@@ -373,6 +382,10 @@ void LLAttachmentsMgr::onDetachCompleted(const LLUUID& inv_item_id)
         LL_DEBUGS("Avatar") << "ATT detach completed after " << timer.getElapsedTimeF32()
                             << " seconds for " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
         mDetachRequests.removeTime(inv_item_id);
+        if (mDetachRequests.empty())
+        {
+            LL_DEBUGS("Avatar") << "ATT all detach requests have completed" << LL_ENDL;
+        }
     }
     else
     {

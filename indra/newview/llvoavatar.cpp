@@ -5725,12 +5725,20 @@ BOOL LLVOAvatar::setParent(LLViewerObject* parent)
 void LLVOAvatar::addChild(LLViewerObject *childp)
 {
 	childp->extractAttachmentItemID(); // find the inventory item this object is associated with.
+	if (isSelf())
+	{
+	    const LLUUID& item_id = childp->getAttachmentItemID();
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		LL_DEBUGS("Avatar") << "ATT attachment child added " << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+
+	}
+
 	LLViewerObject::addChild(childp);
 	if (childp->mDrawable)
 	{
 		if (!attachObject(childp))
 		{
-			LL_WARNS() << "addChild() failed for " 
+			LL_WARNS() << "ATT addChild() failed for " 
 					<< childp->getID()
 					<< " item " << childp->getAttachmentItemID()
 					<< LL_ENDL;
@@ -5813,8 +5821,8 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 	{
 		const LLUUID& item_id = viewer_object->getAttachmentItemID();
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
-		LL_DEBUGS("Avatar") << "ATT attach failed "
-							<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;	
+		LL_WARNS("Avatar") << "ATT attach failed "
+						   << (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;	
 		return 0;
 	}
 
