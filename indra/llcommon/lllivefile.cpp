@@ -51,6 +51,8 @@ public:
 	bool mLastExists;
 	
 	LLEventTimer* mEventTimer;
+private:
+    LOG_CLASS(LLLiveFile);
 };
 
 LLLiveFile::Impl::Impl(const std::string& filename, const F32 refresh_period)
@@ -83,46 +85,51 @@ LLLiveFile::~LLLiveFile()
 
 bool LLLiveFile::Impl::check()
 {
-	if (!mForceCheck && mRefreshTimer.getElapsedTimeF32() < mRefreshPeriod)
+    bool detected_change = false;
+    // Skip the check if not enough time has elapsed and we're not
+    // forcing a check of the file
+	if (mForceCheck || mRefreshTimer.getElapsedTimeF32() >= mRefreshPeriod)
 	{
-		// Skip the check if not enough time has elapsed and we're not
-		// forcing a check of the file
-		return false;
-	}
-	mForceCheck = false;
-	mRefreshTimer.reset();
+        mForceCheck = false;   // force only forces one check
+        mRefreshTimer.reset(); // don't check again until mRefreshPeriod has passed
 
-	// Stat the file to see if it exists and when it was last modified.
-	llstat stat_data;
-	int res = LLFile::stat(mFilename, &stat_data);
-
-	if (res)
-	{
-		// Couldn't stat the file, that means it doesn't exist or is
-		// broken somehow.  Clear flags and return.
-		if (mLastExists)
-		{
-			mLastExists = false;
-			return true;	// no longer existing is a change!
-		}
-		return false;
-	}
-
-	// The file exists, decide if we want to load it.
-	if (mLastExists)
-	{
-		// The file existed last time, don't read it if it hasn't changed since
-		// last time.
-		if (stat_data.st_mtime <= mLastModTime)
-		{
-			return false;
-		}
-	}
-
-	// We want to read the file.  Update status info for the file.
-	mLastExists = true;
-	mLastStatTime = stat_data.st_mtime;
-	return true;
+        // Stat the file to see if it exists and when it was last modified.
+        llstat stat_data;
+        if (LLFile::stat(mFilename, &stat_data))
+        {
+            // Couldn't stat the file, that means it doesn't exist or is
+            // broken somehow.  
+            if (mLastExists)
+            {
+                mLastExists = false;
+                detected_change = true;	// no longer existing is a change!
+                LL_DEBUGS() << "detected deleted file '" << mFilename << "'" << LL_ENDL;
+            }
+        }
+        else
+        {
+            // The file exists
+            if ( ! mLastExists )
+            {
+                // last check, it did not exist - that counts as a change
+                LL_DEBUGS() << "detected created file '" << mFilename << "'" << LL_ENDL;
+                detected_change = true;
+            }
+            else if ( stat_data.st_mtime > mLastModTime )
+            {
+                // file modification time is newer than last check
+                LL_DEBUGS() << "detected updated file '" << mFilename << "'" << LL_ENDL;
+                detected_change = true;
+            }
+            mLastExists = true;
+            mLastStatTime = stat_data.st_mtime;
+        }
+    }
+    if (detected_change)
+    {
+        LL_INFOS() << "detected file change '" << mFilename << "'" << LL_ENDL;
+    }
+    return detected_change;
 }
 
 void LLLiveFile::Impl::changed()
