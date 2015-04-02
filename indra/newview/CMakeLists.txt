@@ -2328,8 +2328,16 @@ if (LL_TESTS)
     "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
     )
 
+  if (LINUX)	
+    # llcommon uses `clock_gettime' which is provided by librt on linux.
+    set(LIBRT_LIBRARY
+	  rt
+	  )
+  endif (LINUX)
+
   set(test_libs
     ${WINDOWS_LIBRARIES}
+	${LIBRT_LIBRARY}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
