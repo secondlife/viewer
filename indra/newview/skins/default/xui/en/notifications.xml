@@ -517,6 +517,18 @@ This listing could not be updated.
     </notification>
     
     <notification
+        icon="alertmodal.tga"
+        name="AlertMerchantStockFolderEmpty"
+        type="alertmodal">
+        We have unlisted your listing because the stock is empty. You need to add more units to the stock folder to list the listing again.
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Alert when a listing is unlisted because stock folder is empty"
+        name="okignore"
+        yestext="OK"/>
+    </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
    type="alertmodal">

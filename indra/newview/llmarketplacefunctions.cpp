@@ -1307,6 +1307,13 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 
     Json::Value root;
     Json::FastWriter writer;
+
+    // Note : auto unlist if the count is 0 (out of stock)
+    if (is_listed && (count == 0))
+    {
+        is_listed = false;
+        LLNotificationsUtil::add("AlertMerchantStockFolderEmpty");
+    }
     
     // Note : we're assuming that sending unchanged info won't break anything server side...
     root["listing"]["id"] = listing_id;
