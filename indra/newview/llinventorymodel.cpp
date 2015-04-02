@@ -3061,15 +3061,15 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 							   << tfolder->getUUID() << ") in " << tfolder->getParentUUID()
 							   << LL_ENDL;
         
-        // If the parent folder is a listing folder, we also need to update the SLM data
+        // If the parent folder is a listing folder, all we need to do is update the SLM data
         if (LLMarketplaceData::instance().isListed(tfolder->getParentUUID()))
         {
             // Trigger an SLM listing update
             S32 listing_id = LLMarketplaceData::instance().getListingID(tfolder->getParentUUID());
             LLMarketplaceData::instance().getListing(listing_id);
+            // In that case, there is no item to update so no callback -> we skip the rest of the update
         }
-            
-		if(tfolder->getUUID().notNull())
+		else if(tfolder->getUUID().notNull())
 		{
 			folders.push_back(tfolder);
 			LLViewerInventoryCategory* folderp = gInventory.getCategory(tfolder->getUUID());
