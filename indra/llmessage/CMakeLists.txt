@@ -243,7 +243,17 @@ if (LL_TESTS)
     )
   LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
 
+  
   #    set(TEST_DEBUG on)
+if (LINUX)	
+  # llcommon uses `clock_gettime' which is provided by librt on linux.
+  set(LIBRT_LIBRARY
+    rt
+	)
+#else 
+	set (LIBRT_LIBRARY )
+endif (LINUX)
+  
   set(test_libs
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
@@ -252,9 +262,10 @@ if (LL_TESTS)
     ${LLCOMMON_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
+	${LIBRT_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
-      ${GOOGLEMOCK_LIBRARIES}
+    ${GOOGLEMOCK_LIBRARIES}
     )
 
   LL_ADD_INTEGRATION_TEST(
