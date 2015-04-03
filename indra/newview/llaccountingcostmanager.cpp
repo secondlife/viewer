@@ -110,7 +110,7 @@ void LLAccountingCostManager::accountingCostCoro(LLCoros::self& self, std::strin
 
         LLSD results;
         {   // Scoping block for pumper object
-            LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
+            //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
             LLCoreHttpUtil::HttpRequestPumper pumper(mHttpRequest);
             LLCore::HttpHandle hhandle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
                 mHttpPolicy, mHttpPriority, url, dataToPost, mHttpOptions, mHttpHeaders,
@@ -126,7 +126,7 @@ void LLAccountingCostManager::accountingCostCoro(LLCoros::self& self, std::strin
             }
 
             results = waitForEventOn(self, replyPump);
-            LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
+            //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
         }
         LLSD httpResults;
         httpResults = results["http_result"];
@@ -135,7 +135,9 @@ void LLAccountingCostManager::accountingCostCoro(LLCoros::self& self, std::strin
         {
             observer = observerHandle.get();
             if ((!observer) || (observer->getTransactionID() != transactionId))
-            {
+            {   // *TODO: Rider: I've noticed that getTransactionID() does not 
+                // always match transactionId (the new transaction Id does not show a 
+                // corresponding request.)
                 if (!observer)
                     break;
                 LL_WARNS() << "Request transaction Id(" << transactionId
