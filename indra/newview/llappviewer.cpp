@@ -4653,7 +4653,12 @@ void LLAppViewer::loadNameCache()
 	llifstream name_cache_stream(filename);
 	if(name_cache_stream.is_open())
 	{
-		LLAvatarNameCache::importFile(name_cache_stream);
+		if ( ! LLAvatarNameCache::importFile(name_cache_stream))
+        {
+            LL_WARNS("AppInit") << "removing invalid '" << filename << "'" << LL_ENDL;
+            name_cache_stream.close();
+            LLFile::remove(filename);
+        }
 	}
 
 	if (!gCacheName) return;
@@ -4668,7 +4673,7 @@ void LLAppViewer::loadNameCache()
 }
 
 void LLAppViewer::saveNameCache()
-	{
+{
 	// display names cache
 	std::string filename =
 		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
@@ -4676,16 +4681,18 @@ void LLAppViewer::saveNameCache()
 	if(name_cache_stream.is_open())
 	{
 		LLAvatarNameCache::exportFile(name_cache_stream);
-}
-
-	if (!gCacheName) return;
-
-	std::string name_cache;
-	name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
-	llofstream cache_file(name_cache);
-	if(cache_file.is_open())
-	{
-		gCacheName->exportFile(cache_file);
+    }
+    
+    // real names cache
+	if (gCacheName)
+    {
+        std::string name_cache;
+        name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
+        llofstream cache_file(name_cache);
+        if(cache_file.is_open())
+        {
+            gCacheName->exportFile(cache_file);
+        }
 	}
 }
 
