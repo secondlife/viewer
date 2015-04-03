@@ -23,4 +23,7 @@
     <command name="snapshot"/>
     <command name="facebook"/>
   </left_toolbar>
+  <right_toolbar
+    button_display_mode="icons_only">
+  </right_toolbar>
 </toolbars>
