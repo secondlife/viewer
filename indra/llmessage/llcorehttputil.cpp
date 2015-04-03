@@ -279,6 +279,27 @@ void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::H
     result["http_result"] = httpresults;
 }
 
+HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request):
+    mHttpRequest(request)
+{
+    mBoundListener = LLEventPumps::instance().obtain("mainloop").
+        listen(LLEventPump::inventName(), boost::bind(&HttpRequestPumper::pollRequest, this, _1));
+}
+
+HttpRequestPumper::~HttpRequestPumper()
+{
+    if (mBoundListener.connected())
+    {
+        mBoundListener.disconnect();
+    }
+}
+
+bool HttpRequestPumper::pollRequest(const LLSD&)
+{
+    mHttpRequest->update(0L);
+    return false;
+}
+
 
 } // end namespace LLCoreHttpUtil
 

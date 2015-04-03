@@ -29,8 +29,6 @@
 #define LLAVATARNAMECACHE_H
 
 #include "llavatarname.h"	// for convenience
-//#include "httpcommon.h"
-//#include "httpheaders.h"
 #include <boost/signals2.hpp>
 
 class LLSD;

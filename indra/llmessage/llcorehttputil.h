@@ -165,8 +165,6 @@ LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
 ///                      +- ["url"]     - The URL used to make the call.
 ///                      +- ["headers"] - A map of name name value pairs with the HTTP headers.
 ///                      
-
-/// 
 class HttpCoroHandler : public LLCore::HttpHandler
 {
 public:
@@ -180,6 +178,22 @@ private:
     void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
 
     LLEventStream &mReplyPump;
+};
+
+/// The HttpRequestPumper is a utility class. When constructed it will poll the 
+/// supplied HttpRequest once per frame until it is destroyed.
+/// 
+class HttpRequestPumper
+{
+public:
+    HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request);
+    ~HttpRequestPumper();
+
+private:
+    bool                       pollRequest(const LLSD&);
+
+    LLTempBoundListener        mBoundListener;
+    LLCore::HttpRequest::ptr_t mHttpRequest;
 };
 
 } // end namespace LLCoreHttpUtil
