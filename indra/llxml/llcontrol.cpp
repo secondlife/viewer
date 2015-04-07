@@ -832,7 +832,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 			++num_saved;
 		}
 	}
-	llofstream file;
+	std::ofstream file;
 	file.open(filename.c_str());
 	if (file.is_open())
 	{
@@ -852,7 +852,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values, bool save_values)
 {
 	LLSD settings;
-	llifstream infile;
+	std::ifstream infile;
 	infile.open(filename.c_str());
 	if(!infile.is_open())
 	{

@@ -135,7 +135,7 @@ namespace {
 		}
 	
 	private:
-		llofstream mFile;
+		std::ofstream mFile;
 	};
 	
 	
@@ -335,7 +335,7 @@ namespace
 		LLSD configuration;
 
 		{
-			llifstream file(filename().c_str());
+			std::ifstream file(filename().c_str());
 			if (file.is_open())
 			{
 				LLSDSerialize::fromXML(configuration, file);

@@ -326,7 +326,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 {
 	LL_INFOS("RenderInit") << "Attempting to parse feature table from " << filename << LL_ENDL;
 
-	llifstream file;
+	std::ifstream file;
 	std::string name;
 	U32		version;
 	

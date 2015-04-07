@@ -164,7 +164,7 @@ void LLTeleportHistoryStorage::save()
 	std::string resolvedFilename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
 
 	// open the history file for writing
-	llofstream file(resolvedFilename.c_str());
+	std::ofstream file(resolvedFilename.c_str());
 	if (!file.is_open())
 	{
 		LL_WARNS() << "can't open teleport history file \"" << mFilename << "\" for writing" << LL_ENDL;
@@ -186,7 +186,7 @@ void LLTeleportHistoryStorage::load()
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
 
 	// open the history file for reading
-	llifstream file(resolved_filename.c_str());
+	std::ifstream file(resolved_filename.c_str());
 	if (!file.is_open())
 	{
 		LL_WARNS() << "can't load teleport history from file \"" << mFilename << "\"" << LL_ENDL;

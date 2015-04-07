@@ -79,7 +79,7 @@ class LLViewerEventRecorder : public LLSingleton<LLViewerEventRecorder>
   bool logEvents;
 
   std::string mLogFilename;
-  llofstream  mLog; 
+  std::ofstream  mLog; 
 
 
  private:

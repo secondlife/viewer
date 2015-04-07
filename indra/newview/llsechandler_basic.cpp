@@ -640,7 +640,7 @@ LLBasicCertificateStore::~LLBasicCertificateStore()
 // persist the store
 void LLBasicCertificateStore::save()
 {
-	llofstream file_store(mFilename.c_str(), std::ios_base::binary);
+	std::ofstream file_store(mFilename.c_str(), std::ios_base::binary);
 	if(!file_store.fail())
 	{
 		for(iterator cert = begin();
@@ -1245,8 +1245,8 @@ void LLSecAPIBasicHandler::_readProtectedData()
 {	
 	// attempt to load the file into our map
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();
-	llifstream protected_data_stream(mProtectedDataFilename.c_str(), 
-									llifstream::binary);
+	std::ifstream protected_data_stream(mProtectedDataFilename.c_str(), 
+									std::ifstream::binary);
 
 	if (!protected_data_stream.fail()) {
 		U8 salt[STORE_SALT_SIZE];
@@ -1330,7 +1330,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	// an error.
 	std::string tmp_filename = mProtectedDataFilename + ".tmp";
 	
-	llofstream protected_data_stream(tmp_filename.c_str(), 
+	std::ofstream protected_data_stream(tmp_filename.c_str(), 
                                      std::ios_base::binary);
 	try
 	{
@@ -1568,7 +1568,7 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
 {
 	const S32 HASHED_LENGTH = 32;	
 	std::vector<U8> buffer(HASHED_LENGTH);
-	llifstream password_file(mLegacyPasswordPath.c_str(), llifstream::binary);
+	std::ifstream password_file(mLegacyPasswordPath.c_str(), std::ifstream::binary);
 	
 	if(password_file.fail())
 	{

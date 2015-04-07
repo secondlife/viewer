@@ -179,7 +179,7 @@ void LLViewerTextureList::doPrefetchImages()
 	// Pre-fetch textures from last logout
 	LLSD imagelist;
 	std::string filename = get_texture_list_name();
-	llifstream file;
+	std::ifstream file;
 	file.open(filename.c_str());
 	if (file.is_open())
 	{
@@ -273,7 +273,7 @@ void LLViewerTextureList::shutdown()
 	if (count > 0 && !gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "").empty())
 	{
 		std::string filename = get_texture_list_name();
-		llofstream file;
+		std::ofstream file;
 		file.open(filename.c_str());
         LL_DEBUGS() << "saving " << imagelist.size() << " image list entries" << LL_ENDL;
 		LLSDSerialize::toPrettyXML(imagelist, file);

@@ -585,7 +585,7 @@ namespace tut
 		LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
 		LLXORCipher cipher2(unique_id, sizeof(unique_id));
 		cipher2.encrypt((U8*)&decoded_password[0], length);
-		llofstream password_file("test_password.dat", std::ofstream::binary);
+		std::ofstream password_file("test_password.dat", std::ofstream::binary);
 		password_file.write(&decoded_password[0], length); 
 		password_file.close();
 		
@@ -719,7 +719,7 @@ namespace tut
 		test_store=NULL;
 		
 		// instantiate a cert store from a file
-		llofstream certstorefile("mycertstore.pem", std::ios::out);
+		std::ofstream certstorefile("mycertstore.pem", std::ios::out);
 		certstorefile << mPemChildCert << std::endl << mPemTestCert << std::endl;
 		certstorefile.close();
 		// validate loaded certs

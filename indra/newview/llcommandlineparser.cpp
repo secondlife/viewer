@@ -621,7 +621,7 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
     // members of a control group.
     LLSD clpConfigLLSD;
     
-    llifstream input_stream;
+    std::ifstream input_stream;
     input_stream.open(config_filename.c_str(), std::ios::in | std::ios::binary);
 
     if(input_stream.is_open())

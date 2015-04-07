@@ -87,7 +87,7 @@ LLNotificationStorage::~LLNotificationStorage()
 bool LLNotificationStorage::writeNotifications(const LLSD& pNotificationData) const
 {
 
-	llofstream notifyFile(mFileName.c_str());
+	std::ofstream notifyFile(mFileName.c_str());
 	bool didFileOpen = notifyFile.is_open();
 
 	if (!didFileOpen)
@@ -113,7 +113,7 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_n
 
 	pNotificationData.clear();
 
-	llifstream notifyFile(filename.c_str());
+	std::ifstream notifyFile(filename.c_str());
 	didFileRead = notifyFile.is_open();
 	if (!didFileRead)
 	{

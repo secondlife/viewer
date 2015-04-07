@@ -120,7 +120,7 @@ namespace tut
 		void writeConfigFile(const LLSD& config)
 		{
 			std::string ostr(mTestConfigDir + mSep + "message.xml");
-			llofstream file(ostr.c_str());
+			std::ofstream file(ostr.c_str());
 			if (file.is_open())
 			{
 				LLSDSerialize::toPrettyXML(config, file);

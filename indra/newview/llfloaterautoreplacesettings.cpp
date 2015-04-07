@@ -353,7 +353,7 @@ void LLFloaterAutoReplaceSettings::onImportList()
 	LLFilePicker& picker = LLFilePicker::instance();
 	if( picker.getOpenFile( LLFilePicker::FFLOAD_XML) )
 	{
-		llifstream file;
+		std::ifstream file;
 		file.open(picker.getFirstFile().c_str());
 		LLSD newList;
 		if (file.is_open())
@@ -545,7 +545,7 @@ void LLFloaterAutoReplaceSettings::onExportList()
 	LLFilePicker& picker = LLFilePicker::instance();
 	if( picker.getSaveFile( LLFilePicker::FFSAVE_XML, listFileName) )
 	{
-		llofstream file;
+		std::ofstream file;
 		file.open(picker.getFirstFile().c_str());
 		LLSDSerialize::toPrettyXML(*list, file);
 		file.close();

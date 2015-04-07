@@ -154,7 +154,7 @@ BOOL LLFloaterAbout::postBuild()
 
 	// Get the names of contributors, extracted from .../doc/contributions.txt by viewer_manifest.py at build time
 	std::string contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"contributors.txt");
-	llifstream contrib_file;
+	std::ifstream contrib_file;
 	std::string contributors;
 	contrib_file.open(contributors_path.c_str());		/* Flawfinder: ignore */
 	if (contrib_file.is_open())
@@ -172,7 +172,7 @@ BOOL LLFloaterAbout::postBuild()
 
     // Get the Versions and Copyrights, created at build time
 	std::string licenses_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"packages-info.txt");
-	llifstream licenses_file;
+	std::ifstream licenses_file;
 	licenses_file.open(licenses_path.c_str());		/* Flawfinder: ignore */
 	if (licenses_file.is_open())
 	{

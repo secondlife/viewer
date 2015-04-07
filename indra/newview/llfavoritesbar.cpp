@@ -1469,7 +1469,7 @@ void LLFavoritesOrderStorage::destroyClass()
 
 
 	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-	llifstream file;
+	std::ifstream file;
 	file.open(old_filename.c_str());
 	if (file.is_open())
 	{
@@ -1507,7 +1507,7 @@ void LLFavoritesOrderStorage::load()
 	std::string filename = getSavedOrderFileName();
 
 	LLSD settings_llsd;
-	llifstream file;
+	std::ifstream file;
 	file.open(filename.c_str());
 	if (file.is_open())
 	{
@@ -1541,7 +1541,7 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 	std::string filename = getStoredFavoritesFilename();
     if (!filename.empty())
     {
-        llifstream in_file;
+        std::ifstream in_file;
         in_file.open(filename.c_str());
         LLSD fav_llsd;
         if (in_file.is_open())
@@ -1588,7 +1588,7 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
         // as we'll compare it with the stored credentials in the login panel.
         fav_llsd[av_name.getUserName()] = user_llsd;
 
-        llofstream file;
+        std::ofstream file;
         file.open(filename.c_str());
         if ( file.is_open() )
         {
@@ -1613,7 +1613,7 @@ void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
     if (!filename.empty())
     {
         LLSD fav_llsd;
-        llifstream file;
+        std::ifstream file;
         file.open(filename.c_str());
         if (file.is_open())
         {
@@ -1630,7 +1630,7 @@ void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
                 fav_llsd.erase(av_name.getUserName());
             }
         
-            llofstream out_file;
+            std::ofstream out_file;
             out_file.open(filename.c_str());
             if ( out_file.is_open() )
             {
@@ -1686,7 +1686,7 @@ void LLFavoritesOrderStorage::save()
                 settings_llsd[iter->first.asString()] = iter->second;
             }
 
-            llofstream file;
+            std::ofstream file;
             file.open(filename.c_str());
             if ( file.is_open() )
             {

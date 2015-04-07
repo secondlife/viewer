@@ -70,12 +70,12 @@ if(LL_TESTS)
       )
 
 # *NOTE:Mani - I was trying to use the preprocessor seam to mock out
-#              llifstream (and other) llcommon classes. I didn't work
+#              std::ifstream (and other) llcommon classes. I didn't work
 #              because of the windows declspec(dllimport)attribute.
 #set_source_files_properties(
 #    llupdaterservice.cpp
 #    PROPERTIES
-#      LL_TEST_ADDITIONAL_CFLAGS "-Dllifstream=llus_mock_llifstream"
+#      LL_TEST_ADDITIONAL_CFLAGS "-Dstd::ifstream=llus_mock_std::ifstream"
 #    )
 
   LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}")
