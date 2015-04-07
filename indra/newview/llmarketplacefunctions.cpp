@@ -1274,8 +1274,13 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
     LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
 
     // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+    S32 count = -1;
     LLUUID version_id = getVersionFolderIfUnique(folder_id);
-    
+    if (version_id.notNull())
+    {
+        count = compute_stock_count(version_id, true);
+    }
+
     // Build the json message
     Json::Value root;
     Json::FastWriter writer;
@@ -1283,7 +1288,7 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
     root["listing"]["name"] = category->getName();
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
     root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-    root["listing"]["inventory_info"]["count_on_hand"] = -1;
+    root["listing"]["inventory_info"]["count_on_hand"] = count;
     
     std::string json_str = writer.write(root);
     
@@ -1343,7 +1348,12 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
 	headers["Content-Type"] = "application/json";
     
     // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+    S32 count = -1;
     LLUUID version_id = getVersionFolderIfUnique(folder_id);
+    if (version_id.notNull())
+    {
+        count = compute_stock_count(version_id, true);
+    }
 
     Json::Value root;
     Json::FastWriter writer;
@@ -1352,7 +1362,7 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     root["listing"]["id"] = listing_id;
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
     root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-    root["listing"]["inventory_info"]["count_on_hand"] = -1;
+    root["listing"]["inventory_info"]["count_on_hand"] = count;
     
     std::string json_str = writer.write(root);
     

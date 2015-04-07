@@ -1014,7 +1014,7 @@ LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth)
     return cur_uuid;
 }
 
-S32 compute_stock_count(LLUUID cat_uuid)
+S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
 {
     // Handle the case of the folder being a stock folder immediately
     LLViewerInventoryCategory* cat = gInventory.getCategory(cat_uuid);
@@ -1033,36 +1033,41 @@ S32 compute_stock_count(LLUUID cat_uuid)
         return item_array->size();
     }
 
-    // Grab marketplace data for this folder
-    S32 depth = depth_nesting_in_marketplace(cat_uuid);
-    LLUUID listing_uuid = nested_parent_id(cat_uuid, depth);
-    if (!LLMarketplaceData::instance().isListed(listing_uuid))
+    // When force_count is true, we do not do any verification of the marketplace status and simply compute
+    // the stock amount based on the descendent hierarchy. This is used specifically when creating a listing.
+    if (!force_count)
     {
-        // If not listed, the notion of stock is meaningless so it won't be computed for any level
-        return -1;
-    }
+        // Grab marketplace data for this folder
+        S32 depth = depth_nesting_in_marketplace(cat_uuid);
+        LLUUID listing_uuid = nested_parent_id(cat_uuid, depth);
+        if (!!LLMarketplaceData::instance().isListed(listing_uuid))
+        {
+            // If not listed, the notion of stock is meaningless so it won't be computed for any level
+            return -1;
+        }
 
-    LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
-    // Handle the case of the first 2 levels : listing and version folders
-    if (depth == 1)
-    {
-        if (version_folder_uuid.notNull())
+        LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
+        // Handle the case of the first 2 levels : listing and version folders
+        if (depth == 1)
         {
-            // If there is a version folder, the stock value for the listing is the version folder stock
-            return compute_stock_count(version_folder_uuid);
+            if (version_folder_uuid.notNull())
+            {
+                // If there is a version folder, the stock value for the listing is the version folder stock
+                return compute_stock_count(version_folder_uuid);
+            }
+            else
+            {
+                // If there's no version folder associated, the notion of stock count has no meaning
+                return -1;
+            }
         }
-        else
+        else if (depth == 2)
         {
-            // If there's no version folder associated, the notion of stock count has no meaning
-            return -1;
-        }
-    }
-    else if (depth == 2)
-    {
-        if (version_folder_uuid.notNull() && (version_folder_uuid != cat_uuid))
-        {
-            // If there is a version folder but we're not it, our stock count is meaningless
-            return -1;
+            if (version_folder_uuid.notNull() && (version_folder_uuid != cat_uuid))
+            {
+                // If there is a version folder but we're not it, our stock count is meaningless
+                return -1;
+            }
         }
     }
     

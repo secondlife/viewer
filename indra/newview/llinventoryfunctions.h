@@ -83,7 +83,7 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
 bool validate_marketplacelistings(LLInventoryCategory* inv_cat, validation_callback_t cb = NULL, bool fix_hierarchy = true, S32 depth = -1);
 S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);
-S32 compute_stock_count(LLUUID cat_uuid);
+S32 compute_stock_count(LLUUID cat_uuid, bool force_count = false);
 
 /**                    Miscellaneous global functions
  **                                                                            **
