@@ -53,10 +53,6 @@ LLAccountingCostManager::LLAccountingCostManager():
 void LLAccountingCostManager::accountingCostCoro(LLCoros::self& self, std::string url,
     eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle)
 {
-    LLEventStream  replyPump("AccountingCostReply", true);
-    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler = 
-        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
-
     LL_DEBUGS("LLAccountingCostManager") << "Entering coroutine " << LLCoros::instance().getName(self)
         << " with url '" << url << LL_ENDL;
 
@@ -108,36 +104,22 @@ void LLAccountingCostManager::accountingCostCoro(LLCoros::self& self, std::strin
         LLUUID transactionId = observer->getTransactionID();
         observer = NULL;
 
-        LLSD results;
-        {   // Scoping block for pumper object
-            //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
-            LLCoreHttpUtil::HttpRequestPumper pumper(mHttpRequest);
-            LLCore::HttpHandle hhandle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
-                mHttpPolicy, mHttpPriority, url, dataToPost, mHttpOptions, mHttpHeaders,
-                httpHandler.get());
+        LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("AccountingCost", mHttpPolicy);
 
-            if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
-            {
-                LLCore::HttpStatus status = mHttpRequest->getStatus();
-                LL_WARNS() << "Error posting to " << url << " Status=" << status.getStatus() <<
-                    " message = " << status.getMessage() << LL_ENDL;
-                mPendingObjectQuota.clear();
-                return;
-            }
+        LLSD results = httpAdapter.postAndYield(self, mHttpRequest, url, dataToPost);
 
-            results = waitForEventOn(self, replyPump);
-            //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
-        }
         LLSD httpResults;
         httpResults = results["http_result"];
 
+        // do/while(false) allows error conditions to break out of following 
+        // block while normal flow goes forward once.
         do 
         {
             observer = observerHandle.get();
             if ((!observer) || (observer->getTransactionID() != transactionId))
             {   // *TODO: Rider: I've noticed that getTransactionID() does not 
                 // always match transactionId (the new transaction Id does not show a 
-                // corresponding request.)
+                // corresponding request.) (ask Vir)
                 if (!observer)
                     break;
                 LL_WARNS() << "Request transaction Id(" << transactionId

@@ -40,6 +40,8 @@
 #include "bufferstream.h"
 #include "llsd.h"
 #include "llevents.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 
 ///
 /// The base llcorehttp library implements many HTTP idioms
@@ -174,6 +176,7 @@ public:
 
     typedef boost::shared_ptr<HttpCoroHandler> ptr_t;
 
+    void writeStatusCodes(LLCore::HttpStatus status, const std::string &url, LLSD &result);
 private:
     void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
 
@@ -196,7 +199,49 @@ private:
     LLCore::HttpRequest::ptr_t mHttpRequest;
 };
 
-} // end namespace LLCoreHttpUtil
+/// An adapter to handle some of the boilerplate code surrounding HTTP and coroutine 
+/// interaction.
+/// 
+/// Construct an HttpCoroutineAdapter giving it a name and policy Id. After 
+/// any application specific setup call the post, put or get method.  The request 
+/// will be automatically pumped and the method will return with an LLSD describing
+/// the result of the operation.  See HttpCoroHandler for a description of the 
+/// decoration done to the returned LLSD.
+class HttpCoroutineAdapter
+{
+public:
+    HttpCoroutineAdapter(const std::string &name, LLCore::HttpRequest::policy_t policyId, 
+            LLCore::HttpRequest::priority_t priority = 0L);
+    ~HttpCoroutineAdapter();
 
+    /// Execute a Post transaction on the supplied URL and yield execution of 
+    /// the coroutine until a result is available.
+    LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t & request,
+        const std::string & url, const LLSD & body, 
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(), 
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t());
+
+    /// Execute a Put transaction on the supplied URL and yield execution of 
+    /// the coroutine until a result is available.
+    LLSD putAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t & request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t());
+
+    /// Execute a Get transaction on the supplied URL and yield execution of 
+    /// the coroutine until a result is available.
+    LLSD getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t & request,
+        const std::string & url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t());
+
+private:
+
+    std::string                     mAdapterName;
+    LLCore::HttpRequest::priority_t mPriority;
+    LLCore::HttpRequest::policy_t   mPolicyId;
+};
+
+} // end namespace LLCoreHttpUtil
 
 #endif // LL_LLCOREHTTPUTIL_H

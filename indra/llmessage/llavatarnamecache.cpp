@@ -189,10 +189,6 @@ namespace LLAvatarNameCache
 // further explanation.
 void LLAvatarNameCache::requestAvatarNameCache_(LLCoros::self& self, std::string url, std::vector<LLUUID> agentIds)
 {
-    LLEventStream  replyPump("NameCacheReply", true);
-    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler = 
-        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
-
     LL_DEBUGS("AvNameCache") << "Entering coroutine " << LLCoros::instance().getName(self)
         << " with url '" << url << "', requesting " << agentIds.size() << " Agent Ids" << LL_ENDL;
 
@@ -200,12 +196,8 @@ void LLAvatarNameCache::requestAvatarNameCache_(LLCoros::self& self, std::string
     {
         bool success = true;
 
-        LLAvatarNameCache::sHttpRequest->requestGet(
-            LLAvatarNameCache::sHttpPolicy, LLAvatarNameCache::sHttpPriority, 
-            url, LLAvatarNameCache::sHttpOptions.get(), 
-            LLAvatarNameCache::sHttpHeaders.get(), httpHandler.get());
-
-        LLSD results = waitForEventOn(self, replyPump);
+        LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("NameCache", LLAvatarNameCache::sHttpPolicy);
+        LLSD results = httpAdapter.getAndYield(self, sHttpRequest, url);
         LLSD httpResults;
 
         LL_DEBUGS() << results << LL_ENDL;
@@ -563,8 +555,6 @@ void LLAvatarNameCache::idle()
 {
 	// By convention, start running at first idle() call
 	sRunning = true;
-
-    sHttpRequest->update(0L);
 
 	// *TODO: Possibly re-enabled this based on People API load measurements
 	// 100 ms is the threshold for "user speed" operations, so we can
