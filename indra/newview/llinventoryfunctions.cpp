@@ -1040,7 +1040,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
         // Grab marketplace data for this folder
         S32 depth = depth_nesting_in_marketplace(cat_uuid);
         LLUUID listing_uuid = nested_parent_id(cat_uuid, depth);
-        if (!!LLMarketplaceData::instance().isListed(listing_uuid))
+        if (!LLMarketplaceData::instance().isListed(listing_uuid))
         {
             // If not listed, the notion of stock is meaningless so it won't be computed for any level
             return -1;
