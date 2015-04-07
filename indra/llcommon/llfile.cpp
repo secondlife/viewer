@@ -865,6 +865,7 @@ int llstdio_filebuf::sync()
 }
 #endif
 
+#if 0   // @TBDeleted
 /************** input file stream ********************************/
 
 
@@ -919,32 +920,6 @@ llifstream::llifstream(const char* _Filename,
 #endif
 
 
-#if llstream_LLFILE
-// explicit
-llifstream::llifstream(_Filet *_File,
-		ios_base::openmode _Mode, size_t _Size) :
-	_M_filebuf(_File, _Mode, _Size),
-#if LL_WINDOWS
-	std::istream(&_M_filebuf) {}
-#else
-	std::istream()
-{
-	this->init(&_M_filebuf);
-}
-#endif
-
-#if !LL_WINDOWS
-// explicit
-llifstream::llifstream(int __fd,
-		ios_base::openmode _Mode, size_t _Size) :
-	_M_filebuf(__fd, _Mode, _Size),
-	std::istream()
-{
-	this->init(&_M_filebuf);
-}
-#endif
-#endif // llstream_LLFILE
-
 bool llifstream::is_open() const
 {	// test if C stream has been opened
 	return _M_filebuf.is_open();
@@ -993,9 +968,9 @@ void llifstream::close()
 
 llofstream::llofstream() : _M_filebuf(),
 #if LL_WINDOWS
-	std::ostream(&_M_filebuf) {}
+	std::ofstream(&_M_filebuf) {}
 #else
-	std::ostream()
+	std::ofstream()
 {
 	this->init(&_M_filebuf);
 }
@@ -1005,7 +980,7 @@ llofstream::llofstream() : _M_filebuf(),
 llofstream::llofstream(const std::string& _Filename,
 		ios_base::openmode _Mode) : _M_filebuf(),
 #if LL_WINDOWS
-	std::ostream(&_M_filebuf)
+	std::ofstream(&_M_filebuf)
 {
 	llutf16string wideName = utf8str_to_utf16str( _Filename );
 	if (_M_filebuf.open( wideName.c_str(), _Mode | ios_base::out) == 0)
@@ -1014,7 +989,7 @@ llofstream::llofstream(const std::string& _Filename,
 	}
 }
 #else
-	std::ostream()
+	std::ofstream()
 {
 	this->init(&_M_filebuf);
 	this->open(_Filename.c_str(), _Mode | ios_base::out);
@@ -1025,7 +1000,7 @@ llofstream::llofstream(const std::string& _Filename,
 llofstream::llofstream(const char* _Filename,
 		ios_base::openmode _Mode) : _M_filebuf(),
 #if LL_WINDOWS
-	std::ostream(&_M_filebuf)
+	std::ofstream(&_M_filebuf)
 {
 	llutf16string wideName = utf8str_to_utf16str( _Filename );
 	if (_M_filebuf.open( wideName.c_str(), _Mode | ios_base::out) == 0)
@@ -1034,38 +1009,12 @@ llofstream::llofstream(const char* _Filename,
 	}
 }
 #else
-	std::ostream()
+	std::ofstream()
 {
 	this->init(&_M_filebuf);
 	this->open(_Filename, _Mode | ios_base::out);
 }
 #endif
-
-#if llstream_LLFILE
-// explicit
-llofstream::llofstream(_Filet *_File,
-			ios_base::openmode _Mode, size_t _Size) :
-	_M_filebuf(_File, _Mode, _Size),
-#if LL_WINDOWS
-	std::ostream(&_M_filebuf) {}
-#else
-	std::ostream()
-{
-	this->init(&_M_filebuf);
-}
-#endif
-
-#if !LL_WINDOWS
-// explicit
-llofstream::llofstream(int __fd,
-			ios_base::openmode _Mode, size_t _Size) :
-	_M_filebuf(__fd, _Mode, _Size),
-	std::ostream()
-{
-	this->init(&_M_filebuf);
-}
-#endif
-#endif // llstream_LLFILE
 
 bool llofstream::is_open() const
 {	// test if C stream has been opened
@@ -1108,6 +1057,25 @@ void llofstream::close()
 	}
 }
 
+void llofstream::~llofstream()
+{
+    try:
+    {
+        if ( is_open() )
+        {
+            flush();
+        }
+    }
+    catch (std::exception& e)
+    {
+        LL_WARNS() << "llofstream std::exception: " << e.what() << LL_ENDL;
+    }
+    catch (...)
+    {
+        LL_WARNS() << "llofstream non-std exception" << LL_ENDL;
+    }
+}
+
 /************** helper functions ********************************/
 
 std::streamsize llifstream_size(llifstream& ifstr)
@@ -1135,3 +1103,4 @@ std::streamsize llofstream_size(llofstream& ofstr)
 }
 
 
+#endif  // @TBDeleted

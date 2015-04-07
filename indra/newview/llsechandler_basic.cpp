@@ -640,7 +640,7 @@ LLBasicCertificateStore::~LLBasicCertificateStore()
 // persist the store
 void LLBasicCertificateStore::save()
 {
-	llofstream file_store(mFilename, llofstream::binary);
+	llofstream file_store(mFilename.c_str(), std::ios_base::binary);
 	if(!file_store.fail())
 	{
 		for(iterator cert = begin();
@@ -1331,7 +1331,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	std::string tmp_filename = mProtectedDataFilename + ".tmp";
 	
 	llofstream protected_data_stream(tmp_filename.c_str(), 
-										llofstream::binary);
+                                     std::ios_base::binary);
 	try
 	{
 		
@@ -1568,7 +1568,7 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
 {
 	const S32 HASHED_LENGTH = 32;	
 	std::vector<U8> buffer(HASHED_LENGTH);
-	llifstream password_file(mLegacyPasswordPath, llifstream::binary);
+	llifstream password_file(mLegacyPasswordPath.c_str(), llifstream::binary);
 	
 	if(password_file.fail())
 	{

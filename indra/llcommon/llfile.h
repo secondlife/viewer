@@ -86,12 +86,6 @@ public:
 	static  const char * tmpdir();
 };
 
-// Remove ll[io]fstream support for [LL]FILE*, preparing to remove dependency
-// on GNU's standard library.
-#if ! defined(llstream_LLFILE)
-#define llstream_LLFILE 0
-#endif
-
 /**
  *  @brief Provides a layer of compatibility for C/POSIX.
  *
@@ -198,7 +192,9 @@ protected:
 #endif
 };
 
-
+typedef std::ifstream llifstream;
+typedef std::ofstream llofstream;
+#if 0                           /* @TBDeleted  */
 /**
  *  @brief  Controlling input for files.
  *
@@ -234,34 +230,6 @@ public:
 	explicit llifstream(const char* _Filename,
 			ios_base::openmode _Mode = ios_base::in);
 
-#if llstream_LLFILE
-	/**
-	 *  @brief  Create a stream using an open c file stream.
-	 *  @param  File  An open @c FILE*.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-	explicit llifstream(_Filet *_File,
-			ios_base::openmode _Mode = ios_base::in,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-	
-	/**
-	 *  @brief  Create a stream using an open file descriptor.
-	 *  @param  fd    An open file descriptor.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-#if !LL_WINDOWS
-	explicit llifstream(int __fd,
-			ios_base::openmode _Mode = ios_base::in,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-#endif
-#endif // llstream_LLFILE
-
 	/**
 	 *  @brief  The destructor does nothing.
 	 *
@@ -271,17 +239,6 @@ public:
 	virtual ~llifstream() {}
 
 	// Members:
-#if llstream_LLFILE
-	/**
-	 *  @brief  Accessing the underlying buffer.
-	 *  @return  The current basic_filebuf buffer.
-	 *
-	 *  This hides both signatures of std::basic_ios::rdbuf().
-	*/
-	llstdio_filebuf* rdbuf() const
-	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
-#endif // llstream_LLFILE
-
 	/**
 	 *  @brief  Wrapper to test for an open file.
 	 *  @return  @c rdbuf()->is_open()
@@ -324,7 +281,7 @@ private:
  *  which allows construction using a pre-exisintg file stream buffer. 
  *  We refer to this std::basic_filebuf (or derivative) as @c sb.
 */
-class LL_COMMON_API llofstream	:	public	std::ostream
+class LL_COMMON_API llofstream	:	public	std::ofstream
 {
 public:
 	// Constructors:
@@ -350,60 +307,15 @@ public:
 	explicit llofstream(const char* _Filename,
 			ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 
-#if llstream_LLFILE
-	/**
-	 *  @brief  Create a stream using an open c file stream.
-	 *  @param  File  An open @c FILE*.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-	explicit llofstream(_Filet *_File,
-			ios_base::openmode _Mode = ios_base::out,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-
-	/**
-	 *  @brief  Create a stream using an open file descriptor.
-	 *  @param  fd    An open file descriptor.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-#if !LL_WINDOWS
-	explicit llofstream(int __fd,
-			ios_base::openmode _Mode = ios_base::out,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-#endif
-#endif // llstream_LLFILE
-
 	/**
 	 *  @brief  The destructor does nothing.
 	 *
 	 *  The file is closed by the filebuf object, not the formatting
 	 *  stream.
 	*/
-	virtual ~llofstream() {}
+	virtual ~llofstream();
 
 	// Members:
-#if llstream_LLFILE
-	/**
-	 *  @brief  Accessing the underlying buffer.
-	 *  @return  The current basic_filebuf buffer.
-	 *
-	 *  This hides both signatures of std::basic_ios::rdbuf().
-	*/
-	llstdio_filebuf* rdbuf() const
-	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
-#endif // llstream_LLFILE
-
-	/**
-	 *  @brief  Wrapper to test for an open file.
-	 *  @return  @c rdbuf()->is_open()
-	*/
-	bool is_open() const;
-
 	/**
 	 *  @brief  Opens an external file.
 	 *  @param  Filename  The name of the file.
@@ -440,5 +352,6 @@ private:
  */
 std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
 std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
+#endif  /* @TBDeleted */
 
 #endif // not LL_LLFILE_H

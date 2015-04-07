@@ -180,7 +180,7 @@ void LLViewerTextureList::doPrefetchImages()
 	LLSD imagelist;
 	std::string filename = get_texture_list_name();
 	llifstream file;
-	file.open(filename);
+	file.open(filename.c_str());
 	if (file.is_open())
 	{
 		if ( ! LLSDSerialize::fromXML(imagelist, file) )
@@ -274,7 +274,7 @@ void LLViewerTextureList::shutdown()
 	{
 		std::string filename = get_texture_list_name();
 		llofstream file;
-		file.open(filename);
+		file.open(filename.c_str());
         LL_DEBUGS() << "saving " << imagelist.size() << " image list entries" << LL_ENDL;
 		LLSDSerialize::toPrettyXML(imagelist, file);
 	}
