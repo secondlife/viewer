@@ -66,7 +66,8 @@ public:
 
 	BOOL			isOnTop(LLWearable* wearable) const;
 	
-	static const U32 MAX_CLOTHING_LAYERS = 60;
+	// DO NOT COMMIT, TESTING ONLY!
+	static const U32 MAX_CLOTHING_LAYERS = 999;
 
 	//--------------------------------------------------------------------
 	// Setters
