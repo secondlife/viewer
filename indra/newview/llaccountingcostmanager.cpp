@@ -37,8 +37,7 @@ LLAccountingCostManager::LLAccountingCostManager():
     mHttpRequest(),
     mHttpHeaders(),
     mHttpOptions(),
-    mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-    mHttpPriority(0)
+    mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
 {	
     mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
     mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
