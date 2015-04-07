@@ -587,7 +587,11 @@ void LLFloaterSnapshot::Impl::onClickUICheck(LLUICtrl *ctrl, void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
-		checkAutoSnapshot(getPreviewView(view), TRUE);
+		LLSnapshotLivePreview* previewp = getPreviewView(view);
+		if(previewp)
+		{
+			previewp->updateSnapshot(TRUE, TRUE);
+		}
 		updateControls(view);
 	}
 }
@@ -601,7 +605,11 @@ void LLFloaterSnapshot::Impl::onClickHUDCheck(LLUICtrl *ctrl, void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
-		checkAutoSnapshot(getPreviewView(view), TRUE);
+		LLSnapshotLivePreview* previewp = getPreviewView(view);
+		if(previewp)
+		{
+			previewp->updateSnapshot(TRUE, TRUE);
+		}
 		updateControls(view);
 	}
 }
