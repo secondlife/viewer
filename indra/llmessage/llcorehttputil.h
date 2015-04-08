@@ -170,13 +170,16 @@ LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
 class HttpCoroHandler : public LLCore::HttpHandler
 {
 public:
+    typedef boost::shared_ptr<HttpCoroHandler>  ptr_t;
+    typedef boost::weak_ptr<HttpCoroHandler>    wptr_t;
+
     HttpCoroHandler(LLEventStream &reply);
 
     virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-    typedef boost::shared_ptr<HttpCoroHandler> ptr_t;
+    static void writeStatusCodes(LLCore::HttpStatus status, const std::string &url, LLSD &result);
+    static LLCore::HttpStatus getStatusFromLLSD(const LLSD &httpResults);
 
-    void writeStatusCodes(LLCore::HttpStatus status, const std::string &url, LLSD &result);
 private:
     void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
 
@@ -219,7 +222,8 @@ public:
 
     /// Execute a Post transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available. 
-    /// Note: the request's smart pointer is passed by value so that it will
+    /// 
+    /// @Note: the request's smart pointer is passed by value so that it will
     /// not be deallocated during the yield.
     LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, const LLSD & body, 
@@ -228,28 +232,34 @@ public:
 
     /// Execute a Put transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
-    /// Note: the request's smart pointer is passed by value so that it will
+    /// 
+    /// @Note: the request's smart pointer is passed by value so that it will
     /// not be deallocated during the yield.
     LLSD putAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, const LLSD & body,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t());
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
 
     /// Execute a Get transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
-    /// Note: the request's smart pointer is passed by value so that it will
+    /// 
+    /// @Note: the request's smart pointer is passed by value so that it will
     /// not be deallocated during the yield.
     LLSD getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t());
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
 
     ///
     void cancelYieldingOperation();
 
 private:
-    static LLSD buildImmediateErrorResult(const LLCore::HttpRequest::ptr_t &request, 
-            const std::string &url, LLCoreHttpUtil::HttpCoroHandler::ptr_t &httpHandler);
+    static LLSD buildImmediateErrorResult(const LLCore::HttpRequest::ptr_t &request, const std::string &url);
+
+    void saveState(LLCore::HttpHandle yieldingHandle, LLCore::HttpRequest::ptr_t &request,
+            HttpCoroHandler::ptr_t &handler);
+    void cleanState();
+
 
     std::string                     mAdapterName;
     LLCore::HttpRequest::priority_t mPriority;
@@ -257,8 +267,11 @@ private:
 
     LLCore::HttpHandle              mYieldingHandle;
     LLCore::HttpRequest::wptr_t     mWeakRequest;
-
+    HttpCoroHandler::wptr_t         mWeakHandler;
 };
+
+//-------------------------------------------------------------------------
+LLCore::HttpStatus getStatusFromLLSD(const LLSD &httpResults);
 
 } // end namespace LLCoreHttpUtil
 

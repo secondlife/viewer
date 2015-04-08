@@ -41,9 +41,11 @@
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
 
-namespace
+namespace LLEventPolling
 {
-    // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
+namespace Details
+{
+        // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
     // This means we attempt to recover relatively quickly but back off giving more time to recover
     // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
     const F32 EVENT_POLL_ERROR_RETRY_SECONDS = 15.f; // ~ half of a normal timeout.
@@ -69,6 +71,7 @@ namespace
         LLCore::HttpRequest::policy_t   mHttpPolicy;
         std::string                     mSenderIp;
         int                             mCounter;
+        LLCoreHttpUtil::HttpCoroutineAdapter::wptr_t mAdapter;
 
         static int                      sNextCounter;
     };
@@ -105,24 +108,33 @@ namespace
             std::string coroname =
                 LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
                 boost::bind(&LLEventPollImpl::eventPollCoro, this, _1, url));
-            LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
+            LL_INFOS() << coroname << " with  url '" << url << LL_ENDL;
         }
     }
 
     void LLEventPollImpl::stop()
     {
+        LL_INFOS() << "requesting stop for event poll coroutine <" << mCounter << ">" << LL_ENDL;
         mDone = true;
+
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter = mAdapter.lock();
+        if (adapter)
+        {
+            // cancel the yielding operation if any.
+            adapter->cancelYieldingOperation();
+        }
     }
 
     void LLEventPollImpl::eventPollCoro(LLCoros::self& self, std::string url)
     {
-        LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("EventPoller", mHttpPolicy);
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EventPoller", mHttpPolicy));
         LLSD acknowledge;
         int errorCount = 0;
         int counter = mCounter; // saved on the stack for debugging.
 
         LL_INFOS("LLEventPollImpl::eventPollCoro") << " <" << counter << "> entering coroutine." << LL_ENDL;
 
+        mAdapter = httpAdapter;
         while (!mDone)
         {
             LLSD request;
@@ -132,33 +144,35 @@ namespace
 //            LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> request = "
 //                << LLSDXMLStreamer(request) << LL_ENDL;
 
-            LL_INFOS("LLEventPollImpl::eventPollCoro") << " <" << counter << "> posting and yielding." << LL_ENDL;
-            LLSD result = httpAdapter.postAndYield(self, mHttpRequest, url, request);
+            LL_DEBUGS("LLEventPollImpl::eventPollCoro") << " <" << counter << "> posting and yielding." << LL_ENDL;
+            LLSD result = httpAdapter->postAndYield(self, mHttpRequest, url, request);
 
 //            LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> result = "
 //                << LLSDXMLStreamer(result) << LL_ENDL;
 
-            if (mDone)
-                break;
-
             LLSD httpResults;
             httpResults = result["http_result"];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
 
-
-            if (!httpResults["success"].asBoolean())
+            if (!status)
             {
-                LL_WARNS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
-                    << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
 
-                if (httpResults["status"].asInteger() == HTTP_BAD_GATEWAY)
+                if (status == LLCore::HttpStatus(HTTP_BAD_GATEWAY))
                 {
                     // A HTTP_BAD_GATEWAY (502) error is our standard timeout response
                     // we get this when there are no events.
                     errorCount = 0;
                     continue;
                 }
-
-                LL_WARNS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> " << LLSDXMLStreamer(result) << (mDone ? " -- done" : "") << LL_ENDL;
+                    
+                if ((status == LLCore::HttpStatus(LLCore::HttpStatus::LLCORE, LLCore::HE_OP_CANCELED)) || 
+                        (status == LLCore::HttpStatus(HTTP_NOT_FOUND)))
+                {   
+                    LL_WARNS() << "Canceling coroutine" << LL_ENDL;
+                    break;
+                }
+                LL_WARNS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                    << status.toTerseString() << ": '" << httpResults["message"] << "'" << LL_ENDL;
 
                 if (errorCount < MAX_EVENT_POLL_HTTP_ERRORS)
                 {
@@ -481,11 +495,13 @@ LLEventPoll::~LLEventPoll()
 }
 #endif
 }
+}
 
 LLEventPoll::LLEventPoll(const std::string&	poll_url, const LLHost& sender):
     mImpl()
 { 
-    mImpl = boost::unique_ptr<LLEventPollImpl>(new LLEventPollImpl(sender));
+    mImpl = boost::unique_ptr<LLEventPolling::Details::LLEventPollImpl>
+            (new LLEventPolling::Details::LLEventPollImpl(sender));
     mImpl->start(poll_url);
 }
 

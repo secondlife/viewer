@@ -37,9 +37,12 @@ namespace boost
 
 class LLHost;
 
-namespace
+namespace LLEventPolling
+{
+namespace Details
 {
     class LLEventPollImpl;
+}
 }
 
 
@@ -56,7 +59,8 @@ public:
 
 private:
 #if 1
-    boost::unique_ptr<LLEventPollImpl>    mImpl;
+    boost::unique_ptr<LLEventPolling::Details::LLEventPollImpl>    mImpl;
+    
 #else
 	LLHTTPClient::ResponderPtr mImpl;
 #endif

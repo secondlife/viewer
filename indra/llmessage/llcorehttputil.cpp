@@ -199,6 +199,12 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 
     LLCore::HttpStatus status = response->getStatus();
 
+    if (status == LLCore::HttpStatus(LLCore::HttpStatus::LLCORE, LLCore::HE_HANDLE_NOT_FOUND))
+    {   // A response came in for a canceled request and we have not processed the 
+        // cancel yet.  Patience!
+        return;
+    }
+
     if (!status)
     {
         result = LLSD::emptyMap();
@@ -290,6 +296,14 @@ void HttpCoroHandler::writeStatusCodes(LLCore::HttpStatus status, const std::str
 
 }
 
+LLCore::HttpStatus HttpCoroHandler::getStatusFromLLSD(const LLSD &httpResults)
+{
+    LLCore::HttpStatus::type_enum_t type = static_cast<LLCore::HttpStatus::type_enum_t>(httpResults["type"].asInteger());
+    short code = static_cast<short>(httpResults["status"].asInteger());
+
+    return LLCore::HttpStatus(type, code);
+}
+
 //========================================================================
 HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request) :
     mHttpRequest(request)
@@ -308,7 +322,10 @@ HttpRequestPumper::~HttpRequestPumper()
 
 bool HttpRequestPumper::pollRequest(const LLSD&)
 {
-    mHttpRequest->update(0L);
+    if (mHttpRequest->getStatus() != HttpStatus(HttpStatus::LLCORE, HE_OP_CANCELED))
+    {
+        mHttpRequest->update(0L);
+    }
     return false;
 }
 
@@ -319,29 +336,20 @@ HttpCoroutineAdapter::HttpCoroutineAdapter(const std::string &name,
     mPolicyId(policyId),
     mPriority(priority),
     mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID),
-    mWeakRequest()
+    mWeakRequest(),
+    mWeakHandler()
 {
 }
 
 HttpCoroutineAdapter::~HttpCoroutineAdapter()
 {
-
+    cancelYieldingOperation();
 }
 
 LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
     const std::string & url, const LLSD & body,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
-    if (!options)
-    {
-        options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
-    }
-
-    if (!headers)
-    {
-        headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-    }
-
     LLEventStream  replyPump(mAdapterName, true);
     LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
         LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
@@ -356,12 +364,13 @@ LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpReques
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
-        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url, httpHandler);
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    mYieldingHandle = hhandle;
+    saveState(hhandle, request, httpHandler);
     LLSD results = waitForEventOn(self, replyPump);
-    mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
+    cleanState();
+
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
 }
@@ -370,16 +379,6 @@ LLSD HttpCoroutineAdapter::putAndYield(LLCoros::self & self, LLCore::HttpRequest
     const std::string & url, const LLSD & body,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
-    if (!options)
-    {
-        options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
-    }
-
-    if (!headers)
-    {
-        headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-    }
-
     LLEventStream  replyPump(mAdapterName, true);
     LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
         LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
@@ -394,12 +393,12 @@ LLSD HttpCoroutineAdapter::putAndYield(LLCoros::self & self, LLCore::HttpRequest
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
-        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url, httpHandler);
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    mYieldingHandle = hhandle;
+    saveState(hhandle, request, httpHandler);
     LLSD results = waitForEventOn(self, replyPump);
-    mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
+    cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
 }
@@ -408,16 +407,6 @@ LLSD HttpCoroutineAdapter::getAndYield(LLCoros::self & self, LLCore::HttpRequest
     const std::string & url,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
-    if (!options)
-    {
-        options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
-    }
-
-    if (!headers)
-    {
-        headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-    }
-
     LLEventStream  replyPump(mAdapterName + "Reply", true);
     LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
         LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
@@ -431,18 +420,45 @@ LLSD HttpCoroutineAdapter::getAndYield(LLCoros::self & self, LLCore::HttpRequest
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
-        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url, httpHandler);
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    mYieldingHandle = hhandle;
+    saveState(hhandle, request, httpHandler);
     LLSD results = waitForEventOn(self, replyPump);
-    mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
+    cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
 }
 
+void HttpCoroutineAdapter::cancelYieldingOperation()
+{
+    LLCore::HttpRequest::ptr_t request = mWeakRequest.lock();
+    HttpCoroHandler::ptr_t handler = mWeakHandler.lock();
+    if ((request) && (handler) && (mYieldingHandle != LLCORE_HTTP_HANDLE_INVALID))
+    {
+        cleanState();
+        LL_INFOS() << "Canceling yielding request!" << LL_ENDL;
+        request->requestCancel(mYieldingHandle, handler.get());
+    }
+}
+
+void HttpCoroutineAdapter::saveState(LLCore::HttpHandle yieldingHandle, 
+    LLCore::HttpRequest::ptr_t &request, HttpCoroHandler::ptr_t &handler)
+{
+    mWeakRequest = request;
+    mWeakHandler = handler;
+    mYieldingHandle = yieldingHandle;
+}
+
+void HttpCoroutineAdapter::cleanState()
+{
+    mWeakRequest.reset();
+    mWeakHandler.reset();
+    mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
+}
+
 LLSD HttpCoroutineAdapter::buildImmediateErrorResult(const LLCore::HttpRequest::ptr_t &request, 
-    const std::string &url, LLCoreHttpUtil::HttpCoroHandler::ptr_t &httpHandler) 
+    const std::string &url) 
 {
     LLCore::HttpStatus status = request->getStatus();
     LL_WARNS() << "Error posting to " << url << " Status=" << status.getStatus() <<
@@ -452,7 +468,7 @@ LLSD HttpCoroutineAdapter::buildImmediateErrorResult(const LLCore::HttpRequest::
     // to wait on 
     LLSD httpresults = LLSD::emptyMap();
 
-    httpHandler->writeStatusCodes(status, url, httpresults);
+    HttpCoroHandler::writeStatusCodes(status, url, httpresults);
 
     LLSD errorres = LLSD::emptyMap();
     errorres["http_result"] = httpresults;
