@@ -289,8 +289,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
         }
     
         // Check if the count on hand needs to be updated on SLM
-        if (perform_consistency_enforcement && !LLMarketplaceData::instance().isUpdating(listing_uuid) &&
-            (compute_stock_count(listing_uuid) != LLMarketplaceData::instance().getCountOnHand(listing_uuid)))
+        if (perform_consistency_enforcement && (compute_stock_count(listing_uuid) != LLMarketplaceData::instance().getCountOnHand(listing_uuid)))
         {
             LLMarketplaceData::instance().updateCountOnHand(listing_uuid);
         }
@@ -1053,7 +1052,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
             if (version_folder_uuid.notNull())
             {
                 // If there is a version folder, the stock value for the listing is the version folder stock
-                return compute_stock_count(version_folder_uuid);
+                return compute_stock_count(version_folder_uuid, true);
             }
             else
             {
@@ -1084,7 +1083,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
     for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
     {
         LLInventoryCategory* category = *iter;
-        S32 count = compute_stock_count(category->getUUID());
+        S32 count = compute_stock_count(category->getUUID(), true);
         if ((curr_count == -1) || ((count != -1) && (count < curr_count)))
         {
             curr_count = count;
