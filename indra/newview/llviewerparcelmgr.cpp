@@ -1594,8 +1594,14 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		}
 		else if (local_id == parcel_mgr.mAgentParcel->getLocalID())
 		{
-			// updated agent parcel
-			parcel_mgr.mAgentParcel->unpackMessage(msg);
+			// Parcels in different regions can have same ids.
+			LLViewerRegion* parcel_region = LLWorld::getInstance()->getRegion( msg->getSender() );
+			LLViewerRegion* agent_region = gAgent.getRegion();
+			if (parcel_region && agent_region && parcel_region->getRegionID() == agent_region->getRegionID())
+			{
+				// updated agent parcel
+				parcel_mgr.mAgentParcel->unpackMessage(msg);
+			}
 		}
 	}
 
