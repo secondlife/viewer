@@ -158,7 +158,8 @@ private:
     // ID of a toast loaded by user (by clicking notification well item)
     LLUUID mLoadedToastId;
 
-    LLNotificationListView*	mInviteMessageList;
+    LLNotificationListView*	mGroupInviteMessageList;
+    LLNotificationListView*	mGroupNoticeMessageList;
     LLNotificationListView*	mTransactionMessageList;
     LLNotificationListView*	mSystemMessageList;
     LLNotificationSeparator* mNotificationsSeparator;

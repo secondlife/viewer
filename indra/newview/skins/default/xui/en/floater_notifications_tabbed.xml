@@ -28,8 +28,12 @@
     Transactions ([COUNT])
   </floater.string>
   <floater.string
-    name="invitations_tab_title">
+    name="group_invitations_tab_title">
     Invitations ([COUNT])
+  </floater.string>
+  <floater.string
+    name="group_notices_tab_title">
+    Group ([COUNT])
   </floater.string>
 
   <string
@@ -72,7 +76,7 @@
        follows="left|top|right|bottom"
        label="Transactions (0)"
        layout="topleft"
-       name="TransactionNotificationsTab">
+       name="transaction_notifications_tab">
         <notification_list_view
           color="FloaterDefaultBackgroundColor"
           follows="all"
@@ -89,12 +93,29 @@
        follows="left|top|right|bottom"
        label="Invitations (0)"
        layout="topleft"
-       name="InviteNotificationsTab">
+       name="group_invite_notifications_tab">
         <notification_list_view
           color="FloaterDefaultBackgroundColor"
           follows="all"
           layout="topleft"
-          name="invite_notification_list"
+          name="group_invite_notification_list"
+          left="0"
+          top="5"
+          height="0"
+          width="328"/>
+      </panel>
+      <panel
+       border="true"
+       bevel_style="none"
+       follows="left|top|right|bottom"
+       label="Group (0)"
+       layout="topleft"
+       name="group_notice_notifications_tab">
+        <notification_list_view
+          color="FloaterDefaultBackgroundColor"
+          follows="all"
+          layout="topleft"
+          name="group_notice_notification_list"
           left="0"
           top="5"
           height="0"

@@ -798,4 +798,6 @@ with the same filename but different name
   <texture name="Notification_Condense" file_name="icons/Icon_Notification_Condense.png" preload="true"/>
   <texture name="Notification_Expand" file_name="icons/Icon_Notification_Expand.png" preload="true"/>
   <texture name="System_Notification" file_name="icons/SL_Logo.png" preload="true"/>
+  <texture name="Icon_Attachment_Small" file_name="icons/Icon_Attachment_Small.png"	preload="true"/>
+  <texture name="Icon_Attachment_Large" file_name="icons/Icon_Attachment_Large.png"	preload="true"/>
 </textures>

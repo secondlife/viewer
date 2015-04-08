@@ -41,7 +41,8 @@
 LLFloaterNotificationsTabbed::LLFloaterNotificationsTabbed(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
     mChannel(NULL),
     mSysWellChiclet(NULL),
-    mInviteMessageList(NULL),
+    mGroupInviteMessageList(NULL),
+    mGroupNoticeMessageList(NULL),
     mTransactionMessageList(NULL),
     mSystemMessageList(NULL),
     mNotificationsSeparator(NULL),
@@ -59,10 +60,12 @@ LLFloaterNotificationsTabbed::LLFloaterNotificationsTabbed(const LLSD& key) : LL
 //---------------------------------------------------------------------------------
 BOOL LLFloaterNotificationsTabbed::postBuild()
 {
-    mInviteMessageList = getChild<LLNotificationListView>("invite_notification_list");
+    mGroupInviteMessageList = getChild<LLNotificationListView>("group_invite_notification_list");
+    mGroupNoticeMessageList = getChild<LLNotificationListView>("group_notice_notification_list");
     mTransactionMessageList = getChild<LLNotificationListView>("transaction_notification_list");
     mSystemMessageList = getChild<LLNotificationListView>("system_notification_list");
-    mNotificationsSeparator->initTaggedList(LLNotificationListItem::getInviteTypes(), mInviteMessageList);
+    mNotificationsSeparator->initTaggedList(LLNotificationListItem::getGroupInviteTypes(), mGroupInviteMessageList);
+    mNotificationsSeparator->initTaggedList(LLNotificationListItem::getGroupNoticeTypes(), mGroupNoticeMessageList);
     mNotificationsSeparator->initTaggedList(LLNotificationListItem::getTransactionTypes(), mTransactionMessageList);
     mNotificationsSeparator->initUnTaggedList(mSystemMessageList);
     mNotificationsTabContainer = getChild<LLTabContainer>("notifications_tab_container");
@@ -257,7 +260,8 @@ void LLFloaterNotificationsTabbed::updateNotificationCounters()
 {
     updateNotificationCounter(0, mSystemMessageList->size(), "system_tab_title");
     updateNotificationCounter(1, mTransactionMessageList->size(), "transactions_tab_title");
-    updateNotificationCounter(2, mInviteMessageList->size(), "invitations_tab_title");
+    updateNotificationCounter(2, mGroupInviteMessageList->size(), "group_invitations_tab_title");
+    updateNotificationCounter(3, mGroupNoticeMessageList->size(), "group_notices_tab_title");
 }
 
 //---------------------------------------------------------------------------------
@@ -316,7 +320,10 @@ void LLFloaterNotificationsTabbed::getAllItemsOnCurrentTab(std::vector<LLPanel*>
         mTransactionMessageList->getItems(items);
         break;
     case 2:
-        mInviteMessageList->getItems(items);
+        mGroupInviteMessageList->getItems(items);
+        break;
+    case 3:
+        mGroupNoticeMessageList->getItems(items);
         break;
     default:
         break;
@@ -379,10 +386,15 @@ void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
     LLSD payload = notify->getPayload();
     p.notification_name = notify->getName();
     p.group_id = payload["group_id"];
-    p.sender = payload["name"].asString();
+    p.fee =  payload["fee"];
+    p.subject = payload["subject"].asString();
+    p.message = payload["message"].asString();
+    p.sender = payload["sender_name"].asString();
     p.time_stamp = notify->getDate();
+    p.received_time = payload["received_time"].asDate();
     p.paid_from_id = payload["from_id"];
     p.paid_to_id = payload["dest_id"];
+    p.inventory_offer = payload["inventory_offer"];
     addItem(p);
 }
 

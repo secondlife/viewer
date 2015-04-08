@@ -2681,6 +2681,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["sender_name"] = name;
 				payload["group_id"] = group_id;
 				payload["inventory_name"] = item_name;
+ 				payload["received_time"] = LLDate::now();
 				if(info && info->asLLSD())
 				{
 					payload["inventory_offer"] = info->asLLSD();

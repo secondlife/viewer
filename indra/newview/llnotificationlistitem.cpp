@@ -29,10 +29,13 @@
 
 #include "llnotificationlistitem.h"
 
+#include "llagent.h"
+#include "llinventoryicon.h"
 #include "llwindow.h"
 #include "v4color.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
+#include "message.h"
 
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mParams(p),
@@ -42,7 +45,9 @@ LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mCloseBtn(NULL),
     mCondensedViewPanel(NULL),
     mExpandedViewPanel(NULL),
-    mMainPanel(NULL)
+    mCondensedHeight(0),
+    mExpandedHeight(0),
+    mExpandedHeightResize(0)
 {
     mNotificationName = p.notification_name;
 }
@@ -60,7 +65,6 @@ BOOL LLNotificationListItem::postBuild()
     mCondenseBtn = getChild<LLButton>("condense_btn");
     mCloseBtn = getChild<LLButton>("close_btn");
     mCloseBtnExp = getChild<LLButton>("close_expanded_btn");
-    mVerticalStack = getChild<LLLayoutStack>("item_vertical_stack");
 
     mTitleBox->setValue(mParams.title);
     mTitleBoxExp->setValue(mParams.title);
@@ -78,14 +82,13 @@ BOOL LLNotificationListItem::postBuild()
 
     mCondensedViewPanel = getChild<LLPanel>("layout_panel_condensed_view");
     mExpandedViewPanel = getChild<LLPanel>("layout_panel_expanded_view");
-    mMainPanel = getChild<LLPanel>("main_panel");
 
-    std::string expanded_heigt_str = getString("item_expanded_height");
-    std::string condensed_heigt_str = getString("item_condensed_height");
+    std::string expanded_height_str = getString("item_expanded_height");
+    std::string condensed_height_str = getString("item_condensed_height");
 
-    mExpandedHeight = (S32)atoi(expanded_heigt_str.c_str());
-    mCondensedHeight = (S32)atoi(condensed_heigt_str.c_str());
-
+    mExpandedHeight = (S32)atoi(expanded_height_str.c_str());
+    mCondensedHeight = (S32)atoi(condensed_height_str.c_str());
+    
     setExpanded(FALSE);
     return rv;
 }
@@ -124,9 +127,13 @@ BOOL LLNotificationListItem::handleMouseUp(S32 x, S32 y, MASK mask)
 //static
 LLNotificationListItem* LLNotificationListItem::create(const Params& p)
 {
-    if (LLNotificationListItem::getInviteTypes().count(p.notification_name))
+    if (LLNotificationListItem::getGroupInviteTypes().count(p.notification_name))
     {
-        return new LLInviteNotificationListItem(p);
+        return new LLGroupInviteNotificationListItem(p);
+    }
+    else if (LLNotificationListItem::getGroupNoticeTypes().count(p.notification_name))
+    {
+        return new LLGroupNoticeNotificationListItem(p);
     }
     else if (LLNotificationListItem::getTransactionTypes().count(p.notification_name))
     {
@@ -136,9 +143,15 @@ LLNotificationListItem* LLNotificationListItem::create(const Params& p)
 }
 
 //static
-std::set<std::string> LLNotificationListItem::getInviteTypes() 
+std::set<std::string> LLNotificationListItem::getGroupInviteTypes() 
 {
-    return LLInviteNotificationListItem::getTypes();
+    return LLGroupInviteNotificationListItem::getTypes();
+}
+
+
+std::set<std::string> LLNotificationListItem::getGroupNoticeTypes()
+{
+    return LLGroupNoticeNotificationListItem::getTypes();
 }
 
 //static
@@ -164,7 +177,7 @@ void LLNotificationListItem::setExpanded(BOOL value)
     S32 width = this->getRect().getWidth();
     if (value)
     {
-        this->reshape(width, mExpandedHeight, FALSE);
+        this->reshape(width, mExpandedHeight + mExpandedHeightResize, FALSE);
     }
     else
     {
@@ -172,10 +185,17 @@ void LLNotificationListItem::setExpanded(BOOL value)
     }
 }
 
-std::set<std::string> LLInviteNotificationListItem::getTypes()
+std::set<std::string> LLGroupInviteNotificationListItem::getTypes()
 {
     std::set<std::string> types;
     types.insert("JoinGroup");
+    return types;
+}
+
+std::set<std::string> LLGroupNoticeNotificationListItem::getTypes()
+{
+    std::set<std::string> types;
+    types.insert("GroupNotice");
     return types;
 }
 
@@ -187,14 +207,94 @@ std::set<std::string> LLTransactionNotificationListItem::getTypes()
     return types;
 }
 
-LLInviteNotificationListItem::LLInviteNotificationListItem(const Params& p)
+LLGroupNotificationListItem::LLGroupNotificationListItem(const Params& p)
     : LLNotificationListItem(p),
-    mSenderBox(NULL)
+    mSenderOrFeeBox(NULL)
+{
+}
+
+LLGroupInviteNotificationListItem::LLGroupInviteNotificationListItem(const Params& p)
+    : LLGroupNotificationListItem(p)
 {
     buildFromFile("panel_notification_list_item.xml");
 }
 
-BOOL LLInviteNotificationListItem::postBuild()
+BOOL LLGroupInviteNotificationListItem::postBuild()
+{
+    BOOL rv = LLGroupNotificationListItem::postBuild();
+    setFee(mParams.fee);
+    return rv;
+}
+
+void LLGroupInviteNotificationListItem::setFee(S32 fee)
+{
+    LLStringUtil::format_map_t string_args;
+    string_args["[GROUP_FEE]"] = llformat("%d", fee);
+    std::string fee_text = getString("group_fee_text", string_args);
+    mSenderOrFeeBox->setValue(fee_text);
+    mSenderOrFeeBoxExp->setValue(fee_text);
+    mSenderOrFeeBox->setVisible(TRUE);
+    mSenderOrFeeBoxExp->setVisible(TRUE);
+}
+
+LLGroupNoticeNotificationListItem::LLGroupNoticeNotificationListItem(const Params& p)
+    : LLGroupNotificationListItem(p),
+    mAttachmentPanel(NULL),
+    mAttachmentTextBox(NULL),
+    mAttachmentIcon(NULL),
+    mAttachmentIconExp(NULL),
+    mInventoryOffer(NULL)
+{
+    if (mParams.inventory_offer.isDefined())
+    {
+        mInventoryOffer = new LLOfferInfo(mParams.inventory_offer);
+    }
+
+    buildFromFile("panel_notification_list_item.xml");
+}
+
+BOOL LLGroupNoticeNotificationListItem::postBuild()
+{
+    BOOL rv = LLGroupNotificationListItem::postBuild();
+
+    mAttachmentTextBox = getChild<LLTextBox>("attachment_text");
+    mAttachmentIcon = getChild<LLIconCtrl>("attachment_icon");
+    mAttachmentIconExp = getChild<LLIconCtrl>("attachment_icon_exp");
+    mAttachmentPanel = getChild<LLPanel>("attachment_panel");
+    mAttachmentPanel->setVisible(FALSE);
+
+
+    mTitleBox->setValue(mParams.subject);
+    mTitleBoxExp->setValue(mParams.subject);
+    mNoticeTextExp->setValue(mParams.message);
+    //Workaround: in case server timestamp is 0 - we use the time when notification was actually received
+    if (mParams.time_stamp.isNull())
+    {
+        mTimeBox->setValue(buildNotificationDate(mParams.received_time));
+        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time));
+    }
+    setSender(mParams.sender);
+
+    if (mInventoryOffer != NULL)
+    {
+        mAttachmentTextBox->setValue(mInventoryOffer->mDesc);
+        mAttachmentIcon->setVisible(TRUE);
+
+        std::string icon_name = LLInventoryIcon::getIconName(mInventoryOffer->mType,
+          LLInventoryType::IT_TEXTURE);
+
+        mAttachmentIconExp->setValue(icon_name);
+        mAttachmentIconExp->setVisible(TRUE);
+
+        std::string expanded_height_resize_str = getString("expanded_height_resize_for_attachment");
+        mExpandedHeightResize = (S32)atoi(expanded_height_resize_str.c_str());
+
+        mAttachmentPanel->setVisible(TRUE);
+    }
+    return rv;
+}
+
+BOOL LLGroupNotificationListItem::postBuild()
 {
     BOOL rv = LLNotificationListItem::postBuild();
 
@@ -210,10 +310,8 @@ BOOL LLInviteNotificationListItem::postBuild()
 
     mGroupId = mParams.group_id;
 
-    mSenderBox = getChild<LLTextBox>("sender_resident");
-    mSenderBoxExp = getChild<LLTextBox>("sender_resident_exp");
-
-    setSender(mParams.sender);
+    mSenderOrFeeBox = getChild<LLTextBox>("sender_or_fee_box");
+    mSenderOrFeeBoxExp = getChild<LLTextBox>("sender_or_fee_box_exp");
 
     LLSD value(mParams.group_id);
     setGroupId(value);
@@ -221,7 +319,7 @@ BOOL LLInviteNotificationListItem::postBuild()
     return rv;
 }
 
-void LLInviteNotificationListItem::changed(LLGroupChange gc)
+void LLGroupNotificationListItem::changed(LLGroupChange gc)
 {
     if (GC_PROPERTIES == gc)
     {
@@ -229,7 +327,7 @@ void LLInviteNotificationListItem::changed(LLGroupChange gc)
     }
 }
 
-bool LLInviteNotificationListItem::updateFromCache()
+bool LLGroupNotificationListItem::updateFromCache()
 {
     LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(mGroupId);
     if (!group_data) return false;
@@ -237,7 +335,7 @@ bool LLInviteNotificationListItem::updateFromCache()
     return true;
 }
 
-void LLInviteNotificationListItem::setGroupId(const LLUUID& value)
+void LLGroupNotificationListItem::setGroupId(const LLUUID& value)
 {
     LLGroupMgr* gm = LLGroupMgr::getInstance();
     if (mGroupId.notNull())
@@ -255,7 +353,7 @@ void LLInviteNotificationListItem::setGroupId(const LLUUID& value)
     }
 }
 
-void LLInviteNotificationListItem::setGroupName(std::string name)
+void LLGroupNotificationListItem::setGroupName(std::string name)
 {
     if (!name.empty())
     {
@@ -272,22 +370,22 @@ void LLInviteNotificationListItem::setGroupName(std::string name)
     }
 }
 
-void LLInviteNotificationListItem::setSender(std::string sender)
+void LLGroupNoticeNotificationListItem::setSender(std::string sender)
 {
     if (!sender.empty())
     {
         LLStringUtil::format_map_t string_args;
         string_args["[SENDER_RESIDENT]"] = llformat("%s", sender.c_str());
         std::string sender_text = getString("sender_resident_text", string_args);
-        mSenderBox->setValue(sender_text);
-        mSenderBox->setVisible(TRUE);
-        mSenderBoxExp->setValue(sender_text);
-        mSenderBoxExp->setVisible(TRUE);
+        mSenderOrFeeBox->setValue(sender_text);
+        mSenderOrFeeBoxExp->setValue(sender_text);
+        mSenderOrFeeBox->setVisible(TRUE);
+        mSenderOrFeeBoxExp->setVisible(TRUE);
     } else {
-        mSenderBox->setValue(LLStringUtil::null);
-        mSenderBoxExp->setValue(LLStringUtil::null);
-        mSenderBox->setVisible(FALSE);
-        mSenderBoxExp->setVisible(FALSE);
+        mSenderOrFeeBox->setValue(LLStringUtil::null);
+        mSenderOrFeeBoxExp->setValue(LLStringUtil::null);
+        mSenderOrFeeBox->setVisible(FALSE);
+        mSenderOrFeeBoxExp->setVisible(FALSE);
     }
 }
 

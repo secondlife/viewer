@@ -35,6 +35,7 @@
 #include "llavatariconctrl.h"
 
 #include "llgroupmgr.h"
+#include "llviewermessage.h"
 
 #include <string>
 
@@ -49,15 +50,21 @@ public:
         LLUUID          paid_to_id;
         std::string     notification_name;
         std::string     title;
+        std::string     subject;
+        std::string     message;
         std::string     sender;
-        LLDate time_stamp;
+        S32             fee;
+        LLDate          time_stamp;
+        LLDate          received_time;
+        LLSD            inventory_offer;
         Params()        {};
     };
 
     static LLNotificationListItem* create(const Params& p);
 
-    static std::set<std::string> getInviteTypes();
     static std::set<std::string> getTransactionTypes();
+    static std::set<std::string> getGroupInviteTypes();
+    static std::set<std::string> getGroupNoticeTypes();
 
     // title
     void setTitle( std::string title );
@@ -99,43 +106,80 @@ protected:
     LLButton*   mCondenseBtn;
     LLButton*   mCloseBtn;
     LLButton*   mCloseBtnExp;
-    LLLayoutStack* mVerticalStack;
     LLPanel*    mCondensedViewPanel;
     LLPanel*    mExpandedViewPanel;
-    LLPanel*    mMainPanel;
     std::string mTitle;
     std::string mNotificationName;
-    S32 mCondensedHeight;
-    S32 mExpandedHeight;
+    S32         mCondensedHeight;
+    S32         mExpandedHeight;
+    S32         mExpandedHeightResize;
 };
 
-class LLInviteNotificationListItem
+class LLGroupNotificationListItem
     : public LLNotificationListItem, public LLGroupMgrObserver
 {
 public:
-    static std::set<std::string> getTypes();
     virtual BOOL postBuild();
 
     void setGroupId(const LLUUID& value);
     // LLGroupMgrObserver observer trigger
     virtual void changed(LLGroupChange gc);
-private:
+
     friend class LLNotificationListItem;
-    LLInviteNotificationListItem(const Params& p);
-    LLInviteNotificationListItem(const LLInviteNotificationListItem &);
-    LLInviteNotificationListItem & operator=(LLInviteNotificationListItem &);
-
-    void setSender(std::string sender);
-    void setGroupName(std::string name);
-
-    bool updateFromCache();
+protected:
+    LLGroupNotificationListItem(const Params& p);
 
     LLGroupIconCtrl* mGroupIcon;
     LLGroupIconCtrl* mGroupIconExp;
     LLUUID      mGroupId;
-    LLTextBox*  mSenderBox;
-    LLTextBox*  mSenderBoxExp;
+    LLTextBox*  mSenderOrFeeBox;
+    LLTextBox*  mSenderOrFeeBoxExp;
     LLTextBox*  mGroupNameBoxExp;
+
+private:
+    LLGroupNotificationListItem(const LLGroupNotificationListItem &);
+    LLGroupNotificationListItem & operator=(LLGroupNotificationListItem &);
+
+    void setGroupName(std::string name);
+    bool updateFromCache();
+};
+
+class LLGroupInviteNotificationListItem
+    : public LLGroupNotificationListItem
+{
+public:
+    static std::set<std::string> getTypes();
+    virtual BOOL postBuild();
+
+private:
+    friend class LLNotificationListItem;
+    LLGroupInviteNotificationListItem(const Params& p);
+    LLGroupInviteNotificationListItem(const LLGroupInviteNotificationListItem &);
+    LLGroupInviteNotificationListItem & operator=(LLGroupInviteNotificationListItem &);
+
+    void setFee(S32 fee);
+};
+
+class LLGroupNoticeNotificationListItem
+    : public LLGroupNotificationListItem
+{
+public:
+    static std::set<std::string> getTypes();
+    virtual BOOL postBuild();
+
+private:
+    friend class LLNotificationListItem;
+    LLGroupNoticeNotificationListItem(const Params& p);
+    LLGroupNoticeNotificationListItem(const LLGroupNoticeNotificationListItem &);
+    LLGroupNoticeNotificationListItem & operator=(LLGroupNoticeNotificationListItem &);
+
+    void setSender(std::string sender);
+
+    LLPanel*    mAttachmentPanel;
+    LLTextBox*  mAttachmentTextBox;
+    LLIconCtrl* mAttachmentIcon;
+    LLIconCtrl* mAttachmentIconExp;
+    LLOfferInfo* mInventoryOffer;
 };
 
 class LLTransactionNotificationListItem : public LLNotificationListItem
