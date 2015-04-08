@@ -58,12 +58,7 @@ public:
 
 
 private:
-#if 1
     boost::unique_ptr<LLEventPolling::Details::LLEventPollImpl>    mImpl;
-    
-#else
-	LLHTTPClient::ResponderPtr mImpl;
-#endif
 };
 
 
