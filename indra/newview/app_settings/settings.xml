@@ -5019,6 +5019,7 @@
       <key>Type</key>
       <string>LLSD</string>
       <key>Value</key>
+      <array/>
     </map>
     <key>LSLFindCaseInsensitivity</key>
         <map>
@@ -11774,7 +11775,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <integer>0.0</integer>
+    <real>0.0</real>
   </map>
     <key>TextureFetchSource</key>
     <map>
