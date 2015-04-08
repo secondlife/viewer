@@ -317,15 +317,18 @@ HttpCoroutineAdapter::HttpCoroutineAdapter(const std::string &name,
     LLCore::HttpRequest::policy_t policyId, LLCore::HttpRequest::priority_t priority) :
     mAdapterName(name),
     mPolicyId(policyId),
-    mPriority(priority)
+    mPriority(priority),
+    mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID),
+    mWeakRequest()
 {
 }
 
 HttpCoroutineAdapter::~HttpCoroutineAdapter()
 {
+
 }
 
-LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
     const std::string & url, const LLSD & body,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
@@ -353,28 +356,17 @@ LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpReques
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
-        LLCore::HttpStatus status = request->getStatus();
-        LL_WARNS() << "Error posting to " << url << " Status=" << status.getStatus() <<
-            " message = " << status.getMessage() << LL_ENDL;
-
-        // Mimic the status results returned from an http error that we had 
-        // to wait on 
-        LLSD httpresults = LLSD::emptyMap();
-
-        httpHandler->writeStatusCodes(status, url, httpresults);
-
-        LLSD errorres = LLSD::emptyMap();
-        errorres["http_result"] = httpresults;
-
-        return errorres;
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url, httpHandler);
     }
 
+    mYieldingHandle = hhandle;
     LLSD results = waitForEventOn(self, replyPump);
+    mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
 }
 
-LLSD HttpCoroutineAdapter::putAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t & request,
+LLSD HttpCoroutineAdapter::putAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
     const std::string & url, const LLSD & body,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
@@ -402,28 +394,17 @@ LLSD HttpCoroutineAdapter::putAndYield(LLCoros::self & self, LLCore::HttpRequest
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
-        LLCore::HttpStatus status = request->getStatus();
-        LL_WARNS() << "Error posting to " << url << " Status=" << status.getStatus() <<
-            " message = " << status.getMessage() << LL_ENDL;
-
-        // Mimic the status results returned from an http error that we had 
-        // to wait on 
-        LLSD httpresults = LLSD::emptyMap();
-
-        httpHandler->writeStatusCodes(status, url, httpresults);
-
-        LLSD errorres = LLSD::emptyMap();
-        errorres["http_result"] = httpresults;
-
-        return errorres;
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url, httpHandler);
     }
 
+    mYieldingHandle = hhandle;
     LLSD results = waitForEventOn(self, replyPump);
+    mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
 }
 
-LLSD HttpCoroutineAdapter::getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t & request,
+LLSD HttpCoroutineAdapter::getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
     const std::string & url,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
@@ -450,25 +431,33 @@ LLSD HttpCoroutineAdapter::getAndYield(LLCoros::self & self, LLCore::HttpRequest
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
-        LLCore::HttpStatus status = request->getStatus();
-        LL_WARNS() << "Error posting to " << url << " Status=" << status.getStatus() <<
-            " message = " << status.getMessage() << LL_ENDL;
-
-        // Mimic the status results returned from an http error that we had 
-        // to wait on 
-        LLSD httpresults = LLSD::emptyMap();
-
-        httpHandler->writeStatusCodes(status, url, httpresults);
-
-        LLSD errorres = LLSD::emptyMap();
-        errorres["http_result"] = httpresults;
-
-        return errorres;
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url, httpHandler);
     }
 
+    mYieldingHandle = hhandle;
     LLSD results = waitForEventOn(self, replyPump);
+    mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
+}
+
+LLSD HttpCoroutineAdapter::buildImmediateErrorResult(const LLCore::HttpRequest::ptr_t &request, 
+    const std::string &url, LLCoreHttpUtil::HttpCoroHandler::ptr_t &httpHandler) 
+{
+    LLCore::HttpStatus status = request->getStatus();
+    LL_WARNS() << "Error posting to " << url << " Status=" << status.getStatus() <<
+        " message = " << status.getMessage() << LL_ENDL;
+
+    // Mimic the status results returned from an http error that we had 
+    // to wait on 
+    LLSD httpresults = LLSD::emptyMap();
+
+    httpHandler->writeStatusCodes(status, url, httpresults);
+
+    LLSD errorres = LLSD::emptyMap();
+    errorres["http_result"] = httpresults;
+
+    return errorres;
 }
 
 } // end namespace LLCoreHttpUtil

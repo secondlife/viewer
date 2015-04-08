@@ -28,8 +28,19 @@
 #define LL_LLEVENTPOLL_H
 
 #include "llhttpclient.h"
+#include "boost/move/unique_ptr.hpp"
+
+namespace boost
+{
+    using ::boost::movelib::unique_ptr; // move unique_ptr into the boost namespace.
+}
 
 class LLHost;
+
+namespace
+{
+    class LLEventPollImpl;
+}
 
 
 class LLEventPoll
@@ -40,11 +51,15 @@ public:
 		///< Start polling the URL.
 
 	virtual ~LLEventPoll();
-		///< will stop polling, cancelling any poll in progress.
+		///< will stop polling, canceling any poll in progress.
 
 
 private:
+#if 1
+    boost::unique_ptr<LLEventPollImpl>    mImpl;
+#else
 	LLHTTPClient::ResponderPtr mImpl;
+#endif
 };
 
 

@@ -98,6 +98,7 @@ public:
 	typedef unsigned int priority_t;
 	
 	typedef boost::shared_ptr<HttpRequest> ptr_t;
+    typedef boost::weak_ptr<HttpRequest>   wptr_t;
 public:
 	/// @name PolicyMethods
 	/// @{
