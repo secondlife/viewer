@@ -40,6 +40,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
+#include "lleventfilter.h"
 
 namespace LLEventPolling
 {
@@ -164,8 +165,7 @@ namespace Details
                     errorCount = 0;
                     continue;
                 }
-                    
-                if ((status == LLCore::HttpStatus(LLCore::HttpStatus::LLCORE, LLCore::HE_OP_CANCELED)) || 
+                else if ((status == LLCore::HttpStatus(LLCore::HttpStatus::LLCORE, LLCore::HE_OP_CANCELED)) || 
                         (status == LLCore::HttpStatus(HTTP_NOT_FOUND)))
                 {   
                     LL_WARNS() << "Canceling coroutine" << LL_ENDL;
@@ -178,16 +178,18 @@ namespace Details
                 {
                     ++errorCount;
 
-                    // The 'tick' will return TRUE causing the timer to delete this.
                     int waitToRetry = EVENT_POLL_ERROR_RETRY_SECONDS
                         + errorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC;
 
-                    LL_WARNS() << "Retrying in " << waitToRetry <<
-                        " seconds, error count is now " << errorCount << LL_ENDL;
-
-                    // *TODO: Wait for a timeout here
-                    //                     new LLEventPollEventTimer(
-                    //                         , this);
+                    {
+                        LL_WARNS() << "<" << counter << "> Retrying in " << waitToRetry <<
+                            " seconds, error count is now " << errorCount << LL_ENDL;
+                        LLEventTimeout timeout;
+                        timeout.eventAfter(waitToRetry, LLSD());
+                        waitForEventOn(self, timeout);
+                    }
+                    if (mDone)
+                        break;
                     continue;
                 }
                 else
