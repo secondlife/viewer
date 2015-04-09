@@ -1995,17 +1995,22 @@ bool LLInventoryModel::loadSkeleton(
 				
 				// we can safely ignore anything loaded from file, but
 				// not sent down in the skeleton. Must have been removed from inventory.
-				if(cit == not_cached)
+				if (cit == not_cached)
 				{
 					continue;
 				}
-				if(cat->getVersion() != tcat->getVersion())
+				else if (cat->getVersion() != tcat->getVersion())
 				{
 					// if the cached version does not match the server version,
 					// throw away the version we have so we can fetch the
 					// correct contents the next time the viewer opens the folder.
 					tcat->setVersion(NO_VERSION);
 				}
+                else if (tcat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
+                {
+                    // Do not trust stock folders being updated
+                    tcat->setVersion(NO_VERSION);
+                }
 				else
 				{
 					cached_ids.insert(tcat->getUUID());

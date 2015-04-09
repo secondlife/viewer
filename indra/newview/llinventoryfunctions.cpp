@@ -1024,6 +1024,11 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
     }
     if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
+        if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            // If the folder is not completely fetched, we do not want to return any confusing value that could lead to unlisting
+            return -1;
+        }
         // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here but we count only items (subfolders will be ignored)
         // Note: we *always* give a stock count for stock folders, it's useful even if the listing is unassociated
         LLInventoryModel::cat_array_t* cat_array;
