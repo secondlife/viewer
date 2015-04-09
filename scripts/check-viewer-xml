@@ -68,11 +68,13 @@ elif sys.platform == 'linux2':
     CheckDirs = [ os.path.expanduser('~/.secondlife'),
                   ]
 elif sys.platform == 'win32' or sys.platform == 'cygwin':  
-    CheckDirs = [ os.path.expanduser('~\\Local Settings\\Temp'),
-                  os.path.expanduser('~\\Application\\Data\\Secondlife'),
-                  os.path.expanduser('~\\AppData\\Roaming\\Secondlife'),
-                  os.path.expanduser('~\\AppData\\Local\\Secondlife'),
-                  ]
+    if os.path.isdir(os.path.expanduser('~\\AppData\\Roaming')):
+        CheckDirs = [ os.path.expanduser('~\\Application\\Data\\Secondlife'),
+                      os.path.expanduser('~\\AppData\\Roaming\\Secondlife'),
+                      os.path.expanduser('~\\AppData\\Local\\Secondlife'),
+                      ]
+    else:
+        sys.exit("No AppData\\Roaming directory found;\nThis script must be run in a native Windows command shell.\nRunning under cygwin does not work.")
 else:
     sys.exit("unrecognized platform '%s'" % sys.platform)
 
