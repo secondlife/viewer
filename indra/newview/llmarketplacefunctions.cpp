@@ -1265,26 +1265,17 @@ void LLMarketplaceData::getSLMListing(S32 listing_id)
 	LLHTTPClient::get(url, new LLSLMGetListingResponder(folder_id), headers);
 }
 
-void LLMarketplaceData::createSLMListing(const LLUUID& folder_id)
+void LLMarketplaceData::createSLMListing(const LLUUID& folder_id, const LLUUID& version_id, S32 count)
 {
 	LLSD headers = LLSD::emptyMap();
 	headers["Accept"] = "application/json";
 	headers["Content-Type"] = "application/json";
     
-    LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
-
-    // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
-    S32 count = -1;
-    LLUUID version_id = getVersionFolderIfUnique(folder_id);
-    if (version_id.notNull())
-    {
-        count = compute_stock_count(version_id, true);
-    }
-
     // Build the json message
     Json::Value root;
     Json::FastWriter writer;
     
+    LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
     root["listing"]["name"] = category->getName();
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
     root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
@@ -1341,20 +1332,12 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(folder_id, is_listed, version_id), headers);
 }
 
-void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& source_folder_id)
+void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, const LLUUID& source_folder_id)
 {
 	LLSD headers = LLSD::emptyMap();
 	headers["Accept"] = "application/json";
 	headers["Content-Type"] = "application/json";
     
-    // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
-    S32 count = -1;
-    LLUUID version_id = getVersionFolderIfUnique(folder_id);
-    if (version_id.notNull())
-    {
-        count = compute_stock_count(version_id, true);
-    }
-
     Json::Value root;
     Json::FastWriter writer;
     
@@ -1362,7 +1345,6 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     root["listing"]["id"] = listing_id;
     root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
     root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-    root["listing"]["inventory_info"]["count_on_hand"] = count;
     
     std::string json_str = writer.write(root);
     
@@ -1437,8 +1419,16 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
         return false;
     }
     
+    // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+    S32 count = -1;
+    LLUUID version_id = getVersionFolderIfUnique(folder_id);
+    if (version_id.notNull())
+    {
+        count = compute_stock_count(version_id, true);
+    }
+
     // Post the listing creation request to SLM
-    createSLMListing(folder_id);
+    createSLMListing(folder_id, version_id, count);
     
     return true;
 }
@@ -1585,9 +1575,23 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
         return false;
     }
     
-    // Post the listing update request to SLM
-    associateSLMListing(folder_id, listing_id, source_folder_id);
+    // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
+    LLUUID version_id = getVersionFolderIfUnique(folder_id);
     
+    // Post the listing associate request to SLM
+    associateSLMListing(folder_id, listing_id, version_id, source_folder_id);
+    
+    // Update the other values as required
+    bool is_listed = false;     // a listed listing cannot be reassociated
+    S32 count = -1;             // count on hand must be set according to the new active version folder if any
+    if (version_id.notNull())
+    {
+        count = compute_stock_count(version_id, true);
+    }
+    
+    // Post the listing update request to SLM
+    updateSLMListing(folder_id, listing_id, version_id, is_listed, count);
+
     return true;
 }
 
