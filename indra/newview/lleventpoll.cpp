@@ -46,12 +46,6 @@ namespace LLEventPolling
 {
 namespace Details
 {
-        // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
-    // This means we attempt to recover relatively quickly but back off giving more time to recover
-    // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
-    const F32 EVENT_POLL_ERROR_RETRY_SECONDS = 15.f; // ~ half of a normal timeout.
-    const F32 EVENT_POLL_ERROR_RETRY_SECONDS_INC = 5.f; // ~ half of a normal timeout.
-    const S32 MAX_EVENT_POLL_HTTP_ERRORS = 10; // ~5 minutes, by the above rules.
 
     class LLEventPollImpl
     {
@@ -60,7 +54,15 @@ namespace Details
 
         void start(const std::string &url);
         void stop();
+
     private:
+        // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
+        // This means we attempt to recover relatively quickly but back off giving more time to recover
+        // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
+        static const F32    EVENT_POLL_ERROR_RETRY_SECONDS;
+        static const F32    EVENT_POLL_ERROR_RETRY_SECONDS_INC;
+        static const S32    MAX_EVENT_POLL_HTTP_ERRORS;
+
         void eventPollCoro(LLCoros::self& self, std::string url);
 
         void                            handleMessage(const LLSD &content);
@@ -76,6 +78,10 @@ namespace Details
     };
 
 
+    const F32 LLEventPollImpl::EVENT_POLL_ERROR_RETRY_SECONDS = 15.f; // ~ half of a normal timeout.
+    const F32 LLEventPollImpl::EVENT_POLL_ERROR_RETRY_SECONDS_INC = 5.f; // ~ half of a normal timeout.
+    const S32 LLEventPollImpl::MAX_EVENT_POLL_HTTP_ERRORS = 10; // ~5 minutes, by the above rules.
+
     int LLEventPollImpl::sNextCounter = 1;
 
 
@@ -87,7 +93,10 @@ namespace Details
         mCounter(sNextCounter++)
 
     {
+        LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
+
         mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest);
+        mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_LONG_POLL);
         mSenderIp = sender.getIPandPort();
     }
 
@@ -105,9 +114,9 @@ namespace Details
         if (!url.empty())
         {
             std::string coroname =
-                LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
+                LLCoros::instance().launch("LLEventPollImpl::eventPollCoro",
                 boost::bind(&LLEventPollImpl::eventPollCoro, this, _1, url));
-            LL_INFOS() << coroname << " with  url '" << url << LL_ENDL;
+            LL_INFOS("LLEventPollImpl") << coroname << " with  url '" << url << LL_ENDL;
         }
     }
 
@@ -131,7 +140,7 @@ namespace Details
         int errorCount = 0;
         int counter = mCounter; // saved on the stack for debugging.
 
-        LL_INFOS("LLEventPollImpl::eventPollCoro") << " <" << counter << "> entering coroutine." << LL_ENDL;
+        LL_INFOS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
 
         mAdapter = httpAdapter;
         while (!mDone)
@@ -140,14 +149,14 @@ namespace Details
             request["ack"] = acknowledge;
             request["done"] = mDone;
 
-//            LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> request = "
-//                << LLSDXMLStreamer(request) << LL_ENDL;
+//          LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> request = "
+//              << LLSDXMLStreamer(request) << LL_ENDL;
 
-            LL_DEBUGS("LLEventPollImpl::eventPollCoro") << " <" << counter << "> posting and yielding." << LL_ENDL;
+            LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> posting and yielding." << LL_ENDL;
             LLSD result = httpAdapter->postAndYield(self, mHttpRequest, url, request);
 
-//            LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> result = "
-//                << LLSDXMLStreamer(result) << LL_ENDL;
+//          LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> result = "
+//              << LLSDXMLStreamer(result) << LL_ENDL;
 
             LLSD httpResults;
             httpResults = result["http_result"];
@@ -169,25 +178,28 @@ namespace Details
                     LL_WARNS() << "Canceling coroutine" << LL_ENDL;
                     break;
                 }
-                LL_WARNS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
                     << status.toTerseString() << ": '" << httpResults["message"] << "'" << LL_ENDL;
 
                 if (errorCount < MAX_EVENT_POLL_HTTP_ERRORS)
                 {
                     ++errorCount;
 
-                    int waitToRetry = EVENT_POLL_ERROR_RETRY_SECONDS
+                    F32 waitToRetry = EVENT_POLL_ERROR_RETRY_SECONDS
                         + errorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC;
 
+                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Retrying in " << waitToRetry <<
+                        " seconds, error count is now " << errorCount << LL_ENDL;
+
                     {
-                        LL_WARNS() << "<" << counter << "> Retrying in " << waitToRetry <<
-                            " seconds, error count is now " << errorCount << LL_ENDL;
                         LLEventTimeout timeout;
                         timeout.eventAfter(waitToRetry, LLSD());
                         waitForEventOn(self, timeout);
                     }
                     if (mDone)
                         break;
+                    LL_INFOS("LLEventPollImpl") << "<" << counter << "> About to retry request." << LL_ENDL;
+
                     continue;
                 }
                 else
@@ -205,15 +217,12 @@ namespace Details
                     // continue running.
                     if (gAgent.getRegion() && gAgent.getRegion()->getHost().getIPandPort() == mSenderIp)
                     {
-                        LL_WARNS("LLEventPollImpl::eventPollCoro") << "< " << counter << "> Forcing disconnect due to stalled main region event poll." << LL_ENDL;
+                        LL_WARNS("LLEventPollImpl") << "< " << counter << "> Forcing disconnect due to stalled main region event poll." << LL_ENDL;
                         LLAppViewer::instance()->forceDisconnect(LLTrans::getString("AgentLostConnection"));
                     }
                     break;
                 }
             }
-
-            LL_DEBUGS("LLEventPollImpl::eventPollCoro") << " <" << counter << ">"
-                << (mDone ? " -- done" : "") << LL_ENDL;
 
             errorCount = 0;
 
@@ -221,7 +230,7 @@ namespace Details
                 !result.get("events") ||
                 !result.get("id"))
             {
-                LL_WARNS("LLEventPollImpl::eventPollCoro") << " <" << counter << "> received event poll with no events or id key: " << LLSDXMLStreamer(result) << LL_ENDL;
+                LL_WARNS("LLEventPollImpl") << " <" << counter << "> received event poll with no events or id key: " << LLSDXMLStreamer(result) << LL_ENDL;
                 continue;
             }
 
@@ -230,12 +239,11 @@ namespace Details
 
             if (acknowledge.isUndefined())
             {
-                LL_WARNS("LLEventPollImpl::eventPollCoro") << " id undefined" << LL_ENDL;
+                LL_WARNS("LLEventPollImpl") << " id undefined" << LL_ENDL;
             }
 
             // was LL_INFOS() but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
-            LL_DEBUGS() << "LLEventPollResponder::httpSuccess <" << counter << "> " << events.size() << "events (id "
-                << LLSDXMLStreamer(acknowledge) << ")" << LL_ENDL;
+            LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> " << events.size() << "events (id " << LLSDXMLStreamer(acknowledge) << ")" << LL_ENDL;
 
             LLSD::array_const_iterator i = events.beginArray();
             LLSD::array_const_iterator end = events.endArray();
@@ -247,7 +255,7 @@ namespace Details
                 }
             }
         }
-        LL_INFOS("LLEventPollImpl::eventPollCoro") << " <" << counter << "> Leaving coroutine." << LL_ENDL;
+        LL_INFOS("LLEventPollImpl") << " <" << counter << "> Leaving coroutine." << LL_ENDL;
 
     }
 
