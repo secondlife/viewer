@@ -59,11 +59,11 @@ namespace Details
         // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
         // This means we attempt to recover relatively quickly but back off giving more time to recover
         // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
-        static const F32    EVENT_POLL_ERROR_RETRY_SECONDS;
-        static const F32    EVENT_POLL_ERROR_RETRY_SECONDS_INC;
-        static const S32    MAX_EVENT_POLL_HTTP_ERRORS;
+        static const F32                EVENT_POLL_ERROR_RETRY_SECONDS;
+        static const F32                EVENT_POLL_ERROR_RETRY_SECONDS_INC;
+        static const S32                MAX_EVENT_POLL_HTTP_ERRORS;
 
-        void eventPollCoro(LLCoros::self& self, std::string url);
+        void                            eventPollCoro(LLCoros::self& self, std::string url);
 
         void                            handleMessage(const LLSD &content);
 
@@ -138,11 +138,14 @@ namespace Details
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EventPoller", mHttpPolicy));
         LLSD acknowledge;
         int errorCount = 0;
-        int counter = mCounter; // saved on the stack for debugging.
+        int counter = mCounter; // saved on the stack for logging. 
 
         LL_INFOS("LLEventPollImpl") << " <" << counter << "> entering coroutine." << LL_ENDL;
 
         mAdapter = httpAdapter;
+
+        // continually poll for a server update until we've been flagged as 
+        // finished 
         while (!mDone)
         {
             LLSD request;
@@ -158,23 +161,23 @@ namespace Details
 //          LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> result = "
 //              << LLSDXMLStreamer(result) << LL_ENDL;
 
-            LLSD httpResults;
-            httpResults = result["http_result"];
+            LLSD httpResults = result["http_result"];
             LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
 
             if (!status)
             {
-
                 if (status == LLCore::HttpStatus(HTTP_BAD_GATEWAY))
-                {
-                    // A HTTP_BAD_GATEWAY (502) error is our standard timeout response
+                {   // A HTTP_BAD_GATEWAY (502) error is our standard timeout response
                     // we get this when there are no events.
                     errorCount = 0;
                     continue;
                 }
                 else if ((status == LLCore::HttpStatus(LLCore::HttpStatus::LLCORE, LLCore::HE_OP_CANCELED)) || 
                         (status == LLCore::HttpStatus(HTTP_NOT_FOUND)))
-                {   
+                {   // Event polling for this server has been canceled.  In 
+                    // some cases the server gets ahead of the viewer and will 
+                    // return a 404 error (Not Found) before the cancel event
+                    // comes back in the queue
                     LL_WARNS() << "Canceling coroutine" << LL_ENDL;
                     break;
                 }
@@ -182,7 +185,11 @@ namespace Details
                     << status.toTerseString() << ": '" << httpResults["message"] << "'" << LL_ENDL;
 
                 if (errorCount < MAX_EVENT_POLL_HTTP_ERRORS)
-                {
+                {   // An unanticipated error has been received from our poll 
+                    // request. Calculate a timeout and wait for it to expire(sleep)
+                    // before trying again.  The sleep time is increased by 5 seconds
+                    // for each consecutive error.
+                    LLEventTimeout timeout;
                     ++errorCount;
 
                     F32 waitToRetry = EVENT_POLL_ERROR_RETRY_SECONDS
@@ -191,15 +198,12 @@ namespace Details
                     LL_WARNS("LLEventPollImpl") << "<" << counter << "> Retrying in " << waitToRetry <<
                         " seconds, error count is now " << errorCount << LL_ENDL;
 
-                    {
-                        LLEventTimeout timeout;
-                        timeout.eventAfter(waitToRetry, LLSD());
-                        waitForEventOn(self, timeout);
-                    }
+                    timeout.eventAfter(waitToRetry, LLSD());
+                    waitForEventOn(self, timeout);
+                    
                     if (mDone)
                         break;
                     LL_INFOS("LLEventPollImpl") << "<" << counter << "> About to retry request." << LL_ENDL;
-
                     continue;
                 }
                 else
@@ -208,7 +212,6 @@ namespace Details
                     // IMs, teleports, about land, selecting land, region crossing and more will all fail.
                     // They are essentially disconnected from the region even though some things may still work.
                     // Since things won't get better until they relog we force a disconnect now.
-
                     mDone = true;
 
                     // *NOTE:Mani - The following condition check to see if this failing event poll
@@ -237,10 +240,7 @@ namespace Details
             acknowledge = result["id"];
             LLSD events = result["events"];
 
-            if (acknowledge.isUndefined())
-            {
-                LL_WARNS("LLEventPollImpl") << " id undefined" << LL_ENDL;
-            }
+            LL_WARNS_IF((acknowledge.isUndefined()), "LLEventPollImpl") << " id undefined" << LL_ENDL;
 
             // was LL_INFOS() but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
             LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> " << events.size() << "events (id " << LLSDXMLStreamer(acknowledge) << ")" << LL_ENDL;
@@ -256,7 +256,6 @@ namespace Details
             }
         }
         LL_INFOS("LLEventPollImpl") << " <" << counter << "> Leaving coroutine." << LL_ENDL;
-
     }
 
 }

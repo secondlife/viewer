@@ -29,6 +29,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llhttpclient.h"
+#include "llcoros.h"
 
 class LLEnvironmentRequest
 {
@@ -40,21 +41,10 @@ public:
 private:
 	static void onRegionCapsReceived(const LLUUID& region_id);
 	static bool doRequest();
-};
 
-class LLEnvironmentRequestResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLEnvironmentRequestResponder);
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
+    static void environmentRequestCoro(LLCoros::self& self, std::string url);
 
-private:
-	friend class LLEnvironmentRequest;
-
-	LLEnvironmentRequestResponder();
-	static int sCount;
-	int mID;
+    static S32 sLastRequest;
 };
 
 class LLEnvironmentApply
@@ -67,8 +57,11 @@ public:
 private:
 	static clock_t sLastUpdate;
 	static clock_t UPDATE_WAIT_SECONDS;
+
+    static void environmentApplyCoro(LLCoros::self& self, std::string url, LLSD content);
 };
 
+#if 0
 class LLEnvironmentApplyResponder: public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLEnvironmentApplyResponder);
@@ -97,5 +90,6 @@ private:
 	
 	LLEnvironmentApplyResponder() {}
 };
+#endif
 
 #endif // LL_LLWLHANDLERS_H

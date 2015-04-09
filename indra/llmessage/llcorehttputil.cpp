@@ -241,11 +241,18 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         }
 
         if (result.isUndefined())
-        {
-            // If we've gotten to this point and the result LLSD is still undefined 
+        {   // If we've gotten to this point and the result LLSD is still undefined 
             // either there was an issue deserializing the body or the response was
             // blank.  Create an empty map to hold the result either way.
             result = LLSD::emptyMap();
+        }
+        else if (!result.isMap())
+        {   // The results are not themselves a map.  Move them down so that 
+            // this method can return a map to the caller.
+            // *TODO: Should it always do this?
+            LLSD newResult = LLSD::emptyMap();
+            newResult["content"] = result;
+            result = newResult;
         }
     }
 
