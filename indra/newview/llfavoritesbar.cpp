@@ -480,7 +480,7 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 				const LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 				if (item->getParentUUID() == favorites_id)
 				{
-					LL_WARNS() << "Attemt to copy a favorite item into the same folder." << LL_ENDL;
+					LL_WARNS("FavoritesBar") << "Attemt to copy a favorite item into the same folder." << LL_ENDL;
 					break;
 				}
 
@@ -632,7 +632,7 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	//		landmarks to an empty favorites bar.
 	updateButtons();
 	
-	LL_INFOS() << "Copied inventory item #" << item->getUUID() << " to favorites." << LL_ENDL;
+	LL_INFOS("FavoritesBar") << "Copied inventory item #" << item->getUUID() << " to favorites." << LL_ENDL;
 }
 
 //virtual
@@ -871,7 +871,7 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	fav_btn = LLUICtrlFactory::create<LLFavoriteLandmarkButton>(fav_btn_params);
 	if (NULL == fav_btn)
 	{
-		LL_WARNS() << "Unable to create LLFavoriteLandmarkButton widget: " << item->getName() << LL_ENDL;
+		LL_WARNS("FavoritesBar") << "Unable to create LLFavoriteLandmarkButton widget: " << item->getName() << LL_ENDL;
 		return NULL;
 	}
 	
@@ -1160,7 +1160,7 @@ bool LLFavoritesBarCtrl::enableSelected(const LLSD& userdata)
 void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 {
 	std::string action = userdata.asString();
-	LL_INFOS() << "Action = " << action << " Item = " << mSelectedItemID.asString() << LL_ENDL;
+	LL_INFOS("FavoritesBar") << "Action = " << action << " Item = " << mSelectedItemID.asString() << LL_ENDL;
 	
 	LLViewerInventoryItem* item = gInventory.getItem(mSelectedItemID);
 	if (!item)
@@ -1444,8 +1444,22 @@ void LLFavoritesOrderStorage::getSLURL(const LLUUID& asset_id)
 		boost::bind(&LLFavoritesOrderStorage::onLandmarkLoaded, this, asset_id, _1));
 	if (lm)
 	{
+        LL_DEBUGS("FavoritesBar") << "landmark for " << asset_id << " already loaded" << LL_ENDL;
 		onLandmarkLoaded(asset_id, lm);
 	}
+}
+
+// static
+std::string LLFavoritesOrderStorage::getStoredFavoritesFilename()
+{
+	std::string user_dir = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
+
+    return (user_dir.empty() ? ""
+            : gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
+                                             "stored_favorites_"
+                                          + LLGridManager::getInstance()->getGrid()
+                                          + ".xml")
+            );
 }
 
 // static
@@ -1455,11 +1469,15 @@ void LLFavoritesOrderStorage::destroyClass()
 
 
 	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-	llifstream file;
-	file.open(old_filename);
+	std::ifstream file;
+	file.open(old_filename.c_str());
 	if (file.is_open())
 	{
-		std::string new_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
+        file.close();
+		std::string new_filename = getStoredFavoritesFilename();
+        LL_INFOS("FavoritesBar") << "moving favorites from old name '" << old_filename
+                                 << "' to new name '" << new_filename << "'"
+                                 << LL_ENDL;
 		LLFile::copy(old_filename,new_filename);
 		LLFile::remove(old_filename);
 	}
@@ -1474,18 +1492,35 @@ void LLFavoritesOrderStorage::destroyClass()
 	}
 }
 
+std::string LLFavoritesOrderStorage::getSavedOrderFileName()
+{
+	// If we quit from the login screen we will not have an SL account
+	// name.  Don't try to save, otherwise we'll dump a file in
+	// C:\Program Files\SecondLife\ or similar. JC
+	std::string user_dir = gDirUtilp->getLindenUserDir();
+    return (user_dir.empty() ? "" : gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME));
+}
+
 void LLFavoritesOrderStorage::load()
 {
 	// load per-resident sorting information
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
+	std::string filename = getSavedOrderFileName();
 
 	LLSD settings_llsd;
-	llifstream file;
-	file.open(filename);
+	std::ifstream file;
+	file.open(filename.c_str());
 	if (file.is_open())
 	{
 		LLSDSerialize::fromXML(settings_llsd, file);
+        LL_INFOS("FavoritesBar") << "loaded favorites order from '" << filename << "' "
+                                 << (settings_llsd.isMap() ? "" : "un") << "successfully"
+                                 << LL_ENDL;
+        file.close();
 	}
+    else
+    {
+        LL_WARNS("FavoritesBar") << "unable to open favorites order file at '" << filename << "'" << LL_ENDL;
+    }
 
 	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
 		iter != settings_llsd.endMap(); ++iter)
@@ -1499,92 +1534,120 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 	// Do not change the file if we are not logged in yet.
 	if (!LLLoginInstance::getInstance()->authSuccess())
 	{
-		LL_WARNS() << "Cannot save favorites: not logged in" << LL_ENDL;
+		LL_WARNS("FavoritesBar") << "Cannot save favorites: not logged in" << LL_ENDL;
 		return;
 	}
 
-	std::string user_dir = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
-	if (user_dir.empty())
-	{
-		LL_WARNS() << "Cannot save favorites: empty user dir name" << LL_ENDL;
-		return;
-	}
+	std::string filename = getStoredFavoritesFilename();
+    if (!filename.empty())
+    {
+        std::ifstream in_file;
+        in_file.open(filename.c_str());
+        LLSD fav_llsd;
+        if (in_file.is_open())
+        {
+            LLSDSerialize::fromXML(fav_llsd, in_file);
+            LL_INFOS("FavoritesBar") << "loaded favorites from '" << filename << "' "
+                                     << (fav_llsd.isMap() ? "" : "un") << "successfully"
+                                     << LL_ENDL;
+            in_file.close();
+        }
+        else
+        {
+            LL_WARNS("FavoritesBar") << "unable to open favorites from '" << filename << "'" << LL_ENDL;
+        }
 
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
-	llifstream in_file;
-	in_file.open(filename);
-	LLSD fav_llsd;
-	if (in_file.is_open())
-	{
-		LLSDSerialize::fromXML(fav_llsd, in_file);
-	}
+        const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+        LLInventoryModel::cat_array_t cats;
+        LLInventoryModel::item_array_t items;
+        gInventory.collectDescendents(fav_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
 
-	const LLUUID fav_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendents(fav_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
+        LLSD user_llsd;
+        for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)
+        {
+            LLSD value;
+            value["name"] = (*it)->getName();
+            value["asset_id"] = (*it)->getAssetUUID();
 
-	LLSD user_llsd;
-	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)
-	{
-		LLSD value;
-		value["name"] = (*it)->getName();
-		value["asset_id"] = (*it)->getAssetUUID();
+            slurls_map_t::iterator slurl_iter = mSLURLs.find(value["asset_id"]);
+            if (slurl_iter != mSLURLs.end())
+            {
+                LL_DEBUGS("FavoritesBar") << "Saving favorite: idx=" << LLFavoritesOrderStorage::instance().getSortIndex((*it)->getUUID()) << ", SLURL=" <<  slurl_iter->second << ", value=" << value << LL_ENDL;
+                value["slurl"] = slurl_iter->second;
+                user_llsd[LLFavoritesOrderStorage::instance().getSortIndex((*it)->getUUID())] = value;
+            }
+            else
+            {
+                LL_WARNS("FavoritesBar") << "Not saving favorite " << value["name"] << ": no matching SLURL" << LL_ENDL;
+            }
+        }
 
-		slurls_map_t::iterator slurl_iter = mSLURLs.find(value["asset_id"]);
-		if (slurl_iter != mSLURLs.end())
-		{
-			LL_DEBUGS() << "Saving favorite: idx=" << LLFavoritesOrderStorage::instance().getSortIndex((*it)->getUUID()) << ", SLURL=" <<  slurl_iter->second << ", value=" << value << LL_ENDL;
-			value["slurl"] = slurl_iter->second;
-			user_llsd[LLFavoritesOrderStorage::instance().getSortIndex((*it)->getUUID())] = value;
-		}
-		else
-		{
-			LL_WARNS() << "Not saving favorite " << value["name"] << ": no matching SLURL" << LL_ENDL;
-		}
-	}
+        LLAvatarName av_name;
+        LLAvatarNameCache::get( gAgentID, &av_name );
+        // Note : use the "John Doe" and not the "john.doe" version of the name 
+        // as we'll compare it with the stored credentials in the login panel.
+        fav_llsd[av_name.getUserName()] = user_llsd;
 
-	LLAvatarName av_name;
-	LLAvatarNameCache::get( gAgentID, &av_name );
-	// Note : use the "John Doe" and not the "john.doe" version of the name 
-	// as we'll compare it with the stored credentials in the login panel.
-	LL_DEBUGS() << "Saved favorites for " << av_name.getUserName() << LL_ENDL;
-	fav_llsd[av_name.getUserName()] = user_llsd;
-
-	llofstream file;
-	file.open(filename);
-	LLSDSerialize::toPrettyXML(fav_llsd, file);
+        std::ofstream file;
+        file.open(filename.c_str());
+        if ( file.is_open() )
+        {
+            LLSDSerialize::toPrettyXML(fav_llsd, file);
+            LL_INFOS("FavoritesBar") << "saved favorites for '" << av_name.getUserName()
+                                     << "' to '" << filename << "' "
+                                     << LL_ENDL;
+            file.close();
+        }
+        else
+        {
+            LL_WARNS("FavoritesBar") << "unable to open favorites storage for '" << av_name.getUserName()
+                                     << "' at '" << filename << "' "
+                                     << LL_ENDL;
+        }
+    }
 }
 
 void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
 {
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
-	LLSD fav_llsd;
-	llifstream file;
-	file.open(filename);
-	if (!file.is_open()) return;
-	LLSDSerialize::fromXML(fav_llsd, file);
-
-	LLAvatarName av_name;
-	LLAvatarNameCache::get( gAgentID, &av_name );
-	// Note : use the "John Doe" and not the "john.doe" version of the name.
-	// See saveFavoritesSLURLs() here above for the reason why.
-	LL_DEBUGS() << "Removed favorites for " << av_name.getUserName() << LL_ENDL;
-	if (fav_llsd.has(av_name.getUserName()))
-	{
-		fav_llsd.erase(av_name.getUserName());
-	}
-
-	llofstream out_file;
-	out_file.open(filename);
-	LLSDSerialize::toPrettyXML(fav_llsd, out_file);
-
+	std::string filename = getStoredFavoritesFilename();
+    if (!filename.empty())
+    {
+        LLSD fav_llsd;
+        std::ifstream file;
+        file.open(filename.c_str());
+        if (file.is_open())
+        {
+            LLSDSerialize::fromXML(fav_llsd, file);
+            file.close();
+        
+            LLAvatarName av_name;
+            LLAvatarNameCache::get( gAgentID, &av_name );
+            // Note : use the "John Doe" and not the "john.doe" version of the name.
+            // See saveFavoritesSLURLs() here above for the reason why.
+            if (fav_llsd.has(av_name.getUserName()))
+            {
+                LL_INFOS("FavoritesBar") << "Removed favorites for " << av_name.getUserName() << LL_ENDL;
+                fav_llsd.erase(av_name.getUserName());
+            }
+        
+            std::ofstream out_file;
+            out_file.open(filename.c_str());
+            if ( out_file.is_open() )
+            {
+                LLSDSerialize::toPrettyXML(fav_llsd, out_file);
+                LL_INFOS("FavoritesBar") << "saved favorites to '" << filename << "' "
+                                         << LL_ENDL;
+                out_file.close();
+            }
+        }
+    }
 }
 
 void LLFavoritesOrderStorage::onLandmarkLoaded(const LLUUID& asset_id, LLLandmark* landmark)
 {
-	if (!landmark) return;
-
+	if (landmark)
+    {
+        LL_DEBUGS("FavoritesBar") << "landmark for " << asset_id << " loaded" << LL_ENDL;
 	LLVector3d pos_global;
 	if (!landmark->getGlobalPos(pos_global))
 	{
@@ -1595,41 +1658,53 @@ void LLFavoritesOrderStorage::onLandmarkLoaded(const LLUUID& asset_id, LLLandmar
 
 	if (!pos_global.isExactlyZero())
 	{
+        LL_DEBUGS("FavoritesBar") << "requesting slurl for landmark " << asset_id << LL_ENDL;
 		LLLandmarkActions::getSLURLfromPosGlobal(pos_global,
 			boost::bind(&LLFavoritesOrderStorage::storeFavoriteSLURL, this, asset_id, _1));
 	}
+    }
 }
 
 void LLFavoritesOrderStorage::storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl)
 {
-	LL_DEBUGS() << "Saving landmark SLURL: " << slurl << LL_ENDL;
+	LL_DEBUGS("FavoritesBar") << "Saving landmark SLURL '" << slurl << "' for " << asset_id << LL_ENDL;
 	mSLURLs[asset_id] = slurl;
 }
 
 void LLFavoritesOrderStorage::save()
 {
-	// nothing to save if clean
-	if (!mIsDirty) return;
+	if (mIsDirty)
+    {
+        // something changed, so save it
+        std::string filename = LLFavoritesOrderStorage::getInstance()->getSavedOrderFileName();
+        if (!filename.empty())
+        {
+            LLSD settings_llsd;
 
-	// If we quit from the login screen we will not have an SL account
-	// name.  Don't try to save, otherwise we'll dump a file in
-	// C:\Program Files\SecondLife\ or similar. JC
-	std::string user_dir = gDirUtilp->getLindenUserDir();
-	if (!user_dir.empty())
-	{
-		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, SORTING_DATA_FILE_NAME);
-		LLSD settings_llsd;
+            for(sort_index_map_t::const_iterator iter = mSortIndexes.begin(); iter != mSortIndexes.end(); ++iter)
+            {
+                settings_llsd[iter->first.asString()] = iter->second;
+            }
 
-		for(sort_index_map_t::const_iterator iter = mSortIndexes.begin(); iter != mSortIndexes.end(); ++iter)
-		{
-			settings_llsd[iter->first.asString()] = iter->second;
-		}
-
-		llofstream file;
-		file.open(filename);
-		LLSDSerialize::toPrettyXML(settings_llsd, file);
-	}
+            std::ofstream file;
+            file.open(filename.c_str());
+            if ( file.is_open() )
+            {
+                LLSDSerialize::toPrettyXML(settings_llsd, file);
+                LL_INFOS("FavoritesBar") << "saved favorites order to '" << filename << "' " << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS("FavoritesBar") << "failed to open favorites order file '" << filename << "' " << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_DEBUGS("FavoritesBar") << "no user directory available to store favorites order file" << LL_ENDL;
+        }
+    }
 }
+
 
 void LLFavoritesOrderStorage::cleanup()
 {

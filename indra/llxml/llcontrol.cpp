@@ -832,8 +832,8 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 			++num_saved;
 		}
 	}
-	llofstream file;
-	file.open(filename);
+	std::ofstream file;
+	file.open(filename.c_str());
 	if (file.is_open())
 	{
 		LLSDSerialize::toPrettyXML(settings, file);
@@ -852,8 +852,8 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_values, bool save_values)
 {
 	LLSD settings;
-	llifstream infile;
-	infile.open(filename);
+	std::ifstream infile;
+	infile.open(filename.c_str());
 	if(!infile.is_open())
 	{
 		LL_WARNS("Settings") << "Cannot find file " << filename << " to load." << LL_ENDL;

@@ -135,7 +135,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  "Aditi");
 
 	LLSD other_grids;
-	llifstream llsd_xml;
+	std::ifstream llsd_xml;
 	if (!grid_file.empty())
 	{
 		LL_INFOS("GridManager")<<"Grid configuration file '"<<grid_file<<"'"<<LL_ENDL;

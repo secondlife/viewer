@@ -107,7 +107,7 @@ bool iswindividual(llwchar elem)
 
 bool _read_file_into_string(std::string& str, const std::string& filename)
 {
-	llifstream ifs(filename, llifstream::binary);
+	std::ifstream ifs(filename.c_str(), std::ifstream::binary);
 	if (!ifs.is_open())
 	{
 		LL_INFOS() << "Unable to open file " << filename << LL_ENDL;

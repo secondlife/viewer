@@ -66,7 +66,7 @@ LLPostProcess::LLPostProcess(void) :
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
 	LL_DEBUGS("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
 
-	llifstream effectsXML(pathName);
+	std::ifstream effectsXML(pathName);
 
 	if (effectsXML)
 	{
@@ -153,7 +153,7 @@ void LLPostProcess::saveEffect(std::string const & effectName)
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
 	//LL_INFOS() << "Saving PostProcess Effects settings to " << pathName << LL_ENDL;
 
-	llofstream effectsXML(pathName);
+	std::ofstream effectsXML(pathName);
 
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 

@@ -1278,7 +1278,7 @@ void LLViewerMedia::loadCookieFile()
 	}
 	
 	// open the file for reading
-	llifstream file(resolved_filename);
+	std::ifstream file(resolved_filename.c_str());
 	if (!file.is_open())
 	{
 		LL_WARNS() << "can't load plugin cookies from file \"" << PLUGIN_COOKIE_FILE_NAME << "\"" << LL_ENDL;
@@ -1320,7 +1320,7 @@ void LLViewerMedia::saveCookieFile()
 	}
 
 	// open a file for writing
-	llofstream file (resolved_filename);
+	std::ofstream file(resolved_filename.c_str());
 	if (!file.is_open())
 	{
 		LL_WARNS() << "can't open plugin cookie file \"" << PLUGIN_COOKIE_FILE_NAME << "\" for writing" << LL_ENDL;

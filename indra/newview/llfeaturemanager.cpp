@@ -326,12 +326,12 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 {
 	LL_INFOS("RenderInit") << "Attempting to parse feature table from " << filename << LL_ENDL;
 
-	llifstream file;
+	std::ifstream file;
 	std::string name;
 	U32		version;
 	
 	cleanupFeatureTables(); // in case an earlier attempt left partial results
-	file.open(filename); 	 /*Flawfinder: ignore*/
+	file.open(filename.c_str()); 	 /*Flawfinder: ignore*/
 
 	if (!file)
 	{

@@ -10623,7 +10623,7 @@ Cannot create large prims that intersect other players.  Please re-try when othe
    icon="alertmodal.tga"
    name="DefaultObjectPermissions"
    type="alert">
-	There was a problem saving the default permissions due to the following reason: [REASON].  Please try setting the default permissions later.
+	There was a problem saving the default object permissions: [REASON].  Please try setting the default permissions later.
 	<tag>fail</tag>
    <usetemplate
      name="okbutton"

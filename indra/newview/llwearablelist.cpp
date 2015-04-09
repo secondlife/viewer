@@ -113,7 +113,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 	else if (status >= 0)
 	{
 		// read the file
-		llifstream ifs(filename, llifstream::binary);
+		std::ifstream ifs(filename, std::ifstream::binary);
 		if( !ifs.is_open() )
 		{
 			LL_WARNS("Wearable") << "Bad Wearable Asset: unable to open file: '" << filename << "'" << LL_ENDL;

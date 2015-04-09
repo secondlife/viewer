@@ -87,7 +87,7 @@ LLNotificationStorage::~LLNotificationStorage()
 bool LLNotificationStorage::writeNotifications(const LLSD& pNotificationData) const
 {
 
-	llofstream notifyFile(mFileName.c_str());
+	std::ofstream notifyFile(mFileName.c_str());
 	bool didFileOpen = notifyFile.is_open();
 
 	if (!didFileOpen)
@@ -113,7 +113,7 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_n
 
 	pNotificationData.clear();
 
-	llifstream notifyFile(filename.c_str());
+	std::ifstream notifyFile(filename.c_str());
 	didFileRead = notifyFile.is_open();
 	if (!didFileRead)
 	{
@@ -123,14 +123,18 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_n
 	{
 		LLPointer<LLSDParser> parser = new LLSDXMLParser();
 		didFileRead = (parser->parse(notifyFile, pNotificationData, LLSDSerialize::SIZE_UNLIMITED) >= 0);
+        notifyFile.close();
+
 		if (!didFileRead)
 		{
 			LL_WARNS("LLNotificationStorage") << "Failed to parse open notifications from file '" << mFileName 
-				<< "'" << LL_ENDL;
+                                              << "'" << LL_ENDL;
+            LLFile::remove(filename);
+			LL_WARNS("LLNotificationStorage") << "Removed invalid open notifications file '" << mFileName 
+                                              << "'" << LL_ENDL;
 		}
 	}
-
-	LL_INFOS("LLNotificationStorage") << "ending read '" << filename << "'" << LL_ENDL;
+    
 	if (!didFileRead)
 	{
 		if(is_new_filename)

@@ -307,11 +307,11 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	updateLoginButtons();
 
 	LLSD fav_llsd;
-	llifstream file;
-	file.open(filename);
+	std::ifstream file;
+	file.open(filename.c_str());
 	if (!file.is_open())
 	{
-		file.open(old_filename);
+		file.open(old_filename.c_str());
 		if (!file.is_open()) return;
 	}
 	LLSDSerialize::fromXML(fav_llsd, file);
