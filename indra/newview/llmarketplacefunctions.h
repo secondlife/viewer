@@ -253,10 +253,10 @@ private:
     bool setCountOnHand(const LLUUID& folder_id, S32 count, bool update = true);
     
     // Private SLM API : package data and get/post/put requests to the SLM Server through the SLM API
-    void createSLMListing(const LLUUID& folder_id);
+    void createSLMListing(const LLUUID& folder_id, const LLUUID& version_id, S32 count);
     void getSLMListing(S32 listing_id);
     void updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, S32 count);
-    void associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id);
+    void associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, const LLUUID& source_folder_id);
     void deleteSLMListing(S32 listing_id);
     std::string getSLMConnectURL(const std::string& route);
 
