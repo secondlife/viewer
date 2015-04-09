@@ -59,10 +59,6 @@
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
 
-// If this gesture is a link, get the base gesture that this link points to,
-// otherwise just return this id.
-static const LLUUID& get_linked_uuid(const LLUUID& item_id);
-
 // Lightweight constructor.
 // init() does the heavy lifting.
 LLGestureMgr::LLGestureMgr()
@@ -1457,14 +1453,4 @@ void LLGestureMgr::done()
 	}
 }
 
-// static
-const LLUUID& get_linked_uuid(const LLUUID &item_id)
-{
-	LLViewerInventoryItem* item = gInventory.getItem(item_id);
-	if (item && item->getIsLinkType())
-	{
-		return item->getLinkedUUID();
-	}
-	return item_id;
-}
 

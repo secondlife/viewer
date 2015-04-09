@@ -2650,28 +2650,23 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item,
 
 LLInventoryModel::item_array_t LLAppearanceMgr::findCOFItemLinks(const LLUUID& item_id)
 {
-
 	LLInventoryModel::item_array_t result;
-	const LLViewerInventoryItem *vitem =
-		dynamic_cast<const LLViewerInventoryItem*>(gInventory.getItem(item_id));
 
-	if (vitem)
-	{
-		LLInventoryModel::cat_array_t cat_array;
-		LLInventoryModel::item_array_t item_array;
-		gInventory.collectDescendents(LLAppearanceMgr::getCOF(),
-									  cat_array,
-									  item_array,
-									  LLInventoryModel::EXCLUDE_TRASH);
-		for (S32 i=0; i<item_array.size(); i++)
-		{
-			const LLViewerInventoryItem* inv_item = item_array.at(i).get();
-			if (inv_item->getLinkedUUID() == vitem->getLinkedUUID())
-			{
-				result.push_back(item_array.at(i));
-			}
-		}
-	}
+    LLUUID linked_id = get_linked_uuid(item_id);
+    LLInventoryModel::cat_array_t cat_array;
+    LLInventoryModel::item_array_t item_array;
+    gInventory.collectDescendents(LLAppearanceMgr::getCOF(),
+                                  cat_array,
+                                  item_array,
+                                  LLInventoryModel::EXCLUDE_TRASH);
+    for (S32 i=0; i<item_array.size(); i++)
+    {
+        const LLViewerInventoryItem* inv_item = item_array.at(i).get();
+        if (inv_item->getLinkedUUID() == linked_id)
+        {
+            result.push_back(item_array.at(i));
+        }
+    }
 	return result;
 }
 

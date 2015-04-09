@@ -78,6 +78,7 @@ public:
 	void addAttachmentRequest(const LLUUID& item_id,
                               const U8 attachment_pt,
                               const BOOL add);
+    void onAttachmentRequested(const LLUUID& item_id);
 	void requestAttachments(const attachments_vec_t& attachment_requests);
 	static void onIdle(void *);
 
@@ -108,6 +109,7 @@ private:
 	void linkRecentlyArrivedAttachments();
     void expireOldAttachmentRequests();
     void expireOldDetachRequests();
+    void spamStatusInfo();
 
     // Attachments that we are planning to rez but haven't requested from the server yet.
 	attachments_vec_t mPendingAttachments;

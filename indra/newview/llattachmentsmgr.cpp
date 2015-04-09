@@ -75,6 +75,14 @@ void LLAttachmentsMgr::addAttachmentRequest(const LLUUID& item_id,
     mAttachmentRequests.addTime(item_id);
 }
 
+void LLAttachmentsMgr::onAttachmentRequested(const LLUUID& item_id)
+{
+	LLViewerInventoryItem *item = gInventory.getItem(item_id);
+	LL_DEBUGS("Avatar") << "ATT attachment was requested "
+						<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+    mAttachmentRequests.addTime(item_id);
+}
+
 // static
 void LLAttachmentsMgr::onIdle(void *)
 {
@@ -96,6 +104,8 @@ void LLAttachmentsMgr::onIdle()
     expireOldAttachmentRequests();
 
     expireOldDetachRequests();
+
+    spamStatusInfo();
 }
 
 void LLAttachmentsMgr::requestPendingAttachments()
@@ -218,7 +228,8 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
 
         LL_DEBUGS("Avatar") << "ATT checking COF linkability for " << mRecentlyArrivedAttachments.size()
                             << " recently arrived items" << LL_ENDL;
-		LLInventoryObject::const_object_list_t inv_items_to_link;
+
+        uuid_vec_t ids_to_link;
         for (std::set<LLUUID>::iterator it = mRecentlyArrivedAttachments.begin();
              it != mRecentlyArrivedAttachments.end(); ++it)
         {
@@ -229,13 +240,17 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
                 LLViewerInventoryItem *item = gInventory.getItem(item_id);
                 LL_DEBUGS("Avatar") << "ATT adding COF link for attachment "
                                     << (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
-                inv_items_to_link.push_back(item);
+                ids_to_link.push_back(item_id);
             }
         }
-        if (inv_items_to_link.size())
+        if (ids_to_link.size())
         {
             LLPointer<LLInventoryCallback> cb = new LLRequestServerAppearanceUpdateOnDestroy();
-            link_inventory_array(LLAppearanceMgr::instance().getCOF(), inv_items_to_link, cb);
+            for (uuid_vec_t::const_iterator uuid_it = ids_to_link.begin();
+                 uuid_it != ids_to_link.end(); ++uuid_it)
+            {
+                LLAppearanceMgr::instance().addCOFItemLink(*uuid_it, cb);
+            }
         }
         mRecentlyArrivedAttachments.clear();
     }
@@ -392,4 +407,34 @@ void LLAttachmentsMgr::onDetachCompleted(const LLUUID& inv_item_id)
         LL_WARNS() << "ATT unexpected detach for "
                    << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
     }
+}
+
+void LLAttachmentsMgr::spamStatusInfo()
+{
+#if 0
+    static LLTimer spam_timer;
+    const F32 spam_frequency = 100.0F;
+
+    if (spam_timer.getElapsedTimeF32() > spam_frequency)
+    {
+        spam_timer.reset();
+        
+        LLInventoryModel::cat_array_t cat_array;
+        LLInventoryModel::item_array_t item_array;
+        gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
+                                      cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
+        for (S32 i=0; i<item_array.size(); i++)
+        {
+            const LLViewerInventoryItem* inv_item = item_array.at(i).get();
+            if (inv_item->getType() == LLAssetType::AT_OBJECT)
+            {
+                LL_DEBUGS("Avatar") << "item_id: " << inv_item->getUUID()
+                                    << " linked_item_id: " << inv_item->getLinkedUUID()
+                                    << " name: " << inv_item->getName()
+                                    << " parent: " << inv_item->getParentUUID()
+                                    << LL_ENDL;
+            }
+        }
+    }
+#endif
 }
