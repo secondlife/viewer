@@ -128,6 +128,8 @@ public:
 
 	/*virtual*/ void onModelUploadFailure();
 
+	bool isModelUploadAllowed();
+
 protected:
 	friend class LLModelPreview;
 	friend class LLMeshFilePicker;
@@ -342,7 +344,8 @@ private:
 	U32			mLoadState;
 	bool		mResetJoints;
 	bool		mRigParityWithScene;
-	
+	bool		mModelNoErrors;
+
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)

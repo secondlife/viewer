@@ -1169,6 +1169,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
 , mResetJoints( false )
+, mModelNoErrors( true )
 , mRigParityWithScene( false )
 , mLastJointUpdate( false )
 {
@@ -2575,7 +2576,7 @@ void LLModelPreview::updateStatusMessages()
 
 	S32 upload_status[LLModel::LOD_HIGH+1];
 
-	bool upload_ok = true;
+	mModelNoErrors = true;
 
 	for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
 	{
@@ -2640,7 +2641,7 @@ void LLModelPreview::updateStatusMessages()
 				{
 					//too many vertices in this lod
 					message = "mesh_status_too_many_vertices";
-					upload_status[lod] = 2;
+					upload_status[lod] = 1;
 				}
 			}
 		}
@@ -2652,7 +2653,7 @@ void LLModelPreview::updateStatusMessages()
 
 		if (upload_status[lod] >= 2)
 		{
-			upload_ok = false;
+			mModelNoErrors = false;
 		}
 
 		if (lod == mPreviewLOD)
@@ -2667,17 +2668,17 @@ void LLModelPreview::updateStatusMessages()
 
 
 	//make sure no hulls have more than 256 points in them
-	for (U32 i = 0; upload_ok && i < mModel[LLModel::LOD_PHYSICS].size(); ++i)
+	for (U32 i = 0; mModelNoErrors && i < mModel[LLModel::LOD_PHYSICS].size(); ++i)
 	{
 		LLModel* mdl = mModel[LLModel::LOD_PHYSICS][i];
 
 		if (mdl)
 		{
-			for (U32 j = 0; upload_ok && j < mdl->mPhysics.mHull.size(); ++j)
+			for (U32 j = 0; mModelNoErrors && j < mdl->mPhysics.mHull.size(); ++j)
 			{
 				if (mdl->mPhysics.mHull[j].size() > 256)
 				{
-					upload_ok = false;
+					mModelNoErrors = false;
 				}
 			}
 		}		
@@ -2696,16 +2697,16 @@ void LLModelPreview::updateStatusMessages()
 			skinAndRigOk = false;
 		}	
 	}
-	
-	if(upload_ok && mModelLoader)
+
+	if(mModelNoErrors && mModelLoader)
 	{
 		if(!mModelLoader->areTexturesReady() && mFMP->childGetValue("upload_textures").asBoolean())
 		{
-			upload_ok = false ;
+			mModelNoErrors = false;
 		}
 	}
 
-	if (!upload_ok || errorStateFromLoader || !skinAndRigOk || has_degenerate)
+	if (!mModelNoErrors || errorStateFromLoader || !skinAndRigOk || has_degenerate)
 	{
 		mFMP->childDisable("ok_btn");
 	}
@@ -4085,7 +4086,7 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 	}
 	
 	mUploadBtn->setVisible(!visible);
-	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
+	mUploadBtn->setEnabled(isModelUploadAllowed());
 
 	if (visible)
 	{
@@ -4151,7 +4152,7 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 	childSetTextArg("price_breakdown", "[MODEL]", llformat("%d", result["upload_price_breakdown"]["model"].asInteger()));
 	childSetVisible("upload_fee", true);
 	childSetVisible("price_breakdown", true);
-	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
+	mUploadBtn->setEnabled(isModelUploadAllowed());
 }
 
 void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason)
@@ -4173,6 +4174,16 @@ void LLFloaterModelPreview::onModelUploadFailure()
 	assert_main_thread();
 	toggleCalculateButton(true);
 	mUploadBtn->setEnabled(true);
+}
+
+bool LLFloaterModelPreview::isModelUploadAllowed()
+{
+	bool allow_upload = mHasUploadPerm && !mUploadModelUrl.empty();
+	if (mModelPreview)
+	{
+		allow_upload &= mModelPreview->mModelNoErrors;
+	}
+	return allow_upload;
 }
 
 S32 LLFloaterModelPreview::DecompRequest::statusCallback(const char* status, S32 p1, S32 p2)
@@ -4224,8 +4235,8 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
 	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
 
-	//mUploadBtn->setEnabled(mHasUploadPerm);
-	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
+	// isModelUploadAllowed() includes mHasUploadPerm
+	mUploadBtn->setEnabled(isModelUploadAllowed());
 	getChild<LLTextBox>("warning_title")->setVisible(!mHasUploadPerm);
 	getChild<LLTextBox>("warning_message")->setVisible(!mHasUploadPerm);
 }
