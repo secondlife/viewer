@@ -2306,13 +2306,3 @@ BOOL LLViewerInventoryItem::regenerateLink()
 	gInventory.notifyObservers();
 	return TRUE;
 }
-
-const LLUUID& get_linked_uuid(const LLUUID &item_id)
-{
-	LLViewerInventoryItem* item = gInventory.getItem(item_id);
-	if (item && item->getIsLinkType())
-	{
-		return item->getLinkedUUID();
-	}
-	return item_id;
-}

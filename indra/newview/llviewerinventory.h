@@ -435,8 +435,4 @@ void slam_inventory_folder(const LLUUID& folder_id,
 void remove_folder_contents(const LLUUID& folder_id, bool keep_outfit_links,
 							  LLPointer<LLInventoryCallback> cb);
 
-// If item is in the InventoryModel and is a link, get the item
-// that this link points to. Otherwise just return this id.
-const LLUUID& get_linked_uuid(const LLUUID &item_id);
-
 #endif // LL_LLVIEWERINVENTORY_H

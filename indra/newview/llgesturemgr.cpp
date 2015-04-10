@@ -249,7 +249,7 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 												BOOL inform_server,
 												BOOL deactivate_similar)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	if( !gAssetStorage )
 	{
@@ -303,7 +303,7 @@ void notify_update_label(const LLUUID& base_item_id)
 
 void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
@@ -349,7 +349,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 
 void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& in_item_id)
 {
-	const LLUUID& base_in_item_id = get_linked_uuid(in_item_id);
+	const LLUUID& base_in_item_id = gInventory.getLinkedItemID(in_item_id);
 	uuid_vec_t gest_item_ids;
 
 	// Deactivate all gestures that match
@@ -436,7 +436,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 
 BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
 	return (it != mActive.end());
 }
@@ -444,7 +444,7 @@ BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
 
 BOOL LLGestureMgr::isGesturePlaying(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return FALSE;
@@ -467,7 +467,7 @@ BOOL LLGestureMgr::isGesturePlaying(LLMultiGesture* gesture)
 
 void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
@@ -509,7 +509,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
 
 void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = LLGestureMgr::instance().mActive.find(base_item_id);
 	if (it == mActive.end())
@@ -604,7 +604,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 // Convenience function that looks up the item_id for you.
 void LLGestureMgr::playGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return;
@@ -1293,7 +1293,7 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 
 void LLGestureMgr::stopGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return;

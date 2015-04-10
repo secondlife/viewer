@@ -2652,7 +2652,7 @@ LLInventoryModel::item_array_t LLAppearanceMgr::findCOFItemLinks(const LLUUID& i
 {
 	LLInventoryModel::item_array_t result;
 
-    LLUUID linked_id = get_linked_uuid(item_id);
+    LLUUID linked_id = gInventory.getLinkedItemID(item_id);
     LLInventoryModel::cat_array_t cat_array;
     LLInventoryModel::item_array_t item_array;
     gInventory.collectDescendents(LLAppearanceMgr::getCOF(),
