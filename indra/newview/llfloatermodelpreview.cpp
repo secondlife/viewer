@@ -2155,7 +2155,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
 	S32 file_size = (S32) stat.st_size;
 	
-	std::ifstream ifstream(filename.c_str(), std::ifstream::in | std::ifstream::binary);
+	llifstream ifstream(filename.c_str(), std::ifstream::in | std::ifstream::binary);
 	LLSD data;
 	LLSDSerialize::fromBinary(data, ifstream, file_size);
 	ifstream.close();
@@ -3513,7 +3513,7 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 		data["instance"][i] = instance.asLLSD();
 	}
 
-	std::ofstream out(filename.c_str(), std::ios_base::out | std::ios_base::binary);
+	llofstream out(filename.c_str(), std::ios_base::out | std::ios_base::binary);
 	LLSDSerialize::toBinary(data, out);
 	out.flush();
 	out.close();

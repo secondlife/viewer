@@ -84,7 +84,7 @@ void LLAgentPilot::loadTxt(const std::string& filename)
 		return;
 	}
 	
-	std::ifstream file(filename.c_str());
+	llifstream file(filename.c_str());
 
 	if (!file)
 	{
@@ -125,7 +125,7 @@ void LLAgentPilot::loadXML(const std::string& filename)
 		return;
 	}
 	
-	std::ifstream file(filename.c_str());
+	llifstream file(filename.c_str());
 
 	if (!file)
 	{
@@ -167,7 +167,7 @@ void LLAgentPilot::save()
 
 void LLAgentPilot::saveTxt(const std::string& filename)
 {
-	std::ofstream file;
+	llofstream file;
 	file.open(filename.c_str());
 
 	if (!file)
@@ -190,7 +190,7 @@ void LLAgentPilot::saveTxt(const std::string& filename)
 
 void LLAgentPilot::saveXML(const std::string& filename)
 {
-	std::ofstream file;
+	llofstream file;
 	file.open(filename.c_str());
 
 	if (!file)

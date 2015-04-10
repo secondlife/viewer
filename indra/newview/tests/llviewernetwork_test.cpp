@@ -245,7 +245,7 @@ namespace tut
 	template<> template<>
 	void viewerNetworkTestObject::test<2>()
 	{
-		std::ofstream gridfile(TEST_FILENAME);
+		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
 
@@ -376,7 +376,7 @@ namespace tut
 	void viewerNetworkTestObject::test<7>()
 	{
 		// adding a grid with simply a name will populate the values.
-		std::ofstream gridfile(TEST_FILENAME);
+		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
 

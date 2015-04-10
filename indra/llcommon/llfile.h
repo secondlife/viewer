@@ -192,4 +192,195 @@ protected:
 #endif
 };
 
+#if LL_WINDOWS
+/**
+ *  @brief  Controlling input for files.
+ *
+ *  This class supports reading from named files, using the inherited
+ *  functions from std::basic_istream.  To control the associated
+ *  sequence, an instance of std::basic_filebuf (or a platform-specific derivative)
+ *  which allows construction using a pre-exisintg file stream buffer. 
+ *  We refer to this std::basic_filebuf (or derivative) as @c sb.
+ */
+class LL_COMMON_API llifstream	:	public	std::istream
+{
+	// input stream associated with a C stream
+  public:
+	// Constructors:
+	/**
+	 *  @brief  Default constructor.
+	 *
+	 *  Initializes @c sb using its default constructor, and passes
+	 *  @c &sb to the base class initializer.  Does not open any files
+	 *  (you haven't given it a filename to open).
+     */
+	llifstream();
+
+	/**
+	 *  @brief  Create an input file stream.
+	 *  @param  Filename  String specifying the filename.
+	 *  @param  Mode  Open file in specified mode (see std::ios_base).
+	 *
+     *  @c ios_base::in is automatically included in @a mode.
+     */
+	explicit llifstream(const std::string& _Filename,
+                        ios_base::openmode _Mode = ios_base::in);
+	explicit llifstream(const char* _Filename,
+                        ios_base::openmode _Mode = ios_base::in);
+
+	/**
+	 *  @brief  The destructor does nothing.
+	 *
+	 *  The file is closed by the filebuf object, not the formatting
+	 *  stream.
+     */
+	virtual ~llifstream() {}
+
+	// Members:
+	/**
+	 *  @brief  Accessing the underlying buffer.
+	 *  @return  The current basic_filebuf buffer.
+	 *
+	 *  This hides both signatures of std::basic_ios::rdbuf().
+	*/
+	llstdio_filebuf* rdbuf() const
+	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
+
+	/**
+	 *  @brief  Wrapper to test for an open file.
+	 *  @return  @c rdbuf()->is_open()
+     */
+	bool is_open() const;
+
+	/**
+	 *  @brief  Opens an external file.
+	 *  @param  Filename  The name of the file.
+	 *  @param  Node  The open mode flags.
+	 *
+	 *  Calls @c llstdio_filebuf::open(s,mode|in).  If that function
+	 *  fails, @c failbit is set in the stream's error state.
+     */
+	void open(const std::string& _Filename,
+              ios_base::openmode _Mode = ios_base::in)
+	{ open(_Filename.c_str(), _Mode); }
+	void open(const char* _Filename,
+              ios_base::openmode _Mode = ios_base::in);
+
+	/**
+	 *  @brief  Close the file.
+	 *
+	 *  Calls @c llstdio_filebuf::close().  If that function
+	 *  fails, @c failbit is set in the stream's error state.
+     */
+	void close();
+
+  private:
+	llstdio_filebuf _M_filebuf;
+};
+
+
+/**
+ *  @brief  Controlling output for files.
+ *
+ *  This class supports writing to named files, using the inherited
+ *  functions from std::basic_ostream.  To control the associated
+ *  sequence, an instance of std::basic_filebuf (or a platform-specific derivative)
+ *  which allows construction using a pre-exisintg file stream buffer. 
+ *  We refer to this std::basic_filebuf (or derivative) as @c sb.
+*/
+class LL_COMMON_API llofstream	:	public	std::ostream
+{
+  public:
+	// Constructors:
+	/**
+	 *  @brief  Default constructor.
+	 *
+	 *  Initializes @c sb using its default constructor, and passes
+	 *  @c &sb to the base class initializer.  Does not open any files
+	 *  (you haven't given it a filename to open).
+     */
+	llofstream();
+
+	/**
+	 *  @brief  Create an output file stream.
+	 *  @param  Filename  String specifying the filename.
+	 *  @param  Mode  Open file in specified mode (see std::ios_base).
+	 *
+	 *  @c ios_base::out|ios_base::trunc is automatically included in
+	 *  @a mode.
+     */
+	explicit llofstream(const std::string& _Filename,
+                        ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
+	explicit llofstream(const char* _Filename,
+                        ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
+
+	/**
+	 *  @brief  The destructor does nothing.
+	 *
+	 *  The file is closed by the filebuf object, not the formatting
+	 *  stream.
+	*/
+	virtual ~llofstream() {}
+
+	// Members:
+	/**
+	 *  @brief  Accessing the underlying buffer.
+	 *  @return  The current basic_filebuf buffer.
+	 *
+	 *  This hides both signatures of std::basic_ios::rdbuf().
+	*/
+	llstdio_filebuf* rdbuf() const
+	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
+
+	/**
+	 *  @brief  Wrapper to test for an open file.
+	 *  @return  @c rdbuf()->is_open()
+	*/
+	bool is_open() const;
+
+	/**
+	 *  @brief  Opens an external file.
+	 *  @param  Filename  The name of the file.
+	 *  @param  Node  The open mode flags.
+	 *
+	 *  Calls @c llstdio_filebuf::open(s,mode|out).  If that function
+	 *  fails, @c failbit is set in the stream's error state.
+     */
+	void open(const std::string& _Filename,
+              ios_base::openmode _Mode = ios_base::out|ios_base::trunc)
+	{ open(_Filename.c_str(), _Mode); }
+	void open(const char* _Filename,
+              ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
+
+	/**
+	 *  @brief  Close the file.
+	 *
+	 *  Calls @c llstdio_filebuf::close().  If that function
+	 *  fails, @c failbit is set in the stream's error state.
+     */
+	void close();
+
+  private:
+	llstdio_filebuf _M_filebuf;
+};
+
+
+/**
+ * @breif filesize helpers.
+ *
+ * The file size helpers are not considered particularly efficient,
+ * and should only be used for config files and the like -- not in a
+ * loop.
+ */
+std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
+std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
+
+#else // ! LL_WINDOWS
+
+// on non-windows, llifstream and llofstream are just mapped directly to the std:: equivalents
+typedef std::ifstream llifstream;
+typedef std::ofstream llofstream;
+
+#endif // LL_WINDOWS or ! LL_WINDOWS
+
 #endif // not LL_LLFILE_H

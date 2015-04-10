@@ -87,7 +87,7 @@ bool LLUrlWhiteList::load ()
 	std::string resolvedFilename = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, mFilename );
 
 	// open a file for reading
-	std::ifstream file(resolvedFilename.c_str());
+	llifstream file(resolvedFilename.c_str());
 	if ( file.is_open () )
 	{
 		// add each line in the file to the list
@@ -122,7 +122,7 @@ bool LLUrlWhiteList::save ()
 	}
 
 	// open a file for writing
-	std::ofstream file(resolvedFilename.c_str());
+	llofstream file(resolvedFilename.c_str());
 	if ( file.is_open () )
 	{
 		// for each entry we have

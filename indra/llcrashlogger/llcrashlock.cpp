@@ -106,7 +106,7 @@ LLSD LLCrashLock::getLockFile(std::string filename)
 {
 	LLSD lock_sd = LLSD::emptyMap();
     
-	std::ifstream ifile(filename.c_str());
+	llifstream ifile(filename.c_str());
     
 	if (ifile.is_open())
 	{									            
@@ -120,7 +120,7 @@ LLSD LLCrashLock::getLockFile(std::string filename)
 bool LLCrashLock::putLockFile(std::string filename, const LLSD& data)
 {    
     bool result = true;
-    std::ofstream ofile(filename.c_str());
+    llofstream ofile(filename.c_str());
     
 	if (!LLSDSerialize::toXML(data,ofile))
 	{

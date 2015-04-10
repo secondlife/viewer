@@ -80,7 +80,7 @@ namespace tut
 		}
 		void writeSettingsFile(const LLSD& config)
 		{
-			std::ofstream file(mTestConfigFile.c_str());
+			llofstream file(mTestConfigFile.c_str());
 			if (file.is_open())
 			{
 				LLSDSerialize::toPrettyXML(config, file);

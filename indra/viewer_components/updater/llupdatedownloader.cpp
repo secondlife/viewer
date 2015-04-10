@@ -67,7 +67,7 @@ private:
 	LLUpdateDownloader::Client & mClient;
 	CURL * mCurl;
 	LLSD mDownloadData;
-	std::ofstream mDownloadStream;
+	llofstream mDownloadStream;
 	unsigned char mDownloadPercent;
 	std::string mDownloadRecordPath;
 	curl_slist * mHeaderList;
@@ -270,7 +270,7 @@ void LLUpdateDownloader::Implementation::resume(void)
 	}
 
 	mDownloadRecordPath = downloadMarkerPath();
-	std::ifstream dataStream(mDownloadRecordPath.c_str());
+	llifstream dataStream(mDownloadRecordPath.c_str());
 	if(!dataStream)
 	{
 		mClient.downloadError("no download marker");
@@ -362,7 +362,7 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 			LL_INFOS("UpdaterService") << "download size is " << size << LL_ENDL;
 
 			mDownloadData["size"] = LLSD(LLSD::Integer(size));
-			std::ofstream odataStream(mDownloadRecordPath.c_str());
+			llofstream odataStream(mDownloadRecordPath.c_str());
 			LLSDSerialize::toPrettyXML(mDownloadData, odataStream);
 		} catch (std::exception const & e) {
 			LL_WARNS("UpdaterService") << "unable to read content length ("
@@ -534,7 +534,7 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 		<< " from " << uri.asString() << LL_ENDL;
 	LL_INFOS("UpdaterService") << "hash of file is " << hash << LL_ENDL;
 
-	std::ofstream dataStream(mDownloadRecordPath.c_str());
+	llofstream dataStream(mDownloadRecordPath.c_str());
 	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
 
 	mDownloadStream.open(filePath.c_str(), std::ios_base::out | std::ios_base::binary);
@@ -570,7 +570,7 @@ bool LLUpdateDownloader::Implementation::validateOrRemove(const std::string& fil
 
 bool LLUpdateDownloader::Implementation::validateDownload(const std::string& filePath)
 {
-	std::ifstream fileStream(filePath.c_str(), std::ios_base::in | std::ios_base::binary);
+	llifstream fileStream(filePath.c_str(), std::ios_base::in | std::ios_base::binary);
 	if(!fileStream)
 	{
 		LL_INFOS("UpdaterService") << "can't open " << filePath << ", invalid" << LL_ENDL;

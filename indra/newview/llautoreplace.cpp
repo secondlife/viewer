@@ -148,7 +148,7 @@ void LLAutoReplace::loadFromSettings()
 	if(gDirUtilp->fileExists(filename))
 	{
 		LLSD userSettings;
-		std::ifstream file;
+		llifstream file;
 		file.open(filename.c_str());
 		if (file.is_open())
 		{
@@ -173,7 +173,7 @@ void LLAutoReplace::loadFromSettings()
 		if(gDirUtilp->fileExists(defaultName))
 		{
 			LLSD appDefault;
-			std::ifstream file;
+			llifstream file;
 			file.open(defaultName.c_str());
 			if (file.is_open())
 			{
@@ -209,7 +209,7 @@ void LLAutoReplace::loadFromSettings()
 void LLAutoReplace::saveToUserSettings()
 {
 	std::string filename=getUserSettingsFileName();
-	std::ofstream file;
+	llofstream file;
 	file.open(filename.c_str());
 	LLSDSerialize::toPrettyXML(mSettings.asLLSD(), file);
 	file.close();
