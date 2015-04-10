@@ -240,7 +240,10 @@ namespace Details
             acknowledge = result["id"];
             LLSD events = result["events"];
 
-            LL_WARNS_IF((acknowledge.isUndefined()), "LLEventPollImpl") << " id undefined" << LL_ENDL;
+            if (acknowledge.isUndefined())
+            {
+                LL_WARNS("LLEventPollImpl") << " id undefined" << LL_ENDL;
+            }
 
             // was LL_INFOS() but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
             LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> " << events.size() << "events (id " << LLSDXMLStreamer(acknowledge) << ")" << LL_ENDL;
