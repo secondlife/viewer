@@ -109,6 +109,7 @@ private:
 	void linkRecentlyArrivedAttachments();
     void expireOldAttachmentRequests();
     void expireOldDetachRequests();
+    void checkInvalidCOFLinks();
     void spamStatusInfo();
 
     // Attachments that we are planning to rez but haven't requested from the server yet.
@@ -124,6 +125,8 @@ private:
     std::set<LLUUID> mRecentlyArrivedAttachments;
     LLTimer mCOFLinkBatchTimer;
 
+    // Attachments that are linked in the COF but may be invalid.
+	LLItemRequestTimes mQuestionableCOFLinks;
 };
 
 #endif

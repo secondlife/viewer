@@ -39,10 +39,12 @@
 const F32 COF_LINK_BATCH_TIME = 5.0F;
 const F32 MAX_ATTACHMENT_REQUEST_LIFETIME = 30.0F;
 const F32 MIN_RETRY_REQUEST_TIME = 5.0F;
+const F32 MAX_BAD_COF_TIME = 30.0F;
 
 LLAttachmentsMgr::LLAttachmentsMgr():
     mAttachmentRequests("attach",MIN_RETRY_REQUEST_TIME),
-    mDetachRequests("detach",MIN_RETRY_REQUEST_TIME)
+    mDetachRequests("detach",MIN_RETRY_REQUEST_TIME),
+    mQuestionableCOFLinks("badcof",MAX_BAD_COF_TIME)
 {
 }
 
@@ -105,6 +107,8 @@ void LLAttachmentsMgr::onIdle()
 
     expireOldDetachRequests();
 
+    checkInvalidCOFLinks();
+    
     spamStatusInfo();
 }
 
@@ -233,7 +237,8 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
         for (std::set<LLUUID>::iterator it = mRecentlyArrivedAttachments.begin();
              it != mRecentlyArrivedAttachments.end(); ++it)
         {
-            if (gAgentAvatarp->isWearingAttachment(*it) &&
+            if (isAgentAvatarValid() &&
+                gAgentAvatarp->isWearingAttachment(*it) &&
                 !LLAppearanceMgr::instance().isLinkedInCOF(*it))
             {
                 LLUUID item_id = *it;
@@ -298,12 +303,6 @@ BOOL LLAttachmentsMgr::LLItemRequestTimes::wasRequestedRecently(const LLUUID& in
     if (getTime(inv_item_id, request_time))
     {
 		F32 request_time_elapsed = request_time.getElapsedTimeF32();
-		if (request_time_elapsed >= mTimeout)
-		{
-            LLInventoryItem *item = gInventory.getItem(inv_item_id);
-            LL_DEBUGS("Avatar") << "ATT " << mOpName << " request time ignored, exceeded " << mTimeout
-                                << " " << (item ? item->getName() : "UNKNOWN") << " " << inv_item_id << LL_ENDL;
-        }
         return request_time_elapsed < mTimeout;
     }
     else
@@ -407,6 +406,79 @@ void LLAttachmentsMgr::onDetachCompleted(const LLUUID& inv_item_id)
         LL_WARNS() << "ATT unexpected detach for "
                    << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
     }
+
+    LL_DEBUGS("Avatar") << "ATT detached item flagging as questionable for COF link checking "
+                        << (item ? item->getName() : "UNKNOWN") << " id " << inv_item_id << LL_ENDL;
+    mQuestionableCOFLinks.addTime(inv_item_id);
+}
+
+// Check for attachments that are (a) linked in COF and (b) not
+// attached to the avatar.  This is a rotten function to have to
+// include, because it runs the risk of either repeatedly spamming out
+// COF link removals if they're failing for some reason, or getting
+// into a tug of war with some other sequence of events that's in the
+// process of adding the attachment in question. However, it's needed
+// because we have no definitive source of authority for what things
+// are actually supposed to be attached. Scripts, run on the server
+// side, can remove an attachment without our expecting it. If this
+// happens to an attachment that's just been added, then the COF link
+// creation may still be in flight, and we will have to delete the
+// link after it shows up.
+//
+// Note that we only flag items for possible link removal if they have
+// been previously detached. This means that an attachment failure
+// will leave the link in the COF, where it will hopefully resolve
+// correctly on relog.
+//
+// See related: MAINT-5070, MAINT-4409
+//
+void LLAttachmentsMgr::checkInvalidCOFLinks()
+{
+        LLInventoryModel::cat_array_t cat_array;
+        LLInventoryModel::item_array_t item_array;
+        gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
+                                      cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
+        for (S32 i=0; i<item_array.size(); i++)
+        {
+            const LLViewerInventoryItem* inv_item = item_array.at(i).get();
+            const LLUUID& item_id = inv_item->getLinkedUUID();
+            if (inv_item->getType() == LLAssetType::AT_OBJECT)
+            {
+                LLTimer timer;
+                bool is_flagged_questionable = mQuestionableCOFLinks.getTime(item_id,timer);
+                bool is_wearing_attachment = isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item_id);
+                if (is_wearing_attachment && is_flagged_questionable)
+                {
+                    LL_DEBUGS("Avatar") << "ATT was flagged questionable but is now " 
+                                        << (is_wearing_attachment ? "attached " : "") 
+                                        <<"removing flag after "
+                                        << timer.getElapsedTimeF32() << " item "
+                                        << inv_item->getName() << " id " << item_id << LL_ENDL;
+                    mQuestionableCOFLinks.removeTime(item_id);
+                }
+            }
+        }
+
+        for(LLItemRequestTimes::iterator it = mQuestionableCOFLinks.begin();
+            it != mQuestionableCOFLinks.end(); )
+        {
+            LLItemRequestTimes::iterator curr_it = it;
+            ++it;
+            const LLUUID& item_id = curr_it->first;
+            LLViewerInventoryItem *inv_item = gInventory.getItem(item_id);
+            if (curr_it->second.getElapsedTimeF32() > MAX_BAD_COF_TIME)
+            {
+                if (LLAppearanceMgr::instance().isLinkedInCOF(item_id))
+                {
+                    LL_DEBUGS("Avatar") << "ATT Linked in COF but not attached or requested, deleting link after "
+                                        << curr_it->second.getElapsedTimeF32() << " seconds for " 
+                                        << (inv_item ? inv_item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+                    LLAppearanceMgr::instance().removeCOFItemLinks(item_id);
+                }
+				mQuestionableCOFLinks.erase(curr_it);
+                continue;
+            }
+        }
 }
 
 void LLAttachmentsMgr::spamStatusInfo()
