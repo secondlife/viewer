@@ -4656,7 +4656,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 		LLViewerObjectList::getUUIDFromLocal(id, local_id, ip, port); 
 		if (id == LLUUID::null)
 		{
-			LL_WARNS("Messaging") << "ATT? Unknown kill for local " << local_id << LL_ENDL;
+			LL_DEBUGS("Messaging") << "Unknown kill for local " << local_id << LL_ENDL;
 			continue;
 		}
 		else
