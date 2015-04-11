@@ -325,6 +325,100 @@ HttpHandle HttpRequest::requestPut(policy_t policy_id,
 	return handle;
 }
 
+HttpHandle HttpRequest::requestDelete(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    HttpOptions * options,
+    HttpHeaders * headers,
+    HttpHandler * user_handler)
+{
+    HttpStatus status;
+    HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+    HttpOpRequest * op = new HttpOpRequest();
+    if (!(status = op->setupDelete(policy_id, priority, url, options, headers)))
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+
+    mLastReqStatus = status;
+    handle = static_cast<HttpHandle>(op);
+
+    return handle;
+}
+
+HttpHandle HttpRequest::requestPatch(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    BufferArray * body,
+    HttpOptions * options,
+    HttpHeaders * headers,
+    HttpHandler * user_handler)
+{
+    HttpStatus status;
+    HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+    HttpOpRequest * op = new HttpOpRequest();
+    if (!(status = op->setupPatch(policy_id, priority, url, body, options, headers)))
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+
+    mLastReqStatus = status;
+    handle = static_cast<HttpHandle>(op);
+
+    return handle;
+}
+
+HttpHandle HttpRequest::requestCopy(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    HttpOptions * options,
+    HttpHeaders * headers,
+    HttpHandler * user_handler)
+{
+    HttpStatus status;
+    HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+    HttpOpRequest * op = new HttpOpRequest();
+    if (!(status = op->setupCopy(policy_id, priority, url, options, headers)))
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+
+    mLastReqStatus = status;
+    handle = static_cast<HttpHandle>(op);
+
+    return handle;
+}
+
 
 HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
 {

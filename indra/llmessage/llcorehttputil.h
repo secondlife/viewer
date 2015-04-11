@@ -155,6 +155,41 @@ LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
 	LLCore::HttpHeaders::ptr_t & headers,
 	LLCore::HttpHandler * handler);
 
+/// Issue a standard HttpRequest::requestPatch() call but using
+/// and LLSD object as the request body.  Conventions are the
+/// same as with that method.  Caller is expected to provide
+/// an HttpHeaders object with a correct 'Content-Type:' header.
+/// One will not be provided by this call.
+///
+/// @return				If request is successfully issued, the
+///						HttpHandle representing the request.
+///						On error, LLCORE_HTTP_HANDLE_INVALID
+///						is returned and caller can fetch detailed
+///						status with the getStatus() method on the
+///						request object.  In case of error, no
+///						request is queued and caller may need to
+///						perform additional cleanup such as freeing
+///						a now-useless HttpHandler object.
+///
+LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest * request,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    LLCore::HttpOptions * options,
+    LLCore::HttpHeaders * headers,
+    LLCore::HttpHandler * handler);
+
+LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & request,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    LLCore::HttpOptions::ptr_t & options,
+    LLCore::HttpHeaders::ptr_t & headers,
+    LLCore::HttpHandler * handler);
+
+
 /// The HttpCoroHandler is a specialization of the LLCore::HttpHandler for 
 /// interacting with coroutines. When the request is completed the response 
 /// will be posted onto the supplied Event Pump.

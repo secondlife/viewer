@@ -357,6 +357,46 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 }
 
 
+HttpStatus HttpOpRequest::setupDelete(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    HttpOptions * options,
+    HttpHeaders * headers)
+{
+    setupCommon(policy_id, priority, url, NULL, options, headers);
+    mReqMethod = HOR_DELETE;
+
+    return HttpStatus();
+}
+
+
+HttpStatus HttpOpRequest::setupPatch(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    BufferArray * body,
+    HttpOptions * options,
+    HttpHeaders * headers)
+{
+    setupCommon(policy_id, priority, url, body, options, headers);
+    mReqMethod = HOR_PATCH;
+
+    return HttpStatus();
+}
+
+
+HttpStatus HttpOpRequest::setupCopy(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    HttpOptions * options,
+    HttpHeaders * headers)
+{
+    setupCommon(policy_id, priority, url, NULL, options, headers);
+    mReqMethod = HOR_COPY;
+
+    return HttpStatus();
+}
+
+
 void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 								HttpRequest::priority_t priority,
 								const std::string & url,
@@ -549,8 +589,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	case HOR_GET:
 		code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
 		check_curl_easy_code(code, CURLOPT_HTTPGET);
-		mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
-		mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		break;
 		
 	case HOR_POST:
@@ -569,12 +607,14 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
 			check_curl_easy_code(code, CURLOPT_POSTFIELDSIZE);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		
-	case HOR_PUT:
+    case HOR_PATCH:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "PATCH");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        // fall through.  The rest is the same as PUT
+    case HOR_PUT:
 		{
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
 			check_curl_easy_code(code, CURLOPT_UPLOAD);
@@ -588,18 +628,30 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
 			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
-			// *TODO: Should this be 'Keep-Alive' ?
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		
+    case HOR_DELETE:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "DELETE");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        break;
+
+    case HOR_COPY:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "COPY");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        break;
+
 	default:
 		LL_ERRS(LOG_CORE) << "Invalid HTTP method in request:  "
 						  << int(mReqMethod)  << ".  Can't recover."
 						  << LL_ENDL;
 		break;
 	}
+
+
+    // *TODO: Should this be 'Keep-Alive' ?
+    mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
+    mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 
 	// Tracing
 	if (mTracing >= HTTP_TRACE_CURL_HEADERS)

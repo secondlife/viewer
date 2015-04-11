@@ -142,6 +142,46 @@ HttpHandle requestPutWithLLSD(HttpRequest::ptr_t & request,
         url, body, options.get(), headers.get(), handler);
 }
 
+HttpHandle requestPatchWithLLSD(HttpRequest * request,
+    HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    HttpOptions * options,
+    HttpHeaders * headers,
+    HttpHandler * handler)
+{
+    HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+    BufferArray * ba = new BufferArray();
+    BufferArrayStream bas(ba);
+    LLSDSerialize::toXML(body, bas);
+
+    handle = request->requestPatch(policy_id,
+        priority,
+        url,
+        ba,
+        options,
+        headers,
+        handler);
+    ba->release();
+    return handle;
+}
+
+HttpHandle requestPatchWithLLSD(HttpRequest::ptr_t & request,
+    HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    HttpOptions::ptr_t & options,
+    HttpHeaders::ptr_t & headers,
+    HttpHandler * handler)
+{
+    return requestPatchWithLLSD(request.get(), policy_id, priority,
+        url, body, options.get(), headers.get(), handler);
+}
+
+
 std::string responseToString(LLCore::HttpResponse * response)
 {
     static const std::string empty("[Empty]");
