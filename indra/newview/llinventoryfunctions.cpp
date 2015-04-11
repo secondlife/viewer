@@ -1505,11 +1505,6 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
                 // Reparent the item
                 gInventory.changeItemParent(viewer_inv_item, dest_folder, true);
             }
-            
-            // Update the modified folders
-            update_marketplace_category(src_folder);
-            update_marketplace_category(dest_folder);
-            gInventory.notifyObservers();
         }
         else
         {

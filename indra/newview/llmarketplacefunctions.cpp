@@ -1507,6 +1507,12 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
         return false;
     }
     
+    if (getActivationState(listing_uuid) == activate)
+    {
+        // If activation state is unchanged, no point spamming SLM with an update
+        return true;
+    }
+    
     LLUUID version_uuid = getVersionFolder(listing_uuid);
     
     // Also update the count on hand
@@ -1528,6 +1534,12 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     {
         // Listing doesn't exists -> exit with error
         return false;
+    }
+    
+    if (getVersionFolder(listing_uuid) == version_id)
+    {
+        // If version folder is unchanged, no point spamming SLM with an update
+        return true;
     }
     
     // Note: if the version_id is cleared, we need to unlist the listing, otherwise, state unchanged
@@ -1554,16 +1566,27 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id)
         return false;
     }
     
+    // Compute the new count on hand
+    S32 count = compute_stock_count(folder_id);
+
+    if (getCountOnHand(listing_uuid) == count)
+    {
+        // If count on hand is unchanged, no point spamming SLM with an update
+        return true;
+    }
+    
     // Get the unchanged values
     bool is_listed = getActivationState(listing_uuid);
     LLUUID version_uuid = getVersionFolder(listing_uuid);
 
-    // Compute the new count on hand
-    S32 count = compute_stock_count(folder_id);
     
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_uuid, is_listed, count);
     
+    // Force the local value as it prevents spamming (count update may occur in burst when restocking)
+    // Note that if SLM has a good reason to return a different value, it'll be updated by the responder
+    setCountOnHand(listing_uuid, count, false);
+
     return true;
 }
 

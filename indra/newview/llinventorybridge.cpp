@@ -4675,8 +4675,6 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
                         LLMarketplaceData::instance().activateListing(version_folder_id,false);
                     }
                 }
-                // Update the listing we moved from anyway
-                update_marketplace_category(from_folder_uuid);
             }
 
 			//
