@@ -47,7 +47,7 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntrySLURL());
 
 	// decorated links for host names like: secondlife.com and lindenlab.com
-	registerUrl(new LLUrlEntrySeconlifeURL());
+	registerUrl(new LLUrlEntrySecondlifeURL());
 
 	registerUrl(new LLUrlEntryHTTP());
 	mUrlEntryHTTPLabel = new LLUrlEntryHTTPLabel();
@@ -209,9 +209,12 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 		// fill in the LLUrlMatch object and return it
 		std::string url = text.substr(match_start, match_end - match_start + 1);
 
-		LLUriParser up(url);
-		up.normalize();
-		url = up.normalizedUri();
+		if (match_entry == mUrlEntryTrusted)
+		{
+			LLUriParser up(url);
+			up.normalize();
+			url = up.normalizedUri();
+		}
 
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
@@ -243,7 +246,7 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 		// character encoding, so we need to update the start
 		// and end values to be correct for the wide string.
 		LLWString wurl = utf8str_to_wstring(match.getUrl());
-		S32 start = text.find(wurl);
+		size_t start = text.find(wurl);
 		if (start == std::string::npos)
 		{
 			return false;

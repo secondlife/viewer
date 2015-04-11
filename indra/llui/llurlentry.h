@@ -172,11 +172,12 @@ public:
 ///
 /// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com Urls
 ///
-class LLUrlEntrySeconlifeURL : public LLUrlEntryBase
+class LLUrlEntrySecondlifeURL : public LLUrlEntryBase
 {
 public:
-	LLUrlEntrySeconlifeURL();
-	bool isTrusted() const { return true; }
+	LLUrlEntrySecondlifeURL();
+	/*virtual*/ bool isTrusted() const { return true; }
+	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getTooltip(const std::string &url) const;
 

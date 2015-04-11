@@ -118,11 +118,14 @@ void LLUriParser::fragment(const std::string& s)
 
 void LLUriParser::textRangeToString(UriTextRangeA& textRange, std::string& str)
 {
-	S32 len = textRange.afterLast - textRange.first;
-	if (len)
+	if (textRange.first != NULL && textRange.afterLast != NULL && textRange.first < textRange.afterLast)
 	{
-		str = textRange.first;
-		str = str.substr(0, len);
+		const ptrdiff_t len = textRange.afterLast - textRange.first;
+		str.assign(textRange.first, static_cast<std::string::size_type>(len));
+	}
+	else
+	{
+		str = LLStringUtil::null;
 	}
 }
 

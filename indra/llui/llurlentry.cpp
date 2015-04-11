@@ -39,8 +39,6 @@
 #include "lluicolortable.h"
 #include "message.h"
 
-#include "uriparser/Uri.h"
-
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
 // Utility functions
@@ -347,25 +345,34 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 //
 // LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com urls to substitute icon 'hand.png' before link
 //
-LLUrlEntrySeconlifeURL::LLUrlEntrySeconlifeURL()
+LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
 { 
 	mPattern = boost::regex("\\b(https?://)?([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(:\\d{1,5})?(/\\S*)?\\b",
 		boost::regex::perl|boost::regex::icase);
 	
 	mIcon = "Hand";
 	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
 }
 
-std::string LLUrlEntrySeconlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+/// Return the url from a string that matched the regex
+std::string LLUrlEntrySecondlifeURL::getUrl(const std::string &string) const
 {
-	LLUriParser up(url);
-	up.extractParts();
-	return up.host();
+	if (string.find("://") == std::string::npos)
+	{
+		return "https://" + escapeUrl(string);
+	}
+	return escapeUrl(string);
 }
 
-std::string LLUrlEntrySeconlifeURL::getTooltip(const std::string &url) const
+std::string LLUrlEntrySecondlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	return url;
+}
+
+std::string LLUrlEntrySecondlifeURL::getTooltip(const std::string &url) const
+{
+	return mTooltip;
 }
 
 //
