@@ -156,7 +156,7 @@ BOOL LLFloaterAbout::postBuild()
 	std::string contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"contributors.txt");
 	llifstream contrib_file;
 	std::string contributors;
-	contrib_file.open(contributors_path);		/* Flawfinder: ignore */
+	contrib_file.open(contributors_path.c_str());		/* Flawfinder: ignore */
 	if (contrib_file.is_open())
 	{
 		std::getline(contrib_file, contributors); // all names are on a single line
@@ -173,7 +173,7 @@ BOOL LLFloaterAbout::postBuild()
     // Get the Versions and Copyrights, created at build time
 	std::string licenses_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"packages-info.txt");
 	llifstream licenses_file;
-	licenses_file.open(licenses_path);		/* Flawfinder: ignore */
+	licenses_file.open(licenses_path.c_str());		/* Flawfinder: ignore */
 	if (licenses_file.is_open())
 	{
 		std::string license_line;

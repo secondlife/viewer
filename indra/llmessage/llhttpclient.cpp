@@ -161,7 +161,7 @@ namespace
 		{
 			LLBufferStream ostream(channels, buffer.get());
 
-			llifstream fstream(mFilename, std::iostream::binary | std::iostream::out);
+			llifstream fstream(mFilename.c_str(), std::iostream::binary | std::iostream::out);
 			if(fstream.is_open())
 			{
 				fstream.seekg(0, std::ios::end);
