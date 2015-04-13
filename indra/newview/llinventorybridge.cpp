@@ -4261,15 +4261,23 @@ std::string LLMarketplaceFolderBridge::getLabelSuffix() const
     {
         suffix += " (" +  LLTrans::getString("MarketplaceNoStock") + ")";
     }
-    else if (stock_count != -1)
+    else if (stock_count != COMPUTE_STOCK_INFINITE)
     {
         if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
         {
-            suffix += " (" +  LLTrans::getString("MarketplaceStock") + "=" + llformat("%d", stock_count) + ")";
+            suffix += " (" +  LLTrans::getString("MarketplaceStock");
         }
         else
         {
-            suffix += " (" +  LLTrans::getString("MarketplaceMax") + "=" + llformat("%d", stock_count) + ")";
+            suffix += " (" +  LLTrans::getString("MarketplaceMax");
+        }
+        if (stock_count == COMPUTE_STOCK_NOT_EVALUATED)
+        {
+            suffix += "=" + LLTrans::getString("MarketplaceUpdating") + ")";
+        }
+        else
+        {
+            suffix +=  "=" + llformat("%d", stock_count) + ")";
         }
     }
     // Add updating suffix

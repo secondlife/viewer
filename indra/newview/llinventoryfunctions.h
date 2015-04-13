@@ -32,6 +32,10 @@
 #include "llinventory.h"
 #include "llwearabletype.h"
 
+// compute_stock_count() return error code
+const S32 COMPUTE_STOCK_INFINITE = -1;
+const S32 COMPUTE_STOCK_NOT_EVALUATED = -2;
+
 /********************************************************************************
  **                                                                            **
  **                    MISCELLANEOUS GLOBAL FUNCTIONS

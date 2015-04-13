@@ -319,14 +319,14 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
             // Equal weight -> use alphabetical order
 			return (LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName()) < 0);
 		}
-		else if (weight_a == -1)
+		else if (weight_a == COMPUTE_STOCK_INFINITE)
         {
-            // No weight -> move a at the end of the list
+            // No stock -> move a at the end of the list
             return false;
         }
-        else if (weight_b == -1)
+        else if (weight_b == COMPUTE_STOCK_INFINITE)
         {
-            // No weight -> move b at the end of the list
+            // No stock -> move b at the end of the list
             return true;
         }
         else

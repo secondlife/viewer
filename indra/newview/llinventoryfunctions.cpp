@@ -1020,14 +1020,15 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
     if (!cat)
     {
         // Not a category so no stock count to speak of
-        return -1;
+        return COMPUTE_STOCK_INFINITE;
     }
     if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
         {
             // If the folder is not completely fetched, we do not want to return any confusing value that could lead to unlisting
-            return -1;
+            // "COMPUTE_STOCK_NOT_EVALUATED" denotes that a stock folder has a count that cannot be evaluated at this time (folder not up to date)
+            return COMPUTE_STOCK_NOT_EVALUATED;
         }
         // Note: stock folders are *not* supposed to have nested subfolders so we stop recursion here but we count only items (subfolders will be ignored)
         // Note: we *always* give a stock count for stock folders, it's useful even if the listing is unassociated
@@ -1047,7 +1048,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
         if (!LLMarketplaceData::instance().isListed(listing_uuid))
         {
             // If not listed, the notion of stock is meaningless so it won't be computed for any level
-            return -1;
+            return COMPUTE_STOCK_INFINITE;
         }
 
         LLUUID version_folder_uuid = LLMarketplaceData::instance().getVersionFolder(listing_uuid);
@@ -1062,7 +1063,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
             else
             {
                 // If there's no version folder associated, the notion of stock count has no meaning
-                return -1;
+                return COMPUTE_STOCK_INFINITE;
             }
         }
         else if (depth == 2)
@@ -1070,18 +1071,19 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
             if (version_folder_uuid.notNull() && (version_folder_uuid != cat_uuid))
             {
                 // If there is a version folder but we're not it, our stock count is meaningless
-                return -1;
+                return COMPUTE_STOCK_INFINITE;
             }
         }
     }
     
     // In all other cases, the stock count is the min of stock folders count found in the descendents
+    // "COMPUTE_STOCK_NOT_EVALUATED" denotes that a stock folder in the hierarchy has a count that cannot be evaluated at this time (folder not up to date)
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
 	gInventory.getDirectDescendentsOf(cat_uuid,cat_array,item_array);
     
-    // "-1" denotes a folder that doesn't countain any stock folders in its descendents
-    S32 curr_count = -1;
+    // "COMPUTE_STOCK_INFINITE" denotes a folder that doesn't countain any stock folders in its descendents
+    S32 curr_count = COMPUTE_STOCK_INFINITE;
 
     // Note: marketplace listings have a maximum depth nesting of 4
     LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
@@ -1089,7 +1091,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
     {
         LLInventoryCategory* category = *iter;
         S32 count = compute_stock_count(category->getUUID(), true);
-        if ((curr_count == -1) || ((count != -1) && (count < curr_count)))
+        if ((curr_count == COMPUTE_STOCK_INFINITE) || ((count != COMPUTE_STOCK_INFINITE) && (count < curr_count)))
         {
             curr_count = count;
         }

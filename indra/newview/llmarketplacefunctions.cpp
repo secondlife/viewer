@@ -1426,6 +1426,14 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
     {
         count = compute_stock_count(version_id, true);
     }
+    
+    // Validate the count on hand
+    if (count == COMPUTE_STOCK_NOT_EVALUATED)
+    {
+        // If the count on hand cannot be evaluated, we will consider it empty (out of stock) at creation time
+        // It will get reevaluated and updated once the items are fetched
+        count = 0;
+    }
 
     // Post the listing creation request to SLM
     createSLMListing(folder_id, version_id, count);
@@ -1517,7 +1525,13 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
     
     // Also update the count on hand
     S32 count = compute_stock_count(folder_id);
-
+    if (count == COMPUTE_STOCK_NOT_EVALUATED)
+    {
+        // If the count on hand cannot be evaluated locally, we should not change that SLM value
+        // We are assuming that this issue is local and should not modify server side values
+        count = getCountOnHand(listing_uuid);
+    }
+    
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_uuid, activate, count);
     
@@ -1547,6 +1561,12 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     
     // Also update the count on hand
     S32 count = compute_stock_count(version_id);
+    if (count == COMPUTE_STOCK_NOT_EVALUATED)
+    {
+        // If the count on hand cannot be evaluated, we will consider it empty (out of stock) when resetting the version folder
+        // It will get reevaluated and updated once the items are fetched
+        count = 0;
+    }
     
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_id, is_listed, count);
@@ -1569,10 +1589,15 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id)
     // Compute the new count on hand
     S32 count = compute_stock_count(folder_id);
 
-    if (getCountOnHand(listing_uuid) == count)
+    if (count == getCountOnHand(listing_uuid))
     {
         // If count on hand is unchanged, no point spamming SLM with an update
         return true;
+    }
+    else if (count == COMPUTE_STOCK_NOT_EVALUATED)
+    {
+        // If local count on hand is not known at that point, do *not* force an update to SLM
+        return false;
     }
     
     // Get the unchanged values
@@ -1610,6 +1635,13 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
     if (version_id.notNull())
     {
         count = compute_stock_count(version_id, true);          // Use the stock count of the new listing
+    }
+    // Validate the count on hand
+    if (count == COMPUTE_STOCK_NOT_EVALUATED)
+    {
+        // If the count on hand cannot be evaluated, we will consider it empty (out of stock) at reassign time
+        // It will get reevaluated and updated once the items are fetched
+        count = 0;
     }
     
     // Post the listing update request to SLM
