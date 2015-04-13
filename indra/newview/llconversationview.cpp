@@ -296,7 +296,7 @@ BOOL LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
 	LLFloater* volume_floater = LLFloaterReg::findInstance("floater_voice_volume");
 	LLFloater* chat_volume_floater = LLFloaterReg::findInstance("chat_voice");
 	if (result 
-		&& getRoot()
+		&& getRoot() && (getRoot()->getCurSelectedItem() == this)
 		&& !(volume_floater && volume_floater->isShown() && volume_floater->hasFocus())
 		&& !(chat_volume_floater && chat_volume_floater->isShown() && chat_volume_floater->hasFocus()))
 	{

@@ -64,6 +64,8 @@
 #include "llimagedimensionsinfo.h"
 #include "llviewercontrol.h"
 #include "lltrans.h"
+#include "llviewerdisplay.h"
+
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
 /*=======================================*/ 

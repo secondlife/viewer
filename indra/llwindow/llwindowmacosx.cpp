@@ -904,6 +904,11 @@ void LLWindowMacOSX::swapBuffers()
 	CGLFlushDrawable(mContext);
 }
 
+void LLWindowMacOSX::restoreGLContext()
+{
+    CGLSetCurrentContext(mContext);
+}
+
 F32 LLWindowMacOSX::getGamma()
 {
 	F32 result = 2.2;	// Default to something sane
@@ -1158,6 +1163,8 @@ void LLWindowMacOSX::beforeDialog()
 
 void LLWindowMacOSX::afterDialog()
 {
+    //For fix problem with Core Flow view on OSX
+    restoreGLContext();
 }
 
 

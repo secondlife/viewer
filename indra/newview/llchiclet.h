@@ -305,6 +305,8 @@ public:
 	 */
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
+	void hidePopupMenu();
+
 protected:
 
 	LLIMChiclet(const LLIMChiclet::Params& p);

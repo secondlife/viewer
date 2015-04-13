@@ -87,7 +87,7 @@ public:
 	/*virtual*/ void gatherInput();
 	/*virtual*/ void delayInputProcessing() {};
 	/*virtual*/ void swapBuffers();
-
+	
 	// handy coordinate space conversion routines
 	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to);
 	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to);
@@ -155,7 +155,9 @@ protected:
     
     //Satisfy MAINT-3135 and MAINT-3288 with a flag.
     /*virtual */ void setOldResize(bool oldresize) {setResizeMode(oldresize, mGLView); }
- 
+
+private:
+    void restoreGLContext();
 
 protected:
 	//
