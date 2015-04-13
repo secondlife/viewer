@@ -4528,11 +4528,11 @@ void LLTextureBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if ("save_as" == action)
 	{
-		LLFloaterReg::showInstance("preview_texture", LLSD(mUUID), TAKE_FOCUS_YES);
-		LLPreviewTexture* preview_texture = LLFloaterReg::findTypedInstance<LLPreviewTexture>("preview_texture", mUUID);
+		LLPreviewTexture* preview_texture = LLFloaterReg::getTypedInstance<LLPreviewTexture>("preview_texture", mUUID);
 		if (preview_texture)
 		{
 			preview_texture->openToSave();
+			preview_texture->saveAs();
 		}
 	}
 	else LLItemBridge::performAction(model, action);
