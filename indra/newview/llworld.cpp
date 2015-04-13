@@ -795,9 +795,12 @@ void LLWorld::updateNetStats()
 	add(LLStatViewer::PACKETS_IN, packets_in);
 	add(LLStatViewer::PACKETS_OUT, packets_out);
 	add(LLStatViewer::PACKETS_LOST, packets_lost);
-	if (packets_in)
+
+	F32 total_packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+	if (total_packets_in > 0)
 	{
-		sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue((F32)packets_lost/(F32)packets_in));
+		F32 total_packets_lost = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
+		sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue((F32)total_packets_lost/(F32)total_packets_in));
 	}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;
