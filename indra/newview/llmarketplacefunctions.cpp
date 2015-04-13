@@ -1630,11 +1630,12 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
     associateSLMListing(folder_id, listing_id, version_id, source_folder_id);
     
     // Update the other values as required
-    bool is_listed = getActivationState(source_folder_id);     // Use the activation state of the source listing
-    S32 count = -1;             // count on hand must be set according to the new active version folder if any
+    bool is_listed = false;
+    S32 count = -1;
     if (version_id.notNull())
     {
-        count = compute_stock_count(version_id, true);          // Use the stock count of the new listing
+        count = compute_stock_count(version_id, true);        // Use the stock count of the new listing
+        is_listed = getActivationState(source_folder_id);     // Use the activation state of the source listing
     }
     // Validate the count on hand
     if (count == COMPUTE_STOCK_NOT_EVALUATED)
