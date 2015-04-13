@@ -61,35 +61,4 @@ private:
     static void environmentApplyCoro(LLCoros::self& self, std::string url, LLSD content);
 };
 
-#if 0
-class LLEnvironmentApplyResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLEnvironmentApplyResponder);
-private:
-	/*
-	 * Expecting reply from sim in form of:
-	 * {
-	 *   regionID : uuid,
-	 *   messageID: uuid,
-	 *   success : true
-	 * }
-	 * or
-	 * {
-	 *   regionID : uuid,
-	 *   success : false,
-	 *   fail_reason : string
-	 * }
-	 */
-	/* virtual */ void httpSuccess();
-
-	// non-2xx errors only
-	/* virtual */ void httpFailure();
-
-private:
-	friend class LLEnvironmentApply;
-	
-	LLEnvironmentApplyResponder() {}
-};
-#endif
-
 #endif // LL_LLWLHANDLERS_H
