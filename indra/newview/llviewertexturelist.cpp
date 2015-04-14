@@ -179,7 +179,7 @@ void LLViewerTextureList::doPrefetchImages()
 	// Pre-fetch textures from last logout
 	LLSD imagelist;
 	std::string filename = get_texture_list_name();
-	std::ifstream file;
+	llifstream file;
 	file.open(filename.c_str());
 	if (file.is_open())
 	{
@@ -273,7 +273,7 @@ void LLViewerTextureList::shutdown()
 	if (count > 0 && !gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "").empty())
 	{
 		std::string filename = get_texture_list_name();
-		std::ofstream file;
+		llofstream file;
 		file.open(filename.c_str());
         LL_DEBUGS() << "saving " << imagelist.size() << " image list entries" << LL_ENDL;
 		LLSDSerialize::toPrettyXML(imagelist, file);
@@ -459,7 +459,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	// If the image is not found, creates new image and
 	// enqueues a request for transmission
 	
-	if ((&image_id == NULL) || image_id.isNull())
+	if (image_id.isNull())
 	{
 		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI));
 	}
@@ -634,7 +634,7 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
 	{
 		return;
 	}
-	llassert(new_image);
+	//llassert(new_image);
 	LLUUID image_id = new_image->getID();
 	
 	LLViewerFetchedTexture *image = findImage(image_id);

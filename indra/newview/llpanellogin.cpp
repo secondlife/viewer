@@ -307,7 +307,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	updateLoginButtons();
 
 	LLSD fav_llsd;
-	std::ifstream file;
+	llifstream file;
 	file.open(filename.c_str());
 	if (!file.is_open())
 	{

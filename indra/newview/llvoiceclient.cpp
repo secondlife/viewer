@@ -1023,7 +1023,7 @@ void LLSpeakerVolumeStorage::load()
 	LL_INFOS("Voice") << "Loading stored speaker volumes from: " << filename << LL_ENDL;
 
 	LLSD settings_llsd;
-	std::ifstream file;
+	llifstream file;
 	file.open(filename.c_str());
 	if (file.is_open())
 	{
@@ -1066,7 +1066,7 @@ void LLSpeakerVolumeStorage::save()
 			settings_llsd[iter->first.asString()] = volume;
 		}
 
-		std::ofstream file;
+		llofstream file;
 		file.open(filename.c_str());
 		LLSDSerialize::toPrettyXML(settings_llsd, file);
 	}

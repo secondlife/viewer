@@ -1609,7 +1609,7 @@ void LLFolderView::update()
 
 	LLFolderViewFilter& filter_object = getFolderViewModel()->getFilter();
 
-	if (filter_object.isModified() && filter_object.isNotDefault())
+	if (filter_object.isModified() && filter_object.isNotDefault() && mParentPanel.get()->getVisible())
 	{
 		mNeedsAutoSelect = TRUE;
 	}
@@ -1651,8 +1651,10 @@ void LLFolderView::update()
 		scrollToShowSelection();
 	}
 
-	BOOL filter_finished = getViewModelItem()->passedFilter()
-						&& mViewModel->contentsReady();
+	BOOL filter_finished = mViewModel->contentsReady()
+							&& (getViewModelItem()->passedFilter()
+								|| ( getViewModelItem()->getLastFilterGeneration() >= filter_object.getFirstSuccessGeneration()
+									&& !filter_object.isModified()));
 	if (filter_finished 
 		|| gFocusMgr.childHasKeyboardFocus(mParentPanel.get())
 		|| gFocusMgr.childHasMouseCapture(mParentPanel.get()))

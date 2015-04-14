@@ -46,7 +46,7 @@ bool LLURLHistory::loadFile(const std::string& filename)
 
     std::string user_filename(gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + filename);
 
-    std::ifstream file(user_filename.c_str());
+    llifstream file(user_filename.c_str());
     if (file.is_open())
     {
         LLSDSerialize::fromXML(data, file);
@@ -79,7 +79,7 @@ bool LLURLHistory::saveFile(const std::string& filename)
 	}
 
 	temp_str += gDirUtilp->getDirDelimiter() + filename;
-	std::ofstream out(temp_str.c_str());
+	llofstream out(temp_str.c_str());
 	if (!out.good())
 	{
 		LL_WARNS() << "Unable to open " << temp_str << " for output." << LL_ENDL;

@@ -54,7 +54,7 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
     mStencilMax(1.0)
 {
     // Load filter description from file
-	std::ifstream filter_xml(file_path.c_str());
+	llifstream filter_xml(file_path.c_str());
 	if (filter_xml.is_open())
 	{
 		// Load and parse the file

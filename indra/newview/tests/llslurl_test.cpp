@@ -152,7 +152,7 @@ namespace tut
 	template<> template<>
 	void slurlTestObject::test<1>()
 	{
-		std::ofstream gridfile(TEST_FILENAME);
+		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
 
@@ -269,7 +269,7 @@ namespace tut
 	template<> template<>
 	void slurlTestObject::test<2>()
 	{
-		std::ofstream gridfile(TEST_FILENAME);
+		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
 
@@ -302,7 +302,7 @@ namespace tut
 	template<> template<>
 	void slurlTestObject::test<3>()
 	{
-		std::ofstream gridfile(TEST_FILENAME);
+		llofstream gridfile(TEST_FILENAME);
 		gridfile << gSampleGridFile;
 		gridfile.close();
 

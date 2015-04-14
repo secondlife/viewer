@@ -2549,6 +2549,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="CompileSuccessful">Compile successful!</string>
 	<string name="CompileSuccessfulSaving">Compile successful, saving...</string>
 	<string name="SaveComplete">Save complete.</string>
+	<string name="UploadFailed">File upload failed: </string>
 	<string name="ObjectOutOfRange">Script (object out of range)</string>
 
 	<!-- god tools -->

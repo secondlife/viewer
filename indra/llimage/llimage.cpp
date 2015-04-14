@@ -1172,7 +1172,7 @@ static std::string find_file(std::string &name, S8 *codec)
 	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
 	{
 		tname = name + "." + std::string(file_extensions[i].exten);
-		std::ifstream ifs(tname.c_str(), std::ifstream::binary);
+		llifstream ifs(tname.c_str(), llifstream::binary);
 		if (ifs.is_open())
 		{
 			ifs.close();
@@ -1219,7 +1219,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 		return false; // format not recognized
 	}
 
-	std::ifstream ifs(name.c_str(), std::ifstream::binary);
+	llifstream ifs(name.c_str(), llifstream::binary);
 	if (!ifs.is_open())
 	{
 		// SJB: changed from LL_INFOS() to LL_DEBUGS() to reduce spam

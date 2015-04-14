@@ -2683,6 +2683,17 @@ void LLVolume::setMeshAssetLoaded(BOOL loaded)
 	mIsMeshAssetLoaded = loaded;
 }
 
+void LLVolume::copyFacesTo(std::vector<LLVolumeFace> &faces) const 
+{
+	faces = mVolumeFaces;
+}
+
+void LLVolume::copyFacesFrom(const std::vector<LLVolumeFace> &faces)
+{
+	mVolumeFaces = faces;
+	mSculptLevel = 0;
+}
+
 void LLVolume::copyVolumeFaces(const LLVolume* volume)
 {
 	mVolumeFaces = volume->mVolumeFaces;
@@ -5964,7 +5975,10 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	}
 	else
 	{ //degenerate, make up a value
-		normal.set(0,0,1);
+		if(normal.getF32ptr()[2] >= 0)
+			normal.set(0.f,0.f,1.f);
+		else
+			normal.set(0.f,0.f,-1.f);
 	}
 
 	llassert(llfinite(normal.getF32ptr()[0]));
@@ -6277,6 +6291,8 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 
 	num_vertices = mNumS*mNumT;
 	num_indices = (mNumS-1)*(mNumT-1)*6;
+
+	partial_build = (num_vertices > mNumVertices || num_indices > mNumIndices) ? FALSE : partial_build;
 
 	if (!partial_build)
 	{

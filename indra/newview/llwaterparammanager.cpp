@@ -110,7 +110,7 @@ void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 
 bool LLWaterParamManager::loadPreset(const std::string& path)
 {
-	std::ifstream xml_file;
+	llifstream xml_file;
 	std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(path), /*strip_exten = */ true));
 
 	xml_file.open(path.c_str());
@@ -150,7 +150,7 @@ void LLWaterParamManager::savePreset(const std::string & name)
 	paramsData = mParamList[name].getAll();
 
 	// write to file
-	std::ofstream presetsXML(pathName.c_str());
+	llofstream presetsXML(pathName.c_str());
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(paramsData, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
 	presetsXML.close();

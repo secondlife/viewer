@@ -211,7 +211,7 @@ void LLTextParser::loadKeywords()
 	std::string filename=getFileName();
 	if (!filename.empty())
 	{
-		std::ifstream file;
+		llifstream file;
 		file.open(filename.c_str());
 		if (file.is_open())
 		{
@@ -231,7 +231,7 @@ bool LLTextParser::saveToDisk(LLSD highlights)
 		LL_WARNS() << "LLTextParser::saveToDisk() no valid user directory." << LL_ENDL; 
 		return FALSE;
 	}	
-	std::ofstream file;
+	llofstream file;
 	file.open(filename.c_str());
 	LLSDSerialize::toPrettyXML(mHighlights, file);
 	file.close();

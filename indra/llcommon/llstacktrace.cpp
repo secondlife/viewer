@@ -125,11 +125,40 @@ bool ll_get_stack_trace(std::vector<std::string>& lines)
 	return false;
 }
 
+void ll_get_stack_trace_internal(std::vector<std::string>& lines)
+{
+	const S32 MAX_STACK_DEPTH = 100;
+	const S32 STRING_NAME_LENGTH = 256;
+
+	HANDLE process = GetCurrentProcess();
+	SymInitialize( process, NULL, TRUE );
+
+	void *stack[MAX_STACK_DEPTH];
+
+	unsigned short frames = RtlCaptureStackBackTrace_fn( 0, MAX_STACK_DEPTH, stack, NULL );
+	SYMBOL_INFO *symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + STRING_NAME_LENGTH * sizeof(char), 1);
+	symbol->MaxNameLen = STRING_NAME_LENGTH-1;
+	symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+	for(unsigned int i = 0; i < frames; i++) 
+	{
+		SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol);
+		lines.push_back(symbol->Name);
+	}
+
+	free( symbol );
+}
+
 #else
 
 bool ll_get_stack_trace(std::vector<std::string>& lines)
 {
 	return false;
+}
+
+void ll_get_stack_trace_internal(std::vector<std::string>& lines)
+{
+
 }
 
 #endif

@@ -116,6 +116,8 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mThumbnailUpdateLock = FALSE ;
 	mThumbnailUpToDate   = FALSE ;
 	mBigThumbnailUpToDate = FALSE ;
+
+	mForceUpdateSnapshot = FALSE;
 }
 
 LLSnapshotLivePreview::~LLSnapshotLivePreview()
@@ -671,18 +673,19 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	// If we're in freeze-frame mode and camera has moved, update snapshot.
 	LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
 	LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
-	if (gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview &&
-		(new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f))
+	if (previewp->mForceUpdateSnapshot || (gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview &&
+		(new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
 	{
 		previewp->mCameraPos = new_camera_pos;
 		previewp->mCameraRot = new_camera_rot;
 		// request a new snapshot whenever the camera moves, with a time delay
-		BOOL autosnap = gSavedSettings.getBOOL("AutoSnapshot");
+		BOOL new_snapshot = gSavedSettings.getBOOL("AutoSnapshot") || previewp->mForceUpdateSnapshot;
 		LL_DEBUGS() << "camera moved, updating thumbnail" << LL_ENDL;
 		previewp->updateSnapshot(
-			autosnap, // whether a new snapshot is needed or merely invalidate the existing one
+			new_snapshot, // whether a new snapshot is needed or merely invalidate the existing one
 			FALSE, // or if 1st arg is false, whether to produce a new thumbnail image.
-			autosnap ? AUTO_SNAPSHOT_TIME_DELAY : 0.f); // shutter delay if 1st arg is true.
+			new_snapshot ? AUTO_SNAPSHOT_TIME_DELAY : 0.f); // shutter delay if 1st arg is true.
+		previewp->mForceUpdateSnapshot = FALSE;
 	}
 
 	// see if it's time yet to snap the shot and bomb out otherwise.
