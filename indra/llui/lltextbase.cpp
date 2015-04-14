@@ -38,7 +38,6 @@
 #include "lltextutil.h"
 #include "lltooltip.h"
 #include "lluictrl.h"
-#include "lluriparser.h"
 #include "llurlaction.h"
 #include "llurlregistry.h"
 #include "llview.h"

@@ -39,8 +39,6 @@
 #include "lluicolortable.h"
 #include "message.h"
 
-#include "uriparser/Uri.h"
-
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
 // Utility functions
@@ -495,6 +493,17 @@ LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
 	
 	mIcon = "Hand";
 	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
+
+/// Return the url from a string that matched the regex
+std::string LLUrlEntrySecondlifeURL::getUrl(const std::string &string) const
+{
+	if (string.find("://") == std::string::npos)
+	{
+		return "https://" + escapeUrl(string);
+	}
+	return escapeUrl(string);
 }
 
 std::string LLUrlEntrySecondlifeURL::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -510,15 +519,6 @@ std::string LLUrlEntrySecondlifeURL::getQuery(const std::string &url) const
 std::string LLUrlEntrySecondlifeURL::getTooltip(const std::string &url) const
 {
 	return url;
-}
-
-std::string LLUrlEntrySecondlifeURL::getUrl(const std::string &string) const
-{
-	if (string.find("://") == std::string::npos)
-	{
-		return "http://" + escapeUrl(string);
-	}
-	return escapeUrl(string);
 }
 
 //

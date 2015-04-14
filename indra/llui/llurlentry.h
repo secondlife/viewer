@@ -199,11 +199,11 @@ class LLUrlEntrySecondlifeURL : public LLUrlEntryBase
 {
 public:
 	LLUrlEntrySecondlifeURL();
-	bool isTrusted() const { return true; }
+	/*virtual*/ bool isTrusted() const { return true; }
+	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getQuery(const std::string &url) const;
 	/*virtual*/ std::string getTooltip(const std::string &url) const;
-	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
 ///
