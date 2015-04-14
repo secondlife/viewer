@@ -191,7 +191,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 			if (start < match_start || match_entry == NULL)
 			{
 
-				if((mLLUrlEntryInvalidSLURL == *it))
+				if (mLLUrlEntryInvalidSLURL == *it)
 				{
 					if(url_entry && url_entry->isSLURLvalid(text.substr(start, end - start + 1)))
 					{
