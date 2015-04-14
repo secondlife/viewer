@@ -181,8 +181,6 @@ private:
 };
 
 
-const S32 MAX_FETCH_RETRIES = 10;
-
 const char * const LOG_INV("Inventory");
 
 } // end of namespace anonymous
@@ -199,10 +197,7 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
 	mAllFoldersFetched(FALSE),
 	mRecursiveInventoryFetchStarted(FALSE),
 	mRecursiveLibraryFetchStarted(FALSE),
-	mNumFetchRetries(0),
-	mMinTimeBetweenFetches(0.3f),
-	mMaxTimeBetweenFetches(10.f),
-	mTimelyFetchPending(FALSE)
+	mMinTimeBetweenFetches(0.3f)
 {}
 
 LLInventoryModelBackgroundFetch::~LLInventoryModelBackgroundFetch()
