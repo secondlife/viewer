@@ -2796,13 +2796,13 @@ void LLTextBase::updateRects()
 		switch(mVAlign)
 		{
 		case LLFontGL::TOP:
-			delta_pos = llmax(old_text_rect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
+			delta_pos = llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
 			break;
 		case LLFontGL::VCENTER:
-			delta_pos = (llmax(old_text_rect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
+			delta_pos = (llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
 			break;
 		case LLFontGL::BOTTOM:
-			delta_pos = old_text_rect.mBottom - mTextBoundingRect.mBottom;
+			delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
 			break;
 		case LLFontGL::BASELINE:
 			// do nothing
@@ -2863,13 +2863,44 @@ void LLTextBase::updateRects()
 		needsReflow();
 	}
 
+	// update mTextBoundingRect after mVisibleTextRect took scrolls into account
+	if (!mLineInfoList.empty() && mScroller)
+	{
+		S32 delta_pos = 0;
+
+		switch(mVAlign)
+		{
+		case LLFontGL::TOP:
+			delta_pos = llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
+			break;
+		case LLFontGL::VCENTER:
+			delta_pos = (llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
+			break;
+		case LLFontGL::BOTTOM:
+			delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
+			break;
+		case LLFontGL::BASELINE:
+			// do nothing
+			break;
+		}
+		// move line segments to fit new visible rect
+		if (delta_pos != 0)
+		{
+			for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
+			{
+				it->mRect.translate(0, delta_pos);
+			}
+			mTextBoundingRect.translate(0, delta_pos);
+		}
+	}
+
 	// update document container again, using new mVisibleTextRect (that has scrollbars enabled as needed)
 	doc_rect.mBottom = llmin(mVisibleTextRect.mBottom,  mTextBoundingRect.mBottom);
 	doc_rect.mLeft = 0;
 	doc_rect.mRight = mScroller 
 		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
-	doc_rect.mTop = llmax(mVisibleTextRect.mTop, mTextBoundingRect.mTop);
+	doc_rect.mTop = llmax(mVisibleTextRect.getHeight(), mTextBoundingRect.getHeight()) + doc_rect.mBottom;
 	if (!mScroller)
 	{
 		// push doc rect to top of text widget

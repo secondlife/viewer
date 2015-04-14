@@ -29,7 +29,7 @@
 #include "linden_common.h"
 #include "lluriparser.h"
 
-LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mRes(0)
+LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedTmp(false), mRes(0)
 {
 	mState.uri = &mUri;
 
@@ -118,17 +118,39 @@ void LLUriParser::fragment(const std::string& s)
 
 void LLUriParser::textRangeToString(UriTextRangeA& textRange, std::string& str)
 {
+	str = "";
+
+	if(&textRange == NULL)
+	{
+		return;
+	}
+
+	if(textRange.first == NULL)
+	{
+		return;
+	}
+
+	if(textRange.afterLast == NULL)
+	{
+		return;
+	}
+
 	S32 len = textRange.afterLast - textRange.first;
 	if (len)
 	{
-		str = textRange.first;
-		str = str.substr(0, len);
+		str.assign(textRange.first, len);
 	}
 }
 
 void LLUriParser::extractParts()
 {
-	if (mTmpScheme)
+	if(&mUri == NULL)
+	{
+		LL_WARNS() << "mUri is NULL for uri: " << mNormalizedUri << LL_ENDL;
+		return;
+	}
+
+	if (mTmpScheme || mNormalizedTmp)
 	{
 		mScheme.clear();
 	}
@@ -157,6 +179,7 @@ void LLUriParser::extractParts()
 
 S32 LLUriParser::normalize()
 {
+	mNormalizedTmp = mTmpScheme;
 	if (!mRes)
 	{
 		mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);

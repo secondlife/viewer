@@ -290,7 +290,7 @@ const LLVector3& LLJoint::getPosition()
 
 bool do_debug_joint(const std::string& name)
 {
-	return true;
+	return false;
 }
 
 //--------------------------------------------------------------------

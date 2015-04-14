@@ -1353,11 +1353,11 @@ bool idle_startup()
 			{
 				LLStringUtil::format_map_t args;
 				args["[NUMBER]"] = llformat("%d", num_retries + 1);
-				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD);
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD.c_str());
 			}
 			else
 			{
-				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD);
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD.c_str());
 			}
 		}
 		display_startup();
@@ -2071,7 +2071,7 @@ bool idle_startup()
 			update_texture_fetch();
 			set_startup_status(0.60f + 0.30f * timeout_frac,
 				LLTrans::getString("LoginPrecaching"),
-					gAgent.mMOTD);
+					gAgent.mMOTD.c_str());
 			display_startup();
 		}
 		
@@ -2210,6 +2210,8 @@ bool idle_startup()
 
 		llassert(LLPathfindingManager::getInstance() != NULL);
 		LLPathfindingManager::getInstance()->initSystem();
+
+		gAgentAvatarp->sendHoverHeight();
 
 		return TRUE;
 	}

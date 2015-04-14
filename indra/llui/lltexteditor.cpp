@@ -2448,12 +2448,30 @@ void LLTextEditor::updateLinkSegments()
 		LLTextSegment *segment = *it;
 		if (segment && segment->getStyle() && segment->getStyle()->isLink())
 		{
-			// if the link's label (what the user can edit) is a valid Url,
-			// then update the link's HREF to be the same as the label text.
-			// This lets users edit Urls in-place.
 			LLStyleConstSP style = segment->getStyle();
 			LLStyleSP new_style(new LLStyle(*style));
 			LLWString url_label = wtext.substr(segment->getStart(), segment->getEnd()-segment->getStart());
+
+			segment_set_t::const_iterator next_it = mSegments.upper_bound(segment);
+			LLTextSegment *next_segment = *next_it;
+			if (next_segment)
+			{
+				LLWString next_url_label = wtext.substr(next_segment->getStart(), next_segment->getEnd()-next_segment->getStart());
+				std::string link_check = wstring_to_utf8str(url_label) + wstring_to_utf8str(next_url_label);
+				LLUrlMatch match;
+
+				if ( LLUrlRegistry::instance().findUrl(link_check, match))
+				{
+					if(match.getQuery() == wstring_to_utf8str(next_url_label))
+					{
+						continue;
+					}
+				}
+			}
+
+			// if the link's label (what the user can edit) is a valid Url,
+			// then update the link's HREF to be the same as the label text.
+			// This lets users edit Urls in-place.
 			if (LLUrlRegistry::instance().hasUrl(url_label))
 			{
 				std::string new_url = wstring_to_utf8str(url_label);

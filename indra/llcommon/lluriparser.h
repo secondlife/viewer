@@ -81,6 +81,7 @@ private:
 
 	S32 mRes;
 	bool mTmpScheme;
+	bool mNormalizedTmp;
 };
 
 #endif // LL_LLURIPARSER_H

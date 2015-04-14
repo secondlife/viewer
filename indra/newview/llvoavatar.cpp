@@ -111,6 +111,9 @@ extern F32 ANIM_SPEED_MAX;
 extern F32 ANIM_SPEED_MIN;
 extern U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 
+const F32 MAX_HOVER_Z = 2.0;
+const F32 MIN_HOVER_Z = -2.0;
+
 // #define OUTPUT_BREAST_DATA
 
 using namespace LLAvatarAppearanceDefines;
@@ -252,6 +255,8 @@ struct LLAppearanceMessageContents
 	//U32 appearance_flags = 0;
 	std::vector<F32> mParamWeights;
 	std::vector<LLVisualParam*> mParams;
+	LLVector3 mHoverOffset;
+	bool mHoverOffsetWasSet;
 };
 
 struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoint>
@@ -721,7 +726,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mCachedInMuteList(false)
 {
 	//VTResume();  // VTune
-	
+	setHoverOffset(LLVector3(0.0, 0.0, 0.0));
+
 	// mVoiceVisualizer is created by the hud effects manager and uses the HUD Effects pipeline
 	const BOOL needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
 	mVoiceVisualizer = ( LLVoiceVisualizer *)LLHUDManager::getInstance()->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );
@@ -774,6 +780,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
+	mLastAppearanceMessageTimer.reset();
 
     if(LLSceneMonitor::getInstance()->isEnabled())
 	{
@@ -1956,6 +1963,11 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
+
+	//LLTEContents tec;
+	//S32 te_retval = parseTEMessage(mesgsys, _PREHASH_ObjectData, block_num, tec);
+
+	LL_DEBUGS("Avatar") << avString() << update_type << LL_ENDL; 
 
 	// Print out arrival information once we have name of avatar.
 		if (has_name && getNVPair("FirstName"))
@@ -3185,12 +3197,8 @@ bool LLVOAvatar::isInMuteList()
 	return muted;
 }
 
-//------------------------------------------------------------------------
-// updateCharacter()
-// called on both your avatar and other avatars
-//------------------------------------------------------------------------
-BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
-{	
+void LLVOAvatar::updateDebugText()
+{
 	// clear debug text
 	mDebugText.clear();
 
@@ -3227,6 +3235,22 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
 		}
 		debug_line += llformat(" bsz-z: %f avofs-z: %f", mBodySize[2], mAvatarOffset[2]);
+		bool hover_enabled = getRegion() && getRegion()->avatarHoverHeightEnabled();
+		debug_line += hover_enabled ? " H" : " h";
+		const LLVector3& hover_offset = getHoverOffset();
+		if (hover_offset[2] != 0.0)
+		{
+			debug_line += llformat(" hov_z: %f", hover_offset[2]);
+			debug_line += llformat(" %s", (mIsSitting ? "S" : "T"));
+			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
+		}
+		F32 elapsed = mLastAppearanceMessageTimer.getElapsedTimeF32();
+		static const char *elapsed_chars = "Xx*...";
+		U32 bucket = U32(elapsed*2);
+		if (bucket < strlen(elapsed_chars))
+		{
+			debug_line += llformat(" %c", elapsed_chars[bucket]);
+		}
 		addDebugText(debug_line);
 	}
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
@@ -3234,7 +3258,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		if (!mBakedTextureDebugText.empty())
 			addDebugText(mBakedTextureDebugText);
 	}
-				 
+
 	if (LLVOAvatar::sShowAnimationDebug)
 	{
 		for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
@@ -3263,6 +3287,27 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 	}
 
+	if (!mDebugText.size() && mText.notNull())
+	{
+		mText->markDead();
+		mText = NULL;
+	}
+	else if (mDebugText.size())
+	{
+		setDebugText(mDebugText);
+	}
+	mDebugText.clear();
+
+}
+
+//------------------------------------------------------------------------
+// updateCharacter()
+// called on both your avatar and other avatars
+//------------------------------------------------------------------------
+BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
+{	
+	updateDebugText();
+	
 	if (!mIsBuilt)
 	{
 		return FALSE;
@@ -3371,9 +3416,15 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	LLVector3 xyVel = getVelocity();
 	xyVel.mV[VZ] = 0.0f;
 	speed = xyVel.length();
-
+	// remembering the value here prevents a display glitch if the
+	// animation gets toggled during this update.
+	bool was_sit_ground_constrained = isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
+	
 	if (!(mIsSitting && getParent()))
 	{
+		// This case includes all configurations except sitting on an
+		// object, so does include ground sit.
+
 		//--------------------------------------------------------------------
 		// get timing info
 		// handle initial condition case
@@ -3427,8 +3478,13 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
 		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		if (!mIsSitting && !was_sit_ground_constrained)
+		{
+			root_pos += LLVector3d(getHoverOffset());
+		}
 		
 		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
+
 
 		if (newPosition != mRoot->getXform()->getWorldPosition())
 		{		
@@ -3594,7 +3650,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 	else if (mDrawable.notNull())
 	{
-		mRoot->setPosition(mDrawable->getPosition());
+		LLVector3 pos = mDrawable->getPosition();
+		pos += getHoverOffset() * mDrawable->getRotation();
+		mRoot->setPosition(pos);
 		mRoot->setRotation(mDrawable->getRotation());
 	}
 	
@@ -3613,7 +3671,21 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	{
 		updateMotions(LLCharacter::NORMAL_UPDATE);
 	}
-	
+
+	// Special handling for sitting on ground.
+	if (!getParent() && (mIsSitting || was_sit_ground_constrained))
+	{
+		
+		F32 off_z = LLVector3d(getHoverOffset()).mdV[VZ];
+		if (off_z != 0.0)
+		{
+			LLVector3 pos = mRoot->getWorldPosition();
+			pos.mV[VZ] += off_z;
+			mRoot->touch();
+			mRoot->setWorldPosition(pos);
+		}
+	}
+
 	// update head position
 	updateHeadOffset();
 
@@ -3696,17 +3768,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 
 	mRoot->updateWorldMatrixChildren();
-
-	if (!mDebugText.size() && mText.notNull())
-	{
-		mText->markDead();
-		mText = NULL;
-	}
-	else if (mDebugText.size())
-	{
-		setDebugText(mDebugText);
-	}
-	mDebugText.clear();
 
 	//mesh vertices need to be reskinned
 	mNeedsSkin = TRUE;
@@ -7145,6 +7206,17 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		// For future use:
 		//mesgsys->getU32Fast(_PREHASH_AppearanceData, _PREHASH_Flags, appearance_flags, 0);
 	}
+
+	// Parse the AppearanceData field, if any.
+	contents.mHoverOffsetWasSet = false;
+	if (mesgsys->has(_PREHASH_AppearanceHover))
+	{
+		LLVector3 hover;
+		mesgsys->getVector3Fast(_PREHASH_AppearanceHover, _PREHASH_HoverHeight, hover);
+		LL_DEBUGS("Avatar") << avString() << " hover received " << hover.mV[ VX ] << "," << hover.mV[ VY ] << "," << hover.mV[ VZ ] << LL_ENDL;
+		contents.mHoverOffset = hover;
+		contents.mHoverOffsetWasSet = true;
+	}
 	
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
@@ -7261,6 +7333,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		LL_WARNS() << "Blocking AvatarAppearance message" << LL_ENDL;
 		return;
 	}
+
+	mLastAppearanceMessageTimer.reset();
 
 	ESex old_sex = getSex();
 
@@ -7444,6 +7518,22 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			LL_INFOS() << "That's okay, we already have a non-default shape for object: "  << getID() << LL_ENDL;
 			// we don't really care.
 		}
+	}
+
+	if (contents.mHoverOffsetWasSet && !isSelf())
+	{
+		// Got an update for some other avatar
+		// Ignore updates for self, because we have a more authoritative value in the preferences.
+		setHoverOffset(contents.mHoverOffset);
+		LL_INFOS("Avatar") << avString() << "setting hover from message" << contents.mHoverOffset[2] << LL_ENDL;
+	}
+
+	if (!contents.mHoverOffsetWasSet && !isSelf())
+	{
+		// If we don't get a value at all, we are presumably in a
+		// region that does not support hover height.
+		LL_WARNS() << avString() << "zeroing hover because not defined in appearance message" << LL_ENDL;
+		setHoverOffset(LLVector3(0.0, 0.0, 0.0));
 	}
 
 	setCompositeUpdatesEnabled( TRUE );

@@ -89,6 +89,11 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
 	mConnection = toast->setOnToastDestroyedCallback(boost::bind(&LLInspectToast::onToastDestroy, this, _1));
 
 	LLPanel * panel = toast->getPanel();
+	if (panel == NULL)
+	{
+		LL_WARNS() << "Could not get toast's panel." << LL_ENDL;
+		return;
+	}
 	panel->setVisible(TRUE);
 	panel->setMouseOpaque(FALSE);
 	if(mPanel != NULL && mPanel->getParent() == this)
