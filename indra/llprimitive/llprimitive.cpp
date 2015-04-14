@@ -324,6 +324,11 @@ S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMateri
 	return mTextureList.setMaterialParams(index, pMaterialParams);
 }
 
+LLMaterialPtr LLPrimitive::getTEMaterialParams(const U8 index)
+{
+	return mTextureList.getMaterialParams(index);
+}
+
 //===============================================================
 S32  LLPrimitive::setTEBumpShinyFullbright(const U8 index, const U8 bump)
 {
@@ -1360,9 +1365,8 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 		retval |= setTEBumpShinyFullbright(i, tec.bump[i]);
 		retval |= setTEMediaTexGen(i, tec.media_flags[i]);
 		retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
-		
-                retval |= setTEMaterialID(i, tec.material_ids[i]);
-		
+		retval |= setTEMaterialID(i, tec.material_ids[i]);
+
 		coloru = LLColor4U(tec.colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)

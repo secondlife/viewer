@@ -586,9 +586,9 @@ void LLFloaterTexturePicker::draw()
 			mTentativeLabel->setVisible( FALSE  );
 		}
 
-		getChildView("Default")->setEnabled(mImageAssetID != mOwner->getDefaultImageAssetID());
-		getChildView("Blank")->setEnabled(mImageAssetID != mOwner->getBlankImageAssetID());
-		getChildView("None")->setEnabled(mOwner->getAllowNoTexture() && !mImageAssetID.isNull() );
+		getChildView("Default")->setEnabled(mImageAssetID != mOwner->getDefaultImageAssetID() || mOwner->getTentative());
+		getChildView("Blank")->setEnabled(mImageAssetID != mOwner->getBlankImageAssetID() || mOwner->getTentative());
+		getChildView("None")->setEnabled(mOwner->getAllowNoTexture() && (!mImageAssetID.isNull() || mOwner->getTentative()));
 
 		LLFloater::draw();
 
@@ -1511,8 +1511,8 @@ void LLTextureCtrl::draw()
 		gl_draw_x( interior, LLColor4::black );
 	}
 
-	mTentativeLabel->setVisible( !mTexturep.isNull() && getTentative() );
-	
+	mTentativeLabel->setVisible( getTentative() );
+
 	// Show "Loading..." string on the top left corner while this texture is loading.
 	// Using the discard level, do not show the string if the texture is almost but not 
 	// fully loaded.

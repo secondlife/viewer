@@ -34,6 +34,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llavatarnamecache.h"
 #include "lldictionary.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
@@ -1705,9 +1706,14 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 
 					return true;
 				}
-
+				std::string dest_name = session->mName;
+				LLAvatarName av_name;
+				if(LLAvatarNameCache::get(dest_agent, &av_name))
+				{
+					dest_name = av_name.getCompleteName();
+				}
 				// If an IM session with destination agent is found item offer will be logged in this session.
-				show_object_sharing_confirmation(session->mName, inv_obj, dest, dest_agent, session_id);
+				show_object_sharing_confirmation(dest_name, inv_obj, dest, dest_agent, session_id);
 			}
 		}
 		else

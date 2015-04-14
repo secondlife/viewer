@@ -44,10 +44,13 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryNoLink());
 	mUrlEntryIcon = new LLUrlEntryIcon();
 	registerUrl(mUrlEntryIcon);
+	mLLUrlEntryInvalidSLURL = new LLUrlEntryInvalidSLURL();
+	registerUrl(mLLUrlEntryInvalidSLURL);
 	registerUrl(new LLUrlEntrySLURL());
 
 	// decorated links for host names like: secondlife.com and lindenlab.com
-	registerUrl(new LLUrlEntrySeconlifeURL());
+	registerUrl(new LLUrlEntrySecondlifeURL());
+	registerUrl(new LLUrlEntrySimpleSecondlifeURL());
 
 	registerUrl(new LLUrlEntryHTTP());
 	mUrlEntryHTTPLabel = new LLUrlEntryHTTPLabel();
@@ -188,6 +191,14 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 			if (start < match_start || match_entry == NULL)
 			{
 
+				if((mLLUrlEntryInvalidSLURL == *it))
+				{
+					if(url_entry && url_entry->isSLURLvalid(text.substr(start, end - start + 1)))
+					{
+						continue;
+					}
+				}
+
 				if((mUrlEntryHTTPLabel == *it) || (mUrlEntrySLLabel == *it))
 				{
 					if(url_entry && !url_entry->isWikiLinkCorrect(text.substr(start, end - start + 1)))
@@ -216,6 +227,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
 						match_entry->getLabel(url, cb),
+						match_entry->getQuery(url),
 						match_entry->getTooltip(url),
 						match_entry->getIcon(url),
 						match_entry->getStyle(),
@@ -252,6 +264,7 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 
 		match.setValues(start, end, match.getUrl(), 
 						match.getLabel(),
+						match.getQuery(),
 						match.getTooltip(),
 						match.getIcon(),
 						match.getStyle(),
