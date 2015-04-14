@@ -3696,7 +3696,7 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			{
 				handled = pMenu->handleKey(key, mask, TRUE);
 			}
-			else
+			else if (mask == MASK_NONE || (key >= KEY_LEFT && key <= KEY_DOWN))
 			{
 				//highlight first enabled one
 				if(pMenu->highlightNextItem(NULL))

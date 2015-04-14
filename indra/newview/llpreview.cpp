@@ -39,6 +39,7 @@
 #include "llradiogroup.h"
 #include "llassetstorage.h"
 #include "llviewerassettype.h"
+#include "llviewermessage.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "lldbstrings.h"
@@ -53,7 +54,7 @@
 
 LLPreview::LLPreview(const LLSD& key)
 :	LLFloater(key),
-	mItemUUID(key.asUUID()),
+	mItemUUID(key.has("itemid") ? key.get("itemid").asUUID() : key.asUUID()),
 	mObjectUUID(),			// set later by setObjectID()
 	mCopyToInvBtn( NULL ),
 	mForceClose(FALSE),
@@ -369,6 +370,20 @@ void LLPreview::onBtnCopyToInv(void* userdata)
 										 self->mNotecardInventoryID,
 										 item);
 		}
+		else if (self->mObjectUUID.notNull())
+		{
+			// item is in in-world inventory
+			LLViewerObject* object = gObjectList.findObject(self->mObjectUUID);
+			LLPermissions perm(item->getPermissions());
+			if(object
+				&&(perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
+				&& perm.allowTransferTo(gAgent.getID())))
+			{
+				// copy to default folder
+				set_dad_inventory_item(item, LLUUID::null);
+				object->moveInventory(LLUUID::null, item->getUUID());
+			}
+		}
 		else
 		{
 			LLPointer<LLInventoryCallback> cb = NULL;
@@ -453,7 +468,6 @@ LLMultiPreview::LLMultiPreview()
 	setTitle(LLTrans::getString("MultiPreviewTitle"));
 	buildTabContainer();
 	setCanResize(TRUE);
-	mAutoResize = FALSE;
 }
 
 void LLMultiPreview::onOpen(const LLSD& key)

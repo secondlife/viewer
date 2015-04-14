@@ -146,6 +146,7 @@ public:
 	virtual void	setToggleState( BOOL left, BOOL top, BOOL right, BOOL bottom );
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual void	onHeldDown();
 	virtual void	draw();
 

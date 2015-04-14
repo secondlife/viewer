@@ -1417,7 +1417,14 @@
             </menu_item_call>
 
         <menu_item_separator/>
-
+		<menu_item_call
+             label="Bumps, Pushes &amp; Hits"
+             name="Bumps, Pushes &amp;amp; Hits">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="bumps" />
+        </menu_item_call>
+        <menu_item_separator/>    
         <menu_item_call
          label="About [APP_NAME]"
          name="About Second Life">
@@ -3031,15 +3038,7 @@
          name="Dump Scripted Camera">
             <menu_item_call.on_click
              function="Advanced.DumpScriptedCamera" />
-        </menu_item_call>
-        <menu_item_call
-             label="Bumps, Pushes &amp; Hits"
-             name="Bumps, Pushes &amp;amp; Hits">
-                <menu_item_call.on_click
-                 function="Floater.Show"
-                 parameter="bumps" />
-            </menu_item_call>
-
+        </menu_item_call>      
         <menu
          create_jump_keys="true"
          label="Recorder"

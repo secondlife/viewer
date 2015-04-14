@@ -27,9 +27,9 @@
 	<check_box label="No terreno de outra pessoa" name="return_other_land" tool_tip="Devolver apenas objetos que estejam em terrenos de outra pessoa"/>
 	<check_box label="Em todas as regiões desta propriedade" name="return_estate_wide" tool_tip="Devolver objetos em todas as regiões que constituem esta propriedade"/>
 	<button label="Devolver" name="return_btn"/>
-	<button label="Principais colidentes..." name="top_colliders_btn" tool_tip="Lista dos objetos com maior potencial de colisão" width="280"/>
-	<button label="Reiniciar a região" name="restart_btn" tool_tip="Após 2 minutos de contagem regressiva, reiniciar a região"/>
-	<button label="Principais scripts..." name="top_scripts_btn" tool_tip="Lista de objetos que mais passam tempo executando scripts" width="280"/>
-	<button label="Cancelar reinício" name="cancel_restart_btn" tool_tip="Cancelar reinício da região"/>
-	<button label="Console de depuração de região" name="region_debug_console_btn" tool_tip="Abrir console de depuração de região"/>
+	<button label="Principais colidentes..." name="top_colliders_btn" tool_tip="Lista dos objetos com maior potencial de colisão" width="240"/>
+	<button label="Reiniciar a região" name="restart_btn" tool_tip="Após 2 minutos de contagem regressiva, reiniciar a região" left_pad="90" width="160"/>
+	<button label="Principais scripts..." name="top_scripts_btn" tool_tip="Lista de objetos que mais passam tempo executando scripts" width="240"/>
+	<button label="Cancelar reinício" name="cancel_restart_btn" tool_tip="Cancelar reinício da região" left_pad="90" width="160"/>
+	<button label="Console de depuração de região" name="region_debug_console_btn" tool_tip="Abrir console de depuração de região" width="240"/>
 </panel>
