@@ -351,7 +351,15 @@ public:
         
 		if (!isGoodStatus())
 		{
-            log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
+            if (getStatus() == 404)
+            {
+                // That listing does not exist -> delete its record from the local SLM data store
+                LLMarketplaceData::instance().deleteListing(mExpectedFolderId, false);
+            }
+            else
+            {
+                log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
+            }
             update_marketplace_category(mExpectedFolderId, false);
             gInventory.notifyObservers();
             return;
