@@ -410,6 +410,10 @@ Pamiętaj: Opcja ta wyczyszcza bufor danych.
 		Zapisać zmiany?
 		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie zapisuj" yestext="Zapisz" />
 	</notification>
+	<notification name="DeleteNotecard">
+		Usunąć notkę?
+		<usetemplate name="okcancelbuttons" notext="Anuluj" />
+	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Nie można zapisać gestu.
 Ten gest ma zbyt wiele etapów.

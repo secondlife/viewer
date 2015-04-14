@@ -1862,6 +1862,9 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="SaveComplete">
 		Zapisywanie zakończone.
 	</string>
+	<string name="UploadFailed">
+		Ładowanie nieudane:
+	</string>
 	<string name="ObjectOutOfRange">
 		Skrypt (obiekt poza zasięgiem)
 	</string>

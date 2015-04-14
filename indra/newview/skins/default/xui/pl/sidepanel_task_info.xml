@@ -31,7 +31,7 @@
 		Cena: L$
 	</panel.string>
 	<panel.string name="Cost Total">
-		Cena całkowita: L$
+		Suma: L$
 	</panel.string>
 	<panel.string name="Cost Per Unit">
 		Cena za jedn.: L$

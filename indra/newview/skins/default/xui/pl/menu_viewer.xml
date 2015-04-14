@@ -176,6 +176,7 @@
 		<menu_item_call label="Blogi [SECOND_LIFE]" name="Second Life Blogs" />
 		<menu_item_call label="Zgłoś nadużycie" name="Report Abuse" />
 		<menu_item_call label="Zgłoś błędy klienta" name="Report Bug" />
+		<menu_item_call label="Zderzenia, popchnięcia i uderzenia" name="Bumps, Pushes &amp;amp; Hits" />
 		<menu_item_call label="Informacje o [APP_NAME]" name="About Second Life" />
 	</menu>
 	<menu label="Zaawansowane" name="Advanced">
@@ -359,7 +360,6 @@
 			<menu_item_call label="Zagub pakiet" name="Drop a Packet" shortcut="" />
 		</menu>
 		<menu_item_call label="Zrzut oskryptowanej kamery" name="Dump Scripted Camera" />
-		<menu_item_call label="Zderzenia, popchnięcia i uderzenia" name="Bumps, Pushes &amp;amp; Hits" />
 		<menu label="Nagrywanie" name="Recorder">
 			<menu_item_call label="Rozpocznij nagrywanie zdarzeń" name="Start event recording" />
 			<menu_item_call label="Zatrzymaj nagrywanie zdarzeń" name="Stop event recording" />
