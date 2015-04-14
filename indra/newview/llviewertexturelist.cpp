@@ -634,7 +634,7 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
 	{
 		return;
 	}
-	llassert(new_image);
+	//llassert(new_image);
 	LLUUID image_id = new_image->getID();
 	
 	LLViewerFetchedTexture *image = findImage(image_id);

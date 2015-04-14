@@ -29,6 +29,7 @@
 #define LL_LLFLOATERBUMP_H
 
 #include "llfloater.h"
+#include "llmenugl.h"
 
 class LLMeanCollisionData;
 class LLScrollListCtrl;
@@ -39,14 +40,36 @@ class LLFloaterBump
 	friend class LLFloaterReg;
 protected:
 	void add(LLScrollListCtrl* list, LLMeanCollisionData *mcd);
+	void onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y);
 
 public:
+	/*virtual*/	BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	
+	void startIM();
+	void startCall();
+	void reportAbuse();
+	void showProfile();
+	void addFriend();
+	void inviteToGroup();
+	bool enableAddFriend();
+	void muteAvatar();
+	void payAvatar();
+	void zoomInAvatar();
+	bool enableMute();
+
 private:
 	
 	LLFloaterBump(const LLSD& key);
 	virtual ~LLFloaterBump();
+
+	LLScrollListCtrl* mList;
+	LLMenuGL* mPopupMenu;
+	LLUUID mItemUUID;
+
+	typedef std::map<LLUUID, std::string> uuid_map_t;
+	uuid_map_t mNames;
+
 };
 
 #endif

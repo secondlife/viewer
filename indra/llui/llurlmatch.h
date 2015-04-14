@@ -62,6 +62,9 @@ public:
 	/// return a label that can be used for the display of this Url
 	std::string getLabel() const { return mLabel; }
 
+	/// return a right part of url which should be drawn in grey
+	std::string getQuery() const { return mQuery; }
+
 	/// return a message that could be displayed in a tooltip or status bar
 	std::string getTooltip() const { return mTooltip; }
 
@@ -85,10 +88,10 @@ public:
 
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
-	               const std::string &tooltip, const std::string &icon,
+	               const std::string& query, const std::string &tooltip, const std::string &icon,
 				   const LLStyle::Params& style, const std::string &menu, 
 				   const std::string &location, const LLUUID& id,
-				   bool underline_on_hover_only = false, bool trusted = false );
+				   bool underline_on_hover_only = false, bool trusted = false);
 
 	const LLUUID& getID() const { return mID; }
 private:
@@ -96,6 +99,7 @@ private:
 	U32         mEnd;
 	std::string mUrl;
 	std::string mLabel;
+	std::string mQuery;
 	std::string mTooltip;
 	std::string mIcon;
 	std::string mMenuName;

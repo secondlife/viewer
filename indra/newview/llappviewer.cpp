@@ -685,6 +685,8 @@ LLAppViewer::LLAppViewer()
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
 	mYieldTime(-1),
+	mLastAgentControlFlags(0),
+	mLastAgentForceUpdate(0),
 	mMainloopTimeout(NULL),
 	mAgentRegionLastAlive(false),
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
@@ -4820,22 +4822,24 @@ void LLAppViewer::idle()
 			gAgentPilot.updateTarget();
 			gAgent.autoPilot(&yaw);
 		}
-    
-	    static LLFrameTimer agent_update_timer;
-	    static U32 				last_control_flags;
-    
-	    //	When appropriate, update agent location to the simulator.
-	    F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
-	    BOOL flags_changed = gAgent.controlFlagsDirty() || (last_control_flags != gAgent.getControlFlags());
-		    
-	    if (flags_changed || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
-	    {
-		    LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE);
-		    // Send avatar and camera info
-		    last_control_flags = gAgent.getControlFlags();
-		    send_agent_update(TRUE);
-		    agent_update_timer.reset();
-	    }
+
+		static LLFrameTimer agent_update_timer;
+
+		// When appropriate, update agent location to the simulator.
+		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
+		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
+		BOOL force_update = gAgent.controlFlagsDirty()
+							|| (mLastAgentControlFlags != gAgent.getControlFlags())
+							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
+		{
+			LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE);
+			// Send avatar and camera info
+			mLastAgentControlFlags = gAgent.getControlFlags();
+			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
+			send_agent_update(force_update);
+			agent_update_timer.reset();
+		}
 	}
 
 	//////////////////////////////////////
@@ -5383,7 +5387,7 @@ void LLAppViewer::idleNetwork()
 		}
 
 		// Handle per-frame message system processing.
-		gMessageSystem->processAcks();
+		gMessageSystem->processAcks(gSavedSettings.getF32("AckCollectTime"));
 
 #ifdef TIME_THROTTLE_MESSAGES
 		if (total_time >= CheckMessagesMaxTime)
