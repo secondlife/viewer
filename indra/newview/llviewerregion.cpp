@@ -423,6 +423,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mCacheDirty(FALSE),
 	mReleaseNotesRequested(FALSE),
 	mCapabilitiesReceived(false),
+	mSimulatorFeaturesReceived(false),
 	mBitsReceived(0.f),
 	mPacketsReceived(0.f),
 	mDead(FALSE),
@@ -2036,6 +2037,26 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
+boost::signals2::connection LLViewerRegion::setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb)
+{
+	return mSimulatorFeaturesReceivedSignal.connect(cb);
+}
+
+void LLViewerRegion::setSimulatorFeaturesReceived(bool received)
+{
+	mSimulatorFeaturesReceived = received;
+	if (received)
+	{
+		mSimulatorFeaturesReceivedSignal(getRegionID());
+		mSimulatorFeaturesReceivedSignal.disconnect_all_slots();
+	}
+}
+
+bool LLViewerRegion::simulatorFeaturesReceived() const
+{
+	return mSimulatorFeaturesReceived;
+}
+
 void LLViewerRegion::getSimulatorFeatures(LLSD& sim_features) const
 {
 	sim_features = mSimulatorFeatures;
@@ -2049,6 +2070,9 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	LLSDSerialize::toPrettyXML(sim_features, str);
 	LL_INFOS() << str.str() << LL_ENDL;
 	mSimulatorFeatures = sim_features;
+
+	setSimulatorFeaturesReceived(true);
+	
 }
 
 //this is called when the parent is not cacheable.
@@ -2701,15 +2725,12 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("FlickrConnect");
 	capabilityNames.append("TwitterConnect");
 
-	if (gSavedSettings.getBOOL("UseHTTPInventory"))
-	{	
-		capabilityNames.append("FetchLib2");
-		capabilityNames.append("FetchLibDescendents2");
-		capabilityNames.append("FetchInventory2");
-		capabilityNames.append("FetchInventoryDescendents2");
-		capabilityNames.append("IncrementCOFVersion");
-		AISCommand::getCapabilityNames(capabilityNames);
-	}
+	capabilityNames.append("FetchLib2");
+	capabilityNames.append("FetchLibDescendents2");
+	capabilityNames.append("FetchInventory2");
+	capabilityNames.append("FetchInventoryDescendents2");
+	capabilityNames.append("IncrementCOFVersion");
+	AISCommand::getCapabilityNames(capabilityNames);
 
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetMesh");
@@ -3096,6 +3117,12 @@ bool LLViewerRegion::dynamicPathfindingEnabled() const
 {
 	return ( mSimulatorFeatures.has("DynamicPathfindingEnabled") &&
 			 mSimulatorFeatures["DynamicPathfindingEnabled"].asBoolean());
+}
+
+bool LLViewerRegion::avatarHoverHeightEnabled() const
+{
+	return ( mSimulatorFeatures.has("AvatarHoverHeightEnabled") &&
+			 mSimulatorFeatures["AvatarHoverHeightEnabled"].asBoolean());
 }
 /* Static Functions */
 

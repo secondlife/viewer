@@ -162,19 +162,7 @@ private:
 
 	boost::signals2::connection mEndDragConnection;
 };
-/*
-class AddFavoriteLandmarkCallback : public LLInventoryCallback
-{
-public:
-	AddFavoriteLandmarkCallback() : mTargetLandmarkId(LLUUID::null) {}
-	void setTargetLandmarkId(const LLUUID& target_uuid) { mTargetLandmarkId = target_uuid; }
 
-private:
-	void fire(const LLUUID& inv_item);
-
-	LLUUID mTargetLandmarkId;
-};
-*/
 /**
  * Class to store sorting order of favorites landmarks in a local file. EXT-3985.
  * It replaced previously implemented solution to store sort index in landmark's name as a "<N>@" prefix.
@@ -222,14 +210,16 @@ private:
 	friend class LLSingleton<LLFavoritesOrderStorage>;
 	LLFavoritesOrderStorage() : mIsDirty(false) { load(); }
 	~LLFavoritesOrderStorage() { save(); }
-
+    
 	/**
 	 * Removes sort indexes for items which are not in Favorites bar for now.
 	 */
 	void cleanup();
 
 	const static std::string SORTING_DATA_FILE_NAME;
-
+    std::string getSavedOrderFileName();
+    static std::string getStoredFavoritesFilename();
+    
 	void load();
 	void save();
 

@@ -395,16 +395,20 @@
                  left_pad="0"
                  layout="topleft"
                  follows="left|top"
-                 name="combobox sale copy"
+                 name="ComboBoxSaleType"
                  width="170">
-                <combo_box.item
-                     label="Copy"
-                     name="Copy"
-                     value="Copy" />
-                <combo_box.item
-                     label="Original"
-                     name="Original"
-                     value="Original" />
+              <combo_box.item
+                   name="Copy"
+                   label="Copy"
+                   value="2" />
+              <combo_box.item
+                   name="Contents"
+                   label="Contents"
+                   value="3" />
+              <combo_box.item
+                   name="Original"
+                   label="Original"
+                   value="1" />
             </combo_box>
             <spinner
                     follows="left|top"

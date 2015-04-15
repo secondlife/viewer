@@ -127,7 +127,7 @@ void LLLocationHistory::save() const
 	}
 
 	// open a file for writing
-	llofstream file (resolved_filename);
+	llofstream file(resolved_filename.c_str());
 	if (!file.is_open())
 	{
 		LL_WARNS() << "can't open location history file \"" << mFilename << "\" for writing" << LL_ENDL;
@@ -148,7 +148,7 @@ void LLLocationHistory::load()
 	
 	// build filename for each user
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
-	llifstream file(resolved_filename);
+	llifstream file(resolved_filename.c_str());
 
 	if (!file.is_open())
 	{

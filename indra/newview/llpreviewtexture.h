@@ -90,6 +90,7 @@ private:
 	// This is stored off in a member variable, because the save-as
 	// button and drag and drop functionality need to know.
 	BOOL mIsCopyable;
+	BOOL mIsFullPerm;
 	BOOL mUpdateDimensions;
 	S32 mLastHeight;
 	S32 mLastWidth;
