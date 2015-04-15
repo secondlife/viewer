@@ -194,8 +194,9 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 
         // Stop shining animation.
         mShineAnimTimer.stop();
+        mSnapshotDelayTimer.setTimerExpirySec(delay);
 		mSnapshotDelayTimer.start();
-		mSnapshotDelayTimer.setTimerExpirySec(delay);
+
         
 		mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
 
