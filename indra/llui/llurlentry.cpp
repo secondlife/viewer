@@ -204,10 +204,10 @@ std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
 {
 	LLUriParser up(unescapeUrl(url));
 
-	std::string query;
+	std::string label;
 	up.extractParts();
-	up.glueSecond(query);
-
+	up.glueFirst(label);
+	std::string query = url.substr(label.size());
 	return query;
 }
 
