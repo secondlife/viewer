@@ -30,6 +30,7 @@
 #define LL_llavatarrenderinfoaccountant_H
 
 #include "httpcommon.h"
+#include "llcoros.h"
 
 class LLViewerRegion;
 
@@ -55,7 +56,9 @@ private:
 	// Send data updates about once per minute, only need per-frame resolution
 	static LLFrameTimer sRenderInfoReportTimer;
 
-//	static LLCore::HttpRequest::ptr_t	sHttpRequest;
+    static void avatarRenderInfoGetCoro(LLCoros::self& self, std::string url, U64 regionHandle);
+    static void avatarRenderInfoReportCoro(LLCoros::self& self, std::string url, U64 regionHandle);
+
 
 };
 

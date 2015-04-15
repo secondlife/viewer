@@ -46,6 +46,7 @@
 #include "llhttpsdhandler.h"
 #include "httpheaders.h"
 #include "httpoptions.h"
+#include "llcorehttputil.h"
 
 static	const std::string KEY_AGENTS = "agents";			// map
 static 	const std::string KEY_WEIGHT = "weight";			// integer
@@ -59,268 +60,176 @@ static	const std::string KEY_ERROR = "error";
 LLFrameTimer LLAvatarRenderInfoAccountant::sRenderInfoReportTimer;
 //LLCore::HttpRequest::ptr_t LLAvatarRenderInfoAccountant::sHttpRequest;
 
-#if 0
 //=========================================================================
-class LLAvatarRenderInfoHandler : public LLHttpSDHandler
+void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(LLCoros::self& self, std::string url, U64 regionHandle)
 {
-public:
-	LLAvatarRenderInfoHandler(const LLURI &uri, U64 regionHandle);
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t 
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EnvironmentRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-protected:
-	virtual void onSuccess(LLCore::HttpResponse * response, LLSD &content);
-	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
-private:
-	U64	mRegionHandle;
-};
+    LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    if (!regionp)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight info received but region not found for " 
+                << regionHandle << LL_ENDL;
+        return;
+    }
 
-LLAvatarRenderInfoHandler::LLAvatarRenderInfoHandler(const LLURI &uri, U64 regionHandle) :
-	LLHttpSDHandler(uri),
-	mRegionHandle(regionHandle)
-{
+    LLSD httpResults = result["http_result"];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "HTTP status, " << status.toTerseString() << LL_ENDL;
+        return;
+    }
+
+    if (result.has(KEY_AGENTS))
+    {
+        const LLSD & agents = result[KEY_AGENTS];
+        if (agents.isMap())
+        {
+            LLSD::map_const_iterator	report_iter = agents.beginMap();
+            while (report_iter != agents.endMap())
+            {
+                LLUUID target_agent_id = LLUUID(report_iter->first);
+                const LLSD & agent_info_map = report_iter->second;
+                LLViewerObject* avatarp = gObjectList.findObject(target_agent_id);
+                if (avatarp && 
+                    avatarp->isAvatar() &&
+                    agent_info_map.isMap())
+                {	// Extract the data for this avatar
+
+                    if (LLAvatarRenderInfoAccountant::logRenderInfo())
+                    {
+                        LL_INFOS() << "LRI:  Agent " << target_agent_id 
+                            << ": " << agent_info_map << LL_ENDL;
+                    }
+
+                    if (agent_info_map.has(KEY_WEIGHT))
+                    {
+                        ((LLVOAvatar *) avatarp)->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
+                    }
+                }
+                report_iter++;
+            }
+        }
+    }	// has "agents"
+    else if (result.has(KEY_ERROR))
+    {
+        const LLSD & error = result[KEY_ERROR];
+        LL_WARNS() << "Avatar render info GET error: "
+            << error[KEY_IDENTIFIER]
+            << ": " << error[KEY_MESSAGE] 
+            << " from region " << regionp->getName()
+            << LL_ENDL;
+    }
+
 }
-
-void LLAvatarRenderInfoHandler::onSuccess(LLCore::HttpResponse * response, LLSD &content)
-{
-	LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-	if (regionp)
-	{
-		if (LLAvatarRenderInfoAccountant::logRenderInfo())
-		{
-			LL_INFOS() << "LRI: Result for avatar weights request for region " << regionp->getName() << ":" << LL_ENDL;
-		}
-
-		if (content.isMap())
-		{
-			if (content.has(KEY_AGENTS))
-			{
-				const LLSD & agents = content[KEY_AGENTS];
-				if (agents.isMap())
-				{
-					LLSD::map_const_iterator	report_iter = agents.beginMap();
-					while (report_iter != agents.endMap())
-					{
-						LLUUID target_agent_id = LLUUID(report_iter->first);
-						const LLSD & agent_info_map = report_iter->second;
-						LLViewerObject* avatarp = gObjectList.findObject(target_agent_id);
-						if (avatarp &&
-							avatarp->isAvatar() &&
-							agent_info_map.isMap())
-						{	// Extract the data for this avatar
-
-							if (LLAvatarRenderInfoAccountant::logRenderInfo())
-							{
-								LL_INFOS() << "LRI:  Agent " << target_agent_id
-									<< ": " << agent_info_map << LL_ENDL;
-							}
-
-							if (agent_info_map.has(KEY_WEIGHT))
-							{
-								((LLVOAvatar *)avatarp)->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
-							}
-						}
-						report_iter++;
-					}
-				}
-			}	// has "agents"
-			else if (content.has(KEY_ERROR))
-			{
-				const LLSD & error = content[KEY_ERROR];
-				LL_WARNS() << "Avatar render info GET error: "
-					<< error[KEY_IDENTIFIER]
-					<< ": " << error[KEY_MESSAGE]
-					<< " from region " << regionp->getName()
-					<< LL_ENDL;
-			}
-		}
-	}
-	else
-	{
-		LL_INFOS() << "Avatar render weight info received but region not found for "
-			<< mRegionHandle << LL_ENDL;
-	}
-}
-
-void LLAvatarRenderInfoHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
-{
-	LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-	if (regionp)
-	{
-		LL_WARNS() << "HTTP error result for avatar weight GET: " << status.toULong()
-			<< ", " << status.toString()
-			<< " returned by region " << regionp->getName()
-			<< LL_ENDL;
-	}
-	else
-	{
-		LL_WARNS() << "Avatar render weight GET error received but region not found for " 
-			<< mRegionHandle 
-			<< ", error " << status.toULong()
-			<< ", " << status.toString()
-			<< LL_ENDL;
-	}
-}
-
 
 //-------------------------------------------------------------------------
-#else
-// HTTP responder class for GET request for avatar render weight information
-class LLAvatarRenderInfoGetResponder : public LLHTTPClient::Responder
+void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(LLCoros::self& self, std::string url, U64 regionHandle)
 {
-public:
-	LLAvatarRenderInfoGetResponder(U64 region_handle) : mRegionHandle(region_handle)
-	{
-	}
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EnvironmentRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-	virtual void error(U32 statusNum, const std::string& reason)
-	{
-		LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if (regionp)
-		{
-			LL_WARNS() << "HTTP error result for avatar weight GET: " << statusNum 
-				<< ", " << reason
-				<< " returned by region " << regionp->getName()
-				<< LL_ENDL;
-		}
-		else
-		{
-			LL_WARNS() << "Avatar render weight GET error recieved but region not found for " 
-				<< mRegionHandle 
-				<< ", error " << statusNum 
-				<< ", " << reason
-				<< LL_ENDL;
-		}
+    LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    if (!regionp)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight calculation but region not found for "
+            << regionHandle << LL_ENDL;
+        return;
+    }
 
-	}
+    if (logRenderInfo())
+    {
+        LL_INFOS("AvatarRenderInfoAccountant") << "LRI: Sending avatar render info to region " << regionp->getName()
+                << " from " << url << LL_ENDL;
+    }
 
-	virtual void result(const LLSD& content)
-	{
-		LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if (regionp)
-		{
-			if (LLAvatarRenderInfoAccountant::logRenderInfo())
-			{
-				LL_INFOS() << "LRI: Result for avatar weights request for region " << regionp->getName() << ":" << LL_ENDL;
-			}
+    // Build the render info to POST to the region
+    LLSD report = LLSD::emptyMap();
+    LLSD agents = LLSD::emptyMap();
 
-			if (content.isMap())
-			{
-				if (content.has(KEY_AGENTS))
-				{
-					const LLSD & agents = content[KEY_AGENTS];
-					if (agents.isMap())
-					{
-						LLSD::map_const_iterator	report_iter = agents.beginMap();
-						while (report_iter != agents.endMap())
-						{
-							LLUUID target_agent_id = LLUUID(report_iter->first);
-							const LLSD & agent_info_map = report_iter->second;
-							LLViewerObject* avatarp = gObjectList.findObject(target_agent_id);
-							if (avatarp && 
-								avatarp->isAvatar() &&
-								agent_info_map.isMap())
-							{	// Extract the data for this avatar
+    std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+    while( iter != LLCharacter::sInstances.end() )
+    {
+        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*iter);
+        if (avatar &&
+            avatar->getRezzedStatus() >= 2 &&					// Mostly rezzed (maybe without baked textures downloaded)
+            !avatar->isDead() &&								// Not dead yet
+            avatar->getObjectHost() == regionp->getHost())		// Ensure it's on the same region
+        {
+            avatar->calculateUpdateRenderCost();			// Make sure the numbers are up-to-date
 
-								if (LLAvatarRenderInfoAccountant::logRenderInfo())
-								{
-									LL_INFOS() << "LRI:  Agent " << target_agent_id 
-										<< ": " << agent_info_map << LL_ENDL;
-								}
+            LLSD info = LLSD::emptyMap();
+            if (avatar->getVisualComplexity() > 0)
+            {
+                info[KEY_WEIGHT] = avatar->getVisualComplexity();
+                agents[avatar->getID().asString()] = info;
 
-								if (agent_info_map.has(KEY_WEIGHT))
-								{
-									((LLVOAvatar *) avatarp)->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
-								}
-							}
-							report_iter++;
-						}
-					}
-				}	// has "agents"
-				else if (content.has(KEY_ERROR))
-				{
-					const LLSD & error = content[KEY_ERROR];
-					LL_WARNS() << "Avatar render info GET error: "
-						<< error[KEY_IDENTIFIER]
-						<< ": " << error[KEY_MESSAGE] 
-						<< " from region " << regionp->getName()
-						<< LL_ENDL;
-				}
-			}
-		}
-		else
-		{
-			LL_INFOS() << "Avatar render weight info received but region not found for " 
-				<< mRegionHandle << LL_ENDL;
-		}
-	}
+                if (logRenderInfo())
+                {
+                    LL_INFOS("AvatarRenderInfoAccountant") << "LRI: Sending avatar render info for " << avatar->getID()
+                            << ": " << info << LL_ENDL;
+                    LL_INFOS("AvatarRenderInfoAccountant") << "LRI: other info geometry " << avatar->getAttachmentGeometryBytes()
+                            << ", area " << avatar->getAttachmentSurfaceArea()
+                            << LL_ENDL;
+                }
+            }
+        }
+        iter++;
+    }
 
-private:
-	U64		mRegionHandle;
-};
-#endif
+    if (agents.size() == 0)
+        return;
 
-// HTTP responder class for POST request for avatar render weight information
-class LLAvatarRenderInfoPostResponder : public LLHTTPClient::Responder
-{
-public:
-	LLAvatarRenderInfoPostResponder(U64 region_handle) : mRegionHandle(region_handle)
-	{
-	}
+    report[KEY_AGENTS] = agents;
+    regionp = NULL;
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, report);
 
-	virtual void error(U32 statusNum, const std::string& reason)
-	{
-		LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if (regionp)
-		{
-			LL_WARNS() << "HTTP error result for avatar weight POST: " << statusNum 
-				<< ", " << reason
-				<< " returned by region " << regionp->getName()
-				<< LL_ENDL;
-		}
-		else
-		{
-			LL_WARNS() << "Avatar render weight POST error received but region not found for " 
-				<< mRegionHandle 
-				<< ", error " << statusNum 
-				<< ", " << reason
-				<< LL_ENDL;
-		}
-	}
+    regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    if (!regionp)
+    {
+        LL_INFOS("AvatarRenderInfoAccountant") << "Avatar render weight POST result received but region not found for "
+                << regionHandle << LL_ENDL;
+        return;
+    }
 
-	virtual void result(const LLSD& content)
-	{
-		LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if (regionp)
-		{
-			if (LLAvatarRenderInfoAccountant::logRenderInfo())
-			{
-				LL_INFOS() << "LRI: Result for avatar weights POST for region " << regionp->getName()
-					<< ": " << content << LL_ENDL;
-			}
+    LLSD httpResults = result["http_result"];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "HTTP status, " << status.toTerseString() << LL_ENDL;
+        return;
+    }
 
-			if (content.isMap())
-			{
-				if (content.has(KEY_ERROR))
-				{
-					const LLSD & error = content[KEY_ERROR];
-					LL_WARNS() << "Avatar render info POST error: "
-						<< error[KEY_IDENTIFIER]
-						<< ": " << error[KEY_MESSAGE] 
-						<< " from region " << regionp->getName()
-						<< LL_ENDL;
-				}
-			}
-		}
-		else
-		{
-			LL_INFOS() << "Avatar render weight POST result recieved but region not found for " 
-				<< mRegionHandle << LL_ENDL;
-		}
-	}
+    if (LLAvatarRenderInfoAccountant::logRenderInfo())
+    {
+        LL_INFOS("AvatarRenderInfoAccountant") << "LRI: Result for avatar weights POST for region " << regionp->getName()
+            << ": " << result << LL_ENDL;
+    }
 
-private:
-	U64		mRegionHandle;
-};
+    if (result.isMap())
+    {
+        if (result.has(KEY_ERROR))
+        {
+            const LLSD & error = result[KEY_ERROR];
+            LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render info POST error: "
+                << error[KEY_IDENTIFIER]
+                << ": " << error[KEY_MESSAGE] 
+                << " from region " << regionp->getName()
+                << LL_ENDL;
+        }
+    }
+
+
+}
 
 // static 
 // Send request for one region, no timer checks
@@ -329,53 +238,9 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 	std::string url = regionp->getCapability("AvatarRenderInfo");
 	if (!url.empty())
 	{
-		if (logRenderInfo())
-		{
-			LL_INFOS() << "LRI: Sending avatar render info to region "
-				<< regionp->getName() 
-				<< " from " << url
-				<< LL_ENDL;
-		}
-
-		// Build the render info to POST to the region
-		LLSD report = LLSD::emptyMap();
-		LLSD agents = LLSD::emptyMap();
-				
-		std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		while( iter != LLCharacter::sInstances.end() )
-		{
-			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*iter);
-			if (avatar &&
-				avatar->getRezzedStatus() >= 2 &&					// Mostly rezzed (maybe without baked textures downloaded)
-				!avatar->isDead() &&								// Not dead yet
-				avatar->getObjectHost() == regionp->getHost())		// Ensure it's on the same region
-			{
-				avatar->calculateUpdateRenderCost();			// Make sure the numbers are up-to-date
-
-				LLSD info = LLSD::emptyMap();
-				if (avatar->getVisualComplexity() > 0)
-				{
-					info[KEY_WEIGHT] = avatar->getVisualComplexity();
-					agents[avatar->getID().asString()] = info;
-
-					if (logRenderInfo())
-					{
-						LL_INFOS() << "LRI: Sending avatar render info for " << avatar->getID()
-							<< ": " << info << LL_ENDL;
-						LL_INFOS() << "LRI: other info geometry " << avatar->getAttachmentGeometryBytes()
-							<< ", area " << avatar->getAttachmentSurfaceArea()
-							<< LL_ENDL;
-					}
-				}
-			}
-			iter++;
-		}
-
-		report[KEY_AGENTS] = agents;
-		if (agents.size() > 0)
-		{
-			LLHTTPClient::post(url, report, new LLAvatarRenderInfoPostResponder(regionp->getHandle()));
-		}
+        std::string coroname =
+            LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro",
+            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, _1, url, regionp->getHandle()));
 	}
 }
 
@@ -398,19 +263,9 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
 		}
 
 		// First send a request to get the latest data
-#if 0
-		if (!LLAvatarRenderInfoAccountant::sHttpRequest)
-			sHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-		LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
-
-		LLCore::HttpHeaders::ptr_t httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-		LLCore::HttpOptions::ptr_t httpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
-		LLCore::HttpRequest::policy_t httpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
-
-		LLCore::HttpHandle handle = sHttpRequest->
-#else
-		LLHTTPClient::get(url, new LLAvatarRenderInfoGetResponder(regionp->getHandle()));
-#endif
+        std::string coroname =
+            LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro",
+            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, _1, url, regionp->getHandle()));
 	}
 }
 
@@ -514,6 +369,7 @@ void LLAvatarRenderInfoAccountant::expireRenderInfoReportTimer(const LLUUID& reg
 // static 
 bool LLAvatarRenderInfoAccountant::logRenderInfo()
 {
-	static LLCachedControl<bool> render_mute_logging_enabled(gSavedSettings, "RenderAutoMuteLogging", false);
-	return render_mute_logging_enabled;
+    return true;
+// 	static LLCachedControl<bool> render_mute_logging_enabled(gSavedSettings, "RenderAutoMuteLogging", false);
+// 	return render_mute_logging_enabled;
 }
