@@ -1246,6 +1246,38 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 }
 
 //=========================================================================
+#if 0
+// *TODO: 
+class LLAppearanceMgrHttpHandler
+{
+public:
+
+    static void apperanceMgrRequestCoro(LLCoros::self& self, std::string url);
+
+private:
+    LLAppearanceMgrHttpHandler();
+
+    static void debugCOF(const LLSD& content);
+
+
+};
+
+void LLAppearanceMgrHttpHandler::apperanceMgrRequestCoro(LLCoros::self& self, std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EnvironmentRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+
+
+}
+
+#else
+
+// *TODO: Convert this and llavatar over to using the coroutine scheme rather 
+// than the responder for communications. (see block above for start...)
+
 class LLAppearanceMgrHttpHandler : public LLHttpSDHandler
 {
 public:
@@ -1319,89 +1351,90 @@ void LLAppearanceMgrHttpHandler::onFailure(LLCore::HttpResponse * response, LLCo
 		<< status.toString() << LL_ENDL;
 }
 
+#endif
+
 void LLAppearanceMgrHttpHandler::debugCOF(const LLSD& content)
 {
-	dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
+    dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
 
-	LL_INFOS("Avatar") << "AIS COF, version received: " << content["expected"].asInteger()
-		<< " ================================= " << LL_ENDL;
-	std::set<LLUUID> ais_items, local_items;
-	const LLSD& cof_raw = content["cof_raw"];
-	for (LLSD::array_const_iterator it = cof_raw.beginArray();
-		it != cof_raw.endArray(); ++it)
-	{
-		const LLSD& item = *it;
-		if (item["parent_id"].asUUID() == LLAppearanceMgr::instance().getCOF())
-		{
-			ais_items.insert(item["item_id"].asUUID());
-			if (item["type"].asInteger() == 24) // link
-			{
-				LL_INFOS("Avatar") << "AIS Link: item_id: " << item["item_id"].asUUID()
-					<< " linked_item_id: " << item["asset_id"].asUUID()
-					<< " name: " << item["name"].asString()
-					<< LL_ENDL;
-			}
-			else if (item["type"].asInteger() == 25) // folder link
-			{
-				LL_INFOS("Avatar") << "AIS Folder link: item_id: " << item["item_id"].asUUID()
-					<< " linked_item_id: " << item["asset_id"].asUUID()
-					<< " name: " << item["name"].asString()
-					<< LL_ENDL;
-			}
-			else
-			{
-				LL_INFOS("Avatar") << "AIS Other: item_id: " << item["item_id"].asUUID()
-					<< " linked_item_id: " << item["asset_id"].asUUID()
-					<< " name: " << item["name"].asString()
-					<< " type: " << item["type"].asInteger()
-					<< LL_ENDL;
-			}
-		}
-	}
-	LL_INFOS("Avatar") << LL_ENDL;
-	LL_INFOS("Avatar") << "Local COF, version requested: " << content["observed"].asInteger()
-		<< " ================================= " << LL_ENDL;
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
-		cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH);
-	for (S32 i = 0; i < item_array.size(); i++)
-	{
-		const LLViewerInventoryItem* inv_item = item_array.at(i).get();
-		local_items.insert(inv_item->getUUID());
-		LL_INFOS("Avatar") << "LOCAL: item_id: " << inv_item->getUUID()
-			<< " linked_item_id: " << inv_item->getLinkedUUID()
-			<< " name: " << inv_item->getName()
-			<< " parent: " << inv_item->getParentUUID()
-			<< LL_ENDL;
-	}
-	LL_INFOS("Avatar") << " ================================= " << LL_ENDL;
-	S32 local_only = 0, ais_only = 0;
-	for (std::set<LLUUID>::iterator it = local_items.begin(); it != local_items.end(); ++it)
-	{
-		if (ais_items.find(*it) == ais_items.end())
-		{
-			LL_INFOS("Avatar") << "LOCAL ONLY: " << *it << LL_ENDL;
-			local_only++;
-		}
-	}
-	for (std::set<LLUUID>::iterator it = ais_items.begin(); it != ais_items.end(); ++it)
-	{
-		if (local_items.find(*it) == local_items.end())
-		{
-			LL_INFOS("Avatar") << "AIS ONLY: " << *it << LL_ENDL;
-			ais_only++;
-		}
-	}
-	if (local_only == 0 && ais_only == 0)
-	{
-		LL_INFOS("Avatar") << "COF contents identical, only version numbers differ (req "
-			<< content["observed"].asInteger()
-			<< " rcv " << content["expected"].asInteger()
-			<< ")" << LL_ENDL;
-	}
+    LL_INFOS("Avatar") << "AIS COF, version received: " << content["expected"].asInteger()
+        << " ================================= " << LL_ENDL;
+    std::set<LLUUID> ais_items, local_items;
+    const LLSD& cof_raw = content["cof_raw"];
+    for (LLSD::array_const_iterator it = cof_raw.beginArray();
+        it != cof_raw.endArray(); ++it)
+    {
+        const LLSD& item = *it;
+        if (item["parent_id"].asUUID() == LLAppearanceMgr::instance().getCOF())
+        {
+            ais_items.insert(item["item_id"].asUUID());
+            if (item["type"].asInteger() == 24) // link
+            {
+                LL_INFOS("Avatar") << "AIS Link: item_id: " << item["item_id"].asUUID()
+                    << " linked_item_id: " << item["asset_id"].asUUID()
+                    << " name: " << item["name"].asString()
+                    << LL_ENDL;
+            }
+            else if (item["type"].asInteger() == 25) // folder link
+            {
+                LL_INFOS("Avatar") << "AIS Folder link: item_id: " << item["item_id"].asUUID()
+                    << " linked_item_id: " << item["asset_id"].asUUID()
+                    << " name: " << item["name"].asString()
+                    << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS("Avatar") << "AIS Other: item_id: " << item["item_id"].asUUID()
+                    << " linked_item_id: " << item["asset_id"].asUUID()
+                    << " name: " << item["name"].asString()
+                    << " type: " << item["type"].asInteger()
+                    << LL_ENDL;
+            }
+        }
+    }
+    LL_INFOS("Avatar") << LL_ENDL;
+    LL_INFOS("Avatar") << "Local COF, version requested: " << content["observed"].asInteger()
+        << " ================================= " << LL_ENDL;
+    LLInventoryModel::cat_array_t cat_array;
+    LLInventoryModel::item_array_t item_array;
+    gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
+        cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH);
+    for (S32 i = 0; i < item_array.size(); i++)
+    {
+        const LLViewerInventoryItem* inv_item = item_array.at(i).get();
+        local_items.insert(inv_item->getUUID());
+        LL_INFOS("Avatar") << "LOCAL: item_id: " << inv_item->getUUID()
+            << " linked_item_id: " << inv_item->getLinkedUUID()
+            << " name: " << inv_item->getName()
+            << " parent: " << inv_item->getParentUUID()
+            << LL_ENDL;
+    }
+    LL_INFOS("Avatar") << " ================================= " << LL_ENDL;
+    S32 local_only = 0, ais_only = 0;
+    for (std::set<LLUUID>::iterator it = local_items.begin(); it != local_items.end(); ++it)
+    {
+        if (ais_items.find(*it) == ais_items.end())
+        {
+            LL_INFOS("Avatar") << "LOCAL ONLY: " << *it << LL_ENDL;
+            local_only++;
+        }
+    }
+    for (std::set<LLUUID>::iterator it = ais_items.begin(); it != ais_items.end(); ++it)
+    {
+        if (local_items.find(*it) == local_items.end())
+        {
+            LL_INFOS("Avatar") << "AIS ONLY: " << *it << LL_ENDL;
+            ais_only++;
+        }
+    }
+    if (local_only == 0 && ais_only == 0)
+    {
+        LL_INFOS("Avatar") << "COF contents identical, only version numbers differ (req "
+            << content["observed"].asInteger()
+            << " rcv " << content["expected"].asInteger()
+            << ")" << LL_ENDL;
+    }
 }
-
 //=========================================================================
 
 const LLUUID LLAppearanceMgr::getCOF() const

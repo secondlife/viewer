@@ -2788,6 +2788,8 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 	}
 }
 
+// *TODO:RIDER Convert this system to using the coroutine scheme for HTTP communications
+// 
 LLCore::HttpHandle LLAgent::requestPostCapability(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr)
 {
 	LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(cap);
