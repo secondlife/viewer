@@ -2512,6 +2512,7 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	<string name="CompileSuccessful">Compile successful!</string>
 	<string name="CompileSuccessfulSaving">Compile successful, saving...</string>
 	<string name="SaveComplete">Save complete.</string>
+	<string name="UploadFailed">File upload failed: </string>
 	<string name="ObjectOutOfRange">Script (object out of range)</string>
 
 	<!-- god tools -->

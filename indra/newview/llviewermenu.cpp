@@ -2580,9 +2580,13 @@ static LLStringExplicit get_default_item_label(const std::string& item_name)
 
 bool enable_object_touch(LLUICtrl* ctrl)
 {
+	bool new_value = false;
 	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-
-	bool new_value = obj && obj->flagHandleTouch();
+	if (obj)
+	{
+		LLViewerObject* parent = (LLViewerObject*)obj->getParent();
+		new_value = obj->flagHandleTouch() || (parent && parent->flagHandleTouch());
+	}
 
 	std::string item_name = ctrl->getName();
 	init_default_item_label(item_name);
@@ -2865,6 +2869,11 @@ bool enable_object_build()
 bool enable_object_select_in_pathfinding_linksets()
 {
 	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLSelectMgr::getInstance()->selectGetEditableLinksets();
+}
+
+bool visible_object_select_in_pathfinding_linksets()
+{
+	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
 }
 
 bool enable_object_select_in_pathfinding_characters()
@@ -3881,6 +3890,14 @@ class LLEnableEditShape : public view_listener_t
 	}
 };
 
+class LLEnableHoverHeight : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gAgent.getRegion() && gAgent.getRegion()->avatarHoverHeightEnabled();
+	}
+};
+
 class LLEnableEditPhysics : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -4354,7 +4371,10 @@ static bool get_derezzable_objects(
 			break;
 
 		case DRD_RETURN_TO_OWNER:
-			can_derez_current = TRUE;
+			if(!object->isAttachment())
+			{
+				can_derez_current = TRUE;
+			}
 			break;
 
 		default:
@@ -4762,7 +4782,7 @@ BOOL enable_take()
 			&& object->permModify())
 			|| (node->mPermissions->getOwner() == gAgent.getID())))
 		{
-			return TRUE;
+			return !object->isAttachment();
 		}
 #endif
 	}
@@ -6073,6 +6093,11 @@ void handle_edit_outfit()
 void handle_edit_shape()
 {
 	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_shape"));
+}
+
+void handle_hover_height()
+{
+	LLFloaterReg::showInstance("edit_hover_height");
 }
 
 void handle_edit_physics()
@@ -8281,6 +8306,10 @@ class LLWorldEnableEnvSettings : public view_listener_t
 			{
 				result = (LLEnvManagerNew::instance().getSkyPresetName() == "Midnight");
 			}
+			else if (tod == "region")
+			{
+				return false;
+			}
 			else
 			{
 				LL_WARNS() << "Unknown time-of-day item:  " << tod << LL_ENDL;
@@ -8567,10 +8596,12 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
 	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
+	view_listener_t::addMenu(new LLEnableHoverHeight(), "Edit.EnableHoverHeight");
 	view_listener_t::addMenu(new LLEnableEditPhysics(), "Edit.EnableEditPhysics");
 	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
 	commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
 	commit.add("EditShape", boost::bind(&handle_edit_shape));
+	commit.add("HoverHeight", boost::bind(&handle_hover_height));
 	commit.add("EditPhysics", boost::bind(&handle_edit_physics));
 
 	// View menu
@@ -8979,6 +9010,7 @@ void initialize_menus()
 	enable.add("VisibleBuild", boost::bind(&enable_object_build));
 	commit.add("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
 	enable.add("EnableSelectInPathfindingLinksets", boost::bind(&enable_object_select_in_pathfinding_linksets));
+	enable.add("VisibleSelectInPathfindingLinksets", boost::bind(&visible_object_select_in_pathfinding_linksets));
 	commit.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
 	enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
 

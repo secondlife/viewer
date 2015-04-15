@@ -215,9 +215,12 @@ void LLPreviewNotecard::loadAsset()
 
 	if(item)
 	{
-		if (gAgent.allowOperation(PERM_COPY, item->getPermissions(),
-									GP_OBJECT_MANIPULATE)
-			|| gAgent.isGodlike())
+		LLPermissions perm(item->getPermissions());
+		BOOL is_owner = gAgent.allowOperation(PERM_OWNER, perm, GP_OBJECT_MANIPULATE);
+		BOOL allow_copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
+		BOOL allow_modify = gAgent.allowOperation(PERM_MODIFY, perm, GP_OBJECT_MANIPULATE);
+
+		if (allow_copy || gAgent.isGodlike())
 		{
 			mAssetID = item->getAssetUUID();
 			if(mAssetID.isNull())
@@ -271,11 +274,16 @@ void LLPreviewNotecard::loadAsset()
 			editor->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
-		if(!gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
-								GP_OBJECT_MANIPULATE))
+
+		if(!allow_modify)
 		{
 			editor->setEnabled(FALSE);
 			getChildView("lock")->setVisible( TRUE);
+		}
+
+		if(allow_modify || is_owner)
+		{
+			getChildView("Delete")->setEnabled(TRUE);
 		}
 	}
 	else
@@ -492,14 +500,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 
 void LLPreviewNotecard::deleteNotecard()
 {
-	LLViewerInventoryItem* item = gInventory.getItem(mItemUUID);
-	if (item != NULL)
-	{
-		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		gInventory.changeItemParent(item, trash_id, FALSE);
-	}
-
-	closeFloater();
+	LLNotificationsUtil::add("DeleteNotecard", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleConfirmDeleteDialog,this, _1, _2));
 }
 
 // static
@@ -602,6 +603,45 @@ bool LLPreviewNotecard::handleSaveChangesDialog(const LLSD& notification, const 
 		LLAppViewer::instance()->abortQuit();
 		break;
 	}
+	return false;
+}
+
+bool LLPreviewNotecard::handleConfirmDeleteDialog(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		// canceled
+		return false;
+	}
+
+	if (mObjectUUID.isNull())
+	{
+		// move item from agent's inventory into trash
+		LLViewerInventoryItem* item = gInventory.getItem(mItemUUID);
+		if (item != NULL)
+		{
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			gInventory.changeItemParent(item, trash_id, FALSE);
+		}
+	}
+	else
+	{
+		// delete item from inventory of in-world object
+		LLViewerObject* object = gObjectList.findObject(mObjectUUID);
+		if(object)
+		{
+			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemUUID));
+			if (item != NULL)
+			{
+				object->removeInventory(mItemUUID);
+			}
+		}
+	}
+
+	// close floater, ignore unsaved changes
+	mForceClose = TRUE;
+	closeFloater();
 	return false;
 }
 

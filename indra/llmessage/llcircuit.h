@@ -60,6 +60,7 @@ const U8 LL_PACKET_ID_SIZE = 6;
 
 const S32 LL_MAX_RESENT_PACKETS_PER_FRAME = 100;
 const S32 LL_MAX_ACKED_PACKETS_PER_FRAME = 200;
+const F32 LL_COLLECT_ACK_TIME_MAX = 2.f;
 
 //
 // Prototypes and Predefines
@@ -237,6 +238,7 @@ protected:
 	packet_time_map							mPotentialLostPackets;
 	packet_time_map							mRecentlyReceivedReliablePackets;
 	std::vector<TPACKETID> mAcks;
+	F32 mAckCreationTime; // first ack creation time
 
 	typedef std::map<TPACKETID, LLReliablePacket *> reliable_map;
 	typedef reliable_map::iterator					reliable_iter;
@@ -302,7 +304,7 @@ public:
 
 	// this method is called during the message system processAcks()
 	// to send out any acks that did not get sent already. 
-	void sendAcks();
+	void sendAcks(F32 collect_time);
 
 	friend std::ostream& operator<<(std::ostream& s, LLCircuit &circuit);
 	void getInfo(LLSD& info) const;
@@ -333,6 +335,7 @@ protected:
 	circuit_data_map mCircuitData;
 
 	typedef std::set<LLCircuitData *, LLCircuitData::less> ping_set_t; // Circuits sorted by next ping time
+
 	ping_set_t mPingSet;
 
 	// This variable points to the last circuit data we found to

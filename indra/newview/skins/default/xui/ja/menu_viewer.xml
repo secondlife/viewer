@@ -177,6 +177,7 @@
 		<menu_item_call label="[SECOND_LIFE] ブログ" name="Second Life Blogs"/>
 		<menu_item_call label="嫌がらせを報告する" name="Report Abuse"/>
 		<menu_item_call label="バグを報告する" name="Report Bug"/>
+		<menu_item_call label="衝突・プッシュ・打撃" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
@@ -353,8 +354,7 @@
 			<menu_item_check label="挿入されたオブジェクトの位置の Ping" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="パケットドロップ" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="スクリプト付きカメラをダンプ" name="Dump Scripted Camera"/>
-		<menu_item_call label="衝突・プッシュ・打撃" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="スクリプト付きカメラをダンプ" name="Dump Scripted Camera"/>		
 		<menu label="レコーダー" name="Recorder">
 			<menu_item_call label="再生開始" name="Start Playback"/>
 			<menu_item_call label="再生停止" name="Stop Playback"/>

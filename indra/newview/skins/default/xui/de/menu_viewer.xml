@@ -177,6 +177,7 @@
 		<menu_item_call label="[SECOND_LIFE]-Blogs" name="Second Life Blogs"/>
 		<menu_item_call label="Missbrauch melden" name="Report Abuse"/>
 		<menu_item_call label="Fehler melden" name="Report Bug"/>
+		<menu_item_call label="Rempler, Stöße &amp; Schläge" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="INFO ÜBER [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Erweitert" name="Advanced">
@@ -353,8 +354,7 @@
 			<menu_item_check label="Positionen der interpolierten Objekte anfragen" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="Ein Paket fallenlassen" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="Geskriptete Kamera ausgeben" name="Dump Scripted Camera"/>
-		<menu_item_call label="Rempler, Stöße &amp; Schläge" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="Geskriptete Kamera ausgeben" name="Dump Scripted Camera"/>		
 		<menu label="Rekorder" name="Recorder">
 			<menu_item_call label="Wiedergabe starten" name="Start Playback"/>
 			<menu_item_call label="Wiedergabe stoppen" name="Stop Playback"/>
