@@ -69,6 +69,15 @@ std::string colladaVersion[VERSIONTYPE_COUNT+1] =
 	"Unsupported"
 };
 
+static const std::string lod_suffix[LLModel::NUM_LODS] =
+{
+	"_LOD0",
+	"_LOD1",
+	"_LOD2",
+	"",
+	"_PHYS",
+};
+
 const U32 LIMIT_MATERIALS_OUTPUT = 12;
 
 bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S32& tc_offset, S32& norm_offset, S32 &idx_stride,
@@ -1922,33 +1931,17 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 						badElement = true;
 					}
 
-					std::string label = getElementLabel(instance_geo);
-                   
-                    llassert(!label.empty());
+					std::string label = getLodlessLabel(instance_geo);
 
-                    if (model->mSubmodelID)
+					llassert(!label.empty());
+
+					if (model->mSubmodelID)
 					{
-						// CHECK FOR _LODX and _PHYS here to ensure we bolt the submodel 'salt' at the right loc
-						//
-						std::string labelStart;
-						std::string markup;
-						size_t label_offset = getSuffixPosition(label);
-						if (label_offset != -1)
-						{
-							markup = label.substr(label_offset + 1, 4);
-							label.erase(label.begin() + label_offset, label.end());
-							label +=(char)((int)'a' + model->mSubmodelID);
-							label += "_";
-							label += markup;
-						}
-						else
-						{
-							label +=(char)((int)'a' + model->mSubmodelID);
-						}
-                    }
+						label +=(char)((int)'a' + model->mSubmodelID);
+					}
 
-                    model->mLabel = label;
-                   
+					model->mLabel = label + lod_suffix[mLod];
+
 					mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
 					stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
 					i++;
@@ -2209,6 +2202,18 @@ size_t LLDAELoader::getSuffixPosition(std::string label)
 	return -1;
 }
 
+// static
+std::string LLDAELoader::getLodlessLabel(daeElement *element)
+{
+	std::string label = getElementLabel(element);
+	size_t ext_pos = getSuffixPosition(label);
+	if (ext_pos != -1)
+	{
+		return label.substr(0, ext_pos);
+	}
+	return label;
+}
+
 LLColor4 LLDAELoader::getDaeColor(daeElement* element)
 {
 	LLColor4 value;
@@ -2298,24 +2303,10 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 
 	LLModel* ret = new LLModel(volume_params, 0.f);
 
-	std::string model_name = getElementLabel(mesh);
-	ret->mLabel = model_name;
+	std::string model_name = getLodlessLabel(mesh);
+	ret->mLabel = model_name + lod_suffix[mLod];
 
 	llassert(!ret->mLabel.empty());
-
-	// extract actual name and suffix for future use in submodels
-	std::string name_base, name_suffix;
-	size_t ext_pos = getSuffixPosition(model_name);
-
-	if (ext_pos == -1)
-	{
-		name_base = model_name;
-	}
-	else
-	{
-		name_base = model_name.substr(0, ext_pos);
-		name_suffix = model_name.substr(ext_pos, model_name.length() - ext_pos);
-	}
 
 	// Like a monkey, ready to be shot into space
 	//
@@ -2372,7 +2363,7 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 		{
 			LLModel* next = new LLModel(volume_params, 0.f);
 			next->mSubmodelID = ++submodelID;
-			next->mLabel = name_base + (char)((int)'a' + next->mSubmodelID) + name_suffix;
+			next->mLabel = model_name + (char)((int)'a' + next->mSubmodelID) + lod_suffix[mLod];
 			next->getVolumeFaces() = remainder;
 			next->mNormalizedScale = ret->mNormalizedScale;
 			next->mNormalizedTranslation = ret->mNormalizedTranslation;
