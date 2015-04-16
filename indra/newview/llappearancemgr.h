@@ -121,10 +121,10 @@ public:
 	// find the UUID of the currently worn outfit (Base Outfit)
 	const LLUUID getBaseOutfitUUID();
 
-    void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
-                                        bool do_update,
-                                        bool replace,
-                                        LLPointer<LLInventoryCallback> cb = NULL);
+    void wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
+                           bool do_update,
+                           bool replace,
+                           LLPointer<LLInventoryCallback> cb = NULL);
 
 	// Wear/attach an item (from a user's inventory) on the agent
 	void wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update, bool replace = false,
