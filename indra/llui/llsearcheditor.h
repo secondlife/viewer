@@ -82,12 +82,14 @@ public:
 	virtual void	setFocus( BOOL b );
 
 	void			setKeystrokeCallback( commit_callback_t cb ) { mKeystrokeCallback = cb; }
+	void			setTextChangedCallback( commit_callback_t cb ) { mTextChangedCallback = cb; }
 
 protected:
 	void onClearButtonClick(const LLSD& data);
 	virtual void handleKeystroke();
 
 	commit_callback_t mKeystrokeCallback;
+	commit_callback_t mTextChangedCallback;
 	LLLineEditor* mSearchEditor;
 	LLButton* mSearchButton;
 	LLButton* mClearButton;
