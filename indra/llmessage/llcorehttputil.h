@@ -205,6 +205,7 @@ LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & request,
 class HttpCoroHandler : public LLCore::HttpHandler
 {
 public:
+
     typedef boost::shared_ptr<HttpCoroHandler>  ptr_t;
     typedef boost::weak_ptr<HttpCoroHandler>    wptr_t;
 
@@ -248,6 +249,15 @@ private:
 class HttpCoroutineAdapter
 {
 public:
+    static const std::string HTTP_RESULTS;
+    static const std::string HTTP_RESULTS_SUCCESS;
+    static const std::string HTTP_RESULTS_TYPE;
+    static const std::string HTTP_RESULTS_STATUS;
+    static const std::string HTTP_RESULTS_MESSAGE;
+    static const std::string HTTP_RESULTS_URL;
+    static const std::string HTTP_RESULTS_HEADERS;
+    static const std::string HTTP_RESULTS_CONTENT;
+
     typedef boost::shared_ptr<HttpCoroutineAdapter> ptr_t;
     typedef boost::weak_ptr<HttpCoroutineAdapter>   wptr_t;
 
@@ -264,6 +274,25 @@ public:
         const std::string & url, const LLSD & body, 
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+    LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url, LLCore::BufferArray::ptr_t rawbody,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+    LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return postAndYield(self, request, url, body,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+    }
+
+    LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return postAndYield(self, request, url, rawbody, 
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+    }
 
     /// Execute a Put transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
@@ -281,6 +310,16 @@ public:
     /// @Note: the request's smart pointer is passed by value so that it will
     /// not be deallocated during the yield.
     LLSD getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+
+    /// Execute a DELETE transaction on the supplied URL and yield execution of 
+    /// the coroutine until a result is available.
+    /// 
+    /// @Note: the request's smart pointer is passed by value so that it will
+    /// not be deallocated during the yield.
+    LLSD deleteAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));

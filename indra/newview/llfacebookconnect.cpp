@@ -45,6 +45,7 @@
 
 #include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
+#include "llcorehttputil.h"
 
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sStateWatcher(new LLEventStream("FacebookConnectState"));
 boost::scoped_ptr<LLEventPump> LLFacebookConnect::sInfoWatcher(new LLEventStream("FacebookConnectInfo"));
@@ -125,6 +126,58 @@ LLFacebookConnectHandler gFacebookConnectHandler;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+#if 1
+
+void LLFacebookConnect::facebookConnectCoro(LLCoros::self& self, std::string authCode, std::string authState)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    LLSD putData;
+    if (!authCode.empty())
+    {
+        putData["code"] = authCode;
+    }
+    if (!authState.empty())
+    {
+        putData["state"] = authState;
+    }
+
+    httpOpts->setWantHeaders(true);
+
+    setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
+
+    LLSD result = httpAdapter->putAndYield(self, httpRequest, getFacebookConnectURL("/connection"), putData, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        if (status == LLCore::HttpStatus(HTTP_FOUND))
+        {
+            std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+            if (location.empty())
+            {
+                LL_WARNS("FacebookConnect") << "Missing Location header " << LL_ENDL;
+            }
+            else
+            {
+                openFacebookWeb(location);
+            }
+        }
+    }
+    else
+    {
+        LL_INFOS("FacebookConnect") << "Connect successful. " << LL_ENDL;
+        setConnectionState(LLFacebookConnect::FB_CONNECTED);
+    }
+
+}
+
+#else
 class LLFacebookConnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookConnectResponder);
@@ -166,9 +219,129 @@ public:
 		}
 	}
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+#if 1
+bool LLFacebookConnect::testShareStatus(LLSD &result)
+{
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+
+    if (status)
+        return true;
+
+    if (status == LLCore::HttpStatus(HTTP_FOUND))
+    {
+        std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+        if (location.empty())
+        {
+            LL_WARNS("FacebookConnect") << "Missing Location header " << LL_ENDL;
+        }
+        else
+        {
+            openFacebookWeb(location);
+        }
+    }
+    if (status == LLCore::HttpStatus(HTTP_NOT_FOUND))
+    {
+        LL_DEBUGS("FacebookConnect") << "Not connected. " << LL_ENDL;
+        connectToFacebook();
+    }
+    else
+    {
+        LL_WARNS("FacebookConnect") << "HTTP Status error " << status.toString() << LL_ENDL;
+        setConnectionState(LLFacebookConnect::FB_POST_FAILED);
+        log_facebook_connect_error("Share", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    return false;
+}
+
+void LLFacebookConnect::facebookShareCoro(LLCoros::self& self, std::string route, LLSD share)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    setConnectionState(LLFacebookConnect::FB_POSTING);
+
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), share);
+
+    if (testShareStatus(result))
+    {
+        toast_user_for_facebook_success();
+        LL_DEBUGS("FacebookConnect") << "Post successful. " << LL_ENDL;
+        setConnectionState(LLFacebookConnect::FB_POSTED);
+    }
+}
+
+void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string route, LLPointer<LLImageFormatted> image, std::string caption)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+    std::string imageFormat;
+    if (dynamic_cast<LLImagePNG*>(image.get()))
+    {
+        imageFormat = "png";
+    }
+    else if (dynamic_cast<LLImageJPEG*>(image.get()))
+    {
+        imageFormat = "jpg";
+    }
+    else
+    {
+        LL_WARNS() << "Image to upload is not a PNG or JPEG" << LL_ENDL;
+        return;
+    }
+
+    // All this code is mostly copied from LLWebProfile::post()
+    static const std::string boundary = "----------------------------0123abcdefab";
+
+    std::string contentType = "multipart/form-data; boundary=" + boundary;
+    httpHeaders->append("Content-Type", contentType.c_str());
+
+    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray(), false); // 
+    LLCore::BufferArrayStream body(raw.get());
+
+    // *NOTE: The order seems to matter.
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"caption\"\r\n\r\n"
+        << caption << "\r\n";
+
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"image\"; filename=\"Untitled." << imageFormat << "\"\r\n"
+        << "Content-Type: image/" << imageFormat << "\r\n\r\n";
+
+    // Insert the image data.
+    // *FIX: Treating this as a string will probably screw it up ...
+    U8* image_data = image->getData();
+    for (S32 i = 0; i < image->getDataSize(); ++i)
+    {
+        body << image_data[i];
+    }
+
+    body << "\r\n--" << boundary << "--\r\n";
+
+    setConnectionState(LLFacebookConnect::FB_POSTING);
+
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), raw, httpHeaders);
+
+    if (testShareStatus(result))
+    {
+        toast_user_for_facebook_success();
+        LL_DEBUGS("FacebookConnect") << "Post successful. " << LL_ENDL;
+        setConnectionState(LLFacebookConnect::FB_POSTED);
+    }
+}
+
+#else
 class LLFacebookShareResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookShareResponder);
@@ -215,9 +388,43 @@ public:
 		}
 	}
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+#if 1
+void LLFacebookConnect::facebookDisconnectCoro(LLCoros::self& self)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
+
+    LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getFacebookConnectURL("/connection"));
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    if (!status && (status != LLCore::HttpStatus(HTTP_FOUND)))
+    {
+        LL_WARNS("FacebookConnect") << "Failed to disconnect:" << status.toTerseString() << LL_ENDL;
+        setConnectionState(LLFacebookConnect::FB_DISCONNECT_FAILED);
+        log_facebook_connect_error("Disconnect", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    else
+    {
+        LL_DEBUGS("FacebookConnect") << "Facebook Disconnect successful. " << LL_ENDL;
+        clearInfo();
+        clearContent();
+        //Notify state change
+        setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+    }
+
+}
+
+#else
 class LLFacebookDisconnectResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookDisconnectResponder);
@@ -261,9 +468,56 @@ public:
 		}
 	}
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+#if 1
+void LLFacebookConnect::facebookConnectedCheckCoro(LLCoros::self& self, bool autoConnect)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
+
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/connection", true));
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        if ( status == LLCore::HttpStatus(HTTP_NOT_FOUND) )
+        {
+            LL_DEBUGS("FacebookConnect") << "Not connected. " << LL_ENDL;
+            if (autoConnect)
+            {
+                connectToFacebook();
+            }
+            else
+            {
+                setConnectionState(LLFacebookConnect::FB_NOT_CONNECTED);
+            }
+        }
+        else
+        {
+            LL_WARNS("FacebookConnect") << "Failed to test connection:" << status.toTerseString() << LL_ENDL;
+
+            setConnectionState(LLFacebookConnect::FB_DISCONNECT_FAILED);
+            log_facebook_connect_error("Connected", status.getStatus(), status.toString(),
+                result.get("error_code"), result.get("error_description"));
+        }
+    }
+    else
+    {
+        LL_DEBUGS("FacebookConnect") << "Connect successful. " << LL_ENDL;
+        setConnectionState(LLFacebookConnect::FB_CONNECTED);
+    }
+}
+
+#else
 class LLFacebookConnectedResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookConnectedResponder);
@@ -308,9 +562,50 @@ public:
 private:
 	bool mAutoConnect;
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+#if 1
+void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/info", true));
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+
+    if (status == LLCore::HttpStatus(HTTP_FOUND))
+    {
+        std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+        if (location.empty())
+        {
+            LL_WARNS("FacebookConnect") << "Missing Location header " << LL_ENDL;
+        }
+        else
+        {
+            openFacebookWeb(location);
+        }
+    }
+    else if (!status)
+    {
+        LL_WARNS("FacebookConnect") << "Facebook Info failed: " << status.toString() << LL_ENDL;
+        log_facebook_connect_error("Info", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    else
+    {
+        LL_INFOS("FacebookConnect") << "Facebook: Info received" << LL_ENDL;
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        storeInfo(result);
+    }
+}
+
+#else
 class LLFacebookInfoResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookInfoResponder);
@@ -347,9 +642,51 @@ public:
 		}
 	}
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+#if 1
+void LLFacebookConnect::facebookConnectFriendsCoro(LLCoros::self& self)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/friends", true));
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+
+    if (status == LLCore::HttpStatus(HTTP_FOUND))
+    {
+        std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+        if (location.empty())
+        {
+            LL_WARNS("FacebookConnect") << "Missing Location header " << LL_ENDL;
+        }
+        else
+        {
+            openFacebookWeb(location);
+        }
+    }
+    else if (!status)
+    {
+        LL_WARNS("FacebookConnect") << "Facebook Friends failed: " << status.toString() << LL_ENDL;
+        log_facebook_connect_error("Info", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    else
+    {
+        LL_INFOS("FacebookConnect") << "Facebook: Friends received" << LL_ENDL;
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        LLSD content = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT];
+        storeContent(content);
+    }
+}
+
+#else
 class LLFacebookFriendsResponder : public LLHTTPClient::Responder
 {
 	LOG_CLASS(LLFacebookFriendsResponder);
@@ -385,6 +722,7 @@ public:
 		}
 	}
 };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -439,6 +777,11 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
 
 void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const std::string& auth_state)
 {
+#if 1
+    LLCoros::instance().launch("LLFacebookConnect::facebookConnectCoro",
+        boost::bind(&LLFacebookConnect::facebookConnectCoro, this, _1, auth_code, auth_state));
+
+#else
 	LLSD body;
 	if (!auth_code.empty())
     {
@@ -450,29 +793,48 @@ void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const st
     }
     
 	LLHTTPClient::put(getFacebookConnectURL("/connection"), body, new LLFacebookConnectResponder());
+#endif
 }
 
 void LLFacebookConnect::disconnectFromFacebook()
 {
-	LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectResponder());
+#if 1
+    LLCoros::instance().launch("LLFacebookConnect::facebookDisconnectCoro",
+        boost::bind(&LLFacebookConnect::facebookDisconnectCoro, this, _1));
+
+#else
+    LLHTTPClient::del(getFacebookConnectURL("/connection"), new LLFacebookDisconnectResponder());
+#endif
 }
 
 void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 {
+#if 1
+    LLCoros::instance().launch("LLFacebookConnect::facebookConnectedCheckCoro",
+        boost::bind(&LLFacebookConnect::facebookConnectedCheckCoro, this, _1, auto_connect));
+
+#else
 	const bool follow_redirects = false;
 	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
 	LLHTTPClient::get(getFacebookConnectURL("/connection", true), new LLFacebookConnectedResponder(auto_connect),
 						LLSD(), timeout, follow_redirects);
+#endif
 }
 
 void LLFacebookConnect::loadFacebookInfo()
 {
 	if(mRefreshInfo)
 	{
+#if 1
+        LLCoros::instance().launch("LLFacebookConnect::facebookConnectInfoCoro",
+            boost::bind(&LLFacebookConnect::facebookConnectInfoCoro, this, _1));
+        
+#else
 		const bool follow_redirects = false;
 		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
 		LLHTTPClient::get(getFacebookConnectURL("/info", true), new LLFacebookInfoResponder(),
 			LLSD(), timeout, follow_redirects);
+#endif
 	}
 }
 
@@ -480,14 +842,21 @@ void LLFacebookConnect::loadFacebookFriends()
 {
 	if(mRefreshContent)
 	{
+#if 1
+        LLCoros::instance().launch("LLFacebookConnect::facebookConnectFriendsCoro",
+            boost::bind(&LLFacebookConnect::facebookConnectFriendsCoro, this, _1));
+#else
+
 		const bool follow_redirects = false;
 		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
 		LLHTTPClient::get(getFacebookConnectURL("/friends", true), new LLFacebookFriendsResponder(),
 			LLSD(), timeout, follow_redirects);
+#endif
 	}
 }
 
-void LLFacebookConnect::postCheckin(const std::string& location, const std::string& name, const std::string& description, const std::string& image, const std::string& message)
+void LLFacebookConnect::postCheckin(const std::string& location, const std::string& name, 
+    const std::string& description, const std::string& image, const std::string& message)
 {
 	LLSD body;
 	if (!location.empty())
@@ -511,22 +880,37 @@ void LLFacebookConnect::postCheckin(const std::string& location, const std::stri
 		body["message"] = message;
     }
 
+#if 1
+    LLCoros::instance().launch("LLFacebookConnect::facebookShareCoro",
+        boost::bind(&LLFacebookConnect::facebookShareCoro, this, _1, "/share/checkin", body));
+#else
 	// Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::post(getFacebookConnectURL("/share/checkin", true), body, new LLFacebookShareResponder());
+#endif
 }
 
 void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::string& caption)
 {
+    // *TODO: I could not find an instace where this method is used.  Remove?
 	LLSD body;
 	body["image"] = image_url;
 	body["caption"] = caption;
 	
+#if 1
+    LLCoros::instance().launch("LLFacebookConnect::facebookShareCoro",
+        boost::bind(&LLFacebookConnect::facebookShareCoro, this, _1, "/share/photo", body));
+#else
     // Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::post(getFacebookConnectURL("/share/photo", true), body, new LLFacebookShareResponder());
+#endif
 }
 
 void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption)
 {
+#if 1
+    LLCoros::instance().launch("LLFacebookConnect::facebookShareImageCoro",
+        boost::bind(&LLFacebookConnect::facebookShareImageCoro, this, _1, "/share/photo", image, caption));
+#else
 	std::string imageFormat;
 	if (dynamic_cast<LLImagePNG*>(image.get()))
 	{
@@ -576,15 +960,21 @@ void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std:
 	
     // Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::postRaw(getFacebookConnectURL("/share/photo", true), data, size, new LLFacebookShareResponder(), headers);
+#endif
 }
 
 void LLFacebookConnect::updateStatus(const std::string& message)
 {
 	LLSD body;
 	body["message"] = message;
-	
+
+#if 1
+    LLCoros::instance().launch("LLFacebookConnect::facebookShareCoro",
+        boost::bind(&LLFacebookConnect::facebookShareCoro, this, _1, "/share/wall", body));
+#else
     // Note: we can use that route for different publish action. We should be able to use the same responder.
 	LLHTTPClient::post(getFacebookConnectURL("/share/wall", true), body, new LLFacebookShareResponder());
+#endif
 }
 
 void LLFacebookConnect::storeInfo(const LLSD& info)

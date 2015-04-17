@@ -201,46 +201,6 @@ public:
     void        requestSimulatorFeatureCoro(LLCoros::self& self, std::string url, U64 regionHandle);
 };
 
-// support for secondlife:///app/region/{REGION} SLapps
-// N.B. this is defined to work exactly like the classic secondlife://{REGION}
-// However, the later syntax cannot support spaces in the region name because
-// spaces (and %20 chars) are illegal in the hostname of an http URL. Some
-// browsers let you get away with this, but some do not (such as Qt's Webkit).
-// Hence we introduced the newer secondlife:///app/region alternative.
-class LLRegionHandler : public LLCommandHandler
-{
-public:
-    // requests will be throttled from a non-trusted browser
-    LLRegionHandler() : LLCommandHandler("region", UNTRUSTED_THROTTLE) {}
-        
-    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-    {
-        // make sure that we at least have a region name
-        int num_params = params.size();
-        if (num_params < 1)
-        {
-            return false;
-        }
-            
-        // build a secondlife://{PLACE} SLurl from this SLapp
-        std::string url = "secondlife://";
-        for (int i = 0; i < num_params; i++)
-        {
-            if (i > 0)
-            {
-                url += "/";
-            }
-            url += params[i].asString();
-        }
-            
-        // Process the SLapp as if it was a secondlife://{PLACE} SLurl
-        LLURLDispatcher::dispatch(url, "clicked", web, true);
-        return true;
-    }
-        
-};
-LLRegionHandler gRegionHandler;
-
 void LLViewerRegionImpl::requestBaseCapabilitiesCoro(LLCoros::self& self, U64 regionHandle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
