@@ -3020,7 +3020,6 @@ class LLAvatarSetImpostorMode : public view_listener_t
 				return false;
 		}
 
-		avatar->forceUpdateVisualMuteSettings();
 		LLVOAvatar::cullAvatarsByPixelArea();
 		return true;
 	}	// handleEvent()

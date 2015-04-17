@@ -434,7 +434,7 @@ BOOL LLVOAvatarSelf::buildMenus()
 				 ++iter)
 			{
 				LLViewerJointAttachment* attachment = iter->second;
-				if (attachment->getGroup() == i)
+				if (attachment && attachment->getGroup() == i)
 				{
 					LLMenuItemCallGL::Params item_params;
 						
@@ -473,7 +473,7 @@ BOOL LLVOAvatarSelf::buildMenus()
 				 ++iter)
 			{
 				LLViewerJointAttachment* attachment = iter->second;
-				if (attachment->getGroup() == i)
+				if (attachment && attachment->getGroup() == i)
 				{
 					LLMenuItemCallGL::Params item_params;
 					std::string sub_piemenu_name = attachment->getName();
@@ -506,7 +506,7 @@ BOOL LLVOAvatarSelf::buildMenus()
 		 ++iter)
 	{
 		LLViewerJointAttachment* attachment = iter->second;
-		if (attachment->getGroup() == 8)
+		if (attachment && attachment->getGroup() == 8)
 		{
 			LLMenuItemCallGL::Params item_params;
 			std::string sub_piemenu_name = attachment->getName();
@@ -608,7 +608,7 @@ BOOL LLVOAvatarSelf::buildMenus()
 			 ++iter)
 		{
 			LLViewerJointAttachment* attachment = iter->second;
-			if(attachment->getGroup() == group)
+			if(attachment && attachment->getGroup() == group)
 			{
 				// use multimap to provide a partial order off of the pie slice key
 				S32 pie_index = attachment->getPieSlice();

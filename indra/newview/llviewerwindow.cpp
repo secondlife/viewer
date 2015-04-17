@@ -680,7 +680,7 @@ public:
 				avatar->calculateUpdateRenderComplexity(); // Make sure the numbers are up-to-date
 
 				trunc_name = utf8str_truncate(avatar->getFullname(), 16);
-				addText(xpos, ypos, llformat("%s : rez %d, weight %d, bytes %d area %.2f",
+				addText(xpos, ypos, llformat("%s : rez %d, complexity %d, bytes %d area %.2f",
 					trunc_name.c_str(),
 					avatar->getRezzedStatus(),
 					avatar->getVisualComplexity(),

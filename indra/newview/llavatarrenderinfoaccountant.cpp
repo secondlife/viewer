@@ -51,7 +51,7 @@
 
 static	const std::string KEY_AGENTS = "agents";			// map
 static 	const std::string KEY_WEIGHT = "weight";			// integer
-static 	const std::string KEY_MUTED  = "muted";			    // bool
+static 	const std::string KEY_TOO_COMPLEX  = "tooComplex";  // bool
 
 static	const std::string KEY_IDENTIFIER = "identifier";
 static	const std::string KEY_MESSAGE = "message";
@@ -255,7 +255,7 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 					if (avatar->getVisualComplexity() > 0)
 					{
 						info[KEY_WEIGHT] = avatar->getVisualComplexity();
-						info[KEY_MUTED]  = avatar->isVisuallyMuted();
+						info[KEY_TOO_COMPLEX]  = avatar->isTooComplex();
 						agents[avatar->getID().asString()] = info;
 
 						LL_DEBUGS("AvatarRenderInfo") << "Sending avatar render info for " << avatar->getID()

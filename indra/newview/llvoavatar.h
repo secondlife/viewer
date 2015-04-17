@@ -253,7 +253,8 @@ public:
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderComplexity();
 	void			calculateUpdateRenderComplexity();
-	void			updateVisualComplexity() { mVisualComplexityStale = TRUE; }
+	static const S32 VISUAL_COMPLEXITY_UNKNOWN;
+	void			updateVisualComplexity();
 	
 	S32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
 	S32				getAttachmentGeometryBytes()	{ return mAttachmentGeometryBytes;		};		// number of bytes in attached geometry
@@ -303,6 +304,8 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+	bool 			isTooComplex() const;
+	bool 			isImpostor(const U32 rank_factor = 1) const;
 	bool 			visualParamWeightsAreDefault();
 	virtual bool	getIsCloud() const;
 	BOOL			isFullyTextured() const;
@@ -335,8 +338,6 @@ private:
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
 	S32				mFullyLoadedFrameCounter;
-	S32				mVisualComplexity;
-	BOOL			mVisualComplexityStale;
 	LLColor4		mMutedAVColor;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
@@ -384,7 +385,6 @@ public:
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	bool		isVisuallyMuted() const;
-	void		setCachedVisualMute(bool muted)						{ mCachedVisualMute = muted;	};
 	void		forceUpdateVisualMuteSettings();
 
 	enum VisualMuteSettings
@@ -409,8 +409,6 @@ public:
 	S32			mAttachmentGeometryBytes; //number of bytes in attached geometry
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
 
-	S32			mReportedVisualComplexity;			// Numbers as reported by the SL server
-
 private:
 	bool		shouldAlphaMask();
 
@@ -420,9 +418,11 @@ private:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
-	// the isVisuallyMuted method uses these mutable values to avoid recalculating too frequently
-	mutable bool mCachedVisualMute;	// cached return value for isVisuallyMuted()
-	mutable F64 mCachedVisualMuteUpdateTime; // Time to update mCachedVisualMute
+	// the isTooComplex method uses these mutable values to avoid recalculating too frequently
+	mutable S32  mVisualComplexity;
+	mutable bool mVisualComplexityStale;
+	S32          mReportedVisualComplexity; // from other viewers through the simulator
+
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
@@ -464,7 +464,6 @@ private:
 	// Impostors
 	//--------------------------------------------------------------------
 public:
-	BOOL 		isImpostor();
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;
@@ -699,7 +698,6 @@ private:
 public:
 	BOOL			isVisible() const;
 	void			setVisibilityRank(U32 rank);
-	U32				getVisibilityRank()  const { return mVisibilityRank; } // unused
 	static S32 		sNumVisibleAvatars; // Number of instances of this class
 /**                    Appearance
  **                                                                            **

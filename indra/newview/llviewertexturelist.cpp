@@ -447,7 +447,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	// If the image is not found, creates new image and
 	// enqueues a request for transmission
 	
-	if ((&image_id == NULL) || image_id.isNull())
+	if (image_id.isNull())
 	{
 		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI));
 	}

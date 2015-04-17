@@ -114,8 +114,6 @@ extern U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 const F32 MAX_HOVER_Z = 2.0;
 const F32 MIN_HOVER_Z = -2.0;
 
-// #define OUTPUT_BREAST_DATA
-
 using namespace LLAvatarAppearanceDefines;
 
 //-----------------------------------------------------------------------------
@@ -181,6 +179,8 @@ const F32 BUBBLE_CHAT_TIME = CHAT_FADE_TIME * 3.f;
 const F32 NAMETAG_UPDATE_THRESHOLD = 0.3f;
 const F32 NAMETAG_VERTICAL_SCREEN_OFFSET = 25.f;
 const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
+
+const S32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 
 enum ERenderName
 {
@@ -645,7 +645,7 @@ BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
-bool LLVOAvatar::sUseImpostors = false;
+bool LLVOAvatar::sUseImpostors = false; // overwridden by RenderAvatarMaxNonImpostors
 BOOL LLVOAvatar::sJointDebug = FALSE;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
@@ -668,7 +668,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mSpecialRenderMode(0),
 	mAttachmentGeometryBytes(-1),
 	mAttachmentSurfaceArea(-1.f),
-	mReportedVisualComplexity(-1),
+	mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mTurning(FALSE),
 	mLastSkeletonSerialNum( 0 ),
 	mIsSitting(FALSE),
@@ -698,12 +698,14 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNeedsSkin(FALSE),
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
+	mVisualComplexityStale(true),
+	mVisuallyMuteSetting(VISUAL_MUTE_NOT_SET),
+	mMutedAVColor(calcMutedAVColor(getID())),
 	mFirstFullyVisible(TRUE),
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
-	mVisualComplexity(0),
-	mVisualComplexityStale(TRUE),
+	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mLoadedCallbacksPaused(FALSE),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
 	mLastRezzedStatus(-1),
@@ -712,14 +714,14 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastUpdateRequestCOFVersion(-1),
 	mLastUpdateReceivedCOFVersion(-1)
 {
+	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
+
 	//VTResume();  // VTune
 	setHoverOffset(LLVector3(0.0, 0.0, 0.0));
 
 	// mVoiceVisualizer is created by the hud effects manager and uses the HUD Effects pipeline
 	const BOOL needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
 	mVoiceVisualizer = ( LLVoiceVisualizer *)LLHUDManager::getInstance()->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );
-
-	LL_DEBUGS("Avatar") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
 	mPelvisp = NULL;
 
@@ -771,14 +773,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
     if(LLSceneMonitor::getInstance()->isEnabled())
 	{
-		    LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
+        LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
 	}
-
-	mCachedVisualMute = !isSelf(); // default to muting everyone else? hmmm....
-	mCachedVisualMuteUpdateTime = LLFrameTimer::getTotalSeconds() + 5.0;
-	mVisuallyMuteSetting = VISUAL_MUTE_NOT_SET;
-
-	mMutedAVColor = calcMutedAVColor(getID());
 }
 
 std::string LLVOAvatar::avString() const
@@ -2535,7 +2531,10 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-			setParticleSource(particle_parameters, getID());
+			if (!isTooComplex()) // do not generate particles for overly-complex avatars
+			{
+				setParticleSource(particle_parameters, getID());
+			}
 		}
 	}
 }	
@@ -3080,61 +3079,8 @@ void LLVOAvatar::slamPosition()
 
 bool LLVOAvatar::isVisuallyMuted() const
 {
-	bool muted = false;
-
-	// Priority order (highest priority first)
-	// * own avatar is never visually muted
-	// * if on the "always draw normally" list, draw them normally
-	// * if on the "always visually mute" list, mute them
-	// * check against the render cost and attachment limits
-	if (!isSelf())
-	{
-			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
-			static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0);
-			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
-
-			if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
-			{	// Always want to see this AV as an impostor
-				muted = true;
-			}
-			else if (mVisuallyMuteSetting == NEVER_VISUAL_MUTE)
-			{	// Never show as impostor
-				muted = false;
-			}
-			else 
-			{
-				F64 now = LLFrameTimer::getTotalSeconds();
-
-				if (now < mCachedVisualMuteUpdateTime)
-				{	// Use cached mute value
-					muted = mCachedVisualMute;
-				}
-				else
-				{	// Determine if visually muted or not
-
-					muted = (   (max_render_cost > 0       && mVisualComplexity > max_render_cost)
-							 || (max_attachment_bytes > 0  && mAttachmentGeometryBytes > max_attachment_bytes)
-							 || (max_attachment_area > 0.f && mAttachmentSurfaceArea > max_attachment_area)
-							 || LLMuteList::getInstance()->isMuted(getID())
-							 );
-
-					// Save visual mute state and set interval for updating
-					const F64 SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES = 1.5;
-					mCachedVisualMuteUpdateTime = now + SECONDS_BETWEEN_RENDER_AUTO_MUTE_UPDATES;		
-					mCachedVisualMute = muted;
-				} 
-			}
-	}
-
-	return muted;
+    return ( mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE );
 }
-
-void	LLVOAvatar::forceUpdateVisualMuteSettings()
-{	
-	// Set the cache time so it's updated ASAP
-	mCachedVisualMuteUpdateTime = LLFrameTimer::getTotalSeconds() - 1.0;
-}
-
 
 void LLVOAvatar::updateDebugText()
 {
@@ -3279,18 +3225,18 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{ // visually muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (   mVisibilityRank <= LLVOAvatar::sMaxNonImpostors
+		else if (   ! isImpostor()
 				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
 		{   // first 25% of max visible avatars are not impostored
 			// also, don't impostor avatars whose bounding box may be penetrating the 
 			// impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
-		else if (mVisibilityRank > LLVOAvatar::sMaxNonImpostors * 4)
+		else if ( isImpostor(4) )
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
 		}
-		else if (mVisibilityRank > LLVOAvatar::sMaxNonImpostors * 3)
+		else if ( isImpostor(3) )
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
 		}
@@ -3874,6 +3820,10 @@ void LLVOAvatar::updateVisibility()
 		}
 	}
 
+    if ( visible != mVisible )
+    {
+        LL_DEBUGS("AvatarRender") << "visible was " << mVisible << " now " << visible << LL_ENDL;
+    }
 	mVisible = visible;
 }
 
@@ -4146,8 +4096,8 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		}
 		// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
 		// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
-		if ( ( getImage(TEX_HAIR_BAKED, 0) && 
-		     getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE ) || LLDrawPoolAlpha::sShowDebugAlpha)		
+		if ( (getImage(TEX_HAIR_BAKED, 0) && getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE)
+			|| LLDrawPoolAlpha::sShowDebugAlpha)		
 		{
 			LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
 			if (hair_mesh)
@@ -5765,7 +5715,7 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 		return 0;
 	}
 
-	mVisualComplexityStale = TRUE;
+	updateVisualComplexity();
 
 	if (viewer_object->isSelected())
 	{
@@ -5914,7 +5864,7 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 		
 		if (attachment->isObjectAttached(viewer_object))
 		{
-			mVisualComplexityStale = TRUE;
+            updateVisualComplexity();
 			cleanupAttachedMesh( viewer_object );
 		
 			attachment->removeObject(viewer_object);
@@ -6460,6 +6410,32 @@ BOOL LLVOAvatar::isFullyLoaded() const
 	return (mRenderUnloadedAvatar || mFullyLoaded);
 }
 
+bool LLVOAvatar::isTooComplex() const
+{
+	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
+    static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
+    static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0);
+    bool too_complex;
+
+    if (isSelf())
+    {
+        too_complex = false;
+    }
+    else
+    {
+        too_complex = (   (max_render_cost      > 0   && mVisualComplexity > max_render_cost)
+                       || (max_attachment_bytes > 0   && mAttachmentGeometryBytes > max_attachment_bytes)
+                       || (max_attachment_area  > 0.f && mAttachmentSurfaceArea > max_attachment_area)
+                       );
+    }
+
+    return too_complex;
+}
+
+bool LLVOAvatar::isImpostor(const U32 rank_factor) const
+{
+	return (!isSelf() && sMaxNonImpostors != 0 && mVisibilityRank > (sMaxNonImpostors * rank_factor));
+}
 
 //-----------------------------------------------------------------------------
 // findMotion()
@@ -8064,18 +8040,27 @@ void LLVOAvatar::updateImpostors()
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
-		if (!avatar->isDead() && avatar->needsImpostorUpdate() && avatar->isVisible() && avatar->isImpostor())
+
+		if (!avatar->isDead() && avatar->isVisible()
+            && (   (avatar->isImpostor() && avatar->needsImpostorUpdate())
+                || avatar->isTooComplex()
+                ))
 		{
 			gPipeline.generateImpostor(avatar);
 		}
+        else
+        {
+            LL_DEBUGS_ONCE("AvatarRender") << "Avatar " << avatar->getID()
+                                      << (avatar->isDead() ? " _is_ " : " is not ") << "dead"
+                                      << (avatar->needsImpostorUpdate() ? " needs " : " _does_not_need_ ") << "impostor update"
+                                      << (avatar->isVisible() ? " is " : " _is_not_ ") << "visible"
+                                      << (avatar->isImpostor() ? " is " : " is not ") << "impostor"
+                                      << (avatar->isTooComplex() ? " is " : " is not ") << "too complex"
+                                      << LL_ENDL;
+        }
 	}
 
 	LLCharacter::sAllowInstancesChange = TRUE ;
-}
-
-BOOL LLVOAvatar::isImpostor()
-{
-	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
 }
 
 
@@ -8138,16 +8123,21 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 	}
 	// the sUseImpostors flag depends on whether or not sMaxNonImpostors is set to the no-limit value (0)
 	sUseImpostors = (0 != sMaxNonImpostors);
-
-	LL_DEBUGS("AvatarRender")
-		<< "was " << (oldflg ? "use" : "don't use" ) << " impostors (max " << oldmax << "); "
-		<< "now " << (sUseImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
-		<< LL_ENDL;
+    if ( oldflg != sUseImpostors )
+    {
+        LL_DEBUGS("AvatarRender")
+            << "was " << (oldflg ? "use" : "don't use" ) << " impostors (max " << oldmax << "); "
+            << "now " << (sUseImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
+            << LL_ENDL;
+    }
 }
 
 
 void LLVOAvatar::idleUpdateRenderComplexity()
 {
+    // Render Complexity
+    calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed	
+
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
 	{
 		std::string info_line;
@@ -8168,11 +8158,8 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 		/*
 		 * NOTE: the logic for whether or not each of the values below
-		 *       controls muting MUST match that in the isVisuallyMuted method.
+		 * controls muting MUST match that in the isVisuallyMuted and isTooComplex methods.
 		 */
-
-		// Render Complexity
-		calculateUpdateRenderComplexity();				// Update mVisualComplexity if needed	
 
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
 		info_line = llformat("%d Complexity", mVisualComplexity);
@@ -8195,7 +8182,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		// Visual rank
 		info_line = llformat("%d rank", mVisibilityRank);
 		// Use grey for imposters, white for normal rendering or no impostors
-		info_color.set((sMaxNonImpostors > 0 && mVisibilityRank > sMaxNonImpostors) ? LLColor4::grey : LLColor4::white);
+		info_color.set(isImpostor() ? LLColor4::grey : LLColor4::white);
 		info_style = LLFontGL::NORMAL;
 		mText->addLine(info_line, info_color, info_style);
 
@@ -8242,6 +8229,13 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 }
 
 
+void LLVOAvatar::updateVisualComplexity()
+{
+    LL_DEBUGS("AvatarRender") << "avatar " << this->getID() << " appearance changed" << LL_ENDL;
+    // Set the cache time to in the past so it's updated ASAP
+    mVisualComplexityStale = true;
+}
+
 // Calculations for mVisualComplexity value
 void LLVOAvatar::calculateUpdateRenderComplexity()
 {
@@ -8252,8 +8246,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
 	if (mVisualComplexityStale)
 	{
-		mVisualComplexityStale = FALSE;
-		U32 cost = 0;
+		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
@@ -8357,7 +8350,21 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 			}
 		}
 
+        if ( cost != mVisualComplexity )
+        {
+            LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
+                                      << " complexity updated was " << mVisualComplexity << " now " << cost
+                                      << " reported " << mReportedVisualComplexity
+                                      << LL_ENDL;
+        }
+        {
+            LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
+                                      << " complexity updated no change " << mVisualComplexity
+                                      << " reported " << mReportedVisualComplexity
+                                      << LL_ENDL;
+        }
 		mVisualComplexity = cost;
+		mVisualComplexityStale = false;
 	}
 }
 
@@ -8383,10 +8390,7 @@ LLColor4 LLVOAvatar::calcMutedAVColor(const LLUUID av_id)
 	new_color.normalize();
 	new_color *= 0.5f;		// Tone it down
 
-	LL_DEBUGS("AvatarRender") << "avatar "<< av_id << " color " << std::setprecision(3) << color_value << " returning color " << new_color 
-							<< " using indexes " << spectrum_index_1 << ", " << spectrum_index_2
-							<< " and fractBetween " << fractBetween
-							<< LL_ENDL;
+	LL_DEBUGS("AvatarRender") << "avatar "<< av_id << " muted color " << std::setprecision(3) << new_color << LL_ENDL;
 
 	return new_color;
 }

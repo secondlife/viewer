@@ -11294,6 +11294,17 @@ static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_RESIZE("Impostor Resize");
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
+    LL_WARNS("AvatarRenderPipeline");
+    if (avatar)
+    {
+        LL_CONT << "Avatar " << avatar->getID() << " is " << (avatar->mDrawable?"":"not ") << "drawable";
+    }
+    else
+    {
+        LL_CONT << " is null";
+    }
+    LL_CONT << LL_ENDL;
+
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
@@ -11310,10 +11321,17 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	assertInitialized();
 
 	bool visually_muted = avatar->isVisuallyMuted();		
+    LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID()
+                              << " is " << ( visually_muted ? "" : "not ") << "visually muted"
+                              << LL_ENDL;
+	bool too_complex = avatar->isTooComplex();		
+    LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID()
+                              << " is " << ( too_complex ? "" : "not ") << "too complex"
+                              << LL_ENDL;
 
 	pushRenderTypeMask();
 	
-	if (visually_muted)
+	if (visually_muted || too_complex)
 	{
 		andRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
 	}
@@ -11358,7 +11376,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_MARK_VISIBLE);
 		markVisible(avatar->mDrawable, *viewer_camera);
-		LLVOAvatar::sUseImpostors = false; // @TODO why?
+		LLVOAvatar::sUseImpostors = false; // @TODO ???
 
 		LLVOAvatar::attachment_map_t::iterator iter;
 		for (iter = avatar->mAttachmentPoints.begin();
@@ -11471,7 +11489,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
 
-	if (visually_muted)
+	if (visually_muted || too_complex)
 	{ //disable alpha masking for muted avatars (get whole skin silhouette)
 		LLDrawPoolAvatar::sMinimumAlpha = 0.f;
 	}
@@ -11533,7 +11551,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		LLGLDisable blend(GL_BLEND);
 
-		if (visually_muted)
+		if (too_complex)
 		{
 			gGL.setColorMask(true, true);
 		}
@@ -11562,13 +11580,15 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		}
 
 
-		if (LLMuteList::getInstance()->isMuted(avatar->getID()))
-		{ //grey muted avatar
-			gGL.diffuseColor4ub(64,64,64,255);
+		if (avatar->isTooComplex())
+		{	// Visually muted avatar
+            LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set jellybaby" << LL_ENDL;
+			gGL.diffuseColor4fv( avatar->getMutedAVColor().mV );
 		}
 		else
-		{	// Visually muted avatar
-			gGL.diffuseColor4fv( avatar->getMutedAVColor().mV );
+		{ //grey muted avatar
+            LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set grey" << LL_ENDL;
+			gGL.diffuseColor4ub(64,64,64,255);
 		}
 
 		{
@@ -11595,7 +11615,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	avatar->setImpostorDim(tdim);
 
-	LLVOAvatar::sUseImpostors = true; // @TODO why?
+	LLVOAvatar::sUseImpostors = true; // @TODO ???
 	sUseOcclusion = occlusion;
 	sReflectionRender = FALSE;
 	sImpostorRender = FALSE;
