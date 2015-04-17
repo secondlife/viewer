@@ -95,7 +95,6 @@
 // We want to allow for seed cap retry, but its not useful after that 60 seconds.
 // Give it 3 chances, each at 18 seconds to give ourselves a few seconds to connect anyways if we give up.
 const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN = 3;
-const F32 CAP_REQUEST_TIMEOUT = 18;
 // Even though we gave up on login, keep trying for caps after we are logged in:
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
