@@ -218,10 +218,13 @@ void LLFacebookConnect::facebookShareCoro(LLCoros::self& self, std::string route
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
 
     setConnectionState(LLFacebookConnect::FB_POSTING);
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), share);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), share, httpOpts);
 
     if (testShareStatus(result))
     {
@@ -238,6 +241,9 @@ void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string 
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
 
     std::string imageFormat;
     if (dynamic_cast<LLImagePNG*>(image.get()))
@@ -284,7 +290,7 @@ void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string 
 
     setConnectionState(LLFacebookConnect::FB_POSTING);
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), raw, httpHeaders);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), raw, httpOpts, httpHeaders);
 
     if (testShareStatus(result))
     {
@@ -381,8 +387,11 @@ void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/info", true));
+    httpOpts->setWantHeaders(true);
+
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/info", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);

@@ -30,6 +30,8 @@
 
 #include "llsingleton.h"
 #include "llimage.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 
 class LLEventPump;
 
@@ -93,6 +95,15 @@ private:
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
 	static boost::scoped_ptr<LLEventPump> sInfoWatcher;
 	static boost::scoped_ptr<LLEventPump> sContentWatcher;
+
+    bool testShareStatus(LLSD &result);
+    void flickrConnectCoro(LLCoros::self& self, std::string requestToken, std::string oauthVerifier);
+    void flickrShareCoro(LLCoros::self& self, LLSD share);
+    void flickrShareImageCoro(LLCoros::self& self, LLPointer<LLImageFormatted> image, std::string title, std::string description, std::string tags, int safetyLevel);
+    void flickrDisconnectCoro(LLCoros::self& self);
+    void flickrConnectedCoro(LLCoros::self& self, bool autoConnect);
+    void flickrInfoCoro(LLCoros::self& self);
+
 };
 
 #endif // LL_LLFLICKRCONNECT_H

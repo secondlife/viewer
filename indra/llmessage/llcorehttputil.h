@@ -261,8 +261,8 @@ public:
     typedef boost::shared_ptr<HttpCoroutineAdapter> ptr_t;
     typedef boost::weak_ptr<HttpCoroutineAdapter>   wptr_t;
 
-    HttpCoroutineAdapter(const std::string &name, LLCore::HttpRequest::policy_t policyId, 
-            LLCore::HttpRequest::priority_t priority = 0L);
+    HttpCoroutineAdapter(const std::string &name, LLCore::HttpRequest::policy_t policyId,
+        LLCore::HttpRequest::priority_t priority = 0L);
     ~HttpCoroutineAdapter();
 
     /// Execute a Post transaction on the supplied URL and yield execution of 
@@ -271,7 +271,7 @@ public:
     /// @Note: the request's smart pointer is passed by value so that it will
     /// not be deallocated during the yield.
     LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
-        const std::string & url, const LLSD & body, 
+        const std::string & url, const LLSD & body,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
     LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
@@ -290,7 +290,7 @@ public:
         const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
         LLCore::HttpHeaders::ptr_t &headers)
     {
-        return postAndYield(self, request, url, rawbody, 
+        return postAndYield(self, request, url, rawbody,
             LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
     }
 
@@ -313,6 +313,13 @@ public:
         const std::string & url,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+    LLSD getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return getAndYield(self, request, url,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+            headers);
+    }
 
     /// Execute a DELETE transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
