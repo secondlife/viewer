@@ -1822,11 +1822,14 @@ void LLModelPreview::clearIncompatible(S32 lod)
 		return;
 	}
 
+	// at this point we don't care about sub-models,
+	// different amount of sub-models means face count mismatch, not incompatibility
+	U32 lod_size = countRootModels(mModel[lod]);
 	for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
 	{ //clear out any entries that aren't compatible with this model
 		if (i != lod)
 		{
-			if (mModel[i].size() != mModel[lod].size())
+			if (countRootModels(mModel[i]) != lod_size)
 			{
 				mModel[i].clear();
 				mScene[i].clear();
@@ -2381,6 +2384,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
             }
 
             mModel[lod][mdl_idx]->mLabel = name;
+			mModel[lod][mdl_idx]->mSubmodelID = base->mSubmodelID;
             
 			GLint* sizes = new GLint[patch_count*2];
 			glodGetObjectParameteriv(mObject[base], GLOD_PATCH_SIZES, sizes);
@@ -2644,7 +2648,10 @@ void LLModelPreview::updateStatusMessages()
 
 	mModelNoErrors = true;
 
-	for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
+	const U32 lod_high = LLModel::LOD_HIGH;
+	U32 high_submodel_count = mModel[lod_high].size() - countRootModels(mModel[lod_high]);
+
+	for (S32 lod = 0; lod <= lod_high; ++lod)
 	{
 		upload_status[lod] = 0;
 
@@ -2657,7 +2664,7 @@ void LLModelPreview::updateStatusMessages()
 		}
 		else
 		{
-			if (lod == LLModel::LOD_HIGH)
+			if (lod == lod_high)
 			{
 				upload_status[lod] = 2;
 				message = "mesh_status_missing_lod";
@@ -2678,14 +2685,19 @@ void LLModelPreview::updateStatusMessages()
 			mFMP->childSetValue(lod_vertices_name[lod], mesh_status_na);
 		}
 
-		const U32 lod_high = LLModel::LOD_HIGH;
-
 		if (lod != lod_high)
 		{
 			if (total_submeshes[lod] && total_submeshes[lod] != total_submeshes[lod_high])
 			{ //number of submeshes is different
 				message = "mesh_status_submesh_mismatch";
 				upload_status[lod] = 2;
+			}
+			else if (mModel[lod].size() - countRootModels(mModel[lod]) != high_submodel_count)
+			{//number of submodels is different, not all faces are matched correctly.
+				message = "mesh_status_submesh_mismatch";
+				upload_status[lod] = 2;
+				// Note: Submodels in instance were loaded from higher LOD and as result face count
+				// returns same value and total_submeshes[lod] is identical to high_lod one.
 			}
 			else if (!tris[lod].empty() && tris[lod].size() != tris[lod_high].size())
 			{ //number of meshes is different
@@ -3261,6 +3273,23 @@ void LLModelPreview::createPreviewAvatar( void )
 	{
 		LL_INFOS() << "Failed to create preview avatar for upload model window" << LL_ENDL;
 	}
+}
+
+//static
+U32 LLModelPreview::countRootModels(LLModelLoader::model_list models)
+{
+	U32 root_models = 0;
+	model_list::iterator model_iter = models.begin();
+	while (model_iter != models.end())
+	{
+		LLModel* mdl = *model_iter;
+		if (mdl && mdl->mSubmodelID == 0)
+		{
+			root_models++;
+		}
+		model_iter++;
+	}
+	return root_models;
 }
 
 void LLModelPreview::loadedCallback(

@@ -318,6 +318,8 @@ private:
 	void		createPreviewAvatar( void );
 	//Accessor for the dummy avatar
 	LLVOAvatar* getPreviewAvatar( void ) { return mPreviewAvatar; }
+	// Count amount of original models, excluding sub-models
+	static U32 countRootModels(LLModelLoader::model_list models);
 
  protected:
 	friend class LLModelLoader;
