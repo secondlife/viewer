@@ -3088,8 +3088,8 @@ void LLAppViewer::initUpdater()
 	U32 check_period = gSavedSettings.getU32("UpdaterServiceCheckPeriod");
 	bool willing_to_test;
 	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
-	static const boost::regex is_test_channel("\\bTest$");
-	if (boost::regex_search(channel, is_test_channel)) 
+
+	if (LLVersionInfo::TEST_VIEWER == LLVersionInfo::getViewerMaturity()) 
 	{
 		LL_INFOS("UpdaterService") << "Test build: overriding willing_to_test by sending testno" << LL_ENDL;
 		willing_to_test = false;
