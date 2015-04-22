@@ -70,7 +70,7 @@ public:
 		U8 mAttachmentPt;
 		BOOL mAdd;
 	};
-	typedef std::vector<AttachmentsInfo> attachments_vec_t;
+	typedef std::deque<AttachmentsInfo> attachments_vec_t;
 
 	LLAttachmentsMgr();
 	virtual ~LLAttachmentsMgr();
@@ -79,7 +79,7 @@ public:
                               const U8 attachment_pt,
                               const BOOL add);
     void onAttachmentRequested(const LLUUID& item_id);
-	void requestAttachments(const attachments_vec_t& attachment_requests);
+	void requestAttachments(attachments_vec_t& attachment_requests);
 	static void onIdle(void *);
 
     void onAttachmentArrived(const LLUUID& inv_item_id);

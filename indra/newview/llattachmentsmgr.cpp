@@ -117,7 +117,6 @@ void LLAttachmentsMgr::requestPendingAttachments()
 	if (mPendingAttachments.size())
 	{
 		requestAttachments(mPendingAttachments);
-		mPendingAttachments.clear();
 	}
 }
 
@@ -125,7 +124,7 @@ void LLAttachmentsMgr::requestPendingAttachments()
 // request at most 40 attachments and the rest will be
 // ignored. Currently the max attachments per avatar is 38, so the 40
 // limit should not be hit in practice.
-void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_requests)
+void LLAttachmentsMgr::requestAttachments(attachments_vec_t& attachment_requests)
 {
 	// Make sure we got a region before trying anything else
 	if( !gAgent.getRegion() )
@@ -133,7 +132,8 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 		return;
 	}
 
-	S32 obj_count = attachment_requests.size();
+    const S32 max_objects_per_request = 5;
+	S32 obj_count = llmin((S32)attachment_requests.size(),max_objects_per_request);
 	if (obj_count == 0)
 	{
 		return;
@@ -145,7 +145,7 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 	const S32 MAX_OBJECTS_TO_SEND = MAX_PACKETS_TO_SEND * OBJECTS_PER_PACKET;
 	if( obj_count > MAX_OBJECTS_TO_SEND )
 	{
-        LL_WARNS() << "ATT Too many attachments requested: " << attachment_requests.size()
+        LL_WARNS() << "ATT Too many attachments requested: " << obj_count
                    << " exceeds limit of " << MAX_OBJECTS_TO_SEND << LL_ENDL;
         LL_WARNS() << "ATT Excess requests will be ignored" << LL_ENDL;
 
@@ -159,12 +159,10 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 	compound_msg_id.generate();
 	LLMessageSystem* msg = gMessageSystem;
 
-	
-	S32 i = 0;
-	for (attachments_vec_t::const_iterator iter = attachment_requests.begin();
-		 iter != attachment_requests.end();
-		 ++iter)
-	{
+    // by construction, obj_count <= attachment_requests.size(), so no
+    // check against empty() is needed here.
+    for (S32 i=0; i<obj_count; i++)
+    {
 		if( 0 == (i % OBJECTS_PER_PACKET) )
 		{
 			// Start a new message chunk
@@ -178,33 +176,35 @@ void LLAttachmentsMgr::requestAttachments(const attachments_vec_t& attachment_re
 			msg->addBOOLFast(_PREHASH_FirstDetachAll, false );
 		}
 
-		const AttachmentsInfo &attachment = (*iter);
+		const AttachmentsInfo& attachment = attachment_requests.front();
 		LLViewerInventoryItem* item = gInventory.getItem(attachment.mItemID);
-		if (!item)
+		if (item)
+        {
+            LL_DEBUGS("Avatar") << "ATT requesting from attachment_requests " << item->getName()
+                                << " " << item->getLinkedUUID() << LL_ENDL;
+            S32 attachment_pt = attachment.mAttachmentPt;
+            if (attachment.mAdd) 
+                attachment_pt |= ATTACHMENT_ADD;
+            
+            msg->nextBlockFast(_PREHASH_ObjectData );
+            msg->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
+            msg->addUUIDFast(_PREHASH_OwnerID, item->getPermissions().getOwner());
+            msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
+            pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
+            msg->addStringFast(_PREHASH_Name, item->getName());
+            msg->addStringFast(_PREHASH_Description, item->getDescription());
+        }
+        else
 		{
-			LL_INFOS() << "Attempted to add non-existent item ID:" << attachment.mItemID << LL_ENDL;
-			continue;
+			LL_INFOS("Avatar") << "ATT Attempted to add non-existent item ID:" << attachment.mItemID << LL_ENDL;
 		}
-		LL_DEBUGS("Avatar") << "ATT requesting from attachment_requests " << item->getName()
-							<< " " << item->getLinkedUUID() << LL_ENDL;
-		S32 attachment_pt = attachment.mAttachmentPt;
-		if (attachment.mAdd) 
-			attachment_pt |= ATTACHMENT_ADD;
-
-		msg->nextBlockFast(_PREHASH_ObjectData );
-		msg->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
-		msg->addUUIDFast(_PREHASH_OwnerID, item->getPermissions().getOwner());
-		msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
-		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
-		msg->addStringFast(_PREHASH_Name, item->getName());
-		msg->addStringFast(_PREHASH_Description, item->getDescription());
 
 		if( (i+1 == obj_count) || ((OBJECTS_PER_PACKET-1) == (i % OBJECTS_PER_PACKET)) )
 		{
 			// End of message chunk
 			msg->sendReliable( gAgent.getRegion()->getHost() );
 		}
-		i++;
+        attachment_requests.pop_front();
 	}
 }
 
