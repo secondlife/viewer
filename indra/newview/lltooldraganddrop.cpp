@@ -948,8 +948,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 				const S32 item_index = mCurItemIndex;
 				const EDragAndDropType dad_type = mCargoTypes[item_index];
 				// Call the right implementation function
-				(U32)callMemberFunction(*this,
-										LLDragAndDropDictionary::instance().get(dad_type, target))
+				callMemberFunction(*this, LLDragAndDropDictionary::instance().get(dad_type, target))
 					(hit_obj, hit_face, pick_info.mKeyMask, TRUE);
 			}
 		}

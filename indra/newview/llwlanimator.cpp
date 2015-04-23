@@ -242,7 +242,7 @@ std::string LLWLAnimator::timeToString(F32 curTime)
 	// get hours and minutes
 	hours = (S32) (24.0 * curTime);
 	curTime -= ((F32) hours / 24.0f);
-	min = llround(24.0f * 60.0f * curTime);
+	min = ll_round(24.0f * 60.0f * curTime);
 
 	// handle case where it's 60
 	if(min == 60) 

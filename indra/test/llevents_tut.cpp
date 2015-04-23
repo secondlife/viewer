@@ -48,10 +48,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/assign/list_of.hpp>
 // other Linden headers
+#include "tests/listener.h"             // must PRECEDE lltut.h
 #include "lltut.h"
 #include "catch_and_store_what_in.h"
 #include "stringize.h"
-#include "tests/listener.h"
 
 using boost::assign::list_of;
 

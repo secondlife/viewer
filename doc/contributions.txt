@@ -313,7 +313,9 @@ Ciaran Laval
 Cinder Roxley
     BUG-2326
     BUG-3863
+    BUG-8786
     OPEN-185
+    OPEN-282
     STORM-1703
     STORM-1948
     STORM-1831
@@ -325,6 +327,7 @@ Cinder Roxley
     STORM-2036
     STORM-2037
     STORM-2053
+    STORM-2113
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -1229,8 +1232,10 @@ Sovereign Engineer
     MAINT-2334
     OPEN-189
     STORM-1972
+    STORM-2113
     OPEN-195
     OPEN-217
+    OPEN-295
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1272,6 +1277,7 @@ TankMaster Finesmith
 	OPEN-140
 	OPEN-142
 	OPEN-154
+	OPEN-295
 	STORM-1100
 	STORM-1258
 	STORM-1602

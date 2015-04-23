@@ -114,7 +114,7 @@ void LLScriptLSOParse::printRegisters(LLFILE *fp)
 		else if (gMajorVersion == LSL2_MAJOR_VERSION_TWO)
 		{
 			U64 data = get_register_u64(mRawData, (LSCRIPTRegisters)i);
-			fprintf(fp, "%s: 0x%X%X\n", gLSCRIPTRegisterNames[i], (U32)(data>>32), (U32)(data && 0xFFFFFFFF));
+			fprintf(fp, "%s: 0x%X%X\n", gLSCRIPTRegisterNames[i], (U32)(data>>32), (U32)(data & 0xFFFFFFFF));
 		}
 	}
 	fprintf(fp, "=============================\n\n");

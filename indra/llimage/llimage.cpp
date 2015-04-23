@@ -1036,13 +1036,13 @@ void LLImageRaw::copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixe
 			a *= norm_factor;  // skip conditional
 
 			S32 t4 = x * out_pixel_step * components;
-			out[t4 + 0] = U8(llround(r));
+			out[t4 + 0] = U8(ll_round(r));
 			if (components >= 2)
-				out[t4 + 1] = U8(llround(g));
+				out[t4 + 1] = U8(ll_round(g));
 			if (components >= 3)
-				out[t4 + 2] = U8(llround(b));
+				out[t4 + 2] = U8(ll_round(b));
 			if( components == 4)
-				out[t4 + 3] = U8(llround(a));
+				out[t4 + 3] = U8(ll_round(a));
 		}
 	}
 }
@@ -1117,10 +1117,10 @@ void LLImageRaw::compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S3
 			b *= norm_factor;
 			a *= norm_factor;
 
-			in_scaled_r = U8(llround(r));
-			in_scaled_g = U8(llround(g));
-			in_scaled_b = U8(llround(b));
-			in_scaled_a = U8(llround(a));
+			in_scaled_r = U8(ll_round(r));
+			in_scaled_g = U8(ll_round(g));
+			in_scaled_b = U8(ll_round(b));
+			in_scaled_a = U8(ll_round(a));
 		}
 
 		if( in_scaled_a )
@@ -1172,7 +1172,7 @@ static std::string find_file(std::string &name, S8 *codec)
 	for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
 	{
 		tname = name + "." + std::string(file_extensions[i].exten);
-		llifstream ifs(tname, llifstream::binary);
+		llifstream ifs(tname.c_str(), llifstream::binary);
 		if (ifs.is_open())
 		{
 			ifs.close();
@@ -1219,7 +1219,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 		return false; // format not recognized
 	}
 
-	llifstream ifs(name, llifstream::binary);
+	llifstream ifs(name.c_str(), llifstream::binary);
 	if (!ifs.is_open())
 	{
 		// SJB: changed from LL_INFOS() to LL_DEBUGS() to reduce spam

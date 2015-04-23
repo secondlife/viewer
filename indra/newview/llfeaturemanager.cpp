@@ -76,6 +76,8 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable%s.txt";
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable%s.%s.txt";
 #endif
 
+#if 0                               // consuming code in #if 0 below
+#endif
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const BOOL available, const F32 level)
 	: mValid(TRUE), mName(name), mAvailable(available), mRecommendedLevel(level)
 {
@@ -329,7 +331,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	U32		version;
 	
 	cleanupFeatureTables(); // in case an earlier attempt left partial results
-	file.open(filename); 	 /*Flawfinder: ignore*/
+	file.open(filename.c_str()); 	 /*Flawfinder: ignore*/
 
 	if (!file)
 	{

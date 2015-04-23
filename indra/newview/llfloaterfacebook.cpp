@@ -59,7 +59,6 @@ static LLPanelInjector<LLFacebookPhotoPanel> t_panel_photo("llfacebookphotopanel
 static LLPanelInjector<LLFacebookCheckinPanel> t_panel_checkin("llfacebookcheckinpanel");
 static LLPanelInjector<LLFacebookFriendsPanel> t_panel_friends("llfacebookfriendspanel");
 
-const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_CHECKIN_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_CHECKIN_ICON_URL = "http://map.secondlife.com.s3.amazonaws.com/map_placeholder.png";
 const std::string DEFAULT_CHECKIN_QUERY_PARAMETERS = "?sourceid=slshare_checkin&utm_source=facebook&utm_medium=checkin&utm_campaign=slshare";

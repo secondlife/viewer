@@ -195,7 +195,7 @@ private:
 		// even if it is the same as a previous one.
 		sPreviousReason = "";
 		LLFloaterPermsDefault::setCapSent(true);
-		LL_INFOS("FloaterPermsResponder") << "Sent default permissions to simulator" << LL_ENDL;
+		LL_INFOS("ObjectPermissionsFloater") << "Default permissions successfully sent to simulator" << LL_ENDL;
 	}
 };
 
@@ -223,8 +223,20 @@ void LLFloaterPermsDefault::updateCap()
 		report["default_object_perm_masks"]["NextOwner"] =
 			(LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
 
+        {
+            LL_DEBUGS("ObjectPermissionsFloater") << "Sending default permissions to '"
+                                                  << object_url << "'\n";
+            std::ostringstream sent_perms_log;
+            LLSDSerialize::toPrettyXML(report, sent_perms_log);
+            LL_CONT << sent_perms_log.str() << LL_ENDL;
+        }
+    
 		LLHTTPClient::post(object_url, report, new LLFloaterPermsResponder());
 	}
+    else
+    {
+        LL_DEBUGS("ObjectPermissionsFloater") << "AgentPreferences cap not available." << LL_ENDL;
+    }
 }
 
 void LLFloaterPermsDefault::setCapSent(bool cap_sent)

@@ -44,10 +44,6 @@
 
 LLHUDView *gHUDView = NULL;
 
-const S32 HUD_ARROW_SIZE = 32;
-
-
-
 LLHUDView::LLHUDView(const LLRect& r)
 {
 	buildFromFile( "panel_hud.xml");

@@ -84,25 +84,34 @@ namespace tut
 	template<> template<>
 	void frametimer_object_t::test<3>()
 	{
+		clock_t t1 = clock();
+		ms_sleep(200);
+		clock_t t2 = clock();
+		clock_t elapsed = t2 - t1 + 1;
+		std::cout << "Note: using clock(), ms_sleep() actually took " << (long)elapsed << "ms" << std::endl;
+
 		F64 seconds_since_epoch = LLFrameTimer::getTotalSeconds();
 		seconds_since_epoch += 2.0;
 		LLFrameTimer timer;
 		timer.setExpiryAt(seconds_since_epoch);
-		ensure("timer not expired on create", !timer.hasExpired());
-		int ii;
-		for(ii = 0; ii < 10; ++ii)
+		/*
+		 * Note that the ms_sleep(200) below is only guaranteed to return
+		 * in 200ms _or_more_, so it should be true that by the 10th
+		 * iteration we've gotten to the 2 seconds requested above
+		 * and the timer should expire, but it can expire in fewer iterations
+		 * if one or more of the ms_sleep calls takes longer.
+		 * (as it did when we moved to Mac OS X 10.10)
+		 */
+		int iterations_until_expiration = 0;
+		while ( !timer.hasExpired() )
 		{
-			ms_sleep(150);
-			LLFrameTimer::updateFrameTime();			
+			ms_sleep(200);
+			LLFrameTimer::updateFrameTime();
+			iterations_until_expiration++;
 		}
-		ensure("timer not expired after a bit", !timer.hasExpired());
-		for(ii = 0; ii < 10; ++ii)
-		{
-			ms_sleep(100);
-			LLFrameTimer::updateFrameTime();			
-		}
-		ensure("timer expired", timer.hasExpired());
+		ensure("timer took too long to expire", iterations_until_expiration <= 10);
 	}
+	
 /*
 	template<> template<>
 	void frametimer_object_t::test<4>()

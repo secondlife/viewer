@@ -11,9 +11,14 @@ Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
 
 # Use Public Upload Locations
 public_build = true
+build_docs = true
 
-# skip windows debug build until we can get a fix in.
+# disable all Debug builds (RelWithDebInfo is sufficient)
 build_CYGWIN_Debug = false
+build_Linux_Debug = false
+build_Darwin_Debug = false
+build_Debug = false
+
 
 # Update Public Inworld Build Status Indicators (setting should mirror "public_build")
 email_status_this_is_os = true
@@ -47,13 +52,24 @@ Linux.cxx_version = /usr/bin/g++-4.6
 ################################################################
 viewer_channel = "Second Life Test"
 
-# Setup default packaging parameters.
+################################################################
+# Special packaging parameters.
+# These parameters can be used to create additional packages
+# which identify themselves in a distinct way with either
+# a sourceid (sent to web services) or a channel name (sent to login)
+# the default sourceid should always be a null string:
 sourceid = ""
-additional_packages = "Amazon Desura"
-Amazon_sourceid = "1207v_Amazon"
-Amazon_viewer_channel_suffix = "Amazon"
-Desura_sourceid = "1208_desura"
-Desura_viewer_channel_suffix = "Desura"
+# the additional_packages variable is a blank separated list of package prefixes:
+additional_packages = ""
+# to set the special values for a package, create variables using each prefix:
+#   additional_packages = "Foo Bar"
+#   Foo_sourceid = "bingo"
+#   Foo_viewer_channel_suffix = "Foo"
+#   Bar_sourceid = "bongo"
+#   Bar_viewer_channel_suffix = "Bar"
+# the viewer_channel_suffix is prefixed by a blank and then appended to the viewer_channel
+# for the package in a setting that overrides the compiled-in value
+################################################################
 
 # Notifications - to configure email notices, add a setting like this:
 # <username>_<reponame>.email = <email-address>

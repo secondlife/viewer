@@ -48,23 +48,11 @@
 #include "pipeline.h"
 #include <boost/tokenizer.hpp>
 
-
-const F32 SPRING_STRENGTH = 0.7f;
-const F32 RESTORATION_SPRING_TIME_CONSTANT = 0.1f;
 const F32 HORIZONTAL_PADDING = 15.f;
 const F32 VERTICAL_PADDING = 12.f;
 const F32 BUFFER_SIZE = 2.f;
-const F32 MIN_EDGE_OVERLAP = 3.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
 const F32 HUD_TEXT_MAX_WIDTH_NO_BUBBLE = 1000.f;
-const F32 RESIZE_TIME = 0.f;
-const S32 NUM_OVERLAP_ITERATIONS = 10;
-const F32 NEIGHBOR_FORCE_FRACTION = 1.f;
-const F32 POSITION_DAMPING_TC = 0.2f;
-const F32 MAX_STABLE_CAMERA_VELOCITY = 0.1f;
-//const F32 LOD_0_SCREEN_COVERAGE = 0.15f;
-//const F32 LOD_1_SCREEN_COVERAGE = 0.30f;
-//const F32 LOD_2_SCREEN_COVERAGE = 0.40f;
 
 std::set<LLPointer<LLHUDText> > LLHUDText::sTextObjects;
 std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleTextObjects;

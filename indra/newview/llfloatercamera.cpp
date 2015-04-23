@@ -48,9 +48,7 @@ static LLDefaultChildRegistry::Register<LLPanelCameraItem> r("panel_camera_item"
 const F32 NUDGE_TIME = 0.25f;		// in seconds
 const F32 ORBIT_NUDGE_RATE = 0.05f; // fraction of normal speed
 
-// Constants
-const F32 CAMERA_BUTTON_DELAY = 0.0f;
-
+// constants
 #define ORBIT "cam_rotate_stick"
 #define PAN "cam_track_stick"
 #define ZOOM "zoom"

@@ -153,7 +153,7 @@ U32 LLTimeCtrl::getMinutes() const
 void LLTimeCtrl::setTime24(F32 time)
 {
 	time = llclamp(time, 0.0f, 23.99f); // fix out of range values
-	mTime = llround(time * MINUTES_PER_HOUR); // fixes values like 4.99999
+	mTime = ll_round(time * MINUTES_PER_HOUR); // fixes values like 4.99999
 
 	updateText();
 }
@@ -381,7 +381,7 @@ bool LLTimeCtrl::isHoursStringValid(const std::string& str)
 bool LLTimeCtrl::isMinutesStringValid(const std::string& str)
 {
 	U32 minutes;
-	if (!LLStringUtil::convertToU32(str, minutes) || (minutes <= MINUTES_MAX) && str.length() < 3)
+	if (!LLStringUtil::convertToU32(str, minutes) || ((minutes <= MINUTES_MAX) && str.length() < 3))
 		return true;
 
 	return false;
@@ -415,7 +415,8 @@ U32 LLTimeCtrl::parseHours(const std::string& str)
 U32 LLTimeCtrl::parseMinutes(const std::string& str)
 {
 	U32 minutes;
-	if (LLStringUtil::convertToU32(str, minutes) && (minutes >= MINUTES_MIN) && (minutes <= MINUTES_MAX))
+	// not sure of this fix - clang doesnt like compare minutes U32 to >= MINUTES_MIN (0) but MINUTES_MIN can change
+	if (LLStringUtil::convertToU32(str, minutes) && ((S32)minutes >= MINUTES_MIN) && ((S32)minutes <= MINUTES_MAX))
 	{
 		return minutes;
 	}

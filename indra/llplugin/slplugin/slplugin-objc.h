@@ -29,7 +29,9 @@
  */
 
 //Protos for ObjectiveC classes (cannot import cocoa here due to BOOL conflict)
+#ifndef __OBJC__
 class NSWindow;
+#endif // __OBJC__
 
 /* Defined in slplugin-objc.mm: */
 

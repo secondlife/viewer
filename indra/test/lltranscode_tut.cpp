@@ -49,9 +49,6 @@ namespace tut
 	template<> template<>
 	void LLTranscodeTestObject::test<1>()
 	{
-#if LL_WINDOWS
-		skip("Windows APR libs can't transcode.");
-#endif
 		// Test utf8
 		std::stringstream input;
 		std::stringstream output;

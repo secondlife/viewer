@@ -1954,7 +1954,7 @@ void	LLFloater::drawShadow(LLPanel* panel)
 	}
 	gl_drop_shadow(left, top, right, bottom, 
 		shadow_color % getCurrentTransparency(),
-		llround(shadow_offset));
+		ll_round(shadow_offset));
 }
 
 void LLFloater::updateTransparency(LLView* view, ETypeTransparency transparency_type)
@@ -2082,16 +2082,16 @@ void LLFloater::updateTitleButtons()
 				btn_rect.setLeftTopAndSize(
 					LLPANEL_BORDER_WIDTH,
 					getRect().getHeight() - close_box_from_top - (floater_close_box_size + 1) * button_count,
-					llround((F32)floater_close_box_size * mButtonScale),
-					llround((F32)floater_close_box_size * mButtonScale));
+					ll_round((F32)floater_close_box_size * mButtonScale),
+					ll_round((F32)floater_close_box_size * mButtonScale));
 			}
 			else
 			{
 				btn_rect.setLeftTopAndSize(
 					getRect().getWidth() - LLPANEL_BORDER_WIDTH - (floater_close_box_size + 1) * button_count,
 					getRect().getHeight() - close_box_from_top,
-					llround((F32)floater_close_box_size * mButtonScale),
-					llround((F32)floater_close_box_size * mButtonScale));
+					ll_round((F32)floater_close_box_size * mButtonScale),
+					ll_round((F32)floater_close_box_size * mButtonScale));
 			}
 
 			// first time here, init 'buttons_rect'
@@ -2142,16 +2142,16 @@ void LLFloater::buildButtons(const Params& floater_params)
 			btn_rect.setLeftTopAndSize(
 				LLPANEL_BORDER_WIDTH,
 				getRect().getHeight() - close_box_from_top - (floater_close_box_size + 1) * (i + 1),
-				llround(floater_close_box_size * mButtonScale),
-				llround(floater_close_box_size * mButtonScale));
+				ll_round(floater_close_box_size * mButtonScale),
+				ll_round(floater_close_box_size * mButtonScale));
 		}
 		else
 		{
 			btn_rect.setLeftTopAndSize(
 				getRect().getWidth() - LLPANEL_BORDER_WIDTH - (floater_close_box_size + 1) * (i + 1),
 				getRect().getHeight() - close_box_from_top,
-				llround(floater_close_box_size * mButtonScale),
-				llround(floater_close_box_size * mButtonScale));
+				ll_round(floater_close_box_size * mButtonScale),
+				ll_round(floater_close_box_size * mButtonScale));
 		}
 
 		LLButton::Params p;
@@ -3466,28 +3466,28 @@ LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
 	LLCoordCommon out;
 	if (self.mX < -0.5f)
 	{
-		out.mX = llround(rescale(self.mX, -1.f, -0.5f, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft));
+		out.mX = ll_round(rescale(self.mX, -1.f, -0.5f, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft));
 	}
 	else if (self.mX > 0.5f)
 	{
-		out.mX = llround(rescale(self.mX, 0.5f, 1.f, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS));
+		out.mX = ll_round(rescale(self.mX, 0.5f, 1.f, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS));
 	}
 	else
 	{
-		out.mX = llround(rescale(self.mX, -0.5f, 0.5f, snap_rect.mLeft, snap_rect.mRight - floater_width));
+		out.mX = ll_round(rescale(self.mX, -0.5f, 0.5f, snap_rect.mLeft, snap_rect.mRight - floater_width));
 	}
 
 	if (self.mY < -0.5f)
 	{
-		out.mY = llround(rescale(self.mY, -1.f, -0.5f, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom));
+		out.mY = ll_round(rescale(self.mY, -1.f, -0.5f, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom));
 	}
 	else if (self.mY > 0.5f)
 	{
-		out.mY = llround(rescale(self.mY, 0.5f, 1.f, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS));
+		out.mY = ll_round(rescale(self.mY, 0.5f, 1.f, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS));
 	}
 	else
 	{
-		out.mY = llround(rescale(self.mY, -0.5f, 0.5f, snap_rect.mBottom, snap_rect.mTop - floater_height));
+		out.mY = ll_round(rescale(self.mY, -0.5f, 0.5f, snap_rect.mBottom, snap_rect.mTop - floater_height));
 	}
 
 	// return center point instead of lower left

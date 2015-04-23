@@ -83,7 +83,6 @@ private:
 
 	LLHandle<LLToggleableMenu>	mContextMenu;
 
-	LLBlockedListItem*			mSelectedItem;
 	std::string 				mNameFilter;
 	bool 						mDirty;
 	bool						mShouldAddAll;

@@ -40,4 +40,4 @@ std::string* getSystemResourceFolder();
 std::string* getSystemExecutableFolder();
 
 
-#endif LL_LLVFS_OBJC_H
+#endif // LL_LLVFS_OBJC_H

@@ -60,8 +60,6 @@ private:
 
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 
-	LLButton* mSaveInventoryBtn;
-
 	LLUUID mGroupID;
 	LLOfferInfo* mInventoryOffer;
 };
