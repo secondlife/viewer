@@ -1372,6 +1372,7 @@ void LLModelPreview::rebuildUploadData()
 	F32 max_scale = 0.f;
 
 	BOOL importerDebug = gSavedSettings.getBOOL("ImporterDebug");
+	BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
 
 	for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
 	{ //for each transform in scene
@@ -1404,155 +1405,133 @@ void LLModelPreview::rebuildUploadData()
 				base_model->mMetric = metric;
 			}
 
-            for (int i = LLModel::NUM_LODS - 1; i >= LLModel::LOD_IMPOSTOR; i--)
-			{ // Fill LOD slots by finding matching meshes by label with name extensions
-              // in the appropriate scene for each LOD. This fixes all kinds of issues
-              // where the indexed method below fails in spectacular fashion.
-              // If you don't take the time to name your LOD and PHYS meshes
-              // with the name of their corresponding mesh in the HIGH LOD,
-              // then the indexed method will be attempted below.
+			for (int i = LLModel::NUM_LODS - 1; i >= LLModel::LOD_IMPOSTOR; i--)
+			{
+				LLModel* lod_model = NULL;
+				if (!legacyMatching)
+				{
+					// Fill LOD slots by finding matching meshes by label with name extensions
+					// in the appropriate scene for each LOD. This fixes all kinds of issues
+					// where the indexed method below fails in spectacular fashion.
+					// If you don't take the time to name your LOD and PHYS meshes
+					// with the name of their corresponding mesh in the HIGH LOD,
+					// then the indexed method will be attempted below.
 
-                LLModel* lod_model = NULL;
-                LLMatrix4 transform;
+					LLMatrix4 transform;
 
-                std::string name_to_match = instance.mLabel;
-                llassert(!name_to_match.empty());
+					std::string name_to_match = instance.mLabel;
+					llassert(!name_to_match.empty());
 
-                std::string toAdd;
-                switch (i)
-                {
-                    case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
-                    case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
-		            case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
-                    case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
-                    case LLModel::LOD_HIGH:                      break;
-                }
+					std::string toAdd;
+					switch (i)
+					{
+					case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
+					case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
+					case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
+					case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
+					case LLModel::LOD_HIGH:                      break;
+					}
 
-                if (name_to_match.find(toAdd) == -1)
-                {
-                    name_to_match += toAdd;
-                }
+					if (name_to_match.find(toAdd) == -1)
+					{
+						name_to_match += toAdd;
+					}
 
-                FindModel(mScene[i], name_to_match, lod_model, transform);
+					FindModel(mScene[i], name_to_match, lod_model, transform);
 
-                // Fall back to old method of index-based association if
-                // we could not find a match based on the mesh names
-                //
-                if (lod_model)
-                {
-                    
-                    if (i == LLModel::LOD_PHYSICS)
-                    {
-                        if (importerDebug)
-                        {
-                            LL_INFOS() << "Assigning collision for " << instance.mLabel << " to match " << lod_model->mLabel << LL_ENDL;
-                        }
-                        instance.mLOD[i] = lod_model;
-                    }
-                    else
-                    {
-                        if (importerDebug)
-                        {
-                            LL_INFOS() << "Assigning LOD" << i << " for " << instance.mLabel << " to found match " << lod_model->mLabel << LL_ENDL;
-                        }
-                        instance.mLOD[i] = lod_model;
-                    }
-                }
-                else
-                {
+					if (!lod_model && i != LLModel::LOD_PHYSICS)
+					{
+						if (importerDebug)
+						{
+							LL_INFOS() << "Search of" << name_to_match << " in LOD" << i << " list failed. Searching for alternative among LOD lists." << LL_ENDL;
+						}
 
-                    if  (i != LLModel::LOD_PHYSICS)
-                    {
-                        int searchLOD = (i > LLModel::LOD_HIGH) ? LLModel::LOD_HIGH : i;
-                        while ((searchLOD <= LLModel::LOD_HIGH) && !lod_model)
-                        {
-                            std::string name_to_match = instance.mLabel;
-                            llassert(!name_to_match.empty());
+						int searchLOD = (i > LLModel::LOD_HIGH) ? LLModel::LOD_HIGH : i;
+						while ((searchLOD <= LLModel::LOD_HIGH) && !lod_model)
+						{
+							std::string name_to_match = instance.mLabel;
+							llassert(!name_to_match.empty());
 
-                            std::string toAdd;
-                            switch (searchLOD)
-                            {
-                                case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
-                                case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
-		                        case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
-                                case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
-                                case LLModel::LOD_HIGH:                      break;
-                            }
+							std::string toAdd;
+							switch (searchLOD)
+							{
+							case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
+							case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
+							case LLModel::LOD_MEDIUM:   toAdd = "_LOD2"; break;
+							case LLModel::LOD_PHYSICS:  toAdd = "_PHYS"; break;
+							case LLModel::LOD_HIGH:                      break;
+							}
 
-                            if (name_to_match.find(toAdd) == -1)
-                            {
-                                name_to_match += toAdd;
-                            }
+							if (name_to_match.find(toAdd) == -1)
+							{
+								name_to_match += toAdd;
+							}
 
-                            // See if we can find an appropriately named model in LOD 'searchLOD'
-                            //
-                            FindModel(mScene[searchLOD], name_to_match, lod_model, transform);
-                            searchLOD++;
-                        }
-                    }
+							// See if we can find an appropriately named model in LOD 'searchLOD'
+							//
+							FindModel(mScene[searchLOD], name_to_match, lod_model, transform);
+							searchLOD++;
+						}
+					}
+				}
+				else
+				{
+					// Use old method of index-based association
+					U32 idx = 0;
+					for (idx = 0; idx < mBaseModel.size(); ++idx)
+					{
+						// find reference instance for this model
+						if (mBaseModel[idx] == base_model)
+						{
+							if (importerDebug)
+							{
+								LL_INFOS() << "Attempting to use model index " << idx << " for LOD " << i << " of " << instance.mLabel << LL_ENDL;
+							}
+							break;
+						}
+					}
 
-                    // Fall back to old method of index-based association if
-                    // we could not find a match based on the mesh names at all.
-                    //
-                    if (lod_model)
-                    {
-                        if (importerDebug)
-                        {
-                            LL_INFOS() << "Falling back LOD" << i << " for " << instance.mLabel << " to found " << lod_model->mLabel << LL_ENDL;
-                        }
-                        instance.mLOD[i] = lod_model;
-                    }
-                    else
-                    {
-                        S32 idx = 0;
-			            for (idx = 0; idx < mBaseModel.size(); ++idx)
-			            {  //find reference instance for this model
-				            if (mBaseModel[idx] == base_model)
-				            {
-                                if (importerDebug)
-                                {
-                                    LL_INFOS() << "Falling back to model index " << idx << " for LOD " << i << " of " << instance.mLabel << LL_ENDL;
-                                }
-					            break;
-				            }
-			            }
+					// If the model list for the current LOD includes that index...
+					//
+					if (mModel[i].size() > idx)
+					{
+						// Assign that index from the model list for our LOD as the LOD model for this instance
+						//
+						lod_model = mModel[i][idx];
+						if (importerDebug)
+						{
+							LL_INFOS() << "Indexed match of model index " << idx << " at LOD " << i << " to model named " << lod_model->mLabel << LL_ENDL;
+						}
+					}
+					else if (importerDebug)
+					{
+						LL_INFOS() << "List of models does not include index " << idx << LL_ENDL;
+					}
+				}
 
-                        // If the model list for the current LOD includes that index...
-                        //
-					    if (mModel[i].size() > idx)
-					    {                              
-                            // Assign that index from the model list for our LOD as the LOD model for this instance
-                            //
-                            lod_model = mModel[i][idx];
-						    instance.mLOD[i] = lod_model;
-                            if (i == LLModel::LOD_PHYSICS)
-                            {
-                                if (importerDebug)
-                                {
-                                    LL_INFOS() << "Indexed fallback to model index " << idx << ": LOD " << i << " named " << lod_model->mLabel << " for collision for " << instance.mLabel <<  LL_ENDL;
-                                }
-                            }
-                            else
-                            {
-                                if (importerDebug)
-                                {
-                                    LL_INFOS() << "Indexed fallback to model index " << idx << " LOD " << i << " named " << lod_model->mLabel << " for LOD " << i << " for " << instance.mLabel << LL_ENDL;
-                                }
-                            }
-					    }
-                        else
-                        {
-                            if (importerDebug)
-                            {
-                                LL_INFOS() << "List of models for LOD " << i << " did not include index " << idx <<  LL_ENDL;
-                            }
-                        }
-                    }
-                }
+				if (lod_model)
+				{
+					if (importerDebug)
+					{
+						if (i == LLModel::LOD_PHYSICS)
+						{
+							LL_INFOS() << "Assigning collision for " << instance.mLabel << " to match " << lod_model->mLabel << LL_ENDL;
+						}
+						else
+						{
+							LL_INFOS() << "Assigning LOD" << i << " for " << instance.mLabel << " to found match " << lod_model->mLabel << LL_ENDL;
+						}
+					}
+					instance.mLOD[i] = lod_model;
+				}
+				else if (importerDebug)
+				{
+					LL_INFOS() << "List of models does not include " << instance.mLabel << LL_ENDL;
+				}
 			}
 
-            LLModel* high_lod_model = instance.mLOD[LLModel::LOD_HIGH];
-            if (!high_lod_model)
+			LLModel* high_lod_model = instance.mLOD[LLModel::LOD_HIGH];
+			if (!high_lod_model)
 			{
 				setLoadState( LLModelLoader::ERROR_MATERIALS );
 				mFMP->childDisable( "calculate_btn" );
