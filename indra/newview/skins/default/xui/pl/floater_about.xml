@@ -6,13 +6,8 @@
 		</panel>
 		<panel label="Podziękowania"  name="credits_panel">
 			<text name="linden_intro">
-				Second Life zostało dla Ciebie stworzone przez Lindenów:
-			</text>
-			<text name="contrib_intro">
+				Second Life zostało dla Ciebie stworzone przez Lindenów, 
 				z wkładem open source od:
-			</text>
-			<text name="trans_intro">
-				i tłumaczeniami od:
 			</text>
 		</panel>
 		<panel label="Licencje" name="licenses_panel" />

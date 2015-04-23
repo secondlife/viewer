@@ -4,20 +4,15 @@
 		<layout_panel name="ui_container">
 			<combo_box label="Użytkownik" tool_tip="Nazwa użytkownika wybrana przy rejestracji, np. bobsmith12 lub Steller Sunshine" name="username_combo" />
 			<line_editor name="password_edit" label="Hasło" />
-			<check_box label="Zapamiętaj mnie" name="remember_check" />
+			<combo_box label="Moje ulubione miejsca" name="start_location_combo">
+				<combo_box.item label="Ostatnia lokalizacja" name="MyLastLocation" />
+				<combo_box.item label="Moje miejsce startu" name="MyHome" />
+			</combo_box>
+			<button label="Zaloguj" name="connect_btn" />
+			<check_box label="Pamiętaj mnie" name="remember_check" />
 			<text name="forgot_password_text">
 				Zapomniałem/am hasła
 			</text>
-			<button label="Zaloguj" name="connect_btn" />
-			<text name="At_My_Last_Location_Label">
-				w lokalizacji
-			</text>
-			<combo_box label="Moje ulubione miejsca" name="start_location_combo">
-				<combo_box.item label="Moje miejsce startu" name="MyHome" />
-			</combo_box>
-			<button label="Zaloguj" name="connect_favorite_btn" />
-			<line_editor name="location_edit" label="Wpisz lokalizację" />
-			<button label="Zaloguj" name="connect_location_btn" />
 			<combo_box label="Wybierz siatkę" name="server_combo" />
 		</layout_panel>
 	</layout_stack>

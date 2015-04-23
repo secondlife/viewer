@@ -1995,6 +1995,9 @@ Przenieść obiekty szafy?
 		Potwierdź, że na pewno chcesz zapłacić [AMOUNT]L$ dla [TARGET].
 		<usetemplate ignoretext="Potwierdź przed płaceniem (kwoty ponad 200 L$)" name="okcancelignore" notext="Anuluj" yestext="Zapłać" />
 	</notification>
+	<notification name="PayObjectFailed">
+		Płatność nie powiodła się: nie można znaleźć obiektu.
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		W tym obiekcie nie ma elementów które możesz skopiować.
 	</notification>
@@ -3913,7 +3916,7 @@ Spróbuj zaznaczyć mniejszy obszar ziemi.
 		<usetemplate ignoretext="Nie można przenieść plików. Przywrócono poprzednią ścieżkę." name="okignore" />
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		Wystąpił problem z zapisywaniem domyślnych zezwoleń z następującego powodu: [REASON]. Spróbuj ustawić je ponownie później.
+		Wystąpił problem z zapisywaniem domyślnych zezwoleń obiektu: [REASON]. Spróbuj ustawić je ponownie później.
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
 		Plik historii czatu jest w tej chwili przetwarzany przez poprzednią operację. Spróbuj ponownie za kilka minut lub wybierz czat innej osoby.

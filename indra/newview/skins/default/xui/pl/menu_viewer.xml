@@ -437,7 +437,6 @@
 			<menu_item_call label="Zrzut lokalnych tekstur" name="Dump Local Textures" />
 		</menu>
 		<menu_item_check label="Tekstury przez HTTP" name="HTTP Textures" />
-		<menu_item_check label="Szafa przez HTTP" name="HTTP Inventory" />
 		<menu_item_call label="Kompresuj obrazki" name="Compress Images" />
 		<menu_item_call label="Włącz wizualny detektor wycieków pamięci" name="Enable Visual Leak Detector" />
 		<menu_item_check label="Mały zrzut wyjścia debugowania" name="Output Debug Minidump" />
