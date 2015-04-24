@@ -132,6 +132,9 @@ void LLAttachmentsMgr::requestAttachments(attachments_vec_t& attachment_requests
 		return;
 	}
 
+    // For unknown reasons, requesting many attachments at once causes
+    // frequent server-side failures. Here we're limiting the number
+    // of attachments requested per idle loop.
     const S32 max_objects_per_request = 5;
 	S32 obj_count = llmin((S32)attachment_requests.size(),max_objects_per_request);
 	if (obj_count == 0)
@@ -147,7 +150,6 @@ void LLAttachmentsMgr::requestAttachments(attachments_vec_t& attachment_requests
 	{
         LL_WARNS() << "ATT Too many attachments requested: " << obj_count
                    << " exceeds limit of " << MAX_OBJECTS_TO_SEND << LL_ENDL;
-        LL_WARNS() << "ATT Excess requests will be ignored" << LL_ENDL;
 
 		obj_count = MAX_OBJECTS_TO_SEND;
 	}
@@ -159,8 +161,10 @@ void LLAttachmentsMgr::requestAttachments(attachments_vec_t& attachment_requests
 	compound_msg_id.generate();
 	LLMessageSystem* msg = gMessageSystem;
 
-    // by construction, obj_count <= attachment_requests.size(), so no
-    // check against empty() is needed here.
+    // by construction above, obj_count <= attachment_requests.size(), so no
+    // check against attachment_requests.empty() is needed.
+    llassert(obj_count <= attachment_requests.size());
+
     for (S32 i=0; i<obj_count; i++)
     {
 		if( 0 == (i % OBJECTS_PER_PACKET) )
@@ -196,7 +200,7 @@ void LLAttachmentsMgr::requestAttachments(attachments_vec_t& attachment_requests
         }
         else
 		{
-			LL_INFOS("Avatar") << "ATT Attempted to add non-existent item ID:" << attachment.mItemID << LL_ENDL;
+			LL_WARNS("Avatar") << "ATT Attempted to add non-existent item ID:" << attachment.mItemID << LL_ENDL;
 		}
 
 		if( (i+1 == obj_count) || ((OBJECTS_PER_PACKET-1) == (i % OBJECTS_PER_PACKET)) )
