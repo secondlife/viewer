@@ -27,11 +27,11 @@
  */
 
 #include "linden_common.h"
-#include "../test/lltut.h"
 
 #include <boost/assign/list_of.hpp>
 #include "../llstring.h"
-#include "StringVec.h"
+#include "StringVec.h"                  // must come BEFORE lltut.h
+#include "../test/lltut.h"
 
 using boost::assign::list_of;
 

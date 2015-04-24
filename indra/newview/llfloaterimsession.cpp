@@ -396,7 +396,7 @@ bool LLFloaterIMSession::canAddSelectedToChat(const uuid_vec_t& uuids)
 {
 	if (!mSession
 		|| mDialog == IM_SESSION_GROUP_START
-		|| mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID))
+		|| (mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID)))
 	{
 		return false;
 	}
@@ -779,7 +779,7 @@ bool LLFloaterIMSession::toggle(const LLUUID& session_id)
 			floater->setVisible(false);
 			return false;
 		}
-		else if(floater && (!floater->isDocked() || floater->getVisible() && !floater->hasFocus()))
+		else if(floater && ((!floater->isDocked() || floater->getVisible()) && !floater->hasFocus()))
 		{
 			floater->setVisible(TRUE);
 			floater->setFocus(TRUE);

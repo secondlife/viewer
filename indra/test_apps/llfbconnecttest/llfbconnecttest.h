@@ -144,43 +144,14 @@ class LLFBConnectTest : public LLPluginClassMediaOwner
 
 		float mDistanceCameraToSelectedGeometry;
 
-		int mIdControlAddPanel;
-		int mIdControlRemPanel;
-
 		std::vector< std::pair< std::string, std::string > > mBookmarks;
 		GLUI_Listbox* mBookmarkList;
 		int mIdBookmarks;
 		int mIdUrlEdit;
 		GLUI_EditText* mUrlEdit;
-        //int mIdUrlInitHistoryEdit;
-		//GLUI_EditText* mUrlInitHistoryEdit;
 		int mSelBookmark;
-		//int mIdRandomPanelCount;
-		//int mRandomPanelCount;
-		//int mIdRandomBookmarks;
-		//int mRandomBookmarks;
-		//int mIdDisableTimeout;
-		//int mDisableTimeout;
-		//int mIdUsePluginReadThread;
-		//int mUsePluginReadThread;
-		//int mIdLargePanelSpacing;
-		//int mLargePanelSpacing;
-		//int mIdControlCrashPlugin;
-		//int mIdControlHangPlugin;
-		int mIdControlExitApp;
 
-		//GLUI* mGluiMediaTimeControlWindow;
-		//int mIdMediaTimeControlPlay;
-		//int mIdMediaTimeControlLoop;
-		//int mIdMediaTimeControlPause;
-		//int mIdMediaTimeControlStop;
-		//int mIdMediaTimeControlSeek;
-		//int mIdMediaTimeControlVolume;
-		//int mMediaTimeControlVolume;
-		//int mIdMediaTimeControlSeekSeconds;
-		//int mMediaTimeControlSeekSeconds;
-		//int mIdMediaTimeControlRewind;
-		//int mIdMediaTimeControlFastForward;
+		int mIdControlExitApp;
 
 		GLUI* mGluiMediaBrowserControlWindow;
 		int mIdMediaBrowserControlBack;
@@ -188,16 +159,11 @@ class LLFBConnectTest : public LLPluginClassMediaOwner
 		int mIdMediaBrowserControlStop;
 		int mIdMediaBrowserControlForward;
 		GLUI_Button* mMediaBrowserControlForwardButton;
-		bool mGluiMediaTimeControlWindowFlag;
 		bool mGluiMediaBrowserControlWindowFlag;
 		bool mMediaBrowserControlBackButtonFlag;
 		bool mMediaBrowserControlForwardButtonFlag;
 		int mIdMediaBrowserControlHome;
 		int mIdMediaBrowserControlReload;
-		int mIdMediaBrowserControlClearCache;
-		int mIdMediaBrowserControlClearCookies;
-		int mIdMediaBrowserControlEnableCookies;
-		int mMediaBrowserControlEnableCookies;
 
 		GLUI* mBottomGLUIWindow;
 		GLUI_StaticText* mStatusText;

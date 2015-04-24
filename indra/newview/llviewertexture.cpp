@@ -452,7 +452,6 @@ void LLViewerTexture::initClass()
 // tuning params
 const F32 discard_bias_delta = .25f;
 const F32 discard_delta_time = 0.5f;
-const S32 min_non_tex_system_mem = (128<<20); // 128 MB
 // non-const (used externally
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;

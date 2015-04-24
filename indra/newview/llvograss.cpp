@@ -51,7 +51,6 @@
 
 const S32 GRASS_MAX_BLADES =	32;
 const F32 GRASS_BLADE_BASE =	0.25f;			//  Width of grass at base
-const F32 GRASS_BLADE_TOP =		0.25f;			//  Width of grass at top
 const F32 GRASS_BLADE_HEIGHT =	0.5f;			// meters
 const F32 GRASS_DISTRIBUTION_SD = 0.15f;		// empirically defined
 

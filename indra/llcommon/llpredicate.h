@@ -139,9 +139,9 @@ namespace LLPredicate
 		Rule()
 		{}
 
-		void require(ENUM e)
+		void require(ENUM e, bool match)
 		{
-			mRule.set(e, require);
+			mRule.set(e, match);
 		}
 
 		void allow(ENUM e)

@@ -35,6 +35,9 @@
 class LLTranslationBridge
 {
 public:
+	// clang needs this to be happy
+	virtual ~LLTranslationBridge() {}
+
 	virtual std::string getString(const std::string &xml_desc) = 0;
 };
 

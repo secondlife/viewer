@@ -1176,8 +1176,8 @@ LLRect get_whole_screen_region()
 	if (zoom_factor > 1.f)
 	{
 		S32 num_horizontal_tiles = llceil(zoom_factor);
-		S32 tile_width = llround((F32)gViewerWindow->getWorldViewWidthScaled() / zoom_factor);
-		S32 tile_height = llround((F32)gViewerWindow->getWorldViewHeightScaled() / zoom_factor);
+		S32 tile_width = ll_round((F32)gViewerWindow->getWorldViewWidthScaled() / zoom_factor);
+		S32 tile_height = ll_round((F32)gViewerWindow->getWorldViewHeightScaled() / zoom_factor);
 		int tile_y = sub_region / num_horizontal_tiles;
 		int tile_x = sub_region - (tile_y * num_horizontal_tiles);
 			
@@ -1471,8 +1471,8 @@ void render_ui_2d()
 		int pos_y = sub_region / llceil(zoom_factor);
 		int pos_x = sub_region - (pos_y*llceil(zoom_factor));
 		// offset for this tile
-		LLFontGL::sCurOrigin.mX -= llround((F32)gViewerWindow->getWindowWidthScaled() * (F32)pos_x / zoom_factor);
-		LLFontGL::sCurOrigin.mY -= llround((F32)gViewerWindow->getWindowHeightScaled() * (F32)pos_y / zoom_factor);
+		LLFontGL::sCurOrigin.mX -= ll_round((F32)gViewerWindow->getWindowWidthScaled() * (F32)pos_x / zoom_factor);
+		LLFontGL::sCurOrigin.mY -= ll_round((F32)gViewerWindow->getWindowHeightScaled() * (F32)pos_y / zoom_factor);
 	}
 
 	stop_glerror();

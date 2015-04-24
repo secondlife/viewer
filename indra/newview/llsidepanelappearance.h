@@ -90,9 +90,6 @@ private:
 	LLTextBox*					mCurrentLookName;
 	LLTextBox*					mOutfitStatus;
 
-	// Used to make sure the user's inventory is in memory.
-	LLCurrentlyWornFetchObserver* mFetchWorn;
-
 	// Search string for filtering landmarks and teleport
 	// history locations
 	std::string					mFilterSubString;

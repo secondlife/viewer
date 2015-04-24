@@ -170,21 +170,17 @@ private:
 	LLSD mContent;
 	LLUUID mParcelId;
 	bool mGotParcelMemoryUsed;
-	bool mGotParcelMemoryUsedDetails;
 	bool mGotParcelMemoryMax;
 	S32 mParcelMemoryMax;
 	S32 mParcelMemoryUsed;
-	S32 mParcelMemoryUsedDetails;
-	
+
 	bool mGotParcelURLsUsed;
-	bool mGotParcelURLsUsedDetails;
 	bool mGotParcelURLsMax;
 	S32 mParcelURLsMax;
 	S32 mParcelURLsUsed;
-	S32 mParcelURLsUsedDetails;
-	
+
 	std::vector<LLSD> mObjectListItems;
-		
+
 protected:
 
 // LLRemoteParcelInfoObserver interface:
@@ -208,17 +204,11 @@ public:
 	LLPanelScriptLimitsAttachment()
 		:	LLPanelScriptLimitsInfo(),
 		mGotAttachmentMemoryUsed(false),
-		mGotAttachmentMemoryUsedDetails(false),
-		mGotAttachmentMemoryMax(false),
 		mAttachmentMemoryMax(0),
 		mAttachmentMemoryUsed(0),
-		mAttachmentMemoryUsedDetails(0),
 		mGotAttachmentURLsUsed(false),
-		mGotAttachmentURLsUsedDetails(false),
-		mGotAttachmentURLsMax(false),
 		mAttachmentURLsMax(0),
-		mAttachmentURLsUsed(0),
-		mAttachmentURLsUsedDetails(0)
+		mAttachmentURLsUsed(0)
 		{};
 
 	~LLPanelScriptLimitsAttachment()
@@ -237,18 +227,12 @@ public:
 private:
 
 	bool mGotAttachmentMemoryUsed;
-	bool mGotAttachmentMemoryUsedDetails;
-	bool mGotAttachmentMemoryMax;
 	S32 mAttachmentMemoryMax;
 	S32 mAttachmentMemoryUsed;
-	S32 mAttachmentMemoryUsedDetails;
-	
+
 	bool mGotAttachmentURLsUsed;
-	bool mGotAttachmentURLsUsedDetails;
-	bool mGotAttachmentURLsMax;
 	S32 mAttachmentURLsMax;
 	S32 mAttachmentURLsUsed;
-	S32 mAttachmentURLsUsedDetails;
 
 protected:
 	

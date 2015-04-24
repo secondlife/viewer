@@ -1,5 +1,5 @@
 # -*- cmake -*-
-
+include(Prebuilt)
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
@@ -61,14 +61,14 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
             set(relwithdebinfo_dir "${HAVOK_RELWITHDEBINFO_LIBRARY_PATH}/${HAVOK_LIB}")
 
     # Try to avoid extracting havok library each time we run cmake.
-    if("${havok_${HAVOK_LIB}_extracted}" STREQUAL "" AND EXISTS "${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted")
-      file(READ ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted "havok_${HAVOK_LIB}_extracted")
+    if("${havok_${HAVOK_LIB}_extracted}" STREQUAL "" AND EXISTS "${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted")
+      file(READ ${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted "havok_${HAVOK_LIB}_extracted")
       if(DEBUG_PREBUILT)
         message(STATUS "havok_${HAVOK_LIB}_extracted: \"${havok_${HAVOK_LIB}_extracted}\"")
       endif(DEBUG_PREBUILT)
-    endif("${havok_${HAVOK_LIB}_extracted}" STREQUAL "" AND EXISTS "${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted")
+    endif("${havok_${HAVOK_LIB}_extracted}" STREQUAL "" AND EXISTS "${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted")
 
-    if(${CMAKE_BINARY_DIR}/temp/havok-source_installed IS_NEWER_THAN ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
+    if(${PREBUILD_TRACKING_DIR}/havok_source_installed IS_NEWER_THAN ${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
       if(DEBUG_PREBUILT)
         MESSAGE(STATUS "Extracting ${HAVOK_LIB}...")
       endif(DEBUG_PREBUILT)
@@ -109,9 +109,9 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
 
       # Just assume success for now.
       set(havok_${HAVOK_LIB}_extracted 0)
-      file(WRITE ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted "${havok_${HAVOK_LIB}_extracted}")
+      file(WRITE ${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted "${havok_${HAVOK_LIB}_extracted}")
 
-    endif(${CMAKE_BINARY_DIR}/temp/havok-source_installed IS_NEWER_THAN ${CMAKE_BINARY_DIR}/temp/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
+    endif(${PREBUILD_TRACKING_DIR}/havok_source_installed IS_NEWER_THAN ${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
 
             file(GLOB extracted_debug "${debug_dir}/*.o")
             file(GLOB extracted_release "${release_dir}/*.o")

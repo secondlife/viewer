@@ -52,10 +52,7 @@
 // The minor cardinal direction labels are hidden if their height is more
 // than this proportion of the map.
 const F32 MAP_MINOR_DIR_THRESHOLD = 0.07f;
-const S32 MAP_PADDING_LEFT = 0;
-const S32 MAP_PADDING_TOP = 2;
-const S32 MAP_PADDING_RIGHT = 2;
-const S32 MAP_PADDING_BOTTOM = 0;
+
 //
 // Member functions
 //
@@ -156,8 +153,8 @@ void LLFloaterMap::setDirectionPos( LLTextBox* text_box, F32 rotation )
 	radius -= 8.f;
 
 	text_box->setOrigin( 
-		llround(map_half_width - text_half_width + radius * cos( rotation )),
-		llround(map_half_height - text_half_height + radius * sin( rotation )) );
+		ll_round(map_half_width - text_half_width + radius * cos( rotation )),
+		ll_round(map_half_height - text_half_height + radius * sin( rotation )) );
 }
 
 void LLFloaterMap::updateMinorDirections()

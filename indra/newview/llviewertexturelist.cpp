@@ -165,7 +165,7 @@ void LLViewerTextureList::doPreloadImages()
 
 static std::string get_texture_list_name()
 {
-	return std::string("texture_list_") + gSavedSettings.getString("LoginLocation") + ".xml";
+	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "texture_list_" + gSavedSettings.getString("LoginLocation") + ".xml");
 }
 
 void LLViewerTextureList::doPrefetchImages()
@@ -178,13 +178,22 @@ void LLViewerTextureList::doPrefetchImages()
 	
 	// Pre-fetch textures from last logout
 	LLSD imagelist;
-	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, get_texture_list_name());
+	std::string filename = get_texture_list_name();
 	llifstream file;
-	file.open(filename);
+	file.open(filename.c_str());
 	if (file.is_open())
 	{
-		LLSDSerialize::fromXML(imagelist, file);
+		if ( ! LLSDSerialize::fromXML(imagelist, file) )
+        {
+            file.close();
+            LL_WARNS() << "XML parse error reading texture list '" << filename << "'" << LL_ENDL;
+            LL_WARNS() << "Removing invalid texture list '" << filename << "'" << LL_ENDL;
+            LLFile::remove(filename);
+            return;
+        }
+        file.close();
 	}
+    S32 texture_count = 0;
 	for (LLSD::array_iterator iter = imagelist.beginArray();
 		 iter != imagelist.endArray(); ++iter)
 	{
@@ -198,10 +207,12 @@ void LLViewerTextureList::doPrefetchImages()
 			LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(uuid, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, texture_type);
 			if (image)
 			{
+                texture_count += 1;
 				image->addTextureStats((F32)pixel_area);
 			}
 		}
 	}
+    LL_DEBUGS() << "fetched " << texture_count << " images from " << filename << LL_ENDL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -261,9 +272,10 @@ void LLViewerTextureList::shutdown()
 	
 	if (count > 0 && !gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "").empty())
 	{
-		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, get_texture_list_name());
+		std::string filename = get_texture_list_name();
 		llofstream file;
-		file.open(filename);
+		file.open(filename.c_str());
+        LL_DEBUGS() << "saving " << imagelist.size() << " image list entries" << LL_ENDL;
 		LLSDSerialize::toPrettyXML(imagelist, file);
 	}
 	
@@ -447,7 +459,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 	// If the image is not found, creates new image and
 	// enqueues a request for transmission
 	
-	if ((&image_id == NULL) || image_id.isNull())
+	if (image_id.isNull())
 	{
 		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI));
 	}
@@ -1257,9 +1269,6 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 	
 	return compressedImage;
 }
-
-const S32 MIN_VIDEO_RAM = 32;
-const S32 MAX_VIDEO_RAM = 512; // 512MB max for performance reasons.
 
 // Returns min setting for TextureMemory (in MB)
 S32Megabytes LLViewerTextureList::getMinVideoRamSetting()

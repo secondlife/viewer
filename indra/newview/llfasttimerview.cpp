@@ -219,7 +219,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 	if (hasMouseCapture())
 	{
 		F32 lerp = llclamp(1.f - (F32) (x - mGraphRect.mLeft) / (F32) mGraphRect.getWidth(), 0.f, 1.f);
-		mScrollIndex = llround( lerp * (F32)(mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
+		mScrollIndex = ll_round( lerp * (F32)(mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
 		mScrollIndex = llclamp(	mScrollIndex, 0, (S32)mRecording.getNumRecordedPeriods());
 		return TRUE;
 	}
@@ -361,7 +361,6 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 static BlockTimerStatHandle FTM_RENDER_TIMER("Timers");
 static const S32 MARGIN = 10;
-static const S32 LEGEND_WIDTH = 220;
 
 static std::vector<LLColor4> sTimerColors;
 
@@ -1136,7 +1135,7 @@ void LLFastTimerView::drawLineGraph()
 		max_time = llmax(F32Microseconds(1.f), F32Microseconds(cur_max));
 	}
 
-	max_calls = llround(lerp((F32)max_calls, (F32) cur_max_calls, LLSmoothInterpolation::getInterpolant(0.1f)));
+	max_calls = ll_round(lerp((F32)max_calls, (F32) cur_max_calls, LLSmoothInterpolation::getInterpolant(0.1f)));
 	if (llabs((S32)(max_calls - cur_max_calls)) <= 1)
 	{
 		max_calls = cur_max_calls;
@@ -1472,7 +1471,7 @@ void LLFastTimerView::drawBars()
 		LLRect frame_bar_rect;
 		frame_bar_rect.setLeftTopAndSize(mBarRect.mLeft, 
 										bars_top, 
-										llround((mAverageTimerRow.mBars[0].mTotalTime / mTotalTimeDisplay) * mBarRect.getWidth()), 
+										ll_round((mAverageTimerRow.mBars[0].mTotalTime / mTotalTimeDisplay) * mBarRect.getWidth()), 
 										bar_height);
 		mAverageTimerRow.mTop = frame_bar_rect.mTop;
 		mAverageTimerRow.mBottom = frame_bar_rect.mBottom;
@@ -1486,7 +1485,7 @@ void LLFastTimerView::drawBars()
 			row.mTop = frame_bar_rect.mTop;
 			row.mBottom = frame_bar_rect.mBottom;
 			frame_bar_rect.mRight = frame_bar_rect.mLeft 
-									+ llround((row.mBars[0].mTotalTime / mTotalTimeDisplay) * mBarRect.getWidth());
+									+ ll_round((row.mBars[0].mTotalTime / mTotalTimeDisplay) * mBarRect.getWidth());
  			drawBar(frame_bar_rect, row, image_width, image_height);
 
 			frame_bar_rect.translate(0, -(bar_height + vpad));
@@ -1617,8 +1616,8 @@ S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width,
 	}
 
 	LLRect children_rect;
-	children_rect.mLeft  = llround(timer_bar.mChildrenStart / mTotalTimeDisplay * (F32)mBarRect.getWidth()) + mBarRect.mLeft;
-	children_rect.mRight = llround(timer_bar.mChildrenEnd   / mTotalTimeDisplay * (F32)mBarRect.getWidth()) + mBarRect.mLeft;
+	children_rect.mLeft  = ll_round(timer_bar.mChildrenStart / mTotalTimeDisplay * (F32)mBarRect.getWidth()) + mBarRect.mLeft;
+	children_rect.mRight = ll_round(timer_bar.mChildrenEnd   / mTotalTimeDisplay * (F32)mBarRect.getWidth()) + mBarRect.mLeft;
 
 	if (bar_rect.getHeight() > MIN_BAR_HEIGHT)
 	{
