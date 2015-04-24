@@ -2232,9 +2232,14 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
 		for (U32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
 		{
-			if (!model[lod].empty())
+			if (model[lod].size() > idx)
 			{
 				instance_list[i].mLOD[lod] = model[lod][idx];
+			}
+			else if (!model[lod].empty())
+			{
+				// slm load failed - indexes are corrupted
+				return false;
 			}
 		}
 
