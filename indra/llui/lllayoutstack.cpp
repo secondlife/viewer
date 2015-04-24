@@ -103,7 +103,7 @@ F32 LLLayoutPanel::getVisibleAmount() const
 
 S32 LLLayoutPanel::getLayoutDim() const
 {
-	return llround((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
+	return ll_round((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
 					? getRect().getWidth()
 					: getRect().getHeight()));
 }
@@ -130,7 +130,7 @@ void LLLayoutPanel::setTargetDim(S32 value)
 S32 LLLayoutPanel::getVisibleDim() const
 {
 	F32 min_dim = getRelevantMinDim();
-	return llround(mVisibleAmt
+	return ll_round(mVisibleAmt
 					* (min_dim
 						+ (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
 }
@@ -138,7 +138,7 @@ S32 LLLayoutPanel::getVisibleDim() const
 void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 {
 	mOrientation = orientation;
-	S32 layout_dim = llround((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
+	S32 layout_dim = ll_round((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
 		? getRect().getWidth()
 		: getRect().getHeight()));
 
@@ -381,14 +381,14 @@ void LLLayoutStack::updateLayout()
 		{
 			panelp->mTargetDim = panelp->getRelevantMinDim();
 		}
-		space_to_distribute -= panelp->getVisibleDim() + llround((F32)mPanelSpacing * panelp->getVisibleAmount());
+		space_to_distribute -= panelp->getVisibleDim() + ll_round((F32)mPanelSpacing * panelp->getVisibleAmount());
 		total_visible_fraction += panelp->mFractionalSize * panelp->getAutoResizeFactor();
 	}
 
 	llassert(total_visible_fraction < 1.05f);
 
 	// don't need spacing after last panel
-	space_to_distribute += panelp ? llround((F32)mPanelSpacing * panelp->getVisibleAmount()) : 0;
+	space_to_distribute += panelp ? ll_round((F32)mPanelSpacing * panelp->getVisibleAmount()) : 0;
 
 	S32 remaining_space = space_to_distribute;
 	F32 fraction_distributed = 0.f;
@@ -399,7 +399,7 @@ void LLLayoutStack::updateLayout()
 			if (panelp->mAutoResize)
 			{
 				F32 fraction_to_distribute = (panelp->mFractionalSize * panelp->getAutoResizeFactor()) / (total_visible_fraction);
-				S32 delta = llround((F32)space_to_distribute * fraction_to_distribute);
+				S32 delta = ll_round((F32)space_to_distribute * fraction_to_distribute);
 				fraction_distributed += fraction_to_distribute;
 				panelp->mTargetDim += delta;
 				remaining_space -= delta;
@@ -431,23 +431,23 @@ void LLLayoutStack::updateLayout()
 		LLRect panel_rect;
 		if (mOrientation == HORIZONTAL)
 		{
-			panel_rect.setLeftTopAndSize(llround(cur_pos),
+			panel_rect.setLeftTopAndSize(ll_round(cur_pos),
 										getRect().getHeight(),
-										llround(panel_dim),
+										ll_round(panel_dim),
 										getRect().getHeight());
 		}
 		else
 		{
 			panel_rect.setLeftTopAndSize(0,
-										llround(cur_pos),
+										ll_round(cur_pos),
 										getRect().getWidth(),
-										llround(panel_dim));
+										ll_round(panel_dim));
 		}
 
 		LLRect resize_bar_rect(panel_rect);
 		F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
 		F32 panel_visible_dim = panelp->getVisibleDim();
-		S32 panel_spacing_round = (S32)(llround(panel_spacing));
+		S32 panel_spacing_round = (S32)(ll_round(panel_spacing));
 
 		if (mOrientation == HORIZONTAL)
 		{

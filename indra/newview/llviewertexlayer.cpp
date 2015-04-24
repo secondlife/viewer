@@ -39,9 +39,6 @@
 #include "pipeline.h"
 #include "llviewercontrol.h"
 
-static const S32 BAKE_UPLOAD_ATTEMPTS = 7;
-static const F32 BAKE_UPLOAD_RETRY_DELAY = 2.f; // actual delay grows by power of 2 each attempt
-
 // runway consolidate
 extern std::string self_av_string();
 

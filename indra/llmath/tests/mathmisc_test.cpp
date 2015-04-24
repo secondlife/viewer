@@ -128,33 +128,33 @@ namespace tut
 	void math_object::test<8>()
 	{
 		F32 val = 430903.2f;
-		S32 val1 = llround(val);
-		ensure("float llround value 1", (430903 == val1));
+		S32 val1 = ll_round(val);
+		ensure("float ll_round value 1", (430903 == val1));
 		val = -430903.9f;
-		val1 = llround(val);
-		ensure("float llround value 2", (-430904 == val1));
+		val1 = ll_round(val);
+		ensure("float ll_round value 2", (-430904 == val1));
 	}
 
 	template<> template<>
 	void math_object::test<9>()
 	{
 		F32 val = 430905.2654f, nearest = 100.f;
-		val = llround(val, nearest);
-		ensure("float llround value 1", (430900 == val));
+		val = ll_round(val, nearest);
+		ensure("float ll_round value 1", (430900 == val));
 		val = -430905.2654f, nearest = 10.f;
-		val = llround(val, nearest);
-		ensure("float llround value 1", (-430910 == val));
+		val = ll_round(val, nearest);
+		ensure("float ll_round value 1", (-430910 == val));
 	}
 
 	template<> template<>
 	void math_object::test<10>()
 	{
 		F64 val = 430905.2654, nearest = 100.0;
-		val = llround(val, nearest);
-		ensure("double llround value 1", (430900 == val));
+		val = ll_round(val, nearest);
+		ensure("double ll_round value 1", (430900 == val));
 		val = -430905.2654, nearest = 10.0;
-		val = llround(val, nearest);
-		ensure("double llround value 1", (-430910.00000 == val));
+		val = ll_round(val, nearest);
+		ensure("double ll_round value 1", (-430910.00000 == val));
 	}
 
 	template<> template<>

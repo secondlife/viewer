@@ -1,5 +1,5 @@
 # -*- cmake -*-
-
+include(Prebuilt)
 set(DB_FIND_QUIETLY ON)
 set(DB_FIND_REQUIRED ON)
 

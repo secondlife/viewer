@@ -1024,10 +1024,15 @@ void LLSpeakerVolumeStorage::load()
 
 	LLSD settings_llsd;
 	llifstream file;
-	file.open(filename);
+	file.open(filename.c_str());
 	if (file.is_open())
 	{
-		LLSDSerialize::fromXML(settings_llsd, file);
+		if (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXML(settings_llsd, file))
+        {
+            LL_WARNS("Voice") << "failed to parse " << filename << LL_ENDL;
+            
+        }
+            
 	}
 
 	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
@@ -1062,7 +1067,7 @@ void LLSpeakerVolumeStorage::save()
 		}
 
 		llofstream file;
-		file.open(filename);
+		file.open(filename.c_str());
 		LLSDSerialize::toPrettyXML(settings_llsd, file);
 	}
 }

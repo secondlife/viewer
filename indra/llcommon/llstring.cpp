@@ -107,7 +107,7 @@ bool iswindividual(llwchar elem)
 
 bool _read_file_into_string(std::string& str, const std::string& filename)
 {
-	llifstream ifs(filename, llifstream::binary);
+	llifstream ifs(filename.c_str(), llifstream::binary);
 	if (!ifs.is_open())
 	{
 		LL_INFOS() << "Unable to open file " << filename << LL_ENDL;
@@ -1397,7 +1397,7 @@ void LLStringUtilBase<T>::testHarness()
 	
 	s2.erase( 4, 1 );
 	llassert( s2 == "hell");
-	s2.insert( 0, 'y' );
+	s2.insert( 0, "y" );
 	llassert( s2 == "yhell");
 	s2.erase( 1, 3 );
 	llassert( s2 == "yl");

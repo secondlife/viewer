@@ -52,7 +52,6 @@ extern void AddNewDebugConsoleToLCD(const LLWString &newLine);
 LLConsole* gConsole = NULL;  // Created and destroyed in LLViewerWindow.
 
 const F32 FADE_DURATION = 2.f;
-const S32 MIN_CONSOLE_WIDTH = 200;
  
 static LLDefaultChildRegistry::Register<LLConsole> r("console");
 

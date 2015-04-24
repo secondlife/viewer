@@ -41,8 +41,6 @@
 #include "lltextbox.h"
 #include "llkeyboard.h"
 
-const U32 MAX_STRING_LENGTH = 10;
-
 static LLDefaultChildRegistry::Register<LLCheckBoxCtrl> r("check_box");
 
 // Compiler optimization, generate extern template

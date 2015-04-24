@@ -48,7 +48,7 @@ std::string* findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
-    std::string *result;
+    std::string *result = nil;
     NSString *path = nil;
     
     // Search for the path

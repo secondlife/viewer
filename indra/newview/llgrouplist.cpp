@@ -50,6 +50,8 @@ S32 LLGroupListItem::sIconWidth = 0;
 class LLGroupComparator : public LLFlatListView::ItemComparator
 {
 public:
+	LLGroupComparator() {};
+
 	/** Returns true if item1 < item2, false otherwise */
 	/*virtual*/ bool compare(const LLPanel* item1, const LLPanel* item2) const
 	{

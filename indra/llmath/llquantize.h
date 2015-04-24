@@ -52,7 +52,7 @@ inline U16 F32_to_U16_ROUND(F32 val, F32 lower, F32 upper)
 	val /= (upper - lower);
 
 	// round the value.   Sreturn the U16
-	return (U16)(llround(val*U16MAX));
+	return (U16)(ll_round(val*U16MAX));
 }
 
 
@@ -92,7 +92,7 @@ inline U8 F32_to_U8_ROUND(F32 val, F32 lower, F32 upper)
 	val /= (upper - lower);
 
 	// return the rounded U8
-	return (U8)(llround(val*U8MAX));
+	return (U8)(ll_round(val*U8MAX));
 }
 
 

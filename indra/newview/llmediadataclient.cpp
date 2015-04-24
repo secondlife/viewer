@@ -92,7 +92,7 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &q);
 
 template <typename T>
-static typename T::iterator find_matching_request(T &c, const LLMediaDataClient::Request *request, LLMediaDataClient::Request::Type match_type)
+typename T::iterator find_matching_request(T &c, const LLMediaDataClient::Request *request, LLMediaDataClient::Request::Type match_type)
 {
 	for(typename T::iterator iter = c.begin(); iter != c.end(); ++iter)
 	{
@@ -106,7 +106,7 @@ static typename T::iterator find_matching_request(T &c, const LLMediaDataClient:
 }
 
 template <typename T>
-static typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type)
+typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type)
 {
 	for(typename T::iterator iter = c.begin(); iter != c.end(); ++iter)
 	{
@@ -123,7 +123,7 @@ static typename T::iterator find_matching_request(T &c, const LLUUID &id, LLMedi
 // to other elements in the container (such as std::vector).
 // If the implementation is changed to use a container with this property, this will need to be revisited.
 template <typename T>
-static void remove_matching_requests(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type)
+void remove_matching_requests(T &c, const LLUUID &id, LLMediaDataClient::Request::Type match_type)
 {
 	for(typename T::iterator iter = c.begin(); iter != c.end();)
 	{
@@ -171,10 +171,10 @@ bool LLMediaDataClient::isEmpty() const
 
 bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object)
 {
-	if(find_matching_request(mQueue, object->getID()) != mQueue.end())
+	if(find_matching_request(mQueue, object->getID(), LLMediaDataClient::Request::ANY) != mQueue.end())
 		return true;
 	
-	if(find_matching_request(mUnQueuedRequests, object->getID()) != mUnQueuedRequests.end())
+	if(find_matching_request(mUnQueuedRequests, object->getID(), LLMediaDataClient::Request::ANY) != mUnQueuedRequests.end())
 		return true;
 	
 	return false;
@@ -183,8 +183,8 @@ bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object)
 void LLMediaDataClient::removeFromQueue(const LLMediaDataClientObject::ptr_t &object)
 {
 	LL_DEBUGS("LLMediaDataClient") << "removing requests matching ID " << object->getID() << LL_ENDL;
-	remove_matching_requests(mQueue, object->getID());
-	remove_matching_requests(mUnQueuedRequests, object->getID());
+	remove_matching_requests(mQueue, object->getID(), LLMediaDataClient::Request::ANY);
+	remove_matching_requests(mUnQueuedRequests, object->getID(), LLMediaDataClient::Request::ANY);
 }
 
 void LLMediaDataClient::startQueueTimer() 
@@ -785,7 +785,7 @@ bool LLObjectMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &ob
 	if(LLMediaDataClient::isInQueue(object))
 		return true;
 
-	if(find_matching_request(mRoundRobinQueue, object->getID()) != mRoundRobinQueue.end())
+	if(find_matching_request(mRoundRobinQueue, object->getID(), LLMediaDataClient::Request::ANY) != mRoundRobinQueue.end())
 		return true;
 	
 	return false;
@@ -796,7 +796,7 @@ void LLObjectMediaDataClient::removeFromQueue(const LLMediaDataClientObject::ptr
 	// First, call parent impl.
 	LLMediaDataClient::removeFromQueue(object);
 	
-	remove_matching_requests(mRoundRobinQueue, object->getID());
+	remove_matching_requests(mRoundRobinQueue, object->getID(), LLMediaDataClient::Request::ANY);
 }
 
 bool LLObjectMediaDataClient::processQueueTimer()
@@ -952,7 +952,7 @@ void LLObjectMediaNavigateClient::enqueue(Request *request)
 	}
 	
 	// If there's already a matching request in the queue, remove it.
-	request_queue_t::iterator iter = find_matching_request(mQueue, request);
+	request_queue_t::iterator iter = find_matching_request(mQueue, request, LLMediaDataClient::Request::ANY);
 	if(iter != mQueue.end())
 	{
 		LL_DEBUGS("LLMediaDataClient") << "removing matching queued request " << (**iter) << LL_ENDL;
@@ -960,7 +960,7 @@ void LLObjectMediaNavigateClient::enqueue(Request *request)
 	}
 	else
 	{
-		request_set_t::iterator set_iter = find_matching_request(mUnQueuedRequests, request);
+		request_set_t::iterator set_iter = find_matching_request(mUnQueuedRequests, request, LLMediaDataClient::Request::ANY);
 		if(set_iter != mUnQueuedRequests.end())
 		{
 			LL_DEBUGS("LLMediaDataClient") << "removing matching unqueued request " << (**set_iter) << LL_ENDL;

@@ -113,7 +113,7 @@ namespace {
 	public:
 		RecordToFile(const std::string& filename)
 		{
-			mFile.open(filename, llofstream::out | llofstream::app);
+			mFile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
 			if (!mFile)
 			{
 				LL_INFOS() << "Error setting log file to " << filename << LL_ENDL;
@@ -127,7 +127,7 @@ namespace {
 			mFile.close();
 		}
 		
-		bool okay() { return mFile; }
+		bool okay() { return mFile.good(); }
 		
 		virtual void recordMessage(LLError::ELevel level,
 									const std::string& message)
@@ -336,7 +336,7 @@ namespace
 		LLSD configuration;
 
 		{
-			llifstream file(filename());
+			llifstream file(filename().c_str());
 			if (file.is_open())
 			{
 				LLSDSerialize::fromXML(configuration, file);

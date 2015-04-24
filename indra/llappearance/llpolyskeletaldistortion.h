@@ -73,6 +73,19 @@ public:
 	
 	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
 
+
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
+
 protected:
 	typedef std::vector<LLPolySkeletalBoneInfo> bone_info_list_t;
 	bone_info_list_t mBoneInfoList;

@@ -3006,7 +3006,7 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 BOOL LLViewerObject::loadTaskInvFile(const std::string& filename)
 {
 	std::string filename_and_local_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, filename);
-	llifstream ifs(filename_and_local_path);
+	llifstream ifs(filename_and_local_path.c_str());
 	if(ifs.good())
 	{
 		char buffer[MAX_STRING];	/* Flawfinder: ignore */
