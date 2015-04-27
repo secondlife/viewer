@@ -2176,8 +2176,7 @@ void* ll_aligned_malloc_fallback( size_t size, int align )
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
 	
-	unsigned int for_alloc = sysinfo.dwPageSize;
-	while(for_alloc < size) for_alloc += sysinfo.dwPageSize;
+	unsigned int for_alloc = (size/sysinfo.dwPageSize + !!(size%sysinfo.dwPageSize)) * sysinfo.dwPageSize;
 	
 	void *p = VirtualAlloc(NULL, for_alloc+sysinfo.dwPageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 	if(NULL == p) {
