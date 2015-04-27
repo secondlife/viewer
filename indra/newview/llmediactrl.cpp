@@ -95,6 +95,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
 	mDecoupleTextureSize ( false ),
+	mUpdateScrolls( false ),
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
@@ -682,7 +683,13 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
 			mMediaSource->setTrustedBrowser(mTrusted);
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+
+			F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+			if (scale_factor != mMediaSource->getPageZoomFactor())
+			{
+				mMediaSource->setPageZoomFactor( scale_factor );
+				mUpdateScrolls = true;
+			}
 
 			if(mClearCache)
 			{
@@ -720,10 +727,11 @@ void LLMediaCtrl::draw()
 {
 	F32 alpha = getDrawContext().mAlpha;
 
-	if ( gRestoreGL == 1 )
+	if ( gRestoreGL == 1 || mUpdateScrolls)
 	{
 		LLRect r = getRect();
 		reshape( r.getWidth(), r.getHeight(), FALSE );
+		mUpdateScrolls = false;
 		return;
 	}
 
@@ -765,7 +773,12 @@ void LLMediaCtrl::draw()
 	{
 		gGL.pushUIMatrix();
 		{
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+			F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+			if (scale_factor != mMediaSource->getPageZoomFactor())
+			{
+				mMediaSource->setPageZoomFactor( scale_factor );
+				mUpdateScrolls = true;
+			}
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
