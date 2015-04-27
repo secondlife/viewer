@@ -5502,6 +5502,17 @@ Warning: The &apos;Pay object&apos; click action has been set, but it will only 
 
   <notification
    icon="alertmodal.tga"
+   name="PayObjectFailed"
+   type="alertmodal">
+    Payment failed: object was not found.
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OpenObjectCannotCopy"
    type="alertmodal">
 There are no items in this object that you are allowed to copy.
