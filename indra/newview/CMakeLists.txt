@@ -2352,7 +2352,7 @@ if (LL_TESTS)
     ${BOOST_COROUTINE_LIBRARY}
   )
 
-    LL_ADD_INTEGRATION_TEST(llsechandler_basic
+  LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
     )
