@@ -789,10 +789,7 @@ namespace
 {
 	inline LLSD::Impl& safe(LLSD::Impl* impl)
 		{ return LLSD::Impl::safe(impl); }
-		
-	inline const LLSD::Impl& safe(const LLSD::Impl* impl)
-		{ return LLSD::Impl::safe(impl); }
-		
+
 	inline ImplMap& makeMap(LLSD::Impl*& var)
 		{ return safe(var).makeMap(var); }
 		

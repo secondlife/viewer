@@ -38,9 +38,6 @@
 // Constants
 //-----------------------------------------------------------------------------
 const F32 TORSO_TARGET_HALF_LIFE = 0.25f;
-const F32 MAX_TIME_DELTA = 2.f; //max two seconds a frame for calculating interpolation
-const F32 TARGET_PLANE_THRESHOLD_DOT = 0.6f;
-const F32 TORSO_ROT_FRACTION = 0.5f;
 
 //-----------------------------------------------------------------------------
 // LLTargetingMotion()

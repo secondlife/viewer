@@ -42,13 +42,6 @@
 #include "llvoavatar.h"
 #include "llworld.h"
 
-
-const F32 PARTICLE_SPACING = 0.01f;
-const F32 MAX_SIZE = 0.025f;
-const F32 START_POS_MAG = 1.f;
-const F32 END_POS_MAG = 1.2f;
-
-
 LLHUDEffectSpiral::LLHUDEffectSpiral(const U8 type) : LLHUDEffect(type), mbInit(FALSE)
 {
 	mKillTime = 10.f;

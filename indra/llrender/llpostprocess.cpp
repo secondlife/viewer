@@ -49,16 +49,7 @@ static LLStaticHashedString sBlurWidth("blurWidth");
 
 LLPostProcess * gPostProcess = NULL;
 
-
 static const unsigned int NOISE_SIZE = 512;
-
-/// CALCULATING LUMINANCE (Using NTSC lum weights)
-/// http://en.wikipedia.org/wiki/Luma_%28video%29
-static const float LUMINANCE_R = 0.299f;
-static const float LUMINANCE_G = 0.587f;
-static const float LUMINANCE_B = 0.114f;
-
-static const char * const XML_FILENAME = "postprocesseffects.xml";
 
 LLPostProcess::LLPostProcess(void) : 
 					initialized(false),  

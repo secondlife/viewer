@@ -2,7 +2,9 @@
 
 if(INSTALL_PROPRIETARY)
   include(Prebuilt)
-  use_prebuilt_binary(quicktime)
+  if (WINDOWS)
+    use_prebuilt_binary(quicktime)
+  endif (WINDOWS)
 endif(INSTALL_PROPRIETARY)
 
 if (DARWIN)

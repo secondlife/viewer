@@ -173,8 +173,9 @@ bool LLWearableData::swapWearables(const LLWearableType::EType type, U32 index_a
 	}
 
 	wearableentry_vec_t& wearable_vec = wearable_iter->second;
-	if (0 > index_a || index_a >= wearable_vec.size()) return false;
-	if (0 > index_b || index_b >= wearable_vec.size()) return false;
+	// removed 0 > index_a and index_b comparisions - can never be true
+	if (index_a >= wearable_vec.size()) return false;
+	if (index_b >= wearable_vec.size()) return false;
 
 	LLWearable* wearable = wearable_vec[index_a];
 	wearable_vec[index_a] = wearable_vec[index_b];

@@ -48,7 +48,6 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-static const S32 HORIZONTAL_MULTIPLE = 8;
 static const S32 VERTICAL_MULTIPLE = 16;
 static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 
@@ -315,7 +314,7 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y)
 		// clip rect against root view
 		inner_rect_local.intersectWith(screen_local_extents);
 
-		S32 auto_scroll_speed = llround(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
+		S32 auto_scroll_speed = ll_round(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
 		// autoscroll region should take up no more than one third of visible scroller area
 		S32 auto_scroll_region_width = llmin(inner_rect_local.getWidth() / 3, 10); 
 		S32 auto_scroll_region_height = llmin(inner_rect_local.getHeight() / 3, 10); 

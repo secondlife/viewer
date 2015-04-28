@@ -401,14 +401,9 @@ void LLFloaterGodTools::sendGodUpdateRegionInfo()
 
 // Floats because spinners only support floats. JC
 const F32 BILLABLE_FACTOR_DEFAULT = 1;
-const F32 BILLABLE_FACTOR_MIN = 0.0f;
-const F32 BILLABLE_FACTOR_MAX = 4.f;
 
 // floats because spinners only understand floats. JC
 const F32 PRICE_PER_METER_DEFAULT = 1.f;
-const F32 PRICE_PER_METER_MIN = 0.f;
-const F32 PRICE_PER_METER_MAX = 100.f;
-
 
 LLPanelRegionTools::LLPanelRegionTools()
 : 	LLPanel()
@@ -832,9 +827,6 @@ void LLPanelRegionTools::onSelectRegion()
 //   |_______________________________________________|
 //      ^                                ^        ^
 //      LEFT                             R2       RIGHT
-
-const F32 HOURS_TO_RADIANS = (2.f*F_PI)/24.f;
-
 
 LLPanelGridTools::LLPanelGridTools() :
 	LLPanel()

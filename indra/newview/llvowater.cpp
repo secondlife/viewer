@@ -43,21 +43,12 @@
 #include "pipeline.h"
 #include "llspatialpartition.h"
 
-const BOOL gUseRoam = FALSE;
-
-
 ///////////////////////////////////
 
 template<class T> inline T LERP(T a, T b, F32 factor)
 {
 	return a + (b - a) * factor;
 }
-
-const U32 N_RES_HALF	= (N_RES >> 1);
-
-const U32 WIDTH			= (N_RES * WAVE_STEP); //128.f //64		// width of wave tile, in meters
-const F32 WAVE_STEP_INV	= (1. / WAVE_STEP);
-
 
 LLVOWater::LLVOWater(const LLUUID &id, 
 					 const LLPCode pcode, 

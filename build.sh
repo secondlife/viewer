@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# This is a the master build script - it is intended to be run by parabuild
+# This is a the master build script - it is intended to be run by the Linden
+# Lab build farm
 # It is called by a wrapper script in the shared repository which sets up
 # the environment from the various BuildParams files and does all the build 
 # result post-processing.
@@ -12,8 +13,6 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 # * This script relies heavily on parameters defined in BuildParams
-# * The basic convention is that the build name can be mapped onto a mercurial URL,
-#   which is also used as the "branch" name.
 
 check_for()
 {
@@ -33,7 +32,7 @@ build_dir_Linux()
 
 build_dir_CYGWIN()
 {
-  echo build-vc100
+  echo build-vc120
 }
 
 viewer_channel_suffix()
@@ -102,7 +101,7 @@ pre_build()
 
     check_for "Confirm dictionaries are installed before 'autobuild configure'" ${build_dir}/packages/dictionaries
 
-    "$AUTOBUILD" configure -c $variant -- \
+    "$autobuild" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
@@ -120,14 +119,20 @@ package_llphysicsextensions_tpv()
   if [ "$variant" = "Release" ]
   then 
       llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
-      "$AUTOBUILD" build --verbose --config-file $llpetpvcfg -c Tpv
+      "$autobuild" build --verbose --config-file $llpetpvcfg -c Tpv
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$AUTOBUILD" package --verbose --config-file $llpetpvcfg > $PKGTMP
+      "$autobuild" package --verbose --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
       tpv_status=$?
-      sed -n -e 's/^wrote *//p' $PKGTMP > $build_dir/llphysicsextensions_package
+      if [ -r "${PKGTMP}" ]
+      then
+          cat "${PKGTMP}" >> "$build_log"
+          eval $(cat "${PKGTMP}") # sets autobuild_package_{name,filename,md5}
+          autobuild_package_filename="$(shell_path "${autobuild_package_filename}")"
+          echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
+      fi
   else
       echo "Do not provide llphysicsextensions_tpv for $variant"
       llphysicsextensions_package=""
@@ -143,7 +148,7 @@ build()
   then
     begin_section "Viewer$variant"
 
-    "$AUTOBUILD" build --no-configure -c $variant
+    "$autobuild" build --no-configure -c $variant
     build_ok=$?
     end_section "Viewer$variant"
 
@@ -172,11 +177,22 @@ build()
 # This is called from the branch independent script upon completion of all platform builds.
 build_docs()
 {
-  begin_section Docs
-  # Stub code to generate docs
-  echo Hello world  > documentation.txt
-  upload_item docs documentation.txt text/plain
-  end_section Docs
+  begin_section "Building Documentation"
+  begin_section "Autobuild metadata"
+  if [ -r "$build_dir/autobuild-package.xml" ]
+  then
+      upload_item docs "$build_dir/autobuild-package.xml" text/xml
+  else
+      record_event "no metadata at '$build_dir/autobuild-package.xml'"
+  fi
+  end_section "Autobuild metadata"
+  if [ "$arch" != "Linux" ]
+  then
+      record_dependencies_graph # defined in build.sh
+  else
+      echo "TBD - skipping linux graph (probable python version dependency)" 1>&2
+  fi
+  end_section "Building Documentation"
 }
 
 
@@ -200,33 +216,23 @@ fi
 # Check to see if we're skipping the platform
 eval '$build_'"$arch" || pass
 
-if [ -z "$AUTOBUILD" ]
+# ensure AUTOBUILD is in native path form for child processes
+AUTOBUILD="$(native_path "$AUTOBUILD")"
+# set "$autobuild" to cygwin path form for use locally in this script
+autobuild="$(shell_path "$AUTOBUILD")"
+if [ ! -x "$autobuild" ]
 then
-  export autobuild_dir="$here/../../../autobuild/bin/"
-  if [ -d "$autobuild_dir" ]
-  then
-    export AUTOBUILD="$autobuild_dir"autobuild
-    if [ -x "$AUTOBUILD" ]
-    then
-      # *HACK - bash doesn't know how to pass real pathnames to native windows python
-      case "$arch" in
-      CYGWIN) AUTOBUILD=$(cygpath -u $AUTOBUILD.cmd) ;;
-      esac
-    else
-      record_failure "Not executable: $AUTOBUILD"
-      exit 1
-    fi
-  else
-    record_failure "Not found: $autobuild_dir"
-    exit 1
-  fi
+  record_failure "AUTOBUILD not executable: '$autobuild'"
+  exit 1
 fi
 
-# load autbuild provided shell functions and variables
-eval "$("$AUTOBUILD" source_environment)"
+# load autobuild provided shell functions and variables
+eval "$("$autobuild" source_environment)"
 
 # dump environment variables for debugging
+begin_section "Environment"
 env|sort
+end_section "Environment"
 
 # Now run the build
 succeeded=true
@@ -275,6 +281,8 @@ do
   fi
   end_section "Do$variant"
 done
+
+build_docs
 
 # If we are building variants in parallel, wait, then collect results.
 # This requires that the build dirs are variant specific
@@ -374,7 +382,6 @@ then
     echo skipping debian build due to failed build.
   fi
 fi
-
 
 # check status and upload results to S3
 if $succeeded

@@ -47,7 +47,6 @@ LLFloaterMediaSettings::LLFloaterMediaSettings(const LLSD& key)
 	mPanelMediaSettingsGeneral(NULL),
 	mPanelMediaSettingsSecurity(NULL),
 	mPanelMediaSettingsPermissions(NULL),
-	mWaitingToClose( false ),
 	mIdenticalHasMediaInfo( true ),
 	mMultipleMedia(false),
 	mMultipleValidMedia(false)

@@ -193,14 +193,6 @@ void LLAppViewer::forceQuit(void) {}
 LLAppViewer * LLAppViewer::sInstance = 0;
 
 //-----------------------------------------------------------------------------
-#include "llnotificationsutil.h"
-LLNotificationPtr LLNotificationsUtil::add(const std::string& name, 
-					  const LLSD& substitutions, 
-					  const LLSD& payload, 
-					  boost::function<void (const LLSD&, const LLSD&)> functor) { return LLNotificationPtr((LLNotification*)0); }
-
-
-//-----------------------------------------------------------------------------
 #include "llupdaterservice.h"
 
 std::string const & LLUpdaterService::pumpName(void)
@@ -488,8 +480,6 @@ namespace tut
     template<> template<>
     void lllogininstance_object::test<3>()
     {
-		skip();
-		
 		set_test_name("Test Mandatory Update User Accepts");
 
 		// Part 1 - Mandatory Update, with User accepts response.
@@ -517,8 +507,6 @@ namespace tut
 	template<> template<>
     void lllogininstance_object::test<4>()
     {
-		skip();
-		
 		set_test_name("Test Mandatory Update User Decline");
 
 		// Test connect with update needed.

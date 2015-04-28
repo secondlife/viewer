@@ -135,9 +135,9 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 
 			if (name.empty())
 			{
-				S32 region_x = llround(agent_pos.mV[VX]);
-				S32 region_y = llround(agent_pos.mV[VY]);
-				S32 region_z = llround(agent_pos.mV[VZ]);
+				S32 region_x = ll_round(agent_pos.mV[VX]);
+				S32 region_y = ll_round(agent_pos.mV[VY]);
+				S32 region_z = ll_round(agent_pos.mV[VZ]);
 
 				std::string region_name;
 				LLViewerRegion* region = parcel_mgr->getSelectionRegion();

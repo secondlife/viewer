@@ -90,6 +90,7 @@ public:
 										spellcheck,
 										commit_on_focus_lost,
 										ignore_tab,
+										bg_image_always_focused,
 										is_password;
 
 		// colors
@@ -374,6 +375,8 @@ protected:
 	BOOL		mPassDelete;
 
 	BOOL		mReadOnly;
+
+	BOOL 		mShowImageFocused;
 
 	LLWString	mPreeditWString;
 	LLWString	mPreeditOverwrittenWString;

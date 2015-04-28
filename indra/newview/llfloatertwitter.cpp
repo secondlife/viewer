@@ -54,7 +54,6 @@
 static LLPanelInjector<LLTwitterPhotoPanel> t_panel_photo("lltwitterphotopanel");
 static LLPanelInjector<LLTwitterAccountPanel> t_panel_account("lltwitteraccountpanel");
 
-const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const std::string DEFAULT_PHOTO_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=twitter&utm_medium=photo&utm_campaign=slshare";
 const std::string DEFAULT_STATUS_TEXT = " #SecondLife";

@@ -521,8 +521,8 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 
 	std::string val_string;
 	std::string fraction_string;
-	F32 val_to_print = llround(value, 0.001f);
-	S32 fractional_portion = llround(fmodf(llabs(val_to_print), 1.f) * 100.f);
+	F32 val_to_print = ll_round(value, 0.001f);
+	S32 fractional_portion = ll_round(fmodf(llabs(val_to_print), 1.f) * 100.f);
 	if (val_to_print < 0.f)
 	{
 		if (fractional_portion == 0)

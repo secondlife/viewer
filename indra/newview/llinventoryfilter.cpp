@@ -566,7 +566,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		if (mFilterOps.mFilterTypes == FILTERTYPE_UUID)
 		{
 			mFilterOps.mFilterTypes &= ~FILTERTYPE_UUID;
-			mFilterOps.mFilterUUID == LLUUID::null;
+			mFilterOps.mFilterUUID = LLUUID::null;
 			setModified(FILTER_RESTART);
 		}
 	}
@@ -674,13 +674,13 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 		BOOL more_restrictive;
 		if (FILTERDATEDIRECTION_NEWER == mFilterOps.mDateSearchDirection)
 		{
-			less_restrictive = (are_date_limits_valid && ((is_increasing && mFilterOps.mHoursAgo)) || !hours);
-			more_restrictive = (are_date_limits_valid && (!is_increasing && hours) || is_increasing_from_zero);
+			less_restrictive = ((are_date_limits_valid && ((is_increasing && mFilterOps.mHoursAgo))) || !hours);
+			more_restrictive = ((are_date_limits_valid && (!is_increasing && hours)) || is_increasing_from_zero);
 		}
 		else
 		{
-			less_restrictive = (are_date_limits_valid && ((is_decreasing && mFilterOps.mHoursAgo)) || !hours);
-			more_restrictive = (are_date_limits_valid && (!is_decreasing && hours) || is_increasing_from_zero);
+			less_restrictive = ((are_date_limits_valid && ((is_decreasing && mFilterOps.mHoursAgo))) || !hours);
+			more_restrictive = ((are_date_limits_valid && (!is_decreasing && hours)) || is_increasing_from_zero);
 		}
 
 		mFilterOps.mHoursAgo = hours;

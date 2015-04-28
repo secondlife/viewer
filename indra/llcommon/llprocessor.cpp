@@ -204,21 +204,6 @@ namespace
    		return "Unknown";
 	}
 
-	std::string compute_CPUFamilyName(const char* cpu_vendor, int composed_family) 
-	{
-		const char* intel_string = "GenuineIntel";
-		const char* amd_string = "AuthenticAMD";
-		if(!strncmp(cpu_vendor, intel_string, strlen(intel_string)))
-		{
-			return intel_CPUFamilyName(composed_family);
-		}
-		else if(!strncmp(cpu_vendor, amd_string, strlen(amd_string)))
-		{
-			return amd_CPUFamilyName(composed_family);
-		}
-		return "Unknown";
-	}
-
 	std::string compute_CPUFamilyName(const char* cpu_vendor, int family, int ext_family) 
 	{
 		const char* intel_string = "GenuineIntel";
@@ -793,7 +778,7 @@ private:
 			setInfo(eFamily, family);
 		}
  
-		setInfo(eFamilyName, compute_CPUFamilyName(cpuinfo["vendor_id"].c_str(), family));
+		setInfo(eFamilyName, compute_CPUFamilyName(cpuinfo["vendor_id"].c_str(), family, 0));
 
 		// setInfo(eExtendedModel, getSysctlInt("machdep.cpu.extmodel"));
 		// setInfo(eBrandID, getSysctlInt("machdep.cpu.brand"));

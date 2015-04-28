@@ -74,9 +74,9 @@ public:
 		if (!landmark->getGlobalPos(landmark_global_pos))
 			return false;
 		//we have to round off each coordinates to compare positions properly
-		return llround(mPos.mdV[VX]) ==  llround(landmark_global_pos.mdV[VX])
-				&& llround(mPos.mdV[VY]) ==  llround(landmark_global_pos.mdV[VY])
-				&& llround(mPos.mdV[VZ]) ==  llround(landmark_global_pos.mdV[VZ]);
+		return ll_round(mPos.mdV[VX]) ==  ll_round(landmark_global_pos.mdV[VX])
+				&& ll_round(mPos.mdV[VY]) ==  ll_round(landmark_global_pos.mdV[VY])
+				&& ll_round(mPos.mdV[VZ]) ==  ll_round(landmark_global_pos.mdV[VZ]);
 	}
 };
 
@@ -320,7 +320,7 @@ void LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(const LLVector3d& gl
 	{
 		LLVector3 pos = sim_infop->getLocalPos(global_pos);
 		std::string name = sim_infop->getName() ;
-		cb(name, llround(pos.mV[VX]), llround(pos.mV[VY]),llround(pos.mV[VZ]));
+		cb(name, ll_round(pos.mV[VX]), ll_round(pos.mV[VY]),ll_round(pos.mV[VZ]));
 	}
 	else
 	{
@@ -364,7 +364,7 @@ void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_cal
 	{
 		LLVector3 local_pos = sim_infop->getLocalPos(global_pos);
 		std::string name = sim_infop->getName() ;
-		cb(name, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]), llround(local_pos.mV[VZ]));
+		cb(name, ll_round(local_pos.mV[VX]), ll_round(local_pos.mV[VY]), ll_round(local_pos.mV[VZ]));
 	}
 }
 

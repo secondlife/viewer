@@ -308,7 +308,7 @@ void LLVolumeImplFlexible::updateRenderRes()
 	mRenderRes = (S32) (12.f*app_angle);
 #else //legacy behavior
 	//number of segments only cares about z axis
-	F32 app_angle = llround((F32) atan2( mVO->getScale().mV[2]*2.f, drawablep->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
+	F32 app_angle = ll_round((F32) atan2( mVO->getScale().mV[2]*2.f, drawablep->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
 
  	// Rendering sections increases with visible angle on the screen
 	mRenderRes = (S32)(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle*DEG_TO_RAD/LLViewerCamera::getInstance()->getView());

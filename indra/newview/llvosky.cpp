@@ -62,8 +62,6 @@ static const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
 static const F32 SUN_DISK_RADIUS	= 0.5f;
 static const F32 MOON_DISK_RADIUS	= SUN_DISK_RADIUS * 0.9f;
 static const F32 SUN_INTENSITY = 1e5;
-static const F32 SUN_DISK_INTENSITY = 24.f;
-
 
 // Texture coordinates:
 static const LLVector2 TEX00 = LLVector2(0.f, 0.f);
@@ -617,21 +615,6 @@ static inline void componentMultBy(LLColor3 & left, LLColor3 const & right)
 static inline LLColor3 colorMix(LLColor3 const & left, LLColor3 const & right, F32 amount)
 {
 	return (left + ((right - left) * amount));
-}
-
-static inline F32 texture2D(LLPointer<LLImageRaw> const & tex, LLVector2 const & uv)
-{
-	U16 w = tex->getWidth();
-	U16 h = tex->getHeight();
-
-	U16 r = U16(uv[0] * w) % w;
-	U16 c = U16(uv[1] * h) % h;
-
-	U8 const * imageBuffer = tex->getData();
-
-	U8 sample = imageBuffer[r * w + c];
-
-	return sample / 255.f;
 }
 
 static inline LLColor3 smear(F32 val)

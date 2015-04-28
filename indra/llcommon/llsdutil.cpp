@@ -572,7 +572,7 @@ std::string llsd_matches(const LLSD& prototype, const LLSD& data, const std::str
     return match_types(prototype.type(), TypeVector(), data.type(), pfx);
 }
 
-bool llsd_equals(const LLSD& lhs, const LLSD& rhs, unsigned bits)
+bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits)
 {
     // We're comparing strict equality of LLSD representation rather than
     // performing any conversions. So if the types aren't equal, the LLSD

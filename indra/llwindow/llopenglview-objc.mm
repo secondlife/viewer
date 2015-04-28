@@ -104,20 +104,20 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (unsigned long)getVramSize
 {
     CGLRendererInfoObj info = 0;
-	GLint vram_mbytes = 0;
+	GLint vram_megabytes = 0;
     int num_renderers = 0;
     CGLError the_err = CGLQueryRendererInfo (CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &info, &num_renderers);
     if(0 == the_err)
     {
-        CGLDescribeRenderer (info, 0, kCGLRPTextureMemoryMegabytes, &vram_mbytes);
+        CGLDescribeRenderer (info, 0, kCGLRPTextureMemoryMegabytes, &vram_megabytes);
         CGLDestroyRendererInfo (info);
     }
     else
     {
-        vram_mbytes = 256;
+        vram_megabytes = 256;
     }
     
-	return (unsigned long)vram_mbytes;
+	return (unsigned long)vram_megabytes; // return value is in megabytes.
 }
 
 - (void)viewDidMoveToWindow

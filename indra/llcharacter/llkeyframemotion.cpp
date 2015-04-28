@@ -902,7 +902,7 @@ void LLKeyframeMotion::deactivateConstraint(JointConstraint *constraintp)
 		constraintp->mSourceVolume->mUpdateXform = FALSE;
 	}
 
-	if (!constraintp->mSharedData->mConstraintTargetType == CONSTRAINT_TARGET_TYPE_GROUND)
+	if (constraintp->mSharedData->mConstraintTargetType != CONSTRAINT_TARGET_TYPE_GROUND)
 	{
 		if (constraintp->mTargetVolume)
 		{
@@ -1048,7 +1048,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 	LLVector3 source_to_target = target_pos - keyframe_source_pos;
 	
-	S32 max_iteration_count = llround(clamp_rescale(
+	S32 max_iteration_count = ll_round(clamp_rescale(
 										  mCharacter->getPixelArea(),
 										  MAX_PIXEL_AREA_CONSTRAINTS,
 										  MIN_PIXEL_AREA_CONSTRAINTS,

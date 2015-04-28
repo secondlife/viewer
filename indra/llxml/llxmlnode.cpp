@@ -43,8 +43,6 @@
 #include "lluuid.h"
 #include "lldir.h"
 
-const S32 MAX_COLUMN_WIDTH = 80;
-
 // static
 BOOL LLXMLNode::sStripEscapedStrings = TRUE;
 BOOL LLXMLNode::sStripWhitespaceValues = FALSE;

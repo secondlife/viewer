@@ -106,9 +106,6 @@ const std::string DEFAULT_SCRIPT_NAME = "New Script"; // *TODO:Translate?
 const std::string DEFAULT_SCRIPT_DESC = "(No Description)"; // *TODO:Translate?
 
 // Description and header information
-
-const S32 MAX_EXPORT_SIZE = 1000;
-
 const S32 MAX_HISTORY_COUNT = 10;
 const F32 LIVE_HELP_REFRESH_TIME = 1.f;
 

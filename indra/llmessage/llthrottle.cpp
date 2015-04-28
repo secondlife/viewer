@@ -391,7 +391,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 		}
 
 		mBitsSentThisPeriod[i] = 0;
-		total += llround(mBitsSentHistory[i]);
+		total += ll_round(mBitsSentHistory[i]);
 	}
 
 	// Look for busy channels
