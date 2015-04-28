@@ -2218,7 +2218,7 @@ if (LL_TESTS)
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     lldateutil.cpp
-    llmediadataclient.cpp
+#    llmediadataclient.cpp
     lllogininstance.cpp
     llremoteparcelrequest.cpp
     lltranslate.cpp
@@ -2251,7 +2251,7 @@ if (LL_TESTS)
   set_source_files_properties(
     llmediadataclient.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
+    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
   )
 
   set_source_files_properties(

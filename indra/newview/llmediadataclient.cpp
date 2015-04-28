@@ -40,6 +40,7 @@
 #include "llmediaentry.h"
 #include "lltextureentry.h"
 #include "llviewerregion.h"
+#include "llcorehttputil.h"
 
 //
 // When making a request
@@ -145,18 +146,20 @@ void remove_matching_requests(T &c, const LLUUID &id, LLMediaDataClient::Request
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-LLMediaDataClient::LLMediaDataClient(F32 queue_timer_delay,
-									 F32 retry_timer_delay,
-									 U32 max_retries,
-									 U32 max_sorted_queue_size,
-									 U32 max_round_robin_queue_size)
-	: mQueueTimerDelay(queue_timer_delay),
-	  mRetryTimerDelay(retry_timer_delay),
-	  mMaxNumRetries(max_retries),
-	  mMaxSortedQueueSize(max_sorted_queue_size),
-	  mMaxRoundRobinQueueSize(max_round_robin_queue_size),
-	  mQueueTimerIsRunning(false)
+LLMediaDataClient::LLMediaDataClient(F32 queue_timer_delay, F32 retry_timer_delay,  
+        U32 max_retries, U32 max_sorted_queue_size, U32 max_round_robin_queue_size):
+    mQueueTimerDelay(queue_timer_delay),
+    mRetryTimerDelay(retry_timer_delay),
+    mMaxNumRetries(max_retries),
+    mMaxSortedQueueSize(max_sorted_queue_size),
+    mMaxRoundRobinQueueSize(max_round_robin_queue_size),
+    mQueueTimerIsRunning(false),
+    mHttpRequest(new LLCore::HttpRequest()),
+    mHttpHeaders(new LLCore::HttpHeaders(), false),
+    mHttpOpts(new LLCore::HttpOptions(), false),
+    mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
 {
+    // *TODO: Look up real Policy ID
 }
 
 LLMediaDataClient::~LLMediaDataClient()
@@ -207,18 +210,19 @@ void LLMediaDataClient::stopQueueTimer()
 
 bool LLMediaDataClient::processQueueTimer()
 {
-	if(isEmpty())
+    if (isDoneProcessing())
 		return true;
 
 	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, queue size is:	  " << mQueue.size() << LL_ENDL;
 	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() started, SORTED queue is:	  " << mQueue << LL_ENDL;
 			
 	serviceQueue();
-	
+    serviceHttp();
+
 	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, queue size is:	  " << mQueue.size() << LL_ENDL;
 	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() finished, SORTED queue is:	  " << mQueue << LL_ENDL;
 	
-	return isEmpty();
+    return isDoneProcessing();
 }
 
 LLMediaDataClient::request_ptr_t LLMediaDataClient::dequeue()
@@ -283,6 +287,12 @@ void LLMediaDataClient::stopTrackingRequest(request_ptr_t request)
 	}
 }
 
+bool LLMediaDataClient::isDoneProcessing() const
+{
+    return (isEmpty() && mUnQueuedRequests.empty());
+}
+
+
 void LLMediaDataClient::serviceQueue()
 {	
 	// Peel one off of the items from the queue and execute it
@@ -317,7 +327,18 @@ void LLMediaDataClient::serviceQueue()
 		trackRequest(request);
 		
 		// and make the post
-		LLHTTPClient::post(url, sd_payload, request->createResponder());
+        LLHttpSDHandler *handler = request->createHandler();
+        LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, mHttpPolicy, 0,
+            url, sd_payload, mHttpOpts, mHttpHeaders, handler);
+
+        if (handle == LLCORE_HTTP_HANDLE_INVALID)
+        {
+            // *TODO: Change this metaphore to use boost::shared_ptr<> for handlers.  Requires change in LLCore::HTTP
+            delete handler;
+            LLCore::HttpStatus status = mHttpRequest->getStatus();
+            LL_WARNS("LLMediaDataClient") << "'" << url << "' request POST failed. Reason "
+                << status.toTerseString() << " \"" << status.toString() << "\"" << LL_ENDL;
+        }
 	}
 	else 
 	{
@@ -332,13 +353,17 @@ void LLMediaDataClient::serviceQueue()
 		}
 		else
 		{
-			// This request has exceeded its maxumim retry count.  It will be dropped.
+			// This request has exceeded its maximum retry count.  It will be dropped.
 			LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " << mMaxNumRetries << " tries, dropping request." << LL_ENDL; 
 		}
 
 	}
 }
 
+void LLMediaDataClient::serviceHttp()
+{
+    mHttpRequest->update(0);
+}
 
 // dump the queue
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q)
@@ -551,78 +576,66 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &r)
 	<< " #retries=" << r.getRetryCount();
 	return s;
 }
-			
-//////////////////////////////////////////////////////////////////////////////////////
-//
-// LLMediaDataClient::Responder
-//
-//////////////////////////////////////////////////////////////////////////////////////
 
-LLMediaDataClient::Responder::Responder(const request_ptr_t &request)
-: mRequest(request)
+//========================================================================
+
+LLMediaDataClient::Handler::Handler(const request_ptr_t &request):
+    mRequest(request)
 {
 }
 
-/*virtual*/
-void LLMediaDataClient::Responder::httpFailure()
-{
-	mRequest->stopTracking();
 
-	if(mRequest->isDead())
-	{
-		LL_WARNS("LLMediaDataClient") << "dead request " << *mRequest << LL_ENDL;
-		return;
-	}
-	
-	if (getStatus() == HTTP_SERVICE_UNAVAILABLE)
-	{
-		F32 retry_timeout;
+void LLMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
+{
+    mRequest->stopTracking();
+
+    if (mRequest->isDead())
+    {
+        LL_WARNS("LLMediaDataClient") << "dead request " << *mRequest << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS("LLMediaDataClientResponse") << *mRequest << LL_ENDL;
+}
+
+void LLMediaDataClient::Handler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
+{
+    mRequest->stopTracking();
+
+    if (status == LLCore::HttpStatus(HTTP_SERVICE_UNAVAILABLE))
+    {
+        F32 retry_timeout;
 #if 0
-		// *TODO: Honor server Retry-After header.
-		if (!hasResponseHeader(HTTP_IN_HEADER_RETRY_AFTER)
-			|| !getSecondsUntilRetryAfter(getResponseHeader(HTTP_IN_HEADER_RETRY_AFTER), retry_timeout))
+        // *TODO: Honor server Retry-After header.
+        if (!hasResponseHeader(HTTP_IN_HEADER_RETRY_AFTER)
+            || !getSecondsUntilRetryAfter(getResponseHeader(HTTP_IN_HEADER_RETRY_AFTER), retry_timeout))
 #endif
-		{
-			retry_timeout = mRequest->getRetryTimerDelay();
-		}
-		
-		mRequest->incRetryCount();
-		
-		if (mRequest->getRetryCount() < mRequest->getMaxNumRetries()) 
-		{
-			LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retrying in " << retry_timeout << " seconds" << LL_ENDL;
-			
-			// Start timer (instances are automagically tracked by
-			// InstanceTracker<> and LLEventTimer)
-			new RetryTimer(F32(retry_timeout/*secs*/), mRequest);
-		}
-		else 
-		{
-			LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retry count " 
-				<< mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
-		}
-	}
-	// *TODO: Redirect on 3xx status codes.
-	else 
-	{
-		LL_WARNS("LLMediaDataClient") << *mRequest << " http failure "
-				<< dumpResponse() << LL_ENDL;
-	}
+        {
+            retry_timeout = mRequest->getRetryTimerDelay();
+        }
+
+        mRequest->incRetryCount();
+
+        if (mRequest->getRetryCount() < mRequest->getMaxNumRetries()) 
+        {
+            LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retrying in " << retry_timeout << " seconds" << LL_ENDL;
+
+            // Start timer (instances are automagically tracked by
+            // InstanceTracker<> and LLEventTimer)
+            new RetryTimer(F32(retry_timeout/*secs*/), mRequest);
+        }
+        else 
+        {
+            LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retry count " 
+                << mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_WARNS("LLMediaDataClient") << *mRequest << " HTTP failure " << LL_ENDL;
+    }
 }
 
-/*virtual*/
-void LLMediaDataClient::Responder::httpSuccess()
-{
-	mRequest->stopTracking();
-
-	if(mRequest->isDead())
-	{
-		LL_WARNS("LLMediaDataClient") << "dead request " << *mRequest << LL_ENDL;
-		return;
-	}
-
-	LL_DEBUGS("LLMediaDataClientResponse") << *mRequest << " " << dumpResponse() << LL_ENDL;
-}
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -801,7 +814,7 @@ void LLObjectMediaDataClient::removeFromQueue(const LLMediaDataClientObject::ptr
 
 bool LLObjectMediaDataClient::processQueueTimer()
 {
-	if(isEmpty())
+    if (isDoneProcessing())
 		return true;
 		
 	LL_DEBUGS("LLMediaDataClient") << "started, SORTED queue size is:	  " << mQueue.size() 
@@ -816,6 +829,7 @@ bool LLObjectMediaDataClient::processQueueTimer()
 	LL_DEBUGS("LLMediaDataClientQueue") << "after sort, SORTED queue is:	  " << mQueue << LL_ENDL;
 	
 	serviceQueue();
+    serviceHttp();
 
 	swapCurrentQueue();
 	
@@ -824,7 +838,7 @@ bool LLObjectMediaDataClient::processQueueTimer()
 	LL_DEBUGS("LLMediaDataClientQueue") << "    SORTED queue is:	  " << mQueue << LL_ENDL;
 	LL_DEBUGS("LLMediaDataClientQueue") << "    RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
 	
-	return isEmpty();
+    return isDoneProcessing();
 }
 
 LLObjectMediaDataClient::RequestGet::RequestGet(LLMediaDataClientObject *obj, LLMediaDataClient *mdc):
@@ -841,9 +855,9 @@ LLSD LLObjectMediaDataClient::RequestGet::getPayload() const
 	return result;
 }
 
-LLMediaDataClient::Responder *LLObjectMediaDataClient::RequestGet::createResponder()
+LLHttpSDHandler *LLObjectMediaDataClient::RequestGet::createHandler()
 {
-	return new LLObjectMediaDataClient::Responder(this);
+	return new LLObjectMediaDataClient::Handler(this);
 }
 
 
@@ -877,59 +891,57 @@ LLSD LLObjectMediaDataClient::RequestUpdate::getPayload() const
 	return result;
 }
 
-LLMediaDataClient::Responder *LLObjectMediaDataClient::RequestUpdate::createResponder()
+LLHttpSDHandler *LLObjectMediaDataClient::RequestUpdate::createHandler()
 {
 	// This just uses the base class's responder.
-	return new LLMediaDataClient::Responder(this);
+	return new LLMediaDataClient::Handler(this);
 }
 
-
-/*virtual*/
-void LLObjectMediaDataClient::Responder::httpSuccess()
+void LLObjectMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
-	getRequest()->stopTracking();
+    LLMediaDataClient::Handler::onSuccess(response, content);
 
-	if(getRequest()->isDead())
-	{
-		LL_WARNS("LLMediaDataClient") << "dead request " << *(getRequest()) << LL_ENDL;
-		return;
-	}
+    if (getRequest()->isDead())
+    {   // warning emitted from base method.
+        return;
+    }
 
-	const LLSD& content = getContent();
-	if (!content.isMap())
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
+    if (!content.isMap())
+    {
+        onFailure(response, LLCore::HttpStatus(HTTP_INTERNAL_ERROR, "Malformed response contents"));
+        return;
+    }
 
-	// This responder is only used for GET requests, not UPDATE.
-	LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " " << dumpResponse() << LL_ENDL;
+    // This responder is only used for GET requests, not UPDATE.
+    LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " " << LL_ENDL;
 
-	// Look for an error
-	if (content.has("error"))
-	{
-		const LLSD &error = content["error"];
-		LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error getting media data for object: code=" << 
-			error["code"].asString() << ": " << error["message"].asString() << LL_ENDL;
-		
-		// XXX Warn user?
-	}
-	else 
-	{
-		// Check the data
-		const LLUUID &object_id = content[LLTextureEntry::OBJECT_ID_KEY];
-		if (object_id != getRequest()->getObject()->getID()) 
-		{
-			// NOT good, wrong object id!!
-			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " DROPPING response with wrong object id (" << object_id << ")" << LL_ENDL;
-			return;
-		}
-		
-		// Otherwise, update with object media data
-		getRequest()->getObject()->updateObjectMediaData(content[LLTextureEntry::OBJECT_MEDIA_DATA_KEY],
-														 content[LLTextureEntry::MEDIA_VERSION_KEY]);
-	}
+    // Look for an error
+    if (content.has("error"))
+    {
+        const LLSD &error = content["error"];
+        LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error getting media data for object: code=" << 
+            error["code"].asString() << ": " << error["message"].asString() << LL_ENDL;
+
+        // XXX Warn user?
+    }
+    else 
+    {
+        // Check the data
+        const LLUUID &object_id = content[LLTextureEntry::OBJECT_ID_KEY];
+        if (object_id != getRequest()->getObject()->getID()) 
+        {
+            // NOT good, wrong object id!!
+            LL_WARNS("LLMediaDataClient") << *(getRequest()) << " DROPPING response with wrong object id (" << object_id << ")" << LL_ENDL;
+            return;
+        }
+
+        // Otherwise, update with object media data
+        getRequest()->getObject()->updateObjectMediaData(content[LLTextureEntry::OBJECT_MEDIA_DATA_KEY],
+            content[LLTextureEntry::MEDIA_VERSION_KEY]);
+    }
+
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -947,7 +959,7 @@ void LLObjectMediaNavigateClient::enqueue(Request *request)
 {
 	if(request->isDead())
 	{
-		LL_DEBUGS("LLMediaDataClient") << "not queueing dead request " << *request << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClient") << "not queuing dead request " << *request << LL_ENDL;
 		return;
 	}
 	
@@ -979,7 +991,7 @@ void LLObjectMediaNavigateClient::enqueue(Request *request)
 	else
 #endif
 	{
-		LL_DEBUGS("LLMediaDataClient") << "queueing new request " << (*request) << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClient") << "queuing new request " << (*request) << LL_ENDL;
 		mQueue.push_back(request);
 		
 		// Start the timer if not already running
@@ -1012,75 +1024,67 @@ LLSD LLObjectMediaNavigateClient::RequestNavigate::getPayload() const
 	return result;
 }
 
-LLMediaDataClient::Responder *LLObjectMediaNavigateClient::RequestNavigate::createResponder()
+LLHttpSDHandler *LLObjectMediaNavigateClient::RequestNavigate::createHandler()
 {
-	return new LLObjectMediaNavigateClient::Responder(this);
+	return new LLObjectMediaNavigateClient::Handler(this);
 }
 
-/*virtual*/
-void LLObjectMediaNavigateClient::Responder::httpFailure()
+void LLObjectMediaNavigateClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
-	getRequest()->stopTracking();
+    LLMediaDataClient::Handler::onSuccess(response, content);
 
-	if(getRequest()->isDead())
-	{
-		LL_WARNS("LLMediaDataClient") << "dead request " << *(getRequest()) << LL_ENDL;
-		return;
-	}
+    if (getRequest()->isDead())
+    {   // already warned.
+        return;
+    }
 
-	// Bounce back (unless HTTP_SERVICE_UNAVAILABLE, in which case call base
-	// class
-	if (getStatus() == HTTP_SERVICE_UNAVAILABLE)
-	{
-		LLMediaDataClient::Responder::httpFailure();
-	}
-	else
-	{
-		// bounce the face back
-		LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: " << dumpResponse() << LL_ENDL;
-		const LLSD &payload = getRequest()->getPayload();
-		// bounce the face back
-		getRequest()->getObject()->mediaNavigateBounceBack((LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY]);
-	}
+    LL_INFOS("LLMediaDataClient") << *(getRequest()) << " NAVIGATE returned" << LL_ENDL;
+
+    if (content.has("error"))
+    {
+        const LLSD &error = content["error"];
+        int error_code = error["code"];
+
+        if (ERROR_PERMISSION_DENIED_CODE == error_code)
+        {
+            mediaNavigateBounceBack();
+        }
+        else
+        {
+            LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: code=" <<
+                error["code"].asString() << ": " << error["message"].asString() << LL_ENDL;
+        }
+
+        // XXX Warn user?
+    }
+    else
+    {
+        // No action required.
+        LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << LL_ENDL;
+    }
+
 }
 
-/*virtual*/
-void LLObjectMediaNavigateClient::Responder::httpSuccess()
+void LLObjectMediaNavigateClient::Handler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
 {
-	getRequest()->stopTracking();
+    LLMediaDataClient::Handler::onFailure(response, status);
 
-	if(getRequest()->isDead())
-	{
-		LL_WARNS("LLMediaDataClient") << "dead request " << *(getRequest()) << LL_ENDL;
-		return;
-	}
+    if (getRequest()->isDead())
+    {   // already warned.
+        return;
+    }
 
-	LL_INFOS("LLMediaDataClient") << *(getRequest()) << " NAVIGATE returned " << dumpResponse() << LL_ENDL;
-	
-	const LLSD& content = getContent();
-	if (content.has("error"))
-	{
-		const LLSD &error = content["error"];
-		int error_code = error["code"];
-		
-		if (ERROR_PERMISSION_DENIED_CODE == error_code)
-		{
-			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Navigation denied: bounce back" << LL_ENDL;
-			const LLSD &payload = getRequest()->getPayload();
-			// bounce the face back
-			getRequest()->getObject()->mediaNavigateBounceBack((LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY]);
-		}
-		else
-		{
-			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: code=" << 
-				error["code"].asString() << ": " << error["message"].asString() << LL_ENDL;
-		}			 
+    if (status != LLCore::HttpStatus(HTTP_SERVICE_UNAVAILABLE))
+    {
+        mediaNavigateBounceBack();
+    }
+}
 
-		// XXX Warn user?
-	}
-	else 
-	{
-		// No action required.
-		LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " " << dumpResponse() << LL_ENDL;
-	}
+void LLObjectMediaNavigateClient::Handler::mediaNavigateBounceBack()
+{
+    LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating or denied." << LL_ENDL;
+    const LLSD &payload = getRequest()->getPayload();
+    
+    // bounce the face back
+    getRequest()->getObject()->mediaNavigateBounceBack((LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY]);
 }

@@ -36,32 +36,37 @@
 /// 
 // *TODO: This class self deletes at the end of onCompleted method.  This is 
 // less than ideal and should be revisited.
-class LLHttpSDHandler : public LLCore::HttpHandler
+class LLHttpSDHandler : public LLCore::HttpHandler //,
+//    public std::enable_shared_from_this<LLHttpSDHandler>
 {
 public:
-	LLHttpSDHandler();
 
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 	
 protected:
+    LLHttpSDHandler(bool selfDelete = true);
+
 	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content) = 0;
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) = 0;
+
+private:
+    bool mSelfDelete;
 
 };
 
 /// A trivial implementation of LLHttpSDHandler. This success and failure 
-/// methods log the action taken, the URI accessed and the status code retuned 
+/// methods log the action taken, the URI accessed and the status code returned 
 /// in the response.
 class LLHttpSDGenericHandler : public LLHttpSDHandler
 {
 public: 
-	LLHttpSDGenericHandler(const std::string &action);
+	LLHttpSDGenericHandler(const std::string &name, bool selfDelete = true);
 
 protected:
 	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
 private:
-	std::string mCaps;
+	std::string mName;
 };
 #endif

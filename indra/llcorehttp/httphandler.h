@@ -53,8 +53,9 @@ class HttpResponse;
 /// that is rarely a good idea.  Queued requests and replies keep
 /// a naked pointer to the handler and this can result in a
 /// dangling pointer if lifetimes aren't managed correctly.
-
-class HttpHandler
+///
+/// *TODO: public std::enable_shared_from_this<HttpHandler>
+class HttpHandler 
 {
 public:
 	virtual ~HttpHandler()
