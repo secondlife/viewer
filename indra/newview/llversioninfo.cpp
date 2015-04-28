@@ -29,6 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include "llversioninfo.h"
+#include <boost/regex.hpp>
 
 #if ! defined(LL_VIEWER_CHANNEL)       \
  || ! defined(LL_VIEWER_VERSION_MAJOR) \
@@ -133,7 +134,7 @@ void LLVersionInfo::resetChannel(const std::string& channel)
 }
 
 //static
-ViewerMaturity getViewerMaturity()
+LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
 {
     ViewerMaturity maturity;
     
