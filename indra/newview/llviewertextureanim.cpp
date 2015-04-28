@@ -179,7 +179,7 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
 
 	if (!(mMode & SMOOTH))
 	{
-		frame_counter = (F32)llround(frame_counter);
+		frame_counter = (F32)ll_round(frame_counter);
 	}
 
 	//

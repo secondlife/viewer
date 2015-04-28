@@ -85,7 +85,7 @@ static std::string readfile(const std::string& pathname, const std::string& desc
     }
     std::ifstream inf(pathname.c_str());
     std::string output;
-    tut::ensure(STRINGIZE("No output " << use_desc), std::getline(inf, output));
+    tut::ensure(STRINGIZE("No output " << use_desc), bool(std::getline(inf, output)));
     std::string more;
     while (std::getline(inf, more))
     {
@@ -154,7 +154,7 @@ struct PythonProcessLauncher
     void launch()
     {
         mPy = LLProcess::create(mParams);
-        tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), mPy);
+        tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), bool(mPy));
     }
 
     /// Run Python script and wait for it to complete.
@@ -873,7 +873,7 @@ namespace tut
         std::string threw;                                              \
         /* Both the following calls should work. */                     \
         (PROCESS).GETPIPE(VALID);                                       \
-        ensure(#GETOPTPIPE "(" #VALID ") failed", (PROCESS).GETOPTPIPE(VALID)); \
+        ensure(#GETOPTPIPE "(" #VALID ") failed", bool((PROCESS).GETOPTPIPE(VALID))); \
         /* pass obviously bogus PIPESLOT */                             \
         CATCH_IN(threw, LLProcess::NoPipe, (PROCESS).GETPIPE(LLProcess::FILESLOT(4))); \
         ensure_contains("didn't reject bad slot", threw, "no slot");    \

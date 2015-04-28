@@ -567,7 +567,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 
 		// Can't have more than region max tasks, regardless of parcel
 		// object bonus factor.
-		S32 primitives = llmin(llround(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()),
+		S32 primitives = llmin(ll_round(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()),
 							   (S32)region->getMaxTasks());
 
 		const U8* available = (U8*)getString("available").c_str();

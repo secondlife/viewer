@@ -19,7 +19,7 @@
   left="0"
   name="ui_stack"
   orientation="horizontal"
-  top="0"
+  top="10"
   width="1024">
     <layout_panel
       height="172"
@@ -30,7 +30,7 @@
       auto_resize="false"
       follows="left|right|top"
       name="ui_container"
-      width="960"
+      width="1000"
       left="0"
       top="0"
       height="172">
@@ -56,7 +56,8 @@
     name="username_combo"
     width="232">
     <combo_box.combo_editor
-      text_pad_left="8" />
+      text_pad_left="8" 
+      bg_image_always_focused="true"/>
     <combo_box.combo_button
       visible="false" />
     <combo_box.drop_down_button
@@ -65,23 +66,63 @@
   <line_editor
     follows="left|top"
     height="32"
-    left_pad="0"
+    left_pad="-11"
     max_length_bytes="16"
     text_pad_left="8"
     name="password_edit"
     label="Password"
+  	bg_image_always_focused="true"
     font="SansSerifLarge"
     is_password="true"
     select_on_focus="true"
     commit_on_focus_lost="false"
     bottom_delta="0"
-    width="200" />
+    width="165" />
+  <combo_box
+    allow_text_entry="true"
+    control_name="NextLoginLocation"    
+    follows="left|top"
+    label="My favorite places"
+    height="32"
+    max_chars="128"
+    combo_editor.font="SansSerifLarge"
+    left_pad="15"
+    bottom_delta="0"
+    name="start_location_combo"
+    width="175"
+    combo_button.scale_image="true">
+    <combo_box.combo_editor
+      bg_image_always_focused="true"
+      text_pad_left="8"/>
+    <combo_box.item
+      label="My last location"
+      name="MyLastLocation"
+      value="last" />
+    <combo_box.item
+      label="My home"
+      name="MyHome"
+      value="home" />     
+  </combo_box>
+  <button
+    follows="left|top"
+    image_unselected="PushButton_Login"
+    image_pressed="PushButton_Login_Pressed"
+    image_hover="PushButton_Login_Over"
+    label="Log In"
+    label_color="White"
+    font="SansSerifMedium"
+    name="connect_btn"
+    enabled="true"    
+    width="120"
+    height="32"
+  	left_pad="15"
+    bottom_delta="0" />  
   <check_box
     control_name="RememberPassword"
     follows="left|top"
     font="SansSerifMedium"
-    left_pad="20"
-    bottom_delta="-14"
+    left="185"
+    bottom_delta="21"  	
     height="24"
     label="Remember me"
     check_button.bottom="3"
@@ -93,107 +134,25 @@
     text_color="EmphasisColor"
     height="16"
     name="forgot_password_text"
-    left_delta="0"
-    bottom_delta="16"
+    left="408"    
+    bottom_delta="0"
     width="200">
     Forgotten password
-  </text>
-  <button
-    follows="left|top"
-    image_unselected="PushButton_Login"
-    image_pressed="PushButton_Login_Pressed"
-    image_hover="PushButton_Login_Over"
-    label="Log In"
-    label_color="White"
-    font="SansSerifMedium"
-    name="connect_btn"
-    enabled="true"
-    left="0"
-    width="80"
-    height="26"
-    bottom_delta="44" />
-  <text
-    follows="left|top"
-    font="SansSerifLarge"
-    height="24"
-    name="At_My_Last_Location_Label"
-    left_pad="8"
-    bottom_delta="1"
-    width="110">
-    at last location
-  </text>
-  <combo_box
-    control_name="NextLoginLocation"
-    follows="left|top"
-    label="My favorite places"
-    height="26"
-    max_chars="128"
-    combo_editor.font="SansSerifMedium"
-    left_pad="20"
-    bottom_delta="0"
-    name="start_location_combo"
-    width="175"
-    combo_button.scale_image="true">
-    <combo_box.item
-      label="My home"
-      name="MyHome"
-      value="home" />
-  </combo_box>
-  <button
-    follows="left|top"
-    image_unselected="PushButton_Login"
-    image_pressed="PushButton_Login_Pressed"
-    image_hover="PushButton_Login_Over"
-    label="Log In"
-    label_color="White"
-    font="SansSerifMedium"
-    name="connect_favorite_btn"
-    left_pad="8"
-    width="80"
-    enabled="false"
-    height="26"
-    bottom_delta="0" />
-  <line_editor
-    follows="left|top"
-    width="170"
-    height="26"
-    left_pad="30"
-    text_pad_left="8"
-    name="location_edit"
-    label="Type a location"
-    font="SansSerifMedium"
-    select_on_focus="true"
-    commit_on_focus_lost="false"
-    bottom_delta="0" />
-  <button
-    follows="left|top"
-    image_unselected="PushButton_Login"
-    image_pressed="PushButton_Login_Pressed"
-    image_hover="PushButton_Login_Over"
-    label="Log In"
-    enabled="false"
-    label_color="White"
-    font="SansSerifMedium"
-    name="connect_location_btn"
-    left_pad="8"
-    width="80"
-    height="26"
-    bottom_delta="0" />
+  </text> 
   <combo_box
     allow_text_entry="false"
     font="SansSerifTiny"
     follows="left|top"
     height="26"
+  	left="588"
+  	bottom_delta="10"
     max_chars="128"
-    label="Select grid"
-    left_pad="30"
-    bottom_delta="0"
+    label="Select grid"    
     layout="topleft"
-    top_pad="2"
     name="server_combo"
-    width="148" />
-    </layout_panel>
-    <layout_panel
+    width="149" />	
+  </layout_panel>
+  <layout_panel
       height="172"
       auto_resize="true"
       name="ui_elastic_pad_right"

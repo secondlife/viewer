@@ -106,7 +106,6 @@ private:
 	Parser::name_stack_t	mNameStack;
 	const LLSD*				mCurReadSD;
 	LLSD*					mWriteRootSD;
-	LLSD*					mCurWriteSD;
 };
 
 

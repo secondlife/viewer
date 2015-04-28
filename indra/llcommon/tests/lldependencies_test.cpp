@@ -37,29 +37,14 @@
 // associated header
 #include "../lldependencies.h"
 // other Linden headers
-#include "../test/lltut.h"
-
-using boost::assign::list_of;
 
 #if LL_WINDOWS
 #pragma warning (disable : 4675) // "resolved by ADL" -- just as I want!
 #endif
 
-typedef LLDependencies<> StringDeps;
-typedef StringDeps::KeyList StringList;
-
-// We use the very cool boost::assign::list_of() construct to specify vectors
-// of strings inline. For reasons on which I'm not entirely clear, though, it
-// needs a helper function. You can use list_of() to construct an implicit
-// StringList (std::vector<std::string>) by conversion, e.g. for a function
-// parameter -- but if you simply write StringList(list_of("etc.")), you get
-// ambiguity errors. Shrug!
-template<typename CONTAINER>
-CONTAINER make(const CONTAINER& data)
-{
-    return data;
-}
-
+/*****************************************************************************
+*   Display helpers: must be defined BEFORE lltut.h!
+*****************************************************************************/
 // Display an arbitary value as itself...
 template<typename T>
 std::ostream& display(std::ostream& out, const T& value)
@@ -111,6 +96,31 @@ std::ostream& operator<<(std::ostream& out, const std::set<ENTRY>& set)
 {
     display_seq(out, "{", set, "}");
     return out;
+}
+
+/*****************************************************************************
+*   Now we can #include lltut.h
+*****************************************************************************/
+#include "../test/lltut.h"
+
+/*****************************************************************************
+*   Other helpers
+*****************************************************************************/
+using boost::assign::list_of;
+
+typedef LLDependencies<> StringDeps;
+typedef StringDeps::KeyList StringList;
+
+// We use the very cool boost::assign::list_of() construct to specify vectors
+// of strings inline. For reasons on which I'm not entirely clear, though, it
+// needs a helper function. You can use list_of() to construct an implicit
+// StringList (std::vector<std::string>) by conversion, e.g. for a function
+// parameter -- but if you simply write StringList(list_of("etc.")), you get
+// ambiguity errors. Shrug!
+template<typename CONTAINER>
+CONTAINER make(const CONTAINER& data)
+{
+    return data;
 }
 
 const std::string& extract_key(const LLDependencies<>::value_type& entry)

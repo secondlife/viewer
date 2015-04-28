@@ -65,7 +65,6 @@
 
 const S32 NUM_AXES = 3;
 const S32 MOUSE_DRAG_SLOP = 2;       // pixels
-const F32 HANDLE_HIDE_ANGLE = 0.15f; // radians
 const F32 SELECTED_ARROW_SCALE = 1.3f;
 const F32 MANIPULATOR_HOTSPOT_START = 0.2f;
 const F32 MANIPULATOR_HOTSPOT_END = 1.2f;
@@ -1246,7 +1245,7 @@ void LLManipTranslate::renderSnapGuides()
 		// find distance to nearest smallest grid unit
 		F32 offset_nearest_grid_unit = fmodf(dist_grid_axis, smallest_grid_unit_scale);
 		// how many smallest grid units are we away from largest grid scale?
-		S32 sub_div_offset = llround(fmodf(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() / sGridMinSubdivisionLevel) / smallest_grid_unit_scale);
+		S32 sub_div_offset = ll_round(fmodf(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() / sGridMinSubdivisionLevel) / smallest_grid_unit_scale);
 		S32 num_ticks_per_side = llmax(1, llfloor(0.5f * guide_size_meters / smallest_grid_unit_scale));
 
 		LLGLDepthTest gls_depth(GL_FALSE);
@@ -1361,12 +1360,12 @@ void LLManipTranslate::renderSnapGuides()
 			}
 		}
 
-		sub_div_offset = llround(fmod(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() * 32.f) / smallest_grid_unit_scale);
+		sub_div_offset = ll_round(fmod(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() * 32.f) / smallest_grid_unit_scale);
 
 		LLVector2 screen_translate_axis(llabs(translate_axis * LLViewerCamera::getInstance()->getLeftAxis()), llabs(translate_axis * LLViewerCamera::getInstance()->getUpAxis()));
 		screen_translate_axis.normVec();
 
-		S32 tick_label_spacing = llround(screen_translate_axis * sTickLabelSpacing);
+		S32 tick_label_spacing = ll_round(screen_translate_axis * sTickLabelSpacing);
         
 		// render tickmark values
 		for (S32 i = -num_ticks_per_side; i <= num_ticks_per_side; i++)
@@ -1404,7 +1403,7 @@ void LLManipTranslate::renderSnapGuides()
 				F32 offset_val = 0.5f * tick_offset.mV[ARROW_TO_AXIS[mManipPart]] / getMinGridScale();
 				EGridMode grid_mode = LLSelectMgr::getInstance()->getGridMode();
 				F32 text_highlight = 0.8f;
-				if(i - llround(offset_nearest_grid_unit / smallest_grid_unit_scale) == 0 && mInSnapRegime)
+				if(i - ll_round(offset_nearest_grid_unit / smallest_grid_unit_scale) == 0 && mInSnapRegime)
 				{
 					text_highlight = 1.f;
 				}

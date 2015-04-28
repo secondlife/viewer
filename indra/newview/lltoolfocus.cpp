@@ -61,7 +61,6 @@ BOOL gCameraBtnOrbit = FALSE;
 BOOL gCameraBtnPan = FALSE;
 
 const S32 SLOP_RANGE = 4;
-const F32 FOCUS_OFFSET_FACTOR = 1.f;
 
 //
 // Camera - shared functionality

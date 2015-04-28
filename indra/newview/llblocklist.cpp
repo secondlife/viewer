@@ -40,7 +40,6 @@ static const LLBlockListNameTypeComparator	NAME_TYPE_COMPARATOR;
 
 LLBlockList::LLBlockList(const Params& p)
 :	LLFlatListViewEx(p),
- 	mSelectedItem(NULL),
  	mDirty(true),
 	mShouldAddAll(true),
 	mActionType(NONE),

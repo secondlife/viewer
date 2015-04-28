@@ -330,9 +330,9 @@ LLSLURL::LLSLURL(const std::string& grid,
 {
 	mGrid = grid;
 	mRegion = region;
-	S32 x = llround( (F32)fmod( position[VX], (F32)REGION_WIDTH_METERS ) );
-	S32 y = llround( (F32)fmod( position[VY], (F32)REGION_WIDTH_METERS ) );
-	S32 z = llround( (F32)position[VZ] );
+	S32 x = ll_round( (F32)fmod( position[VX], (F32)REGION_WIDTH_METERS ) );
+	S32 y = ll_round( (F32)fmod( position[VY], (F32)REGION_WIDTH_METERS ) );
+	S32 z = ll_round( (F32)position[VZ] );
 	mType = LOCATION;
 	mPosition = LLVector3(x, y, z);
 }
@@ -386,9 +386,9 @@ std::string LLSLURL::getSLURLString() const
 		case LOCATION:
 			{
 				// lookup the grid
-				S32 x = llround( (F32)mPosition[VX] );
-				S32 y = llround( (F32)mPosition[VY] );
-				S32 z = llround( (F32)mPosition[VZ] );	
+				S32 x = ll_round( (F32)mPosition[VX] );
+				S32 y = ll_round( (F32)mPosition[VY] );
+				S32 z = ll_round( (F32)mPosition[VZ] );	
 				return LLGridManager::getInstance()->getSLURLBase(mGrid) + 
 				LLURI::escape(mRegion) + llformat("/%d/%d/%d",x,y,z); 
 			}
@@ -423,9 +423,9 @@ std::string LLSLURL::getLoginString() const
 		case LOCATION:
 			unescaped_start << "uri:" 
 			<< mRegion << "&" 
-			<< llround(mPosition[0]) << "&" 
-			<< llround(mPosition[1]) << "&" 
-			<< llround(mPosition[2]);
+			<< ll_round(mPosition[0]) << "&" 
+			<< ll_round(mPosition[1]) << "&" 
+			<< ll_round(mPosition[2]);
 			break;
 		case HOME_LOCATION:
 			unescaped_start << "home";
@@ -469,9 +469,9 @@ std::string LLSLURL::getLocationString() const
 {
 	return llformat("%s/%d/%d/%d",
 					mRegion.c_str(),
-					(int)llround(mPosition[0]),
-					(int)llround(mPosition[1]),
-					(int)llround(mPosition[2]));						 
+					(int)ll_round(mPosition[0]),
+					(int)ll_round(mPosition[1]),
+					(int)ll_round(mPosition[2]));						 
 }
 
 // static

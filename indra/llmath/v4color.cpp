@@ -125,10 +125,10 @@ LLColor4 LLColor4::cyan6(0.2f, 0.6f, 0.6f, 1.0f);
 LLColor4::operator const LLColor4U() const
 {
 	return LLColor4U(
-		(U8)llclampb(llround(mV[VRED]*255.f)),
-		(U8)llclampb(llround(mV[VGREEN]*255.f)),
-		(U8)llclampb(llround(mV[VBLUE]*255.f)),
-		(U8)llclampb(llround(mV[VALPHA]*255.f)));
+		(U8)llclampb(ll_round(mV[VRED]*255.f)),
+		(U8)llclampb(ll_round(mV[VGREEN]*255.f)),
+		(U8)llclampb(ll_round(mV[VBLUE]*255.f)),
+		(U8)llclampb(ll_round(mV[VALPHA]*255.f)));
 }
 
 LLColor4::LLColor4(const LLColor3 &vec, F32 a)

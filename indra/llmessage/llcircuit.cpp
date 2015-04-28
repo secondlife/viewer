@@ -689,7 +689,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 
 	// now, check to see if we've got a gap
     U32 gap = 0;
-	if ((mPacketsInID == id))
+	if (mPacketsInID == id)
 	{
 		// nope! bump and wrap the counter, then return
 		mPacketsInID++;

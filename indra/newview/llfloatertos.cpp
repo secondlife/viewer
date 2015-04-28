@@ -50,7 +50,6 @@
 LLFloaterTOS::LLFloaterTOS(const LLSD& data)
 :	LLModalDialog( data["message"].asString() ),
 	mMessage(data["message"].asString()),
-	mWebBrowserWindowId( 0 ),
 	mLoadingScreenLoaded(false),
 	mSiteAlive(false),
 	mRealNavigateBegun(false),

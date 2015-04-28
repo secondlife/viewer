@@ -71,8 +71,6 @@ extern BOOL gUseGLPick;
 
 F32 CLOTHING_GRAVITY_EFFECT = 0.7f;
 F32 CLOTHING_ACCEL_FORCE_FACTOR = 0.2f;
-const S32 NUM_TEST_AVATARS = 30;
-const S32 MIN_PIXEL_AREA_2_PASS_SKINNING = 500000000;
 
 // Format for gAGPVertices
 // vertex format for bumpmapping:

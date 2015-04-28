@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-project (test)
+project (lltest)
 
 include(00-Common)
 include(LLCommon)
@@ -80,9 +80,9 @@ set_source_files_properties(${test_HEADER_FILES}
 
 list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
-add_executable(test ${test_SOURCE_FILES})
+add_executable(lltest ${test_SOURCE_FILES})
 
-target_link_libraries(test
+target_link_libraries(lltest
     ${LLDATABASE_LIBRARIES}
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
@@ -102,14 +102,14 @@ target_link_libraries(test
     )
 
 if (WINDOWS)
-  set_target_properties(test
+  set_target_properties(lltest
           PROPERTIES 
           LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
           )
 endif (WINDOWS)
 
-get_target_property(TEST_EXE test LOCATION)
+set(TEST_EXE $<TARGET_FILE:lltest>)
 
 SET_TEST_PATH(DYLD_LIBRARY_PATH)
 
@@ -122,7 +122,7 @@ LL_TEST_COMMAND(command
 ADD_CUSTOM_COMMAND(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
   COMMAND ${command}
-  DEPENDS test
+  DEPENDS lltest
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "C++ unit tests"
   )

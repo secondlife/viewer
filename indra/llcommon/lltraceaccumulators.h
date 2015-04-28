@@ -62,11 +62,11 @@ namespace LLTrace
 		{}
 
 	public:
-
-		AccumulatorBuffer(const AccumulatorBuffer& other = *getDefaultBuffer())
-		:	mStorageSize(0),
+		AccumulatorBuffer()
+			: mStorageSize(0),
 			mStorage(NULL)
 		{
+			const AccumulatorBuffer& other = *getDefaultBuffer();
 			resize(sNextStorageSlot);
 			for (S32 i = 0; i < sNextStorageSlot; i++)
 			{
@@ -91,6 +91,18 @@ namespace LLTrace
 		LL_FORCE_INLINE const ACCUMULATOR& operator[](size_t index) const
 		{ 
 			return mStorage[index]; 
+		}
+
+
+		AccumulatorBuffer(const AccumulatorBuffer& other)
+			: mStorageSize(0),
+			mStorage(NULL)
+		{
+			resize(sNextStorageSlot);
+			for (S32 i = 0; i < sNextStorageSlot; i++)
+			{
+				mStorage[i] = other.mStorage[i];
+			}
 		}
 
 		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other, EBufferAppendType append_type)

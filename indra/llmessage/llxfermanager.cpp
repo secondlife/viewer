@@ -261,7 +261,7 @@ U32 LLXferManager::numActiveListEntries(LLXfer *list_head)
 
 	while (list_head)
 	{
-		if ((list_head->mStatus == e_LL_XFER_IN_PROGRESS)) 
+		if (list_head->mStatus == e_LL_XFER_IN_PROGRESS) 
 		{
 			num_entries++;
 		}
