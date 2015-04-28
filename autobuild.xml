@@ -212,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>66849777a83cb69cec3c06b07da7cd3d</string>
+              <string>40bd4dd220749a7f0fc8e4d62e61b4a2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Darwin/installer/colladadom-2.3.297450-darwin-297450.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/301371/arch/Darwin/installer/colladadom-2.3.301371-darwin-301371.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -224,9 +224,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d627c2a679f3afb8d3e090d42f53cd2e</string>
+              <string>7ff636034665555e4b3d918d86ef9566</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Linux/installer/colladadom-2.3.297450-linux-297450.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/301371/arch/Linux/installer/colladadom-2.3.301371-linux-301371.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -236,16 +236,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>220897a1893a188aa9d31efb48909878</string>
+              <string>24e1fac1fd6feef7915c958687fd7c56</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/CYGWIN/installer/colladadom-2.3.297450-windows-297450.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/301371/arch/CYGWIN/installer/colladadom-2.3.301371-windows-301371.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.297450</string>
+        <string>2.3.301371</string>
       </map>
       <key>curl</key>
       <map>
@@ -2388,11 +2388,12 @@
           <map>
             <key>RelWithDebInfo</key>
             <map>
-              <key>build</key>
-              <map>
-              </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -2429,11 +2430,12 @@
             </map>
             <key>Release</key>
             <map>
-              <key>build</key>
-              <map>
-              </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -2496,10 +2498,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2554,10 +2552,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2615,10 +2609,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2665,10 +2655,6 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2768,16 +2754,11 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=Win32</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/toolsversion:4.0</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/build</string>
+                  <string>"RelWithDebInfo|Win32"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2854,16 +2835,11 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=Win32</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/toolsversion:4.0</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/build</string>
+                  <string>"Release|Win32"</string>
                 </array>
               </map>
               <key>configure</key>
