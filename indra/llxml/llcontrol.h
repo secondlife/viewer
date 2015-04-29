@@ -256,7 +256,7 @@ public:
 		}
 		else
 		{
-			LL_WARNS_ONCE() << "Control " << name << " not found." << LL_ENDL;
+			LL_WARNS() << "Control " << name << " not found." << LL_ENDL;
 			return T();
 		}
 		return convert_from_llsd<T>(value, type, name);
