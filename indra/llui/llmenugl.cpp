@@ -1043,7 +1043,7 @@ void LLMenuItemBranchGL::onCommit( void )
 
 	// keyboard navigation automatically propagates highlight to sub-menu
 	// to facilitate fast menu control via jump keys
-	if (LLMenuGL::getKeyboardMode() && getBranch()&& !getBranch()->getHighlightedItem())
+	if (LLMenuGL::getKeyboardMode() && getBranch() && !getBranch()->getHighlightedItem())
 	{
 		getBranch()->highlightNextItem(NULL);
 	}
@@ -1456,7 +1456,24 @@ BOOL LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	// switch to mouse control mode
 	LLMenuGL::setKeyboardMode(FALSE);
-	onCommit();
+
+	if (getVisible() && getHighlight() && getBranch())
+	{
+		// already open - hide menu
+		LLMenuGL::setKeyboardMode(FALSE);
+		for (child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+		{
+			LLView* viewp = *child_it;
+			if (dynamic_cast<LLMenuGL*>(viewp) != NULL && viewp->getVisible())
+			{
+				viewp->setVisible(FALSE);
+			}
+		}
+	}
+	else
+	{
+		onCommit();
+	}
 	make_ui_sound("UISndClick");
 	return TRUE;
 }
