@@ -1368,9 +1368,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>14cb5c8686a472e9e60179e46cd196f7</string>
+              <string>0d134c36fcd87d00d91c99291906dde9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/Darwin/installer/libpng-1.6.8.297708-darwin-297708.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/301387/arch/Darwin/installer/libpng-1.6.8.301387-darwin-301387.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1380,9 +1380,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6dec32fc2527f8cafd616f9271ff3478</string>
+              <string>744e22c5fcaaf3483a60e29f217daa9c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297051/arch/Linux/installer/libpng-1.6.8.297051-linux-297051.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/301387/arch/Linux/installer/libpng-1.6.8.301387-linux-301387.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1392,16 +1392,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>09eb65e66e0230ab01e57e643647a4f1</string>
+              <string>391158e9b5d92a8b69aeb7478144d2de</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/CYGWIN/installer/libpng-1.6.8.297708-windows-297708.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/301387/arch/CYGWIN/installer/libpng-1.6.8.301387-windows-301387.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.6.8.297708</string>
+        <string>1.6.8.301387</string>
       </map>
       <key>libuuid</key>
       <map>
