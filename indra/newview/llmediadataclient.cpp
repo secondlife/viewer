@@ -468,7 +468,7 @@ BOOL LLMediaDataClient::RetryTimer::tick()
 	}
 	
 	// Release the ref to the request.
-    mRequest.reset()
+    mRequest.reset();
 
 	// Don't fire again
 	return TRUE;
