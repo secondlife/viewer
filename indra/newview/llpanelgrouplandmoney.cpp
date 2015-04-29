@@ -503,8 +503,8 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 				land_type = LLTrans::getString("land_type_unknown");
 			}
 
-			S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
-			S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
+			S32 region_x = ll_round(global_x) % REGION_WIDTH_UNITS;
+			S32 region_y = ll_round(global_y) % REGION_WIDTH_UNITS;
 			std::string location = sim_name + llformat(" (%d, %d)", region_x, region_y);
 			std::string area;
 

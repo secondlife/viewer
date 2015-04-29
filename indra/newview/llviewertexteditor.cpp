@@ -169,8 +169,7 @@ public:
 		mImage(image),
 		mLabel(utf8str_to_wstring(inv_item->getName())),
 		mItem(inv_item),
-		mEditor(editor),
-		mHasMouseHover(false)
+		mEditor(editor)
 	{
 
 		mStyle = new LLStyle(LLStyle::Params().font(LLFontGL::getFontSansSerif()));
@@ -262,8 +261,6 @@ private:
 	std::string		mToolTip;
 	LLPointer<LLInventoryItem> mItem;
 	LLTextEditor&	mEditor;
-	bool			mHasMouseHover;
-
 };
 
 

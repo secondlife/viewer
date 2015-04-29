@@ -30,7 +30,7 @@
 #define LL_STRINGIZE_H
 
 #include <sstream>
-#include <boost/lambda/lambda.hpp>
+#include <boost/phoenix/phoenix.hpp>
 #include <llstring.h>
 
 /**
@@ -108,7 +108,7 @@ std::string stringize_f(Functor const & f)
  * return out.str();
  * @endcode
  */
-#define STRINGIZE(EXPRESSION) (stringize_f(boost::lambda::_1 << EXPRESSION))
+#define STRINGIZE(EXPRESSION) (stringize_f(boost::phoenix::placeholders::arg1 << EXPRESSION))
 
 
 /**
@@ -144,7 +144,7 @@ void destringize_f(std::string const & str, Functor const & f)
  * in >> item1 >> item2 >> item3 ... ;
  * @endcode
  */
-#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), (boost::lambda::_1 >> EXPRESSION)))
+#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), (boost::phoenix::placeholders::arg1 >> EXPRESSION)))
 
 
 #endif /* ! defined(LL_STRINGIZE_H) */

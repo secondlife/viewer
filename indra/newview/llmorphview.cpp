@@ -47,16 +47,7 @@
 
 LLMorphView *gMorphView = NULL;
 
-
-const F32 EDIT_AVATAR_ORBIT_SPEED = 0.1f;
-const F32 EDIT_AVATAR_MAX_CAMERA_PITCH = 0.5f;
-
-const F32 CAMERA_MOVE_TIME = 0.5f;
 const F32 MORPH_NEAR_CLIP = 0.1f;
-
-const F32 CAMERA_DIST_MIN  = 0.4f;
-const F32 CAMERA_DIST_MAX  = 4.0f;
-const F32 CAMERA_DIST_STEP = 1.5f;
 
 //-----------------------------------------------------------------------------
 // LLMorphView()

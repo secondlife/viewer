@@ -75,9 +75,6 @@
 
 #include "llsdserialize.h"
 
-const S32 BLACK_BORDER_HEIGHT = 160;
-const S32 MAX_PASSWORD = 16;
-
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 
@@ -175,7 +172,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mUsernameLength(0),
 	mPasswordLength(0),
 	mLocationLength(0),
-	mFavoriteSelected(false),
 	mShowFavorites(false)
 {
 	setBackgroundVisible(FALSE);
@@ -196,7 +192,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 	else
 	{
-	buildFromFile( "panel_login.xml");
+		buildFromFile( "panel_login.xml");
 	}
 
 	reshape(rect.getWidth(), rect.getHeight());
@@ -204,22 +200,18 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
 	password_edit->setKeystrokeCallback(onPassKey, this);
 	// STEAM-14: When user presses Enter with this field in focus, initiate login
-	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnectLast, this));
+	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
 
 	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
+	favorites_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 	favorites_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
-	favorites_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectFavorite, this));
 	
 	LLComboBox* server_choice_combo = getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectServer, this));
-
-	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
-	location_edit->setKeystrokeCallback(boost::bind(&LLPanelLogin::onLocationEditChanged, this, _1), NULL);
-	location_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnectLocation, this));
 	
 	// Load all of the grids, sorted, and then add a bar and the current grid at the top
 	server_choice_combo->removeall();
@@ -267,9 +259,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		LLPanelLogin::onUpdateStartSLURL(start_slurl); // updates grid if needed
 	}
 	
-	childSetAction("connect_btn", onClickConnectLast, this);
-	childSetAction("connect_favorite_btn", onClickConnectFavorite, this);
-	childSetAction("connect_location_btn", onClickConnectLocation, this);
+	childSetAction("connect_btn", onClickConnect, this);
 
 	LLButton* def_btn = getChild<LLButton>("connect_btn");
 	setDefaultBtn(def_btn);
@@ -303,7 +293,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 	if (!combo) return;
 	int num_items = combo->getItemCount();
-	for (int i = num_items - 1; i > 0; i--)
+	for (int i = num_items - 1; i > 1; i--)
 	{
 		combo->remove(i);
 	}
@@ -318,10 +308,10 @@ void LLPanelLogin::addFavoritesToStartLocation()
 
 	LLSD fav_llsd;
 	llifstream file;
-	file.open(filename);
+	file.open(filename.c_str());
 	if (!file.is_open())
 	{
-		file.open(old_filename);
+		file.open(old_filename.c_str());
 		if (!file.is_open()) return;
 	}
 	LLSDSerialize::fromXML(fav_llsd, file);
@@ -351,6 +341,10 @@ void LLPanelLogin::addFavoritesToStartLocation()
 			{
 				mShowFavorites = true;
 				combo->add(label, value);
+				if ( LLStartUp::getStartSLURL().getSLURLString() == value)
+				{
+					combo->selectByValue(value);
+				}
 			}
 		}
 		break;
@@ -665,7 +659,6 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 	LL_DEBUGS("AppInit")<<new_start_slurl.asString()<<LL_ENDL;
 
 	LLComboBox* location_combo = sInstance->getChild<LLComboBox>("start_location_combo");
-	LLLineEditor* location_edit = sInstance->getChild<LLLineEditor>("location_edit");
 	/*
 	 * Determine whether or not the new_start_slurl modifies the grid.
 	 *
@@ -697,7 +690,10 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 			}
 			if ( new_start_slurl.getLocationString().length() )
 			{
-				location_edit->setValue(new_start_slurl.getLocationString());
+				if (location_combo->getCurrentIndex() == -1)
+				{
+					location_combo->setLabel(new_start_slurl.getLocationString());
+				}
 				sInstance->mLocationLength = new_start_slurl.getLocationString().length();
 				sInstance->updateLoginButtons();
 			}
@@ -835,33 +831,6 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 //---------------------------------------------------------------------------
 // Protected methods
 //---------------------------------------------------------------------------
-// static
-void LLPanelLogin::onClickConnectLast(void *)
-{
-	std::string location = LLSLURL::SIM_LOCATION_LAST;
-	LLStartUp::setStartSLURL(location);
-
-	void* unused_parameter = 0;
-	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
-}
-
-void LLPanelLogin::onClickConnectFavorite(void *)
-{
-	LLPanelLogin::sInstance->onLocationSLURL();
-
-	void* unused_parameter = 0;
-	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
-}
-
-void LLPanelLogin::onClickConnectLocation(void *)
-{
-	std::string location = sInstance->getChild<LLUICtrl>("location_edit")->getValue().asString();
-	LLStartUp::setStartSLURL(location);
-
-	void* unused_parameter = 0;
-	LLPanelLogin::sInstance->onClickConnect(unused_parameter);
-}
-
 // static
 void LLPanelLogin::onClickConnect(void *)
 {
@@ -1010,60 +979,9 @@ void LLPanelLogin::updateServer()
 
 void LLPanelLogin::updateLoginButtons()
 {
-	LLButton* last_login_btn = getChild<LLButton>("connect_btn");
-	LLButton* loc_btn = getChild<LLButton>("connect_location_btn");
-	LLButton* fav_btn = getChild<LLButton>("connect_favorite_btn");
+	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
-	// no username or no password - turn all buttons off
-	if ( mUsernameLength == 0 || mPasswordLength == 0 )
-	{
-		last_login_btn->setEnabled(false);
-		loc_btn->setEnabled(false);
-		fav_btn->setEnabled(false);
-	};
-
-	// we have a username and a password
-	if ( mUsernameLength != 0 && mPasswordLength != 0 )
-	{
-		// last login button always enabled for this case
-		last_login_btn->setEnabled(true);
-
-		// double check status of favorites combo (must be items there and one must be selected to enable button)
-		LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
-		int num_items = favorites_combo->getItemCount();
-		int selected_index = favorites_combo->getCurrentIndex();
-		if ( num_items > 0 && selected_index >=0 )
-			mFavoriteSelected = true;
-		else
-			mFavoriteSelected = false;
-
-		// only turn on favorites login button if one is selected
-		fav_btn->setEnabled( mFavoriteSelected );
-
-		// only enable location login if there is content there
-		if ( mLocationLength > 0 )
-			loc_btn->setEnabled(true);
-		else
-			loc_btn->setEnabled(false);
-	}
-}
-
-void LLPanelLogin::onLocationEditChanged(LLUICtrl* ctrl)
-{
-	LLLineEditor* self = (LLLineEditor*)ctrl;
-	if (self )
-	{
-		mLocationLength = self->getText().length();
-		updateLoginButtons();
-	}
-}
-
-void LLPanelLogin::onSelectFavorite()
-{
-	// no way to unselect a favorite once it's selected (i think)
-	mFavoriteSelected = true;
-
-	updateLoginButtons();
+	login_btn->setEnabled(mUsernameLength != 0 && mPasswordLength != 0);
 }
 
 void LLPanelLogin::onSelectServer()
@@ -1108,7 +1026,6 @@ void LLPanelLogin::onSelectServer()
 				// the grid specified by the location is not this one, so clear the combo
 				location_combo->setCurrentByIndex(0); // last location on the new grid
 				location_combo->setTextEntry(LLStringUtil::null);
-				mFavoriteSelected = true;
 			}
 		}			
 		break;

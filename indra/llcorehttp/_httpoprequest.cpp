@@ -104,7 +104,6 @@ char * os_strltrim(char * str);
 void os_strlower(char * str);
 
 // Error testing and reporting for libcurl status codes
-void check_curl_easy_code(CURLcode code);
 void check_curl_easy_code(CURLcode code, int curl_setopt_option);
 
 static const char * const LOG_CORE("CoreHttp");
@@ -588,9 +587,18 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 					(mReqLength ? fmt1 : fmt2),
 					(unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
 #else
-		snprintf(range_line, sizeof(range_line),
-				 (mReqLength ? fmt1 : fmt2),
-				 (unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
+		if ( mReqLength )
+		{
+			snprintf(range_line, sizeof(range_line),
+					 fmt1,
+					 (unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
+		}
+		else
+		{
+			snprintf(range_line, sizeof(range_line),
+					 fmt2,
+					 (unsigned long) mReqOffset);
+		}
 #endif // LL_WINDOWS
 		range_line[sizeof(range_line) - 1] = '\0';
 		mCurlHeaders = curl_slist_append(mCurlHeaders, range_line);
@@ -1147,20 +1155,6 @@ void check_curl_easy_code(CURLcode code, int curl_setopt_option)
 		// at a pretty random time (when enabling cookies).
 		LL_WARNS(LOG_CORE) << "libcurl error detected:  " << curl_easy_strerror(code)
 						   << ", curl_easy_setopt option:  " << curl_setopt_option
-						   << LL_ENDL;
-	}
-}
-
-
-void check_curl_easy_code(CURLcode code)
-{
-	if (CURLE_OK != code)
-	{
-		// Comment from old llcurl code which may no longer apply:
-		//
-		// linux appears to throw a curl error once per session for a bad initialization
-		// at a pretty random time (when enabling cookies).
-		LL_WARNS(LOG_CORE) << "libcurl error detected:  " << curl_easy_strerror(code)
 						   << LL_ENDL;
 	}
 }

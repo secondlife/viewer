@@ -94,16 +94,11 @@ extern S32 MENU_BAR_HEIGHT;
 
 
 // TODO: these values ought to be in the XML too
-const S32 MENU_PARCEL_SPACING = 1;	// Distance from right of menu item to parcel information
 const S32 SIM_STAT_WIDTH = 8;
-const F32 SIM_WARN_FRACTION = 0.75f;
-const F32 SIM_FULL_FRACTION = 0.98f;
 const LLColor4 SIM_OK_COLOR(0.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_WARN_COLOR(1.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_FULL_COLOR(1.f, 0.f, 0.f, 1.f);
 const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons should flash after a change.
-const F32 ICON_FLASH_FREQUENCY	= 2.f;
-const S32 TEXT_HEIGHT = 18;
 
 static void onClickVolume(void*);
 

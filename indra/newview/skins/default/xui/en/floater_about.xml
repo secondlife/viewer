@@ -51,74 +51,25 @@
       name="credits_panel">
       <text
           follows="top|left|right"
-          height="10"
+          height="20"
           layout="topleft"
           left="5"
           name="linden_intro"
           top="10"
           width="435"
           wrap="true">
-Second Life is brought to you by the Lindens:
-      </text>
-      <text_editor
-       enabled="false" 
-       follows="top|left"
-       height="98"
-       bg_readonly_color="Transparent"
-       left="5"
-       text_color="LtGray"
-       max_length="65536"
-       name="linden_names"
-       top_pad="10"
-       width="435"
-       word_wrap="true">
-Philip, Andrew, Doug, Richard, Phoenix, Ian, Mark, Robin, Dan, Char, Ryan, Eric, Jim, Lee, Jeff, Michael, Kelly, Steve, Catherine, Bub, Ramzi, Jill, Jeska, Don, Kona, Callum, Charity, Jack, Shawn, babbage, James, Lauren, Blue, Brent, Reuben, Pathfinder, Jesse, Patsy, Torley, Bo, Cyn, Jonathan, Gia, Annette, Ginsu, Harry, Lex, Runitai, Guy, Cornelius, Beth, Swiss, Thumper, Wendy, Teeple, Seth, Dee, Mia, Sally, Liana, Aura, Beez, Milo, Red, Gulliver, Marius, Joe, Jose, Dore, Justin, Nora, Morpheus, Lexie, Amber, Chris, Xan, Leyla, Walker, Sabin, Joshua, Hiromi, Tofu, Fritz, June, Jean, Ivy, Dez, Ken, Betsy, Which, Spike, Rob, Zee, Dustin, George, Claudia, del, Matthew, jane, jay, Adrian, Yool, Rika, Yoz, siobhan, Qarl, Benjamin, Beast, Everett, madhavi, Christopher, Izzy, stephany, Jeremy, sean, adreanne, Pramod, Tobin, sejong, Iridium, maurice, kj, Meta, kari, JP, bert, kyle, Jon, Socrates, Bridie, Ivan, maria, Aric, Coco, Periapse, sandy, Storrs, Lotte, Colossus, Brad, Pastrami, Zen, BigPapi, Banzai, Sardonyx, Mani, Garry, Jaime, Neuro, Samuel, Niko, CeeLo, Austin, Soft, Poppy, emma, tessa, angelo, kurz, alexa, Sue, CG, Blake, Erica, Brett, Bevis, kristen, Q, simon, Enus, MJ, laurap, Kip, Scouse, Ron, Ram, kend, Marty, Prospero, melissa, kraft, Nat, Seraph, Hamilton, Lordan, Green, miz, Ashlei, Trinity, Ekim, Echo, Charlie, Rowan, Rome, Jt, Doris, benoc, Christy, Bao, Kate, Tj, Patch, Cheah, Johan, Brandy, Angela, Oreh, Cogsworth, Lan, Mitchell, Space, Bambers, Einstein, Bender, Malbers, Matias, Maggie, Rothman, Milton, Niall, Marin, Allison, Mango, Andrea, Katt, Yi, Ambroff, Rico, Raymond, Gail, Christa, William, Dawn, Usi, Dynamike, M, Corr, Dante, Molly, kaylee, Danica, Kelv, Lil, jacob, Nya, Rodney, elsie, Blondin, Grant, Nyx, Devin, Monty, Minerva, Keira, Katie, Jenn, Makai, Clare, Joy, Cody, Gayathri, FJ, spider, Oskar, Landon, Jarv, Noelle, Al, Doc, Gray, Vir, t, Maestro, Simone, Shannon, yang, Courtney, Scott, charlene, Quixote, Susan, Zed, Amanda, Katelin, Esbee, JoRoan, Enkidu, roxie, Scarlet, Merov, Kevin, Judy, Rand, Newell, Les, Dessie, Galen, Michon, Geo, Siz, Calyle, Pete, Praveen, Callen, Sheldon, Pink, Nelson, jenelle, Terrence, Nathan, Juan, Sascha, Huseby, Karina, Kaye, Kotler, Lis, Darv, Charrell, Dakota, Kimmora, Theeba, Taka, Mae, Perry, Ducot, dana, Esther, Dough, gisele, Doten, Viale, Fisher, jessieann, ashley, Torres, delby, rountree, kurt, Slaton, Madison, Rue, Gino, Wen, Casssandra, Brodesky, Squid, Gez, Rakesh, Gecko, Ladan, Tony, Tatem, Squire, Falcon, BK, Crimp, Tiggs, Bacon, Coyot, Carmilla, Webb, Sea, Arch, Jillian, Jason, Bernard, Vogt, Peggy, dragon, Pup, xandix, Wallace, Bewest, Inoshiro, Rhett, AG, Aimee, Ghengis, Itiaes, Eli, Steffan, Epic, Grapes, Stone, Prep, Scobu, Robert, Alain, Carla, Vicky, Tia, Alec, Taras, Lisa, Oz, Ariane, Log, House, Kazu, Kim, Drofnas, Tyler, Campbell, Michele, Madeline, Nelly, Baron, Thor, Lori, Hele, Fredrik, Teddy, Pixie, Berry, Gabrielle, Alfonso, Brooke, Wolf, Ringo, Cru, Charlar, Rodvik, Gibson, Elise, Bagman, Greger, Leonidas, Jerm, Leslie, CB, Brenda, Durian, Carlo, mm, Zeeshan, Caleb, Max, Elikak, Mercille, Steph, Chase, Baker
-      </text_editor>
-      <text
-          follows="top|left"
-          height="10"
-          layout="topleft"
-          left="5"
-          name="contrib_intro"
-          top_pad="10"
-          width="435"
-          wrap="true">
+Second Life is brought to you by the Lindens, 
 with open source contributions from:
       </text>
       <text_editor
        enabled="false" 
        follows="top|left"
-       height="98"
+       height="340"
        bg_readonly_color="Transparent"
        left="5"
        text_color="LtGray"
        max_length="65536"
        name="contrib_names"
-       top_pad="10"
-       width="435"
-       word_wrap="true">
-Dummy Name replaced at run time
-      </text_editor>
-      <text
-          follows="top|left"
-          height="10"
-          layout="topleft"
-          left="5"
-          name="trans_intro"
-          top_pad="10"
-          width="435"
-          wrap="true">
-and translations from:
-      </text>
-      <text_editor
-       enabled="false" 
-       follows="top|left"
-       height="98"
-       bg_readonly_color="Transparent"
-       left="5"
-       text_color="LtGray"
-       max_length="65536"
-       name="trans_names"
        top_pad="10"
        width="435"
        word_wrap="true">
@@ -138,7 +89,7 @@ Dummy Name replaced at run time
        left="5"
        text_color="LtGray"
        max_length="65536"
-       name="credits_editor"
+       name="licenses_editor"
        top="5"
        width="435"
        word_wrap="true">

@@ -94,7 +94,6 @@ using coroutines::coroutine;
 template<typename Iter>
 bool match(Iter first, Iter last, std::string match) {
   std::string::iterator i = match.begin();
-  i != match.end();
   for(; (first != last) && (i != match.end()); ++i) {
     if (*first != *i)
       return false;

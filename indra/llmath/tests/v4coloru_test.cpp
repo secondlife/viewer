@@ -300,8 +300,8 @@ namespace tut
 		LLColor4U llcolor4u(r,g,b,a),llcolor4u1;
 		const F32 fVal = 3.f;
 		llcolor4u1 = llcolor4u.multAll(fVal);
-		ensure("multAll:Fail to multiply ", (((U8)llround(r * fVal) == llcolor4u1.mV[VX]) && (U8)llround(g * fVal) == llcolor4u1.mV[VY]
-											&& ((U8)llround(b * fVal) == llcolor4u1.mV[VZ])&& ((U8)llround(a * fVal) == llcolor4u1.mV[VW])));		
+		ensure("multAll:Fail to multiply ", (((U8)ll_round(r * fVal) == llcolor4u1.mV[VX]) && (U8)ll_round(g * fVal) == llcolor4u1.mV[VY]
+											&& ((U8)ll_round(b * fVal) == llcolor4u1.mV[VZ])&& ((U8)ll_round(a * fVal) == llcolor4u1.mV[VW])));		
 	}
 
 	template<> template<>
@@ -329,8 +329,8 @@ namespace tut
 		llcolor4u.setVecScaleClamp(color3);
 		const S32 MAX_COLOR = 255;
 		F32 color_scale_factor = MAX_COLOR/r;
-		S32 r2 = llround(r * color_scale_factor);
-		S32 g2 = llround(g * color_scale_factor);
+		S32 r2 = ll_round(r * color_scale_factor);
+		S32 g2 = ll_round(g * color_scale_factor);
 		ensure("setVecScaleClamp():Fail to add the value ",  ((r2 == llcolor4u.mV[VX]) && (g2 == llcolor4u.mV[VY]) && (0 == llcolor4u.mV[VZ])&& (255 == llcolor4u.mV[VW])));
 	}
 }

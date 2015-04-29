@@ -38,6 +38,9 @@
 
 namespace
 {
+#ifdef __clang__
+#   pragma clang diagnostic ignored "-Wunused-function"
+#endif
 	void test_that_error_h_includes_enough_things_to_compile_a_message()
 	{
 		LL_INFOS() << "!" << LL_ENDL;
@@ -381,8 +384,6 @@ namespace
 	};
 
 	std::string logFromNamespace(bool id) { return Foo::logFromNamespace(id); }
-	std::string logFromClassWithNoLogTypeMember(bool id) { ClassWithNoLogType c; return c.logFromMember(id); }
-	std::string logFromClassWithNoLogTypeStatic(bool id) { return ClassWithNoLogType::logFromStatic(id); }
 	std::string logFromClassWithLogTypeMember(bool id) { ClassWithLogType c; return c.logFromMember(id); }
 	std::string logFromClassWithLogTypeStatic(bool id) { return ClassWithLogType::logFromStatic(id); }
 
@@ -393,8 +394,8 @@ namespace
 		if (n1 == std::string::npos)
 		{
 			std::stringstream ss;
-			ss << message << ": " << "expected to find a copy of " << expected
-				<< " in actual " << actual;
+			ss << message << ": " << "expected to find a copy of '" << expected
+			   << "' in actual '" << actual << "'";
 			throw tut::failure(ss.str().c_str());
 		}
 	}
@@ -435,9 +436,6 @@ namespace tut
 		testLogName(mRecorder, logFromStatic);
 		testLogName(mRecorder, logFromAnon);
 		testLogName(mRecorder, logFromNamespace);
-		//testLogName(mRecorder, logFromClassWithNoLogTypeMember, "ClassWithNoLogType");
-		//testLogName(mRecorder, logFromClassWithNoLogTypeStatic, "ClassWithNoLogType");
-			// XXX: figure out what the exepcted response is for these
 		testLogName(mRecorder, logFromClassWithLogTypeMember, "ClassWithLogType");
 		testLogName(mRecorder, logFromClassWithLogTypeStatic, "ClassWithLogType");
 	}
@@ -455,11 +453,6 @@ namespace
 	{
 		LL_INFOS() << "outside(" << innerLogger() << ")" << LL_ENDL;
 		return "bar";
-	}
-
-	void uberLogger()
-	{
-		LL_INFOS() << "uber(" << outerLogger() << "," << innerLogger() << ")" << LL_ENDL;
 	}
 
 	class LogWhileLogging
@@ -494,17 +487,10 @@ namespace tut
 		ensure_message_contains(1, "outside(moo)");
 		ensure_message_count(2);
 
-		uberLogger();
-		ensure_message_contains(2, "inside");
-		ensure_message_contains(3, "inside");
-		ensure_message_contains(4, "outside(moo)");
-		ensure_message_contains(5, "uber(bar,moo)");
-		ensure_message_count(6);
-
 		metaLogger();
-		ensure_message_contains(6, "logging");
-		ensure_message_contains(7, "meta(baz)");
-		ensure_message_count(8);
+		ensure_message_contains(2, "logging");
+		ensure_message_contains(3, "meta(baz)");
+		ensure_message_count(4);
 	}
 
 	template<> template<>

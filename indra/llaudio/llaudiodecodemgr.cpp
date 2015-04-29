@@ -247,8 +247,7 @@ BOOL LLVorbisDecodeState::initDecode()
 		LL_WARNS("AudioEngine") << "Illegal sample count: " << sample_count << LL_ENDL;
 	}
 	
-	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE ||
-	    size_guess < 0)
+	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE )
 	{
 		abort_decode = true;
 		LL_WARNS("AudioEngine") << "Illegal sample size: " << size_guess << LL_ENDL;
@@ -697,11 +696,3 @@ BOOL LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
 	LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " no file available" << LL_ENDL;
 	return FALSE;
 }
-
-#if LL_DARWIN || LL_LINUX
-// HACK: to fool the compiler into not emitting unused warnings.
-namespace {
-	const ov_callbacks callback_array[4] = {OV_CALLBACKS_DEFAULT, OV_CALLBACKS_NOCLOSE, OV_CALLBACKS_STREAMONLY, 
-		OV_CALLBACKS_STREAMONLY_NOCLOSE};
-}
-#endif

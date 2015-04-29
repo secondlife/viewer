@@ -37,7 +37,6 @@ U64 LLFrameTimer::sTotalTime = 0;
 F64 LLFrameTimer::sTotalSeconds = 0.0;
 S32 LLFrameTimer::sFrameCount = 0;
 U64 LLFrameTimer::sFrameDeltaTime = 0;
-const F64 USEC_PER_SECOND = 1000000.0;
 const F64 USEC_TO_SEC_F64 = 0.000001;
 
 // static

@@ -70,6 +70,7 @@ public:
 	void setPlatformInfo(const std::string platform, const std::string platform_version);
 
 	void setNotificationsInterface(LLNotificationsInterface* ni) { mNotifications = ni; }
+	LLNotificationsInterface& getNotificationsInterface() const { return *mNotifications; }
 
 	typedef boost::function<void()> UpdaterLauncherCallback;
 	void setUpdaterLauncher(const UpdaterLauncherCallback& ulc) { mUpdaterLauncher = ulc; }

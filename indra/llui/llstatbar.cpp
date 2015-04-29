@@ -711,7 +711,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 				if (tick_begin > last_label + MIN_LABEL_SPACING)
 				{
 					gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
-					S32 label_pos = tick_begin - llround((F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth()));
+					S32 label_pos = tick_begin - ll_round((F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth()));
 					LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, label_pos, bar_rect.mBottom - TICK_LENGTH,
 						LLColor4(1.f, 1.f, 1.f, 0.5f),
 						LLFontGL::LEFT, LLFontGL::TOP);

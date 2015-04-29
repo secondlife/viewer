@@ -313,7 +313,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
 			part->mStartGlow = mPartSysData.mPartData.mStartGlow;
 			part->mEndGlow = mPartSysData.mPartData.mEndGlow;
-			part->mGlow = LLColor4U(0, 0, 0, (U8) llround(part->mStartGlow*255.f));
+			part->mGlow = LLColor4U(0, 0, 0, (U8) ll_round(part->mStartGlow*255.f));
 			
 			if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_DROP)
 			{

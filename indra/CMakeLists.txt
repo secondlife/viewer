@@ -20,12 +20,6 @@ if (NOT CMAKE_BUILD_TYPE)
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
-# For the library installation process;
-# see cmake/Prebuild.cmake for the counterpart code.
-if ("${CMAKE_SOURCE_DIR}/../autobuild.xml" IS_NEWER_THAN "${CMAKE_BINARY_DIR}/temp/sentinel_installed")
-  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/temp)
-  file(WRITE ${CMAKE_BINARY_DIR}/temp/sentinel_installed "0")
-endif ("${CMAKE_SOURCE_DIR}/../autobuild.xml" IS_NEWER_THAN "${CMAKE_BINARY_DIR}/temp/sentinel_installed")
 add_subdirectory(cmake)
 
 add_subdirectory(${LIBS_OPEN_PREFIX}llaudio)
@@ -60,6 +54,7 @@ add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 # Legacy C++ tests. Build always, run if LL_TESTS is true.
 add_subdirectory(${VIEWER_PREFIX}test)
 
+if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 
@@ -68,6 +63,7 @@ add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
     add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
     add_subdirectory(${VIEWER_PREFIX}test_apps/llfbconnecttest)
   endif (LL_TESTS AND NOT LINUX)
+endif (ENABLE_MEDIA_PLUGINS)
 
 if (LINUX)
   add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)

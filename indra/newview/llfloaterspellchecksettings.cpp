@@ -350,7 +350,8 @@ void LLFloaterSpellCheckerImport::onBtnOK()
 		custom_dict_info["language"] = dict_language;
 
 		LLSD custom_dict_map;
-		llifstream custom_file_in(LLSpellChecker::getDictionaryUserPath() + "user_dictionaries.xml");
+        std::string custom_filename(LLSpellChecker::getDictionaryUserPath() + "user_dictionaries.xml");
+		llifstream custom_file_in(custom_filename.c_str());
 		if (custom_file_in.is_open())
 		{
 			LLSDSerialize::fromXMLDocument(custom_dict_map, custom_file_in);
@@ -372,7 +373,7 @@ void LLFloaterSpellCheckerImport::onBtnOK()
 			custom_dict_map.append(custom_dict_info);
 		}
 
-		llofstream custom_file_out(LLSpellChecker::getDictionaryUserPath() + "user_dictionaries.xml", std::ios::trunc);
+		llofstream custom_file_out(custom_filename.c_str(), std::ios::trunc);
 		if (custom_file_out.is_open())
 		{
 			LLSDSerialize::toPrettyXML(custom_dict_map, custom_file_out);
