@@ -153,7 +153,8 @@ void mark_dead_and_remove_if(T &c, const PredicateMatchRequest &matchPred)
         if (matchPred(*it))
         {
             (*it)->markDead();
-            it = c.erase(it);
+            // *TDOO: When C++11 is in change the following line to: it = c.erase(it);
+            c.erase(it++);
         }
         else
         {
@@ -271,7 +272,7 @@ LLMediaDataClient::Request::ptr_t LLMediaDataClient::dequeue()
 		else
 		{
 			// Don't return this request -- it's not ready to be serviced.
-			request = NULL;
+            request.reset();
 		}
 	}
 
@@ -467,7 +468,7 @@ BOOL LLMediaDataClient::RetryTimer::tick()
 	}
 	
 	// Release the ref to the request.
-	mRequest = NULL;
+    mRequest.reset()
 
 	// Don't fire again
 	return TRUE;
