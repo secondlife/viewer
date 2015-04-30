@@ -1056,9 +1056,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5c5b4820999ae9e398801d6a46f45897</string>
+              <string>0d586709c1a2e4cf433390bbdd2498ed</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297312/arch/Darwin/installer/havok_source-2012.1-darwin-297312.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/301432/arch/Darwin/installer/havok_source-2012.1-darwin-301432.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1068,9 +1068,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6b0f41ddddfa60d8424d8a2e0bc2077d</string>
+              <string>02c85c2c63c8d002b31382f866ca143b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/296959/arch/Linux/installer/havok_source-2012.1-linux-296959.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/301432/arch/Linux/installer/havok_source-2012.1-linux-301432.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1080,9 +1080,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ab30ae74a665950d73ea559f019ff358</string>
+              <string>ac8a27020182510fd404177e4a97b70f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297566/arch/CYGWIN/installer/havok_source-2012.1-windows-297566.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/301432/arch/CYGWIN/installer/havok_source-2012.1-windows-301432.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
