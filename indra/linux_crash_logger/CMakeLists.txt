@@ -61,7 +61,6 @@ set(LIBRT_LIBRARY rt)
 
 
 target_link_libraries(linux-crash-logger
-	${LIBRT_LIBRARY}
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLXML_LIBRARIES}
@@ -75,6 +74,7 @@ target_link_libraries(linux-crash-logger
     ${UI_LIBRARIES}
     ${DB_LIBRARIES}
     ${FREETYPE_LIBRARIES}
+	${LIBRT_LIBRARY}
     )
 
 add_custom_target(linux-crash-logger-target ALL
