@@ -56,6 +56,14 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
 add_executable(linux-crash-logger ${linux_crash_logger_SOURCE_FILES})
 
+if (LINUX)	
+	# llcommon uses `clock_gettime' which is provided by librt on linux.
+	set(LIBRT_LIBRARY
+		rt
+	)
+endif (LINUX)
+
+
 target_link_libraries(linux-crash-logger
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLVFS_LIBRARIES}
@@ -65,6 +73,7 @@ target_link_libraries(linux-crash-logger
     ${LLMATH_LIBRARIES}
 	${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+	${LIBRT_LIBRARY}
 	${BOOST_CONTEXT_LIBRARY}
 	${BOOST_COROUTINE_LIBRARY}
     ${UI_LIBRARIES}
