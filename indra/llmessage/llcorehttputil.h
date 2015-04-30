@@ -112,14 +112,30 @@ LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest * request,
 									   LLCore::HttpHeaders * headers,
 									   LLCore::HttpHandler * handler);
 
-LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & request,
+inline LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & request,
 	LLCore::HttpRequest::policy_t policy_id,
 	LLCore::HttpRequest::priority_t priority,
 	const std::string & url,
 	const LLSD & body,
 	LLCore::HttpOptions::ptr_t & options,
 	LLCore::HttpHeaders::ptr_t & headers,
-	LLCore::HttpHandler * handler);
+	LLCore::HttpHandler * handler)
+{
+    return requestPostWithLLSD(request.get(), policy_id, priority,
+        url, body, options.get(), headers.get(), handler);
+}
+
+inline LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & request,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    LLCore::HttpHandler * handler)
+{
+    return requestPostWithLLSD(request.get(), policy_id, priority,
+        url, body, NULL, NULL, handler);
+}
+
 
 /// Issue a standard HttpRequest::requestPut() call but using
 /// and LLSD object as the request body.  Conventions are the
@@ -146,14 +162,29 @@ LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest * request,
 	LLCore::HttpHeaders * headers,
 	LLCore::HttpHandler * handler);
 
-LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
+inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
 	LLCore::HttpRequest::policy_t policy_id,
 	LLCore::HttpRequest::priority_t priority,
 	const std::string & url,
 	const LLSD & body,
 	LLCore::HttpOptions::ptr_t & options,
 	LLCore::HttpHeaders::ptr_t & headers,
-	LLCore::HttpHandler * handler);
+	LLCore::HttpHandler * handler)
+{
+    return requestPutWithLLSD(request.get(), policy_id, priority,
+        url, body, options.get(), headers.get(), handler);
+}
+
+inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    LLCore::HttpHandler * handler)
+{
+    return requestPutWithLLSD(request.get(), policy_id, priority,
+        url, body, NULL, NULL, handler);
+}
 
 /// Issue a standard HttpRequest::requestPatch() call but using
 /// and LLSD object as the request body.  Conventions are the
@@ -180,15 +211,29 @@ LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest * request,
     LLCore::HttpHeaders * headers,
     LLCore::HttpHandler * handler);
 
-LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & request,
+inline LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & request,
     LLCore::HttpRequest::policy_t policy_id,
     LLCore::HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
     LLCore::HttpOptions::ptr_t & options,
     LLCore::HttpHeaders::ptr_t & headers,
-    LLCore::HttpHandler * handler);
+    LLCore::HttpHandler * handler)
+{
+    return requestPatchWithLLSD(request.get(), policy_id, priority,
+        url, body, options.get(), headers.get(), handler);
+}
 
+inline LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & request,
+    LLCore::HttpRequest::policy_t policy_id,
+    LLCore::HttpRequest::priority_t priority,
+    const std::string & url,
+    const LLSD & body,
+    LLCore::HttpHandler * handler)
+{
+    return requestPatchWithLLSD(request.get(), policy_id, priority,
+        url, body, NULL, NULL, handler);
+}
 
 /// The HttpCoroHandler is a specialization of the LLCore::HttpHandler for 
 /// interacting with coroutines. When the request is completed the response 
