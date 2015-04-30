@@ -61,6 +61,7 @@ set(LIBRT_LIBRARY rt)
 
 
 target_link_libraries(linux-crash-logger
+	${LIBRT_LIBRARY}
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLXML_LIBRARIES}
@@ -68,7 +69,6 @@ target_link_libraries(linux-crash-logger
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
 	${LLCOREHTTP_LIBRARIES}
-	${LIBRT_LIBRARY}
     ${LLCOMMON_LIBRARIES}
 	${BOOST_CONTEXT_LIBRARY}
 	${BOOST_COROUTINE_LIBRARY}

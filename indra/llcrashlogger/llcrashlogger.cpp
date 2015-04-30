@@ -396,20 +396,23 @@ bool LLCrashLogger::saveCrashBehaviorSetting(S32 crash_behavior)
 
 bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout)
 {
-    LLCore::HttpRequest httpRequest;
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
 	gBreak = false;
+    httpOpts->setTimeout(timeout);
+
 	for(int i = 0; i < retries; ++i)
 	{
 		updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
 
-        LLCoreHttpUtil::requestPostWithLLSD(&httpRequest, LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
-            host, data, NULL, NULL, new LLCrashLoggerHandler);
+        LLCoreHttpUtil::requestPostWithLLSD(httpRequest.get(), LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
+            host, data, httpOpts.get(), NULL, new LLCrashLoggerHandler);
 
         while(!gBreak)
 		{
 			updateApplication(); // No new message, just pump the IO
-            httpRequest.update(0L);
+            httpRequest->update(0L);
 		}
 		if(gSent)
 		{
