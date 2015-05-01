@@ -3066,11 +3066,13 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 							   << tfolder->getUUID() << ") in " << tfolder->getParentUUID()
 							   << LL_ENDL;
         
-        // If the parent folder is a listing folder, all we need to do is update the SLM data
-        if (depth_nesting_in_marketplace(tfolder->getParentUUID()) == 1)
+        // If the folder is a listing or a version folder, all we need to do is update the SLM data
+        int depth_folder = depth_nesting_in_marketplace(tfolder->getUUID());
+        if ((depth_folder == 1) || (depth_folder == 2))
         {
             // Trigger an SLM listing update
-            S32 listing_id = LLMarketplaceData::instance().getListingID(tfolder->getParentUUID());
+            LLUUID listing_uuid = (depth_folder == 1 ? tfolder->getUUID() : tfolder->getParentUUID());
+            S32 listing_id = LLMarketplaceData::instance().getListingID(listing_uuid);
             LLMarketplaceData::instance().getListing(listing_id);
             // In that case, there is no item to update so no callback -> we skip the rest of the update
         }
