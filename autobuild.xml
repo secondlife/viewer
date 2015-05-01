@@ -1814,9 +1814,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b1245d467d5914a266efa16afeb55406</string>
+              <string>65f58cc0b17ebd29fe2b8bccc6bcbf64</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/297553/arch/Linux/installer/open_libndofdev-0.3-linux-297553.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/301464/arch/Linux/installer/open_libndofdev-0.3-linux-301464.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
