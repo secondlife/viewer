@@ -2220,7 +2220,7 @@ if (LL_TESTS)
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp
-    llremoteparcelrequest.cpp
+#    llremoteparcelrequest.cpp
     lltranslate.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp

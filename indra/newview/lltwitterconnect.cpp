@@ -416,7 +416,7 @@ std::string LLTwitterConnect::getTwitterConnectURL(const std::string& route, boo
 
 void LLTwitterConnect::connectToTwitter(const std::string& request_token, const std::string& oauth_verifier)
 {
-    LLCoros::instance().launch("LLFlickrConnect::flickrConnectCoro",
+    LLCoros::instance().launch("LLTwitterConnect::twitterConnectCoro",
         boost::bind(&LLTwitterConnect::twitterConnectCoro, this, _1, request_token, oauth_verifier));
 }
 
