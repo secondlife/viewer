@@ -1665,8 +1665,8 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 	LLInventoryModel::item_array_t* item_array;
 	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
     
-    std::vector<std::vector<LLUUID> > items_vector;
-    items_vector.resize(LLInventoryType::IT_COUNT+1);
+    // We use a composite (type,permission) key on that map to store UUIDs of items of same (type,permissions)
+    std::map<U32, std::vector<LLUUID> > items_vector;
 
     // Parse the items and create vectors of item UUIDs sorting copyable items and stock items of various types
     bool has_bad_items = false;
@@ -1690,25 +1690,21 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         }
         // Update the appropriate vector item for that type
         LLInventoryType::EType type = LLInventoryType::IT_COUNT;    // Default value for non stock items
+        U32 perms = 0;
         if (!viewer_inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
         {
             // Get the item type for stock items
             type = viewer_inv_item->getInventoryType();
+            perms = viewer_inv_item->getPermissions().getMaskNextOwner();
         }
-        items_vector[type].push_back(viewer_inv_item->getUUID());
+        U32 key = ((U32)(type) & 0xFF) << 24 | (perms & 0xFFFFFF);
+        items_vector[key].push_back(viewer_inv_item->getUUID());
 	}
     
     // How many types of items? Which type is it if only one?
-    S32 count = 0;
-    LLInventoryType::EType type = LLInventoryType::IT_COUNT;
-    for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
-    {
-        if (!items_vector[i].empty())
-        {
-            count++;
-            type = (LLInventoryType::EType)(i);
-        }
-    }
+    S32 count = items_vector.size();
+    U32 default_key = (U32)(LLInventoryType::IT_COUNT) << 24; // This is the key for any normal copyable item
+    U32 unique_key = (count == 1 ? items_vector.begin()->first : default_key); // The key in the case of one item type only
     
     // If we have no items in there (only folders or empty), analyze a bit further
     if ((count == 0) && !has_bad_items)
@@ -1752,7 +1748,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
         }
     }
     // If we have a single type of items of the right type in the right place, we're done
-    else if ((count == 1) && !has_bad_items && (((type == LLInventoryType::IT_COUNT) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2) && (cat_array->size() == 0))))
+    else if ((count == 1) && !has_bad_items && (((unique_key == default_key) && (depth > 1)) || ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (depth > 2) && (cat_array->size() == 0))))
     {
         // Done with that folder : Print out the folder name unless we already found an error here
         if (cb && result && (depth >= 1))
@@ -1770,51 +1766,52 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             {
                 LLNotificationsUtil::add("AlertMerchantStockFolderSplit");
             }
-            // If we have more than 1 type of items or we are at the listing level or we have stok/no stock type mismatch, wrap the items in subfolders
+            // If we have more than 1 type of items or we are at the listing level or we have stock/no stock type mismatch, wrap the items in subfolders
             if ((count > 1) || (depth == 1) ||
-                ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (type == LLInventoryType::IT_COUNT)) ||
-                ((folder_type != LLFolderType::FT_MARKETPLACE_STOCK) && (type != LLInventoryType::IT_COUNT)))
+                ((folder_type == LLFolderType::FT_MARKETPLACE_STOCK) && (unique_key == default_key)) ||
+                ((folder_type != LLFolderType::FT_MARKETPLACE_STOCK) && (unique_key != default_key)))
             {
                 // Create one folder per vector at the right depth and of the right type
-                for (S32 i = 0; i <= LLInventoryType::IT_COUNT; i++)
+                std::map<U32, std::vector<LLUUID> >::iterator items_vector_it = items_vector.begin();
+                while (items_vector_it != items_vector.end())
                 {
-                    if (!items_vector[i].empty())
+                    // Create a new folder
+                    LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
+                    LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector_it->second.back());
+                    std::string folder_name = (depth > 1 ? viewer_cat->getName() : viewer_inv_item->getName());
+                    LLFolderType::EType new_folder_type = (items_vector_it->first == default_key ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
+                    if (cb)
                     {
-                        // Create a new folder
-                        LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
-                        LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector[i].back());
-                        std::string folder_name = (depth > 1 ? viewer_cat->getName() : viewer_inv_item->getName());
-                        LLFolderType::EType new_folder_type = (i == LLInventoryType::IT_COUNT ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
+                        std::string message = "";
+                        if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
+                        {
+                            message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Stock");
+                        }
+                        else
+                        {
+                            message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Version");
+                        }
+                        cb(message,depth,LLError::LEVEL_WARN);
+                    }
+                    LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, folder_name);
+                    
+                    // Move each item to the new folder
+                    while (!items_vector_it->second.empty())
+                    {
+                        LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector_it->second.back());
                         if (cb)
                         {
-                            std::string message = "";
-                            if (new_folder_type == LLFolderType::FT_MARKETPLACE_STOCK)
-                            {
-                                message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Stock");
-                            }
-                            else
-                            {
-                                message = indent + folder_name + LLTrans::getString("Marketplace Validation Warning Create Version");
-                            }
+                            std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
                             cb(message,depth,LLError::LEVEL_WARN);
                         }
-                        LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, new_folder_type, folder_name);
-                        
-                        // Move each item to the new folder
-                        while (!items_vector[i].empty())
-                        {
-                            LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector[i].back());
-                            if (cb)
-                            {
-                                std::string message = indent + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Move");
-                                cb(message,depth,LLError::LEVEL_WARN);
-                            }
-                            gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
-                            items_vector[i].pop_back();
-                        }
-                        update_marketplace_category(folder_uuid);
-                        gInventory.notifyObservers();
+                        gInventory.changeItemParent(viewer_inv_item, folder_uuid, true);
+                        items_vector_it->second.pop_back();
                     }
+                    
+                    // Next type
+                    update_marketplace_category(folder_uuid);
+                    gInventory.notifyObservers();
+                    items_vector_it++;
                 }
             }
             // Stock folder should have no sub folder so reparent those up
