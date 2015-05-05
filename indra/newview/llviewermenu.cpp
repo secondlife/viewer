@@ -7078,11 +7078,10 @@ void handle_selected_texture_info(void*)
    			{
    				msg.append( llformat("%d ", (S32)(it->second[i])));
    			}
-
-			LLSD args;
-			args["MESSAGE"] = msg;
-			LLNotificationsUtil::add("SystemMessage", args);
    		}
+   		LLSD args;
+   		args["MESSAGE"] = msg;
+   		LLNotificationsUtil::add("SystemMessage", args);
 	}
 }
 
