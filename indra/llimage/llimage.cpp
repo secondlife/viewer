@@ -197,9 +197,7 @@ private:
 			{
 				pos = val >> 16;
 
-				if (pos < 0)
-					vp[j] = 0;
-				else if (pos >= (srcSz - 1))
+				if (pos >= (srcSz - 1))
 					vp[j] = 0;
 				else
 					vp[j] = (val >> 8) - ((val >> 8) & 0xffffff00);
