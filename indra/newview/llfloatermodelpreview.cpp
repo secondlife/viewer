@@ -1670,7 +1670,7 @@ void LLModelPreview::saveUploadData(const std::string& filename, bool save_skinw
 		data["instance"][i] = instance.asLLSD();
 	}
 
-	llofstream out(filename, std::ios_base::out | std::ios_base::binary);
+	llofstream out(filename.c_str(), std::ios_base::out | std::ios_base::binary);
 	LLSDSerialize::toBinary(data, out);
 	out.flush();
 	out.close();
