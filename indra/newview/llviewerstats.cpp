@@ -60,6 +60,7 @@
 #include "llfeaturemanager.h"
 #include "llviewernetwork.h"
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
+#include "llsdserialize.h"
 
 namespace LLStatViewer
 {
@@ -616,8 +617,10 @@ void send_stats()
 	body["DisplayNamesShowUsername"] = gSavedSettings.getBOOL("NameTagShowUsernames");
 	
 	body["MinimalSkin"] = false;
-	
+
 	LLViewerStats::getInstance()->addToMessage(body);
+
+	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 
 	LLViewerStats::instance().getRecording().resume();
