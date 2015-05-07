@@ -7118,6 +7118,7 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
 	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email);
+	LLFloaterSnapshot::setAgentEmail(email);
 }
 
 

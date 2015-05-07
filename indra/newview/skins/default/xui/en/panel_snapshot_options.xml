@@ -107,4 +107,21 @@
     <button.commit_callback
      function="Snapshot.SendToFlickr"/>
   </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Email"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Send via E-mail"
+   layout="topleft"
+   left_delta="0"
+   name="save_to_email_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SaveToEmail" />
+  </button>
 </panel>

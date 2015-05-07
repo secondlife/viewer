@@ -86,7 +86,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mNeedsFlash(TRUE),
 	mSnapshotQuality(gSavedSettings.getS32("SnapshotQuality")),
 	mDataSize(0),
-	mSnapshotType(SNAPSHOT_LOCAL),
+	mSnapshotType(SNAPSHOT_POSTCARD),
 	mSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat"))),
 	mSnapshotUpToDate(FALSE),
 	mCameraPos(LLViewerCamera::getInstance()->getOrigin()),

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="380"
+ layout="topleft"
+ name="panel_snapshot_postcard"
+ width="490">
+    <string
+     name="default_subject">
+        Postcard from [SECOND_LIFE].
+    </string>
+    <string
+     name="default_message">
+        Check this out!
+    </string>
+    <string
+     name="upload_message">
+        Sending...
+    </string>
+    <icon
+     follows="top|left"
+     height="18"
+     image_name="Snapshot_Email"
+     layout="topleft"
+     left="12"
+     mouse_opaque="true"
+     name="title_icon"
+     top="7"
+     width="18" />
+    <text
+     follows="top|left|right"
+     font="SansSerifBold"
+     height="14"
+     layout="topleft"
+     left_pad="12"
+     length="1"
+     name="title"
+     right="-10"
+     text_color="white"
+     type="string"
+     top_delta="2">
+        E-mail
+    </text>
+    <view_border 
+     bevel_style="in"
+     follows="left|top|right" 
+     height="1"
+     left="9"
+     layout="topleft"
+     name="hr"
+     right="-5"
+     top_pad="5"
+     />
+    <tab_container
+     name="postcard_tabs"
+     tab_group="1"
+     tab_min_width="97"
+     tab_height="21"
+     tab_position="top"
+     top_pad="7"
+     left="5"
+     right="-2"
+     height="319"
+     follows="all"
+     halign="center"
+     use_highlighting_on_hover="true">
+      <panel
+       follows="all"
+       layout="topleft"
+       label="Message"
+       name="panel_postcard_message"
+       filename="panel_postcard_message.xml" />
+      <panel
+       follows="all"
+       layout="topleft"
+       label="Settings"
+       name="panel_postcard_settings"
+       filename="panel_postcard_settings.xml" />
+    </tab_container>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     name="cancel_btn"
+     right="-6"
+     bottom="-20"
+     width="97">
+      <button.commit_callback
+       function="Postcard.Cancel" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Send"
+     layout="topleft"
+     left="10"
+     name="send_btn"
+     top_delta="0"
+     width="97">
+      <button.commit_callback
+       function="Postcard.Send" />
+    </button>
+</panel>
