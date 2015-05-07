@@ -80,7 +80,7 @@ private:
 	LLFilterEditor*	  mFilterEditor;
 	std::string		  mFilterSubString;
     bool              mFilterListingFoldersOnly;
-    LLInventoryFilter::ESortOrderType mSortOrder;
+    U32               mSortOrder;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

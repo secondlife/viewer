@@ -229,9 +229,22 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
 	std::string chosen_item = userdata.asString();
     
     // Sort options
-	if (chosen_item == "sort_by_stock_amount")
+	if ((chosen_item == "sort_by_stock_amount") || (chosen_item == "sort_by_name") || (chosen_item == "sort_by_recent"))
 	{
-        mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
+        // We're making sort options exclusive, default is SO_FOLDERS_BY_NAME
+        if (chosen_item == "sort_by_stock_amount")
+        {
+            mSortOrder = LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
+        }
+        else if (chosen_item == "sort_by_name")
+        {
+            mSortOrder = LLInventoryFilter::SO_FOLDERS_BY_NAME;
+        }
+        else if (chosen_item == "sort_by_recent")
+        {
+            mSortOrder = LLInventoryFilter::SO_DATE;
+        }
+        //mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
         // Set each panel with that sort order
         LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
         LLInventoryPanel* panel = (LLInventoryPanel*)tabs_panel->getPanelByName("All Items");
@@ -264,9 +277,20 @@ bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
 {
 	std::string chosen_item = userdata.asString();
     
-	if (chosen_item == "sort_by_stock_amount")
+    if ((chosen_item == "sort_by_stock_amount") || (chosen_item == "sort_by_name") || (chosen_item == "sort_by_recent"))
     {
-		return mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
+        if (chosen_item == "sort_by_stock_amount")
+        {
+            return (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_WEIGHT);
+        }
+        else if (chosen_item == "sort_by_name")
+        {
+            return (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_NAME);
+        }
+        else if (chosen_item == "sort_by_recent")
+        {
+            return (mSortOrder & LLInventoryFilter::SO_DATE);
+        }
     }
     else if (chosen_item == "show_only_listing_folders")
     {
