@@ -15,4 +15,5 @@
         <tab_container name="postcard_tabs">
 		<panel name="panel_postcard_message" label="訊息"/>
 		<panel name="panel_postcard_settings" label="設定"/>
+		</tab_container>
 </panel>

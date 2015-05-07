@@ -15,4 +15,5 @@
         <tab_container name="postcard_tabs">
 		<panel name="panel_postcard_message" label="İleti"/>
 		<panel name="panel_postcard_settings" label="Ayarlar"/>
+		</tab_container>
 </panel>
