@@ -56,6 +56,7 @@ LLSnapshotFloaterView* gSnapshotFloaterView = NULL;
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
+const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
 static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
@@ -168,7 +169,11 @@ LLSnapshotLivePreview::ESnapshotType LLFloaterSnapshot::Impl::getActiveSnapshotT
 		name = spanel->getName();
 	}
 
-	if (name == "panel_snapshot_inventory")
+	if (name == "panel_snapshot_postcard")
+	{
+		type = LLSnapshotLivePreview::SNAPSHOT_POSTCARD;
+	}
+	else if (name == "panel_snapshot_inventory")
 	{
 		type = LLSnapshotLivePreview::SNAPSHOT_TEXTURE;
 	}
@@ -419,6 +424,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	}
 		
 	LLSnapshotLivePreview* previewp = getPreviewView(floater);
+	BOOL got_bytes = previewp && previewp->getDataSize() > 0;
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
 
 	// *TODO: Separate maximum size for Web images from postcards
@@ -441,7 +447,10 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	}
 
 	floater->getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
-	floater->getChild<LLUICtrl>("file_size_label")->setColor(LLUIColorTable::instance().getColor( "LabelTextColor" ));
+	floater->getChild<LLUICtrl>("file_size_label")->setColor(
+			shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD
+			&& got_bytes
+			&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
 
 	// Update the width and height spinners based on the corresponding resolution combos. (?)
 	switch(shot_type)
@@ -450,6 +459,11 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		layer_type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
 		floater->getChild<LLUICtrl>("layer_types")->setValue("colors");
 		setResolution(floater, "profile_size_combo");
+		break;
+	  case LLSnapshotLivePreview::SNAPSHOT_POSTCARD:
+		layer_type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
+		floater->getChild<LLUICtrl>("layer_types")->setValue("colors");
+		setResolution(floater, "postcard_size_combo");
 		break;
 	  case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:
 		layer_type = LLViewerWindow::SNAPSHOT_TYPE_COLOR;
@@ -1444,6 +1458,18 @@ const LLVector3d& LLFloaterSnapshot::getPosTakenGlobal()
 	}
 
 	return previewp->getPosTakenGlobal();
+}
+
+// static
+void LLFloaterSnapshot::setAgentEmail(const std::string& email)
+{
+	LLFloaterSnapshot* instance = findInstance();
+	if (instance)
+	{
+		LLSideTrayPanelContainer* panel_container = instance->getChild<LLSideTrayPanelContainer>("panel_container");
+		LLPanel* postcard_panel = panel_container->getPanelByName("panel_snapshot_postcard");
+		postcard_panel->notify(LLSD().with("agent-email", email));
+	}
 }
 
 ///----------------------------------------------------------------------------
