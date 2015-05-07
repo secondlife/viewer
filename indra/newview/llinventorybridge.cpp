@@ -1490,16 +1490,23 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
             std::string error_msg;
             LLInventoryModel* model = getInventoryModel();
             const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-            LLViewerInventoryCategory * master_folder = model->getCategory(marketplacelistings_id);
-            LLInventoryCategory *cat = model->getCategory(mUUID);
-            if (cat)
+            if (marketplacelistings_id.notNull())
             {
-                can_list = can_move_folder_to_marketplace(master_folder, master_folder, cat, error_msg);
+                LLViewerInventoryCategory * master_folder = model->getCategory(marketplacelistings_id);
+                LLInventoryCategory *cat = model->getCategory(mUUID);
+                if (cat)
+                {
+                    can_list = can_move_folder_to_marketplace(master_folder, master_folder, cat, error_msg);
+                }
+                else
+                {
+                    LLInventoryItem *item = model->getItem(mUUID);
+                    can_list = (item ? can_move_item_to_marketplace(master_folder, master_folder, item, error_msg) : false);
+                }
             }
             else
             {
-                LLInventoryItem *item = model->getItem(mUUID);
-                can_list = (item ? can_move_item_to_marketplace(master_folder, master_folder, item, error_msg) : false);
+                can_list = false;
             }
 		}
 	}

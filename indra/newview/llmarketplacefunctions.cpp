@@ -124,7 +124,7 @@ LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
 void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
 {
     LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
-    if (status == 422)
+    if ((status == 422) && (description == "[\"You must have an English description to list the product\", \"You must choose a category for your product before it can be listed\", \"Listing could not change state.\", \"Price can't be blank\"]"))
     {
         // Unprocessable Entity : Special case that error as it is a frequent answer when trying to list an incomplete listing
         LLNotificationsUtil::add("MerchantUnprocessableEntity");
