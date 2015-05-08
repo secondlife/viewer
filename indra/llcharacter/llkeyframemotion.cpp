@@ -1881,6 +1881,8 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 	success &= dp.packU32(mJointMotionList->mHandPose, "hand_pose");
 	success &= dp.packU32(mJointMotionList->getNumJointMotions(), "num_joints");
 
+	LL_DEBUGS("BVH") << "bvh" << LL_ENDL;
+
 	for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
 	{
 		JointMotion* joint_motionp = mJointMotionList->getJointMotion(i);
@@ -1888,6 +1890,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		success &= dp.packS32(joint_motionp->mPriority, "joint_priority");
 		success &= dp.packS32(joint_motionp->mRotationCurve.mNumKeys, "num_rot_keys");
 
+		LL_DEBUGS("BVH") << "Joint " << joint_motionp->mJointName << LL_ENDL;
 		for (RotationCurve::key_map_t::iterator iter = joint_motionp->mRotationCurve.mKeys.begin();
 			 iter != joint_motionp->mRotationCurve.mKeys.end(); ++iter)
 		{
@@ -1905,6 +1908,8 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			success &= dp.packU16(x, "rot_angle_x");
 			success &= dp.packU16(y, "rot_angle_y");
 			success &= dp.packU16(z, "rot_angle_z");
+
+			LL_DEBUGS("BVH") << "  rot " << rot_key.mTime << " - " <<rot_angles.mV[VX] <<","<< rot_angles.mV[VY] <<","<< rot_angles.mV[VZ] << LL_ENDL;
 		}
 
 		success &= dp.packS32(joint_motionp->mPositionCurve.mNumKeys, "num_pos_keys");
@@ -1923,6 +1928,8 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			success &= dp.packU16(x, "pos_x");
 			success &= dp.packU16(y, "pos_y");
 			success &= dp.packU16(z, "pos_z");
+
+			LL_DEBUGS("BVH") << "  pos " << pos_key.mTime << pos_key.mPosition.mV[VX] <<","<< pos_key.mPosition.mV[VY] <<","<< pos_key.mPosition.mV[VZ] << LL_ENDL;
 		}
 	}	
 
