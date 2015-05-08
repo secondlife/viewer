@@ -266,9 +266,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d1c5125650a339a5209f429c70f4d395</string>
+              <string>89db4a1aa22599cf377ae49630b7b5b1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/Darwin/installer/curl-7.38.0.297172-darwin-297172.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/Darwin/installer/curl-7.42.1.301717-darwin-301717.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -278,9 +278,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ee6c089ee193e551040d610befc5d1c1</string>
+              <string>de9e0c855ff6ee30c9e027a70bbef032</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/Linux/installer/curl-7.38.0.297172-linux-297172.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/Linux/installer/curl-7.42.1.301717-linux-301717.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -290,16 +290,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fdeca7cbc074a88d2701d74a31d21bd8</string>
+              <string>98d15713de8c439b7f54cc14f2df07ac</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/CYGWIN/installer/curl-7.38.0.297172-windows-297172.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/CYGWIN/installer/curl-7.42.1.301717-windows-301717.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.38.0.297172</string>
+        <string>7.42.1.301717</string>
       </map>
       <key>db</key>
       <map>
