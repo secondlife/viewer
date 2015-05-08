@@ -216,7 +216,7 @@
      control_name="QAMode"
      follows="top|left"
      height="15"
-     label="Show Developer Menu"
+     label="Show Develop Menu"
      layout="topleft"
      left="30"
      name="show_develop_menu_check"
