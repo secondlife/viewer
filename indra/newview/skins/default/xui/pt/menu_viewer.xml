@@ -14,7 +14,7 @@
 			<menu_item_check label="Voar" name="Fly"/>
 			<menu_item_check label="Correr sempre" name="Always Run"/>
 			<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
-			<menu_item_call label="Andar/correr/voar..." name="Walk / run / fly"/>
+			<menu_item_call label="Andar/correr/voar..." name="WalkRunFly"/>
 		</menu>
 		<menu label="Status" name="Status">
 			<menu_item_check label="Ausente" name="Away"/>
@@ -62,7 +62,7 @@
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Perfil da região" name="Place Profile"/>
 		<menu_item_call label="Sobre terrenos" name="About Land"/>
-		<menu_item_call label="Região/Propriedade" name="Region/Estate"/>
+		<menu_item_call label="Região/Propriedade" name="RegionEstate"/>
 		<menu_item_call label="Meus terrenos..." name="My Land"/>
 		<menu_item_call label="Comprar este terreno" name="Buy Land"/>
 		<menu label="Mostrar" name="LandShow">

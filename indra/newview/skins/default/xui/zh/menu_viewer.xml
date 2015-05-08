@@ -14,7 +14,7 @@
 			<menu_item_check label="飛行" name="Fly"/>
 			<menu_item_check label="以跑代步" name="Always Run"/>
 			<menu_item_call label="停止我身上的動作" name="Stop Animating My Avatar"/>
-			<menu_item_call label="行走 / 跑步 / 飛行…" name="Walk / run / fly"/>
+			<menu_item_call label="行走 / 跑步 / 飛行…" name="WalkRunFly"/>
 		</menu>
 		<menu label="狀態" name="Status">
 			<menu_item_check label="離開" name="Away"/>
@@ -60,7 +60,7 @@
 		<menu_item_call label="快照" name="Take Snapshot"/>
 		<menu_item_call label="地點小檔案" name="Place Profile"/>
 		<menu_item_call label="土地資料" name="About Land"/>
-		<menu_item_call label="地區/領地" name="Region/Estate"/>
+		<menu_item_call label="地區/領地" name="RegionEstate"/>
 		<menu_item_call label="我所擁有的土地…" name="My Land"/>
 		<menu_item_call label="購買這塊土地" name="Buy Land"/>
 		<menu label="顯示" name="LandShow">

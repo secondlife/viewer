@@ -14,7 +14,7 @@
 			<menu_item_check label="Fliegen" name="Fly"/>
 			<menu_item_check label="Immer rennen" name="Always Run"/>
 			<menu_item_call label="Animation meines Avatars stoppen" name="Stop Animating My Avatar"/>
-			<menu_item_call label="Gehen/Rennen/Fliegen..." name="Walk / run / fly"/>
+			<menu_item_call label="Gehen/Rennen/Fliegen..." name="WalkRunFly"/>
 		</menu>
 		<menu label="Status" name="Status">
 			<menu_item_check label="Abwesend" name="Away"/>
@@ -62,7 +62,7 @@
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Ortsprofil" name="Place Profile"/>
 		<menu_item_call label="Landinformationen" name="About Land"/>
-		<menu_item_call label="Region/Grundbesitz" name="Region/Estate"/>
+		<menu_item_call label="Region/Grundbesitz" name="RegionEstate"/>
 		<menu_item_call label="Mein Landbesitz..." name="My Land"/>
 		<menu_item_call label="Dieses Land kaufen" name="Buy Land"/>
 		<menu label="Anzeigen" name="LandShow">

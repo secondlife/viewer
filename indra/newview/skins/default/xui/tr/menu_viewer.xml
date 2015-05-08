@@ -14,7 +14,7 @@
 			<menu_item_check label="Uç" name="Fly"/>
 			<menu_item_check label="Daima Koş" name="Always Run"/>
 			<menu_item_call label="Beni Anime Etmeyi Durdur" name="Stop Animating My Avatar"/>
-			<menu_item_call label="Yürü / koş / uç..." name="Walk / run / fly"/>
+			<menu_item_call label="Yürü / koş / uç..." name="WalkRunFly"/>
 		</menu>
 		<menu label="Durum" name="Status">
 			<menu_item_check label="Uzakta" name="Away"/>
@@ -60,7 +60,7 @@
 		<menu_item_call label="Anlık Görüntü" name="Take Snapshot"/>
 		<menu_item_call label="Profili yerleştir" name="Place Profile"/>
 		<menu_item_call label="Arazi hakkında" name="About Land"/>
-		<menu_item_call label="Bölge / Gayrimenkul" name="Region/Estate"/>
+		<menu_item_call label="Bölge / Gayrimenkul" name="RegionEstate"/>
 		<menu_item_call label="Sahip olduğum arazi parçaları..." name="My Land"/>
 		<menu_item_call label="Bu araziyi satın al" name="Buy Land"/>
 		<menu label="Göster" name="LandShow">

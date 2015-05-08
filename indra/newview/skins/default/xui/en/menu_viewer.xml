@@ -127,7 +127,7 @@
         </menu_item_call>
         <menu_item_call
          label="Walk / run / fly..."
-         name="Walk / run / fly">
+         name="WalkRunFly">
           <menu_item_call.on_click
            function="Floater.ToggleOrBringToFront"
            parameter="moveview" />
@@ -495,7 +495,7 @@
         </menu_item_call>
         <menu_item_call
          label="Region / Estate"
-         name="Region/Estate">
+         name="RegionEstate">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="region_info" />
