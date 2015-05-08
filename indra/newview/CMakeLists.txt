@@ -594,7 +594,6 @@ set(viewer_SOURCE_FILES
     lltwitterconnect.cpp
     lluilistener.cpp
     lluploaddialog.cpp
-    lluploadfloaterobservers.cpp
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
