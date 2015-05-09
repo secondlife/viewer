@@ -1778,7 +1778,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     // Create a new folder
                     LLUUID parent_uuid = (depth > 2 ? viewer_cat->getParentUUID() : viewer_cat->getUUID());
                     LLViewerInventoryItem* viewer_inv_item = gInventory.getItem(items_vector_it->second.back());
-                    std::string folder_name = (depth > 1 ? viewer_cat->getName() : viewer_inv_item->getName());
+                    std::string folder_name = (depth >= 1 ? viewer_cat->getName() : viewer_inv_item->getName());
                     LLFolderType::EType new_folder_type = (items_vector_it->first == default_key ? LLFolderType::FT_NONE : LLFolderType::FT_MARKETPLACE_STOCK);
                     if (cb)
                     {
