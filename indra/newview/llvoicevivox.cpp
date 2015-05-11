@@ -60,6 +60,7 @@
 #include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
+#include "llversioninfo.h"
 
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
@@ -501,14 +502,15 @@ void LLVivoxVoiceClient::connectorCreate()
 		<< "<AccountManagementServer>" << mVoiceAccountServerURI << "</AccountManagementServer>"
 		<< "<Mode>Normal</Mode>"
 		<< "<Logging>"
-        << "<Folder>" << logpath << "</Folder>"
-        << "<FileNamePrefix>Connector</FileNamePrefix>"
-        << "<FileNameSuffix>.log</FileNameSuffix>"
-        << "<LogLevel>" << loglevel << "</LogLevel>"
+		<< "<Folder>" << logpath << "</Folder>"
+		<< "<FileNamePrefix>Connector</FileNamePrefix>"
+		<< "<FileNameSuffix>.log</FileNameSuffix>"
+		<< "<LogLevel>" << loglevel << "</LogLevel>"
 		<< "</Logging>"
-		<< "<Application></Application>"  //Name can cause problems per vivox.
-        << "<MaxCalls>12</MaxCalls>"
-        << "</Request>\n\n\n";
+		<< "<Application>" << LLVersionInfo::getChannel().c_str() << " " << LLVersionInfo::getVersion().c_str() << "</Application>"
+		//<< "<Application></Application>"  //Name can cause problems per vivox.
+		<< "<MaxCalls>12</MaxCalls>"
+		<< "</Request>\n\n\n";
 	
 	writeString(stream.str());
 }
@@ -2523,6 +2525,7 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 
 		stream << "</ListenerPosition>";
 
+		stream << "<ReqDispositionType>1</ReqDispositionType>";  //do not generate responses for update requests
 		stream << "</Request>\n\n\n";
 	}	
 	
@@ -3072,11 +3075,12 @@ void LLVivoxVoiceClient::reapSession(sessionState *session)
 {
 	if(session)
 	{
-		if(!session->mHandle.empty())
+		/*if(!session->mHandle.empty())
 		{
 			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (non-null session handle)" << LL_ENDL;
 		}
-		else if(session->mCreateInProgress)
+		else*/ 
+		if(session->mCreateInProgress)
 		{
 			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (create in progress)" << LL_ENDL;
 		}
