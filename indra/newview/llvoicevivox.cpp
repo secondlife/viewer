@@ -60,7 +60,6 @@
 #include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
-#include "llversioninfo.h"
 
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
@@ -507,8 +506,7 @@ void LLVivoxVoiceClient::connectorCreate()
         << "<FileNameSuffix>.log</FileNameSuffix>"
         << "<LogLevel>" << loglevel << "</LogLevel>"
 		<< "</Logging>"
-		<< "<Application>" << LLVersionInfo::getChannel().c_str() << " " << LLVersionInfo::getVersion().c_str() << "</Application>"
-		//<< "<Application></Application>"  //Name can cause problems per vivox.
+		<< "<Application></Application>"  //Name can cause problems per vivox.
         << "<MaxCalls>12</MaxCalls>"
         << "</Request>\n\n\n";
 	
@@ -1763,31 +1761,21 @@ void LLVivoxVoiceClient::sessionCreateSendMessage(sessionState *session, bool st
 	LL_DEBUGS("Voice") << "With voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
 
 	session->mCreateInProgress = true;
-	if (startAudio)
+	if(startAudio)
 	{
 		session->mMediaConnectInProgress = true;
 	}
 
 	std::ostringstream stream;
-
-	if (!session->mGroupHandle.empty()) {
-		// reuse the current session group
-		stream
-			<< "<Request requestId=\"" << session->mSIPURI << "\" action=\"SessionGroup.AddSession.1\">"
-			<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>";
-	}
-	else {
-		stream
-			<< "<Request requestId=\"" << session->mSIPURI << "\" action=\"Session.Create.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>";
-	}
-
-	stream << "<URI>" << session->mSIPURI << "</URI>";
+	stream
+	<< "<Request requestId=\"" << session->mSIPURI << "\" action=\"Session.Create.1\">"
+		<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "<URI>" << session->mSIPURI << "</URI>";
 
 	static const std::string allowed_chars =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-		"0123456789"
-		"-._~";
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+				"0123456789"
+				"-._~";
 
 	if(!session->mHash.empty())
 	{
@@ -2535,7 +2523,6 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 
 		stream << "</ListenerPosition>";
 
-		stream << "<ReqDispositionType>1</ReqDispositionType>";  //do not generate responses for update requests
 		stream << "</Request>\n\n\n";
 	}	
 	
@@ -3085,12 +3072,11 @@ void LLVivoxVoiceClient::reapSession(sessionState *session)
 {
 	if(session)
 	{
-/*		if(!session->mHandle.empty())
+		if(!session->mHandle.empty())
 		{
 			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (non-null session handle)" << LL_ENDL;
 		}
-		else*/ 
-		if(session->mCreateInProgress)
+		else if(session->mCreateInProgress)
 		{
 			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (create in progress)" << LL_ENDL;
 		}
