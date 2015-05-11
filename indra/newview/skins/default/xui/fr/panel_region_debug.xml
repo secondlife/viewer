@@ -27,9 +27,9 @@
 	<check_box label="Sur le terrain d&apos;un autre résident" name="return_other_land" tool_tip="Ne renvoyer que les objets se trouvant sur le terrain de quelqu&apos;un d&apos;autre"/>
 	<check_box label="Dans toutes les régions de ce domaine" name="return_estate_wide" tool_tip="Renvoyer les objets dans toutes les régions qui constituent ce domaine"/>
 	<button label="Renvoyer" name="return_btn"/>
-	<button label="Collisions les plus consommatrices" name="top_colliders_btn" tool_tip="Liste des objets avec le plus de collisions potentielles" width="320"/>
-	<button label="Redémarrer la région" name="restart_btn" tool_tip="Redémarrer la région au bout de 2 minutes" width="160"/>
-	<button label="Scripts les plus consommateurs" name="top_scripts_btn" tool_tip="Liste des objets passant le plus de temps à exécuter des scripts" width="320"/>
-	<button label="Annuler le redémarrage" name="cancel_restart_btn" tool_tip="Annuler le redémarrage de la région." width="160"/>
-	<button label="Console de débogage de région" name="region_debug_console_btn" tool_tip="Ouvrir la console de débogage de région"/>
+	<button label="Collisions les plus consommatrices" name="top_colliders_btn" tool_tip="Liste des objets avec le plus de collisions potentielles" width="240"/>
+	<button label="Redémarrer la région" name="restart_btn" tool_tip="Redémarrer la région au bout de 2 minutes" left_pad="90" width="160"/>
+	<button label="Scripts les plus consommateurs" name="top_scripts_btn" tool_tip="Liste des objets passant le plus de temps à exécuter des scripts" width="240"/>
+	<button label="Annuler le redémarrage" name="cancel_restart_btn" tool_tip="Annuler le redémarrage de la région." left_pad="90" width="160"/>
+	<button label="Console de débogage de région" name="region_debug_console_btn" tool_tip="Ouvrir la console de débogage de région" width="240"/>
 </panel>

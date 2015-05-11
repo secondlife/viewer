@@ -123,14 +123,18 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_n
 	{
 		LLPointer<LLSDParser> parser = new LLSDXMLParser();
 		didFileRead = (parser->parse(notifyFile, pNotificationData, LLSDSerialize::SIZE_UNLIMITED) >= 0);
+        notifyFile.close();
+
 		if (!didFileRead)
 		{
 			LL_WARNS("LLNotificationStorage") << "Failed to parse open notifications from file '" << mFileName 
-				<< "'" << LL_ENDL;
+                                              << "'" << LL_ENDL;
+            LLFile::remove(filename);
+			LL_WARNS("LLNotificationStorage") << "Removed invalid open notifications file '" << mFileName 
+                                              << "'" << LL_ENDL;
 		}
 	}
-
-	LL_INFOS("LLNotificationStorage") << "ending read '" << filename << "'" << LL_ENDL;
+    
 	if (!didFileRead)
 	{
 		if(is_new_filename)

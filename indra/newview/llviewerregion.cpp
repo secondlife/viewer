@@ -2725,15 +2725,12 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("FlickrConnect");
 	capabilityNames.append("TwitterConnect");
 
-	if (gSavedSettings.getBOOL("UseHTTPInventory"))
-	{	
-		capabilityNames.append("FetchLib2");
-		capabilityNames.append("FetchLibDescendents2");
-		capabilityNames.append("FetchInventory2");
-		capabilityNames.append("FetchInventoryDescendents2");
-		capabilityNames.append("IncrementCOFVersion");
-		AISCommand::getCapabilityNames(capabilityNames);
-	}
+	capabilityNames.append("FetchLib2");
+	capabilityNames.append("FetchLibDescendents2");
+	capabilityNames.append("FetchInventory2");
+	capabilityNames.append("FetchInventoryDescendents2");
+	capabilityNames.append("IncrementCOFVersion");
+	AISCommand::getCapabilityNames(capabilityNames);
 
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetMesh");

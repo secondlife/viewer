@@ -219,7 +219,7 @@ void LLInspectObject::onOpen(const LLSD& data)
 		LLViewerMediaFocus::getInstance()->clearFocus();
 		
 		LLSelectMgr::instance().deselectAll();
-		mObjectSelection = LLSelectMgr::instance().selectObjectAndFamily(obj);
+		mObjectSelection = LLSelectMgr::instance().selectObjectAndFamily(obj,FALSE,TRUE);
 
 		// Mark this as a transient selection
 		struct SetTransient : public LLSelectedNodeFunctor

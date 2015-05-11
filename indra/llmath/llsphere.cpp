@@ -248,8 +248,8 @@ LLSphere LLSphere::getBoundingSphere(const std::vector<LLSphere>& sphere_list)
 		// compute the starting step-size
 		F32 minimum_radius = 0.5f * llmin(diagonal.mV[VX], llmin(diagonal.mV[VY], diagonal.mV[VZ]));
 		F32 step_length = bounding_radius - minimum_radius;
-		S32 step_count = 0;
-		S32 max_step_count = 12;
+		//S32 step_count = 0;
+		//S32 max_step_count = 12;
 		F32 half_milimeter = 0.0005f;
 
 		// wander the center around in search of tighter solutions
@@ -258,7 +258,7 @@ LLSphere LLSphere::getBoundingSphere(const std::vector<LLSphere>& sphere_list)
 		S32 last_dz = 2;
 
 		while (step_length > half_milimeter
-				&& step_count < max_step_count)
+				/*&& step_count < max_step_count*/)
 		{
 			// the algorithm for testing the maximum radius could be expensive enough
 			// that it makes sense to NOT duplicate testing when possible, so we keep
