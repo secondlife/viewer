@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_marketplace_validation" title="Pazaryeri İlanlarını Denetle">
+	<button label="Tamam" label_selected="Tamam" name="OK"/>
+	<text_editor name="validation_text">MARKETPLACE_VALIDATION_TEXT</text_editor>
+</floater>

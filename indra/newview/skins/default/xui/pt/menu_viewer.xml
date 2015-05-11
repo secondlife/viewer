@@ -22,6 +22,7 @@
 		</menu>
 		<menu_item_call label="Comprar L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Caixa de saída do lojista..." name="MerchantOutbox"/>
+		<menu_item_call label="Listagens do Marketplace..." name="MarketplaceListings"/>
 		<menu_item_call label="Painel da conta..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=pt"/>
 		</menu_item_call>
@@ -48,7 +49,7 @@
 		<menu_item_check label="Amigos" name="My Friends"/>
 		<menu_item_check label="Grupos" name="My Groups"/>
 		<menu_item_check label="Pessoas próximas" name="Active Speakers"/>
-		<menu_item_call label="Lista de bloqueados" name="Block List"/>
+		<menu_item_check label="Lista de bloqueados" name="Block List"/>
 		<menu_item_check label="Não perturbe" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Mundo" name="World">
@@ -176,7 +177,7 @@
 		<menu_item_call label="Blogs do [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Denunciar abuso" name="Report Abuse"/>
 		<menu_item_call label="Relatar bug" name="Report Bug"/>
-		<menu_item_call label="Empurrões, trombadas e tapas" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="Sobre [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avançado" name="Advanced">
@@ -249,6 +250,7 @@
 			<menu_item_check label="Painel de textura" name="Texture Console"/>
 			<menu_item_check label="Console de depuração" name="Debug Console"/>
 			<menu_item_call label="Painel de avisos" name="Notifications"/>
+			<menu_item_check label="Console de depuração de região" name="Region Debug Console"/>
 			<menu_item_check label="Tempos" name="Fast Timers"/>
 			<menu_item_check label="Memória" name="Memory"/>
 			<menu_item_check label="Estatísticas da cena" name="Scene Statistics"/>
@@ -324,7 +326,7 @@
 		<menu label="Rede" name="Network">
 			<menu_item_check label="Pausar avatar" name="AgentPause"/>
 			<menu_item_call label="Drop a Packet" name="Drop a Packet"/>
-		</menu>		
+		</menu>
 		<menu label="Mundo" name="DevelopWorld">
 			<menu_item_check label="Impor sobre sol de simulação" name="Sim Sun Override"/>
 			<menu_item_check label="Clima fixo" name="Fixed Weather"/>

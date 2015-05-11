@@ -22,6 +22,7 @@
 		</menu>
 		<menu_item_call label="Купить L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Торговые исходящие..." name="MerchantOutbox"/>
+		<menu_item_call label="Списки товаров торгового центра..." name="MarketplaceListings"/>
 		<menu_item_call label="Информационная панель аккаунта..." name="Manage My Account"/>
 		<menu_item_call label="Настройки..." name="Preferences"/>
 		<menu_item_call label="Кнопки панели инструментов..." name="Toolbars"/>
@@ -46,7 +47,7 @@
 		<menu_item_check label="Друзья" name="My Friends"/>
 		<menu_item_check label="Группы" name="My Groups"/>
 		<menu_item_check label="Люди неподалеку" name="Active Speakers"/>
-		<menu_item_call label="Черный список" name="Block List"/>
+		<menu_item_check label="Черный список" name="Block List"/>
 		<menu_item_check label="Не беспокоить" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Мир" name="World">
@@ -247,6 +248,7 @@
 			<menu_item_check label="Консоль текстур" name="Texture Console"/>
 			<menu_item_check label="Консоль отладки" name="Debug Console"/>
 			<menu_item_call label="Консоль уведомлений" name="Notifications"/>
+			<menu_item_check label="Консоль отладки региона" name="Region Debug Console"/>
 			<menu_item_check label="Оперативные таймеры" name="Fast Timers"/>
 			<menu_item_check label="Память" name="Memory"/>
 			<menu_item_check label="Статистика по сцене" name="Scene Statistics"/>
@@ -350,7 +352,7 @@
 			<menu_item_check label="Прикрепить объекты для интерполяции" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="Опустить пакет" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="Дамп камеры со скриптами" name="Dump Scripted Camera"/>		
+		<menu_item_call label="Дамп камеры со скриптами" name="Dump Scripted Camera"/>
 		<menu label="Диктофон" name="Recorder">
 			<menu_item_call label="Начать воспроизведение" name="Start Playback"/>
 			<menu_item_call label="Остановить воспроизведение" name="Stop Playback"/>

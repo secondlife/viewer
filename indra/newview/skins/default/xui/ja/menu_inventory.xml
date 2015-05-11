@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
+	<menu_item_call label="リストを作成" name="Marketplace Create Listing"/>
+	<menu_item_call label="リストを関連付け" name="Marketplace Associate Listing"/>
+	<menu_item_call label="リストを取得 (更新)" name="Marketplace Get Listing"/>
+	<menu_item_call label="エラーを確認" name="Marketplace Check Listing"/>
+	<menu_item_call label="リストを編集" name="Marketplace Edit Listing"/>
+	<menu_item_call label="リスト" name="Marketplace List"/>
+	<menu_item_call label="リストから取り除く" name="Marketplace Unlist"/>
+	<menu_item_call label="有効にする" name="Marketplace Activate"/>
+	<menu_item_call label="無効にする" name="Marketplace Deactivate"/>
 	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="購入" name="Task Buy"/>
 	<menu_item_call label="開く" name="Task Open"/>
@@ -87,6 +96,7 @@
 	<menu_item_call label="追加" name="Wearable Add"/>
 	<menu_item_call label="取り外す" name="Take Off"/>
 	<menu_item_call label="マーチャントのアウトボックスにコピー" name="Merchant Copy"/>
-	<menu_item_call label="マーケットプレイスに送信" name="Marketplace Send"/>
+	<menu_item_call label="マーケットプレイスのリストにコピー" name="Marketplace Copy"/>
+	<menu_item_call label="マーケットプレイスのリストに移動" name="Marketplace Move"/>
 	<menu_item_call label="－－オプションなし－－" name="--no options--"/>
 </menu>
