@@ -32,6 +32,7 @@
 #include "llfloaterreg.h"
 
 // Viewer includes
+#include "llagent.h"
 #include "llagentcamera.h"
 #include "lljoystickbutton.h"
 #include "llviewercontrol.h"
@@ -340,6 +341,8 @@ void LLFloaterCamera::onClose(bool app_quitting)
 
 	switchMode(CAMERA_CTRL_MODE_PAN);
 	mClosed = TRUE;
+
+	gAgent.setMovementLocked(FALSE);
 }
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)

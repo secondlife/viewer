@@ -197,9 +197,6 @@ void LLPanelContents::onClickNewScript(void *userdata)
 		// *TODO: The script creation should round-trip back to the
 		// viewer so the viewer can auto-open the script and start
 		// editing ASAP.
-#if 0
-		LLFloaterReg::showInstance("preview_scriptedit", LLSD(inv_item->getUUID()), TAKE_FOCUS_YES);
-#endif
 	}
 }
 

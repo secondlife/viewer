@@ -1470,7 +1470,7 @@ void LLFavoritesOrderStorage::destroyClass()
 
 	std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
 	llifstream file;
-	file.open(old_filename);
+	file.open(old_filename.c_str());
 	if (file.is_open())
 	{
         file.close();
@@ -1508,7 +1508,7 @@ void LLFavoritesOrderStorage::load()
 
 	LLSD settings_llsd;
 	llifstream file;
-	file.open(filename);
+	file.open(filename.c_str());
 	if (file.is_open())
 	{
 		LLSDSerialize::fromXML(settings_llsd, file);
@@ -1542,7 +1542,7 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
     if (!filename.empty())
     {
         llifstream in_file;
-        in_file.open(filename);
+        in_file.open(filename.c_str());
         LLSD fav_llsd;
         if (in_file.is_open())
         {
@@ -1589,7 +1589,7 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
         fav_llsd[av_name.getUserName()] = user_llsd;
 
         llofstream file;
-        file.open(filename);
+        file.open(filename.c_str());
         if ( file.is_open() )
         {
             LLSDSerialize::toPrettyXML(fav_llsd, file);
@@ -1614,7 +1614,7 @@ void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
     {
         LLSD fav_llsd;
         llifstream file;
-        file.open(filename);
+        file.open(filename.c_str());
         if (file.is_open())
         {
             LLSDSerialize::fromXML(fav_llsd, file);
@@ -1631,7 +1631,7 @@ void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
             }
         
             llofstream out_file;
-            out_file.open(filename);
+            out_file.open(filename.c_str());
             if ( out_file.is_open() )
             {
                 LLSDSerialize::toPrettyXML(fav_llsd, out_file);
@@ -1687,7 +1687,7 @@ void LLFavoritesOrderStorage::save()
             }
 
             llofstream file;
-            file.open(filename);
+            file.open(filename.c_str());
             if ( file.is_open() )
             {
                 LLSDSerialize::toPrettyXML(settings_llsd, file);

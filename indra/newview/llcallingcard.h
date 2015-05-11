@@ -233,7 +233,7 @@ public:
 	LLCollectMappableBuddies() {}
 	virtual ~LLCollectMappableBuddies() {}
 	virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
-	typedef std::map<std::string, LLUUID, LLDictionaryLess> buddy_map_t;
+	typedef std::map<LLUUID, std::string> buddy_map_t;
 	buddy_map_t mMappable;
 	std::string mFullName;
 };
@@ -245,7 +245,7 @@ public:
 	LLCollectOnlineBuddies() {}
 	virtual ~LLCollectOnlineBuddies() {}
 	virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
-	typedef std::map<std::string, LLUUID, LLDictionaryLess> buddy_map_t;
+	typedef std::map<LLUUID, std::string> buddy_map_t;
 	buddy_map_t mOnline;
 	std::string mFullName;
 };
@@ -258,7 +258,7 @@ public:
 	LLCollectAllBuddies() {}
 	virtual ~LLCollectAllBuddies() {}
 	virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
-	typedef std::map<std::string, LLUUID, LLDictionaryLess> buddy_map_t;
+	typedef std::map<LLUUID, std::string> buddy_map_t;
 	buddy_map_t mOnline;
 	buddy_map_t mOffline;
 	std::string mFullName;

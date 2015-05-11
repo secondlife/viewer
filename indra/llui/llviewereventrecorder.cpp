@@ -50,7 +50,7 @@ bool LLViewerEventRecorder::displayViewerEventRecorderMenuItems() {
 
 void LLViewerEventRecorder::setEventLoggingOn() {
   if (! mLog.is_open()) {
-    mLog.open(mLogFilename, llofstream::out);
+      mLog.open(mLogFilename.c_str(), std::ios_base::out);
   }
   logEvents=true; 
   LL_DEBUGS() << "LLViewerEventRecorder::setEventLoggingOn event logging turned on" << LL_ENDL;
