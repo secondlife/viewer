@@ -89,7 +89,7 @@ void LLTwitterConnect::twitterConnectCoro(LLCoros::self& self, std::string reque
     LLSD result = httpAdapter->putAndYield(self, httpRequest, getTwitterConnectURL("/connection"), body, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -125,7 +125,7 @@ void LLTwitterConnect::twitterConnectCoro(LLCoros::self& self, std::string reque
 bool LLTwitterConnect::testShareStatus(LLSD &result)
 {
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status)
         return true;
@@ -257,7 +257,7 @@ void LLTwitterConnect::twitterDisconnectCoro(LLCoros::self& self)
     LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getTwitterConnectURL("/connection"));
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status && (status != LLCore::HttpStatus(HTTP_NOT_FOUND)))
     {
@@ -289,7 +289,7 @@ void LLTwitterConnect::twitterConnectedCoro(LLCoros::self& self, bool autoConnec
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getTwitterConnectURL("/connection", true));
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -337,7 +337,7 @@ void LLTwitterConnect::twitterInfoCoro(LLCoros::self& self)
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getTwitterConnectURL("/info", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status == LLCore::HttpStatus(HTTP_FOUND))
     {

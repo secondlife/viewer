@@ -73,7 +73,7 @@ void LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro(LLCoros::self& 
     LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     LLUploadPermissionsObserver* observer = observerHandle.get();
 

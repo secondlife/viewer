@@ -157,7 +157,7 @@ void LLEstateInfoModel::commitEstateInfoCapsCoro(LLCoros::self& self, std::strin
     LLSD result = httpAdapter->postAndYield(self, httpRequest, url, body);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status)
     {

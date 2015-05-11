@@ -235,6 +235,7 @@ inline LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & requ
         url, body, NULL, NULL, handler);
 }
 
+//=========================================================================
 /// The HttpCoroHandler is a specialization of the LLCore::HttpHandler for 
 /// interacting with coroutines. When the request is completed the response 
 /// will be posted onto the supplied Event Pump.
@@ -256,10 +257,18 @@ public:
 
     HttpCoroHandler(LLEventStream &reply);
 
+    static void writeStatusCodes(LLCore::HttpStatus status, const std::string &url, LLSD &result);
+
     virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-    static void writeStatusCodes(LLCore::HttpStatus status, const std::string &url, LLSD &result);
-    static LLCore::HttpStatus getStatusFromLLSD(const LLSD &httpResults);
+    inline LLEventStream &getReplyPump()
+    {
+        return mReplyPump;
+    }
+
+protected:
+    /// this method may modify the status value
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) = 0;
 
 private:
     void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
@@ -267,22 +276,7 @@ private:
     LLEventStream &mReplyPump;
 };
 
-/// The HttpRequestPumper is a utility class. When constructed it will poll the 
-/// supplied HttpRequest once per frame until it is destroyed.
-/// 
-class HttpRequestPumper
-{
-public:
-    HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request);
-    ~HttpRequestPumper();
-
-private:
-    bool                       pollRequest(const LLSD&);
-
-    LLTempBoundListener        mBoundListener;
-    LLCore::HttpRequest::ptr_t mHttpRequest;
-};
-
+//=========================================================================
 /// An adapter to handle some of the boilerplate code surrounding HTTP and coroutine 
 /// interaction.
 /// 
@@ -302,6 +296,7 @@ public:
     static const std::string HTTP_RESULTS_URL;
     static const std::string HTTP_RESULTS_HEADERS;
     static const std::string HTTP_RESULTS_CONTENT;
+    static const std::string HTTP_RESULTS_RAW;
 
     typedef boost::shared_ptr<HttpCoroutineAdapter> ptr_t;
     typedef boost::weak_ptr<HttpCoroutineAdapter>   wptr_t;
@@ -366,6 +361,19 @@ public:
             headers);
     }
 
+    LLSD getRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+    LLSD getRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return getRawAndYield(self, request, url,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+            headers);
+    }
+
+
     /// Execute a DELETE transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
     /// 
@@ -379,6 +387,8 @@ public:
     ///
     void cancelYieldingOperation();
 
+    static LLCore::HttpStatus getStatusFromLLSD(const LLSD &httpResults);
+
 private:
     static LLSD buildImmediateErrorResult(const LLCore::HttpRequest::ptr_t &request, const std::string &url);
 
@@ -386,6 +396,28 @@ private:
             HttpCoroHandler::ptr_t &handler);
     void cleanState();
 
+    LLSD postAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+        HttpCoroHandler::ptr_t &handler);
+
+    LLSD postAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
+        LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+        HttpCoroHandler::ptr_t &handler);
+
+    LLSD putAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+        HttpCoroHandler::ptr_t &handler);
+
+    LLSD getAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::HttpOptions::ptr_t &options, 
+        LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler);
+
+    LLSD deleteAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::HttpOptions::ptr_t &options,
+        LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler);
 
     std::string                     mAdapterName;
     LLCore::HttpRequest::priority_t mPriority;
@@ -396,8 +428,6 @@ private:
     HttpCoroHandler::wptr_t         mWeakHandler;
 };
 
-//-------------------------------------------------------------------------
-LLCore::HttpStatus getStatusFromLLSD(const LLSD &httpResults);
 
 } // end namespace LLCoreHttpUtil
 

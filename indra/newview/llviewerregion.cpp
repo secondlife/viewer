@@ -309,7 +309,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(LLCoros::self& self, U64 re
         }
 
         LLSD httpResults = result["http_result"];
-        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
         if (!status)
         {
             LL_WARNS("AppInit", "Capabilities") << "HttpStatus error " << LL_ENDL;
@@ -385,7 +385,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(LLCoros::self& self
         result = httpAdapter->postAndYield(self, httpRequest, url, capabilityNames);
 
         LLSD httpResults = result["http_result"];
-        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
         if (!status)
         {
             LL_WARNS("AppInit", "Capabilities") << "HttpStatus error " << LL_ENDL;
@@ -484,7 +484,7 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(LLCoros::self& self, std::s
         LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
         LLSD httpResults = result["http_result"];
-        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
         if (!status)
         {
             LL_WARNS("AppInit", "SimulatorFeatures") << "HttpStatus error retrying" << LL_ENDL;

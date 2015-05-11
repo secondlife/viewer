@@ -28,7 +28,8 @@
 #include "linden_common.h"
 
 #include <sstream>
-
+#include <algorithm>
+#include <iterator>
 #include "llcorehttputil.h"
 #include "llhttpconstants.h"
 #include "llsdserialize.h"
@@ -38,9 +39,25 @@ using namespace LLCore;
 
 namespace LLCoreHttpUtil
 {
+//=========================================================================
+/// The HttpRequestPumper is a utility class. When constructed it will poll the 
+/// supplied HttpRequest once per frame until it is destroyed.
+/// 
+class HttpRequestPumper
+{
+public:
+    HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request);
+    ~HttpRequestPumper();
+
+private:
+    bool                       pollRequest(const LLSD&);
+
+    LLTempBoundListener        mBoundListener;
+    LLCore::HttpRequest::ptr_t mHttpRequest;
+};
 
 
-
+//=========================================================================
 // *TODO:  Currently converts only from XML content.  A mode
 // to convert using fromBinary() might be useful as well.  Mesh
 // headers could use it.
@@ -89,7 +106,6 @@ HttpHandle requestPostWithLLSD(HttpRequest * request,
     ba->release();
     return handle;
 }
-
 
 
 HttpHandle requestPutWithLLSD(HttpRequest * request,
@@ -191,6 +207,7 @@ std::string responseToString(LLCore::HttpResponse * response)
 }
 
 //========================================================================
+
 HttpCoroHandler::HttpCoroHandler(LLEventStream &reply) :
     mReplyPump(reply)
 {
@@ -221,42 +238,7 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
     }
     else
     {
-        const bool emit_parse_errors = false;
-
-        bool parsed = !((response->getBodySize() == 0) ||
-            !LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, result));
-
-        if (!parsed)
-        {
-            // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
-            LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
-            const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
-
-            if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
-            {
-                std::string thebody = LLCoreHttpUtil::responseToString(response);
-                LL_WARNS() << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
-                    << " body: " << thebody << LL_ENDL;
-
-                // Replace the status with a new one indicating the failure.
-                status = LLCore::HttpStatus(499, "Failed to deserialize LLSD.");
-            }
-        }
-
-        if (result.isUndefined())
-        {   // If we've gotten to this point and the result LLSD is still undefined 
-            // either there was an issue deserializing the body or the response was
-            // blank.  Create an empty map to hold the result either way.
-            result = LLSD::emptyMap();
-        }
-        else if (!result.isMap())
-        {   // The results are not themselves a map.  Move them down so that 
-            // this method can return a map to the caller.
-            // *TODO: Should it always do this?
-            LLSD newResult = LLSD::emptyMap();
-            newResult[HttpCoroutineAdapter::HTTP_RESULTS_CONTENT] = result;
-            result = newResult;
-        }
+        result = this->handleSuccess(response, status);
     }
 
     buildStatusEntry(response, status, result);
@@ -301,12 +283,126 @@ void HttpCoroHandler::writeStatusCodes(LLCore::HttpStatus status, const std::str
 
 }
 
-LLCore::HttpStatus HttpCoroHandler::getStatusFromLLSD(const LLSD &httpResults)
+//=========================================================================
+/// The HttpCoroLLSDHandler is a specialization of the LLCore::HttpHandler for 
+/// interacting with coroutines. When the request is completed the response 
+/// will be posted onto the supplied Event Pump.
+/// 
+/// The LLSD posted back to the coroutine will have the following additions:
+/// llsd["http_result"] -+- ["message"] - An error message returned from the HTTP status
+///                      +- ["status"]  - The status code associated with the HTTP call
+///                      +- ["success"] - Success of failure of the HTTP call and LLSD parsing.
+///                      +- ["type"]    - The LLCore::HttpStatus type associted with the HTTP call
+///                      +- ["url"]     - The URL used to make the call.
+///                      +- ["headers"] - A map of name name value pairs with the HTTP headers.
+///                      
+class HttpCoroLLSDHandler : public HttpCoroHandler
 {
-    LLCore::HttpStatus::type_enum_t type = static_cast<LLCore::HttpStatus::type_enum_t>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_TYPE].asInteger());
-    short code = static_cast<short>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_STATUS].asInteger());
+public:
+    HttpCoroLLSDHandler(LLEventStream &reply);
 
-    return LLCore::HttpStatus(type, code);
+protected:
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
+};
+
+//-------------------------------------------------------------------------
+HttpCoroLLSDHandler::HttpCoroLLSDHandler(LLEventStream &reply):
+    HttpCoroHandler(reply)
+{
+}
+    
+
+LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+{
+    LLSD result;
+
+    const bool emit_parse_errors = false;
+
+    bool parsed = !((response->getBodySize() == 0) ||
+        !LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, result));
+
+    if (!parsed)
+    {
+        // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
+        LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
+        const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
+
+        if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
+        {
+            std::string thebody = LLCoreHttpUtil::responseToString(response);
+            LL_WARNS() << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
+                << " body: " << thebody << LL_ENDL;
+
+            // Replace the status with a new one indicating the failure.
+            status = LLCore::HttpStatus(499, "Failed to deserialize LLSD.");
+        }
+    }
+
+    if (result.isUndefined())
+    {   // If we've gotten to this point and the result LLSD is still undefined 
+        // either there was an issue deserializing the body or the response was
+        // blank.  Create an empty map to hold the result either way.
+        result = LLSD::emptyMap();
+    }
+    else if (!result.isMap())
+    {   // The results are not themselves a map.  Move them down so that 
+        // this method can return a map to the caller.
+        // *TODO: Should it always do this?
+        LLSD newResult = LLSD::emptyMap();
+        newResult[HttpCoroutineAdapter::HTTP_RESULTS_CONTENT] = result;
+        result = newResult;
+    }
+
+    return result;
+}
+
+//========================================================================
+/// The HttpCoroRawHandler is a specialization of the LLCore::HttpHandler for 
+/// interacting with coroutines. 
+/// 
+/// In addition to the normal "http_results" the returned LLSD will contain 
+/// an entry keyed with "raw" containing the unprocessed results of the HTTP
+/// call.
+///                      
+class HttpCoroRawHandler : public HttpCoroHandler
+{
+public:
+    HttpCoroRawHandler(LLEventStream &reply);
+
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
+};
+
+//-------------------------------------------------------------------------
+HttpCoroRawHandler::HttpCoroRawHandler(LLEventStream &reply):
+    HttpCoroHandler(reply)
+{
+}
+
+LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+{
+    LLSD result = LLSD::emptyMap();
+
+    BufferArray * body(response->getBody());
+    if (!body || !body->size())
+    {
+        return result;
+    }
+
+    size_t size = body->size();
+
+    LLCore::BufferArrayStream bas(body);
+
+    // We create a new LLSD::Binary object and assign it to the result map.
+    // The LLSD has created it's own copy so we retrieve it asBinary and const cast 
+    // the reference so that we can modify it.
+    result[HttpCoroutineAdapter::HTTP_RESULTS_RAW] = LLSD::Binary();
+    LLSD::Binary &data = const_cast<LLSD::Binary &>( result[HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary() );
+
+    data.reserve(size);
+    bas >> std::noskipws;
+    data.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
+
+    return result;
 }
 
 //========================================================================
@@ -343,7 +439,7 @@ const std::string HttpCoroutineAdapter::HTTP_RESULTS_MESSAGE("message");
 const std::string HttpCoroutineAdapter::HTTP_RESULTS_URL("url");
 const std::string HttpCoroutineAdapter::HTTP_RESULTS_HEADERS("headers");
 const std::string HttpCoroutineAdapter::HTTP_RESULTS_CONTENT("content");
-
+const std::string HttpCoroutineAdapter::HTTP_RESULTS_RAW("raw");
 
 HttpCoroutineAdapter::HttpCoroutineAdapter(const std::string &name,
     LLCore::HttpRequest::policy_t policyId, LLCore::HttpRequest::priority_t priority) :
@@ -366,27 +462,33 @@ LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpReques
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
-        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
 
+    return postAndYield_(self, request, url, body, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+    const std::string & url, const LLSD & body,
+    LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+    HttpCoroHandler::ptr_t &handler)
+{
     //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
-    LLCoreHttpUtil::HttpRequestPumper pumper(request);
+    HttpRequestPumper pumper(request);
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = requestPostWithLLSD(request,
         mPolicyId, mPriority, url, body, options, headers,
-        httpHandler.get());
+        handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
         return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    saveState(hhandle, request, httpHandler);
-    LLSD results = waitForEventOn(self, replyPump);
+    saveState(hhandle, request, handler);
+    LLSD results = waitForEventOn(self, handler->getReplyPump());
     cleanState();
 
-    //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
 }
 
@@ -395,23 +497,30 @@ LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpReques
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
-        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
 
+    return postAndYield_(self, request, url, rawbody, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+    const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
+    LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+    HttpCoroHandler::ptr_t &handler)
+{
     //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
-    LLCoreHttpUtil::HttpRequestPumper pumper(request);
+    HttpRequestPumper pumper(request);
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
-    LLCore::HttpHandle hhandle = request->requestPost(mPolicyId, mPriority, url, rawbody.get(), 
-        options.get(), headers.get(), httpHandler.get());
+    LLCore::HttpHandle hhandle = request->requestPost(mPolicyId, mPriority, url, rawbody.get(),
+        options.get(), headers.get(), handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
         return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    saveState(hhandle, request, httpHandler);
-    LLSD results = waitForEventOn(self, replyPump);
+    saveState(hhandle, request, handler);
+    LLSD results = waitForEventOn(self, handler->getReplyPump());
     cleanState();
 
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
@@ -422,25 +531,32 @@ LLSD HttpCoroutineAdapter::putAndYield(LLCoros::self & self, LLCore::HttpRequest
     const std::string & url, const LLSD & body,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
-    LLEventStream  replyPump(mAdapterName, true);
-    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
-        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
+    LLEventStream  replyPump(mAdapterName + "Reply", true);
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
 
+    return putAndYield_(self, request, url, body, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::putAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+    const std::string & url, const LLSD & body,
+    LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+    HttpCoroHandler::ptr_t &handler)
+{
     //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
-    LLCoreHttpUtil::HttpRequestPumper pumper(request);
+    HttpRequestPumper pumper(request);
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = requestPutWithLLSD(request,
         mPolicyId, mPriority, url, body, options, headers,
-        httpHandler.get());
+        handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
         return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    saveState(hhandle, request, httpHandler);
-    LLSD results = waitForEventOn(self, replyPump);
+    saveState(hhandle, request, handler);
+    LLSD results = waitForEventOn(self, handler->getReplyPump());
     cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
@@ -451,50 +567,74 @@ LLSD HttpCoroutineAdapter::getAndYield(LLCoros::self & self, LLCore::HttpRequest
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
-        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
 
+    return getAndYield_(self, request, url, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::getRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+    const std::string & url,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName + "Reply", true);
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroRawHandler(replyPump));
+
+    return getAndYield_(self, request, url, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::getAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+    const std::string & url,
+    LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers, 
+    HttpCoroHandler::ptr_t &handler)
+{
     //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
-    LLCoreHttpUtil::HttpRequestPumper pumper(request);
+    HttpRequestPumper pumper(request);
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
-    LLCore::HttpHandle hhandle = request->requestGet(mPolicyId, mPriority, 
-            url, options.get(), headers.get(), httpHandler.get());
+    LLCore::HttpHandle hhandle = request->requestGet(mPolicyId, mPriority,
+        url, options.get(), headers.get(), handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
         return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    saveState(hhandle, request, httpHandler);
-    LLSD results = waitForEventOn(self, replyPump);
+    saveState(hhandle, request, handler);
+    LLSD results = waitForEventOn(self, handler->getReplyPump());
     cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
 }
+
 
 LLSD HttpCoroutineAdapter::deleteAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
     const std::string & url,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    LLCoreHttpUtil::HttpCoroHandler::ptr_t httpHandler =
-        LLCoreHttpUtil::HttpCoroHandler::ptr_t(new LLCoreHttpUtil::HttpCoroHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
 
+    return deleteAndYield_(self, request, url, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::deleteAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+    const std::string & url, LLCore::HttpOptions::ptr_t &options, 
+    LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler)
+{
     //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
-    LLCoreHttpUtil::HttpRequestPumper pumper(request);
+    HttpRequestPumper pumper(request);
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestDelete(mPolicyId, mPriority,
-        url, options.get(), headers.get(), httpHandler.get());
+        url, options.get(), headers.get(), handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
         return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
     }
 
-    saveState(hhandle, request, httpHandler);
-    LLSD results = waitForEventOn(self, replyPump);
+    saveState(hhandle, request, handler);
+    LLSD results = waitForEventOn(self, handler->getReplyPump());
     cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
@@ -546,6 +686,15 @@ LLSD HttpCoroutineAdapter::buildImmediateErrorResult(const LLCore::HttpRequest::
 
     return errorres;
 }
+
+LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResults)
+{
+    LLCore::HttpStatus::type_enum_t type = static_cast<LLCore::HttpStatus::type_enum_t>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_TYPE].asInteger());
+    short code = static_cast<short>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_STATUS].asInteger());
+
+    return LLCore::HttpStatus(type, code);
+}
+
 
 } // end namespace LLCoreHttpUtil
 

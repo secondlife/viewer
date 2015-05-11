@@ -204,7 +204,7 @@ void LLRemoteParcelInfoProcessor::regionParcelInfoCoro(LLCoros::self& self, std:
     LLSD result = httpAdapter->postAndYield(self, httpRequest, url, bodyData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     LLRemoteParcelInfoObserver* observer = observerHandle.get();
     // Panel inspecting the information may be closed and destroyed

@@ -110,7 +110,7 @@ void LLEnvironmentRequest::environmentRequestCoro(LLCoros::self& self, std::stri
     }
 
     LLSD httpResults = result["http_result"];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
         LL_WARNS("WindlightCaps") << "Got an error, not using region windlight... " << LL_ENDL;
@@ -207,7 +207,7 @@ void LLEnvironmentApply::environmentApplyCoro(LLCoros::self& self, std::string u
     {  // Breaks from loop in the case of an error.
 
         LLSD httpResults = result["http_result"];
-        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
         if (!status)
         {
             LL_WARNS("WindlightCaps") << "Couldn't apply windlight settings to region! " << LL_ENDL;

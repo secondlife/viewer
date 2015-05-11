@@ -151,7 +151,7 @@ void LLFacebookConnect::facebookConnectCoro(LLCoros::self& self, std::string aut
     LLSD result = httpAdapter->putAndYield(self, httpRequest, getFacebookConnectURL("/connection"), putData, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
         if (status == LLCore::HttpStatus(HTTP_FOUND))
@@ -180,7 +180,7 @@ void LLFacebookConnect::facebookConnectCoro(LLCoros::self& self, std::string aut
 bool LLFacebookConnect::testShareStatus(LLSD &result)
 {
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status)
         return true;
@@ -314,7 +314,7 @@ void LLFacebookConnect::facebookDisconnectCoro(LLCoros::self& self)
     LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getFacebookConnectURL("/connection"));
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status && (status != LLCore::HttpStatus(HTTP_FOUND)))
     {
         LL_WARNS("FacebookConnect") << "Failed to disconnect:" << status.toTerseString() << LL_ENDL;
@@ -347,7 +347,7 @@ void LLFacebookConnect::facebookConnectedCheckCoro(LLCoros::self& self, bool aut
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/connection", true));
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -394,7 +394,7 @@ void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/info", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status == LLCore::HttpStatus(HTTP_FOUND))
     {
@@ -434,7 +434,7 @@ void LLFacebookConnect::facebookConnectFriendsCoro(LLCoros::self& self)
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/friends", true));
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status == LLCore::HttpStatus(HTTP_FOUND))
     {

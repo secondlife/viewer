@@ -55,6 +55,7 @@
 #include "llviewershadermgr.h"
 #include "llstring.h"
 #include "stringize.h"
+#include "llcorehttputil.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -492,94 +493,67 @@ bool LLFeatureManager::loadGPUClass()
 	return true; // indicates that a gpu value was established
 }
 
-	
-// responder saves table into file
-class LLHTTPFeatureTableResponder : public LLHTTPClient::Responder
+void LLFeatureManager::fetchFeatureTableCoro(LLCoros::self& self, std::string tableName)
 {
-	LOG_CLASS(LLHTTPFeatureTableResponder);
-public:
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FeatureManagerHTTPTable", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-	LLHTTPFeatureTableResponder(std::string filename) :
-		mFilename(filename)
-	{
-	}
+    const std::string base = gSavedSettings.getString("FeatureManagerHTTPTable");
 
-	
-	virtual void completedRaw(const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
-	{
-		if (isGoodStatus())
-		{
-			// write to file
-
-			LL_INFOS() << "writing feature table to " << mFilename << LL_ENDL;
-			
-			S32 file_size = buffer->countAfter(channels.in(), NULL);
-			if (file_size > 0)
-			{
-				// read from buffer
-				U8* copy_buffer = new U8[file_size];
-				buffer->readAfter(channels.in(), NULL, copy_buffer, file_size);
-
-				// write to file
-				LLAPRFile out(mFilename, LL_APR_WB);
-				out.write(copy_buffer, file_size);
-				out.close();
-			}
-		}
-		else
-		{
-			char body[1025]; 
-			body[1024] = '\0';
-			LLBufferStream istr(channels, buffer.get());
-			istr.get(body,1024);
-			if (strlen(body) > 0)
-			{
-				mContent["body"] = body;
-			}
-			LL_WARNS() << dumpResponse() << LL_ENDL;
-		}
-	}
-	
-private:
-	std::string mFilename;
-};
-
-void fetch_feature_table(std::string table)
-{
-	const std::string base       = gSavedSettings.getString("FeatureManagerHTTPTable");
 
 #if LL_WINDOWS
-	std::string os_string = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
-	std::string filename;
-	if (os_string.find("Microsoft Windows XP") == 0)
-	{
-		filename = llformat(table.c_str(), "_xp", LLVersionInfo::getVersion().c_str());
-	}
-	else
-	{
-		filename = llformat(table.c_str(), "", LLVersionInfo::getVersion().c_str());
-	}
+    std::string os_string = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+    std::string filename;
+
+    if (os_string.find("Microsoft Windows XP") == 0)
+    {
+        filename = llformat(tableName.c_str(), "_xp", LLVersionInfo::getVersion().c_str());
+    }
+    else
+    {
+        filename = llformat(tableName.c_str(), "", LLVersionInfo::getVersion().c_str());
+    }
 #else
-	const std::string filename   = llformat(table.c_str(), LLVersionInfo::getVersion().c_str());
+    const std::string filename   = llformat(table.c_str(), LLVersionInfo::getVersion().c_str());
 #endif
 
-	const std::string url        = base + "/" + filename;
+    std::string url        = base + "/" + filename;
+    const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
 
-	const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
 
-	LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
-	
-	LLHTTPClient::get(url, new LLHTTPFeatureTableResponder(path));
+    LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
+
+    LLSD result = httpAdapter->getRawAndYield(self, httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status)
+    {   // There was a newer feature table on the server. We've grabbed it and now should write it.
+        // write to file
+        const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+
+        LL_INFOS() << "writing feature table to " << filename << LL_ENDL;
+
+        S32 size = raw.size();
+        if (size > 0)
+        {
+            // write to file
+            LLAPRFile out(filename, LL_APR_WB);
+            out.write(raw.data(), size);
+            out.close();
+        }
+    }
 }
-
 
 // fetch table(s) from a website (S3)
 void LLFeatureManager::fetchHTTPTables()
 {
-	fetch_feature_table(FEATURE_TABLE_VER_FILENAME);
+    LLCoros::instance().launch("LLFeatureManager::fetchFeatureTableCoro",
+        boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, _1, FEATURE_TABLE_VER_FILENAME));
 }
-
 
 void LLFeatureManager::cleanupFeatureTables()
 {

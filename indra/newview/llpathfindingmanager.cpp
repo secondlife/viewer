@@ -470,7 +470,7 @@ void LLPathfindingManager::navMeshStatusRequestCoro(LLCoros::self& self, std::st
     region = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     LLPathfindingNavMeshStatus navMeshStatus(regionUUID);
     if (!status)
@@ -549,7 +549,7 @@ void LLPathfindingManager::navAgentStateRequestCoro(LLCoros::self& self, std::st
     LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     bool canRebake = false;
     if (!status)
@@ -581,7 +581,7 @@ void LLPathfindingManager::navMeshRebakeCoro(LLCoros::self& self, std::string ur
     LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     bool success = true;
     if (!status)
@@ -615,7 +615,7 @@ void LLPathfindingManager::linksetObjectsCoro(LLCoros::self &self, std::string u
     }
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -651,7 +651,7 @@ void LLPathfindingManager::linksetTerrainCoro(LLCoros::self &self, std::string u
     }
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -677,7 +677,7 @@ void LLPathfindingManager::charactersCoro(LLCoros::self &self, std::string url, 
     LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {

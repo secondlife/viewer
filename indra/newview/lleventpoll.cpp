@@ -162,7 +162,7 @@ namespace Details
 //              << LLSDXMLStreamer(result) << LL_ENDL;
 
             LLSD httpResults = result["http_result"];
-            LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
             if (!status)
             {

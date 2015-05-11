@@ -89,7 +89,7 @@ void LLFlickrConnect::flickrConnectCoro(LLCoros::self& self, std::string request
     LLSD result = httpAdapter->putAndYield(self, httpRequest, getFlickrConnectURL("/connection"), body, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -125,7 +125,7 @@ void LLFlickrConnect::flickrConnectCoro(LLCoros::self& self, std::string request
 bool LLFlickrConnect::testShareStatus(LLSD &result)
 {
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status)
         return true;
@@ -270,7 +270,7 @@ void LLFlickrConnect::flickrDisconnectCoro(LLCoros::self& self)
     LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getFlickrConnectURL("/connection"));
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status && (status != LLCore::HttpStatus(HTTP_NOT_FOUND)))
     {
@@ -302,7 +302,7 @@ void LLFlickrConnect::flickrConnectedCoro(LLCoros::self& self, bool autoConnect)
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getFlickrConnectURL("/connection", true));
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -350,7 +350,7 @@ void LLFlickrConnect::flickrInfoCoro(LLCoros::self& self)
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getFlickrConnectURL("/info", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (status == LLCore::HttpStatus(HTTP_FOUND))
     {

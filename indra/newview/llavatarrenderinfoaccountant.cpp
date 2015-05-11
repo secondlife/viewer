@@ -79,7 +79,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(LLCoros::self& self, 
     }
 
     LLSD httpResults = result["http_result"];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -202,7 +202,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(LLCoros::self& sel
     }
 
     LLSD httpResults = result["http_result"];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroHandler::getStatusFromLLSD(httpResults);
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
         LL_WARNS("AvatarRenderInfoAccountant") << "HTTP status, " << status.toTerseString() << LL_ENDL;
