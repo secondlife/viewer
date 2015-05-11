@@ -285,11 +285,6 @@ BOOL LLFloaterBvhPreview::postBuild()
 		dp.reset();
 		LL_INFOS("BVH") << "Deserializing motionp" << LL_ENDL;
 		BOOL success = motionp && motionp->deserialize(dp);
-		LL_INFOS("BVH") << "TEST: Serializing motionp" << LL_ENDL;
-		S32 test_file_size = motionp->getFileSize();
-		U8* test_buffer = new U8[test_file_size];
-		LLDataPackerBinaryBuffer test_dp(test_buffer, test_file_size);
-		motionp->serialize(test_dp);
 		LL_INFOS("BVH") << "Done" << LL_ENDL;
 
 		delete []buffer;
