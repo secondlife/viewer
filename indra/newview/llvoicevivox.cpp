@@ -3075,11 +3075,7 @@ void LLVivoxVoiceClient::reapSession(sessionState *session)
 {
 	if(session)
 	{
-		/*if(!session->mHandle.empty())
-		{
-			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (non-null session handle)" << LL_ENDL;
-		}
-		else*/ 
+		
 		if(session->mCreateInProgress)
 		{
 			LL_DEBUGS("Voice") << "NOT deleting session " << session->mSIPURI << " (create in progress)" << LL_ENDL;
@@ -3098,7 +3094,6 @@ void LLVivoxVoiceClient::reapSession(sessionState *session)
 		}
 		else
 		{
-			// TODO: Question: Should we check for queued text messages here?
 			// We don't have a reason to keep tracking this session, so just delete it.
 			LL_DEBUGS("Voice") << "deleting session " << session->mSIPURI << LL_ENDL;
 			deleteSession(session);
