@@ -516,7 +516,7 @@ void LLFeatureManager::fetchFeatureTableCoro(LLCoros::self& self, std::string ta
         filename = llformat(tableName.c_str(), "", LLVersionInfo::getVersion().c_str());
     }
 #else
-    const std::string filename   = llformat(table.c_str(), LLVersionInfo::getVersion().c_str());
+    const std::string filename   = llformat(tableName.c_str(), LLVersionInfo::getVersion().c_str());
 #endif
 
     std::string url        = base + "/" + filename;
