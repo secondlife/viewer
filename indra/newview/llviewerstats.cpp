@@ -60,6 +60,7 @@
 #include "llfeaturemanager.h"
 #include "llviewernetwork.h"
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
+#include "llcorehttputil.h"
 
 namespace LLStatViewer
 {
@@ -410,24 +411,6 @@ void update_statistics()
 	}
 }
 
-class ViewerStatsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(ViewerStatsResponder);
-public:
-	ViewerStatsResponder() { }
-
-private:
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		LL_INFOS() << "OK" << LL_ENDL;
-	}
-};
-
 /*
  * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
  *
@@ -618,8 +601,8 @@ void send_stats()
 	body["MinimalSkin"] = false;
 	
 	LLViewerStats::getInstance()->addToMessage(body);
-	LLHTTPClient::post(url, body, new ViewerStatsResponder());
-
+    LLCoreHttpUtil::HttpCoroutineAdapter::genericHttpPost(url, body,
+        "Statistics posted to sim", "Failed to post statistics to sim");
 	LLViewerStats::instance().getRecording().resume();
 }
 
