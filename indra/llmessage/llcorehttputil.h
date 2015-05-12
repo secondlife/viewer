@@ -387,7 +387,16 @@ public:
     ///
     void cancelYieldingOperation();
 
+
     static LLCore::HttpStatus getStatusFromLLSD(const LLSD &httpResults);
+
+    /// Generic Get and post routines for HTTP via coroutines.
+    /// These static methods do all required setup for the GET or POST operation.
+    /// When the operation completes successfully they will put the success message in the log at INFO level, 
+    /// If the operation fails the failure message is written to the log at WARN level.
+    /// 
+    static void genericHttpGet(const std::string &url, const std::string &success = std::string(), const std::string &failure = std::string());
+    static void genericHttpPost(const std::string &url, const LLSD &postData, const std::string &success, const std::string &failure);
 
 private:
     static LLSD buildImmediateErrorResult(const LLCore::HttpRequest::ptr_t &request, const std::string &url);
@@ -418,6 +427,9 @@ private:
     LLSD deleteAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
         const std::string & url, LLCore::HttpOptions::ptr_t &options,
         LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler);
+
+    static void genericGetCoro(LLCoros::self& self, std::string &url, std::string success, std::string failure);
+    static void genericPostCoro(LLCoros::self& self, std::string &url, LLSD postData, std::string success, std::string failure);
 
     std::string                     mAdapterName;
     LLCore::HttpRequest::priority_t mPriority;

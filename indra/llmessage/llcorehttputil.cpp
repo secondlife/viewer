@@ -668,6 +668,7 @@ void HttpCoroutineAdapter::cleanState()
     mYieldingHandle = LLCORE_HTTP_HANDLE_INVALID;
 }
 
+/*static*/
 LLSD HttpCoroutineAdapter::buildImmediateErrorResult(const LLCore::HttpRequest::ptr_t &request, 
     const std::string &url) 
 {
@@ -687,6 +688,7 @@ LLSD HttpCoroutineAdapter::buildImmediateErrorResult(const LLCore::HttpRequest::
     return errorres;
 }
 
+/*static*/
 LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResults)
 {
     LLCore::HttpStatus::type_enum_t type = static_cast<LLCore::HttpStatus::type_enum_t>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_TYPE].asInteger());
@@ -694,6 +696,77 @@ LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResul
 
     return LLCore::HttpStatus(type, code);
 }
+
+/*static*/
+void HttpCoroutineAdapter::genericHttpGet(const std::string &url, const std::string &success, const std::string &failure)
+{
+    LLCoros::instance().launch("HttpCoroutineAdapter::genericGetCoro",
+        boost::bind(&HttpCoroutineAdapter::genericGetCoro, _1, url, success, failure));
+}
+
+/*static*/
+void HttpCoroutineAdapter::genericGetCoro(LLCoros::self& self, std::string &url, std::string success, std::string failure)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericGetCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LL_INFOS("HttpCoroutineAdapter", "genericGetCoro") << "Generic GET for " << url << LL_ENDL;
+
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status)
+    {   
+        LL_INFOS("HttpCoroutineAdapter", "genericGetCoro") << "Success for " << url << std::endl <<
+            "Message: '" << success << "'" << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS("HttpCoroutineAdapter", "genericGetCoro") << "Failure for " << url << std::endl <<
+            "Message: '" << failure << "'" << std::endl <<
+            "Status: " << status.toTerseString() << ": " << status.getMessage() << LL_ENDL;
+    }
+}
+
+/*static*/
+void HttpCoroutineAdapter::genericHttpPost(const std::string &url, const LLSD &postData, const std::string &success, const std::string &failure)
+{
+    LLCoros::instance().launch("HttpCoroutineAdapter::genericPostCoro",
+        boost::bind(&HttpCoroutineAdapter::genericPostCoro, _1, url, postData, success, failure));
+}
+
+/*static*/
+void HttpCoroutineAdapter::genericPostCoro(LLCoros::self& self, std::string &url, LLSD postData, std::string success, std::string failure)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status)
+    {
+        LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Success for " << url << std::endl <<
+            "Message: '" << success << "'" << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS("HttpCoroutineAdapter", "genericPostCoro") << "Failure for " << url << std::endl <<
+            "Message: '" << failure << "'" << std::endl <<
+            "Status: " << status.toTerseString() << ": " << status.getMessage() << LL_ENDL;
+    }
+}
+
 
 
 } // end namespace LLCoreHttpUtil
