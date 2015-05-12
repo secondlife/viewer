@@ -29,6 +29,7 @@
 #include "llbvhloader.h"
 
 #include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "lldatapacker.h"
 #include "lldir.h"
@@ -185,6 +186,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	S32 error_line;
 	mStatus = loadBVHFile(buffer, error_text, error_line);
 
+	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
 	LL_DEBUGS("BVH") << "Raw data from file" << LL_ENDL;
 	dumpBVHInfo();
 	
@@ -199,7 +201,8 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	applyTranslations();
 	optimize();
 	
-	LL_INFOS("BVH") << "After optimize" << LL_ENDL;
+	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
+	LL_DEBUGS("BVH") << "After translations and optimize" << LL_ENDL;
 	dumpBVHInfo();
 
 	mInitialized = TRUE;
@@ -1021,7 +1024,9 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		tokenizer::iterator float_token_iter = float_tokens.begin();
 		while (float_token_iter != float_tokens.end())
 		{
-			floats.push_back(std::stof(*(float_token_iter++)));
+            F32 val = boost::lexical_cast<float>(*float_token_iter);
+			floats.push_back(val);
+            float_token_iter++;
 		}
 		LL_DEBUGS("BVH") << "Got " << floats.size() << " floats " << LL_ENDL;
 		for (U32 j=0; j<mJoints.size(); j++)
