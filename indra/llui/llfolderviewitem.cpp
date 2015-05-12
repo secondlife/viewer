@@ -1461,31 +1461,37 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 	LLFolderView* root = getRoot();
 
-	for (std::vector<LLFolderViewItem*>::iterator it = items_to_select_forward.begin(), end_it = items_to_select_forward.end();
+	BOOL selection_reverse = new_selection->isSelected(); //indication that some elements are being deselected
+
+	// array always go from 'will be selected' to ' will be unselected', iterate
+	// in opposite direction to simplify identification of 'point of origin' in
+	// case it is in the list we are working with
+	for (std::vector<LLFolderViewItem*>::reverse_iterator it = items_to_select_forward.rbegin(), end_it = items_to_select_forward.rend();
 		it != end_it;
 		++it)
 	{
 		LLFolderViewItem* item = *it;
-		if (item->isSelected())
+		BOOL selected = item->isSelected();
+		if (!selection_reverse && selected)
 		{
-			root->removeFromSelectionList(item);
+			// it is our 'point of origin' where we shift/expand from
+			// don't deselect it
+			selection_reverse = TRUE;
 		}
 		else
 		{
-			item->selectItem();
+			root->changeSelection(item, !selected);
 		}
-		root->addToSelectionList(item);
 	}
 
-	if (new_selection->isSelected())
+	if (selection_reverse)
 	{
-		root->removeFromSelectionList(new_selection);
+		// at some point we reversed selection, first element should be deselected
+		root->changeSelection(last_selected_item_from_cur, FALSE);
 	}
-	else
-	{
-		new_selection->selectItem();
-	}
-	root->addToSelectionList(new_selection);
+
+	// element we expand to should always be selected
+	root->changeSelection(new_selection, TRUE);
 }
 
 
