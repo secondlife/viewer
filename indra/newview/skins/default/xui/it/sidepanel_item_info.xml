@@ -1,73 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="Profilo articolo">
-	<panel.string name="unknown">
-		(sconosciuto)
-	</panel.string>
-	<panel.string name="unknown_multiple">
-		(sconosciuto / multiplo)
-	</panel.string>
-	<panel.string name="public">
-		(pubblico)
-	</panel.string>
-	<panel.string name="you_can">
-		Tu puoi:
-	</panel.string>
-	<panel.string name="owner_can">
-		Il proprietario può:
-	</panel.string>
-	<panel.string name="acquiredDate">
-		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
-	</panel.string>
-	<panel.string name="origin_inventory">
-		(Inventario)
-	</panel.string>
-	<panel.string name="origin_inworld">
-		(in Second Life)
-	</panel.string>
+	<panel.string name="unknown">(sconosciuto)</panel.string>
+	<panel.string name="unknown_multiple">(sconosciuto / multiplo)</panel.string>
+	<panel.string name="public">(pubblico)</panel.string>
+	<panel.string name="you_can">Tu puoi:</panel.string>
+	<panel.string name="owner_can">Il proprietario può:</panel.string>
+	<panel.string name="acquiredDate">[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]</panel.string>
+	<panel.string name="origin_inventory">(Inventario)</panel.string>
+	<panel.string name="origin_inworld">(in Second Life)</panel.string>
 	<text name="title" value="Profilo articolo"/>
 	<text name="origin" value="(Inventario)"/>
 	<scroll_container name="item_profile_scroll">
 		<panel label="" name="item_profile">
-			<text name="LabelItemNameTitle">
-				Nome:
-			</text>
-			<text name="LabelItemDescTitle">
-				Descrizione:
-			</text>
-			<text name="LabelCreatorTitle">
-				Ideatore:
-			</text>
-			<text name="LabelOwnerTitle">
-				Proprietario:
-			</text>
-			<text name="LabelAcquiredTitle">
-				Acquisito:
-			</text>
+			<text name="LabelItemNameTitle">Nome:</text>
+			<text name="LabelItemDescTitle">Descrizione:</text>
+			<text name="LabelCreatorTitle">Ideatore:</text>
+			<text name="LabelOwnerTitle">Proprietario:</text>
+			<text name="LabelAcquiredTitle">Acquisito:</text>
 			<panel name="perms_inv">
-				<text name="perm_modify">
-					Tu puoi:
-				</text>
+				<text name="perm_modify">Tu puoi:</text>
 				<check_box label="Modifica" name="CheckOwnerModify"/>
 				<check_box label="Copia" name="CheckOwnerCopy"/>
 				<check_box label="Trasferisci" name="CheckOwnerTransfer"/>
-				<text name="AnyoneLabel">
-					Chiunque:
-				</text>
+				<text name="AnyoneLabel">Chiunque:</text>
 				<check_box label="Copia" name="CheckEveryoneCopy"/>
-				<text name="GroupLabel">
-					Gruppo:
-				</text>
+				<text name="GroupLabel">Gruppo:</text>
 				<check_box label="Condividi" name="CheckShareWithGroup" tool_tip="Consenti a tutti i membri del gruppo selezionato di condividere i tuoi diritti di modifica di questo oggetto. Per attivare le restrizioni per ruolo devi prima effettuare la cessione."/>
-				<text name="NextOwnerLabel">
-					Proprietario successivo:
-				</text>
+				<text name="NextOwnerLabel">Proprietario successivo:</text>
 				<check_box label="Modifica" name="CheckNextOwnerModify"/>
 				<check_box label="Copia" name="CheckNextOwnerCopy"/>
 				<check_box label="Trasferisci" name="CheckNextOwnerTransfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
 			</panel>
 			<check_box label="In vendita" name="CheckPurchase"/>
-			<combo_box name="combobox sale copy">
+			<combo_box name="ComboBoxSaleType">
 				<combo_box.item label="Copia" name="Copy"/>
+				<combo_box.item label="Contenuti" name="Contents"/>
 				<combo_box.item label="Originale" name="Original"/>
 			</combo_box>
 			<spinner label="Prezzo: L$" name="Edit Cost"/>

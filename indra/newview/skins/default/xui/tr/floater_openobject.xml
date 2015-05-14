@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="objectcontents" title="NESNE İÇERİKLERİ">
-	<text name="object_name">
-		[DESC]:
-	</text>
-	<button label="Envantere Kopyala" label_selected="Envantere Kopyala" name="copy_to_inventory_button"/>
-	<button label="Kopyala ve Giy" label_selected="Kopyala ve Giy" name="copy_and_wear_button"/>
+	<text name="object_name">[DESC]:</text>
+	<text name="border_note">Envantere kopyala ve giy</text>
+	<button label="Dış görünüme ekle" label_selected="Dış görünüme ekle" name="copy_and_wear_button"/>
+	<button label="Dış görünümü değiştir" label_selected="Dış görünümü değiştir" name="copy_and_replace_button"/>
+	<button label="Sadece envantere kopyala" label_selected="Sadece envantere kopyala" name="copy_to_inventory_button"/>
+	<button label="İptal" label_selected="İptal" name="cancel_button"/>
 </floater>

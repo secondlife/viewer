@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="マーケットプレイス" name="Marketplace Panel">
+	<panel name="tool_panel">
+		<menu_button name="sort_btn" tool_tip="表示/並べ替えオプション"/>
+		<button name="add_btn" tool_tip="新規リストフォルダの作成"/>
+		<button label="エラーを確認" name="audit_btn" tool_tip="マーケットプレイスのリストを確認"/>
+	</panel>
+	<panel name="tab_container_panel">
+		<filter_editor label="マーケットプレイスのリストをフィルタ" name="filter_editor"/>
+	</panel>
+</panel>

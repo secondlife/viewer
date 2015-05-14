@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_marketplace_listings" title="ARTÍCULOS DEL MERCADO">
+	<panel name="marketplace_listings_panel">
+		<panel>
+			<panel name="marketplace_listings_inventory_placeholder_panel">
+				<text name="marketplace_listings_inventory_placeholder_title">Cargando...</text>
+			</panel>
+		</panel>
+	</panel>
+</floater>
