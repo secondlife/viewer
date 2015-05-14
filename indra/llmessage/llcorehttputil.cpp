@@ -39,6 +39,16 @@ using namespace LLCore;
 
 namespace LLCoreHttpUtil
 {
+void logMessageSuccess(std::string logAuth, std::string url, std::string message)
+{
+    LL_INFOS() << logAuth << " Success '" << message << "' for " << url << LL_ENDL;
+}
+
+void logMessageFail(std::string logAuth, std::string url, std::string message)
+{
+    LL_WARNS() << logAuth << " Failure '" << message << "' for " << url << LL_ENDL;
+}
+
 //=========================================================================
 /// The HttpRequestPumper is a utility class. When constructed it will poll the 
 /// supplied HttpRequest once per frame until it is destroyed.
@@ -698,14 +708,24 @@ LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResul
 }
 
 /*static*/
-void HttpCoroutineAdapter::genericHttpGet(const std::string &url, const std::string &success, const std::string &failure)
+void HttpCoroutineAdapter::callbackHttpGet(const std::string &url, completionCallback_t success, completionCallback_t failure)
 {
     LLCoros::instance().launch("HttpCoroutineAdapter::genericGetCoro",
-        boost::bind(&HttpCoroutineAdapter::genericGetCoro, _1, url, success, failure));
+        boost::bind(&HttpCoroutineAdapter::trivialGetCoro, _1, url, success, failure));
 }
 
 /*static*/
-void HttpCoroutineAdapter::genericGetCoro(LLCoros::self& self, std::string &url, std::string success, std::string failure)
+void HttpCoroutineAdapter::messageHttpGet(const std::string &url, const std::string &success, const std::string &failure)
+{
+    completionCallback_t cbSuccess = (success.empty()) ? NULL : 
+        static_cast<completionCallback_t>(boost::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
+    completionCallback_t cbFailure = (failure.empty()) ? NULL :
+        static_cast<completionCallback_t>(boost::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
+    callbackHttpGet(url, cbSuccess, cbFailure);
+}
+
+/*static*/
+void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string &url, completionCallback_t success, completionCallback_t failure)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -719,28 +739,43 @@ void HttpCoroutineAdapter::genericGetCoro(LLCoros::self& self, std::string &url,
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    if (status)
+    if (!status)
     {   
-        LL_INFOS("HttpCoroutineAdapter", "genericGetCoro") << "Success for " << url << std::endl <<
-            "Message: '" << success << "'" << LL_ENDL;
+        if (failure)
+        {
+            failure(httpResults);
+        }
     }
     else
     {
-        LL_WARNS("HttpCoroutineAdapter", "genericGetCoro") << "Failure for " << url << std::endl <<
-            "Message: '" << failure << "'" << std::endl <<
-            "Status: " << status.toTerseString() << ": " << status.getMessage() << LL_ENDL;
+        if (success)
+        {   // remove the added http_result entry from the results before calling the callback.
+            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+            success(result);
+        }
     }
 }
 
 /*static*/
-void HttpCoroutineAdapter::genericHttpPost(const std::string &url, const LLSD &postData, const std::string &success, const std::string &failure)
+void HttpCoroutineAdapter::callbackHttpPost(const std::string &url, const LLSD &postData, completionCallback_t success, completionCallback_t failure)
 {
     LLCoros::instance().launch("HttpCoroutineAdapter::genericPostCoro",
-        boost::bind(&HttpCoroutineAdapter::genericPostCoro, _1, url, postData, success, failure));
+        boost::bind(&HttpCoroutineAdapter::trivialPostCoro, _1, url, postData, success, failure));
 }
 
 /*static*/
-void HttpCoroutineAdapter::genericPostCoro(LLCoros::self& self, std::string &url, LLSD postData, std::string success, std::string failure)
+void HttpCoroutineAdapter::messageHttpPost(const std::string &url, const LLSD &postData, const std::string &success, const std::string &failure)
+{
+    completionCallback_t cbSuccess = (success.empty()) ? NULL :
+        static_cast<completionCallback_t>(boost::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
+    completionCallback_t cbFailure = (failure.empty()) ? NULL :
+        static_cast<completionCallback_t>(boost::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
+
+    callbackHttpPost(url, postData, cbSuccess, cbFailure);
+}
+
+/*static*/
+void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string &url, LLSD postData, completionCallback_t success, completionCallback_t failure)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -754,16 +789,20 @@ void HttpCoroutineAdapter::genericPostCoro(LLCoros::self& self, std::string &url
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    if (status)
+    if (!status)
     {
-        LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Success for " << url << std::endl <<
-            "Message: '" << success << "'" << LL_ENDL;
+        if (failure)
+        {
+            failure(httpResults);
+        }
     }
     else
     {
-        LL_WARNS("HttpCoroutineAdapter", "genericPostCoro") << "Failure for " << url << std::endl <<
-            "Message: '" << failure << "'" << std::endl <<
-            "Status: " << status.toTerseString() << ": " << status.getMessage() << LL_ENDL;
+        if (success)
+        {   // remove the added http_result entry from the results before calling the callback.
+            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+            success(result);
+        }
     }
 }
 

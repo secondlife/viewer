@@ -601,7 +601,7 @@ void send_stats()
 	body["MinimalSkin"] = false;
 	
 	LLViewerStats::getInstance()->addToMessage(body);
-    LLCoreHttpUtil::HttpCoroutineAdapter::genericHttpPost(url, body,
+    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
         "Statistics posted to sim", "Failed to post statistics to sim");
 	LLViewerStats::instance().getRecording().resume();
 }

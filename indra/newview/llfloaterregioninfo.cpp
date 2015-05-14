@@ -777,7 +777,7 @@ void LLFloaterRegionInfo::requestMeshRezInfo()
 	{
 		std::string request_str = "get mesh_rez_enabled";
 		
-        LLCoreHttpUtil::HttpCoroutineAdapter::genericHttpPost(sim_console_url, LLSD(request_str),
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(sim_console_url, LLSD(request_str),
             "Requested mesh_rez_enabled", "Error requesting mesh_rez_enabled");
 	}
 }
@@ -814,7 +814,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["allow_parcel_changes"] = getChild<LLUICtrl>("allow_parcel_changes_check")->getValue();
 		body["block_parcel_search"] = getChild<LLUICtrl>("block_parcel_search_check")->getValue();
 
-        LLCoreHttpUtil::HttpCoroutineAdapter::genericHttpPost(url, body,
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
             "Region info update posted.", "Region info update not posted.");
 	}
 	else
