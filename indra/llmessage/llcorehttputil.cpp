@@ -298,6 +298,9 @@ void HttpCoroHandler::writeStatusCodes(LLCore::HttpStatus status, const std::str
 /// interacting with coroutines. When the request is completed the response 
 /// will be posted onto the supplied Event Pump.
 /// 
+/// If the LLSD retrieved from through the HTTP connection is not in the form
+/// of a LLSD::map it will be returned as in an llsd["content"] element.
+/// 
 /// The LLSD posted back to the coroutine will have the following additions:
 /// llsd["http_result"] -+- ["message"] - An error message returned from the HTTP status
 ///                      +- ["status"]  - The status code associated with the HTTP call
@@ -405,6 +408,8 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     // We create a new LLSD::Binary object and assign it to the result map.
     // The LLSD has created it's own copy so we retrieve it asBinary and const cast 
     // the reference so that we can modify it.
+    // *TODO: This is potentially dangerous... but I am trying to avoid a potentially 
+    // large copy.
     result[HttpCoroutineAdapter::HTTP_RESULTS_RAW] = LLSD::Binary();
     LLSD::Binary &data = const_cast<LLSD::Binary &>( result[HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary() );
 
@@ -731,10 +736,13 @@ void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string &url,
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericGetCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
 
     LL_INFOS("HttpCoroutineAdapter", "genericGetCoro") << "Generic GET for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -749,8 +757,7 @@ void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string &url,
     else
     {
         if (success)
-        {   // remove the added http_result entry from the results before calling the callback.
-            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        {
             success(result);
         }
     }
@@ -781,16 +788,20 @@ void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string &url
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
 
     LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
+        // If a failure routine is provided do it.
         if (failure)
         {
             failure(httpResults);
@@ -798,9 +809,9 @@ void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string &url
     }
     else
     {
+        // If a success routine is provided do it.
         if (success)
-        {   // remove the added http_result entry from the results before calling the callback.
-            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        {
             success(result);
         }
     }

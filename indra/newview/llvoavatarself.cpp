@@ -64,6 +64,7 @@
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "llsdserialize.h"
+#include "llcorehttputil.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -125,25 +126,6 @@ struct LocalTextureData
 	S32 mDiscard;
 	LLUUID mWearableID;	// UUID of the wearable that this texture belongs to, not of the image itself
 	LLTextureEntry *mTexEntry;
-};
-
-// TODO - this class doesn't really do anything, could just use a base
-// class responder if nothing else gets added.
-class LLHoverHeightResponder: public LLHTTPClient::Responder
-{
-public:
-	LLHoverHeightResponder(): LLHTTPClient::Responder() {}
-
-private:
-	void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-	}
-
-	void httpSuccess()
-	{
-		LL_INFOS() << dumpResponse() << LL_ENDL;
-	}
 };
 
 //-----------------------------------------------------------------------------
@@ -2789,8 +2771,12 @@ void LLVOAvatarSelf::sendHoverHeight() const
 		update["hover_height"] = hover_offset[2];
 
 		LL_DEBUGS("Avatar") << avString() << "sending hover height value " << hover_offset[2] << LL_ENDL;
-		LLHTTPClient::post(url, update, new LLHoverHeightResponder);
 
+        // *TODO: - this class doesn't really do anything, could just use a base
+        // class responder if nothing else gets added. 
+        // (comment from removed Responder)
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, update, 
+            "Hover hight sent to sim", "Hover hight not sent to sim");
 		mLastHoverOffsetSent = hover_offset;
 	}
 }

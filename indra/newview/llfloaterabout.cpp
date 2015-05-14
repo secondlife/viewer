@@ -61,6 +61,7 @@
 #include "stringize.h"
 #include "llsdutil_math.h"
 #include "lleventapi.h"
+#include "llcorehttputil.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -68,18 +69,6 @@
 
 extern LLMemoryInfo gSysMemory;
 extern U32 gPacketsIn;
-
-///----------------------------------------------------------------------------
-/// Class LLServerReleaseNotesURLFetcher
-///----------------------------------------------------------------------------
-class LLServerReleaseNotesURLFetcher : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLServerReleaseNotesURLFetcher);
-public:
-	static void startFetch();
-private:
-	/* virtual */ void httpCompleted();
-};
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterAbout
@@ -102,6 +91,9 @@ public:
 
 private:
 	void setSupportText(const std::string& server_release_notes_url);
+
+    static void startFetchServerReleaseNotes();
+    static void handleServerReleaseNotes(LLSD results);
 };
 
 
@@ -138,7 +130,7 @@ BOOL LLFloaterAbout::postBuild()
 	{
 		// start fetching server release notes URL
 		setSupportText(LLTrans::getString("RetrievingData"));
-		LLServerReleaseNotesURLFetcher::startFetch();
+        startFetchServerReleaseNotes();
 	}
 	else // not logged in
 	{
@@ -199,6 +191,50 @@ BOOL LLFloaterAbout::postBuild()
 LLSD LLFloaterAbout::getInfo()
 {
 	return LLAppViewer::instance()->getViewerInfo();
+}
+
+/*static*/
+void LLFloaterAbout::startFetchServerReleaseNotes()
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!region) return;
+
+    // We cannot display the URL returned by the ServerReleaseNotes capability
+    // because opening it in an external browser will trigger a warning about untrusted
+    // SSL certificate.
+    // So we query the URL ourselves, expecting to find
+    // an URL suitable for external browsers in the "Location:" HTTP header.
+    std::string cap_url = region->getCapability("ServerReleaseNotes");
+    //LLHTTPClient::get(cap_url, new LLServerReleaseNotesURLFetcher);
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(cap_url,
+        &LLFloaterAbout::handleServerReleaseNotes, &LLFloaterAbout::handleServerReleaseNotes);
+
+}
+
+/*static*/
+void LLFloaterAbout::handleServerReleaseNotes(LLSD results)
+{
+    LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
+    if (floater_about)
+    {
+        LLSD http_headers;
+        if (results.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS))
+        {
+            LLSD http_results = results[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+            http_headers = http_results[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+        }
+        else
+        {
+            http_headers = results[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+        }
+        
+        std::string location = http_headers[HTTP_IN_HEADER_LOCATION].asString();
+        if (location.empty())
+        {
+            location = LLTrans::getString("ErrorFetchingServerReleaseNotesURL");
+        }
+        LLAppViewer::instance()->setServerReleaseNotesURL(location);
+    }
 }
 
 class LLFloaterAboutListener: public LLEventAPI
@@ -264,40 +300,3 @@ void LLFloaterAboutUtil::registerFloater()
 		&LLFloaterReg::build<LLFloaterAbout>);
 
 }
-
-///----------------------------------------------------------------------------
-/// Class LLServerReleaseNotesURLFetcher implementation
-///----------------------------------------------------------------------------
-// static
-void LLServerReleaseNotesURLFetcher::startFetch()
-{
-	LLViewerRegion* region = gAgent.getRegion();
-	if (!region) return;
-
-	// We cannot display the URL returned by the ServerReleaseNotes capability
-	// because opening it in an external browser will trigger a warning about untrusted
-	// SSL certificate.
-	// So we query the URL ourselves, expecting to find
-	// an URL suitable for external browsers in the "Location:" HTTP header.
-	std::string cap_url = region->getCapability("ServerReleaseNotes");
-	LLHTTPClient::get(cap_url, new LLServerReleaseNotesURLFetcher);
-}
-
-// virtual
-void LLServerReleaseNotesURLFetcher::httpCompleted()
-{
-	LL_DEBUGS("ServerReleaseNotes") << dumpResponse() 
-									<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
-
-	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
-	if (floater_about)
-	{
-		std::string location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-		if (location.empty())
-		{
-			location = LLTrans::getString("ErrorFetchingServerReleaseNotesURL");
-		}
-		LLAppViewer::instance()->setServerReleaseNotesURL(location);
-	}
-}
-

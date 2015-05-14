@@ -152,7 +152,6 @@ set(viewer_SOURCE_FILES
     llchiclet.cpp
     llchicletbar.cpp
     llclassifiedinfo.cpp
-    llclassifiedstatsresponder.cpp
     llcofwearables.cpp
     llcolorswatch.cpp
     llcommanddispatcherlistener.cpp
@@ -757,7 +756,6 @@ set(viewer_HEADER_FILES
     llchiclet.h
     llchicletbar.h
     llclassifiedinfo.h
-    llclassifiedstatsresponder.h
     llcofwearables.h
     llcolorswatch.h
     llcommanddispatcherlistener.h

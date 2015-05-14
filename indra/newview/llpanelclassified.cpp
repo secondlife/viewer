@@ -41,7 +41,6 @@
 
 #include "llagent.h"
 #include "llclassifiedflags.h"
-#include "llclassifiedstatsresponder.h"
 #include "llcommandhandler.h" // for classified HTML detail page click tracking
 #include "lliconctrl.h"
 #include "lllineeditor.h"
@@ -57,6 +56,7 @@
 #include "llscrollcontainer.h"
 #include "llstatusbar.h"
 #include "llviewertexture.h"
+#include "llcorehttputil.h"
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 
@@ -90,19 +90,6 @@ public:
 	}
 };
 static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
-
-// Just to debug errors. Can be thrown away later.
-class LLClassifiedClickMessageResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLClassifiedClickMessageResponder);
-
-protected:
-	// If we get back an error (not found, etc...), handle it here
-	virtual void httpFailure()
-	{
-		LL_WARNS() << "Sending click message failed " << dumpResponse() << LL_ENDL;
-	}
-};
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -229,8 +216,10 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 	{
 		LL_INFOS() << "Classified stat request via capability" << LL_ENDL;
 		LLSD body;
-		body["classified_id"] = getClassifiedId();
-		LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(getClassifiedId()));
+        LLUUID classifiedId = getClassifiedId();
+		body["classified_id"] = classifiedId;
+        LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, body,
+            boost::bind(&LLPanelClassifiedInfo::handleSearchStatResponse, classifiedId, _1));
 	}
 
 	// Update classified click stats.
@@ -238,6 +227,23 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 	sendClickMessage("profile");
 
 	setInfoLoaded(false);
+}
+
+/*static*/
+void LLPanelClassifiedInfo::handleSearchStatResponse(LLUUID classifiedId, LLSD result)
+{
+    S32 teleport = result["teleport_clicks"].asInteger();
+    S32 map = result["map_clicks"].asInteger();
+    S32 profile = result["profile_clicks"].asInteger();
+    S32 search_teleport = result["search_teleport_clicks"].asInteger();
+    S32 search_map = result["search_map_clicks"].asInteger();
+    S32 search_profile = result["search_profile_clicks"].asInteger();
+
+    LLPanelClassifiedInfo::setClickThrough(classifiedId,
+        teleport + search_teleport,
+        map + search_map,
+        profile + search_profile,
+        true);
 }
 
 void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType type)
@@ -548,7 +554,8 @@ void LLPanelClassifiedInfo::sendClickMessage(
 	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
 	LL_INFOS() << "Sending click msg via capability (url=" << url << ")" << LL_ENDL;
 	LL_INFOS() << "body: [" << body << "]" << LL_ENDL;
-	LLHTTPClient::post(url, body, new LLClassifiedClickMessageResponder());
+    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
+        "SearchStatTracking Click report sent.", "SearchStatTracking Click report NOT sent.");
 }
 
 void LLPanelClassifiedInfo::sendClickMessage(const std::string& type)
