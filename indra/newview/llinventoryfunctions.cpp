@@ -1573,17 +1573,29 @@ bool move_folder_to_marketplacelistings(LLInventoryCategory* inv_cat, const LLUU
     return true;
 }
 
-// Make all relevant business logic checks on the marketplace listings starting with the folder as argument.
-// This function does no deletion of listings but a mere audit and raises issues to the user (through the
-// optional callback cb). It also returns a boolean, true if things validate, false if issues are raised.
-// The only inventory changes that are done is to move and sort folders containing no-copy items to stock folders.
 bool sort_alpha(const LLViewerInventoryCategory* cat1, const LLViewerInventoryCategory* cat2)
 {
 	return cat1->getName().compare(cat2->getName()) < 0;
 }
 
+void dump_trace(std::string& message, S32 depth, LLError::ELevel log_level)
+{
+    llinfos << "validate_marketplacelistings : error = "<< log_level << ", depth = " << depth << ", message = " << message <<  llendl;
+}
+
+// Make all relevant business logic checks on the marketplace listings starting with the folder as argument.
+// This function does no deletion of listings but a mere audit and raises issues to the user (through the
+// optional callback cb). It also returns a boolean, true if things validate, false if issues are raised.
+// The only inventory changes that are done is to move and sort folders containing no-copy items to stock folders.
 bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_t cb, bool fix_hierarchy, S32 depth)
 {
+#if 0
+    // Used only for debug
+    if (!cb)
+    {
+        cb =  boost::bind(&dump_trace, _1, _2, _3);
+    }
+#endif
     // Folder is valid unless issue is raised
     bool result = true;
     
@@ -1697,7 +1709,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             type = viewer_inv_item->getInventoryType();
             perms = viewer_inv_item->getPermissions().getMaskNextOwner();
         }
-        U32 key = ((U32)(type) & 0xFF) << 24 | (perms & 0xFFFFFF);
+        U32 key = (((U32)(type) & 0xFF) << 24) | (perms & 0xFFFFFF);
         items_vector[key].push_back(viewer_inv_item->getUUID());
 	}
     
@@ -1809,6 +1821,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     }
                     
                     // Next type
+                    update_marketplace_category(parent_uuid);
                     update_marketplace_category(folder_uuid);
                     gInventory.notifyObservers();
                     items_vector_it++;
@@ -1898,12 +1911,6 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             gInventory.notifyObservers();
             return result && !has_bad_items;
         }
-        else
-        {
-            // Update the current folder
-            update_marketplace_category(cat->getUUID());
-            gInventory.notifyObservers();
-        }
     }
 
     // Recursion : Perform the same validation on each nested folder
@@ -1918,6 +1925,8 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 		result &= validate_marketplacelistings(category, cb, fix_hierarchy, depth + 1);
 	}
     
+    update_marketplace_category(cat->getUUID());
+    gInventory.notifyObservers();
     return result && !has_bad_items;
 }
 
