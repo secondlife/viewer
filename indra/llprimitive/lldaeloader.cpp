@@ -1931,16 +1931,34 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 						badElement = true;
 					}
 
-					std::string label = getLodlessLabel(instance_geo);
-
-					llassert(!label.empty());
-
-					if (model->mSubmodelID)
+					std::string label;
+					
+					if (model->mLabel.empty())
 					{
-						label +=(char)((int)'a' + model->mSubmodelID);
-					}
+						label = getLodlessLabel(instance_geo);
 
-					model->mLabel = label + lod_suffix[mLod];
+						llassert(!label.empty());
+
+						if (model->mSubmodelID)
+						{
+							label += (char)((int)'a' + model->mSubmodelID);
+						}
+
+						model->mLabel = label + lod_suffix[mLod];
+					}
+					else
+					{
+						// Don't change model's name if possible, it will play havoc with scenes that already use said model.
+						size_t ext_pos = getSuffixPosition(model->mLabel);
+						if (ext_pos != -1)
+						{
+							label = model->mLabel.substr(0, ext_pos);
+						}
+						else
+						{
+							label = model->mLabel;
+						}
+					}
 
 					mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
 					stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
