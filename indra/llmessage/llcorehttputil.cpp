@@ -405,6 +405,22 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
 
     LLCore::BufferArrayStream bas(body);
 
+#if 1
+    // This is the slower implementation.  It is safe vis-a-vi the const_cast<> and modification
+    // of a LLSD managed array but contains an extra (potentially large) copy.
+    // 
+    // *TODO: https://jira.secondlife.com/browse/MAINT-5221
+    
+    LLSD::Binary data;
+    data.reserve(size);
+    bas >> std::noskipws;
+    data.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
+
+    result[HttpCoroutineAdapter::HTTP_RESULTS_RAW] = data;
+
+#else
+    // This is disabled because it's dangerous.  See the other case for an 
+    // alternate implementation.
     // We create a new LLSD::Binary object and assign it to the result map.
     // The LLSD has created it's own copy so we retrieve it asBinary and const cast 
     // the reference so that we can modify it.
@@ -416,6 +432,7 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     data.reserve(size);
     bas >> std::noskipws;
     data.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
+#endif
 
     return result;
 }

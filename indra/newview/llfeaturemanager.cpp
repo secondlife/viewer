@@ -520,6 +520,8 @@ void LLFeatureManager::fetchFeatureTableCoro(LLCoros::self& self, std::string ta
 #endif
 
     std::string url        = base + "/" + filename;
+    // testing url below
+    //url = "http://viewer-settings.secondlife.com/featuretable.2.1.1.208406.txt";
     const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
 
 
