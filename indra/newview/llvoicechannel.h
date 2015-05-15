@@ -29,6 +29,8 @@
 
 #include "llhandle.h"
 #include "llvoiceclient.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 class LLPanel;
 
@@ -157,6 +159,8 @@ protected:
 	virtual void setState(EState state);
 
 private:
+    void voiceCallCapCoro(LLCoros::self& self, std::string &url);
+
 	U32 mRetries;
 	BOOL mIsRetrying;
 };
