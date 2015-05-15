@@ -64,6 +64,8 @@
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
 
+#include "llcorehttputil.h"
+
 #include "stringize.h"
 
 // for base64 decoding
@@ -194,59 +196,6 @@ static LLVivoxVoiceClientMuteListObserver mutelist_listener;
 static bool sMuteListListener_listening = false;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-class LLVivoxVoiceClientCapResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLVivoxVoiceClientCapResponder);
-public:
-	LLVivoxVoiceClientCapResponder(LLVivoxVoiceClient::state requesting_state) : mRequestingState(requesting_state) {};
-
-private:
-	// called with bad status codes
-	/* virtual */ void httpFailure();
-	/* virtual */ void httpSuccess();
-
-	LLVivoxVoiceClient::state mRequestingState;  // state 
-};
-
-void LLVivoxVoiceClientCapResponder::httpFailure()
-{
-	LL_WARNS("Voice") << dumpResponse() << LL_ENDL;
-	LLVivoxVoiceClient::getInstance()->sessionTerminate();
-}
-
-void LLVivoxVoiceClientCapResponder::httpSuccess()
-{
-	LLSD::map_const_iterator iter;
-	
-	LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest response:" << dumpResponse() << LL_ENDL;
-
-	std::string uri;
-	std::string credentials;
-	
-	const LLSD& content = getContent();
-	if ( content.has("voice_credentials") )
-	{
-		LLSD voice_credentials = content["voice_credentials"];
-		if ( voice_credentials.has("channel_uri") )
-		{
-			uri = voice_credentials["channel_uri"].asString();
-		}
-		if ( voice_credentials.has("channel_credentials") )
-		{
-			credentials =
-				voice_credentials["channel_credentials"].asString();
-		}
-	}
-	
-	// set the spatial channel.  If no voice credentials or uri are 
-	// available, then we simply drop out of voice spatially.
-	if(LLVivoxVoiceClient::getInstance()->parcelVoiceInfoReceived(mRequestingState))
-	{
-		LLVivoxVoiceClient::getInstance()->setSpatialChannel(uri, credentials);
-	}
-}
-
 static LLProcessPtr sGatewayPtr;
 
 static bool isGatewayRunning()
@@ -4003,12 +3952,58 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 		LLSD data;
 		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
 		
-		LLHTTPClient::post(
-						url,
-						data,
-						new LLVivoxVoiceClientCapResponder(getState()));
+        LLCoros::instance().launch("LLVivoxVoiceClient::parcelVoiceInfoRequestCoro",
+            boost::bind(&LLVivoxVoiceClient::parcelVoiceInfoRequestCoro, this, _1, url));
 		return true;
 	}
+}
+
+void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string &url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("parcelVoiceInfoRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    state requestingState = getState();
+
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, LLSD());
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("Voice") << "No voice on parcel" << LL_ENDL;
+        sessionTerminate();
+        return;
+    }
+
+    std::string uri;
+    std::string credentials;
+
+    if (result.has("voice_credentials"))
+    {
+        LLSD voice_credentials = result["voice_credentials"];
+        if (voice_credentials.has("channel_uri"))
+        {
+            uri = voice_credentials["channel_uri"].asString();
+        }
+        if (voice_credentials.has("channel_credentials"))
+        {
+            credentials =
+                voice_credentials["channel_credentials"].asString();
+        }
+    }
+
+    LL_INFOS("Voice") << "Voice URI is " << uri << LL_ENDL;
+
+    // set the spatial channel.  If no voice credentials or uri are 
+    // available, then we simply drop out of voice spatially.
+    if (parcelVoiceInfoReceived(requestingState))
+    {
+        setSpatialChannel(uri, credentials);
+    }
+
 }
 
 void LLVivoxVoiceClient::switchChannel(

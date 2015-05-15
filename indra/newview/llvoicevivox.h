@@ -37,6 +37,8 @@ class LLVivoxProtocolParser;
 #include "llframetimer.h"
 #include "llviewerregion.h"
 #include "llcallingcard.h"   // for LLFriendObserver
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 #ifdef LL_USESYSTEMLIBS
 # include "expat.h"
@@ -635,6 +637,8 @@ protected:
 	void accountGetTemplateFontsResponse(int statusCode, const std::string &statusString); 
 
 private:
+    void parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string &url);
+
 	LLVoiceVersionInfo mVoiceVersion;
 
 	/// Clean up objects created during a voice session.
