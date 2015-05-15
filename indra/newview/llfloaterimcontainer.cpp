@@ -261,6 +261,8 @@ BOOL LLFloaterIMContainer::postBuild()
 	
 	mInitialized = true;
 
+	mIsFirstOpen = true;
+
 	// Add callbacks:
 	// We'll take care of view updates on idle
 	gIdleCallbacks.addFunction(idle, this);
@@ -636,14 +638,16 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
 		nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
-		if (nearby_chat == NULL)
+		if ((nearby_chat == NULL) || mIsFirstOpen)
 		{
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
             selectConversationPair(LLUUID(NULL), false, false);
+            mIsFirstOpen = false;
 		}
+
 		flashConversationItemWidget(mSelectedSession,false);
 
 		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
