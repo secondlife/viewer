@@ -52,6 +52,8 @@
 static	const std::string KEY_AGENTS = "agents";			// map
 static 	const std::string KEY_WEIGHT = "weight";			// integer
 static 	const std::string KEY_TOO_COMPLEX  = "tooComplex";  // bool
+static  const std::string KEY_OVER_COMPLEXITY_LIMIT = "overlimit";  // integer
+static  const std::string KEY_REPORTING_COMPLEXITY_LIMIT = "reportinglimit";  // integer
 
 static	const std::string KEY_IDENTIFIER = "identifier";
 static	const std::string KEY_MESSAGE = "message";
@@ -104,12 +106,23 @@ public:
             LLCore::HttpStatus status = response->getStatus();
             if (status)
             {
+                LL_DEBUGS("AvatarRenderInfo") << "response"<<LL_ENDL;
 				LLSD avatar_render_info;
 				if (LLCoreHttpUtil::responseToLLSD(response, false /* quiet logging */,
 												   avatar_render_info))
 				{
 					if (avatar_render_info.isMap())
 					{
+						if (   avatar_render_info.has(KEY_REPORTING_COMPLEXITY_LIMIT)
+                            && avatar_render_info.has(KEY_OVER_COMPLEXITY_LIMIT))
+						{
+                            U32 reporting = avatar_render_info[KEY_REPORTING_COMPLEXITY_LIMIT].asInteger();
+                            U32 overlimit = avatar_render_info[KEY_OVER_COMPLEXITY_LIMIT].asInteger();
+
+                            LL_DEBUGS("AvatarRenderInfo") << "complexity limit: "<<reporting<<" reporting, "<<overlimit<<" over limit"<<LL_ENDL;
+                            // @TODO call self with this info
+                        }
+                        
 						if (avatar_render_info.has(KEY_AGENTS))
 						{
 							const LLSD & agents = avatar_render_info[KEY_AGENTS];
@@ -226,8 +239,8 @@ class LLAvatarRenderInfoPostHandler : public LLCore::HttpHandler
 };
 
 
-// Send request for one region, no timer checks
-// called when the 
+// Send request for avatar weights in one region
+// called when the mRenderInfoScanTimer expires (forced when entering a new region)
 void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regionp)
 {
 	if ( regionp->getRenderInfoReportTimer().hasExpired() ) // Time to make request
@@ -255,7 +268,7 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 					if (avatar->getVisualComplexity() > 0)
 					{
 						info[KEY_WEIGHT] = avatar->getVisualComplexity();
-						info[KEY_TOO_COMPLEX]  = avatar->isTooComplex();
+						info[KEY_TOO_COMPLEX]  = LLSD::Boolean(avatar->isTooComplex());
 						agents[avatar->getID().asString()] = info;
 
 						LL_DEBUGS("AvatarRenderInfo") << "Sending avatar render info for " << avatar->getID()
