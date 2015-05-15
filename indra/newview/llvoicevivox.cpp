@@ -124,66 +124,6 @@ static int scale_speaker_volume(float volume)
 	
 }
 
-class LLVivoxVoiceAccountProvisionResponder :
-	public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLVivoxVoiceAccountProvisionResponder);
-public:
-	LLVivoxVoiceAccountProvisionResponder(int retries)
-	{
-		mRetries = retries;
-	}
-
-private:
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, "
-			<<  ( (mRetries > 0) ? "retrying" : "too many retries (giving up)" )
-			<< " " << dumpResponse() << LL_ENDL;
-
-		if ( mRetries > 0 )
-		{
-			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(mRetries - 1);
-		}
-		else
-		{
-			LLVivoxVoiceClient::getInstance()->giveUp();
-		}
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		std::string voice_sip_uri_hostname;
-		std::string voice_account_server_uri;
-		
-		LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
-		
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		if(content.has("voice_sip_uri_hostname"))
-			voice_sip_uri_hostname = content["voice_sip_uri_hostname"].asString();
-		
-		// this key is actually misnamed -- it will be an entire URI, not just a hostname.
-		if(content.has("voice_account_server_name"))
-			voice_account_server_uri = content["voice_account_server_name"].asString();
-		
-		LLVivoxVoiceClient::getInstance()->login(
-			content["username"].asString(),
-			content["password"].asString(),
-			voice_sip_uri_hostname,
-			voice_account_server_uri);
-	}
-
-private:
-	int mRetries;
-};
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 class LLVivoxVoiceClientMuteListObserver : public LLMuteListObserver
@@ -505,14 +445,49 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 		
 		if ( !url.empty() ) 
 		{
-			LLHTTPClient::post(
-							   url,
-							   LLSD(),
-							   new LLVivoxVoiceAccountProvisionResponder(retries));
-		
+            LLCoros::instance().launch("LLVivoxVoiceClient::voiceAccountProvisionCoro",
+                boost::bind(&LLVivoxVoiceClient::voiceAccountProvisionCoro, this, _1, url, retries));
 			setState(stateConnectorStart);		
 		}
 	}
+}
+
+void LLVivoxVoiceClient::voiceAccountProvisionCoro(LLCoros::self& self, std::string &url, S32 retries)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceAccountProvision", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setRetries(retries);
+
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, LLSD(), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("Voice") << "Unable to provision voice account." << LL_ENDL;
+        giveUp();
+        return;
+    }
+
+    std::string voice_sip_uri_hostname;
+    std::string voice_account_server_uri;
+
+    //LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
+
+    if (result.has("voice_sip_uri_hostname"))
+        voice_sip_uri_hostname = result["voice_sip_uri_hostname"].asString();
+
+    // this key is actually misnamed -- it will be an entire URI, not just a hostname.
+    if (result.has("voice_account_server_name"))
+        voice_account_server_uri = result["voice_account_server_name"].asString();
+
+    login(result["username"].asString(), result["password"].asString(),
+        voice_sip_uri_hostname, voice_account_server_uri);
 }
 
 void LLVivoxVoiceClient::login(

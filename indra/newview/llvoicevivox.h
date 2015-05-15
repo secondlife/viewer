@@ -48,7 +48,6 @@ class LLVivoxProtocolParser;
 #include "llvoiceclient.h"
 
 class LLAvatarName;
-class LLVivoxVoiceAccountProvisionResponder;
 class LLVivoxVoiceClientMuteListObserver;
 
 
@@ -253,7 +252,6 @@ protected:
 	//////////////////////
 	// Vivox Specific definitions	
 	
-	friend class LLVivoxVoiceAccountProvisionResponder;
 	friend class LLVivoxVoiceClientMuteListObserver;
 	friend class LLVivoxVoiceClientFriendsObserver;	
 	
@@ -637,6 +635,8 @@ protected:
 	void accountGetTemplateFontsResponse(int statusCode, const std::string &statusString); 
 
 private:
+    
+    void voiceAccountProvisionCoro(LLCoros::self& self, std::string &url, S32 retries);
     void parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string &url);
 
 	LLVoiceVersionInfo mVoiceVersion;
