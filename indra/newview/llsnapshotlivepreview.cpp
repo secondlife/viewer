@@ -194,8 +194,8 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 
         // Stop shining animation.
         mShineAnimTimer.stop();
-        mSnapshotDelayTimer.setTimerExpirySec(delay);
 		mSnapshotDelayTimer.start();
+		mSnapshotDelayTimer.resetWithExpiry(delay);
 
         
 		mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
@@ -671,10 +671,27 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		return FALSE;
 	}
 
-	// If we're in freeze-frame mode and camera has moved, update snapshot.
+	if (previewp->mSnapshotDelayTimer.getStarted()) // Wait for a snapshot delay timer
+	{
+		if (!previewp->mSnapshotDelayTimer.hasExpired())
+		{
+			return FALSE;
+		}
+		previewp->mSnapshotDelayTimer.stop();
+	}
+
+	if (LLToolCamera::getInstance()->hasMouseCapture()) // Hide full-screen preview while camming, either don't take snapshots while ALT-zoom active
+	{
+		previewp->setVisible(FALSE);
+		return FALSE;
+	}
+
+	// If we're in freeze-frame and/or auto update mode and camera has moved, update snapshot.
 	LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
 	LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
-	if (previewp->mForceUpdateSnapshot || (gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview &&
+	if (previewp->mForceUpdateSnapshot ||
+		(((gSavedSettings.getBOOL("AutoSnapshot") && LLView::isAvailable(previewp->mViewContainer)) ||
+		(gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview)) &&
 		(new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
 	{
 		previewp->mCameraPos = new_camera_pos;
@@ -689,11 +706,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->mForceUpdateSnapshot = FALSE;
 	}
 
-	// see if it's time yet to snap the shot and bomb out otherwise.
-	previewp->mSnapshotActive = 
-		(previewp->mSnapshotDelayTimer.getStarted() &&	previewp->mSnapshotDelayTimer.hasExpired())
-		&& !LLToolCamera::getInstance()->hasMouseCapture(); // don't take snapshots while ALT-zoom active
-	if (!previewp->mSnapshotActive && previewp->getSnapshotUpToDate() && previewp->getThumbnailUpToDate())
+	if (previewp->getSnapshotUpToDate() && previewp->getThumbnailUpToDate())
 	{
 		return FALSE;
 	}
@@ -706,6 +719,8 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         {
             previewp->mPreviewImage = new LLImageRaw;
         }
+
+        previewp->mSnapshotActive = TRUE;
 
         previewp->setVisible(FALSE);
         previewp->setEnabled(FALSE);
@@ -778,7 +793,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         }
         previewp->getWindow()->decBusyCount();
         previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
-        previewp->mSnapshotDelayTimer.stop();
         previewp->mSnapshotActive = FALSE;
         LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
     }
