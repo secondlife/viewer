@@ -11294,7 +11294,7 @@ static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_RESIZE("Impostor Resize");
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
-    LL_WARNS("AvatarRenderPipeline");
+    LL_WARNS_ONCE("AvatarRenderPipeline");
     if (avatar)
     {
         LL_CONT << "Avatar " << avatar->getID() << " is " << (avatar->mDrawable?"":"not ") << "drawable";
@@ -11321,11 +11321,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	assertInitialized();
 
 	bool visually_muted = avatar->isVisuallyMuted();		
-    LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID()
+    LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( visually_muted ? "" : "not ") << "visually muted"
                               << LL_ENDL;
 	bool too_complex = avatar->isTooComplex();		
-    LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID()
+    LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
 
@@ -11580,14 +11580,15 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		}
 
 
-		if (avatar->isTooComplex())
+		if (too_complex)
 		{	// Visually muted avatar
-            LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set jellybaby" << LL_ENDL;
-			gGL.diffuseColor4fv( avatar->getMutedAVColor().mV );
+            LLColor4 muted_color(avatar->getMutedAVColor());
+            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set jellybaby " << muted_color << LL_ENDL;
+			gGL.diffuseColor4fv( muted_color.mV );
 		}
 		else
 		{ //grey muted avatar
-            LL_DEBUGS("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set grey" << LL_ENDL;
+            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set grey" << LL_ENDL;
 			gGL.diffuseColor4ub(64,64,64,255);
 		}
 

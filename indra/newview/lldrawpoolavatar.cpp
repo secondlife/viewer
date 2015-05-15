@@ -1244,7 +1244,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	BOOL impostor = avatarp->isImpostor() && !single_avatar;
+	BOOL impostor = (avatarp->isImpostor() || avatarp->isTooComplex()) && !single_avatar;
 
 	if (impostor && pass != 0)
 	{ //don't draw anything but the impostor for impostored avatars
