@@ -377,6 +377,14 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 		case LLMotion::STATUS_SUCCESS:
 		    // add motion to our list
 		    mLoadedMotions.insert(motion);
+            // FIXME SO MUCH DUMP
+            {
+                LLKeyframeMotion *km = dynamic_cast<LLKeyframeMotion*>(motion);
+                if (km)
+                {
+                    km->dumpToFile("");
+                }
+            }
 			break;
 		default:
 			LL_ERRS() << "Invalid initialization status" << LL_ENDL;
@@ -780,6 +788,14 @@ void LLMotionController::updateLoadingMotions()
 			mLoadingMotions.erase(curiter);
 			// add motion to our loaded motion list
 			mLoadedMotions.insert(motionp);
+            // FIXME SO MUCH DUMP
+            {
+                LLKeyframeMotion *km = dynamic_cast<LLKeyframeMotion*>(motionp);
+                if (km)
+                {
+                    km->dumpToFile("");
+                }
+            }
 			// this motion should be playing
 			if (!motionp->isStopped())
 			{
