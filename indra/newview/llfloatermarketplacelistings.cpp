@@ -118,6 +118,9 @@ void LLPanelMarketplaceListings::buildAllPanels()
 	tabs_panel->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onTabChange, this));
     tabs_panel->selectTabPanel(panel_all_items);      // All panel selected by default
     mRootFolder = panel_all_items->getRootFolder();   // Keep the root of the all panel
+    
+    // Set the default sort order
+    setSortOrder(gSavedSettings.getU32("MarketplaceListingsSortOrder"));
 }
 
 LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::string& childname, const std::string& filename)
@@ -132,6 +135,23 @@ LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::str
     panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
     
     return panel;
+}
+
+void LLPanelMarketplaceListings::setSortOrder(U32 sort_order)
+{
+    mSortOrder = sort_order;
+    gSavedSettings.setU32("MarketplaceListingsSortOrder", sort_order);
+    
+    // Set each panel with that sort order
+    LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
+    LLInventoryPanel* panel = (LLInventoryPanel*)tabs_panel->getPanelByName("All Items");
+    panel->setSortOrder(mSortOrder);
+    panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Active Items");
+    panel->setSortOrder(mSortOrder);
+    panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Inactive Items");
+    panel->setSortOrder(mSortOrder);
+    panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Unassociated Items");
+    panel->setSortOrder(mSortOrder);
 }
 
 void LLPanelMarketplaceListings::onFilterEdit(const std::string& search_string)
@@ -234,27 +254,16 @@ void LLPanelMarketplaceListings::onViewSortMenuItemClicked(const LLSD& userdata)
         // We're making sort options exclusive, default is SO_FOLDERS_BY_NAME
         if (chosen_item == "sort_by_stock_amount")
         {
-            mSortOrder = LLInventoryFilter::SO_FOLDERS_BY_WEIGHT;
+            setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_WEIGHT);
         }
         else if (chosen_item == "sort_by_name")
         {
-            mSortOrder = LLInventoryFilter::SO_FOLDERS_BY_NAME;
+            setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME);
         }
         else if (chosen_item == "sort_by_recent")
         {
-            mSortOrder = LLInventoryFilter::SO_DATE;
+            setSortOrder(LLInventoryFilter::SO_DATE);
         }
-        //mSortOrder = (mSortOrder == LLInventoryFilter::SO_FOLDERS_BY_NAME ? LLInventoryFilter::SO_FOLDERS_BY_WEIGHT : LLInventoryFilter::SO_FOLDERS_BY_NAME);
-        // Set each panel with that sort order
-        LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
-        LLInventoryPanel* panel = (LLInventoryPanel*)tabs_panel->getPanelByName("All Items");
-        panel->setSortOrder(mSortOrder);
-        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Active Items");
-        panel->setSortOrder(mSortOrder);
-        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Inactive Items");
-        panel->setSortOrder(mSortOrder);
-        panel = (LLInventoryPanel*)tabs_panel->getPanelByName("Unassociated Items");
-        panel->setSortOrder(mSortOrder);
 	}
     // Filter option
     else if (chosen_item == "show_only_listing_folders")

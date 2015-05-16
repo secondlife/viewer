@@ -75,6 +75,8 @@ private:
     void onTabChange();
     void onFilterEdit(const std::string& search_string);
     
+    void setSortOrder(U32 sort_order);
+    
     LLFolderView*     mRootFolder;
     LLButton*         mAuditBtn;
 	LLFilterEditor*	  mFilterEditor;

@@ -4790,6 +4790,17 @@
       <key>Value</key>
       <integer>7</integer>
     </map>
+    <key>MarketplaceListingsSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort for marketplace listings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
     <key>InvertMouse</key>
     <map>
       <key>Comment</key>
