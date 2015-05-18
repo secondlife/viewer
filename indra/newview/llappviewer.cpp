@@ -685,6 +685,8 @@ LLAppViewer::LLAppViewer()
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
 	mYieldTime(-1),
+	mLastAgentControlFlags(0),
+	mLastAgentForceUpdate(0),
 	mMainloopTimeout(NULL),
 	mAgentRegionLastAlive(false),
 	mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", FALSE)),
@@ -3273,7 +3275,7 @@ void LLAppViewer::writeDebugInfo(bool isStatic)
         : getDynamicDebugFile() );
     
 	LL_INFOS() << "Opening debug file " << *debug_filename << LL_ENDL;
-	llofstream out_file(*debug_filename);
+	llofstream out_file(debug_filename->c_str());
     
     isStatic ?  LLSDSerialize::toPrettyXML(gDebugInfo, out_file)
              :  LLSDSerialize::toPrettyXML(gDebugInfo["Dynamic"], out_file);
@@ -3762,7 +3764,7 @@ void LLAppViewer::handleViewerCrash()
 	{
 		std::string filename;
 		filename = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "stats.log");
-		llofstream file(filename, llofstream::binary);
+		llofstream file(filename.c_str(), std::ios_base::binary);
 		if(file.good())
 		{
 			LL_INFOS() << "Handle viewer crash generating stats log." << LL_ENDL;
@@ -4650,17 +4652,22 @@ void LLAppViewer::loadNameCache()
 	std::string filename =
 		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
 	LL_INFOS("AvNameCache") << filename << LL_ENDL;
-	llifstream name_cache_stream(filename);
+	llifstream name_cache_stream(filename.c_str());
 	if(name_cache_stream.is_open())
 	{
-		LLAvatarNameCache::importFile(name_cache_stream);
+		if ( ! LLAvatarNameCache::importFile(name_cache_stream))
+        {
+            LL_WARNS("AppInit") << "removing invalid '" << filename << "'" << LL_ENDL;
+            name_cache_stream.close();
+            LLFile::remove(filename);
+        }
 	}
 
 	if (!gCacheName) return;
 
 	std::string name_cache;
 	name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
-	llifstream cache_file(name_cache);
+	llifstream cache_file(name_cache.c_str());
 	if(cache_file.is_open())
 	{
 		if(gCacheName->importFile(cache_file)) return;
@@ -4668,24 +4675,26 @@ void LLAppViewer::loadNameCache()
 }
 
 void LLAppViewer::saveNameCache()
-	{
+{
 	// display names cache
 	std::string filename =
 		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
-	llofstream name_cache_stream(filename);
+	llofstream name_cache_stream(filename.c_str());
 	if(name_cache_stream.is_open())
 	{
 		LLAvatarNameCache::exportFile(name_cache_stream);
-}
-
-	if (!gCacheName) return;
-
-	std::string name_cache;
-	name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
-	llofstream cache_file(name_cache);
-	if(cache_file.is_open())
-	{
-		gCacheName->exportFile(cache_file);
+    }
+    
+    // real names cache
+	if (gCacheName)
+    {
+        std::string name_cache;
+        name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
+        llofstream cache_file(name_cache.c_str());
+        if(cache_file.is_open())
+        {
+            gCacheName->exportFile(cache_file);
+        }
 	}
 }
 
@@ -4813,22 +4822,24 @@ void LLAppViewer::idle()
 			gAgentPilot.updateTarget();
 			gAgent.autoPilot(&yaw);
 		}
-    
-	    static LLFrameTimer agent_update_timer;
-	    static U32 				last_control_flags;
-    
-	    //	When appropriate, update agent location to the simulator.
-	    F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
-	    BOOL flags_changed = gAgent.controlFlagsDirty() || (last_control_flags != gAgent.getControlFlags());
-		    
-	    if (flags_changed || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
-	    {
-		    LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE);
-		    // Send avatar and camera info
-		    last_control_flags = gAgent.getControlFlags();
-		    send_agent_update(TRUE);
-		    agent_update_timer.reset();
-	    }
+
+		static LLFrameTimer agent_update_timer;
+
+		// When appropriate, update agent location to the simulator.
+		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
+		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
+		BOOL force_update = gAgent.controlFlagsDirty()
+							|| (mLastAgentControlFlags != gAgent.getControlFlags())
+							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
+		{
+			LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE);
+			// Send avatar and camera info
+			mLastAgentControlFlags = gAgent.getControlFlags();
+			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
+			send_agent_update(force_update);
+			agent_update_timer.reset();
+		}
 	}
 
 	//////////////////////////////////////
@@ -5376,7 +5387,7 @@ void LLAppViewer::idleNetwork()
 		}
 
 		// Handle per-frame message system processing.
-		gMessageSystem->processAcks();
+		gMessageSystem->processAcks(gSavedSettings.getF32("AckCollectTime"));
 
 #ifdef TIME_THROTTLE_MESSAGES
 		if (total_time >= CheckMessagesMaxTime)

@@ -48,7 +48,7 @@
             </panel.string>
             <panel.string
              name="Cost Total">
-                Total Price: L$
+                Sum Price: L$
             </panel.string>
             <panel.string
              name="Cost Per Unit">
@@ -444,7 +444,7 @@
         control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
-        label_width="65"
+        label_width="73"				
         width="150"
         min_val="1"
         height="20"

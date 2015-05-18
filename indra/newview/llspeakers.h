@@ -258,7 +258,7 @@ public:
 
 protected:
 	virtual void updateSpeakerList();
-	void setSpeakerNotInChannel(LLSpeaker* speackerp);
+	void setSpeakerNotInChannel(LLPointer<LLSpeaker> speackerp);
 	bool removeSpeaker(const LLUUID& speaker_id);
 
 	typedef std::map<LLUUID, LLPointer<LLSpeaker> > speaker_map_t;

@@ -2643,11 +2643,11 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>BuildConsole</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"/cfg=RelWithDebInfo|Win32"</string>
+                  <string>"RelWithDebInfo|Win32"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2731,11 +2731,11 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>BuildConsole</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"/cfg=Release|Win32"</string>
+                  <string>"Release|Win32"</string>
                 </array>
               </map>
               <key>configure</key>

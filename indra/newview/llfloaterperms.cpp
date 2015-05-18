@@ -35,6 +35,8 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
+#include "llvoavatar.h"
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
@@ -171,8 +173,9 @@ public:
 private:
 	static	std::string sPreviousReason;
 
-	void error(U32 status, const std::string& reason)
+	void httpFailure()
 	{
+		const std::string& reason = getReason();
 		// Do not display the same error more than once in a row
 		if (reason != sPreviousReason)
 		{
@@ -182,13 +185,17 @@ private:
 			LLNotificationsUtil::add("DefaultObjectPermissions", args);
 		}
 	}
-	void result(const LLSD& content)
+
+	void httpSuccess()
 	{
+		//const LLSD& content = getContent();
+		//dump_sequential_xml("perms_responder_result.xml", content);
+
 		// Since we have had a successful POST call be sure to display the next error message
 		// even if it is the same as a previous one.
 		sPreviousReason = "";
 		LLFloaterPermsDefault::setCapSent(true);
-		LL_INFOS("FloaterPermsResponder") << "Sent default permissions to simulator" << LL_ENDL;
+		LL_INFOS("ObjectPermissionsFloater") << "Default permissions successfully sent to simulator" << LL_ENDL;
 	}
 };
 
@@ -216,8 +223,20 @@ void LLFloaterPermsDefault::updateCap()
 		report["default_object_perm_masks"]["NextOwner"] =
 			(LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
 
+        {
+            LL_DEBUGS("ObjectPermissionsFloater") << "Sending default permissions to '"
+                                                  << object_url << "'\n";
+            std::ostringstream sent_perms_log;
+            LLSDSerialize::toPrettyXML(report, sent_perms_log);
+            LL_CONT << sent_perms_log.str() << LL_ENDL;
+        }
+    
 		LLHTTPClient::post(object_url, report, new LLFloaterPermsResponder());
 	}
+    else
+    {
+        LL_DEBUGS("ObjectPermissionsFloater") << "AgentPreferences cap not available." << LL_ENDL;
+    }
 }
 
 void LLFloaterPermsDefault::setCapSent(bool cap_sent)

@@ -214,7 +214,6 @@ public:
 	/*virtual*/ LLVector3		getPosAgentFromGlobal(const LLVector3d &position);
 	virtual void				updateVisualParams();
 
-
 /**                    Inherited
  **                                                                            **
  *******************************************************************************/
@@ -234,6 +233,7 @@ private: //aligned members
 	// Updates
 	//--------------------------------------------------------------------
 public:
+	void			updateDebugText();
 	virtual BOOL 	updateCharacter(LLAgent &agent);
 	void 			idleUpdateVoiceVisualizer(bool voice_enabled);
 	void 			idleUpdateMisc(bool detailed_update);
@@ -383,6 +383,7 @@ public:
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	bool		isVisuallyMuted();
+	bool 		isInMuteList();
 	void		setCachedVisualMute(bool muted)						{ mCachedVisualMute = muted;	};
 	void		forceUpdateVisualMuteSettings();
 
@@ -421,6 +422,9 @@ private:
 
 	bool		mCachedVisualMute;				// cached return value for isVisuallyMuted()
 	F64			mCachedVisualMuteUpdateTime;	// Time to update mCachedVisualMute
+
+	bool		mCachedInMuteList;
+	F64			mCachedMuteListUpdateTime;
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
@@ -988,6 +992,7 @@ public:
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
+	LLFrameTimer	mLastAppearanceMessageTimer; // Time since last appearance message received.
 
 	//--------------------------------------------------------------------
 	// COF monitoring
@@ -1019,6 +1024,9 @@ protected: // Shared with LLVOAvatarSelf
 }; // LLVOAvatar
 extern const F32 SELF_ADDITIONAL_PRI;
 extern const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL;
+
+extern const F32 MAX_HOVER_Z;
+extern const F32 MIN_HOVER_Z;
 
 std::string get_sequential_numbered_file_name(const std::string& prefix,
 											  const std::string& suffix);
