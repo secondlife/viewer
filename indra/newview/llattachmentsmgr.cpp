@@ -99,6 +99,11 @@ void LLAttachmentsMgr::onIdle()
 		return;
 	}
 
+    if (LLApp::isExiting())
+    {
+        return;
+    }
+
 	requestPendingAttachments();
 
     linkRecentlyArrivedAttachments();

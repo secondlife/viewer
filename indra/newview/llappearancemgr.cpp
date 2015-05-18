@@ -528,7 +528,10 @@ LLUpdateAppearanceAndEditWearableOnDestroy::LLUpdateAppearanceAndEditWearableOnD
 LLRequestServerAppearanceUpdateOnDestroy::~LLRequestServerAppearanceUpdateOnDestroy()
 {
 	LL_DEBUGS("Avatar") << "ATT requesting server appearance update" << LL_ENDL;
-	LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+    if (!LLApp::isExiting())
+    {
+        LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+    }
 }
 
 void edit_wearable_and_customize_avatar(LLUUID item_id)
