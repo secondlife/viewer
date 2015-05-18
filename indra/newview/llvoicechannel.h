@@ -159,7 +159,7 @@ protected:
 	virtual void setState(EState state);
 
 private:
-    void voiceCallCapCoro(LLCoros::self& self, std::string &url);
+    void voiceCallCapCoro(LLCoros::self& self, std::string url);
 
 	U32 mRetries;
 	BOOL mIsRetrying;

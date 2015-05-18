@@ -438,8 +438,8 @@ private:
         const std::string & url, LLCore::HttpOptions::ptr_t &options,
         LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler);
 
-    static void trivialGetCoro(LLCoros::self& self, std::string &url, completionCallback_t success, completionCallback_t failure);
-    static void trivialPostCoro(LLCoros::self& self, std::string &url, LLSD postData, completionCallback_t success, completionCallback_t failure);
+    static void trivialGetCoro(LLCoros::self& self, std::string url, completionCallback_t success, completionCallback_t failure);
+    static void trivialPostCoro(LLCoros::self& self, std::string url, LLSD postData, completionCallback_t success, completionCallback_t failure);
 
     std::string                     mAdapterName;
     LLCore::HttpRequest::priority_t mPriority;

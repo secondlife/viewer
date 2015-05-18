@@ -127,7 +127,7 @@ void LLUpdateChecker::Implementation::checkVersion(std::string const & urlBase,
 	}
 }
 
-void LLUpdateChecker::Implementation::checkVersionCoro(LLCoros::self& self, std::string &url)
+void LLUpdateChecker::Implementation::checkVersionCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t

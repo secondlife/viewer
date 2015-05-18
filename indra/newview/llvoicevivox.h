@@ -636,8 +636,8 @@ protected:
 
 private:
     
-    void voiceAccountProvisionCoro(LLCoros::self& self, std::string &url, S32 retries);
-    void parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string &url);
+    void voiceAccountProvisionCoro(LLCoros::self& self, std::string url, S32 retries);
+    void parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string url);
 
 	LLVoiceVersionInfo mVoiceVersion;
 

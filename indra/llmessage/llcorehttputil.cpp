@@ -747,7 +747,7 @@ void HttpCoroutineAdapter::messageHttpGet(const std::string &url, const std::str
 }
 
 /*static*/
-void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string &url, completionCallback_t success, completionCallback_t failure)
+void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string url, completionCallback_t success, completionCallback_t failure)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -799,7 +799,7 @@ void HttpCoroutineAdapter::messageHttpPost(const std::string &url, const LLSD &p
 }
 
 /*static*/
-void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string &url, LLSD postData, completionCallback_t success, completionCallback_t failure)
+void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string url, LLSD postData, completionCallback_t success, completionCallback_t failure)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t

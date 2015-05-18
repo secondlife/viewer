@@ -52,6 +52,7 @@
 #include "llfocusmgr.h"
 #include "lldraghandle.h"
 #include "message.h"
+#include "llcorehttputil.h"
 
 //#include "llsdserialize.h"
 
@@ -456,39 +457,33 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 	return FALSE;
 }
 
-class LLAvatarPickerResponder : public LLHTTPClient::Responder
+/*static*/
+void LLFloaterAvatarPicker::findCoro(LLCoros::self& self, std::string url, LLUUID queryID, std::string name)
 {
-	LOG_CLASS(LLAvatarPickerResponder);
-public:
-	LLUUID mQueryID;
-    std::string mName;
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-	LLAvatarPickerResponder(const LLUUID& id, const std::string& name) : mQueryID(id), mName(name) { }
+    LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
 
-protected:
-	/*virtual*/ void httpCompleted()
-	{
-		//std::ostringstream ss;
-		//LLSDSerialize::toPrettyXML(content, ss);
-		//LL_INFOS() << ss.str() << LL_ENDL;
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
-		// in case of invalid characters, the avatar picker returns a 400
-		// just set it to process so it displays 'not found'
-		if (isGoodStatus() || getStatus() == HTTP_BAD_REQUEST)
-		{
-			LLFloaterAvatarPicker* floater =
-				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker", mName);
-			if (floater)
-			{
-				floater->processResponse(mQueryID, getContent());
-			}
-		}
-		else
-		{
-			LL_WARNS() << "avatar picker failed " << dumpResponse() << LL_ENDL;
-		}
-	}
-};
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status || (status == LLCore::HttpStatus(HTTP_BAD_REQUEST)))
+    {
+        LLFloaterAvatarPicker* floater =
+            LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker", name);
+        if (floater)
+        {
+            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+            floater->processResponse(queryID, result);
+        }
+    }
+}
+
 
 void LLFloaterAvatarPicker::find()
 {
@@ -517,7 +512,9 @@ void LLFloaterAvatarPicker::find()
 		std::replace(text.begin(), text.end(), '.', ' ');
 		url += LLURI::escape(text);
 		LL_INFOS() << "avatar picker " << url << LL_ENDL;
-		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID, getKey().asString()));
+
+        LLCoros::instance().launch("LLFloaterAvatarPicker::findCoro",
+            boost::bind(&LLFloaterAvatarPicker::findCoro, _1, url, mQueryID, getKey().asString()));
 	}
 	else
 	{

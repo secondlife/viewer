@@ -2182,7 +2182,7 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 	return text;
 }
 
-void LLVOAvatarSelf::appearanceChangeMetricsCoro(LLCoros::self& self, std::string &url)
+void LLVOAvatarSelf::appearanceChangeMetricsCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t

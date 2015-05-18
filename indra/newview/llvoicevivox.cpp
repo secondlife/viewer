@@ -452,7 +452,7 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 	}
 }
 
-void LLVivoxVoiceClient::voiceAccountProvisionCoro(LLCoros::self& self, std::string &url, S32 retries)
+void LLVivoxVoiceClient::voiceAccountProvisionCoro(LLCoros::self& self, std::string url, S32 retries)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -3933,7 +3933,7 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 	}
 }
 
-void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string &url)
+void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
