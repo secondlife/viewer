@@ -90,7 +90,6 @@ private:
         const char* mProtocol;
 
         Client & mClient;
-        LLHTTPClient mHttpClient;
         bool         mInProgress;
         std::string   mVersion;
         std::string   mUrlBase;
