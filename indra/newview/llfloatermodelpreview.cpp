@@ -457,6 +457,11 @@ void LLFloaterModelPreview::disableViewOption(const std::string& option)
 void LLFloaterModelPreview::loadModel(S32 lod)
 {
 	mModelPreview->mLoading = true;
+	if (lod == LLModel::LOD_PHYSICS)
+	{
+		// loading physics from file
+		mModelPreview->mPhysicsSearchLOD = lod;
+	}
 
 	(new LLMeshFilePicker(mModelPreview, lod))->getFile();
 }
@@ -1167,6 +1172,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mPelvisZOffset( 0.0f )
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
+, mPhysicsSearchLOD( LLModel::LOD_PHYSICS )
 , mResetJoints( false )
 , mModelNoErrors( true )
 , mRigParityWithScene( false )
@@ -1416,8 +1422,19 @@ void LLModelPreview::rebuildUploadData()
 					std::string name_to_match = instance.mLabel;
 					llassert(!name_to_match.empty());
 
+					int extensionLOD;
+					if (i != LLModel::LOD_PHYSICS || mModel[LLModel::LOD_PHYSICS].empty())
+					{
+						extensionLOD = i;
+					}
+					else
+					{
+						//Physics can be inherited from other LODs or loaded, so we need to adjust what extension we are searching for
+						extensionLOD = mPhysicsSearchLOD;
+					}
+
 					std::string toAdd;
-					switch (i)
+					switch (extensionLOD)
 					{
 					case LLModel::LOD_IMPOSTOR: toAdd = "_LOD0"; break;
 					case LLModel::LOD_LOW:      toAdd = "_LOD1"; break;
@@ -1776,6 +1793,7 @@ void LLModelPreview::setPhysicsFromLOD(S32 lod)
 
 	if (lod >= 0 && lod <= 3)
 	{
+		mPhysicsSearchLOD = lod;
 		mModel[LLModel::LOD_PHYSICS] = mModel[lod];
 		mScene[LLModel::LOD_PHYSICS] = mScene[lod];
 		mLODFile[LLModel::LOD_PHYSICS].clear();

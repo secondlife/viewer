@@ -341,6 +341,7 @@ private:
 	LLVector3	mPreviewTarget;
 	LLVector3	mPreviewScale;
 	S32			mPreviewLOD;
+	S32			mPhysicsSearchLOD;
 	U32			mResourceCost;
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
