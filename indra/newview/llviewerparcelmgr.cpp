@@ -67,6 +67,7 @@
 #include "roles_constants.h"
 #include "llweb.h"
 #include "llvieweraudio.h"
+#include "llcorehttputil.h"
 
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
 
@@ -1278,10 +1279,13 @@ const std::string& LLViewerParcelMgr::getAgentParcelName() const
 
 void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region)
 {
-	if(!parcel) return;
+	if(!parcel) 
+        return;
 
 	LLViewerRegion *region = use_agent_region ? gAgent.getRegion() : LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
-	if (!region) return;
+	if (!region) 
+        return;
+
 	//LL_INFOS() << "found region: " << region->getName() << LL_ENDL;
 
 	LLSD body;
@@ -1294,7 +1298,9 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 		parcel->packMessage(body);
 		LL_INFOS() << "Sending parcel properties update via capability to: "
 			<< url << LL_ENDL;
-		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
+
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
+            "Parcel Properties sent to sim.", "Parcel Properties failed to send to sim.");
 	}
 	else
 	{
