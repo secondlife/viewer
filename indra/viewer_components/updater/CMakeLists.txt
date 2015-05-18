@@ -9,12 +9,14 @@ endif(LL_TESTS)
 include(CMakeCopyIfDifferent)
 include(CURL)
 include(LLCommon)
+include(LLCoreHttp)
 include(LLMessage)
 include(LLPlugin)
 include(LLVFS)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+	${LLCOREHTTP_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLPLUGIN_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
@@ -59,6 +61,7 @@ add_library(llupdaterservice
 
 target_link_libraries(llupdaterservice
     ${LLCOMMON_LIBRARIES}
+	${LLCOREHTTP_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
     ${LLVFS_LIBRARIES}
