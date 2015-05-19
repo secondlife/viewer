@@ -30,6 +30,7 @@
 #include "llpanel.h"
 #include "lllayoutstack.h"
 #include "lltextbox.h"
+#include "llviewertexteditor.h"
 #include "llbutton.h"
 #include "llgroupiconctrl.h"
 #include "llavatariconctrl.h"
@@ -95,24 +96,25 @@ protected:
     void onClickExpandBtn();
     void onClickCondenseBtn();
     void onClickCloseBtn();
+    virtual void close() {};
 
-    Params      mParams;
-    LLTextBox*  mTitleBox;
-    LLTextBox*  mTitleBoxExp;
-    LLTextBox*  mNoticeTextExp;
-    LLTextBox*  mTimeBox;
-    LLTextBox*  mTimeBoxExp;
-    LLButton*   mExpandBtn;
-    LLButton*   mCondenseBtn;
-    LLButton*   mCloseBtn;
-    LLButton*   mCloseBtnExp;
-    LLPanel*    mCondensedViewPanel;
-    LLPanel*    mExpandedViewPanel;
-    std::string mTitle;
-    std::string mNotificationName;
-    S32         mCondensedHeight;
-    S32         mExpandedHeight;
-    S32         mExpandedHeightResize;
+    Params              mParams;
+    LLTextBox*          mTitleBox;
+    LLTextBox*          mTitleBoxExp;
+    LLViewerTextEditor* mNoticeTextExp;
+    LLTextBox*          mTimeBox;
+    LLTextBox*          mTimeBoxExp;
+    LLButton*           mExpandBtn;
+    LLButton*           mCondenseBtn;
+    LLButton*           mCloseBtn;
+    LLButton*           mCloseBtnExp;
+    LLPanel*            mCondensedViewPanel;
+    LLPanel*            mExpandedViewPanel;
+    std::string         mTitle;
+    std::string         mNotificationName;
+    S32                 mCondensedHeight;
+    S32                 mExpandedHeight;
+    S32                 mExpandedHeightResize;
 };
 
 class LLGroupNotificationListItem
@@ -174,12 +176,16 @@ private:
     LLGroupNoticeNotificationListItem & operator=(LLGroupNoticeNotificationListItem &);
 
     void setSender(std::string sender);
+    void onClickAttachment();
+    /*virtual*/ void close();
 
-    LLPanel*    mAttachmentPanel;
-    LLTextBox*  mAttachmentTextBox;
-    LLIconCtrl* mAttachmentIcon;
-    LLIconCtrl* mAttachmentIconExp;
-    LLOfferInfo* mInventoryOffer;
+    static bool isAttachmentOpenable(LLAssetType::EType);
+
+    LLPanel*        mAttachmentPanel;
+    LLTextBox*      mAttachmentTextBox;
+    LLIconCtrl*     mAttachmentIcon;
+    LLIconCtrl*     mAttachmentIconExp;
+    LLOfferInfo*    mInventoryOffer;
 };
 
 class LLTransactionNotificationListItem : public LLNotificationListItem

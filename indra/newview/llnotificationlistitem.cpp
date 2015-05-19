@@ -57,7 +57,7 @@ BOOL LLNotificationListItem::postBuild()
     BOOL rv = LLPanel::postBuild();
     mTitleBox = getChild<LLTextBox>("notification_title");
     mTitleBoxExp = getChild<LLTextBox>("notification_title_exp"); 
-    mNoticeTextExp = getChild<LLTextBox>("notification_text_exp"); 
+    mNoticeTextExp = getChild<LLViewerTextEditor>("notification_text_exp");
 
     mTimeBox = getChild<LLTextBox>("notification_time");
     mTimeBoxExp = getChild<LLTextBox>("notification_time_exp");
@@ -115,6 +115,7 @@ std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_sta
 void LLNotificationListItem::onClickCloseBtn()
 {
     mOnItemClose(this);
+    close();
 }
 
 BOOL LLNotificationListItem::handleMouseUp(S32 x, S32 y, MASK mask)
@@ -278,13 +279,16 @@ BOOL LLGroupNoticeNotificationListItem::postBuild()
     if (mInventoryOffer != NULL)
     {
         mAttachmentTextBox->setValue(mInventoryOffer->mDesc);
+        mAttachmentTextBox->setVisible(TRUE);
         mAttachmentIcon->setVisible(TRUE);
 
         std::string icon_name = LLInventoryIcon::getIconName(mInventoryOffer->mType,
           LLInventoryType::IT_TEXTURE);
-
         mAttachmentIconExp->setValue(icon_name);
         mAttachmentIconExp->setVisible(TRUE);
+
+        mAttachmentTextBox->setClickedCallback(boost::bind(
+            &LLGroupNoticeNotificationListItem::onClickAttachment, this));
 
         std::string expanded_height_resize_str = getString("expanded_height_resize_for_attachment");
         mExpandedHeightResize = (S32)atoi(expanded_height_resize_str.c_str());
@@ -386,6 +390,53 @@ void LLGroupNoticeNotificationListItem::setSender(std::string sender)
         mSenderOrFeeBoxExp->setValue(LLStringUtil::null);
         mSenderOrFeeBox->setVisible(FALSE);
         mSenderOrFeeBoxExp->setVisible(FALSE);
+    }
+}
+void LLGroupNoticeNotificationListItem::close()
+{
+    // The group notice dialog may be an inventory offer.
+    // If it has an inventory save button and that button is still enabled
+    // Then we need to send the inventory declined message
+    if (mInventoryOffer != NULL)
+    {
+        mInventoryOffer->forceResponse(IOR_DECLINE);
+        mInventoryOffer = NULL;
+    }
+}
+
+void LLGroupNoticeNotificationListItem::onClickAttachment()
+{
+    if (mInventoryOffer != NULL) {
+        mInventoryOffer->forceResponse(IOR_ACCEPT);
+
+        static const LLUIColor textColor = LLUIColorTable::instance().getColor(
+            "GroupNotifyDimmedTextColor");
+        mAttachmentTextBox->setColor(textColor);
+        mAttachmentIconExp->setEnabled(FALSE);
+
+        //if attachment isn't openable - notify about saving
+        if (!isAttachmentOpenable(mInventoryOffer->mType)) {
+            LLNotifications::instance().add("AttachmentSaved", LLSD(), LLSD());
+        }
+
+        mInventoryOffer = NULL;
+    }
+}
+
+//static
+bool LLGroupNoticeNotificationListItem::isAttachmentOpenable(LLAssetType::EType type)
+{
+    switch (type)
+    {
+    case LLAssetType::AT_LANDMARK:
+    case LLAssetType::AT_NOTECARD:
+    case LLAssetType::AT_IMAGE_JPEG:
+    case LLAssetType::AT_IMAGE_TGA:
+    case LLAssetType::AT_TEXTURE:
+    case LLAssetType::AT_TEXTURE_TGA:
+        return true;
+    default:
+        return false;
     }
 }
 

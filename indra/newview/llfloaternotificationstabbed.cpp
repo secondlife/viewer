@@ -402,7 +402,7 @@ void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
 void LLFloaterNotificationsTabbed::onItemClick(LLNotificationListItem* item)
 {
     LLUUID id = item->getID();
-    LLFloaterReg::showInstance("inspect_toast", id);
+    //LLFloaterReg::showInstance("inspect_toast", id);
 }
 
 //---------------------------------------------------------------------------------
