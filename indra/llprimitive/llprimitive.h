@@ -385,7 +385,7 @@ public:
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
 	virtual S32 setTEGlow(const U8 te, const F32 glow);
 	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
-	virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
+	virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams, bool isInitFromServer);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
 	virtual void setTESelected(const U8 te, bool sel);
 

@@ -317,9 +317,9 @@ S32 LLPrimitive::setTEMaterialID(const U8 index, const LLMaterialID& pMaterialID
 	return mTextureList.setMaterialID(index, pMaterialID);
 }
 
-S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams)
+S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams, bool isInitFromServer)
 {
-	return mTextureList.setMaterialParams(index, pMaterialParams);
+	return mTextureList.setMaterialParams(index, pMaterialParams, isInitFromServer);
 }
 
 LLMaterialPtr LLPrimitive::getTEMaterialParams(const U8 index)
