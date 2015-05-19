@@ -57,7 +57,7 @@
                     use_ellipses="true" word_wrap="true" mouse_opaque="false" name="notification_title" >
                     Group Name:Notice Title N o t i c e T i t l e N o t i c e T i t l e N o t i c e T i t l e N oticeTitle
                   </text>
-                  <icon top="0" left="242" width="21" height="21" image_name="Icon_Attachment_Small" follows="right" mouse_opaque="true" name="attachment_icon" tool_tip="Attachment" visible="false"/>
+                  <icon top="1" left="242" width="21" height="21" image_name="Icon_Attachment_Small" follows="right" mouse_opaque="true" name="attachment_icon" tool_tip="Attachment" visible="false"/>
                 </panel>
                 <panel border="false" top="23" left="0" width="260" height="15" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="sender_time_panel">
                   <text allow_scroll="false" font="SansSerifSmall" top="0" left="0" width="170" height="13" layout="topleft" follows="right|left"
