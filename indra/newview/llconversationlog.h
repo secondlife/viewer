@@ -153,6 +153,7 @@ public:
 	 * file name is conversation.log
 	 */
 	std::string getFileName();
+	LLConversation* findConversation(const LLIMModel::LLIMSession* session);
 
 private:
 
@@ -184,7 +185,7 @@ private:
 	void updateConversationName(const LLIMModel::LLIMSession* session, const std::string& name);
 	void updateOfflineIMs(const LLIMModel::LLIMSession* session, BOOL new_messages);
 
-	LLConversation* findConversation(const LLIMModel::LLIMSession* session);
+
 
 	typedef std::vector<LLConversation> conversations_vec_t;
 	std::vector<LLConversation>				mConversations;

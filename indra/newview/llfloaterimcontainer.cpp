@@ -1220,7 +1220,22 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         {
 			if (selectedIDS.size() > 0)
 			{
-				LLAvatarActions::viewChatHistory(selectedIDS.front());
+				if(conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP)
+				{
+					LLFloaterReg::showInstance("preview_conversation", conversationItem->getUUID(), true);
+				}
+				else if(conversationItem->getType() == LLConversationItem::CONV_SESSION_AD_HOC)
+				{
+					LLConversation* conv = LLConversationLog::instance().findConversation(LLIMModel::getInstance()->findIMSession(conversationItem->getUUID()));
+					if(conv)
+					{
+						LLFloaterReg::showInstance("preview_conversation", conv->getSessionID(), true);
+					}
+				}
+				else
+				{
+					LLAvatarActions::viewChatHistory(selectedIDS.front());
+				}
 			}
         }
         else
@@ -1319,6 +1334,15 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 			if (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_NEARBY)
 			{
 				return LLLogChat::isNearbyTranscriptExist();
+			}
+			else if (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_AD_HOC)
+			{
+				const LLConversation* conv = LLConversationLog::instance().findConversation(LLIMModel::getInstance()->findIMSession(uuids.front()));
+				if(conv)
+				{
+					return LLLogChat::isAdHocTranscriptExist(conv->getHistoryFileName());
+				}
+				return false;
 			}
 			else
 			{
