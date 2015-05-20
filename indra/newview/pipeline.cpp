@@ -11294,17 +11294,6 @@ static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_RESIZE("Impostor Resize");
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
-    LL_WARNS_ONCE("AvatarRenderPipeline");
-    if (avatar)
-    {
-        LL_CONT << "Avatar " << avatar->getID() << " is " << (avatar->mDrawable?"":"not ") << "drawable";
-    }
-    else
-    {
-        LL_CONT << " is null";
-    }
-    LL_CONT << LL_ENDL;
-
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
@@ -11315,8 +11304,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	
 	if (!avatar || !avatar->mDrawable)
 	{
+        LL_WARNS_ONCE("AvatarRenderPipeline") << "Avatar is " << (avatar ? "not drawable" : "null") << LL_ENDL;
 		return;
 	}
+    LL_DEBUG_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " is drawable" << LL_ENDL;
 
 	assertInitialized();
 
