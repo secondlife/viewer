@@ -46,6 +46,7 @@
 #include "test_httprequestqueue.hpp"
 
 #include "llproxy.h"
+#include "llcleanup.h"
 
 unsigned long ssl_thread_id_callback(void);
 void ssl_locking_callback(int mode, int type, const char * file, int line);
@@ -101,7 +102,7 @@ void init_curl()
 
 void term_curl()
 {
-	LLProxy::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLProxy);
 	
 	CRYPTO_set_locking_callback(NULL);
 	for (int i(0); i < ssl_mutex_count; ++i)

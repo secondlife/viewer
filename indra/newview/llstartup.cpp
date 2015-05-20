@@ -194,6 +194,7 @@
 #include "llevents.h"
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
+#include "llcleanup.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -2826,7 +2827,7 @@ void LLStartUp::initNameCache()
 
 void LLStartUp::cleanupNameCache()
 {
-	LLAvatarNameCache::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLAvatarNameCache);
 
 	delete gCacheName;
 	gCacheName = NULL;
