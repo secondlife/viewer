@@ -22,10 +22,8 @@ if(WINDOWS)
         SLVoice.exe
         ca-bundle.crt
         libsndfile-1.dll
-        vivoxplatform.dll
         vivoxsdk.dll
         ortp.dll
-        zlib1.dll
         vivoxoal.dll
         )
 
