@@ -134,7 +134,7 @@ package_llphysicsextensions_tpv()
           echo "${autobuild_package_filename}" > $build_dir/llphysicsextensions_package
       fi
   else
-      echo "Do not provide llphysicsextensions_tpv for $variant"
+      record_event "Do not provide llphysicsextensions_tpv for $variant"
       llphysicsextensions_package=""
   fi
   end_section "PhysicsExtensions_TPV"
@@ -155,7 +155,9 @@ build()
     # Run build extensions
     if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]; then
         for extension in ${build_dir}/packages/build-extensions/*.sh; do
+            begin_section "Extension $extension"
             . $extension
+            end_section "Extension $extension"
             if [ $build_ok -ne 0 ]; then
                 break
             fi
@@ -259,56 +261,20 @@ do
 
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
-    if $build_link_parallel
-    then
-      begin_section BuildParallel
-      ( build "$variant" "$build_dir" > "$build_dir/build.log" 2>&1 ) &
-      build_processes="$build_processes $!"
-      end_section BuildParallel
-    else
       begin_section "Build$variant"
       build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
       if `cat "$build_dir/build_ok"`
       then
-        echo so far so good.
+        echo "so far so good" >> "$build_log"
       else
         record_failure "Build of \"$variant\" failed."
       fi
       end_section "Build$variant"
-    fi
-  else
-    record_failure "Build Prep for \"$variant\" failed."
   fi
   end_section "Do$variant"
 done
 
 build_docs
-
-# If we are building variants in parallel, wait, then collect results.
-# This requires that the build dirs are variant specific
-if $build_link_parallel && [ x"$build_processes" != x ]
-then
-  begin_section WaitParallel
-  wait $build_processes
-  for variant in $variants
-  do
-    eval '$build_'"$variant" || continue
-    eval '$build_'"$arch"_"$variant" || continue
-
-    begin_section "Build$variant"
-    build_dir=`build_dir_$arch $variant`
-    build_dir_stubs="$build_dir/win_setup/$variant"
-    tee -a $build_log < "$build_dir/build.log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
-    if `cat "$build_dir/build_ok"`
-    then
-      echo so far so good.
-    else
-      record_failure "Parallel build of \"$variant\" failed."
-    fi
-    end_section "Build$variant"
-  done
-  end_section WaitParallel
-fi
 
 # build debian package
 if [ "$arch" == "Linux" ]
@@ -376,7 +342,7 @@ then
       end_section "Upload Debian Repository"
       
     else
-      echo skipping debian build
+      echo debian build not enabled
     fi
   else
     echo skipping debian build due to failed build.
@@ -446,7 +412,9 @@ then
       # Run upload extensions
       if [ -d ${build_dir}/packages/upload-extensions ]; then
           for extension in ${build_dir}/packages/upload-extensions/*.sh; do
+              begin_section "Upload Extenstion $extension"
               . $extension
+              end_section "Upload Extenstion $extension"
           done
       fi
 
