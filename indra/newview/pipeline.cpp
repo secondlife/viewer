@@ -11307,7 +11307,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
         LL_WARNS_ONCE("AvatarRenderPipeline") << "Avatar is " << (avatar ? "not drawable" : "null") << LL_ENDL;
 		return;
 	}
-    LL_DEBUG_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " is drawable" << LL_ENDL;
+    LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " is drawable" << LL_ENDL;
 
 	assertInitialized();
 
