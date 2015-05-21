@@ -146,12 +146,16 @@ public:
 	//					a pointer to a std::string in the container.
 	//					Pointer is valid only for the lifetime of
 	//					the container or until container is modifed.
-	
 	const std::string * find(const std::string &name) const;
 	const std::string * find(const char * name) const
 	{
 		return find(std::string(name));
 	}
+
+    // Remove the header from the list if found.
+    // 
+    void remove(const std::string &name);
+    void remove(const char *name);
 
 	// Count of headers currently in the list.
 	size_type size() const

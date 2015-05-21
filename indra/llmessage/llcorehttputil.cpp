@@ -32,7 +32,10 @@
 #include <iterator>
 #include "llcorehttputil.h"
 #include "llhttpconstants.h"
+#include "llsd.h"
+#include "llsdjson.h"
 #include "llsdserialize.h"
+#include "reader.h" 
 
 using namespace LLCore;
 
@@ -252,6 +255,23 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
     }
 
     buildStatusEntry(response, status, result);
+
+#if 0
+    // commenting out, but keeping since this can be useful for debugging
+    if (!status)
+    {
+        LLSD &httpStatus = result[HttpCoroutineAdapter::HTTP_RESULTS];
+
+        LLCore::BufferArray *body = response->getBody();
+        LLCore::BufferArrayStream bas(body);
+        LLSD::Binary bodyData;
+        bodyData.reserve(response->getBodySize());
+        bas >> std::noskipws;
+        bodyData.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
+        httpStatus["error_body"] = bodyData;
+    }
+#endif
+
     mReplyPump.post(result);
 }
 
@@ -438,6 +458,58 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
 }
 
 //========================================================================
+/// The HttpCoroJSONHandler is a specialization of the LLCore::HttpHandler for 
+/// interacting with coroutines. 
+/// 
+/// In addition to the normal "http_results" the returned LLSD will contain 
+/// JSON entries will be converted into an LLSD map.  All results are considered 
+/// strings
+///                      
+class HttpCoroJSONHandler : public HttpCoroHandler
+{
+public:
+    HttpCoroJSONHandler(LLEventStream &reply);
+
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
+};
+
+//-------------------------------------------------------------------------
+HttpCoroJSONHandler::HttpCoroJSONHandler(LLEventStream &reply) :
+    HttpCoroHandler(reply)
+{
+}
+
+LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+{
+    LLSD result = LLSD::emptyMap();
+
+    BufferArray * body(response->getBody());
+    if (!body || !body->size())
+    {
+        return result;
+    }
+
+    LLCore::BufferArrayStream bas(body);
+    Json::Value jsonRoot;
+
+    try
+    {
+        bas >> jsonRoot;
+    }
+    catch (std::runtime_error e)
+    {   // deserialization failed.  Record the reason and pass back an empty map for markup.
+        status = LLCore::HttpStatus(499, std::string(e.what()));
+        return result;
+    }
+
+    // Convert the JSON structure to LLSD
+    result = LlsdFromJson(jsonRoot);
+
+    return result;
+}
+
+
+//========================================================================
 HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request) :
     mHttpRequest(request)
 {
@@ -613,6 +685,16 @@ LLSD HttpCoroutineAdapter::getRawAndYield(LLCoros::self & self, LLCore::HttpRequ
 
     return getAndYield_(self, request, url, options, headers, httpHandler);
 }
+
+LLSD HttpCoroutineAdapter::getJsonAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+    const std::string & url, LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName + "Reply", true);
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroJSONHandler(replyPump));
+
+    return getAndYield_(self, request, url, options, headers, httpHandler);
+}
+
 
 LLSD HttpCoroutineAdapter::getAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
     const std::string & url,

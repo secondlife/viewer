@@ -118,6 +118,24 @@ const std::string * HttpHeaders::find(const std::string &name) const
 	return NULL;
 }
 
+void HttpHeaders::remove(const char *name)
+{
+    remove(std::string(name));
+}
+
+void HttpHeaders::remove(const std::string &name)
+{
+    iterator iend(end());
+    for (iterator iter(begin()); iend != iter; ++iter)
+    {
+        if ((*iter).first == name)
+        {
+            mHeaders.erase(iter);
+            return;
+        }
+    }
+}
+
 
 // Standard Iterators
 HttpHeaders::iterator HttpHeaders::begin()

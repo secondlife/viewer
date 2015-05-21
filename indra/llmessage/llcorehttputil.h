@@ -373,6 +373,18 @@ public:
             headers);
     }
 
+    LLSD getJsonAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+    LLSD getJsonndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return getJsonAndYield(self, request, url,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+            headers);
+    }
+
 
     /// Execute a DELETE transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
