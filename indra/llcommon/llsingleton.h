@@ -166,30 +166,18 @@ public:
 		return NULL;
 	}
 
-	static DERIVED_TYPE* getIfExists()
-	{
-		return sData.mInstance;
-	}
-
 	// Reference version of getInstance()
 	// Preferred over getInstance() as it disallows checking for NULL
 	static DERIVED_TYPE& instance()
 	{
 		return *getInstance();
 	}
-	
-	// Has this singleton been created uet?
-	// Use this to avoid accessing singletons before the can safely be constructed
+
+	// Has this singleton been created yet?
+	// Use this to avoid accessing singletons before they can safely be constructed.
 	static bool instanceExists()
 	{
 		return sData.mInitState == INITIALIZED;
-	}
-	
-	// Has this singleton already been deleted?
-	// Use this to avoid accessing singletons from a static object's destructor
-	static bool destroyed()
-	{
-		return sData.mInitState == DELETED;
 	}
 
 private:
