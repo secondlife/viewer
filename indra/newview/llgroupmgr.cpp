@@ -53,6 +53,7 @@
 #include "lltrans.h"
 #include "llviewerregion.h"
 #include <boost/regex.hpp>
+#include "llcorehttputil.h"
 
 #if LL_MSVC
 #pragma warning(push)   
@@ -768,9 +769,9 @@ void LLGroupMgrGroupData::removeBanEntry(const LLUUID& ban_id)
 // LLGroupMgr
 //
 
-LLGroupMgr::LLGroupMgr()
+LLGroupMgr::LLGroupMgr():
+    mMemberRequestInFlight(false)
 {
-	mLastGroupMembersRequestFrame = 0;
 }
 
 LLGroupMgr::~LLGroupMgr()
@@ -1861,7 +1862,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	group_datap->mMemberVersion.generate();
 }
 
-
+#if 1
 // Responder class for capability group management
 class GroupBanDataResponder : public LLHTTPClient::Responder
 {
@@ -1900,6 +1901,77 @@ void GroupBanDataResponder::httpSuccess()
 	}
 }
 
+#else
+//void LLGroupMgr::groupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId, 
+//        LLGroupMgr::EBanRequestAction action, uuid_vec_t banList)
+void LLGroupMgr::groupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId,
+        LLGroupMgr::EBanRequestAction action, LLSD body)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("groupMembersRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    std::string finalUrl = url + "?group_id=" + groupId.asString();
+
+    EBanRequestAction currAction = action;
+
+    do
+    {
+        LLSD result;
+
+        if (currAction & (BAN_CREATE | BAN_DELETE)) // these two actions result in POSTS
+        {   // build the post data.
+//             LLSD postData = LLSD::emptyMap();
+// 
+//             postData["ban_action"] = (LLSD::Integer)(currAction & ~BAN_UPDATE);
+//             // Add our list of potential banned residents to the list
+//             postData["ban_ids"] = LLSD::emptyArray();
+//             
+//             LLSD banEntry;
+//             for (uuid_vec_t::const_iterator it = banList.begin(); it != banList.end(); ++it)
+//             {
+//                 banEntry = (*it);
+//                 postData["ban_ids"].append(banEntry);
+//             }
+// 
+//             result = httpAdapter->postAndYield(self, httpRequest, finalUrl, postData);
+
+            result = httpAdapter->postAndYield(self, httpRequest, finalUrl, body);
+        }
+        else
+        {
+            result = httpAdapter->getAndYield(self, httpRequest, finalUrl);
+        }
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (!status)
+        {
+            LL_WARNS("GrpMgr") << "Error receiving group member data " << LL_ENDL;
+            return;
+        }
+
+        if (result.has("ban_list"))
+        {
+            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+            // group ban data received
+            processGroupBanRequest(result);
+        }
+
+        if (currAction & BAN_UPDATE)
+        {
+            currAction = BAN_NO_ACTION;
+            continue;
+        }
+        break;
+    } while (true);
+}
+
+#endif
+
+
 void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type, 
 										const LLUUID& group_id, 
 										U32 ban_action, /* = BAN_NO_ACTION */
@@ -1925,7 +1997,32 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 	{
 		return;
 	}
-	cap_url += "?group_id=" + group_id.asString();
+
+#if 0
+
+    LLSD body = LLSD::emptyMap();
+    body["ban_action"] = (LLSD::Integer)(ban_action & ~BAN_UPDATE);
+    // Add our list of potential banned residents to the list
+    body["ban_ids"] = LLSD::emptyArray();
+    LLSD ban_entry;
+
+    uuid_vec_t::const_iterator iter = ban_list.begin();
+    for (; iter != ban_list.end(); ++iter)
+    {
+        ban_entry = (*iter);
+        body["ban_ids"].append(ban_entry);
+    }
+
+    LLCoros::instance().launch("LLGroupMgr::groupBanRequestCoro",
+        boost::bind(&LLGroupMgr::groupBanRequestCoro, this, _1, cap_url, group_id,
+        static_cast<LLGroupMgr::EBanRequestAction>(ban_action), body));
+
+//     LLCoros::instance().launch("LLGroupMgr::groupBanRequestCoro",
+//         boost::bind(&LLGroupMgr::groupBanRequestCoro, this, _1, cap_url, group_id, 
+//                 static_cast<LLGroupMgr::EBanRequestAction>(ban_action), ban_list));
+
+#else
+    cap_url += "?group_id=" + group_id.asString();
 
 	LLSD body = LLSD::emptyMap();
 	body["ban_action"]  = (LLSD::Integer)(ban_action & ~BAN_UPDATE);
@@ -1953,8 +2050,8 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 	case REQUEST_DEL:
 		break;
 	}
+#endif
 }
-
 
 void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 {
@@ -1992,45 +2089,42 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	LLGroupMgr::getInstance()->notifyObservers(GC_BANLIST);
 }
 
-
-
-// Responder class for capability group management
-class GroupMemberDataResponder : public LLHTTPClient::Responder
+void LLGroupMgr::groupMembersRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId)
 {
-	LOG_CLASS(GroupMemberDataResponder);
-public:
-	GroupMemberDataResponder() {}
-	virtual ~GroupMemberDataResponder() {}
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("groupMembersRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
-	LLSD mMemberData;
-};
+    mMemberRequestInFlight = true;
 
-void GroupMemberDataResponder::httpFailure()
-{
-	LL_WARNS("GrpMgr") << "Error receiving group member data "
-		<< dumpResponse() << LL_ENDL;
+    LLSD postData = LLSD::emptyMap();
+    postData["group_id"] = groupId;
+
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("GrpMgr") << "Error receiving group member data " << LL_ENDL;
+        mMemberRequestInFlight = false;
+        return;
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+    LLGroupMgr::processCapGroupMembersRequest(result);
+    mMemberRequestInFlight = false;
 }
 
-void GroupMemberDataResponder::httpSuccess()
-{
-	const LLSD& content = getContent();
-	if (!content.isMap())
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
-	LLGroupMgr::processCapGroupMembersRequest(content);
-}
-
-
-// static
 void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 {
+    static U32 lastGroupMemberRequestFrame = 0;
+
 	// Have we requested the information already this frame?
-	if(mLastGroupMembersRequestFrame == gFrameCount)
+    if ((lastGroupMemberRequestFrame == gFrameCount) || (mMemberRequestInFlight))
 		return;
 	
 	LLViewerRegion* currentRegion = gAgent.getRegion();
@@ -2059,20 +2153,13 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
 		return;
 	}
 
-	// Post to our service.  Add a body containing the group_id.
-	LLSD body = LLSD::emptyMap();
-	body["group_id"]	= group_id;
+    lastGroupMemberRequestFrame = gFrameCount;
 
-	LLHTTPClient::ResponderPtr grp_data_responder = new GroupMemberDataResponder();
-	
-	// This could take a while to finish, timeout after 5 minutes.
-	LLHTTPClient::post(cap_url, body, grp_data_responder, LLSD(), 300);
-
-	mLastGroupMembersRequestFrame = gFrameCount;
+    LLCoros::instance().launch("LLGroupMgr::groupMembersRequestCoro",
+        boost::bind(&LLGroupMgr::groupMembersRequestCoro, this, _1, cap_url, group_id));
 }
 
 
-// static
 void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 {
 	// Did we get anything in content?
@@ -2089,7 +2176,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 	
 	LLUUID group_id = content["group_id"].asUUID();
 
-	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
+	LLGroupMgrGroupData* group_datap = getGroupData(group_id);
 	if(!group_datap)
 	{
 		LL_WARNS("GrpMgr") << "Received incorrect, possibly stale, group or request id" << LL_ENDL;
@@ -2183,7 +2270,7 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 	// TODO:
 	// Refactor to reduce multiple calls for data we already have.
 	if(group_datap->mTitles.size() < 1)
-		LLGroupMgr::getInstance()->sendGroupTitlesRequest(group_id);
+		sendGroupTitlesRequest(group_id);
 
 
 	group_datap->mMemberDataComplete = true;
@@ -2192,11 +2279,11 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 	if (group_datap->mPendingRoleMemberRequest || !group_datap->mRoleMemberDataComplete)
 	{
 		group_datap->mPendingRoleMemberRequest = false;
-		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_id);
+		sendGroupRoleMembersRequest(group_id);
 	}
 
 	group_datap->mChanged = TRUE;
-	LLGroupMgr::getInstance()->notifyObservers(GC_MEMBER_DATA);
+	notifyObservers(GC_MEMBER_DATA);
 
 }
 

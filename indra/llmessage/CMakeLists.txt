@@ -48,7 +48,6 @@ set(llmessage_SOURCE_FILES
     llhost.cpp
     llhttpassetstorage.cpp
     llhttpclient.cpp
-    llhttpclientadapter.cpp
     llhttpconstants.cpp
     llhttpnode.cpp
 	llhttpsdhandler.cpp
@@ -143,7 +142,6 @@ set(llmessage_HEADER_FILES
     llhttpassetstorage.h
     llhttpclient.h
     llhttpclientinterface.h
-    llhttpclientadapter.h
     llhttpconstants.h
     llhttpnode.h
     llhttpnodeadapter.h
@@ -281,7 +279,6 @@ if (LL_TESTS)
 
   LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llhttpclientadapter "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
 endif (LL_TESTS)

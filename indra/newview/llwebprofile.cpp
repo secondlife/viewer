@@ -131,10 +131,7 @@ void LLWebProfile::uploadImageCoro(LLCoros::self& self, LLPointer<LLImageFormatt
 
     if (!status)
     {
-        std::ostringstream ostm;
-        LLSDSerialize::toPrettyXML(httpResults, ostm);
         LL_WARNS("Snapshots") << "Failed to get image upload config" << LL_ENDL;
-        LL_WARNS("Snapshots") << ostm.str() << LL_ENDL;
         LLWebProfile::reportImageUploadStatus(false);
         return;
     }
@@ -146,7 +143,7 @@ void LLWebProfile::uploadImageCoro(LLCoros::self& self, LLPointer<LLImageFormatt
     const std::string boundary = "----------------------------0123abcdefab";
 
     // a new set of headers.
-    httpHeaders = buildDefaultHeaders();
+    httpHeaders = LLWebProfile::buildDefaultHeaders();
     httpHeaders->append(HTTP_OUT_HEADER_COOKIE, getAuthCookie());
     httpHeaders->remove(HTTP_OUT_HEADER_CONTENT_TYPE);
     httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
@@ -155,11 +152,6 @@ void LLWebProfile::uploadImageCoro(LLCoros::self& self, LLPointer<LLImageFormatt
 
     result = httpAdapter->postAndYield(self, httpRequest, uploadUrl, body, httpOpts, httpHeaders);
 
-    {
-        std::ostringstream ostm;
-        LLSDSerialize::toPrettyXML(result, ostm);
-        LL_WARNS("Snapshots") << ostm.str() << LL_ENDL;
-    }
     body.reset();
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -173,7 +165,7 @@ void LLWebProfile::uploadImageCoro(LLCoros::self& self, LLPointer<LLImageFormatt
 
     LLSD resultHeaders = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
 
-    httpHeaders = buildDefaultHeaders();
+    httpHeaders = LLWebProfile::buildDefaultHeaders();
     httpHeaders->append(HTTP_OUT_HEADER_COOKIE, getAuthCookie());
 
     const std::string& redirUrl = resultHeaders[HTTP_IN_HEADER_LOCATION].asStringRef();
@@ -198,16 +190,10 @@ void LLWebProfile::uploadImageCoro(LLCoros::self& self, LLPointer<LLImageFormatt
         return;
     }
 
-    LLSD raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW];
-//    const LLSD::Binary &rawBin = raw.asBinary();
-//    std::istringstream rawresult(rawBin.begin(), rawBin.end());
+    //LLSD raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW];
 
-//    LLBufferStream istr(channels, buffer.get());
-//     std::stringstream strstrm;
-//     strstrm << istr.rdbuf();
-//     const std::string body = strstrm.str();
     LL_INFOS("Snapshots") << "Image uploaded." << LL_ENDL;
-    LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << raw.asString() << "]" << LL_ENDL;
+    //LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << raw.asString() << "]" << LL_ENDL;
     LLWebProfile::reportImageUploadStatus(true);
 
 
@@ -218,8 +204,6 @@ LLCore::BufferArray::ptr_t LLWebProfile::buildPostData(const LLSD &data, LLPoint
 {
     LLCore::BufferArray::ptr_t body(new LLCore::BufferArray);
     LLCore::BufferArrayStream bas(body.get());
-
-    //    std::ostringstream body;
 
     // *NOTE: The order seems to matter.
     bas << "--" << boundary << "\r\n"
