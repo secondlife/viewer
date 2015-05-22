@@ -30,7 +30,6 @@
 #include "llfloaterregiondebugconsole.h"
 
 #include "llagent.h"
-#include "llhttpclient.h"
 #include "llhttpnode.h"
 #include "lllineeditor.h"
 #include "lltexteditor.h"
@@ -68,60 +67,6 @@ namespace
 		"ERROR: No console available for this region/simulator.");
 	const std::string CONSOLE_NOT_SUPPORTED(
 		"This region does not support the simulator console.");
-
-#if 0
-	// This responder handles the initial response. Unless error() is called
-	// we assume that the simulator has received our request. Error will be
-	// called if this request times out.
-	class AsyncConsoleResponder : public LLHTTPClient::Responder
-	{
-		LOG_CLASS(AsyncConsoleResponder);
-	protected:
-		/* virtual */
-		void httpFailure()
-		{
-			LL_WARNS("Console") << dumpResponse() << LL_ENDL;
-			sConsoleReplySignal(UNABLE_TO_SEND_COMMAND);
-		}
-	};
-
-	class ConsoleResponder : public LLHTTPClient::Responder
-	{
-		LOG_CLASS(ConsoleResponder);
-	public:
-		ConsoleResponder(LLTextEditor *output) : mOutput(output)
-		{
-		}
-
-	protected:
-		/*virtual*/
-		void httpFailure()
-		{
-			LL_WARNS("Console") << dumpResponse() << LL_ENDL;
-			if (mOutput)
-			{
-				mOutput->appendText(
-					UNABLE_TO_SEND_COMMAND + PROMPT,
-					false);
-			}
-		}
-
-		/*virtual*/
-		void httpSuccess()
-		{
-			const LLSD& content = getContent();
-			LL_DEBUGS("Console") << content << LL_ENDL;
-			if (mOutput)
-			{
-				mOutput->appendText(
-					content.asString() + PROMPT, false);
-			}
-		}
-
-	public:
-		LLTextEditor * mOutput;
-	};
-#endif
 
 	// This handles responses for console commands sent via the asynchronous
 	// API.
@@ -205,35 +150,19 @@ void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
 		}
 		else
 		{
-#if 1
             LLSD postData = LLSD(input->getText());
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, postData,
                 boost::bind(&LLFloaterRegionDebugConsole::onConsoleSuccess, this, _1),
                 boost::bind(&LLFloaterRegionDebugConsole::onConsoleError, this, _1));
-#else
-			// Using SimConsole (deprecated)
-			LLHTTPClient::post(
-				url,
-				LLSD(input->getText()),
-				new ConsoleResponder(mOutput));
-#endif
 		}
 	}
 	else
 	{
-#if 1
         LLSD postData = LLSD(input->getText());
         LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, postData,
             NULL,
             boost::bind(&LLFloaterRegionDebugConsole::onAsyncConsoleError, this, _1));
 
-#else
-		// Using SimConsoleAsync
-		LLHTTPClient::post(
-			url,
-			LLSD(input->getText()),
-			new AsyncConsoleResponder);
-#endif
 	}
 
 	mOutput->appendText(text, false);
