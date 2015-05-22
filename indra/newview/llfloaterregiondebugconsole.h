@@ -38,7 +38,7 @@ class LLTextEditor;
 typedef boost::signals2::signal<
 	void (const std::string& output)> console_reply_signal_t;
 
-class LLFloaterRegionDebugConsole : public LLFloater, public LLHTTPClient::Responder
+class LLFloaterRegionDebugConsole : public LLFloater
 {
 public:
 	LLFloaterRegionDebugConsole(LLSD const & key);
@@ -55,6 +55,10 @@ public:
 
  private:
 	void onReplyReceived(const std::string& output);
+
+    void onAsyncConsoleError(LLSD result);
+    void onConsoleError(LLSD result);
+    void onConsoleSuccess(LLSD result);
 
 	boost::signals2::connection mReplySignalConnection;
 };
