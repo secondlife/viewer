@@ -2736,26 +2736,41 @@ void LLModelPreview::updateStatusMessages()
 	}
 
 
-	//make sure no hulls have more than 256 points in them
+	//warn if hulls have more than 256 points in them
+	BOOL physExceededVertexLimit = FALSE;
 	for (U32 i = 0; mModelNoErrors && i < mModel[LLModel::LOD_PHYSICS].size(); ++i)
 	{
 		LLModel* mdl = mModel[LLModel::LOD_PHYSICS][i];
 
 		if (mdl)
 		{
-			for (U32 j = 0; mModelNoErrors && j < mdl->mPhysics.mHull.size(); ++j)
+			for (U32 j = 0; j < mdl->mPhysics.mHull.size(); ++j)
 			{
 				if (mdl->mPhysics.mHull[j].size() > 256)
 				{
-					mModelNoErrors = false;
+					physExceededVertexLimit = TRUE;
+					LL_INFOS() << "Physical model " << mdl->mLabel << " exceeds vertex per hull limitations." << LL_ENDL;
+					break;
 				}
 			}
-		}		
+		}
+	}
+	mFMP->childSetVisible("physics_status_message_text", physExceededVertexLimit);
+	LLIconCtrl* physStatusIcon = mFMP->getChild<LLIconCtrl>("physics_status_message_icon");
+	physStatusIcon->setVisible(physExceededVertexLimit);
+	if (physExceededVertexLimit)
+	{
+		mFMP->childSetValue("physics_status_message_text", mFMP->getString("phys_status_vertex_limit_exceeded"));
+		LLUIImagePtr img = LLUI::getUIImage("ModelImport_Status_Warning");
+		physStatusIcon->setImage(img);
 	}
 
-	bool errorStateFromLoader = getLoadState() >= LLModelLoader::ERROR_PARSING ? true : false;
+	if (getLoadState() >= LLModelLoader::ERROR_PARSING)
+	{
+		mModelNoErrors = false;
+		LL_INFOS() << "Loader returned errors, model can't be uploaded" << LL_ENDL;
+	}
 
-	bool skinAndRigOk = true;
 	bool uploadingSkin		     = mFMP->childGetValue("upload_skin").asBoolean();
 	bool uploadingJointPositions = mFMP->childGetValue("upload_joints").asBoolean();
 
@@ -2763,19 +2778,23 @@ void LLModelPreview::updateStatusMessages()
 	{
 		if ( uploadingJointPositions && !isRigValidForJointPositionUpload() )
 		{
-			skinAndRigOk = false;
-		}	
+			mModelNoErrors = false;
+			LL_INFOS() << "Invalid rig, there might be issues with uploading Joint positions" << LL_ENDL;
+		}
 	}
 
 	if(mModelNoErrors && mModelLoader)
 	{
 		if(!mModelLoader->areTexturesReady() && mFMP->childGetValue("upload_textures").asBoolean())
 		{
+			// Some textures are still loading, prevent upload until they are done
 			mModelNoErrors = false;
 		}
 	}
 
-	if (!mModelNoErrors || errorStateFromLoader || !skinAndRigOk || has_degenerate)
+	// Todo: investigate use of has_degenerate and include into mModelNoErrors upload blocking mechanics
+	// current use of has_degenerate won't block upload permanently - later checks will restore the button
+	if (!mModelNoErrors || has_degenerate)
 	{
 		mFMP->childDisable("ok_btn");
 	}
