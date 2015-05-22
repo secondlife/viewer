@@ -264,11 +264,13 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 
         LLCore::BufferArray *body = response->getBody();
         LLCore::BufferArrayStream bas(body);
-        LLSD::Binary bodyData;
+        LLSD::String bodyData;
         bodyData.reserve(response->getBodySize());
         bas >> std::noskipws;
         bodyData.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
-        httpStatus["error_body"] = bodyData;
+        httpStatus["error_body"] = LLSD(bodyData);
+
+        LL_WARNS() << "Returned body=" << std::endl << httpStatus["error_body"].asString() << LL_ENDL;
     }
 #endif
 
