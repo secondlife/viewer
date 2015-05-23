@@ -178,6 +178,7 @@ set(llcommon_HEADER_FILES
     llmortician.h
     llnametable.h
     llpointer.h
+    llpounceable.h
     llpredicate.h
     llpreprocessor.h
     llpriqueuemap.h
@@ -310,6 +311,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llpounceable "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
   #ADD_BUILD_TEST(llallocator llcommon)
