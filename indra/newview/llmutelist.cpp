@@ -152,7 +152,7 @@ LLMuteList* LLMuteList::getInstance()
 {
 	// Register callbacks at the first time that we find that the message system has been created.
 	static BOOL registered = FALSE;
-	if( !registered && gMessageSystem != NULL)
+	if( !registered && gMessageSystem)
 	{
 		registered = TRUE;
 		// Register our various callbacks
