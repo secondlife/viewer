@@ -31,11 +31,12 @@
 #include "llhost.h"
 #include "message.h"
 #include "llsd.h"
+#include "llpounceable.h"
 
 #include "llhost.cpp" // Needed for copy operator
 #include "net.cpp" // Needed by LLHost.
 
-LLMessageSystem * gMessageSystem = NULL;
+LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 
 // sensor test doubles
 bool gClearRecvWasCalled = false;
