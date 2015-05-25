@@ -2485,9 +2485,11 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					}
 				}
 			}
+
 			// if target is current outfit folder we use link
 			if (move_is_into_current_outfit &&
-				inv_cat->getPreferredType() == LLFolderType::FT_NONE)
+				(inv_cat->getPreferredType() == LLFolderType::FT_NONE ||
+				inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT))
 			{
 				// traverse category and add all contents to currently worn.
 				BOOL append = true;
