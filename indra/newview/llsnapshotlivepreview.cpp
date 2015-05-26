@@ -750,40 +750,9 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             // Full size preview is set: get the decoded image result and save it for animation
             if (gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview)
             {
-                // Get the decoded version of the formatted image
-                previewp->getEncodedImage();
-            
-                // We need to scale that a bit for display...
-                LLPointer<LLImageRaw> scaled = new LLImageRaw(
-                    previewp->mPreviewImageEncoded->getData(),
-                    previewp->mPreviewImageEncoded->getWidth(),
-                    previewp->mPreviewImageEncoded->getHeight(),
-                    previewp->mPreviewImageEncoded->getComponents());
-
-                if (!scaled->isBufferInvalid())
-                {
-                    // leave original image dimensions, just scale up texture buffer
-                    if (previewp->mPreviewImageEncoded->getWidth() > 1024 || previewp->mPreviewImageEncoded->getHeight() > 1024)
-                    {
-                        // go ahead and shrink image to appropriate power of 2 for display
-                        scaled->biasedScaleToPowerOfTwo(1024);
-                        previewp->setImageScaled(TRUE);
-                    }
-                    else
-                    {
-                        // expand image but keep original image data intact
-                        scaled->expandToPowerOfTwo(1024, FALSE);
-                    }
-
-                    previewp->mViewerImage[previewp->mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
-                    LLPointer<LLViewerTexture> curr_preview_image = previewp->mViewerImage[previewp->mCurImageIndex];
-                    gGL.getTexUnit(0)->bind(curr_preview_image);
-                    curr_preview_image->setFilteringOption(previewp->getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
-                    curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
-
-                    previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
-                }
+                previewp->prepareFreezeFrame();
             }
+
             // The snapshot is updated now...
             previewp->mSnapshotUpToDate = TRUE;
         
@@ -809,6 +778,47 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
     }
 
 	return TRUE;
+}
+
+void LLSnapshotLivePreview::prepareFreezeFrame()
+{
+    // Get the decoded version of the formatted image
+    getEncodedImage();
+
+    // We need to scale that a bit for display...
+    LLPointer<LLImageRaw> scaled = new LLImageRaw(
+        mPreviewImageEncoded->getData(),
+        mPreviewImageEncoded->getWidth(),
+        mPreviewImageEncoded->getHeight(),
+        mPreviewImageEncoded->getComponents());
+
+    if (!scaled->isBufferInvalid())
+    {
+        // leave original image dimensions, just scale up texture buffer
+        if (mPreviewImageEncoded->getWidth() > 1024 || mPreviewImageEncoded->getHeight() > 1024)
+        {
+            // go ahead and shrink image to appropriate power of 2 for display
+            scaled->biasedScaleToPowerOfTwo(1024);
+            setImageScaled(TRUE);
+        }
+        else
+        {
+            // expand image but keep original image data intact
+            scaled->expandToPowerOfTwo(1024, FALSE);
+        }
+
+        mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
+        LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
+        gGL.getTexUnit(0)->bind(curr_preview_image);
+        curr_preview_image->setFilteringOption(getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
+        curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
+
+
+        if (gSavedSettings.getBOOL("UseFreezeFrame") && mAllowFullScreenPreview)
+        {
+            mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
+        }
+    }
 }
 
 S32 LLSnapshotLivePreview::getEncodedImageWidth() const
