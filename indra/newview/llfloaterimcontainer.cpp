@@ -640,12 +640,12 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 		nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 		if ((nearby_chat == NULL) || mIsFirstOpen)
 		{
+			 mIsFirstOpen = false;
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
             selectConversationPair(LLUUID(NULL), false, false);
-            mIsFirstOpen = false;
 		}
 
 		flashConversationItemWidget(mSelectedSession,false);
