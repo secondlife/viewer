@@ -36,6 +36,8 @@
 
 // project includes
 #include "llviewerobject.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 class LLCamera;
 class LLNetMap;
@@ -227,6 +229,14 @@ protected:
 	std::set<LLViewerObject *> mSelectPickList;
 
 	friend class LLViewerObject;
+
+private:
+    static void reportObjectCostFailure(LLSD &objectList);
+    void fetchObjectCostsCoro(LLCoros::self& self, std::string url);
+
+    static void reportPhysicsFlagFailure(LLSD &obejectList);
+    void fetchPhisicsFlagsCoro(LLCoros::self& self, std::string url);
+
 };
 
 
