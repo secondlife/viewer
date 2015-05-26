@@ -82,7 +82,7 @@ private:
 	void refresh();
 
 	static const std::string sCategoryNames[CAT_LAST]; 
-    static void LLFloaterPermsDefault::updateCapCoro(LLCoros::self& self, std::string url);
+    static void updateCapCoro(LLCoros::self& self, std::string url);
 
 
 	// cached values only for implementing cancel.
