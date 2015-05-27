@@ -1457,23 +1457,15 @@ BOOL LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
 	// switch to mouse control mode
 	LLMenuGL::setKeyboardMode(FALSE);
 
-	if (getVisible() && getHighlight() && getBranch())
+	if (getVisible() && isOpen())
 	{
-		// already open - hide menu
-		LLMenuGL::setKeyboardMode(FALSE);
-		for (child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			if (dynamic_cast<LLMenuGL*>(viewp) != NULL && viewp->getVisible())
-			{
-				viewp->setVisible(FALSE);
-			}
-		}
+		LLMenuGL::sMenuContainer->hideMenus();
 	}
 	else
 	{
 		onCommit();
 	}
+
 	make_ui_sound("UISndClick");
 	return TRUE;
 }
@@ -3642,8 +3634,24 @@ BOOL LLMenuHolderGL::handleMouseDown( S32 x, S32 y, MASK mask )
 	BOOL handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
 	if (!handled)
 	{
-		// clicked off of menu, hide them all
-		hideMenus();
+		LLMenuGL* visible_menu = (LLMenuGL*)getVisibleMenu();
+		LLMenuItemGL* parent_menu = visible_menu ? visible_menu->getParentMenuItem() : NULL;
+		if (parent_menu && parent_menu->getVisible())
+		{
+			// don't hide menu if parent was hit
+			LLRect parent_rect;
+			parent_menu->localRectToOtherView(parent_menu->getLocalRect(), &parent_rect, this);
+			if (!parent_rect.pointInRect(x, y))
+			{
+				// clicked off of menu and parent, hide them all
+				hideMenus();
+			}
+		}
+		else
+		{
+			// no visible parent, clicked off of menu, hide them all
+			hideMenus();
+		}
 	}
 	return handled;
 }
