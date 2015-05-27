@@ -102,7 +102,7 @@ int yyerror(const char *fmt, ...);
 "event"				{ count(); return(EVENT); }
 "jump"				{ count(); return(JUMP); }
 "return"			{ count(); return(RETURN); }
-"if"				{ count(); return(IF); }
+"if"				{ count(); return(IFF); }
 "else"				{ count(); return(ELSE); }
 "for"				{ count(); return(FOR); }
 "do"				{ count(); return(DO); }

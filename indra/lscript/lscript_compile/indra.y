@@ -117,7 +117,7 @@
 %token					SHIFT_LEFT
 %token					SHIFT_RIGHT
 
-%token					IF
+%token					IFF         /* IF used by a helper library */
 %token					ELSE
 %token					FOR
 %token					DO
@@ -1312,13 +1312,13 @@ statement
 	{ 
 		$$ = $1;
 	}
-	| IF '(' expression ')' statement	%prec LOWER_THAN_ELSE			
+	| IFF '(' expression ')' statement	%prec LOWER_THAN_ELSE			
 	{  
 		$$ = new LLScriptIf(gLine, gColumn, $3, $5);
 		$5->mAllowDeclarations = FALSE;
 		gAllocationManager->addAllocation($$);
 	}
-	| IF '(' expression ')' statement ELSE statement					
+	| IFF '(' expression ')' statement ELSE statement					
 	{  
 		$$ = new LLScriptIfElse(gLine, gColumn, $3, $5, $7);
 		$5->mAllowDeclarations = FALSE;
