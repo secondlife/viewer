@@ -37,6 +37,7 @@
 #include "llviewerwearable.h"
 #include "lltooldraganddrop.h"
 #include "lllandmarklist.h"
+#include "llfolderviewitem.h"
 
 class LLInventoryFilter;
 class LLInventoryPanel;
@@ -694,5 +695,12 @@ bool isAddAction(const std::string& action);
 bool isRemoveAction(const std::string& action);
 bool isMarketplaceCopyAction(const std::string& action);
 bool isMarketplaceSendAction(const std::string& action);
+
+class LLFolderViewGroupedItemBridge: public LLFolderViewGroupedItemModel
+{
+public:
+    LLFolderViewGroupedItemBridge();
+    virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu);
+};
 
 #endif // LL_LLINVENTORYBRIDGE_H
