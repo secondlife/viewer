@@ -149,7 +149,7 @@ public:
 
 	const uuid_vec_t& getRoleMembers() const { return mMemberIDs; }
 	S32 getMembersInRole(uuid_vec_t members, BOOL needs_sort = TRUE);
-	S32 getTotalMembersInRole() { return mMemberIDs.size(); }
+	S32 getTotalMembersInRole() { return mMemberCount ? mMemberCount : mMemberIDs.size(); } //FIXME: Returns 0 for Everyone role when Member list isn't yet loaded, see MAINT-5225
 
 	LLRoleData getRoleData() const { return mRoleData; }
 	void setRoleData(LLRoleData data) { mRoleData = data; }

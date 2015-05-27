@@ -350,12 +350,10 @@ void LLPanelGroupRoles::update(LLGroupChange gc)
 
 void LLPanelGroupRoles::activate()
 {
+	if (!gAgent.isInGroup(mGroupID)) return;
+
 	// Start requesting member and role data if needed.
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-	if (!gdatap || !gdatap->isMemberDataComplete() )
-	{
-		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-	}
 
 	if (!gdatap || !gdatap->isRoleDataComplete() )
 	{
@@ -364,13 +362,7 @@ void LLPanelGroupRoles::activate()
 
 		LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mGroupID);
 	}
-
-	// Check role-member mapping data.
-	if (!gdatap || !gdatap->isRoleMemberDataComplete() )
-	{
-		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
-	}
-
+	
 	// Need this to get base group member powers
 	if (!gdatap || !gdatap->isGroupPropertiesDataComplete() )
 	{
@@ -1327,15 +1319,26 @@ void LLPanelGroupMembersSubTab::handleMemberDoubleClick()
 
 void LLPanelGroupMembersSubTab::activate()
 {
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+
 	LLPanelGroupSubTab::activate();
 	if(!mActivated)
 	{
+		if (!gdatap || !gdatap->isMemberDataComplete())
+		{
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
+		}
+
+		if (!gdatap || !gdatap->isRoleMemberDataComplete())
+		{
+			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
+		}
+
 		update(GC_ALL);
 		mActivated = true;
 	}
 	else
 	{
-		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 		// Members can be removed outside of this tab, checking changes
 		if (!gdatap || (gdatap->isMemberDataComplete() && gdatap->mMembers.size() != mMembersList->getItemCount()))
 		{
@@ -2111,20 +2114,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 			mDeleteRoleButton->setEnabled(FALSE);
 		}
 	}
-
-	if(!mFirstOpen)
-	{
-		if (!gdatap || !gdatap->isMemberDataComplete())
-		{
-			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-		}
-
-		if (!gdatap || !gdatap->isRoleMemberDataComplete())
-		{
-			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
-		}
-	}
-
+	
 	if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
 	    && gdatap
 	    && gdatap->isMemberDataComplete()
