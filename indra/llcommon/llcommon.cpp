@@ -31,6 +31,7 @@
 #include "llthread.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
+#include "llcleanup.h"
 
 //static
 BOOL LLCommon::sAprInitialized = FALSE;
@@ -63,11 +64,11 @@ void LLCommon::cleanupClass()
 	sMasterThreadRecorder = NULL;
 	LLTrace::set_master_thread_recorder(NULL);
 	LLThreadSafeRefCount::cleanupThreadSafeRefCount();
-	LLTimer::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLTimer);
 	if (sAprInitialized)
 	{
 		ll_cleanup_apr();
 		sAprInitialized = FALSE;
 	}
-	LLMemory::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLMemory);
 }
