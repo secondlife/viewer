@@ -162,6 +162,7 @@ set(llcommon_HEADER_FILES
     llhash.h
     llheartbeat.h
     llindexedvector.h
+    llinitdestroyclass.h
     llinitparam.h
     llinstancetracker.h
     llkeythrottle.h

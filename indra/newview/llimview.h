@@ -33,6 +33,7 @@
 
 #include "lllogchat.h"
 #include "llvoicechannel.h"
+#include "llinitdestroyclass.h"
 
 class LLAvatarName;
 class LLFriendObserver;
