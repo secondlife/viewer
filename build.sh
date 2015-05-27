@@ -180,7 +180,7 @@ build()
 build_docs()
 {
   begin_section "Building Documentation"
-  begin_section "Autobuild metadata"
+  begin_section "Autobuild metadata $(pwd)"
   if [ -r "$build_dir/autobuild-package.xml" ]
   then
       upload_item docs "$build_dir/autobuild-package.xml" text/xml
