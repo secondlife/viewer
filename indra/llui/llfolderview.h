@@ -45,6 +45,7 @@
 #include "llscrollcontainer.h"
 
 class LLFolderViewModelInterface;
+class LLFolderViewGroupedItemModel;
 class LLFolderViewFolder;
 class LLFolderViewItem;
 class LLFolderViewFilter;
@@ -93,6 +94,7 @@ public:
 								use_ellipses,
 								show_item_link_overlays;
 		Mandatory<LLFolderViewModelInterface*>	view_model;
+		Optional<LLFolderViewGroupedItemModel*> grouped_item_model;
         Mandatory<std::string>   options_menu;
 
 
@@ -100,7 +102,7 @@ public:
 	};
 
 	friend class LLFolderViewScrollContainer;
-    typedef std::deque<LLFolderViewItem*> selected_items_t;
+    typedef folder_view_item_deque selected_items_t;
 
 	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
@@ -113,6 +115,9 @@ public:
 	LLFolderViewModelInterface* getFolderViewModel() { return mViewModel; }
 	const LLFolderViewModelInterface* getFolderViewModel() const { return mViewModel; }
 
+    LLFolderViewGroupedItemModel* getFolderViewGroupedItemModel() { return mGroupedItemModel; }
+    const LLFolderViewGroupedItemModel* getFolderViewGroupedItemModel() const { return mGroupedItemModel; }
+    
 	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
@@ -300,6 +305,7 @@ protected:
 	LLHandle<LLPanel>               mParentPanel;
 	
 	LLFolderViewModelInterface*		mViewModel;
+    LLFolderViewGroupedItemModel*   mGroupedItemModel;
 
 	/**
 	 * Is used to determine if we need to cut text In LLFolderViewItem to avoid horizontal scroll.
