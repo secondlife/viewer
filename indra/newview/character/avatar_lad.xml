@@ -413,6 +413,116 @@
        rotation="0 0 0"
        visible_in_first_person="true" />
   	
+  	<attachment_point
+       id="41"
+       group="6"
+       pie_slice="2"
+       name="L Wing Shoulder"
+       joint="mLeftWingShoulder"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="42"
+       group="6"
+       pie_slice="2"
+       name="L Wing Elbow"
+       joint="mLeftWingElbow"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="43"
+       group="6"
+       pie_slice="2"
+       name="L Wing Wrist"
+       joint="mLeftWingWrist"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="44"
+       group="6"
+       pie_slice="2"
+       name="L Wing Tip"
+       joint="mLeftWingTip"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="45"
+       group="6"
+       pie_slice="2"
+       name="R Wing Shoulder"
+       joint="mRightWingShoulder"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="46"
+       group="6"
+       pie_slice="2"
+       name="R Wing Elbow"
+       joint="mRightWingElbow"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="47"
+       group="6"
+       pie_slice="2"
+       name="R Wing Wrist"
+       joint="mRightWingWrist"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="48"
+       group="6"
+       pie_slice="2"
+       name="R Wing Tip"
+       joint="mRightWingTip"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="49"
+       group="6"
+       pie_slice="2"
+       name="Tail 1"
+       joint="mTail_1"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="50"
+       group="6"
+       pie_slice="2"
+       name="Tail 2"
+       joint="mTail_2"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
+  	<attachment_point
+       id="51"
+       group="6"
+       pie_slice="2"
+       name="Tail 3"
+       joint="mTail_3"
+       position="0 0 0"
+       rotation="0 0 0"
+       visible_in_first_person="true" />
+  	
     <param
        id="32"
        group="1"

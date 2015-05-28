@@ -552,6 +552,12 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 {
 	LLJoint* joint = NULL;
 
+    LL_DEBUGS("BVH") << "bone info: name " << info->mName
+                     << " isJoint " << info->mIsJoint
+                     << " volume_num " << volume_num
+                     << " joint_num " << joint_num
+                     << LL_ENDL;
+
 	if (info->mIsJoint)
 	{
 		joint = getCharacterJoint(joint_num);
@@ -629,6 +635,7 @@ BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
 //-----------------------------------------------------------------------------
 BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 {
+    LL_DEBUGS("BVH") << "numBones " << info->mNumBones << " numCollisionVolumes " << info->mNumCollisionVolumes << LL_ENDL;
 	//-------------------------------------------------------------------------
 	// allocate joints
 	//-------------------------------------------------------------------------
@@ -655,8 +662,8 @@ BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 	LLAvatarSkeletonInfo::bone_info_list_t::const_iterator iter;
 	for (iter = info->mBoneInfoList.begin(); iter != info->mBoneInfoList.end(); ++iter)
 	{
-		LLAvatarBoneInfo *info = *iter;
-		if (!setupBone(info, NULL, current_volume_num, current_joint_num))
+		LLAvatarBoneInfo *bone_info = *iter;
+		if (!setupBone(bone_info, NULL, current_volume_num, current_joint_num))
 		{
 			LL_ERRS() << "Error parsing bone in skeleton file" << LL_ENDL;
 			return FALSE;

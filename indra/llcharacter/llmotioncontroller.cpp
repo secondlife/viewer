@@ -585,6 +585,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		else
 		{
 			// NUM_JOINT_SIGNATURE_STRIDES should be multiple of 4
+			// FIXME BENTO - think it's just the number of joints that needs to be a multiple of 4, not the number of strides.
 			for (S32 i = 0; i < NUM_JOINT_SIGNATURE_STRIDES; i++)
 			{
 		 		U32 *current_signature = (U32*)&(mJointSignature[0][i * 4]);
