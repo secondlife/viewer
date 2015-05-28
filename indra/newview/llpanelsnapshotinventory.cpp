@@ -78,7 +78,7 @@ BOOL LLPanelSnapshotInventory::postBuild()
 // virtual
 void LLPanelSnapshotInventory::onOpen(const LLSD& key)
 {
-	getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
+	getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::getInstance()->getPriceUpload()));
 	LLPanelSnapshot::onOpen(key);
 }
 

@@ -993,7 +993,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 				std::string name = floaterp->getChild<LLUICtrl>("name_form")->getValue().asString();
 				std::string desc = floaterp->getChild<LLUICtrl>("description_form")->getValue().asString();
 				LLAssetStorage::LLStoreAssetCallback callback = NULL;
-				S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+				S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 				void *userdata = NULL;
 				upload_new_resource(floaterp->mTransactionID, // tid
 						    LLAssetType::AT_ANIMATION,
