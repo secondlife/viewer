@@ -57,6 +57,7 @@
 #include "llcallingcard.h"
 #include "llbuycurrencyhtml.h"
 #include "llfirstuse.h"
+#include "llfloaterbump.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
@@ -6214,6 +6215,11 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 			gMeanCollisionList.push_front(mcd);
 			gCacheName->get(perp, false, boost::bind(&mean_name_callback, _1, _2, _3));
 		}
+	}
+	LLFloaterBump* bumps_floater = LLFloaterBump::getInstance();
+	if(bumps_floater && bumps_floater->isInVisibleChain())
+	{
+		bumps_floater->populateCollisionList();
 	}
 }
 
