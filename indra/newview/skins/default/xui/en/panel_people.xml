@@ -506,7 +506,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                 left="3"
                 use_ellipses="true"
                 name="groupcount">
-              You belong to [COUNT] groups, and can join [REMAINING] more.
+              You belong to [COUNT] groups, and can join [REMAINING] more.  [secondlife:/// Want more?]
             </text>
             <group_list
              allow_select="true" 

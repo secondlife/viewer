@@ -85,6 +85,8 @@ static const std::string RECENT_TAB_NAME	= "recent_panel";
 static const std::string BLOCKED_TAB_NAME	= "blocked_panel"; // blocked avatars
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
 
+const S32 BASE_MAX_AGENT_GROUPS = 42;
+const S32 PREMIUM_MAX_AGENT_GROUPS = 60;
 
 extern S32 gMaxAgentGroups;
 
@@ -585,6 +587,7 @@ BOOL LLPanelPeople::postBuild()
 	getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("fbc_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+	getChild<LLTextBox>("groupcount")->setURLClickedCallback(boost::bind(&LLPanelPeople::onGroupLimitInfo, this));
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
 	mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
@@ -902,8 +905,11 @@ void LLPanelPeople::updateButtons()
 
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
 		groups_panel->getChildView("minus_btn")->setEnabled(item_selected && selected_id.notNull()); // a real group selected
-		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.size()));
-		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[REMAINING]", llformat("%d",(gMaxAgentGroups-gAgent.mGroups.size())));
+
+		U32 groups_count = gAgent.mGroups.size();
+		U32 groups_ramaining = gMaxAgentGroups > groups_count ? gMaxAgentGroups - groups_count : 0;
+		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d", groups_count));
+		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[REMAINING]", llformat("%d", groups_ramaining));
 	}
 	else
 	{
@@ -1112,6 +1118,14 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	{
 		mRecentList->setNameFilter(filter);
 	}
+}
+
+void LLPanelPeople::onGroupLimitInfo()
+{
+	LLSD args;
+	args["MAX_BASIC"] = BASE_MAX_AGENT_GROUPS;
+	args["MAX_PREMIUM"] = PREMIUM_MAX_AGENT_GROUPS;
+	LLNotificationsUtil::add("GroupLimitInfo", args);
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
