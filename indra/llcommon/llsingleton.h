@@ -30,30 +30,20 @@
 #include <typeinfo>
 #include <boost/noncopyable.hpp>
 
-// LLSingleton implements the getInstance() method part of the Singleton
-// pattern. It can't make the derived class constructors protected, though, so
-// you have to do that yourself.
-//
-// There are two ways to use LLSingleton. The first way is to inherit from it
-// while using the typename that you'd like to be static as the template
-// parameter, like so:
-//
-//   class Foo: public LLSingleton<Foo>{};
-//
-//   Foo& instance = Foo::instance();
-//
-// The second way is to use the singleton class directly, without inheritance:
-//
-//   typedef LLSingleton<Foo> FooSingleton;
-//
-//   Foo& instance = FooSingleton::instance();
-//
-// In this case, the class being managed as a singleton needs to provide an
-// initSingleton() method since the LLSingleton virtual method won't be
-// available
-//
-// As currently written, it is not thread-safe.
-
+/**
+ * LLSingleton implements the getInstance() method part of the Singleton
+ * pattern. It can't make the derived class constructors protected, though, so
+ * you have to do that yourself.
+ *
+ * Derive your class from LLSingleton, passing your subclass name as
+ * LLSingleton's template parameter, like so:
+ *
+ *   class Foo: public LLSingleton<Foo>{};
+ *
+ *   Foo& instance = Foo::instance();
+ *
+ * As currently written, LLSingleton is not thread-safe.
+ */
 template <typename DERIVED_TYPE>
 class LLSingleton : private boost::noncopyable
 {
