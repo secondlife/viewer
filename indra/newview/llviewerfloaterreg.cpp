@@ -56,7 +56,6 @@
 #include "llfloaterconversationpreview.h"
 #include "llfloaterdeleteenvpreset.h"
 #include "llfloaterdestinations.h"
-#include "llfloaterdisplayname.h"
 #include "llfloatereditdaycycle.h"
 #include "llfloatereditsky.h"
 #include "llfloatereditwater.h"
@@ -238,7 +237,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLInspectRemoteObjectUtil::registerFloater();
 	LLFloaterVoiceVolumeUtil::registerFloater();
 	LLNotificationsUI::registerFloater();
-	LLFloaterDisplayNameUtil::registerFloater();
 	
 	LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
 	LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);
