@@ -202,7 +202,7 @@ void LLWebProfile::uploadImageCoro(LLCoros::self& self, LLPointer<LLImageFormatt
 /*static*/
 LLCore::BufferArray::ptr_t LLWebProfile::buildPostData(const LLSD &data, LLPointer<LLImageFormatted> &image, const std::string &boundary)
 {
-    LLCore::BufferArray::ptr_t body(new LLCore::BufferArray);
+    LLCore::BufferArray::ptr_t body(new LLCore::BufferArray, false);
     LLCore::BufferArrayStream bas(body.get());
 
     // *NOTE: The order seems to matter.

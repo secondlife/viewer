@@ -256,7 +256,7 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 
     buildStatusEntry(response, status, result);
 
-#if 0
+#if 1
     // commenting out, but keeping since this can be useful for debugging
     if (!status)
     {
@@ -604,6 +604,16 @@ LLSD HttpCoroutineAdapter::postAndYield(LLCoros::self & self, LLCore::HttpReques
 {
     LLEventStream  replyPump(mAdapterName, true);
     HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+
+    return postAndYield_(self, request, url, rawbody, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::postRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+    const std::string & url, LLCore::BufferArray::ptr_t rawbody,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName, true);
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroRawHandler(replyPump));
 
     return postAndYield_(self, request, url, rawbody, options, headers, httpHandler);
 }

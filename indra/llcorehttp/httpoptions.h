@@ -149,6 +149,15 @@ public:
 	{
 		return mDNSCacheTimeout;
 	}
+
+    /// Retrieve only the headers and status from the request. Setting this 
+    /// to true implies setWantHeaders(true) as well.
+    /// Default: false
+    void                setHeadersOnly(bool nobody);
+    bool                getHeadersOnly() const
+    {
+        return mNoBody;
+    }
 	
 protected:
 	bool				mWantHeaders;
@@ -161,6 +170,7 @@ protected:
 	bool				mVerifyPeer;
 	bool        		mVerifyHost;
 	int					mDNSCacheTimeout;
+    bool                mNoBody;
 }; // end class HttpOptions
 
 

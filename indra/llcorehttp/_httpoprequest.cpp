@@ -532,6 +532,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	long sslPeerV(0L);
 	long sslHostV(0L);
     long dnsCacheTimeout(-1L);
+    long nobody(0L);
 
 	if (mReqOptions)
 	{
@@ -539,6 +540,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		sslPeerV = mReqOptions->getSSLVerifyPeer() ? 1L : 0L;
 		sslHostV = mReqOptions->getSSLVerifyHost() ? 2L : 0L;
 		dnsCacheTimeout = mReqOptions->getDNSCacheTimeout();
+        nobody = mReqOptions->getHeadersOnly() ? 1L : 0L;
 	}
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, follow_redirect);
 	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
@@ -547,6 +549,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYPEER);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, sslHostV);
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
+
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_NOBODY, nobody);
+    check_curl_easy_code(code, CURLOPT_NOBODY);
 
 	// The Linksys WRT54G V5 router has an issue with frequent
 	// DNS lookups from LAN machines.  If they happen too often,
@@ -587,7 +592,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	switch (mReqMethod)
 	{
 	case HOR_GET:
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+        if (nobody == 0)
+            code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
 		check_curl_easy_code(code, CURLOPT_HTTPGET);
 		break;
 		

@@ -334,6 +334,19 @@ public:
             LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
     }
 
+    LLSD postRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url, LLCore::BufferArray::ptr_t rawbody,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+
+    LLSD postRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return postRawAndYield(self, request, url, rawbody,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+    }
+
     /// Execute a Put transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
     /// 
