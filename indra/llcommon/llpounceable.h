@@ -40,8 +40,7 @@
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/utility/value_init.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/function.hpp>
-#include <queue>
+#include <boost/signals2/signal.hpp>
 
 // Forward declare the user template, since we want to be able to point to it
 // in some of its implementation classes.
@@ -51,10 +50,10 @@ class LLPounceable;
 template <typename T, typename TAG>
 struct LLPounceableTraits
 {
+    // Our "queue" is a signal object with correct signature.
+    typedef boost::signals2::signal<void (typename boost::call_traits<T>::param_type)> signal_t;
     // Call callWhenReady() with any callable accepting T.
-    typedef boost::function<void (typename boost::call_traits<T>::param_type)> func_t;
-    // Our actual queue is a simple queue of such callables.
-    typedef std::queue<func_t> queue_t;
+    typedef typename signal_t::slot_type func_t;
     // owner pointer type
     typedef LLPounceable<T, TAG>* owner_ptr;
 };
@@ -79,17 +78,17 @@ class LLPounceableQueueSingleton:
 private:
     typedef LLPounceableTraits<T, LLPounceableStatic> traits;
     typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::queue_t queue_t;
+    typedef typename traits::signal_t signal_t;
 
     // For a given held type T, every LLPounceable<T, LLPounceableStatic>
     // instance will call on the SAME LLPounceableQueueSingleton instance --
     // given how class statics work. We must keep a separate queue for each
     // LLPounceable instance. Use a hash map for that.
-    typedef boost::unordered_map<owner_ptr, queue_t> map_t;
+    typedef boost::unordered_map<owner_ptr, signal_t> map_t;
 
 public:
     // Disambiguate queues belonging to different LLPounceables.
-    queue_t& get(owner_ptr owner)
+    signal_t& get(owner_ptr owner)
     {
         // operator[] has find-or-create semantics -- just what we want!
         return mMap[owner];
@@ -106,9 +105,9 @@ class LLPounceableQueueImpl<T, LLPounceableStatic>
 public:
     typedef LLPounceableTraits<T, LLPounceableStatic> traits;
     typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::queue_t queue_t;
+    typedef typename traits::signal_t signal_t;
 
-    queue_t& get(owner_ptr owner) const
+    signal_t& get(owner_ptr owner) const
     {
         // this Impl contains nothing; it delegates to the Singleton
         return LLPounceableQueueSingleton<T>::instance().get(owner);
@@ -124,15 +123,15 @@ class LLPounceableQueueImpl<T, LLPounceableQueue>
 public:
     typedef LLPounceableTraits<T, LLPounceableQueue> traits;
     typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::queue_t queue_t;
+    typedef typename traits::signal_t signal_t;
 
-    queue_t& get(owner_ptr)
+    signal_t& get(owner_ptr)
     {
         return mQueue;
     }
 
 private:
-    queue_t mQueue;
+    signal_t mQueue;
 };
 
 // LLPounceable<T> is for an LLPounceable instance on the heap or the stack.
@@ -143,7 +142,7 @@ class LLPounceable
 private:
     typedef LLPounceableTraits<T, TAG> traits;
     typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::queue_t queue_t;
+    typedef typename traits::signal_t signal_t;
 
 public:
     typedef typename traits::func_t func_t;
@@ -177,12 +176,9 @@ public:
         // If this new value is non-empty, flush anything pending in the queue.
         if (mHeld != mEmpty)
         {
-            queue_t& queue(get_queue());
-            while (! queue.empty())
-            {
-                queue.front()(mHeld);
-                queue.pop();
-            }
+            signal_t& signal(get_signal());
+            signal(mHeld);
+            signal.disconnect_all_slots();
         }
     }
 
@@ -196,13 +192,14 @@ public:
         }
         else
         {
-            // held value still empty, queue func() for later
-            get_queue().push(func);
+            // Held value still empty, queue func() for later. By default,
+            // connect() enqueues slots in FIFO order.
+            get_signal().connect(func);
         }
     }
 
 private:
-    queue_t& get_queue() { return mQueue.get(this); }
+    signal_t& get_signal() { return mQueue.get(this); }
 
     // Store both the current and the empty value.
     // MAYBE: Might be useful to delegate to LLPounceableTraits the meaning of

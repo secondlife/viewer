@@ -20,6 +20,13 @@
 // other Linden headers
 #include "../test/lltut.h"
 
+/*----------------------------- string testing -----------------------------*/
+void append(std::string* dest, const std::string& src)
+{
+    dest->append(src);
+}
+
+/*-------------------------- Data-struct testing ---------------------------*/
 struct Data
 {
     Data(const std::string& data):
@@ -191,6 +198,29 @@ namespace tut
 
     template<> template<>
     void object::test<6>()
+    {
+        set_test_name("queue order");
+        std::string data;
+        LLPounceable<std::string*> pounceable;
+        pounceable.callWhenReady(boost::bind(append, _1, "a"));
+        pounceable.callWhenReady(boost::bind(append, _1, "b"));
+        pounceable.callWhenReady(boost::bind(append, _1, "c"));
+        pounceable = &data;
+        ensure_equals("callWhenReady() must preserve chronological order",
+                      data, "abc");
+
+        std::string data2;
+        pounceable = NULL;
+        pounceable.callWhenReady(boost::bind(append, _1, "d"));
+        pounceable.callWhenReady(boost::bind(append, _1, "e"));
+        pounceable.callWhenReady(boost::bind(append, _1, "f"));
+        pounceable = &data2;
+        ensure_equals("LLPounceable must reset queue when fired",
+                      data2, "def");
+    }
+
+    template<> template<>
+    void object::test<7>()
     {
         set_test_name("compile-fail test, uncomment to check");
         // The following declaration should fail: only LLPounceableQueue and
