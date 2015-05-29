@@ -36,6 +36,7 @@
 #define LL_LLPOUNCEABLE_H
 
 #include "llsingleton.h"
+#include <boost/noncopyable.hpp>
 #include <boost/call_traits.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/utility/value_init.hpp>
@@ -137,7 +138,7 @@ private:
 // LLPounceable<T> is for an LLPounceable instance on the heap or the stack.
 // LLPounceable<T, LLPounceableStatic> is for a static LLPounceable instance.
 template <typename T, class TAG=LLPounceableQueue>
-class LLPounceable
+class LLPounceable: public boost::noncopyable
 {
 private:
     typedef LLPounceableTraits<T, TAG> traits;

@@ -147,7 +147,7 @@ namespace tut
         Data a("a");
         // should be able to initialize a pounceable (when its constructor
         // runs)
-        LLPounceable<Data*> pounceable = &a;
+        LLPounceable<Data*> pounceable(&a);
         // should be able to pass LLPounceable<T> to function accepting T
         setter(&aptr, pounceable);
         ensure_equals("aptr should be &a", aptr, &a);
