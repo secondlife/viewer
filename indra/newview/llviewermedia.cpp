@@ -2582,6 +2582,7 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(LLCoros::self& self, std::string url)
 
     mMimeProbe = httpAdapter;
 
+    httpOpts->setFollowRedirects(true);
     httpOpts->setHeadersOnly(true);
 
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
