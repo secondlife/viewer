@@ -497,7 +497,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 								 gMessageSystem->getSenderPort());
 				if (fullid.isNull())
 				{
-					LL_WARNS() << "ATT? update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << LL_ENDL;
+					LL_DEBUGS() << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << LL_ENDL;
 					mNumUnknownUpdates++;
 				}
 			}
