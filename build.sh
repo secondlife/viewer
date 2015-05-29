@@ -177,25 +177,6 @@ build()
 }
 
 # This is called from the branch independent script upon completion of all platform builds.
-build_docs()
-{
-  begin_section "Building Documentation"
-  begin_section "Autobuild metadata $(pwd)"
-  if [ -r "$build_dir/autobuild-package.xml" ]
-  then
-      upload_item docs "$build_dir/autobuild-package.xml" text/xml
-  else
-      record_event "no metadata at '$build_dir/autobuild-package.xml'"
-  fi
-  end_section "Autobuild metadata"
-  if [ "$arch" != "Linux" ]
-  then
-      record_dependencies_graph # defined in build.sh
-  else
-      echo "TBD - skipping linux graph (probable python version dependency)" 1>&2
-  fi
-  end_section "Building Documentation"
-}
 
 
 # Check to see if we were invoked from the wrapper, if not, re-exec ourselves from there
@@ -265,16 +246,34 @@ do
       build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
       if `cat "$build_dir/build_ok"`
       then
-        echo "so far so good" >> "$build_log"
+          if [ "$variant" == "Release" ]
+          then
+              if [ -r "$build_dir/autobuild-package.xml" ]
+              then
+                  begin_section "Autobuild metadata"
+                  record_event "Upload autobuild metadata"
+                  upload_item docs "$build_dir/autobuild-package.xml" text/xml
+                  if [ "$arch" != "Linux" ]
+                  then
+                      record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
+                  else
+                      record_event "no dependency graph for linux (probable python version dependency)" 1>&2
+                  fi
+                  end_section "Autobuild metadata"
+              else
+                  record_event "no autobuild metadata at '$build_dir/autobuild-package.xml'"
+              fi
+          else
+              record_event "do not record autobuild metadata for $variant"
+          fi
       else
         record_failure "Build of \"$variant\" failed."
       fi
+
       end_section "Build$variant"
   fi
   end_section "Do$variant"
 done
-
-build_docs
 
 # build debian package
 if [ "$arch" == "Linux" ]
