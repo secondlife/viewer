@@ -273,6 +273,11 @@ do
       end_section "Build$variant"
   fi
   end_section "Do$variant"
+  if ! $succeeded 
+  then
+      record_event "remaining variants skipped due to $variant failure"
+      break
+  fi
 done
 
 # build debian package
