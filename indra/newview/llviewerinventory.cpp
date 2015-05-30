@@ -2136,7 +2136,7 @@ LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 	{
 		return LLWearableType::WT_INVALID;
 	}
-	return LLWearableType::EType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+	return LLWearableType::inventoryFlagsToWearableType(getFlags());
 }
 
 

@@ -37,6 +37,7 @@
 #include "llviewerwearable.h"
 #include "lltooldraganddrop.h"
 #include "lllandmarklist.h"
+#include "llfolderviewitem.h"
 
 class LLInventoryFilter;
 class LLInventoryPanel;
@@ -729,5 +730,12 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show, 
 						  const menuentry_vec_t &disabled_entries);
+
+class LLFolderViewGroupedItemBridge: public LLFolderViewGroupedItemModel
+{
+public:
+    LLFolderViewGroupedItemBridge();
+    virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu);
+};
 
 #endif // LL_LLINVENTORYBRIDGE_H

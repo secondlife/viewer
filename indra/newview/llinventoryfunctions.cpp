@@ -45,6 +45,7 @@
 // newview includes
 #include "llappearancemgr.h"
 #include "llappviewer.h"
+#include "llavataractions.h"
 #include "llclipboard.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llfloaterinventory.h"
@@ -2462,16 +2463,35 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		LLFloater::setFloaterHost(multi_propertiesp);
 	}
 
-	std::set<LLFolderViewItem*>::iterator set_iter;
-
-	for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
-	{
-		LLFolderViewItem* folder_item = *set_iter;
-		if(!folder_item) continue;
-		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
-		if(!bridge) continue;
-		bridge->performAction(model, action);
-	}
+    
+	std::set<LLUUID> selected_uuid_set = LLAvatarActions::getInventorySelectedUUIDs();
+    uuid_vec_t ids;
+    std::copy(selected_uuid_set.begin(), selected_uuid_set.end(), std::back_inserter(ids));
+    // Check for actions that get handled in bulk
+    if (action == "wear")
+    {
+        wear_multiple(ids, true);
+    }
+    else if (action == "wear_add")
+    {
+        wear_multiple(ids, false);
+    }
+    else if (action == "take_off" || action == "detach")
+    {
+        LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
+    }
+    else
+    {
+        std::set<LLFolderViewItem*>::iterator set_iter;
+        for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+        {
+            LLFolderViewItem* folder_item = *set_iter;
+            if(!folder_item) continue;
+            LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+            if(!bridge) continue;
+            bridge->performAction(model, action);
+        }
+    }
 
     // Update the marketplace listings that have been affected by the operation
     updateMarketplaceFolders();

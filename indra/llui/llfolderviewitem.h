@@ -456,5 +456,12 @@ public:
 	template<typename SORT_FUNC> void sortItems(const SORT_FUNC& func) { mItems.sort(func); }
 };
 
+typedef std::deque<LLFolderViewItem*> folder_view_item_deque;
+
+class LLFolderViewGroupedItemModel: public LLRefCount
+{
+public:
+    virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu) = 0;
+};
 
 #endif  // LLFOLDERVIEWITEM_H
