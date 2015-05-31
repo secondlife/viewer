@@ -1309,16 +1309,14 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 # the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
 # the summary.json file is created for the benefit of the TeamCity builds, where
 #   it is used to provide descriptive information to the build results page
-add_custom_target(generate_viewer_version ALL
-                  COMMAND printf '${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}' > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-                  COMMAND printf '{"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"}' > ${CMAKE_BINARY_DIR}/summary.json
-                  COMMENT Generating viewer_version.txt for manifest processing
-                  )
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
+           "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
+file(WRITE "${CMAKE_BINARY_DIR}/summary.json"
+           "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\"}\n")
 
 set_source_files_properties(
    llversioninfo.cpp tests/llversioninfo_test.cpp 
    PROPERTIES
-   DEPENDS generate_viewer_version  # dummy dependency to force recompile every time
    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
    )
 
@@ -1676,8 +1674,6 @@ if (WINDOWS)
         LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
 
-    add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
-
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
             ${VIEWER_BINARY_NAME}
@@ -2002,8 +1998,6 @@ if (LINUX)
     llcommon
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
-
   add_custom_command(
       OUTPUT ${product}.tar.bz2
       COMMAND ${PYTHON_EXECUTABLE}
@@ -2087,8 +2081,6 @@ if (DARWIN)
      "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Info.plist"
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
-
   add_custom_command(
     TARGET ${VIEWER_BINARY_NAME} POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE}
@@ -2121,7 +2113,6 @@ if (DARWIN)
 
   if (PACKAGE)
       add_custom_target(llpackage ALL DEPENDS ${VIEWER_BINARY_NAME})
-      add_dependencies(llpackage generate_viewer_version)
 
       add_custom_command(
         TARGET llpackage POST_BUILD
