@@ -1,10 +1,13 @@
 #!/bin/sh
 
-# This is a the master build script - it is intended to be run by the Linden
-# Lab build farm
-# It is called by a wrapper script in the shared repository which sets up
-# the environment from the various BuildParams files and does all the build 
-# result post-processing.
+# This is the custom build script for the viewer
+#
+# It must be run by the Linden Lab build farm shared buildscript because
+# it relies on the environment that sets up, functions it provides, and
+# the build result post-processing it does.
+#
+# The shared buildscript build.sh invokes this because it is named 'build.sh',
+# which is the default custom build script name in buildscripts/hg/BuildParams
 #
 # PLEASE NOTE:
 #
@@ -12,7 +15,6 @@
 #   Cygwin can be tricky....
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
-# * This script relies heavily on parameters defined in BuildParams
 
 check_for()
 {
@@ -94,12 +96,10 @@ installer_CYGWIN()
 pre_build()
 {
   local variant="$1"
-  begin_section "Pre$variant"
+  begin_section "Configure $variant"
     [ -n "$master_message_template_checkout" ] \
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
-
-    check_for "Confirm dictionaries are installed before 'autobuild configure'" ${build_dir}/packages/dictionaries
 
     "$autobuild" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
@@ -109,7 +109,7 @@ pre_build()
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
 
- end_section "Pre$variant"
+ end_section "Configure $variant"
 }
 
 package_llphysicsextensions_tpv()
@@ -146,11 +146,8 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    begin_section "Viewer$variant"
-
     "$autobuild" build --no-configure -c $variant
     build_ok=$?
-    end_section "Viewer$variant"
 
     # Run build extensions
     if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]; then
@@ -176,9 +173,6 @@ build()
   fi
 }
 
-# This is called from the branch independent script upon completion of all platform builds.
-
-
 # Check to see if we were invoked from the wrapper, if not, re-exec ourselves from there
 if [ "x$arch" = x ]
 then
@@ -190,7 +184,7 @@ then
     cat <<EOF
 This script, if called in a development environment, requires that the branch
 independent build script repository be checked out next to this repository.
-This repository is located at http://hg.lindenlab.com/parabuild/buildscripts
+This repository is located at http://bitbucket.org/lindenlabinternal/sl-buildscripts
 EOF
     exit 1
   fi
@@ -229,20 +223,19 @@ do
   # Only the last built arch is available for upload
   last_built_variant="$variant"
 
-  begin_section "Do$variant"
+  begin_section "$variant"
   build_dir=`build_dir_$arch $variant`
   build_dir_stubs="$build_dir/win_setup/$variant"
 
-  begin_section "PreClean"
+  begin_section "Initialize Build Directory"
   rm -rf "$build_dir"
-  end_section "PreClean"
-
   mkdir -p "$build_dir"
   mkdir -p "$build_dir/tmp"
+  end_section "Initialize Build Directory"
 
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
-      begin_section "Build$variant"
+      begin_section "Build $variant"
       build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
       if `cat "$build_dir/build_ok"`
       then
@@ -251,7 +244,6 @@ do
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
-                  record_event "Upload autobuild metadata"
                   upload_item docs "$build_dir/autobuild-package.xml" text/xml
                   if [ "$arch" != "Linux" ]
                   then
@@ -267,12 +259,11 @@ do
               record_event "do not record autobuild metadata for $variant"
           fi
       else
-        record_failure "Build of \"$variant\" failed."
+          record_failure "Build of \"$variant\" failed."
       fi
-
-      end_section "Build$variant"
+      end_section "Build $variant"
   fi
-  end_section "Do$variant"
+  end_section "$variant"
   if ! $succeeded 
   then
       record_event "remaining variants skipped due to $variant failure"
