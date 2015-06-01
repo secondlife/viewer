@@ -164,6 +164,7 @@ public:
 	static void setOnlyAudibleMediaTextureID(const LLUUID& texture_id);
 
 	static LLSD getHeaders();
+    static LLCore::HttpHeaders::ptr_t getHttpHeaders();
 	
 private:
 	static void setOpenIDCookie();

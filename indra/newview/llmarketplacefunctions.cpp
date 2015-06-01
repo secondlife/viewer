@@ -36,7 +36,9 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
-
+#include "lleventcoro.h"
+#include "llcoros.h"
+#include "llcorehttputil.h"
 
 //
 // Helpers
@@ -117,11 +119,76 @@ namespace LLMarketplaceImport
 	static S32 sImportResultStatus = 0;
 	static LLSD sImportResults = LLSD::emptyMap();
 
+#if 0
 	static LLTimer slmGetTimer;
 	static LLTimer slmPostTimer;
-
+#endif
 	// Responders
-	
+
+#if 1
+    void marketplacePostCoro(LLCoros::self& self, std::string url)
+    {
+        LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("marketplacePostCoro", httpPolicy));
+        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+        LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+        httpOpts->setWantHeaders(true);
+        httpOpts->setFollowRedirects(false);
+
+        httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
+        httpHeaders->append(HTTP_OUT_HEADER_CONNECTION, "Keep-Alive");
+        httpHeaders->append(HTTP_OUT_HEADER_COOKIE, sMarketplaceCookie);
+        httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_XML);
+        httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
+
+        LLSD result = httpAdapter->postAndYield(self, httpRequest, url, LLSD(), httpOpts, httpHeaders);
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        S32 httpCode = status.getType();
+        if ((httpCode == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
+            (httpCode == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+            // MAINT-2301 : we determined we can safely ignore that error in that context
+            (httpCode == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
+        {
+            if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+            {
+                LL_INFOS() << " SLM POST : Ignoring time out status and treating it as success" << LL_ENDL;
+            }
+            httpCode = MarketplaceErrorCodes::IMPORT_DONE;
+        }
+
+        if (httpCode >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
+        {
+            if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+            {
+                LL_INFOS() << " SLM POST clearing marketplace cookie due to client or server error" << LL_ENDL;
+            }
+            sMarketplaceCookie.clear();
+        }
+
+        sImportInProgress = (httpCode == MarketplaceErrorCodes::IMPORT_DONE);
+        sImportPostPending = false;
+        sImportResultStatus = httpCode;
+
+        {
+            std::stringstream str;
+            LLSDSerialize::toPrettyXML(result, str);
+
+            LL_INFOS() << "Full results:\n" << str.str() << "\n" << LL_ENDL;
+        }
+
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        sImportId = result;
+
+    }
+
+
+#else
 	class LLImportPostResponder : public LLHTTPClient::Responder
 	{
 		LOG_CLASS(LLImportPostResponder);
@@ -167,7 +234,75 @@ namespace LLMarketplaceImport
 			sImportId = getContent();
 		}
 	};
-	
+#endif
+
+#if 1
+    void marketplaceGetCoro(LLCoros::self& self, std::string url, bool buildHeaders)
+    {
+        LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("marketplacePostCoro", httpPolicy));
+        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        LLCore::HttpHeaders::ptr_t httpHeaders; 
+        LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+        httpOpts->setWantHeaders(true);
+        httpOpts->setFollowRedirects(false);
+
+        if (buildHeaders)
+        {
+            httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
+
+            httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
+            httpHeaders->append(HTTP_OUT_HEADER_COOKIE, sMarketplaceCookie);
+            httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+            httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
+        }
+        else
+        {
+            httpHeaders = LLViewerMedia::getHttpHeaders();
+        }
+
+        LLSD result = httpAdapter->getAndYield(self, httpRequest, url, httpOpts, httpHeaders);
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        LLSD resultHeaders = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+
+        if (sMarketplaceCookie.empty() && resultHeaders.has(HTTP_IN_HEADER_SET_COOKIE))
+        {
+            sMarketplaceCookie = resultHeaders[HTTP_IN_HEADER_SET_COOKIE].asString();
+        }
+
+        // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
+        // ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initially empty
+        S32 httpCode = status.getType();
+        if ((httpCode >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
+            (httpCode != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
+            (httpCode != MarketplaceErrorCodes::IMPORT_NOT_FOUND))
+        {
+            if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+            {
+                LL_INFOS() << " SLM GET clearing marketplace cookie due to client or server error" << LL_ENDL;
+            }
+            sMarketplaceCookie.clear();
+        }
+        else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (httpCode >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST))
+        {
+            LL_INFOS() << " SLM GET : Got error status = " << httpCode << ", but marketplace cookie not cleared." << LL_ENDL;
+        }
+
+        sImportInProgress = (httpCode == MarketplaceErrorCodes::IMPORT_PROCESSING);
+        sImportGetPending = false;
+        sImportResultStatus = httpCode;
+
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        sImportResults = result;
+
+
+    }
+
+#else
 	class LLImportGetResponder : public LLHTTPClient::Responder
 	{
 		LOG_CLASS(LLImportGetResponder);
@@ -193,7 +328,7 @@ namespace LLMarketplaceImport
 			}
 			
             // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
-            // ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initally empty
+            // ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initially empty
 			S32 status = getStatus();
 			if ((status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
                 (status != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
@@ -216,6 +351,7 @@ namespace LLMarketplaceImport
 			sImportResults = getContent();
 		}
 	};
+#endif
 
 	// Basic API
 
@@ -266,8 +402,13 @@ namespace LLMarketplaceImport
 		sImportGetPending = true;
 		
 		std::string url = getInventoryImportURL();
-		
-		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+
+#if 1
+        LLCoros::instance().launch("marketplaceGetCoro",
+            boost::bind(&marketplaceGetCoro, _1, url, false));
+
+#else
+    	if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 		{
             LL_INFOS() << " SLM GET: establishMarketplaceSessionCookie, LLHTTPClient::get, url = " << url << LL_ENDL;
             LLSD headers = LLViewerMedia::getHeaders();
@@ -279,7 +420,7 @@ namespace LLMarketplaceImport
 
 		slmGetTimer.start();
 		LLHTTPClient::get(url, new LLImportGetResponder(), LLViewerMedia::getHeaders());
-		
+#endif		
 		return true;
 	}
 	
@@ -296,6 +437,11 @@ namespace LLMarketplaceImport
 
 		url += sImportId.asString();
 
+#if 1
+        LLCoros::instance().launch("marketplaceGetCoro",
+            boost::bind(&marketplaceGetCoro, _1, url, true));
+        
+#else
 		// Make the headers for the post
 		LLSD headers = LLSD::emptyMap();
 		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
@@ -315,7 +461,7 @@ namespace LLMarketplaceImport
 
 		slmGetTimer.start();
 		LLHTTPClient::get(url, new LLImportGetResponder(), headers);
-		
+#endif		
 		return true;
 	}
 	
@@ -334,6 +480,11 @@ namespace LLMarketplaceImport
 
 		std::string url = getInventoryImportURL();
 		
+#if 1
+        LLCoros::instance().launch("marketplacePostCoro",
+            boost::bind(&marketplacePostCoro, _1, url));
+
+#else
 		// Make the headers for the post
 		LLSD headers = LLSD::emptyMap();
 		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
@@ -353,7 +504,7 @@ namespace LLMarketplaceImport
 
 		slmPostTimer.start();
         LLHTTPClient::post(url, LLSD(), new LLImportPostResponder(), headers);
-		
+#endif		
 		return true;
 	}
 }
@@ -362,7 +513,6 @@ namespace LLMarketplaceImport
 //
 // Interface class
 //
-
 static const F32 MARKET_IMPORTER_UPDATE_FREQUENCY = 1.0f;
 
 //static

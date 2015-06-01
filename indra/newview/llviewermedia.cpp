@@ -1205,6 +1205,18 @@ LLSD LLViewerMedia::getHeaders()
 	return headers;
 }
 
+LLCore::HttpHeaders::ptr_t LLViewerMedia::getHttpHeaders()
+{
+    LLCore::HttpHeaders::ptr_t headers(new LLCore::HttpHeaders);
+
+    headers->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
+    headers->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_XML);
+    headers->append(HTTP_OUT_HEADER_COOKIE, sOpenIDCookie);
+    headers->append(HTTP_OUT_HEADER_USER_AGENT, getCurrentUserAgent());
+
+    return headers;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::setOpenIDCookie()
