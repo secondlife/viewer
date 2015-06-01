@@ -3810,11 +3810,8 @@ void LLModelPreview::loadModelCallback(S32 lod)
 		mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
 		if (!mBaseModel.empty())
 		{
-			if (mFMP->getChild<LLUICtrl>("description_form")->getValue().asString().empty())
-			{
-				const std::string& model_name = mBaseModel[0]->getName();
-				mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
-			}
+			const std::string& model_name = mBaseModel[0]->getName();
+			mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
 		}
 	}
 	refresh();
@@ -5138,8 +5135,11 @@ BOOL LLModelPreview::render()
 			mViewOption["show_skin_weight"] = false;
 			fmp->disableViewOption("show_skin_weight");
 			fmp->disableViewOption("show_joint_positions");
+
+			skin_weight = false;
+			mFMP->childSetValue("show_skin_weight", false);
+			fmp->setViewOptionEnabled("show_skin_weight", skin_weight);
 		}
-		skin_weight = false;
 	}
 
 	if (upload_skin && !has_skin_weights)
@@ -5243,6 +5243,16 @@ BOOL LLModelPreview::render()
 				const LLVertexBuffer* buff = vb_vec[0];
 				regen = buff->hasDataType(LLVertexBuffer::TYPE_WEIGHT4) != skin_weight;
 			}
+			else
+			{
+				LL_INFOS(" ") << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
+				regen = TRUE;
+			}
+		}
+
+		if (regen)
+		{
+			genBuffers(mPreviewLOD, skin_weight);
 		}
 
 		//make sure material lists all match
@@ -5261,11 +5271,6 @@ BOOL LLModelPreview::render()
 					}
 				}
 			}
-		}
-
-		if (regen)
-		{
-			genBuffers(mPreviewLOD, skin_weight);
 		}
 
 		if (!skin_weight)
