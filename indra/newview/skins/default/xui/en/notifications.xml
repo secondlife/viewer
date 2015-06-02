@@ -577,6 +577,33 @@ If you no longer wish to have these abilities granted to this role, disable them
       notext="Cancel"
       yestext="Eject"/>
   </notification>
+  
+  <notification
+    icon="alertmodal.tga"
+    name="BanGroupMemberWarning"
+    type="alertmodal">
+     You are about to ban [AVATAR_NAME] from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm banning a participant from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Ban"/>
+  </notification>
+  <notification
+    icon="alertmodal.tga"
+    name="BanGroupMembersWarning"
+    type="alertmodal">
+     You are about to ban [COUNT] members from group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm banning multiple members from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Ban"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
