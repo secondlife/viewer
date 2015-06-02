@@ -146,7 +146,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mShowEmptyMessage(p.show_empty_message),
 	mViewsInitialized(false),
 	mInvFVBridgeBuilder(NULL),
-	mInventoryViewModel(p.name)
+	mInventoryViewModel(p.name),
+	mGroupedItemBridge(new LLFolderViewGroupedItemBridge)
 {
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
 
@@ -186,6 +187,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
 																	NULL,
 																	root_id);
     p.view_model = &mInventoryViewModel;
+	p.grouped_item_model = mGroupedItemBridge;
     p.use_label_suffix = mParams.use_label_suffix;
     p.allow_multiselect = mAllowMultiSelect;
     p.show_empty_message = mShowEmptyMessage;
