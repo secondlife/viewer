@@ -45,7 +45,7 @@
 #include "llvfile.h"
 #include "message.h"
 #include "llstartup.h"              // login_alert_done
-
+#include "llcorehttputil.h"
 
 LLFloaterTOS::LLFloaterTOS(const LLSD& data)
 :	LLModalDialog( data["message"].asString() ),
@@ -56,57 +56,6 @@ LLFloaterTOS::LLFloaterTOS(const LLSD& data)
 	mReplyPumpName(data["reply_pump"].asString())
 {
 }
-
-// helper class that trys to download a URL from a web site and calls a method 
-// on parent class indicating if the web server is working or not
-class LLIamHere : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLIamHere);
-private:
-	LLIamHere( LLFloaterTOS* parent ) :
-	   mParent( parent )
-	{}
-
-	LLFloaterTOS* mParent;
-
-public:
-	static LLIamHere* build( LLFloaterTOS* parent )
-	{
-		return new LLIamHere( parent );
-	}
-	
-	virtual void  setParent( LLFloaterTOS* parentIn )
-	{
-		mParent = parentIn;
-	}
-	
-protected:
-	virtual void httpSuccess()
-	{
-		if ( mParent )
-		{
-			mParent->setSiteIsAlive( true );
-		}
-	}
-
-	virtual void httpFailure()
-	{
-		LL_DEBUGS("LLIamHere") << dumpResponse() << LL_ENDL;
-		if ( mParent )
-		{
-			// *HACK: For purposes of this alive check, 302 Found
-			// (aka Moved Temporarily) is considered alive.  The web site
-			// redirects this link to a "cache busting" temporary URL. JC
-			bool alive = (getStatus() == HTTP_FOUND);
-			mParent->setSiteIsAlive( alive );
-		}
-	}
-};
-
-// this is global and not a class member to keep crud out of the header file
-namespace {
-	LLPointer< LLIamHere > gResponsePtr = 0;
-};
 
 BOOL LLFloaterTOS::postBuild()
 {	
@@ -180,9 +129,6 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 
 LLFloaterTOS::~LLFloaterTOS()
 {
-	// tell the responder we're not here anymore
-	if ( gResponsePtr )
-		gResponsePtr->setParent( 0 );
 }
 
 // virtual
@@ -243,9 +189,10 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 		if(!mLoadingScreenLoaded)
 		{
 			mLoadingScreenLoaded = true;
+            std::string url(getString("real_url"));
 
-			gResponsePtr = LLIamHere::build( this );
-			LLHTTPClient::get( getString( "real_url" ), gResponsePtr );
+            LLCoros::instance().launch("LLFloaterTOS::testSiteIsAliveCoro",
+                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, this, _1, url));
 		}
 		else if(mRealNavigateBegun)
 		{
@@ -256,4 +203,27 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 		}
 	}
 }
+
+void LLFloaterTOS::testSiteIsAliveCoro(LLCoros::self& self, std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+
+    LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
+
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    // double not.  
+    // First ! returns a boolean error status, second ! is true if success result.
+    setSiteIsAlive(!!status); 
+}
+
 
