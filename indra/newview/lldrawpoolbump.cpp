@@ -864,7 +864,6 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 	{
 		LLDrawInfo& params = **i;
 
-		gDeferredBumpProgram.setMinimumAlpha(params.mAlphaMaskCutoff);
 		LLDrawPoolBump::bindBumpMap(params, bump_channel);
 		pushBatch(params, mask, TRUE);
 	}
