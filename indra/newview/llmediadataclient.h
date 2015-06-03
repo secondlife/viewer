@@ -27,7 +27,6 @@
 #ifndef LL_LLMEDIADATACLIENT_H
 #define LL_LLMEDIADATACLIENT_H
 
-#include "llhttpclient.h"
 #include <set>
 #include "llrefcount.h"
 #include "llpointer.h"

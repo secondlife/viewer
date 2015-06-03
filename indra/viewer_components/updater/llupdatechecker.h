@@ -30,7 +30,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "llmd5.h"
-#include "llhttpclient.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
 

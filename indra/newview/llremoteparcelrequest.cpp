@@ -31,7 +31,6 @@
 #include "message.h"
 
 #include "llpanel.h"
-#include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llurlentry.h"
 #include "llviewerregion.h"

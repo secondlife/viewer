@@ -35,8 +35,6 @@
 // linden library includes
 #include "llbutton.h"
 #include "llevents.h"
-#include "llhttpclient.h"
-#include "llhttpconstants.h"
 #include "llnotificationsutil.h"
 #include "llradiogroup.h"
 #include "lltextbox.h"

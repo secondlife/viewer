@@ -31,7 +31,6 @@
 #include "llsyntaxid.h"
 #include "llagent.h"
 #include "llappviewer.h"
-#include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"

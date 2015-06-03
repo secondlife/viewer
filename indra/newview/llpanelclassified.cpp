@@ -34,7 +34,6 @@
 
 #include "lldispatcher.h"
 #include "llfloaterreg.h"
-#include "llhttpclient.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llparcel.h"

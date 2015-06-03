@@ -28,7 +28,6 @@
 #ifndef LL_LLPRODUCTINFOREQUEST_H
 #define LL_LLPRODUCTINFOREQUEST_H
 
-#include "llhttpclient.h"
 #include "llmemory.h"
 #include "lleventcoro.h"
 #include "llcoros.h"

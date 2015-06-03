@@ -31,7 +31,6 @@
 #include <boost/signals2.hpp>
 
 #include "llfloater.h"
-#include "llhttpclient.h"
 
 class LLTextEditor;
 

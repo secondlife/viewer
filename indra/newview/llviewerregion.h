@@ -40,7 +40,6 @@
 #include "llweb.h"
 #include "llcapabilityprovider.h"
 #include "m4math.h"					// LLMatrix4
-#include "llhttpclient.h"
 #include "llframetimer.h"
 
 // Surface id's

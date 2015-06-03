@@ -29,7 +29,6 @@
 #include "llestateinfomodel.h"
 
 // libs
-#include "llhttpclient.h"
 #include "llregionflags.h"
 #include "message.h"
 

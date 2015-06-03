@@ -28,7 +28,6 @@
 
 #include "llagent.h"
 #include "llfloaterreg.h"
-#include "llhttpclient.h"
 #include "llimview.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"

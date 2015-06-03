@@ -26,8 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llhttpclient.h"
-
 #include "llfloaterurlentry.h"
 
 #include "llpanellandmedia.h"

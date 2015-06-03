@@ -28,7 +28,6 @@
 #define LL_LLWLHANDLERS_H
 
 #include "llviewerprecompiledheaders.h"
-#include "llhttpclient.h"
 #include "llcoros.h"
 
 class LLEnvironmentRequest

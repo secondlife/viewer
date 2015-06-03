@@ -42,7 +42,6 @@
 #include "llavatarnamecache.h"	// IDEVO
 #include "llbutton.h"
 #include "llcachename.h"
-#include "llhttpclient.h"		// IDEVO
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"

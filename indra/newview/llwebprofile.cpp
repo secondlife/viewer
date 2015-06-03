@@ -30,7 +30,6 @@
 
 // libs
 #include "llbufferstream.h"
-#include "llhttpclient.h"
 #include "llimagepng.h"
 #include "llplugincookiestore.h"
 

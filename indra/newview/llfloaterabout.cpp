@@ -205,7 +205,7 @@ void LLFloaterAbout::startFetchServerReleaseNotes()
     // So we query the URL ourselves, expecting to find
     // an URL suitable for external browsers in the "Location:" HTTP header.
     std::string cap_url = region->getCapability("ServerReleaseNotes");
-    //LLHTTPClient::get(cap_url, new LLServerReleaseNotesURLFetcher);
+
     LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(cap_url,
         &LLFloaterAbout::handleServerReleaseNotes, &LLFloaterAbout::handleServerReleaseNotes);
 

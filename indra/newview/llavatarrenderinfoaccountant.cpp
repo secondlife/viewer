@@ -35,7 +35,6 @@
 // external library headers
 // other Linden headers
 #include "llcharacter.h"
-#include "llhttpclient.h"
 #include "lltimer.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h"

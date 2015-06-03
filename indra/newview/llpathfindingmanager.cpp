@@ -39,7 +39,6 @@
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
-#include "llhttpclient.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
 #include "llpathfindingcharacterlist.h"

@@ -36,6 +36,7 @@
 #include "httpheaders.h"
 #include "httpoptions.h"
 #include "httphandler.h"
+#include "llhttpconstants.h" // *TODO: move to llcorehttp
 #include "bufferarray.h"
 #include "bufferstream.h"
 #include "llsd.h"

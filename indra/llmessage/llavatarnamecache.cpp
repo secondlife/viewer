@@ -30,7 +30,6 @@
 
 #include "llcachename.h"		// we wrap this system
 #include "llframetimer.h"
-#include "llhttpclient.h"
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "httpresponse.h"

@@ -34,7 +34,6 @@
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llcommandhandler.h"
-#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
 #include "llimagepng.h"

@@ -29,7 +29,6 @@
 #ifndef LL_LLREMOTEPARCELREQUEST_H
 #define LL_LLREMOTEPARCELREQUEST_H
 
-#include "llhttpclient.h"
 #include "llhandle.h"
 #include "llsingleton.h"
 #include "llcoros.h"

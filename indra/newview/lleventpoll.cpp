@@ -30,8 +30,6 @@
 #include "llappviewer.h"
 #include "llagent.h"
 
-#include "llhttpclient.h"
-#include "llhttpconstants.h"
 #include "llsdserialize.h"
 #include "lleventtimer.h"
 #include "llviewerregion.h"

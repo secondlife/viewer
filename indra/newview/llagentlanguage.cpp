@@ -70,7 +70,6 @@ bool LLAgentLanguage::update()
 		body["language"] = language;
 		body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
 		
-		//LLHTTPClient::post(url, body, new LLHTTPClient::Responder);
 		LLCore::HttpHandle handle = gAgent.requestPostCapability("UpdateAgentLanguage", url, body);
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{

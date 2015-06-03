@@ -26,7 +26,6 @@
 #include "linden_common.h"
 #include <stdexcept>
 #include <boost/format.hpp>
-#include "llhttpclient.h"
 #include "llsd.h"
 #include "llupdatechecker.h"
 #include "lluri.h"
