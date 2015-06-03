@@ -269,6 +269,7 @@ protected:
 	void saveSettings();
 	void onBtnOk();
 	void onBtnCancel();
+	void onClickCloseBtn(bool app_quitting = false);
 
 	void onChangeSocksSettings();
 

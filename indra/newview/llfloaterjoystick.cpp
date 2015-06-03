@@ -326,7 +326,21 @@ void LLFloaterJoystick::onClickOK(void *joy_panel)
 	}
 }
 
+void LLFloaterJoystick::onClickCloseBtn(bool app_quitting)
+{
+	cancel();
+	closeFloater(app_quitting);
+}
+
 void LLFloaterJoystick::setSNDefaults()
 {
 	LLViewerJoystick::getInstance()->setSNDefaults();
+}
+
+void LLFloaterJoystick::onClose(bool app_quitting)
+{
+	if (app_quitting)
+	{
+		cancel();
+	}
 }

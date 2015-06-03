@@ -2235,6 +2235,11 @@ void LLFloaterPreferenceProxy::onOpen(const LLSD& key)
 
 void LLFloaterPreferenceProxy::onClose(bool app_quitting)
 {
+	if(app_quitting)
+	{
+		cancel();
+	}
+
 	if (mSocksSettingsDirty)
 	{
 
@@ -2334,6 +2339,11 @@ void LLFloaterPreferenceProxy::onBtnCancel()
 	cancel();
 }
 
+void LLFloaterPreferenceProxy::onClickCloseBtn(bool app_quitting)
+{
+	cancel();
+}
+
 void LLFloaterPreferenceProxy::cancel()
 {
 
@@ -2344,7 +2354,7 @@ void LLFloaterPreferenceProxy::cancel()
 		LLSD ctrl_value = iter->second;
 		control->set(ctrl_value);
 	}
-
+	mSocksSettingsDirty = false;
 	closeFloater();
 }
 
