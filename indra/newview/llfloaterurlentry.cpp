@@ -40,39 +40,9 @@
 #include "lluictrlfactory.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
+#include "llcorehttputil.h"
 
 static LLFloaterURLEntry* sInstance = NULL;
-
-// Move this to its own file.
-// helper class that tries to download a URL from a web site and calls a method
-// on the Panel Land Media and to discover the MIME type
-class LLMediaTypeResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLMediaTypeResponder);
-public:
-	LLMediaTypeResponder( const LLHandle<LLFloater> parent ) :
-		mParent( parent )
-	{}
-
-	LLHandle<LLFloater> mParent;
-
-private:
-	/* virtual */ void httpCompleted()
-	{
-		const std::string& media_type = getResponseHeader(HTTP_IN_HEADER_CONTENT_TYPE);
-		std::string::size_type idx1 = media_type.find_first_of(";");
-		std::string mime_type = media_type.substr(0, idx1);
-
-		// Set empty type to none/none.  Empty string is reserved for legacy parcels
-		// which have no mime type set.
-		std::string resolved_mime_type = ! mime_type.empty() ? mime_type : LLMIMETypes::getDefaultMimeType();
-		LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mParent.get();
-		if ( floater_url_entry )
-		{
-			floater_url_entry->headerFetchComplete( getStatus(), resolved_mime_type );
-		}
-	}
-};
 
 //-----------------------------------------------------------------------------
 // LLFloaterURLEntry()
@@ -225,8 +195,8 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 	if(!media_url.empty() && 
 	   (scheme == "http" || scheme == "https"))
 	{
-		LLHTTPClient::getHeaderOnly( media_url,
-			new LLMediaTypeResponder(self->getHandle()));
+        LLCoros::instance().launch("LLFloaterURLEntry::getMediaTypeCoro",
+            boost::bind(&LLFloaterURLEntry::getMediaTypeCoro, _1, media_url, self->getHandle()));
 	}
 	else
 	{
@@ -237,6 +207,58 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 	self->getChildView("ok_btn")->setEnabled(false);
 	self->getChildView("cancel_btn")->setEnabled(false);
 	self->getChildView("media_entry")->setEnabled(false);
+}
+
+// static
+void LLFloaterURLEntry::getMediaTypeCoro(LLCoros::self& self, std::string url, LLHandle<LLFloater> parentHandle)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMediaTypeCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setHeadersOnly(true);
+
+    LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
+
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LLFloaterURLEntry* floaterUrlEntry = (LLFloaterURLEntry*)parentHandle.get();
+    if (!floaterUrlEntry)
+    {
+        LL_WARNS() << "Could not get URL entry floater." << LL_ENDL;
+        return;
+    }
+
+    // Set empty type to none/none.  Empty string is reserved for legacy parcels
+    // which have no mime type set.
+    std::string resolvedMimeType = LLMIMETypes::getDefaultMimeType();
+
+    if (!status)
+    {
+        floaterUrlEntry->headerFetchComplete(status.getType(), resolvedMimeType);
+        return;
+    }
+
+    LLSD resultHeaders = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+
+    if (resultHeaders.has(HTTP_IN_HEADER_CONTENT_TYPE))
+    {
+        const std::string& mediaType = resultHeaders[HTTP_IN_HEADER_CONTENT_TYPE];
+        std::string::size_type idx1 = mediaType.find_first_of(";");
+        std::string mimeType = mediaType.substr(0, idx1);
+        if (!mimeType.empty())
+        {
+            resolvedMimeType = mimeType;
+        }
+    }
+
+    floaterUrlEntry->headerFetchComplete(status.getType(), resolvedMimeType);
+
 }
 
 // static
