@@ -6073,6 +6073,7 @@ void LLVOAvatar::getOffObject()
 	}
 
 	// assumes that transform will not be updated with drawable still having a parent
+	// or that drawable had no parent from the start
 	LLVector3 cur_position_world = mDrawable->getWorldPosition();
 	LLQuaternion cur_rotation_world = mDrawable->getWorldRotation();
 
@@ -6251,6 +6252,7 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 BOOL LLVOAvatar::isVisible() const
 {
 	return mDrawable.notNull()
+		&& (!mOrphaned || isSelf())
 		&& (mDrawable->isVisible() || mIsDummy);
 }
 
