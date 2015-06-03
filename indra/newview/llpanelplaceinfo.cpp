@@ -45,6 +45,7 @@
 #include "llpanelpick.h"
 #include "lltexturectrl.h"
 #include "llviewerregion.h"
+#include "llhttpconstants.h"
 
 LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
