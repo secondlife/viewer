@@ -547,18 +547,17 @@ void LLSpeakerMgr::updateSpeakerList()
 				// For groups, we need to hit the group manager.
 				// Note: The session uuid and the group uuid are actually one and the same. If that was to change, this will fail.
 				LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(session_id);
-                F32 large_group_delay = 0.f;
-                if (gdatap)
-                {
-                    //This is a viewer-side bandaid for maint-4414 it does not fix the core issue.
-                    large_group_delay = (F32)(gdatap->mMemberCount / 5000);
-                }
-                
-                const F32 load_group_timeout = gSavedSettings.getF32("ChatLoadGroupTimeout") + large_group_delay;
 
-				if (!gdatap && (mGetListTime.getElapsedTimeF32() >= load_group_timeout))
+				if (!gdatap || !gdatap->isGroupPropertiesDataComplete())
 				{
-					// Request the data the first time around
+					// Request group properties first. This is to avoid fetching lagre member lists here. See MAINT-5240
+					LLGroupMgr::getInstance()->sendGroupPropertiesRequest(session_id);
+				}
+				else if (gdatap && gdatap->isGroupPropertiesDataComplete()
+						 && !gdatap->isMemberDataComplete() && gdatap->mMemberCount < 5000
+						 && mGetListTime.getElapsedTimeF32() >= gSavedSettings.getF32("ChatLoadGroupTimeout"))
+				{
+					// Request the member list data the first time around
 					LLGroupMgr::getInstance()->sendCapGroupMembersRequest(session_id);
 				}
 				else if (gdatap && gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
