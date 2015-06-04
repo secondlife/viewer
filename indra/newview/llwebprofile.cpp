@@ -112,6 +112,7 @@ void LLWebProfile::uploadImageCoro(LLCoros::self& self, LLPointer<LLImageFormatt
     }
 
     httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
 
     // Get upload configuration data.
     std::string configUrl(getProfileURL(std::string()) + "snapshots/s3_upload_config");
