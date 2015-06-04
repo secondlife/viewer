@@ -846,8 +846,8 @@ class Darwin_i386_Manifest(ViewerManifest):
                 if self.prefix(src="", dst="llplugin"):
                     self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
                                        "media_plugin_quicktime.dylib")
-                    self.path2basename("../media_plugins/webkit/" + self.args['configuration'],
-                                       "media_plugin_webkit.dylib")
+                    self.path2basename("../media_plugins/cef/" + self.args['configuration'],
+                                       "media_plugin_cef.dylib")
                     self.end_prefix("llplugin")
 
                 self.end_prefix("Resources")
