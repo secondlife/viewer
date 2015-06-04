@@ -37,7 +37,6 @@
 #include "llrect.h"
 #include "llerror.h"
 #include "llbutton.h"
-#include "llhttpclient.h"
 #include "llsdutil_math.h"
 #include "llstring.h"
 #include "lltextutil.h"
@@ -2505,10 +2504,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 			LLSD data;
 			data["method"] = "decline invitation";
 			data["session-id"] = session_id;
-			LLHTTPClient::post(
-				url,
-				data,
-				NULL);
+
+            LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data,
+                "Invitation declined", 
+                "Invitation decline failed.");
 		}
 	}
 
@@ -2587,10 +2586,9 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			LLSD data;
 			data["method"] = "decline invitation";
 			data["session-id"] = session_id;
-			LLHTTPClient::post(
-				url,
-				data,
-				NULL);				
+            LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, 
+                "Invitation declined.", 
+                "Invitation decline failed.");
 		}
 	}
 
