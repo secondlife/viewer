@@ -1168,6 +1168,8 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BO
 
         targetPanel->setVisible(show);
         toggleTypeSpecificControls(type);
+		// Update type controls here
+		updateTypeSpecificControls(type);
 
         if (show)
         {
@@ -1179,7 +1181,6 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BO
                 mNameEditor->setText(mWearableItem->getName());
 
                 updatePanelPickerControls(type);
-                updateTypeSpecificControls(type);
 
                 // clear and rebuild visual param list
                 U8 num_subparts = wearable_entry->mSubparts.size();
