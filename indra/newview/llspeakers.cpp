@@ -548,7 +548,7 @@ void LLSpeakerMgr::updateSpeakerList()
 				// Note: The session uuid and the group uuid are actually one and the same. If that was to change, this will fail.
 				LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(session_id);
 
-				if (!gdatap || !gdatap->isGroupPropertiesDataComplete()
+				if ((!gdatap || !gdatap->isGroupPropertiesDataComplete())
 					&& mGetListTime.getElapsedTimeF32() >= gSavedSettings.getF32("ChatLoadGroupTimeout"))
 				{
 					// Request group properties first. This is to avoid fetching lagre member lists here. See MAINT-5240
