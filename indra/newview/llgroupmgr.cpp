@@ -1862,50 +1862,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	group_datap->mMemberVersion.generate();
 }
 
-#if 1
-// Responder class for capability group management
-class GroupBanDataResponder : public LLHTTPClient::Responder
-{
-public:
-	GroupBanDataResponder(const LLUUID& gropup_id, BOOL force_refresh=false);
-	virtual ~GroupBanDataResponder() {}
-	virtual void httpSuccess();
-	virtual void httpFailure();
-private:
-	LLUUID mGroupID;
-	BOOL mForceRefresh;
-};
-
-GroupBanDataResponder::GroupBanDataResponder(const LLUUID& gropup_id, BOOL force_refresh) :
-	mGroupID(gropup_id),
-	mForceRefresh(force_refresh)
-{}
-
-void GroupBanDataResponder::httpFailure()
-{
-	LL_WARNS("GrpMgr") << "Error receiving group member data [status:" 
-		<< mStatus << "]: " << mContent << LL_ENDL;
-}
-
-void GroupBanDataResponder::httpSuccess()
-{
-	if (mContent.has("ban_list"))
-	{
-		// group ban data received
-		LLGroupMgr::processGroupBanRequest(mContent);
-	}
-	else if (mForceRefresh)
-	{
-		// no ban data received, refreshing data after successful operation 
-		LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_GET, mGroupID);
-	}
-}
-
-#else
-//void LLGroupMgr::groupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId, 
-//        LLGroupMgr::EBanRequestAction action, uuid_vec_t banList)
-void LLGroupMgr::groupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId,
-        LLGroupMgr::EBanRequestAction action, LLSD body)
+void LLGroupMgr::getGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -1914,68 +1871,85 @@ void LLGroupMgr::groupBanRequestCoro(LLCoros::self& self, std::string url, LLUUI
 
     std::string finalUrl = url + "?group_id=" + groupId.asString();
 
-    EBanRequestAction currAction = action;
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, finalUrl);
 
-    do
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
     {
-        LLSD result;
+        LL_WARNS("GrpMgr") << "Error receiving group member data " << LL_ENDL;
+        return;
+    }
 
-        if (currAction & (BAN_CREATE | BAN_DELETE)) // these two actions result in POSTS
-        {   // build the post data.
-//             LLSD postData = LLSD::emptyMap();
-// 
-//             postData["ban_action"] = (LLSD::Integer)(currAction & ~BAN_UPDATE);
-//             // Add our list of potential banned residents to the list
-//             postData["ban_ids"] = LLSD::emptyArray();
-//             
-//             LLSD banEntry;
-//             for (uuid_vec_t::const_iterator it = banList.begin(); it != banList.end(); ++it)
-//             {
-//                 banEntry = (*it);
-//                 postData["ban_ids"].append(banEntry);
-//             }
-// 
-//             result = httpAdapter->postAndYield(self, httpRequest, finalUrl, postData);
-
-            result = httpAdapter->postAndYield(self, httpRequest, finalUrl, body);
-        }
-        else
-        {
-            result = httpAdapter->getAndYield(self, httpRequest, finalUrl);
-        }
-
-        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-        if (!status)
-        {
-            LL_WARNS("GrpMgr") << "Error receiving group member data " << LL_ENDL;
-            return;
-        }
-
-        if (result.has("ban_list"))
-        {
-            result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
-            // group ban data received
-            processGroupBanRequest(result);
-        }
-
-        if (currAction & BAN_UPDATE)
-        {
-            currAction = BAN_NO_ACTION;
-            continue;
-        }
-        break;
-    } while (true);
+    if (result.has("ban_list"))
+    {
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        // group ban data received
+        processGroupBanRequest(result);
+    }
 }
 
-#endif
+void LLGroupMgr::postGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId,
+    U32 action, uuid_vec_t banList, bool update)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("groupMembersRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
+    LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions, false);
 
+    httpOptions->setFollowRedirects(false);
+
+    httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+
+
+    std::string finalUrl = url + "?group_id=" + groupId.asString();
+
+    LLSD postData = LLSD::emptyMap();
+    postData["ban_action"] = (LLSD::Integer)action;
+    // Add our list of potential banned residents to the list
+    postData["ban_ids"] = LLSD::emptyArray();
+    LLSD banEntry;
+
+    uuid_vec_t::const_iterator it = banList.begin();
+    for (; it != banList.end(); ++it)
+    {
+        banEntry = (*it);
+        postData["ban_ids"].append(banEntry);
+    }
+
+    LL_WARNS() << "post: " << ll_pretty_print_sd(postData) << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, finalUrl, postData, httpOptions, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("GrpMgr") << "Error posting group member data " << LL_ENDL;
+        return;
+    }
+
+    if (result.has("ban_list"))
+    {
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        // group ban data received
+        processGroupBanRequest(result);
+    }
+
+    if (update)
+    {
+        getGroupBanRequestCoro(self, url, groupId);
+    }
+}
 
 void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type, 
 										const LLUUID& group_id, 
 										U32 ban_action, /* = BAN_NO_ACTION */
-										const std::vector<LLUUID> ban_list) /* = std::vector<LLUUID>() */
+										const std::vector<LLUUID> &ban_list) /* = std::vector<LLUUID>() */
 {
 	LLViewerRegion* currentRegion = gAgent.getRegion();
 	if(!currentRegion)
@@ -1998,59 +1972,24 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
 		return;
 	}
 
-#if 0
+    U32 action = ban_action & ~BAN_UPDATE;
+    bool update = ((ban_action & BAN_UPDATE) == BAN_UPDATE);
 
-    LLSD body = LLSD::emptyMap();
-    body["ban_action"] = (LLSD::Integer)(ban_action & ~BAN_UPDATE);
-    // Add our list of potential banned residents to the list
-    body["ban_ids"] = LLSD::emptyArray();
-    LLSD ban_entry;
-
-    uuid_vec_t::const_iterator iter = ban_list.begin();
-    for (; iter != ban_list.end(); ++iter)
+    switch (request_type)
     {
-        ban_entry = (*iter);
-        body["ban_ids"].append(ban_entry);
+    case REQUEST_GET:
+        LLCoros::instance().launch("LLGroupMgr::getGroupBanRequestCoro",
+            boost::bind(&LLGroupMgr::getGroupBanRequestCoro, this, _1, cap_url, group_id));
+        break;
+    case REQUEST_POST:
+        LLCoros::instance().launch("LLGroupMgr::postGroupBanRequestCoro",
+            boost::bind(&LLGroupMgr::postGroupBanRequestCoro, this, _1, cap_url, group_id, 
+            action, ban_list, update));
+        break;
+    case REQUEST_PUT:
+    case REQUEST_DEL:
+        break;
     }
-
-    LLCoros::instance().launch("LLGroupMgr::groupBanRequestCoro",
-        boost::bind(&LLGroupMgr::groupBanRequestCoro, this, _1, cap_url, group_id,
-        static_cast<LLGroupMgr::EBanRequestAction>(ban_action), body));
-
-//     LLCoros::instance().launch("LLGroupMgr::groupBanRequestCoro",
-//         boost::bind(&LLGroupMgr::groupBanRequestCoro, this, _1, cap_url, group_id, 
-//                 static_cast<LLGroupMgr::EBanRequestAction>(ban_action), ban_list));
-
-#else
-    cap_url += "?group_id=" + group_id.asString();
-
-	LLSD body = LLSD::emptyMap();
-	body["ban_action"]  = (LLSD::Integer)(ban_action & ~BAN_UPDATE);
-	// Add our list of potential banned residents to the list
-	body["ban_ids"]	= LLSD::emptyArray();
-	LLSD ban_entry;
-
-	uuid_vec_t::const_iterator iter = ban_list.begin();
-	for(;iter != ban_list.end(); ++iter)
-	{
-		ban_entry = (*iter);
-		body["ban_ids"].append(ban_entry);
-	}
-
-	LLHTTPClient::ResponderPtr grp_ban_responder = new GroupBanDataResponder(group_id, ban_action & BAN_UPDATE);
-	switch(request_type)
-	{
-	case REQUEST_GET:
-		LLHTTPClient::get(cap_url, grp_ban_responder);
-		break;
-	case REQUEST_POST:
-		LLHTTPClient::post(cap_url, body, grp_ban_responder);
-		break;
-	case REQUEST_PUT:
-	case REQUEST_DEL:
-		break;
-	}
-#endif
 }
 
 void LLGroupMgr::processGroupBanRequest(const LLSD& content)

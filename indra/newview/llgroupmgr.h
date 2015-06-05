@@ -402,7 +402,7 @@ public:
 	void sendGroupBanRequest(EBanRequestType request_type, 
 									const LLUUID& group_id,	
 									U32 ban_action = BAN_NO_ACTION,
-									const uuid_vec_t ban_list = uuid_vec_t());
+									const uuid_vec_t &ban_list = uuid_vec_t());
 
 
 	void sendCapGroupMembersRequest(const LLUUID& group_id);
@@ -428,13 +428,12 @@ public:
 	void clearGroupData(const LLUUID& group_id);
 
 private:
-    friend class GroupBanDataResponder;
-
     void groupMembersRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId);
     void processCapGroupMembersRequest(const LLSD& content);
 
-    //void groupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId, EBanRequestAction action, uuid_vec_t banList);
-    void groupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId, EBanRequestAction action, LLSD postBody);
+    void getGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId);
+    void postGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId, U32 action, uuid_vec_t banList, bool update);
+
     static void processGroupBanRequest(const LLSD& content);
 
 	void notifyObservers(LLGroupChange gc);

@@ -46,6 +46,8 @@
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 class LLInventoryObserver;
 class LLInventoryObject;
@@ -207,14 +209,14 @@ private:
  **/
 
 	//--------------------------------------------------------------------
-	// Descendents
+	// Descendants
 	//--------------------------------------------------------------------
 public:
-	// Make sure we have the descendents in the structure.  Returns true
+	// Make sure we have the descendants in the structure.  Returns true
 	// if a fetch was performed.
 	bool fetchDescendentsOf(const LLUUID& folder_id) const;
 
-	// Return the direct descendents of the id provided.Set passed
+	// Return the direct descendants of the id provided.Set passed
 	// in values to NULL if the call fails.
 	//    NOTE: The array provided points straight into the guts of
 	//    this object, and should only be used for read operations, since
@@ -223,10 +225,10 @@ public:
 								cat_array_t*& categories,
 								item_array_t*& items) const;
 
-	// Compute a hash of direct descendent names (for detecting child name changes)
+	// Compute a hash of direct descendant names (for detecting child name changes)
 	LLMD5 hashDirectDescendentNames(const LLUUID& cat_id) const;
 	
-	// Starting with the object specified, add its descendents to the
+	// Starting with the object specified, add its descendants to the
 	// array provided, but do not add the inventory object specified
 	// by id. There is no guaranteed order. 
 	//    NOTE: Neither array will be erased before adding objects to it. 
@@ -340,7 +342,7 @@ public:
 	U32 updateItem(const LLViewerInventoryItem* item, U32 mask = 0);
 
 	// Change an existing item with the matching id or add
-	// the category. No notifcation will be sent to observers. This
+	// the category. No notification will be sent to observers. This
 	// method will only generate network traffic if the item had to be
 	// reparented.
 	//    NOTE: In usage, you will want to perform cache accounting
@@ -378,7 +380,7 @@ public:
 								   bool update_parent_version = true,
 								   bool do_notify_observers = true);
 
-	// Update model after all descendents removed from server.
+	// Update model after all descendants removed from server.
 	void onDescendentsPurgedFromServer(const LLUUID& object_id, bool fix_broken_links = true);
 
 	// Update model after an existing item gets updated on server.
@@ -409,7 +411,7 @@ public:
 	// Changes items order by insertion of the item identified by src_item_id
 	// before (or after) the item identified by dest_item_id. Both items must exist in items array.
 	// Sorting is stored after method is finished. Only src_item_id is moved before (or after) dest_item_id.
-	// The parameter "insert_before" controls on which side of dest_item_id src_item_id gets rensinserted.
+	// The parameter "insert_before" controls on which side of dest_item_id src_item_id gets reinserted.
 	static void updateItemsOrder(LLInventoryModel::item_array_t& items, 
 								 const LLUUID& src_item_id, 
 								 const LLUUID& dest_item_id,
@@ -433,7 +435,7 @@ public:
 	LLUUID createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
 							 const std::string& name,
-							 boost::optional<inventory_func_type> callback = boost::optional<inventory_func_type>());
+							 inventory_func_type callback = NULL);
 protected:
 	// Internal methods that add inventory and make sure that all of
 	// the internal data structures are consistent. These methods
@@ -441,6 +443,8 @@ protected:
 	// instance will take over the memory management from there.
 	void addCategory(LLViewerInventoryCategory* category);
 	void addItem(LLViewerInventoryItem* item);
+
+    void createNewCategoryCoro(LLCoros::self& self, std::string url, LLSD postData, inventory_func_type callback);
 	
 /**                    Mutators
  **                                                                            **

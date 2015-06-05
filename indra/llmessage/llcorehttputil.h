@@ -286,6 +286,13 @@ private:
 /// will be automatically pumped and the method will return with an LLSD describing
 /// the result of the operation.  See HttpCoroHandler for a description of the 
 /// decoration done to the returned LLSD.
+/// 
+/// Posting through the adapter will automatically add the following headers to 
+/// the request if they have not been previously specified in a supplied 
+/// HttpHeaders object:
+///     "Accept=application/llsd+xml"
+///     "X-SecondLife-UDP-Listen-Port=###"
+///     
 class HttpCoroutineAdapter
 {
 public:
@@ -466,6 +473,8 @@ private:
 
     static void trivialGetCoro(LLCoros::self& self, std::string url, completionCallback_t success, completionCallback_t failure);
     static void trivialPostCoro(LLCoros::self& self, std::string url, LLSD postData, completionCallback_t success, completionCallback_t failure);
+
+    void checkDefaultHeaders(LLCore::HttpHeaders::ptr_t &headers);
 
     std::string                     mAdapterName;
     LLCore::HttpRequest::priority_t mPriority;

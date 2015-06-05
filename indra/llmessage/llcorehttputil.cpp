@@ -37,6 +37,8 @@
 #include "llsdserialize.h"
 #include "reader.h" 
 
+#include "message.h" // for getting the port
+
 using namespace LLCore;
 
 
@@ -243,11 +245,10 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         result = LLSD::emptyMap();
         LL_WARNS()
             << "\n--------------------------------------------------------------------------\n"
-            << " Error[" << status.toULong() << "] cannot access url '" << response->getRequestURL()
+            << " Error[" << status.getType() << "] cannot access url '" << response->getRequestURL()
             << "' because " << status.toString()
             << "\n--------------------------------------------------------------------------"
             << LL_ENDL;
-
     }
     else
     {
@@ -578,8 +579,10 @@ LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpReque
     LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
     HttpCoroHandler::ptr_t &handler)
 {
-    //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
     HttpRequestPumper pumper(request);
+
+    checkDefaultHeaders(headers);
+
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = requestPostWithLLSD(request,
@@ -623,8 +626,10 @@ LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpReque
     LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
     HttpCoroHandler::ptr_t &handler)
 {
-    //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
     HttpRequestPumper pumper(request);
+
+    checkDefaultHeaders(headers);
+
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestPost(mPolicyId, mPriority, url, rawbody.get(),
@@ -658,8 +663,10 @@ LLSD HttpCoroutineAdapter::putAndYield_(LLCoros::self & self, LLCore::HttpReques
     LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
     HttpCoroHandler::ptr_t &handler)
 {
-    //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
     HttpRequestPumper pumper(request);
+
+    checkDefaultHeaders(headers);
+
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = requestPutWithLLSD(request,
@@ -713,8 +720,9 @@ LLSD HttpCoroutineAdapter::getAndYield_(LLCoros::self & self, LLCore::HttpReques
     LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers, 
     HttpCoroHandler::ptr_t &handler)
 {
-    //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
     HttpRequestPumper pumper(request);
+    checkDefaultHeaders(headers);
+
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestGet(mPolicyId, mPriority,
@@ -747,8 +755,9 @@ LLSD HttpCoroutineAdapter::deleteAndYield_(LLCoros::self & self, LLCore::HttpReq
     const std::string & url, LLCore::HttpOptions::ptr_t &options, 
     LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler)
 {
-    //LL_INFOS() << "Requesting transaction " << transactionId << LL_ENDL;
     HttpRequestPumper pumper(request);
+
+    checkDefaultHeaders(headers);
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestDelete(mPolicyId, mPriority,
@@ -764,6 +773,21 @@ LLSD HttpCoroutineAdapter::deleteAndYield_(LLCoros::self & self, LLCore::HttpReq
     cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
+}
+
+void HttpCoroutineAdapter::checkDefaultHeaders(LLCore::HttpHeaders::ptr_t &headers)
+{
+    if (!headers)
+        headers.reset(new LLCore::HttpHeaders);
+    if (!headers->find(HTTP_OUT_HEADER_ACCEPT))
+    {
+        headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
+    }
+
+    if (!headers->find("X-SecondLife-UDP-Listen-Port") && gMessageSystem)
+    {
+        headers->append("X-SecondLife-UDP-Listen-Port", llformat("%d", gMessageSystem->mPort));
+    }
 }
 
 
