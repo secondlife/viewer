@@ -136,7 +136,7 @@ namespace LLMarketplaceImport
         LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
         httpOpts->setWantHeaders(true);
-        httpOpts->setFollowRedirects(false);
+        httpOpts->setFollowRedirects(true);
 
         httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
         httpHeaders->append(HTTP_OUT_HEADER_CONNECTION, "Keep-Alive");
@@ -241,13 +241,13 @@ namespace LLMarketplaceImport
     {
         LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("marketplacePostCoro", httpPolicy));
+            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("marketplaceGetCoro", httpPolicy));
         LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
         LLCore::HttpHeaders::ptr_t httpHeaders; 
         LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
         httpOpts->setWantHeaders(true);
-        httpOpts->setFollowRedirects(false);
+        httpOpts->setFollowRedirects(!sMarketplaceCookie.empty());
 
         if (buildHeaders)
         {

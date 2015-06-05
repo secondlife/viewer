@@ -515,6 +515,10 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	check_curl_easy_code(code, CURLOPT_READFUNCTION);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
 	check_curl_easy_code(code, CURLOPT_READDATA);
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKFUNCTION, seekCallback);
+    check_curl_easy_code(code, CURLOPT_SEEKFUNCTION);
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKDATA, this);
+    check_curl_easy_code(code, CURLOPT_SEEKDATA);
 
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_COOKIEFILE, "");
 	check_curl_easy_code(code, CURLOPT_COOKIEFILE);
@@ -817,6 +821,37 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 	const size_t read_size(op->mReqBody->read(op->mCurlBodyPos, static_cast<char *>(data), do_size));
 	op->mCurlBodyPos += read_size;
 	return read_size;
+}
+
+
+int HttpOpRequest::seekCallback(void *userdata, curl_off_t offset, int origin)
+{
+    HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+
+    if (!op->mReqBody)
+    {
+        return 0;
+    }
+
+    size_t newPos = 0;
+    if (origin == SEEK_SET)
+        newPos = offset;
+    else if (origin == SEEK_END)
+        newPos = static_cast<curl_off_t>(op->mReqBody->size()) + offset;
+    else if (origin == SEEK_CUR)
+        newPos = static_cast<curl_off_t>(op->mCurlBodyPos) + offset;
+    else
+        return 2;
+
+    if ((newPos < 0) || (newPos >= op->mReqBody->size()))
+    {
+        LL_WARNS(LOG_CORE) << "Attempt to seek to position outside post body." << LL_ENDL;
+        return 2;
+    }
+
+    op->mCurlBodyPos = (size_t)newPos;
+
+    return 0;
 }
 
 		
