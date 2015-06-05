@@ -1513,6 +1513,8 @@ public:
 		LLInventoryPanel::initFromParams(p);
 		// turn on inbox for recent items
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
+        // turn off marketplace for recent items
+        getFilter().setFilterNoMarketplaceFolder();
 	}
 
 protected:

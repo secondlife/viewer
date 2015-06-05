@@ -147,10 +147,19 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	// Marketplace folder filtering
     const U32 filterTypes = mFilterOps.mFilterTypes;
     const U32 marketplace_filter = FILTERTYPE_MARKETPLACE_ACTIVE | FILTERTYPE_MARKETPLACE_INACTIVE |
-                                   FILTERTYPE_MARKETPLACE_UNASSOCIATED | FILTERTYPE_MARKETPLACE_LISTING_FOLDER;
+                                   FILTERTYPE_MARKETPLACE_UNASSOCIATED | FILTERTYPE_MARKETPLACE_LISTING_FOLDER |
+                                   FILTERTYPE_NO_MARKETPLACE_ITEMS;
     if (filterTypes & marketplace_filter)
     {
         S32 depth = depth_nesting_in_marketplace(folder_id);
+
+        if (filterTypes & FILTERTYPE_NO_MARKETPLACE_ITEMS)
+        {
+            if (depth >= 0)
+            {
+                return false;
+            }
+        }
 
         if (filterTypes & FILTERTYPE_MARKETPLACE_LISTING_FOLDER)
         {
@@ -573,6 +582,11 @@ void LLInventoryFilter::setFilterMarketplaceListingFolders(bool select_only_list
         mFilterOps.mFilterTypes &= ~FILTERTYPE_MARKETPLACE_LISTING_FOLDER;
         setModified(FILTER_LESS_RESTRICTIVE);
     }
+}
+
+void LLInventoryFilter::setFilterNoMarketplaceFolder()
+{
+    mFilterOps.mFilterTypes |= FILTERTYPE_NO_MARKETPLACE_ITEMS;
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)
