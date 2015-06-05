@@ -170,7 +170,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mDraggingOverItem(NULL),
 	mStatusTextBox(NULL),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
-	mViewModel(p.view_model)
+	mViewModel(p.view_model),
+    mGroupedItemModel(p.grouped_item_model)
 {
 	claimMem(mViewModel);
     LLPanel* panel = p.parent_panel;
@@ -1810,7 +1811,6 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 	}
 
 	// Successively filter out invalid options
-
 	U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
 	U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
 	for (selected_items_t::iterator item_itor = mSelectedItems.begin();
@@ -1821,6 +1821,14 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 		selected_item->buildContextMenu(*menu, flags);
 		flags = multi_select_flag;
 	}
+
+	// This adds a check for restrictions based on the entire
+	// selection set - for example, any one wearable may not push you
+	// over the limit, but all wearables together still might.
+    if (getFolderViewGroupedItemModel())
+    {
+        getFolderViewGroupedItemModel()->groupFilterContextMenu(mSelectedItems,*menu);
+    }
 
 	addNoOptions(menu);
 }

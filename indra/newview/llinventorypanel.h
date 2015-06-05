@@ -43,6 +43,7 @@ class LLInvFVBridge;
 class LLInventoryFolderViewModelBuilder;
 class LLInvPanelComplObserver;
 class LLFolderViewModelInventory;
+class LLFolderViewGroupedItemBridge;
 
 namespace LLInitParam
 {
@@ -240,6 +241,7 @@ protected:
 	LLScrollContainer*			mScroller;
 
 	LLFolderViewModelInventory	mInventoryViewModel;
+    LLPointer<LLFolderViewGroupedItemBridge> mGroupedItemBridge;
 	Params						mParams;	// stored copy of parameter block
 
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
