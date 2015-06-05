@@ -843,7 +843,7 @@ int HttpOpRequest::seekCallback(void *userdata, curl_off_t offset, int origin)
     else
         return 2;
 
-    if ((newPos < 0) || (newPos >= op->mReqBody->size()))
+    if (newPos >= op->mReqBody->size())
     {
         LL_WARNS(LOG_CORE) << "Attempt to seek to position outside post body." << LL_ENDL;
         return 2;
