@@ -287,6 +287,11 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
                 LL_INFOS("SLM") << "Unlist and clear version folder as the version folder is not at the right place anymore!!" << LL_ENDL;
                 LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
             }
+            else if (version_folder_uuid.notNull() && (count_descendants_items(version_folder_uuid) == 0))
+            {
+                LL_INFOS("SLM") << "Unlist as the version folder is empty of any item!!" << LL_ENDL;
+                LLMarketplaceData::instance().activateListing(listing_uuid, false);
+            }
         }
     
         // Check if the count on hand needs to be updated on SLM
