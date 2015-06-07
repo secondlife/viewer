@@ -1270,6 +1270,8 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
         // If the dest folder is a stock folder, we do assume that the incoming items are also stock items (they should anyway)
         int existing_stock_count = (move_in_stock ? bundle_size : 0);
         
+        int existing_folder_count = 0;
+        
         // Get the version folder: that's where the counts start from
         const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
 
@@ -1288,6 +1290,14 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
             
             existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
             existing_stock_count += count_stock_items(existing_items);
+            existing_folder_count += existing_categories.size();
+            
+            // If the incoming item is a nocopy (stock) item, we need to consider that it will create a stock folder
+            if (!inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) && !move_in_stock)
+            {
+                // Note : we do not assume that all incoming items are nocopy of different kinds...
+                existing_folder_count += 1;
+            }
         }
         
         if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
@@ -1304,6 +1314,14 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
             U32 amount = gSavedSettings.getU32("InventoryOutboxMaxStockItemCount");
             args["[AMOUNT]"] = llformat("%d",amount);
             tooltip_msg = LLTrans::getString("TooltipOutboxTooManyStockItems", args);
+            accept = false;
+        }
+        else if (existing_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
+        {
+            LLStringUtil::format_map_t args;
+            U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderCount");
+            args["[AMOUNT]"] = llformat("%d",amount);
+            tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders", args);
             accept = false;
         }
     }
