@@ -548,20 +548,7 @@ void LLSpeakerMgr::updateSpeakerList()
 				// Note: The session uuid and the group uuid are actually one and the same. If that was to change, this will fail.
 				LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(session_id);
 
-				if ((!gdatap || !gdatap->isGroupPropertiesDataComplete())
-					&& mGetListTime.getElapsedTimeF32() >= gSavedSettings.getF32("ChatLoadGroupTimeout"))
-				{
-					// Request group properties first. This is to avoid fetching lagre member lists here. See MAINT-5240
-					LLGroupMgr::getInstance()->sendGroupPropertiesRequest(session_id);
-				}
-				else if (gdatap && gdatap->isGroupPropertiesDataComplete()
-						 && !gdatap->isMemberDataComplete() && gdatap->mMemberCount < 5000
-						 && mGetListTime.getElapsedTimeF32() >= gSavedSettings.getF32("ChatLoadGroupTimeout"))
-				{
-					// Request the member list data the first time around
-					LLGroupMgr::getInstance()->sendCapGroupMembersRequest(session_id);
-				}
-				else if (gdatap && gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
+				if (gdatap && gdatap->isMemberDataComplete() && !gdatap->mMembers.empty())
 				{
 					// Add group members when we get the complete list (note: can take a while before we get that list)
 					LLGroupMgrGroupData::member_list_t::iterator member_it = gdatap->mMembers.begin();
