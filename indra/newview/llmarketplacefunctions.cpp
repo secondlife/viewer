@@ -1665,16 +1665,23 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, cons
 	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
     mMarketplaceItems[folder_id].mEditURL = edit_url;
     mMarketplaceItems[folder_id].mCountOnHand = count;
+    if (version_id.notNull())
+    {
+        mVersionFolders[version_id] = folder_id;
+    }
     return true;
 }
 
 bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update)
 {
+    LLUUID version_folder = getVersionFolder(folder_id);
+    
 	if (mMarketplaceItems.erase(folder_id) != 1)
     {
         return false;
     }
-
+    mVersionFolders.erase(version_folder);
+    
     if (update)
     {
         update_marketplace_category(folder_id, false);
@@ -1698,20 +1705,20 @@ bool LLMarketplaceData::deleteListing(S32 listing_id, bool update)
 bool LLMarketplaceData::getActivationState(const LLUUID& folder_id)
 {
     // Listing folder case
-    if (isListed(folder_id))
+    marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
+    if (it != mMarketplaceItems.end())
     {
-        marketplace_items_list_t::iterator it = mMarketplaceItems.find(folder_id);
         return (it->second).mIsActive;
     }
-    // We need to iterate through the list to check it's not a version folder
-    marketplace_items_list_t::iterator it = mMarketplaceItems.begin();
-    while (it != mMarketplaceItems.end())
+    // Version folder case
+    version_folders_list_t::iterator it_version = mVersionFolders.find(folder_id);
+    if (it_version != mVersionFolders.end())
     {
-        if ((it->second).mVersionFolderId == folder_id)
+        marketplace_items_list_t::iterator it = mMarketplaceItems.find(it_version->second);
+        if (it != mMarketplaceItems.end())
         {
             return (it->second).mIsActive;
         }
-        it++;
     }
     return false;
 }
@@ -1771,16 +1778,8 @@ bool LLMarketplaceData::isListedAndActive(const LLUUID& folder_id)
 
 bool LLMarketplaceData::isVersionFolder(const LLUUID& folder_id)
 {
-    marketplace_items_list_t::iterator it = mMarketplaceItems.begin();
-    while (it != mMarketplaceItems.end())
-    {
-        if ((it->second).mVersionFolderId == folder_id)
-        {
-            return true;
-        }
-        it++;
-    }
-    return false;
+    version_folders_list_t::iterator it = mVersionFolders.find(folder_id);
+    return (it != mVersionFolders.end());
 }
 
 bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id)
@@ -1908,6 +1907,11 @@ bool LLMarketplaceData::setVersionFolderID(const LLUUID& folder_id, const LLUUID
     }
     
     (it->second).mVersionFolderId = version_id;
+    mVersionFolders.erase(old_version_id);
+    if (version_id.notNull())
+    {
+        mVersionFolders[version_id] = folder_id;
+    }
     
     if (update)
     {

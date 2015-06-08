@@ -165,6 +165,7 @@ private:
 // * The mListingFolderId is used as a key to this map. It could therefore be taken off the LLMarketplaceTuple objects themselves.
 // * The SLM DB however uses mListingId as its primary key and it shows in its API. In the viewer though, the mListingFolderId is what we use to grab an inventory record.
 typedef std::map<LLUUID, LLMarketplaceTuple> marketplace_items_list_t;
+typedef std::map<LLUUID, LLUUID> version_folders_list_t;
 
 // Session cache of all Marketplace tuples
 // Notes:
@@ -277,6 +278,8 @@ private:
     
     // The cache of SLM data (at last...)
     marketplace_items_list_t mMarketplaceItems;
+    // We need a list (version folder -> listing folder) because such reverse lookups are frequent
+    version_folders_list_t mVersionFolders;
 };
 
 
