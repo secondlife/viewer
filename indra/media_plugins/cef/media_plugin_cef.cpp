@@ -34,7 +34,8 @@
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
 
-#include <functional>
+#include "../../../build-darwin-i386/packages/include/boost/function.hpp"
+#include "../../../build-darwin-i386/packages/include/boost/bind.hpp"
 #include "llCEFLib.h"
 
 #include <time.h>  // remove me
@@ -67,7 +68,7 @@ private:
 		}
 	}
 
-	void MediaPluginCEF::postDebugMessage(const std::string& msg);
+	void postDebugMessage(const std::string& msg);
 
 	bool mEnableMediaPluginDebugging;
 	LLCEFLib* mLLCEFLib;
@@ -186,9 +187,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			if (message_name == "init")
 			{
 
-				mLLCEFLib->setPageChangedCallback(std::bind(&MediaPluginCEF::pageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+				mLLCEFLib->setPageChangedCallback(boost::bind(&MediaPluginCEF::pageChangedCallback, this, _1, _2, _3));
 
-				bool result = mLLCEFLib->init(1024, 1024);
+	            LLCEFLibSettings settings;
+	            settings.inital_width = 1024;
+	            settings.inital_height = 1024;
+	            settings.javascript_enabled = true;
+	            settings.cookies_enabled = true;
+				bool result = mLLCEFLib->init(settings);
 				if (!result)
 				{
 					//MessageBoxA(0, "FAIL INIT", 0, 0);

@@ -19,5 +19,11 @@ if (WINDOWS)
         llceflib.lib
     )
 elseif (DARWIN)
+    set(CEF_PLUGIN_LIBRARIES
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libcef_dll_wrapper.a
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libLLCefLib.a
+
+        #${ARCH_PREBUILT_DIRS_RELEASE}/libQtWebKit.4.dylib
+       )
 elseif (LINUX)
 endif (WINDOWS)
