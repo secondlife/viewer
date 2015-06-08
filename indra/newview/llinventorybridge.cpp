@@ -74,6 +74,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
+#include "llwearableitemslist.h"
 #include "lllandmarkactions.h"
 #include "llpanellandmarks.h"
 
@@ -557,6 +558,46 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 	return TRUE;
 }
 
+void disable_context_entries_if_present(LLMenuGL& menu,
+                                        const menuentry_vec_t &disabled_entries)
+{
+	const LLView::child_list_t *list = menu.getChildList();
+	for (LLView::child_list_t::const_iterator itor = list->begin(); 
+		 itor != list->end(); 
+		 ++itor)
+	{
+		LLView *menu_item = (*itor);
+		std::string name = menu_item->getName();
+
+		// descend into split menus:
+		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(menu_item);
+		if ((name == "More") && branchp)
+		{
+			disable_context_entries_if_present(*branchp->getBranch(), disabled_entries);
+		}
+
+		bool found = false;
+		menuentry_vec_t::const_iterator itor2;
+		for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
+		{
+			if (*itor2 == name)
+			{
+				found = true;
+				break;
+			}
+		}
+
+        if (found)
+        {
+			menu_item->setVisible(TRUE);
+			// A bit of a hack so we can remember that some UI element explicitly set this to be visible
+			// so that some other UI element from multi-select doesn't later set this invisible.
+			menu_item->pushVisible(TRUE);
+
+			menu_item->setEnabled(FALSE);
+        }
+    }
+}
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show,
 						  const menuentry_vec_t &disabled_entries)
@@ -763,6 +804,31 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 	}
 	hide_context_entries(menu, items, disabled_items);
+}
+
+bool get_selection_item_uuids(LLFolderView::selected_items_t& selected_items, uuid_vec_t& ids)
+{
+	uuid_vec_t results;
+    S32 non_item = 0;
+	for(LLFolderView::selected_items_t::iterator it = selected_items.begin(); it != selected_items.end(); ++it)
+	{
+		LLItemBridge *view_model = dynamic_cast<LLItemBridge *>((*it)->getViewModelItem());
+
+		if(view_model && view_model->getUUID().notNull())
+		{
+			results.push_back(view_model->getUUID());
+		}
+        else
+        {
+            non_item++;
+        }
+	}
+	if (non_item == 0)
+	{
+		ids = results;
+		return true;
+	}
+	return false;
 }
 
 void LLInvFVBridge::addTrashContextMenuOptions(menuentry_vec_t &items,
@@ -1120,7 +1186,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			{
 				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
 			}
-			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, (LLWearableType::EType)flags);
+			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, LLWearableType::inventoryFlagsToWearableType(flags));
 			break;
 		case LLAssetType::AT_CATEGORY:
 			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
@@ -3585,7 +3651,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	if(!model) return;
 
 	buildContextMenuOptions(flags, items, disabled_items);
-        hide_context_entries(menu, items, disabled_items);
+    hide_context_entries(menu, items, disabled_items);
 
 	// Reposition the menu, in case we're adding items to an existing menu.
 	menu.needsArrange();
@@ -5770,7 +5836,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 					if (LLWearableType::getAllowMultiwear(mWearableType))
 					{
 						items.push_back(std::string("Wearable Add"));
-						if (gAgentWearables.getWearableCount(mWearableType) >= LLAgentWearables::MAX_CLOTHING_PER_TYPE)
+						if (!gAgentWearables.canAddWearable(mWearableType))
 						{
 							disabled_items.push_back(std::string("Wearable Add"));
 						}
@@ -6437,6 +6503,24 @@ LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
 				flags);
 		}
 	return new_listener;
+}
+
+LLFolderViewGroupedItemBridge::LLFolderViewGroupedItemBridge()
+{
+}
+
+void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu)
+{
+    uuid_vec_t ids;
+	menuentry_vec_t disabled_items;
+    if (get_selection_item_uuids(selected_items, ids))
+    {
+        if (!LLAppearanceMgr::instance().canAddWearables(ids))
+        {
+			disabled_items.push_back(std::string("Wearable Add"));
+        }
+    }
+	disable_context_entries_if_present(menu, disabled_items);
 }
 
 // EOF
