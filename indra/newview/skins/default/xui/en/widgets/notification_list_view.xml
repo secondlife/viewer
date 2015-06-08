@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<notification_list_view
+ allow_select="false"
+ color="PanelFocusBackgroundColor"
+ item_pad="0"
+ keep_one_selected="false"
+ multi_select="false"
+ opaque="true">
+  <flat_list_view
+    color="FloaterDefaultBackgroundColor"
+    follows="all"
+    layout="topleft"
+    name="notification_list"
+    left="1"
+    top="20"
+    height="0"
+    width="318"/>
+</notification_list_view>

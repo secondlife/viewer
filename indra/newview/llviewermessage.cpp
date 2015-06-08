@@ -2678,6 +2678,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["sender_name"] = name;
 				payload["group_id"] = group_id;
 				payload["inventory_name"] = item_name;
+ 				payload["received_time"] = LLDate::now();
 				if(info && info->asLLSD())
 				{
 					payload["inventory_offer"] = info->asLLSD();
@@ -5620,6 +5621,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 			}
 		}
 		final_args["MESSAGE"] = message;
+		payload["dest_id"] = dest_id;
 		notification = success ? "PaymentSent" : "PaymentFailure";
 	}
 	else {
