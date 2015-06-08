@@ -141,7 +141,7 @@ BOOL LLPanelExperiencePicker::postBuild()
 
 void LLPanelExperiencePicker::editKeystroke( class LLLineEditor* caller, void* user_data )
 {
-	getChildView(BTN_FIND)->setEnabled(caller->getText().size() >= 0);
+	getChildView(BTN_FIND)->setEnabled(true);
 }
 
 void LLPanelExperiencePicker::onBtnFind()

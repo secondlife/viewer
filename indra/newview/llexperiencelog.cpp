@@ -188,7 +188,7 @@ void LLExperienceLog::saveEvents()
 	settings["Notify"] = mNotifyNewEvent;
 	settings["PageSize"] = (int)mPageSize;
 
-	llofstream stream(filename);
+	llofstream stream(filename.c_str());
 	LLSDSerialize::toPrettyXML(settings, stream);
 }
 
@@ -198,7 +198,7 @@ void LLExperienceLog::loadEvents()
 	LLSD settings = LLSD::emptyMap();
 
 	std::string filename = getFilename();
-	llifstream stream(filename);
+	llifstream stream(filename.c_str());
 	LLSDSerialize::fromXMLDocument(settings, stream);
 
 	if(settings.has("MaxDays"))
