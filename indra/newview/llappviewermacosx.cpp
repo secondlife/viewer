@@ -63,16 +63,7 @@ namespace
 	int gArgC;
 	char** gArgV;
 	LLAppViewerMacOSX* gViewerAppPtr;
-#ifdef LL_CARBON_CRASH_HANDLER
-	OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
-	{
-		OSErr result = noErr;
-		
-		LLAppViewer::instance()->userQuit();
-		
-		return(result);
-	}
-#endif
+
     void (*gOldTerminateHandler)() = NULL;
 }
 

@@ -382,6 +382,10 @@ class LLWearableItemCreationDateComparator : public LLWearableItemNameComparator
 {
 	LOG_CLASS(LLWearableItemCreationDateComparator);
 
+public:
+	// clang demands a default ctor here 
+	LLWearableItemCreationDateComparator() {}
+
 protected:
 	/*virtual*/ bool doCompare(const LLPanelInventoryListItemBase* item1, const LLPanelInventoryListItemBase* item2) const;
 };
@@ -425,7 +429,6 @@ public:
 		static void setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val);
 		static void updateMask(U32& mask, LLAssetType::EType at);
 		static void createNewWearable(const LLUUID& item_id);
-		static bool canAddWearables(const uuid_vec_t& item_ids);
 
 		LLWearableItemsList*	mParent;
 	};

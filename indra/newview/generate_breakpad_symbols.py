@@ -31,7 +31,6 @@ $/LicenseInfo$
 import collections
 import fnmatch
 import itertools
-import operator
 import os
 import re
 import sys
@@ -149,7 +148,7 @@ def main(configuration, search_dirs, viewer_exes, libs_suffix, dump_syms_tool, v
                    == os.path.splitext(os.path.basename(m))[0].lower()
         # there must be at least one .sym file in tarfile_members that matches
         # each required module (ignoring file extensions)
-        if not reduce(operator.or_, itertools.imap(match_module_basename, tarfile_members)):
+        if not any(itertools.imap(match_module_basename, tarfile_members)):
             print >> sys.stderr, "failed to find required %s in generated %s" \
                     % (required_module, viewer_symbol_file)
             os.remove(viewer_symbol_file)

@@ -86,10 +86,10 @@ LLAssetType::EType LLWearable::getAssetType() const
 	return LLWearableType::getAssetType(mType);
 }
 
-BOOL LLWearable::exportFile(LLFILE* fp) const
+BOOL LLWearable::exportFile(const std::string& filename) const
 {
-	llofstream ofs(fp);
-	return exportStream(ofs);
+	llofstream ofs(filename.c_str(), std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+	return ofs.is_open() && exportStream(ofs);
 }
 
 // virtual
@@ -201,10 +201,11 @@ void LLWearable::createLayers(S32 te, LLAvatarAppearance *avatarp)
 	}
 }
 
-LLWearable::EImportResult LLWearable::importFile(LLFILE* fp, LLAvatarAppearance* avatarp )
+LLWearable::EImportResult LLWearable::importFile(const std::string& filename,
+												 LLAvatarAppearance* avatarp )
 {
-	llifstream ifs(fp);
-	return importStream(ifs, avatarp);
+	llifstream ifs(filename.c_str(), std::ios_base::in | std::ios_base::binary);
+	return (! ifs.is_open())? FAILURE : importStream(ifs, avatarp);
 }
 
 // virtual

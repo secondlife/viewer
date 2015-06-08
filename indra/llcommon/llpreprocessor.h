@@ -101,6 +101,11 @@
 
 #endif
 
+#if LL_WINDOWS
+# define LL_THREAD_LOCAL __declspec(thread)
+#else
+# define LL_THREAD_LOCAL __thread
+#endif
 
 // Static linking with apr on windows needs to be declared.
 #if LL_WINDOWS && !LL_COMMON_LINK_SHARED

@@ -77,7 +77,7 @@ void LLProgressBar::draw()
 	LLColor4 bar_color = mColorBar.get();
 	bar_color.mV[VALPHA] *= alpha; // modulate alpha
 	LLRect progress_rect = getLocalRect();
-	progress_rect.mRight = llround(getRect().getWidth() * (mPercentDone / 100.f));
+	progress_rect.mRight = ll_round(getRect().getWidth() * (mPercentDone / 100.f));
 	mImageFill->draw(progress_rect, bar_color);
 }
 

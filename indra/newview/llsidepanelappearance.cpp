@@ -212,7 +212,8 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 			}
 			if (is_wearable_edit_visible)
 			{
-				if (gAgentWearables.getWearableIndex(wearable_ptr) == LLAgentWearables::MAX_CLOTHING_PER_TYPE)
+				U32 index;
+				if (!gAgentWearables.getWearableIndex(wearable_ptr,index))
 				{
 					// we're no longer wearing the wearable we were last editing, switch back to outfit editor
 					showOutfitEditPanel();

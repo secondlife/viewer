@@ -39,14 +39,10 @@
 #	error "architecture not supported"
 #endif
 
-
 //
 // Locally used constants
 //
-const F64 SEC_TO_MICROSEC = 1000000.f;
 const U64 SEC_TO_MICROSEC_U64 = 1000000;
-const F64 USEC_TO_SEC_F64 = 0.000001;
-
 
 //---------------------------------------------------------------------------
 // Globals and statics

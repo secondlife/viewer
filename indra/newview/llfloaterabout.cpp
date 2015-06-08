@@ -123,17 +123,16 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerTextEditor *support_widget = 
 		getChild<LLViewerTextEditor>("support_editor", true);
 
-	LLViewerTextEditor *linden_names_widget = 
-		getChild<LLViewerTextEditor>("linden_names", true);
-
 	LLViewerTextEditor *contrib_names_widget = 
 		getChild<LLViewerTextEditor>("contrib_names", true);
 
-	LLViewerTextEditor *trans_names_widget = 
-		getChild<LLViewerTextEditor>("trans_names", true);
+	LLViewerTextEditor *licenses_widget = 
+		getChild<LLViewerTextEditor>("licenses_editor", true);
 
 	getChild<LLUICtrl>("copy_btn")->setCommitCallback(
 		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
+
+	static const LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
 
 	if (gAgent.getRegion())
 	{
@@ -153,29 +152,11 @@ BOOL LLFloaterAbout::postBuild()
 	support_widget->setEnabled(FALSE);
 	support_widget->startOfDoc();
 
-	// Get the names of Lindens, added by viewer_manifest.py at build time
-	std::string lindens_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"lindens.txt");
-	llifstream linden_file;
-	std::string lindens;
-	linden_file.open(lindens_path);		/* Flawfinder: ignore */
-	if (linden_file.is_open())
-	{
-		std::getline(linden_file, lindens); // all names are on a single line
-		linden_file.close();
-		linden_names_widget->setText(lindens);
-	}
-	else
-	{
-		LL_INFOS("AboutInit") << "Could not read lindens file at " << lindens_path << LL_ENDL;
-	}
-	linden_names_widget->setEnabled(FALSE);
-	linden_names_widget->startOfDoc();
-
 	// Get the names of contributors, extracted from .../doc/contributions.txt by viewer_manifest.py at build time
 	std::string contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"contributors.txt");
 	llifstream contrib_file;
 	std::string contributors;
-	contrib_file.open(contributors_path);		/* Flawfinder: ignore */
+	contrib_file.open(contributors_path.c_str());		/* Flawfinder: ignore */
 	if (contrib_file.is_open())
 	{
 		std::getline(contrib_file, contributors); // all names are on a single line
@@ -189,23 +170,28 @@ BOOL LLFloaterAbout::postBuild()
 	contrib_names_widget->setEnabled(FALSE);
 	contrib_names_widget->startOfDoc();
 
-	// Get the names of translators, extracted from .../doc/tranlations.txt by viewer_manifest.py at build time
-	std::string translators_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"translators.txt");
-	llifstream trans_file;
-	std::string translators;
-	trans_file.open(translators_path);		/* Flawfinder: ignore */
-	if (trans_file.is_open())
+    // Get the Versions and Copyrights, created at build time
+	std::string licenses_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"packages-info.txt");
+	llifstream licenses_file;
+	licenses_file.open(licenses_path.c_str());		/* Flawfinder: ignore */
+	if (licenses_file.is_open())
 	{
-		std::getline(trans_file, translators); // all names are on a single line
-		trans_file.close();
+		std::string license_line;
+		licenses_widget->clear();
+		while ( std::getline(licenses_file, license_line) )
+		{
+			licenses_widget->appendText(license_line+"\n", FALSE,
+										LLStyle::Params() .color(about_color));
+		}
+		licenses_file.close();
 	}
 	else
 	{
-		LL_WARNS("AboutInit") << "Could not read translators file at " << translators_path << LL_ENDL;
+		// this case will use the (out of date) hard coded value from the XUI
+		LL_INFOS("AboutInit") << "Could not read licenses file at " << licenses_path << LL_ENDL;
 	}
-	trans_names_widget->setText(translators);
-	trans_names_widget->setEnabled(FALSE);
-	trans_names_widget->startOfDoc();
+	licenses_widget->setEnabled(FALSE);
+	licenses_widget->startOfDoc();
 
 	return TRUE;
 }

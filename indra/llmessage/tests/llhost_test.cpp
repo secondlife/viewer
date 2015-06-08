@@ -151,11 +151,31 @@ namespace tut
 	template<> template<>
 	void host_object::test<9>()
 	{
-		skip("this test is flaky, but we should figure out why...");
+		skip("this test is irreparably flaky");
 //		skip("setHostByName(\"google.com\"); getHostName() -> (e.g.) \"yx-in-f100.1e100.net\"");
-		std::string hostStr = "lindenlab.com";		
+		// nat: is it reasonable to expect LLHost::getHostName() to echo
+		// back something resembling the string passed to setHostByName()?
+		//
+		// If that's not even reasonable, would a round trip in the /other/
+		// direction make more sense? (Call getHostName() for something with
+		// known IP address; call setHostByName(); verify IP address)
+		//
+		// Failing that... is there a plausible way to test getHostName() and
+		// setHostByName()? Hopefully without putting up a dummy local DNS
+		// server?
+
+		// monty: If you don't control the DNS server or the DNS configuration
+		// for the test point then, no, none of these will necessarily be
+		// reliable and may start to fail at any time. Forward translation
+		// is subject to CNAME records and round-robin address assignment.
+		// Reverse lookup is 1-to-many and is more and more likely to have
+		// nothing to do with the forward translation.
+		// 
+		// So the test is increasingly meaningless on a real network.
+
+		std::string hostStr = "lindenlab.com";
 		LLHost host;
-		host.setHostByName(hostStr);	
+		host.setHostByName(hostStr);
 
 		// reverse DNS will likely result in appending of some
 		// sub-domain to the main hostname. so look for
@@ -177,9 +197,9 @@ namespace tut
 	template<> template<>
 	void host_object::test<10>()
 	{
-		std::string hostStr = "64.233.167.99";		
+		std::string hostStr = "64.233.167.99";
 		LLHost host;
-		host.setHostByName(hostStr);	
+		host.setHostByName(hostStr);
 		ensure("SetHostByName for dotted IP Address failed", host.getAddress() == ip_string_to_u32(hostStr.c_str()));
 	}
 

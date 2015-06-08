@@ -228,8 +228,6 @@ void LLManipScale::render()
 		const F32 BOX_HANDLE_BASE_SIZE		= 50.0f;   // box size in pixels = BOX_HANDLE_BASE_SIZE * BOX_HANDLE_BASE_FACTOR
 		const F32 BOX_HANDLE_BASE_FACTOR	= 0.2f;
 
-		LLVector3 center_agent = gAgent.getPosAgentFromGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal());
-
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			for (S32 i = 0; i < NUM_MANIPULATORS; i++)
@@ -1536,8 +1534,8 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 	mScaleSnapUnit1 = mScaleSnapUnit1 / (mSnapDir1 * mScaleDir);
 	mScaleSnapUnit2 = mScaleSnapUnit2 / (mSnapDir2 * mScaleDir);
 
-	mTickPixelSpacing1 = llround((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir1).length());
-	mTickPixelSpacing2 = llround((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir2).length());
+	mTickPixelSpacing1 = ll_round((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir1).length());
+	mTickPixelSpacing2 = ll_round((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir2).length());
 
 	if (uniform)
 	{
@@ -1608,8 +1606,8 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 		F32 grid_offset2 = fmodf(dist_grid_axis, smallest_subdivision2);
 
 		// how many smallest grid units are we away from largest grid scale?
-		S32 sub_div_offset_1 = llround(fmod(dist_grid_axis - grid_offset1, mScaleSnapUnit1 / sGridMinSubdivisionLevel) / smallest_subdivision1);
-		S32 sub_div_offset_2 = llround(fmod(dist_grid_axis - grid_offset2, mScaleSnapUnit2 / sGridMinSubdivisionLevel) / smallest_subdivision2);
+		S32 sub_div_offset_1 = ll_round(fmod(dist_grid_axis - grid_offset1, mScaleSnapUnit1 / sGridMinSubdivisionLevel) / smallest_subdivision1);
+		S32 sub_div_offset_2 = ll_round(fmod(dist_grid_axis - grid_offset2, mScaleSnapUnit2 / sGridMinSubdivisionLevel) / smallest_subdivision2);
 
 		S32 num_ticks_per_side1 = llmax(1, lltrunc(0.5f * mSnapGuideLength / smallest_subdivision1));
 		S32 num_ticks_per_side2 = llmax(1, lltrunc(0.5f * mSnapGuideLength / smallest_subdivision2));
@@ -1663,7 +1661,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 		LLVector2 screen_translate_axis(llabs(mScaleDir * LLViewerCamera::getInstance()->getLeftAxis()), llabs(mScaleDir * LLViewerCamera::getInstance()->getUpAxis()));
 		screen_translate_axis.normalize();
 
-		S32 tick_label_spacing = llround(screen_translate_axis * sTickLabelSpacing);
+		S32 tick_label_spacing = ll_round(screen_translate_axis * sTickLabelSpacing);
 
 		for (pass = 0; pass < 3; pass++)
 		{
@@ -1743,8 +1741,8 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 		stop_tick = llmin(max_ticks1, num_ticks_per_side1);
 
 		F32 grid_resolution = mObjectSelection->getSelectType() == SELECT_TYPE_HUD ? 0.25f : llmax(gSavedSettings.getF32("GridResolution"), 0.001f);
-		S32 label_sub_div_offset_1 = llround(fmod(dist_grid_axis - grid_offset1, mScaleSnapUnit1  * 32.f) / smallest_subdivision1);
-		S32 label_sub_div_offset_2 = llround(fmod(dist_grid_axis - grid_offset2, mScaleSnapUnit2  * 32.f) / smallest_subdivision2);
+		S32 label_sub_div_offset_1 = ll_round(fmod(dist_grid_axis - grid_offset1, mScaleSnapUnit1  * 32.f) / smallest_subdivision1);
+		S32 label_sub_div_offset_2 = ll_round(fmod(dist_grid_axis - grid_offset2, mScaleSnapUnit2  * 32.f) / smallest_subdivision2);
 
 		for (S32 i = start_tick; i <= stop_tick; i++)
 		{

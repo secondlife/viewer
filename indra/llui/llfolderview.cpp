@@ -53,7 +53,6 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-const S32 RENAME_WIDTH_PAD = 4;
 const S32 RENAME_HEIGHT_PAD = 1;
 const S32 AUTO_OPEN_STACK_DEPTH = 16;
 
@@ -171,7 +170,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mDraggingOverItem(NULL),
 	mStatusTextBox(NULL),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
-	mViewModel(p.view_model)
+	mViewModel(p.view_model),
+    mGroupedItemModel(p.grouped_item_model)
 {
 	claimMem(mViewModel);
     LLPanel* panel = p.parent_panel;
@@ -307,18 +307,18 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 	LLFolderViewFolder::arrange(&mMinWidth, &target_height);
 
 	LLRect scroll_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
-	reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
+	reshape( llmax(scroll_rect.getWidth(), mMinWidth), ll_round(mCurHeight) );
 
 	LLRect new_scroll_rect = (mScrollContainer ? mScrollContainer->getContentWindowRect() : LLRect());
 	if (new_scroll_rect.getWidth() != scroll_rect.getWidth())
 	{
-		reshape( llmax(scroll_rect.getWidth(), mMinWidth), llround(mCurHeight) );
+		reshape( llmax(scroll_rect.getWidth(), mMinWidth), ll_round(mCurHeight) );
 	}
 
 	// move item renamer text field to item's new position
 	updateRenamerPosition();
 
-	return llround(mTargetHeight);
+	return ll_round(mTargetHeight);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_FILTER("Filter Folder View");
@@ -341,7 +341,7 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
 	width  = llmax(mMinWidth, scroll_rect.getWidth());
-	height = llmax(llround(mCurHeight), scroll_rect.getHeight());
+	height = llmax(ll_round(mCurHeight), scroll_rect.getHeight());
 
 	// Restrict width within scroll container's width
 	if (mUseEllipses && mScrollContainer)
@@ -1811,7 +1811,6 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 	}
 
 	// Successively filter out invalid options
-
 	U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
 	U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
 	for (selected_items_t::iterator item_itor = mSelectedItems.begin();
@@ -1822,6 +1821,14 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 		selected_item->buildContextMenu(*menu, flags);
 		flags = multi_select_flag;
 	}
+
+	// This adds a check for restrictions based on the entire
+	// selection set - for example, any one wearable may not push you
+	// over the limit, but all wearables together still might.
+    if (getFolderViewGroupedItemModel())
+    {
+        getFolderViewGroupedItemModel()->groupFilterContextMenu(mSelectedItems,*menu);
+    }
 
 	addNoOptions(menu);
 }

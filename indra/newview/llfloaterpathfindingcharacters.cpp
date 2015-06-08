@@ -224,7 +224,7 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListItemData(const LLPa
 	columns[2]["column"] = "owner";
 	columns[2]["value"] = getOwnerName(pCharacterPtr);
 
-	S32 cpuTime = llround(pCharacterPtr->getCPUTime());
+	S32 cpuTime = ll_round(pCharacterPtr->getCPUTime());
 	std::string cpuTimeString = llformat("%d", cpuTime);
 	LLStringUtil::format_map_t string_args;
 	string_args["[CPU_TIME]"] = cpuTimeString;

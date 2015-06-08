@@ -47,8 +47,7 @@
 const	char* const	LOCAL_ASSET_URL_FORMAT		= "http://%s:12041/asset";
 
 const U32 MAX_RUNNING_REQUESTS = 1;
-const F32 MAX_PROCESSING_TIME = 0.005f;
-const S32 CURL_XFER_BUFFER_SIZE = 65536;
+
 // Try for 30 minutes for now.
 const F32 GET_URL_TO_FILE_TIMEOUT = 1800.0f;
 
