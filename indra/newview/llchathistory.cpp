@@ -376,6 +376,10 @@ public:
 			|| mSourceType == CHAT_SOURCE_SYSTEM)
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
+			if(!chat.mFromName.empty())
+			{
+				mFrom += " (" + chat.mFromName + ")";
+			}
 			user_name->setValue(mFrom);
 			updateMinUserNameWidth();
 		}
