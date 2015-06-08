@@ -1557,8 +1557,16 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex t
 		return LLVOAvatar::isTextureVisible(type);
 	}
 
-	U32 index = gAgentWearables.getWearableIndex(wearable);
-	return isTextureVisible(type,index);
+	U32 index;
+	if (gAgentWearables.getWearableIndex(wearable,index))
+	{
+		return isTextureVisible(type,index);
+	}
+	else
+	{
+		LL_WARNS() << "Wearable not found" << LL_ENDL;
+		return FALSE;
+	}
 }
 
 bool LLVOAvatarSelf::areTexturesCurrent() const
