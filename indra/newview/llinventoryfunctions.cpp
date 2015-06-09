@@ -2576,6 +2576,7 @@ void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
     // containing folder will need to be updated as well as their initially containing folder. For
     // instance, moving a stock folder from a listed folder to another will require an update of the
     // target listing *and* the original listing. So we need to keep track of both.
+    // Note: do not however put the marketplace listings root itself in this list or the whole marketplace data will be rebuilt.
     sMarketplaceFolders.clear();
     const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
     std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
@@ -2586,8 +2587,16 @@ void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
         viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
         if (viewModel && gInventory.isObjectDescendentOf(viewModel->getInventoryObject()->getParentUUID(), marketplacelistings_id))
         {
-            sMarketplaceFolders.push_back(viewModel->getInventoryObject()->getParentUUID());
-            sMarketplaceFolders.push_back(viewModel->getInventoryObject()->getUUID());
+            const LLUUID &parent_id = viewModel->getInventoryObject()->getParentUUID();
+            if (parent_id != marketplacelistings_id)
+            {
+                sMarketplaceFolders.push_back(parent_id);
+            }
+            const LLUUID &curr_id = viewModel->getInventoryObject()->getUUID();
+            if (curr_id != marketplacelistings_id)
+            {
+                sMarketplaceFolders.push_back(curr_id);
+            }
         }
     }
     // Suppress dupes in the list so we won't update listings twice

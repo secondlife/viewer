@@ -697,8 +697,7 @@ public:
     // Overloads some display related methods specific to folders in a marketplace floater context
 	LLMarketplaceFolderBridge(LLInventoryPanel* inventory,
 							  LLFolderView* root,
-							  const LLUUID& uuid) :
-    LLFolderBridge(inventory, root, uuid) { }
+                              const LLUUID& uuid);
     
 	virtual LLUIImagePtr getIcon() const;
 	virtual LLUIImagePtr getIconOpen() const;
@@ -707,6 +706,9 @@ public:
     
 private:
     LLUIImagePtr getMarketplaceFolderIcon(BOOL is_open) const;
+    // Those members are mutable because they are cached variablse to speed up display, not a state variables
+    mutable S32 m_depth;
+    mutable S32 m_stockCountCache;
 };
 
 
