@@ -142,7 +142,6 @@ set(viewer_SOURCE_FILES
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallingcard.cpp
-    llcapabilitylistener.cpp
     llcaphttpsender.cpp
     llchannelmanager.cpp
     llchatbar.cpp
@@ -742,7 +741,6 @@ set(viewer_HEADER_FILES
     llbuycurrencyhtml.h
     llcallbacklist.h
     llcallingcard.h
-    llcapabilitylistener.h
     llcapabilityprovider.h
     llcaphttpsender.h
     llchannelmanager.h
@@ -2298,7 +2296,6 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-  set(test_sources llcapabilitylistener.cpp)
   ##################################################
   # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
   ##################################################
@@ -2312,13 +2309,6 @@ if (LL_TESTS)
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
-    )
-
-  LL_ADD_INTEGRATION_TEST(llcapabilitylistener
-    "${test_sources}"
-    "${test_libs}"
-    ${PYTHON_EXECUTABLE}
-    "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
     )
 
   if (LINUX)	

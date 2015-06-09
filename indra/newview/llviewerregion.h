@@ -61,7 +61,6 @@ class LLVOCache;
 class LLVOCacheEntry;
 class LLSpatialPartition;
 class LLEventPump;
-class LLCapabilityListener;
 class LLDataPacker;
 class LLDataPackerBinaryBuffer;
 class LLHost;
@@ -268,10 +267,6 @@ public:
 
 	static bool isSpecialCapabilityName(const std::string &name);
 	void logActiveCapabilities() const;
-
-    /// Get LLEventPump on which we listen for capability requests
-    /// (https://wiki.lindenlab.com/wiki/Viewer:Messaging/Messaging_Notes#Capabilities)
-    LLEventPump& getCapAPI() const;
 
     /// implements LLCapabilityProvider
 	/*virtual*/ const LLHost& getHost() const;

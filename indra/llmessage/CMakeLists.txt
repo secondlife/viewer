@@ -75,7 +75,6 @@ set(llmessage_SOURCE_FILES
     llpumpio.cpp
     llsdappservices.cpp
     llsdhttpserver.cpp
-    llsdmessage.cpp
     llsdmessagebuilder.cpp
     llsdmessagereader.cpp
     llsdrpcclient.cpp
@@ -176,7 +175,6 @@ set(llmessage_HEADER_FILES
     llregionhandle.h
     llsdappservices.h
     llsdhttpserver.h
-    llsdmessage.h
     llsdmessagebuilder.h
     llsdmessagereader.h
     llsdrpcclient.h
@@ -259,22 +257,6 @@ if (LL_TESTS)
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
     ${GOOGLEMOCK_LIBRARIES}
-    )
-
-  LL_ADD_INTEGRATION_TEST(
-    llsdmessage
-    "llsdmessage.cpp"
-    "${test_libs}"
-    ${PYTHON_EXECUTABLE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
-    )
-
-  LL_ADD_INTEGRATION_TEST(
-    llhttpclient
-    "llhttpclient.cpp"
-    "${test_libs}"
-    ${PYTHON_EXECUTABLE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
     )
 
   LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")

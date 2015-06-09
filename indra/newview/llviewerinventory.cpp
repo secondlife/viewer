@@ -1750,27 +1750,20 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
         return;
     }
 
-	// check capability to prevent a crash while LL_ERRS in LLCapabilityListener::capListener. See EXT-8459.
-	std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
-	if (url.empty())
-	{
-        LL_WARNS(LOG_NOTECARD) << "There is no 'CopyInventoryFromNotecard' capability"
-							   << " for region: " << viewer_region->getName()
-							   << LL_ENDL;
-		return;
-	}
-
-    LLSD request, body;
+    LLSD body;
     body["notecard-id"] = notecard_inv_id;
     body["object-id"] = object_id;
     body["item-id"] = src->getUUID();
 	body["folder-id"] = destination_id;
     body["callback-id"] = (LLSD::Integer)callback_id;
 
-    request["message"] = "CopyInventoryFromNotecard";
-    request["payload"] = body;
-
-    viewer_region->getCapAPI().post(request);
+    /// *TODO: RIDER: This posts the request under the agents policy.  
+    /// When I convert the inventory over this call should be moved under that 
+    /// policy as well.
+    if (!gAgent.requestPostCapability("CopyInventoryFromNotecard", body))
+    {
+        LL_WARNS() << "SIM does not have the capability to copy from notecard." << LL_ENDL;
+    }
 }
 
 void create_new_item(const std::string& name,

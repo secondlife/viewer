@@ -48,7 +48,6 @@
 #include "llavatarrenderinfoaccountant.h"
 #include "llcallingcard.h"
 #include "llcaphttpsender.h"
-#include "llcapabilitylistener.h"
 #include "llcommandhandler.h"
 #include "lldir.h"
 #include "lleventpoll.h"
@@ -151,29 +150,18 @@ LLRegionHandler gRegionHandler;
 class LLViewerRegionImpl 
 {
 public:
-	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host)
-		:	mHost(host),
-			mCompositionp(NULL),
-			mEventPoll(NULL),
-			mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
-			mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
-			mSeedCapAttempts(0),
-			mHttpResponderID(0),
-		mLastCameraUpdate(0),
-		mLastCameraOrigin(),
-		mVOCachePartition(NULL),
-		mLandp(NULL),
-		    // I'd prefer to set the LLCapabilityListener name to match the region
-		    // name -- it's disappointing that's not available at construction time.
-		    // We could instead store an LLCapabilityListener*, making
-		    // setRegionNameAndZone() replace the instance. Would that pose
-		    // consistency problems? Can we even request a capability before calling
-		    // setRegionNameAndZone()?
-		    // For testability -- the new Michael Feathers paradigm --
-		    // LLCapabilityListener binds all the globals it expects to need at
-		    // construction time.
-		    mCapabilityListener(host.getString(), gMessageSystem, *region,
-		                        gAgent.getID(), gAgent.getSessionID())
+	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host):   
+        mHost(host),
+        mCompositionp(NULL),
+        mEventPoll(NULL),
+        mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
+        mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
+        mSeedCapAttempts(0),
+        mHttpResponderID(0),
+        mLastCameraUpdate(0),
+        mLastCameraOrigin(),
+        mVOCachePartition(NULL),
+        mLandp(NULL)
 	{}
 
 	void buildCapabilityNames(LLSD& capabilityNames);
@@ -224,11 +212,6 @@ public:
 	S32 mSeedCapAttempts;
 
 	S32 mHttpResponderID;
-
-	/// Post an event to this LLCapabilityListener to invoke a capability message on
-	/// this LLViewerRegion's server
-	/// (https://wiki.lindenlab.com/wiki/Viewer:Messaging/Messaging_Notes#Capabilities)
-	LLCapabilityListener mCapabilityListener;
 
 	//spatial partitions for objects in this region
 	std::vector<LLViewerOctreePartition*> mObjectPartition;
@@ -636,11 +619,6 @@ LLViewerRegion::~LLViewerRegion()
 
 	delete mImpl;
 	mImpl = NULL;
-}
-
-LLEventPump& LLViewerRegion::getCapAPI() const
-{
-	return mImpl->mCapabilityListener.getCapAPI();
 }
 
 /*virtual*/ 
