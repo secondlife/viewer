@@ -159,6 +159,9 @@ const F32 HEAD_MOVEMENT_AVG_TIME = 0.9f;
 
 const S32 MORPH_MASK_REQUESTED_DISCARD = 0;
 
+const F32 MAX_STANDOFF_FROM_ORIGIN = 3;
+const F32 MAX_STANDOFF_DISTANCE_CHANGE = 32;
+
 // Discard level at which to switch to baked textures
 // Should probably be 4 or 3, but didn't want to change it while change other logic - SJB
 const S32 SWITCH_TO_BAKED_DISCARD = 5;
@@ -2131,7 +2134,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	
 	// animate the character
 	// store off last frame's root position to be consistent with camera position
-	LLVector3 root_pos_last = mRoot->getWorldPosition();
+	mLastRootPos = mRoot->getWorldPosition();
 	BOOL detailed_update = updateCharacter(agent);
 
 	static LLUICachedControl<bool> visualizers_in_calls("ShowVoiceVisualizersInCalls", false);
@@ -2149,7 +2152,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		idleUpdateWindEffect();
 	}
 	
-	idleUpdateNameTag( root_pos_last );
+	idleUpdateNameTag( mLastRootPos );
 	idleUpdateRenderCost();
 }
 
@@ -6053,10 +6056,10 @@ void LLVOAvatar::getOffObject()
 	{
 		return;
 	}
-	
+
 	LLViewerObject* sit_object = (LLViewerObject*)getParent();
 
-	if (sit_object) 
+	if (sit_object)
 	{
 		stopMotionFromSource(sit_object->getID());
 		LLFollowCamMgr::setCameraActive(sit_object->getID(), FALSE);
@@ -6076,6 +6079,15 @@ void LLVOAvatar::getOffObject()
 	// or that drawable had no parent from the start
 	LLVector3 cur_position_world = mDrawable->getWorldPosition();
 	LLQuaternion cur_rotation_world = mDrawable->getWorldRotation();
+
+	if (mLastRootPos.length() >= MAX_STANDOFF_FROM_ORIGIN
+		&& (cur_position_world.length() < MAX_STANDOFF_FROM_ORIGIN
+			|| dist_vec(cur_position_world, mLastRootPos) > MAX_STANDOFF_DISTANCE_CHANGE))
+	{
+		// Most likely drawable got updated too early or some updates were missed - we got relative position to non-existing parent
+		// restore coordinates from cache
+		cur_position_world = mLastRootPos;
+	}
 
 	// set *local* position based on last *world* position, since we're unparenting the avatar
 	mDrawable->mXform.setPosition(cur_position_world);
