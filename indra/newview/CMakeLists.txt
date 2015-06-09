@@ -326,7 +326,6 @@ set(viewer_SOURCE_FILES
     llgroupmgr.cpp
     llhasheduniqueid.cpp
     llhints.cpp
-    llhomelocationresponder.cpp
     llhttpretrypolicy.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -931,7 +930,6 @@ set(viewer_HEADER_FILES
     llhasheduniqueid.h
     llhints.h
     llhttpretrypolicy.h
-    llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h
     llhudeffectlookat.h

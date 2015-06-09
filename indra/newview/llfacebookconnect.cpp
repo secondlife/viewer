@@ -131,7 +131,7 @@ void LLFacebookConnect::facebookConnectCoro(LLCoros::self& self, std::string aut
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     LLSD putData;
     if (!authCode.empty())
@@ -217,7 +217,7 @@ void LLFacebookConnect::facebookShareCoro(LLCoros::self& self, std::string route
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
 
@@ -239,8 +239,8 @@ void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
 
@@ -386,7 +386,7 @@ void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
 

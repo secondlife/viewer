@@ -62,7 +62,6 @@ class LLSLURL;
 class LLPauseRequestHandle;
 class LLUIColor;
 class LLTeleportRequest;
-class LLHttpSDHandler;
 
 
 
@@ -234,6 +233,8 @@ public:
 	void			setHomePosRegion(const U64& region_handle, const LLVector3& pos_region);
 	BOOL			getHomePosGlobal(LLVector3d* pos_global);
 private:
+    void            setStartPositionSuccess(const LLSD &result);
+
 	BOOL 			mHaveHomePosition;
 	U64				mHomeRegionHandle;
 	LLVector3		mHomePosRegion;
@@ -767,12 +768,7 @@ private:
 	unsigned int                    mMaturityPreferenceNumRetries;
 	U8                              mLastKnownRequestMaturity;
 	U8                              mLastKnownResponseMaturity;
-	LLCore::HttpRequest::ptr_t		mHttpRequest;
-	LLCore::HttpHeaders::ptr_t		mHttpHeaders;
-	LLCore::HttpOptions::ptr_t		mHttpOptions;
 	LLCore::HttpRequest::policy_t	mHttpPolicy;
-	LLCore::HttpRequest::priority_t	mHttpPriority;
-    LLTempBoundListener             mBoundListener;
 
 	bool            isMaturityPreferenceSyncedWithServer() const;
 	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity);
@@ -786,8 +782,6 @@ private:
 	// Maturity callbacks for PreferredMaturity control variable
 	void 			handleMaturity(const LLSD &pNewValue);
 	bool 			validateMaturity(const LLSD& newvalue);
-
-    bool            pollHttp(const LLSD &);
 
 
 /**                    Access
@@ -937,8 +931,6 @@ public:
 	/// HTTP using the agent's policy settings and headers.  
     bool requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
     bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
-//	LLCore::HttpHandle	requestPostCapability(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr = NULL);
-//    LLCore::HttpHandle	requestGetCapability(const std::string &cap, const std::string &url, LLHttpSDHandler *usrhndlr = NULL);
 
 /**                    Utility
  **                                                                            **

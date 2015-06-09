@@ -52,7 +52,6 @@
 #include "llfloatertools.h"
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
-#include "llhomelocationresponder.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
 #include "llmorphview.h"
@@ -95,7 +94,6 @@
 #include "lscript_byteformat.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
-#include "llhttpsdhandler.h"
 #include "llcorehttputil.h"
 
 using namespace LLAvatarAppearanceDefines;
@@ -363,11 +361,7 @@ LLAgent::LLAgent() :
 	mMaturityPreferenceNumRetries(0U),
 	mLastKnownRequestMaturity(SIM_ACCESS_MIN),
 	mLastKnownResponseMaturity(SIM_ACCESS_MIN),
-	mHttpRequest(),
-	mHttpHeaders(),
-	mHttpOptions(),
 	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	mHttpPriority(0),
 	mTeleportState(TELEPORT_NONE),
 	mRegionp(NULL),
 
@@ -470,14 +464,7 @@ void LLAgent::init()
 
 	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 
-	mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
 	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
-
-    // Now ensure that we get regular callbacks to poll for completion.
-    mBoundListener = LLEventPumps::instance().obtain("mainloop").
-        listen(LLEventPump::inventName(), boost::bind(&LLAgent::pollHttp, this, _1));
 
 	mInitialized = TRUE;
 }
@@ -496,10 +483,6 @@ void LLAgent::cleanup()
 	{
 		mTeleportFailedSlot.disconnect();
 	}
-    if (mBoundListener.connected())
-    {
-        mBoundListener.disconnect();
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -521,17 +504,6 @@ LLAgent::~LLAgent()
 	delete mTeleportSourceSLURL;
 	mTeleportSourceSLURL = NULL;
 }
-
-//-----------------------------------------------------------------------------
-// pollHttp
-//  Polling done once per frame on the "mainloop" to support HTTP processing.
-//-----------------------------------------------------------------------------
-bool LLAgent::pollHttp(const LLSD&)
-{
-    mHttpRequest->update(0L);
-    return false;
-}
-
 
 // Handle any actions that need to be performed when the main app gains focus
 // (such as through alt-tab).
@@ -2359,27 +2331,9 @@ void LLAgent::setStartPosition( U32 location_id )
 
     body["HomeLocation"] = homeLocation;
 
-    // This awkward idiom warrants explanation.
-    // For starters, LLSDMessage::ResponderAdapter is ONLY for testing the new
-    // LLSDMessage functionality with a pre-existing LLHTTPClient::Responder.
-    // In new code, define your reply/error methods on the same class as the
-    // sending method, bind them to local LLEventPump objects and pass those
-    // LLEventPump names in the request LLSD object.
-    // When testing old code, the new LLHomeLocationResponder object
-    // is referenced by an LLHTTPClient::ResponderPtr, so when the
-    // ResponderAdapter is deleted, the LLHomeLocationResponder will be too.
-    // We must trust that the underlying LLHTTPClient code will eventually
-    // fire either the reply callback or the error callback; either will cause
-    // the ResponderAdapter to delete itself.
-    LLSDMessage::ResponderAdapter*
-        adapter(new LLSDMessage::ResponderAdapter(new LLHomeLocationResponder()));
-
-    request["message"] = "HomeLocation";
-    request["payload"] = body;
-    request["reply"]   = adapter->getReplyName();
-    request["error"]   = adapter->getErrorName();
-
-    gAgent.getRegion()->getCapAPI().post(request);
+    if (!requestPostCapability("HomeLocation", body, 
+            boost::bind(&LLAgent::setStartPositionSuccess, this, _1)))
+        LL_WARNS() << "Unable to post to HomeLocation capability." << LL_ENDL;
 
     const U32 HOME_INDEX = 1;
     if( HOME_INDEX == location_id )
@@ -2388,6 +2342,53 @@ void LLAgent::setStartPosition( U32 location_id )
     }
 }
 
+void LLAgent::setStartPositionSuccess(const LLSD &result)
+{
+    LLVector3 agent_pos;
+    bool      error = true;
+
+    do {
+        // was the call to /agent/<agent-id>/home-location successful?
+        // If not, we keep error set to true
+        if (!result.has("success"))
+            break;
+
+        if (0 != strncmp("true", result["success"].asString().c_str(), 4))
+            break;
+
+        // did the simulator return a "justified" home location?
+        // If no, we keep error set to true
+        if (!result.has("HomeLocation"))
+            break;
+
+        if ((!result["HomeLocation"].has("LocationPos")) ||
+                (!result["HomeLocation"]["LocationPos"].has("X")) ||
+                (!result["HomeLocation"]["LocationPos"].has("Y")) ||
+                (!result["HomeLocation"]["LocationPos"].has("Z")))
+            break;
+
+        agent_pos.mV[VX] = result["HomeLocation"]["LocationPos"]["X"].asInteger();
+        agent_pos.mV[VY] = result["HomeLocation"]["LocationPos"]["Y"].asInteger();
+        agent_pos.mV[VZ] = result["HomeLocation"]["LocationPos"]["Z"].asInteger();
+
+        error = false;
+
+    } while (0);
+
+    if (error)
+    {
+        LL_WARNS() << "Error in response to home position set." << LL_ENDL;
+    }
+    else
+    {
+        LL_INFOS() << "setting home position" << LL_ENDL;
+
+        LLViewerRegion *viewer_region = gAgent.getRegion();
+        setHomePosRegion(viewer_region->getHandle(), agent_pos);
+    }
+}
+
+#if 1
 struct HomeLocationMapper: public LLCapabilityListener::CapabilityMapper
 {
     // No reply message expected
@@ -2414,6 +2415,7 @@ struct HomeLocationMapper: public LLCapabilityListener::CapabilityMapper
 };
 // Need an instance of this class so it will self-register
 static HomeLocationMapper homeLocationMapper;
+#endif
 
 void LLAgent::requestStopMotion( LLMotion* motion )
 {

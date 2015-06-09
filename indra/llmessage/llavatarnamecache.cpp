@@ -135,7 +135,6 @@ namespace LLAvatarNameCache
 	// Erase expired names from cache
 	void eraseUnrefreshed();
 
-    //bool expirationFromCacheControl(LLCore::HttpHeaders *headers, F64 *expires);
     bool expirationFromCacheControl(const LLSD& headers, F64 *expires);
 
     // This is a coroutine.  The only parameter that can be specified as a reference is the self

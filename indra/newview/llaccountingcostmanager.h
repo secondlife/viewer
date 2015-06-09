@@ -80,8 +80,6 @@ private:
     void accountingCostCoro(LLCoros::self& self, std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
 
     LLCore::HttpRequest::ptr_t		mHttpRequest;
-    LLCore::HttpHeaders::ptr_t		mHttpHeaders;
-    LLCore::HttpOptions::ptr_t		mHttpOptions;
     LLCore::HttpRequest::policy_t	mHttpPolicy;
 };
 //===============================================================================
