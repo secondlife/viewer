@@ -233,6 +233,9 @@ public:
 
 
 private:
+    void serverAppearanceUpdateSuccess(const LLSD &result);
+    static void debugAppearanceUpdateCOF(const LLSD& content);
+
 	std::string		mAppearanceServiceURL;
 	
 protected:

@@ -36,9 +36,7 @@
 #include "llpermissionsflags.h"
 #include "llevents.h"
 #include "v3dmath.h"
-#include "httprequest.h"
-#include "httpheaders.h"
-#include "httpoptions.h"
+#include "llcorehttputil.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -65,6 +63,8 @@ class LLPauseRequestHandle;
 class LLUIColor;
 class LLTeleportRequest;
 class LLHttpSDHandler;
+
+
 
 typedef boost::shared_ptr<LLTeleportRequest> LLTeleportRequestPtr;
 
@@ -638,6 +638,8 @@ public:
 	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
 
 private:
+
+
 	friend class LLTeleportRequest;
 	friend class LLTeleportRequestViaLandmark;
 	friend class LLTeleportRequestViaLure;
@@ -774,8 +776,8 @@ private:
 
 	bool            isMaturityPreferenceSyncedWithServer() const;
 	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity);
+    void            processMaturityPreferenceFromServer(const LLSD &result, U8 perferredMaturity);
 
-	friend class	LLMaturityHttpHandler;
 	void            handlePreferredMaturityResult(U8 pServerMaturity);
 	void            handlePreferredMaturityError();
 	void            reportPreferredMaturitySuccess();
@@ -929,10 +931,14 @@ public:
  **                    UTILITY
  **/
 public:
+    typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
+
 	/// Utilities for allowing the the agent sub managers to post and get via
 	/// HTTP using the agent's policy settings and headers.  
-	LLCore::HttpHandle	requestPostCapability(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr = NULL);
-    LLCore::HttpHandle	requestGetCapability(const std::string &cap, const std::string &url, LLHttpSDHandler *usrhndlr = NULL);
+    bool requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+    bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+//	LLCore::HttpHandle	requestPostCapability(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr = NULL);
+//    LLCore::HttpHandle	requestGetCapability(const std::string &cap, const std::string &url, LLHttpSDHandler *usrhndlr = NULL);
 
 /**                    Utility
  **                                                                            **

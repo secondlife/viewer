@@ -2550,83 +2550,6 @@ int LLAgent::convertTextToMaturity(char text)
 	return LLAgentAccess::convertTextToMaturity(text);
 }
 
-//=========================================================================
-class LLMaturityHttpHandler : public LLHttpSDHandler
-{
-public:
-	LLMaturityHttpHandler(LLAgent *agent, U8 preferred, U8 previous):
-		LLHttpSDHandler(),
-		mAgent(agent),
-		mPreferredMaturity(preferred),
-		mPreviousMaturity(previous)
-	{ }
-
-	virtual ~LLMaturityHttpHandler()
-	{ }
-
-protected:
-	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
-	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
-
-private:
-	U8			parseMaturityFromServerResponse(const LLSD &pContent) const;
-
-	LLAgent *	mAgent;
-	U8			mPreferredMaturity;
-	U8          mPreviousMaturity;
-
-};
-
-//-------------------------------------------------------------------------
-void LLMaturityHttpHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
-{
-	U8 actualMaturity = parseMaturityFromServerResponse(content);
-
-	if (actualMaturity != mPreferredMaturity)
-	{
-		LL_WARNS() << "while attempting to change maturity preference from '"
-			<< LLViewerRegion::accessToString(mPreviousMaturity)
-			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity)
-			<< "', the server responded with '"
-			<< LLViewerRegion::accessToString(actualMaturity)
-			<< "' [value:" << static_cast<U32>(actualMaturity)
-			<< "], " << LL_ENDL;
-	}
-	mAgent->handlePreferredMaturityResult(actualMaturity);
-}
-
-void LLMaturityHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
-{
-	LL_WARNS() << "while attempting to change maturity preference from '"
-		<< LLViewerRegion::accessToString(mPreviousMaturity)
-		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity)
-		<< "', " << LL_ENDL;
-	mAgent->handlePreferredMaturityError();
-}
-
-U8 LLMaturityHttpHandler::parseMaturityFromServerResponse(const LLSD &pContent) const
-{
-	U8 maturity = SIM_ACCESS_MIN;
-
-	llassert(pContent.isDefined());
-	llassert(pContent.isMap());
-	llassert(pContent.has("access_prefs"));
-	llassert(pContent.get("access_prefs").isMap());
-	llassert(pContent.get("access_prefs").has("max"));
-	llassert(pContent.get("access_prefs").get("max").isString());
-	if (pContent.isDefined() && pContent.isMap() && pContent.has("access_prefs")
-		&& pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max")
-		&& pContent.get("access_prefs").get("max").isString())
-	{
-		LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
-		LLStringUtil::trim(actualPreference);
-		maturity = LLViewerRegion::shortStringToAccess(actualPreference);
-	}
-
-	return maturity;
-}
-//=========================================================================
-
 void LLAgent::handlePreferredMaturityResult(U8 pServerMaturity)
 {
 	// Update the number of responses received
@@ -2761,76 +2684,88 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 			LL_WARNS("Agent") << "Region is not defined, can not change Maturity setting." << LL_ENDL;
 			return;
 		}
-		std::string url = getRegion()->getCapability("UpdateAgentInformation");
-
-		// If the capability is not defined, report it as an error
-		if (url.empty())
-		{
-			LL_WARNS("Agent") << "'UpdateAgentInformation' is not defined for region" << LL_ENDL;
-			return;
-		}
-
-		LLMaturityHttpHandler * handler = new LLMaturityHttpHandler(this, pPreferredMaturity, mLastKnownResponseMaturity);
 
 		LLSD access_prefs = LLSD::emptyMap();
 		access_prefs["max"] = LLViewerRegion::accessToShortString(pPreferredMaturity);
 
 		LLSD postData = LLSD::emptyMap();
 		postData["access_prefs"] = access_prefs;
-		LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
-			<< "' via capability to: " << url << LL_ENDL;
+		LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity) << LL_ENDL;
 
-		LLCore::HttpHandle handle = requestPostCapability("UpdateAgentInformation", url, postData, handler);
-
-		if (handle == LLCORE_HTTP_HANDLE_INVALID)
-		{
-			delete handler;
-			LL_WARNS("Agent") << "Maturity request post failed." << LL_ENDL;
-		}
+        if (!requestPostCapability("UpdateAgentInformation", postData,
+            static_cast<httpCallback_t>(boost::bind(&LLAgent::processMaturityPreferenceFromServer, this, _1, pPreferredMaturity)),
+            static_cast<httpCallback_t>(boost::bind(&LLAgent::handlePreferredMaturityError, this))
+            ))
+        {
+            LL_WARNS("Agent") << "Maturity request post failed." << LL_ENDL;
+        }
 	}
 }
 
-// *TODO:RIDER Convert this system to using the coroutine scheme for HTTP communications
-// 
-LLCore::HttpHandle LLAgent::requestPostCapability(const std::string &cap, const std::string &url, LLSD &postData, LLHttpSDHandler *usrhndlr)
+
+void LLAgent::processMaturityPreferenceFromServer(const LLSD &result, U8 perferredMaturity)
 {
-	LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(cap);
-	LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
-		mHttpPolicy, mHttpPriority, url,
-		postData, mHttpOptions, mHttpHeaders, handler);
+    U8 maturity = SIM_ACCESS_MIN;
 
-	if (handle == LLCORE_HTTP_HANDLE_INVALID)
-	{
-        // If no handler was passed in we delete the handler default handler allocated 
-        // at the start of this function.
-        // *TODO: Change this metaphore to use boost::shared_ptr<> for handlers.  Requires change in LLCore::HTTP
-		if (!usrhndlr)
-			delete handler;
-		LLCore::HttpStatus status = mHttpRequest->getStatus();
-		LL_WARNS("Agent") << "'" << cap << "' request POST failed. Reason " 
-			<< status.toTerseString() << " \"" << status.toString() << "\"" << LL_ENDL;
-	}
-	return handle;
-}
-
-LLCore::HttpHandle LLAgent::requestGetCapability(const std::string &cap, const std::string &url, LLHttpSDHandler *usrhndlr)
-{
-    LLHttpSDHandler * handler = (usrhndlr) ? usrhndlr : new LLHttpSDGenericHandler(cap);
-    LLCore::HttpHandle handle = mHttpRequest->requestGet(mHttpPolicy, mHttpPriority, 
-            url, mHttpOptions.get(), mHttpHeaders.get(), handler);
-
-    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    llassert(result.isDefined());
+    llassert(result.isMap());
+    llassert(result.has("access_prefs"));
+    llassert(result.get("access_prefs").isMap());
+    llassert(result.get("access_prefs").has("max"));
+    llassert(result.get("access_prefs").get("max").isString());
+    if (result.isDefined() && result.isMap() && result.has("access_prefs")
+        && result.get("access_prefs").isMap() && result.get("access_prefs").has("max")
+        && result.get("access_prefs").get("max").isString())
     {
-        // If no handler was passed in we delete the handler default handler allocated 
-        // at the start of this function.
-        // *TODO: Change this metaphore to use boost::shared_ptr<> for handlers.  Requires change in LLCore::HTTP
-        if (!usrhndlr)
-            delete handler;
-        LLCore::HttpStatus status = mHttpRequest->getStatus();
-        LL_WARNS("Agent") << "'" << cap << "' request GET failed. Reason "
-            << status.toTerseString() << " \"" << status.toString() << "\"" << LL_ENDL;
+        LLSD::String actualPreference = result.get("access_prefs").get("max").asString();
+        LLStringUtil::trim(actualPreference);
+        maturity = LLViewerRegion::shortStringToAccess(actualPreference);
     }
-    return handle;
+
+    if (maturity != perferredMaturity)
+    {
+        LL_WARNS() << "while attempting to change maturity preference from '"
+            << LLViewerRegion::accessToString(mLastKnownResponseMaturity)
+            << "' to '" << LLViewerRegion::accessToString(perferredMaturity)
+            << "', the server responded with '"
+            << LLViewerRegion::accessToString(maturity)
+            << "' [value:" << static_cast<U32>(maturity)
+            << "], " << LL_ENDL;
+    }
+    handlePreferredMaturityResult(maturity);
+}
+
+
+bool LLAgent::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url;
+
+    url = getRegion()->getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Agent") << "Could not retrieve region capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, mHttpPolicy, postData, cbSuccess, cbFailure);
+    return true;
+}
+
+bool LLAgent::requestGetCapability(const std::string &capName, httpCallback_t cbSuccess, httpCallback_t cbFailure)
+{
+    std::string url;
+
+    url = getRegion()->getCapability(capName);
+
+    if (url.empty())
+    {
+        LL_WARNS("Agent") << "Could not retrieve region capability \"" << capName << "\"" << LL_ENDL;
+        return false;
+    }
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(url, mHttpPolicy, cbSuccess, cbFailure);
+    return true;
 }
 
 BOOL LLAgent::getAdminOverride() const	

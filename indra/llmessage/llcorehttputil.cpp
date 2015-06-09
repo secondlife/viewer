@@ -848,10 +848,10 @@ LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResul
 }
 
 /*static*/
-void HttpCoroutineAdapter::callbackHttpGet(const std::string &url, completionCallback_t success, completionCallback_t failure)
+void HttpCoroutineAdapter::callbackHttpGet(const std::string &url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure)
 {
     LLCoros::instance().launch("HttpCoroutineAdapter::genericGetCoro",
-        boost::bind(&HttpCoroutineAdapter::trivialGetCoro, _1, url, success, failure));
+        boost::bind(&HttpCoroutineAdapter::trivialGetCoro, _1, url, policyId, success, failure));
 }
 
 /*static*/
@@ -865,13 +865,12 @@ void HttpCoroutineAdapter::messageHttpGet(const std::string &url, const std::str
 }
 
 /*static*/
-void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string url, completionCallback_t success, completionCallback_t failure)
+void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure)
 {
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericGetCoro", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericGetCoro", policyId));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
 
@@ -899,10 +898,10 @@ void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string url, 
 }
 
 /*static*/
-void HttpCoroutineAdapter::callbackHttpPost(const std::string &url, const LLSD &postData, completionCallback_t success, completionCallback_t failure)
+void HttpCoroutineAdapter::callbackHttpPost(const std::string &url, LLCore::HttpRequest::policy_t policyId, const LLSD &postData, completionCallback_t success, completionCallback_t failure)
 {
     LLCoros::instance().launch("HttpCoroutineAdapter::genericPostCoro",
-        boost::bind(&HttpCoroutineAdapter::trivialPostCoro, _1, url, postData, success, failure));
+        boost::bind(&HttpCoroutineAdapter::trivialPostCoro, _1, url, policyId, postData, success, failure));
 }
 
 /*static*/
@@ -917,13 +916,12 @@ void HttpCoroutineAdapter::messageHttpPost(const std::string &url, const LLSD &p
 }
 
 /*static*/
-void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string url, LLSD postData, completionCallback_t success, completionCallback_t failure)
+void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string url, LLCore::HttpRequest::policy_t policyId, LLSD postData, completionCallback_t success, completionCallback_t failure)
 {
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", policyId));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
 

@@ -55,26 +55,17 @@ void LLAgentLanguage::onChange()
 // static
 bool LLAgentLanguage::update()
 {
-	LLSD body;
-	std::string url;
+    LLSD body;
 
-	if (gAgent.getRegion())
-	{
-		url = gAgent.getRegion()->getCapability("UpdateAgentLanguage");
-	}
+	std::string language = LLUI::getLanguage();
+		
+	body["language"] = language;
+	body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
+		
+    if (!gAgent.requestPostCapability("UpdateAgentLanguage", body))
+    {
+        LL_WARNS("Language") << "Language capability unavailable." << LL_ENDL;
+    }
 
-	if (!url.empty())
-	{
-		std::string language = LLUI::getLanguage();
-		
-		body["language"] = language;
-		body["language_is_public"] = gSavedSettings.getBOOL("LanguageIsPublic");
-		
-		LLCore::HttpHandle handle = gAgent.requestPostCapability("UpdateAgentLanguage", url, body);
-		if (handle == LLCORE_HTTP_HANDLE_INVALID)
-		{
-			LL_WARNS() << "Unable to change language." << LL_ENDL;
-		}
-	}
     return true;
 }

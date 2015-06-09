@@ -427,10 +427,18 @@ public:
     /// should match this form.
     /// @sa callbackHttpGet
     /// @sa callbackHttpPost
-    typedef boost::function<void (const LLSD &)> completionCallback_t;
+    typedef boost::function<void(const LLSD &)> completionCallback_t;
 
-    static void callbackHttpGet(const std::string &url, completionCallback_t success = NULL, completionCallback_t failure = NULL);
-    static void callbackHttpPost(const std::string &url, const LLSD &postData, completionCallback_t success = NULL, completionCallback_t failure = NULL);
+    static void callbackHttpGet(const std::string &url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success = NULL, completionCallback_t failure = NULL);
+    static void callbackHttpGet(const std::string &url, completionCallback_t success = NULL, completionCallback_t failure = NULL)
+    {
+        callbackHttpGet(url, LLCore::HttpRequest::DEFAULT_POLICY_ID, success, failure);
+    }
+    static void callbackHttpPost(const std::string &url, LLCore::HttpRequest::policy_t policyId, const LLSD &postData, completionCallback_t success = NULL, completionCallback_t failure = NULL);
+    static void callbackHttpPost(const std::string &url, const LLSD &postData, completionCallback_t success = NULL, completionCallback_t failure = NULL)
+    {
+        callbackHttpPost(url, LLCore::HttpRequest::DEFAULT_POLICY_ID, postData, success, failure);
+    }
 
     /// Generic Get and post routines for HTTP via coroutines.
     /// These static methods do all required setup for the GET or POST operation.
@@ -471,8 +479,8 @@ private:
         const std::string & url, LLCore::HttpOptions::ptr_t &options,
         LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler);
 
-    static void trivialGetCoro(LLCoros::self& self, std::string url, completionCallback_t success, completionCallback_t failure);
-    static void trivialPostCoro(LLCoros::self& self, std::string url, LLSD postData, completionCallback_t success, completionCallback_t failure);
+    static void trivialGetCoro(LLCoros::self& self, std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure);
+    static void trivialPostCoro(LLCoros::self& self, std::string url, LLCore::HttpRequest::policy_t policyId, LLSD postData, completionCallback_t success, completionCallback_t failure);
 
     void checkDefaultHeaders(LLCore::HttpHeaders::ptr_t &headers);
 
