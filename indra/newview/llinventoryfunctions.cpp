@@ -1916,8 +1916,9 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 else if (depth == 1)
                 {
                     // Report items not wrapped in version folder
+                    result = false;
                     std::string message = indent + "    " + viewer_inv_item->getName() + LLTrans::getString("Marketplace Validation Warning Unwrapped Item");
-                    cb(message,depth,LLError::LEVEL_WARN);
+                    cb(message,depth,LLError::LEVEL_ERROR);
                 }
             }
         }

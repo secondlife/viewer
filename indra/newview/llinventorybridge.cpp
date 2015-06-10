@@ -3234,7 +3234,29 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("marketplace_create_listing" == action)
 	{
-        LLMarketplaceData::instance().createListing(mUUID);
+        LLViewerInventoryCategory* cat = gInventory.getCategory(mUUID);
+        mMessage = "";
+        bool validates = true;
+        if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3)))
+        {
+            mMessage = "";
+            validates = validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),true);
+            if (validates)
+            {
+                LLNotificationsUtil::add("MerchantForceValidateListing");
+            }
+        }
+        
+        if (!validates)
+        {
+            LLSD subs;
+            subs["[ERROR_CODE]"] = mMessage;
+            LLNotificationsUtil::add("MerchantListingFailed", subs);
+        }
+        else
+        {
+            LLMarketplaceData::instance().createListing(mUUID);
+        }
 		return;
 	}
     else if ("marketplace_disassociate_listing" == action)

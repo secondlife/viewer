@@ -388,6 +388,18 @@ Initialization with the Marketplace failed because of a system or network error.
 
     <notification
         icon="alertmodal.tga"
+        name="MerchantForceValidateListing"
+        type="alertmodal">
+        In order to create your listing, we fixed the hierarchy of your listing contents.
+        <tag>confirm</tag>
+        <usetemplate
+            ignoretext="Confirm when creating a listing validates the content"
+            name="okignore" 
+            yestext="OK"/>
+    </notification>
+
+    <notification
+        icon="alertmodal.tga"
         name="ConfirmMerchantActiveChange"
         type="alertmodal">
         This action will change the active content of this listing. Do you want to continue?
