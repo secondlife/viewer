@@ -1624,6 +1624,66 @@ static LLTrace::BlockTimerStatHandle FTM_GEN_FLEX("Generate Flexies");
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_PRIMITIVES("Update Primitives");
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_RIGGED_VOLUME("Update Rigged");
 
+bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
+{
+	bool regen_faces = false;
+
+	LLVolume *old_volumep, *new_volumep;
+	F32 old_lod, new_lod;
+	S32 old_num_faces, new_num_faces;
+
+	old_volumep = getVolume();
+	old_lod = old_volumep->getDetail();
+	old_num_faces = old_volumep->getNumFaces();
+	old_volumep = NULL;
+
+	{
+		LL_RECORD_BLOCK_TIME(FTM_GEN_VOLUME);
+		LLVolumeParams volume_params = getVolume()->getParams();
+		setVolume(volume_params, 0);
+	}
+
+	new_volumep = getVolume();
+	new_lod = new_volumep->getDetail();
+	new_num_faces = new_volumep->getNumFaces();
+	new_volumep = NULL;
+
+	if ((new_lod != old_lod) || mSculptChanged)
+	{
+		compiled = TRUE;
+		sNumLODChanges += new_num_faces;
+
+		if ((S32)getNumTEs() != getVolume()->getNumFaces())
+		{
+			setNumTEs(getVolume()->getNumFaces()); //mesh loading may change number of faces.
+		}
+
+		drawable->setState(LLDrawable::REBUILD_VOLUME); // for face->genVolumeTriangles()
+
+		{
+			LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
+			regen_faces = new_num_faces != old_num_faces || mNumFaces != (S32)getNumTEs();
+			if (regen_faces)
+			{
+				regenFaces();
+			}
+
+			if (mSculptChanged)
+			{ //changes in sculpt maps can thrash an object bounding box without 
+				//triggering a spatial group bounding box update -- force spatial group
+				//to update bounding boxes
+				LLSpatialGroup* group = mDrawable->getSpatialGroup();
+				if (group)
+				{
+					group->unbound();
+				}
+			}
+		}
+	}
+
+	return regen_faces;
+}
+
 BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_PRIMITIVES);
@@ -1664,83 +1724,37 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		return TRUE; // No update to complete
 	}
 
-	if (mVolumeChanged || mFaceMappingChanged )
+	boost::function<bool(void)> fn_lod_or_sculpt_changed = boost::bind(&LLVOVolume::lodOrSculptChanged, this, drawable, boost::ref(compiled));
+
+	if (mVolumeChanged || mFaceMappingChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 
-		compiled = TRUE;
+		bool was_regen_faces = false;
 
 		if (mVolumeChanged)
 		{
-			LL_RECORD_BLOCK_TIME(FTM_GEN_VOLUME);
-			LLVolumeParams volume_params = getVolume()->getParams();
-			setVolume(volume_params, 0);
+			was_regen_faces = fn_lod_or_sculpt_changed();
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
-
-		{
-			LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
-			regenFaces();
-			genBBoxes(FALSE);
-		}
-	}
-	else if ((mLODChanged) || (mSculptChanged))
-	{
-		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
-
-		LLVolume *old_volumep, *new_volumep;
-		F32 old_lod, new_lod;
-		S32 old_num_faces, new_num_faces ;
-
-		old_volumep = getVolume();
-		old_lod = old_volumep->getDetail();
-		old_num_faces = old_volumep->getNumFaces() ;
-		old_volumep = NULL ;
-
-		{
-			LL_RECORD_BLOCK_TIME(FTM_GEN_VOLUME);
-			LLVolumeParams volume_params = getVolume()->getParams();
-			setVolume(volume_params, 0);
-		}
-
-		new_volumep = getVolume();
-		new_lod = new_volumep->getDetail();
-		new_num_faces = new_volumep->getNumFaces() ;
-		new_volumep = NULL ;
-
-		if ((new_lod != old_lod) || mSculptChanged)
+		else if (mSculptChanged)
 		{
 			compiled = TRUE;
-			sNumLODChanges += new_num_faces ;
-	
-			if((S32)getNumTEs() != getVolume()->getNumFaces())
-			{
-				setNumTEs(getVolume()->getNumFaces()); //mesh loading may change number of faces.
-			}
-
-			drawable->setState(LLDrawable::REBUILD_VOLUME); // for face->genVolumeTriangles()
-
-			{
-				LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
-				if (new_num_faces != old_num_faces || mNumFaces != (S32)getNumTEs())
-				{
-					regenFaces();
-				}
-				genBBoxes(FALSE);
-
-				if (mSculptChanged)
-				{ //changes in sculpt maps can thrash an object bounding box without 
-				  //triggering a spatial group bounding box update -- force spatial group
-				  //to update bounding boxes
-					LLSpatialGroup* group = mDrawable->getSpatialGroup();
-					if (group)
-					{
-						group->unbound();
-					}
-				}
-			}
+			was_regen_faces = fn_lod_or_sculpt_changed();
 		}
 
+		if (!was_regen_faces) {
+			LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
+			regenFaces();
+		}
+
+		genBBoxes(FALSE);
+	}
+	else if (mLODChanged || mSculptChanged)
+	{
+		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
+		compiled = TRUE;
+		fn_lod_or_sculpt_changed();
 		genBBoxes(FALSE);
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local

@@ -339,6 +339,10 @@ protected:
 	void cleanUpMediaImpls();
 	void addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index) ;
 	void removeMediaImpl(S32 texture_index) ;
+
+private:
+	bool lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled);
+
 public:
 
 	static S32 getRenderComplexityMax() {return mRenderComplexity_last;}
