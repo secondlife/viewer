@@ -968,7 +968,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         items.push_back(std::string("Marketplace Check Listing"));
         items.push_back(std::string("Marketplace List"));
         items.push_back(std::string("Marketplace Unlist"));
-        if (LLMarketplaceData::instance().isUpdating(mUUID) || ((flags & FIRST_SELECTED_ITEM) == 0))
+        if (LLMarketplaceData::instance().isUpdating(mUUID,depth) || ((flags & FIRST_SELECTED_ITEM) == 0))
         {
             // During SLM update, disable all marketplace related options
             // Also disable all if multiple selected items
@@ -1024,7 +1024,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         {
             items.push_back(std::string("Marketplace Activate"));
             items.push_back(std::string("Marketplace Deactivate"));
-            if (LLMarketplaceData::instance().isUpdating(mUUID) || ((flags & FIRST_SELECTED_ITEM) == 0))
+            if (LLMarketplaceData::instance().isUpdating(mUUID,depth) || ((flags & FIRST_SELECTED_ITEM) == 0))
             {
                 // During SLM update, disable all marketplace related options
                 // Also disable all if multiple selected items
@@ -3219,7 +3219,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	{
         if (depth_nesting_in_marketplace(mUUID) == 1)
         {
-            LLMarketplaceData::instance().activateListing(mUUID,false);
+            LLMarketplaceData::instance().activateListing(mUUID,false,1);
         }
 		return;
 	}
@@ -3228,7 +3228,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         if (depth_nesting_in_marketplace(mUUID) == 2)
         {
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
-            LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), LLUUID::null);
+            LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), LLUUID::null, 2);
         }
 		return;
 	}
@@ -4378,7 +4378,8 @@ std::string LLMarketplaceFolderBridge::getLabelSuffix() const
         suffix += " (" +  LLTrans::getString("MarketplaceActive") + ")";
     }
     // Add stock amount
-    if (!LLMarketplaceData::instance().isUpdating(getUUID()))
+    bool updating = LLMarketplaceData::instance().isUpdating(getUUID());
+    if (!updating)
     {
         // Skip computation (expensive) if we're waiting for update anyway. Use the old value in that case.
         m_stockCountCache = compute_stock_count(getUUID());
@@ -4407,7 +4408,7 @@ std::string LLMarketplaceFolderBridge::getLabelSuffix() const
         }
     }
     // Add updating suffix
-    if (LLMarketplaceData::instance().isUpdating(getUUID()))
+    if (updating)
     {
         suffix += " (" +  LLTrans::getString("MarketplaceUpdating") + ")";
     }

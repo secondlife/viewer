@@ -1449,7 +1449,7 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
     return true;
 }
 
-bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
+bool LLMarketplaceData::clearListing(const LLUUID& folder_id, S32 depth)
 {
     if (folder_id.isNull())
     {
@@ -1457,8 +1457,13 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
         return false;
     }
 
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(folder_id);
+        
+    }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
-    S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
     S32 listing_id = getListingID(listing_uuid);
    
@@ -1474,7 +1479,7 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id)
     return true;
 }
 
-bool LLMarketplaceData::getListing(const LLUUID& folder_id)
+bool LLMarketplaceData::getListing(const LLUUID& folder_id, S32 depth)
 {
     if (folder_id.isNull())
     {
@@ -1482,8 +1487,13 @@ bool LLMarketplaceData::getListing(const LLUUID& folder_id)
         return false;
     }
     
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(folder_id);
+        
+    }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
-    S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
     S32 listing_id = getListingID(listing_uuid);
     
@@ -1511,10 +1521,15 @@ bool LLMarketplaceData::getListing(S32 listing_id)
     return true;
 }
 
-bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
+bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate, S32 depth)
 {
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(folder_id);
+        
+    }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
-    S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
     S32 listing_id = getListingID(listing_uuid);
     if (listing_id == 0)
@@ -1546,10 +1561,15 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate)
     return true;
 }
 
-bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id)
+bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id, S32 depth)
 {
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(folder_id);
+        
+    }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
-    S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
     S32 listing_id = getListingID(listing_uuid);
     if (listing_id == 0)
@@ -1582,10 +1602,15 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     return true;
 }
 
-bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id)
+bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id, S32 depth)
 {
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(folder_id);
+        
+    }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
-    S32 depth = depth_nesting_in_marketplace(folder_id);
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
     S32 listing_id = getListingID(listing_uuid);
     if (listing_id == 0)
@@ -1756,9 +1781,15 @@ LLUUID LLMarketplaceData::getListingFolder(S32 listing_id)
     return LLUUID::null;
 }
 
-std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id)
+std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id, S32 depth)
 {
-    S32 depth = depth_nesting_in_marketplace(folder_id);
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(folder_id);
+        
+    }
+
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
     
     marketplace_items_list_t::iterator it = mMarketplaceItems.find(listing_uuid);
@@ -1782,25 +1813,41 @@ bool LLMarketplaceData::isVersionFolder(const LLUUID& folder_id)
     return (it != mVersionFolders.end());
 }
 
-bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id)
+bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id, S32 depth)
 {
-    S32 depth = depth_nesting_in_marketplace(obj_id);
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(obj_id);
+        
+    }
+
     LLUUID listing_uuid = nested_parent_id(obj_id, depth);
     bool active = getActivationState(listing_uuid);
     LLUUID version_uuid = getVersionFolder(listing_uuid);
     return (active && ((obj_id == version_uuid) || gInventory.isObjectDescendentOf(obj_id, version_uuid)));
 }
 
-LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id)
+LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id, S32 depth)
 {
-    S32 depth = depth_nesting_in_marketplace(obj_id);
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(obj_id);
+        
+    }
+    
     LLUUID listing_uuid = nested_parent_id(obj_id, depth);
     return (getActivationState(listing_uuid) ? getVersionFolder(listing_uuid) : LLUUID::null);
 }
 
-bool LLMarketplaceData::isUpdating(const LLUUID& folder_id)
+bool LLMarketplaceData::isUpdating(const LLUUID& folder_id, S32 depth)
 {
-    S32 depth = depth_nesting_in_marketplace(folder_id);
+    // Evaluate the depth if it wasn't passed as a parameter
+    if (depth < 0)
+    {
+        depth = depth_nesting_in_marketplace(folder_id);
+    }
     if ((depth <= 0) || (depth > 2))
     {
         // Only listing and version folders though are concerned by that status

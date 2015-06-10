@@ -208,12 +208,12 @@ public:
     
     // High level create/delete/set Marketplace data: each method returns true if the function succeeds, false if error
     bool createListing(const LLUUID& folder_id);
-    bool activateListing(const LLUUID& folder_id, bool activate);
-    bool clearListing(const LLUUID& folder_id);
-    bool setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id);
+    bool activateListing(const LLUUID& folder_id, bool activate, S32 depth = -1);
+    bool clearListing(const LLUUID& folder_id, S32 depth = -1);
+    bool setVersionFolder(const LLUUID& folder_id, const LLUUID& version_id, S32 depth = -1);
     bool associateListing(const LLUUID& folder_id, const LLUUID& source_folder_id, S32 listing_id);
-    bool updateCountOnHand(const LLUUID& folder_id);
-    bool getListing(const LLUUID& folder_id);
+    bool updateCountOnHand(const LLUUID& folder_id, S32 depth = -1);
+    bool getListing(const LLUUID& folder_id, S32 depth = -1);
     bool getListing(S32 listing_id);
     bool deleteListing(S32 listing_id, bool update = true);
     
@@ -221,15 +221,15 @@ public:
     bool isListed(const LLUUID& folder_id); // returns true if folder_id is a Listing folder
     bool isListedAndActive(const LLUUID& folder_id); // returns true if folder_id is an active (listed) Listing folder
     bool isVersionFolder(const LLUUID& folder_id); // returns true if folder_id is a Version folder
-    bool isInActiveFolder(const LLUUID& obj_id); // returns true if the obj_id is buried in an active version folder
-    LLUUID getActiveFolder(const LLUUID& obj_id); // returns the UUID of the active version folder obj_id is in
-    bool isUpdating(const LLUUID& folder_id); // returns true if we're waiting from SLM incoming data for folder_id
+    bool isInActiveFolder(const LLUUID& obj_id, S32 depth = -1); // returns true if the obj_id is buried in an active version folder
+    LLUUID getActiveFolder(const LLUUID& obj_id, S32 depth = -1); // returns the UUID of the active version folder obj_id is in
+    bool isUpdating(const LLUUID& folder_id, S32 depth = -1); // returns true if we're waiting from SLM incoming data for folder_id
    
     // Access Marketplace data set : each method returns a default value if the argument can't be found
     bool getActivationState(const LLUUID& folder_id);
     S32 getListingID(const LLUUID& folder_id);
     LLUUID getVersionFolder(const LLUUID& folder_id);
-    std::string getListingURL(const LLUUID& folder_id);
+    std::string getListingURL(const LLUUID& folder_id, S32 depth = -1);
     LLUUID getListingFolder(S32 listing_id);
     S32 getCountOnHand(const LLUUID& folder_id);
     

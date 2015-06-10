@@ -285,19 +285,20 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
             if (version_folder_uuid.notNull() && (!gInventory.isObjectDescendentOf(version_folder_uuid, listing_uuid) || (version_depth != 2)))
             {
                 LL_INFOS("SLM") << "Unlist and clear version folder as the version folder is not at the right place anymore!!" << LL_ENDL;
-                LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null);
+                LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null,1);
             }
-            else if (version_folder_uuid.notNull() && (count_descendants_items(version_folder_uuid) == 0))
+            else if (version_folder_uuid.notNull() && LLMarketplaceData::instance().getActivationState(version_folder_uuid) && (count_descendants_items(version_folder_uuid) == 0) && !LLMarketplaceData::instance().isUpdating(version_folder_uuid,version_depth))
             {
                 LL_INFOS("SLM") << "Unlist as the version folder is empty of any item!!" << LL_ENDL;
-                LLMarketplaceData::instance().activateListing(listing_uuid, false);
+                LLNotificationsUtil::add("AlertMerchantVersionFolderEmpty");
+                LLMarketplaceData::instance().activateListing(listing_uuid, false,1);
             }
         }
     
         // Check if the count on hand needs to be updated on SLM
         if (perform_consistency_enforcement && (compute_stock_count(listing_uuid) != LLMarketplaceData::instance().getCountOnHand(listing_uuid)))
         {
-            LLMarketplaceData::instance().updateCountOnHand(listing_uuid);
+            LLMarketplaceData::instance().updateCountOnHand(listing_uuid,1);
         }
         // Update all descendents starting from the listing root
         update_marketplace_folder_hierarchy(listing_uuid);

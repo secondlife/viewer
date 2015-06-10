@@ -540,6 +540,18 @@ This listing could not be updated.
         yestext="OK"/>
     </notification>
 
+    <notification
+        icon="alertmodal.tga"
+        name="AlertMerchantVersionFolderEmpty"
+        type="alertmodal">
+        We have unlisted your listing because the version folder is empty. You need to add items to the version folder to list the listing again.
+        <tag>confirm</tag>
+        <usetemplate
+        ignoretext="Alert when a listing is unlisted because version folder is empty"
+        name="okignore"
+        yestext="OK"/>
+    </notification>
+
   <notification
    icon="alertmodal.tga"
    name="CompileQueueSaveText"
