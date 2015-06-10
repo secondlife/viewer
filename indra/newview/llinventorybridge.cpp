@@ -3236,8 +3236,8 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	{
         LLViewerInventoryCategory* cat = gInventory.getCategory(mUUID);
         mMessage = "";
-        bool validates = true;
-        if (!validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3)))
+        bool validates = validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),false);
+        if (!validates)
         {
             mMessage = "";
             validates = validate_marketplacelistings(cat,boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),true);

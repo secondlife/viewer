@@ -393,7 +393,7 @@ Initialization with the Marketplace failed because of a system or network error.
         In order to create your listing, we fixed the hierarchy of your listing contents.
         <tag>confirm</tag>
         <usetemplate
-            ignoretext="Confirm when creating a listing validates the content"
+            ignoretext="Warn me that creating a listing fixes the hierarchy of the content"
             name="okignore" 
             yestext="OK"/>
     </notification>
