@@ -569,6 +569,9 @@ public:
             LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
             update_marketplace_category(folder_id, false);
             gInventory.notifyObservers();
+            
+            // The stock count needs to be updated with the new local count now
+            LLMarketplaceData::instance().updateCountOnHand(folder_id,1);
 
             it++;
         }
@@ -1661,26 +1664,7 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
     
     // Post the listing associate request to SLM
     associateSLMListing(folder_id, listing_id, version_id, source_folder_id);
-    
-    // Update the other values as required
-    bool is_listed = false;
-    S32 count = -1;
-    if (version_id.notNull())
-    {
-        count = compute_stock_count(version_id, true);        // Use the stock count of the new listing
-        is_listed = getActivationState(source_folder_id);     // Use the activation state of the source listing
-    }
-    // Validate the count on hand
-    if (count == COMPUTE_STOCK_NOT_EVALUATED)
-    {
-        // If the count on hand cannot be evaluated, we will consider it empty (out of stock) at reassign time
-        // It will get reevaluated and updated once the items are fetched
-        count = 0;
-    }
-    
-    // Post the listing update request to SLM
-    updateSLMListing(folder_id, listing_id, version_id, is_listed, count);
-
+     
     return true;
 }
 
