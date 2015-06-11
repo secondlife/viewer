@@ -1625,7 +1625,7 @@
         <key>version</key>
         <string>1.0.298370</string>
       </map>
-      <key>cef</key>
+      <key>llceflib</key>
       <map>
         <key>copyright</key>
         <string>>Copyright (c) 2008-2014 Marshall A. Greenblatt. Portions Copyright (c) 2006-2009 Google Inc. All rights reserved</string>
@@ -1634,9 +1634,9 @@
         <key>license</key>
         <string>BSD</string>
         <key>license_file</key>
-        <string>LICENSES/BSD.txt</string>
+        <string>LICENSES/CEF_BSD.txt</string>
         <key>name</key>
-        <string>cef</string>
+        <string>llceflib</string>
         <key>platforms</key>
         <map>
           <key>windows</key>
@@ -1652,6 +1652,20 @@
             </map>
             <key>name</key>
             <string>windows</string>
+          </map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c4463827f97993abdd2184b4314ea5f0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://callum-linden.s3.amazonaws.com/llceflib-0.3.2171.2069.5005-darwin-5005.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
           </map>
         </map>
         <key>version</key>
