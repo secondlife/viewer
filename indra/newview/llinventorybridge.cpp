@@ -1572,7 +1572,9 @@ void LLItemBridge::restoreItem()
 	if(item)
 	{
 		LLInventoryModel* model = getInventoryModel();
-		const LLUUID new_parent = model->findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(item->getType()));
+		bool is_snapshot = (item->getInventoryType() == LLInventoryType::IT_SNAPSHOT);
+
+		const LLUUID new_parent = model->findCategoryUUIDForType(is_snapshot? LLFolderType::FT_SNAPSHOT_CATEGORY : LLFolderType::assetTypeToFolderType(item->getType()));
 		// do not restamp on restore.
 		LLInvFVBridge::changeItemParent(model, item, new_parent, FALSE);
 	}
