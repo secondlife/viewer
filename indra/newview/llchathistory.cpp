@@ -376,7 +376,7 @@ public:
 			|| mSourceType == CHAT_SOURCE_SYSTEM)
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
-			if(!chat.mFromName.empty())
+			if(!chat.mFromName.empty() && (mFrom != chat.mFromName))
 			{
 				mFrom += " (" + chat.mFromName + ")";
 			}
