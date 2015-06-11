@@ -95,12 +95,12 @@ class LLFloaterPermsRequester
 public:
 	LLFloaterPermsRequester(const std::string url, const LLSD report, int maxRetries);
 
-	static void LLFloaterPermsRequester::init(const std::string url, const LLSD report, int maxRetries);
-	static void LLFloaterPermsRequester::finalize();
-	static LLFloaterPermsRequester* LLFloaterPermsRequester::instance();
+	static void init(const std::string url, const LLSD report, int maxRetries);
+	static void finalize();
+	static LLFloaterPermsRequester* instance();
 
-	void LLFloaterPermsRequester::start();
-	bool LLFloaterPermsRequester::retry();
+	void start();
+	bool retry();
 
 private:
 	int mRetriesCount;
