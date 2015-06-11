@@ -1339,7 +1339,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 			{
 				return;
 			}
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1358,7 +1358,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1380,7 +1380,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1399,7 +1399,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
