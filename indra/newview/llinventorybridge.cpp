@@ -3228,7 +3228,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         if (depth_nesting_in_marketplace(mUUID) == 2)
         {
 			LLInventoryCategory* category = gInventory.getCategory(mUUID);
-            LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), LLUUID::null, 2);
+            LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), LLUUID::null, 1);
         }
 		return;
 	}
