@@ -812,37 +812,16 @@ class Darwin_i386_Manifest(ViewerManifest):
                             symlinkf(src, dst)
                         except OSError as err:
                             print "Can't symlink %s -> %s: %s" % (src, dst, err)
-                # SLPlugin.app/Contents/Resources gets those Qt4 libraries it needs.
-                if self.prefix(src="", dst="SLPlugin.app/Contents/Resources"):
-                    for libfile in ('libQtCore.4.dylib',
-                                    'libQtCore.4.7.1.dylib',
-                                    'libQtGui.4.dylib',
-                                    'libQtGui.4.7.1.dylib',
-                                    'libQtNetwork.4.dylib',
-                                    'libQtNetwork.4.7.1.dylib',
-                                    'libQtOpenGL.4.dylib',
-                                    'libQtOpenGL.4.7.1.dylib',
-                                    'libQtSvg.4.dylib',
-                                    'libQtSvg.4.7.1.dylib',
-                                    'libQtWebKit.4.dylib',
-                                    'libQtWebKit.4.7.1.dylib',
-                                    'libQtXml.4.dylib',
-                                    'libQtXml.4.7.1.dylib'):
-                        self.path2basename(relpkgdir, libfile)
-                    self.end_prefix("SLPlugin.app/Contents/Resources")
 
-                # Qt4 codecs go to llplugin.  Not certain why but this is the first
-                # location probed according to dtruss so we'll go with that.
-                if self.prefix(src="../packages/plugins/codecs/", dst="llplugin/codecs"):
-                    self.path("libq*.dylib")
-                    self.end_prefix("llplugin/codecs")
+                # LLCefLib helper apps go inside SLPlugin.app
+                if self.prefix(src="", dst="SLPlugin.app/Contents/Frameworks"):
+                    for helperappfile in ('LLCefLib Helper.app',
+                                          'Chromium Embedded Framework.framework',  # TODO replace with symlink
+                                          'LLCefLib Helper EH.app'):
+                        self.path2basename(relpkgdir, helperappfile)
+                    self.end_prefix()
 
-                # Similarly for imageformats.
-                if self.prefix(src="../packages/plugins/imageformats/", dst="llplugin/imageformats"):
-                    self.path("libq*.dylib")
-                    self.end_prefix("llplugin/imageformats")
-
-                # SLPlugin plugins proper
+                # SLPlugin plugins
                 if self.prefix(src="", dst="llplugin"):
                     self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
                                        "media_plugin_quicktime.dylib")
@@ -852,7 +831,17 @@ class Darwin_i386_Manifest(ViewerManifest):
 
                 self.end_prefix("Resources")
 
+                # CEF framework goes inside Second Life.app/Contents/Frameworks
+                if self.prefix(src="", dst="Frameworks"):
+                    frameworkfile="Chromium Embedded Framework.framework"
+                    self.path2basename(relpkgdir, frameworkfile)
+                    self.end_prefix("Frameworks")
+
             self.end_prefix("Contents")
+
+        # fix up media_plugin.dylib so it knows where to look for CEF files it needs
+        self.run_command('install_name_tool -change "@executable_path/Chromium Embedded Framework" "@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%(config)s/Second Life.app/Contents/Resources/llplugin/media_plugin_cef.dylib"' %
+                        { 'config' : self.args['configuration'] })
 
         # NOTE: the -S argument to strip causes it to keep enough info for
         # annotated backtraces (i.e. function names in the crash log).  'strip' with no
@@ -862,7 +851,6 @@ class Darwin_i386_Manifest(ViewerManifest):
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
-
 
     def copy_finish(self):
         # Force executable permissions to be set for scripts
