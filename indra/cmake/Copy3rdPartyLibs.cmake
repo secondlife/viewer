@@ -90,7 +90,7 @@ if(WINDOWS)
     foreach(i RANGE ${count})
         list(GET LMSVC_VER ${i} MSVC_VER)
         list(GET LMSVC_VERDOT ${i} MSVC_VERDOT)
-        MESSAGE(WARNING "!!!===  ${i}   ${MSVC_VER} ${MSVC_VERDOT}")
+        MESSAGE(STATUS "Copying redist libs for VC ${MSVC_VERDOT}")
         FIND_PATH(debug_msvc_redist_path NAME msvcr${MSVC_VER}d.dll
             PATHS            
             [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\${MSVC_VERDOT}\\Setup\\VC;ProductDir]/redist/Debug_NonRedist/x86/Microsoft.VC${MSVC_VER}.DebugCRT
