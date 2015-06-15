@@ -387,9 +387,13 @@ class Windows_i686_Manifest(ViewerManifest):
             if self.args['configuration'].lower() == 'debug':
                  self.path("msvcr120d.dll")
                  self.path("msvcp120d.dll")
+                 self.path("msvcr100d.dll")
+                 self.path("msvcp100d.dll")
             else:
                  self.path("msvcr120.dll")
                  self.path("msvcp120.dll")
+                 self.path("msvcr100.dll")
+                 self.path("msvcp100.dll")
 
             # Vivox runtimes
             self.path("SLVoice.exe")
