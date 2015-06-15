@@ -308,10 +308,10 @@ void LLPanelLogin::addFavoritesToStartLocation()
 
 	LLSD fav_llsd;
 	llifstream file;
-	file.open(filename);
+	file.open(filename.c_str());
 	if (!file.is_open())
 	{
-		file.open(old_filename);
+		file.open(old_filename.c_str());
 		if (!file.is_open()) return;
 	}
 	LLSDSerialize::fromXML(fav_llsd, file);

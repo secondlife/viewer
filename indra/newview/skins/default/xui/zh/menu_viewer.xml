@@ -174,6 +174,7 @@
 		<menu_item_call label="[SECOND_LIFE] 部落格" name="Second Life Blogs"/>
 		<menu_item_call label="違規舉報" name="Report Abuse"/>
 		<menu_item_call label="回報臭蟲" name="Report Bug"/>
+		<menu_item_call label="碰撞、推擠與打擊" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="關於 [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="進階" name="Advanced">
@@ -350,8 +351,7 @@
 			<menu_item_check label="探詢內插物件位置" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="丟出一個封包" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="傾印腳本控制的攝影機" name="Dump Scripted Camera"/>
-		<menu_item_call label="碰撞、推擠與打擊" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="傾印腳本控制的攝影機" name="Dump Scripted Camera"/>		
 		<menu label="錄製器" name="Recorder">
 			<menu_item_call label="開始播放" name="Start Playback"/>
 			<menu_item_call label="停止播放" name="Stop Playback"/>

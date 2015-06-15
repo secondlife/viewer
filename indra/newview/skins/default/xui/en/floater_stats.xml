@@ -41,6 +41,7 @@
                   show_bar="true"/>
         <stat_bar name="packet_loss"
                   label="Packet Loss"
+                  decimal_digits="1"
                   stat="packetslostpercentstat"/>
         <stat_bar name="ping"
                   label="Ping Sim"

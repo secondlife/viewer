@@ -176,6 +176,7 @@
 		<menu_item_call label="Blogs [SECOND_LIFE]" name="Second Life Blogs"/>
 		<menu_item_call label="Signaler une infraction" name="Report Abuse"/>
 		<menu_item_call label="Signaler un bug" name="Report Bug"/>
+		<menu_item_call label="Collisions, coups et bousculades" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avancé" name="Advanced">
@@ -352,8 +353,7 @@
 			<menu_item_check label="Interpolation ping des positions des objets" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="Abandonner un paquet" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="Dump caméra scriptée" name="Dump Scripted Camera"/>
-		<menu_item_call label="Collisions, coups et bousculades" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="Dump caméra scriptée" name="Dump Scripted Camera"/>		
 		<menu label="Enregistreur" name="Recorder">
 			<menu_item_call label="Commencer la lecture" name="Start Playback"/>
 			<menu_item_call label="Arrêter la lecture" name="Stop Playback"/>

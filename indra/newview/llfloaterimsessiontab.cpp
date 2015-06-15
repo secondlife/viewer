@@ -118,6 +118,7 @@ LLFloaterIMSessionTab* LLFloaterIMSessionTab::getConversation(const LLUUID& uuid
 	else
 	{
 		conv = LLFloaterReg::getTypedInstance<LLFloaterIMSessionTab>("impanel", LLSD(uuid));
+		conv->setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 	}
 
 	return conv;

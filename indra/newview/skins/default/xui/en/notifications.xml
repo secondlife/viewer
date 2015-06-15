@@ -1197,6 +1197,18 @@ Save Changes?
 
   <notification
    icon="alertmodal.tga"
+   name="DeleteNotecard"
+   type="alertmodal">
+Delete Notecard?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GestureSaveFailedTooManySteps"
    type="alertmodal">
 Gesture save failed.
@@ -5261,6 +5273,17 @@ Warning: The &apos;Pay object&apos; click action has been set, but it will only 
      name="okcancelignore"
      notext="Cancel"
      yestext="Pay"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PayObjectFailed"
+   type="alertmodal">
+    Payment failed: object was not found.
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -10412,7 +10435,7 @@ Cannot create large prims that intersect other players.  Please re-try when othe
    icon="alertmodal.tga"
    name="DefaultObjectPermissions"
    type="alert">
-	There was a problem saving the default permissions due to the following reason: [REASON].  Please try setting the default permissions later.
+	There was a problem saving the default object permissions: [REASON].  Please try setting the default permissions later.
 	<tag>fail</tag>
    <usetemplate
      name="okbutton"
