@@ -1658,11 +1658,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d32c6e5eeb91d06a8811cb0d7aa15003</string>
+              <string>03e808b3c47eb7e62bd5b3f1108b793b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://callum-linden.s3.amazonaws.com/llceflib-0.3.2171.2069.5020-darwin-5020.tar.bz2</string>
+              <string>https://callum-linden.s3.amazonaws.com/llceflib-0.3.2171.2069.7000-darwin-7000.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
