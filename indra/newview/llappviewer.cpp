@@ -4923,6 +4923,7 @@ void LLAppViewer::idle()
 		
 		gIdleCallbacks.callFunctions();
 		gInventory.idleNotifyObservers();
+		LLAvatarTracker::instance().idleNotifyObservers();
 	}
 	
 	// Metrics logging (LLViewerAssetStats, etc.)
