@@ -98,7 +98,7 @@
      name="My volume label"
      top_pad="14"
      width="200">
-        My volume:
+        Mic volume:
     </text>
     <slider_bar
      control_name="AudioLevelMic"
@@ -110,7 +110,7 @@
      left_delta="95"
      max_val="2"
      name="mic_volume_slider"
-     tool_tip="Change the volume using this slider"
+     tool_tip="Change the mic level using this slider"
      top_pad="-18"
      width="110" />
     <text

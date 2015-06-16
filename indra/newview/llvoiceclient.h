@@ -128,6 +128,7 @@ public:
 	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
 	// i.e. when the daemon is running and connected, and the device lists are populated.
 	virtual bool deviceSettingsAvailable()=0;
+	virtual bool deviceSettingsUpdated() = 0;
 	
 	// Requery the vivox daemon for the current list of input/output devices.
 	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
@@ -214,7 +215,7 @@ public:
 	//@{
 	virtual BOOL isSessionTextIMPossible(const LLUUID& id)=0;
 	virtual BOOL isSessionCallBackPossible(const LLUUID& id)=0;
-	virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
+	//virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
 	virtual void endUserIMSession(const LLUUID &uuid)=0;	
 	//@}
 	
@@ -335,6 +336,7 @@ public:
 	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
 	// i.e. when the daemon is running and connected, and the device lists are populated.
 	bool deviceSettingsAvailable();
+	bool deviceSettingsUpdated();	// returns true when the device list has been updated recently.
 		
 	// Requery the vivox daemon for the current list of input/output devices.
 	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
@@ -431,7 +433,7 @@ public:
 	//@{
 	BOOL isSessionTextIMPossible(const LLUUID& id);
 	BOOL isSessionCallBackPossible(const LLUUID& id);
-	BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message);
+	//BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
 	void endUserIMSession(const LLUUID &uuid);	
 	//@}
 	
