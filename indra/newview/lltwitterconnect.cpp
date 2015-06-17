@@ -73,9 +73,10 @@ void LLTwitterConnect::twitterConnectCoro(LLCoros::self& self, std::string reque
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
 
     LLSD body;
     if (!requestToken.empty())
@@ -162,9 +163,10 @@ void LLTwitterConnect::twitterShareCoro(LLCoros::self& self, std::string route, 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
 
     setConnectionState(LLTwitterConnect::TWITTER_POSTING);
 
@@ -184,10 +186,11 @@ void LLTwitterConnect::twitterShareImageCoro(LLCoros::self& self, LLPointer<LLIm
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
 
     std::string imageFormat;
     if (dynamic_cast<LLImagePNG*>(image.get()))
@@ -250,10 +253,13 @@ void LLTwitterConnect::twitterDisconnectCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+
+    httpOpts->setFollowRedirects(false);
 
     setConnectionState(LLTwitterConnect::TWITTER_DISCONNECTING);
 
-    LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getTwitterConnectURL("/connection"));
+    LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getTwitterConnectURL("/connection"), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -282,10 +288,12 @@ void LLTwitterConnect::twitterConnectedCoro(LLCoros::self& self, bool autoConnec
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
+    httpOpts->setFollowRedirects(false);
     setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getTwitterConnectURL("/connection", true));
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, getTwitterConnectURL("/connection", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -329,9 +337,10 @@ void LLTwitterConnect::twitterInfoCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
 
     httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
 
     LLSD result = httpAdapter->getAndYield(self, httpRequest, getTwitterConnectURL("/info", true), httpOpts);
 
