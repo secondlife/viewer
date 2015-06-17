@@ -1517,6 +1517,52 @@
         <key>version</key>
         <string>0.0.1</string>
       </map>
+      <key>llceflib</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2014, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>LLCefLib implements a headless web browser, rendering modern web content to a memory buffer and providing an API for injecting mouse and keyboard events. It uses the Chromium Embedded Framework (https://bitbucket.org/chromiumembedded/cef)</string>
+        <key>license</key>
+        <string>LGPL</string>
+        <key>license_file</key>
+        <string>LICENSES/LICENSE-source.txt</string>
+        <key>name</key>
+        <string>llceflib</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>29d0bd1d71b3408de279762fffce375b</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/302723/arch/Darwin/installer/llceflib-1.0.0.(CEF3.2171.2069-32).302723-darwin-302723.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>13da924b4d075b1557bf710e94aa98d9</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://callum-linden.s3.amazonaws.com/cef-3.2272.2035.900001-windows-900001.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.0.(CEF3.2171.2069-32).302723</string>
+      </map>
       <key>llphysicsextensions_source</key>
       <map>
         <key>copyright</key>
@@ -1624,52 +1670,6 @@
         </map>
         <key>version</key>
         <string>1.0.298370</string>
-      </map>
-      <key>llceflib</key>
-      <map>
-        <key>copyright</key>
-        <string>>Copyright (c) 2008-2014 Marshall A. Greenblatt. Portions Copyright (c) 2006-2009 Google Inc. All rights reserved</string>
-        <key>description</key>
-        <string>Chromium Embedded Framework (CEF) Standard Binary Distribution</string>
-        <key>license</key>
-        <string>BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/CEF_BSD.txt</string>
-        <key>name</key>
-        <string>llceflib</string>
-        <key>platforms</key>
-        <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>13da924b4d075b1557bf710e94aa98d9</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>https://callum-linden.s3.amazonaws.com/cef-3.2272.2035.900001-windows-900001.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>03e808b3c47eb7e62bd5b3f1108b793b</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>https://callum-linden.s3.amazonaws.com/llceflib-0.3.2171.2069.7000-darwin-7000.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>3.2272.2035.999999</string>
       </map>
       <key>mesa</key>
       <map>
