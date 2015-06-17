@@ -50,7 +50,7 @@ set(llmessage_SOURCE_FILES
     llhttpclient.cpp
     llhttpconstants.cpp
     llhttpnode.cpp
-	llhttpsdhandler.cpp
+    llhttpsdhandler.cpp
     llhttpsender.cpp
     llinstantmessage.cpp
     lliobuffer.cpp
@@ -144,7 +144,7 @@ set(llmessage_HEADER_FILES
     llhttpconstants.h
     llhttpnode.h
     llhttpnodeadapter.h
-	llhttpsdhandler.h
+    llhttpsdhandler.h
     llhttpsender.h
     llinstantmessage.h
     llinvite.h

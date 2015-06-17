@@ -2311,11 +2311,11 @@ if (LL_TESTS)
     ${GOOGLEMOCK_LIBRARIES}
     )
 
-  if (LINUX)	
+  if (LINUX)
     # llcommon uses `clock_gettime' which is provided by librt on linux.
     set(LIBRT_LIBRARY
-	  rt
-	  )
+      rt
+      )
   endif (LINUX)
 
   set(test_libs
@@ -2328,7 +2328,7 @@ if (LL_TESTS)
     ${GOOGLEMOCK_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
-	${LIBRT_LIBRARY}
+    ${LIBRT_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
   )

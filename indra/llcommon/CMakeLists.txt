@@ -87,7 +87,7 @@ set(llcommon_SOURCE_FILES
     llrefcount.cpp
     llrun.cpp
     llsd.cpp
-	llsdjson.cpp
+    llsdjson.cpp
     llsdparam.cpp
     llsdserialize.cpp
     llsdserialize_xml.cpp
@@ -196,7 +196,7 @@ set(llcommon_HEADER_FILES
     llrefcount.h
     llsafehandle.h
     llsd.h
-	llsdjson.h
+    llsdjson.h
     llsdparam.h
     llsdserialize.h
     llsdserialize_xml.h

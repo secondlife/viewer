@@ -17,7 +17,7 @@ include(FreeType)
 include(Boost)
 
 include_directories(
-	${LLCOREHTTP_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCRASHLOGGER_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
@@ -67,14 +67,14 @@ target_link_libraries(linux-crash-logger
     ${LLMESSAGE_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
-	${LLCOREHTTP_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
-	${BOOST_CONTEXT_LIBRARY}
-	${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_COROUTINE_LIBRARY}
     ${UI_LIBRARIES}
     ${DB_LIBRARIES}
     ${FREETYPE_LIBRARIES}
-	${LIBRT_LIBRARY}
+    ${LIBRT_LIBRARY}
     )
 
 add_custom_target(linux-crash-logger-target ALL
