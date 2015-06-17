@@ -306,7 +306,7 @@ void LLFlickrConnect::flickrConnectedCoro(LLCoros::self& self, bool autoConnect)
 
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFlickrConnectURL("/connection", true), false);
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFlickrConnectURL("/connection", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
