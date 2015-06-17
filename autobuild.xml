@@ -1536,11 +1536,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>29d0bd1d71b3408de279762fffce375b</string>
+              <string>47e50c4116920688aafe2590f0c05182</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/302723/arch/Darwin/installer/llceflib-1.0.0.(CEF3.2171.2069-32).302723-darwin-302723.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/302731/arch/Darwin/installer/llceflib-1.0.0.(CEF3.2171.2069-32).302731-darwin-302731.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1561,7 +1561,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.0.0.(CEF3.2171.2069-32).302723</string>
+        <string>1.0.0.(CEF3.2171.2069-32).302731</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
