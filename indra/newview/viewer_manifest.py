@@ -820,9 +820,11 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # LLCefLib helper apps go inside SLPlugin.app
                 if self.prefix(src="", dst="SLPlugin.app/Contents/Frameworks"):
                     for helperappfile in ('LLCefLib Helper.app',
-                                          'Chromium Embedded Framework.framework',  # TODO replace with symlink
                                           'LLCefLib Helper EH.app'):
                         self.path2basename(relpkgdir, helperappfile)
+
+                    pluginframeworkpath = self.dst_path_of('Chromium Embedded Framework.framework');
+
                     self.end_prefix()
 
                 # SLPlugin plugins
@@ -840,6 +842,24 @@ class Darwin_i386_Manifest(ViewerManifest):
                     frameworkfile="Chromium Embedded Framework.framework"
                     self.path2basename(relpkgdir, frameworkfile)
                     self.end_prefix("Frameworks")
+
+                # This code constructs a relative path from the
+                # target framework folder back to the location of the symlink.
+                # It needs to be relative so that the symlink still works when
+                # (as is normal) the user moves the app bunlde out of the DMG
+                # and into the /Applications folder. Note we also call 'raise'
+                # to terminate the process if we get an error since without
+                # this symlink, Second Life web media can't possibly work.
+                # Real Framework folder:
+                #   Second Life.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                # Location of symlink and why it'ds relavie 
+                #   Second Life.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks", "Chromium Embedded Framework.framework")
+                try:
+                    symlinkf(frameworkpath, pluginframeworkpath)
+                except OSError as err:
+                    print "Can't symlink %s -> %s: %s" % (frameworkpath, pluginframeworkpath, err)
+                    raise
 
             self.end_prefix("Contents")
 
