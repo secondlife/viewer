@@ -712,9 +712,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
 	mLastUpdateRequestCOFVersion(-1),
-	mLastUpdateReceivedCOFVersion(-1),
-	mCachedMuteListUpdateTime(0),
-	mCachedInMuteList(false)
+	mLastUpdateReceivedCOFVersion(-1)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
@@ -3084,6 +3082,7 @@ bool LLVOAvatar::isVisuallyMuted() const
     return ( mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE );
 }
 
+#if 0 // TBD
 bool LLVOAvatar::isInMuteList()
 {
 	bool muted = false;
@@ -3102,6 +3101,8 @@ bool LLVOAvatar::isInMuteList()
 	}
 	return muted;
 }
+#endif
+
 void LLVOAvatar::updateDebugText()
 {
 	// clear debug text

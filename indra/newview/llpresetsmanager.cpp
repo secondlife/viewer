@@ -177,7 +177,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, const std::st
 	std::string pathName(getPresetsDir(subdirectory) + gDirUtilp->getDirDelimiter() + LLURI::escape(name) + ".xml");
 
 	// write to file
-	llofstream presetsXML(pathName);
+	llofstream presetsXML(pathName.c_str());
 	if (!presetsXML.is_open())
 	{
 		LL_WARNS("Presets") << "Cannot open for output preset file " << pathName << LL_ENDL;
