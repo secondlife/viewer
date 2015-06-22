@@ -113,6 +113,7 @@ public:
 
 	void sort(LLFolderViewFolder* folder);
 	bool contentsReady();
+	bool isFolderComplete(LLFolderViewFolder* folder);
 	bool startDrag(std::vector<LLFolderViewModelItem*>& items);
 
 private:

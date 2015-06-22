@@ -122,6 +122,7 @@ public:
 	virtual void filter() = 0;
 
 	virtual bool contentsReady() = 0;
+	virtual bool isFolderComplete(class LLFolderViewFolder*) = 0;
 	virtual void setFolderView(LLFolderView* folder_view) = 0;
 	virtual LLFolderViewFilter& getFilter() = 0;
 	virtual const LLFolderViewFilter& getFilter() const = 0;
@@ -442,6 +443,7 @@ public:
 	// By default, we assume the content is available. If a network fetch mechanism is implemented for the model,
 	// this method needs to be overloaded and return the relevant fetch status.
 	virtual bool contentsReady()					{ return true; }
+	virtual bool isFolderComplete(LLFolderViewFolder* folder)					{ return true; }
 
 	struct ViewModelCompare
 	{
