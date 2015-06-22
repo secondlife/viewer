@@ -34,8 +34,8 @@
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
 
-#include "../../../build-darwin-i386/packages/include/boost/function.hpp"
-#include "../../../build-darwin-i386/packages/include/boost/bind.hpp"
+#include "boost/function.hpp"
+#include "boost/bind.hpp"
 #include "llCEFLib.h"
 
 #include <time.h>  // remove me
