@@ -1550,18 +1550,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>13da924b4d075b1557bf710e94aa98d9</string>
+              <string>274594d16e60e77752935e6d73ca2637</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://callum-linden.s3.amazonaws.com/cef-3.2272.2035.900001-windows-900001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/302873/arch/CYGWIN/installer/llceflib-1.0.0.(CEF-WIN-3.2272.gbda8dc7-32).302873-windows-302873.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.0.(CEF3.2171.2069-32).302731</string>
+        <string>1.0.0.(CEF-WIN-3.2272.gbda8dc7-32).302873</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
