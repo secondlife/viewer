@@ -3218,6 +3218,23 @@ bool process_login_success_response()
 			LLStringUtil::trim(gDisplayName);
 		}
 	}
+	std::string first_name;
+	if(response.has("first_name"))
+	{
+		first_name = response["first_name"].asString();
+		LLStringUtil::replaceChar(first_name, '"', ' ');
+		LLStringUtil::trim(first_name);
+		gAgentUsername = first_name;
+	}
+
+	if(response.has("last_name") && !gAgentUsername.empty() && (gAgentUsername != "Resident"))
+	{
+		std::string last_name = response["last_name"].asString();
+		LLStringUtil::replaceChar(last_name, '"', ' ');
+		LLStringUtil::trim(last_name);
+		gAgentUsername = gAgentUsername + " " + last_name;
+	}
+
 	if(gDisplayName.empty())
 	{
 		if(response.has("first_name"))
@@ -3238,6 +3255,7 @@ bool process_login_success_response()
 			gDisplayName += text;
 		}
 	}
+
 	if(gDisplayName.empty())
 	{
 		gDisplayName.assign(gUserCredential->asString());
