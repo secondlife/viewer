@@ -674,6 +674,7 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 }
 
 
+#if 0
 /////////////////////////////////////////////////////
 // LLNewAgentInventoryVariablePriceResponder::Impl //
 /////////////////////////////////////////////////////
@@ -1144,5 +1145,5 @@ void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 				LLPointer<LLNewAgentInventoryVariablePriceResponder>(this)));
 	}
 }
-
+#endif
 
