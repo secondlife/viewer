@@ -1,5 +1,5 @@
 /**
-* @file llupdloadmanager.cpp
+* @file llcoproceduremanager.cpp
 * @author Rider Linden
 * @brief Singleton class for managing asset uploads to the sim.
 *
@@ -44,18 +44,6 @@ LLCoprocedureManager::LLCoprocedureManager():
     mCoroMapping(),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
 {
-    initializeManager();
-}
-
-LLCoprocedureManager::~LLCoprocedureManager() 
-{
-    shutdown();
-}
-
-//=========================================================================
-void LLCoprocedureManager::initializeManager()
-{
-    mShutdown = false;
 
     // *TODO: Retrieve the actual number of concurrent coroutines fro gSavedSettings and
     // clamp to a "reasonable" number.
@@ -73,6 +61,13 @@ void LLCoprocedureManager::initializeManager()
 
     mWakeupTrigger.post(LLSD());
 }
+
+LLCoprocedureManager::~LLCoprocedureManager() 
+{
+    shutdown();
+}
+
+//=========================================================================
 
 void LLCoprocedureManager::shutdown(bool hardShutdown)
 {
@@ -123,7 +118,7 @@ void LLCoprocedureManager::cancelCoprocedure(const LLUUID &id)
         return;
     }
 
-    for (AssetQueue_t::iterator it = mPendingCoprocs.begin(); it != mPendingCoprocs.end(); ++it)
+    for (CoprocQueue_t::iterator it = mPendingCoprocs.begin(); it != mPendingCoprocs.end(); ++it)
     {
         if ((*it)->mId == id)
         {
@@ -163,6 +158,10 @@ void LLCoprocedureManager::coprocedureInvokerCoro(LLCoros::self& self, LLCoreHtt
             {
                 LL_WARNS() << "Coprocedure(" << coproc->mName << ") id=" << coproc->mId.asString() <<
                     " threw an exception! Message=\"" << e.what() << "\"" << LL_ENDL;
+            }
+            catch (...)
+            {
+                LL_WARNS() << "A non std::exception was thrown from " << coproc->mName << " with id=" << coproc->mId << "." << LL_ENDL;
             }
 
             LL_INFOS() << "Finished coprocedure(" << coproc->mName << ")" << LL_ENDL;

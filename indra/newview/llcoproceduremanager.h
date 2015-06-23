@@ -1,5 +1,5 @@
 /**
-* @file llupdloadmanager.h
+* @file llcoproceduremanager.h
 * @author Rider Linden
 * @brief Singleton class for managing asset uploads to the sim.
 *
@@ -97,10 +97,12 @@ private:
         CoProcedure_t mProc;
     };
     
-    typedef std::deque<QueuedCoproc::ptr_t>  AssetQueue_t;
+    // we use a deque here rather than std::queue since we want to be able to 
+    // iterate through the queue and potentially erase an entry from the middle.
+    typedef std::deque<QueuedCoproc::ptr_t>  CoprocQueue_t;  
     typedef std::map<LLUUID, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> ActiveCoproc_t;
 
-    AssetQueue_t    mPendingCoprocs;
+    CoprocQueue_t   mPendingCoprocs;
     ActiveCoproc_t  mActiveCoprocs;
     bool            mShutdown;
     LLEventStream   mWakeupTrigger;
@@ -111,7 +113,6 @@ private:
 
     CoroAdapterMap_t mCoroMapping;
 
-    void initializeManager();
     void coprocedureInvokerCoro(LLCoros::self& self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter);
 };
 
