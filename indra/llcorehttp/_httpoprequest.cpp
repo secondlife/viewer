@@ -635,8 +635,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			}
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
 			check_curl_easy_code(code, CURLOPT_INFILESIZE);
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
-			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
 		}
 		break;
