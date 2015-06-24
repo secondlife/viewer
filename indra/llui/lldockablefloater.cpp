@@ -153,7 +153,7 @@ void LLDockableFloater::setVisible(BOOL visible)
 		mDockControl.get()->repositionDockable();
 	}
 
-	if (visible)
+	if (visible && !isMinimized())
 	{
 		LLFloater::setFrontmost(getAutoFocus());
 	}
