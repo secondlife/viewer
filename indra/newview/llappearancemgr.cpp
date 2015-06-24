@@ -1371,28 +1371,46 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
 
         const LLUUID& item_id_to_wear = *it;
 
-        if (item_id_to_wear.isNull()) continue;
+        if (item_id_to_wear.isNull())
+        {
+            LL_DEBUGS("Avatar") << "null id " << item_id_to_wear << LL_ENDL;
+            continue;
+        }
 
         LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
-        if (!item_to_wear) continue;
+        if (!item_to_wear)
+        {
+            LL_DEBUGS("Avatar") << "inventory item not found for id " << item_id_to_wear << LL_ENDL;
+            continue;
+        }
 
         if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.getLibraryRootFolderID()))
         {
+            LL_DEBUGS("Avatar") << "inventory item in library, will copy and wear "
+                                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
             LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(wear_on_avatar_cb,_1,replace));
-            copy_inventory_item(gAgent.getID(), item_to_wear->getPermissions().getOwner(), item_to_wear->getUUID(), LLUUID::null, std::string(), cb);
+            copy_inventory_item(gAgent.getID(), item_to_wear->getPermissions().getOwner(),
+                                item_to_wear->getUUID(), LLUUID::null, std::string(), cb);
             continue;
         } 
         else if (!gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.getRootFolderID()))
         {
-            continue; // not in library and not in agent's inventory
+			// not in library and not in agent's inventory
+            LL_DEBUGS("Avatar") << "inventory item not in user inventory or library, skipping "
+                                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
+            continue; 
         }
         else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH)))
         {
             LLNotificationsUtil::add("CannotWearTrash");
+            LL_DEBUGS("Avatar") << "inventory item is in trash, skipping "
+                                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
             continue;
         }
         else if (isLinkedInCOF(item_to_wear->getUUID())) // EXT-84911
         {
+            LL_DEBUGS("Avatar") << "inventory item is already in COF, skipping "
+                                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
             continue;
         }
 
@@ -4148,10 +4166,56 @@ void callAfterCategoryFetch(const LLUUID& cat_id, nullary_func_t cb)
 	}
 }
 
+void add_wearable_type_counts(const uuid_vec_t& ids,
+                              S32& clothing_count,
+                              S32& bodypart_count,
+                              S32& object_count,
+                              S32& other_count)
+{
+    for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+    {
+        const LLUUID& item_id_to_wear = *it;
+        LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
+        if (item_to_wear)
+        {
+            if (item_to_wear->getType() == LLAssetType::AT_CLOTHING)
+            {
+                clothing_count++;
+            }
+            else if (item_to_wear->getType() == LLAssetType::AT_BODYPART)
+            {
+                bodypart_count++;
+            }
+            else if (item_to_wear->getType() == LLAssetType::AT_OBJECT)
+            {
+                object_count++;
+            }
+            else
+            {
+                other_count++;
+            }
+        }
+        else
+        {
+            other_count++;
+        }
+    }
+}
+
 void wear_multiple(const uuid_vec_t& ids, bool replace)
 {
-	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
-    LLAppearanceMgr::instance().wearItemsOnAvatar(ids, false, replace, cb);
+    S32 clothing_count = 0;
+    S32 bodypart_count = 0;
+    S32 object_count = 0;
+    S32 other_count = 0;
+    add_wearable_type_counts(ids, clothing_count, bodypart_count, object_count, other_count);
+
+    LLPointer<LLInventoryCallback> cb = NULL;
+    if (clothing_count > 0 || bodypart_count > 0)
+    {
+        cb = new LLUpdateAppearanceOnDestroy;
+    }
+	LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, replace, cb);
 }
 
 // SLapp for easy-wearing of a stock (library) avatar
