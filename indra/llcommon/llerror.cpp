@@ -402,6 +402,11 @@ namespace
 
 namespace LLError
 {
+	bool is_available()
+	{
+		return Globals::instanceExists();
+	}
+
 	class SettingsConfig : public LLRefCount
 	{
 		friend class Settings;

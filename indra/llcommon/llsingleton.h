@@ -90,9 +90,11 @@ protected:
     void capture_dependency();
 
     // delegate LL_ERRS() logging to llsingleton.cpp
-    static void logerrs(const char* p1, const char* p2="", const char* p3="");
+    static void logerrs(const char* p1, const char* p2="",
+                        const char* p3="", const char* p4="");
     // delegate LL_WARNS() logging to llsingleton.cpp
-    static void logwarns(const char* p1, const char* p2="", const char* p3="");
+    static void logwarns(const char* p1, const char* p2="",
+                         const char* p3="", const char* p4="");
 
     // obtain canonical ref_ptr_t
     static ref_ptr_t get_master_refcount();

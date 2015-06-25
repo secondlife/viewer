@@ -28,9 +28,11 @@
 #include "llsingleton.h"
 
 #include "llerror.h"
+#include "llerrorcontrol.h"         // LLError::is_available()
 #include "lldependencies.h"
 #include <boost/foreach.hpp>
 #include <algorithm>
+#include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
 #include <stdexcept>
 
@@ -108,14 +110,14 @@ void LLSingletonBase::pop_initializing()
     list_t& list(get_initializing());
     if (list.empty())
     {
-        LL_ERRS() << "Underflow in stack of currently-initializing LLSingletons at "
-                  << typeid(*this).name() << "::getInstance()" << LL_ENDL;
+        logerrs("Underflow in stack of currently-initializing LLSingletons at ",
+                typeid(*this).name(), "::getInstance()");
     }
     if (list.back() != this)
     {
-        LL_ERRS() << "Push/pop mismatch in stack of currently-initializing LLSingletons: "
-                  << typeid(*this).name() << "::getInstance() trying to pop "
-                  << typeid(*list.back()).name() << LL_ENDL;
+        logerrs("Push/pop mismatch in stack of currently-initializing LLSingletons: ",
+                typeid(*this).name(), "::getInstance() trying to pop ",
+                typeid(*list.back()).name());
     }
     // Here we're sure that list.back() == this. Whew, pop it.
     list.pop_back();
@@ -151,8 +153,8 @@ void LLSingletonBase::capture_dependency()
             // DEBUGGING: Initially, make this crump. We want to know how bad
             // the problem is before we add it to the long, sad list of
             // ominous warnings that everyone always ignores.
-            LL_ERRS() << "LLSingleton circularity: " << out.str()
-                      << typeid(*this).name() << LL_ENDL;
+            logerrs("LLSingleton circularity: ", out.str().c_str(),
+                    typeid(*this).name());
         }
         else
         {
@@ -223,13 +225,13 @@ void LLSingletonBase::cleanupAll()
             }
             catch (const std::exception& e)
             {
-                LL_WARNS() << "Exception in " << typeid(*sp).name()
-                           << "::cleanupSingleton(): " << e.what() << LL_ENDL;
+                logwarns("Exception in ", typeid(*sp).name(),
+                         "::cleanupSingleton(): ", e.what());
             }
             catch (...)
             {
-                LL_WARNS() << "Unknown exception in " << typeid(*sp).name()
-                           << "::cleanupSingleton()" << LL_ENDL;
+                logwarns("Unknown exception in ", typeid(*sp).name(),
+                         "::cleanupSingleton()");
             }
         }
     }
@@ -250,7 +252,7 @@ void LLSingletonBase::deleteAll()
             if (! sp->mDeleteSingleton)
             {
                 // This Should Not Happen... but carry on.
-                LL_WARNS() << name << "::mDeleteSingleton not initialized!" << LL_ENDL;
+                logwarns(name, "::mDeleteSingleton not initialized!");
             }
             else
             {
@@ -261,13 +263,11 @@ void LLSingletonBase::deleteAll()
         }
         catch (const std::exception& e)
         {
-            LL_WARNS() << "Exception in " << name
-                       << "::deleteSingleton(): " << e.what() << LL_ENDL;
+            logwarns("Exception in ", name, "::deleteSingleton(): ", e.what());
         }
         catch (...)
         {
-            LL_WARNS() << "Unknown exception in " << name
-                       << "::deleteSingleton()" << LL_ENDL;
+            logwarns("Unknown exception in ", name, "::deleteSingleton()");
         }
     }
 }
@@ -307,13 +307,37 @@ void intrusive_ptr_release(LLSingletonBase::MasterRefcount* mrc)
 
 /*---------------------------- Logging helpers -----------------------------*/
 //static
-void LLSingletonBase::logerrs(const char* p1, const char* p2, const char* p3)
+void LLSingletonBase::logerrs(const char* p1, const char* p2, const char* p3, const char* p4)
 {
-    LL_ERRS() << p1 << p2 << p3 << LL_ENDL;
+    // Check LLError::is_available() because some of LLError's infrastructure
+    // is itself an LLSingleton. If that LLSingleton has not yet been
+    // initialized, trying to log will engage LLSingleton machinery... and
+    // around and around we go.
+    if (LLError::is_available())
+    {
+        LL_ERRS() << p1 << p2 << p3 << p4 << LL_ENDL;
+    }
+    else
+    {
+        // Caller may be a test program, or something else whose stderr is
+        // visible to the user.
+        std::cerr << p1 << p2 << p3 << p4 << std::endl;
+        // The other important side effect of LL_ERRS() is
+        // https://www.youtube.com/watch?v=OMG7paGJqhQ (emphasis on OMG)
+        LLError::crashAndLoop(std::string());
+    }
 }
 
 //static
-void LLSingletonBase::logwarns(const char* p1, const char* p2, const char* p3)
+void LLSingletonBase::logwarns(const char* p1, const char* p2, const char* p3, const char* p4)
 {
-    LL_WARNS() << p1 << p2 << p3 << LL_ENDL;
+    // See logerrs() remarks about is_available().
+    if (LLError::is_available())
+    {
+        LL_WARNS() << p1 << p2 << p3 << p4 << LL_ENDL;
+    }
+    else
+    {
+        std::cerr << p1 << p2 << p3 << p4 << std::endl;
+    }
 }
