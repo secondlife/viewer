@@ -43,6 +43,8 @@
 #include "llevents.h"
 #include "llcoros.h"
 #include "lleventcoro.h"
+#include "llassettype.h"
+#include "lluuid.h"
 
 ///
 /// The base llcorehttp library implements many HTTP idioms
@@ -354,6 +356,34 @@ public:
         return postRawAndYield(self, request, url, rawbody,
             LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
     }
+
+    LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url, std::string fileName,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+
+    LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, std::string fileName,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return postFileAndYield(self, request, url, fileName,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+    }
+
+
+    LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+
+    LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+        const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return postFileAndYield(self, request, url, assetId, assetType,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+    }
+
 
     /// Execute a Put transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.

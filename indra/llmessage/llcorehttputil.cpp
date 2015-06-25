@@ -36,6 +36,7 @@
 #include "llsdjson.h"
 #include "llsdserialize.h"
 #include "reader.h" 
+#include "llvfile.h"
 
 #include "message.h" // for getting the port
 
@@ -620,6 +621,61 @@ LLSD HttpCoroutineAdapter::postRawAndYield(LLCoros::self & self, LLCore::HttpReq
 
     return postAndYield_(self, request, url, rawbody, options, headers, httpHandler);
 }
+
+// *TODO: This functionality could be moved into the LLCore::Http library itself 
+// by having the CURL layer read the file directly.
+LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+    const std::string & url, std::string fileName,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLCore::BufferArray::ptr_t fileData(new LLCore::BufferArray, false);
+
+    // scoping for our streams so that they go away when we no longer need them.
+    {
+        LLCore::BufferArrayStream outs(fileData.get());
+        llifstream ins(fileName.c_str(), std::iostream::binary | std::iostream::out);
+
+        if (ins.is_open())
+        {
+
+            ins.seekg(0, std::ios::beg);
+            ins >> std::noskipws;
+
+            std::copy(std::istream_iterator<U8>(ins), std::istream_iterator<U8>(),
+                    std::ostream_iterator<U8>(outs));
+
+            ins.close();
+        }
+    }
+
+    return postAndYield(self, request, url, fileData, options, headers);
+}
+
+// *TODO: This functionality could be moved into the LLCore::Http library itself 
+// by having the CURL layer read the file directly.
+LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+    const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLCore::BufferArray::ptr_t fileData(new LLCore::BufferArray, false);
+
+    // scoping for our streams so that they go away when we no longer need them.
+    {
+        LLCore::BufferArrayStream outs(fileData.get());
+        LLVFile vfile(gVFS, assetId, assetType, LLVFile::READ);
+
+        S32 fileSize = vfile.getSize();
+        U8* fileBuffer;
+        fileBuffer = new U8[fileSize];
+        vfile.read(fileBuffer, fileSize);
+        
+        outs.write((char*)fileBuffer, fileSize);
+        delete[] fileBuffer;
+    }
+
+    return postAndYield(self, request, url, fileData, options, headers);
+}
+
 
 LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
     const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
