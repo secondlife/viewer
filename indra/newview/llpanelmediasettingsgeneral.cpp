@@ -319,6 +319,10 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& _media
 // Helper to set media control to media URL as required
 void LLPanelMediaSettingsGeneral::updateMediaPreview()
 {
+	if(LLTrans::getString("Multiple Media") == mHomeURL->getValue().asString())
+	{
+		return;
+	}
 	if ( mHomeURL->getValue().asString().length() > 0 )
 	{
 		if(mPreviewMedia->getCurrentNavUrl() != mHomeURL->getValue().asString())
