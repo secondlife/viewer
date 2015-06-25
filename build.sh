@@ -173,6 +173,12 @@ build()
   fi
 }
 
+  if "$AUTOBUILD" build -c Doxygen
+  then
+    echo true >"$build_dir"/build_ok
+  else
+    echo false >"$build_dir"/build_ok
+  fi
 # Check to see if we were invoked from the wrapper, if not, re-exec ourselves from there
 if [ "x$arch" = x ]
 then
