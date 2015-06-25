@@ -67,7 +67,7 @@ protected:
     void add_master();
     void remove_master();
     // with a little help from our friends.
-    template <class T> friend class LLSingleton_manage_master;
+    template <class T> friend struct LLSingleton_manage_master;
 
     // Maintain a stack of the LLSingleton subclass instance currently being
     // initialized. We use this to notice direct dependencies: we want to know
