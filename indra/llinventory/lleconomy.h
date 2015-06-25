@@ -48,8 +48,6 @@ public:
 	LLGlobalEconomy();
 	virtual ~LLGlobalEconomy();
 
-	void initSingleton() { }
-
 	virtual void print();
 
 	void	addObserver(LLEconomyObserver* observer);
