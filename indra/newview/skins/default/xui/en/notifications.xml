@@ -5382,7 +5382,7 @@ You cannot undo this action.
      name="ConfirmUnlink"
      type="alertmodal">
     <unique/>
-    This is a large linkset. If you unlink it, you may not be able to link it again. You may wish to take a copy of the linkset into your inventory as a precaution.
+    This is a large selection with linksets. If you unlink it, you may not be able to link it again. You may wish to take copies of linksets into your inventory as a precaution.
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm when unlinking a linkset"
