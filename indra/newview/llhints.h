@@ -29,6 +29,7 @@
 
 #include "llpanel.h"
 #include "llnotifications.h"
+#include "llinitdestroyclass.h"
 
 
 class LLHints :  public LLInitClass<LLHints>

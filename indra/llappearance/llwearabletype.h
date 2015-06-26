@@ -80,6 +80,7 @@ public:
 	static LLInventoryType::EIconName 	getIconName(EType type);
 	static BOOL 						getDisableCameraSwitch(EType type);
 	static BOOL 						getAllowMultiwear(EType type);
+    static EType						inventoryFlagsToWearableType(U32 flags);
 
 protected:
 	LLWearableType() {}

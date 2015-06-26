@@ -65,7 +65,6 @@ namespace tut
 
 		//Delete the instance
 		LLSingletonTest::deleteSingleton();
-		ensure(LLSingletonTest::destroyed());
 		ensure(!LLSingletonTest::instanceExists());
 
 		//Construct it again.

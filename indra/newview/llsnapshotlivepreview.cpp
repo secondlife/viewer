@@ -1005,7 +1005,7 @@ void LLSnapshotLivePreview::saveTexture()
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;
-		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 		void *userdata = NULL;
 		upload_new_resource(tid,	// tid
 			LLAssetType::AT_TEXTURE,
