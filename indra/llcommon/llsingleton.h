@@ -58,6 +58,15 @@ private:
     set_t mDepends;
 
 protected:
+    typedef enum e_init_state
+    {
+        UNINITIALIZED = 0,          // must be default-initialized state
+        CONSTRUCTING,
+        INITIALIZING,
+        INITIALIZED,
+        DELETED
+    } EInitState;
+
     // Base-class constructor should only be invoked by the DERIVED_TYPE
     // constructor.
     LLSingletonBase();
@@ -87,7 +96,7 @@ protected:
     void pop_initializing();
     // If a given call to B::getInstance() happens during either A::A() or
     // A::initSingleton(), record that A directly depends on B.
-    void capture_dependency();
+    void capture_dependency(EInitState);
 
     // delegate LL_ERRS() logging to llsingleton.cpp
     static void logerrs(const char* p1, const char* p2="",
@@ -232,15 +241,6 @@ template <typename DERIVED_TYPE>
 class LLSingleton : public LLSingletonBase
 {
 private:
-    typedef enum e_init_state
-    {
-        UNINITIALIZED = 0,          // must be default-initialized state
-        CONSTRUCTING,
-        INITIALIZING,
-        INITIALIZED,
-        DELETED
-    } EInitState;
-
     static DERIVED_TYPE* constructSingleton()
     {
         return new DERIVED_TYPE();
@@ -377,7 +377,7 @@ public:
         // an LLSingleton that directly depends on DERIVED_TYPE. If this call
         // came from another LLSingleton, rather than from vanilla application
         // code, record the dependency.
-        sData.mInstance->capture_dependency();
+        sData.mInstance->capture_dependency(sData.mInitState);
         return sData.mInstance;
     }
 

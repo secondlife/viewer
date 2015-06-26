@@ -123,7 +123,7 @@ void LLSingletonBase::pop_initializing()
     list.pop_back();
 }
 
-void LLSingletonBase::capture_dependency()
+void LLSingletonBase::capture_dependency(EInitState initState)
 {
     // Did this getInstance() call come from another LLSingleton, or from
     // vanilla application code? Note that although this is a nontrivial
@@ -150,11 +150,18 @@ void LLSingletonBase::capture_dependency()
                 // is the actual LLSingletonBase instance.
                 out << typeid(**found).name() << " -> ";
             }
-            // DEBUGGING: Initially, make this crump. We want to know how bad
-            // the problem is before we add it to the long, sad list of
-            // ominous warnings that everyone always ignores.
-            logerrs("LLSingleton circularity: ", out.str().c_str(),
-                    typeid(*this).name());
+            // We promise to capture dependencies from both the constructor
+            // and the initSingleton() method, so an LLSingleton's instance
+            // pointer is on the initializing list during both. Now that we've
+            // detected circularity, though, we must distinguish the two. If
+            // the recursive call is from the constructor, we CAN'T honor it:
+            // otherwise we'd be returning a pointer to a partially-
+            // constructed object! But from initSingleton() is okay: that
+            // method exists specifically to support circularity.
+            // Decide which log helper to call based on initState. They have
+            // identical signatures.
+            ((initState == CONSTRUCTING)? logerrs : logwarns)
+                ("LLSingleton circularity: ", out.str().c_str(), typeid(*this).name(), "");
         }
         else
         {
