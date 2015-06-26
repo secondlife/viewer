@@ -238,6 +238,14 @@ namespace
 {
 	std::string className(const std::type_info& type)
 	{
+		return LLError::Log::demangle(type.name());
+	}
+} // anonymous
+
+namespace LLError
+{
+	std::string Log::demangle(const char* mangled)
+	{
 #ifdef __GNUC__
 		// GCC: type_info::name() returns a mangled class name,st demangle
 
@@ -251,18 +259,18 @@ namespace
 			// but gcc 3.3 libstc++'s implementation of demangling is broken
 			// and fails without.
 			
-		char* name = abi::__cxa_demangle(type.name(),
+		char* name = abi::__cxa_demangle(mangled,
 										abi_name_buf, &abi_name_len, &status);
 			// this call can realloc the abi_name_buf pointer (!)
 
-		return name ? name : type.name();
+		return name ? name : mangled;
 
 #elif LL_WINDOWS
 		// DevStudio: type_info::name() includes the text "class " at the start
 
 		static const std::string class_prefix = "class ";
 
-		std::string name = type.name();
+		std::string name = mangled;
 		std::string::size_type p = name.find(class_prefix);
 		if (p == std::string::npos)
 		{
@@ -271,11 +279,14 @@ namespace
 
 		return name.substr(p + class_prefix.size());
 
-#else		
-		return type.name();
+#else
+		return mangled;
 #endif
 	}
+} // LLError
 
+namespace
+{
 	std::string functionName(const std::string& preprocessor_name)
 	{
 #if LL_WINDOWS
