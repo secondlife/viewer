@@ -111,13 +111,13 @@ void LLSingletonBase::pop_initializing()
     if (list.empty())
     {
         logerrs("Underflow in stack of currently-initializing LLSingletons at ",
-                typeid(*this).name(), "::getInstance()");
+                demangle(typeid(*this).name()).c_str(), "::getInstance()");
     }
     if (list.back() != this)
     {
         logerrs("Push/pop mismatch in stack of currently-initializing LLSingletons: ",
-                typeid(*this).name(), "::getInstance() trying to pop ",
-                typeid(*list.back()).name());
+                demangle(typeid(*this).name()).c_str(), "::getInstance() trying to pop ",
+                demangle(typeid(*list.back()).name()).c_str());
     }
     // Here we're sure that list.back() == this. Whew, pop it.
     list.pop_back();
@@ -148,7 +148,7 @@ void LLSingletonBase::capture_dependency(EInitState initState)
             {
                 // 'found' is an iterator; *found is an LLSingletonBase*; **found
                 // is the actual LLSingletonBase instance.
-                out << typeid(**found).name() << " -> ";
+                out << demangle(typeid(**found).name()) << " -> ";
             }
             // We promise to capture dependencies from both the constructor
             // and the initSingleton() method, so an LLSingleton's instance
@@ -161,7 +161,8 @@ void LLSingletonBase::capture_dependency(EInitState initState)
             // Decide which log helper to call based on initState. They have
             // identical signatures.
             ((initState == CONSTRUCTING)? logerrs : logwarns)
-                ("LLSingleton circularity: ", out.str().c_str(), typeid(*this).name(), "");
+                ("LLSingleton circularity: ", out.str().c_str(),
+                 demangle(typeid(*this).name()).c_str(), "");
         }
         else
         {
@@ -232,12 +233,12 @@ void LLSingletonBase::cleanupAll()
             }
             catch (const std::exception& e)
             {
-                logwarns("Exception in ", typeid(*sp).name(),
+                logwarns("Exception in ", demangle(typeid(*sp).name()).c_str(),
                          "::cleanupSingleton(): ", e.what());
             }
             catch (...)
             {
-                logwarns("Unknown exception in ", typeid(*sp).name(),
+                logwarns("Unknown exception in ", demangle(typeid(*sp).name()).c_str(),
                          "::cleanupSingleton()");
             }
         }
@@ -252,14 +253,14 @@ void LLSingletonBase::deleteAll()
     {
         // Capture the class name first: in case of exception, don't count on
         // being able to extract it later.
-        const char* name = typeid(*sp).name();
+        const std::string name = demangle(typeid(*sp).name());
         try
         {
             // Call static method through instance function pointer.
             if (! sp->mDeleteSingleton)
             {
                 // This Should Not Happen... but carry on.
-                logwarns(name, "::mDeleteSingleton not initialized!");
+                logwarns(name.c_str(), "::mDeleteSingleton not initialized!");
             }
             else
             {
@@ -270,11 +271,11 @@ void LLSingletonBase::deleteAll()
         }
         catch (const std::exception& e)
         {
-            logwarns("Exception in ", name, "::deleteSingleton(): ", e.what());
+            logwarns("Exception in ", name.c_str(), "::deleteSingleton(): ", e.what());
         }
         catch (...)
         {
-            logwarns("Unknown exception in ", name, "::deleteSingleton()");
+            logwarns("Unknown exception in ", name.c_str(), "::deleteSingleton()");
         }
     }
 }
@@ -347,4 +348,9 @@ void LLSingletonBase::logwarns(const char* p1, const char* p2, const char* p3, c
     {
         std::cerr << p1 << p2 << p3 << p4 << std::endl;
     }
+}
+
+std::string LLSingletonBase::demangle(const char* mangled)
+{
+    return LLError::Log::demangle(mangled);
 }

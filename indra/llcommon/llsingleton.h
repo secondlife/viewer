@@ -104,6 +104,7 @@ protected:
     // delegate LL_WARNS() logging to llsingleton.cpp
     static void logwarns(const char* p1, const char* p2="",
                          const char* p3="", const char* p4="");
+    static std::string demangle(const char* mangled);
 
     // obtain canonical ref_ptr_t
     static ref_ptr_t get_master_refcount();
@@ -337,11 +338,13 @@ public:
         {
         case UNINITIALIZED:
             // should never be uninitialized at this point
-            logerrs("Uninitialized singleton ", typeid(DERIVED_TYPE).name());
+            logerrs("Uninitialized singleton ",
+                    demangle(typeid(DERIVED_TYPE).name()).c_str());
             return NULL;
 
         case CONSTRUCTING:
-            logerrs("Tried to access singleton ", typeid(DERIVED_TYPE).name(),
+            logerrs("Tried to access singleton ",
+                    demangle(typeid(DERIVED_TYPE).name()).c_str(),
                     " from singleton constructor!");
             return NULL;
 
@@ -361,7 +364,8 @@ public:
             break;
 
         case DELETED:
-            logwarns("Trying to access deleted singleton ", typeid(DERIVED_TYPE).name(),
+            logwarns("Trying to access deleted singleton ",
+                     demangle(typeid(DERIVED_TYPE).name()).c_str(),
                      " -- creating new instance");
             SingletonLifetimeManager::construct();
             // same as first time construction
