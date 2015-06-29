@@ -131,7 +131,7 @@ void LLFacebookConnect::facebookConnectCoro(LLCoros::self& self, std::string aut
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     LLSD putData;
     if (!authCode.empty())
@@ -218,7 +218,7 @@ void LLFacebookConnect::facebookShareCoro(LLCoros::self& self, std::string route
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -241,8 +241,8 @@ void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -268,7 +268,7 @@ void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string 
     std::string contentType = "multipart/form-data; boundary=" + boundary;
     httpHeaders->append("Content-Type", contentType.c_str());
 
-    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray(), false); // 
+    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray()); // 
     LLCore::BufferArrayStream body(raw.get());
 
     // *NOTE: The order seems to matter.
@@ -310,7 +310,7 @@ void LLFacebookConnect::facebookDisconnectCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
     httpOpts->setFollowRedirects(false);
@@ -345,7 +345,7 @@ void LLFacebookConnect::facebookConnectedCheckCoro(LLCoros::self& self, bool aut
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
 
@@ -394,7 +394,7 @@ void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -438,7 +438,7 @@ void LLFacebookConnect::facebookConnectFriendsCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FacebookConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setFollowRedirects(false);
 

@@ -322,18 +322,18 @@ public:
     /// not be deallocated during the yield.
     LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, const LLSD & body,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
     LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, LLCore::BufferArray::ptr_t rawbody,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
     LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
         const std::string & url, const LLSD & body,
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return postAndYield(self, request, url, body,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
     }
 
     LLSD postAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
@@ -341,47 +341,47 @@ public:
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return postAndYield(self, request, url, rawbody,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
     }
 
     LLSD postRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, LLCore::BufferArray::ptr_t rawbody,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
     LLSD postRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
         const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return postRawAndYield(self, request, url, rawbody,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
     }
 
     LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, std::string fileName,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
     LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
         const std::string & url, std::string fileName,
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return postFileAndYield(self, request, url, fileName,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
     }
 
 
     LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
     LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return postFileAndYield(self, request, url, assetId, assetType,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false), headers);
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
     }
 
 
@@ -392,8 +392,8 @@ public:
     /// not be deallocated during the yield.
     LLSD putAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, const LLSD & body,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
     /// Execute a Get transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
@@ -402,37 +402,37 @@ public:
     /// not be deallocated during the yield.
     LLSD getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
     LLSD getAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
         const std::string & url, LLCore::HttpHeaders::ptr_t &headers)
     {
         return getAndYield(self, request, url,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
             headers);
     }
 
     LLSD getRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
     LLSD getRawAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
         const std::string & url, LLCore::HttpHeaders::ptr_t &headers)
     {
         return getRawAndYield(self, request, url,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
             headers);
     }
 
     LLSD getJsonAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
     LLSD getJsonndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t &request,
         const std::string & url, LLCore::HttpHeaders::ptr_t &headers)
     {
         return getJsonAndYield(self, request, url,
-            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
             headers);
     }
 
@@ -444,8 +444,8 @@ public:
     /// not be deallocated during the yield.
     LLSD deleteAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url,
-        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
-        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
     ///
     void cancelYieldingOperation();

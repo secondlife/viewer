@@ -1897,8 +1897,8 @@ void LLGroupMgr::postGroupBanRequestCoro(LLCoros::self& self, std::string url, L
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("groupMembersRequest", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
-    LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions, false);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions);
 
     httpOptions->setFollowRedirects(false);
 

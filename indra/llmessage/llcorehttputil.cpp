@@ -628,7 +628,7 @@ LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRe
     const std::string & url, std::string fileName,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
-    LLCore::BufferArray::ptr_t fileData(new LLCore::BufferArray, false);
+    LLCore::BufferArray::ptr_t fileData(new LLCore::BufferArray);
 
     // scoping for our streams so that they go away when we no longer need them.
     {
@@ -657,7 +657,7 @@ LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRe
     const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
-    LLCore::BufferArray::ptr_t fileData(new LLCore::BufferArray, false);
+    LLCore::BufferArray::ptr_t fileData(new LLCore::BufferArray);
 
     // scoping for our streams so that they go away when we no longer need them.
     {
@@ -926,7 +926,7 @@ void HttpCoroutineAdapter::trivialGetCoro(LLCoros::self& self, std::string url, 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericGetCoro", policyId));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
 
@@ -977,7 +977,7 @@ void HttpCoroutineAdapter::trivialPostCoro(LLCoros::self& self, std::string url,
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", policyId));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
 

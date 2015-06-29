@@ -74,7 +74,7 @@ public:
 	
 	BufferArray();
 
-	typedef boost::intrusive_ptr<BufferArray> ptr_t;
+	typedef LLCoreInt::IntrusivePtr<BufferArray> ptr_t;
 
 protected:
 	virtual ~BufferArray();						// Use release()

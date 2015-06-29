@@ -1342,7 +1342,7 @@ void LLViewerMedia::openIDSetupCoro(LLCoros::self& self, std::string openidUrl, 
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
     httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/x-www-form-urlencoded");
 
-    LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray, false);
+    LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
     LLCore::BufferArrayStream bas(rawbody.get());
 
     bas << std::noskipws << openidToken;
