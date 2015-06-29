@@ -1,12 +1,12 @@
 /** 
- * @mainpage Second Life Viewer
+ * @mainpage
  *
  * This is the sources for the Second Life Viewer;
  * information on the open source project is at 
  * https://wiki.secondlife.com/wiki/Open_Source_Portal
  *
  * The Mercurial repository for the trunk version is at
- * https://hg.secondlife.com/viewer-development
+ * https://bitbucket.org/lindenlab/viewer-release
  *
  * @section source-license Source License
  * @verbinclude LICENSE-source.txt

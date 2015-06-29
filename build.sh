@@ -173,12 +173,6 @@ build()
   fi
 }
 
-  if "$AUTOBUILD" build -c Doxygen
-  then
-    echo true >"$build_dir"/build_ok
-  else
-    echo false >"$build_dir"/build_ok
-  fi
 # Check to see if we were invoked from the wrapper, if not, re-exec ourselves from there
 if [ "x$arch" = x ]
 then
@@ -423,6 +417,11 @@ then
       upload_stub_installers "$build_dir_stubs"
     fi
     end_section Upload Installer
+  elif [ "$last_built_variant" = "Doxygen" ]
+  then
+      cd "$build_dir/doxygen/html"
+      tar cjf viewer-doxygen.tar.bz2 .
+      upload_item docs viewer-doxygen.tar.bz2 binary/octet-stream
   else
     echo skipping upload of installer
   fi
