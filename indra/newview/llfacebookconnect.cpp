@@ -41,6 +41,7 @@
 #include "lltrans.h"
 #include "llevents.h"
 #include "llviewerregion.h"
+#include "llviewercontrol.h"
 
 #include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
@@ -69,8 +70,19 @@ void toast_user_for_facebook_success()
 
 LLCore::HttpHeaders::ptr_t get_headers()
 {
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
-    httpHeaders->append("X-debug-tag", "dbgvwr");
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
+    // The DebugSlshareLogTag mechanism is intended to trigger slshare-service
+    // debug logging. slshare-service is coded to respond to an X-debug-tag
+    // header by engaging debug logging for that request only. This way a
+    // developer need not muck with the slshare-service image to engage debug
+    // logging. Moreover, the value of X-debug-tag is embedded in each such
+    // log line so the developer can quickly find the log lines pertinent to
+    // THIS session.
+    std::string logtag(gSavedSettings.getString("DebugSlshareLogTag"));
+    if (! logtag.empty())
+    {
+        httpHeaders->append("X-debug-tag", logtag);
+    }
     return httpHeaders;
 }
 
