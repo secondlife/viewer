@@ -38,8 +38,6 @@
 #include "boost/bind.hpp"
 #include "llCEFLib.h"
 
-#include <time.h>  // remove me
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 class MediaPluginCEF :
@@ -55,18 +53,14 @@ public:
 private:
 	bool init();
 
-	// TODO FIX ME
-	void pageChangedCallback(unsigned char* pixels, int width, int height)
-	{
-		if (mPixels && pixels)
-		{
-			if (mWidth == width && mHeight == height)
-			{
-				memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
-			}
-			setDirty(0, 0, mWidth, mHeight);
-		}
-	}
+	void pageChangedCallback(unsigned char* pixels, int width, int height);
+	void onCustomSchemeURLCallback(std::string url);
+	void onConsoleMessageCallback(std::string message, std::string source, int line);
+	void onStatusMessageCallback(std::string value);
+	void onTitleChangeCallback(std::string title);
+	void onLoadStartCallback();
+	void onLoadEndCallback(int httpStatusCode);
+	void onNavigateURLCallback(std::string url);
 
 	void postDebugMessage(const std::string& msg);
 
@@ -99,7 +93,7 @@ MediaPluginCEF::~MediaPluginCEF()
 //
 void MediaPluginCEF::postDebugMessage(const std::string& msg)
 {
-	//if (mEnableMediaPluginDebugging)
+	if (mEnableMediaPluginDebugging)
 	{
 		std::stringstream str;
 		str << "@Media Msg> " << msg;
@@ -109,6 +103,89 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 		debug_message.setValue("message_level", "info");
 		sendMessage(debug_message);
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::pageChangedCallback(unsigned char* pixels, int width, int height)
+{
+	if (mPixels && pixels)
+	{
+		if (mWidth == width && mHeight == height)
+		{
+			memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
+		}
+		setDirty(0, 0, mWidth, mHeight);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onCustomSchemeURLCallback(std::string url)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
+	message.setValue("uri", url);
+	message.setValue("nav_type", "clicked");	// TODO: differentiate between click and navigate to
+	sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onConsoleMessageCallback(std::string message, std::string source, int line)
+{
+	std::stringstream str;
+	str << "Console message: " << message << " in file(" << source << ") at line " << line;
+	postDebugMessage(str.str());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onStatusMessageCallback(std::string value)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "status_text");
+	message.setValue("status", value);
+	sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onTitleChangeCallback(std::string title)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
+	message.setValue("name", title);
+	sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onLoadStartCallback()
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_begin");
+	//message.setValue("uri", event.getEventUri());  // not easily available here in CEF - needed?
+	message.setValueBoolean("history_back_available", mLLCEFLib->canGoBack());
+	message.setValueBoolean("history_forward_available", mLLCEFLib->canGoForward());
+	sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onLoadEndCallback(int httpStatusCode)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
+	//message.setValue("uri", event.getEventUri());  // not easily available here in CEF - needed?
+	message.setValueS32("result_code", httpStatusCode);
+	message.setValueBoolean("history_back_available", mLLCEFLib->canGoBack());
+	message.setValueBoolean("history_forward_available", mLLCEFLib->canGoForward());
+	sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onNavigateURLCallback(std::string url)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "location_changed");
+	message.setValue("uri", url);
+	sendMessage(message);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +210,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				versions[LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER] = LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER_VERSION;
 				message.setValueLLSD("versions", versions);
 
-				std::string plugin_version = "Example plugin 1.0..0";
+				std::string plugin_version = "CEF plugin 1.0.0";
 				message.setValue("plugin_version", plugin_version);
 				sendMessage(message);
 			}
@@ -186,8 +263,15 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 		{
 			if (message_name == "init")
 			{
-
+				// event callbacks from LLCefLib
 				mLLCEFLib->setPageChangedCallback(boost::bind(&MediaPluginCEF::pageChangedCallback, this, _1, _2, _3));
+				mLLCEFLib->setOnCustomSchemeURLCallback(boost::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, _1));
+				mLLCEFLib->setOnConsoleMessageCallback(boost::bind(&MediaPluginCEF::onConsoleMessageCallback, this, _1, _2, _3));
+				mLLCEFLib->setOnStatusMessageCallback(boost::bind(&MediaPluginCEF::onStatusMessageCallback, this, _1));
+				mLLCEFLib->setOnTitleChangeCallback(boost::bind(&MediaPluginCEF::onTitleChangeCallback, this, _1));
+				mLLCEFLib->setOnLoadStartCallback(boost::bind(&MediaPluginCEF::onLoadStartCallback, this));
+				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
+				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1));
 
 	            LLCEFLibSettings settings;
 	            settings.inital_width = 1024;
@@ -197,6 +281,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
 				{
+// TODO - return something to indicate failure
 					//MessageBoxA(0, "FAIL INIT", 0, 0);
 				}
 
@@ -332,6 +417,26 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
 			}
 		}
+		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
+		{
+			if (message_name == "browse_stop")
+			{
+				mLLCEFLib->stop();
+			}
+			else if (message_name == "browse_reload")
+			{
+				bool ignore_cache = true;
+				mLLCEFLib->reload(ignore_cache);
+			}
+			else if (message_name == "browse_forward")
+			{
+				mLLCEFLib->goForward();
+			}
+			else if (message_name == "browse_back")
+			{
+				mLLCEFLib->goBack();
+			}
+		}
 		else
 		{
 			//std::cerr << "MediaPluginWebKit::receiveMessage: unknown message class: " << message_class << std::endl;
@@ -344,7 +449,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 bool MediaPluginCEF::init()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
-	message.setValue("name", "Example Plugin");
+	message.setValue("name", "CEF Plugin");
 	sendMessage(message);
 
 	return true;

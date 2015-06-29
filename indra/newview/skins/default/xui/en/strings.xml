@@ -50,7 +50,7 @@ OpenGL Version: [OPENGL_VERSION]
 libcurl Version: [LIBCURL_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
-Qt Webkit Version: [QT_WEBKIT_VERSION]
+LLCEFLib/CEF Version: [LLCEFLIB_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
