@@ -371,12 +371,12 @@ public:
     }
 
 
-    LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+    LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false));
 
-    LLSD HttpCoroutineAdapter::postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
+    LLSD postFileAndYield(LLCoros::self & self, LLCore::HttpRequest::ptr_t request,
         const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
         LLCore::HttpHeaders::ptr_t &headers)
     {
