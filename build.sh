@@ -239,7 +239,7 @@ do
       build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
       if `cat "$build_dir/build_ok"`
       then
-          if [ "$variant" == "Release" ]
+          if [ "$variant" == "Release" -o "$variant" == "Doxygen" ]
           then
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
@@ -249,7 +249,7 @@ do
                   then
                       record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
                   else
-                      record_event "no dependency graph for linux (probable python version dependency)" 1>&2
+                      record_event "TBD - no dependency graph for linux (probable python version dependency)" 1>&2
                   fi
                   end_section "Autobuild metadata"
               else
@@ -399,6 +399,17 @@ then
             echo "No llphysicsextensions_package"
         fi
         ;;
+      Doxygen)
+        if [ -r "$build_dir/doxygen_warnings.log" ]
+        then
+            record_event "Doxygen warnings generated; see doxygen_warnings.log"
+            upload_item log "$build_dir/doxygen_warnings.log" binary/octet-stream
+        fi
+        if [ -d "$build_dir/doxygen/html" ]
+        then
+            (cd "$build_dir/doxygen/html"; tar cjf "$build_dir/viewer-doxygen.tar.bz2" .)
+            upload_item docs viewer-doxygen.tar.bz2 binary/octet-stream
+        fi
       *)
         echo "Skipping mapfile for $last_built_variant"
         ;;
@@ -417,11 +428,6 @@ then
       upload_stub_installers "$build_dir_stubs"
     fi
     end_section Upload Installer
-  elif [ "$last_built_variant" = "Doxygen" ]
-  then
-      cd "$build_dir/doxygen/html"
-      tar cjf viewer-doxygen.tar.bz2 .
-      upload_item docs viewer-doxygen.tar.bz2 binary/octet-stream
   else
     echo skipping upload of installer
   fi
