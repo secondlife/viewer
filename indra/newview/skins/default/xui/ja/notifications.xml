@@ -72,6 +72,10 @@
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="はい"/>
 	</notification>
+	<notification name="GenericAlertOK">
+		[MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="BadInstallation">
 		[APP_NAME] をアップデート中にエラーが発生しました。  ビューワの [http://get.secondlife.com 最新バージョンをダウンロード] してください。
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -596,6 +600,9 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="RegionNoTerraforming">
 		[REGION] では、地形の変更ができません。
+	</notification>
+	<notification name="ParcelNoTerraforming">
+		あなたには [PARCEL] 区画を地形編集する許可がありません。
 	</notification>
 	<notification name="CannotCopyWarning">
 		あなたには[ITEMS]というアイテムをコピーする許可がありません。他の住人に提供すると、そのアイテムはあなたのインベントリから削除されます。本当にこれらのアイテムを譲りますか？
@@ -1863,6 +1870,30 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 		不動産マネージャーを、この不動産限定、または [ALL_ESTATES] から、削除しますか？
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
+	<notification label="不動産を選択" name="EstateAllowedExperienceAdd">
+		この不動産の許可リストにのみ追加しますか、それとも [ALL_ESTATES] の許可リストに追加しますか?
+		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
+	</notification>
+	<notification label="不動産を選択" name="EstateAllowedExperienceRemove">
+		この不動産の許可リストからのみ削除しますか、それとも [ALL_ESTATES] の許可リストから削除しますか?
+		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
+	</notification>
+	<notification label="不動産を選択" name="EstateBlockedExperienceAdd">
+		この不動産のブロックされたリストにのみ追加しますか、それとも [ALL_ESTATES] のブロックされたリストに追加しますか?
+		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
+	</notification>
+	<notification label="不動産を選択" name="EstateBlockedExperienceRemove">
+		この不動産のブロックされたリストからのみ削除しますか、それとも [ALL_ESTATES] のブロックされたリストから削除しますか?
+		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
+	</notification>
+	<notification label="不動産を選択" name="EstateTrustedExperienceAdd">
+		この不動産のキー体験リストにのみ追加しますか、それとも [ALL_ESTATES] のキー体験リストに追加しますか?
+		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
+	</notification>
+	<notification label="不動産を選択" name="EstateTrustedExperienceRemove">
+		この不動産の信頼済み体験リストからのみ削除しますか、それとも [ALL_ESTATES] の信頼済みリストから削除しますか?
+		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
+	</notification>
 	<notification label="キックを確認" name="EstateKickUser">
 		この不動産から [EVIL_USER] を追い出しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
@@ -1935,6 +1966,10 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 	</notification>
 	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
 		あなたの環境設定がサーバーと同期していないため、テレポートに技術的な問題が発生しています。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RegionTPSpecialUsageBlocked">
+		リージョンに入ることができません。&apos;[REGION_NAME]&apos; はスキル ゲーミング リージョンであり、あなたはこのリージョンに入るための特定の基準を満たす必要があります。詳しくは、[http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life スキル ゲーミングのよくある質問] を参照してください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PreferredMaturityChanged">
@@ -2250,6 +2285,9 @@ Linden Lab
 			<button ignore="自動的に交換" name="Yes" text="OK"/>
 			<button ignore="交換しない" name="No" text="キャンセル"/>
 		</form>
+	</notification>
+	<notification name="TooManyWearables">
+		[AMOUNT] 以上のアイテムを含むフォルダを装着できません。「詳細設定」 &gt; 「デバッグ設定を表示」 &gt; 「WearFolderLimit」でこの制限を変更できます。
 	</notification>
 	<notification label="「通知を受けない」モードの警告" name="DoNotDisturbModePay">
 		「通知を受けない」をオンにします。この支払との交換で提供されるアイテムが受信されなくなります。
@@ -2862,7 +2900,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 
 [MESSAGE]
 
-送信元のオブジェクト：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;、所有者：[NAME]?
+送信元のオブジェクト：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;、所有者：[NAME]
 		<form name="form">
 			<button name="Gotopage" text="ページに移動"/>
 			<button name="Cancel" text="取り消し"/>
@@ -2886,6 +2924,72 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Yes" text="はい"/>
 			<button name="No" text="いいえ"/>
 			<button name="Mute" text="ブロック"/>
+		</form>
+	</notification>
+	<notification name="ExperienceAcquireFailed">
+		新しい体験を取得できません：
+[ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NotInGroupExperienceProfileMessage">
+		所有者が選択されたグループのメンバーでないため、体験グループへの変更が無視されました。
+	</notification>
+	<notification name="UneditableExperienceProfileMessage">
+		体験プロフィールを更新するときに、編集不可の &apos;[field]&apos; フィールドが無視されました。
+	</notification>
+	<notification name="RestrictedToOwnerExperienceProfileMessage">
+		体験の所有者のみが設定できる &apos;[field]&apos;フィールドへの変更を無視しました。
+	</notification>
+	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
+		所有者のレーティング区分より高いレーティング区分の体験を設定できません。
+	</notification>
+	<notification name="RestrictedTermExperienceProfileMessage">
+		次の条件により、体験プロフィール名および説明の更新ができませんでした: [extra_info]
+	</notification>
+	<notification name="TeleportedHomeExperienceRemoved">
+		体験 secondlife:///app/experience/[public_id]/profile を削除するために、[region_name] リージョンからテレポートされ、このリージョンに入ることはできなくなりました。
+		<form name="form">
+			<ignore name="ignore" text="体験を削除するために、リージョンから追放されました"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperienceEntry">
+		キー体験 secondlife:///app/experience/[public_id]/profile に参加することにより、[region_name] リージョンに入ることを許可されました。この体験を削除すると、このリージョンから追放される可能性があります。
+		<form name="form">
+			<ignore name="ignore" text="体験によりリージョンに入ることを許可されました"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperiencesAvailable">
+		この目的地へのアクセス権がありません。下の体験を受け入れることにより、このリージョンに入ることができます:
+
+[EXPERIENCE_LIST]
+
+その他のキー体験を利用できます。
+	</notification>
+	<notification name="ExperienceEvent">
+		[EventType] by the secondlife:///app/experience/[public_id]/profile experience により、オブジェクトでアクション ([EventType]) を実行することが許可されました。
+所有者：secondlife:///app/agent/[OwnerID]/inspect
+オブジェクト名:[ObjectName]
+区画名：[ParcelName]
+	</notification>
+	<notification name="ExperienceEventAttachment">
+		[EventType] by the secondlife:///app/experience/[public_id]/profile experience により、添付ファイルでアクション ([EventType]) を実行することが許可されました。
+所有者：secondlife:///app/agent/[OwnerID]/inspect
+	</notification>
+	<notification name="ScriptQuestionExperience">
+		[NAME] が所有する「&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;」 というオブジェクトが、[GRID_WIDE] 体験への参加を要求しています：
+
+[EXPERIENCE]
+
+権限が許可されると、体験プロフィールから呼び出さない限り、この体験にこのメッセージが再び表示されることはありません。
+
+この体験に関連付けられたスクリプトにより、この体験が有効なリージョンで以下のことを実行できます: 
+
+[QUESTIONS]よろしいですか？
+		<form name="form">
+			<button name="BlockExperience" text="体験をブロック"/>
+			<button name="Mute" text="オブジェクトをブロックする"/>
+			<button name="Yes" text="はい"/>
+			<button name="No" text="いいえ"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
@@ -3203,6 +3307,10 @@ M キーを押して変更します。
 	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
 		( 作成後[EXISTENCE]秒経過）
 &apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にローカルに更新されました。
+	</notification>
+	<notification name="CannotUploadTexture">
+		テクスチャをアップロードできません。
+[REASON]
 	</notification>
 	<notification name="LivePreviewUnavailable">
 		コピー不可および/または転送不可のため、このテクスチャを表示できません。

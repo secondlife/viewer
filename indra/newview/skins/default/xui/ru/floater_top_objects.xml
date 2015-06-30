@@ -21,6 +21,12 @@
 	<floater.string name="none_descriptor">
 		Не найдено.
 	</floater.string>
+	<floater.string name="URLs">
+		URL-адреса
+	</floater.string>
+	<floater.string name="memory">
+		Память (КБ)
+	</floater.string>
 	<text name="title_text">
 		Загрузка...
 	</text>
@@ -30,7 +36,7 @@
 		<scroll_list.columns label="Владелец" name="owner"/>
 		<scroll_list.columns label="Место" name="location"/>
 		<scroll_list.columns label="Участок" name="parcel"/>
-		<scroll_list.columns label="Время" name="time"/>
+		<scroll_list.columns label="Дата" name="time"/>
 		<scroll_list.columns label="URL-адреса" name="URLs"/>
 		<scroll_list.columns label="Память (КБ)" name="memory"/>
 	</scroll_list>

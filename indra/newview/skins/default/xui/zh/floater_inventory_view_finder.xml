@@ -5,8 +5,8 @@
 	<check_box label="服裝" name="check_clothing"/>
 	<check_box label="姿勢" name="check_gesture"/>
 	<check_box label="地標" name="check_landmark"/>
-	<check_box label="網面" name="check_mesh"/>
 	<check_box label="記事卡" name="check_notecard"/>
+	<check_box label="網面" name="check_mesh"/>
 	<check_box label="物件" name="check_object"/>
 	<check_box label="腳本" name="check_script"/>
 	<check_box label="聲音" name="check_sound"/>
@@ -19,6 +19,10 @@
 	<text name="- OR -">
 		- 或 -
 	</text>
+	<radio_group name="date_search_direction">
+		<radio_item label="新近於" name="newer"/>
+		<radio_item label="早於" name="older"/>
+	</radio_group>
 	<spinner label="小時前" name="spin_hours_ago"/>
 	<spinner label="天前" name="spin_days_ago"/>
 	<button label="關閉" label_selected="關閉" name="Close"/>

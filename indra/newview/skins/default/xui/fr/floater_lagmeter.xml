@@ -25,7 +25,7 @@
 		Normal, fenêtre en arrière-plan
 	</floater.string>
 	<floater.string name="client_frame_time_critical_msg">
-		Taux de défilement [CLIENT_FRAME_RATE_CRITICAL]
+		Taux de défilement client ci-dessous [CLIENT_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="client_frame_time_warning_msg">
 		Taux de défilement entre [CLIENT_FRAME_RATE_CRITICAL] et [CLIENT_FRAME_RATE_WARNING]
@@ -34,16 +34,16 @@
 		Normal
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		Cause possible : limite d&apos;affichage trop élevée
+		Cause possible : la limite d&apos;affichage est trop élevée
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
-		Cause possible : images en cours de chargement
+		Cause possible : images en cours de chargement
 	</floater.string>
 	<floater.string name="client_texture_memory_cause_msg">
-		Cause possible : trop d&apos;images en mémoire
+		Cause possible : trop d&apos;images en mémoire
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		Cause possible : trop d&apos;objets complexes
+		Cause possible : trop d&apos;objets complexes dans la scène
 	</floater.string>
 	<floater.string name="network_text_msg">
 		Réseau
@@ -55,10 +55,10 @@
 		5
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_msg">
-		La connexion perd plus de [NETWORK_PACKET_LOSS_CRITICAL] % de paquets
+		La connexion perd plus de [NETWORK_PACKET_LOSS_CRITICAL] % de paquets
 	</floater.string>
 	<floater.string name="network_packet_loss_warning_msg">
-		La connexion perd entre [NETWORK_PACKET_LOSS_WARNING] % et [NETWORK_PACKET_LOSS_CRITICAL] % de paquets
+		La connexion perd entre [NETWORK_PACKET_LOSS_WARNING] % et [NETWORK_PACKET_LOSS_CRITICAL] % de paquets
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
 		Normal
@@ -70,7 +70,7 @@
 		300
 	</floater.string>
 	<floater.string name="network_ping_critical_msg">
-		Connexion ping > [NETWORK_PING_CRITICAL] ms
+		Temps de connexion ping &gt;[NETWORK_PING_CRITICAL] ms
 	</floater.string>
 	<floater.string name="network_ping_warning_msg">
 		Connexion ping entre [NETWORK_PING_WARNING] et [NETWORK_PING_CRITICAL] ms
@@ -94,31 +94,31 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		Défilement du simulateur &lt; [SERVER_FRAME_RATE_CRITICAL]
+		Taux de défilement du simulateur au-dessous de [SERVER_FRAME_RATE_CRITICAL]
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
-		Défilement simulateur entre [SERVER_FRAME_RATE_CRITICAL] et [SERVER_FRAME_RATE_WARNING]
+		Taux de défilement du simulateur entre [SERVER_FRAME_RATE_CRITICAL] et [SERVER_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
 		Normal
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
-		Cause possible : trop d&apos;objets physiques
+		Cause possible : trop d&apos;objets physiques
 	</floater.string>
 	<floater.string name="server_scripts_cause_msg">
-		Cause possible : trop d&apos;objets scriptés
+		Cause possible : trop d&apos;objets scriptés
 	</floater.string>
 	<floater.string name="server_net_cause_msg">
-		Cause possible : trop de trafic réseau
+		Cause possible : trop de trafic réseau
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		Cause possible : trop de personnes en mouvement
+		Cause possible : trop de personnes en mouvement dans la région
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		Cause possible : trop de calculs d&apos;images
+		Cause possible : trop de calculs d&apos;images
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
-		Cause possible : charge simulateur trop lourde
+		Cause possible : charge simulateur trop lourde
 	</floater.string>
 	<floater.string name="smaller_label">
 		&gt;&gt;
@@ -126,21 +126,21 @@
 	<floater.string name="bigger_label">
 		&lt;&lt;
 	</floater.string>
-	<button name="client_lagmeter" tool_tip="Statut du lag client"/>
+	<button name="client_lagmeter" tool_tip="Statut du lag au niveau du client"/>
 	<text name="client">
 		Client
 	</text>
 	<text name="client_text">
 		Normal
 	</text>
-	<button name="network_lagmeter" tool_tip="Statut du lag réseau"/>
+	<button name="network_lagmeter" tool_tip="Statut du lag au niveau du réseau"/>
 	<text name="network">
 		Réseau
 	</text>
 	<text name="network_text">
 		Normal
 	</text>
-	<button name="server_lagmeter" tool_tip="Statut du lag serveur"/>
+	<button name="server_lagmeter" tool_tip="Statut du lag au niveau du serveur"/>
 	<text name="server">
 		Serveur
 	</text>

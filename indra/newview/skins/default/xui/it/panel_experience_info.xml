@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_experience_info">
+	<text name="title" value="Profilo esperienza"/>
+	<scroll_container name="xp_scroll">
+		<panel name="scrolling_panel">
+			<layout_stack>
+				<layout_panel>
+					<text name="experience_title" value="Kyle&apos;s Superhero RPG"/>
+				</layout_panel>
+				<layout_panel name="location panel">
+					<text name="Location">
+						Luogo:
+					</text>
+					<text name="LocationTextText">
+						in qualche posto
+					</text>
+					<button label="Teleport" name="teleport_btn"/>
+					<button label="Mappa" name="map_btn"/>
+				</layout_panel>
+				<layout_panel name="marketplace panel">
+					<text name="Location">
+						Negozio Marketplace:
+					</text>
+					<text name="LocationTextText">
+						in qualche posto
+					</text>
+				</layout_panel>
+				<layout_panel>
+					<text name="ContentRating">
+						Categoria:
+					</text>
+					<text name="ContentRatingText">
+						Adulti
+					</text>
+					<text name="Owner">
+						Proprietario:
+					</text>
+					<text name="OwnerText">
+						Kyle
+					</text>
+					<button label="Modifica" name="edit_btn"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</scroll_container>
+</panel>

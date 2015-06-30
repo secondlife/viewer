@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Experiencias" name="Experiences">
+	<panel.string name="trusted_estate_text">
+		Cualquier experiencia puede ser clave.
+
+Las experiencias clave tienen permiso de ejecución en este estado.
+
+Además, si el estado no admite el acceso público, los residentes que participen en una experiencia clave pueden entrar en el estado y permanecer en él mientras se encuentren en dicha experiencia.
+	</panel.string>
+	<panel.string name="allowed_estate_text">
+		Solo se permiten las experiencias activas en el terreno.
+
+Las experiencias permitidas tienen permiso de ejecución en este estado.
+	</panel.string>
+	<panel.string name="blocked_estate_text">
+		Solo pueden bloquearse las experiencias activas en el Grid.
+      
+Las experiencias bloqueadas no pueden ejecutarse en este estado.
+	</panel.string>
+	<panel.string name="estate_caption">
+		En esta pestaña, los cambios en la configuración afectarán a todas las regiones del estado.
+	</panel.string>
+	<panel.string name="allowed_parcel_text">
+		Solo se permiten las experiencias activas en el terreno.
+      
+Las experiencias permitidas tienen permiso de ejecución en esta parcela si no las ha bloqueado el estado.
+	</panel.string>
+	<panel.string name="blocked_parcel_text">
+		Puede bloquearse cualquier experiencia de los residentes.
+      
+Las experiencias bloqueadas no pueden ejecutarse en esta parcela.
+	</panel.string>
+</panel>

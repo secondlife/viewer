@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+  layout="topleft"
+  left="0"
+  top="0"
+  width="300"
+  height="100"
+  min_height="100"
+  follows="all"
+  border="true"
+  name="experince_list_editor">
+  <panel.string
+    name="loading">
+    loading...
+  </panel.string>
+   <panel.string
+      name="panel_allowed">
+      Allowed Experiences:
+   </panel.string>
+   <panel.string
+      name="panel_blocked">
+      Blocked Experiences:
+   </panel.string>
+   <panel.string
+      name="panel_trusted">
+      Key Experiences:
+   </panel.string>
+  <panel.string
+    name="no_results">
+    (empty)
+  </panel.string>
+   <text
+      layout="topleft"
+      name="text_name"
+      left="3"
+      right="120"
+      height="12"
+      follows="left|top">
+      Experience List
+   </text>
+   <text
+      layout="topleft"
+      name="text_count"
+      left="125"
+      top_pad="-12"
+      right="-1"
+      height="12"
+      follows="top|left">
+   </text>
+  <scroll_list
+    draw_heading="false"
+    left="3"
+    width="225"
+    height="75"
+    follows="all"
+    name="experience_list">
+    <columns
+      width="225"
+      user_resize="false"
+      name="experience_name"
+      label="Name"/>
+  </scroll_list>
+  <button
+    layout="topleft"
+    follows="top|right"
+    top_pad="-77" 
+    left_pad="3"
+    width="65"
+    name="btn_add"
+    label="Add..."/>
+  <button
+    layout="topleft"
+    follows="top|right"
+    width="64"
+    name="btn_remove"
+    label="Remove"/>
+  <button
+    layout="topleft"
+    follows="top|right"
+    width="64"
+    name="btn_profile"
+    label="Profile..."/>
+</panel>

@@ -47,6 +47,9 @@ Para repetir el tutorial, visita la isla de bienvenida pública.
 		<message name="MustGetAgeRegion">
 			Solo pueden acceder a esta región los mayores de 18 años.
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			No puedes entrar en la región. &apos;[REGION_NAME]&apos; es una región de juegos de habilidad, y debes cumplir determinados criterios para poder entrar en ella. Consulta los detalles en las [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life P+F de juegos de habilidad].
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
