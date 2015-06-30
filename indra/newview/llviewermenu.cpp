@@ -2991,11 +2991,11 @@ class LLAvatarCheckImpostorMode : public view_listener_t
 		switch (mode) 
 		{
 			case 0:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_RENDER_NORMALLY);
 			case 1:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_DO_NOT_RENDER);
 			case 2:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::NEVER_VISUAL_MUTE);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER);
 			default:
 				return false;
 		}
@@ -3017,13 +3017,13 @@ class LLAvatarSetImpostorMode : public view_listener_t
 		switch (mode) 
 		{
 			case 0:
-				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_RENDER_NORMALLY);
 				break;
 			case 1:
-				avatar->setVisualMuteSettings(LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_DO_NOT_RENDER);
 				break;
 			case 2:
-				avatar->setVisualMuteSettings(LLVOAvatar::NEVER_VISUAL_MUTE);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_ALWAYS_RENDER);
 				break;
 			default:
 				return false;

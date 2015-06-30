@@ -699,7 +699,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
 	mVisualComplexityStale(true),
-	mVisuallyMuteSetting(VISUAL_MUTE_NOT_SET),
+	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
 	mMutedAVColor(calcMutedAVColor(getID())),
 	mFirstFullyVisible(TRUE),
 	mFullyLoaded(FALSE),
@@ -3088,11 +3088,11 @@ bool LLVOAvatar::isVisuallyMuted() const
 	// * check against the render cost and attachment limits
 	if (!isSelf())
 	{
-		if (mVisuallyMuteSetting == NEVER_VISUAL_MUTE)
+		if (mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 		{
 			muted = false;
 		}
-		else if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
+		else if (mVisuallyMuteSetting == AV_DO_NOT_RENDER)
 		{	// Always want to see this AV as an impostor
 			muted = true;
 		}
@@ -8082,7 +8082,7 @@ void LLVOAvatar::updateImpostors()
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead() && avatar->isVisible()
 			&& (avatar->isImpostor() && avatar->needsImpostorUpdate())
-			&& (avatar->getVisualMuteSettings() != ALWAYS_VISUAL_MUTE))
+			&& (avatar->getVisualMuteSettings() != AV_DO_NOT_RENDER))
 		{
 			gPipeline.generateImpostor(avatar);
 		}

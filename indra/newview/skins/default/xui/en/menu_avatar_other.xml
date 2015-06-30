@@ -106,8 +106,8 @@
    <menu_item_separator />
     
       <menu_item_check
-        name="Normal"
-        label="Normal Rendering">
+        name="Render Normally"
+        label="Render Normally">
         <menu_item_check.on_check
           function="Avatar.CheckImpostorMode"
           parameter="0" />
@@ -116,8 +116,8 @@
 	      parameter="0" />
       </menu_item_check>
       <menu_item_check
-        name="Always use impostor"
-        label="Always use impostor">
+        name="DoNotRender"
+        label="Do Not Render">
         <menu_item_check.on_check
           function="Avatar.CheckImpostorMode"
           parameter="1" />
@@ -126,8 +126,8 @@
 	      parameter="1" />
       </menu_item_check>
       <menu_item_check
-        name="Never use impostor"
-        label="Never use impostor">
+        name="AlwaysRenderFully"
+        label="Always Render Fully">
         <menu_item_check.on_check
           function="Avatar.CheckImpostorMode"
           parameter="2" />

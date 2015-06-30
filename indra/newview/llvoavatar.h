@@ -388,9 +388,9 @@ public:
 
 	enum VisualMuteSettings
 	{
-		VISUAL_MUTE_NOT_SET = 0,
-		ALWAYS_VISUAL_MUTE  = 1,
-		NEVER_VISUAL_MUTE   = 2
+		AV_RENDER_NORMALLY = 0,
+		AV_DO_NOT_RENDER   = 1,
+		AV_ALWAYS_RENDER   = 2
 	};
 	void		setVisualMuteSettings(VisualMuteSettings set)		{ mVisuallyMuteSetting = set;	};
 	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
