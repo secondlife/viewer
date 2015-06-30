@@ -771,9 +771,9 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mDebugExistenceTimer.reset();
 	mLastAppearanceMessageTimer.reset();
 
-    if(LLSceneMonitor::getInstance()->isEnabled())
+	if(LLSceneMonitor::getInstance()->isEnabled())
 	{
-        LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
+	    LLSceneMonitor::getInstance()->freezeAvatar((LLCharacter*)this);
 	}
 }
 
@@ -3079,7 +3079,30 @@ void LLVOAvatar::slamPosition()
 
 bool LLVOAvatar::isVisuallyMuted() const
 {
-    return ( mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE );
+	bool muted = false;
+
+	// Priority order (highest priority first)
+	// * own avatar is never visually muted
+	// * if on the "always draw normally" list, draw them normally
+	// * if on the "always visually mute" list, mute them
+	// * check against the render cost and attachment limits
+	if (!isSelf())
+	{
+		if (mVisuallyMuteSetting == NEVER_VISUAL_MUTE)
+		{
+			muted = false;
+		}
+		else if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
+		{	// Always want to see this AV as an impostor
+			muted = true;
+		}
+		else
+		{
+			muted = isTooComplex();
+		}
+	}
+
+	return muted;
 }
 
 #if 0 // TBD
@@ -3246,18 +3269,18 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{ // visually muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (   ! isImpostor()
+		else if (   ! shouldImpostor()
 				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
 		{   // first 25% of max visible avatars are not impostored
 			// also, don't impostor avatars whose bounding box may be penetrating the 
 			// impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
-		else if ( isImpostor(4) )
+		else if ( shouldImpostor(4) )
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
 		}
-		else if ( isImpostor(3) )
+		else if ( shouldImpostor(3) )
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
 		}
@@ -6433,29 +6456,26 @@ BOOL LLVOAvatar::isFullyLoaded() const
 
 bool LLVOAvatar::isTooComplex() const
 {
-	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
-    static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
-    static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0);
-    bool too_complex;
+	bool too_complex;
+	F64 now = LLFrameTimer::getTotalSeconds();
+	if (isSelf())
+	{
+		too_complex = false;
+	}
+	else
+	{
+		// Determine if visually muted or not
+		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0U);
+		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0U);
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0f);
+		too_complex = ((max_render_cost > 0 && mVisualComplexity > max_render_cost)
+			|| (max_attachment_bytes > 0 && mAttachmentGeometryBytes > max_attachment_bytes)
+			|| (max_attachment_area > 0.f && mAttachmentSurfaceArea > max_attachment_area)
+			);
+	}
 
-    if (isSelf())
-    {
-        too_complex = false;
-    }
-    else
-    {
-        too_complex = (   (max_render_cost      > 0   && mVisualComplexity > max_render_cost)
-                       || (max_attachment_bytes > 0   && mAttachmentGeometryBytes > max_attachment_bytes)
-                       || (max_attachment_area  > 0.f && mAttachmentSurfaceArea > max_attachment_area)
-                       );
-    }
+	return too_complex;
 
-    return too_complex;
-}
-
-bool LLVOAvatar::isImpostor(const U32 rank_factor) const
-{
-	return (!isSelf() && sMaxNonImpostors != 0 && mVisibilityRank > (sMaxNonImpostors * rank_factor));
 }
 
 //-----------------------------------------------------------------------------
@@ -8053,37 +8073,44 @@ U32 LLVOAvatar::getPartitionType() const
 }
 
 //static
-void LLVOAvatar::updateImpostors() 
+void LLVOAvatar::updateImpostors()
 {
-	LLCharacter::sAllowInstancesChange = FALSE ;
+	LLCharacter::sAllowInstancesChange = FALSE;
 
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		 iter != LLCharacter::sInstances.end(); ++iter)
+		iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
-
 		if (!avatar->isDead() && avatar->isVisible()
-            && (   (avatar->isImpostor() && avatar->needsImpostorUpdate())
-                || avatar->isTooComplex()
-                ))
+			&& (avatar->isImpostor() && avatar->needsImpostorUpdate())
+			&& (avatar->getVisualMuteSettings() != ALWAYS_VISUAL_MUTE))
 		{
 			gPipeline.generateImpostor(avatar);
 		}
-        else
-        {
-            LL_DEBUGS_ONCE("AvatarRender") << "Avatar " << avatar->getID()
-                                      << (avatar->isDead() ? " _is_ " : " is not ") << "dead"
-                                      << (avatar->needsImpostorUpdate() ? " needs " : " _does_not_need_ ") << "impostor update"
-                                      << (avatar->isVisible() ? " is " : " _is_not_ ") << "visible"
-                                      << (avatar->isImpostor() ? " is " : " is not ") << "impostor"
-                                      << (avatar->isTooComplex() ? " is " : " is not ") << "too complex"
-                                      << LL_ENDL;
-        }
+		else
+		{
+			LL_DEBUGS_ONCE("AvatarRender") << "Avatar " << avatar->getID()
+				<< (avatar->isDead() ? " _is_ " : " is not ") << "dead"
+				<< (avatar->needsImpostorUpdate() ? " needs " : " _does_not_need_ ") << "impostor update"
+				<< (avatar->isVisible() ? " is " : " _is_not_ ") << "visible"
+				<< (avatar->isImpostor() ? " is " : " is not ") << "impostor"
+				<< (avatar->isTooComplex() ? " is " : " is not ") << "too complex"
+				<< LL_ENDL;
+		}
 	}
 
-	LLCharacter::sAllowInstancesChange = TRUE ;
+	LLCharacter::sAllowInstancesChange = TRUE;
 }
 
+BOOL LLVOAvatar::isImpostor()
+{
+	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
+}
+
+BOOL LLVOAvatar::shouldImpostor(const U32 rank_factor) const
+{
+	return (!isSelf() && sUseImpostors && mVisibilityRank > (sMaxNonImpostors * rank_factor));
+}
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
 {

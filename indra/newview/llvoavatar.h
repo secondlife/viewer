@@ -305,7 +305,6 @@ public:
 public:
 	BOOL			isFullyLoaded() const;
 	bool 			isTooComplex() const;
-	bool 			isImpostor(const U32 rank_factor = 1) const;
 	bool 			visualParamWeightsAreDefault();
 	virtual bool	getIsCloud() const;
 	BOOL			isFullyTextured() const;
@@ -464,6 +463,8 @@ private:
 	// Impostors
 	//--------------------------------------------------------------------
 public:
+	BOOL 		isImpostor();
+	BOOL 		shouldImpostor(const U32 rank_factor = 1) const;
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;

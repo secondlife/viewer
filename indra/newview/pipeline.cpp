@@ -11542,7 +11542,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		LLGLDisable blend(GL_BLEND);
 
-		if (too_complex)
+		if (visually_muted || too_complex)
 		{
 			gGL.setColorMask(true, true);
 		}
