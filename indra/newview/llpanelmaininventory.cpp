@@ -1278,7 +1278,7 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
 		LLMenuItemBranchGL* upload_menu = mMenuAdd->findChild<LLMenuItemBranchGL>("upload");
 		if(upload_menu)
 		{
-			S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+			S32 upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 			std::string cost_str;
 
 			// getPriceUpload() returns -1 if no data available yet.

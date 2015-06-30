@@ -269,7 +269,7 @@ public:
 
 		~ScopedRegistrar()
 		{
-			if (!singleton_t::destroyed())
+			if (singleton_t::instanceExists())
 			{
 				popScope();
 			}

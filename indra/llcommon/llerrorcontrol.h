@@ -189,6 +189,11 @@ namespace LLError
 
 	LL_COMMON_API std::string abbreviateFile(const std::string& filePath);
 	LL_COMMON_API int shouldLogCallCount();
+
+	// Check whether Globals exists. This should only be used by LLSingleton
+	// infrastructure to avoid trying to log when our internal LLSingleton is
+	// unavailable -- circularity ensues.
+	LL_COMMON_API bool is_available();
 };
 
 #endif // LL_LLERRORCONTROL_H

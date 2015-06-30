@@ -33,8 +33,9 @@
 #include "message.h"
 #include "llmessageconfig.h"
 #include "llhttpnode_stub.cpp"
+#include "llpounceable.h"
 
-LLMessageSystem* gMessageSystem = NULL;
+LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 
 LLMessageConfig::SenderTrust
 LLMessageConfig::getSenderTrustedness(const std::string& msg_name)
