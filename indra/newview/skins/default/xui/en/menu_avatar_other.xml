@@ -106,7 +106,7 @@
    <menu_item_separator />
     
       <menu_item_check
-        name="Render Normally"
+        name="RenderNormally"
         label="Render Normally">
         <menu_item_check.on_check
           function="Avatar.CheckImpostorMode"
