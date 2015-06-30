@@ -32,8 +32,22 @@
 #include "lltut.h"
 #include "../lluicolortable.h"
 #include "../llrender/lluiimage.h"
+#include "../llmessage/llexperiencecache.h"
 
 #include <boost/regex.hpp>
+
+
+namespace LLExperienceCache
+{
+    const LLSD& get( const LLUUID& key)
+    {
+		static LLSD boo;
+        return boo;
+    }
+
+    void get( const LLUUID& key, callback_slot_t slot ){}
+
+}
 
 typedef std::map<std::string, LLControlGroup*> settings_map_t;
 settings_map_t LLUI::sSettingGroups;

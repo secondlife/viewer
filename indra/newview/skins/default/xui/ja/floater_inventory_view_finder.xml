@@ -5,8 +5,8 @@
 	<check_box label="服" name="check_clothing"/>
 	<check_box label="ジェスチャー" name="check_gesture"/>
 	<check_box label="ランドマーク" name="check_landmark"/>
-	<check_box label="メッシュ" name="check_mesh"/>
 	<check_box label="ノートカード" name="check_notecard"/>
+	<check_box label="メッシュ" name="check_mesh"/>
 	<check_box label="オブジェクト" name="check_object"/>
 	<check_box label="スクリプト" name="check_script"/>
 	<check_box label="サウンド" name="check_sound"/>
@@ -19,6 +19,10 @@
 	<text name="- OR -">
 		－または－
 	</text>
+	<radio_group name="date_search_direction">
+		<radio_item label="より新しい" name="newer"/>
+		<radio_item label="より古い" name="older"/>
+	</radio_group>
 	<spinner label="経過時間" name="spin_hours_ago"/>
 	<spinner label="経過日数" name="spin_days_ago"/>
 	<button label="閉じる" label_selected="閉じる" name="Close"/>

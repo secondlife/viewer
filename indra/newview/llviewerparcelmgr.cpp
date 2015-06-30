@@ -205,8 +205,8 @@ void LLViewerParcelMgr::dump()
 	mCurrentParcel->dump();
 	LL_INFOS() << "banning " << mCurrentParcel->mBanList.size() << LL_ENDL;
 	
-	access_map_const_iterator cit = mCurrentParcel->mBanList.begin();
-	access_map_const_iterator end = mCurrentParcel->mBanList.end();
+	LLAccessEntry::map::const_iterator cit = mCurrentParcel->mBanList.begin();
+	LLAccessEntry::map::const_iterator end = mCurrentParcel->mBanList.end();
 	for ( ; cit != end; ++cit)
 	{
 		LL_INFOS() << "ban id " << (*cit).first << LL_ENDL;
@@ -892,7 +892,7 @@ void LLViewerParcelMgr::sendParcelAccessListRequest(U32 flags)
 	if (!region) return;
 
 	LLMessageSystem *msg = gMessageSystem;
-	
+
 
 	if (flags & AL_BAN) 
 	{
@@ -901,6 +901,14 @@ void LLViewerParcelMgr::sendParcelAccessListRequest(U32 flags)
 	if (flags & AL_ACCESS) 
 	{
 		mCurrentParcel->mAccessList.clear();
+	}		
+	if (flags & AL_ALLOW_EXPERIENCE) 
+	{
+		mCurrentParcel->clearExperienceKeysByType(EXPERIENCE_KEY_TYPE_ALLOWED);
+	}
+	if (flags & AL_BLOCK_EXPERIENCE) 
+	{
+		mCurrentParcel->clearExperienceKeysByType(EXPERIENCE_KEY_TYPE_BLOCKED);
 	}		
 
 	// Only the headers differ
@@ -1665,7 +1673,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			}
 
 			// Request access list information for this land
-			parcel_mgr.sendParcelAccessListRequest(AL_ACCESS | AL_BAN);
+			parcel_mgr.sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_ALLOW_EXPERIENCE | AL_BLOCK_EXPERIENCE);
 
 			// Request dwell for this land, if it's not public land.
 			parcel_mgr.mSelectedDwell = DWELL_NAN;
@@ -1830,6 +1838,14 @@ void LLViewerParcelMgr::processParcelAccessListReply(LLMessageSystem *msg, void 
 	{
 		parcel->unpackAccessEntries(msg, &(parcel->mBanList) );
 	}
+	else if (message_flags & AL_ALLOW_EXPERIENCE)
+	{
+		parcel->unpackExperienceEntries(msg, EXPERIENCE_KEY_TYPE_ALLOWED);
+	}
+	else if (message_flags & AL_BLOCK_EXPERIENCE)
+	{
+		parcel->unpackExperienceEntries(msg, EXPERIENCE_KEY_TYPE_BLOCKED);
+	}
 	/*else if (message_flags & AL_RENTER)
 	{
 		parcel->unpackAccessEntries(msg, &(parcel->mRenterList) );
@@ -1864,10 +1880,6 @@ void LLViewerParcelMgr::processParcelDwellReply(LLMessageSystem* msg, void**)
 
 void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 {
-
-	LLUUID transactionUUID;
-	transactionUUID.generate();
-
 	if (!mSelected)
 	{
 		return;
@@ -1876,124 +1888,91 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
 	if (!region) return;
 
-	LLMessageSystem* msg = gMessageSystem;
-
 	LLParcel* parcel = mCurrentParcel;
 	if (!parcel) return;
 
 	if (which & AL_ACCESS)
 	{	
-		S32 count = parcel->mAccessList.size();
-		S32 num_sections = (S32) ceil(count/PARCEL_MAX_ENTRIES_PER_PACKET);
-		S32 sequence_id = 1;
-		BOOL start_message = TRUE;
-		BOOL initial = TRUE;
-
-		access_map_const_iterator cit = parcel->mAccessList.begin();
-		access_map_const_iterator end = parcel->mAccessList.end();
-		while ( (cit != end) || initial ) 
-		{	
-			if (start_message) 
-			{
-				msg->newMessageFast(_PREHASH_ParcelAccessListUpdate);
-				msg->nextBlockFast(_PREHASH_AgentData);
-				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-				msg->nextBlockFast(_PREHASH_Data);
-				msg->addU32Fast(_PREHASH_Flags, AL_ACCESS);
-				msg->addS32(_PREHASH_LocalID, parcel->getLocalID() );
-				msg->addUUIDFast(_PREHASH_TransactionID, transactionUUID);
-				msg->addS32Fast(_PREHASH_SequenceID, sequence_id);
-				msg->addS32Fast(_PREHASH_Sections, num_sections);
-				start_message = FALSE;
-
-				if (initial && (cit == end))
-				{
-					// pack an empty block if there will be no data
-					msg->nextBlockFast(_PREHASH_List);
-					msg->addUUIDFast(_PREHASH_ID,  LLUUID::null );
-					msg->addS32Fast(_PREHASH_Time, 0 );
-					msg->addU32Fast(_PREHASH_Flags,	0 );
-				}
-
-				initial = FALSE;
-				sequence_id++;
-
-			}
-			
-			while ( (cit != end) && (msg->getCurrentSendTotal() < MTUBYTES)) 
-			{
-
-				const LLAccessEntry& entry = (*cit).second;
-				
-				msg->nextBlockFast(_PREHASH_List);
-				msg->addUUIDFast(_PREHASH_ID,  entry.mID );
-				msg->addS32Fast(_PREHASH_Time, entry.mTime );
-				msg->addU32Fast(_PREHASH_Flags,	entry.mFlags );
-				++cit;
-			}
-
-			start_message = TRUE;
-			msg->sendReliable( region->getHost() );
-		}
+		sendParcelAccessListUpdate(AL_ACCESS, parcel->mAccessList, region, parcel->getLocalID());
 	}
 
 	if (which & AL_BAN)
 	{	
-		S32 count = parcel->mBanList.size();
-		S32 num_sections = (S32) ceil(count/PARCEL_MAX_ENTRIES_PER_PACKET);
-		S32 sequence_id = 1;
-		BOOL start_message = TRUE;
-		BOOL initial = TRUE;
+		sendParcelAccessListUpdate(AL_BAN, parcel->mBanList, region, parcel->getLocalID());
+	}
 
-		access_map_const_iterator cit = parcel->mBanList.begin();
-		access_map_const_iterator end = parcel->mBanList.end();
-		while ( (cit != end) || initial ) 
-		{
-			if (start_message) 
-			{
-				msg->newMessageFast(_PREHASH_ParcelAccessListUpdate);
-				msg->nextBlockFast(_PREHASH_AgentData);
-				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-				msg->nextBlockFast(_PREHASH_Data);
-				msg->addU32Fast(_PREHASH_Flags, AL_BAN);
-				msg->addS32(_PREHASH_LocalID, parcel->getLocalID() );
-				msg->addUUIDFast(_PREHASH_TransactionID, transactionUUID);
-				msg->addS32Fast(_PREHASH_SequenceID, sequence_id);
-				msg->addS32Fast(_PREHASH_Sections, num_sections);
-				start_message = FALSE;
-
-				if (initial && (cit == end))
-				{
-					// pack an empty block if there will be no data
-					msg->nextBlockFast(_PREHASH_List);
-					msg->addUUIDFast(_PREHASH_ID,  LLUUID::null );
-					msg->addS32Fast(_PREHASH_Time, 0 );
-					msg->addU32Fast(_PREHASH_Flags,	0 );
-				}
-
-				initial = FALSE;
-				sequence_id++;
-
-			}
-			
-			while ( (cit != end) && (msg->getCurrentSendTotal() < MTUBYTES)) 
-			{
-				const LLAccessEntry& entry = (*cit).second;
-				
-				msg->nextBlockFast(_PREHASH_List);
-				msg->addUUIDFast(_PREHASH_ID,  entry.mID );
-				msg->addS32Fast(_PREHASH_Time, entry.mTime );
-				msg->addU32Fast(_PREHASH_Flags,	entry.mFlags );
-				++cit;
-			}
-
-			start_message = TRUE;
-			msg->sendReliable( region->getHost() );
-		}
+	if(which & AL_ALLOW_EXPERIENCE)
+	{
+		sendParcelAccessListUpdate(AL_ALLOW_EXPERIENCE, parcel->getExperienceKeysByType(EXPERIENCE_KEY_TYPE_ALLOWED), region, parcel->getLocalID());
+	}
+	if(which & AL_BLOCK_EXPERIENCE)
+	{
+		sendParcelAccessListUpdate(AL_BLOCK_EXPERIENCE, parcel->getExperienceKeysByType(EXPERIENCE_KEY_TYPE_BLOCKED), region, parcel->getLocalID());
 	}
 }
+
+void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 flags, const LLAccessEntry::map& entries, LLViewerRegion* region, S32 parcel_local_id)
+{
+	S32 count = entries.size();
+	S32 num_sections = (S32) ceil(count/PARCEL_MAX_ENTRIES_PER_PACKET);
+	S32 sequence_id = 1;
+	BOOL start_message = TRUE;
+	BOOL initial = TRUE;
+
+	LLUUID transactionUUID;
+	transactionUUID.generate();
+
+
+	LLMessageSystem* msg = gMessageSystem;
+
+	LLAccessEntry::map::const_iterator cit = entries.begin();
+	LLAccessEntry::map::const_iterator  end = entries.end();
+	while ( (cit != end) || initial ) 
+	{
+		if (start_message) 
+		{
+			msg->newMessageFast(_PREHASH_ParcelAccessListUpdate);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
+			msg->nextBlockFast(_PREHASH_Data);
+			msg->addU32Fast(_PREHASH_Flags, flags);
+			msg->addS32(_PREHASH_LocalID,  parcel_local_id);
+			msg->addUUIDFast(_PREHASH_TransactionID, transactionUUID);
+			msg->addS32Fast(_PREHASH_SequenceID, sequence_id);
+			msg->addS32Fast(_PREHASH_Sections, num_sections);
+			start_message = FALSE;
+
+			if (initial && (cit == end))
+			{
+				// pack an empty block if there will be no data
+				msg->nextBlockFast(_PREHASH_List);
+				msg->addUUIDFast(_PREHASH_ID,  LLUUID::null );
+				msg->addS32Fast(_PREHASH_Time, 0 );
+				msg->addU32Fast(_PREHASH_Flags,	0 );
+			}
+
+			initial = FALSE;
+			sequence_id++;
+
+		}
+
+		while ( (cit != end) && (msg->getCurrentSendTotal() < MTUBYTES)) 
+		{
+			const LLAccessEntry& entry = (*cit).second;
+
+			msg->nextBlockFast(_PREHASH_List);
+			msg->addUUIDFast(_PREHASH_ID,  entry.mID );
+			msg->addS32Fast(_PREHASH_Time, entry.mTime );
+			msg->addU32Fast(_PREHASH_Flags,	entry.mFlags );
+			++cit;
+		}
+
+		start_message = TRUE;
+		msg->sendReliable( region->getHost() );
+	}
+}
+
 
 void LLViewerParcelMgr::deedLandToGroup()
 {

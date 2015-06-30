@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="experince_list_editor">
+	<panel.string name="loading">
+		yükleniyor...
+	</panel.string>
+	<panel.string name="panel_allowed">
+		İzin Verilen Deneyimler:
+	</panel.string>
+	<panel.string name="panel_blocked">
+		Engellenen Deneyimler:
+	</panel.string>
+	<panel.string name="panel_trusted">
+		Anahtar Deneyimler:
+	</panel.string>
+	<panel.string name="no_results">
+		(boş)
+	</panel.string>
+	<text name="text_name">
+		Deneyim Listesi
+	</text>
+	<scroll_list name="experience_list">
+		<columns label="Ad" name="experience_name"/>
+	</scroll_list>
+	<button label="Ekle..." name="btn_add"/>
+	<button label="Kaldır" name="btn_remove"/>
+	<button label="Profil..." name="btn_profile"/>
+</panel>

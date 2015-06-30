@@ -8,6 +8,7 @@
 		<menu_item_call label="Nuova finestra inventario" name="NewInventoryWindow"/>
 		<menu_item_call label="Luoghi..." name="Places"/>
 		<menu_item_call label="Preferiti..." name="Picks"/>
+		<menu_item_call label="Esperienze..." name="Experiences"/>
 		<menu_item_call label="Controlli fotocamera..." name="Camera Controls"/>
 		<menu label="Spostamento" name="Movement">
 			<menu_item_call label="Siedi" name="Sit Down Here"/>
@@ -48,7 +49,7 @@
 		<menu_item_check label="Amici" name="My Friends"/>
 		<menu_item_check label="Gruppi" name="My Groups"/>
 		<menu_item_check label="Persone vicine" name="Active Speakers"/>
-		<menu_item_call label="Blocca lista" name="Block List"/>
+		<menu_item_check label="Blocca lista" name="Block List"/>
 		<menu_item_check label="Non disturbare" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Mondo" name="World">

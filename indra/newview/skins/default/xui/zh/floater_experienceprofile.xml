@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater title="EXPERIENCE PROFILE">
+	<floater.string name="empty_slurl">
+		（無）
+	</floater.string>
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Light&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Light&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Light&quot;
+	</floater.string>
+	<text name="edit_title" value="體驗簡覽"/>
+	<tab_container name="tab_container">
+		<panel name="panel_experience_info">
+			<scroll_container name="xp_scroll">
+				<panel name="scrolling_panel">
+					<layout_stack>
+						<layout_panel name="top panel">
+							<button label="編輯" name="edit_btn"/>
+						</layout_panel>
+						<layout_panel name="maturity panel">
+							<text name="ContentRating">
+								分級：
+							</text>
+						</layout_panel>
+						<layout_panel name="location panel">
+							<text name="Location">
+								位置：
+							</text>
+						</layout_panel>
+						<layout_panel>
+							<text name="Owner">
+								所有人：
+							</text>
+						</layout_panel>
+						<layout_panel name="group_panel">
+							<text name="Group">
+								群組：
+							</text>
+						</layout_panel>
+						<layout_panel name="perm panel">
+							<button label="允許" name="allow_btn"/>
+							<button label="忘記" name="forget_btn"/>
+							<button label="封鎖" name="block_btn"/>
+							<text name="privileged">
+								所有居民均可使用這個體驗。
+							</text>
+							<button label="違規舉報" name="report_btn"/>
+						</layout_panel>
+					</layout_stack>
+				</panel>
+			</scroll_container>
+		</panel>
+		<panel name="edit_panel_experience_info">
+			<scroll_container name="edit_xp_scroll">
+				<panel name="edit_scrolling_panel">
+					<text name="edit_experience_title_label" value="名稱："/>
+					<text name="edit_experience_desc_label" value="描述："/>
+					<button label="群組" name="Group_btn"/>
+					<text name="edit_ContentRating">
+						分級：
+					</text>
+					<icons_combo_box label="適度成人" name="edit_ContentRatingText" tool_tip="提升體驗的內容分級將會重設所有已允許該體驗的居民的權限。">
+						<icons_combo_box.item label="完全成人" name="Adult" value="42"/>
+						<icons_combo_box.item label="適度成人" name="Mature" value="21"/>
+						<icons_combo_box.item label="一般" name="PG" value="13"/>
+					</icons_combo_box>
+					<text name="edit_Location">
+						位置：
+					</text>
+					<button label="設定為目前位置" name="location_btn"/>
+					<button label="清空位置" name="clear_btn"/>
+					<check_box label="啟用體驗" name="edit_enable_btn" tool_tip=""/>
+					<check_box label="不顯現在搜尋結果" name="edit_private_btn"/>
+					<text name="changes" value="體驗的變更結果可能需要數分鐘才會擴及所有地區。"/>
+					<button label="返回" name="cancel_btn"/>
+					<button label="儲存" name="save_btn"/>
+				</panel>
+			</scroll_container>
+		</panel>
+	</tab_container>
+</floater>

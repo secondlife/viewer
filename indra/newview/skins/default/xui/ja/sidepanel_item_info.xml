@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="アイテムのプロフィール">
+	<panel.string name="loading_experience">
+		（ローディング）
+	</panel.string>
 	<panel.string name="unknown">
 		（不明）
 	</panel.string>
@@ -42,6 +45,9 @@
 			</text>
 			<text name="LabelAcquiredTitle">
 				取得：
+			</text>
+			<text name="LabelItemExperienceTitle">
+				体験：
 			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">

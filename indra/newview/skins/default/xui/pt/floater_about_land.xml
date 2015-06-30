@@ -308,9 +308,6 @@ Apenas lotes maiores podem ser listados na busca.
 			<panel.string name="push_restrict_region_text">
 				Proibido empurrar (regulamento da região)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Avatares em outros lotes podem ver
-			</panel.string>
 			<text name="allow_label">
 				Autorizar outros residentes a:
 			</text>
@@ -336,22 +333,6 @@ Apenas lotes maiores podem ser listados na busca.
 			<check_box label="Seguro (sem danos)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, impedindo lutas com danos. Se não ativado, lutas com danos é habilitado."/>
 			<check_box label="Proibido empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. Ativar essa opção ajuda a prevenir comportamentos desordeiros no seu terreno."/>
 			<check_box label="Mostrar terreno nos resultados de busca (L$30/semana)" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="Qualquer categoria" name="item0"/>
-				<combo_box.item label="Locação Linden" name="item1"/>
-				<combo_box.item label="Adulto" name="item2"/>
-				<combo_box.item label="Artes e cultura" name="item3"/>
-				<combo_box.item label="Negócios" name="item4"/>
-				<combo_box.item label="Educacional" name="item5"/>
-				<combo_box.item label="Jogos" name="item6"/>
-				<combo_box.item label="Moradia" name="item7"/>
-				<combo_box.item label="Amigável a novos usuários" name="item8"/>
-				<combo_box.item label="Parques &amp; Natureza" name="item9"/>
-				<combo_box.item label="Residencial" name="item10"/>
-				<combo_box.item label="Compras" name="item11"/>
-				<combo_box.item label="Aluguel" name="item13"/>
-				<combo_box.item label="Outros" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="Qualquer categoria" name="item0"/>
 				<combo_box.item label="Locação Linden" name="item1"/>
@@ -451,15 +432,9 @@ Mídia:
 			<panel.string name="access_estate_defined">
 				(Definições do terreno)
 			</panel.string>
-			<panel.string name="allow_public_access">
-				Acesso para público: [MATURITY]) (Desmarcar esse item cria limites)
-			</panel.string>
 			<panel.string name="estate_override">
 				Uma ou mais destas opções está definida no nível de propriedade.
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				Acesso a este lote
-			</text>
 			<check_box label="Permitir acesso público (Desmarcar esse item cria limites)" name="public_access"/>
 			<text name="Only Allow">
 				Permitir acesso apenas para residentes que:
@@ -491,5 +466,6 @@ Mídia:
 				<button label="Tirar" label_selected="Tirar" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="EXPERIÊNCIAS" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

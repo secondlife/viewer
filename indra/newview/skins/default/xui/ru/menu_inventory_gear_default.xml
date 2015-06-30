@@ -5,7 +5,7 @@
 	<menu_item_check label="Сортировать по времени" name="sort_by_recent"/>
 	<menu_item_check label="Всегда сортировать папки по имени" name="sort_folders_by_name"/>
 	<menu_item_check label="Показывать системные папки вверху" name="sort_system_folders_to_top"/>
-	<menu_item_call label="Показать фильтры" name="show_filters"/>
+	<menu_item_call label="Показать фильтры..." name="show_filters"/>
 	<menu_item_call label="Сбросить фильтры" name="reset_filters"/>
 	<menu_item_call label="Закрыть все папки" name="close_folders"/>
 	<menu_item_call label="Очистить бюро находок" name="empty_lostnfound"/>

@@ -44,6 +44,14 @@
 			Bu konumdaki sesi çal
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			İçerik Yok
+		</label>
+		<tooltip name="none_tooltip">
+			Burada ortam öğesi yok
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Gerçek Zamanlı Akış

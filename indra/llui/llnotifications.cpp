@@ -678,7 +678,7 @@ void LLNotification::respond(const LLSD& response)
 		// and then call it
 		functor(asLLSD(), response);
 	}
-	else
+	else if (mCombinedNotifications.empty())
 	{
 		// no registered responder
 		return;
@@ -697,6 +697,14 @@ void LLNotification::respond(const LLSD& response)
 		if (mIgnored && mForm->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
 		{
 			LLUI::sSettingGroups["ignores"]->setLLSD("Default" + getName(), response);
+		}
+	}
+
+	for (std::vector<LLNotificationPtr>::const_iterator it = mCombinedNotifications.begin(); it != mCombinedNotifications.end(); ++it)
+	{
+		if ((*it))
+		{
+			(*it)->respond(response);
 		}
 	}
 
@@ -1319,6 +1327,28 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 				existing_notification->updateFrom(pNotif);
 				// then delete the new one
 				cancel(pNotif);
+			}
+		}
+		break;
+	case  LLNotification::COMBINE_WITH_NEW:
+		// Add to the existing unique notification with the data from this particular instance...
+		// This guarantees that duplicate notifications will be collapsed to the one
+		// most recently triggered
+		for (LLNotificationMap::iterator existing_it = mUniqueNotifications.find(pNotif->getName());
+			existing_it != mUniqueNotifications.end();
+			++existing_it)
+		{
+			LLNotificationPtr existing_notification = existing_it->second;
+			if (pNotif != existing_notification 
+				&& pNotif->isEquivalentTo(existing_notification))
+			{
+				// copy the notifications from the newest instance into the oldest
+				existing_notification->mCombinedNotifications.push_back(pNotif);
+				existing_notification->mCombinedNotifications.insert(existing_notification->mCombinedNotifications.end(),
+					pNotif->mCombinedNotifications.begin(), pNotif->mCombinedNotifications.end());
+
+				// pop up again
+				existing_notification->update();
 			}
 		}
 		break;
