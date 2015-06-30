@@ -6457,7 +6457,6 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
-	F64 now = LLFrameTimer::getTotalSeconds();
 	if (isSelf())
 	{
 		too_complex = false;
