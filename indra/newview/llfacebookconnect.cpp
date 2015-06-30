@@ -70,7 +70,7 @@ void toast_user_for_facebook_success()
 
 LLCore::HttpHeaders::ptr_t get_headers()
 {
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
     // The DebugSlshareLogTag mechanism is intended to trigger slshare-service
     // debug logging. slshare-service is coded to respond to an X-debug-tag
     // header by engaging debug logging for that request only. This way a
