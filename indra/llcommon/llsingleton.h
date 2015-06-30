@@ -32,8 +32,6 @@
 #include <vector>
 #include <typeinfo>
 
-// TODO:
-// Tests for all this!
 class LLSingletonBase: private boost::noncopyable
 {
 public:
@@ -80,8 +78,8 @@ protected:
 
     // Maintain a stack of the LLSingleton subclass instance currently being
     // initialized. We use this to notice direct dependencies: we want to know
-    // if A requires B. We deduce that if while initializing A, control
-    // reaches B::getInstance().
+    // if A requires B. We deduce a dependency if while initializing A,
+    // control reaches B::getInstance().
     // We want &A to be at the top of that stack during both A::A() and
     // A::initSingleton(), since a call to B::getInstance() might occur during
     // either.
