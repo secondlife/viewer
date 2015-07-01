@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_photo">
-	<layout_stack name="stack_photo">
-		<layout_panel name="snapshot_panel">
-			<combo_box name="resolution_combobox" tool_tip="画像解像度">
-				<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
-				<combo_box.item label="640x480" name="640x480"/>
-				<combo_box.item label="800x600" name="800x600"/>
-				<combo_box.item label="1024x768" name="1024x768"/>
-				<combo_box.item label="1200x630" name="1200x630"/>
-			</combo_box>
-			<combo_box name="filters_combobox" tool_tip="画像フィルター">
-				<combo_box.item label="フィルターなし" name="NoFilter"/>
-			</combo_box>
-			<button label="更新" name="new_snapshot_btn" tool_tip="クリックして更新"/>
-			<button label="プレビュー" name="big_preview_btn" tool_tip="クリックしてプレビューを切り替える"/>
-			<text name="caption_label">
-				コメント (オプション):
-			</text>
-		</layout_panel>
-		<layout_panel name="photo_button_panel">
-			<button label="投稿" name="post_photo_btn"/>
-			<button label="取り消し" name="cancel_photo_btn"/>
-		</layout_panel>
-	</layout_stack>
+	<combo_box name="resolution_combobox" tool_tip="画像解像度">
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1200x630" name="1200x630"/>
+	</combo_box>
+	<combo_box name="filters_combobox" tool_tip="画像フィルター">
+		<combo_box.item label="フィルターなし" name="NoFilter"/>
+	</combo_box>
+	<button label="更新" name="new_snapshot_btn" tool_tip="クリックして更新"/>
+	<button label="プレビュー" name="big_preview_btn" tool_tip="クリックしてプレビューを切り替える"/>
+	<text name="caption_label">
+		コメント (オプション):
+	</text>
+	<button label="投稿" name="post_photo_btn"/>
+	<button label="取り消し" name="cancel_photo_btn"/>
 </panel>

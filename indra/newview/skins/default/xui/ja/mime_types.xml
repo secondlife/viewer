@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <mimetypes name="default">
 	<widgetset name="web">
 		<label name="web_label">
@@ -27,7 +27,7 @@
 			コンテンツなし
 		</label>
 		<tooltip name="none_tooltip">
-			メディアなし
+			ここにメディアなし
 		</tooltip>
 	</widgetset>
 	<widgetset name="image">

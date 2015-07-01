@@ -444,6 +444,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="TooltipMustSingleDrop">
 		只有一個物品可以被拖曳到此處
 	</string>
+	<string name="TooltipTooManyWearables">
+		你不能對含超過 [AMOUNT] 個物項的資料夾作穿戴動作。  欲變更此上限，可到「進階」&gt;「顯示除錯設定」&gt;「WearFolderLimit」。
+	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]："/>
 	<string name="TooltipOutboxDragToWorld">
 		商家發件匣內的物項無法產生到虛擬世界
@@ -1052,9 +1055,7 @@ http://secondlife.com/viewer-access-faq
 	<string name="AgentNameSubst">
 		（你）
 	</string>
-	<string name="JoinAnExperience">
-		加入體驗
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		管理領出入許可名單時，不顯示警示
 	</string>
@@ -1864,6 +1865,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		下載失敗，原因不明
+	</string>
+	<string name="CompileNoExperiencePerm">
+		略過體驗 [EXPERIENCE] 的腳本 [SCRIPT]。
 	</string>
 	<string name="CompileQueueTitle">
 		重新編譯進度
@@ -5267,6 +5271,87 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="UserDictionary">
 		[User]
+	</string>
+	<string name="experience_tools_experience">
+		體驗
+	</string>
+	<string name="ExperienceNameNull">
+		（沒有體驗）
+	</string>
+	<string name="ExperienceNameUntitled">
+		（無名的體驗）
+	</string>
+	<string name="Land-Scope">
+		土地範圍型
+	</string>
+	<string name="Grid-Scope">
+		網格範圍型
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		准許
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		已封鎖的
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		貢獻者
+	</string>
+	<string name="Admin_Experiences_Tab">
+		管理員
+	</string>
+	<string name="Recent_Experiences_Tab">
+		最近
+	</string>
+	<string name="Owned_Experiences_Tab">
+		擁有
+	</string>
+	<string name="ExperiencesCounter">
+		（[EXPERIENCES] 項，最多 [MAXEXPERIENCES] 項）
+	</string>
+	<string name="ExperiencePermission1">
+		取得你的各項控制
+	</string>
+	<string name="ExperiencePermission3">
+		對你的化身觸發動作
+	</string>
+	<string name="ExperiencePermission4">
+		附著到你的化身
+	</string>
+	<string name="ExperiencePermission9">
+		追蹤你的攝影機
+	</string>
+	<string name="ExperiencePermission10">
+		控制你的攝影機
+	</string>
+	<string name="ExperiencePermission11">
+		瞬間傳送你本人
+	</string>
+	<string name="ExperiencePermission12">
+		自動接受各種體驗權限
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		進行了未知的操作：[Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		取得控制
+	</string>
+	<string name="ExperiencePermissionShort3">
+		觸發動作
+	</string>
+	<string name="ExperiencePermissionShort4">
+		附著
+	</string>
+	<string name="ExperiencePermissionShort9">
+		追蹤攝影機
+	</string>
+	<string name="ExperiencePermissionShort10">
+		控制攝影機
+	</string>
+	<string name="ExperiencePermissionShort11">
+		瞬間傳送
+	</string>
+	<string name="ExperiencePermissionShort12">
+		權限
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		交談未留記錄。 若想開始留記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。

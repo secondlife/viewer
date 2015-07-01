@@ -1385,3 +1385,5 @@ char const* const _PREHASH_AppearanceVersion = LLMessageStringTable::getInstance
 char const* const _PREHASH_CofVersion = LLMessageStringTable::getInstance()->getString("CofVersion");
 char const* const _PREHASH_AppearanceHover = LLMessageStringTable::getInstance()->getString("AppearanceHover");
 char const* const _PREHASH_HoverHeight = LLMessageStringTable::getInstance()->getString("HoverHeight");
+char const* const _PREHASH_Experience = LLMessageStringTable::getInstance()->getString("Experience");
+char const* const _PREHASH_ExperienceID = LLMessageStringTable::getInstance()->getString("ExperienceID");

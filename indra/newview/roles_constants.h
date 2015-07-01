@@ -145,6 +145,9 @@ const U64 GP_SESSION_JOIN				= 0x1LL << 16;	//can join session
 const U64 GP_SESSION_VOICE				= 0x1LL << 27;	//can hear/talk
 const U64 GP_SESSION_MODERATOR			= 0x1LL << 37;	//can mute people's session
 
+const U64 GP_EXPERIENCE_ADMIN			= 0x1LL << 49;	// has admin rights to any experiences owned by this group
+const U64 GP_EXPERIENCE_CREATOR 		= 0x1LL << 50;	// can sign scripts for experiences owned by this group
+
 // Group Banning
 const U64 GP_GROUP_BAN_ACCESS			= 0x1LL << 51;	// Allows access to ban / un-ban agents from a group.
 

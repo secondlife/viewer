@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="experince_list_editor">
+	<panel.string name="loading">
+		載入中...
+	</panel.string>
+	<panel.string name="panel_allowed">
+		允許的體驗：
+	</panel.string>
+	<panel.string name="panel_blocked">
+		封鎖的體驗：
+	</panel.string>
+	<panel.string name="panel_trusted">
+		金鑰體驗：
+	</panel.string>
+	<panel.string name="no_results">
+		（空白）
+	</panel.string>
+	<text name="text_name">
+		體驗清單
+	</text>
+	<scroll_list name="experience_list">
+		<columns label="名稱" name="experience_name"/>
+	</scroll_list>
+	<button label="添加..." name="btn_add"/>
+	<button label="移除" name="btn_remove"/>
+	<button label="檔案..." name="btn_profile"/>
+</panel>

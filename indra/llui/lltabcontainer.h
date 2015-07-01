@@ -182,7 +182,8 @@ public:
 	LLPanel*	getPanelByIndex(S32 index);
 	S32			getIndexForPanel(LLPanel* panel);
 	S32			getPanelIndexByTitle(const std::string& title);
-	LLPanel*	getPanelByName(const std::string& name);
+    LLPanel*	getPanelByName(const std::string& name);
+    S32         getTotalTabWidth() const;
 	void		setCurrentTabName(const std::string& name);
 
 	void		selectFirstTab();
@@ -287,7 +288,7 @@ private:
 
 	S32								mMaxTabWidth;
 	S32								mTotalTabWidth;
-	S32								mTabHeight;
+    S32								mTabHeight;
 
 	// Padding under the text labels of tab buttons
 	S32								mLabelPadBottom;

@@ -331,22 +331,6 @@ Sadece büyük parseller aramada görünür.
 			<check_box label="Güvenli (hasar yok)" name="check safe" tool_tip="İşaretliyse, araziyi Güvenli moda getirerek hasar çarpışmasını etkinsizleştirir İşaretli değilse hasar çarpışması etkinleşir."/>
 			<check_box label="İtme Yok" name="PushRestrictCheck" tool_tip="Komut dosyalarının itmesini önler Bu seçeneğin işaretlenmesi arazinizdeki bozucu davranışları önlemeye yardımcı olabilir."/>
 			<check_box label="Konumu Arama sonuçlarında göster (L$30/hafta)" name="ShowDirectoryCheck" tool_tip="Arama sonuçlarında bu parsel görünsün"/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="Herh. Bir Kategori" name="item0"/>
-				<combo_box.item label="Linden Konumu" name="item1"/>
-				<combo_box.item label="Yetişkin" name="item2"/>
-				<combo_box.item label="Sanat ve Kültür" name="item3"/>
-				<combo_box.item label="İş" name="item4"/>
-				<combo_box.item label="Eğitim" name="item5"/>
-				<combo_box.item label="Oyun" name="item6"/>
-				<combo_box.item label="Uğrak Mekan" name="item7"/>
-				<combo_box.item label="Yeni Gelenlere Yardım Sunan" name="item8"/>
-				<combo_box.item label="Park ve Doğa" name="item9"/>
-				<combo_box.item label="Yerleşim" name="item10"/>
-				<combo_box.item label="Alışveriş" name="item11"/>
-				<combo_box.item label="Kiralık" name="item13"/>
-				<combo_box.item label="Diğer" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="Herh. Bir Kategori" name="item0"/>
 				<combo_box.item label="Linden Konumu" name="item1"/>
@@ -477,5 +461,6 @@ Sadece büyük parseller aramada görünür.
 				<button label="Kaldır" label_selected="Kaldır" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="DENEYİMLER" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

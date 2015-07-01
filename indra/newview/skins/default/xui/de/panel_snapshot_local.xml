@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_local">
 	<text name="title">
-		Festplatte
+		Datenträger
 	</text>
 	<combo_box label="Auflösung" name="local_size_combo">
 		<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>
@@ -15,15 +15,15 @@
 	</combo_box>
 	<spinner label="Breite x Höhe" name="local_snapshot_width"/>
 	<check_box label="Seitenverhältnis beibehalten" name="local_keep_aspect_check"/>
+	<text name="local_format_label">
+		Format:
+	</text>
 	<combo_box label="Format" name="local_format_combo">
 		<combo_box.item label="PNG (verlustfrei)" name="PNG"/>
 		<combo_box.item label="JPEG" name="JPEG"/>
 		<combo_box.item label="BMP (verlustfrei)" name="BMP"/>
 	</combo_box>
-	<slider label="Qualität" name="image_quality_slider"/>
-	<text name="image_quality_level">
-		([QLVL])
-	</text>
+	<slider label="Qualität:" name="image_quality_slider"/>
 	<button label="Abbrechen" name="cancel_btn"/>
 	<flyout_button label="Speichern" name="save_btn" tool_tip="Bild als Datei speichern">
 		<flyout_button.item label="Speichern" name="save_item"/>

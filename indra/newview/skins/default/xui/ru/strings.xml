@@ -449,6 +449,9 @@ support@secondlife.com.
 	<string name="TooltipMustSingleDrop">
 		Сюда можно перетащить только одну вещь
 	</string>
+	<string name="TooltipTooManyWearables">
+		Нельзя носить папку, содержащую более [AMOUNT] вещей.  Это ограничение можно изменить в меню «Дополнительно &gt; Настройки отладки &gt; WearFolderLimit.
+	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
 	<string name="TooltipOutboxDragToWorld">
 		Нельзя выложить предметы из папке «Торговые исходящие»
@@ -1057,9 +1060,7 @@ support@secondlife.com.
 	<string name="AgentNameSubst">
 		(Вы)
 	</string>
-	<string name="JoinAnExperience">
-		Присоединитесь
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Отключить извещения при управлении списками доступа к землевладениям
 	</string>
@@ -1869,6 +1870,9 @@ support@secondlife.com.
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		Неизвестный сбой загрузки
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Пропуск скрипта [SCRIPT] с приключением [EXPERIENCE].
 	</string>
 	<string name="CompileQueueTitle">
 		Ход повторной компиляции
@@ -5269,6 +5273,87 @@ support@secondlife.com.
 	</string>
 	<string name="UserDictionary">
 		[Пользователь]
+	</string>
+	<string name="experience_tools_experience">
+		Приключение
+	</string>
+	<string name="ExperienceNameNull">
+		(без приключения)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(приключение без названия)
+	</string>
+	<string name="Land-Scope">
+		Привязано к земле
+	</string>
+	<string name="Grid-Scope">
+		Привязано к сетке
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		РАЗРЕШЕННЫЕ
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		БЛОКИРОВАННЫЕ
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		АВТОР
+	</string>
+	<string name="Admin_Experiences_Tab">
+		АДМИНИСТРАТОР
+	</string>
+	<string name="Recent_Experiences_Tab">
+		НЕДАВНИЕ
+	</string>
+	<string name="Owned_Experiences_Tab">
+		СОБСТВЕННОСТЬ
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], максимум: [MAXEXPERIENCES])
+	</string>
+	<string name="ExperiencePermission1">
+		взять управление на себя
+	</string>
+	<string name="ExperiencePermission3">
+		запускать анимации на вашем аватаре
+	</string>
+	<string name="ExperiencePermission4">
+		прикрепить к аватару
+	</string>
+	<string name="ExperiencePermission9">
+		следить за камерой
+	</string>
+	<string name="ExperiencePermission10">
+		управлять камерой
+	</string>
+	<string name="ExperiencePermission11">
+		телепортировать вас
+	</string>
+	<string name="ExperiencePermission12">
+		автоматически принимать разрешения приключения
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		выполнил неизвестную операцию: [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Взять на себя
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Запуск анимаций
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Присоединить
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Слежение за камерой
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Управление камерой
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Телепортация
+	</string>
+	<string name="ExperiencePermissionShort12">
+		Разрешение
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Разговоры не записываются. Чтобы начать запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
