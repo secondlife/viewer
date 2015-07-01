@@ -674,6 +674,19 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 	open_outbox();
 }
 
+static void items_removal_confirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0 && !root.isDead() && !root.get()->isDead())
+	{
+		LLFolderView* folder_root = root.get();
+		//Need to remove item from DND before item is removed from root folder view
+		//because once removed from root folder view the item is no longer a selected item
+		LLInventoryAction::removeItemFromDND(folder_root);
+		folder_root->removeSelectedItems();
+	}
+}
+
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------
@@ -1100,7 +1113,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		LLSD args;
 		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
-		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root));
+		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&items_removal_confirmation, _1, _2, root->getHandle()));
 		return;
 	}
 	if (("copy" == action) || ("cut" == action))
@@ -1204,16 +1217,4 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
             }
         }
     }
-}
-
-void LLInventoryAction::onItemsRemovalConfirmation( const LLSD& notification, const LLSD& response, LLFolderView* root )
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-        //Need to remove item from DND before item is removed from root folder view
-        //because once removed from root folder view the item is no longer a selected item
-        removeItemFromDND(root);
-		root->removeSelectedItems();
-	}
 }
