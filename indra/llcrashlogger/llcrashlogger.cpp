@@ -397,7 +397,7 @@ bool LLCrashLogger::saveCrashBehaviorSetting(S32 crash_behavior)
 bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
 	gBreak = false;
     httpOpts->setTimeout(timeout);

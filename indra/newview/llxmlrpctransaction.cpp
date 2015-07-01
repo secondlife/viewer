@@ -357,7 +357,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	}
 
 	// LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
-	httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false); 
+	httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()); 
 
 	httpOpts->setTimeout(40L);
 
@@ -368,7 +368,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	httpOpts->setSSLVerifyHost( vefifySSLCert ? 2 : 0);
 
 	// LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
-	httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
+	httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
 
 	httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 
@@ -376,7 +376,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	//This might help with bug #503 */
 	//httpOpts->setDNSCacheTimeout(-1);
 
-	LLCore::BufferArray::ptr_t body = LLCore::BufferArray::ptr_t(new LLCore::BufferArray(), false);
+	LLCore::BufferArray::ptr_t body = LLCore::BufferArray::ptr_t(new LLCore::BufferArray());
 
 	// TODO: See if there is a way to serialize to a preallocated buffer I'm 
 	// not fond of the copy here.

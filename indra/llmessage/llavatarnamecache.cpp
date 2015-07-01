@@ -468,8 +468,8 @@ void LLAvatarNameCache::initClass(bool running, bool usePeopleAPI)
 	sUsePeopleAPI = usePeopleAPI;
 
     sHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-    sHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders(), false);
-    sHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions(), false);
+    sHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
+    sHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
     sHttpPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
     sHttpPriority = 0;
 }

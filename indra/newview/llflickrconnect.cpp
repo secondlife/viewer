@@ -73,7 +73,7 @@ void LLFlickrConnect::flickrConnectCoro(LLCoros::self& self, std::string request
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -163,7 +163,7 @@ void LLFlickrConnect::flickrShareCoro(LLCoros::self& self, LLSD share)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -187,8 +187,8 @@ void LLFlickrConnect::flickrShareImageCoro(LLCoros::self& self, LLPointer<LLImag
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -214,7 +214,7 @@ void LLFlickrConnect::flickrShareImageCoro(LLCoros::self& self, LLPointer<LLImag
     std::string contentType = "multipart/form-data; boundary=" + boundary;
     httpHeaders->append("Content-Type", contentType.c_str());
 
-    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray(), false); // 
+    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray()); // 
     LLCore::BufferArrayStream body(raw.get());
 
     // *NOTE: The order seems to matter.
@@ -266,7 +266,7 @@ void LLFlickrConnect::flickrDisconnectCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     setConnectionState(LLFlickrConnect::FLICKR_DISCONNECTING);
     httpOpts->setFollowRedirects(false);
@@ -300,7 +300,7 @@ void LLFlickrConnect::flickrConnectedCoro(LLCoros::self& self, bool autoConnect)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_IN_PROGRESS);
 
@@ -350,7 +350,7 @@ void LLFlickrConnect::flickrInfoCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);

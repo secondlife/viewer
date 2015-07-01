@@ -60,7 +60,7 @@ class HttpOptions : public LLCoreInt::RefCounted
 public:
 	HttpOptions();
 
-	typedef boost::intrusive_ptr<HttpOptions> ptr_t;
+	typedef LLCoreInt::IntrusivePtr<HttpOptions> ptr_t;
 
 protected:
 	virtual ~HttpOptions();						// Use release()

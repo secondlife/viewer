@@ -178,8 +178,8 @@ LLMediaDataClient::LLMediaDataClient(F32 queue_timer_delay, F32 retry_timer_dela
     mMaxRoundRobinQueueSize(max_round_robin_queue_size),
     mQueueTimerIsRunning(false),
     mHttpRequest(new LLCore::HttpRequest()),
-    mHttpHeaders(new LLCore::HttpHeaders(), false),
-    mHttpOpts(new LLCore::HttpOptions(), false),
+    mHttpHeaders(new LLCore::HttpHeaders()),
+    mHttpOpts(new LLCore::HttpOptions()),
     mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
 {
     // *TODO: Look up real Policy ID

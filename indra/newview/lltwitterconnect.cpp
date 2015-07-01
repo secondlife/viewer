@@ -73,7 +73,7 @@ void LLTwitterConnect::twitterConnectCoro(LLCoros::self& self, std::string reque
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -163,7 +163,7 @@ void LLTwitterConnect::twitterShareCoro(LLCoros::self& self, std::string route, 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -186,8 +186,8 @@ void LLTwitterConnect::twitterShareImageCoro(LLCoros::self& self, LLPointer<LLIm
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders, false);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
@@ -213,7 +213,7 @@ void LLTwitterConnect::twitterShareImageCoro(LLCoros::self& self, LLPointer<LLIm
     std::string contentType = "multipart/form-data; boundary=" + boundary;
     httpHeaders->append("Content-Type", contentType.c_str());
 
-    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray(), false); // 
+    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray()); // 
     LLCore::BufferArrayStream body(raw.get());
 
     // *NOTE: The order seems to matter.
@@ -253,7 +253,7 @@ void LLTwitterConnect::twitterDisconnectCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setFollowRedirects(false);
 
@@ -288,7 +288,7 @@ void LLTwitterConnect::twitterConnectedCoro(LLCoros::self& self, bool autoConnec
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setFollowRedirects(false);
     setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
@@ -337,7 +337,7 @@ void LLTwitterConnect::twitterInfoCoro(LLCoros::self& self)
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions, false);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
