@@ -25,8 +25,8 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_UPLOAD_MANAGER_H
-#define LL_UPLOAD_MANAGER_H
+#ifndef LL_COPROCEDURE_MANAGER_H
+#define LL_COPROCEDURE_MANAGER_H
 
 #include "lleventcoro.h"
 #include "llcoros.h"
@@ -38,6 +38,7 @@ class LLCoprocedureManager : public LLSingleton < LLCoprocedureManager >
 public:
     typedef boost::function<void(LLCoros::self &, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
 
+    LLCoprocedureManager();
     virtual ~LLCoprocedureManager();
 
     /// Places the coprocedure on the queue for processing. 
@@ -77,9 +78,6 @@ public:
     {
         return countPending() + countActive();
     }
-
-protected:
-    LLCoprocedureManager();
 
 private:
     struct QueuedCoproc

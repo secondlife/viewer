@@ -603,6 +603,7 @@ set(viewer_SOURCE_FILES
     llviewerassetstats.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
+    llviewerassetupload.cpp
     llviewerattachmenu.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
@@ -1197,6 +1198,7 @@ set(viewer_HEADER_FILES
     llviewerassetstats.h
     llviewerassetstorage.h
     llviewerassettype.h
+    llviewerassetupload.h
     llviewerattachmenu.h
     llvieweraudio.h
     llviewercamera.h
