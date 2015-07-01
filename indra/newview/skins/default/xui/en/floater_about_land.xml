@@ -2096,5 +2096,17 @@ Only large parcels can be listed in search.
              width="100" />
              </panel>
         </panel>
+       <panel
+          border="true"
+          follows="all"
+          label="EXPERIENCES"
+          layout="topleft"
+          left="0"
+          top="0"
+          help_topic="land_experiences_tab"
+          name="land_experiences_panel"
+            class="land_experiences_panel"
+          filename="panel_region_experiences.xml">
+       </panel>
     </tab_container>
 </floater>

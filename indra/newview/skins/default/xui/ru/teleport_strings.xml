@@ -48,6 +48,9 @@
 		<message name="MustGetAgeRegion">
 			Входить в этот регион могут только жители 18 лет и старше.
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			Не удалось войти в регион. «[REGION_NAME]» – это регион развивающих игр, и для входа в него надо соответствовать определенным условиям. Подробнее см. на странице [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ].
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">

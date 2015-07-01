@@ -10,10 +10,12 @@
 		送信中...
 	</string>
 	<text name="title">
-		メール
+		E メール
 	</text>
-        <tab_container name="postcard_tabs">
-		<panel name="panel_postcard_message" label="メッセージ"/>
-		<panel name="panel_postcard_settings" label="設定"/>
-		</tab_container>
+	<tab_container name="postcard_tabs">
+		<panel label="メッセージ" name="panel_postcard_message"/>
+		<panel label="設定" name="panel_postcard_settings"/>
+	</tab_container>
+	<button label="取り消し" name="cancel_btn"/>
+	<button label="送信" name="send_btn"/>
 </panel>

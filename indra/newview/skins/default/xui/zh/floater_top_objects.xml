@@ -21,6 +21,12 @@
 	<floater.string name="none_descriptor">
 		查無結果。
 	</floater.string>
+	<floater.string name="URLs">
+		URL
+	</floater.string>
+	<floater.string name="memory">
+		記憶體 (KB)
+	</floater.string>
 	<text name="title_text">
 		載入中...
 	</text>
@@ -30,7 +36,7 @@
 		<scroll_list.columns label="所有人" name="owner"/>
 		<scroll_list.columns label="位置" name="location"/>
 		<scroll_list.columns label="地段" name="parcel"/>
-		<scroll_list.columns label="時間" name="time"/>
+		<scroll_list.columns label="日期" name="time"/>
 		<scroll_list.columns label="URL" name="URLs"/>
 		<scroll_list.columns label="記憶體 (KB)" name="memory"/>
 	</scroll_list>

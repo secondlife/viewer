@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
-	<button label="Publier sur le flux de mon profil" name="save_to_profile_btn"/>
-	<button label="Envoyer par e-mail" name="save_to_email_btn"/>
+	<button label="Enreg. sur le disque" name="save_to_computer_btn"/>
 	<button label="Enreg. dans l&apos;inventaire ([AMOUNT] L$)" name="save_to_inventory_btn"/>
-	<button label="Enreg. sur l&apos;ordinateur" name="save_to_computer_btn"/>
-	<text name="send_to_facebook_textbox">
-		Envoyer à :  [secondlife:/// Facebook]
-	</text>
-	<text name="send_to_twitter_textbox">
-		[secondlife:/// Twitter]
-	</text>
-	<text name="send_to_flickr_textbox">
-		[secondlife:/// Flickr]
-	</text>
+	<button label="Charger dans le profil" name="save_to_profile_btn"/>
+	<button label="Charger sur Facebook" name="send_to_facebook_btn"/>
+	<button label="Charger sur Twitter" name="send_to_twitter_btn"/>
+	<button label="Charger sur Flickr" name="send_to_flickr_btn"/>
+	<button label="Envoyer par e-mail" name="save_to_email_btn"/>
 </panel>

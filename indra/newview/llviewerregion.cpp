@@ -2732,8 +2732,21 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	AISCommand::getCapabilityNames(capabilityNames);
 
 	capabilityNames.append("GetDisplayNames");
+	capabilityNames.append("GetExperiences");
+	capabilityNames.append("AgentExperiences");
+	capabilityNames.append("FindExperienceByName");
+	capabilityNames.append("GetExperienceInfo");
+	capabilityNames.append("GetAdminExperiences");
+	capabilityNames.append("GetCreatorExperiences");
+	capabilityNames.append("ExperiencePreferences");
+	capabilityNames.append("GroupExperiences");
+	capabilityNames.append("UpdateExperience");
+	capabilityNames.append("IsExperienceAdmin");
+	capabilityNames.append("IsExperienceContributor");
+	capabilityNames.append("RegionExperiences");
 	capabilityNames.append("GetMesh");
 	capabilityNames.append("GetMesh2");
+	capabilityNames.append("GetMetadata");
 	capabilityNames.append("GetObjectCost");
 	capabilityNames.append("GetObjectPhysicsData");
 	capabilityNames.append("GetTexture");

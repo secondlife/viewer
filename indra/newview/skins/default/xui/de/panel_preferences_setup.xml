@@ -14,9 +14,9 @@
 	<text name="Web:">
 		Web:
 	</text>
-	<radio_group name="use_external_browser">
-		<radio_item label="Meinen Browser verwenden (IE, Firefox, Safari)" name="external" tool_tip="Standard Webbrowser des Systems verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Bei Vollbildmodus nicht empfohlen." value="true"/>
-		<radio_item label="Integrierten Browser verwenden" name="internal" tool_tip="Integrierten Webbrowser verwenden, um die Hilfe, Weblinks usw. anzuzeigen. Dieser Browser öffnet als neues Fenster innerhalb von [APP_NAME]." value=""/>
+	<radio_group name="preferred_browser_behavior">
+		<radio_item label="Meinen Browser (Chrome, Firefox, IE) für alle Links verwenden" name="internal" tool_tip="Standard-Browser für Hilfe, Weblinks usw. verwenden. Im Vollbildmodus nicht empfohlen." value="0"/>
+		<radio_item label="Integrierten Browser nur für Linden Lab-/Second Life-Links verwenden" name="external" tool_tip="Verwenden Sie den Standard-Webbrowser Ihres Systems für Hilfe, Weblinks usw. Der integrierte Browser wird nur für Linden Lab-/Second Life-Links verwendet." value="1"/>
 	</radio_group>
 	<check_box initial_value="true" label="Plugins aktivieren" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Cookies annehmen" name="cookies_enabled"/>

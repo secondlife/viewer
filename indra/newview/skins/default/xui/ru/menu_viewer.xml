@@ -8,6 +8,7 @@
 		<menu_item_call label="Новое окно инвентаря" name="NewInventoryWindow"/>
 		<menu_item_call label="Места..." name="Places"/>
 		<menu_item_call label="Подборка..." name="Picks"/>
+		<menu_item_call label="Приключения..." name="Experiences"/>
 		<menu_item_call label="Управление камерой..." name="Camera Controls"/>
 		<menu label="Движение" name="Movement">
 			<menu_item_call label="Сесть" name="Sit Down Here"/>
@@ -46,7 +47,7 @@
 		<menu_item_check label="Друзья" name="My Friends"/>
 		<menu_item_check label="Группы" name="My Groups"/>
 		<menu_item_check label="Люди неподалеку" name="Active Speakers"/>
-		<menu_item_call label="Черный список" name="Block List"/>
+		<menu_item_check label="Черный список" name="Block List"/>
 		<menu_item_check label="Не беспокоить" name="Do Not Disturb"/>
 	</menu>
 	<menu label="Мир" name="World">

@@ -71,4 +71,8 @@
 		<action description="Grup Sesli Sohbetine Katıl" longdescription="Bu Yeteneğe sahip bir Roldeki Üyeler grup sesli sohbet oturumlarına katılabilir.  NOT: Sesli sohbet oturumuna erişim için Grup Sohbetine Katıl yeteneği gereklidir." name="join voice chat" value="27"/>
 		<action description="Grup Sohbetini Yönet" longdescription="Bu Yeteneğe sahip bir Roldeki Üyeler grup sesli ve yazılı sohbet oturumlarına errişimi ve katılımı kontrol edebilir." name="moderate group chat" value="37"/>
 	</action_set>
+	<action_set description="Bu Yetenekler&apos;e, grubun sahip olduğu deneyimleri değiştirme gücü de dahildir." name="experience_tools_experience">
+		<action description="Deneyim Yöneticisi" longdescription="Bu yeteneğe sahip bir roldeki üyeler bir deneyimin meta verilerini düzenleyebilirler." name="experience admin" value="49"/>
+		<action description="Deneyim Yardımcısı" longdescription="Bu yeteneğe sahip bir roldeki üyeler bir deneyimin komut dizilerine katkıda bulunabilirler." name="experience contributor" value="50"/>
+	</action_set>
 </role_actions>

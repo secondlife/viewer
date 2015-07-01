@@ -8,6 +8,7 @@
 		<menu_item_call label="新しいインベントリウィンドウ" name="NewInventoryWindow"/>
 		<menu_item_call label="場所..." name="Places"/>
 		<menu_item_call label="ピック..." name="Picks"/>
+		<menu_item_call label="体験..." name="Experiences"/>
 		<menu_item_call label="カメラコントロール..." name="Camera Controls"/>
 		<menu label="ムーブメント" name="Movement">
 			<menu_item_call label="座る" name="Sit Down Here"/>
@@ -48,7 +49,7 @@
 		<menu_item_check label="フレンド" name="My Friends"/>
 		<menu_item_check label="グループ" name="My Groups"/>
 		<menu_item_check label="近くにいる人" name="Active Speakers"/>
-		<menu_item_call label="リストをブロック" name="Block List"/>
+		<menu_item_check label="リストをブロック" name="Block List"/>
 		<menu_item_check label="着信拒否" name="Do Not Disturb"/>
 	</menu>
 	<menu label="世界" name="World">
