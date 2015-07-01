@@ -60,8 +60,8 @@ public:
             mDisplayName(displayName),
             mCompressionInfo(compressionInfo),
             mNextOwnerPerms(nextOWnerPerms),
-            mGroupPerms(mGroupPerms),
-            mEveryonePerms(mEveryonePerms),
+            mGroupPerms(groupPerms),
+            mEveryonePerms(everyonePerms),
             mExpectedUploadCost(expectedCost),
             mInventoryType(inventoryType),
             mDestinationFolderType(destinationType)
