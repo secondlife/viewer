@@ -33,9 +33,6 @@
 #include "llsingleton.h"
 #include <boost/ptr_container/ptr_map.hpp>
 #include <string>
-#include <boost/preprocessor/repetition/enum_params.hpp>
-#include <boost/preprocessor/repetition/enum_binary_params.hpp>
-#include <boost/preprocessor/iteration/local.hpp>
 #include <stdexcept>
 
 /**
