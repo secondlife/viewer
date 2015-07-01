@@ -335,7 +335,7 @@ protected:
 	 */
 	void forceVoiceModeratedMode(bool should_be_muted);
 
-    void moderationActionCoro(LLCoros::self& self, std::string url, LLSD action);
+    void moderationActionCoro(std::string url, LLSD action);
 
 };
 

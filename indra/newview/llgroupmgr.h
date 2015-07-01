@@ -428,11 +428,11 @@ public:
 	void clearGroupData(const LLUUID& group_id);
 
 private:
-    void groupMembersRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId);
+    void groupMembersRequestCoro(std::string url, LLUUID groupId);
     void processCapGroupMembersRequest(const LLSD& content);
 
-    void getGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId);
-    void postGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId, U32 action, uuid_vec_t banList, bool update);
+    void getGroupBanRequestCoro(std::string url, LLUUID groupId);
+    void postGroupBanRequestCoro(std::string url, LLUUID groupId, U32 action, uuid_vec_t banList, bool update);
 
     static void processGroupBanRequest(const LLSD& content);
 

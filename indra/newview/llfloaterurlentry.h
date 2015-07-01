@@ -60,7 +60,7 @@ private:
 	static void		onBtnClear(void*);
 	bool		    callback_clear_url_list(const LLSD& notification, const LLSD& response);
 
-    static void     getMediaTypeCoro(LLCoros::self& self, std::string url, LLHandle<LLFloater> parentHandle);
+    static void     getMediaTypeCoro(std::string url, LLHandle<LLFloater> parentHandle);
 
 };
 

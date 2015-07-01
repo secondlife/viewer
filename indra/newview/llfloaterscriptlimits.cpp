@@ -200,7 +200,7 @@ BOOL LLPanelScriptLimitsRegionMemory::getLandScriptResources()
 	if (!url.empty())
 	{
         LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro",
-            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro, this, _1, url));
+            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro, this, url));
 		return TRUE;
 	}
 	else
@@ -209,7 +209,7 @@ BOOL LLPanelScriptLimitsRegionMemory::getLandScriptResources()
 	}
 }
 
-void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(LLCoros::self& self, std::string url)
+void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -220,7 +220,7 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(LLCoros::self& 
 
     postData["parcel_id"] = mParcelId;
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -240,27 +240,27 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(LLCoros::self& 
     {
         std::string urlResourceSummary = result["ScriptResourceSummary"].asString();
         LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro",
-            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro, this, _1, urlResourceSummary));
+            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro, this, urlResourceSummary));
     }
 
     if (result.has("ScriptResourceDetails"))
     {
         std::string urlResourceDetails = result["ScriptResourceDetails"].asString();
         LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro",
-            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro, this, _1, urlResourceDetails));
+            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro, this, urlResourceDetails));
     }
 
    
 }
 
-void LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro(LLCoros::self& self, std::string url)
+void LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptSummaryCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -305,14 +305,14 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro(LLCoros::self& se
 
 }
 
-void LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro(LLCoros::self& self, std::string url)
+void LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptDetailsCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -947,7 +947,7 @@ BOOL LLPanelScriptLimitsAttachment::requestAttachmentDetails()
 	if (!url.empty())
 	{
         LLCoros::instance().launch("LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro",
-            boost::bind(&LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro, this, _1, url));
+            boost::bind(&LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro, this, url));
 		return TRUE;
 	}
 	else
@@ -956,14 +956,14 @@ BOOL LLPanelScriptLimitsAttachment::requestAttachmentDetails()
 	}
 }
 
-void LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro(LLCoros::self& self, std::string url)
+void LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getAttachmentLimitsCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

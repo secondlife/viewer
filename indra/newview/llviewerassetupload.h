@@ -41,7 +41,7 @@ class LLViewerAssetUpload
 {
 public:
 
-    static void AssetInventoryUploadCoproc(LLCoros::self &self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
+    static void AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
         std::string url, NewResourceUploadInfo::ptr_t uploadInfo);
 
 

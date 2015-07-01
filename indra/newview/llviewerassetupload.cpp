@@ -39,7 +39,7 @@
 
 //=========================================================================
 /*static*/
-void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
+void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
     std::string url, NewResourceUploadInfo::ptr_t uploadInfo)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
@@ -53,7 +53,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
 
     LLSD body = uploadInfo->generatePostBody();
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, body);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, body);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -65,7 +65,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
 
     std::string uploader = result["uploader"].asString();
 
-    result = httpAdapter->postFileAndYield(self, httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
+    result = httpAdapter->postFileAndYield(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
 
     if (!status)
     {
@@ -101,7 +101,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
 
 
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, initalBody);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, initalBody);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -116,7 +116,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
     if (state == "upload")
     {
 //        Upload the file...
-        result = httpAdapter->postFileAndYield(self, httpRequest, url, initalBody);
+        result = httpAdapter->postFileAndYield(httpRequest, url, initalBody);
 
         httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

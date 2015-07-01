@@ -841,7 +841,7 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
 	data["params"]["mute_info"]["text"] = !speakerp->mModeratorMutedText;
 
     LLCoros::instance().launch("LLIMSpeakerMgr::moderationActionCoro",
-        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, _1, url, data));
+        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
 }
 
 void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
@@ -866,10 +866,10 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 	data["params"]["mute_info"]["voice"] = !unmute;
 
     LLCoros::instance().launch("LLIMSpeakerMgr::moderationActionCoro",
-        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, _1, url, data));
+        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
 }
 
-void LLIMSpeakerMgr::moderationActionCoro(LLCoros::self& self, std::string url, LLSD action)
+void LLIMSpeakerMgr::moderationActionCoro(std::string url, LLSD action)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -881,7 +881,7 @@ void LLIMSpeakerMgr::moderationActionCoro(LLCoros::self& self, std::string url, 
 
     LLUUID sessionId = action["session-id"];
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, action, httpOpts);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, action, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -948,7 +948,7 @@ void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallo
 	data["params"]["update_info"]["moderated_mode"]["voice"] = disallow_voice;
 
     LLCoros::instance().launch("LLIMSpeakerMgr::moderationActionCoro",
-        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, _1, url, data));
+        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
 }
 
 void LLIMSpeakerMgr::forceVoiceModeratedMode(bool should_be_muted)

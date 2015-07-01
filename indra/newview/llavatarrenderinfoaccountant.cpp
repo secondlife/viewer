@@ -60,14 +60,14 @@ LLFrameTimer LLAvatarRenderInfoAccountant::sRenderInfoReportTimer;
 //LLCore::HttpRequest::ptr_t LLAvatarRenderInfoAccountant::sHttpRequest;
 
 //=========================================================================
-void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(LLCoros::self& self, std::string url, U64 regionHandle)
+void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 regionHandle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t 
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
 
     LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
     if (!regionp)
@@ -130,7 +130,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(LLCoros::self& self, 
 }
 
 //-------------------------------------------------------------------------
-void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(LLCoros::self& self, std::string url, U64 regionHandle)
+void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U64 regionHandle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -190,7 +190,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(LLCoros::self& sel
 
     report[KEY_AGENTS] = agents;
     regionp = NULL;
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, report);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, report);
 
     regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
     if (!regionp)
@@ -239,7 +239,7 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 	{
         std::string coroname =
             LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro",
-            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, _1, url, regionp->getHandle()));
+            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
 	}
 }
 
@@ -264,7 +264,7 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
 		// First send a request to get the latest data
         std::string coroname =
             LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro",
-            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, _1, url, regionp->getHandle()));
+            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, url, regionp->getHandle()));
 	}
 }
 

@@ -79,8 +79,8 @@ const static std::string NEARBY_P2P_BY_AGENT("nearby_P2P_by_agent");
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
-void startConfrenceCoro(LLCoros::self& self, std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
-void chatterBoxInvitationCoro(LLCoros::self& self, std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
+void startConfrenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
+void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
 void start_deprecated_conference_chat(const LLUUID& temp_session_id, const LLUUID& creator_id, const LLUUID& other_participant_id, const LLSD& agents_to_invite);
 
 std::string LLCallDialogManager::sPreviousSessionlName = "";
@@ -389,7 +389,7 @@ void on_new_message(const LLSD& msg)
 	notify_of_message(msg, false);
 }
 
-void startConfrenceCoro(LLCoros::self& self, std::string url,
+void startConfrenceCoro(std::string url,
     LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -402,7 +402,7 @@ void startConfrenceCoro(LLCoros::self& self, std::string url,
     postData["session-id"] = tempSessionId;
     postData["params"] = agents;
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -430,7 +430,7 @@ void startConfrenceCoro(LLCoros::self& self, std::string url,
     }
 }
 
-void chatterBoxInvitationCoro(LLCoros::self& self, std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType)
+void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -441,7 +441,7 @@ void chatterBoxInvitationCoro(LLCoros::self& self, std::string url, LLUUID sessi
     postData["method"] = "accept invitation";
     postData["session-id"] = sessionId;
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1623,7 +1623,7 @@ bool LLIMModel::sendStartSession(
 				"ChatSessionRequest");
 
             LLCoros::instance().launch("startConfrenceCoro",
-                boost::bind(&startConfrenceCoro, _1, url,
+                boost::bind(&startConfrenceCoro, url,
                 temp_session_id, gAgent.getID(), other_participant_id, agents));
 		}
 		else
@@ -2468,7 +2468,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 			if (voice)
 			{
                 LLCoros::instance().launch("chatterBoxInvitationCoro",
-                    boost::bind(&chatterBoxInvitationCoro, _1, url,
+                    boost::bind(&chatterBoxInvitationCoro, url,
                     session_id, inv_type));
 
 				// send notification message to the corresponding chat 
@@ -2555,7 +2555,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 					"ChatSessionRequest");
 
                 LLCoros::instance().launch("chatterBoxInvitationCoro",
-                    boost::bind(&chatterBoxInvitationCoro, _1, url,
+                    boost::bind(&chatterBoxInvitationCoro, url,
                     session_id, inv_type));
 			}
 		}
@@ -3646,7 +3646,7 @@ public:
 			if ( url != "" )
 			{
                 LLCoros::instance().launch("chatterBoxInvitationCoro",
-                    boost::bind(&chatterBoxInvitationCoro, _1, url,
+                    boost::bind(&chatterBoxInvitationCoro, url,
                     session_id, LLIMMgr::INVITATION_TYPE_INSTANT_MESSAGE));
 			}
 		} //end if invitation has instant message
