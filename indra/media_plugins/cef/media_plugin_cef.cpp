@@ -419,6 +419,11 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 		}
 		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
 		{
+			if (message_name == "set_page_zoom_factor")
+			{
+				F32 factor = (F32)message_in.getValueReal("factor");
+				mLLCEFLib->setPageZoom(factor);
+			}
 			if (message_name == "browse_stop")
 			{
 				mLLCEFLib->stop();
@@ -468,3 +473,4 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func,
 
 	return 0;
 }
+
