@@ -457,7 +457,7 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 }
 
 /*static*/
-void LLFloaterAvatarPicker::findCoro(LLCoros::self& self, std::string url, LLUUID queryID, std::string name)
+void LLFloaterAvatarPicker::findCoro(std::string url, LLUUID queryID, std::string name)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -466,7 +466,7 @@ void LLFloaterAvatarPicker::findCoro(LLCoros::self& self, std::string url, LLUUI
 
     LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -513,7 +513,7 @@ void LLFloaterAvatarPicker::find()
 		LL_INFOS() << "avatar picker " << url << LL_ENDL;
 
         LLCoros::instance().launch("LLFloaterAvatarPicker::findCoro",
-            boost::bind(&LLFloaterAvatarPicker::findCoro, _1, url, mQueryID, getKey().asString()));
+            boost::bind(&LLFloaterAvatarPicker::findCoro, url, mQueryID, getKey().asString()));
 	}
 	else
 	{

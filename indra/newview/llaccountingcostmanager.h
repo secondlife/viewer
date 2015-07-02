@@ -77,7 +77,7 @@ private:
 	std::set<LLUUID> mPendingObjectQuota;
 	typedef std::set<LLUUID>::iterator IDIt;
 
-    void accountingCostCoro(LLCoros::self& self, std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
+    void accountingCostCoro(std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
 
     LLCore::HttpRequest::ptr_t		mHttpRequest;
     LLCore::HttpRequest::policy_t	mHttpPolicy;

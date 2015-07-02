@@ -67,7 +67,7 @@ void toast_user_for_twitter_success()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLTwitterConnect::twitterConnectCoro(LLCoros::self& self, std::string requestToken, std::string oauthVerifier)
+void LLTwitterConnect::twitterConnectCoro(std::string requestToken, std::string oauthVerifier)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -86,7 +86,7 @@ void LLTwitterConnect::twitterConnectCoro(LLCoros::self& self, std::string reque
 
     setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
 
-    LLSD result = httpAdapter->putAndYield(self, httpRequest, getTwitterConnectURL("/connection"), body, httpOpts);
+    LLSD result = httpAdapter->putAndYield(httpRequest, getTwitterConnectURL("/connection"), body, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -157,7 +157,7 @@ bool LLTwitterConnect::testShareStatus(LLSD &result)
     return false;
 }
 
-void LLTwitterConnect::twitterShareCoro(LLCoros::self& self, std::string route, LLSD share)
+void LLTwitterConnect::twitterShareCoro(std::string route, LLSD share)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -170,7 +170,7 @@ void LLTwitterConnect::twitterShareCoro(LLCoros::self& self, std::string route, 
 
     setConnectionState(LLTwitterConnect::TWITTER_POSTING);
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, getTwitterConnectURL(route, true), share, httpOpts);
+    LLSD result = httpAdapter->postAndYield(httpRequest, getTwitterConnectURL(route, true), share, httpOpts);
 
     if (testShareStatus(result))
     {
@@ -180,7 +180,7 @@ void LLTwitterConnect::twitterShareCoro(LLCoros::self& self, std::string route, 
     }
 }
 
-void LLTwitterConnect::twitterShareImageCoro(LLCoros::self& self, LLPointer<LLImageFormatted> image, std::string status)
+void LLTwitterConnect::twitterShareImageCoro(LLPointer<LLImageFormatted> image, std::string status)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -235,7 +235,7 @@ void LLTwitterConnect::twitterShareImageCoro(LLCoros::self& self, LLPointer<LLIm
 
     body << "\r\n--" << boundary << "--\r\n";
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, getTwitterConnectURL("/share/photo", true), raw, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->postAndYield(httpRequest, getTwitterConnectURL("/share/photo", true), raw, httpOpts, httpHeaders);
 
     if (testShareStatus(result))
     {
@@ -247,7 +247,7 @@ void LLTwitterConnect::twitterShareImageCoro(LLCoros::self& self, LLPointer<LLIm
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLTwitterConnect::twitterDisconnectCoro(LLCoros::self& self)
+void LLTwitterConnect::twitterDisconnectCoro()
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -259,7 +259,7 @@ void LLTwitterConnect::twitterDisconnectCoro(LLCoros::self& self)
 
     setConnectionState(LLTwitterConnect::TWITTER_DISCONNECTING);
 
-    LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getTwitterConnectURL("/connection"), httpOpts);
+    LLSD result = httpAdapter->deleteAndYield(httpRequest, getTwitterConnectURL("/connection"), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -282,7 +282,7 @@ void LLTwitterConnect::twitterDisconnectCoro(LLCoros::self& self)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLTwitterConnect::twitterConnectedCoro(LLCoros::self& self, bool autoConnect)
+void LLTwitterConnect::twitterConnectedCoro(bool autoConnect)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -293,7 +293,7 @@ void LLTwitterConnect::twitterConnectedCoro(LLCoros::self& self, bool autoConnec
     httpOpts->setFollowRedirects(false);
     setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getTwitterConnectURL("/connection", true), httpOpts);
+    LLSD result = httpAdapter->getAndYield(httpRequest, getTwitterConnectURL("/connection", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -331,7 +331,7 @@ void LLTwitterConnect::twitterConnectedCoro(LLCoros::self& self, bool autoConnec
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLTwitterConnect::twitterInfoCoro(LLCoros::self& self)
+void LLTwitterConnect::twitterInfoCoro()
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -342,7 +342,7 @@ void LLTwitterConnect::twitterInfoCoro(LLCoros::self& self)
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getTwitterConnectURL("/info", true), httpOpts);
+    LLSD result = httpAdapter->getAndYield(httpRequest, getTwitterConnectURL("/info", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -425,19 +425,19 @@ std::string LLTwitterConnect::getTwitterConnectURL(const std::string& route, boo
 void LLTwitterConnect::connectToTwitter(const std::string& request_token, const std::string& oauth_verifier)
 {
     LLCoros::instance().launch("LLTwitterConnect::twitterConnectCoro",
-        boost::bind(&LLTwitterConnect::twitterConnectCoro, this, _1, request_token, oauth_verifier));
+        boost::bind(&LLTwitterConnect::twitterConnectCoro, this, request_token, oauth_verifier));
 }
 
 void LLTwitterConnect::disconnectFromTwitter()
 {
     LLCoros::instance().launch("LLTwitterConnect::twitterDisconnectCoro",
-        boost::bind(&LLTwitterConnect::twitterDisconnectCoro, this, _1));
+        boost::bind(&LLTwitterConnect::twitterDisconnectCoro, this));
 }
 
 void LLTwitterConnect::checkConnectionToTwitter(bool auto_connect)
 {
     LLCoros::instance().launch("LLTwitterConnect::twitterConnectedCoro",
-        boost::bind(&LLTwitterConnect::twitterConnectedCoro, this, _1, auto_connect));
+        boost::bind(&LLTwitterConnect::twitterConnectedCoro, this, auto_connect));
 }
 
 void LLTwitterConnect::loadTwitterInfo()
@@ -445,7 +445,7 @@ void LLTwitterConnect::loadTwitterInfo()
 	if(mRefreshInfo)
 	{
         LLCoros::instance().launch("LLTwitterConnect::twitterInfoCoro",
-            boost::bind(&LLTwitterConnect::twitterInfoCoro, this, _1));
+            boost::bind(&LLTwitterConnect::twitterInfoCoro, this));
 	}
 }
 
@@ -456,13 +456,13 @@ void LLTwitterConnect::uploadPhoto(const std::string& image_url, const std::stri
 	body["status"] = status;
 
     LLCoros::instance().launch("LLTwitterConnect::twitterShareCoro",
-        boost::bind(&LLTwitterConnect::twitterShareCoro, this, _1, "/share/photo", body));
+        boost::bind(&LLTwitterConnect::twitterShareCoro, this, "/share/photo", body));
 }
 
 void LLTwitterConnect::uploadPhoto(LLPointer<LLImageFormatted> image, const std::string& status)
 {
     LLCoros::instance().launch("LLTwitterConnect::twitterShareImageCoro",
-        boost::bind(&LLTwitterConnect::twitterShareImageCoro, this, _1, image, status));
+        boost::bind(&LLTwitterConnect::twitterShareImageCoro, this, image, status));
 }
 
 void LLTwitterConnect::updateStatus(const std::string& status)
@@ -471,7 +471,7 @@ void LLTwitterConnect::updateStatus(const std::string& status)
 	body["status"] = status;
 	
     LLCoros::instance().launch("LLTwitterConnect::twitterShareCoro",
-        boost::bind(&LLTwitterConnect::twitterShareCoro, this, _1, "/share/status", body));
+        boost::bind(&LLTwitterConnect::twitterShareCoro, this, "/share/status", body));
 }
 
 void LLTwitterConnect::storeInfo(const LLSD& info)

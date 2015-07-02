@@ -166,7 +166,7 @@ protected:
 
 	void initBaseMask();
 
-    void fetchFeatureTableCoro(LLCoros::self& self, std::string name);
+    void fetchFeatureTableCoro(std::string name);
 
 	std::map<std::string, LLFeatureList *> mMaskList;
 	std::set<std::string> mSkippedFeatures;

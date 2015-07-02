@@ -86,7 +86,7 @@ private:
 	void populateFriend();
 	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
 
-    static void findCoro(LLCoros::self& self, std::string url, LLUUID mQueryID, std::string mName);
+    static void findCoro(std::string url, LLUUID mQueryID, std::string mName);
 	void find();
 	void setAllowMultiple(BOOL allow_multiple);
 	LLScrollListCtrl* getActiveList();
