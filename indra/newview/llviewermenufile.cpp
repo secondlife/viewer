@@ -85,8 +85,9 @@ class LLFileEnableUpload : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
-		return new_value;
+        return true;
+// 		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+// 		return new_value;
 	}
 };
 
@@ -757,38 +758,15 @@ LLUUID upload_new_resource(
 
 	if (!error)
 	{
-		std::string t_disp_name = display_name;
-		if (t_disp_name.empty())
-		{
-			t_disp_name = src_filename;
-		}
-
-#if 1
         NewResourceUploadInfo::ptr_t uploadInfo(new NewResourceUploadInfo(
+            tid, asset_type,
             name, desc, compression_info,
             destination_folder_type, inv_type,
             next_owner_perms, group_perms, everyone_perms,
-            display_name, expected_upload_cost));
+            expected_upload_cost));
 
-        upload_new_resource(tid, asset_type, uploadInfo, 
+        upload_new_resource(uploadInfo, 
                 callback, userdata);
-#else
-		upload_new_resource(
-			tid,
-			asset_type,
-			name,
-			desc,
-			compression_info, // tid
-			destination_folder_type,
-			inv_type,
-			next_owner_perms,
-			group_perms,
-			everyone_perms,
-			display_name,
-			callback,
-			expected_upload_cost,
-			userdata);
-#endif
 	}
 	else
 	{
@@ -933,63 +911,7 @@ void upload_done_callback(
 	}
 }
 
-#if 0
-static LLAssetID upload_new_resource_prep(
-	const LLTransactionID& tid,
-	LLAssetType::EType asset_type,
-	LLInventoryType::EType& inventory_type,
-	std::string& name,
-	const std::string& display_name,
-	std::string& description)
-{
-	LLAssetID uuid = generate_asset_id_for_new_upload(tid);
-
-	increase_new_upload_stats(asset_type);
-
-	assign_defaults_and_show_upload_message(
-		asset_type,
-		inventory_type,
-		name,
-		display_name,
-		description);
-
-	return uuid;
-}
-#endif
-
-#if 0
-LLSD generate_new_resource_upload_capability_body(
-	LLAssetType::EType asset_type,
-	const std::string& name,
-	const std::string& desc,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms)
-{
-	LLSD body;
-
-	body["folder_id"] = gInventory.findCategoryUUIDForType(
-		(destination_folder_type == LLFolderType::FT_NONE) ?
-		(LLFolderType::EType) asset_type :
-		destination_folder_type);
-
-	body["asset_type"] = LLAssetType::lookup(asset_type);
-	body["inventory_type"] = LLInventoryType::lookup(inv_type);
-	body["name"] = name;
-	body["description"] = desc;
-	body["next_owner_mask"] = LLSD::Integer(next_owner_perms);
-	body["group_mask"] = LLSD::Integer(group_perms);
-	body["everyone_mask"] = LLSD::Integer(everyone_perms);
-
-	return body;
-}
-#endif
-
 void upload_new_resource(
-    const LLTransactionID &tid,
-    LLAssetType::EType assetType,
     NewResourceUploadInfo::ptr_t &uploadInfo,
     LLAssetStorage::LLStoreAssetCallback callback,
     void *userdata)
@@ -999,8 +921,8 @@ void upload_new_resource(
 		return ;
 	}
 
-    uploadInfo->setAssetType(assetType);
-    uploadInfo->setTransactionId(tid);
+//     uploadInfo->setAssetType(assetType);
+//     uploadInfo->setTransactionId(tid);
 
 
 	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
@@ -1010,19 +932,6 @@ void upload_new_resource(
         LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, _3, url, uploadInfo);
 
         LLCoprocedureManager::getInstance()->enqueueCoprocedure("LLViewerAssetUpload::AssetInventoryUploadCoproc", proc);
-//		LL_INFOS() << "New Agent Inventory via capability" << LL_ENDL;
-//         uploadInfo->prepareUpload();
-//         uploadInfo->logPreparedUpload();
-// 
-//         LLSD body = uploadInfo->generatePostBody();
-// 
-// 		LLHTTPClient::post(
-// 			url,
-// 			body,
-// 			new LLNewAgentInventoryResponder(
-// 				body,
-// 				uploadInfo->getAssetId(),
-// 				assetType));
 	}
 	else
 	{
@@ -1032,9 +941,9 @@ void upload_new_resource(
 		LL_INFOS() << "NewAgentInventory capability not found, new agent inventory via asset system." << LL_ENDL;
 		// check for adequate funds
 		// TODO: do this check on the sim
-		if (LLAssetType::AT_SOUND == assetType ||
-			LLAssetType::AT_TEXTURE == assetType ||
-			LLAssetType::AT_ANIMATION == assetType)
+		if (LLAssetType::AT_SOUND == uploadInfo->getAssetType() ||
+            LLAssetType::AT_TEXTURE == uploadInfo->getAssetType() ||
+            LLAssetType::AT_ANIMATION == uploadInfo->getAssetType())
 		{
 			S32 balance = gStatusBar->getBalance();
 			if (balance < uploadInfo->getExpectedUploadCost())
@@ -1049,9 +958,9 @@ void upload_new_resource(
 		}
 
 		LLResourceData* data = new LLResourceData;
-		data->mAssetInfo.mTransactionID = tid;
+		data->mAssetInfo.mTransactionID = uploadInfo->getTransactionId();
 		data->mAssetInfo.mUuid = uploadInfo->getAssetId();
-		data->mAssetInfo.mType = assetType;
+        data->mAssetInfo.mType = uploadInfo->getAssetType();
 		data->mAssetInfo.mCreatorID = gAgentID;
 		data->mInventoryType = uploadInfo->getInventoryType();
 		data->mNextOwnerPerm = uploadInfo->getNextOwnerPerms();
@@ -1074,68 +983,6 @@ void upload_new_resource(
 			FALSE);
 	}
 }
-
-#if 0
-LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid)
-{
-	if ( gDisconnected )
-	{	
-		LLAssetID rv;
-
-		rv.setNull();
-		return rv;
-	}
-
-	LLAssetID uuid = tid.makeAssetID(gAgent.getSecureSessionID());
-
-	return uuid;
-}
-
-void increase_new_upload_stats(LLAssetType::EType asset_type)
-{
-	if ( LLAssetType::AT_SOUND == asset_type )
-	{
-		add(LLStatViewer::UPLOAD_SOUND, 1);
-	}
-	else if ( LLAssetType::AT_TEXTURE == asset_type )
-	{
-		add(LLStatViewer::UPLOAD_TEXTURE, 1);
-	}
-	else if ( LLAssetType::AT_ANIMATION == asset_type )
-	{
-		add(LLStatViewer::ANIMATION_UPLOADS, 1);
-	}
-}
-
-void assign_defaults_and_show_upload_message(
-	LLAssetType::EType asset_type,
-	LLInventoryType::EType& inventory_type,
-	std::string& name,
-	const std::string& display_name,
-	std::string& description)
-{
-	if ( LLInventoryType::IT_NONE == inventory_type )
-	{
-		inventory_type = LLInventoryType::defaultForAssetType(asset_type);
-	}
-	LLStringUtil::stripNonprintable(name);
-	LLStringUtil::stripNonprintable(description);
-
-	if ( name.empty() )
-	{
-		name = "(No Name)";
-	}
-	if ( description.empty() )
-	{
-		description = "(No Description)";
-	}
-
-	// At this point, we're ready for the upload.
-	std::string upload_message = "Uploading...\n\n";
-	upload_message.append(display_name);
-	LLUploadDialog::modalUploadDialog(upload_message);
-}
-#endif
 
 
 void init_menu_file()
@@ -1160,14 +1007,14 @@ void init_menu_file()
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }
 
-LLAssetID NewResourceUploadInfo::prepareUpload()
+LLSD NewResourceUploadInfo::prepareUpload()
 {
-    LLAssetID uuid = generateNewAssetId();
+    generateNewAssetId();
 
     incrementUploadStats();
     assignDefaults();
 
-    return uuid;
+    return LLSD().with("success", LLSD::Boolean(true));
 }
 
 std::string NewResourceUploadInfo::getAssetTypeString() const
@@ -1208,6 +1055,84 @@ void NewResourceUploadInfo::logPreparedUpload()
         "Folder: " << mFolderId << std::endl <<
         "Asset Type: " << LLAssetType::lookup(mAssetType) << LL_ENDL;
 }
+
+LLUUID NewResourceUploadInfo::finishUpload(LLSD &result)
+{
+    if (getFolderId().isNull())
+    {
+        return LLUUID::null;
+    }
+
+    U32 permsEveryone = PERM_NONE;
+    U32 permsGroup = PERM_NONE;
+    U32 permsNextOwner = PERM_ALL;
+
+    if (result.has("new_next_owner_mask"))
+    {
+        // The server provided creation perms so use them.
+        // Do not assume we got the perms we asked for in
+        // since the server may not have granted them all.
+        permsEveryone = result["new_everyone_mask"].asInteger();
+        permsGroup = result["new_group_mask"].asInteger();
+        permsNextOwner = result["new_next_owner_mask"].asInteger();
+    }
+    else
+    {
+        // The server doesn't provide creation perms
+        // so use old assumption-based perms.
+        if (getAssetTypeString() != "snapshot")
+        {
+            permsNextOwner = PERM_MOVE | PERM_TRANSFER;
+        }
+    }
+
+    LLPermissions new_perms;
+    new_perms.init(
+        gAgent.getID(),
+        gAgent.getID(),
+        LLUUID::null,
+        LLUUID::null);
+
+    new_perms.initMasks(
+        PERM_ALL,
+        PERM_ALL,
+        permsEveryone,
+        permsGroup,
+        permsNextOwner);
+
+    U32 flagsInventoryItem = 0;
+    if (result.has("inventory_flags"))
+    {
+        flagsInventoryItem = static_cast<U32>(result["inventory_flags"].asInteger());
+        if (flagsInventoryItem != 0)
+        {
+            LL_INFOS() << "inventory_item_flags " << flagsInventoryItem << LL_ENDL;
+        }
+    }
+    S32 creationDate = time_corrected();
+
+    LLUUID serverInventoryItem = result["new_inventory_item"].asUUID();
+    LLUUID serverAssetId = result["new_asset"].asUUID();
+
+    LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
+        serverInventoryItem,
+        getFolderId(),
+        new_perms,
+        serverAssetId,
+        getAssetType(),
+        getInventoryType(),
+        getName(),
+        getDescription(),
+        LLSaleInfo::DEFAULT,
+        flagsInventoryItem,
+        creationDate);
+
+    gInventory.updateItem(item);
+    gInventory.notifyObservers();
+
+    return serverInventoryItem;
+}
+
 
 LLAssetID NewResourceUploadInfo::generateNewAssetId()
 {
@@ -1263,3 +1188,7 @@ void NewResourceUploadInfo::assignDefaults()
 
 }
 
+std::string NewResourceUploadInfo::getDisplayName() const
+{ 
+    return (mName.empty()) ? mAssetId.asString() : mName; 
+};

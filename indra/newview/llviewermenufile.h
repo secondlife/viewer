@@ -39,13 +39,15 @@ class LLTransactionID;
 
 void init_menu_file();
 
-#if 1
 class NewResourceUploadInfo
 {
 public:
     typedef boost::shared_ptr<NewResourceUploadInfo> ptr_t;
 
-    NewResourceUploadInfo(std::string name, 
+    NewResourceUploadInfo(
+        LLTransactionID transactId,
+        LLAssetType::EType assetType,
+        std::string name, 
         std::string description, 
         S32 compressionInfo,
         LLFolderType::EType destinationType,
@@ -53,48 +55,53 @@ public:
         U32 nextOWnerPerms, 
         U32 groupPerms, 
         U32 everyonePerms, 
-        std::string displayName,
         S32 expectedCost) :
+            mTransactionId(transactId),
+            mAssetType(assetType),
             mName(name),
             mDescription(description),
-            mDisplayName(displayName),
             mCompressionInfo(compressionInfo),
+            mDestinationFolderType(destinationType),
+            mInventoryType(inventoryType),
             mNextOwnerPerms(nextOWnerPerms),
             mGroupPerms(groupPerms),
             mEveryonePerms(everyonePerms),
             mExpectedUploadCost(expectedCost),
-            mInventoryType(inventoryType),
-            mDestinationFolderType(destinationType)
+            mFolderId(LLUUID::null),
+            mItemId(LLUUID::null),
+            mAssetId(LLAssetID::null)
     { }
 
     virtual ~NewResourceUploadInfo()
     { }
 
-    virtual LLAssetID   prepareUpload();
+    virtual LLSD        prepareUpload();
     virtual LLSD        generatePostBody();
     virtual void        logPreparedUpload();
+    virtual LLUUID      finishUpload(LLSD &result);
 
-    void                setAssetType(LLAssetType::EType assetType) { mAssetType = assetType; }
+    //void                setAssetType(LLAssetType::EType assetType) { mAssetType = assetType; }
+    //void                setTransactionId(LLTransactionID transactionId) { mTransactionId = transactionId; }
+
+    LLTransactionID     getTransactionId() const { return mTransactionId; }
     LLAssetType::EType  getAssetType() const { return mAssetType; }
     std::string         getAssetTypeString() const;
-    void                setTransactionId(LLTransactionID transactionId) { mTransactionId = transactionId; }
-    LLTransactionID     getTransactionId() const { return mTransactionId; }
-    LLUUID              getFolderId() const { return mFolderId; }
-
-    LLAssetID           getAssetId() const { return mAssetId; }
-
     std::string         getName() const { return mName; };
     std::string         getDescription() const { return mDescription; };
-    std::string         getDisplayName() const { return mDisplayName; };
     S32                 getCompressionInfo() const { return mCompressionInfo; };
+    LLFolderType::EType getDestinationFolderType() const { return mDestinationFolderType; };
+    LLInventoryType::EType  getInventoryType() const { return mInventoryType; };
+    std::string         getInventoryTypeString() const;
     U32                 getNextOwnerPerms() const { return mNextOwnerPerms; };
     U32                 getGroupPerms() const { return mGroupPerms; };
     U32                 getEveryonePerms() const { return mEveryonePerms; };
     S32                 getExpectedUploadCost() const { return mExpectedUploadCost; };
-    LLInventoryType::EType  getInventoryType() const { return mInventoryType; };
-    std::string         getInventoryTypeString() const;
-        
-    LLFolderType::EType     getDestinationFolderType() const { return mDestinationFolderType; };
+
+    std::string         getDisplayName() const;
+
+    LLUUID              getFolderId() const { return mFolderId; }
+    LLUUID              getItemId() const { return mItemId; }
+    LLAssetID           getAssetId() const { return mAssetId; }
 
 protected:
     LLAssetID           generateNewAssetId();
@@ -102,22 +109,21 @@ protected:
     virtual void        assignDefaults();
 
 private:
+    LLTransactionID     mTransactionId;
     LLAssetType::EType  mAssetType;
     std::string         mName;
     std::string         mDescription;
-    std::string         mDisplayName;
     S32                 mCompressionInfo;
+    LLFolderType::EType mDestinationFolderType;
+    LLInventoryType::EType mInventoryType;
     U32                 mNextOwnerPerms;
     U32                 mGroupPerms;
     U32                 mEveryonePerms;
     S32                 mExpectedUploadCost;
+
     LLUUID              mFolderId;
-
-    LLInventoryType::EType mInventoryType;
-    LLFolderType::EType    mDestinationFolderType;
-
+    LLUUID              mItemId;
     LLAssetID           mAssetId;
-    LLTransactionID     mTransactionId;
 };
 
 
@@ -137,66 +143,17 @@ LLUUID upload_new_resource(
     void *userdata);
 
 void upload_new_resource(
-    const LLTransactionID &tid, 
-    LLAssetType::EType type,
     NewResourceUploadInfo::ptr_t &uploadInfo,
     LLAssetStorage::LLStoreAssetCallback callback = NULL,
     void *userdata = NULL);
 
 
-#else
-LLUUID upload_new_resource(
-    const std::string& src_filename, 
-    std::string name,
-    std::string desc, 
-    S32 compression_info,
-    LLFolderType::EType destination_folder_type,
-    LLInventoryType::EType inv_type,
-    U32 next_owner_perms,
-    U32 group_perms,
-    U32 everyone_perms,
-    const std::string& display_name,
-    LLAssetStorage::LLStoreAssetCallback callback,
-    S32 expected_upload_cost,
-    void *userdata);
-
-void upload_new_resource(
-	const LLTransactionID &tid, 
-	LLAssetType::EType type,
-	std::string name,
-	std::string desc, 
-	S32 compression_info,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms,
-	const std::string& display_name,
-	LLAssetStorage::LLStoreAssetCallback callback,
-	S32 expected_upload_cost,
-	void *userdata);
-
-LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid);
-void increase_new_upload_stats(LLAssetType::EType asset_type);
-#endif
 void assign_defaults_and_show_upload_message(
 	LLAssetType::EType asset_type,
 	LLInventoryType::EType& inventory_type,
 	std::string& name,
 	const std::string& display_name,
 	std::string& description);
-
-#if 0
-LLSD generate_new_resource_upload_capability_body(
-	LLAssetType::EType asset_type,
-	const std::string& name,
-	const std::string& desc,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms);
-#endif
 
 void on_new_single_inventory_upload_complete(
 	LLAssetType::EType asset_type,

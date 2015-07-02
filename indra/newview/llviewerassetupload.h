@@ -44,7 +44,8 @@ public:
     static void AssetInventoryUploadCoproc(LLCoros::self &self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
         std::string url, NewResourceUploadInfo::ptr_t uploadInfo);
 
-
+private:
+    static void HandleUploadError(LLCore::HttpStatus status, LLSD &result, NewResourceUploadInfo::ptr_t &uploadInfo);
 };
 
 #endif // !VIEWER_ASSET_UPLOAD_H

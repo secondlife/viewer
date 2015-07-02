@@ -1009,12 +1009,13 @@ void LLSnapshotLivePreview::saveTexture()
         std::string name = "Snapshot: " + pos_string;
         std::string desc = "Taken by " + who_took_it + " at " + pos_string;
 
-        NewResourceUploadInfo::ptr_t assetUploadInfo(new NewResourceUploadInfo(name, desc, 0,
+        NewResourceUploadInfo::ptr_t assetUploadInfo(new NewResourceUploadInfo(
+            tid, LLAssetType::AT_TEXTURE, name, desc, 0,
             LLFolderType::FT_SNAPSHOT_CATEGORY, LLInventoryType::IT_SNAPSHOT,
             PERM_ALL, LLFloaterPerms::getGroupPerms("Uploads"), LLFloaterPerms::getEveryonePerms("Uploads"),
-            name, expected_upload_cost));
+            expected_upload_cost));
 
-        upload_new_resource(tid, LLAssetType::AT_TEXTURE, assetUploadInfo);
+        upload_new_resource(assetUploadInfo);
 
 #else
         LLAssetStorage::LLStoreAssetCallback callback = NULL;
