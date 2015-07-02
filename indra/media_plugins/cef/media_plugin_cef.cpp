@@ -339,26 +339,35 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "mouse_event")
 			{
 				std::string event = message_in.getValue("event");
-				//S32 button = message_in.getValueS32("button");
+				
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
 
 				//std::string modifiers = message_in.getValue("modifiers");
 
+				S32 button = message_in.getValueS32("button");
+				EMouseButton btn = MB_MOUSE_BUTTON_LEFT;
+				if (button == 0) btn = MB_MOUSE_BUTTON_LEFT;
+				if (button == 1) btn = MB_MOUSE_BUTTON_RIGHT;
+				if (button == 2) btn = MB_MOUSE_BUTTON_MIDDLE;
+
 				if (event == "down")
 				{
-					mLLCEFLib->mouseButton(0, true, x, y);
-					mLLCEFLib->setFocus(true);
+					mLLCEFLib->mouseButton(btn, ME_MOUSE_DOWN, x, y);
 					std::stringstream str;
 					str << "Mouse down at = " << x << ", " << y;
 					postDebugMessage(str.str());
 				}
 				else if (event == "up")
 				{
-					mLLCEFLib->mouseButton(0, false, x, y);
+					mLLCEFLib->mouseButton(btn, ME_MOUSE_UP, x, y);
+					std::stringstream str;
+					str << "Mouse up at = " << x << ", " << y;
+					postDebugMessage(str.str());
 				}
 				else if (event == "double_click")
 				{
+					// TODO: do we need this ?
 				}
 				else
 				{
