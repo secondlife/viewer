@@ -541,19 +541,23 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 {
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), id);
 	
+	LLPanel* panel_to_delete = panel;
+
 	if( it != mToastList.end() && panel)
 	{
 		LLToast* toast = it->getToast();
 		if (toast)
 		{
-		LLPanel* old_panel = toast->getPanel();
-		toast->removeChild(old_panel);
-		delete old_panel;
-		toast->insertPanel(panel);
-		toast->startTimer();
+			LLPanel* old_panel = toast->getPanel();
+			toast->removeChild(old_panel);
+			panel_to_delete = old_panel;
+			toast->insertPanel(panel);
+			toast->startTimer();
 		}
 		redrawToasts();
 	}
+
+	delete panel_to_delete;
 }
 
 //--------------------------------------------------------------------------

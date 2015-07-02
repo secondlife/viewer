@@ -5,7 +5,7 @@
 	<menu_item_check label="Mostra prima i più recenti" name="sort_by_recent"/>
 	<menu_item_check label="Ordina le cartelle sempre in base al nome" name="sort_folders_by_name"/>
 	<menu_item_check label="Ordina cartelle di sistema all&apos;inizio" name="sort_system_folders_to_top"/>
-	<menu_item_call label="Mostra filtri" name="show_filters"/>
+	<menu_item_call label="Mostra filtri..." name="show_filters"/>
 	<menu_item_call label="Ripristina filtri" name="reset_filters"/>
 	<menu_item_call label="Chiudi tutte le cartelle" name="close_folders"/>
 	<menu_item_call label="Svuota oggetti smarriti" name="empty_lostnfound"/>

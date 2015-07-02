@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="Профиль объекта">
+	<panel.string name="loading_experience">
+		(загрузка)
+	</panel.string>
 	<panel.string name="unknown">
 		(неизвестно)
 	</panel.string>
@@ -42,6 +45,9 @@
 			</text>
 			<text name="LabelAcquiredTitle">
 				Приобретено:
+			</text>
+			<text name="LabelItemExperienceTitle">
+				Приключение:
 			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">

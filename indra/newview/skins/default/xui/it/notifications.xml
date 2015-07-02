@@ -73,6 +73,10 @@ Dettagli errore: La notifica denominata &apos;[_NAME]&apos; non è stata trovata
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Si"/>
 	</notification>
+	<notification name="GenericAlertOK">
+		[MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="BadInstallation">
 		Il programma [APP_NAME] ha riscontrato un&apos;errore durante il tentativo di aggiornamento.  [http://get.secondlife.com Scarica l&apos;ultima versione] del Viewer.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -571,6 +575,9 @@ La qualità grafica può essere aumentata in Preferenze &gt; Grafica.
 	</notification>
 	<notification name="RegionNoTerraforming">
 		La regione [REGION] non consente di terraformare.
+	</notification>
+	<notification name="ParcelNoTerraforming">
+		Non ti è consentito terraformare il lotto [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
 		Non hai l&apos;autorizzazione a copiare i seguenti oggetti:
@@ -1829,6 +1836,30 @@ Cambierà migliaia di regioni e produrrà seri problemi ai vari server.
 		Rimuovi come gestore della proprietà solo per questa proprietà oppure per  [ALL_ESTATES]?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà" yestext="Questa proprietà"/>
 	</notification>
+	<notification label="Seleziona proprietà immobiliare" name="EstateAllowedExperienceAdd">
+		Aggiungi all&apos;elenco di elementi consentiti per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
+	</notification>
+	<notification label="Seleziona proprietà immobiliare" name="EstateAllowedExperienceRemove">
+		Rimuovi dall&apos;elenco di elementi consentiti per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
+	</notification>
+	<notification label="Seleziona proprietà immobiliare" name="EstateBlockedExperienceAdd">
+		Aggiungi all&apos;elenco di elementi bloccati per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
+	</notification>
+	<notification label="Seleziona proprietà immobiliare" name="EstateBlockedExperienceRemove">
+		Rimuovi dall&apos;elenco di elementi bloccati per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
+	</notification>
+	<notification label="Seleziona proprietà immobiliare" name="EstateTrustedExperienceAdd">
+		Aggiungi all&apos;elenco di elementi chiave per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
+	</notification>
+	<notification label="Seleziona proprietà immobiliare" name="EstateTrustedExperienceRemove">
+		Rimuovi dall&apos;elenco di elementi chiave per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
+	</notification>
 	<notification label="Conferma espulsione" name="EstateKickUser">
 		Espelli [EVIL_USER] da questa proprietà?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
@@ -1901,6 +1932,10 @@ Cambierà migliaia di regioni e produrrà seri problemi ai vari server.
 	</notification>
 	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
 		Si è verificato un problema con il teleport a causa di un errore di sincronizzazione delle preferenze con il server.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RegionTPSpecialUsageBlocked">
+		Impossibile entrare nella regione. &apos;[REGION_NAME]&apos; è una regione per giochi di abilità e per entrare è necessario soddisfare alcuni requisiti. Per dettagli, leggi le [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life domande frequenti sui giochi di abilità].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PreferredMaturityChanged">
@@ -2210,6 +2245,9 @@ Vuoi sostituirlo con l&apos;oggetto selezionato?
 			<button ignore="Replace Automatically" name="Yes" text="OK"/>
 			<button ignore="Never Replace" name="No" text="Annulla"/>
 		</form>
+	</notification>
+	<notification name="TooManyWearables">
+		Non puoi indossare una cartella che contiene più di [AMOUNT] elementi. Per modificare questo limite, accedi ad Avanzate &gt; Mostra impostazioni di debug &gt; WearFolderLimit.
 	</notification>
 	<notification label="Avviso modalità Non disturbare" name="DoNotDisturbModePay">
 		Hai attivato la modalità Non disturbare. Non riceverai alcun oggetto offerto in cambio di questo pagamento.
@@ -2819,7 +2857,7 @@ Se rimani qui verrai scollegato da Second Life.
 
 [MESSAGE]
 
-Dall&apos;oggetto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, proprietario: [NAME]?
+Dall&apos;oggetto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, proprietario: [NAME]
 		<form name="form">
 			<button name="Gotopage" text="Caricare"/>
 			<button name="Cancel" text="Annulla"/>
@@ -2843,6 +2881,72 @@ OK?
 			<button name="Yes" text="Si"/>
 			<button name="No" text="No"/>
 			<button name="Mute" text="Blocca"/>
+		</form>
+	</notification>
+	<notification name="ExperienceAcquireFailed">
+		Impossibile acquisire una nuova esperienza:
+    [ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NotInGroupExperienceProfileMessage">
+		Una modifica apportata al gruppo esperienza è stata ignorata perché il proprietario non è un membro del gruppo selezionato.
+	</notification>
+	<notification name="UneditableExperienceProfileMessage">
+		Il campo non modificabile &apos;[field]&apos; è stato ignorato durante l&apos;aggiornamento del profilo esperienza.
+	</notification>
+	<notification name="RestrictedToOwnerExperienceProfileMessage">
+		Ignorate le modifiche apportate al campo &apos;[field]&apos;, che può essere impostato solo dal proprietario dell&apos;esperienza.
+	</notification>
+	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
+		Non puoi impostare la categoria di accesso di un&apos;esperienza a un livello maggiore di quello del proprietario.
+	</notification>
+	<notification name="RestrictedTermExperienceProfileMessage">
+		I termini seguenti hanno impedito l&apos;aggiornamento del nome o della descrizione del profilo dell&apos;esperienza: [extra_info]
+	</notification>
+	<notification name="TeleportedHomeExperienceRemoved">
+		Sei stato teleportato dalla regione [region_name] per aver rimosso l&apos;esperienza secondlife:///app/experience/[public_id]/profile e non puoi più accedere alla regione.
+		<form name="form">
+			<ignore name="ignore" text="Espulso dalla regione per aver rimosso un&apos;esperienza"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperienceEntry">
+		Ti è stato consentito l&apos;accesso alla regione [region_name] grazie alla partecipazione all&apos;esperienza chiave secondlife:///app/experience/[public_id]/profile. Se rimuovi l&apos;esperienza, sarai passibile di espulsione dalla regione.
+		<form name="form">
+			<ignore name="ignore" text="Può accedere a una regione grazie a un&apos;esperienza"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperiencesAvailable">
+		Non puoi accedere a questa destinazione. Potresti accedere alla regione accettando un&apos;esperienza nell&apos;elenco seguente:
+
+[EXPERIENCE_LIST]
+
+Potrebbero essere disponibili altre esperienze chiave.
+	</notification>
+	<notification name="ExperienceEvent">
+		L&apos;esperienza secondlife:///app/experience/[public_id]/profile ha consentito un oggetto la seguente azione: [EventType].
+    Proprietario: secondlife:///app/agent/[OwnerID]/inspect
+    Nome oggetto: [ObjectName]
+    Nome lotto: [ParcelName]
+	</notification>
+	<notification name="ExperienceEventAttachment">
+		L&apos;esperienza secondlife:///app/experience/[public_id]/profile ha consentito un elemento collegato la seguente azione: [EventType].
+    Proprietario: secondlife:///app/agent/[OwnerID]/inspect
+	</notification>
+	<notification name="ScriptQuestionExperience">
+		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, un oggetto posseduto da &apos;[NAME]&apos;, richiede la tua partecipazione all&apos;esperienza [GRID_WIDE]:
+
+[EXPERIENCE]
+
+Una volta concessa l&apos;autorizzazione, questo messaggio non verrà più visualizzato per questa esperienza, a meno che l&apos;autorizzazione non venga revocata nel profilo dell&apos;esperienza.
+
+Gli script associati a questa esperienza potranno fare quanto segue nelle regioni in cui è attiva l&apos;esperienza: 
+
+[QUESTIONS]OK?
+		<form name="form">
+			<button name="BlockExperience" text="Blocca esperienza"/>
+			<button name="Mute" text="Blocca oggetto"/>
+			<button name="Yes" text="Sì"/>
+			<button name="No" text="No"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
@@ -3163,6 +3267,10 @@ Hai caricato una texture [RESOLUTION] completata per &apos;[BODYREGION]&apos; do
 	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
 		( In esistenza da [EXISTENCE] secondi)
 Hai aggiornato localmente una texture [RESOLUTION] completata per &apos;[BODYREGION]&apos; dopo [TIME] secondi.
+	</notification>
+	<notification name="CannotUploadTexture">
+		Impossibile caricare la texture.
+[REASON]
 	</notification>
 	<notification name="LivePreviewUnavailable">
 		Non possiamo mostrare un&apos;anteprima di questa texture perché non ne è consentita la copia e/o il trasferimento.

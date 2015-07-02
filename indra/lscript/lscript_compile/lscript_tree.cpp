@@ -3844,6 +3844,156 @@ S32 LLScriptNotAtTarget::getSize()
 	return 0;
 }
 
+
+void LLScriptEXPEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
+{
+	if (gErrorToText.getErrors())
+	{
+		return;
+	}
+	switch(pass)
+	{
+	case LSCP_PRETTY_PRINT:
+	case LSCP_EMIT_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "experience_permissions( key ");
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )\n");
+		break;
+	case LSCP_SCOPE_PASS1:
+	    checkForDuplicateHandler(fp, this, scope, "experience_permissions");
+		if (scope->checkEntry(mName->mName))
+		{
+			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
+		}
+		else
+		{
+			mName->mScopeEntry = scope->addEntry(mName->mName, LIT_VARIABLE, LST_KEY);
+		}
+	    break;
+	case LSCP_RESOURCE:
+		{
+			// we're just tryng to determine how much space the variable needs
+			if (mName->mScopeEntry)
+			{
+				mName->mScopeEntry->mOffset = (S32)count;
+				mName->mScopeEntry->mSize = 4;
+				count += mName->mScopeEntry->mSize;
+			}
+		}
+		break;
+
+	case LSCP_EMIT_BYTE_CODE:
+		{
+#ifdef LSL_INCLUDE_DEBUG_INFO
+			char name[] = "experience_permissions";
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
+#endif
+		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "experience_permissions( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
+		break;
+	default:
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		break;
+	}
+}
+
+S32 LLScriptEXPEvent::getSize()
+{
+	// key = 4
+	return 4;
+}
+
+
+void LLScriptEXPDeniedEvent::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
+{
+	if (gErrorToText.getErrors())
+	{
+		return;
+	}
+	switch(pass)
+	{
+	case LSCP_PRETTY_PRINT:
+	case LSCP_EMIT_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "experience_permissions_denied( key ");
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", integer ");
+		mReason->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )\n");
+		break;
+	case LSCP_SCOPE_PASS1:
+		checkForDuplicateHandler(fp, this, scope, "experience_permissions_denied");
+		if (scope->checkEntry(mName->mName))
+		{
+			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
+		}
+		else
+		{
+			mName->mScopeEntry = scope->addEntry(mName->mName, LIT_VARIABLE, LST_KEY);
+		}
+		if (scope->checkEntry(mReason->mName))
+		{
+			gErrorToText.writeError(fp, this, LSERROR_DUPLICATE_NAME);
+		}
+		else
+		{
+			mReason->mScopeEntry = scope->addEntry(mReason->mName, LIT_VARIABLE, LST_INTEGER);
+		}
+		break;
+	case LSCP_RESOURCE:
+		{
+			// we're just trying to determine how much space the variable needs
+			if (mName->mScopeEntry)
+			{
+				mName->mScopeEntry->mOffset = (S32)count;
+				mName->mScopeEntry->mSize = 4;
+				count += mName->mScopeEntry->mSize;	
+
+				mReason->mScopeEntry->mOffset = (S32)count;
+				mReason->mScopeEntry->mSize = 4;
+				count += mReason->mScopeEntry->mSize;
+			}
+		}
+		break;
+
+	case LSCP_EMIT_BYTE_CODE:
+		{
+#ifdef LSL_INCLUDE_DEBUG_INFO
+			char name[] = "experience_permissions_denied";
+			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
+			chunk->addBytes(mReason->mName, strlen(mReason->mName) + 1);
+#endif
+		}
+		break;
+	case LSCP_EMIT_CIL_ASSEMBLY:
+		fdotabs(fp, tabs, tabsize);
+		fprintf(fp, "experience_permissions_denied( valuetype [ScriptTypes]LindenLab.SecondLife.Key ");
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, ", int32 ");
+		mReason->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		fprintf(fp, " )");
+		break;
+	default:
+		mName->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		mReason->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		break;
+	}
+}
+
+S32 LLScriptEXPDeniedEvent::getSize()
+{
+	// key = 4 + integer
+	return LSCRIPTDataSize[LST_KEY]+LSCRIPTDataSize[LST_INTEGER];
+}
+
 void LLScriptAtRotTarget::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata)
 {
 	if (gErrorToText.getErrors())
@@ -8569,6 +8719,7 @@ void LLScriptReturn::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 			}
 		}
 		prunearg = TRUE;
+		break;
 	case LSCP_TYPE:
 		// if there is a return expression, it must be promotable to the return type of the function
 		if (mExpression)
@@ -9767,7 +9918,13 @@ void LLScriptEventHandler::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			mScopeEntry->mFunctionArgs.addType(LST_STRING);
 			mScopeEntry->mFunctionArgs.addType(LST_STRING);
 			break;
-
+		case LSTT_EXPERMISSIONS:
+			mScopeEntry->mFunctionArgs.addType(LST_KEY);
+			break;
+		case LSTT_EXPERMISSIONS_DENIED:
+			mScopeEntry->mFunctionArgs.addType(LST_KEY);
+			mScopeEntry->mFunctionArgs.addType(LST_INTEGER);
+			break;
 		default:
 			break;
 		}

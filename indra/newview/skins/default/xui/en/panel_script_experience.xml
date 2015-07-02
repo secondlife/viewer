@@ -1,0 +1,97 @@
+<panel
+  name="script_experience"
+  title="EXPERIENCE"
+  width="400"
+  follows="top|left|right"
+  top="0"
+  left="0"
+  layout="topleft">
+  <!-- <floater.string name="EXPERIENCE">EXPERIENCE!!!!</floater.string>
+ 
+  <floater.string name="Script:">Script:</floater.string>
+  <floater.string name="Associated with:">Associated with:</floater.string>
+  <floater.string name="You can contribute:">You can contribute:</floater.string>
+  <floater.string name="Associate with:">Associate with:</floater.string>
+  <floater.string name="Yes">Yes</floater.string>
+  <floater.string name="No">No</floater.string>
+  <floater.string name="(none)"></floater.string>
+  <floater.string name="Choose Experience...">Choose Experience...</floater.string>
+  <floater.string name="You are not a contributor to any experiences.">You are not a contributor to any experiences.</floater.string>
+  -->
+  
+  <button name="Expand Experience" width="200"
+          height="35"
+          is_toggle="true"
+          tab_stop="false"
+          pad_left="35"
+          top="0"
+          left="3"
+          label="Experience"
+          halign="left"
+          handle_right_mouse="false"
+          follows="top|left|right"
+          image_unselected="MarketplaceBtn_Off"
+          image_selected="MarketplaceBtn_Selected">
+  </button>
+  <check_box
+	  follows="top|right" height="25" label="Uses Experience" left="215" width="0" top="0" name="enable_xp"
+	  />
+  <layout_stack
+    follows="top|left|right"
+    
+    width="384"
+    height="140"
+    name="xp_details"
+    left="4"
+    top="45"
+    orientation="horizontal"
+    layout="topleft"
+    visible="false">
+    <layout_panel  width="120"
+                   height="140">
+      <text >
+        Script:
+      </text>
+      <text bottom_delta="25">
+        Associated with:
+      </text>
+      <text bottom_delta="25">
+        You can contribute:
+      </text>
+      <text bottom_delta="25">
+        Associate with:
+      </text>
+    </layout_panel>
+
+    <layout_panel width="250"
+                  height="140">
+      <text >
+        EasySit Animator 1.2.4
+      </text>
+      <text bottom_delta="25"
+           text_color="HTMLLinkColor" font.style="UNDERLINE">
+        Kyle's Superhero RPG
+      </text>
+      <text bottom_delta="25">
+        Yes
+      </text>
+      <combo_box left="0" bottom_delta="33"
+                 label="Choose Experience..."
+                 name="Experiences..."
+                 follows="top|left|right"
+        />
+    </layout_panel>
+  </layout_stack>
+  <text
+    follows="top|left|right"
+	  width="400"
+	  height="15"
+	  bottom_delta="-12"
+	  left="0"
+    halign="center"
+    name="No Experiences"
+    visible="false"
+    text_color="AlertCautionTextColor">
+    You are not a contributor to any experiences.
+  </text>
+</panel>

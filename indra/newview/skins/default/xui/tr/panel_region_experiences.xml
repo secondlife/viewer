@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Deneyimler" name="Experiences">
+	<panel.string name="trusted_estate_text">
+		Her Deneyim bir Anahtar olabilir.
+
+Bu gayrimenkul üzerinde Anahtar Deneyimlerin çalıştırılma izni var.
+
+Ek olarak, gayrimenkul genel erişime izin vermiyorsa, herhangi bir Anahtar Deneyime katılan Sakinler gayrimenkule girebilir ve bir Anahtar Deneyime dahil oldukları sürece burada kalabilirler.
+	</panel.string>
+	<panel.string name="allowed_estate_text">
+		Yalnızca Arazi Kapsamındaki Deneyimlere İzin Verilebilir.
+
+Bu gayrimenkul üzerinde İzin Verilen Deneyimlerin çalıştırılma izni var.
+	</panel.string>
+	<panel.string name="blocked_estate_text">
+		Yalnızca Ağ Kapsamındaki Deneyimler Engellenebilir.
+      
+Bu gayrimenkul üzerinde Engellenmiş Deneyimler çalıştırılamaz.
+	</panel.string>
+	<panel.string name="estate_caption">
+		Bu sekmedeki ayarlarda yapılan değişiklikler gayrimenkul içerisindeki tüm bölgeleri etkiler.
+	</panel.string>
+	<panel.string name="allowed_parcel_text">
+		Yalnızca Arazi Kapsamındaki Deneyimlere İzin Verilebilir.
+      
+Gayrimenkul tarafından engellenmemişlerse, İzin Verilen Deneyimlerin bu parsel üzerinde çalıştırılma izni vardır.
+	</panel.string>
+	<panel.string name="blocked_parcel_text">
+		Sakinlerin Tüm Deneyimleri Engellenebilir.
+      
+Engellenmiş Deneyimler bu parselde çalıştırılamaz.
+	</panel.string>
+</panel>

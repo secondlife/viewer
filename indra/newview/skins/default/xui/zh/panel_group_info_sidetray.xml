@@ -23,6 +23,7 @@
 				<accordion_tab name="group_roles_tab" title="角色與成員"/>
 				<accordion_tab name="group_notices_tab" title="通知"/>
 				<accordion_tab name="group_land_tab" title="土地 / 資產"/>
+				<accordion_tab name="group_experiences_tab" title="體驗"/>
 			</accordion>
 		</layout_panel>
 	</layout_stack>

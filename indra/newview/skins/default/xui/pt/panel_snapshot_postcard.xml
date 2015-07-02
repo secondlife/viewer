@@ -10,8 +10,12 @@
 		Enviando...
 	</string>
 	<text name="title">
-		E-mail
+		Email
 	</text>
-	<button label="Mensagem" name="message_btn"/>
-	<button label="Configurações" name="settings_btn"/>
+	<tab_container name="postcard_tabs">
+		<panel label="Mensagem" name="panel_postcard_message"/>
+		<panel label="Configurações" name="panel_postcard_settings"/>
+	</tab_container>
+	<button label="Cancelar" name="cancel_btn"/>
+	<button label="Enviar" name="send_btn"/>
 </panel>

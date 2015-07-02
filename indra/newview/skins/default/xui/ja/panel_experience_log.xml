@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="EVENTS">
+	<string name="no_events" value="イベントなし。"/>
+	<string name="loading" value="ローディング..."/>
+	<layout_stack>
+		<layout_panel>
+			<scroll_list name="experience_log_list">
+				<columns label="時間" name="time"/>
+				<columns label="イベント" name="event"/>
+				<columns label="体験" name="experience_name"/>
+				<columns label="オブジェクト" name="object_name"/>
+			</scroll_list>
+			<button label="知らせる" name="btn_notify"/>
+			<button label="プロフィール" name="btn_profile_xp"/>
+			<button label="報告" name="btn_report_xp"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<check_box label="すべてのイベントを通知   日数" name="notify_all"/>
+			<button label="クリア" name="btn_clear"/>
+			<button label="&lt;" name="btn_prev"/>
+			<button label="&gt;" name="btn_next"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

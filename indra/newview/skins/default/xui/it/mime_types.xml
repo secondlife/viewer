@@ -24,10 +24,10 @@
 	</widgetset>
 	<widgetset name="none">
 		<label name="none_label">
-			Senza Contenuti
+			Nessun contenuto
 		</label>
 		<tooltip name="none_tooltip">
-			Nessun video qui
+			Nessun contenuto multimediale qui
 		</tooltip>
 	</widgetset>
 	<widgetset name="image">

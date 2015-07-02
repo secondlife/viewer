@@ -9,7 +9,24 @@
 	<floater.string name="Title">
 		СКРИПТ: [NAME]
 	</floater.string>
+	<floater.string name="experience_enabled">
+		Снимите флажок для удаления текущего приключения
+	</floater.string>
+	<floater.string name="no_experiences">
+		Вам не разрешено пользоваться приключениями
+	</floater.string>
+	<floater.string name="add_experiences">
+		Выберите, чтобы добавить приключение
+	</floater.string>
+	<floater.string name="show_experience_profile">
+		Щелкните для просмотра профиля приключения
+	</floater.string>
+	<floater.string name="loading">
+		Загрузка...
+	</floater.string>
 	<button label="Сброс" label_selected="Сброс" name="Reset"/>
 	<check_box initial_value="true" label="Выполняется" name="running"/>
 	<check_box initial_value="true" label="Моно" name="mono"/>
+	<check_box label="Использовать приключение:" name="enable_xp"/>
+	<button label="&gt;" name="view_profile"/>
 </floater>

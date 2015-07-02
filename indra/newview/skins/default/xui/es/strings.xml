@@ -440,6 +440,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="TooltipMustSingleDrop">
 		Aquí se puede arrastrar sólo un ítem
 	</string>
+	<string name="TooltipTooManyWearables">
+		No puedes tener una carpeta de prendas que contenga más de [AMOUNT] elementos.  Puedes cambiar este límite en Avanzado &gt; Mostrar las configuraciones del depurador &gt; WearFolderLimit.
+	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$:"/>
 	<string name="TooltipOutboxDragToWorld">
 		No puedes colocar objetos en tu buzón de salida de comerciante
@@ -1042,9 +1045,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="AgentNameSubst">
 		(Tú)
 	</string>
-	<string name="JoinAnExperience">
-		Únete a una experiencia
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas al gestionar las listas de acceso a un estado
 	</string>
@@ -1848,6 +1849,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		Fallo desconocido en la descarga
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Omitiendo el script [SCRIPT] con la experiencia [EXPERIENCE].
 	</string>
 	<string name="CompileQueueTitle">
 		Recompilando
@@ -5173,6 +5177,87 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="UserDictionary">
 		[Usuario]
+	</string>
+	<string name="experience_tools_experience">
+		Experiencia
+	</string>
+	<string name="ExperienceNameNull">
+		(sin experiencia)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(experiencia sin título)
+	</string>
+	<string name="Land-Scope">
+		Activa en el terreno
+	</string>
+	<string name="Grid-Scope">
+		Activa en el Grid
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		PERMITIDO
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		BLOQUEADO
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		COLABORADOR
+	</string>
+	<string name="Admin_Experiences_Tab">
+		ADMIN.
+	</string>
+	<string name="Recent_Experiences_Tab">
+		RECIENTE
+	</string>
+	<string name="Owned_Experiences_Tab">
+		PROPIEDAD
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], máx. [MAXEXPERIENCES])
+	</string>
+	<string name="ExperiencePermission1">
+		hacerte con tus controles
+	</string>
+	<string name="ExperiencePermission3">
+		activar animaciones en tu avatar
+	</string>
+	<string name="ExperiencePermission4">
+		anexar a tu avatar
+	</string>
+	<string name="ExperiencePermission9">
+		seguimiento de la cámara
+	</string>
+	<string name="ExperiencePermission10">
+		controlar tu cámara
+	</string>
+	<string name="ExperiencePermission11">
+		teleportarte
+	</string>
+	<string name="ExperiencePermission12">
+		aceptar automáticamente permisos de experiencias
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		ha realizado una operación desconocida: [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Ponerte al mando
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Activar animaciones
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Anexar
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Seguir la cámara
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Controlar la cámara
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Teleportarte
+	</string>
+	<string name="ExperiencePermissionShort12">
+		Otorgar permisos
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		No se están registrando las conversaciones. Para empezar a grabar un registro, elige &quot;Guardar: Solo registro&quot; o &quot;Guardar: Registro y transcripciones&quot; en Preferencias &gt; Chat.

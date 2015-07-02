@@ -81,13 +81,15 @@ protected:
 	// returns true if this is done
 	BOOL isDone() const;
 
+	virtual BOOL startQueue();
+
 	// go to the next object. If no objects left, it falls out
 	// silently and waits to be killed by the deleteIfDone() callback.
 	BOOL nextObject();
 	BOOL popNext();
 
 	void setStartString(const std::string& s) { mStartString = s; }
-	
+
 protected:
 	// UI
 	LLScrollListCtrl* mMessages;
@@ -131,6 +133,9 @@ public:
 	
 	LLAssetUploadQueue* getUploadQueue() { return mUploadQueue; }
 
+	void experienceIdsReceived( const LLSD& content );
+	BOOL hasExperience(const LLUUID& id)const;
+
 protected:
 	LLFloaterCompileQueue(const LLSD& key);
 	virtual ~LLFloaterCompileQueue();
@@ -139,16 +144,21 @@ protected:
 	virtual void handleInventory(LLViewerObject* viewer_obj,
 								LLInventoryObject::object_list_t* inv);
 
+	static void requestAsset(struct LLScriptQueueData* datap, const LLSD& experience);
+
+
 	// This is the callback for when each script arrives
 	static void scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 								LLAssetType::EType type,
 								void* user_data, S32 status, LLExtStat ext_status);
 
+	virtual BOOL startQueue();
 protected:
 	LLViewerInventoryItem::item_array_t mCurrentScripts;
 
 private:
 	LLAssetUploadQueue* mUploadQueue;
+	uuid_list_t mExperienceIds;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

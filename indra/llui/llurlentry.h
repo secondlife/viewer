@@ -309,6 +309,20 @@ private:
 };
 
 ///
+/// LLUrlEntryExperienceProfile Describes a Second Life experience profile Url, e.g.,
+/// secondlife:///app/experience/0e346d8b-4433-4d66-a6b0-fd37083abc4c/profile
+/// that displays the experience name
+class LLUrlEntryExperienceProfile : public LLUrlEntryBase
+{
+public:
+    LLUrlEntryExperienceProfile();
+    /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+private:
+    void onExperienceDetails(const LLSD& experience_details);
+};
+
+
+///
 /// LLUrlEntryGroup Describes a Second Life group Url, e.g.,
 /// secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about
 ///
