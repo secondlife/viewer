@@ -21,6 +21,12 @@
 	<floater.string name="none_descriptor">
 		Hiçbiri bulunamadı.
 	</floater.string>
+	<floater.string name="URLs">
+		URL&apos;ler
+	</floater.string>
+	<floater.string name="memory">
+		Bellek (KB)
+	</floater.string>
 	<text name="title_text">
 		Yükleniyor...
 	</text>
@@ -30,7 +36,7 @@
 		<scroll_list.columns label="Sahip" name="owner"/>
 		<scroll_list.columns label="Konum" name="location"/>
 		<scroll_list.columns label="Parsel" name="parcel"/>
-		<scroll_list.columns label="Süre" name="time"/>
+		<scroll_list.columns label="Tarih" name="time"/>
 		<scroll_list.columns label="URL&apos;ler" name="URLs"/>
 		<scroll_list.columns label="Bellek (KB)" name="memory"/>
 	</scroll_list>

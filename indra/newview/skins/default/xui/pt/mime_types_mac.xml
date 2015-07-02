@@ -44,6 +44,14 @@
 			Tocar o áudio desta localização
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Sem conteúdo
+		</label>
+		<tooltip name="none_tooltip">
+			Sem mídia aqui
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Real Time Streaming

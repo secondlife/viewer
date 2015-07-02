@@ -627,6 +627,39 @@ public:
 	LLScriptIdentifier	*mRTPermissions;
 };
 
+class LLScriptEXPEvent : public LLScriptEvent
+{
+public:
+	LLScriptEXPEvent(S32 line, S32 col, LLScriptIdentifier *name)
+		: LLScriptEvent(line, col, LSTT_EXPERMISSIONS), mName(name)
+	{
+	}
+
+	~LLScriptEXPEvent() {}
+
+	void recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata);
+	S32 getSize();
+
+	LLScriptIdentifier	*mName;
+};
+
+class LLScriptEXPDeniedEvent : public LLScriptEvent
+{
+public:
+	LLScriptEXPDeniedEvent(S32 line, S32 col, LLScriptIdentifier *name, LLScriptIdentifier *reason)
+		: LLScriptEvent(line, col, LSTT_EXPERMISSIONS_DENIED), mName(name), mReason(reason)
+	{
+	}
+
+	~LLScriptEXPDeniedEvent() {}
+
+	void recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pass, LSCRIPTPruneType ptype, BOOL &prunearg, LLScriptScope *scope, LSCRIPTType &type, LSCRIPTType basetype, U64 &count, LLScriptByteCodeChunk *chunk, LLScriptByteCodeChunk *heap, S32 stacksize, LLScriptScopeEntry *entry, S32 entrycount, LLScriptLibData **ldata);
+	S32 getSize();
+
+	LLScriptIdentifier	*mName;
+	LLScriptIdentifier	*mReason;
+};
+
 class LLScriptChatEvent : public LLScriptEvent
 {
 public:

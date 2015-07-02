@@ -73,6 +73,10 @@
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="Да"/>
 	</notification>
+	<notification name="GenericAlertOK">
+		[MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="BadInstallation">
 		Произошла ошибка при обновлении [APP_NAME]. [http://get.secondlife.com Загрузите последнюю версию] клиента.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -574,6 +578,9 @@
 	</notification>
 	<notification name="RegionNoTerraforming">
 		В регионе [REGION] не разрешен терраформинг.
+	</notification>
+	<notification name="ParcelNoTerraforming">
+		Вам не разрешено терраформировать участок [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
 		У вас нет разрешения на копирование следующих предметов:
@@ -1825,6 +1832,30 @@ http://secondlife.com/download.
 		Удалить менеджера только для этого землевладения или для [ALL_ESTATES]?
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
 	</notification>
+	<notification label="Выбрать землевладение" name="EstateAllowedExperienceAdd">
+		Внести в список допущенных только для этого землевладения или для [ALL_ESTATES]?
+		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
+	</notification>
+	<notification label="Выбрать землевладение" name="EstateAllowedExperienceRemove">
+		Удалить из списка допущенных только для этого землевладения или для [ALL_ESTATES]?
+		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
+	</notification>
+	<notification label="Выбрать землевладение" name="EstateBlockedExperienceAdd">
+		Внести в список заблокированных только для этого землевладения или для [ALL_ESTATES]?
+		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
+	</notification>
+	<notification label="Выбрать землевладение" name="EstateBlockedExperienceRemove">
+		Удалить из списка заблокированных только для этого землевладения или для [ALL_ESTATES]?
+		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
+	</notification>
+	<notification label="Выбрать землевладение" name="EstateTrustedExperienceAdd">
+		Внести в ключевой список только для этого землевладения или для [ALL_ESTATES]?
+		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
+	</notification>
+	<notification label="Выбрать землевладение" name="EstateTrustedExperienceRemove">
+		Удалить из ключевой список только для этого землевладения или для [ALL_ESTATES]?
+		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
+	</notification>
 	<notification label="Подтвердить выбрасывание" name="EstateKickUser">
 		Выбросить пользователя [EVIL_USER] из этого землевладения?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
@@ -1897,6 +1928,10 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
 		При телепортации возникли технические проблемы, так как ваши настройки не синхронизированы с сервером.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RegionTPSpecialUsageBlocked">
+		Не удалось войти в регион. «[REGION_NAME]» – это регион развивающих игр, и для входа в него надо соответствовать определенным условиям. Подробнее см. на странице [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PreferredMaturityChanged">
@@ -2204,6 +2239,9 @@ http://secondlife.com/download.
 			<button ignore="Заменять автоматически" name="Yes" text="OK"/>
 			<button ignore="Не заменять" name="No" text="Отмена"/>
 		</form>
+	</notification>
+	<notification name="TooManyWearables">
+		Нельзя носить папку, содержащую более [AMOUNT] вещей.  Это ограничение можно изменить в меню «Дополнительно &gt; Настройки отладки &gt; WearFolderLimit.
 	</notification>
 	<notification label="Предупреждение режима «Не беспокоить»" name="DoNotDisturbModePay">
 		Включен режим «Не беспокоить». Вы не будете получать никаких предметов, предлагаемых в обмен за этот платеж.
@@ -2814,7 +2852,7 @@ http://secondlife.com/download.
 
 [MESSAGE]
 
-Из объекта: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, владелец: [NAME]?
+Из объекта: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, владелец: [NAME]
 		<form name="form">
 			<button name="Gotopage" text="Перейти на страницу"/>
 			<button name="Cancel" text="Отмена"/>
@@ -2838,6 +2876,72 @@ http://secondlife.com/download.
 			<button name="Yes" text="Да"/>
 			<button name="No" text="Нет"/>
 			<button name="Mute" text="Заблокировать"/>
+		</form>
+	</notification>
+	<notification name="ExperienceAcquireFailed">
+		Невозможно приобрести новое приключение:
+    [ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NotInGroupExperienceProfileMessage">
+		Изменение в группе приключения игнорируется, так как владелец не принадлежит к выбранной группе.
+	</notification>
+	<notification name="UneditableExperienceProfileMessage">
+		Нередактируемое поле «[field]» игнорируется при обновлении профиля приключения.
+	</notification>
+	<notification name="RestrictedToOwnerExperienceProfileMessage">
+		Игнорируются изменения в поле «[field]», которые может вносить только владелец приключения.
+	</notification>
+	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
+		Вы не можете устанавливать для приключения рейтинг зрелости выше, чем у владельца.
+	</notification>
+	<notification name="RestrictedTermExperienceProfileMessage">
+		Следующие условия не допускают обновление названия и (или) описания профиля приключения: [extra_info]
+	</notification>
+	<notification name="TeleportedHomeExperienceRemoved">
+		Вы были телепортированы из региона [region_name] за удаление приключения secondlife:///app/experience/[public_id]/profile. Вам больше не разрешено пребывание в этом регионе.
+		<form name="form">
+			<ignore name="ignore" text="Выброшен из региона за удаление приключения"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperienceEntry">
+		Вам был разрешен вход в регион [region_name] путем участия в ключевом приключении secondlife:///app/experience/[public_id]/profile. При удалении этого приключения вы можете быть выброшены из региона.
+		<form name="form">
+			<ignore name="ignore" text="Приключение разрешило вход в регион"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperiencesAvailable">
+		У вас нет доступа к этому месту назначения. Вам может быть разрешен вход в этот регион при принятии следующего приключения:
+
+[EXPERIENCE_LIST]
+
+Могут быть доступны следующие ключевые приключения.
+	</notification>
+	<notification name="ExperienceEvent">
+		Разрешен объект для события [EventType] приключением secondlife:///app/experience/[public_id]/profile.
+    Владелец: secondlife:///app/agent/[OwnerID]/inspect
+    Название объекта: [ObjectName]
+    Название участка: [ParcelName]
+	</notification>
+	<notification name="ExperienceEventAttachment">
+		Разрешено присоединение для события [EventType] приключением secondlife:///app/experience/[public_id]/profile.
+    Владелец: secondlife:///app/agent/[OwnerID]/inspect
+	</notification>
+	<notification name="ScriptQuestionExperience">
+		Объект «&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;», владелец которого – «[NAME]», требует вашего участия в приключении [GRID_WIDE]:
+
+[EXPERIENCE]
+
+После получения разрешения это сообщение больше не будет отображаться для данного приключения, пока оно не будет отозвано из профиля приключения.
+
+Скрипты, связанные с данным приключением, смогут выполнять следующие действия в регионах, где активно приключение: 
+
+[QUESTIONS]Это правильно?
+		<form name="form">
+			<button name="BlockExperience" text="Заблокировать приключение"/>
+			<button name="Mute" text="Заблокировать объект"/>
+			<button name="Yes" text="Да"/>
+			<button name="No" text="Нет"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
@@ -3158,6 +3262,10 @@ http://secondlife.com/download.
 	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
 		( [EXISTENCE] сек. жизни )
 Вы локально обновили готовую текстуру [RESOLUTION] для «[BODYREGION]» через [TIME] сек.
+	</notification>
+	<notification name="CannotUploadTexture">
+		Невозможно загрузить текстуру.
+[REASON]
 	</notification>
 	<notification name="LivePreviewUnavailable">
 		Просмотр этой текстуры невозможен, так как запрещено ее копирование и/или перенос.

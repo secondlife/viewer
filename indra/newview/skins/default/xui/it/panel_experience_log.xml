@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="EVENTS">
+	<string name="no_events" value="Nessun evento."/>
+	<string name="loading" value="caricamento in corso..."/>
+	<layout_stack>
+		<layout_panel>
+			<scroll_list name="experience_log_list">
+				<columns label="Giorno/ora" name="time"/>
+				<columns label="Evento" name="event"/>
+				<columns label="Esperienza" name="experience_name"/>
+				<columns label="Oggetto" name="object_name"/>
+			</scroll_list>
+			<button label="Notifica" name="btn_notify"/>
+			<button label="Profilo" name="btn_profile_xp"/>
+			<button label="Segnalazione" name="btn_report_xp"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<check_box label="Notifica tutti gli eventi   Giorni" name="notify_all"/>
+			<button label="Cancella" name="btn_clear"/>
+			<button label="&lt;" name="btn_prev"/>
+			<button label="&gt;" name="btn_next"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

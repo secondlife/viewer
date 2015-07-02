@@ -449,6 +449,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="TooltipMustSingleDrop">
 		Impossible de faire glisser plus d&apos;un objet ici
 	</string>
+	<string name="TooltipTooManyWearables">
+		Vous ne pouvez pas porter un dossier contenant plus de [AMOUNT] articles.  Vous pouvez modifier cette limite dans Avancé &gt; Afficher les paramètres de débogage &gt; WearFolderLimit.
+	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$ :"/>
 	<string name="TooltipOutboxDragToWorld">
 		Impossible de rezzer des articles dans la boîte d&apos;envoi vendeur
@@ -1060,9 +1063,7 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="AgentNameSubst">
 		(Vous)
 	</string>
-	<string name="JoinAnExperience">
-		Rejoindre une expérience
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Supprimer les alertes lors de la gestion des listes d&apos;accès aux domaines
 	</string>
@@ -1872,6 +1873,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		Échec du téléchargement, erreur inconnue
+	</string>
+	<string name="CompileNoExperiencePerm">
+		En train d&apos;ignorer le script [SCRIPT] avec l&apos;expérience [EXPERIENCE].
 	</string>
 	<string name="CompileQueueTitle">
 		Recompilation - progrès
@@ -5263,6 +5267,87 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="UserDictionary">
 		[User]
+	</string>
+	<string name="experience_tools_experience">
+		Expérience
+	</string>
+	<string name="ExperienceNameNull">
+		(aucune expérience)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(expérience sans titre)
+	</string>
+	<string name="Land-Scope">
+		À l&apos;échelle des terrains
+	</string>
+	<string name="Grid-Scope">
+		À l&apos;échelle de la grille
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		AUTORISÉE
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		BLOQUÉE
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		CONTRIBUTEUR
+	</string>
+	<string name="Admin_Experiences_Tab">
+		ADMIN
+	</string>
+	<string name="Recent_Experiences_Tab">
+		RÉCENTE
+	</string>
+	<string name="Owned_Experiences_Tab">
+		AVEC PROPRIÉTAIRE
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], [MAXEXPERIENCES] max.)
+	</string>
+	<string name="ExperiencePermission1">
+		assumer vos contrôles
+	</string>
+	<string name="ExperiencePermission3">
+		déclencher des animations pour votre avatar
+	</string>
+	<string name="ExperiencePermission4">
+		attacher à votre avatar
+	</string>
+	<string name="ExperiencePermission9">
+		suivre votre caméra
+	</string>
+	<string name="ExperiencePermission10">
+		contrôler votre caméra
+	</string>
+	<string name="ExperiencePermission11">
+		vous téléporter
+	</string>
+	<string name="ExperiencePermission12">
+		accepter automatiquement les permissions d&apos;expérience
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		a effectué une opération inconnue : [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Prendre le contrôle
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Déclencher des animations
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Attacher
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Suivre la caméra
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Contrôler la caméra
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Téléporter
+	</string>
+	<string name="ExperiencePermissionShort12">
+		Permission
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Les conversations ne sont pas archivées. Pour commencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.

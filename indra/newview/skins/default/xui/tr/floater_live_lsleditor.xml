@@ -9,7 +9,24 @@
 	<floater.string name="Title">
 		KOMUT DOSYASI: [NAME]
 	</floater.string>
+	<floater.string name="experience_enabled">
+		Mevcut deneyimi kaldırmak için kutunun işaretini kaldırın
+	</floater.string>
+	<floater.string name="no_experiences">
+		Hiçbir deneyim için yetkiniz yok
+	</floater.string>
+	<floater.string name="add_experiences">
+		Ekleyeceğiniz deneyimi seçin
+	</floater.string>
+	<floater.string name="show_experience_profile">
+		Deneyim profilini görmek için tıklayın
+	</floater.string>
+	<floater.string name="loading">
+		Yükleniyor...
+	</floater.string>
 	<button label="Sıfırla" label_selected="Sıfırla" name="Reset"/>
 	<check_box initial_value="true" label="Çalışıyor" name="running"/>
 	<check_box initial_value="true" label="Mono" name="mono"/>
+	<check_box label="Deneyimi Kullanın:" name="enable_xp"/>
+	<button label="&gt;" name="view_profile"/>
 </floater>

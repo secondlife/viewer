@@ -46,7 +46,7 @@
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
 S32 BUTTON_WIDTH = 90;
-// *TODO: magic numbers(?) - copied from llnotify.cpp(250)
+// *TODO: magic numbers - copied from llnotify.cpp(250)
 const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE; 
 
 
