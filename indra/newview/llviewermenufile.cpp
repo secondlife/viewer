@@ -1254,6 +1254,7 @@ NewFileResourceUploadInfo::NewFileResourceUploadInfo(
     mFileName(fileName)
 {
     LLTransactionID tid;
+    tid.generate();
     setTransactionId(tid);
 }
 
