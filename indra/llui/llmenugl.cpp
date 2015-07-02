@@ -225,7 +225,6 @@ BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 
 BOOL LLMenuItemGL::handleHover(S32 x, S32 y, MASK mask)
 {
-	setHover(TRUE);
 	getWindow()->setCursor(UI_CURSOR_ARROW);
 	return TRUE;
 }
@@ -234,6 +233,18 @@ BOOL LLMenuItemGL::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLMenuItemGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return LLUICtrl::handleRightMouseDown(x,y,mask);
+}
+
+void LLMenuItemGL::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	setHover(TRUE);
+	LLUICtrl::onMouseEnter(x,y,mask);
+}
+
+void LLMenuItemGL::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	setHover(FALSE);
+	LLUICtrl::onMouseLeave(x,y,mask);
 }
 
 //virtual
@@ -533,9 +544,6 @@ void LLMenuItemGL::draw( void )
 			gl_line_2d(x_begin, (MENU_ITEM_PADDING / 2) + 1, x_end, (MENU_ITEM_PADDING / 2) + 1);
 		}
 	}
-
-	// clear got hover every frame
-	setHover(FALSE);
 }
 
 BOOL LLMenuItemGL::setLabelArg( const std::string& key, const LLStringExplicit& text )
@@ -1597,10 +1605,6 @@ void LLMenuItemBranchDownGL::draw( void )
 			gl_line_2d(x_begin, LABEL_BOTTOM_PAD_PIXELS, x_end, LABEL_BOTTOM_PAD_PIXELS);
 		}
 	}
-
-	// reset every frame so that we only show highlight 
-	// when we get hover events on that frame
-	setHover(FALSE);
 }
 
 
