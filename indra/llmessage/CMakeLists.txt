@@ -261,7 +261,7 @@ if (LL_TESTS)
     ${GOOGLEMOCK_LIBRARIES}
     )
 
-  LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
+  #LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")

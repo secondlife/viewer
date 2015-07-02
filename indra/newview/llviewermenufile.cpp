@@ -413,7 +413,6 @@ class LLFileUploadBulk : public view_listener_t
 		}
 
 		// TODO:
-		// Iterate over all files
 		// Check extensions for uploadability, cost
 		// Check user balance for entire cost
 		// Charge user entire cost
