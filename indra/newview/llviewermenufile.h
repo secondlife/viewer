@@ -45,31 +45,31 @@ public:
     typedef boost::shared_ptr<NewResourceUploadInfo> ptr_t;
 
     NewResourceUploadInfo(
-        LLTransactionID transactId,
-        LLAssetType::EType assetType,
-        std::string name, 
-        std::string description, 
-        S32 compressionInfo,
-        LLFolderType::EType destinationType,
-        LLInventoryType::EType inventoryType,
-        U32 nextOWnerPerms, 
-        U32 groupPerms, 
-        U32 everyonePerms, 
-        S32 expectedCost) :
-            mTransactionId(transactId),
-            mAssetType(assetType),
-            mName(name),
-            mDescription(description),
-            mCompressionInfo(compressionInfo),
-            mDestinationFolderType(destinationType),
-            mInventoryType(inventoryType),
-            mNextOwnerPerms(nextOWnerPerms),
-            mGroupPerms(groupPerms),
-            mEveryonePerms(everyonePerms),
-            mExpectedUploadCost(expectedCost),
-            mFolderId(LLUUID::null),
-            mItemId(LLUUID::null),
-            mAssetId(LLAssetID::null)
+            LLTransactionID transactId,
+            LLAssetType::EType assetType,
+            std::string name, 
+            std::string description, 
+            S32 compressionInfo,
+            LLFolderType::EType destinationType,
+            LLInventoryType::EType inventoryType,
+            U32 nextOWnerPerms, 
+            U32 groupPerms, 
+            U32 everyonePerms, 
+            S32 expectedCost) :
+        mTransactionId(transactId),
+        mAssetType(assetType),
+        mName(name),
+        mDescription(description),
+        mCompressionInfo(compressionInfo),
+        mDestinationFolderType(destinationType),
+        mInventoryType(inventoryType),
+        mNextOwnerPerms(nextOWnerPerms),
+        mGroupPerms(groupPerms),
+        mEveryonePerms(everyonePerms),
+        mExpectedUploadCost(expectedCost),
+        mFolderId(LLUUID::null),
+        mItemId(LLUUID::null),
+        mAssetId(LLAssetID::null)
     { }
 
     virtual ~NewResourceUploadInfo()
@@ -97,13 +97,42 @@ public:
     U32                 getEveryonePerms() const { return mEveryonePerms; };
     S32                 getExpectedUploadCost() const { return mExpectedUploadCost; };
 
-    std::string         getDisplayName() const;
+    virtual std::string getDisplayName() const;
 
     LLUUID              getFolderId() const { return mFolderId; }
     LLUUID              getItemId() const { return mItemId; }
     LLAssetID           getAssetId() const { return mAssetId; }
 
 protected:
+    NewResourceUploadInfo(
+            std::string name,
+            std::string description,
+            S32 compressionInfo,
+            LLFolderType::EType destinationType,
+            LLInventoryType::EType inventoryType,
+            U32 nextOWnerPerms,
+            U32 groupPerms,
+            U32 everyonePerms,
+            S32 expectedCost) :
+        mName(name),
+        mDescription(description),
+        mCompressionInfo(compressionInfo),
+        mDestinationFolderType(destinationType),
+        mInventoryType(inventoryType),
+        mNextOwnerPerms(nextOWnerPerms),
+        mGroupPerms(groupPerms),
+        mEveryonePerms(everyonePerms),
+        mExpectedUploadCost(expectedCost),
+        mTransactionId(),
+        mAssetType(LLAssetType::AT_NONE),
+        mFolderId(LLUUID::null),
+        mItemId(LLUUID::null),
+        mAssetId(LLAssetID::null)
+    { }
+
+    void                setTransactionId(LLTransactionID tid) { mTransactionId = tid; }
+    void                setAssetType(LLAssetType::EType assetType) { mAssetType = assetType; }
+
     LLAssetID           generateNewAssetId();
     void                incrementUploadStats() const;
     virtual void        assignDefaults();
@@ -124,6 +153,34 @@ private:
     LLUUID              mFolderId;
     LLUUID              mItemId;
     LLAssetID           mAssetId;
+};
+
+class NewFileResourceUploadInfo : public NewResourceUploadInfo
+{
+public:
+    NewFileResourceUploadInfo(
+        std::string fileName,
+        std::string name,
+        std::string description,
+        S32 compressionInfo,
+        LLFolderType::EType destinationType,
+        LLInventoryType::EType inventoryType,
+        U32 nextOWnerPerms,
+        U32 groupPerms,
+        U32 everyonePerms,
+        S32 expectedCost);
+
+    virtual LLSD        prepareUpload();
+
+    std::string         getFileName() const { return mFileName; };
+
+protected:
+
+    virtual LLSD        exportTempFile();
+
+private:
+    std::string         mFileName;
+
 };
 
 

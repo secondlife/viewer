@@ -425,6 +425,34 @@ class LLFileUploadBulk : public view_listener_t
 		LLFilePicker& picker = LLFilePicker::instance();
 		if (picker.getMultipleOpenFiles())
 		{
+            std::string filename = picker.getFirstFile();
+            S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+
+            while (!filename.empty())
+            {
+                std::string name = gDirUtilp->getBaseFileName(filename, true);
+
+                std::string asset_name = name;
+                LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
+                LLStringUtil::replaceChar(asset_name, '|', '?');
+                LLStringUtil::stripNonprintable(asset_name);
+                LLStringUtil::trim(asset_name);
+
+                NewResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
+                    filename,
+                    asset_name,
+                    asset_name, 0,
+                    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                    LLFloaterPerms::getGroupPerms("Uploads"),
+                    LLFloaterPerms::getEveryonePerms("Uploads"),
+                    expected_upload_cost));
+
+                upload_new_resource(uploadInfo, NULL, NULL);
+
+                filename = picker.getNextFile();
+            }
+#if 0
 			const std::string& filename = picker.getFirstFile();
 			std::string name = gDirUtilp->getBaseFileName(filename, true);
 			
@@ -456,6 +484,7 @@ class LLFileUploadBulk : public view_listener_t
 
 			// *NOTE: Ew, we don't iterate over the file list here,
 			// we handle the next files in upload_done_callback()
+#endif
 		}
 		else
 		{
@@ -640,6 +669,18 @@ LLUUID upload_new_resource(
 	S32 expected_upload_cost,
 	void *userdata)
 {	
+
+    NewResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
+        src_filename,
+        name, desc, compression_info,
+        destination_folder_type, inv_type,
+        next_owner_perms, group_perms, everyone_perms,
+        expected_upload_cost));
+    upload_new_resource(uploadInfo, callback, userdata);
+
+    return LLUUID::null;
+
+#if 0
 	// Generate the temporary UUID.
 	std::string filename = gDirUtilp->getTempFilename();
 	LLTransactionID tid;
@@ -782,6 +823,7 @@ LLUUID upload_new_resource(
 	}
 
 	return uuid;
+#endif
 }
 
 void upload_done_callback(
@@ -1009,7 +1051,8 @@ void init_menu_file()
 
 LLSD NewResourceUploadInfo::prepareUpload()
 {
-    generateNewAssetId();
+    if (mAssetId.isNull())
+        generateNewAssetId();
 
     incrementUploadStats();
     assignDefaults();
@@ -1192,3 +1235,161 @@ std::string NewResourceUploadInfo::getDisplayName() const
 { 
     return (mName.empty()) ? mAssetId.asString() : mName; 
 };
+
+
+NewFileResourceUploadInfo::NewFileResourceUploadInfo(
+        std::string fileName,
+        std::string name,
+        std::string description,
+        S32 compressionInfo,
+        LLFolderType::EType destinationType,
+        LLInventoryType::EType inventoryType,
+        U32 nextOWnerPerms,
+        U32 groupPerms,
+        U32 everyonePerms,
+        S32 expectedCost):
+    NewResourceUploadInfo(name, description, compressionInfo,
+        destinationType, inventoryType,
+        nextOWnerPerms, groupPerms, everyonePerms, expectedCost),
+    mFileName(fileName)
+{
+    LLTransactionID tid;
+    setTransactionId(tid);
+}
+
+
+
+LLSD NewFileResourceUploadInfo::prepareUpload()
+{
+    generateNewAssetId();
+
+    LLSD result = exportTempFile();
+    if (result.has("error"))
+        return result;
+
+    return NewResourceUploadInfo::prepareUpload();
+}
+
+LLSD NewFileResourceUploadInfo::exportTempFile()
+{
+    std::string filename = gDirUtilp->getTempFilename();
+
+    std::string exten = gDirUtilp->getExtension(getFileName());
+    U32 codec = LLImageBase::getCodecFromExtension(exten);
+
+    LLAssetType::EType assetType = LLAssetType::AT_NONE;
+    std::string errorMessage;
+    std::string errorLabel;
+
+    bool error = false;
+
+    if (exten.empty())
+    {
+        std::string shortName = gDirUtilp->getBaseFileName(filename);
+
+        // No extension
+        errorMessage = llformat(
+            "No file extension for the file: '%s'\nPlease make sure the file has a correct file extension",
+            shortName.c_str());
+        errorLabel = "NoFileExtension";
+        error = true;
+    }
+    else if (codec != IMG_CODEC_INVALID)
+    {
+        // It's an image file, the upload procedure is the same for all
+        assetType = LLAssetType::AT_TEXTURE;
+        if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
+        {
+            errorMessage = llformat("Problem with file %s:\n\n%s\n",
+                getFileName().c_str(), LLImage::getLastError().c_str());
+            errorLabel = "ProblemWithFile";
+            error = true;
+        }
+    }
+    else if (exten == "wav")
+    {
+        assetType = LLAssetType::AT_SOUND;  // tag it as audio
+        S32 encodeResult = 0;
+
+        LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
+
+        encodeResult = encode_vorbis_file(getFileName(), filename);
+
+        if (LLVORBISENC_NOERR != encodeResult)
+        {
+            switch (encodeResult)
+            {
+            case LLVORBISENC_DEST_OPEN_ERR:
+                errorMessage = llformat("Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
+                errorLabel = "CannotOpenTemporarySoundFile";
+                break;
+
+            default:
+                errorMessage = llformat("Unknown vorbis encode failure on: %s\n", getFileName().c_str());
+                errorLabel = "UnknownVorbisEncodeFailure";
+                break;
+            }
+            error = true;
+        }
+    }
+    else if (exten == "bvh")
+    {
+        errorMessage = llformat("We do not currently support bulk upload of animation files\n");
+        errorLabel = "DoNotSupportBulkAnimationUpload";
+        error = true;
+    }
+    else if (exten == "anim")
+    {
+        assetType = LLAssetType::AT_ANIMATION;
+        filename = getFileName();
+    }
+    else
+    {
+        // Unknown extension
+        errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
+        errorLabel = "ErrorMessage";
+        error = TRUE;;
+    }
+
+    if (error)
+    {
+        LLSD errorResult(LLSD::emptyMap());
+
+        errorResult["error"] = LLSD::Binary(true);
+        errorResult["message"] = errorMessage;
+        errorResult["label"] = errorLabel;
+        return errorResult;
+    }
+
+    setAssetType(assetType);
+
+    // copy this file into the vfs for upload
+    S32 file_size;
+    LLAPRFile infile;
+    infile.open(filename, LL_APR_RB, NULL, &file_size);
+    if (infile.getFileHandle())
+    {
+        LLVFile file(gVFS, getAssetId(), assetType, LLVFile::WRITE);
+
+        file.setMaxSize(file_size);
+
+        const S32 buf_size = 65536;
+        U8 copy_buf[buf_size];
+        while ((file_size = infile.read(copy_buf, buf_size)))
+        {
+            file.write(copy_buf, file_size);
+        }
+    }
+    else
+    {
+        errorMessage = llformat("Unable to access output file: %s", filename.c_str());
+        LLSD errorResult(LLSD::emptyMap());
+
+        errorResult["error"] = LLSD::Binary(true);
+        errorResult["message"] = errorMessage;
+        return errorResult;
+    }
+
+    return LLSD();
+
+}
