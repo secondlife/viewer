@@ -136,7 +136,24 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("request_teleport"));
-		items.push_back(std::string("voice_call"));
+
+		if (getType() != CONV_SESSION_1_ON_1)
+		{
+			items.push_back(std::string("voice_call"));
+		}
+		else
+		{
+			LLVoiceChannel* voice_channel = LLIMModel::getInstance() ? LLIMModel::getInstance()->getVoiceChannel(this->getUUID()) : NULL;
+			if(voice_channel != LLVoiceChannel::getCurrentVoiceChannel())
+			{
+				items.push_back(std::string("voice_call"));
+			}
+			else
+			{
+				items.push_back(std::string("disconnect_from_voice"));
+			}
+		}
+
 		items.push_back(std::string("chat_history"));
 		items.push_back(std::string("separator_chat_history"));
 		items.push_back(std::string("add_friend"));
