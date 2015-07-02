@@ -72,13 +72,16 @@ private:
     boost::optional<LLEventPump&> mPump;
 };
 
+namespace llcoro
+{
+
 /// This is an adapter for a signature like void LISTENER(const LLSD&), which
 /// isn't a valid LLEventPump listener: such listeners should return bool.
 template <typename LISTENER>
-class LLVoidListener
+class VoidListener
 {
 public:
-    LLVoidListener(const LISTENER& listener):
+    VoidListener(const LISTENER& listener):
         mListener(listener)
     {}
     bool operator()(const LLSD& event)
@@ -91,50 +94,12 @@ private:
     LISTENER mListener;
 };
 
-/// LLVoidListener helper function to infer the type of the LISTENER
+/// VoidListener helper function to infer the type of the LISTENER
 template <typename LISTENER>
-LLVoidListener<LISTENER> voidlistener(const LISTENER& listener)
+VoidListener<LISTENER> voidlistener(const LISTENER& listener)
 {
-    return LLVoidListener<LISTENER>(listener);
+    return VoidListener<LISTENER>(listener);
 }
-
-namespace LLEventDetail
-{
-    /**
-     * waitForEventOn() permits a coroutine to temporarily listen on an
-     * LLEventPump any number of times. We don't really want to have to ask
-     * the caller to label each such call with a distinct string; the whole
-     * point of waitForEventOn() is to present a nice sequential interface to
-     * the underlying LLEventPump-with-named-listeners machinery. So we'll use
-     * LLEventPump::inventName() to generate a distinct name for each
-     * temporary listener. On the other hand, because a given coroutine might
-     * call waitForEventOn() any number of times, we don't really want to
-     * consume an arbitrary number of generated inventName()s: that namespace,
-     * though large, is nonetheless finite. So we memoize an invented name for
-     * each distinct coroutine instance.
-     */
-    std::string listenerNameForCoro();
-
-    /**
-     * Implement behavior described for postAndWait()'s @a replyPumpNamePath
-     * parameter:
-     *
-     * * If <tt>path.isUndefined()</tt>, do nothing.
-     * * If <tt>path.isString()</tt>, @a dest is an LLSD map: store @a value
-     *   into <tt>dest[path.asString()]</tt>.
-     * * If <tt>path.isInteger()</tt>, @a dest is an LLSD array: store @a
-     *   value into <tt>dest[path.asInteger()]</tt>.
-     * * If <tt>path.isArray()</tt>, iteratively apply the rules above to step
-     *   down through the structure of @a dest. The last array entry in @a
-     *   path specifies the entry in the lowest-level structure in @a dest
-     *   into which to store @a value.
-     *
-     * @note
-     * In the degenerate case in which @a path is an empty array, @a dest will
-     * @em become @a value rather than @em containing it.
-     */
-    LL_COMMON_API void storeToLLSDPath(LLSD& dest, const LLSD& path, const LLSD& value);
-} // namespace LLEventDetail
 
 /**
  * Post specified LLSD event on the specified LLEventPump, then wait for a
@@ -196,50 +161,13 @@ LLSD waitForEventOn(const LLEventPumpOrPumpName& pump)
     return postAndWait(LLSD(), LLEventPumpOrPumpName(), pump);
 }
 
+} // namespace llcoro
+
 /// return type for two-pump variant of waitForEventOn()
 typedef std::pair<LLSD, int> LLEventWithID;
 
-namespace LLEventDetail
+namespace llcoro
 {
-    /**
-     * This helper is specifically for the two-pump version of waitForEventOn().
-     * We use a single future object, but we want to listen on two pumps with it.
-     * Since we must still adapt from (the callable constructed by)
-     * boost::dcoroutines::make_callback() (void return) to provide an event
-     * listener (bool return), we've adapted LLVoidListener for the purpose. The
-     * basic idea is that we construct a distinct instance of WaitForEventOnHelper
-     * -- binding different instance data -- for each of the pumps. Then, when a
-     * pump delivers an LLSD value to either WaitForEventOnHelper, it can combine
-     * that LLSD with its discriminator to feed the future object.
-     */
-    template <typename LISTENER>
-    class WaitForEventOnHelper
-    {
-    public:
-        WaitForEventOnHelper(const LISTENER& listener, int discriminator):
-            mListener(listener),
-            mDiscrim(discriminator)
-        {}
-        // this signature is required for an LLEventPump listener
-        bool operator()(const LLSD& event)
-        {
-            // our future object is defined to accept LLEventWithID
-            mListener(LLEventWithID(event, mDiscrim));
-            // don't swallow the event, let other listeners see it
-            return false;
-        }
-    private:
-        LISTENER mListener;
-        const int mDiscrim;
-    };
-
-    /// WaitForEventOnHelper type-inference helper
-    template <typename LISTENER>
-    WaitForEventOnHelper<LISTENER> wfeoh(const LISTENER& listener, int discriminator)
-    {
-        return WaitForEventOnHelper<LISTENER>(listener, discriminator);
-    }
-} // namespace LLEventDetail
 
 /**
  * This function waits for a reply on either of two specified LLEventPumps.
@@ -334,6 +262,8 @@ private:
  */
 LL_COMMON_API LLSD errorLog(const LLEventWithID& result, const std::string& desc);
 
+} // namespace llcoro
+
 /**
  * Certain event APIs require the name of an LLEventPump on which they should
  * post results. While it works to invent a distinct name and let
@@ -365,13 +295,13 @@ public:
      */
     LLSD wait()
     {
-        return ::waitForEventOn(mPump);
+        return llcoro::waitForEventOn(mPump);
     }
 
     LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                      const LLSD& replyPumpNamePath=LLSD())
     {
-        return ::postAndWait(event, requestPump, mPump, replyPumpNamePath);
+        return llcoro::postAndWait(event, requestPump, mPump, replyPumpNamePath);
     }
 
 private:
@@ -410,19 +340,19 @@ public:
     /// waitForEventOn(either of our two LLEventPumps)
     LLEventWithID wait()
     {
-        return waitForEventOn(mPump0, mPump1);
+        return llcoro::waitForEventOn(mPump0, mPump1);
     }
 
     /// errorException(wait())
     LLSD waitWithException()
     {
-        return errorException(wait(), std::string("Error event on ") + getName1());
+        return llcoro::errorException(wait(), std::string("Error event on ") + getName1());
     }
 
     /// errorLog(wait())
     LLSD waitWithLog()
     {
-        return errorLog(wait(), std::string("Error event on ") + getName1());
+        return llcoro::errorLog(wait(), std::string("Error event on ") + getName1());
     }
 
     LLEventWithID postAndWait(const LLSD& event,
@@ -430,8 +360,8 @@ public:
                               const LLSD& replyPump0NamePath=LLSD(),
                               const LLSD& replyPump1NamePath=LLSD())
     {
-        return postAndWait2(event, requestPump, mPump0, mPump1,
-                            replyPump0NamePath, replyPump1NamePath);
+        return llcoro::postAndWait2(event, requestPump, mPump0, mPump1,
+                                    replyPump0NamePath, replyPump1NamePath);
     }
 
     LLSD postAndWaitWithException(const LLSD& event,
@@ -439,9 +369,9 @@ public:
                                   const LLSD& replyPump0NamePath=LLSD(),
                                   const LLSD& replyPump1NamePath=LLSD())
     {
-        return errorException(postAndWait(event, requestPump,
-                                          replyPump0NamePath, replyPump1NamePath),
-                              std::string("Error event on ") + getName1());
+        return llcoro::errorException(postAndWait(event, requestPump,
+                                                  replyPump0NamePath, replyPump1NamePath),
+                                      std::string("Error event on ") + getName1());
     }
 
     LLSD postAndWaitWithLog(const LLSD& event,
@@ -449,9 +379,9 @@ public:
                             const LLSD& replyPump0NamePath=LLSD(),
                             const LLSD& replyPump1NamePath=LLSD())
     {
-        return errorLog(postAndWait(event, requestPump,
-                                    replyPump0NamePath, replyPump1NamePath),
-                        std::string("Error event on ") + getName1());
+        return llcoro::errorLog(postAndWait(event, requestPump,
+                                            replyPump0NamePath, replyPump1NamePath),
+                                std::string("Error event on ") + getName1());
     }
 
 private:
