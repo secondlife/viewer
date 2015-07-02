@@ -3,18 +3,18 @@
 	<text name="title">
 		Inventar
 	</text>
-	<text name="hint_lbl">
-		Das Speichern eines Bilds in Ihrem Inventar kostet [UPLOAD_COST] L$. Um das Bild als Textur zu speichern, wählen Sie eines der quadratischen Formate aus.
-	</text>
 	<combo_box label="Auflösung" name="texture_size_combo">
-		<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>
 		<combo_box.item label="Klein (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Mittel (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Groß (512x512)" name="Large(512x512)"/>
 		<combo_box.item label="Benutzerdefiniert" name="Custom"/>
 	</combo_box>
 	<spinner label="Breite x Höhe" name="inventory_snapshot_width"/>
+	<spinner label="" name="inventory_snapshot_height"/>
 	<check_box label="Seitenverhältnis beibehalten" name="inventory_keep_aspect_check"/>
+	<text name="hint_lbl">
+		Das Speichern eines Bilds in Ihrem Inventar kostet [UPLOAD_COST] L$. Um das Bild als Textur zu speichern, wählen Sie eines der quadratischen Formate aus.
+	</text>
 	<button label="Abbrechen" name="cancel_btn"/>
 	<button label="Speichern" name="save_btn"/>
 </panel>

@@ -81,6 +81,7 @@
 #include "llagentui.h"
 
 #include "lltrans.h"
+#include "llexperiencecache.h"
 
 //-----------------------------------------------------------------------------
 // Globals
@@ -205,6 +206,30 @@ void LLFloaterReporter::enableControls(BOOL enable)
 	getChildView("details_edit")->setEnabled(enable);
 	getChildView("send_btn")->setEnabled(enable);
 	getChildView("cancel_btn")->setEnabled(enable);
+}
+
+void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
+{
+	mExperienceID = experience_id;
+
+	if (LLUUID::null != mExperienceID)
+	{
+		const LLSD& experience = LLExperienceCache::get(mExperienceID);
+		std::stringstream desc;
+
+		if(experience.isDefined())
+		{
+			setFromAvatarID(experience[LLExperienceCache::AGENT_ID]);
+			desc << "Experience id: " << mExperienceID;
+		}
+		else
+		{
+			desc << "Unable to retrieve details for id: "<< mExperienceID;
+		}
+		
+		LLUICtrl* details = getChild<LLUICtrl>("details_edit");
+		details->setValue(desc.str());
+	}
 }
 
 void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
@@ -452,7 +477,7 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 }
 
 // static
-void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_name)
+void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_name, const LLUUID& experience_id)
 {
 	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
 
@@ -465,6 +490,23 @@ void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_
 	{
 		f->setFromAvatarID(object_id);
 	}
+	if(experience_id.notNull())
+	{
+		f->getExperienceInfo(experience_id);
+	}
+
+	// Need to deselect on close
+	f->mDeselectOnClose = TRUE;
+
+	f->openFloater();
+}
+
+
+
+void LLFloaterReporter::showFromExperience( const LLUUID& experience_id )
+{
+	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
+	f->getExperienceInfo(experience_id);
 
 	// Need to deselect on close
 	f->mDeselectOnClose = TRUE;
@@ -474,9 +516,9 @@ void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_
 
 
 // static
-void LLFloaterReporter::showFromObject(const LLUUID& object_id)
+void LLFloaterReporter::showFromObject(const LLUUID& object_id, const LLUUID& experience_id)
 {
-	show(object_id);
+	show(object_id, LLStringUtil::null, experience_id);
 }
 
 // static
@@ -835,6 +877,7 @@ void LLFloaterReporter::setPosBox(const LLVector3d &pos)
 		mPosition.mV[VZ]);
 	getChild<LLUICtrl>("pos_field")->setValue(pos_string);
 }
+
 
 // void LLFloaterReporter::setDescription(const std::string& description, LLMeanCollisionData *mcd)
 // {

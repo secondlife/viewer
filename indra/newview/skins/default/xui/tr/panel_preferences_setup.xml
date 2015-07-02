@@ -14,9 +14,9 @@
 	<text name="Web:">
 		Web:
 	</text>
-	<radio_group name="use_external_browser">
-		<radio_item label="Tarayıcımı kullan (IE, Firefox, Safari)" name="external" tool_tip="Yardım, web bağlantıları vs. için sistemin varsayılan web tarayıcısını kullanın. Tam ekran çalıştırılıyorsa tavsiye edilmez." value="true"/>
-		<radio_item label="Yerleşik tarayıcıyı kullan" name="internal" tool_tip="Yardım, web bağlantıları vs. için dahili web tarayıcısını kullanın. Bu tarayıcı [APP_NAME] içerisinde yeni bir pencere olarak açılır." value=""/>
+	<radio_group name="preferred_browser_behavior">
+		<radio_item label="Tüm bağlantılar için kendi tarayıcımı kullan (Chrome, Firefox, IE)" name="internal" tool_tip="Yardım, web bağlantıları vb. için sistemin varsayılan web tarayıcısını kullanın. Tam ekran çalıştırılıyorsa tavsiye edilmez." value="0"/>
+		<radio_item label="Yerleşik tarayıcıyı yalnızca Second Life bağlantıları için kullan" name="external" tool_tip="Yardım, web bağlantıları vb. için sistemin varsayılan web tarayıcısını kullanın. Yerleşik tarayıcı yalnızca LindenLab/SecondLife bağlantıları için kullanılır." value="1"/>
 	</radio_group>
 	<check_box initial_value="true" label="Eklentileri etkinleştir" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Çerezleri kabul et" name="cookies_enabled"/>

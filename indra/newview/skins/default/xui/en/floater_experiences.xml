@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<floater
+  can_close="true"
+  can_resize="true"
+  height="400"
+  width="500"
+  min_height="300"
+  min_width="500"
+  layout="topleft"
+  help_topic="floater_experiences"
+  name="floater_experiences"
+  save_rect="true"
+  single_instance="true"
+  reuse_instance="false"
+  bg_opaque_color="0 0.5 0 0.3"
+  title="EXPERIENCES">
+  <tab_container
+    top="3"
+    left="3"
+    layout="topleft"
+    right="-3"
+    follows="all"
+    height="394"
+    name="xp_tabs">
+  </tab_container>
+
+</floater>

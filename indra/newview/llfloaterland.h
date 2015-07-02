@@ -66,6 +66,7 @@ class LLPanelLandBan;
 class LLPanelLandRenters;
 class LLPanelLandCovenant;
 class LLParcel;
+class LLPanelLandExperiences;
 
 class LLFloaterLand
 :	public LLFloater
@@ -101,6 +102,7 @@ protected:
 	static void* createPanelLandAudio(void* data);
 	static void* createPanelLandMedia(void* data);
 	static void* createPanelLandAccess(void* data);
+	static void* createPanelLandExperiences(void* data);
 	static void* createPanelLandBan(void* data);
 
 
@@ -116,6 +118,7 @@ protected:
 	LLPanelLandMedia*		mPanelMedia;
 	LLPanelLandAccess*		mPanelAccess;
 	LLPanelLandCovenant*	mPanelCovenant;
+	LLPanelLandExperiences*	mPanelExperiences;
 
 	LLSafeHandle<LLParcelSelection>	mParcel;
 

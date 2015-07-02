@@ -39,17 +39,8 @@
 	<string name="local_failed_str">
 		無法儲入電腦。
 	</string>
-	<button name="advanced_options_btn" tool_tip="進階選項"/>
-	<text name="image_res_text">
-		[WIDTH] x [HEIGHT] 像素
-	</text>
-	<text name="file_size_label">
-		[SIZE] KB
-	</text>
+	<button label="刷新" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
-		<text name="advanced_options_label">
-			進階選項
-		</text>
 		<text name="layer_type_label">
 			擷取快照：
 		</text>
@@ -68,4 +59,10 @@
 			<combo_box.item label="不用濾鏡" name="NoFilter"/>
 		</combo_box>
 	</panel>
+	<text name="image_res_text">
+		[WIDTH] 像素（寬） x [HEIGHT] 像素（高）
+	</text>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
 </floater>

@@ -39,17 +39,8 @@
 	<string name="local_failed_str">
 		Non salvato sul computer.
 	</string>
-	<button name="advanced_options_btn" tool_tip="Opzioni Avanzate"/>
-	<text name="image_res_text">
-		[WIDTH] x [HEIGHT] px
-	</text>
-	<text name="file_size_label">
-		[SIZE] KB
-	</text>
+	<button label="AGGIORNA" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
-		<text name="advanced_options_label">
-			OPZIONI AVANZATE
-		</text>
 		<text name="layer_type_label">
 			Cattura:
 		</text>
@@ -68,4 +59,10 @@
 			<combo_box.item label="Nessun filtro" name="NoFilter"/>
 		</combo_box>
 	</panel>
+	<text name="image_res_text">
+		[WIDTH] px (larghezza) x [HEIGHT] px (altezza)
+	</text>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
 </floater>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+<panel
+  layout="topleft"
+  top="100"
+  left="5"
+  width="100"
+  height="19"
+  label="Experiences"
+  follows="top|right|left">
+  <text
+    left="3"
+    top="3"
+    height="16"
+    width="177"
+    follows="all"
+    name="experience_name"
+    >
+    Dummy Name
+  </text>
+</panel>

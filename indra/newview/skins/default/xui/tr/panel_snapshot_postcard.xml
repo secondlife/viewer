@@ -12,8 +12,10 @@
 	<text name="title">
 		E-posta
 	</text>
-        <tab_container name="postcard_tabs">
-		<panel name="panel_postcard_message" label="İleti"/>
-		<panel name="panel_postcard_settings" label="Ayarlar"/>
-		</tab_container>
+	<tab_container name="postcard_tabs">
+		<panel label="İleti" name="panel_postcard_message"/>
+		<panel label="Ayarlar" name="panel_postcard_settings"/>
+	</tab_container>
+	<button label="İptal" name="cancel_btn"/>
+	<button label="Gönder" name="send_btn"/>
 </panel>

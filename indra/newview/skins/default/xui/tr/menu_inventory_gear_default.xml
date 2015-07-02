@@ -5,7 +5,7 @@
 	<menu_item_check label="En Sonunculara Göre Sırala" name="sort_by_recent"/>
 	<menu_item_check label="Klasörleri Her Zaman Ada Göre Sırala" name="sort_folders_by_name"/>
 	<menu_item_check label="Sistem Klasörlerini Üste Sırala" name="sort_system_folders_to_top"/>
-	<menu_item_call label="Filtreleri Göster" name="show_filters"/>
+	<menu_item_call label="Filtreleri Göster..." name="show_filters"/>
 	<menu_item_call label="Filtreleri Sıfırla" name="reset_filters"/>
 	<menu_item_call label="Tüm Klasörleri Kapat" name="close_folders"/>
 	<menu_item_call label="Kaybedip Bulduklarımı Boşalt" name="empty_lostnfound"/>

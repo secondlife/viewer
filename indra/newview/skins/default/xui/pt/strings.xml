@@ -401,6 +401,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="TooltipMustSingleDrop">
 		Apenas um item único pode ser arrastado para este local
 	</string>
+	<string name="TooltipTooManyWearables">
+		Você não pode usar uma pasta que contenha mais de [AMOUNT] itens.  Você pode mudar esse limite em Avançado &gt; Mostrar configurações de depuração &gt; WearFolderLimit.
+	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]"/>
 	<string name="TooltipOutboxDragToWorld">
 		Não é possível fazer rez do itens em sua caixa de saída do lojista
@@ -1006,9 +1009,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="AgentNameSubst">
 		(Você)
 	</string>
-	<string name="JoinAnExperience">
-		Participar de uma experiência
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas ao gerenciar listas de acesso ao terreno
 	</string>
@@ -1812,6 +1813,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		Falha desconhecida para download
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Pulando script [SCRIPT] com experiência [EXPERIENCE]
 	</string>
 	<string name="CompileQueueTitle">
 		Progresso do recompilamento
@@ -5133,6 +5137,87 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="UserDictionary">
 		[Usuário]
+	</string>
+	<string name="experience_tools_experience">
+		Experiência
+	</string>
+	<string name="ExperienceNameNull">
+		(nenhuma experiência)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(experiência sem título)
+	</string>
+	<string name="Land-Scope">
+		Dentro do terreno
+	</string>
+	<string name="Grid-Scope">
+		Dentro da grade
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		PERMITIDO
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		BLOQUEADA
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		COLABORADOR
+	</string>
+	<string name="Admin_Experiences_Tab">
+		ADMIN
+	</string>
+	<string name="Recent_Experiences_Tab">
+		RECENTES
+	</string>
+	<string name="Owned_Experiences_Tab">
+		PRÓPRIAS
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], máx. [MAXEXPERIENCES])
+	</string>
+	<string name="ExperiencePermission1">
+		assumir seus controles
+	</string>
+	<string name="ExperiencePermission3">
+		botão animações no seu avatar
+	</string>
+	<string name="ExperiencePermission4">
+		anexar ao avatar
+	</string>
+	<string name="ExperiencePermission9">
+		rastrear sua câmera
+	</string>
+	<string name="ExperiencePermission10">
+		controlar sua câmera
+	</string>
+	<string name="ExperiencePermission11">
+		teletransportar você
+	</string>
+	<string name="ExperiencePermission12">
+		aceitar automaticamente permissões de experiência
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		realizar uma operação desconhecida: [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Assumir o controle
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Botão animações
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Anexar
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Rastrear câmera
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Câmera de controle
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Teletransportar
+	</string>
+	<string name="ExperiencePermissionShort12">
+		Autorização
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		As conversas não estão sendo registradas. Para começar a manter um registro, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.

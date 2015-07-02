@@ -1,41 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_flickr_photo">
-	<layout_stack name="stack_photo">
-		<layout_panel name="snapshot_panel">
-			<combo_box name="resolution_combobox" tool_tip="Résolution d’image">
-				<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
-				<combo_box.item label="640 x 480" name="640x480"/>
-				<combo_box.item label="800 x 600" name="800x600"/>
-				<combo_box.item label="1 024 x 768" name="1024x768"/>
-			</combo_box>
-			<combo_box name="filters_combobox" tool_tip="Filtres d&apos;image">
-				<combo_box.item label="Aucun filtre" name="NoFilter"/>
-			</combo_box>
-			<button label="Actualiser" name="new_snapshot_btn" tool_tip="Cliquer pour actualiser"/>
-			<button label="Aperçu" name="big_preview_btn" tool_tip="Cliquer pour activer/désactiver l&apos;aperçu"/>
-			<text name="title_label">
-				Titre :
-			</text>
-			<text name="description_label">
-				Description :
-			</text>
-			<check_box initial_value="true" label="Inclure l&apos;emplacement SL à la fin de la description" name="add_location_cb"/>
-			<text name="tags_label">
-				Balises :
-			</text>
-			<text name="tags_help_label">
-				Séparer les balises par des espaces
+	<combo_box name="resolution_combobox" tool_tip="Résolution d’image">
+		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1 024 x 768" name="1024x768"/>
+	</combo_box>
+	<combo_box name="filters_combobox" tool_tip="Filtres d&apos;image">
+		<combo_box.item label="Aucun filtre" name="NoFilter"/>
+	</combo_box>
+	<button label="Actualiser" name="new_snapshot_btn" tool_tip="Cliquer pour actualiser"/>
+	<button label="Aperçu" name="big_preview_btn" tool_tip="Cliquer pour activer/désactiver l&apos;aperçu"/>
+	<text name="title_label">
+		Titre :
+	</text>
+	<text name="description_label">
+		Description :
+	</text>
+	<check_box initial_value="true" label="Inclure l&apos;emplacement SL à la fin de la description" name="add_location_cb"/>
+	<text name="tags_label">
+		Balises :
+	</text>
+	<text name="tags_help_label">
+		Séparer les balises par des espaces
 Utiliser &quot;&quot; pour les balises contenant plusieurs mots
-			</text>
-			<combo_box name="rating_combobox" tool_tip="Catégorie de contenu Flickr">
-				<combo_box.item label="Catégorie de contenu Flickr sûr" name="SafeRating"/>
-				<combo_box.item label="Catégorie de contenu Flickr modéré" name="ModerateRating"/>
-				<combo_box.item label="Catégorie de contenu Flickr réservé aux adultes" name="RestrictedRating"/>
-			</combo_box>
-		</layout_panel>
-		<layout_panel name="photo_button_panel">
-			<button label="Charger" name="post_photo_btn"/>
-			<button label="Annuler" name="cancel_photo_btn"/>
-		</layout_panel>
-	</layout_stack>
+	</text>
+	<combo_box name="rating_combobox" tool_tip="Catégorie de contenu Flickr">
+		<combo_box.item label="Catégorie de contenu Flickr sûr" name="SafeRating"/>
+		<combo_box.item label="Catégorie de contenu Flickr modéré" name="ModerateRating"/>
+		<combo_box.item label="Catégorie de contenu Flickr réservé aux adultes" name="RestrictedRating"/>
+	</combo_box>
+	<button label="Charger" name="post_photo_btn"/>
+	<button label="Annuler" name="cancel_photo_btn"/>
 </panel>

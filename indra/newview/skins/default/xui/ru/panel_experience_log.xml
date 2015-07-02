@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="EVENTS">
+	<string name="no_events" value="Нет событий."/>
+	<string name="loading" value="загрузка…"/>
+	<layout_stack>
+		<layout_panel>
+			<scroll_list name="experience_log_list">
+				<columns label="Время" name="time"/>
+				<columns label="Событие" name="event"/>
+				<columns label="Приключение" name="experience_name"/>
+				<columns label="Объект" name="object_name"/>
+			</scroll_list>
+			<button label="Уведомить" name="btn_notify"/>
+			<button label="Профиль" name="btn_profile_xp"/>
+			<button label="Пожаловаться" name="btn_report_xp"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<check_box label="Уведомлять обо всех событиях   дн." name="notify_all"/>
+			<button label="Очистить" name="btn_clear"/>
+			<button label="&lt;" name="btn_prev"/>
+			<button label="&gt;" name="btn_next"/>
+		</layout_panel>
+	</layout_stack>
+</panel>
