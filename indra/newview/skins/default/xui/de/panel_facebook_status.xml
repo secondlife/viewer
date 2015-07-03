@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_status">
-	<layout_stack name="stack_status">
-		<layout_panel name="status_detail_panel">
-			<text name="status_caption_label">
-				Was machst du gerade?
-			</text>
-		</layout_panel>
-		<layout_panel name="status_button_panel">
-			<button label="Posten" name="post_status_btn"/>
-			<button label="Abbrechen" name="cancel_status_btn"/>
-		</layout_panel>
-	</layout_stack>
+	<string name="facebook_connected" value="Sie sind mit Facebook verbunden als:"/>
+	<string name="facebook_disconnected" value="Nicht mit Facebook verbunden"/>
+	<text name="account_caption_label">
+		Nicht mit Facebook verbunden.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Verbinden..." name="connect_btn"/>
+		<button label="Trennen" name="disconnect_btn"/>
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Facebook/ta-p/2149711 Anweisungen zum Posten auf Facebook]
+		</text>
+	</panel>
+	<text name="status_caption_label">
+		Was machst du gerade?
+	</text>
+	<button label="Posten" name="post_status_btn"/>
+	<button label="Abbrechen" name="cancel_status_btn"/>
 </panel>

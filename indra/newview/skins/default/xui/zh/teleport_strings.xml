@@ -48,6 +48,9 @@
 		<message name="MustGetAgeRegion">
 			你必須年滿 18 歲才可進入這地區。
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			無法進入地區。 &apos;[REGION_NAME]&apos; 是個「技巧性博奕」(Skill Gaming)地區，你必須符合一定條件才可進入。 欲知詳情，請參閱 [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life 技巧性博奕常見問題集]。
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">

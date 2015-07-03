@@ -116,7 +116,7 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 	mExpanderVisible(false)
 {
 	setIsChrome(TRUE);
-
+	setMaxTextLength(p.max_text_length);
 }
 
 void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)

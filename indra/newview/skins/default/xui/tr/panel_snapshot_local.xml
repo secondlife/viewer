@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_local">
 	<text name="title">
-		Bilgisayarıma Kaydet
+		Disk
 	</text>
 	<combo_box label="Çözünürlük" name="local_size_combo">
 		<combo_box.item label="Mevcut Pencere" name="CurrentWindow"/>
@@ -13,24 +13,17 @@
 		<combo_box.item label="1600x1200" name="1600x1200"/>
 		<combo_box.item label="Özel" name="Custom"/>
 	</combo_box>
-	<layout_stack name="local_image_params_ls">
-		<layout_panel name="local_image_size_lp">
-			<spinner label="Genişlik" name="local_snapshot_width"/>
-			<spinner label="Yükseklik" name="local_snapshot_height"/>
-			<check_box label="Oranları koru" name="local_keep_aspect_check"/>
-		</layout_panel>
-		<layout_panel name="local_image_format_quality_lp">
-			<combo_box label="Format" name="local_format_combo">
-				<combo_box.item label="PNG (Kayıpsız)" name="PNG"/>
-				<combo_box.item label="JPEG" name="JPEG"/>
-				<combo_box.item label="BMP (Kayıpsız)" name="BMP"/>
-			</combo_box>
-			<slider label="Görüntü kalitesi" name="image_quality_slider"/>
-			<text name="image_quality_level">
-				([QLVL])
-			</text>
-		</layout_panel>
-	</layout_stack>
+	<spinner label="Genişlik x Yükseklik" name="local_snapshot_width"/>
+	<check_box label="Oranları koru" name="local_keep_aspect_check"/>
+	<text name="local_format_label">
+		Format:
+	</text>
+	<combo_box label="Format" name="local_format_combo">
+		<combo_box.item label="PNG (Kayıpsız)" name="PNG"/>
+		<combo_box.item label="JPEG" name="JPEG"/>
+		<combo_box.item label="BMP (Kayıpsız)" name="BMP"/>
+	</combo_box>
+	<slider label="Kalite:" name="image_quality_slider"/>
 	<button label="İptal" name="cancel_btn"/>
 	<flyout_button label="Kaydet" name="save_btn" tool_tip="Görüntüyü bir dosyaya kaydet">
 		<flyout_button.item label="Kaydet" name="save_item"/>

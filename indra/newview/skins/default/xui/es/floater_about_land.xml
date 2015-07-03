@@ -308,9 +308,6 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<panel.string name="push_restrict_region_text">
 				Sin &apos;empujones&apos; (prevalece lo marcado en la región)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Los avatares de otras parcelas pueden ver
-			</panel.string>
 			<text name="allow_label">
 				Permitir a otros Residentes:
 			</text>
@@ -336,22 +333,6 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<check_box label="Seguro (sin daño)" name="check safe" tool_tip="Si se marca, convierte el terreno en &apos;seguro&apos;, desactivando el daño en combate. Si no, se activa el daño en combate."/>
 			<check_box label="Sin &apos;empujones&apos;" name="PushRestrictCheck" tool_tip="Previene scripts que empujen. Marcando esta opción prevendrá que en su terreno haya comportamientos destructivos."/>
 			<check_box label="Mostrar el sitio en la búsqueda (30 L$/semana)" name="ShowDirectoryCheck" tool_tip="Let people see this parcel in search results"/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="Cualquier categoría" name="item0"/>
-				<combo_box.item label="Localización Linden" name="item1"/>
-				<combo_box.item label="Adulto" name="item2"/>
-				<combo_box.item label="Arte y Cultura" name="item3"/>
-				<combo_box.item label="Negocios" name="item4"/>
-				<combo_box.item label="Educativo" name="item5"/>
-				<combo_box.item label="Juegos de azar" name="item6"/>
-				<combo_box.item label="Entretenimiento" name="item7"/>
-				<combo_box.item label="Para recién llegados" name="item8"/>
-				<combo_box.item label="Parques y Naturaleza" name="item9"/>
-				<combo_box.item label="Residencial" name="item10"/>
-				<combo_box.item label="Compras" name="item11"/>
-				<combo_box.item label="Terreno en alquiler" name="item13"/>
-				<combo_box.item label="Otra" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="Cualquier categoría" name="item0"/>
 				<combo_box.item label="Localización Linden" name="item1"/>
@@ -451,15 +432,9 @@ los media:
 			<panel.string name="access_estate_defined">
 				(Definido por el Estado)
 			</panel.string>
-			<panel.string name="allow_public_access">
-				Permitir el acceso público ([MATURITY]) (Nota: Si no seleccionas esta opción, se crearán líneas de prohibición)
-			</panel.string>
 			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				Acceso a esta parcela
-			</text>
 			<check_box label="Permitir el acceso público (si no seleccionas esta opción, se crearán líneas de prohibición)" name="public_access"/>
 			<text name="Only Allow">
 				Permitir únicamente el acceso a los Residentes que:
@@ -491,5 +466,6 @@ los media:
 				<button label="Quitar" label_selected="Quitar" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="EXPERIENCIAS" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

@@ -4,5 +4,5 @@
 		[DESC]：
 	</text>
 	<button label="覆製到收納區" label_selected="覆製到收納區" name="copy_to_inventory_button"/>
-	<button label="覆製且穿上" label_selected="覆製且穿上" name="copy_and_wear_button"/>
+	<button label="複製並新增到裝扮" label_selected="複製並新增到裝扮" name="copy_and_wear_button"/>
 </floater>

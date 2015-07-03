@@ -53,6 +53,9 @@ const S32 PARCEL_MAX_ACCESS_LIST = 300;
 //for access/ban lists.
 const F32 PARCEL_MAX_ENTRIES_PER_PACKET = 48.f;
 
+// Maximum number of experiences
+const S32 PARCEL_MAX_EXPERIENCE_LIST = 24;
+
 // Weekly charge for listing a parcel in the directory
 const S32 PARCEL_DIRECTORY_FEE = 30;
 
@@ -130,9 +133,11 @@ class LLSD;
 class LLAccessEntry
 {
 public:
+
+	typedef std::map<LLUUID,LLAccessEntry> map;
+
 	LLAccessEntry()
-	:	mID(),
-		mTime(0),
+	:	mTime(0),
 		mFlags(0)
 	{}
 
@@ -141,8 +146,6 @@ public:
 	U32			mFlags;		// Not used - currently should always be zero
 };
 
-typedef std::map<LLUUID,LLAccessEntry>::iterator access_map_iterator;
-typedef std::map<LLUUID,LLAccessEntry>::const_iterator access_map_const_iterator;
 
 class LLParcel
 {
@@ -319,6 +322,9 @@ public:
 								const std::map<LLUUID,LLAccessEntry>& list);
 	void	unpackAccessEntries(LLMessageSystem* msg,
 								std::map<LLUUID,LLAccessEntry>* list);
+
+	void	unpackExperienceEntries(LLMessageSystem* msg, U32 type);
+
 
 	void	setAABBMin(const LLVector3& min)	{ mAABBMin = min; }
 	void	setAABBMax(const LLVector3& max)	{ mAABBMax = max; }
@@ -664,6 +670,17 @@ public:
 	std::map<LLUUID,LLAccessEntry>	mBanList;
 	std::map<LLUUID,LLAccessEntry>	mTempBanList;
 	std::map<LLUUID,LLAccessEntry>	mTempAccessList;
+
+	typedef std::map<LLUUID, U32> xp_type_map_t;
+
+	void setExperienceKeyType(const LLUUID& experience_key, U32 type);
+	U32 countExperienceKeyType(U32 type);
+	U32 getExperienceKeyType(const LLUUID& experience_key)const;
+	LLAccessEntry::map getExperienceKeysByType(U32 type)const;
+	void clearExperienceKeysByType(U32 type);
+
+private:
+	xp_type_map_t mExperienceKeys;
 
 };
 

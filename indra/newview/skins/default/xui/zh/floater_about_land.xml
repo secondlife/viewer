@@ -331,22 +331,6 @@
 			<check_box label="安全（無傷害）" name="check safe" tool_tip="若勾選，將把土地設為安全，禁絕傷害性的戰鬥。 若未勾選，則允許傷害性的戰鬥。"/>
 			<check_box label="禁止推撞" name="PushRestrictCheck" tool_tip="禁止使用腳本推撞。 勾選這選項可有效防止你土地上出現滋事行為。"/>
 			<check_box label="將地點刊登顯示在搜尋中（L$30 / 每週）" name="ShowDirectoryCheck" tool_tip="讓其他人可以在搜尋結果中看到這塊地段"/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="任何類別" name="item0"/>
-				<combo_box.item label="林登位置" name="item1"/>
-				<combo_box.item label="完全成人" name="item2"/>
-				<combo_box.item label="藝術與文化" name="item3"/>
-				<combo_box.item label="商業" name="item4"/>
-				<combo_box.item label="教育" name="item5"/>
-				<combo_box.item label="遊戲" name="item6"/>
-				<combo_box.item label="聚會所" name="item7"/>
-				<combo_box.item label="歡迎新手光臨" name="item8"/>
-				<combo_box.item label="公園與自然景觀" name="item9"/>
-				<combo_box.item label="住宅" name="item10"/>
-				<combo_box.item label="購物" name="item11"/>
-				<combo_box.item label="出租" name="item13"/>
-				<combo_box.item label="其他" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="任何類別" name="item0"/>
 				<combo_box.item label="林登位置" name="item1"/>
@@ -477,5 +461,6 @@
 				<button label="移除" label_selected="移除" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="體驗" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

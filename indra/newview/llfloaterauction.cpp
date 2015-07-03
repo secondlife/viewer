@@ -376,13 +376,16 @@ void LLFloaterAuction::doResetParcel()
 		msg->sendReliable(region->getHost());
 
 		// Clear the access lists
-		clearParcelAccessLists(parcelp, region);
+		clearParcelAccessList(parcelp, region, AL_ACCESS);
+		clearParcelAccessList(parcelp, region, AL_BAN);
+		clearParcelAccessList(parcelp, region, AL_ALLOW_EXPERIENCE);
+		clearParcelAccessList(parcelp, region, AL_BLOCK_EXPERIENCE);
 	}
 }
 
 
 
-void LLFloaterAuction::clearParcelAccessLists(LLParcel* parcel, LLViewerRegion* region)
+void LLFloaterAuction::clearParcelAccessList(LLParcel* parcel, LLViewerRegion* region, U32 list)
 {
 	if (!region || !parcel) return;
 
@@ -391,40 +394,16 @@ void LLFloaterAuction::clearParcelAccessLists(LLParcel* parcel, LLViewerRegion* 
 
 	LLMessageSystem* msg = gMessageSystem;
 
-	// Clear access list
-	//	parcel->mAccessList.clear();
-
 	msg->newMessageFast(_PREHASH_ParcelAccessListUpdate);
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
 	msg->nextBlockFast(_PREHASH_Data);
-	msg->addU32Fast(_PREHASH_Flags, AL_ACCESS);
+	msg->addU32Fast(_PREHASH_Flags, list);
 	msg->addS32(_PREHASH_LocalID, parcel->getLocalID() );
 	msg->addUUIDFast(_PREHASH_TransactionID, transactionUUID);
 	msg->addS32Fast(_PREHASH_SequenceID, 1);			// sequence_id
 	msg->addS32Fast(_PREHASH_Sections, 0);				// num_sections
-
-	// pack an empty block since there will be no data
-	msg->nextBlockFast(_PREHASH_List);
-	msg->addUUIDFast(_PREHASH_ID,  LLUUID::null );
-	msg->addS32Fast(_PREHASH_Time, 0 );
-	msg->addU32Fast(_PREHASH_Flags,	0 );
-
-	msg->sendReliable( region->getHost() );
-
-	// Send message for empty ban list
-	//parcel->mBanList.clear();
-	msg->newMessageFast(_PREHASH_ParcelAccessListUpdate);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	msg->nextBlockFast(_PREHASH_Data);
-	msg->addU32Fast(_PREHASH_Flags, AL_BAN);
-	msg->addS32(_PREHASH_LocalID, parcel->getLocalID() );
-	msg->addUUIDFast(_PREHASH_TransactionID, transactionUUID);
-	msg->addS32Fast(_PREHASH_SequenceID, 1);		// sequence_id
-	msg->addS32Fast(_PREHASH_Sections, 0);			// num_sections
 
 	// pack an empty block since there will be no data
 	msg->nextBlockFast(_PREHASH_List);

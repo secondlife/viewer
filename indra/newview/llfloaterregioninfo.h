@@ -60,6 +60,9 @@ class LLPanelRegionDebugInfo;
 class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
+class LLPanelExperienceListEditor;
+class LLPanelExperiences;
+class LLPanelRegionExperiences;
 
 class LLEventTimer;
 class LLEnvironmentSettings;
@@ -90,6 +93,7 @@ public:
 	static LLPanelEstateInfo* getPanelEstate();
 	static LLPanelEstateCovenant* getPanelCovenant();
 	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
+	static LLPanelRegionExperiences* getPanelExperiences();
 
 	// from LLPanel
 	virtual void refresh();
@@ -451,6 +455,36 @@ private:
 	LLComboBox*		mWaterPresetCombo;
 	LLComboBox*		mSkyPresetCombo;
 	LLComboBox*		mDayCyclePresetCombo;
+};
+
+class LLPanelRegionExperiences : public LLPanelRegionInfo
+{
+	LOG_CLASS(LLPanelEnvironmentInfo);
+
+public:
+	LLPanelRegionExperiences(){}
+	/*virtual*/ BOOL postBuild();
+	virtual BOOL sendUpdate();
+	
+	static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);
+	static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
+
+	static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
+	bool refreshFromRegion(LLViewerRegion* region);
+	void sendPurchaseRequest()const;
+	void processResponse( const LLSD& content );
+private:
+	void refreshRegionExperiences();
+
+	LLPanelExperienceListEditor* setupList(const char* control_name, U32 add_id, U32 remove_id);
+	static LLSD addIds( LLPanelExperienceListEditor* panel );
+
+	void itemChanged(U32 event_type, const LLUUID& id);
+
+	LLPanelExperienceListEditor* mTrusted;
+	LLPanelExperienceListEditor* mAllowed;
+	LLPanelExperienceListEditor* mBlocked;
+	LLUUID mDefaultExperience;
 };
 
 #endif

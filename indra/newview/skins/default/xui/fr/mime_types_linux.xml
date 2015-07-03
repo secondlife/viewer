@@ -44,6 +44,14 @@
 			Lire le contenu audio qui se trouve ici
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Aucun contenu
+		</label>
+		<tooltip name="none_tooltip">
+			Aucun média ici
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Flux en temps réel

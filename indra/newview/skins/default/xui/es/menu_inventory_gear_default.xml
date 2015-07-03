@@ -5,7 +5,7 @@
 	<menu_item_check label="Ordenar por los más recientes" name="sort_by_recent"/>
 	<menu_item_check label="Ordenar las carpetas siempre alfabéticamente" name="sort_folders_by_name"/>
 	<menu_item_check label="Las carpetas del sistema, arriba" name="sort_system_folders_to_top"/>
-	<menu_item_call label="Ver los filtros" name="show_filters"/>
+	<menu_item_call label="Ver los filtros..." name="show_filters"/>
 	<menu_item_call label="Restablecer los filtros" name="reset_filters"/>
 	<menu_item_call label="Cerrar todas las carpetas" name="close_folders"/>
 	<menu_item_call label="Vaciar Objetos Perdidos" name="empty_lostnfound"/>

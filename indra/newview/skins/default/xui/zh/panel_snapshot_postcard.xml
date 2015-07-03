@@ -12,6 +12,10 @@
 	<text name="title">
 		電郵
 	</text>
-	<button label="訊息" name="message_btn"/>
-	<button label="設定" name="settings_btn"/>
+	<tab_container name="postcard_tabs">
+		<panel label="訊息" name="panel_postcard_message"/>
+		<panel label="設定" name="panel_postcard_settings"/>
+	</tab_container>
+	<button label="取消" name="cancel_btn"/>
+	<button label="送出" name="send_btn"/>
 </panel>

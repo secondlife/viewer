@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="SEARCH">
+	<string name="not_found">
+		查無「[TEXT]」
+	</string>
+	<string name="no_results">
+		沒有結果
+	</string>
+	<string name="searching">
+		搜尋中...
+	</string>
+	<string name="loading">
+		載入中…
+	</string>
+	<string name="maturity_icon_general">
+		&quot;Parcel_PG_Light&quot;
+	</string>
+	<string name="maturity_icon_moderate">
+		&quot;Parcel_M_Light&quot;
+	</string>
+	<string name="maturity_icon_adult">
+		&quot;Parcel_R_Light&quot;
+	</string>
+	<panel name="search_panel">
+		<button label="前往" name="find"/>
+		<icons_combo_box label="適度成人" name="maturity">
+			<icons_combo_box.item label="完全成人" name="Adult" value="42"/>
+			<icons_combo_box.item label="適度成人" name="Mature" value="21"/>
+			<icons_combo_box.item label="一般" name="PG" value="13"/>
+		</icons_combo_box>
+		<scroll_list name="search_results">
+			<columns label="名稱" name="experience_name"/>
+			<columns label="所有人" name="owner"/>
+		</scroll_list>
+		<button label="確定" label_selected="確定" name="ok_btn"/>
+		<button label="取消" name="cancel_btn"/>
+		<button label="察看簡覽" name="profile_btn"/>
+		<button label="&lt;" name="left_btn"/>
+		<button label="&gt;" name="right_btn"/>
+	</panel>
+</panel>

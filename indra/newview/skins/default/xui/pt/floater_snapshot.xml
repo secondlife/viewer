@@ -39,17 +39,8 @@
 	<string name="local_failed_str">
 		Falha ao salvar no computador.
 	</string>
-	<button name="advanced_options_btn" tool_tip="Opções avançadas"/>
-	<text name="image_res_text">
-		[WIDTH] x [HEIGHT] px
-	</text>
-	<text name="file_size_label">
-		[TAMANHO] KB
-	</text>
+	<button label="ATUALIZAR" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
-		<text name="advanced_options_label">
-			OPÇÕES AVANÇADAS
-		</text>
 		<text name="layer_type_label">
 			Capturar:
 		</text>
@@ -68,4 +59,10 @@
 			<combo_box.item label="Sem filtro" name="NoFilter"/>
 		</combo_box>
 	</panel>
+	<text name="image_res_text">
+		[WIDTH]px (largura) x [HEIGHT]px (altura)
+	</text>
+	<text name="file_size_label">
+		[TAMANHO] KB
+	</text>
 </floater>

@@ -10,8 +10,12 @@
 		Отправка...
 	</string>
 	<text name="title">
-		Электронное письмо
+		Почта
 	</text>
-	<button label="Сообщение" name="message_btn"/>
-	<button label="Настройки" name="settings_btn"/>
+	<tab_container name="postcard_tabs">
+		<panel label="Сообщение" name="panel_postcard_message"/>
+		<panel label="Настройки" name="panel_postcard_settings"/>
+	</tab_container>
+	<button label="Отмена" name="cancel_btn"/>
+	<button label="Отправить" name="send_btn"/>
 </panel>

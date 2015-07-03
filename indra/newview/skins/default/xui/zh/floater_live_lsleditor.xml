@@ -9,7 +9,24 @@
 	<floater.string name="Title">
 		腳本：[NAME]
 	</floater.string>
+	<floater.string name="experience_enabled">
+		清除勾選即可移除目前的體驗
+	</floater.string>
+	<floater.string name="no_experiences">
+		你未經授權使用任何體驗
+	</floater.string>
+	<floater.string name="add_experiences">
+		選取新增一個體驗
+	</floater.string>
+	<floater.string name="show_experience_profile">
+		點按即可簡覽該體驗
+	</floater.string>
+	<floater.string name="loading">
+		載入中…
+	</floater.string>
 	<button label="重設" label_selected="重設" name="Reset"/>
 	<check_box initial_value="true" label="執行中" name="running"/>
 	<check_box initial_value="true" label="Mono" name="mono"/>
+	<check_box label="使用體驗：" name="enable_xp"/>
+	<button label="&gt;" name="view_profile"/>
 </floater>
