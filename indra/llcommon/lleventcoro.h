@@ -236,6 +236,8 @@ waitForEventOn(const LLEventPumpOrPumpName& pump0, const LLEventPumpOrPumpName& 
  */
 LLSD errorException(const LLEventWithID& result, const std::string& desc);
 
+} // namespace llcoro
+
 /**
  * Exception thrown by errorException(). We don't call this LLEventError
  * because it's not an error in event processing: rather, this exception
@@ -255,6 +257,9 @@ public:
 private:
     LLSD mData;
 };
+
+namespace llcoro
+{
 
 /**
  * Like errorException(), save that this trips a fatal error using LL_ERRS
