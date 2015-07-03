@@ -163,12 +163,12 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
 
     if (result.has("label"))
     {
-        label = result["label"];
+        label = result["label"].asString();
     }
 
     if (result.has("message"))
     {
-        reason = result["message"];
+        reason = result["message"].asString();
     }
     else
     {
