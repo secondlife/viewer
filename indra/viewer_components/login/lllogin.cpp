@@ -175,7 +175,7 @@ void LLLogin::Impl::login_(std::string uri, LLSD login_params)
 		request["op"] = "rewriteURI";
 		request["uri"] = uri;
 		request["reply"] = replyPump.getName();
-		rewrittenURIs = postAndWait(request, srv_pump_name, filter);
+		rewrittenURIs = llcoro::postAndWait(request, srv_pump_name, filter);
 		// EXP-772: If rewrittenURIs fail, try original URI as a fallback.
 		rewrittenURIs.append(uri);
     } // we no longer need the filter
@@ -221,10 +221,10 @@ void LLLogin::Impl::login_(std::string uri, LLSD login_params)
             // returns. Subsequent responses, of course, must be awaited
             // without posting again.
             for (mAuthResponse = validateResponse(loginReplyPump.getName(),
-                                 postAndWait(request, xmlrpcPump, loginReplyPump, "reply"));
+                     llcoro::postAndWait(request, xmlrpcPump, loginReplyPump, "reply"));
                  mAuthResponse["status"].asString() == "Downloading";
                  mAuthResponse = validateResponse(loginReplyPump.getName(),
-                                     waitForEventOn(loginReplyPump)))
+                                                  llcoro::waitForEventOn(loginReplyPump)))
             {
                 // Still Downloading -- send progress update.
                 sendProgressEvent("offline", "downloading");
