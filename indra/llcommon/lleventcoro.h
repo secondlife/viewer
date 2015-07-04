@@ -102,6 +102,13 @@ VoidListener<LISTENER> voidlistener(const LISTENER& listener)
 }
 
 /**
+ * Yield control from a coroutine for one "mainloop" tick. If your coroutine
+ * runs without suspending for nontrivial time, sprinkle in calls to this
+ * function to avoid stalling the rest of the viewer processing.
+ */
+void yield();
+
+/**
  * Post specified LLSD event on the specified LLEventPump, then wait for a
  * response on specified other LLEventPump. This is more than mere
  * convenience: the difference between this function and the sequence

@@ -145,6 +145,14 @@ void storeToLLSDPath(LLSD& dest, const LLSD& rawPath, const LLSD& value)
 
 } // anonymous
 
+void llcoro::yield()
+{
+    // By viewer convention, we post an event on the "mainloop" LLEventPump
+    // each iteration of the main event-handling loop. So waiting for a single
+    // event on "mainloop" gives us a one-frame yield.
+    waitForEventOn("mainloop");
+}
+
 LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                          const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
 {
