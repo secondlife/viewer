@@ -54,7 +54,7 @@ LLCoprocedureManager::LLCoprocedureManager():
             new LLCoreHttpUtil::HttpCoroutineAdapter("uploadPostAdapter", mHTTPPolicy));
 
         std::string uploadCoro = LLCoros::instance().launch("LLCoprocedureManager::coprocedureInvokerCoro",
-            boost::bind(&LLCoprocedureManager::coprocedureInvokerCoro, this, httpAdapter));
+            boost::bind(&LLCoprocedureManager::coprocedureInvokerCoro, this, _1, httpAdapter));
 
         mCoroMapping.insert(CoroAdapterMap_t::value_type(uploadCoro, httpAdapter));
     }
@@ -132,13 +132,13 @@ void LLCoprocedureManager::cancelCoprocedure(const LLUUID &id)
 }
 
 //=========================================================================
-void LLCoprocedureManager::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter)
+void LLCoprocedureManager::coprocedureInvokerCoro(LLCoros::self& self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
     while (!mShutdown)
     {
-        waitForEventOn(mWakeupTrigger);
+        waitForEventOn(self, mWakeupTrigger);
         if (mShutdown)
             break;
         
@@ -152,7 +152,7 @@ void LLCoprocedureManager::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineA
 
             try
             {
-                coproc->mProc(httpAdapter, coproc->mId);
+                coproc->mProc(self, httpAdapter, coproc->mId);
             }
             catch (std::exception &e)
             {

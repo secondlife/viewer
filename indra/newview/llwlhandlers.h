@@ -41,7 +41,7 @@ private:
 	static void onRegionCapsReceived(const LLUUID& region_id);
 	static bool doRequest();
 
-    static void environmentRequestCoro(std::string url);
+    static void environmentRequestCoro(LLCoros::self& self, std::string url);
 
     static S32 sLastRequest;
 };
@@ -57,7 +57,7 @@ private:
 	static clock_t sLastUpdate;
 	static clock_t UPDATE_WAIT_SECONDS;
 
-    static void environmentApplyCoro(std::string url, LLSD content);
+    static void environmentApplyCoro(LLCoros::self& self, std::string url, LLSD content);
 };
 
 #endif // LL_LLWLHANDLERS_H

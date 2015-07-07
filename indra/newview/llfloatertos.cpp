@@ -190,7 +190,7 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
             std::string url(getString("real_url"));
 
             LLCoros::instance().launch("LLFloaterTOS::testSiteIsAliveCoro",
-                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, this, url));
+                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, this, _1, url));
 		}
 		else if(mRealNavigateBegun)
 		{
@@ -202,7 +202,7 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 	}
 }
 
-void LLFloaterTOS::testSiteIsAliveCoro(std::string url)
+void LLFloaterTOS::testSiteIsAliveCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -214,7 +214,7 @@ void LLFloaterTOS::testSiteIsAliveCoro(std::string url)
 
     LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

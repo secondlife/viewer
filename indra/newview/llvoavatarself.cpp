@@ -2190,7 +2190,7 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 	return text;
 }
 
-void LLVOAvatarSelf::appearanceChangeMetricsCoro(std::string url)
+void LLVOAvatarSelf::appearanceChangeMetricsCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -2242,7 +2242,7 @@ void LLVOAvatarSelf::appearanceChangeMetricsCoro(std::string url)
 
     gPendingMetricsUploads++;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, msg);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, msg);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -2347,7 +2347,7 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
 	{
 
         LLCoros::instance().launch("LLVOAvatarSelf::appearanceChangeMetricsCoro",
-            boost::bind(&LLVOAvatarSelf::appearanceChangeMetricsCoro, this, caps_url));
+            boost::bind(&LLVOAvatarSelf::appearanceChangeMetricsCoro, this, _1, caps_url));
 		mTimeSinceLastRezMessage.reset();
 	}
 }

@@ -170,7 +170,7 @@ bool LLRemoteParcelInfoProcessor::requestRegionParcelInfo(const std::string &url
     if (!url.empty())
     {
         LLCoros::instance().launch("LLRemoteParcelInfoProcessor::regionParcelInfoCoro",
-            boost::bind(&LLRemoteParcelInfoProcessor::regionParcelInfoCoro, this, url,
+            boost::bind(&LLRemoteParcelInfoProcessor::regionParcelInfoCoro, this, _1, url,
             regionId, regionPos, globalPos, observerHandle));
         return true;
     }
@@ -178,7 +178,7 @@ bool LLRemoteParcelInfoProcessor::requestRegionParcelInfo(const std::string &url
     return false;
 }
 
-void LLRemoteParcelInfoProcessor::regionParcelInfoCoro(std::string url, 
+void LLRemoteParcelInfoProcessor::regionParcelInfoCoro(LLCoros::self& self, std::string url, 
     LLUUID regionId, LLVector3 posRegion, LLVector3d posGlobal, 
     LLHandle<LLRemoteParcelInfoObserver> observerHandle)
 {
@@ -200,7 +200,7 @@ void LLRemoteParcelInfoProcessor::regionParcelInfoCoro(std::string url,
         bodyData["region_handle"] = ll_sd_from_U64(regionHandle);
     }
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, bodyData);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, bodyData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

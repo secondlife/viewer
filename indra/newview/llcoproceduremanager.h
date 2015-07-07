@@ -36,7 +36,7 @@
 class LLCoprocedureManager : public LLSingleton < LLCoprocedureManager >
 {
 public:
-    typedef boost::function<void(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
+    typedef boost::function<void(LLCoros::self &, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
 
     LLCoprocedureManager();
     virtual ~LLCoprocedureManager();
@@ -111,7 +111,7 @@ private:
 
     CoroAdapterMap_t mCoroMapping;
 
-    void coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter);
+    void coprocedureInvokerCoro(LLCoros::self& self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter);
 };
 
 #endif

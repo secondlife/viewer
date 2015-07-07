@@ -45,10 +45,10 @@ LLAccountingCostManager::LLAccountingCostManager():
 // Coroutine for sending and processing avatar name cache requests.  
 // Do not call directly.  See documentation in lleventcoro.h and llcoro.h for
 // further explanation.
-void LLAccountingCostManager::accountingCostCoro(std::string url,
+void LLAccountingCostManager::accountingCostCoro(LLCoros::self& self, std::string url,
     eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle)
 {
-    LL_DEBUGS("LLAccountingCostManager") << "Entering coroutine " << LLCoros::instance().getName()
+    LL_DEBUGS("LLAccountingCostManager") << "Entering coroutine " << LLCoros::instance().getName(self)
         << " with url '" << url << LL_ENDL;
 
     try
@@ -101,7 +101,7 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
 
         LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("AccountingCost", mHttpPolicy);
 
-        LLSD results = httpAdapter.postAndYield(mHttpRequest, url, dataToPost);
+        LLSD results = httpAdapter.postAndYield(self, mHttpRequest, url, dataToPost);
 
         LLSD httpResults;
         httpResults = results["http_result"];
@@ -181,7 +181,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
 	{
         std::string coroname = 
             LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
-            boost::bind(&LLAccountingCostManager::accountingCostCoro, this, url, selectionType, observer_handle));
+            boost::bind(&LLAccountingCostManager::accountingCostCoro, this, _1, url, selectionType, observer_handle));
         LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
 
 	}

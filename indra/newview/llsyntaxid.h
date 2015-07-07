@@ -57,7 +57,7 @@ private:
 	void	loadDefaultKeywordsIntoLLSD();
 	void	loadKeywordsIntoLLSD();
 
-    void    fetchKeywordsFileCoro(std::string url, std::string fileSpec);
+    void    fetchKeywordsFileCoro(LLCoros::self& self, std::string url, std::string fileSpec);
     void    cacheFile(const std::string &fileSpec, const LLSD& content_ref);
 
 	std::string		mCapabilityURL;

@@ -108,14 +108,14 @@ bool LLSyntaxIdLSL::syntaxIdChanged()
 void LLSyntaxIdLSL::fetchKeywordsFile(const std::string& filespec)
 {
     LLCoros::instance().launch("LLSyntaxIdLSL::fetchKeywordsFileCoro",
-        boost::bind(&LLSyntaxIdLSL::fetchKeywordsFileCoro, this, mCapabilityURL, filespec));
+        boost::bind(&LLSyntaxIdLSL::fetchKeywordsFileCoro, this, _1, mCapabilityURL, filespec));
 	LL_DEBUGS("SyntaxLSL") << "LSLSyntaxId capability URL is: " << mCapabilityURL << ". Filename to use is: '" << filespec << "'." << LL_ENDL;
 }
 
 //-----------------------------------------------------------------------------
 // fetchKeywordsFileCoro
 //-----------------------------------------------------------------------------
-void LLSyntaxIdLSL::fetchKeywordsFileCoro(std::string url, std::string fileSpec)
+void LLSyntaxIdLSL::fetchKeywordsFileCoro(LLCoros::self& self, std::string url, std::string fileSpec)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -129,7 +129,7 @@ void LLSyntaxIdLSL::fetchKeywordsFileCoro(std::string url, std::string fileSpec)
         return;
     }
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

@@ -45,7 +45,7 @@ void LLProductInfoRequestManager::initSingleton()
 	if (!url.empty())
 	{
         LLCoros::instance().launch("LLProductInfoRequestManager::getLandDescriptionsCoro",
-            boost::bind(&LLProductInfoRequestManager::getLandDescriptionsCoro, this, url));
+            boost::bind(&LLProductInfoRequestManager::getLandDescriptionsCoro, this, _1, url));
 	}
 }
 
@@ -66,14 +66,14 @@ std::string LLProductInfoRequestManager::getDescriptionForSku(const std::string&
 	return LLTrans::getString("land_type_unknown");
 }
 
-void LLProductInfoRequestManager::getLandDescriptionsCoro(std::string url)
+void LLProductInfoRequestManager::getLandDescriptionsCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

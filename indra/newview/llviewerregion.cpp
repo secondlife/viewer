@@ -219,12 +219,12 @@ public:
 	LLVector3   mLastCameraOrigin;
 	U32         mLastCameraUpdate;
 
-    void        requestBaseCapabilitiesCoro(U64 regionHandle);
-    void        requestBaseCapabilitiesCompleteCoro(U64 regionHandle);
-    void        requestSimulatorFeatureCoro(std::string url, U64 regionHandle);
+    void        requestBaseCapabilitiesCoro(LLCoros::self& self, U64 regionHandle);
+    void        requestBaseCapabilitiesCompleteCoro(LLCoros::self& self, U64 regionHandle);
+    void        requestSimulatorFeatureCoro(LLCoros::self& self, std::string url, U64 regionHandle);
 };
 
-void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
+void LLViewerRegionImpl::requestBaseCapabilitiesCoro(LLCoros::self& self, U64 regionHandle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t 
@@ -275,7 +275,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             << " (attempt #" << mSeedCapAttempts << ")" << LL_ENDL;
 
         regionp = NULL;
-        result = httpAdapter->postAndYield(httpRequest, url, capabilityNames);
+        result = httpAdapter->postAndYield(self, httpRequest, url, capabilityNames);
 
         regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
@@ -332,7 +332,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 }
 
 
-void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
+void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(LLCoros::self& self, U64 regionHandle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -365,7 +365,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
         LL_INFOS("AppInit", "Capabilities") << "Requesting second Seed from " << url << LL_ENDL;
 
         regionp = NULL;
-        result = httpAdapter->postAndYield(httpRequest, url, capabilityNames);
+        result = httpAdapter->postAndYield(self, httpRequest, url, capabilityNames);
 
         LLSD httpResults = result["http_result"];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -435,7 +435,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
 
 }
 
-void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 regionHandle)
+void LLViewerRegionImpl::requestSimulatorFeatureCoro(LLCoros::self& self, std::string url, U64 regionHandle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -464,7 +464,7 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 region
         }
 
         regionp = NULL;
-        LLSD result = httpAdapter->getAndYield(httpRequest, url);
+        LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
 
         LLSD httpResults = result["http_result"];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -2908,7 +2908,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 		//to the "original" seed cap received and determine why there is problem!
         std::string coroname =
             LLCoros::instance().launch("LLEnvironmentRequest::requestBaseCapabilitiesCompleteCoro",
-            boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro, mImpl, getHandle()));
+            boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro, mImpl, _1, getHandle()));
 		return;
     }
 	
@@ -2920,7 +2920,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentRequest::environmentRequestCoro",
-        boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCoro, mImpl, getHandle()));
+        boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCoro, mImpl, _1, getHandle()));
 
     LL_INFOS("AppInit", "Capabilities") << "Launching " << coroname << " requesting seed capabilities from " << url << LL_ENDL;
 }
@@ -2947,7 +2947,7 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 		// kick off a request for simulator features
         std::string coroname =
             LLCoros::instance().launch("LLViewerRegionImpl::requestSimulatorFeatureCoro",
-            boost::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, mImpl, url, getHandle()));
+            boost::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, mImpl, _1, url, getHandle()));
 
         LL_INFOS("AppInit", "SimulatorFeatures") << "Launching " << coroname << " requesting simulator features from " << url << LL_ENDL;
 	}

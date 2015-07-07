@@ -1862,7 +1862,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	group_datap->mMemberVersion.generate();
 }
 
-void LLGroupMgr::getGroupBanRequestCoro(std::string url, LLUUID groupId)
+void LLGroupMgr::getGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -1871,7 +1871,7 @@ void LLGroupMgr::getGroupBanRequestCoro(std::string url, LLUUID groupId)
 
     std::string finalUrl = url + "?group_id=" + groupId.asString();
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, finalUrl);
+    LLSD result = httpAdapter->getAndYield(self, httpRequest, finalUrl);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1890,7 +1890,7 @@ void LLGroupMgr::getGroupBanRequestCoro(std::string url, LLUUID groupId)
     }
 }
 
-void LLGroupMgr::postGroupBanRequestCoro(std::string url, LLUUID groupId,
+void LLGroupMgr::postGroupBanRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId,
     U32 action, uuid_vec_t banList, bool update)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -1922,7 +1922,7 @@ void LLGroupMgr::postGroupBanRequestCoro(std::string url, LLUUID groupId,
 
     LL_WARNS() << "post: " << ll_pretty_print_sd(postData) << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, finalUrl, postData, httpOptions, httpHeaders);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, finalUrl, postData, httpOptions, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1942,7 +1942,7 @@ void LLGroupMgr::postGroupBanRequestCoro(std::string url, LLUUID groupId,
 
     if (update)
     {
-        getGroupBanRequestCoro(url, groupId);
+        getGroupBanRequestCoro(self, url, groupId);
     }
 }
 
@@ -1979,11 +1979,11 @@ void LLGroupMgr::sendGroupBanRequest(	EBanRequestType request_type,
     {
     case REQUEST_GET:
         LLCoros::instance().launch("LLGroupMgr::getGroupBanRequestCoro",
-            boost::bind(&LLGroupMgr::getGroupBanRequestCoro, this, cap_url, group_id));
+            boost::bind(&LLGroupMgr::getGroupBanRequestCoro, this, _1, cap_url, group_id));
         break;
     case REQUEST_POST:
         LLCoros::instance().launch("LLGroupMgr::postGroupBanRequestCoro",
-            boost::bind(&LLGroupMgr::postGroupBanRequestCoro, this, cap_url, group_id, 
+            boost::bind(&LLGroupMgr::postGroupBanRequestCoro, this, _1, cap_url, group_id, 
             action, ban_list, update));
         break;
     case REQUEST_PUT:
@@ -2028,7 +2028,7 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	LLGroupMgr::getInstance()->notifyObservers(GC_BANLIST);
 }
 
-void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID groupId)
+void LLGroupMgr::groupMembersRequestCoro(LLCoros::self& self, std::string url, LLUUID groupId)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -2041,7 +2041,7 @@ void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID groupId)
     LLSD postData = LLSD::emptyMap();
     postData["group_id"] = groupId;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData, httpOpts);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -2095,7 +2095,7 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id)
     lastGroupMemberRequestFrame = gFrameCount;
 
     LLCoros::instance().launch("LLGroupMgr::groupMembersRequestCoro",
-        boost::bind(&LLGroupMgr::groupMembersRequestCoro, this, cap_url, group_id));
+        boost::bind(&LLGroupMgr::groupMembersRequestCoro, this, _1, cap_url, group_id));
 }
 
 

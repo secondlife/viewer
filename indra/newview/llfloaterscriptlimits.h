@@ -132,9 +132,9 @@ private:
 
 	std::vector<LLSD> mObjectListItems;
 
-    void getLandScriptResourcesCoro(std::string url);
-    void getLandScriptSummaryCoro(std::string url);
-    void getLandScriptDetailsCoro(std::string url);
+    void getLandScriptResourcesCoro(LLCoros::self& self, std::string url);
+    void getLandScriptSummaryCoro(LLCoros::self& self, std::string url);
+    void getLandScriptDetailsCoro(LLCoros::self& self, std::string url);
 
 protected:
 
@@ -180,7 +180,7 @@ public:
 	void clearList();
 
 private:
-    void getAttachmentLimitsCoro(std::string url);
+    void getAttachmentLimitsCoro(LLCoros::self& self, std::string url);
 
 	bool mGotAttachmentMemoryUsed;
 	S32 mAttachmentMemoryMax;

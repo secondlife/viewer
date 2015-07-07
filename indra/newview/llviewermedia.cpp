@@ -1226,12 +1226,12 @@ void LLViewerMedia::setOpenIDCookie()
         std::string profileUrl = getProfileURL("");
 
         LLCoros::instance().launch("LLViewerMedia::getOpenIDCookieCoro",
-            boost::bind(&LLViewerMedia::getOpenIDCookieCoro, profileUrl));
+            boost::bind(&LLViewerMedia::getOpenIDCookieCoro, _1, profileUrl));
 	}
 }
 
 /*static*/
-void LLViewerMedia::getOpenIDCookieCoro(std::string url)
+void LLViewerMedia::getOpenIDCookieCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -1280,7 +1280,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
     LL_DEBUGS("MediaAuth") << "Requesting " << url << LL_ENDL;
     LL_DEBUGS("MediaAuth") << "sOpenIDCookie = [" << sOpenIDCookie << "]" << LL_ENDL;
     
-    LLSD result = httpAdapter->getRawAndYield(httpRequest, url, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->getRawAndYield(self, httpRequest, url, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1317,11 +1317,11 @@ void LLViewerMedia::openIDSetup(const std::string &openidUrl, const std::string 
 	LL_DEBUGS("MediaAuth") << "url = \"" << openidUrl << "\", token = \"" << openidToken << "\"" << LL_ENDL;
 
     LLCoros::instance().launch("LLViewerMedia::openIDSetupCoro",
-        boost::bind(&LLViewerMedia::openIDSetupCoro, openidUrl, openidToken));
+        boost::bind(&LLViewerMedia::openIDSetupCoro, _1, openidUrl, openidToken));
 }
 
 /*static*/
-void LLViewerMedia::openIDSetupCoro(std::string openidUrl, std::string openidToken)
+void LLViewerMedia::openIDSetupCoro(LLCoros::self& self, std::string openidUrl, std::string openidToken)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -1347,7 +1347,7 @@ void LLViewerMedia::openIDSetupCoro(std::string openidUrl, std::string openidTok
 
     bas << std::noskipws << openidToken;
 
-    LLSD result = httpAdapter->postRawAndYield(httpRequest, openidUrl, rawbody, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->postRawAndYield(self, httpRequest, openidUrl, rawbody, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -2553,7 +2553,7 @@ void LLViewerMediaImpl::navigateInternal()
 		if(scheme.empty() || "http" == scheme || "https" == scheme)
 		{
             LLCoros::instance().launch("LLViewerMediaImpl::mimeDiscoveryCoro",
-                boost::bind(&LLViewerMediaImpl::mimeDiscoveryCoro, this, mMediaURL));
+                boost::bind(&LLViewerMediaImpl::mimeDiscoveryCoro, this, _1, mMediaURL));
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
 		{
@@ -2583,7 +2583,7 @@ void LLViewerMediaImpl::navigateInternal()
 	}
 }
 
-void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
+void LLViewerMediaImpl::mimeDiscoveryCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -2600,7 +2600,7 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
     httpHeaders->append(HTTP_OUT_HEADER_COOKIE, "");
 
-    LLSD result = httpAdapter->getRawAndYield(httpRequest, url, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->getRawAndYield(self, httpRequest, url, httpOpts, httpHeaders);
 
     mMimeProbe.reset();
 

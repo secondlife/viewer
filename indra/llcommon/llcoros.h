@@ -32,8 +32,10 @@
 #include <boost/dcoroutine/coroutine.hpp>
 #include "llsingleton.h"
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/function.hpp>
 #include <string>
+#include <boost/preprocessor/repetition/enum_params.hpp>
+#include <boost/preprocessor/repetition/enum_binary_params.hpp>
+#include <boost/preprocessor/iteration/local.hpp>
 #include <stdexcept>
 
 /**
@@ -78,8 +80,8 @@ class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 public:
     /// Canonical boost::dcoroutines::coroutine signature we use
     typedef boost::dcoroutines::coroutine<void()> coro;
-    /// Canonical callable type
-    typedef boost::function<void()> callable_t;
+    /// Canonical 'self' type
+    typedef coro::self self;
 
     /**
      * Create and start running a new coroutine with specified name. The name
@@ -92,33 +94,39 @@ public:
      * {
      * public:
      *     ...
-     *     // Do NOT NOT NOT accept reference params!
+     *     // Do NOT NOT NOT accept reference params other than 'self'!
      *     // Pass by value only!
-     *     void myCoroutineMethod(std::string, LLSD);
+     *     void myCoroutineMethod(LLCoros::self& self, std::string, LLSD);
      *     ...
      * };
      * ...
      * std::string name = LLCoros::instance().launch(
-     *    "mycoro", boost::bind(&MyClass::myCoroutineMethod, this,
+     *    "mycoro", boost::bind(&MyClass::myCoroutineMethod, this, _1,
      *                          "somestring", LLSD(17));
      * @endcode
      *
-     * Your function/method can accept any parameters you want -- but ONLY BY
-     * VALUE! Reference parameters are a BAD IDEA! You Have Been Warned. See
+     * Your function/method must accept LLCoros::self& as its first parameter.
+     * It can accept any other parameters you want -- but ONLY BY VALUE!
+     * Other reference parameters are a BAD IDEA! You Have Been Warned. See
      * DEV-32777 comments for an explanation.
      *
-     * Pass a nullary callable. It works to directly pass a nullary free
-     * function (or static method); for all other cases use boost::bind(). Of
-     * course, for a non-static class method, the first parameter must be the
-     * class instance. Any other parameters should be passed via the bind()
-     * expression.
+     * Pass a callable that accepts the single LLCoros::self& parameter. It
+     * may work to pass a free function whose only parameter is 'self'; for
+     * all other cases use boost::bind(). Of course, for a non-static class
+     * method, the first parameter must be the class instance. Use the
+     * placeholder _1 for the 'self' parameter. Any other parameters should be
+     * passed via the bind() expression.
      *
      * launch() tweaks the suggested name so it won't collide with any
      * existing coroutine instance, creates the coroutine instance, registers
      * it with the tweaked name and runs it until its first wait. At that
      * point it returns the tweaked name.
      */
-    std::string launch(const std::string& prefix, const callable_t& callable);
+    template <typename CALLABLE>
+    std::string launch(const std::string& prefix, const CALLABLE& callable)
+    {
+        return launchImpl(prefix, new coro(callable, mStackSize));
+    }
 
     /**
      * Abort a running coroutine by name. Normally, when a coroutine either
@@ -130,34 +138,27 @@ public:
     bool kill(const std::string& name);
 
     /**
-     * From within a coroutine, look up the (tweaked) name string by which
-     * this coroutine is registered. Returns the empty string if not found
-     * (e.g. if the coroutine was launched by hand rather than using
-     * LLCoros::launch()).
+     * From within a coroutine, pass its @c self object to look up the
+     * (tweaked) name string by which this coroutine is registered. Returns
+     * the empty string if not found (e.g. if the coroutine was launched by
+     * hand rather than using LLCoros::launch()).
      */
-    std::string getName() const;
-
-    /// get the current coro::self& for those who really really care
-    static coro::self& get_self();
-
-    /// Instantiate one of these in a block surrounding any leaf point when
-    /// control literally switches away from this coroutine.
-    class Suspending
+    template <typename COROUTINE_SELF>
+    std::string getName(const COROUTINE_SELF& self) const
     {
-    public:
-        Suspending();
-        ~Suspending();
+        return getNameByID(self.get_id());
+    }
 
-    private:
-        coro::self* mSuspended;
-    };
+    /// getName() by self.get_id()
+    std::string getNameByID(const void* self_id) const;
 
     /// for delayed initialization
     void setStackSize(S32 stacksize);
 
 private:
-    LLCoros();
     friend class LLSingleton<LLCoros>;
+    LLCoros();
+    std::string launchImpl(const std::string& prefix, coro* newCoro);
     std::string generateDistinctName(const std::string& prefix) const;
     bool cleanup(const LLSD&);
 

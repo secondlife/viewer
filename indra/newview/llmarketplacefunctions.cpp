@@ -126,7 +126,7 @@ namespace LLMarketplaceImport
 	// Responders
 
 #if 1
-    void marketplacePostCoro(std::string url)
+    void marketplacePostCoro(LLCoros::self& self, std::string url)
     {
         LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -144,7 +144,7 @@ namespace LLMarketplaceImport
         httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_XML);
         httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
 
-        LLSD result = httpAdapter->postAndYield(httpRequest, url, LLSD(), httpOpts, httpHeaders);
+        LLSD result = httpAdapter->postAndYield(self, httpRequest, url, LLSD(), httpOpts, httpHeaders);
 
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -237,7 +237,7 @@ namespace LLMarketplaceImport
 #endif
 
 #if 1
-    void marketplaceGetCoro(std::string url, bool buildHeaders)
+    void marketplaceGetCoro(LLCoros::self& self, std::string url, bool buildHeaders)
     {
         LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -263,7 +263,7 @@ namespace LLMarketplaceImport
             httpHeaders = LLViewerMedia::getHttpHeaders();
         }
 
-        LLSD result = httpAdapter->getAndYield(httpRequest, url, httpOpts, httpHeaders);
+        LLSD result = httpAdapter->getAndYield(self, httpRequest, url, httpOpts, httpHeaders);
 
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -405,7 +405,7 @@ namespace LLMarketplaceImport
 
 #if 1
         LLCoros::instance().launch("marketplaceGetCoro",
-            boost::bind(&marketplaceGetCoro, url, false));
+            boost::bind(&marketplaceGetCoro, _1, url, false));
 
 #else
     	if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
@@ -439,7 +439,7 @@ namespace LLMarketplaceImport
 
 #if 1
         LLCoros::instance().launch("marketplaceGetCoro",
-            boost::bind(&marketplaceGetCoro, url, true));
+            boost::bind(&marketplaceGetCoro, _1, url, true));
         
 #else
 		// Make the headers for the post
@@ -482,7 +482,7 @@ namespace LLMarketplaceImport
 		
 #if 1
         LLCoros::instance().launch("marketplacePostCoro",
-            boost::bind(&marketplacePostCoro, url));
+            boost::bind(&marketplacePostCoro, _1, url));
 
 #else
 		// Make the headers for the post

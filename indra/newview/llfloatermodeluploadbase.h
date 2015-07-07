@@ -56,7 +56,7 @@ protected:
 	// requests agent's permissions to upload model
 	void requestAgentUploadPermissions();
 
-    void requestAgentUploadPermissionsCoro(std::string url, LLHandle<LLUploadPermissionsObserver> observerHandle);
+    void requestAgentUploadPermissionsCoro(LLCoros::self& self, std::string url, LLHandle<LLUploadPermissionsObserver> observerHandle);
 
 	std::string mUploadModelUrl;
 	bool mHasUploadPerm;

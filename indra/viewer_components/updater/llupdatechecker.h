@@ -106,7 +106,7 @@ private:
             unsigned char       uniqueid[MD5HEX_STR_SIZE],
             bool                willing_to_test);
 
-        void checkVersionCoro(std::string url);
+        void checkVersionCoro(LLCoros::self& self, std::string url);
 
         LOG_CLASS(LLUpdateChecker::Implementation);
     };

@@ -104,12 +104,12 @@ private:
 	void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
 	void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
-    void navMeshStatusRequestCoro(std::string url, U64 regionHandle, bool isGetStatusOnly);
-    void navAgentStateRequestCoro(std::string url);
-    void navMeshRebakeCoro(std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback);
-    void linksetObjectsCoro(std::string url, boost::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
-    void linksetTerrainCoro(std::string url, boost::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
-    void charactersCoro(std::string url, request_id_t requestId, object_request_callback_t callback) const;
+    void navMeshStatusRequestCoro(LLCoros::self& self, std::string url, U64 regionHandle, bool isGetStatusOnly);
+    void navAgentStateRequestCoro(LLCoros::self& self, std::string url);
+    void navMeshRebakeCoro(LLCoros::self& self, std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback);
+    void linksetObjectsCoro(LLCoros::self &self, std::string url, boost::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
+    void linksetTerrainCoro(LLCoros::self &self, std::string url, boost::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
+    void charactersCoro(LLCoros::self &self, std::string url, request_id_t requestId, object_request_callback_t callback) const;
 
 	//void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);

@@ -29,6 +29,8 @@
 #if ! defined(LL_LLEVENTCORO_H)
 #define LL_LLEVENTCORO_H
 
+#include <boost/dcoroutine/coroutine.hpp>
+#include <boost/dcoroutine/future.hpp>
 #include <boost/optional.hpp>
 #include <string>
 #include <stdexcept>
@@ -100,6 +102,9 @@ LLVoidListener<LISTENER> voidlistener(const LISTENER& listener)
 
 namespace LLEventDetail
 {
+    /// Implementation for listenerNameForCoro(), see below
+    LL_COMMON_API std::string listenerNameForCoroImpl(const void* self_id);
+
     /**
      * waitForEventOn() permits a coroutine to temporarily listen on an
      * LLEventPump any number of times. We don't really want to have to ask
@@ -111,9 +116,21 @@ namespace LLEventDetail
      * call waitForEventOn() any number of times, we don't really want to
      * consume an arbitrary number of generated inventName()s: that namespace,
      * though large, is nonetheless finite. So we memoize an invented name for
-     * each distinct coroutine instance.
+     * each distinct coroutine instance (each different 'self' object). We
+     * can't know the type of 'self', because it depends on the coroutine
+     * body's signature. So we cast its address to void*, looking for distinct
+     * pointer values. Yes, that means that an early coroutine could cache a
+     * value here, then be destroyed, only to be supplanted by a later
+     * coroutine (of the same or different type), and we'll end up
+     * "recognizing" the second one and reusing the listener name -- but
+     * that's okay, since it won't collide with any listener name used by the
+     * earlier coroutine since that earlier coroutine no longer exists.
      */
-    std::string listenerNameForCoro();
+    template <typename COROUTINE_SELF>
+    std::string listenerNameForCoro(COROUTINE_SELF& self)
+    {
+        return listenerNameForCoroImpl(self.get_id());
+    }
 
     /**
      * Implement behavior described for postAndWait()'s @a replyPumpNamePath
@@ -142,7 +159,7 @@ namespace LLEventDetail
  * convenience: the difference between this function and the sequence
  * @code
  * requestPump.post(myEvent);
- * LLSD reply = waitForEventOn(replyPump);
+ * LLSD reply = waitForEventOn(self, replyPump);
  * @endcode
  * is that the sequence above fails if the reply is posted immediately on
  * @a replyPump, that is, before <tt>requestPump.post()</tt> returns. In the
@@ -184,16 +201,51 @@ namespace LLEventDetail
  *   @a replyPumpNamePath specifies the entry in the lowest-level structure in
  *   @a event into which to store <tt>replyPump.getName()</tt>.
  */
-LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
-                 const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath=LLSD());
+template <typename SELF>
+LLSD postAndWait(SELF& self, const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+                 const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath=LLSD())
+{
+    // declare the future
+    boost::dcoroutines::future<LLSD> future(self);
+    // make a callback that will assign a value to the future, and listen on
+    // the specified LLEventPump with that callback
+    std::string listenerName(LLEventDetail::listenerNameForCoro(self));
+    LLTempBoundListener connection(
+        replyPump.getPump().listen(listenerName,
+                                   voidlistener(boost::dcoroutines::make_callback(future))));
+    // skip the "post" part if requestPump is default-constructed
+    if (requestPump)
+    {
+        // If replyPumpNamePath is non-empty, store the replyPump name in the
+        // request event.
+        LLSD modevent(event);
+        LLEventDetail::storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
+		LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+                                 << " posting to " << requestPump.getPump().getName()
+								 << LL_ENDL;
+
+		// *NOTE:Mani - Removed because modevent could contain user's hashed passwd.
+		//                         << ": " << modevent << LL_ENDL;
+        requestPump.getPump().post(modevent);
+    }
+    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+                             << " about to wait on LLEventPump " << replyPump.getPump().getName()
+                             << LL_ENDL;
+    // trying to dereference ("resolve") the future makes us wait for it
+    LLSD value(*future);
+    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+                             << " resuming with " << value << LL_ENDL;
+    // returning should disconnect the connection
+    return value;
+}
 
 /// Wait for the next event on the specified LLEventPump. Pass either the
 /// LLEventPump& or its string name.
-inline
-LLSD waitForEventOn(const LLEventPumpOrPumpName& pump)
+template <typename SELF>
+LLSD waitForEventOn(SELF& self, const LLEventPumpOrPumpName& pump)
 {
     // This is now a convenience wrapper for postAndWait().
-    return postAndWait(LLSD(), LLEventPumpOrPumpName(), pump);
+    return postAndWait(self, LLSD(), LLEventPumpOrPumpName(), pump);
 }
 
 /// return type for two-pump variant of waitForEventOn()
@@ -261,7 +313,7 @@ namespace LLEventDetail
  * I'd have preferred to overload the name postAndWait() for both signatures.
  * But consider the following ambiguous call:
  * @code
- * postAndWait(LLSD(), requestPump, replyPump, "someString");
+ * postAndWait(self, LLSD(), requestPump, replyPump, "someString");
  * @endcode
  * "someString" could be converted to either LLSD (@a replyPumpNamePath for
  * the single-pump function) or LLEventOrPumpName (@a replyPump1 for two-pump
@@ -270,29 +322,69 @@ namespace LLEventDetail
  * It seems less burdensome to write postAndWait2() than to write either
  * LLSD("someString") or LLEventOrPumpName("someString").
  */
-LLEventWithID postAndWait2(const LLSD& event,
+template <typename SELF>
+LLEventWithID postAndWait2(SELF& self, const LLSD& event,
                            const LLEventPumpOrPumpName& requestPump,
                            const LLEventPumpOrPumpName& replyPump0,
                            const LLEventPumpOrPumpName& replyPump1,
                            const LLSD& replyPump0NamePath=LLSD(),
-                           const LLSD& replyPump1NamePath=LLSD());
+                           const LLSD& replyPump1NamePath=LLSD())
+{
+    // declare the future
+    boost::dcoroutines::future<LLEventWithID> future(self);
+    // either callback will assign a value to this future; listen on
+    // each specified LLEventPump with a callback
+    std::string name(LLEventDetail::listenerNameForCoro(self));
+    LLTempBoundListener connection0(
+        replyPump0.getPump().listen(name + "a",
+                               LLEventDetail::wfeoh(boost::dcoroutines::make_callback(future), 0)));
+    LLTempBoundListener connection1(
+        replyPump1.getPump().listen(name + "b",
+                               LLEventDetail::wfeoh(boost::dcoroutines::make_callback(future), 1)));
+    // skip the "post" part if requestPump is default-constructed
+    if (requestPump)
+    {
+        // If either replyPumpNamePath is non-empty, store the corresponding
+        // replyPump name in the request event.
+        LLSD modevent(event);
+        LLEventDetail::storeToLLSDPath(modevent, replyPump0NamePath,
+                                       replyPump0.getPump().getName());
+        LLEventDetail::storeToLLSDPath(modevent, replyPump1NamePath,
+                                       replyPump1.getPump().getName());
+        LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+                                 << " posting to " << requestPump.getPump().getName()
+                                 << ": " << modevent << LL_ENDL;
+        requestPump.getPump().post(modevent);
+    }
+    LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+                             << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
+                             << ", " << replyPump1.getPump().getName() << LL_ENDL;
+    // trying to dereference ("resolve") the future makes us wait for it
+    LLEventWithID value(*future);
+    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << name
+                             << " resuming with (" << value.first << ", " << value.second << ")"
+                             << LL_ENDL;
+    // returning should disconnect both connections
+    return value;
+}
 
 /**
  * Wait for the next event on either of two specified LLEventPumps.
  */
-inline
+template <typename SELF>
 LLEventWithID
-waitForEventOn(const LLEventPumpOrPumpName& pump0, const LLEventPumpOrPumpName& pump1)
+waitForEventOn(SELF& self,
+               const LLEventPumpOrPumpName& pump0, const LLEventPumpOrPumpName& pump1)
 {
     // This is now a convenience wrapper for postAndWait2().
-    return postAndWait2(LLSD(), LLEventPumpOrPumpName(), pump0, pump1);
+    return postAndWait2(self, LLSD(), LLEventPumpOrPumpName(), pump0, pump1);
 }
 
 /**
  * Helper for the two-pump variant of waitForEventOn(), e.g.:
  *
  * @code
- * LLSD reply = errorException(waitForEventOn(replyPump, errorPump),
+ * LLSD reply = errorException(waitForEventOn(self, replyPump, errorPump),
  *                             "error response from login.cgi");
  * @endcode
  *
@@ -362,16 +454,26 @@ public:
 
     /**
      * Wait for an event on this LLEventPump.
+     *
+     * @note
+     * The other major usage pattern we considered was to bind @c self at
+     * LLCoroEventPump construction time, which would avoid passing the
+     * parameter to each wait() call. But if we were going to bind @c self as
+     * a class member, we'd need to specify a class template parameter
+     * indicating its type. The big advantage of passing it to the wait() call
+     * is that the type can be implicit.
      */
-    LLSD wait()
+    template <typename SELF>
+    LLSD wait(SELF& self)
     {
-        return ::waitForEventOn(mPump);
+        return waitForEventOn(self, mPump);
     }
 
-    LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+    template <typename SELF>
+    LLSD postAndWait(SELF& self, const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                      const LLSD& replyPumpNamePath=LLSD())
     {
-        return ::postAndWait(event, requestPump, mPump, replyPumpNamePath);
+        return ::postAndWait(self, event, requestPump, mPump, replyPumpNamePath);
     }
 
 private:
@@ -407,49 +509,55 @@ public:
     /// request pump 1
     LLEventPump& getPump1() { return mPump1; }
 
-    /// waitForEventOn(either of our two LLEventPumps)
-    LLEventWithID wait()
+    /// waitForEventOn(self, either of our two LLEventPumps)
+    template <typename SELF>
+    LLEventWithID wait(SELF& self)
     {
-        return waitForEventOn(mPump0, mPump1);
+        return waitForEventOn(self, mPump0, mPump1);
     }
 
-    /// errorException(wait())
-    LLSD waitWithException()
+    /// errorException(wait(self))
+    template <typename SELF>
+    LLSD waitWithException(SELF& self)
     {
-        return errorException(wait(), std::string("Error event on ") + getName1());
+        return errorException(wait(self), std::string("Error event on ") + getName1());
     }
 
-    /// errorLog(wait())
-    LLSD waitWithLog()
+    /// errorLog(wait(self))
+    template <typename SELF>
+    LLSD waitWithLog(SELF& self)
     {
-        return errorLog(wait(), std::string("Error event on ") + getName1());
+        return errorLog(wait(self), std::string("Error event on ") + getName1());
     }
 
-    LLEventWithID postAndWait(const LLSD& event,
+    template <typename SELF>
+    LLEventWithID postAndWait(SELF& self, const LLSD& event,
                               const LLEventPumpOrPumpName& requestPump,
                               const LLSD& replyPump0NamePath=LLSD(),
                               const LLSD& replyPump1NamePath=LLSD())
     {
-        return postAndWait2(event, requestPump, mPump0, mPump1,
+        return postAndWait2(self, event, requestPump, mPump0, mPump1,
                             replyPump0NamePath, replyPump1NamePath);
     }
 
-    LLSD postAndWaitWithException(const LLSD& event,
+    template <typename SELF>
+    LLSD postAndWaitWithException(SELF& self, const LLSD& event,
                                   const LLEventPumpOrPumpName& requestPump,
                                   const LLSD& replyPump0NamePath=LLSD(),
                                   const LLSD& replyPump1NamePath=LLSD())
     {
-        return errorException(postAndWait(event, requestPump,
+        return errorException(postAndWait(self, event, requestPump,
                                           replyPump0NamePath, replyPump1NamePath),
                               std::string("Error event on ") + getName1());
     }
 
-    LLSD postAndWaitWithLog(const LLSD& event,
+    template <typename SELF>
+    LLSD postAndWaitWithLog(SELF& self, const LLSD& event,
                             const LLEventPumpOrPumpName& requestPump,
                             const LLSD& replyPump0NamePath=LLSD(),
                             const LLSD& replyPump1NamePath=LLSD())
     {
-        return errorLog(postAndWait(event, requestPump,
+        return errorLog(postAndWait(self, event, requestPump,
                                     replyPump0NamePath, replyPump1NamePath),
                         std::string("Error event on ") + getName1());
     }

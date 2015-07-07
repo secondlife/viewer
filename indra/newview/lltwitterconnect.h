@@ -98,12 +98,12 @@ private:
 	static boost::scoped_ptr<LLEventPump> sContentWatcher;
 
     bool testShareStatus(LLSD &result);
-    void twitterConnectCoro(std::string requestToken, std::string oauthVerifier);
-    void twitterDisconnectCoro();
-    void twitterConnectedCoro(bool autoConnect);
-    void twitterInfoCoro();
-    void twitterShareCoro(std::string route, LLSD share);
-    void twitterShareImageCoro(LLPointer<LLImageFormatted> image, std::string status);
+    void twitterConnectCoro(LLCoros::self& self, std::string requestToken, std::string oauthVerifier);
+    void twitterDisconnectCoro(LLCoros::self& self);
+    void twitterConnectedCoro(LLCoros::self& self, bool autoConnect);
+    void twitterInfoCoro(LLCoros::self& self);
+    void twitterShareCoro(LLCoros::self& self, std::string route, LLSD share);
+    void twitterShareImageCoro(LLCoros::self& self, LLPointer<LLImageFormatted> image, std::string status);
 };
 
 #endif // LL_LLTWITTERCONNECT_H

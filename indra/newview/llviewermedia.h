@@ -170,8 +170,8 @@ private:
 	static void setOpenIDCookie();
 	static void onTeleportFinished();
 
-    static void openIDSetupCoro(std::string openidUrl, std::string openidToken);
-    static void getOpenIDCookieCoro(std::string url);
+    static void openIDSetupCoro(LLCoros::self& self, std::string openidUrl, std::string openidToken);
+    static void getOpenIDCookieCoro(LLCoros::self& self, std::string url);
 
 	static LLPluginCookieStore *sCookieStore;
 	static LLURL sOpenIDURL;
@@ -475,7 +475,7 @@ private:
 	BOOL mIsUpdated ;
 	std::list< LLVOVolume* > mObjectList ;
 
-    void mimeDiscoveryCoro(std::string url);
+    void mimeDiscoveryCoro(LLCoros::self& self, std::string url);
     LLCoreHttpUtil::HttpCoroutineAdapter::wptr_t mMimeProbe;
     bool mCanceling;
 

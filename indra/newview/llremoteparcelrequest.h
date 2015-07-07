@@ -91,7 +91,7 @@ private:
 	typedef std::multimap<LLUUID, LLHandle<LLRemoteParcelInfoObserver> > observer_multimap_t;
 	observer_multimap_t mObservers;
 
-    void regionParcelInfoCoro(std::string url, LLUUID regionId, LLVector3 posRegion, LLVector3d posGlobal, LLHandle<LLRemoteParcelInfoObserver> observerHandle);
+    void regionParcelInfoCoro(LLCoros::self& self, std::string url, LLUUID regionId, LLVector3 posRegion, LLVector3d posGlobal, LLHandle<LLRemoteParcelInfoObserver> observerHandle);
 };
 
 #endif // LL_LLREMOTEPARCELREQUEST_H

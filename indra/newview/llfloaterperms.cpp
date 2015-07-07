@@ -182,7 +182,7 @@ void LLFloaterPermsDefault::updateCap()
 	if(!object_url.empty())
 	{
         LLCoros::instance().launch("LLFloaterPermsDefault::updateCapCoro",
-            boost::bind(&LLFloaterPermsDefault::updateCapCoro, object_url));
+            boost::bind(&LLFloaterPermsDefault::updateCapCoro, _1, object_url));
 	}
     else
     {
@@ -191,7 +191,7 @@ void LLFloaterPermsDefault::updateCap()
 }
 
 /*static*/
-void LLFloaterPermsDefault::updateCapCoro(std::string url)
+void LLFloaterPermsDefault::updateCapCoro(LLCoros::self& self, std::string url)
 {
     static std::string previousReason;
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -215,7 +215,7 @@ void LLFloaterPermsDefault::updateCapCoro(std::string url)
         LL_CONT << sent_perms_log.str() << LL_ENDL;
     }
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

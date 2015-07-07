@@ -992,7 +992,7 @@ void LLViewerObjectList::fetchObjectCosts()
 			if (!url.empty())
 			{
                 LLCoros::instance().launch("LLViewerObjectList::fetchObjectCostsCoro",
-                    boost::bind(&LLViewerObjectList::fetchObjectCostsCoro, this, url));
+                    boost::bind(&LLViewerObjectList::fetchObjectCostsCoro, this, _1, url));
 			}
 			else
 			{
@@ -1014,7 +1014,7 @@ void LLViewerObjectList::reportObjectCostFailure(LLSD &objectList)
 }
 
 
-void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
+void LLViewerObjectList::fetchObjectCostsCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -1052,7 +1052,7 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
 
     postData["object_ids"] = idList;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1122,7 +1122,7 @@ void LLViewerObjectList::fetchPhysicsFlags()
 			if (!url.empty())
 			{
                 LLCoros::instance().launch("LLViewerObjectList::fetchPhisicsFlagsCoro",
-                    boost::bind(&LLViewerObjectList::fetchPhisicsFlagsCoro, this, url));
+                    boost::bind(&LLViewerObjectList::fetchPhisicsFlagsCoro, this, _1, url));
 			}
 			else
 			{
@@ -1143,7 +1143,7 @@ void LLViewerObjectList::reportPhysicsFlagFailure(LLSD &objectList)
     }
 }
 
-void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
+void LLViewerObjectList::fetchPhisicsFlagsCoro(LLCoros::self& self, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -1181,7 +1181,7 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
 
     postData["object_ids"] = idList;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
