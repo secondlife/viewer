@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="script_experience" title="ПРИКЛЮЧЕНИЕ">
+	<button label="Приключение" name="Expand Experience"/>
+	<check_box label="Используется приключение" name="enable_xp"/>
+	<layout_stack name="xp_details">
+		<layout_panel>
+			<combo_box label="Выбрать приключение..." name="Experiences..."/>
+		</layout_panel>
+	</layout_stack>
+	<text name="No Experiences">
+		Вы не являетесь автором приключений.
+	</text>
+</panel>

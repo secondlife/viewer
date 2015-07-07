@@ -310,9 +310,6 @@
 			<panel.string name="push_restrict_region_text">
 				プッシュ禁止 （地域設定優先）
 			</panel.string>
-			<panel.string name="see_avs_text">
-				他の区画にいるアバターは、
-			</panel.string>
 			<text name="allow_label">
 				他の住人への許可：
 			</text>
@@ -338,22 +335,6 @@
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシュ禁止" name="PushRestrictCheck" tool_tip="スクリプトによるプッシュを禁止します。 このオプションを選択することにより、あなたの土地での破壊的行動を防ぐことができます。"/>
 			<check_box label="検索に区画を表示（週 L$ 30）" name="ShowDirectoryCheck" tool_tip="この区画を検索結果に表示します"/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="全カテゴリ" name="item0"/>
-				<combo_box.item label="Linden 所在地" name="item1"/>
-				<combo_box.item label="Adult" name="item2"/>
-				<combo_box.item label="アートとカルチャー" name="item3"/>
-				<combo_box.item label="ビジネス" name="item4"/>
-				<combo_box.item label="教育的" name="item5"/>
-				<combo_box.item label="ゲーム" name="item6"/>
-				<combo_box.item label="たまり場" name="item7"/>
-				<combo_box.item label="新住人に好意的" name="item8"/>
-				<combo_box.item label="公園と自然" name="item9"/>
-				<combo_box.item label="住宅用" name="item10"/>
-				<combo_box.item label="ショッピング" name="item11"/>
-				<combo_box.item label="レンタル" name="item13"/>
-				<combo_box.item label="その他" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="全カテゴリ" name="item0"/>
 				<combo_box.item label="Linden 所在地" name="item1"/>
@@ -450,15 +431,9 @@
 			<panel.string name="access_estate_defined">
 				（エステートに限定）
 			</panel.string>
-			<panel.string name="allow_public_access">
-				パブリックアクセスを許可 （[MATURITY]）（注意：このオプションをオフにすると立入禁止ラインが作成されます）
-			</panel.string>
 			<panel.string name="estate_override">
 				1 つ以上のオプションが、不動産レベルで設定されています。
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				この区画へのアクセス
-			</text>
 			<check_box label="パブリックアクセスを許可（このオプションをオフにすると立入禁止ラインが作成されます）" name="public_access"/>
 			<text name="Only Allow">
 				次の住人にのみアクセスを許可：
@@ -490,5 +465,6 @@
 				<button label="削除" label_selected="削除" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="経験" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

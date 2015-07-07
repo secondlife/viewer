@@ -31,7 +31,7 @@
 		Частота кадров клиента от [CLIENT_FRAME_RATE_CRITICAL] до [CLIENT_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
-		Нормально
+		Нормальный
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
 		Возможная причина: дальность отрисовки слишком велика
@@ -61,7 +61,7 @@
 		Сеть теряет [NETWORK_PACKET_LOSS_WARNING]–[NETWORK_PACKET_LOSS_CRITICAL]% пакетов
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
-		Нормально
+		Нормальный
 	</floater.string>
 	<floater.string name="network_ping_critical_ms">
 		600
@@ -100,7 +100,7 @@
 		Частота кадров сервера [SERVER_FRAME_RATE_CRITICAL]–[SERVER_FRAME_RATE_WARNING]
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
-		Нормально
+		Нормальный
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
 		Возможная причина: слишком много физических объектов
@@ -131,21 +131,21 @@
 		Клиент
 	</text>
 	<text name="client_text">
-		Нормально
+		Нормальный
 	</text>
 	<button name="network_lagmeter" tool_tip="Уровень лагов сети"/>
 	<text name="network">
 		Сеть
 	</text>
 	<text name="network_text">
-		Нормально
+		Нормальный
 	</text>
 	<button name="server_lagmeter" tool_tip="Уровень лагов сервера"/>
 	<text name="server">
 		Сервер
 	</text>
 	<text name="server_text">
-		Нормально
+		Нормальный
 	</text>
 	<button label="&gt;&gt;" name="minimize" tool_tip="Переключение размера"/>
 </floater>

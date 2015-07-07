@@ -71,4 +71,8 @@
 		<action description="Присоединение к голосовому чату группы" longdescription="Участники роли с этой способностью могут присоединяться к сеансам голосового чата группы.  ПРИМЕЧАНИЕ. Способность «Присоединение к чату группы» необходима для доступа к сеансам голосового чата." name="join voice chat" value="27"/>
 		<action description="Moderate-чат группы" longdescription="Участники роли с этой способностью могут контролировать доступ и участие в сеансах текстового и голосового чата группы." name="moderate group chat" value="37"/>
 	</action_set>
+	<action_set description="Эти способности включают право изменять приключения, которыми владеет эта группа." name="experience_tools_experience">
+		<action description="Администратор приключения" longdescription="Участники роли с этой способностью могут редактировать метаданные приключения." name="experience admin" value="49"/>
+		<action description="Автор приключения" longdescription="Участники роли с этой способностью могут создавать скрипты для приключения." name="experience contributor" value="50"/>
+	</action_set>
 </role_actions>

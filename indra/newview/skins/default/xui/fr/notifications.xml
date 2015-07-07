@@ -73,6 +73,10 @@ Détails de l&apos;erreur : La notification, appelée &apos;[_NAME]&apos;, est i
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Oui"/>
 	</notification>
+	<notification name="GenericAlertOK">
+		[MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="BadInstallation">
 		Une erreur est survenue lors de la mise à jour de [APP_NAME].  Veuillez [http://get.secondlife.com télécharger la dernière version] du client.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -573,6 +577,9 @@ La qualité des graphiques peut être augmentée à la section Préférences &gt
 	</notification>
 	<notification name="RegionNoTerraforming">
 		Le terraformage est interdit dans la région [REGION].
+	</notification>
+	<notification name="ParcelNoTerraforming">
+		Vous n&apos;êtes pas autorisé(e) à terraformer la parcelle [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
 		Vous n&apos;êtes pas autorisé à copier les articles suivants :
@@ -1824,6 +1831,30 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 		Supprimer le gérant de domaine pour ce domaine uniquement ou pour [ALL_ESTATES] ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
 	</notification>
+	<notification label="Sélectionner un domaine" name="EstateAllowedExperienceAdd">
+		Ajouter à la liste des expériences autorisées uniquement pour ce domaine ou pour [ALL_ESTATES] ?
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
+	</notification>
+	<notification label="Sélectionner un domaine" name="EstateAllowedExperienceRemove">
+		Supprimer de la liste des expériences autorisées uniquement pour ce domaine ou pour [ALL_ESTATES] ?
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
+	</notification>
+	<notification label="Sélectionner un domaine" name="EstateBlockedExperienceAdd">
+		Ajouter à la liste des expériences bloquées uniquement pour ce domaine ou pour [ALL_ESTATES]
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
+	</notification>
+	<notification label="Sélectionner un domaine" name="EstateBlockedExperienceRemove">
+		Supprimer de la liste des expériences bloquées uniquement pour ce domaine ou pour [ALL_ESTATES] ?
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
+	</notification>
+	<notification label="Sélectionner un domaine" name="EstateTrustedExperienceAdd">
+		Ajouter à la liste des clés uniquement pour ce domaine ou pour [ALL_ESTATES] ?
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
+	</notification>
+	<notification label="Sélectionner un domaine" name="EstateTrustedExperienceRemove">
+		Supprimer de la liste des clés uniquement pour ce domaine ou pour [ALL_ESTATES] ?
+		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
+	</notification>
 	<notification label="Confirmer" name="EstateKickUser">
 		Éjecter [EVIL_USER] de ce domaine ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
@@ -1896,6 +1927,10 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 	</notification>
 	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
 		Nous rencontrons des difficultés techniques au niveau de votre téléportation car vos préférences ne sont pas synchronisées avec le serveur.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="RegionTPSpecialUsageBlocked">
+		Impossible de pénétrer dans la région. « [REGION_NAME] » est une région de jeux d&apos;adresse et vous devez satisfaire à certains critères pour y pénétrer. Pour en savoir plus, consultez la page [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life FAQ sur les jeux d&apos;adresse].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PreferredMaturityChanged">
@@ -2204,6 +2239,9 @@ Voulez-vous le remplacer par l&apos;objet sélectionné ?
 			<button ignore="Remplacer automatiquement" name="Yes" text="OK"/>
 			<button ignore="Ne jamais remplacer" name="No" text="Annuler"/>
 		</form>
+	</notification>
+	<notification name="TooManyWearables">
+		Vous ne pouvez pas porter un dossier contenant plus de [AMOUNT] articles.  Vous pouvez modifier cette limite dans Avancé &gt; Afficher les paramètres de débogage &gt; WearFolderLimit.
 	</notification>
 	<notification label="Avertissement de mode Ne pas déranger" name="DoNotDisturbModePay">
 		Vous avez activé Ne pas déranger. Vous ne recevrez aucun article proposé en échange de ce paiement.
@@ -2814,7 +2852,7 @@ Si vous restez dans cette région, vous serez déconnecté(e).
 
 [MESSAGE]
 
-Venant de l&apos;objet : &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propriétaire : [NAME] ?
+Venant de l&apos;objet : &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propriétaire : [NAME]
 		<form name="form">
 			<button name="Gotopage" text="Charger"/>
 			<button name="Cancel" text="Annuler"/>
@@ -2838,6 +2876,72 @@ Acceptez-vous ?
 			<button name="Yes" text="Oui"/>
 			<button name="No" text="Non"/>
 			<button name="Mute" text="Interdire"/>
+		</form>
+	</notification>
+	<notification name="ExperienceAcquireFailed">
+		Impossible d&apos;acquérir une nouvelle expérience :
+    [ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NotInGroupExperienceProfileMessage">
+		Une modification du groupe de l&apos;expérience a été ignorée, car le propriétaire n&apos;est pas membre du groupe sélectionné.
+	</notification>
+	<notification name="UneditableExperienceProfileMessage">
+		Le champ non modifiable « [field] » a été ignoré lors de la mise à jour du profil de l&apos;expérience.
+	</notification>
+	<notification name="RestrictedToOwnerExperienceProfileMessage">
+		Modifications du champ « [field] » ignorées, car il ne peut être défini que par le propriétaire de l&apos;expérience.
+	</notification>
+	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
+		Vous ne pouvez pas définir une catégorie de contenu plus élevée pour une expérience que pour son propriétaire.
+	</notification>
+	<notification name="RestrictedTermExperienceProfileMessage">
+		Les termes suivants ont empêché la mise à jour du nom et/ou de la description du profil de l&apos;expérience : [extra_info]
+	</notification>
+	<notification name="TeleportedHomeExperienceRemoved">
+		Vous avez été téléporté(e) hors de la région [region_name], car vous avez supprimé l&apos;expérience secondlife:///app/experience/[public_id]/profile et n&apos;êtes plus autorisé(e) dans cette région.
+		<form name="form">
+			<ignore name="ignore" text="Éjecté(e) de la région pour cause de suppression d&apos;une expérience"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperienceEntry">
+		Vous avez été autorisé(e) à pénétrer dans la région [region_name] en participant à l&apos;expérience avec clé secondlife:///app/experience/[public_id]/profile. Si vous supprimez cette expérience, vous risquez d&apos;être éjecté(e) de cette région.
+		<form name="form">
+			<ignore name="ignore" text="Autorisé(e) dans une région par une expérience"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperiencesAvailable">
+		Vous n&apos;avez pas accès à cette destination. Vous pouvez être autorisé(e) à pénétrer dans la région en acceptant une expérience ci-dessous :
+
+[EXPERIENCE_LIST]
+
+Il est possible que d&apos;autres expériences avec clé soient disponibles.
+	</notification>
+	<notification name="ExperienceEvent">
+		Un objet a été autorisé à [EventType] par l&apos;expérience secondlife:///app/experience/[public_id]/profile.
+    Propriétaire : secondlife:///app/agent/[OwnerID]/inspect
+    Nom de l&apos;objet : [ObjectName]
+    Nom de la parcelle : [ParcelName]
+	</notification>
+	<notification name="ExperienceEventAttachment">
+		Une pièce jointe a été autorisée à [EventType] par l&apos;expérience secondlife:///app/experience/[public_id]/profile.
+    Propriétaire : secondlife:///app/agent/[OwnerID]/inspect
+	</notification>
+	<notification name="ScriptQuestionExperience">
+		« &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt; », un objet appartenant à « [NAME] », demande votre participation à l&apos;expérience [GRID_WIDE] :
+
+[EXPERIENCE]
+
+Une fois l&apos;autorisation accordée, vous ne verrez plus ce message pour cette expérience, sauf si elle est révoquée dans le profil de l&apos;expérience.
+
+Les scripts associés à cette expérience pourront effectuer les actions suivantes dans les régions dans lesquelles l&apos;expérience est active : 
+
+[QUESTIONS]Acceptez-vous ?
+		<form name="form">
+			<button name="BlockExperience" text="Bloquer l&apos;expérience"/>
+			<button name="Mute" text="Ignorer l&apos;objet"/>
+			<button name="Yes" text="Oui"/>
+			<button name="No" text="Non"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
@@ -3158,6 +3262,10 @@ Texture figée de [RESOLUTION] chargée pour [BODYREGION] au bout de [TIME] seco
 	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
 		([EXISTENCE] secondes d&apos;existence)
 Texture figée de [RESOLUTION] mise à jour localement pour [BODYREGION] au bout de [TIME] secondes.
+	</notification>
+	<notification name="CannotUploadTexture">
+		Chargement de la texture impossible.
+[REASON]
 	</notification>
 	<notification name="LivePreviewUnavailable">
 		Impossible d&apos;afficher un aperçu de cette texture car il s&apos;agit d&apos;une texture sans copie et/ou transfert.

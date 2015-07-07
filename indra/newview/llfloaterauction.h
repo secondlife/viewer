@@ -67,7 +67,7 @@ private:
 
 	void doResetParcel();
 	void doSellToAnyone();
-	void clearParcelAccessLists( LLParcel* parcel, LLViewerRegion* region );
+	void clearParcelAccessList( LLParcel* parcel, LLViewerRegion* region, U32 list);
 	void cleanupAndClose();
 
 private:

@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
-	<button label="プロフィールフィードに投稿する" name="save_to_profile_btn"/>
-	<button label="メール" name="save_to_email_btn"/>
-	<button label="インベントリに保存（L$[Amount]）" name="save_to_inventory_btn"/>
-	<button label="コンピューターに保存" name="save_to_computer_btn"/>
-	<text name="send_to_facebook_textbox">
-		宛先:  [secondlife:/// Facebook]
-	</text>
-	<text name="send_to_twitter_textbox">
-		[secondlife:/// Twitter]
-	</text>
-	<text name="send_to_flickr_textbox">
-		[secondlife:/// Flickr]
-	</text>
+	<button label="ディスクに保存" name="save_to_computer_btn"/>
+	<button label="持ち物に保存（L$[Amount]）" name="save_to_inventory_btn"/>
+	<button label="プロフィールにアップロード" name="save_to_profile_btn"/>
+	<button label="Facebook にアップロード" name="send_to_facebook_btn"/>
+	<button label="Twitter にアップロード" name="send_to_twitter_btn"/>
+	<button label="Flickr にアップロード" name="send_to_flickr_btn"/>
+	<button label="メールにより送信" name="save_to_email_btn"/>
 </panel>

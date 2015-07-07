@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_photo">
-	<layout_stack name="stack_photo">
-		<layout_panel name="snapshot_panel">
-			<combo_box name="resolution_combobox" tool_tip="Bildauflösung">
-				<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>
-				<combo_box.item label="640x480" name="640x480"/>
-				<combo_box.item label="800x600" name="800x600"/>
-				<combo_box.item label="1024x768" name="1024x768"/>
-				<combo_box.item label="1200x630" name="1200x630"/>
-			</combo_box>
-			<combo_box name="filters_combobox" tool_tip="Bildfilter">
-				<combo_box.item label="Kein Filter" name="NoFilter"/>
-			</combo_box>
-			<button label="Aktualisieren" name="new_snapshot_btn" tool_tip="Zum Aktualisieren klicken"/>
-			<button label="Vorschau" name="big_preview_btn" tool_tip="Klicken, um Vorschau ein-/auszuschalten"/>
-			<text name="caption_label">
-				Kommentar (optional):
-			</text>
-		</layout_panel>
-		<layout_panel name="photo_button_panel">
-			<button label="Posten" name="post_photo_btn"/>
-			<button label="Abbrechen" name="cancel_photo_btn"/>
-		</layout_panel>
-	</layout_stack>
+	<combo_box name="resolution_combobox" tool_tip="Bildauflösung">
+		<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1200x630" name="1200x630"/>
+	</combo_box>
+	<combo_box name="filters_combobox" tool_tip="Bildfilter">
+		<combo_box.item label="Kein Filter" name="NoFilter"/>
+	</combo_box>
+	<button label="Aktualisieren" name="new_snapshot_btn" tool_tip="Zum Aktualisieren klicken"/>
+	<button label="Vorschau" name="big_preview_btn" tool_tip="Klicken, um Vorschau ein-/auszuschalten"/>
+	<text name="caption_label">
+		Kommentar (optional):
+	</text>
+	<button label="Posten" name="post_photo_btn"/>
+	<button label="Abbrechen" name="cancel_photo_btn"/>
 </panel>

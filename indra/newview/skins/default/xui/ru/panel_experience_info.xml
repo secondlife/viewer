@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_experience_info">
+	<text name="title" value="Профиль приключения"/>
+	<scroll_container name="xp_scroll">
+		<panel name="scrolling_panel">
+			<layout_stack>
+				<layout_panel>
+					<text name="experience_title" value="Kyle&apos;s Superhero RPG"/>
+				</layout_panel>
+				<layout_panel name="location panel">
+					<text name="Location">
+						Место:
+					</text>
+					<text name="LocationTextText">
+						какое-то место
+					</text>
+					<button label="Телепортация" name="teleport_btn"/>
+					<button label="Карта" name="map_btn"/>
+				</layout_panel>
+				<layout_panel name="marketplace panel">
+					<text name="Location">
+						Магазин торгового центра:
+					</text>
+					<text name="LocationTextText">
+						какое-то место
+					</text>
+				</layout_panel>
+				<layout_panel>
+					<text name="ContentRating">
+						Рейтинг:
+					</text>
+					<text name="ContentRatingText">
+						Для взрослых
+					</text>
+					<text name="Owner">
+						Владелец:
+					</text>
+					<text name="OwnerText">
+						Kyle
+					</text>
+					<button label="Изменить" name="edit_btn"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</scroll_container>
+</panel>

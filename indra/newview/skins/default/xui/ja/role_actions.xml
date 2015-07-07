@@ -71,4 +71,8 @@
 		<action description="グループボイスチャットに参加する" longdescription=" この能力を持つ役割のメンバーは、グループボイスチャットセッションに参加できます。  注： ボイスチャットセッションにアクセスするには、グループチャットに参加する能力が必要です。 " name="join voice chat" value="27"/>
 		<action description="グループチャットを管理する" longdescription=" この能力を持つ役割のメンバーは、グループボイスチャットセッションおよびグループテキストチャットセッションへのアクセスや参加をコントロールすることができます。 " name="moderate group chat" value="37"/>
 	</action_set>
+	<action_set description="これらの機能には、このグループにより所有される体験を変更する機能が含まれます。" name="experience_tools_experience">
+		<action description="体験管理者" longdescription="この機能を持つ役割のメンバーは、体験のメタデータを編集できます。" name="experience admin" value="49"/>
+		<action description="体験貢献者" longdescription="この機能を持つ役割のメンバーは、体験のスクリプトを提供できます。" name="experience contributor" value="50"/>
+	</action_set>
 </role_actions>

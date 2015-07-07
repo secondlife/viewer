@@ -21,6 +21,12 @@
 	<floater.string name="none_descriptor">
 		Nicht gefunden.
 	</floater.string>
+	<floater.string name="URLs">
+		URLs
+	</floater.string>
+	<floater.string name="memory">
+		Speicher (KB)
+	</floater.string>
 	<text name="title_text">
 		Wird geladen...
 	</text>
@@ -30,7 +36,7 @@
 		<scroll_list.columns label="Eigentümer" name="owner"/>
 		<scroll_list.columns label="Position" name="location" width="125"/>
 		<scroll_list.columns label="Parzelle" name="parcel"/>
-		<scroll_list.columns label="Uhrzeit" name="time"/>
+		<scroll_list.columns label="Datum" name="time"/>
 		<scroll_list.columns label="URLs" name="URLs"/>
 		<scroll_list.columns label="Speicher (KB)" name="memory"/>
 	</scroll_list>
