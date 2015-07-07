@@ -6822,15 +6822,6 @@ No valid circuit code.
 
   <notification
 	icon="notify.tga"
-	name="NoValidTimestamp"
-   persist="true"
-	type="notify">
-   <tag>fail</tag>
-No valid timestamp.
-  </notification>
-
-  <notification
-	icon="notify.tga"
 	name="NoPendingConnection"
    persist="true"
 	type="notify">

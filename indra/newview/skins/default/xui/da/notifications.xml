@@ -1311,9 +1311,6 @@ Prøv igen om lidt.
 	<notification name="NoValidCircuit">
 		Ingen gyldig kode for kredsløb.
 	</notification>
-	<notification name="NoValidTimestamp">
-		Ikke et gyldigt klokkeslæt.
-	</notification>
 	<notification name="NoPendingConnection">
 		Kunne ikke skabe fast forbindelse.
 	</notification>
