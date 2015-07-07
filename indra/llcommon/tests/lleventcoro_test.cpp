@@ -64,12 +64,14 @@
 // Boost.Coroutine #include is the *first* #include of the platform header.
 // That means that client code must generally #include Boost.Coroutine headers
 // before anything else.
+#define BOOST_RESULT_OF_USE_TR1 1
 #include <boost/dcoroutine/coroutine.hpp>
 // Normally, lleventcoro.h obviates future.hpp. We only include this because
 // we implement a "by hand" test of future functionality.
 #include <boost/dcoroutine/future.hpp>
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
+#include <boost/utility.hpp>
 
 #include "linden_common.h"
 
