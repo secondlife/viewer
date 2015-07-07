@@ -3677,6 +3677,53 @@ see [[INFO_URL] Information about this update]
      name="okbutton"
      yestext="OK"/>
   </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateDownloadInProgress"
+ type="alertmodal">
+An update is available!
+It's downloading in the background and we will prompt you to restart your viewer to finish installing it as soon as it's ready.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateDownloadComplete"
+ type="alertmodal">
+An update was downloaded. It will be installed during restart.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateCheckError"
+ type="alertmodal">
+An error occured while checking for update.
+Please try again later.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateViewerUpToDate"
+ type="alertmodal">
+Your viewer is up to date!
+If you can't wait to try out the latest features and fixes, check out the Alternate Viewers page. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"

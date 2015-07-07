@@ -132,6 +132,7 @@ public:
 
 	void startChecking(bool install_if_ready);
 	void stopChecking();
+	bool forceCheck();
 	bool isChecking();
 	LLUpdaterService::eUpdaterState getState();
 	
@@ -264,6 +265,18 @@ void LLUpdaterServiceImpl::stopChecking()
     }
 	
 	setState(LLUpdaterService::TERMINAL);
+}
+
+bool LLUpdaterServiceImpl::forceCheck()
+{
+	if (mTimer.getStarted()
+		&& !mIsDownloading)
+	{
+		mTimer.setTimerExpirySec(0);
+		setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+		return true;
+	}
+	return false;
 }
 
 bool LLUpdaterServiceImpl::isChecking()
@@ -670,6 +683,11 @@ void LLUpdaterService::startChecking(bool install_if_ready)
 void LLUpdaterService::stopChecking()
 {
 	mImpl->stopChecking();
+}
+
+bool LLUpdaterService::forceCheck()
+{
+	return mImpl->forceCheck();
 }
 
 bool LLUpdaterService::isChecking()
