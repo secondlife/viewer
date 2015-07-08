@@ -407,7 +407,7 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 		updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
 
         LLCoreHttpUtil::requestPostWithLLSD(httpRequest.get(), LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
-            host, data, httpOpts.get(), NULL, new LLCrashLoggerHandler);
+            host, data, httpOpts.get(), LLCore::HttpHeaders::ptr_t(), new LLCrashLoggerHandler);
 
         while(!gBreak)
 		{

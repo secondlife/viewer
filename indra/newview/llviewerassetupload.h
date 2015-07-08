@@ -176,6 +176,19 @@ private:
 
 };
 
+#if 0
+class NotecardResourceUploadInfo : public NewResourceUploadInfo
+{
+public:
+    NotecardResourceUploadInfo(
+        );
+
+
+protected:
+
+private:
+};
+#endif
 
 class LLViewerAssetUpload
 {

@@ -394,6 +394,9 @@ LLSD NewFileResourceUploadInfo::exportTempFile()
 }
 
 //=========================================================================
+
+
+//=========================================================================
 /*static*/
 void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
     std::string url, NewResourceUploadInfo::ptr_t uploadInfo)
@@ -552,3 +555,4 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
     }
 
 }
+

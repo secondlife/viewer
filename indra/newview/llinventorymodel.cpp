@@ -149,7 +149,7 @@ LLInventoryModel::LLInventoryModel()
 	mHttpRequestFG(NULL),
 	mHttpRequestBG(NULL),
 	mHttpOptions(NULL),
-	mHttpHeaders(NULL),
+	mHttpHeaders(),
 	mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	mHttpPriorityFG(0),
 	mHttpPriorityBG(0),
@@ -178,11 +178,7 @@ void LLInventoryModel::cleanupInventory()
 	mObservers.clear();
 
 	// Run down HTTP transport
-	if (mHttpHeaders)
-	{
-		mHttpHeaders->release();
-		mHttpHeaders = NULL;
-	}
+    mHttpHeaders.reset();
 	if (mHttpOptions)
 	{
 		mHttpOptions->release();
@@ -2422,7 +2418,7 @@ void LLInventoryModel::initHttpRequest()
 		mHttpOptions->setTransferTimeout(300);
 		mHttpOptions->setUseRetryAfter(true);
 		// mHttpOptions->setTrace(2);		// Do tracing of requests
-		mHttpHeaders = new LLCore::HttpHeaders;
+        mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 		mHttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
 		mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_INVENTORY);

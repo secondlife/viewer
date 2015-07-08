@@ -39,7 +39,7 @@ HttpResponse::HttpResponse()
 	  mReplyLength(0U),
 	  mReplyFullLength(0U),
 	  mBufferArray(NULL),
-	  mHeaders(NULL),
+	  mHeaders(),
 	  mRetries(0U),
 	  m503Retries(0U),
       mRequestUrl()
@@ -49,7 +49,7 @@ HttpResponse::HttpResponse()
 HttpResponse::~HttpResponse()
 {
 	setBody(NULL);
-	setHeaders(NULL);
+	//setHeaders();
 }
 
 
@@ -72,22 +72,9 @@ void HttpResponse::setBody(BufferArray * ba)
 }
 
 
-void HttpResponse::setHeaders(HttpHeaders * headers)
+void HttpResponse::setHeaders(HttpHeaders::ptr_t &headers)
 {
-	if (mHeaders == headers)
-		return;
-	
-	if (mHeaders)
-	{
-		mHeaders->release();
-	}
-
-	if (headers)
-	{
-		headers->addRef();
-	}
-	
-	mHeaders = headers;
+    mHeaders = headers;
 }
 
 size_t HttpResponse::getBodySize() const

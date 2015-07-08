@@ -572,7 +572,7 @@ private:
 	LLCore::HttpRequest *				mHttpRequestFG;
 	LLCore::HttpRequest *				mHttpRequestBG;
 	LLCore::HttpOptions *				mHttpOptions;
-	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
 	LLCore::HttpRequest::priority_t		mHttpPriorityFG;
 	LLCore::HttpRequest::priority_t		mHttpPriorityBG;

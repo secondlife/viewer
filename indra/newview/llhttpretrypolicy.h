@@ -79,7 +79,7 @@ public:
 protected:
 	void init();
 	bool getRetryAfter(const LLSD& headers, F32& retry_header_time);
-	bool getRetryAfter(const LLCore::HttpHeaders *headers, F32& retry_header_time);
+	bool getRetryAfter(const LLCore::HttpHeaders::ptr_t &headers, F32& retry_header_time);
 	void onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time);
 
 private:

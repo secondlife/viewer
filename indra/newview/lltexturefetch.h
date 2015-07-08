@@ -177,7 +177,7 @@ public:
 	// to do that to hold a reference for any length of time.
 	//
 	// Threads:  T*
-	LLCore::HttpHeaders * getMetricsHeaders() const	{ return mHttpMetricsHeaders; }
+	LLCore::HttpHeaders::ptr_t getMetricsHeaders() const	{ return mHttpMetricsHeaders; }
 
 	// Threads:  T*
 	LLCore::HttpRequest::policy_t getMetricsPolicyClass() const { return mHttpMetricsPolicyClass; }
@@ -356,9 +356,9 @@ private:
 	LLCore::HttpRequest *				mHttpRequest;					// Ttf
 	LLCore::HttpOptions *				mHttpOptions;					// Ttf
 	LLCore::HttpOptions *				mHttpOptionsWithHeaders;		// Ttf
-	LLCore::HttpHeaders *				mHttpHeaders;					// Ttf
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;					// Ttf
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*
-	LLCore::HttpHeaders *				mHttpMetricsHeaders;			// Ttf
+	LLCore::HttpHeaders::ptr_t			mHttpMetricsHeaders;			// Ttf
 	LLCore::HttpRequest::policy_t		mHttpMetricsPolicyClass;		// T*
 	S32									mHttpHighWater;					// Ttf
 	S32									mHttpLowWater;					// Ttf
@@ -510,7 +510,7 @@ private:
 	LLTextureFetch* mFetcher;
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
-	LLCore::HttpHeaders* mHttpHeaders;
+	LLCore::HttpHeaders::ptr_t mHttpHeaders;
 	LLCore::HttpRequest::policy_t mHttpPolicyClass;
 	
 	S32 mNumFetchedTextures;

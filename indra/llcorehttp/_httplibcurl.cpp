@@ -554,7 +554,7 @@ void HttpLibcurl::HandleCache::freeHandle(CURL * handle)
 // ---------------------------------------
 
 
-struct curl_slist * append_headers_to_slist(const HttpHeaders * headers, struct curl_slist * slist)
+struct curl_slist * append_headers_to_slist(const HttpHeaders::ptr_t &headers, struct curl_slist * slist)
 {
 	const HttpHeaders::const_iterator end(headers->end());
 	for (HttpHeaders::const_iterator it(headers->begin()); end != it; ++it)

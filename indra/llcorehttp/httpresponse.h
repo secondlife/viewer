@@ -31,7 +31,7 @@
 #include <string>
 
 #include "httpcommon.h"
-
+#include "httpheaders.h"
 #include "_refcounted.h"
 
 
@@ -120,13 +120,13 @@ public:
 	///
 	/// Caller can hold onto the headers by incrementing the reference
 	/// count of the returned object.
-	HttpHeaders * getHeaders() const
-		{
+	HttpHeaders::ptr_t getHeaders() const
+	{
 			return mHeaders;
-		}
+	}
 
 	/// Behaves like @see setResponse() but for header data.
-	void setHeaders(HttpHeaders * headers);
+	void setHeaders(HttpHeaders::ptr_t &headers);
 
 	/// If a 'Range:' header was used, these methods are involved
 	/// in setting and returning data about the actual response.
@@ -212,7 +212,7 @@ protected:
 	unsigned int		mReplyLength;
 	unsigned int		mReplyFullLength;
 	BufferArray *		mBufferArray;
-	HttpHeaders *		mHeaders;
+	HttpHeaders::ptr_t	mHeaders;
 	std::string			mContentType;
 	unsigned int		mRetries;
 	unsigned int		m503Retries;

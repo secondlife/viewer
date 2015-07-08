@@ -122,7 +122,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReqBody(NULL),
 	  mReqOffset(0),
 	  mReqLength(0),
-	  mReqHeaders(NULL),
+	  mReqHeaders(),
 	  mReqOptions(NULL),
 	  mCurlActive(false),
 	  mCurlHandle(NULL),
@@ -135,7 +135,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyOffset(0),
 	  mReplyLength(0),
 	  mReplyFullLength(0),
-	  mReplyHeaders(NULL),
+	  mReplyHeaders(),
 	  mPolicyRetries(0),
 	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
@@ -160,12 +160,6 @@ HttpOpRequest::~HttpOpRequest()
 	{
 		mReqOptions->release();
 		mReqOptions = NULL;
-	}
-
-	if (mReqHeaders)
-	{
-		mReqHeaders->release();
-		mReqHeaders = NULL;
 	}
 
 	if (mCurlHandle)
@@ -194,11 +188,6 @@ HttpOpRequest::~HttpOpRequest()
 		mReplyBody = NULL;
 	}
 
-	if (mReplyHeaders)
-	{
-		mReplyHeaders->release();
-		mReplyHeaders = NULL;
-	}
 }
 
 
@@ -299,7 +288,7 @@ HttpStatus HttpOpRequest::setupGet(HttpRequest::policy_t policy_id,
 								   HttpRequest::priority_t priority,
 								   const std::string & url,
 								   HttpOptions * options,
-								   HttpHeaders * headers)
+								   HttpHeaders::ptr_t &headers)
 {
 	setupCommon(policy_id, priority, url, NULL, options, headers);
 	mReqMethod = HOR_GET;
@@ -314,7 +303,7 @@ HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
 											size_t offset,
 											size_t len,
 											HttpOptions * options,
-											HttpHeaders * headers)
+                                            HttpHeaders::ptr_t &headers)
 {
 	setupCommon(policy_id, priority, url, NULL, options, headers);
 	mReqMethod = HOR_GET;
@@ -334,7 +323,7 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
 									const std::string & url,
 									BufferArray * body,
 									HttpOptions * options,
-									HttpHeaders * headers)
+                                    HttpHeaders::ptr_t &headers)
 {
 	setupCommon(policy_id, priority, url, body, options, headers);
 	mReqMethod = HOR_POST;
@@ -348,7 +337,7 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 								   const std::string & url,
 								   BufferArray * body,
 								   HttpOptions * options,
-								   HttpHeaders * headers)
+								   HttpHeaders::ptr_t &headers)
 {
 	setupCommon(policy_id, priority, url, body, options, headers);
 	mReqMethod = HOR_PUT;
@@ -361,7 +350,7 @@ HttpStatus HttpOpRequest::setupDelete(HttpRequest::policy_t policy_id,
     HttpRequest::priority_t priority,
     const std::string & url,
     HttpOptions * options,
-    HttpHeaders * headers)
+    HttpHeaders::ptr_t &headers)
 {
     setupCommon(policy_id, priority, url, NULL, options, headers);
     mReqMethod = HOR_DELETE;
@@ -375,7 +364,7 @@ HttpStatus HttpOpRequest::setupPatch(HttpRequest::policy_t policy_id,
     const std::string & url,
     BufferArray * body,
     HttpOptions * options,
-    HttpHeaders * headers)
+    HttpHeaders::ptr_t &headers)
 {
     setupCommon(policy_id, priority, url, body, options, headers);
     mReqMethod = HOR_PATCH;
@@ -388,7 +377,7 @@ HttpStatus HttpOpRequest::setupCopy(HttpRequest::policy_t policy_id,
     HttpRequest::priority_t priority,
     const std::string & url,
     HttpOptions * options,
-    HttpHeaders * headers)
+    HttpHeaders::ptr_t &headers)
 {
     setupCommon(policy_id, priority, url, NULL, options, headers);
     mReqMethod = HOR_COPY;
@@ -402,7 +391,7 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 								const std::string & url,
 								BufferArray * body,
 								HttpOptions * options,
-								HttpHeaders * headers)
+								HttpHeaders::ptr_t &headers)
 {
 	mProcFlags = 0U;
 	mReqPolicy = policy_id;
@@ -415,7 +404,7 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 	}
 	if (headers && ! mReqHeaders)
 	{
-		headers->addRef();
+		//headers->addRef();
 		mReqHeaders = headers;
 	}
 	if (options && ! mReqOptions)
@@ -467,11 +456,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	mReplyOffset = 0;
 	mReplyLength = 0;
 	mReplyFullLength = 0;
-	if (mReplyHeaders)
-	{
-		mReplyHeaders->release();
-		mReplyHeaders = NULL;
-	}
+    mReplyHeaders.reset();
 	mReplyConType.clear();
 	
 	// *FIXME:  better error handling later
@@ -946,7 +931,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		// Save headers in response
 		if (! op->mReplyHeaders)
 		{
-			op->mReplyHeaders = new HttpHeaders;
+			op->mReplyHeaders = HttpHeaders::ptr_t(new HttpHeaders);
 		}
 		op->mReplyHeaders->append(name, value ? value : "");
 	}

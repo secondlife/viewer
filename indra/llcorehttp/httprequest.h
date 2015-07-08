@@ -31,6 +31,7 @@
 #include "httpcommon.h"
 #include "httphandler.h"
 
+#include "httpheaders.h"
 
 namespace LLCore
 {
@@ -349,7 +350,7 @@ public:
 						  priority_t priority,
 						  const std::string & url,
 						  HttpOptions * options,
-						  HttpHeaders * headers,
+						  HttpHeaders::ptr_t &headers,
 						  HttpHandler * handler);
 
 
@@ -392,7 +393,7 @@ public:
 								   size_t offset,
 								   size_t len,
 								   HttpOptions * options,
-								   HttpHeaders * headers,
+								   HttpHeaders::ptr_t &headers,
 								   HttpHandler * handler);
 
 
@@ -433,7 +434,7 @@ public:
 						   const std::string & url,
 						   BufferArray * body,
 						   HttpOptions * options,
-						   HttpHeaders * headers,
+						   HttpHeaders::ptr_t &headers,
 						   HttpHandler * handler);
 
 
@@ -474,7 +475,7 @@ public:
 						  const std::string & url,
 						  BufferArray * body,
 						  HttpOptions * options,
-						  HttpHeaders * headers,
+						  HttpHeaders::ptr_t &headers,
 						  HttpHandler * handler);
 
 
@@ -494,7 +495,7 @@ public:
             priority_t priority,
             const std::string & url,
             HttpOptions * options,
-            HttpHeaders * headers,
+            HttpHeaders::ptr_t &headers,
             HttpHandler * user_handler);
 
     /// Queue a full HTTP PUT.  Query arguments and body may
@@ -517,7 +518,7 @@ public:
             const std::string & url,
             BufferArray * body,
             HttpOptions * options,
-            HttpHeaders * headers,
+            HttpHeaders::ptr_t &headers,
             HttpHandler * user_handler);
 
     /// Queue a full HTTP PUT.  Query arguments and body may
@@ -536,7 +537,7 @@ public:
             priority_t priority,
             const std::string & url,
             HttpOptions * options,
-            HttpHeaders * headers,
+            HttpHeaders::ptr_t &headers,
             HttpHandler * user_handler);
        
     /// Queue a NoOp request.

@@ -352,6 +352,7 @@ void LLAssetUploadResponder::uploadComplete(const LLSD& content)
 {
 }
 
+#if 0
 LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(
 	const LLSD& post_data,
 	const LLUUID& vfile_id,
@@ -473,6 +474,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 
 	//LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], TRUE);
 }
+#endif
 
 LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(
 	const LLSD& post_data,

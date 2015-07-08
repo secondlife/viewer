@@ -2511,9 +2511,9 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mHttpRequest(NULL),
 	  mHttpOptions(NULL),
 	  mHttpOptionsWithHeaders(NULL),
-	  mHttpHeaders(NULL),
+	  mHttpHeaders(),
 	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	  mHttpMetricsHeaders(NULL),
+	  mHttpMetricsHeaders(),
 	  mHttpMetricsPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	  mTotalCacheReadCount(0U),
 	  mTotalCacheWriteCount(0U),
@@ -2531,10 +2531,10 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	mHttpOptions = new LLCore::HttpOptions;
 	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
 	mHttpOptionsWithHeaders->setWantHeaders(true);
-	mHttpHeaders = new LLCore::HttpHeaders;
+    mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
 	mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_TEXTURE);
-	mHttpMetricsHeaders = new LLCore::HttpHeaders;
+    mHttpMetricsHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHttpMetricsHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	mHttpMetricsPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_REPORTING);
 	mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
@@ -2578,18 +2578,6 @@ LLTextureFetch::~LLTextureFetch()
 	{
 		mHttpOptionsWithHeaders->release();
 		mHttpOptionsWithHeaders = NULL;
-	}
-
-	if (mHttpHeaders)
-	{
-		mHttpHeaders->release();
-		mHttpHeaders = NULL;
-	}
-
-	if (mHttpMetricsHeaders)
-	{
-		mHttpMetricsHeaders->release();
-		mHttpMetricsHeaders = NULL;
 	}
 
 	mHttpWaitResource.clear();
@@ -4162,7 +4150,7 @@ LLTextureFetchDebugger::LLTextureFetchDebugger(LLTextureFetch* fetcher, LLTextur
 	mFetcher(fetcher),
 	mTextureCache(cache),
 	mImageDecodeThread(imagedecodethread),
-	mHttpHeaders(NULL),
+	mHttpHeaders(),
 	mHttpPolicyClass(fetcher->getPolicyClass()),
 	mNbCurlCompleted(0),
 	mTempIndex(0),
@@ -4176,11 +4164,6 @@ LLTextureFetchDebugger::~LLTextureFetchDebugger()
 	mFetchingHistory.clear();
 	mStopDebug = TRUE;
 	tryToStopDebug();
-	if (mHttpHeaders)
-	{
-		mHttpHeaders->release();
-		mHttpHeaders = NULL;
-	}
 }
 
 void LLTextureFetchDebugger::init()
@@ -4225,7 +4208,7 @@ void LLTextureFetchDebugger::init()
 
 	if (! mHttpHeaders)
 	{
-		mHttpHeaders = new LLCore::HttpHeaders;
+        mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 		mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
 	}
 }

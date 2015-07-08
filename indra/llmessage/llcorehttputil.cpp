@@ -103,7 +103,7 @@ HttpHandle requestPostWithLLSD(HttpRequest * request,
     const std::string & url,
     const LLSD & body,
     HttpOptions * options,
-    HttpHeaders * headers,
+    HttpHeaders::ptr_t &headers,
     HttpHandler * handler)
 {
     HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -130,7 +130,7 @@ HttpHandle requestPutWithLLSD(HttpRequest * request,
     const std::string & url,
     const LLSD & body,
     HttpOptions * options,
-    HttpHeaders * headers,
+    HttpHeaders::ptr_t &headers,
     HttpHandler * handler)
 {
     HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -156,7 +156,7 @@ HttpHandle requestPatchWithLLSD(HttpRequest * request,
     const std::string & url,
     const LLSD & body,
     HttpOptions * options,
-    HttpHeaders * headers,
+    HttpHeaders::ptr_t &headers,
     HttpHandler * handler)
 {
     HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -286,7 +286,7 @@ void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::H
     writeStatusCodes(status, response->getRequestURL(), httpresults);
 
     LLSD httpHeaders = LLSD::emptyMap();
-    LLCore::HttpHeaders * hdrs = response->getHeaders();
+    LLCore::HttpHeaders::ptr_t hdrs = response->getHeaders();
 
     if (hdrs)
     {
@@ -689,7 +689,7 @@ LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpReque
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestPost(mPolicyId, mPriority, url, rawbody.get(),
-        options.get(), headers.get(), handler.get());
+        options.get(), headers, handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
@@ -782,7 +782,7 @@ LLSD HttpCoroutineAdapter::getAndYield_(LLCoros::self & self, LLCore::HttpReques
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestGet(mPolicyId, mPriority,
-        url, options.get(), headers.get(), handler.get());
+        url, options.get(), headers, handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
@@ -817,7 +817,7 @@ LLSD HttpCoroutineAdapter::deleteAndYield_(LLCoros::self & self, LLCore::HttpReq
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestDelete(mPolicyId, mPriority,
-        url, options.get(), headers.get(), handler.get());
+        url, options.get(), headers, handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {

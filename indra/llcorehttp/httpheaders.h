@@ -74,7 +74,7 @@ namespace LLCore
 /// constructor is given a refcount.
 ///
 
-class HttpHeaders : public LLCoreInt::RefCounted
+class HttpHeaders: private boost::noncopyable
 {
 public:
 	typedef std::pair<std::string, std::string> header_t;
@@ -91,10 +91,11 @@ public:
 	/// to the instance.  A call to @see release() will destroy
 	/// the instance.
 	HttpHeaders();
+    virtual ~HttpHeaders();						// Use release()
 
-	typedef LLCoreInt::IntrusivePtr<HttpHeaders> ptr_t;
+	//typedef LLCoreInt::IntrusivePtr<HttpHeaders> ptr_t;
+    typedef boost::shared_ptr<HttpHeaders> ptr_t;
 protected:
-	virtual ~HttpHeaders();						// Use release()
 
 	HttpHeaders(const HttpHeaders &);			// Not defined
 	void operator=(const HttpHeaders &);		// Not defined

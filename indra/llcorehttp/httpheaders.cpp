@@ -34,7 +34,6 @@ namespace LLCore
 
 
 HttpHeaders::HttpHeaders()
-	: RefCounted(true)
 {}
 
 

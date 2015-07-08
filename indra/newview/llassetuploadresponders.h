@@ -60,6 +60,7 @@ protected:
 	std::string mFileName;
 };
 
+#if 0
 // TODO*: Remove this once deprecated
 class LLNewAgentInventoryResponder : public LLAssetUploadResponder
 {
@@ -78,7 +79,7 @@ public:
 protected:
 	virtual void httpFailure();
 };
-
+#endif
 #if 0
 // A base class which goes through and performs some default
 // actions for variable price uploads.  If more specific actions

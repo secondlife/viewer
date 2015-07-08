@@ -324,7 +324,7 @@ public:
 	LLCore::HttpRequest *				mHttpRequest;
 	LLCore::HttpOptions *				mHttpOptions;
 	LLCore::HttpOptions *				mHttpLargeOptions;
-	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
 	LLCore::HttpRequest::policy_t		mHttpLegacyPolicyClass;
 	LLCore::HttpRequest::policy_t		mHttpLargePolicyClass;
@@ -494,7 +494,7 @@ private:
 	LLCore::HttpStatus					mHttpStatus;
 	LLCore::HttpRequest *				mHttpRequest;
 	LLCore::HttpOptions *				mHttpOptions;
-	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 };
