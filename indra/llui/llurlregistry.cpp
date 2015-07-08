@@ -218,6 +218,10 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 	// did we find a match? if so, return its details in the match object
 	if (match_entry)
 	{
+		// Skip if link is an email. See MAINT-5371.
+		if (match_start > 0 && text.substr(match_start - 1, 1) == "@")
+			return false;
+
 		// fill in the LLUrlMatch object and return it
 		std::string url = text.substr(match_start, match_end - match_start + 1);
 
