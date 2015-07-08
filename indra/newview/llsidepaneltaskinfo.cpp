@@ -370,18 +370,25 @@ void LLSidepanelTaskInfo::refresh()
 	
 	// Update creator text field
 	getChildView("Creator:")->setEnabled(TRUE);
-	std::string creator_name;
-	LLSelectMgr::getInstance()->selectGetCreator(mCreatorID, creator_name);
 
-	getChild<LLUICtrl>("Creator Name")->setValue(creator_name);
-	getChildView("Creator Name")->setEnabled(TRUE);
+	std::string creator_name;
+	LLUUID creator_id;
+	LLSelectMgr::getInstance()->selectGetCreator(creator_id, creator_name);
+
+	if(creator_id != mCreatorID )
+	{
+		mDACreatorName->setValue(creator_name);
+		mCreatorID = creator_id;
+	}
+	mDACreatorName->setEnabled(TRUE);
 
 	// Update owner text field
 	getChildView("Owner:")->setEnabled(TRUE);
 
 	std::string owner_name;
-	const BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(mOwnerID, owner_name);
-	if (mOwnerID.isNull())
+	LLUUID owner_id;
+	const BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+	if (owner_id.isNull())
 	{
 		if (LLSelectMgr::getInstance()->selectIsGroupOwned())
 		{
@@ -402,7 +409,12 @@ void LLSidepanelTaskInfo::refresh()
 			}
 		}
 	}
-	getChild<LLUICtrl>("Owner Name")->setValue(owner_name);
+
+	if(owner_id.isNull() || (owner_id != mOwnerID))
+	{
+		mDAOwnerName->setValue(owner_name);
+		mOwnerID = owner_id;
+	}
 	getChildView("Owner Name")->setEnabled(TRUE);
 
 	// update group text field
