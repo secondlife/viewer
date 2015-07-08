@@ -121,7 +121,7 @@ public:
 	int							mRetriesHttp503;
 	int							mSuccesses;
 	long						mByteCount;
-	LLCore::HttpHeaders *		mHeaders;
+	LLCore::HttpHeaders::ptr_t	mHeaders;
 };
 
 
@@ -363,8 +363,7 @@ int main(int argc, char** argv)
 	// Clean up
 	hr->requestStopThread(NULL);
 	ms_sleep(1000);
-	opt->release();
-	opt = NULL;
+    opt.reset();
 	delete hr;
 	LLCore::HttpRequest::destroyService();
 	term_curl();
@@ -427,18 +426,13 @@ WorkingSet::WorkingSet()
 {
 	mAssets.reserve(30000);
 
-	mHeaders = new LLCore::HttpHeaders;
+	mHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHeaders->append("Accept", "image/x-j2c");
 }
 
 
 WorkingSet::~WorkingSet()
 {
-	if (mHeaders)
-	{
-		mHeaders->release();
-		mHeaders = NULL;
-	}
 }
 
 
