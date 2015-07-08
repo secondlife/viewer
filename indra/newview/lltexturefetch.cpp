@@ -1557,7 +1557,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 		// Will call callbackHttpGet when curl request completes
 		// Only server bake images use the returned headers currently, for getting retry-after field.
-		LLCore::HttpOptions *options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
+		LLCore::HttpOptions::ptr_t options = (mFTType == FTT_SERVER_BAKE) ? mFetcher->mHttpOptionsWithHeaders: mFetcher->mHttpOptions;
 		if (disable_range_req)
 		{
 			// 'Range:' requests may be disabled in which case all HTTP
@@ -2509,8 +2509,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mTotalHTTPRequests(0),
 	  mQAMode(qa_mode),
 	  mHttpRequest(NULL),
-	  mHttpOptions(NULL),
-	  mHttpOptionsWithHeaders(NULL),
+	  mHttpOptions(),
+	  mHttpOptionsWithHeaders(),
 	  mHttpHeaders(),
 	  mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	  mHttpMetricsHeaders(),
@@ -2528,8 +2528,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 
 	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 	mHttpRequest = new LLCore::HttpRequest;
-	mHttpOptions = new LLCore::HttpOptions;
-	mHttpOptionsWithHeaders = new LLCore::HttpOptions;
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+	mHttpOptionsWithHeaders = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpOptionsWithHeaders->setWantHeaders(true);
     mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_IMAGE_X_J2C);
@@ -2566,18 +2566,6 @@ LLTextureFetch::~LLTextureFetch()
 		TFRequest * req(mCommands.front());
 		mCommands.erase(mCommands.begin());
 		delete req;
-	}
-
-	if (mHttpOptions)
-	{
-		mHttpOptions->release();
-		mHttpOptions = NULL;
-	}
-
-	if (mHttpOptionsWithHeaders)
-	{
-		mHttpOptionsWithHeaders->release();
-		mHttpOptionsWithHeaders = NULL;
 	}
 
 	mHttpWaitResource.clear();
@@ -4031,7 +4019,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 											report_priority,
 											mCapsURL,
 											sd,
-											NULL,
+											LLCore::HttpOptions::ptr_t(),
 											fetcher->getMetricsHeaders(),
 											handler);
 		LLTextureFetch::svMetricsDataBreak = false;
@@ -4608,7 +4596,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 																				   texture_url,
 																				   0,
 																				   requestedSize,
-																				   NULL,
+																				   LLCore::HttpOptions::ptr_t(),
 																				   mHttpHeaders,
 																				   this);
 		if (LLCORE_HTTP_HANDLE_INVALID != handle)

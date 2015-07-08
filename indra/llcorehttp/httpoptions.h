@@ -55,15 +55,16 @@ namespace LLCore
 /// Allocation:  Refcounted, heap only.  Caller of the constructor
 /// is given a refcount.
 ///
-class HttpOptions : public LLCoreInt::RefCounted
+class HttpOptions : private boost::noncopyable
 {
 public:
 	HttpOptions();
 
-	typedef LLCoreInt::IntrusivePtr<HttpOptions> ptr_t;
+	typedef boost::shared_ptr<HttpOptions> ptr_t;
+
+    virtual ~HttpOptions();						// Use release()
 
 protected:
-	virtual ~HttpOptions();						// Use release()
 	
 	HttpOptions(const HttpOptions &);			// Not defined
 	void operator=(const HttpOptions &);		// Not defined

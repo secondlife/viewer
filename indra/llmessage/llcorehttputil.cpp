@@ -102,7 +102,7 @@ HttpHandle requestPostWithLLSD(HttpRequest * request,
     HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
-    HttpOptions * options,
+    HttpOptions::ptr_t &options,
     HttpHeaders::ptr_t &headers,
     HttpHandler * handler)
 {
@@ -129,7 +129,7 @@ HttpHandle requestPutWithLLSD(HttpRequest * request,
     HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
-    HttpOptions * options,
+    HttpOptions::ptr_t &options,
     HttpHeaders::ptr_t &headers,
     HttpHandler * handler)
 {
@@ -155,7 +155,7 @@ HttpHandle requestPatchWithLLSD(HttpRequest * request,
     HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
-    HttpOptions * options,
+    HttpOptions::ptr_t &options,
     HttpHeaders::ptr_t &headers,
     HttpHandler * handler)
 {
@@ -689,7 +689,7 @@ LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpReque
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestPost(mPolicyId, mPriority, url, rawbody.get(),
-        options.get(), headers, handler.get());
+        options, headers, handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
@@ -782,7 +782,7 @@ LLSD HttpCoroutineAdapter::getAndYield_(LLCoros::self & self, LLCore::HttpReques
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestGet(mPolicyId, mPriority,
-        url, options.get(), headers, handler.get());
+        url, options, headers, handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {
@@ -817,7 +817,7 @@ LLSD HttpCoroutineAdapter::deleteAndYield_(LLCoros::self & self, LLCore::HttpReq
     // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
     // pointer from the smart pointer is safe in this case.
     LLCore::HttpHandle hhandle = request->requestDelete(mPolicyId, mPriority,
-        url, options.get(), headers, handler.get());
+        url, options, headers, handler.get());
 
     if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
     {

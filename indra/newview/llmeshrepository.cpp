@@ -738,8 +738,8 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo"),
   mHttpRequest(NULL),
-  mHttpOptions(NULL),
-  mHttpLargeOptions(NULL),
+  mHttpOptions(),
+  mHttpLargeOptions(),
   mHttpHeaders(),
   mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
   mHttpLegacyPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
@@ -753,10 +753,10 @@ LLMeshRepoThread::LLMeshRepoThread()
 	mHeaderMutex = new LLMutex(NULL);
 	mSignal = new LLCondition(NULL);
 	mHttpRequest = new LLCore::HttpRequest;
-	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpOptions->setTransferTimeout(SMALL_MESH_XFER_TIMEOUT);
 	mHttpOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
-	mHttpLargeOptions = new LLCore::HttpOptions;
+	mHttpLargeOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpLargeOptions->setTransferTimeout(LARGE_MESH_XFER_TIMEOUT);
 	mHttpLargeOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
 	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
@@ -782,17 +782,8 @@ LLMeshRepoThread::~LLMeshRepoThread()
 	}
 	mHttpRequestSet.clear();
     mHttpHeaders.reset();
-	if (mHttpOptions)
-	{
-		mHttpOptions->release();
-		mHttpOptions = NULL;
-	}
-	if (mHttpLargeOptions)
-	{
-		mHttpLargeOptions->release();
-		mHttpLargeOptions = NULL;
-	}
-	delete mHttpRequest;
+
+    delete mHttpRequest;
 	mHttpRequest = NULL;
 	delete mMutex;
 	mMutex = NULL;
@@ -1878,7 +1869,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mMeshUploadTimeOut = gSavedSettings.getS32("MeshUploadTimeOut") ;
 
 	mHttpRequest = new LLCore::HttpRequest;
-	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpOptions->setTransferTimeout(mMeshUploadTimeOut);
 	mHttpOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
 	mHttpOptions->setRetries(UPLOAD_RETRY_LIMIT);
@@ -1890,11 +1881,6 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 
 LLMeshUploadThread::~LLMeshUploadThread()
 {
-	if (mHttpOptions)
-	{
-		mHttpOptions->release();
-		mHttpOptions = NULL;
-	}
 	delete mHttpRequest;
 	mHttpRequest = NULL;
 }

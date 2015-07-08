@@ -123,7 +123,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReqOffset(0),
 	  mReqLength(0),
 	  mReqHeaders(),
-	  mReqOptions(NULL),
+	  mReqOptions(),
 	  mCurlActive(false),
 	  mCurlHandle(NULL),
 	  mCurlService(NULL),
@@ -156,12 +156,6 @@ HttpOpRequest::~HttpOpRequest()
 		mReqBody = NULL;
 	}
 	
-	if (mReqOptions)
-	{
-		mReqOptions->release();
-		mReqOptions = NULL;
-	}
-
 	if (mCurlHandle)
 	{
 		// Uncertain of thread context so free using
@@ -287,8 +281,8 @@ HttpStatus HttpOpRequest::cancel()
 HttpStatus HttpOpRequest::setupGet(HttpRequest::policy_t policy_id,
 								   HttpRequest::priority_t priority,
 								   const std::string & url,
-								   HttpOptions * options,
-								   HttpHeaders::ptr_t &headers)
+                                   HttpOptions::ptr_t & options,
+								   HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, NULL, options, headers);
 	mReqMethod = HOR_GET;
@@ -302,8 +296,8 @@ HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
 											const std::string & url,
 											size_t offset,
 											size_t len,
-											HttpOptions * options,
-                                            HttpHeaders::ptr_t &headers)
+                                            HttpOptions::ptr_t & options,
+                                            HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, NULL, options, headers);
 	mReqMethod = HOR_GET;
@@ -322,8 +316,8 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
 									HttpRequest::priority_t priority,
 									const std::string & url,
 									BufferArray * body,
-									HttpOptions * options,
-                                    HttpHeaders::ptr_t &headers)
+                                    HttpOptions::ptr_t & options,
+                                    HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, body, options, headers);
 	mReqMethod = HOR_POST;
@@ -336,8 +330,8 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 								   HttpRequest::priority_t priority,
 								   const std::string & url,
 								   BufferArray * body,
-								   HttpOptions * options,
-								   HttpHeaders::ptr_t &headers)
+                                   HttpOptions::ptr_t & options,
+								   HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, body, options, headers);
 	mReqMethod = HOR_PUT;
@@ -349,8 +343,8 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 HttpStatus HttpOpRequest::setupDelete(HttpRequest::policy_t policy_id,
     HttpRequest::priority_t priority,
     const std::string & url,
-    HttpOptions * options,
-    HttpHeaders::ptr_t &headers)
+    HttpOptions::ptr_t & options,
+    HttpHeaders::ptr_t & headers)
 {
     setupCommon(policy_id, priority, url, NULL, options, headers);
     mReqMethod = HOR_DELETE;
@@ -363,8 +357,8 @@ HttpStatus HttpOpRequest::setupPatch(HttpRequest::policy_t policy_id,
     HttpRequest::priority_t priority,
     const std::string & url,
     BufferArray * body,
-    HttpOptions * options,
-    HttpHeaders::ptr_t &headers)
+    HttpOptions::ptr_t & options,
+    HttpHeaders::ptr_t & headers)
 {
     setupCommon(policy_id, priority, url, body, options, headers);
     mReqMethod = HOR_PATCH;
@@ -376,7 +370,7 @@ HttpStatus HttpOpRequest::setupPatch(HttpRequest::policy_t policy_id,
 HttpStatus HttpOpRequest::setupCopy(HttpRequest::policy_t policy_id,
     HttpRequest::priority_t priority,
     const std::string & url,
-    HttpOptions * options,
+    HttpOptions::ptr_t & options,
     HttpHeaders::ptr_t &headers)
 {
     setupCommon(policy_id, priority, url, NULL, options, headers);
@@ -390,8 +384,8 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 								HttpRequest::priority_t priority,
 								const std::string & url,
 								BufferArray * body,
-								HttpOptions * options,
-								HttpHeaders::ptr_t &headers)
+                                HttpOptions::ptr_t & options,
+								HttpHeaders::ptr_t & headers)
 {
 	mProcFlags = 0U;
 	mReqPolicy = policy_id;
@@ -404,12 +398,10 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 	}
 	if (headers && ! mReqHeaders)
 	{
-		//headers->addRef();
 		mReqHeaders = headers;
 	}
-	if (options && ! mReqOptions)
+	if (options && !mReqOptions)
 	{
-		options->addRef();
 		mReqOptions = options;
 		if (options->getWantHeaders())
 		{

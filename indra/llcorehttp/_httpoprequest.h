@@ -42,14 +42,13 @@
 #include "_refcounted.h"
 
 #include "httpheaders.h"
+#include "httpoptions.h"
 
 namespace LLCore
 {
 
 
 class BufferArray;
-class HttpHeaders;
-class HttpOptions;
 
 
 /// HttpOpRequest requests a supported HTTP method invocation with
@@ -105,7 +104,7 @@ public:
 	HttpStatus setupGet(HttpRequest::policy_t policy_id,
 						HttpRequest::priority_t priority,
 						const std::string & url,
-						HttpOptions * options,
+						HttpOptions::ptr_t & options,
 						HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupGetByteRange(HttpRequest::policy_t policy_id,
@@ -113,40 +112,40 @@ public:
 								 const std::string & url,
 								 size_t offset,
 								 size_t len,
-								 HttpOptions * options,
+                                 HttpOptions::ptr_t & options,
 								 HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupPost(HttpRequest::policy_t policy_id,
 						 HttpRequest::priority_t priority,
 						 const std::string & url,
 						 BufferArray * body,
-						 HttpOptions * options,
+                         HttpOptions::ptr_t & options,
 						 HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupPut(HttpRequest::policy_t policy_id,
 						HttpRequest::priority_t priority,
 						const std::string & url,
 						BufferArray * body,
-						HttpOptions * options,
+                        HttpOptions::ptr_t & options,
 						HttpHeaders::ptr_t & headers);
 
     HttpStatus setupDelete(HttpRequest::policy_t policy_id,
                         HttpRequest::priority_t priority,
                         const std::string & url,
-                        HttpOptions * options,
+                        HttpOptions::ptr_t & options,
                         HttpHeaders::ptr_t & headers);
 
     HttpStatus setupPatch(HttpRequest::policy_t policy_id,
                         HttpRequest::priority_t priority,
                         const std::string & url,
                         BufferArray * body,
-                        HttpOptions * options,
+                        HttpOptions::ptr_t & options,
                         HttpHeaders::ptr_t & headers);
 
     HttpStatus setupCopy(HttpRequest::policy_t policy_id,
                         HttpRequest::priority_t priority,
                         const std::string & url,
-                        HttpOptions * options,
+                        HttpOptions::ptr_t & options,
                         HttpHeaders::ptr_t & headers);
 
     // Internal method used to setup the libcurl options for a request.
@@ -167,8 +166,8 @@ protected:
 					 HttpRequest::priority_t priority,
 					 const std::string & url,
 					 BufferArray * body,
-					 HttpOptions * options,
-					 HttpHeaders::ptr_t &headers);
+                     HttpOptions::ptr_t & options,
+					 HttpHeaders::ptr_t & headers);
 
 	// libcurl operational callbacks
 	//
@@ -199,7 +198,7 @@ public:
 	off_t				mReqOffset;
 	size_t				mReqLength;
 	HttpHeaders::ptr_t	mReqHeaders;
-	HttpOptions *		mReqOptions;
+    HttpOptions::ptr_t  mReqOptions;
 
 	// Transport data
 	bool				mCurlActive;

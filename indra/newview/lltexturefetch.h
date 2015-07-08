@@ -354,8 +354,8 @@ private:
 	// to make our HTTP requests.  These replace the various
 	// LLCurl interfaces used in the past.
 	LLCore::HttpRequest *				mHttpRequest;					// Ttf
-	LLCore::HttpOptions *				mHttpOptions;					// Ttf
-	LLCore::HttpOptions *				mHttpOptionsWithHeaders;		// Ttf
+	LLCore::HttpOptions::ptr_t			mHttpOptions;					// Ttf
+	LLCore::HttpOptions::ptr_t			mHttpOptionsWithHeaders;		// Ttf
 	LLCore::HttpHeaders::ptr_t			mHttpHeaders;					// Ttf
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;				// T*
 	LLCore::HttpHeaders::ptr_t			mHttpMetricsHeaders;			// Ttf

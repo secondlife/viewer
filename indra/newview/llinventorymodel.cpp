@@ -148,7 +148,7 @@ LLInventoryModel::LLInventoryModel()
 	mObservers(),
 	mHttpRequestFG(NULL),
 	mHttpRequestBG(NULL),
-	mHttpOptions(NULL),
+	mHttpOptions(),
 	mHttpHeaders(),
 	mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
 	mHttpPriorityFG(0),
@@ -179,11 +179,8 @@ void LLInventoryModel::cleanupInventory()
 
 	// Run down HTTP transport
     mHttpHeaders.reset();
-	if (mHttpOptions)
-	{
-		mHttpOptions->release();
-		mHttpOptions = NULL;
-	}
+    mHttpOptions.reset();
+
 	delete mHttpRequestFG;
 	mHttpRequestFG = NULL;
 	delete mHttpRequestBG;
@@ -609,7 +606,7 @@ void LLInventoryModel::createNewCategoryCoro(LLCoros::self& self, std::string ur
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("createNewCategoryCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
     
 
     httpOpts->setWantHeaders(true);
@@ -2414,7 +2411,7 @@ void LLInventoryModel::initHttpRequest()
 
 		mHttpRequestFG = new LLCore::HttpRequest;
 		mHttpRequestBG = new LLCore::HttpRequest;
-		mHttpOptions = new LLCore::HttpOptions;
+		mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 		mHttpOptions->setTransferTimeout(300);
 		mHttpOptions->setUseRetryAfter(true);
 		// mHttpOptions->setTrace(2);		// Do tracing of requests

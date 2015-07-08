@@ -712,7 +712,7 @@ void LLMaterialMgr::processGetAllQueue()
 			);
 
 		LLCore::HttpHandle handle = mHttpRequest->requestGet(mHttpPolicy, mHttpPriority, capURL,
-				mHttpOptions.get(), mHttpHeaders, handler);
+				mHttpOptions, mHttpHeaders, handler);
 
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{
