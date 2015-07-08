@@ -3105,27 +3105,6 @@ bool LLVOAvatar::isVisuallyMuted() const
 	return muted;
 }
 
-#if 0 // TBD
-bool LLVOAvatar::isInMuteList()
-{
-	bool muted = false;
-	F64 now = LLFrameTimer::getTotalSeconds();
-	if (now < mCachedMuteListUpdateTime)
-	{
-		muted = mCachedInMuteList;
-	}
-	else
-	{
-		muted = LLMuteList::getInstance()->isMuted(getID());
-
-		const F64 SECONDS_BETWEEN_MUTE_UPDATES = 1;
-		mCachedMuteListUpdateTime = now + SECONDS_BETWEEN_MUTE_UPDATES;
-		mCachedInMuteList = muted;
-	}
-	return muted;
-}
-#endif
-
 void LLVOAvatar::updateDebugText()
 {
 	// clear debug text
@@ -8278,9 +8257,20 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 void LLVOAvatar::updateVisualComplexity()
 {
-    LL_DEBUGS("AvatarRender") << "avatar " << this->getID() << " appearance changed" << LL_ENDL;
+    LL_DEBUGS("AvatarRender") << "avatar " << getID() << " appearance changed" << LL_ENDL;
     // Set the cache time to in the past so it's updated ASAP
     mVisualComplexityStale = true;
+    LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 5);
+
+    if ( isSelf() && show_my_complexity_changes )
+    {
+        // @TODO 
+        LL_INFOS("AvatarRender") << "popup that displays my complexity (" << mVisualComplexity << ")"
+                                 << " for " << show_my_complexity_changes << " seconds"
+                                 << LL_ENDL;
+    }
+
+        
 }
 
 // Calculations for mVisualComplexity value

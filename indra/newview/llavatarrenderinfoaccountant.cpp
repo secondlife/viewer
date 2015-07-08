@@ -120,7 +120,8 @@ public:
                             U32 overlimit = avatar_render_info[KEY_OVER_COMPLEXITY_LIMIT].asInteger();
 
                             LL_DEBUGS("AvatarRenderInfo") << "complexity limit: "<<reporting<<" reporting, "<<overlimit<<" over limit"<<LL_ENDL;
-                            // @TODO call self with this info
+                            //@TODO - at this point, pass reporting and overlimit to something
+                            //        that remembers them and when they change displays a message
                         }
                         
 						if (avatar_render_info.has(KEY_AGENTS))
