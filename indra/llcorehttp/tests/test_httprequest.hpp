@@ -112,7 +112,7 @@ public:
 			if (! mHeadersRequired.empty() || ! mHeadersDisallowed.empty())
 			{
 				ensure("Response required with header check", response != NULL);
-				HttpHeaders * header(response->getHeaders());	// Will not hold onto this
+				HttpHeaders::ptr_t header(response->getHeaders());	// Will not hold onto this
 				ensure("Some quantity of headers returned", header != NULL);
 
 				if (! mHeadersRequired.empty())
@@ -638,7 +638,7 @@ void HttpRequestTestObjectType::test<7>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * opts = NULL;
+	HttpOptions::ptr_t opts;
 	
 	try
 	{
@@ -653,7 +653,7 @@ void HttpRequestTestObjectType::test<7>()
 		req = new HttpRequest();
 		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-		opts = new HttpOptions();
+        opts = HttpOptions::ptr_t(new HttpOptions());
 		opts->setRetries(1);			// Don't try for too long - default retries take about 18S
 		
 		// Issue a GET that can't connect
@@ -664,7 +664,7 @@ void HttpRequestTestObjectType::test<7>()
 													 0,
 													 0,
 													 opts,
-													 NULL,
+													 HttpHeaders::ptr_t(),
 													 &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
@@ -705,8 +705,7 @@ void HttpRequestTestObjectType::test<7>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 
 		// release options
-		opts->release();
-		opts = NULL;
+        opts.reset();
 		
 		// release the request object
 		delete req;
@@ -728,11 +727,7 @@ void HttpRequestTestObjectType::test<7>()
 	catch (...)
 	{
 		stop_thread(req);
-		if (opts)
-		{
-			opts->release();
-			opts = NULL;
-		}
+        opts.reset();
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -779,8 +774,8 @@ void HttpRequestTestObjectType::test<8>()
 		HttpHandle handle = req->requestGet(HttpRequest::DEFAULT_POLICY_ID,
 											0U,
 											url_base,
-											NULL,
-											NULL,
+											HttpOptions::ptr_t(),
+                                            HttpHeaders::ptr_t(),
 											&handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
@@ -889,8 +884,8 @@ void HttpRequestTestObjectType::test<9>()
 													 url_base,
 													 0,
 													 0,
-													 NULL,
-													 NULL,
+													 HttpOptions::ptr_t(),
+                                                     HttpHeaders::ptr_t(),
 													 &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
@@ -1001,9 +996,9 @@ void HttpRequestTestObjectType::test<10>()
 											0U,
 											url_base,
 											body,
-											NULL,
-											NULL,
-											&handler);
+                                            HttpOptions::ptr_t(),
+                                            HttpHeaders::ptr_t(),
+                                            &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1119,9 +1114,9 @@ void HttpRequestTestObjectType::test<11>()
 											 0U,
 											 url_base,
 											 body,
-											 NULL,
-											 NULL,
-											 &handler);
+                                             HttpOptions::ptr_t(),
+                                             HttpHeaders::ptr_t(),
+                                             &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1239,9 +1234,9 @@ void HttpRequestTestObjectType::test<12>()
 													 url_base,
 													 0,
 													 0,
-													 NULL,
-													 NULL,
-													 &handler);
+                                                     HttpOptions::ptr_t(),
+                                                     HttpHeaders::ptr_t(),
+                                                     &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1332,7 +1327,7 @@ void HttpRequestTestObjectType::test<13>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * opts = NULL;
+	HttpOptions::ptr_t opts;
 
 	try
 	{
@@ -1350,7 +1345,7 @@ void HttpRequestTestObjectType::test<13>()
 		req = new HttpRequest();
 		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-		opts = new HttpOptions();
+        opts = HttpOptions::ptr_t(new HttpOptions());
 		opts->setWantHeaders(true);
 		
 		// Issue a GET that succeeds
@@ -1364,13 +1359,12 @@ void HttpRequestTestObjectType::test<13>()
 													 0,	
 												 0,
 													 opts,
-													 NULL,
-													 &handler);
+                                                     HttpHeaders::ptr_t(),
+                                                     &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// release options
-		opts->release();
-		opts = NULL;
+        opts.reset();
 
 		// Run the notification pump.
 		int count(0);
@@ -1430,11 +1424,7 @@ void HttpRequestTestObjectType::test<13>()
 	catch (...)
 	{
 		stop_thread(req);
-		if (opts)
-		{
-			opts->release();
-			opts = NULL;
-		}
+        opts.reset();
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -1460,7 +1450,7 @@ void HttpRequestTestObjectType::test<14>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * opts = NULL;
+	HttpOptions::ptr_t opts;
 	
 	try
 	{
@@ -1475,7 +1465,7 @@ void HttpRequestTestObjectType::test<14>()
 		req = new HttpRequest();
 		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-		opts = new HttpOptions();
+        opts = HttpOptions::ptr_t(new HttpOptions);
 		opts->setRetries(0);			// Don't retry
 		opts->setTimeout(2);
 		
@@ -1487,8 +1477,8 @@ void HttpRequestTestObjectType::test<14>()
 													 0,
 													 0,
 													 opts,
-													 NULL,
-													 &handler);
+                                                     HttpHeaders::ptr_t(),
+                                                     &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1528,8 +1518,7 @@ void HttpRequestTestObjectType::test<14>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 
 		// release options
-		opts->release();
-		opts = NULL;
+        opts.reset();
 		
 		// release the request object
 		delete req;
@@ -1552,11 +1541,7 @@ void HttpRequestTestObjectType::test<14>()
 	catch (...)
 	{
 		stop_thread(req);
-		if (opts)
-		{
-			opts->release();
-			opts = NULL;
-		}
+        opts.reset();
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -1609,9 +1594,9 @@ void HttpRequestTestObjectType::test<15>()
 		HttpHandle handle = req->requestGet(HttpRequest::DEFAULT_POLICY_ID,
 											0U,
 											url_base,
-											NULL,
-											NULL,
-											&handler);
+                                            HttpOptions::ptr_t(),
+                                            HttpHeaders::ptr_t(),
+                                            &handler);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1703,8 +1688,8 @@ void HttpRequestTestObjectType::test<16>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * options = NULL;
-	HttpHeaders * headers = NULL;
+	HttpOptions::ptr_t options;
+	HttpHeaders::ptr_t headers;
 
 	try
 	{
@@ -1719,7 +1704,7 @@ void HttpRequestTestObjectType::test<16>()
 		req = new HttpRequest();
 
 		// options set
-		options = new HttpOptions();
+        options = HttpOptions::ptr_t(new HttpOptions());
 		options->setWantHeaders(true);
 		
 		// Issue a GET that *can* connect
@@ -1776,7 +1761,7 @@ void HttpRequestTestObjectType::test<16>()
 											0U,
 											url_base + "reflect/",
 											options,
-											NULL,
+											HttpHeaders::ptr_t(),
 											&handler);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
@@ -1792,7 +1777,7 @@ void HttpRequestTestObjectType::test<16>()
 		ensure("One handler invocation for request", mHandlerCalls == 1);
 
 		// Do a texture-style fetch
-		headers = new HttpHeaders;
+		headers = HttpHeaders::ptr_t(new HttpHeaders);
 		headers->append("Accept", "image/x-j2c");
 		
 		mStatus = HttpStatus(200);
@@ -1897,17 +1882,8 @@ void HttpRequestTestObjectType::test<16>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 	
 		// release options & headers
-		if (options)
-		{
-			options->release();
-		}
-		options = NULL;
-
-		if (headers)
-		{
-			headers->release();
-		}
-		headers = NULL;
+        options.reset();
+        headers.reset();
 		
 		// release the request object
 		delete req;
@@ -1919,16 +1895,9 @@ void HttpRequestTestObjectType::test<16>()
 	catch (...)
 	{
 		stop_thread(req);
-		if (options)
-		{
-			options->release();
-			options = NULL;
-		}
-		if (headers)
-		{
-			headers->release();
-			headers = NULL;
-		}
+        options.reset();
+        headers.reset();
+
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -1960,8 +1929,8 @@ void HttpRequestTestObjectType::test<17>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * options = NULL;
-	HttpHeaders * headers = NULL;
+	HttpOptions::ptr_t options;
+	HttpHeaders::ptr_t headers;
 	BufferArray * ba = NULL;
 	
 	try
@@ -1977,7 +1946,7 @@ void HttpRequestTestObjectType::test<17>()
 		req = new HttpRequest();
 
 		// options set
-		options = new HttpOptions();
+        options = HttpOptions::ptr_t(new HttpOptions());
 		options->setWantHeaders(true);
 
 		// And a buffer array
@@ -2049,7 +2018,7 @@ void HttpRequestTestObjectType::test<17>()
 											 url_base + "reflect/",
 											 ba,
 											 options,
-											 NULL,
+											 HttpHeaders::ptr_t(),
 											 &handler);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		ba->release();
@@ -2095,17 +2064,8 @@ void HttpRequestTestObjectType::test<17>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 	
 		// release options & headers
-		if (options)
-		{
-			options->release();
-		}
-		options = NULL;
-
-		if (headers)
-		{
-			headers->release();
-		}
-		headers = NULL;
+        options.reset();
+        headers.reset();
 		
 		// release the request object
 		delete req;
@@ -2122,17 +2082,10 @@ void HttpRequestTestObjectType::test<17>()
 			ba->release();
 			ba = NULL;
 		}
-		if (options)
-		{
-			options->release();
-			options = NULL;
-		}
-		if (headers)
-		{
-			headers->release();
-			headers = NULL;
-		}
-		delete req;
+        options.reset();
+        headers.reset();
+
+        delete req;
 		HttpRequest::destroyService();
 		throw;
 	}
@@ -2163,8 +2116,8 @@ void HttpRequestTestObjectType::test<18>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * options = NULL;
-	HttpHeaders * headers = NULL;
+	HttpOptions::ptr_t options;
+	HttpHeaders::ptr_t headers;
 	BufferArray * ba = NULL;
 	
 	try
@@ -2180,7 +2133,7 @@ void HttpRequestTestObjectType::test<18>()
 		req = new HttpRequest();
 
 		// options set
-		options = new HttpOptions();
+		options = HttpOptions::ptr_t(new HttpOptions());
 		options->setWantHeaders(true);
 
 		// And a buffer array
@@ -2253,7 +2206,7 @@ void HttpRequestTestObjectType::test<18>()
 											url_base + "reflect/",
 											ba,
 											options,
-											NULL,
+											HttpHeaders::ptr_t(),
 											&handler);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		ba->release();
@@ -2299,17 +2252,8 @@ void HttpRequestTestObjectType::test<18>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 	
 		// release options & headers
-		if (options)
-		{
-			options->release();
-		}
-		options = NULL;
-
-		if (headers)
-		{
-			headers->release();
-		}
-		headers = NULL;
+        options.reset();
+        headers.reset();
 		
 		// release the request object
 		delete req;
@@ -2326,17 +2270,10 @@ void HttpRequestTestObjectType::test<18>()
 			ba->release();
 			ba = NULL;
 		}
-		if (options)
-		{
-			options->release();
-			options = NULL;
-		}
-		if (headers)
-		{
-			headers->release();
-			headers = NULL;
-		}
-		delete req;
+        options.reset();
+        headers.reset();
+
+        delete req;
 		HttpRequest::destroyService();
 		throw;
 	}
@@ -2367,8 +2304,8 @@ void HttpRequestTestObjectType::test<19>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * options = NULL;
-	HttpHeaders * headers = NULL;
+	HttpOptions::ptr_t options;
+	HttpHeaders::ptr_t headers;
 
 	try
 	{
@@ -2383,11 +2320,11 @@ void HttpRequestTestObjectType::test<19>()
 		req = new HttpRequest();
 
 		// options set
-		options = new HttpOptions();
+        options = HttpOptions::ptr_t(new HttpOptions());
 		options->setWantHeaders(true);
 
 		// headers
-		headers = new HttpHeaders;
+		headers = HttpHeaders::ptr_t(new HttpHeaders);
 		headers->append("Keep-Alive", "120");
 		headers->append("Accept-encoding", "deflate");
 		headers->append("Accept", "text/plain");
@@ -2502,17 +2439,8 @@ void HttpRequestTestObjectType::test<19>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 	
 		// release options & headers
-		if (options)
-		{
-			options->release();
-		}
-		options = NULL;
-
-		if (headers)
-		{
-			headers->release();
-		}
-		headers = NULL;
+        options.reset();
+        headers.reset();
 		
 		// release the request object
 		delete req;
@@ -2524,16 +2452,9 @@ void HttpRequestTestObjectType::test<19>()
 	catch (...)
 	{
 		stop_thread(req);
-		if (options)
-		{
-			options->release();
-			options = NULL;
-		}
-		if (headers)
-		{
-			headers->release();
-			headers = NULL;
-		}
+        options.reset();
+        headers.reset();
+
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -2565,8 +2486,8 @@ void HttpRequestTestObjectType::test<20>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * options = NULL;
-	HttpHeaders * headers = NULL;
+	HttpOptions::ptr_t options;
+	HttpHeaders::ptr_t headers;
 	BufferArray * ba = NULL;
 	
 	try
@@ -2582,11 +2503,11 @@ void HttpRequestTestObjectType::test<20>()
 		req = new HttpRequest();
 
 		// options set
-		options = new HttpOptions();
+        options = HttpOptions::ptr_t(new HttpOptions());
 		options->setWantHeaders(true);
 
 		// headers
-		headers = new HttpHeaders();
+		headers = HttpHeaders::ptr_t(new HttpHeaders());
 		headers->append("keep-Alive", "120");
 		headers->append("Accept", "text/html");
 		headers->append("content-type", "application/llsd+xml");
@@ -2720,17 +2641,8 @@ void HttpRequestTestObjectType::test<20>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 	
 		// release options & headers
-		if (options)
-		{
-			options->release();
-		}
-		options = NULL;
-
-		if (headers)
-		{
-			headers->release();
-		}
-		headers = NULL;
+        options.reset();
+        headers.reset();
 		
 		// release the request object
 		delete req;
@@ -2747,16 +2659,8 @@ void HttpRequestTestObjectType::test<20>()
 			ba->release();
 			ba = NULL;
 		}
-		if (options)
-		{
-			options->release();
-			options = NULL;
-		}
-		if (headers)
-		{
-			headers->release();
-			headers = NULL;
-		}
+        options.reset();
+        headers.reset();
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -2788,8 +2692,8 @@ void HttpRequestTestObjectType::test<21>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * options = NULL;
-	HttpHeaders * headers = NULL;
+	HttpOptions::ptr_t options;
+	HttpHeaders::ptr_t headers;
 	BufferArray * ba = NULL;
 	
 	try
@@ -2805,11 +2709,11 @@ void HttpRequestTestObjectType::test<21>()
 		req = new HttpRequest();
 
 		// options set
-		options = new HttpOptions();
+        options = HttpOptions::ptr_t(new HttpOptions());
 		options->setWantHeaders(true);
 
 		// headers
-		headers = new HttpHeaders;
+		headers = HttpHeaders::ptr_t(new HttpHeaders);
 		headers->append("content-type", "text/plain");
 		headers->append("content-type", "text/html");
 		headers->append("content-type", "application/llsd+xml");
@@ -2937,17 +2841,8 @@ void HttpRequestTestObjectType::test<21>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 	
 		// release options & headers
-		if (options)
-		{
-			options->release();
-		}
-		options = NULL;
-
-		if (headers)
-		{
-			headers->release();
-		}
-		headers = NULL;
+        options.reset();
+        headers.reset();
 		
 		// release the request object
 		delete req;
@@ -2964,16 +2859,8 @@ void HttpRequestTestObjectType::test<21>()
 			ba->release();
 			ba = NULL;
 		}
-		if (options)
-		{
-			options->release();
-			options = NULL;
-		}
-		if (headers)
-		{
-			headers->release();
-			headers = NULL;
-		}
+        options.reset();
+        headers.reset();
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -3000,13 +2887,13 @@ void HttpRequestTestObjectType::test<22>()
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
 
-	HttpOptions * options = NULL;
+	HttpOptions::ptr_t options;
 	HttpRequest * req = NULL;
 
 	try
 	{
 		// options set
-		options = new HttpOptions();
+        options = HttpOptions::ptr_t(new HttpOptions());
 		options->setRetries(1);			// Partial_File is retryable and can timeout in here
 
 		// Get singletons created
@@ -3035,8 +2922,8 @@ void HttpRequestTestObjectType::test<22>()
 														 0,
 														 25,
 														 options,
-														 NULL,
-														 &handler);
+                                                         HttpHeaders::ptr_t(),
+                                                         &handler);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		}
 		
@@ -3067,7 +2954,7 @@ void HttpRequestTestObjectType::test<22>()
 														 0,
 														 25,
 														 options,
-														 NULL,
+														 HttpHeaders::ptr_t(),
 														 &handler);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		}
@@ -3099,8 +2986,8 @@ void HttpRequestTestObjectType::test<22>()
 														 0,
 														 25,
 														 options,
-														 NULL,
-														 &handler);
+                                                         HttpHeaders::ptr_t(),
+                                                         &handler);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		}
 		
@@ -3144,11 +3031,7 @@ void HttpRequestTestObjectType::test<22>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 
 		// release options
-		if (options)
-		{
-			options->release();
-			options = NULL;
-		}
+        options.reset();
 		
 		// release the request object
 		delete req;
@@ -3198,7 +3081,7 @@ void HttpRequestTestObjectType::test<23>()
 	mHandlerCalls = 0;
 
 	HttpRequest * req = NULL;
-	HttpOptions * opts = NULL;
+	HttpOptions::ptr_t opts;
 	
 	try
 	{
@@ -3213,7 +3096,7 @@ void HttpRequestTestObjectType::test<23>()
 		req = new HttpRequest();
 		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-		opts = new HttpOptions();
+        opts = HttpOptions::ptr_t(new HttpOptions());
 		opts->setRetries(1);			// Retry once only
 		opts->setUseRetryAfter(true);	// Try to parse the retry-after header
 		
@@ -3230,8 +3113,8 @@ void HttpRequestTestObjectType::test<23>()
 														 0,
 														 0,
 														 opts,
-														 NULL,
-														 &handler);
+                                                         HttpHeaders::ptr_t(),
+                                                         &handler);
 
 			std::ostringstream testtag;
 			testtag << "Valid handle returned for 503 request #" << i;
@@ -3277,8 +3160,7 @@ void HttpRequestTestObjectType::test<23>()
 		ensure("Thread actually stopped running", HttpService::isStopped());
 
 		// release options
-		opts->release();
-		opts = NULL;
+        opts.reset();
 		
 		// release the request object
 		delete req;
@@ -3299,11 +3181,7 @@ void HttpRequestTestObjectType::test<23>()
 	catch (...)
 	{
 		stop_thread(req);
-		if (opts)
-		{
-			opts->release();
-			opts = NULL;
-		}
+        opts.reset();
 		delete req;
 		HttpRequest::destroyService();
 		throw;

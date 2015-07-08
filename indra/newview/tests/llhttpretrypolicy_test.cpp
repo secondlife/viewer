@@ -285,10 +285,10 @@ void RetryPolicyTestObject::test<7>()
 	ensure_approximately_equals_range("header 2", seconds_to_wait, 7.0F, 2.0F);
 
 	LLCore::HttpResponse *response;
-	LLCore::HttpHeaders *headers;
+	LLCore::HttpHeaders::ptr_t headers;
 
 	response = new LLCore::HttpResponse();
-	headers = new LLCore::HttpHeaders();
+	headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
 	response->setStatus(503);
 	response->setHeaders(headers);
 	headers->append(HTTP_IN_HEADER_RETRY_AFTER, std::string("600"));
@@ -299,7 +299,7 @@ void RetryPolicyTestObject::test<7>()
 	response->release();
 
 	response = new LLCore::HttpResponse();
-	headers = new LLCore::HttpHeaders();
+	headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
 	response->setStatus(503);
 	response->setHeaders(headers);
 	time(&nowseconds);
