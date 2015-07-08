@@ -104,49 +104,49 @@ public:
 	HttpStatus setupGet(HttpRequest::policy_t policy_id,
 						HttpRequest::priority_t priority,
 						const std::string & url,
-						HttpOptions::ptr_t & options,
-						HttpHeaders::ptr_t & headers);
+						const HttpOptions::ptr_t & options,
+						const HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupGetByteRange(HttpRequest::policy_t policy_id,
 								 HttpRequest::priority_t priority,
 								 const std::string & url,
 								 size_t offset,
 								 size_t len,
-                                 HttpOptions::ptr_t & options,
-								 HttpHeaders::ptr_t & headers);
+                                 const HttpOptions::ptr_t & options,
+								 const HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupPost(HttpRequest::policy_t policy_id,
 						 HttpRequest::priority_t priority,
 						 const std::string & url,
 						 BufferArray * body,
-                         HttpOptions::ptr_t & options,
-						 HttpHeaders::ptr_t & headers);
+                         const HttpOptions::ptr_t & options,
+						 const HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupPut(HttpRequest::policy_t policy_id,
 						HttpRequest::priority_t priority,
 						const std::string & url,
 						BufferArray * body,
-                        HttpOptions::ptr_t & options,
-						HttpHeaders::ptr_t & headers);
+                        const HttpOptions::ptr_t & options,
+						const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupDelete(HttpRequest::policy_t policy_id,
                         HttpRequest::priority_t priority,
                         const std::string & url,
-                        HttpOptions::ptr_t & options,
-                        HttpHeaders::ptr_t & headers);
+                        const HttpOptions::ptr_t & options,
+                        const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupPatch(HttpRequest::policy_t policy_id,
                         HttpRequest::priority_t priority,
                         const std::string & url,
                         BufferArray * body,
-                        HttpOptions::ptr_t & options,
-                        HttpHeaders::ptr_t & headers);
+                        const HttpOptions::ptr_t & options,
+                        const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupCopy(HttpRequest::policy_t policy_id,
                         HttpRequest::priority_t priority,
                         const std::string & url,
-                        HttpOptions::ptr_t & options,
-                        HttpHeaders::ptr_t & headers);
+                        const HttpOptions::ptr_t & options,
+                        const HttpHeaders::ptr_t & headers);
 
     // Internal method used to setup the libcurl options for a request.
 	// Does all the libcurl handle setup in one place.
@@ -166,8 +166,8 @@ protected:
 					 HttpRequest::priority_t priority,
 					 const std::string & url,
 					 BufferArray * body,
-                     HttpOptions::ptr_t & options,
-					 HttpHeaders::ptr_t & headers);
+                     const HttpOptions::ptr_t & options,
+					 const HttpHeaders::ptr_t & headers);
 
 	// libcurl operational callbacks
 	//
