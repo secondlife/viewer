@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Proxy Settings Floater" title="Ustawienia serwera pośredniczącego proxy">
+	<check_box label="Używaj proxy HTTP dla stron internetowych" name="web_proxy_enabled" />
+	<text name="http_proxy_label">
+		Proxy HTTP:
+	</text>
+	<line_editor name="web_proxy_editor" tool_tip="Nazwa DNS lub adres IP serwera proxy HTTP, którego chcesz używać." />
+	<spinner label="Numer portu:" name="web_proxy_port" tool_tip="Numer portu, który ma być używany przez proxy HTTP." />
+	<check_box label="Używaj proxy SOCKS 5 dla ruchu UDP" name="socks_proxy_enabled" />
+	<text name="socks5_proxy_label">
+		Proxy SOCKS 5:
+	</text>
+	<line_editor name="socks_proxy_editor" tool_tip="Nazwa DNS lub adres IP serwera proxy SOCKS 5, którego chcesz używać." />
+	<spinner label="Numer portu:" name="socks_proxy_port" tool_tip="Numer portu, który ma być używany przez proxy SOCKS 5." />
+	<text name="socks_auth_label">
+		Autoryzacja SOCKS:
+	</text>
+	<radio_group name="socks5_auth_type">
+		<radio_item label="Brak autoryzacji" name="Socks5NoAuth" tool_tip="Proxy Socks5 nie wymaga autoryzacji." />
+		<radio_item label="Użytkownik/hasło" name="Socks5UserPass" tool_tip="Proxy Socks5 wymaga autoryzacji typu użytkownik/hasło." />
+	</radio_group>
+	<text name="socks5_username_label">
+		Użytkownik:
+	</text>
+	<text name="socks5_password_label">
+		Hasło:
+	</text>
+	<line_editor name="socks5_username" tool_tip="Użytkownik używany do autoryzacji z Twoim serwerem SOCKS 5" />
+	<line_editor name="socks5_password" tool_tip="Hasło używane do autoryzacji z Twoim serwerem SOCKS 5" />
+	<text name="other_proxy_label">
+		Inny ruch proxy HTTP:
+	</text>
+	<radio_group name="other_http_proxy_type">
+		<radio_item label="Nie ślij przez proxy" name="OtherNoProxy" tool_tip="Ruch HTTP niepowiązany ze stronami internetowymi NIE będzie przesyłany przez żadne proxy." />
+		<radio_item label="Użyj proxy HTTP" name="OtherHTTPProxy" tool_tip="Ruch HTTP niepowiązany ze stronami internetowymi będzie przesyłany przez proxy dla stron internetowych skonfigurowane powyżej." />
+		<radio_item label="Użyj proxy SOCKS 5" name="OtherSocksProxy" tool_tip="Ruch HTTP niepowiązany ze stronami internetowymi będzie przesyłany przez proxy Socks 5." />
+	</radio_group>
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
+</floater>

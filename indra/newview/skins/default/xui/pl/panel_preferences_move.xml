@@ -1,24 +1,40 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Ruch" name="move_panel">
-	<slider label="Kąt widoku kamery" name="camera_fov"/>
-	<slider label="Dystans kamery" name="camera_offset_scale"/>
+	<slider label="Kąt widzenia" name="camera_fov" />
+	<slider label="Dystans" name="camera_offset_scale" />
 	<text name="heading2">
 		Automatyczna pozycja dla:
 	</text>
-	<check_box label="Budowanie/Edycja" name="edit_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas włączania i wyłączania trybu edycji."/>
-	<check_box label="Wygląd" name="appearance_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas trybu edycji"/>
-	<check_box initial_value="prawda" label="Schowek" name="appearance_sidebar_positioning" tool_tip="Używaj automatycznego pozycjonowania kamery dla panelu bocznego"/>
-	<check_box label="Awatar widoczny w trybie panoramicznym" name="first_person_avatar_visible"/>
-	<text name=" Mouse Sensitivity">
-		Czułość myszki w widoku panoramicznym:
+	<check_box label="Budowanie/Edycja" name="edit_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas włączania i wyłączania trybu edycji" />
+	<check_box label="Wygląd" name="appearance_camera_movement" tool_tip="Używaj automatycznego pozycjonowania kamery podczas trybu edycji wyglądu" />
+	<text name="keyboard_lbl">
+		Klawiatura:
 	</text>
-	<check_box label="Zmień klawisze myszki" name="invert_mouse"/>
-	<check_box label="Przyciski ze strzałkami zawsze poruszają awatarem" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Wciśnij-wciśnij-przytrzymaj aby biec" name="tap_tap_hold_to_run"/>
-	<check_box label="Podwójnie kliknij aby:" name="double_click_chkbox"/>
-	<radio_group name="double_click_action">
-		<radio_item label="teleportować się" name="radio_teleport"/>
-		<radio_item label="włączyć auto-pilota" name="radio_autopilot"/>
-	</radio_group>
-	<button label="Inne urządzenia" name="joystick_setup_button"/>
+	<check_box label="Przyciski ze strzałkami zawsze poruszają awatarem" name="arrow_keys_move_avatar_check" />
+	<check_box label="Puk-puk-trzymaj, aby biec" name="tap_tap_hold_to_run" />
+	<check_box label="Przytrzymaj klawisz skoku lub kucania, aby zacząć lub przestać latać" name="automatic_fly" />
+	<text name="mouse_lbl">
+		Myszka:
+	</text>
+	<check_box label="Awatar widoczny w trybie pierwszoosobowym" name="first_person_avatar_visible" />
+	<text name=" Mouse Sensitivity">
+		Czułość myszki w trybie pierwszoosobowym:
+	</text>
+	<check_box label="Zamień osie myszy" name="invert_mouse" />
+	<text name="single_click_action_lbl">
+		Pojedynczy klik na ziemi:
+	</text>
+	<combo_box name="single_click_action_combo">
+		<combo_box.item label="Nie rób nic" name="0" />
+		<combo_box.item label="Podejdź do klikniętego punktu" name="1" />
+	</combo_box>
+	<text name="double_click_action_lbl">
+		Podwójny klik na ziemi:
+	</text>
+	<combo_box name="double_click_action_combo">
+		<combo_box.item label="Nie rób nic" name="0" />
+		<combo_box.item label="Podejdź do klikniętego punktu" name="1" />
+		<combo_box.item label="Teleportuj do klikniętego punktu" name="2" />
+	</combo_box>
+	<button label="Konfiguruj joystick" name="joystick_setup_button" />
 </panel>

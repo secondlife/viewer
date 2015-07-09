@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="block_list_panel">
-	<text name="title_text">
-		Lista blokad
-	</text>
-	<scroll_list name="blocked" tool_tip="Lista zablokowanych osób"/>
-	<button label="Zablokuj Rezydenta..." label_selected="Zablokuj Rezydenta..." name="Block resident..." tool_tip="Wybierz Rezydenta aby zablokować"/>
-	<button label="Zablokuj obiekt według nazwy..." label_selected="Zablokuj obiekt według nazwy..." name="Block object by name..."/>
-	<button label="Odblokuj" label_selected="Odblokuj" name="Unblock" tool_tip="Usuń Rezydenta lub obiekt z listy zablokowanych"/>
+	<panel name="blocked_buttons_panel">
+		<filter_editor label="Filtruj" name="blocked_filter_input" />
+		<menu_button name="blocked_gear_btn" tool_tip="Akcje możliwe do wykonania dla wybranego Rezydenta lub obiektu" />
+		<menu_button name="view_btn" tool_tip="Opcje sortowania" />
+		<menu_button name="plus_btn" tool_tip="Wybierz Rezydenta lub obiekt do zablokowania" />
+		<button name="unblock_btn" tool_tip="Usuń Rezydenta lub obiekt z listy zablokowanych" />
+	</panel>
+	<block_list name="blocked" tool_tip="Lista zablokowanych osób" />
 </panel>

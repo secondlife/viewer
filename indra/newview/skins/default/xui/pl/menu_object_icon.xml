@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu name="Object Icon Menu">
-	<menu_item_call label="Sprawdź..." name="Object Profile"/>
-	<menu_item_call label="Zablokuj..." name="Block"/>
+	<menu_item_call label="Profil obiektu..." name="Object Profile" />
+	<menu_item_call label="Zablokuj..." name="Block" />
+	<menu_item_call label="Pokaż na mapie" name="show_on_map" />
+	<menu_item_call label="Teleportuj do pozycji obiektu" name="teleport_to_object" />
 </menu>

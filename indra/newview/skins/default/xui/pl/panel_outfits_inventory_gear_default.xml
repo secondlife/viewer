@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu name="menu_gear_default">
-	<menu_item_call label="Zastąp obecny strój" name="wear"/>
-	<menu_item_call label="Dodaj do obecnego stroju" name="add"/>
-	<menu_item_call label="Usuń z obecnego stroju" name="remove"/>
-	<menu_item_call label="Zmień nazwę" name="rename"/>
-	<menu_item_call label="Usuń link" name="remove_link"/>
-	<menu_item_call label="Usuń strój" name="delete"/>
+	<menu_item_call label="Zastąp obecny strój" name="wear" />
+	<menu_item_call label="Usuń z obecnego stroju" name="remove" />
+	<menu_item_call label="Zmień nazwę" name="rename" />
+	<menu_item_call label="Usuń link" name="remove_link" />
+	<menu_item_call label="Usuń strój" name="delete" />
 </menu>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="menu_conversation_participant">
+	<menu_item_call label="Zakończ rozmowę" name="close_conversation" />
+	<menu_item_call label="Rozpocznij rozmowę głosową" name="open_voice_conversation" />
+	<menu_item_call label="Odłącz od głosu" name="disconnect_from_voice" />
+	<menu_item_call label="Zamknij zaznaczone" name="close_selected_conversations" />
+	<menu_item_call label="Pokaż profil" name="view_profile" />
+	<menu_item_call label="Wiadomość IM" name="im" />
+	<menu_item_call label="Proponuj teleport" name="offer_teleport" />
+	<menu_item_call label="Poproś o teleport" name="request_teleport" />
+	<menu_item_call label="Rozmowa głosowa" name="voice_call" />
+	<menu_item_call label="Logi czatu..." name="chat_history" />
+	<menu_item_call label="Dodaj do znajomych" name="add_friend" />
+	<menu_item_call label="Usuń znajomego" name="remove_friend" />
+	<menu_item_call label="Usuń znajomych" name="remove_friends" />
+	<menu_item_call label="Zaproś do grupy..." name="invite_to_group" />
+	<menu_item_call label="Przybliż" name="zoom_in" />
+	<menu_item_call label="Mapa" name="map" />
+	<menu_item_call label="Udostępnij" name="share" />
+	<menu_item_call label="Zapłać" name="pay" />
+	<menu_item_check label="Wycisz głos" name="block_unblock" />
+	<menu_item_check label="Wycisz czat" name="MuteText" />
+	<menu_item_call label="Profil grupy" name="group_profile" />
+	<menu_item_call label="Aktywuj grupę" name="activate_group" />
+	<menu_item_call label="Opuść grupę" name="leave_group" />
+	<context_menu label="Opcje moderatora" name="Moderator Options">
+		<menu_item_check label="Zezwól na czat tekstowy" name="AllowTextChat" />
+		<menu_item_call label="Wycisz tego rozmówcę" name="ModerateVoiceMuteSelected" />
+		<menu_item_call label="Odblokuj tego rozmówcę" name="ModerateVoiceUnMuteSelected" />
+		<menu_item_call label="Wycisz wszystkich" name="ModerateVoiceMute" />
+		<menu_item_call label="Odblokuj wszystkich" name="ModerateVoiceUnmute" />
+	</context_menu>
+	<menu_item_call label="Zbanuj" name="BanMember" />
+</toggleable_menu>

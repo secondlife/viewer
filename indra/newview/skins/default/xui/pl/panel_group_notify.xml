@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="instant_message" name="panel_group_notify">
-	<panel label="header" name="header">
-		<text name="title" value="Imię nadawcy / Nazwa grupy"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_group_notify">
+	<panel name="header">
+		<text name="title" value="Nadawca / Grupa" />
 	</panel>
-	<text name="attachment" value="Załącznik"/>
-	<button label="OK" name="btn_ok"/>
+	<text name="attachment" value="Załącznik" />
 </panel>

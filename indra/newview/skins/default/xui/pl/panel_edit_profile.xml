@@ -1,60 +1,50 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Edycja profilu" name="edit_profile_panel">
-	<string name="CaptionTextAcctInfo">
-		[ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
-	</string>
-	<string name="RegisterDateFormat">
-		[REG_DATE] ([AGE])
-	</string>
-	<string name="AcctTypeResident" value="Rezydent"/>
-	<string name="AcctTypeTrial" value="Próbne"/>
-	<string name="AcctTypeCharterMember" value="Członek-zalożyciel"/>
-	<string name="AcctTypeEmployee" value="Pracownik Linden Lab"/>
-	<string name="PaymentInfoUsed" value="Dane konta używane"/>
-	<string name="PaymentInfoOnFile" value="Dane konta dostępne"/>
-	<string name="NoPaymentInfoOnFile" value="Brak danych konta"/>
-	<string name="AgeVerified" value="Wiek zweryfikowany"/>
-	<string name="NotAgeVerified" value="Brak weryfikacji wieku"/>
-	<string name="partner_edit_link_url">
-		http://www.secondlife.com/account/partners.php?lang=pl
-	</string>
-	<string name="no_partner_text" value="Żadne"/>
+	<string name="AcctTypeResident" value="Rezydent" />
+	<string name="AcctTypeTrial" value="Próbne" />
+	<string name="AcctTypeCharterMember" value="Założyciel" />
+	<string name="AcctTypeEmployee" value="Pracownik Linden Lab" />
+	<string name="PaymentInfoUsed" value="Płatności: Dane użyte" />
+	<string name="PaymentInfoOnFile" value="Płatności: Dane znane" />
+	<string name="NoPaymentInfoOnFile" value="Płatności: Dane nieznane" />
+	<string name="AgeVerified" value="Wiek zweryfikowany" />
+	<string name="NotAgeVerified" value="Wiek niezweryfikowany" />
+	<string name="no_partner_text" value="Brak" />
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="data_panel">
-				<text name="display_name_label" value="Wyświetlana nazwa:"/>
-				<text name="solo_username_label" value="Nazwa użytkownika:"/>
-				<button name="set_name" tool_tip="Ustaw wyświetlanią nazwę."/>
-				<text name="user_label" value="Nazwa użytkownika:"/>
+				<text name="display_name_label" value="Wyświetlane imię:" />
+				<text name="solo_username_label" value="Nazwa użytkownika:" />
+				<button name="set_name" tool_tip="Ustaw wyświetlane imię" />
+				<text name="user_label" value="Użytkownik:" />
 				<panel name="lifes_images_panel">
-					<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
+					<icon name="2nd_life_edit_icon" tool_tip="Kliknij, aby wybrać obrazek" />
 				</panel>
 				<panel name="first_life_image_panel">
-					<text name="real_world_photo_title_text" value="Życie#1:"/>
+					<text name="real_world_photo_title_text" value="Świat realny:" />
 				</panel>
-				<icon label="" name="real_world_edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
+				<icon name="real_world_edit_icon" tool_tip="Kliknij, aby wybrać obrazek" />
 				<text name="title_homepage_text">
-					WWW:
+					Strona www:
 				</text>
-				<check_box label="Pokaż w wyszukiwarce" name="show_in_search_checkbox"/>
-				<text name="title_acc_status_text" value="Moje konto:"/>
-				<text_editor name="acc_status_text" value="Rezydent. Brak danych konta."/>
-				<text name="my_account_link" value="[[URL] idź do dashboard]"/>
-				<text name="title_partner_text" value="Partner:"/>
+				<text name="title_acc_status_text" value="Moje konto:" />
+				<text_editor name="acc_status_text" value="Rezydent. Płatności: Dane nieznane." />
+				<text name="my_account_link" value="[[URL] Idź do Tablicy]" />
+				<text name="title_partner_text" value="Mój partner:" />
 				<panel name="partner_data_panel">
-					<text initial_value="(wyszukiwanie)" name="partner_text"/>
+					<text initial_value="(pobieranie)" name="partner_text" />
 				</panel>
-				<text name="partner_edit_link" value="[[URL] Edytuj]"/>
+				<text name="partner_edit_link" value="[[URL] Edytuj]" />
 			</panel>
 		</panel>
 	</scroll_container>
 	<panel name="profile_me_buttons_panel">
 		<layout_stack name="bottom_panel_ls">
 			<layout_panel name="save_changes_btn_lp">
-				<button label="Zapisz zmiany" name="save_btn"/>
+				<button label="Zapisz zmiany" name="save_btn" />
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="Cofnij" name="cancel_btn"/>
+				<button label="Anuluj" name="cancel_btn" />
 			</layout_panel>
 		</layout_stack>
 	</panel>

@@ -1,2 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<multi_floater name="floater_im_box" title="ROZMOWY"/>
+<multi_floater name="floater_im_box" title="ROZMOWY">
+	<layout_stack name="conversations_stack">
+		<layout_panel name="conversations_layout_panel">
+			<layout_stack name="conversations_pane_buttons_stack">
+				<layout_panel name="conversations_pane_buttons_expanded">
+					<menu_button name="sort_btn" tool_tip="Opcje widoku/sortowania" />
+					<button name="add_btn" tool_tip="Rozpocznij nową rozmowę" />
+					<button name="speak_btn" tool_tip="Rozmawiaj z ludźmi przy użyciu mikrofonu" />
+				</layout_panel>
+				<layout_panel name="conversations_pane_buttons_collapsed">
+					<button name="expand_collapse_btn" tool_tip="Zwiń/Rozwiń tą listę" />
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="messages_layout_panel">
+			<panel_container name="im_box_tab_container">
+				<panel name="stub_panel">
+					<button name="stub_collapse_btn" tool_tip="Zwiń ten panel" />
+					<text name="stub_textbox">
+						Ta rozmowa jest w osobnym oknie. [secondlife:/// Z powrotem.]
+					</text>
+				</panel>
+			</panel_container>
+		</layout_panel>
+	</layout_stack>
+</multi_floater>

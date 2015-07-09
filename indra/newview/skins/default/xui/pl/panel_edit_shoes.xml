@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="edit_shoes_panel">
 	<panel name="avatar_shoes_color_panel">
-		<texture_picker label="Tekstura" name="Fabric" tool_tip="Kliknij aby wybrać teksturę"/>
-		<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
+		<texture_picker label="Tekstura" name="Fabric" tool_tip="Kliknij, aby wybrać obrazek" />
+		<color_swatch label="Kolor" name="Color/Tint" tool_tip="Kliknij, aby wybrać kolor" />
 	</panel>
 	<panel name="accordion_panel">
 		<accordion name="wearable_accordion">
-			<accordion_tab name="shoes_main_tab" title="Buty"/>
+			<accordion_tab name="shoes_main_tab" title="Buty" />
 		</accordion>
 	</panel>
 </panel>

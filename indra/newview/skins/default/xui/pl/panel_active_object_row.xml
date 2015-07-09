@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_activeim_row">
-	<string name="unknown_obj">
-		Nieznany obiekt
-	</string>
 	<text name="object_name">
 		Nienazwany obiekt
 	</text>

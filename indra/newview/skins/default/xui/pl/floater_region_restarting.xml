@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="region_restarting" title="RESTART REGIONU">
+	<string name="RegionName">
+		Region, w którym teraz jesteś ([NAME]) zostanie za chwilę zrestartowany.
+
+Jeśli w nim zostaniesz, to symulator Cię wyloguje.
+	</string>
+	<string name="RestartSeconds">
+		Sekund do restartu
+[SECONDS]
+	</string>
+	<panel name="layout_panel_1">
+		<text name="region_name">
+			Region, w którym teraz jesteś (-The longest region name-) zostanie za chwilę zrestartowany.
+
+Jeśli w nim zostaniesz, to symulator Cię wyloguje.
+		</text>
+		<text name="restart_seconds">
+			Sekund do restartu
+32767
+		</text>
+	</panel>
+</floater>

@@ -6,19 +6,28 @@
 	<check_box label="Gesty" name="check_gesture" />
 	<check_box label="Landmarki" name="check_landmark" />
 	<check_box label="Noty" name="check_notecard" />
+	<check_box label="Mesze" name="check_mesh" />
 	<check_box label="Obiekty" name="check_object" />
 	<check_box label="Skrypty" name="check_script" />
 	<check_box label="Dźwięki" name="check_sound" />
 	<check_box label="Tekstury" name="check_texture" />
 	<check_box label="Zdjęcia" name="check_snapshot" />
-	<button label="Wszystko" label_selected="Wszystko" name="All" />
+	<button label="Wszystko" label_selected="Wszystko" name="All" /> 
 	<button label="Żadne" label_selected="Żadne" name="None" />
-	<check_box label="Zawsze pokazuj foldery" name="check_show_empty" />
-	<check_box label="Od czasu wylogowania" name="check_since_logoff" />
+	<check_box label="Zawsze pokaż foldery" name="check_show_empty" />
+	<check_box label="Od wylogowania" name="check_since_logoff" />
 	<text name="- OR -">
 		- LUB -
 	</text>
-	<spinner label="Od godzin" name="spin_hours_ago" />
-	<spinner label="Od dni" name="spin_days_ago" />
+	<radio_group name="date_search_direction">
+		<radio_item label="Nowsze niż" name="newer" />
+		<radio_item label="Starsze niż" name="older" />
+	</radio_group>
+	<text name="label_hours">
+		Godzin
+	</text>
+	<text name="label_days">
+		Dni
+	</text>
 	<button label="Zamknij" label_selected="Zamknij" name="Close" />
 </floater>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_pathfinding_characters" title="Postacie odnajdywania ścieżek">
+	<floater.string name="messaging_get_inprogress">
+		Odpytywanie o postacie odnajdywania ścieżek...
+	</floater.string>
+	<floater.string name="messaging_get_error">
+		Błąd podczas odpytywania o postacie odnajdywania ścieżek.
+	</floater.string>
+	<floater.string name="messaging_complete_none_found">
+		Brak postaci odnajdywania ścieżek.
+	</floater.string>
+	<floater.string name="messaging_complete_available">
+		[NUM_SELECTED] zaznaczonych postaci z [NUM_TOTAL].
+	</floater.string>
+	<floater.string name="messaging_not_enabled">
+		Ten region nie ma włączonego odnajdywania ścieżek.
+	</floater.string>
+	<floater.string name="character_owner_loading">
+		[Ładowanie]
+	</floater.string>
+	<floater.string name="character_owner_unknown">
+		[Nieznane]
+	</floater.string>
+	<floater.string name="character_owner_group">
+		[grupa]
+	</floater.string>
+	<panel name="pathfinding_chars_main">
+		<scroll_list name="objects_scroll_list">
+			<scroll_list.columns label="Nazwa" name="name" />
+			<scroll_list.columns label="Opis" name="description" />
+			<scroll_list.columns label="Właściciel" name="owner" />
+			<scroll_list.columns label="Wysokość" name="altitude" />
+		</scroll_list>
+		<text name="messaging_status">
+			Postacie:
+		</text>
+		<button label="Odśwież listę" name="refresh_objects_list" />
+		<button label="Zaznacz wszystko" name="select_all_objects" />
+		<button label="Odznacz wszystko" name="select_none_objects" />
+	</panel>
+	<panel name="pathfinding_chars_actions">
+		<text name="actions_label">
+			Operacje na zazn. postaciach:
+		</text>
+		<check_box label="Podświetlenia" name="show_beacon" />
+		<check_box label="Kapsuła fizyczna" name="show_physics_capsule" />
+		<button label="Weź" name="take_objects" />
+		<button label="Weź kopię" name="take_copy_objects" />
+		<button label="Teleportuj mnie" name="teleport_me_to_object" tool_tip="Włączone tylko wtedy, gdy postać jest zaznaczona." />
+		<button label="Zwróć" name="return_objects" />
+		<button label="Usuń" name="delete_objects" />
+	</panel>
+</floater>

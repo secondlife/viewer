@@ -1,58 +1,52 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Ogólne" name="general_tab">
 	<panel.string name="help_text">
-		Zakładka Główne zawiera ogólne informacje na temat tej grupy, ustawień dla całej grupy oraz danego członka.
+		Zakładka Główne zawiera ogólne informacje na temat tej grupy, listę osób wraz z danymi oraz panel ustawień.
 
-By otrzymać pomoc i dodatkowe wskazówki przesuń kursor na przyciski.
+By otrzymać dodatkowe wskazówki przytrzymuj kursor ponad opcjami.
 	</panel.string>
 	<panel.string name="group_info_unchanged">
 		Ogólne informacje na temat grupy uległy zmianie.
 	</panel.string>
 	<panel.string name="incomplete_member_data_str">
-		Wyszukiwanie informacji o członku
+		Wyszukiwanie informacji o osobie
 	</panel.string>
 	<panel name="group_info_top">
-		<texture_picker label="" name="insignia" tool_tip="Kliknij by wybrać obraz"/>
+		<texture_picker name="insignia" tool_tip="Kliknij by wybrać obraz" />
 		<text name="prepend_founded_by">
 			Założyciel:
 		</text>
-		<name_box initial_value="(przetwarzanie)" name="founder_name"/>
 		<text name="join_cost_text">
 			Wstęp wolny
 		</text>
-		<button label="DOŁĄCZ TERAZ!" name="btn_join"/>
+		<button label="DOŁĄCZ!" name="btn_join" />
 	</panel>
 	<text_editor name="charter">
 		Status grupy
-	</text_editor>
-	<name_list name="visible_members">
-		<name_list.columns label="Członek" name="name"/>
-		<name_list.columns label="Tytuł" name="title"/>
-		<name_list.columns label="Status" name="status"/>
-	</name_list>
+	</text_editor>   
 	<text name="my_group_settngs_label">
-		ja
+		Moje ustawienia
 	</text>
 	<text name="active_title_label">
-		Mój aktywny tytuł:
+		Aktywny tytuł:
 	</text>
-	<combo_box name="active_title" tool_tip="Ustaw tytuł który wyświetla się kiedy grupa jest aktywna."/>
-	<check_box label="Otrzymuj grupowe ogłoszenia" name="receive_notices" tool_tip="Zaznacz jeżeli chcesz otrzymywać ogłoszenia z tej grupy.   Anuluj z zaznaczenia, jeżeli nie chcesz otrzymywać żadnych ogłoszeń z tej grupy."/>
-	<check_box label="Wyświetl grupę w profilu" name="list_groups_in_profile" tool_tip="Zaznacz jeżeli chcesz by grupa wyświetlała się w Twoim profilu"/>
+	<combo_box name="active_title" tool_tip="Ustaw tytuł, który wyświetla się kiedy grupa jest aktywna." />
+	<check_box label="Otrzymuj ogłoszenia grupowe" name="receive_notices" tool_tip="Zaznacz, jeżeli chcesz otrzymywać ogłoszenia z tej grupy. Odznacz, jeśli grupa Cię spamuje." />
+	<check_box label="Wyświetl grupę w profilu" name="list_groups_in_profile" tool_tip="Zaznacz, jeżeli chcesz by grupa wyświetlała się w Twoim profilu." />
 	<panel name="preferences_container">
 		<text name="group_settngs_label">
-			Grupa
+			Ustawienia grupy
 		</text>
-		<check_box label="Wolny wstęp" name="open_enrollement" tool_tip="Sprawdź czy grupa oferuje wolny wstęp i nie wymaga zaproszenia."/>
-		<check_box label="Opłata wstępu" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
-		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
-		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, iż Twoja grupa klasyfikowana jest jako &apos;Mature&apos;.">
+		<check_box label="Wolny wstęp" name="open_enrollement" tool_tip="Grupa oferuje wolny wstęp dla każdego i nie wymaga zaproszenia." />
+		<check_box label="Opłata wstępu" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy." />
+		<spinner name="spin_enrollment_fee" tool_tip="Nowe osoby muszą zapłacić tą sumę by dołączyć do grupy, jeśli 'Opłata wstępu' jest zaznaczona." />
+		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, że Twoja grupa klasyfikowana jest jako Moderate.">
 			<combo_item name="select_mature">
 				- Wybierz klasyfikację wieku -
 			</combo_item>
-			<combo_box.item label="Treść &apos;Moderate&apos;" name="mature"/>
-			<combo_box.item label="Treść &apos;General&apos;" name="pg"/>
+			<combo_box.item label="Treść Moderate" name="mature" />
+			<combo_box.item label="Treść General" name="pg" />
 		</combo_box>
-		<check_box initial_value="true" label="Wyświetlaj w wyszukiwarce" name="show_in_group_list" tool_tip="Udostępnij info o grupie w wyszukiwarce"/>
+		<check_box label="Pokaż w wyszukiwarce" name="show_in_group_list" tool_tip="Udostępnij info o grupie w wyszukiwarce" />
 	</panel>
 </panel>

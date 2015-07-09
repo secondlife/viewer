@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="notification" title="KONSOLA POWIADOMIEŃ">
+	<text_editor name="payload">
+		Wczytywanie...
+	</text_editor>
+	<combo_box label="Odpowiedź" name="response" />
+</floater>

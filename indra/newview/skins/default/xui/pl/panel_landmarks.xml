@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
-		<accordion_tab name="tab_favorites" title="Ulubione"/>
-		<accordion_tab name="tab_landmarks" title="Landmarki"/>
-		<accordion_tab name="tab_inventory" title="Moja Szafa"/>
-		<accordion_tab name="tab_library" title="Biblioteka"/>
+		<accordion_tab name="tab_favorites" title="Ulubione" />
+		<accordion_tab name="tab_landmarks" title="Landmarki" />
+		<accordion_tab name="tab_inventory" title="Moja Szafa" />
+		<accordion_tab name="tab_library" title="Biblioteka" />
 	</accordion>
 	<panel name="bottom_panel">
 		<layout_stack name="bottom_panel">
 			<layout_panel name="options_gear_btn_panel">
-				<button name="options_gear_btn" tool_tip="Pokaż opcje dodatkowe"/>
+				<menu_button tool_tip="Pokaż opcje dodatkowe" name="options_gear_btn" />
 			</layout_panel>
 			<layout_panel name="add_btn_panel">
-				<button name="add_btn" tool_tip="Dodaj nowy landmark"/>
+				<button name="add_btn" tool_tip="Dodaj nowy landmark" />
 			</layout_panel>
 			<layout_panel name="trash_btn_panel">
-				<dnd_button name="trash_btn" tool_tip="Usuń wybrany landmark"/>
+				<dnd_button name="trash_btn" tool_tip="Usuń wybrany landmark" />
 			</layout_panel>
 		</layout_stack>
 	</panel>
