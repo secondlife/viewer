@@ -313,9 +313,6 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<panel.string name="push_restrict_region_text">
 				Nessuna spinta (Impostazione regionale)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Gli avatar in altri lotti possono vedere
-			</panel.string>
 			<text name="allow_label">
 				Permetti ad altri residenti di:
 			</text>
@@ -341,22 +338,6 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento con danni."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>
 			<check_box label="Mostra luogo nella ricerca (30 L$/settimana)" name="ShowDirectoryCheck" tool_tip="Consenti che il lotto sia visto nei risultati di ricerca"/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="Tutte le categorie" name="item0"/>
-				<combo_box.item label="Luogo dei Linden" name="item1"/>
-				<combo_box.item label="Adulti" name="item2"/>
-				<combo_box.item label="Arte e cultura" name="item3"/>
-				<combo_box.item label="Affari" name="item4"/>
-				<combo_box.item label="Istruzione" name="item5"/>
-				<combo_box.item label="Gioco" name="item6"/>
-				<combo_box.item label="Divertimento" name="item7"/>
-				<combo_box.item label="Accoglienza nuovi residenti" name="item8"/>
-				<combo_box.item label="Parchi &amp; Natura" name="item9"/>
-				<combo_box.item label="Residenziale" name="item10"/>
-				<combo_box.item label="Shopping" name="item11"/>
-				<combo_box.item label="Affitto" name="item13"/>
-				<combo_box.item label="Altro" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="Tutte le categorie" name="item0"/>
 				<combo_box.item label="Luogo dei Linden" name="item1"/>
@@ -456,15 +437,9 @@ Media:
 			<panel.string name="access_estate_defined">
 				(Definito dalla proprietà)
 			</panel.string>
-			<panel.string name="allow_public_access">
-				Consenti accesso pubblico ([MATURITY]) (Nota: se si rimuove la selezione vengono create linee di espulsione)
-			</panel.string>
 			<panel.string name="estate_override">
 				Una o più di queste impostazioni sono già impostate a livello regionale
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				Accesso a questo terreno
-			</text>
 			<check_box label="Consenti l&apos;accesso pubblico (se si rimuove la selezione vengono create linee di espulsione)" name="public_access"/>
 			<text name="Only Allow">
 				Consenti l&apos;accesso solo ai Residenti che:
@@ -496,5 +471,6 @@ Media:
 				<button label="Rimuovi" label_selected="Rimuovi" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="ESPERIENZE" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

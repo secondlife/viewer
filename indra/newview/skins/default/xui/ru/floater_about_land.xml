@@ -331,22 +331,6 @@
 			<check_box label="Безопасно (нет повреждений)" name="check safe" tool_tip="Если отмечено, то земля считается безопасной, отключены боевые повреждения. Если не отмечено, то боевые повреждения включены."/>
 			<check_box label="Не толкать" name="PushRestrictCheck" tool_tip="Запрещает скриптам функцию толкания. Этот параметр может оказаться полезным для предотвращения нежелательного поведения на вашей земле."/>
 			<check_box label="Показать место в поиске (L$30/неделя)" name="ShowDirectoryCheck" tool_tip="Позволить людям видеть участок в результатах поиска"/>
-			<combo_box name="land category with adult">
-				<combo_box.item label="Любая категория" name="item0"/>
-				<combo_box.item label="Место Linden" name="item1"/>
-				<combo_box.item label="Взрослый" name="item2"/>
-				<combo_box.item label="Искусство и культура" name="item3"/>
-				<combo_box.item label="Бизнес" name="item4"/>
-				<combo_box.item label="Образование" name="item5"/>
-				<combo_box.item label="Игры" name="item6"/>
-				<combo_box.item label="Места встреч" name="item7"/>
-				<combo_box.item label="Для новичков" name="item8"/>
-				<combo_box.item label="Парки и природа" name="item9"/>
-				<combo_box.item label="Проживание" name="item10"/>
-				<combo_box.item label="Покупки" name="item11"/>
-				<combo_box.item label="Аренда" name="item13"/>
-				<combo_box.item label="Другое" name="item12"/>
-			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item label="Любая категория" name="item0"/>
 				<combo_box.item label="Место Linden" name="item1"/>
@@ -477,5 +461,6 @@
 				<button label="Удалить" label_selected="Удалить" name="remove_banned"/>
 			</panel>
 		</panel>
+		<panel label="ПРИКЛЮЧЕНИЯ" name="land_experiences_panel"/>
 	</tab_container>
 </floater>

@@ -28,7 +28,7 @@
 		İstemci kare hızı [CLIENT_FRAME_RATE_CRITICAL] altında
 	</floater.string>
 	<floater.string name="client_frame_time_warning_msg">
-		İstemci kare hızı [CLIENT_FRAME_RATE_CRITICAL] ile [CLIENT_FRAME_RATE_WARNING] arasınad
+		İstemci kare hızı [CLIENT_FRAME_RATE_CRITICAL] ile [CLIENT_FRAME_RATE_WARNING] arasında
 	</floater.string>
 	<floater.string name="client_frame_time_normal_msg">
 		Normal

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Experiences">
+	<text name="experience_name">
+		Geçici Ad
+	</text>
+</panel>

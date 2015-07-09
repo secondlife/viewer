@@ -73,6 +73,10 @@ Hata ayrıntıları: &apos;[_NAME]&apos; adlı bildirim notifications.xml içind
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Evet"/>
 	</notification>
+	<notification name="GenericAlertOK">
+		[MESSAGE]
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="BadInstallation">
 		[APP_NAME] güncellenirken bir hata oluştu.  Lütfen Görüntüleyici&apos;nin [http://get.secondlife.com son sürümünü karşıdan yükleyin].
 		<usetemplate name="okbutton" yestext="Tamam"/>
@@ -574,6 +578,9 @@ Grafik Kalitesi, Tercihler &gt; Grafikler sekmesinden yükseltilebilir.
 	</notification>
 	<notification name="RegionNoTerraforming">
 		[REGION] bölgesi yer şekillendirmeye izin vermiyor.
+	</notification>
+	<notification name="ParcelNoTerraforming">
+		[PARCEL] parseli üzerinde yer şekillendirmesi yapma izniniz bulunmuyor.
 	</notification>
 	<notification name="CannotCopyWarning">
 		Aşağıdaki öğeleri kopyalamak için gerekli izne sahip değilsiniz:
@@ -1825,6 +1832,30 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 		Sadece bu gayrimenkul için mi gayrimenkul yöneticiliğinden çıkarılsın, yoksa [ALL_ESTATES] için mi?
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
+	<notification label="Gayrimenkul seç" name="EstateAllowedExperienceAdd">
+		Sadece bu gayrimenkul için mi izin verilenler listesine eklensin, yoksa [ALL_ESTATES] için mi?
+		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
+	</notification>
+	<notification label="Gayrimenkul seç" name="EstateAllowedExperienceRemove">
+		Yalnızca bu gayrimenkul için mi izin verilenler listesinden çıkarılsın, yoksa [ALL_ESTATES] için mi?
+		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
+	</notification>
+	<notification label="Gayrimenkul seç" name="EstateBlockedExperienceAdd">
+		Yalnızca bu gayrimenkul için mi engellenenler listesine eklensin, yoksa [ALL_ESTATES] için mi?
+		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
+	</notification>
+	<notification label="Gayrimenkul seç" name="EstateBlockedExperienceRemove">
+		Yalnızca bu gayrimenkul için mi engellenenler listesinden çıkarılsın, yoksa [ALL_ESTATES] için mi?
+		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
+	</notification>
+	<notification label="Gayrimenkul seç" name="EstateTrustedExperienceAdd">
+		Yalnızca bu gayrimenkul için mi anahtar listesine eklensin, yoksa [ALL_ESTATES] için mi?
+		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
+	</notification>
+	<notification label="Gayrimenkul seç" name="EstateTrustedExperienceRemove">
+		Yalnızca bu gayrimenkul için mi anahtar listesine çıkarılsın, yoksa [ALL_ESTATES] için mi?
+		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
+	</notification>
 	<notification label="Çıkarmayı Onayla" name="EstateKickUser">
 		[EVIL_USER] bu gayrimenkulden çıkarılsın mı?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
@@ -1897,6 +1928,10 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 	</notification>
 	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
 		Tercihleriniz ile sunucu arasında senkronizasyon eksikliği olduğu için ışınlama işleminizde teknik sorunlar yaşanıyoruz.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="RegionTPSpecialUsageBlocked">
+		Bölgeye girilemiyor. &quot;[REGION_NAME]&quot; bir Yetenek Oyunu Bölgesi. Buraya girebilmek için bazı ölçütleri karşılamanız gerekiyor. Ayrıntılar için lütfen [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ] adresini ziyaret edin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="PreferredMaturityChanged">
@@ -2204,6 +2239,9 @@ Bu nesneyi seçilen nesne ile değiştirmek istiyor musunuz?
 			<button ignore="Otomatik Olarak Değiştir" name="Yes" text="Tamam"/>
 			<button ignore="Hiçbir Zaman Değiştirme" name="No" text="İptal"/>
 		</form>
+	</notification>
+	<notification name="TooManyWearables">
+		[AMOUNT] öğeden fazlasını içeren bir klasörü kullanamazsınız.  Bu limiti Gelişmiş &gt; Hata Ayıklama Ayarlarını Göster &gt; KullanılabilirKlasörLimiti öğesinden değiştirebilirsiniz.
 	</notification>
 	<notification label="Rahatsız Etme Modu Uyarısı" name="DoNotDisturbModePay">
 		Rahatsız Etme seçeneğini devreye aldınız. Bu ödemenin karşılığında sunulan hiçbir öğeyi almayacaksınız.
@@ -2814,7 +2852,7 @@ Bu bölgede kalmaya devam ederseniz oturumunuz sonlandırılacak.
 
 [MESSAGE]
 
-Şu nesneden: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, sahibi: [NAME]?
+Kaynak nesne: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, sahibi: [NAME]
 		<form name="form">
 			<button name="Gotopage" text="Sayfaya git"/>
 			<button name="Cancel" text="İptal"/>
@@ -2838,6 +2876,72 @@ Kabul ediyor musunuz?
 			<button name="Yes" text="Evet"/>
 			<button name="No" text="Hayır"/>
 			<button name="Mute" text="Engelle"/>
+		</form>
+	</notification>
+	<notification name="ExperienceAcquireFailed">
+		Yeni bir deneyim edinilemiyor:
+    [ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="NotInGroupExperienceProfileMessage">
+		Deneyimin sahibi seçili grubun bir üyesi olmadığı için, deneyim grubunda yapılan bir değişiklik göz ardı edildi.
+	</notification>
+	<notification name="UneditableExperienceProfileMessage">
+		Deneyim profili güncellenirken, düzenlenebilir olmayan &quot;[field]&quot; alanı göz ardı edildi.
+	</notification>
+	<notification name="RestrictedToOwnerExperienceProfileMessage">
+		Yalnızca deneyimin sahibi tarafından ayarlanabilecek olan &quot;[field]&quot; alanında yapılan değişiklikler göz ardı edildi.
+	</notification>
+	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
+		Bir deneyimin erişkinlik seviyesini deneyimin sahibinin seviyesinden daha yüksek bir seviyeye ayarlayamazsınız.
+	</notification>
+	<notification name="RestrictedTermExperienceProfileMessage">
+		Aşağıdaki koşullar deneyim profili adının ve/veya açıklamasının güncellenmesini engelledi: [extra_info]
+	</notification>
+	<notification name="TeleportedHomeExperienceRemoved">
+		secondlife:///app/experience/[public_id]/profile deneyimini kaldırdığınız için [region_name] bölgesinden dışarı ışınlandınız ve artık bu bölgeye girme hakkınız yok.
+		<form name="form">
+			<ignore name="ignore" text="Bir deneyim kaldırıldığı için bölgeden çıkarıldı"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperienceEntry">
+		secondlife:///app/experience/[public_id]/profile anahtar deneyimine katılarak [region_name] bölgesine giriş izni aldınız. Bu deneyimin kaldırılması bu bölgeden çıkarılmanıza neden olabilir.
+		<form name="form">
+			<ignore name="ignore" text="Bir deneyim bir bölgeye girme izni verdi"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperiencesAvailable">
+		Bu hedef konuma erişim izniniz yok. Aşağıdaki bir deneyimi kabul ederek bölgeye giriş izni kazanabilirsiniz:
+
+[EXPERIENCE_LIST]
+
+Başka Anahtar Deneyimler de olabilir.
+	</notification>
+	<notification name="ExperienceEvent">
+		secondlife:///app/experience/[public_id]/profile deneyimiyle [EventType] için bir nesneye izin verildi.
+    Sahibi: secondlife:///app/agent/[OwnerID]/inspect
+    Nesne Adı: [ObjectName]
+    Parsel Adı: [ParcelName]
+	</notification>
+	<notification name="ExperienceEventAttachment">
+		secondlife:///app/experience/[public_id]/profile deneyimiyle [EventType] için bir eke izin verildi.
+    Sahibi: secondlife:///app/agent/[OwnerID]/inspect
+	</notification>
+	<notification name="ScriptQuestionExperience">
+		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, &quot;[NAME]&quot; adlı kişiye ait bir nesne, [GRID_WIDE] deneyimine katılmanızı istiyor:
+
+[EXPERIENCE]
+
+İzin verildikten sonra, deneyim profilinden iptal edilmedikçe, bu deneyim için bu iletiyi bir daha görmezsiniz.
+
+Bu deneyimle ilişkili komut dosyaları deneyimin etkin olduğu bölgelerde aşağıdaki eylemleri gerçekleştirebilecek: 
+
+[QUESTIONS]Kabul ediyor musunuz?
+		<form name="form">
+			<button name="BlockExperience" text="Deneyimi Engelle"/>
+			<button name="Mute" text="Nesneyi Engelle"/>
+			<button name="Yes" text="Evet"/>
+			<button name="No" text="Hayır"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
@@ -3158,6 +3262,10 @@ Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
 	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
 		( [EXISTENCE] saniyedir hayatta )
  &apos;[BODYREGION]&apos; için [RESOLUTION] çözünürlükte kaydedilmiş bir dokuyu [TIME] saniye sonra yerel olarak güncellediniz.
+	</notification>
+	<notification name="CannotUploadTexture">
+		Doku karşıya yüklenemiyor.
+[REASON]
 	</notification>
 	<notification name="LivePreviewUnavailable">
 		Kopyalanamaz ve/veya aktarılamaz olduğu için bu dokunun bir önizlemesini görüntüleyemiyoruz.

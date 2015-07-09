@@ -5,8 +5,8 @@
 	<check_box label="Giysiler" name="check_clothing"/>
 	<check_box label="Mimikler" name="check_gesture"/>
 	<check_box label="Yer İmleri" name="check_landmark"/>
-	<check_box label="Örgüler" name="check_mesh"/>
 	<check_box label="Not Kartları" name="check_notecard"/>
+	<check_box label="Örgüler" name="check_mesh"/>
 	<check_box label="Nesneler" name="check_object"/>
 	<check_box label="Komut Dosyaları" name="check_script"/>
 	<check_box label="Sesler" name="check_sound"/>
@@ -19,6 +19,10 @@
 	<text name="- OR -">
 		- VEYA -
 	</text>
+	<radio_group name="date_search_direction">
+		<radio_item label="Şundan daha yeni:" name="newer"/>
+		<radio_item label="Şundan daha eski:" name="older"/>
+	</radio_group>
 	<spinner label="Saat Önce" name="spin_hours_ago"/>
 	<spinner label="Gün Önce" name="spin_days_ago"/>
 	<button label="Kapat" label_selected="Kapat" name="Close"/>

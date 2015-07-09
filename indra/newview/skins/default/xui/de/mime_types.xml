@@ -44,6 +44,14 @@
 			Audio an diesem Ort wiedergeben
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			Keine Inhalte
+		</label>
+		<tooltip name="none_tooltip">
+			Keine Medien gefunden
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			Echtzeit-Streaming
@@ -117,11 +125,6 @@
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
 			Macromedia Director
-		</label>
-	</mimetype>
-	<mimetype name="application/x-shockwave-flash">
-		<label name="application/x-shockwave-flash_label">
-			Flash
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">

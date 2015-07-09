@@ -44,6 +44,14 @@
 			播放這個位置的音頻
 		</playtip>
 	</widgetset>
+	<widgetset name="none">
+		<label name="none_label">
+			無內容
+		</label>
+		<tooltip name="none_tooltip">
+			此處無媒體
+		</tooltip>
+	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			即時串流

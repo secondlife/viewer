@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater title="EXPERIENCE PROFILE">
+	<floater.string name="empty_slurl">
+		(nessuno)
+	</floater.string>
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Light&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Light&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Light&quot;
+	</floater.string>
+	<text name="edit_title" value="Profilo esperienza"/>
+	<tab_container name="tab_container">
+		<panel name="panel_experience_info">
+			<scroll_container name="xp_scroll">
+				<panel name="scrolling_panel">
+					<layout_stack>
+						<layout_panel name="top panel">
+							<button label="Modifica" name="edit_btn"/>
+						</layout_panel>
+						<layout_panel name="maturity panel">
+							<text name="ContentRating">
+								Categoria:
+							</text>
+						</layout_panel>
+						<layout_panel name="location panel">
+							<text name="Location">
+								Luogo:
+							</text>
+						</layout_panel>
+						<layout_panel>
+							<text name="Owner">
+								Proprietario:
+							</text>
+						</layout_panel>
+						<layout_panel name="group_panel">
+							<text name="Group">
+								Gruppo:
+							</text>
+						</layout_panel>
+						<layout_panel name="perm panel">
+							<button label="Consenti" name="allow_btn"/>
+							<button label="Dimentica" name="forget_btn"/>
+							<button label="Blocca" name="block_btn"/>
+							<text name="privileged">
+								Questa esperienza è attivata per tutti i residenti.
+							</text>
+							<button label="Segnala abuso" name="report_btn"/>
+						</layout_panel>
+					</layout_stack>
+				</panel>
+			</scroll_container>
+		</panel>
+		<panel name="edit_panel_experience_info">
+			<scroll_container name="edit_xp_scroll">
+				<panel name="edit_scrolling_panel">
+					<text name="edit_experience_title_label" value="Nome:"/>
+					<text name="edit_experience_desc_label" value="Descrizione:"/>
+					<button label="Gruppo" name="Group_btn"/>
+					<text name="edit_ContentRating">
+						Categoria:
+					</text>
+					<icons_combo_box label="Moderato" name="edit_ContentRatingText" tool_tip="Se si aumenta la categoria di accesso di un&apos;esperienza, vengono ripristinate le autorizzazioni per tutti i residenti che hanno consentito l&apos;esperienza.">
+						<icons_combo_box.item label="Adulti" name="Adult" value="42"/>
+						<icons_combo_box.item label="Moderato" name="Mature" value="21"/>
+						<icons_combo_box.item label="Generale" name="PG" value="13"/>
+					</icons_combo_box>
+					<text name="edit_Location">
+						Luogo:
+					</text>
+					<button label="Imposta come attuale" name="location_btn"/>
+					<button label="Cancella luogo" name="clear_btn"/>
+					<check_box label="Attiva esperienza" name="edit_enable_btn" tool_tip=""/>
+					<check_box label="Nascondi nella ricerca" name="edit_private_btn"/>
+					<text name="changes" value="Le modifiche apportate alle esperienze potrebbero essere visibili su tutte le regioni solo dopo alcuni minuti."/>
+					<button label="Indietro" name="cancel_btn"/>
+					<button label="Salva" name="save_btn"/>
+				</panel>
+			</scroll_container>
+		</panel>
+	</tab_container>
+</floater>

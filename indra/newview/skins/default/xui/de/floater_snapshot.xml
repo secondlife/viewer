@@ -39,13 +39,7 @@
 	<string name="local_failed_str">
 		Fehler beim Speichern auf dem Computer.
 	</string>
-	<button name="advanced_options_btn" tool_tip="Erweiterte Optionen"/>
-	<text name="image_res_text">
-		[WIDTH]px (Breite) x [HEIGHT]px (Höhe)
-	</text>
-	<text name="file_size_label">
-		[SIZE] KB
-	</text>
+	<button label="AKTUALISIEREN" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
 		<text name="layer_type_label">
 			Aufnehmen:
@@ -65,4 +59,10 @@
 			<combo_box.item label="Kein Filter" name="NoFilter"/>
 		</combo_box>
 	</panel>
+	<text name="image_res_text">
+		[WIDTH] px (Breite) x [HEIGHT] px (Höhe)
+	</text>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
 </floater>

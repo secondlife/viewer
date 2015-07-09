@@ -4,11 +4,11 @@
 		Profil
 	</text>
 	<combo_box label="Auflösung" name="profile_size_combo">
-	<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>
-	<combo_box.item label="640x480" name="640x480"/>
-	<combo_box.item label="800x600" name="800x600"/>
-	<combo_box.item label="1024x768" name="1024x768"/>
-	<combo_box.item label="Benutzerdefiniert" name="Custom"/>
+		<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="Benutzerdefiniert" name="Custom"/>
 	</combo_box>
 	<spinner label="Breite x Höhe" name="profile_snapshot_width"/>
 	<check_box label="Seitenverhältnis beibehalten" name="profile_keep_aspect_check"/>

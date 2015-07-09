@@ -47,7 +47,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>300</real>
+      <real>300.0</real>
     </map>
     <key>AckCollectTime</key>
     <map>
@@ -80,7 +80,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1</real>
+      <real>1.0</real>
     </map>
     <key>AdvanceSnapshot</key>
     <map>
@@ -1651,7 +1651,7 @@
         <key>Type</key>
         <string>S32</string>
         <key>Value</key>
-        <real>100</real>
+        <integer>100</integer>
     </map>
     <key>ChatLoadGroupTimeout</key>
     <map>
@@ -4260,7 +4260,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>3</real>
+      <real>3.0</real>
     </map>
     <key>FullScreenAutoDetectAspectRatio</key>
     <map>
@@ -6275,7 +6275,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <real>0</real>
+      <integer>0</integer>
     </map>
   <key>MeshEnabled</key>
   <map>
@@ -6286,7 +6286,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>1</real>
+    <integer>1</integer>
   </map>
   <key>MeshImportUseSLM</key>
   <map>
@@ -6297,7 +6297,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>1</real>
+    <integer>1</integer>
   </map>
   <key>MeshUploadLogXML</key>
   <map>
@@ -6308,7 +6308,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>0</real>
+    <integer>0</integer>
   </map>
   <key>MeshUploadFakeErrors</key>
   <map>
@@ -6319,7 +6319,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <real>0</real>
+    <integer>0</integer>
   </map>
   <key>MeshUploadTimeOut</key>
   <map>
@@ -6330,7 +6330,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <real>600</real>
+    <integer>600</integer>
   </map>
   <key>MigrateCacheDirectory</key>
     <map>
@@ -8543,7 +8543,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>64</real>
+    <real>64.0</real>
   </map>
     <key>RenderCubeMap</key>
     <map>
@@ -8679,7 +8679,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>16</real>
+    <integer>16</integer>
   </map>
 
   <key>RenderEdgeDepthCutoff</key>
@@ -8725,7 +8725,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>4</real>
+    <real>4.0</real>
   </map>
   <key>RenderDeferredSpotShadowBias</key>
   <map>
@@ -8792,7 +8792,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0</real>
+    <real>0.0</real>
   </map>
 
   <key>RenderDepthPrePass</key>
@@ -8986,7 +8986,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>0</real>
+    <integer>0</integer>
   </map>
   
   <key>RenderSpecularResX</key>
@@ -8998,7 +8998,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>1024</real>
+    <integer>1024</integer>
   </map>
 
   <key>RenderSpecularResY</key>
@@ -9010,7 +9010,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>256</real>
+    <integer>256</integer>
   </map>
 
   <key>RenderSpecularExponent</key>
@@ -9166,7 +9166,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>4</real>
+    <integer>4</integer>
   </map>
   <key>RenderShadowBlurDistFactor</key>
   <map>
@@ -9333,9 +9333,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>1</real>
-        <real>0</real>
-        <real>0</real>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
       </array>
     </map>
     <key>RenderGlowMaxExtractAlpha</key>
@@ -10171,7 +10171,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>250000</real>
+    <integer>250000</integer>
   </map>
   <key>MeshMetaDataDiscount</key>
   <map>
@@ -10182,7 +10182,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>384</real>
+    <integer>384</integer>
   </map>
   <key>MeshMinimumByteSize</key>
   <map>
@@ -10193,7 +10193,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>16</real>
+    <integer>16</integer>
   </map>
   <key>MeshBytesPerTriangle</key>
   <map>
@@ -10204,7 +10204,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>16</real>
+    <integer>16</integer>
   </map>
   <key>Mesh2MaxConcurrentRequests</key>
   <map>
@@ -10336,7 +10336,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <real>1024</real>
+      <integer>1024</integer>
     </map>
     <key>SceneLoadLowMemoryBound</key>
     <map>
@@ -10347,7 +10347,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <real>750</real>
+      <integer>750</integer>
     </map>
     <key>SceneLoadMinRadius</key>
     <map>
@@ -12129,7 +12129,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>6</real>
+      <integer>6</integer>
     </map>
     <key>UICheckboxctrlBtnSize</key>
     <map>
@@ -12140,7 +12140,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>13</real>
+      <integer>13</integer>
     </map>
     <key>UICheckboxctrlHeight</key>
     <map>
@@ -12151,7 +12151,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>16</real>
+      <integer>16</integer>
     </map>
     <key>UICheckboxctrlHPad</key>
     <map>
@@ -12162,7 +12162,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <integer>2</integer>
     </map>
     <key>UICheckboxctrlSpacing</key>
     <map>
@@ -12173,7 +12173,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>5</real>
+      <integer>5</integer>
     </map>
     <key>UICheckboxctrlVPad</key>
     <map>
@@ -12184,7 +12184,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <integer>2</integer>
     </map>
     <key>UICloseBoxFromTop</key>
     <map>
@@ -12195,7 +12195,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>5</real>
+      <integer>5</integer>
     </map>
     <key>UIExtraTriangleHeight</key>
     <map>
@@ -12206,7 +12206,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>-1</real>
+      <integer>-1</integer>
     </map>
     <key>UIExtraTriangleWidth</key>
     <map>
@@ -12217,7 +12217,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>4</real>
+      <integer>4</integer>
     </map>
     <key>UIFloaterCloseBoxSize</key>
     <map>
@@ -12228,7 +12228,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>16</real>
+      <integer>16</integer>
     </map>
     <key>UIFloaterHPad</key>
     <map>
@@ -12239,7 +12239,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>6</real>
+      <integer>6</integer>
     </map>
     <key>UIFloaterTestBool</key>
     <map>
@@ -12459,7 +12459,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>500</real>
+      <integer>500</integer>
     </map>
     <key>UIMinimizedWidth</key>
     <map>
@@ -12470,7 +12470,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>160</real>
+      <integer>160</integer>
     </map>
     <key>UIMultiSliderctrlSpacing</key>
     <map>
@@ -12481,7 +12481,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>4</real>
+      <integer>4</integer>
     </map>
     <key>UIMultiTrackHeight</key>
     <map>
@@ -13141,7 +13141,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>3</real>
+      <integer>3</integer>
     </map>
     <key>UseCircuitCodeTimeout</key>
     <map>
@@ -15149,9 +15149,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0</real>
-        <real>0</real>
-        <real>0</real>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
         <real>1.0</real>
       </array>
     </map>
@@ -15468,7 +15468,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>2</real>
+    <real>2.0</real>
   </map>
   <key>TeleportLocalDelay</key>
   <map>
@@ -15479,7 +15479,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1</real>
+    <real>1.0</real>
   </map>
   <key>FMODExProfilerEnable</key>
   <map>

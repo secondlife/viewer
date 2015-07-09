@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_facebook" title="發佈到臉書">
-	<panel name="background">
-		<tab_container name="tabs">
-			<panel label="狀態" name="panel_facebook_status"/>
-			<panel label="相片" name="panel_facebook_photo"/>
-			<panel label="打卡" name="panel_facebook_place"/>
-			<panel label="朋友" name="panel_facebook_friends"/>
-			<panel label="帳號" name="panel_facebook_account"/>
-		</tab_container>
-		<panel name="connection_status_panel">
-			<text name="connection_error_text">
-				錯誤
-			</text>
-			<text name="connection_loading_text">
-				載入中…
-			</text>
-		</panel>
-	</panel>
+	<tab_container name="tabs">
+		<panel label="狀態" name="panel_facebook_status"/>
+		<panel label="相片" name="panel_facebook_photo"/>
+		<panel label="打卡" name="panel_facebook_place"/>
+		<panel label="朋友" name="panel_facebook_friends"/>
+	</tab_container>
+	<text name="connection_error_text">
+		錯誤
+	</text>
+	<text name="connection_loading_text">
+		載入中…
+	</text>
 </floater>

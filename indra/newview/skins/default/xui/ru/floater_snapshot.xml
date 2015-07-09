@@ -39,17 +39,8 @@
 	<string name="local_failed_str">
 		Не удалось сохранить на компьютере.
 	</string>
-	<button name="advanced_options_btn" tool_tip="Дополнительные параметры"/>
-	<text name="image_res_text">
-		[WIDTH] x [HEIGHT] пикс.
-	</text>
-	<text name="file_size_label">
-		[SIZE] КБ
-	</text>
+	<button label="ОБНОВИТЬ" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
-		<text name="advanced_options_label">
-			ДОПОЛНИТЕЛЬНЫЕ ПАРАМЕТРЫ
-		</text>
 		<text name="layer_type_label">
 			Захват:
 		</text>
@@ -68,4 +59,10 @@
 			<combo_box.item label="Без фильтра" name="NoFilter"/>
 		</combo_box>
 	</panel>
+	<text name="image_res_text">
+		[WIDTH] (ширина) x [HEIGHT] (высота) пикс.
+	</text>
+	<text name="file_size_label">
+		[SIZE] КБ
+	</text>
 </floater>
