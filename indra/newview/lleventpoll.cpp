@@ -61,7 +61,7 @@ namespace Details
         static const F32                EVENT_POLL_ERROR_RETRY_SECONDS_INC;
         static const S32                MAX_EVENT_POLL_HTTP_ERRORS;
 
-        void                            eventPollCoro(LLCoros::self& self, std::string url);
+        void                            eventPollCoro(std::string url);
 
         void                            handleMessage(const LLSD &content);
 
@@ -113,7 +113,7 @@ namespace Details
         {
             std::string coroname =
                 LLCoros::instance().launch("LLEventPollImpl::eventPollCoro",
-                boost::bind(&LLEventPollImpl::eventPollCoro, this, _1, url));
+                boost::bind(&LLEventPollImpl::eventPollCoro, this, url));
             LL_INFOS("LLEventPollImpl") << coroname << " with  url '" << url << LL_ENDL;
         }
     }
@@ -131,7 +131,7 @@ namespace Details
         }
     }
 
-    void LLEventPollImpl::eventPollCoro(LLCoros::self& self, std::string url)
+    void LLEventPollImpl::eventPollCoro(std::string url)
     {
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EventPoller", mHttpPolicy));
         LLSD acknowledge;
@@ -154,7 +154,7 @@ namespace Details
 //              << LLSDXMLStreamer(request) << LL_ENDL;
 
             LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> posting and yielding." << LL_ENDL;
-            LLSD result = httpAdapter->postAndYield(self, mHttpRequest, url, request);
+            LLSD result = httpAdapter->postAndYield(mHttpRequest, url, request);
 
 //          LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> result = "
 //              << LLSDXMLStreamer(result) << LL_ENDL;
@@ -197,7 +197,7 @@ namespace Details
                         " seconds, error count is now " << errorCount << LL_ENDL;
 
                     timeout.eventAfter(waitToRetry, LLSD());
-                    llcoro::waitForEventOn(timeout);
+                    waitForEventOn(timeout);
                     
                     if (mDone)
                         break;

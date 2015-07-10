@@ -571,7 +571,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 
 		LL_DEBUGS(LOG_INV) << "create category request: " << ll_pretty_print_sd(request) << LL_ENDL;
         LLCoros::instance().launch("LLInventoryModel::createNewCategoryCoro",
-            boost::bind(&LLInventoryModel::createNewCategoryCoro, this, _1, url, body, callback));
+            boost::bind(&LLInventoryModel::createNewCategoryCoro, this, url, body, callback));
 
 		return LLUUID::null;
 	}
@@ -600,7 +600,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	return id;
 }
 
-void LLInventoryModel::createNewCategoryCoro(LLCoros::self& self, std::string url, LLSD postData, inventory_func_type callback)
+void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inventory_func_type callback)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -613,7 +613,7 @@ void LLInventoryModel::createNewCategoryCoro(LLCoros::self& self, std::string ur
 
     LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData, httpOpts);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

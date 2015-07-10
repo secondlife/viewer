@@ -62,7 +62,7 @@ public:
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 private:
-    void testSiteIsAliveCoro(LLCoros::self& self, std::string url);
+    void testSiteIsAliveCoro(std::string url);
 
 	std::string		mMessage;
 	bool			mLoadingScreenLoaded;
