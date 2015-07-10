@@ -138,7 +138,7 @@ void LLCoprocedureManager::coprocedureInvokerCoro(LLCoros::self& self, LLCoreHtt
 
     while (!mShutdown)
     {
-        waitForEventOn(self, mWakeupTrigger);
+        llcoro::waitForEventOn(mWakeupTrigger);
         if (mShutdown)
             break;
         

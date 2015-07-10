@@ -197,7 +197,7 @@ namespace Details
                         " seconds, error count is now " << errorCount << LL_ENDL;
 
                     timeout.eventAfter(waitToRetry, LLSD());
-                    waitForEventOn(self, timeout);
+                    llcoro::waitForEventOn(timeout);
                     
                     if (mDone)
                         break;

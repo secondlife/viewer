@@ -87,6 +87,8 @@
 #include "lleventcoro.h"
 #include "../test/debug.h"
 
+using namespace llcoro;
+
 /*****************************************************************************
 *   from the banana.cpp example program borrowed for test<1>()
 *****************************************************************************/
@@ -522,7 +524,7 @@ namespace tut
         // Construct the coroutine instance that will run explicit_wait.
         // Pass the ctor a callable that accepts the coroutine_type::self
         // param passed by the library.
-        coroutine_type coro(boost::bind(&coroutine_data::explicit_wait, this, _1));
+        boost::dcoroutines::coroutine<void()> coro(explicit_wait);
         // Start the coroutine
         coro(std::nothrow);
         // When the coroutine waits for the event pump, it returns here.

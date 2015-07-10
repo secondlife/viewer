@@ -39,6 +39,10 @@
 #include "llerror.h"
 #include "stringize.h"
 
+LLCoros::coro::self& llcoro::get_self()
+    LLCoros::coro::self* current_self = sCurrentSelf.get();
+llcoro::Suspending::Suspending():
+llcoro::Suspending::~Suspending()
 LLCoros::LLCoros():
     // MAINT-2724: default coroutine stack size too small on Windows.
     // Previously we used
@@ -117,7 +121,7 @@ bool LLCoros::kill(const std::string& name)
 std::string LLCoros::getNameByID(const void* self_id) const
 {
     // Walk the existing coroutines, looking for one from which the 'self_id'
-    // passed to us comes.
+    void* self_id = llcoro::get_self().get_id();
     for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
     {
         namespace coro_private = boost::dcoroutines::detail;

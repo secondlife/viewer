@@ -596,7 +596,7 @@ LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpReque
     }
 
     saveState(hhandle, request, handler);
-    LLSD results = waitForEventOn(self, handler->getReplyPump());
+    LLSD results = llcoro::waitForEventOn(handler->getReplyPump());
     cleanState();
 
     return results;
@@ -697,7 +697,7 @@ LLSD HttpCoroutineAdapter::postAndYield_(LLCoros::self & self, LLCore::HttpReque
     }
 
     saveState(hhandle, request, handler);
-    LLSD results = waitForEventOn(self, handler->getReplyPump());
+    LLSD results = llcoro::waitForEventOn(handler->getReplyPump());
     cleanState();
 
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
@@ -735,7 +735,7 @@ LLSD HttpCoroutineAdapter::putAndYield_(LLCoros::self & self, LLCore::HttpReques
     }
 
     saveState(hhandle, request, handler);
-    LLSD results = waitForEventOn(self, handler->getReplyPump());
+    LLSD results = llcoro::waitForEventOn(handler->getReplyPump());
     cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
@@ -790,7 +790,7 @@ LLSD HttpCoroutineAdapter::getAndYield_(LLCoros::self & self, LLCore::HttpReques
     }
 
     saveState(hhandle, request, handler);
-    LLSD results = waitForEventOn(self, handler->getReplyPump());
+    LLSD results = llcoro::waitForEventOn(handler->getReplyPump());
     cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
@@ -825,7 +825,7 @@ LLSD HttpCoroutineAdapter::deleteAndYield_(LLCoros::self & self, LLCore::HttpReq
     }
 
     saveState(hhandle, request, handler);
-    LLSD results = waitForEventOn(self, handler->getReplyPump());
+    LLSD results = llcoro::waitForEventOn(handler->getReplyPump());
     cleanState();
     //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
     return results;
