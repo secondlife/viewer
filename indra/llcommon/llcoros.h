@@ -137,21 +137,6 @@ public:
      */
     std::string getName() const;
 
-    /// get the current coro::self& for those who really really care
-    static coro::self& get_self();
-
-    /// Instantiate one of these in a block surrounding any leaf point when
-    /// control literally switches away from this coroutine.
-    class Suspending
-    {
-    public:
-        Suspending();
-        ~Suspending();
-
-    private:
-        coro::self* mSuspended;
-    };
-
     /// for delayed initialization
     void setStackSize(S32 stacksize);
 
@@ -165,5 +150,25 @@ private:
     typedef boost::ptr_map<std::string, coro> CoroMap;
     CoroMap mCoros;
 };
+
+namespace llcoro
+{
+
+/// get the current coro::self& for those who really really care
+LLCoros::coro::self& get_self();
+
+/// Instantiate one of these in a block surrounding any leaf point when
+/// control literally switches away from this coroutine.
+class Suspending
+{
+public:
+    Suspending();
+    ~Suspending();
+
+private:
+    LLCoros::coro::self* mSuspended;
+};
+
+} // namespace llcoro
 
 #endif /* ! defined(LL_LLCOROS_H) */

@@ -69,9 +69,9 @@ sCurrentSelf(no_cleanup);
 } // anonymous
 
 //static
-LLCoros::coro::self& LLCoros::get_self()
+LLCoros::coro::self& llcoro::get_self()
 {
-    coro::self* current_self = sCurrentSelf.get();
+    LLCoros::coro::self* current_self = sCurrentSelf.get();
     if (! current_self)
     {
         LL_ERRS("LLCoros") << "Calling get_self() from non-coroutine context!" << LL_ENDL;
@@ -79,7 +79,7 @@ LLCoros::coro::self& LLCoros::get_self()
     return *current_self;
 }
 
-LLCoros::Suspending::Suspending():
+llcoro::Suspending::Suspending():
     mSuspended(sCurrentSelf.get())
 {
     // For the duration of our time away from this coroutine, sCurrentSelf
@@ -87,7 +87,7 @@ LLCoros::Suspending::Suspending():
     sCurrentSelf.reset();
 }
 
-LLCoros::Suspending::~Suspending()
+llcoro::Suspending::~Suspending()
 {
     // Okay, we're back, reinstate previous value of sCurrentSelf.
     sCurrentSelf.reset(mSuspended);
@@ -171,7 +171,7 @@ bool LLCoros::kill(const std::string& name)
 std::string LLCoros::getName() const
 {
     // Walk the existing coroutines, looking for the current one.
-    void* self_id = get_self().get_id();
+    void* self_id = llcoro::get_self().get_id();
     for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
     {
         namespace coro_private = boost::dcoroutines::detail;
