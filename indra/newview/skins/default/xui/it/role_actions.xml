@@ -71,4 +71,8 @@
 		<action description="Partecipa alla Chat vocale di gruppo" longdescription=" I membri con questo ruolo e abilità possono partecipare alle sessioni di Chat vocale nel gruppo.  NOTA: per poter partecipare alla Chat di gruppo è necessario accedere alla sessione di chat vocale." name="join voice chat" value="27"/>
 		<action description="Moderare la Chat di gruppo" longdescription="I membri con questo ruolo e abilità possono gestire l&apos;accesso e la partecipazione alle sessioni di chat scritta e di chat vocale nel gruppo." name="moderate group chat" value="37"/>
 	</action_set>
+	<action_set description="Queste Abilità includono la capacità di modificare le esperienze che appartengono al gruppo." name="experience_tools_experience">
+		<action description="Amministratore esperienza" longdescription="I membri di un ruolo che include questa abilità possono modificare i metadati di un&apos;esperienza." name="experience admin" value="49"/>
+		<action description="Fornitore esperienza" longdescription="I membri di un ruolo che include questa abilità possono fornire script per un&apos;esperienza." name="experience contributor" value="50"/>
+	</action_set>
 </role_actions>

@@ -446,6 +446,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="TooltipMustSingleDrop">
 		Solo un singolo oggetto può essere creato qui
 	</string>
+	<string name="TooltipTooManyWearables">
+		Non puoi indossare una cartella che contiene più di [AMOUNT] elementi. Per modificare questo limite, accedi ad Avanzate &gt; Mostra impostazioni di debug &gt; WearFolderLimit.
+	</string>
 	<string name="TooltipPrice" value="L$ [AMOUNT]:"/>
 	<string name="TooltipOutboxDragToWorld">
 		Non puoi rezzare elementi nella tua casella in uscita del rivenditore
@@ -1051,9 +1054,7 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="AgentNameSubst">
 		(Tu)
 	</string>
-	<string name="JoinAnExperience">
-		Partecipa a un&apos;esperienza
-	</string>
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Omette gli avvisi durante la gestione degli elenchi di accesso alle proprietà immobiliari
 	</string>
@@ -1857,6 +1858,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="CompileQueueUnknownFailure">
 		Errore di dowload sconosciuto
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Saltato lo script [SCRIPT] con l&apos;esperienza [EXPERIENCE].
 	</string>
 	<string name="CompileQueueTitle">
 		Avanzamento ricompilazione
@@ -5176,6 +5180,87 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="UserDictionary">
 		[User]
+	</string>
+	<string name="experience_tools_experience">
+		Esperienza
+	</string>
+	<string name="ExperienceNameNull">
+		(nessuna esperienza)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(esperienza senza titolo)
+	</string>
+	<string name="Land-Scope">
+		A livello di terreno
+	</string>
+	<string name="Grid-Scope">
+		A livello di griglia
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		CONSENTITO
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		BLOCCATO
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		FORNITORE
+	</string>
+	<string name="Admin_Experiences_Tab">
+		AMMINISTRATORE
+	</string>
+	<string name="Recent_Experiences_Tab">
+		RECENTE
+	</string>
+	<string name="Owned_Experiences_Tab">
+		DI PROPRIETÀ
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], massimo [MAXEXPERIENCES])
+	</string>
+	<string name="ExperiencePermission1">
+		gestione dei tuoi comandi
+	</string>
+	<string name="ExperiencePermission3">
+		attivazione di animazioni per il tuo avatar
+	</string>
+	<string name="ExperiencePermission4">
+		collegamento al tuo avatar
+	</string>
+	<string name="ExperiencePermission9">
+		monitoraggio della tua videocamera
+	</string>
+	<string name="ExperiencePermission10">
+		controllo della tua videocamera
+	</string>
+	<string name="ExperiencePermission11">
+		ti teletrasporta
+	</string>
+	<string name="ExperiencePermission12">
+		accettazione automaticamente delle autorizzazioni per le esperienze
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		ha eseguito un&apos;operazione sconosciuta: [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Gestione dei comandi
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Attivazione di animazioni
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Collegamento
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Monitoraggio videocamera
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Controllo videocamera
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Teleport
+	</string>
+	<string name="ExperiencePermissionShort12">
+		Autorizzazione
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.

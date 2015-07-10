@@ -50,7 +50,8 @@ public:
 			   const LLUUID& queue_id,
 			   U8* data,
 			   U32 data_size,
-			   std::string script_name);
+			   std::string script_name, 
+			   const LLUUID& experience_id);
 
 	bool isEmpty() const {return mQueue.empty();}
 
@@ -69,6 +70,7 @@ private:
 		U8* mData;
 		U32 mDataSize;
 		std::string mScriptName;
+		LLUUID mExperienceId;
 	};
 
 	// Ownership of mSupplier passed to currently waiting responder

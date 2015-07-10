@@ -48,6 +48,9 @@ Pour recommencer le didacticiel, accédez à Welcome Island Public.
 		<message name="MustGetAgeRegion">
 			Pour accéder à cette région, vous devez avoir au moins 18 ans.
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			Impossible de pénétrer dans la région. « [REGION_NAME] » est une région de jeux d&apos;adresse et vous devez satisfaire à certains critères pour y pénétrer. Pour en savoir plus, consultez la page [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life FAQ sur les jeux d&apos;adresse].
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">

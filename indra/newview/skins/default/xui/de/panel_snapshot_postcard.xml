@@ -13,9 +13,9 @@
 		E-Mail
 	</text>
 	<tab_container name="postcard_tabs">
-		<panel name="panel_postcard_message" label="Nachricht"/>
-		<panel name="panel_postcard_settings" label="Einstellungen"/>
+		<panel label="Nachricht" name="panel_postcard_message"/>
+		<panel label="Einstellungen" name="panel_postcard_settings"/>
 	</tab_container>
-	<button name="cancel_btn" label="Abbrechen"/>
-	<button name="send_btn" label="Absenden"/>
+	<button label="Abbrechen" name="cancel_btn"/>
+	<button label="Senden" name="send_btn"/>
 </panel>

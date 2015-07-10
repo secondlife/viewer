@@ -68,6 +68,30 @@ void LLScriptHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
+void LLScriptHandler::addToastWithNotification(const LLNotificationPtr& notification)
+{
+	LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
+
+	LLToast::Params p;
+	p.notif_id = notification->getID();
+	p.notification = notification;
+	p.panel = notify_box;
+	p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
+	if(gAgent.isDoNotDisturb())
+	{ 
+		p.force_show = notification->getName() == "SystemMessage" 
+						||	notification->getName() == "GodMessage" 
+						|| notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
+	}
+
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+	if(channel)
+	{
+		channel->addToast(p);
+	}
+}
+
+//--------------------------------------------------------------------------
 bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(mChannel.isDead())
@@ -92,42 +116,33 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 	}
 	else if (notification->canShowToast())
 	{
-		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
-
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.notification = notification;
-		p.panel = notify_box;
-		p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
-		if(gAgent.isDoNotDisturb())
-		{ 
-			p.force_show = notification->getName() == "SystemMessage" 
-							||	notification->getName() == "GodMessage" 
-							|| notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
-		}
-
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-		if(channel)
-		{
-			channel->addToast(p);
-		}
+		addToastWithNotification(notification);
 	}
 
 	return false;
 }
 
+void LLScriptHandler::onChange( LLNotificationPtr notification )
+{
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+	if (channel)
+	{
+		channel->removeToastByNotificationID(notification->getID());
+		addToastWithNotification(notification);
+	}
+}
 
 void LLScriptHandler::onDelete( LLNotificationPtr notification )
-	{
+{
 	if(notification->hasFormElements() && !notification->canShowToast())
-		{
-			LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
-		}
-		else
-		{
-			mChannel.get()->removeToastByNotificationID(notification->getID());
-		}
+	{
+		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}
+	else
+	{
+		mChannel.get()->removeToastByNotificationID(notification->getID());
+	}
+}
 
 
 //--------------------------------------------------------------------------

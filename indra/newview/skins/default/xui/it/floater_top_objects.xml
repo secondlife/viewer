@@ -21,6 +21,12 @@
 	<floater.string name="none_descriptor">
 		Nulla di rilevato.
 	</floater.string>
+	<floater.string name="URLs">
+		URL
+	</floater.string>
+	<floater.string name="memory">
+		Memoria (KB)
+	</floater.string>
 	<text name="title_text">
 		In caricamento...
 	</text>
@@ -30,7 +36,7 @@
 		<scroll_list.columns label="Proprietario" name="owner" width="84"/>
 		<scroll_list.columns label="Ubicazione" name="location" width="84"/>
 		<scroll_list.columns label="Lotto" name="parcel"/>
-		<scroll_list.columns label="Ora" name="time" width="84"/>
+		<scroll_list.columns label="Data" name="time" width="84"/>
 		<scroll_list.columns label="URL" name="URLs"/>
 		<scroll_list.columns label="Memoria (KB)" name="memory"/>
 	</scroll_list>

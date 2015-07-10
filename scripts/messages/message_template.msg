@@ -4245,6 +4245,10 @@ version 2.0
 		{	ObjectOwner		Variable	1	}
 		{	Questions		S32	}
 	}
+	{
+		Experience	Single
+		{	ExperienceID	LLUUID	}
+	}
 }
 
 // ScriptControlChange

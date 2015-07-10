@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="script_experience" title="DENEYİM">
+	<button label="Deneyim" name="Expand Experience"/>
+	<check_box label="Deneyimi Kullanır" name="enable_xp"/>
+	<layout_stack name="xp_details">
+		<layout_panel>
+			<combo_box label="Deneyimi Seç..." name="Experiences..."/>
+		</layout_panel>
+	</layout_stack>
+	<text name="No Experiences">
+		Hiçbir deneyimde katkınız yok.
+	</text>
+</panel>

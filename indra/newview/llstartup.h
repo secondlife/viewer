@@ -103,6 +103,7 @@ public:
 	static void fontInit();
 
 	static void initNameCache();
+	static void initExperiences();
 	
 	static void cleanupNameCache();
 

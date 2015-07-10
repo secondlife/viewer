@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_friends">
 	<string name="facebook_friends_empty" value="Attualmente non hai amici su Facebook che sono anche residenti in Second Life. Invita i tuoi amici di Facebook a partecipare a Second Life!"/>
-	<string name="facebook_friends_no_connected" value="Attualmente non sei in collegamento con Facebook. Accedi alla scheda Account per collegarti e attivare questa funzionalità."/>
+	<string name="facebook_friends_no_connected" value="Attualmente non sei in collegamento con Facebook. Accedi alla scheda Stato per collegarti e attivare questa funzionalità."/>
 	<accordion name="friends_accordion">
 		<accordion_tab name="tab_second_life_friends" title="Amici SL"/>
 		<accordion_tab name="tab_suggested_friends" title="Aggiungi queste persone come amici SL"/>

@@ -23,6 +23,7 @@
 				<accordion_tab name="group_roles_tab" title="Funções e membros"/>
 				<accordion_tab name="group_notices_tab" title="Avisos"/>
 				<accordion_tab name="group_land_tab" title="Terrenos/Bens"/>
+				<accordion_tab name="group_experiences_tab" title="Experiências"/>
 			</accordion>
 		</layout_panel>
 	</layout_stack>

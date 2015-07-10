@@ -5,7 +5,7 @@
 	<menu_item_check label="Trier en commençant par le plus récent" name="sort_by_recent"/>
 	<menu_item_check label="Toujours trier les dossiers par nom" name="sort_folders_by_name"/>
 	<menu_item_check label="Dossiers système en premier" name="sort_system_folders_to_top"/>
-	<menu_item_call label="Afficher les filtres" name="show_filters"/>
+	<menu_item_call label="Afficher les filtres..." name="show_filters"/>
 	<menu_item_call label="Réinitialiser les filtres" name="reset_filters"/>
 	<menu_item_call label="Fermer tous les dossiers" name="close_folders"/>
 	<menu_item_call label="Vider les objets trouvés" name="empty_lostnfound"/>

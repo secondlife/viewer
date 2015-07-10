@@ -9,7 +9,7 @@
 	</combo_box>
 	<spinner label="Breite x Höhe" name="postcard_snapshot_width"/>
 	<check_box label="Seitenverhältnis beibehalten" name="postcard_keep_aspect_check"/>
-	<slider label="Qualität" name="image_quality_slider"/>
+	<slider label="Qualität:" name="image_quality_slider"/>
 	<text name="image_quality_level">
 		([QLVL])
 	</text>
