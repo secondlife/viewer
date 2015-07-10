@@ -838,9 +838,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c2395f77c581da0a085a352ff3566d0f</string>
+              <string>171b39db6d0702535b41fad5b476e39d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298127/arch/Darwin/installer/google_breakpad-1413.298127-darwin-298127.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/Darwin/installer/google_breakpad-1413.298033-darwin-298033.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2388,6 +2388,9 @@
           <map>
             <key>RelWithDebInfo</key>
             <map>
+              <key>build</key>
+              <map>
+              </map>
               <key>configure</key>
               <map>
                 <key>arguments</key>
