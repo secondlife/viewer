@@ -37,6 +37,9 @@ class LLVivoxProtocolParser;
 #include "llframetimer.h"
 #include "llviewerregion.h"
 #include "llcallingcard.h"   // for LLFriendObserver
+#include "lleventcoro.h"
+#include "llcoros.h"
+#include <queue>
 
 #ifdef LL_USESYSTEMLIBS
 # include "expat.h"
@@ -46,7 +49,6 @@ class LLVivoxProtocolParser;
 #include "llvoiceclient.h"
 
 class LLAvatarName;
-class LLVivoxVoiceAccountProvisionResponder;
 class LLVivoxVoiceClientMuteListObserver;
 
 
@@ -251,7 +253,6 @@ protected:
 	//////////////////////
 	// Vivox Specific definitions	
 	
-	friend class LLVivoxVoiceAccountProvisionResponder;
 	friend class LLVivoxVoiceClientMuteListObserver;
 	friend class LLVivoxVoiceClientFriendsObserver;	
 	
@@ -635,6 +636,10 @@ protected:
 	void accountGetTemplateFontsResponse(int statusCode, const std::string &statusString); 
 
 private:
+    
+    void voiceAccountProvisionCoro(std::string url, S32 retries);
+    void parcelVoiceInfoRequestCoro(std::string url);
+
 	LLVoiceVersionInfo mVoiceVersion;
 
 	/// Clean up objects created during a voice session.

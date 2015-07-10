@@ -38,6 +38,10 @@
 #include "lluri.h"
 
 #include "message.h"
+#include "httpcommon.h"
+#include "httprequest.h"
+#include "httpoptions.h"
+
 #include <curl/curl.h>
 
 

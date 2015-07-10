@@ -45,6 +45,7 @@
 #include "llpanelpick.h"
 #include "lltexturectrl.h"
 #include "llviewerregion.h"
+#include "llhttpconstants.h"
 
 LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
@@ -150,17 +151,8 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLUUID& region_id,
 	std::string url = region->getCapability("RemoteParcelRequest");
 	if (!url.empty())
 	{
-		body["location"] = ll_sd_from_vector3(mPosRegion);
-		if (!region_id.isNull())
-		{
-			body["region_id"] = region_id;
-		}
-		if (!pos_global.isExactlyZero())
-		{
-			U64 region_handle = to_region_handle(pos_global);
-			body["region_handle"] = ll_sd_from_U64(region_handle);
-		}
-		LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(getObserverHandle()));
+        LLRemoteParcelInfoProcessor::getInstance()->requestRegionParcelInfo(url,
+            region_id, mPosRegion, pos_global, getObserverHandle());
 	}
 	else
 	{

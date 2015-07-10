@@ -30,6 +30,8 @@
 #include "llevent.h"
 #include "lleventtimer.h"
 #include "llvoicechannel.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 class LLSpeakerMgr;
 
@@ -332,6 +334,8 @@ protected:
 	 * Process all participants to mute/unmute them according to passed voice session state.
 	 */
 	void forceVoiceModeratedMode(bool should_be_muted);
+
+    void moderationActionCoro(std::string url, LLSD action);
 
 };
 

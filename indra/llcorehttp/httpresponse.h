@@ -69,6 +69,18 @@ protected:
 	void operator=(const HttpResponse &);				// Not defined
 	
 public:
+	/// Statistics for the HTTP 
+	struct TransferStats
+	{
+		typedef boost::shared_ptr<TransferStats> ptr_t;
+
+		TransferStats() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
+		F64 mSizeDownload;
+		F64 mTotalTime;
+		F64 mSpeedDownload;
+	};
+
+
 	/// Returns the final status of the requested operation.
 	///
 	HttpStatus getStatus() const
@@ -91,6 +103,10 @@ public:
 		{
 			return mBufferArray;
 		}
+
+	/// Safely get the size of the body buffer.  If the body buffer is missing
+	/// return 0 as the size.
+	size_t getBodySize() const;
 
 	/// Set the response data in the instance.  Will drop the reference
 	/// count to any existing data and increment the count of that passed
@@ -168,6 +184,27 @@ public:
 			m503Retries = retries_503;
 		}
 
+	void setTransferStats(TransferStats::ptr_t &stats) 
+		{
+			mStats = stats;
+		}
+
+	TransferStats::ptr_t getTransferStats()
+		{
+			return mStats;
+		}
+
+    void setRequestURL(const std::string &url)
+        {
+            mRequestUrl = url;
+        }
+
+    const std::string &getRequestURL() const
+        {
+            return mRequestUrl;
+        }
+
+
 protected:
 	// Response data here
 	HttpStatus			mStatus;
@@ -179,6 +216,9 @@ protected:
 	std::string			mContentType;
 	unsigned int		mRetries;
 	unsigned int		m503Retries;
+    std::string         mRequestUrl;
+
+	TransferStats::ptr_t	mStats;
 };
 
 

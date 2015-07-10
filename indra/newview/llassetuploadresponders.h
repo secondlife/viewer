@@ -79,6 +79,7 @@ protected:
 	virtual void httpFailure();
 };
 
+#if 0
 // A base class which goes through and performs some default
 // actions for variable price uploads.  If more specific actions
 // are needed (such as different confirmation messages, etc.)
@@ -115,6 +116,7 @@ private:
 	class Impl;
 	Impl* mImpl;
 };
+#endif
 
 class LLUpdateAgentInventoryResponder : public LLAssetUploadResponder
 {

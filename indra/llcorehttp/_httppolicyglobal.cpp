@@ -106,6 +106,20 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, const std::stri
 	return HttpStatus();
 }
 
+HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t value)
+{
+	switch (opt)
+	{
+	case HttpRequest::PO_SSL_VERIFY_CALLBACK:
+		mSslCtxCallback = value;
+		break;
+
+	default:
+		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+	}
+
+	return HttpStatus();
+}
 
 HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, long * value) const
 {
@@ -151,6 +165,22 @@ HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, std::string * v
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
 	}
 	
+	return HttpStatus();
+}
+
+
+HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t * value) const
+{
+	switch (opt)
+	{
+	case HttpRequest::PO_SSL_VERIFY_CALLBACK:
+		*value = mSslCtxCallback;
+		break;
+
+	default:
+		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+	}
+
 	return HttpStatus();
 }
 

@@ -97,6 +97,8 @@ public:
 	typedef unsigned int policy_t;
 	typedef unsigned int priority_t;
 	
+	typedef boost::shared_ptr<HttpRequest> ptr_t;
+    typedef boost::weak_ptr<HttpRequest>   wptr_t;
 public:
 	/// @name PolicyMethods
 	/// @{
@@ -163,7 +165,7 @@ public:
 
 		/// Long value that if non-zero enables the use of the
 		/// traditional LLProxy code for http/socks5 support.  If
-		// enabled, has priority over GP_HTTP_PROXY.
+		/// enabled, has priority over GP_HTTP_PROXY.
 		///
 		/// Global only
 		PO_LLPROXY,
@@ -219,14 +221,24 @@ public:
 		/// Controls whether client-side throttling should be
 		/// performed on this policy class.  Positive values
 		/// enable throttling and specify the request rate
-		/// (requests per second) that should be targetted.
+		/// (requests per second) that should be targeted.
 		/// A value of zero, the default, specifies no throttling.
 		///
 		/// Per-class only
 		PO_THROTTLE_RATE,
 		
+		/// Controls the callback function used to control SSL CTX 
+		/// certificate verification.
+		///
+		/// Global only
+		PO_SSL_VERIFY_CALLBACK,
+
 		PO_LAST  // Always at end
 	};
+
+	/// Prototype for policy based callbacks.  The callback methods will be executed
+	/// on the worker thread so no modifications should be made to the HttpHandler object.
+    typedef boost::function<HttpStatus(const std::string &, HttpHandler const * const, void *)> policyCallback_t;
 
 	/// Set a policy option for a global or class parameter at
 	/// startup time (prior to thread start).
@@ -243,6 +255,8 @@ public:
 											long value, long * ret_value);
 	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
 											const std::string & value, std::string * ret_value);
+	static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
+											policyCallback_t value, policyCallback_t * ret_value);;
 
 	/// Set a parameter on a class-based policy option.  Calls
 	/// made after the start of the servicing thread are
@@ -464,7 +478,68 @@ public:
 						  HttpHandler * handler);
 
 
-	/// Queue a NoOp request.
+    /// Queue a full HTTP PUT.  Query arguments and body may
+    /// be provided.  Caller is responsible for escaping and
+    /// encoding and communicating the content types.
+    ///
+    /// @param	policy_id		@see requestGet()
+    /// @param	priority		"
+    /// @param	url				"
+    /// @param	options			@see requestGet()K(optional)
+    /// @param	headers			"
+    /// @param	handler			"
+    /// @return					"
+    ///
+    HttpHandle requestDelete(policy_t policy_id,
+            priority_t priority,
+            const std::string & url,
+            HttpOptions * options,
+            HttpHeaders * headers,
+            HttpHandler * user_handler);
+
+    /// Queue a full HTTP PUT.  Query arguments and body may
+    /// be provided.  Caller is responsible for escaping and
+    /// encoding and communicating the content types.
+    ///
+    /// @param	policy_id		@see requestGet()
+    /// @param	priority		"
+    /// @param	url				"
+    /// @param	body			Byte stream to be sent as the body.  No
+    ///							further encoding or escaping will be done
+    ///							to the content.
+    /// @param	options			@see requestGet()K(optional)
+    /// @param	headers			"
+    /// @param	handler			"
+    /// @return					"
+    ///
+    HttpHandle requestPatch(policy_t policy_id,
+            priority_t priority,
+            const std::string & url,
+            BufferArray * body,
+            HttpOptions * options,
+            HttpHeaders * headers,
+            HttpHandler * user_handler);
+
+    /// Queue a full HTTP PUT.  Query arguments and body may
+    /// be provided.  Caller is responsible for escaping and
+    /// encoding and communicating the content types.
+    ///
+    /// @param	policy_id		@see requestGet()
+    /// @param	priority		"
+    /// @param	url				"
+    /// @param	options			@see requestGet()K(optional)
+    /// @param	headers			"
+    /// @param	handler			"
+    /// @return					"
+    ///
+    HttpHandle requestCopy(policy_t policy_id,
+            priority_t priority,
+            const std::string & url,
+            HttpOptions * options,
+            HttpHeaders * headers,
+            HttpHandler * user_handler);
+       
+    /// Queue a NoOp request.
 	/// The request is queued and serviced by the working thread which
 	/// immediately processes it and returns the request to the reply
 	/// queue.

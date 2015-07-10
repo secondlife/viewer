@@ -2370,6 +2370,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>DebugSlshareLogTag</key>
+    <map>
+      <key>Comment</key>
+      <string>Request slshare-service debug logging</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string/>
+    </map>
   <key>DebugStatModeFPS</key>
     <map>
       <key>Comment</key>

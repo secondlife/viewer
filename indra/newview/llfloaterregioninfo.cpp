@@ -97,6 +97,7 @@
 #include "llpanelexperiencepicker.h"
 #include "llexperiencecache.h"
 #include "llpanelexperiences.h"
+#include "llcorehttputil.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -803,30 +804,6 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	return false;
 }
 
-class ConsoleRequestResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(ConsoleRequestResponder);
-protected:
-	/*virtual*/
-	void httpFailure()
-	{
-		LL_WARNS() << "error requesting mesh_rez_enabled " << dumpResponse() << LL_ENDL;
-	}
-};
-
-
-// called if this request times out.
-class ConsoleUpdateResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(ConsoleUpdateResponder);
-protected:
-	/* virtual */
-	void httpFailure()
-	{
-		LL_WARNS() << "error updating mesh enabled region setting " << dumpResponse() << LL_ENDL;
-	}
-};
-
 void LLFloaterRegionInfo::requestMeshRezInfo()
 {
 	std::string sim_console_url = gAgent.getRegion()->getCapability("SimConsoleAsync");
@@ -835,10 +812,8 @@ void LLFloaterRegionInfo::requestMeshRezInfo()
 	{
 		std::string request_str = "get mesh_rez_enabled";
 		
-		LLHTTPClient::post(
-			sim_console_url,
-			LLSD(request_str),
-			new ConsoleRequestResponder);
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(sim_console_url, LLSD(request_str),
+            "Requested mesh_rez_enabled", "Error requesting mesh_rez_enabled");
 	}
 }
 
@@ -874,7 +849,8 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["allow_parcel_changes"] = getChild<LLUICtrl>("allow_parcel_changes_check")->getValue();
 		body["block_parcel_search"] = getChild<LLUICtrl>("block_parcel_search_check")->getValue();
 
-		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
+            "Region info update posted.", "Region info update not posted.");
 	}
 	else
 	{
@@ -2302,36 +2278,6 @@ void LLPanelEstateInfo::getEstateOwner()
 	gAgent.sendMessage();
 }
 */
-
-class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLEstateChangeInfoResponder);
-public:
-	LLEstateChangeInfoResponder(LLPanelEstateInfo* panel)
-	{
-		mpPanel = panel->getHandle();
-	}
-	
-protected:
-	// if we get a normal response, handle it here
-	virtual void httpSuccess()
-	{
-		LL_INFOS("Windlight") << "Successfully committed estate info" << LL_ENDL;
-
-	    // refresh the panel from the database
-		LLPanelEstateInfo* panel = dynamic_cast<LLPanelEstateInfo*>(mpPanel.get());
-		if (panel)
-			panel->refresh();
-	}
-	
-	// if we get an error response
-	virtual void httpFailure()
-	{
-		LL_WARNS("Windlight") << dumpResponse() << LL_ENDL;
-	}
-private:
-	LLHandle<LLPanel> mpPanel;
-};
 
 const std::string LLPanelEstateInfo::getOwnerName() const
 {

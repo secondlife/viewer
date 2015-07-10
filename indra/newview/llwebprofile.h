@@ -28,6 +28,10 @@
 #define LL_LLWEBPROFILE_H
 
 #include "llimage.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
+#include "httpheaders.h"
+#include "bufferarray.h"
 
 namespace LLWebProfileResponders
 {
@@ -54,11 +58,11 @@ public:
 	static void setImageUploadResultCallback(status_callback_t cb) { mStatusCallback = cb; }
 
 private:
-	friend class LLWebProfileResponders::ConfigResponder;
-	friend class LLWebProfileResponders::PostImageResponder;
-	friend class LLWebProfileResponders::PostImageRedirectResponder;
+    static LLCore::HttpHeaders::ptr_t buildDefaultHeaders();
 
-	static void post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url);
+    static void uploadImageCoro(LLPointer<LLImageFormatted> image, std::string caption, bool add_location);
+    static LLCore::BufferArray::ptr_t buildPostData(const LLSD &data, LLPointer<LLImageFormatted> &image, const std::string &boundary);
+
 	static void reportImageUploadStatus(bool ok);
 	static std::string getAuthCookie();
 

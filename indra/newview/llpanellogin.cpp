@@ -59,7 +59,6 @@
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
 #include "lluictrlfactory.h"
-#include "llhttpclient.h"
 #include "llweb.h"
 #include "llmediactrl.h"
 #include "llrootview.h"

@@ -201,17 +201,24 @@ protected:
 		bool		mIsDynamic;
 		bool		mIsGlobal;
 		bool		mIsClass;
+		bool		mIsCallback;
 	};
 		
 	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
 							   long * ret_value);
 	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
 							   std::string * ret_value);
+	HttpStatus getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+								HttpRequest::policyCallback_t * ret_value);
+
 	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
 							   long value, long * ret_value);
 	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
 							   const std::string & value, std::string * ret_value);
-	
+	HttpStatus setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t,
+								HttpRequest::policyCallback_t value, 
+								HttpRequest::policyCallback_t * ret_value);
+
 protected:
 	static const OptionDescriptor		sOptionDesc[HttpRequest::PO_LAST];
 	static HttpService *				sInstance;

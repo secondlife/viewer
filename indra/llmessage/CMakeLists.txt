@@ -14,6 +14,7 @@ include(LLAddBuildTest)
 include(Python)
 include(Tut)
 include(Python)
+include(JsonCpp)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -23,6 +24,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIR}
     )
 
 set(llmessage_SOURCE_FILES
@@ -47,9 +49,9 @@ set(llmessage_SOURCE_FILES
     llhost.cpp
     llhttpassetstorage.cpp
     llhttpclient.cpp
-    llhttpclientadapter.cpp
     llhttpconstants.cpp
     llhttpnode.cpp
+    llhttpsdhandler.cpp
     llhttpsender.cpp
     llinstantmessage.cpp
     lliobuffer.cpp
@@ -74,7 +76,6 @@ set(llmessage_SOURCE_FILES
     llpumpio.cpp
     llsdappservices.cpp
     llsdhttpserver.cpp
-    llsdmessage.cpp
     llsdmessagebuilder.cpp
     llsdmessagereader.cpp
     llsdrpcclient.cpp
@@ -142,10 +143,10 @@ set(llmessage_HEADER_FILES
     llhttpassetstorage.h
     llhttpclient.h
     llhttpclientinterface.h
-    llhttpclientadapter.h
     llhttpconstants.h
     llhttpnode.h
     llhttpnodeadapter.h
+    llhttpsdhandler.h
     llhttpsender.h
     llinstantmessage.h
     llinvite.h
@@ -176,7 +177,6 @@ set(llmessage_HEADER_FILES
     llregionhandle.h
     llsdappservices.h
     llsdhttpserver.h
-    llsdmessage.h
     llsdmessagebuilder.h
     llsdmessagereader.h
     llsdrpcclient.h
@@ -226,9 +226,10 @@ target_link_libraries(
   llmessage
   ${CURL_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
-  ${LLVFS_LIBRARES}
+  ${LLVFS_LIBRARIES}
   ${LLMATH_LIBRARIES}
   ${CARES_LIBRARIES}
+  ${JSONCPP_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}
   ${XMLRPCEPI_LIBRARIES}
@@ -243,36 +244,25 @@ if (LL_TESTS)
     )
   LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
 
+  
   #    set(TEST_DEBUG on)
+  
   set(test_libs
-    ${CURL_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${CURL_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
-      ${GOOGLEMOCK_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
+    ${JSONCPP_LIBRARIES}
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
+    ${GOOGLEMOCK_LIBRARIES}
     )
 
-  LL_ADD_INTEGRATION_TEST(
-    llsdmessage
-    "llsdmessage.cpp"
-    "${test_libs}"
-    ${PYTHON_EXECUTABLE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
-    )
-
-  LL_ADD_INTEGRATION_TEST(
-    llhttpclient
-    "llhttpclient.cpp"
-    "${test_libs}"
-    ${PYTHON_EXECUTABLE}
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
-    )
-
-  LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
+  #LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llhttpclientadapter "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
 endif (LL_TESTS)

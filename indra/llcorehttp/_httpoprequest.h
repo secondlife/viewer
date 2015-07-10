@@ -33,6 +33,9 @@
 #include <string>
 #include <curl/curl.h>
 
+#include <openssl/x509_vfy.h>
+#include <openssl/ssl.h>
+
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "_httpoperation.h"
@@ -77,7 +80,10 @@ public:
 	{
 		HOR_GET,
 		HOR_POST,
-		HOR_PUT
+		HOR_PUT,
+        HOR_DELETE,
+        HOR_PATCH,
+        HOR_COPY
 	};
 	
 	virtual void stageFromRequest(HttpService *);
@@ -123,7 +129,26 @@ public:
 						HttpOptions * options,
 						HttpHeaders * headers);
 
-	// Internal method used to setup the libcurl options for a request.
+    HttpStatus setupDelete(HttpRequest::policy_t policy_id,
+                        HttpRequest::priority_t priority,
+                        const std::string & url,
+                        HttpOptions * options,
+                        HttpHeaders * headers);
+
+    HttpStatus setupPatch(HttpRequest::policy_t policy_id,
+                        HttpRequest::priority_t priority,
+                        const std::string & url,
+                        BufferArray * body,
+                        HttpOptions * options,
+                        HttpHeaders * headers);
+
+    HttpStatus setupCopy(HttpRequest::policy_t policy_id,
+                        HttpRequest::priority_t priority,
+                        const std::string & url,
+                        HttpOptions * options,
+                        HttpHeaders * headers);
+
+    // Internal method used to setup the libcurl options for a request.
 	// Does all the libcurl handle setup in one place.
 	//
 	// Threading:  called by worker thread
@@ -150,7 +175,11 @@ protected:
 	//
 	static size_t writeCallback(void * data, size_t size, size_t nmemb, void * userdata);
 	static size_t readCallback(void * data, size_t size, size_t nmemb, void * userdata);
+    static int seekCallback(void *data, curl_off_t offset, int origin);
 	static size_t headerCallback(void * data, size_t size, size_t nmemb, void * userdata);
+	static CURLcode curlSslCtxCallback(CURL *curl, void *ssl_ctx, void *userptr);
+	static int sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param);
+
 	static int debugCallback(CURL *, curl_infotype info, char * buffer, size_t len, void * userdata);
 
 protected:
@@ -158,6 +187,8 @@ protected:
 	static const unsigned int	PF_SCAN_RANGE_HEADER = 0x00000001U;
 	static const unsigned int	PF_SAVE_HEADERS = 0x00000002U;
 	static const unsigned int	PF_USE_RETRY_AFTER = 0x00000004U;
+
+	HttpRequest::policyCallback_t	mCallbackSSLVerify;
 
 public:
 	// Request data

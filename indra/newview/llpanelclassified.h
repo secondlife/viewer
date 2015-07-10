@@ -37,6 +37,8 @@
 #include "llrect.h"
 #include "lluuid.h"
 #include "v3dmath.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 
 class LLScrollContainer;
 class LLTextureCtrl;
@@ -192,6 +194,9 @@ private:
 	S32 mTeleportClicksNew;
 	S32 mMapClicksNew;
 	S32 mProfileClicksNew;
+
+    static void handleSearchStatResponse(LLUUID classifiedId, LLSD result);
+
 
 	typedef std::list<LLPanelClassifiedInfo*> panel_list_t;
 	static panel_list_t sAllPanels;

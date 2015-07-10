@@ -41,7 +41,8 @@ HttpResponse::HttpResponse()
 	  mBufferArray(NULL),
 	  mHeaders(NULL),
 	  mRetries(0U),
-	  m503Retries(0U)
+	  m503Retries(0U),
+      mRequestUrl()
 {}
 
 
@@ -89,5 +90,9 @@ void HttpResponse::setHeaders(HttpHeaders * headers)
 	mHeaders = headers;
 }
 
+size_t HttpResponse::getBodySize() const
+{
+	return (mBufferArray) ? mBufferArray->size() : 0;
+}
 
 }   // end namespace LLCore

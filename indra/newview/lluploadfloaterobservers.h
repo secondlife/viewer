@@ -79,18 +79,4 @@ protected:
 	LLRootHandle<LLWholeModelUploadObserver> mWholeModelUploadObserverHandle;
 };
 
-
-class LLUploadModelPermissionsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLUploadModelPermissionsResponder);
-public:
-	LLUploadModelPermissionsResponder(const LLHandle<LLUploadPermissionsObserver>& observer);
-
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
-
-	LLHandle<LLUploadPermissionsObserver> mObserverHandle;
-};
-
 #endif /* LL_LLUPLOADFLOATEROBSERVERS_H */

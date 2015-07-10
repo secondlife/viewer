@@ -32,6 +32,7 @@
 
 #include "fix_macros.h"
 #include <boost/thread.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #include "llapr.h"
 
@@ -120,7 +121,36 @@ inline void RefCounted::destroySelf()
 	delete this;
 }
 
+/**
+ * boost::intrusive_ptr may be used to manage RefCounted classes.
+ * Unfortunately RefCounted and boost::intrusive_ptr use different conventions
+ * for the initial refcount value. To avoid leaky (immortal) objects, you
+ * should really construct boost::intrusive_ptr<RefCounted*>(rawptr, false).
+ * IntrusivePtr<T> encapsulates that for you.
+ */
+template <typename T>
+struct IntrusivePtr: public boost::intrusive_ptr<T>
+{
+	IntrusivePtr():
+		boost::intrusive_ptr<T>()
+	{}
+	IntrusivePtr(T* p):
+		boost::intrusive_ptr<T>(p, false)
+	{}
+};
+
+inline void intrusive_ptr_add_ref(RefCounted* p)
+{
+	p->addRef();
+}
+
+inline void intrusive_ptr_release(RefCounted* p)
+{
+	p->release();
+}
+
 } // end namespace LLCoreInt
+
 
 #endif	// LLCOREINT__REFCOUNTED_H_
 

@@ -33,6 +33,8 @@
 #include "llhost.h"
 #include "llpanel.h"
 #include "llremoteparcelrequest.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 class LLPanelScriptLimitsInfo;
 class LLTabContainer;
@@ -77,57 +79,6 @@ protected:
 	typedef std::vector<std::string> strings_t;
 	
 	LLHost mHost;
-};
-
-/////////////////////////////////////////////////////////////////////////////
-// Responders
-/////////////////////////////////////////////////////////////////////////////
-
-class fetchScriptLimitsRegionInfoResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(fetchScriptLimitsRegionInfoResponder);
-public:
-	fetchScriptLimitsRegionInfoResponder(const LLSD& info) : mInfo(info) {};
-
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
-	LLSD mInfo;
-};
-
-class fetchScriptLimitsRegionSummaryResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(fetchScriptLimitsRegionSummaryResponder);
-public:
-	fetchScriptLimitsRegionSummaryResponder(const LLSD& info) : mInfo(info) {};
-
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
-	LLSD mInfo;
-};
-
-class fetchScriptLimitsRegionDetailsResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(fetchScriptLimitsRegionDetailsResponder);
-public:
-	fetchScriptLimitsRegionDetailsResponder(const LLSD& info) : mInfo(info) {};
-
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
-	LLSD mInfo;
-};
-
-class fetchScriptLimitsAttachmentInfoResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(fetchScriptLimitsAttachmentInfoResponder);
-public:
-	fetchScriptLimitsAttachmentInfoResponder() {};
-
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -181,6 +132,10 @@ private:
 
 	std::vector<LLSD> mObjectListItems;
 
+    void getLandScriptResourcesCoro(std::string url);
+    void getLandScriptSummaryCoro(std::string url);
+    void getLandScriptDetailsCoro(std::string url);
+
 protected:
 
 // LLRemoteParcelInfoObserver interface:
@@ -225,6 +180,7 @@ public:
 	void clearList();
 
 private:
+    void getAttachmentLimitsCoro(std::string url);
 
 	bool mGotAttachmentMemoryUsed;
 	S32 mAttachmentMemoryMax;

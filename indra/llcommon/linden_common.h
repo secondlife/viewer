@@ -51,6 +51,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iosfwd>
+#include <memory>
 
 // Linden only libs in alpha-order other than stdtypes.h
 // *NOTE: Please keep includes here to a minimum, see above.

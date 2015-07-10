@@ -35,7 +35,6 @@
 #include "lltexturefetch.h"
 
 #include "lldir.h"
-#include "llhttpclient.h"
 #include "llhttpconstants.h"
 #include "llimage.h"
 #include "llimagej2c.h"

@@ -4,6 +4,7 @@ project(mac_crash_logger)
 
 include(00-Common)
 include(LLCommon)
+include(LLCoreHttp)
 include(LLCrashLogger)
 include(LLMath)
 include(LLMessage)
@@ -11,8 +12,10 @@ include(LLVFS)
 include(LLXML)
 include(Linking)
 include(LLSharedLibs)
+include(Boost)
 
 include_directories(
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCRASHLOGGER_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
@@ -71,7 +74,10 @@ target_link_libraries(mac-crash-logger
     ${LLMESSAGE_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_COROUTINE_LIBRARY}
     )
 
 add_custom_command(

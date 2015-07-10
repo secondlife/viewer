@@ -87,7 +87,7 @@ void LLAdaptiveRetryPolicy::onFailure(const LLCore::HttpResponse *response)
 	F32 retry_header_time;
 	const LLCore::HttpHeaders *headers = response->getHeaders();
 	bool has_retry_header_time = getRetryAfter(headers,retry_header_time);
-	onFailureCommon(response->getStatus().mType, has_retry_header_time, retry_header_time);
+	onFailureCommon(response->getStatus().getType(), has_retry_header_time, retry_header_time);
 }
 
 void LLAdaptiveRetryPolicy::onFailureCommon(S32 status, bool has_retry_header_time, F32 retry_header_time)

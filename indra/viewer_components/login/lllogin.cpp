@@ -107,9 +107,8 @@ private:
     }
 
     // In a coroutine's top-level function args, do NOT NOT NOT accept
-    // references (const or otherwise) to anything but the self argument! Pass
-    // by value only!
-    void login_(LLCoros::self& self, std::string uri, LLSD credentials);
+    // references (const or otherwise) to anything! Pass by value only!
+    void login_(std::string uri, LLSD credentials);
 
     LLEventStream mPump;
 	LLSD mAuthResponse, mValidAuthResponse;
@@ -123,11 +122,11 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
     // its first wait; at that point, return here.
     std::string coroname = 
         LLCoros::instance().launch("LLLogin::Impl::login_",
-                                   boost::bind(&Impl::login_, this, _1, uri, login_params));
+                                   boost::bind(&Impl::login_, this, uri, login_params));
     LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;	
 }
 
-void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_params)
+void LLLogin::Impl::login_(std::string uri, LLSD login_params)
 {
 	try
 	{
@@ -137,7 +136,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 	//{
 	//	printable_params["params"]["passwd"] = "*******";
 	//}
-	LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
+	LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName()
                         << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
 
 	// Arriving in SRVRequest state
@@ -176,7 +175,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 		request["op"] = "rewriteURI";
 		request["uri"] = uri;
 		request["reply"] = replyPump.getName();
-		rewrittenURIs = postAndWait(self, request, srv_pump_name, filter);
+		rewrittenURIs = llcoro::postAndWait(request, srv_pump_name, filter);
 		// EXP-772: If rewrittenURIs fail, try original URI as a fallback.
 		rewrittenURIs.append(uri);
     } // we no longer need the filter
@@ -222,10 +221,10 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
             // returns. Subsequent responses, of course, must be awaited
             // without posting again.
             for (mAuthResponse = validateResponse(loginReplyPump.getName(),
-                                 postAndWait(self, request, xmlrpcPump, loginReplyPump, "reply"));
+                     llcoro::postAndWait(request, xmlrpcPump, loginReplyPump, "reply"));
                  mAuthResponse["status"].asString() == "Downloading";
                  mAuthResponse = validateResponse(loginReplyPump.getName(),
-                                     waitForEventOn(self, loginReplyPump)))
+                                                  llcoro::waitForEventOn(loginReplyPump)))
             {
                 // Still Downloading -- send progress update.
                 sendProgressEvent("offline", "downloading");

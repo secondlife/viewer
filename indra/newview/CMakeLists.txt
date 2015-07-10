@@ -142,7 +142,6 @@ set(viewer_SOURCE_FILES
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallingcard.cpp
-    llcapabilitylistener.cpp
     llcaphttpsender.cpp
     llchannelmanager.cpp
     llchatbar.cpp
@@ -152,7 +151,6 @@ set(viewer_SOURCE_FILES
     llchiclet.cpp
     llchicletbar.cpp
     llclassifiedinfo.cpp
-    llclassifiedstatsresponder.cpp
     llcofwearables.cpp
     llcolorswatch.cpp
     llcommanddispatcherlistener.cpp
@@ -166,6 +164,7 @@ set(viewer_SOURCE_FILES
     llconversationloglistitem.cpp
     llconversationmodel.cpp
     llconversationview.cpp
+    llcoproceduremanager.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
     lldateutil.cpp
@@ -234,7 +233,6 @@ set(viewer_SOURCE_FILES
     llfloaterconversationpreview.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdestinations.cpp
-    llfloaterdisplayname.cpp
     llfloatereditdaycycle.cpp
     llfloatereditsky.cpp
     llfloatereditwater.cpp
@@ -333,7 +331,6 @@ set(viewer_SOURCE_FILES
     llgroupmgr.cpp
     llhasheduniqueid.cpp
     llhints.cpp
-    llhomelocationresponder.cpp
     llhttpretrypolicy.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -604,7 +601,6 @@ set(viewer_SOURCE_FILES
     lltwitterconnect.cpp
     lluilistener.cpp
     lluploaddialog.cpp
-    lluploadfloaterobservers.cpp
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
@@ -617,6 +613,7 @@ set(viewer_SOURCE_FILES
     llviewerassetstats.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
+    llviewerassetupload.cpp
     llviewerattachmenu.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
@@ -624,7 +621,6 @@ set(viewer_SOURCE_FILES
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
-    llviewerdisplayname.cpp
     llviewerfloaterreg.cpp
     llviewerfoldertype.cpp
     llviewergenericmessage.cpp
@@ -757,7 +753,6 @@ set(viewer_HEADER_FILES
     llbuycurrencyhtml.h
     llcallbacklist.h
     llcallingcard.h
-    llcapabilitylistener.h
     llcapabilityprovider.h
     llcaphttpsender.h
     llchannelmanager.h
@@ -768,7 +763,6 @@ set(viewer_HEADER_FILES
     llchiclet.h
     llchicletbar.h
     llclassifiedinfo.h
-    llclassifiedstatsresponder.h
     llcofwearables.h
     llcolorswatch.h
     llcommanddispatcherlistener.h
@@ -782,6 +776,7 @@ set(viewer_HEADER_FILES
     llconversationloglistitem.h
     llconversationmodel.h
     llconversationview.h
+    llcoproceduremanager.h
     llcurrencyuimanager.h
     llcylinder.h
     lldateutil.h
@@ -850,7 +845,6 @@ set(viewer_HEADER_FILES
     llfloaterconversationpreview.h
     llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
-    llfloaterdisplayname.h
     llfloatereditdaycycle.h
     llfloatereditsky.h
     llfloatereditwater.h
@@ -952,7 +946,6 @@ set(viewer_HEADER_FILES
     llhasheduniqueid.h
     llhints.h
     llhttpretrypolicy.h
-    llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h
     llhudeffectlookat.h
@@ -1225,6 +1218,7 @@ set(viewer_HEADER_FILES
     llviewerassetstats.h
     llviewerassetstorage.h
     llviewerassettype.h
+    llviewerassetupload.h
     llviewerattachmenu.h
     llvieweraudio.h
     llviewercamera.h
@@ -1232,7 +1226,6 @@ set(viewer_HEADER_FILES
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
-    llviewerdisplayname.h
     llviewerfloaterreg.h
     llviewerfoldertype.h
     llviewergenericmessage.h
@@ -2238,9 +2231,9 @@ if (LL_TESTS)
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     lldateutil.cpp
-    llmediadataclient.cpp
+#    llmediadataclient.cpp
     lllogininstance.cpp
-    llremoteparcelrequest.cpp
+#    llremoteparcelrequest.cpp
     lltranslate.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
@@ -2271,7 +2264,7 @@ if (LL_TESTS)
   set_source_files_properties(
     llmediadataclient.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
+    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
   )
 
   set_source_files_properties(
@@ -2327,7 +2320,6 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-  set(test_sources llcapabilitylistener.cpp)
   ##################################################
   # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
   ##################################################
@@ -2343,26 +2335,29 @@ if (LL_TESTS)
     ${GOOGLEMOCK_LIBRARIES}
     )
 
-  LL_ADD_INTEGRATION_TEST(llcapabilitylistener
-    "${test_sources}"
-    "${test_libs}"
-    ${PYTHON_EXECUTABLE}
-    "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
-    )
+  if (LINUX)
+    # llcommon uses `clock_gettime' which is provided by librt on linux.
+    set(LIBRT_LIBRARY
+      rt
+      )
+  endif (LINUX)
 
   set(test_libs
-    ${LLMESSAGE_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
+    ${LIBRT_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_COROUTINE_LIBRARY}
   )
 
-    LL_ADD_INTEGRATION_TEST(llsechandler_basic
+  LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
     )

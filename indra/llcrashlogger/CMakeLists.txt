@@ -3,6 +3,7 @@
 project(llcrashlogger)
 
 include(00-Common)
+include(LLCoreHttp)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
@@ -10,6 +11,7 @@ include(LLVFS)
 include(LLXML)
 
 include_directories(
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}

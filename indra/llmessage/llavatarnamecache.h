@@ -29,7 +29,6 @@
 #define LLAVATARNAMECACHE_H
 
 #include "llavatarname.h"	// for convenience
-
 #include <boost/signals2.hpp>
 
 class LLSD;
@@ -49,7 +48,7 @@ namespace LLAvatarNameCache
 	bool importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
 
-	// On the viewer, usually a simulator capabilitity.
+	// On the viewer, usually a simulator capabilities.
 	// If empty, name cache will fall back to using legacy name lookup system.
 	void setNameLookupURL(const std::string& name_lookup_url);
 
@@ -90,7 +89,7 @@ namespace LLAvatarNameCache
 
 	// Compute name expiration time from HTTP Cache-Control header,
 	// or return default value, in seconds from epoch.
-	F64 nameExpirationFromHeaders(const LLSD& headers);
+    F64 nameExpirationFromHeaders(const LLSD& headers);
 
 	void addUseDisplayNamesCallback(const use_display_name_signal_t::slot_type& cb);
 }

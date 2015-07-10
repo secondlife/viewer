@@ -36,6 +36,7 @@
 #include "llextendedstatus.h"
 
 #include "llenvmanager.h" // for LLEnvironmentSettings
+#include "lleventcoro.h"
 
 class LLAvatarName;
 class LLDispatcher;
@@ -107,6 +108,8 @@ private:
 	
 	LLFloaterRegionInfo(const LLSD& seed);
 	~LLFloaterRegionInfo();
+
+
 	
 protected:
 	void onTabSelected(const LLSD& param);

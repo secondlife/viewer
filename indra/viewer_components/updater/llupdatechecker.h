@@ -30,61 +30,27 @@
 #include <boost/shared_ptr.hpp>
 
 #include "llmd5.h"
-#include "llhttpclient.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 //
 // Implements asynchronous checking for updates.
 //
 class LLUpdateChecker {
 public:
-	class Client;
-	class Implementation: public LLHTTPClient::Responder
-	{
-	public:
-		Implementation(Client & client);
-		~Implementation();
-		void checkVersion(std::string const & urlBase, 
-						  std::string const & channel,
-						  std::string const & version,
-						  std::string const & platform,
-						  std::string const & platform_version,
-						  unsigned char       uniqueid[MD5HEX_STR_SIZE],
-						  bool                willing_to_test
-						  );
-	
-    protected:
-		// Responder:
-		virtual void httpCompleted();
-		virtual void httpFailure();
-	
-	private:	
-		static const char * sLegacyProtocolVersion;
-		static const char * sProtocolVersion;
-		const char* mProtocol;
-		
-		Client & mClient;
-		LLHTTPClient mHttpClient;
-		bool         mInProgress;
-		std::string   mVersion;
-		std::string   mUrlBase;
-		std::string   mChannel;
-		std::string   mPlatform;
-		std::string   mPlatformVersion;
-		unsigned char mUniqueId[MD5HEX_STR_SIZE];
-		bool          mWillingToTest;
-		
-		std::string buildUrl(std::string const & urlBase, 
-							 std::string const & channel,
-							 std::string const & version,
-							 std::string const & platform,
-							 std::string const & platform_version,
-							 unsigned char       uniqueid[MD5HEX_STR_SIZE],
-							 bool                willing_to_test);
+    //
+    // The client interface implemented by a requestor checking for an update.
+    //
+    class Client
+    {
+    public:
+        // An error occurred while checking for an update.
+        virtual void error(std::string const & message) = 0;
 
-		LOG_CLASS(LLUpdateChecker::Implementation);
-	};
+        // A successful response was received from the viewer version manager
+        virtual void response(LLSD const & content) = 0;
+    };
 
-	
 	// An exception that may be raised on check errors.
 	class CheckError;
 	
@@ -100,25 +66,54 @@ public:
 					  bool                willing_to_test);
 	
 private:
-	LLPointer<Implementation> mImplementation;
+    class Implementation
+    {
+    public:
+        typedef boost::shared_ptr<Implementation> ptr_t;
+
+        Implementation(Client & client);
+        ~Implementation();
+        void checkVersion(std::string const & urlBase,
+            std::string const & channel,
+            std::string const & version,
+            std::string const & platform,
+            std::string const & platform_version,
+            unsigned char       uniqueid[MD5HEX_STR_SIZE],
+            bool                willing_to_test
+            );
+
+
+    private:
+        static const char * sLegacyProtocolVersion;
+        static const char * sProtocolVersion;
+        const char* mProtocol;
+
+        Client & mClient;
+        bool         mInProgress;
+        std::string   mVersion;
+        std::string   mUrlBase;
+        std::string   mChannel;
+        std::string   mPlatform;
+        std::string   mPlatformVersion;
+        unsigned char mUniqueId[MD5HEX_STR_SIZE];
+        bool          mWillingToTest;
+
+        std::string buildUrl(std::string const & urlBase,
+            std::string const & channel,
+            std::string const & version,
+            std::string const & platform,
+            std::string const & platform_version,
+            unsigned char       uniqueid[MD5HEX_STR_SIZE],
+            bool                willing_to_test);
+
+        void checkVersionCoro(std::string url);
+
+        LOG_CLASS(LLUpdateChecker::Implementation);
+    };
+
+
+    Implementation::ptr_t       mImplementation;
+	//LLPointer<Implementation> mImplementation;
 };
-
-
-class LLURI; // From lluri.h
-
-
-//
-// The client interface implemented by a requestor checking for an update.
-//
-class LLUpdateChecker::Client
-{
-public:
-	// An error occurred while checking for an update.
-	virtual void error(std::string const & message) = 0;
-	
-	// A successful response was received from the viewer version manager
-	virtual void response(LLSD const & content) = 0;
-};
-
 
 #endif
