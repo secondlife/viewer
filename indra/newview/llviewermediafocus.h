@@ -56,6 +56,7 @@ public:
 	
 	/*virtual*/ bool	getFocus();
 	/*virtual*/ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	/*virtual*/ BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
 	/*virtual*/ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 

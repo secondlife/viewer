@@ -2698,27 +2698,48 @@ void LLViewerMediaImpl::navigateStop()
 bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
 	bool result = false;
-	
+
 	if (mMediaSource)
 	{
 		// FIXME: THIS IS SO WRONG.
 		// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
-		if( MASK_CONTROL & mask && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+		if (MASK_CONTROL & mask && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
 		{
 			result = true;
 		}
-		
-		if(!result)
+
+		if (!result)
 		{
-			
+
 			LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
-			
-			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask, native_key_data);
-			// Since the viewer internal event dispatching doesn't give us key-up events, simulate one here.
-			(void)mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP ,key, mask, native_key_data);
+			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN, key, mask, native_key_data);
 		}
 	}
-	
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::handleKeyUpHere(KEY key, MASK mask)
+{
+	bool result = false;
+
+	if (mMediaSource)
+	{
+		// FIXME: THIS IS SO WRONG.
+		// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
+		if (MASK_CONTROL & mask && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+		{
+			result = true;
+		}
+
+		if (!result)
+		{
+			LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP, key, mask, native_key_data);
+		}
+	}
+
 	return result;
 }
 

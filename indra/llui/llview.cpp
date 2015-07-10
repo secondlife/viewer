@@ -866,6 +866,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 
 	return handled;
 }
+
 BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
@@ -898,9 +899,48 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	return handled;
 }
 
+BOOL LLView::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+{
+	BOOL handled = FALSE;
+
+	if (getVisible() && getEnabled())
+	{
+		if (called_from_parent)
+		{
+			// Downward traversal
+			handled = childrenHandleKeyUp(key, mask) != NULL;
+		}
+
+		if (!handled)
+		{
+			// For event logging we don't care which widget handles it
+			// So we capture the key at the end of this function once we know if it was handled
+			handled = handleKeyUpHere(key, mask);
+			if (handled)
+			{
+				LL_DEBUGS() << "Key handled by " << getName() << LL_ENDL;
+			}
+		}
+	}
+
+	if (!handled && !called_from_parent && mParentView)
+	{
+		// Upward traversal
+		handled = mParentView->handleKeyUp(key, mask, FALSE);
+	}
+	return handled;
+}
+
 // Called from handleKey()
 // Handles key in this object.  Checking parents and children happens in handleKey()
 BOOL LLView::handleKeyHere(KEY key, MASK mask)
+{
+	return FALSE;
+}
+
+// Called from handleKey()
+// Handles key in this object.  Checking parents and children happens in handleKey()
+BOOL LLView::handleKeyUpHere(KEY key, MASK mask)
 {
 	return FALSE;
 }
@@ -1018,6 +1058,12 @@ LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 LLView* LLView::childrenHandleKey(KEY key, MASK mask)
 {
 	return childrenHandleCharEvent("Key", &LLView::handleKey, key, mask);
+}
+
+// Called during downward traversal
+LLView* LLView::childrenHandleKeyUp(KEY key, MASK mask)
+{
+	return childrenHandleCharEvent("Key Up", &LLView::handleKeyUp, key, mask);
 }
 
 // Called during downward traversal

@@ -729,7 +729,10 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 	return mKeyHandledByUI[translated_key];
 }
 
-
+BOOL LLViewerKeyboard::handleKeyUp(KEY translated_key, MASK translated_mask)
+{
+	return gViewerWindow->handleKeyUp(translated_key, translated_mask);
+}
 
 BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name)
 {

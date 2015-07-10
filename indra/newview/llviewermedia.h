@@ -238,6 +238,7 @@ public:
 	void navigateInternal();
 	void navigateStop();
 	bool handleKeyHere(KEY key, MASK mask);
+	bool handleKeyUpHere(KEY key, MASK mask);
 	bool handleUnicodeCharHere(llwchar uni_char);
 	bool canNavigateForward();
 	bool canNavigateBack();

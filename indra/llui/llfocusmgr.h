@@ -57,6 +57,7 @@ public:
 
 	// These were brought up the hierarchy from LLView so that we don't have to use dynamic_cast when dealing with keyboard focus.
 	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
 	virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
 
 	virtual void	onTopLost();	// called when registered as top ctrl and user clicks elsewhere
