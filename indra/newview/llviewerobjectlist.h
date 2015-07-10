@@ -232,10 +232,10 @@ protected:
 
 private:
     static void reportObjectCostFailure(LLSD &objectList);
-    void fetchObjectCostsCoro(LLCoros::self& self, std::string url);
+    void fetchObjectCostsCoro(std::string url);
 
     static void reportPhysicsFlagFailure(LLSD &obejectList);
-    void fetchPhisicsFlagsCoro(LLCoros::self& self, std::string url);
+    void fetchPhisicsFlagsCoro(std::string url);
 
 };
 

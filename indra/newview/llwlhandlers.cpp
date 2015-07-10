@@ -84,7 +84,7 @@ bool LLEnvironmentRequest::doRequest()
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentRequest::environmentRequestCoro",
-        boost::bind(&LLEnvironmentRequest::environmentRequestCoro, _1, url));
+        boost::bind(&LLEnvironmentRequest::environmentRequestCoro, url));
 
     LL_INFOS("WindlightCaps") << "Requesting region windlight settings via " << url << LL_ENDL;
     return true;
@@ -93,7 +93,7 @@ bool LLEnvironmentRequest::doRequest()
 S32 LLEnvironmentRequest::sLastRequest = 0;
 
 //static 
-void LLEnvironmentRequest::environmentRequestCoro(LLCoros::self& self, std::string url)
+void LLEnvironmentRequest::environmentRequestCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     S32 requestId = ++LLEnvironmentRequest::sLastRequest;
@@ -101,7 +101,7 @@ void LLEnvironmentRequest::environmentRequestCoro(LLCoros::self& self, std::stri
             httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EnvironmentRequest", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
 
     if (requestId != LLEnvironmentRequest::sLastRequest)
     {
@@ -174,18 +174,18 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentApply::environmentApplyCoro",
-        boost::bind(&LLEnvironmentApply::environmentApplyCoro, _1, url, content));
+        boost::bind(&LLEnvironmentApply::environmentApplyCoro, url, content));
 	return true;
 }
 
-void LLEnvironmentApply::environmentApplyCoro(LLCoros::self& self, std::string url, LLSD content)
+void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EnvironmentApply", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, content);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, content);
 
     LLSD notify; // for error reporting.  If there is something to report to user this will be defined.
     /*

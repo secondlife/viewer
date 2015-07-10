@@ -49,7 +49,7 @@ private:
 	friend class LLSingleton<LLProductInfoRequestManager>;	
 	/* virtual */ void initSingleton();
 
-    void getLandDescriptionsCoro(LLCoros::self& self, std::string url);
+    void getLandDescriptionsCoro(std::string url);
     LLSD mSkuDescriptions;
 };
 

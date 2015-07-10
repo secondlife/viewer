@@ -137,8 +137,8 @@ namespace LLAvatarNameCache
 
     bool expirationFromCacheControl(const LLSD& headers, F64 *expires);
 
-    // This is a coroutine.  The only parameter that can be specified as a reference is the self
-    void requestAvatarNameCache_(LLCoros::self& self, std::string url, std::vector<LLUUID> agentIds);
+    // This is a coroutine.
+    void requestAvatarNameCache_(std::string url, std::vector<LLUUID> agentIds);
 
     void handleAvNameCacheSuccess(const LLSD &data, const LLSD &httpResult);
 }
@@ -185,9 +185,9 @@ namespace LLAvatarNameCache
 // Coroutine for sending and processing avatar name cache requests.  
 // Do not call directly.  See documentation in lleventcoro.h and llcoro.h for
 // further explanation.
-void LLAvatarNameCache::requestAvatarNameCache_(LLCoros::self& self, std::string url, std::vector<LLUUID> agentIds)
+void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLUUID> agentIds)
 {
-    LL_DEBUGS("AvNameCache") << "Entering coroutine " << LLCoros::instance().getName(self)
+    LL_DEBUGS("AvNameCache") << "Entering coroutine " << LLCoros::instance().getName()
         << " with url '" << url << "', requesting " << agentIds.size() << " Agent Ids" << LL_ENDL;
 
     try
@@ -195,7 +195,7 @@ void LLAvatarNameCache::requestAvatarNameCache_(LLCoros::self& self, std::string
         bool success = true;
 
         LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("NameCache", LLAvatarNameCache::sHttpPolicy);
-        LLSD results = httpAdapter.getAndYield(self, sHttpRequest, url);
+        LLSD results = httpAdapter.getAndYield(sHttpRequest, url);
         LLSD httpResults;
 
         LL_DEBUGS() << results << LL_ENDL;
@@ -401,7 +401,7 @@ void LLAvatarNameCache::requestNamesViaCapability()
 
         std::string coroname = 
             LLCoros::instance().launch("LLAvatarNameCache::requestAvatarNameCache_",
-            boost::bind(&LLAvatarNameCache::requestAvatarNameCache_, _1, url, agent_ids));
+            boost::bind(&LLAvatarNameCache::requestAvatarNameCache_, url, agent_ids));
         LL_DEBUGS("AvNameCache") << coroname << " with  url '" << url << "', agent_ids.size()=" << agent_ids.size() << LL_ENDL;
 
 	}

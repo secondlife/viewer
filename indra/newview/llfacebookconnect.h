@@ -105,13 +105,13 @@ private:
 	static boost::scoped_ptr<LLEventPump> sContentWatcher;
 
     bool testShareStatus(LLSD &results);
-    void facebookConnectCoro(LLCoros::self& self, std::string authCode, std::string authState);
-    void facebookConnectedCheckCoro(LLCoros::self& self, bool autoConnect);
-    void facebookDisconnectCoro(LLCoros::self& self);
-    void facebookShareCoro(LLCoros::self& self, std::string route, LLSD share);
-    void facebookShareImageCoro(LLCoros::self& self, std::string route, LLPointer<LLImageFormatted> image, std::string caption);
-    void facebookConnectInfoCoro(LLCoros::self& self);
-    void facebookConnectFriendsCoro(LLCoros::self& self);
+    void facebookConnectCoro(std::string authCode, std::string authState);
+    void facebookConnectedCheckCoro(bool autoConnect);
+    void facebookDisconnectCoro();
+    void facebookShareCoro(std::string route, LLSD share);
+    void facebookShareImageCoro(std::string route, LLPointer<LLImageFormatted> image, std::string caption);
+    void facebookConnectInfoCoro();
+    void facebookConnectFriendsCoro();
 };
 
 #endif // LL_LLFACEBOOKCONNECT_H

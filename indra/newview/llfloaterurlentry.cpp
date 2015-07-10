@@ -194,7 +194,7 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 	   (scheme == "http" || scheme == "https"))
 	{
         LLCoros::instance().launch("LLFloaterURLEntry::getMediaTypeCoro",
-            boost::bind(&LLFloaterURLEntry::getMediaTypeCoro, _1, media_url, self->getHandle()));
+            boost::bind(&LLFloaterURLEntry::getMediaTypeCoro, media_url, self->getHandle()));
 	}
 	else
 	{
@@ -208,7 +208,7 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 }
 
 // static
-void LLFloaterURLEntry::getMediaTypeCoro(LLCoros::self& self, std::string url, LLHandle<LLFloater> parentHandle)
+void LLFloaterURLEntry::getMediaTypeCoro(std::string url, LLHandle<LLFloater> parentHandle)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -220,7 +220,7 @@ void LLFloaterURLEntry::getMediaTypeCoro(LLCoros::self& self, std::string url, L
 
     LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, url, httpOpts);
+    LLSD result = httpAdapter->getAndYield(httpRequest, url, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

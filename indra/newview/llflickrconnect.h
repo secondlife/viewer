@@ -97,12 +97,12 @@ private:
 	static boost::scoped_ptr<LLEventPump> sContentWatcher;
 
     bool testShareStatus(LLSD &result);
-    void flickrConnectCoro(LLCoros::self& self, std::string requestToken, std::string oauthVerifier);
-    void flickrShareCoro(LLCoros::self& self, LLSD share);
-    void flickrShareImageCoro(LLCoros::self& self, LLPointer<LLImageFormatted> image, std::string title, std::string description, std::string tags, int safetyLevel);
-    void flickrDisconnectCoro(LLCoros::self& self);
-    void flickrConnectedCoro(LLCoros::self& self, bool autoConnect);
-    void flickrInfoCoro(LLCoros::self& self);
+    void flickrConnectCoro(std::string requestToken, std::string oauthVerifier);
+    void flickrShareCoro(LLSD share);
+    void flickrShareImageCoro(LLPointer<LLImageFormatted> image, std::string title, std::string description, std::string tags, int safetyLevel);
+    void flickrDisconnectCoro();
+    void flickrConnectedCoro(bool autoConnect);
+    void flickrInfoCoro();
 
 };
 
