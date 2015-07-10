@@ -157,7 +157,7 @@ LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& request
                          const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
 {
     // declare the future
-    boost::dcoroutines::future<LLSD> future(llcoro::get_self());
+    boost::dcoroutines::future<LLSD> future(LLCoros::get_self());
     // make a callback that will assign a value to the future, and listen on
     // the specified LLEventPump with that callback
     std::string listenerName(listenerNameForCoro());
@@ -250,7 +250,7 @@ LLEventWithID postAndWait2(const LLSD& event,
                            const LLSD& replyPump1NamePath)
 {
     // declare the future
-    boost::dcoroutines::future<LLEventWithID> future(llcoro::get_self());
+    boost::dcoroutines::future<LLEventWithID> future(LLCoros::get_self());
     // either callback will assign a value to this future; listen on
     // each specified LLEventPump with a callback
     std::string name(listenerNameForCoro());

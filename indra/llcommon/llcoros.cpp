@@ -34,63 +34,47 @@
 // std headers
 // external library headers
 #include <boost/bind.hpp>
-#include <boost/thread/tss.hpp>
 // other Linden headers
 #include "llevents.h"
 #include "llerror.h"
 #include "stringize.h"
 
-namespace {
-
 // do nothing, when we need nothing done
-void no_cleanup(LLCoros::coro::self*) {}
+void LLCoros::no_cleanup(CoroData*) {}
 
-// When the dcoroutine library calls a top-level callable, it implicitly
-// passes coro::self& as the first parameter. All our consumer code used to
-// explicitly pass coro::self& down through all levels of call stack, because
-// at the leaf level we need it for context-switching. But since coroutines
-// are based on cooperative switching, we can cause the top-level entry point
-// to stash a static pointer to the currently-running coroutine, and manage it
-// appropriately as we switch out and back in. That eliminates the need to
-// pass it as an explicit parameter down through every level, which is
-// unfortunately viral in nature. Finding it implicitly rather than explicitly
-// allows minor maintenance in which a leaf-level function adds a new async
-// I/O call that suspends the calling coroutine, WITHOUT having to propagate
-// coro::self& through every function signature down to that point -- and of
-// course through every other caller of every such function.
-// We use a boost::thread_specific_ptr because each thread potentially has its
-// own distinct pool of coroutines.
-// This thread_specific_ptr does NOT own the 'self' object! It merely
-// identifies it. For this reason we instantiate it with a no-op cleanup
-// function.
-static boost::thread_specific_ptr<LLCoros::coro::self>
-sCurrentSelf(no_cleanup);
-
-} // anonymous
+// CoroData for the currently-running coroutine. Use a thread_specific_ptr
+// because each thread potentially has its own distinct pool of coroutines.
+// This thread_specific_ptr does NOT own the CoroData object! That's owned by
+// LLCoros::mCoros. It merely identifies it. For this reason we instantiate
+// it with a no-op cleanup function.
+boost::thread_specific_ptr<LLCoros::CoroData>
+LLCoros::sCurrentCoro(LLCoros::no_cleanup);
 
 //static
-LLCoros::coro::self& llcoro::get_self()
+LLCoros::coro::self& LLCoros::get_self()
 {
-    LLCoros::coro::self* current_self = sCurrentSelf.get();
-    if (! current_self)
+    CoroData* current = sCurrentCoro.get();
+    if (! current)
     {
         LL_ERRS("LLCoros") << "Calling get_self() from non-coroutine context!" << LL_ENDL;
     }
-    return *current_self;
+    return *current->mSelf;
 }
 
 llcoro::Suspending::Suspending():
-    mSuspended(sCurrentSelf.get())
+    mSuspended(LLCoros::sCurrentCoro.get())
 {
-    // For the duration of our time away from this coroutine, sCurrentSelf
-    // must NOT refer to this coroutine.
-    sCurrentSelf.reset();
+    // Revert mCurrentCoro to the value it had at the moment we last switched
+    // into this coroutine.
+    LLCoros::sCurrentCoro.reset(mSuspended->mPrev);
 }
 
 llcoro::Suspending::~Suspending()
 {
-    // Okay, we're back, reinstate previous value of sCurrentSelf.
-    sCurrentSelf.reset(mSuspended);
+    // Okay, we're back, update our mPrev
+    mSuspended->mPrev = LLCoros::sCurrentCoro.get();
+    // and reinstate our sCurrentCoro.
+    LLCoros::sCurrentCoro.reset(mSuspended);
 }
 
 LLCoros::LLCoros():
@@ -112,7 +96,7 @@ bool LLCoros::cleanup(const LLSD&)
     {
         // Has this coroutine exited (normal return, exception, exit() call)
         // since last tick?
-        if (mi->second->exited())
+        if (mi->second->mCoro.exited())
         {
             LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
             // The erase() call will invalidate its passed iterator value --
@@ -170,18 +154,13 @@ bool LLCoros::kill(const std::string& name)
 
 std::string LLCoros::getName() const
 {
-    // Walk the existing coroutines, looking for the current one.
-    void* self_id = llcoro::get_self().get_id();
-    for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
+    CoroData* current = sCurrentCoro.get();
+    if (! current)
     {
-        namespace coro_private = boost::dcoroutines::detail;
-        if (static_cast<void*>(coro_private::coroutine_accessor::get_impl(const_cast<coro&>(*mi->second)).get())
-            == self_id)
-        {
-            return mi->first;
-        }
+        // not in a coroutine
+        return "";
     }
-    return "";
+    return current->mName;
 }
 
 void LLCoros::setStackSize(S32 stacksize)
@@ -190,19 +169,19 @@ void LLCoros::setStackSize(S32 stacksize)
     mStackSize = stacksize;
 }
 
-namespace {
-
 // Top-level wrapper around caller's coroutine callable. This function accepts
 // the coroutine library's implicit coro::self& parameter and sets sCurrentSelf
 // but does not pass it down to the caller's callable.
-void toplevel(LLCoros::coro::self& self, const LLCoros::callable_t& callable)
+void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& callable)
 {
-    sCurrentSelf.reset(&self);
+    // capture the 'self' param in CoroData
+    data->mSelf = &self;
+    // run the code the caller actually wants in the coroutine
     callable();
-    sCurrentSelf.reset();
+    // This cleanup isn't perfectly symmetrical with the way we initially set
+    // data->mPrev, but this is our last chance to reset mCurrentCoro.
+    sCurrentCoro.reset(data->mPrev);
 }
-
-} // anonymous
 
 /*****************************************************************************
 *   MUST BE LAST
@@ -215,19 +194,33 @@ void toplevel(LLCoros::coro::self& self, const LLCoros::callable_t& callable)
 #if LL_MSVC
 // work around broken optimizations
 #pragma warning(disable: 4748)
+#pragma warning(disable: 4355) // 'this' used in initializer list: yes, intentionally
 #pragma optimize("", off)
 #endif // LL_MSVC
+
+LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
+                            const callable_t& callable, S32 stacksize):
+    mPrev(prev),
+    mName(name),
+    // Wrap the caller's callable in our toplevel() function so we can manage
+    // sCurrentCoro appropriately at startup and shutdown of each coroutine.
+    mCoro(boost::bind(toplevel, _1, this, callable), stacksize),
+    mSelf(0)
+{
+}
 
 std::string LLCoros::launch(const std::string& prefix, const callable_t& callable)
 {
     std::string name(generateDistinctName(prefix));
-    // Wrap the caller's callable in our toplevel() function so we can manage
-    // sCurrentSelf appropriately at startup and shutdown of each coroutine.
-    coro* newCoro = new coro(boost::bind(toplevel, _1, callable), mStackSize);
+    // pass the current value of sCurrentCoro as previous context
+    CoroData* newCoro = new CoroData(sCurrentCoro.get(), name,
+                                     callable, mStackSize);
     // Store it in our pointer map
     mCoros.insert(name, newCoro);
+    // also set it as current
+    sCurrentCoro.reset(newCoro);
     /* Run the coroutine until its first wait, then return here */
-    (*newCoro)(std::nothrow);
+    (newCoro->mCoro)(std::nothrow);
     return name;
 }
 
