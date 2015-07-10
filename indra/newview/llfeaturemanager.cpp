@@ -492,7 +492,7 @@ bool LLFeatureManager::loadGPUClass()
 	return true; // indicates that a gpu value was established
 }
 
-void LLFeatureManager::fetchFeatureTableCoro(LLCoros::self& self, std::string tableName)
+void LLFeatureManager::fetchFeatureTableCoro(std::string tableName)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -526,7 +526,7 @@ void LLFeatureManager::fetchFeatureTableCoro(LLCoros::self& self, std::string ta
 
     LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
 
-    LLSD result = httpAdapter->getRawAndYield(self, httpRequest, url);
+    LLSD result = httpAdapter->getRawAndYield(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -553,7 +553,7 @@ void LLFeatureManager::fetchFeatureTableCoro(LLCoros::self& self, std::string ta
 void LLFeatureManager::fetchHTTPTables()
 {
     LLCoros::instance().launch("LLFeatureManager::fetchFeatureTableCoro",
-        boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, _1, FEATURE_TABLE_VER_FILENAME));
+        boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, FEATURE_TABLE_VER_FILENAME));
 }
 
 void LLFeatureManager::cleanupFeatureTables()

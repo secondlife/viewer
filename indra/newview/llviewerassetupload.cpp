@@ -542,7 +542,7 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
 
 //=========================================================================
 /*static*/
-void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
+void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
     std::string url, NewResourceUploadInfo::ptr_t uploadInfo)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
@@ -567,7 +567,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
 
     LLSD body = uploadInfo->generatePostBody();
 
-    result = httpAdapter->postAndYield(self, httpRequest, url, body);
+    result = httpAdapter->postAndYield(httpRequest, url, body);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -582,7 +582,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
 
     std::string uploader = result["uploader"].asString();
 
-    result = httpAdapter->postFileAndYield(self, httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
+    result = httpAdapter->postFileAndYield(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 

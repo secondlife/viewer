@@ -101,7 +101,7 @@ private:
 	update_signal_t mUpdateSignal; /// emitted when we receive update from sim
 	update_signal_t mCommitSignal; /// emitted when our update gets applied to sim
 
-    void commitEstateInfoCapsCoro(LLCoros::self& self, std::string url);
+    void commitEstateInfoCapsCoro(std::string url);
 };
 
 inline bool LLEstateInfoModel::getFlag(U64 flag) const

@@ -446,13 +446,13 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 		if ( !url.empty() ) 
 		{
             LLCoros::instance().launch("LLVivoxVoiceClient::voiceAccountProvisionCoro",
-                boost::bind(&LLVivoxVoiceClient::voiceAccountProvisionCoro, this, _1, url, retries));
+                boost::bind(&LLVivoxVoiceClient::voiceAccountProvisionCoro, this, url, retries));
 			setState(stateConnectorStart);		
 		}
 	}
 }
 
-void LLVivoxVoiceClient::voiceAccountProvisionCoro(LLCoros::self& self, std::string url, S32 retries)
+void LLVivoxVoiceClient::voiceAccountProvisionCoro(std::string url, S32 retries)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -462,7 +462,7 @@ void LLVivoxVoiceClient::voiceAccountProvisionCoro(LLCoros::self& self, std::str
 
     httpOpts->setRetries(retries);
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, LLSD(), httpOpts);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, LLSD(), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -3928,12 +3928,12 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
 		
         LLCoros::instance().launch("LLVivoxVoiceClient::parcelVoiceInfoRequestCoro",
-            boost::bind(&LLVivoxVoiceClient::parcelVoiceInfoRequestCoro, this, _1, url));
+            boost::bind(&LLVivoxVoiceClient::parcelVoiceInfoRequestCoro, this, url));
 		return true;
 	}
 }
 
-void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(LLCoros::self& self, std::string url)
+void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -3941,7 +3941,7 @@ void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(LLCoros::self& self, std::st
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     state requestingState = getState();
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, LLSD());
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, LLSD());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

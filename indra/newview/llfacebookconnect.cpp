@@ -144,7 +144,7 @@ LLFacebookConnectHandler gFacebookConnectHandler;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLFacebookConnect::facebookConnectCoro(LLCoros::self& self, std::string authCode, std::string authState)
+void LLFacebookConnect::facebookConnectCoro(std::string authCode, std::string authState)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -167,7 +167,7 @@ void LLFacebookConnect::facebookConnectCoro(LLCoros::self& self, std::string aut
 
     setConnectionState(LLFacebookConnect::FB_CONNECTION_IN_PROGRESS);
 
-    LLSD result = httpAdapter->putAndYield(self, httpRequest, getFacebookConnectURL("/connection"), putData, httpOpts, get_headers());
+    LLSD result = httpAdapter->putAndYield(httpRequest, getFacebookConnectURL("/connection"), putData, httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -231,7 +231,7 @@ bool LLFacebookConnect::testShareStatus(LLSD &result)
     return false;
 }
 
-void LLFacebookConnect::facebookShareCoro(LLCoros::self& self, std::string route, LLSD share)
+void LLFacebookConnect::facebookShareCoro(std::string route, LLSD share)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -244,7 +244,7 @@ void LLFacebookConnect::facebookShareCoro(LLCoros::self& self, std::string route
 
     setConnectionState(LLFacebookConnect::FB_POSTING);
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), share, httpOpts, get_headers());
+    LLSD result = httpAdapter->postAndYield(httpRequest, getFacebookConnectURL(route, true), share, httpOpts, get_headers());
 
     if (testShareStatus(result))
     {
@@ -254,7 +254,7 @@ void LLFacebookConnect::facebookShareCoro(LLCoros::self& self, std::string route
     }
 }
 
-void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string route, LLPointer<LLImageFormatted> image, std::string caption)
+void LLFacebookConnect::facebookShareImageCoro(std::string route, LLPointer<LLImageFormatted> image, std::string caption)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -311,7 +311,7 @@ void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string 
 
     setConnectionState(LLFacebookConnect::FB_POSTING);
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, getFacebookConnectURL(route, true), raw, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->postAndYield(httpRequest, getFacebookConnectURL(route, true), raw, httpOpts, httpHeaders);
 
     if (testShareStatus(result))
     {
@@ -323,7 +323,7 @@ void LLFacebookConnect::facebookShareImageCoro(LLCoros::self& self, std::string 
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLFacebookConnect::facebookDisconnectCoro(LLCoros::self& self)
+void LLFacebookConnect::facebookDisconnectCoro()
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -334,7 +334,7 @@ void LLFacebookConnect::facebookDisconnectCoro(LLCoros::self& self)
     setConnectionState(LLFacebookConnect::FB_DISCONNECTING);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->deleteAndYield(self, httpRequest, getFacebookConnectURL("/connection"), httpOpts, get_headers());
+    LLSD result = httpAdapter->deleteAndYield(httpRequest, getFacebookConnectURL("/connection"), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -358,7 +358,7 @@ void LLFacebookConnect::facebookDisconnectCoro(LLCoros::self& self)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLFacebookConnect::facebookConnectedCheckCoro(LLCoros::self& self, bool autoConnect)
+void LLFacebookConnect::facebookConnectedCheckCoro(bool autoConnect)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -370,7 +370,7 @@ void LLFacebookConnect::facebookConnectedCheckCoro(LLCoros::self& self, bool aut
 
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/connection", true), httpOpts, get_headers());
+    LLSD result = httpAdapter->getAndYield(httpRequest, getFacebookConnectURL("/connection", true), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -407,7 +407,7 @@ void LLFacebookConnect::facebookConnectedCheckCoro(LLCoros::self& self, bool aut
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
+void LLFacebookConnect::facebookConnectInfoCoro()
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -418,7 +418,7 @@ void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/info", true), httpOpts, get_headers());
+    LLSD result = httpAdapter->getAndYield(httpRequest, getFacebookConnectURL("/info", true), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -451,7 +451,7 @@ void LLFacebookConnect::facebookConnectInfoCoro(LLCoros::self& self)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLFacebookConnect::facebookConnectFriendsCoro(LLCoros::self& self)
+void LLFacebookConnect::facebookConnectFriendsCoro()
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -461,7 +461,7 @@ void LLFacebookConnect::facebookConnectFriendsCoro(LLCoros::self& self)
 
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(self, httpRequest, getFacebookConnectURL("/friends", true), httpOpts, get_headers());
+    LLSD result = httpAdapter->getAndYield(httpRequest, getFacebookConnectURL("/friends", true), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -547,19 +547,19 @@ std::string LLFacebookConnect::getFacebookConnectURL(const std::string& route, b
 void LLFacebookConnect::connectToFacebook(const std::string& auth_code, const std::string& auth_state)
 {
     LLCoros::instance().launch("LLFacebookConnect::facebookConnectCoro",
-        boost::bind(&LLFacebookConnect::facebookConnectCoro, this, _1, auth_code, auth_state));
+        boost::bind(&LLFacebookConnect::facebookConnectCoro, this, auth_code, auth_state));
 }
 
 void LLFacebookConnect::disconnectFromFacebook()
 {
     LLCoros::instance().launch("LLFacebookConnect::facebookDisconnectCoro",
-        boost::bind(&LLFacebookConnect::facebookDisconnectCoro, this, _1));
+        boost::bind(&LLFacebookConnect::facebookDisconnectCoro, this));
 }
 
 void LLFacebookConnect::checkConnectionToFacebook(bool auto_connect)
 {
     LLCoros::instance().launch("LLFacebookConnect::facebookConnectedCheckCoro",
-        boost::bind(&LLFacebookConnect::facebookConnectedCheckCoro, this, _1, auto_connect));
+        boost::bind(&LLFacebookConnect::facebookConnectedCheckCoro, this, auto_connect));
 }
 
 void LLFacebookConnect::loadFacebookInfo()
@@ -567,7 +567,7 @@ void LLFacebookConnect::loadFacebookInfo()
 	if(mRefreshInfo)
 	{
         LLCoros::instance().launch("LLFacebookConnect::facebookConnectInfoCoro",
-            boost::bind(&LLFacebookConnect::facebookConnectInfoCoro, this, _1));
+            boost::bind(&LLFacebookConnect::facebookConnectInfoCoro, this));
 	}
 }
 
@@ -576,7 +576,7 @@ void LLFacebookConnect::loadFacebookFriends()
 	if(mRefreshContent)
 	{
         LLCoros::instance().launch("LLFacebookConnect::facebookConnectFriendsCoro",
-            boost::bind(&LLFacebookConnect::facebookConnectFriendsCoro, this, _1));
+            boost::bind(&LLFacebookConnect::facebookConnectFriendsCoro, this));
 	}
 }
 
@@ -606,7 +606,7 @@ void LLFacebookConnect::postCheckin(const std::string& location, const std::stri
     }
 
     LLCoros::instance().launch("LLFacebookConnect::facebookShareCoro",
-        boost::bind(&LLFacebookConnect::facebookShareCoro, this, _1, "/share/checkin", body));
+        boost::bind(&LLFacebookConnect::facebookShareCoro, this, "/share/checkin", body));
 }
 
 void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::string& caption)
@@ -617,13 +617,13 @@ void LLFacebookConnect::sharePhoto(const std::string& image_url, const std::stri
 	body["caption"] = caption;
 	
     LLCoros::instance().launch("LLFacebookConnect::facebookShareCoro",
-        boost::bind(&LLFacebookConnect::facebookShareCoro, this, _1, "/share/photo", body));
+        boost::bind(&LLFacebookConnect::facebookShareCoro, this, "/share/photo", body));
 }
 
 void LLFacebookConnect::sharePhoto(LLPointer<LLImageFormatted> image, const std::string& caption)
 {
     LLCoros::instance().launch("LLFacebookConnect::facebookShareImageCoro",
-        boost::bind(&LLFacebookConnect::facebookShareImageCoro, this, _1, "/share/photo", image, caption));
+        boost::bind(&LLFacebookConnect::facebookShareImageCoro, this, "/share/photo", image, caption));
 }
 
 void LLFacebookConnect::updateStatus(const std::string& message)
@@ -632,7 +632,7 @@ void LLFacebookConnect::updateStatus(const std::string& message)
 	body["message"] = message;
 
     LLCoros::instance().launch("LLFacebookConnect::facebookShareCoro",
-        boost::bind(&LLFacebookConnect::facebookShareCoro, this, _1, "/share/wall", body));
+        boost::bind(&LLFacebookConnect::facebookShareCoro, this, "/share/wall", body));
 }
 
 void LLFacebookConnect::storeInfo(const LLSD& info)

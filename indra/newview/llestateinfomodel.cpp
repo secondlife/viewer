@@ -123,12 +123,12 @@ bool LLEstateInfoModel::commitEstateInfoCaps()
 	}
 
     LLCoros::instance().launch("LLEstateInfoModel::commitEstateInfoCapsCoro",
-        boost::bind(&LLEstateInfoModel::commitEstateInfoCapsCoro, this, _1, url));
+        boost::bind(&LLEstateInfoModel::commitEstateInfoCapsCoro, this, url));
 
     return true;
 }
 
-void LLEstateInfoModel::commitEstateInfoCapsCoro(LLCoros::self& self, std::string url)
+void LLEstateInfoModel::commitEstateInfoCapsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -153,7 +153,7 @@ void LLEstateInfoModel::commitEstateInfoCapsCoro(LLCoros::self& self, std::strin
         << ", sun_hour = " << getSunHour() << LL_ENDL;
     LL_DEBUGS() << body << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, body);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, body);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

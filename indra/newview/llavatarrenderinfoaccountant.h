@@ -56,8 +56,8 @@ private:
 	// Send data updates about once per minute, only need per-frame resolution
 	static LLFrameTimer sRenderInfoReportTimer;
 
-    static void avatarRenderInfoGetCoro(LLCoros::self& self, std::string url, U64 regionHandle);
-    static void avatarRenderInfoReportCoro(LLCoros::self& self, std::string url, U64 regionHandle);
+    static void avatarRenderInfoGetCoro(std::string url, U64 regionHandle);
+    static void avatarRenderInfoReportCoro(std::string url, U64 regionHandle);
 
 
 };

@@ -481,7 +481,7 @@ void LLVoiceChannelGroup::getChannelInfo()
 		std::string url = region->getCapability("ChatSessionRequest");
 
         LLCoros::instance().launch("LLVoiceChannelGroup::voiceCallCapCoro",
-            boost::bind(&LLVoiceChannelGroup::voiceCallCapCoro, this, _1, url));
+            boost::bind(&LLVoiceChannelGroup::voiceCallCapCoro, this, url));
 	}
 }
 
@@ -604,7 +604,7 @@ void LLVoiceChannelGroup::setState(EState state)
 	}
 }
 
-void LLVoiceChannelGroup::voiceCallCapCoro(LLCoros::self& self, std::string url)
+void LLVoiceChannelGroup::voiceCallCapCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -617,7 +617,7 @@ void LLVoiceChannelGroup::voiceCallCapCoro(LLCoros::self& self, std::string url)
 
     LL_INFOS("Voice", "voiceCallCapCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndYield(self, httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
