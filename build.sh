@@ -408,7 +408,7 @@ then
         if [ -d "$build_dir/doxygen/html" ]
         then
             (cd "$build_dir/doxygen/html"; tar cjf "$build_dir/viewer-doxygen.tar.bz2" .)
-            upload_item docs viewer-doxygen.tar.bz2 binary/octet-stream
+            upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
         fi
       *)
         echo "Skipping mapfile for $last_built_variant"
