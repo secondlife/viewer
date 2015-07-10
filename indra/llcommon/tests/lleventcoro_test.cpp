@@ -59,6 +59,7 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 /*****************************************************************************/
 
+#define BOOST_RESULT_OF_USE_TR1 1
 // On some platforms, Boost.Coroutine must #define magic symbols before
 // #including platform-API headers. Naturally, that's ineffective unless the
 // Boost.Coroutine #include is the *first* #include of the platform header.

@@ -298,7 +298,7 @@ WaitForEventOnHelper<LISTENER> wfeoh(const LISTENER& listener, int discriminator
 namespace llcoro
 {
 
-    boost::dcoroutines::future<LLEventWithID> future(llcoro::get_self());
+    boost::dcoroutines::future<LLEventWithID> future(LLCoros::get_self());
     std::string name(listenerNameForCoro());
                                     wfeoh(boost::dcoroutines::make_callback(future), 0)));
                                     wfeoh(boost::dcoroutines::make_callback(future), 1)));
