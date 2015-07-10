@@ -41,32 +41,17 @@ public:
     typedef boost::shared_ptr<NewResourceUploadInfo> ptr_t;
 
     NewResourceUploadInfo(
-            LLTransactionID transactId,
-            LLAssetType::EType assetType,
-            std::string name,
-            std::string description,
-            S32 compressionInfo,
-            LLFolderType::EType destinationType,
-            LLInventoryType::EType inventoryType,
-            U32 nextOWnerPerms,
-            U32 groupPerms,
-            U32 everyonePerms,
-            S32 expectedCost) :
-        mTransactionId(transactId),
-        mAssetType(assetType),
-        mName(name),
-        mDescription(description),
-        mCompressionInfo(compressionInfo),
-        mDestinationFolderType(destinationType),
-        mInventoryType(inventoryType),
-        mNextOwnerPerms(nextOWnerPerms),
-        mGroupPerms(groupPerms),
-        mEveryonePerms(everyonePerms),
-        mExpectedUploadCost(expectedCost),
-        mFolderId(LLUUID::null),
-        mItemId(LLUUID::null),
-        mAssetId(LLAssetID::null)
-    { }
+        LLTransactionID transactId,
+        LLAssetType::EType assetType,
+        std::string name,
+        std::string description,
+        S32 compressionInfo,
+        LLFolderType::EType destinationType,
+        LLInventoryType::EType inventoryType,
+        U32 nextOWnerPerms,
+        U32 groupPerms,
+        U32 everyonePerms,
+        S32 expectedCost);
 
     virtual ~NewResourceUploadInfo()
     { }
@@ -90,6 +75,8 @@ public:
     U32                 getEveryonePerms() const { return mEveryonePerms; };
     S32                 getExpectedUploadCost() const { return mExpectedUploadCost; };
 
+    virtual bool        showUploadDialog() const { return true; }
+
     virtual std::string getDisplayName() const;
 
     LLUUID              getFolderId() const { return mFolderId; }
@@ -98,33 +85,19 @@ public:
 
 protected:
     NewResourceUploadInfo(
-            std::string name,
-            std::string description,
-            S32 compressionInfo,
-            LLFolderType::EType destinationType,
-            LLInventoryType::EType inventoryType,
-            U32 nextOWnerPerms,
-            U32 groupPerms,
-            U32 everyonePerms,
-            S32 expectedCost) :
-        mName(name),
-        mDescription(description),
-        mCompressionInfo(compressionInfo),
-        mDestinationFolderType(destinationType),
-        mInventoryType(inventoryType),
-        mNextOwnerPerms(nextOWnerPerms),
-        mGroupPerms(groupPerms),
-        mEveryonePerms(everyonePerms),
-        mExpectedUploadCost(expectedCost),
-        mTransactionId(),
-        mAssetType(LLAssetType::AT_NONE),
-        mFolderId(LLUUID::null),
-        mItemId(LLUUID::null),
-        mAssetId(LLAssetID::null)
-    { }
+        std::string name,
+        std::string description,
+        S32 compressionInfo,
+        LLFolderType::EType destinationType,
+        LLInventoryType::EType inventoryType,
+        U32 nextOWnerPerms,
+        U32 groupPerms,
+        U32 everyonePerms,
+        S32 expectedCost);
 
     void                setTransactionId(LLTransactionID tid) { mTransactionId = tid; }
     void                setAssetType(LLAssetType::EType assetType) { mAssetType = assetType; }
+    void                setItemId(LLUUID itemId) { mItemId = itemId; }
 
     LLAssetID           generateNewAssetId();
     void                incrementUploadStats() const;
@@ -176,26 +149,52 @@ private:
 
 };
 
-#if 0
-class NotecardResourceUploadInfo : public NewResourceUploadInfo
+
+class LLBufferedAssetUploadInfo : public NewResourceUploadInfo
 {
 public:
-    NotecardResourceUploadInfo(
-        );
+    typedef boost::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
+    typedef boost::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
 
+    LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish);
+    LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish);
+
+    virtual LLSD        prepareUpload();
+    virtual LLSD        generatePostBody();
+    virtual LLUUID      finishUpload(LLSD &result);
+
+    LLUUID              getTaskId() const { return mTaskId; }
+    const std::string & getContents() const { return mContents; }
+
+    virtual bool        showUploadDialog() const { return false; }
 
 protected:
 
+
 private:
+    bool                mTaskUpload;
+    LLUUID              mTaskId;
+    std::string         mContents;
+    invnUploadFinish_f  mInvnFinishFn;
+    taskUploadFinish_f  mTaskFinishFn;
 };
-#endif
+
+class LLScriptAssetUpload : public LLBufferedAssetUploadInfo
+{
+public:
+    LLScriptAssetUpload(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish);
+    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish);
+
+    virtual LLSD        generatePostBody();
+
+};
 
 class LLViewerAssetUpload
 {
 public:
 
-    static void AssetInventoryUploadCoproc(LLCoros::self &self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
-        std::string url, NewResourceUploadInfo::ptr_t uploadInfo);
+    static void AssetInventoryUploadCoproc(LLCoros::self &self, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, 
+        const LLUUID &id, std::string url, NewResourceUploadInfo::ptr_t uploadInfo);
 
 private:
     static void HandleUploadError(LLCore::HttpStatus status, LLSD &result, NewResourceUploadInfo::ptr_t &uploadInfo);

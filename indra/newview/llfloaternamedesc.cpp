@@ -176,17 +176,6 @@ void LLFloaterNameDesc::onBtnOK( )
 
     upload_new_resource(uploadInfo, callback, nruserdata);
 
-#if 0
-	upload_new_resource(mFilenameAndPath, // file
-			    getChild<LLUICtrl>("name_form")->getValue().asString(), 
-			    getChild<LLUICtrl>("description_form")->getValue().asString(), 
-			    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-			    LLFloaterPerms::getNextOwnerPerms("Uploads"),
-				LLFloaterPerms::getGroupPerms("Uploads"),
-				LLFloaterPerms::getEveryonePerms("Uploads"),
-			    display_name, callback, expected_upload_cost, nruserdata);
-#endif
-
 	closeFloater(false);
 }
 

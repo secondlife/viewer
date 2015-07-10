@@ -52,6 +52,8 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llviewerassetupload.h"
+#include "llcoproceduremanager.h"
 
 std::string NONE_LABEL;
 std::string SHIFT_LABEL;
@@ -1015,6 +1017,27 @@ struct LLSaveInfo
 };
 
 
+void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
+{
+    // If this gesture is active, then we need to update the in-memory
+    // active map with the new pointer.				
+    if (LLGestureMgr::instance().isGestureActive(itemId))
+    {
+        //*TODO: This is crashing for some reason.  Fix it.
+        // Active gesture edited from menu.
+        LLGestureMgr::instance().replaceGesture(itemId, newAssetId);
+        gInventory.notifyObservers();
+    }
+
+    //gesture will have a new asset_id
+    LLPreviewGesture* previewp = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", LLSD(itemId));
+    if (previewp)
+    {
+        previewp->onUpdateSucceeded();
+    }
+}
+
+
 void LLPreviewGesture::saveIfNeeded()
 {
 	if (!gAssetStorage)
@@ -1028,6 +1051,131 @@ void LLPreviewGesture::saveIfNeeded()
 		return;
 	}
 
+#if 0
+    // Copy the UI into a gesture
+    LLMultiGesture* gesture = createGesture();
+
+    // Serialize the gesture
+    S32 maxSize = gesture->getMaxSerialSize();
+    char* buffer = new char[maxSize];
+
+    LLDataPackerAsciiBuffer dp(buffer, maxSize);
+
+    bool ok = gesture->serialize(dp);
+
+    if (dp.getCurrentSize() > 1000)
+    {
+        LLNotificationsUtil::add("GestureSaveFailedTooManySteps");
+
+        delete gesture;
+        gesture = NULL;
+        return;
+    }
+    else if (!ok)
+    {
+        LLNotificationsUtil::add("GestureSaveFailedTryAgain");
+        delete gesture;
+        gesture = NULL;
+        return;
+    }
+
+    LLAssetID assetId;
+    LLPreview::onCommit();
+    bool delayedUpload(false);
+
+    LLViewerInventoryItem* item = (LLViewerInventoryItem*) getItem();
+    if (item)
+    {
+        const LLViewerRegion* region = gAgent.getRegion();
+        if (!region)
+        {
+            LL_WARNS() << "Not connected to a region, cannot save notecard." << LL_ENDL;
+            return;
+        }
+        std::string agent_url = region->getCapability("UpdateGestureAgentInventory");
+        std::string task_url = region->getCapability("UpdateGestureTaskInventory");
+
+        if (!agent_url.empty() && !task_url.empty())
+        {
+            std::string url;
+            NewResourceUploadInfo::ptr_t uploadInfo;
+
+            if (mObjectUUID.isNull() && !agent_url.empty())
+            {
+                //need to disable the preview floater so item
+                //isn't re-saved before new asset arrives
+                //fake out refresh.
+                item->setComplete(false);
+                refresh();
+                item->setComplete(true);
+
+                uploadInfo = NewResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_GESTURE, buffer,
+                    boost::bind(&finishInventoryUpload, _1, _2)));
+                url = agent_url;
+            }
+            else if (!mObjectUUID.isNull() && !task_url.empty())
+            {
+                uploadInfo = NewResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, NULL));
+                url = task_url;
+            }
+
+            if (!url.empty() && uploadInfo)
+            {
+                delayedUpload = true;
+
+                LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, _3, url, uploadInfo);
+
+                LLCoprocedureManager::getInstance()->enqueueCoprocedure("LLViewerAssetUpload::AssetInventoryUploadCoproc", proc);
+            }
+
+        }
+        else if (gAssetStorage)
+        {
+            // Every save gets a new UUID.  Yup.
+            LLTransactionID tid;
+            tid.generate();
+            assetId = tid.makeAssetID(gAgent.getSecureSessionID());
+
+            LLVFile file(gVFS, assetId, LLAssetType::AT_GESTURE, LLVFile::APPEND);
+
+            S32 size = dp.getCurrentSize();
+            file.setMaxSize(size);
+            file.write((U8*)buffer, size);
+
+            LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
+            LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);
+            gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, FALSE);
+        }
+
+    }
+
+    // If this gesture is active, then we need to update the in-memory
+    // active map with the new pointer.
+    if (!delayedUpload && LLGestureMgr::instance().isGestureActive(mItemUUID))
+    {
+        // gesture manager now owns the pointer
+        LLGestureMgr::instance().replaceGesture(mItemUUID, gesture, assetId);
+
+        // replaceGesture may deactivate other gestures so let the
+        // inventory know.
+        gInventory.notifyObservers();
+    }
+    else
+    {
+        // we're done with this gesture
+        delete gesture;
+        gesture = NULL;
+    }
+
+    mDirty = false;
+    // refresh will be called when callback
+    // if triggered when delayedUpload
+    if(!delayedUpload)
+    {
+        refresh();
+    }
+
+#else
 	// Copy the UI into a gesture
 	LLMultiGesture* gesture = createGesture();
 
@@ -1138,6 +1286,7 @@ void LLPreviewGesture::saveIfNeeded()
 
 	delete [] buffer;
 	buffer = NULL;
+#endif
 }
 
 

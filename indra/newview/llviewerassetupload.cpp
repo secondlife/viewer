@@ -46,6 +46,56 @@
 #include "llappviewer.h"
 #include "llviewerstats.h"
 #include "llvfile.h"
+#include "llgesturemgr.h"
+#include "llpreviewnotecard.h"
+#include "llpreviewgesture.h"
+
+void dialog_refresh_all();
+
+NewResourceUploadInfo::NewResourceUploadInfo(LLTransactionID transactId,
+        LLAssetType::EType assetType, std::string name, std::string description,
+        S32 compressionInfo, LLFolderType::EType destinationType,
+        LLInventoryType::EType inventoryType, U32 nextOWnerPerms,
+        U32 groupPerms, U32 everyonePerms, S32 expectedCost) :
+    mTransactionId(transactId),
+    mAssetType(assetType),
+    mName(name),
+    mDescription(description),
+    mCompressionInfo(compressionInfo),
+    mDestinationFolderType(destinationType),
+    mInventoryType(inventoryType),
+    mNextOwnerPerms(nextOWnerPerms),
+    mGroupPerms(groupPerms),
+    mEveryonePerms(everyonePerms),
+    mExpectedUploadCost(expectedCost),
+    mFolderId(LLUUID::null),
+    mItemId(LLUUID::null),
+    mAssetId(LLAssetID::null)
+{ }
+
+
+NewResourceUploadInfo::NewResourceUploadInfo(std::string name, 
+        std::string description, S32 compressionInfo, 
+        LLFolderType::EType destinationType, LLInventoryType::EType inventoryType, 
+        U32 nextOWnerPerms, U32 groupPerms, U32 everyonePerms, S32 expectedCost):
+    mName(name),
+    mDescription(description),
+    mCompressionInfo(compressionInfo),
+    mDestinationFolderType(destinationType),
+    mInventoryType(inventoryType),
+    mNextOwnerPerms(nextOWnerPerms),
+    mGroupPerms(groupPerms),
+    mEveryonePerms(everyonePerms),
+    mExpectedUploadCost(expectedCost),
+    mTransactionId(),
+    mAssetType(LLAssetType::AT_NONE),
+    mFolderId(LLUUID::null),
+    mItemId(LLUUID::null),
+    mAssetId(LLAssetID::null)
+{ 
+    mTransactionId.generate();
+}
+
 
 LLSD NewResourceUploadInfo::prepareUpload()
 {
@@ -251,16 +301,14 @@ NewFileResourceUploadInfo::NewFileResourceUploadInfo(
     nextOWnerPerms, groupPerms, everyonePerms, expectedCost),
     mFileName(fileName)
 {
-    LLTransactionID tid;
-    tid.generate();
-    setTransactionId(tid);
 }
 
 
 
 LLSD NewFileResourceUploadInfo::prepareUpload()
 {
-    generateNewAssetId();
+    if (getAssetId().isNull())
+        generateNewAssetId();
 
     LLSD result = exportTempFile();
     if (result.has("error"))
@@ -394,7 +442,103 @@ LLSD NewFileResourceUploadInfo::exportTempFile()
 }
 
 //=========================================================================
+LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish) :
+    NewResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+        0, 0, 0, 0),
+    mTaskUpload(false),
+    mTaskId(LLUUID::null),
+    mContents(buffer),
+    mInvnFinishFn(finish),
+    mTaskFinishFn(NULL)
+{
+    setItemId(itemId);
+    setAssetType(assetType);
+    
+}
 
+LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish) :
+    NewResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+        0, 0, 0, 0),
+    mTaskUpload(true),
+    mTaskId(taskId),
+    mContents(buffer),
+    mInvnFinishFn(NULL),
+    mTaskFinishFn(finish)
+{
+    setItemId(itemId);
+    setAssetType(assetType);
+}
+
+
+LLSD LLBufferedAssetUploadInfo::prepareUpload()
+{
+    if (getAssetId().isNull())
+        generateNewAssetId();
+
+    LLVFile file(gVFS, getAssetId(), getAssetType(), LLVFile::APPEND);
+
+    S32 size = mContents.length() + 1;
+    file.setMaxSize(size);
+    file.write((U8*)mContents.c_str(), size);
+
+    return LLSD().with("success", LLSD::Boolean(true));
+}
+
+LLSD LLBufferedAssetUploadInfo::generatePostBody()
+{
+    LLSD body;
+
+    if (!getTaskId().isNull())
+    {
+        body["task_id"] = getTaskId();
+    }
+    body["item_id"] = getItemId();
+
+    return body;
+}
+
+LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
+{
+    LLUUID newAssetId = result["new_asset"].asUUID();
+    LLUUID itemId = getItemId();
+
+    if (mTaskUpload)
+    {
+        LLUUID taskId = getTaskId();
+
+        dialog_refresh_all();
+
+        if (mTaskFinishFn)
+        {
+            mTaskFinishFn(itemId, taskId, newAssetId, result);
+        }
+    }
+    else
+    {
+        LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(itemId);
+        if(!item)
+        {
+            LL_WARNS() << "Inventory item for " << getDisplayName() << " is no longer in agent inventory." << LL_ENDL;
+            return newAssetId;
+        }
+
+        // Update viewer inventory item
+        LLPointer<LLViewerInventoryItem> newItem = new LLViewerInventoryItem(item);
+        newItem->setAssetUUID(newAssetId);
+
+        gInventory.updateItem(newItem);
+
+        LL_INFOS() << "Inventory item " << item->getName() << " saved into " << newAssetId.asString() << LL_ENDL;
+
+        if (mInvnFinishFn)
+        {
+            mInvnFinishFn(itemId, newAssetId, newItem->getUUID(), result);
+        }
+        gInventory.notifyObservers();
+    }
+
+    return newAssetId;
+}
 
 //=========================================================================
 /*static*/
@@ -414,9 +558,12 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
 
     //self.yield();
 
-    std::string uploadMessage = "Uploading...\n\n";
-    uploadMessage.append(uploadInfo->getDisplayName());
-    LLUploadDialog::modalUploadDialog(uploadMessage);
+    if (uploadInfo->showUploadDialog())
+    {
+        std::string uploadMessage = "Uploading...\n\n";
+        uploadMessage.append(uploadInfo->getDisplayName());
+        LLUploadDialog::modalUploadDialog(uploadMessage);
+    }
 
     LLSD body = uploadInfo->generatePostBody();
 
@@ -428,7 +575,8 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
     if ((!status) || (result.has("error")))
     {
         HandleUploadError(status, result, uploadInfo);
-        LLUploadDialog::modalUploadFinished();
+        if (uploadInfo->showUploadDialog())
+            LLUploadDialog::modalUploadFinished();
         return;
     }
 
@@ -441,7 +589,8 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
     if (!status)
     {
         HandleUploadError(status, result, uploadInfo);
-        LLUploadDialog::modalUploadFinished();
+        if (uploadInfo->showUploadDialog())
+            LLUploadDialog::modalUploadFinished();
         return;
     }
 
@@ -494,7 +643,8 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoros::self &self, LLCore
     }
 
     // remove the "Uploading..." message
-    LLUploadDialog::modalUploadFinished();
+    if (uploadInfo->showUploadDialog())
+        LLUploadDialog::modalUploadFinished();
 
     // Let the Snapshot floater know we have finished uploading a snapshot to inventory.
     LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
