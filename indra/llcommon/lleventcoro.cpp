@@ -41,7 +41,7 @@
 #include "llerror.h"
 #include "llcoros.h"
 
-std::string LLEventDetail::listenerNameForCoro()
+namespace
 {
 
 /**
@@ -143,14 +143,24 @@ void storeToLLSDPath(LLSD& dest, const LLSD& rawPath, const LLSD& value)
     *pdest = value;
 }
 
-LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+} // anonymous
+
+void llcoro::yield()
+{
+    // By viewer convention, we post an event on the "mainloop" LLEventPump
+    // each iteration of the main event-handling loop. So waiting for a single
+    // event on "mainloop" gives us a one-frame yield.
+    waitForEventOn("mainloop");
+}
+
+LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                  const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
 {
     // declare the future
     boost::dcoroutines::future<LLSD> future(LLCoros::get_self());
     // make a callback that will assign a value to the future, and listen on
     // the specified LLEventPump with that callback
-    std::string listenerName(LLEventDetail::listenerNameForCoro());
+    std::string listenerName(listenerNameForCoro());
     LLTempBoundListener connection(
         replyPump.getPump().listen(listenerName,
                                    voidlistener(boost::dcoroutines::make_callback(future))));
@@ -160,7 +170,7 @@ LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
         // If replyPumpNamePath is non-empty, store the replyPump name in the
         // request event.
         LLSD modevent(event);
-        LLEventDetail::storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
+        storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
         LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
                                  << " posting to " << requestPump.getPump().getName()
                                  << LL_ENDL;
@@ -176,7 +186,7 @@ LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
     LLSD value;
     {
         // instantiate Suspending to manage the "current" coroutine
-        LLCoros::Suspending suspended;
+        llcoro::Suspending suspended;
         value = *future;
     } // destroy Suspending as soon as we're back
     LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
@@ -185,72 +195,6 @@ LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
     return value;
 }
 
-LLEventWithID postAndWait2(const LLSD& event,
-                           const LLEventPumpOrPumpName& requestPump,
-                           const LLEventPumpOrPumpName& replyPump0,
-                           const LLEventPumpOrPumpName& replyPump1,
-                           const LLSD& replyPump0NamePath,
-                           const LLSD& replyPump1NamePath)
-{
-    // declare the future
-    boost::dcoroutines::future<LLEventWithID> future(LLCoros::get_self());
-    // either callback will assign a value to this future; listen on
-    // each specified LLEventPump with a callback
-    std::string name(LLEventDetail::listenerNameForCoro());
-    LLTempBoundListener connection0(
-        replyPump0.getPump().listen(name + "a",
-                               LLEventDetail::wfeoh(boost::dcoroutines::make_callback(future), 0)));
-    LLTempBoundListener connection1(
-        replyPump1.getPump().listen(name + "b",
-                               LLEventDetail::wfeoh(boost::dcoroutines::make_callback(future), 1)));
-    // skip the "post" part if requestPump is default-constructed
-    if (requestPump)
-    {
-        // If either replyPumpNamePath is non-empty, store the corresponding
-        // replyPump name in the request event.
-        LLSD modevent(event);
-        LLEventDetail::storeToLLSDPath(modevent, replyPump0NamePath,
-                                       replyPump0.getPump().getName());
-        LLEventDetail::storeToLLSDPath(modevent, replyPump1NamePath,
-                                       replyPump1.getPump().getName());
-        LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
-                                 << " posting to " << requestPump.getPump().getName()
-                                 << ": " << modevent << LL_ENDL;
-        requestPump.getPump().post(modevent);
-    }
-    LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
-                             << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
-                             << ", " << replyPump1.getPump().getName() << LL_ENDL;
-    // trying to dereference ("resolve") the future makes us wait for it
-    LLEventWithID value;
-    {
-        // instantiate Suspending to manage "current" coroutine
-        LLCoros::Suspending suspended;
-        value = *future;
-    } // destroy Suspending as soon as we're back
-    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << name
-                             << " resuming with (" << value.first << ", " << value.second << ")"
-                             << LL_ENDL;
-    // returning should disconnect both connections
-    return value;
-}
-
-} // anonymous
-
-void llcoro::yield()
-{
-    // By viewer convention, we post an event on the "mainloop" LLEventPump
-    // each iteration of the main event-handling loop. So waiting for a single
-    // event on "mainloop" gives us a one-frame yield.
-    waitForEventOn("mainloop");
-}
-
-LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
-                         const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
-    boost::dcoroutines::future<LLSD> future(llcoro::get_self());
-    std::string listenerName(listenerNameForCoro());
-        storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
-        llcoro::Suspending suspended;
 namespace
 {
 
@@ -298,15 +242,56 @@ WaitForEventOnHelper<LISTENER> wfeoh(const LISTENER& listener, int discriminator
 namespace llcoro
 {
 
+LLEventWithID postAndWait2(const LLSD& event,
+                           const LLEventPumpOrPumpName& requestPump,
+                           const LLEventPumpOrPumpName& replyPump0,
+                           const LLEventPumpOrPumpName& replyPump1,
+                           const LLSD& replyPump0NamePath,
+                           const LLSD& replyPump1NamePath)
+{
+    // declare the future
     boost::dcoroutines::future<LLEventWithID> future(LLCoros::get_self());
+    // either callback will assign a value to this future; listen on
+    // each specified LLEventPump with a callback
     std::string name(listenerNameForCoro());
+    LLTempBoundListener connection0(
+        replyPump0.getPump().listen(name + "a",
                                     wfeoh(boost::dcoroutines::make_callback(future), 0)));
+    LLTempBoundListener connection1(
+        replyPump1.getPump().listen(name + "b",
                                     wfeoh(boost::dcoroutines::make_callback(future), 1)));
+    // skip the "post" part if requestPump is default-constructed
+    if (requestPump)
+    {
+        // If either replyPumpNamePath is non-empty, store the corresponding
+        // replyPump name in the request event.
+        LLSD modevent(event);
         storeToLLSDPath(modevent, replyPump0NamePath,
                         replyPump0.getPump().getName());
         storeToLLSDPath(modevent, replyPump1NamePath,
                         replyPump1.getPump().getName());
+        LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+                                 << " posting to " << requestPump.getPump().getName()
+                                 << ": " << modevent << LL_ENDL;
+        requestPump.getPump().post(modevent);
+    }
+    LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+                             << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
+                             << ", " << replyPump1.getPump().getName() << LL_ENDL;
+    // trying to dereference ("resolve") the future makes us wait for it
+    LLEventWithID value;
+    {
+        // instantiate Suspending to manage "current" coroutine
         llcoro::Suspending suspended;
+        value = *future;
+    } // destroy Suspending as soon as we're back
+    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << name
+                             << " resuming with (" << value.first << ", " << value.second << ")"
+                             << LL_ENDL;
+    // returning should disconnect both connections
+    return value;
+}
+
 LLSD errorException(const LLEventWithID& result, const std::string& desc)
 {
     // If the result arrived on the error pump (pump 1), instead of

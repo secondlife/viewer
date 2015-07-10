@@ -101,8 +101,6 @@ VoidListener<LISTENER> voidlistener(const LISTENER& listener)
     return VoidListener<LISTENER>(listener);
 }
 
-     * each distinct coroutine instance.
-    std::string listenerNameForCoro();
 /**
  * Yield control from a coroutine for one "mainloop" tick. If your coroutine
  * runs without suspending for nontrivial time, sprinkle in calls to this
@@ -309,13 +307,13 @@ public:
      */
     LLSD wait()
     {
-        return ::waitForEventOn(mPump);
+        return llcoro::waitForEventOn(mPump);
     }
 
     LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                      const LLSD& replyPumpNamePath=LLSD())
     {
-        return ::postAndWait(event, requestPump, mPump, replyPumpNamePath);
+        return llcoro::postAndWait(event, requestPump, mPump, replyPumpNamePath);
     }
 
 private:
@@ -354,19 +352,19 @@ public:
     /// waitForEventOn(either of our two LLEventPumps)
     LLEventWithID wait()
     {
-        return waitForEventOn(mPump0, mPump1);
+        return llcoro::waitForEventOn(mPump0, mPump1);
     }
 
     /// errorException(wait())
     LLSD waitWithException()
     {
-        return errorException(wait(), std::string("Error event on ") + getName1());
+        return llcoro::errorException(wait(), std::string("Error event on ") + getName1());
     }
 
     /// errorLog(wait())
     LLSD waitWithLog()
     {
-        return errorLog(wait(), std::string("Error event on ") + getName1());
+        return llcoro::errorLog(wait(), std::string("Error event on ") + getName1());
     }
 
     LLEventWithID postAndWait(const LLSD& event,
@@ -374,7 +372,7 @@ public:
                               const LLSD& replyPump0NamePath=LLSD(),
                               const LLSD& replyPump1NamePath=LLSD())
     {
-        return postAndWait2(event, requestPump, mPump0, mPump1,
+        return llcoro::postAndWait2(event, requestPump, mPump0, mPump1,
                                     replyPump0NamePath, replyPump1NamePath);
     }
 
@@ -383,7 +381,7 @@ public:
                                   const LLSD& replyPump0NamePath=LLSD(),
                                   const LLSD& replyPump1NamePath=LLSD())
     {
-        return errorException(postAndWait(event, requestPump,
+        return llcoro::errorException(postAndWait(event, requestPump,
                                                   replyPump0NamePath, replyPump1NamePath),
                                       std::string("Error event on ") + getName1());
     }
@@ -393,7 +391,7 @@ public:
                             const LLSD& replyPump0NamePath=LLSD(),
                             const LLSD& replyPump1NamePath=LLSD())
     {
-        return errorLog(postAndWait(event, requestPump,
+        return llcoro::errorLog(postAndWait(event, requestPump,
                                             replyPump0NamePath, replyPump1NamePath),
                                 std::string("Error event on ") + getName1());
     }

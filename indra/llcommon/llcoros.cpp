@@ -61,7 +61,7 @@ LLCoros::coro::self& LLCoros::get_self()
     return *current->mSelf;
 }
 
-LLCoros::Suspending::Suspending():
+llcoro::Suspending::Suspending():
     mSuspended(LLCoros::sCurrentCoro.get())
 {
     // Revert mCurrentCoro to the value it had at the moment we last switched
@@ -69,7 +69,7 @@ LLCoros::Suspending::Suspending():
     LLCoros::sCurrentCoro.reset(mSuspended->mPrev);
 }
 
-LLCoros::Suspending::~Suspending()
+llcoro::Suspending::~Suspending()
 {
     // Okay, we're back, update our mPrev
     mSuspended->mPrev = LLCoros::sCurrentCoro.get();
