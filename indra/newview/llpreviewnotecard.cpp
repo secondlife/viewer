@@ -491,7 +491,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
                     mAssetStatus = PREVIEW_ASSET_LOADING;
                     setEnabled(false);
 
-                    LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, _3, url, uploadInfo);
+                    LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo);
 
                     LLCoprocedureManager::getInstance()->enqueueCoprocedure("LLViewerAssetUpload::AssetInventoryUploadCoproc", proc);
                 }
