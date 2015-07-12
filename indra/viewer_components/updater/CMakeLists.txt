@@ -6,6 +6,7 @@ include(00-Common)
 if(LL_TESTS)
   include(LLAddBuildTest)
 endif(LL_TESTS)
+include(Boost)
 include(CMakeCopyIfDifferent)
 include(CURL)
 include(LLCommon)
@@ -72,14 +73,16 @@ if(LL_TESTS)
       llupdaterservice.cpp
       )
 
+
+set_source_files_properties(
+    llupdaterservice.cpp
+    PROPERTIES
+      LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
 # *NOTE:Mani - I was trying to use the preprocessor seam to mock out
-#              llifstream (and other) llcommon classes. I didn't work
+#              llifstream (and other) llcommon classes. It didn't work
 #              because of the windows declspec(dllimport)attribute.
-#set_source_files_properties(
-#    llupdaterservice.cpp
-#    PROPERTIES
-#      LL_TEST_ADDITIONAL_CFLAGS "-Dllifstream=llus_mock_llifstream"
-#    )
+#     LL_TEST_ADDITIONAL_CFLAGS "-Dllifstream=llus_mock_llifstream"
+    )
 
   LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}")
 endif(LL_TESTS)
