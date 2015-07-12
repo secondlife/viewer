@@ -696,9 +696,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f577144536fd7c9d26d9f989acf17857</string>
+              <string>44c596c659d32a86972ac9c6f206cb68</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297692/arch/Linux/installer/glh_linear-0.0.0-common-297692.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-glh-linear/rev/303446/arch/Linux/installer/glh_linear-0.0.0-common-303446.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
