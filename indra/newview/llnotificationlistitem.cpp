@@ -30,13 +30,14 @@
 #include "llnotificationlistitem.h"
 
 #include "llagent.h"
+#include "llgroupactions.h"
 #include "llinventoryicon.h"
 #include "llwindow.h"
 #include "v4color.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
 #include "message.h"
-
+#include "llnotificationsutil.h"
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mParams(p),
     mTitleBox(NULL),
@@ -224,7 +225,68 @@ BOOL LLGroupInviteNotificationListItem::postBuild()
 {
     BOOL rv = LLGroupNotificationListItem::postBuild();
     setFee(mParams.fee);
+    mInviteButtonPanel = getChild<LLPanel>("button_panel");
+    mInviteButtonPanel->setVisible(TRUE);
+    mJoinBtn = getChild<LLButton>("join_btn");
+    mDeclineBtn = getChild<LLButton>("decline_btn");
+    mInfoBtn = getChild<LLButton>("info_btn");
+
+    mJoinBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickJoinBtn,this));
+    mDeclineBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickDeclineBtn,this));
+    mInfoBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickInfoBtn,this));
+
+    std::string expanded_height_resize_str = getString("expanded_height_resize_for_attachment");
+    mExpandedHeightResize = (S32)atoi(expanded_height_resize_str.c_str());
+
     return rv;
+}
+
+void LLGroupInviteNotificationListItem::onClickJoinBtn()
+{
+	if (!gAgent.canJoinGroups())
+	{
+		LLNotificationsUtil::add("JoinedTooManyGroups");
+		return;
+	}
+
+	if(mParams.fee > 0)
+	{
+		LLSD args;
+		args["COST"] = llformat("%d", mParams.fee);
+		// Set the fee for next time to 0, so that we don't keep
+		// asking about a fee.
+		LLSD next_payload;
+		next_payload["group_id"]=  mParams.group_id;
+		next_payload["transaction_id"]= mParams.transaction_id;
+		next_payload["fee"] = 0;
+		LLNotificationsUtil::add("JoinGroupCanAfford", args, next_payload);
+	}
+	else
+	{
+		send_improved_im(mParams.group_id,
+						std::string("name"),
+						std::string("message"),
+						IM_ONLINE,
+						IM_GROUP_INVITATION_ACCEPT,
+						mParams.transaction_id);
+	}
+	LLNotificationListItem::onClickCloseBtn();
+}
+
+void LLGroupInviteNotificationListItem::onClickDeclineBtn()
+{
+	send_improved_im(mParams.group_id,
+					std::string("name"),
+					std::string("message"),
+					IM_ONLINE,
+					IM_GROUP_INVITATION_DECLINE,
+					mParams.transaction_id);
+	LLNotificationListItem::onClickCloseBtn();
+}
+
+void LLGroupInviteNotificationListItem::onClickInfoBtn()
+{
+	LLGroupActions::show(mParams.group_id);
 }
 
 void LLGroupInviteNotificationListItem::setFee(S32 fee)

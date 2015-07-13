@@ -46,6 +46,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {
         LLUUID          notification_id;
+        LLUUID			transaction_id;
         LLUUID          group_id;
         LLUUID          paid_from_id;
         LLUUID          paid_to_id;
@@ -160,6 +161,15 @@ private:
     LLGroupInviteNotificationListItem & operator=(LLGroupInviteNotificationListItem &);
 
     void setFee(S32 fee);
+
+    void onClickJoinBtn();
+    void onClickDeclineBtn();
+    void onClickInfoBtn();
+
+    LLPanel*        mInviteButtonPanel;
+    LLButton*		mJoinBtn;
+    LLButton*		mDeclineBtn;
+    LLButton*		mInfoBtn;
 };
 
 class LLGroupNoticeNotificationListItem

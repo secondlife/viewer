@@ -123,10 +123,15 @@
                         Attachment goes here b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla .
                       </text>
                     </panel>
+                   <panel border="false" left="0" bottom="-4" height="30" bevel_style="none" follows="left|right|bottom" layout="topleft" name="button_panel" visible="false">
+                      <button top="2" left="0" width="65" height="23" layout="topleft" follows="left|top|bottom" name="join_btn" mouse_opaque="true" tab_stop="false" label = "Join"/>                 
+                      <button top="2" left_pad="12" width="65" height="23" layout="topleft" follows="left|top|bottom" name="decline_btn" mouse_opaque="true" tab_stop="false" label = "Decline"/>                  
+                      <button top="2" left_pad="12" width="65" height="23" layout="topleft" follows="left|top|bottom" name="info_btn" mouse_opaque="true" tab_stop="false" label = "Info"/>                  
+                   </panel>
                   </layout_panel>
                 </layout_stack>
-              </panel>
-            </layout_panel>
+              </panel>              
+            </layout_panel>             
             <layout_panel width="18" orientation="horizontal" follows="right|top|bottom" name="layout_panel_left_exp">
               <panel top="0" left="0" width="17" follows="left|top|right|bottom" layout="topleft" name="close_expand_panel_exp">
                 <button top="0" left="2" width="17" height="17" layout="topleft" follows="top" name="close_expanded_btn" mouse_opaque="true"
