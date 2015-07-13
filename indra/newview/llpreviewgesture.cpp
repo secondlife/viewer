@@ -1051,7 +1051,6 @@ void LLPreviewGesture::saveIfNeeded()
 		return;
 	}
 
-#if 1
     // Copy the UI into a gesture
     LLMultiGesture* gesture = createGesture();
 
@@ -1175,118 +1174,6 @@ void LLPreviewGesture::saveIfNeeded()
         refresh();
     }
 
-#else
-	// Copy the UI into a gesture
-	LLMultiGesture* gesture = createGesture();
-
-	// Serialize the gesture
-	S32 max_size = gesture->getMaxSerialSize();
-	char* buffer = new char[max_size];
-
-	LLDataPackerAsciiBuffer dp(buffer, max_size);
-
-	BOOL ok = gesture->serialize(dp);
-
-	if (dp.getCurrentSize() > 1000)
-	{
-		LLNotificationsUtil::add("GestureSaveFailedTooManySteps");
-
-		delete gesture;
-		gesture = NULL;
-	}
-	else if (!ok)
-	{
-		LLNotificationsUtil::add("GestureSaveFailedTryAgain");
-		delete gesture;
-		gesture = NULL;
-	}
-	else
-	{
-		LLPreview::onCommit();
-
-		// Every save gets a new UUID.  Yup.
-		LLTransactionID tid;
-		LLAssetID asset_id;
-		tid.generate();
-		asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-
-		LLVFile file(gVFS, asset_id, LLAssetType::AT_GESTURE, LLVFile::APPEND);
-
-		S32 size = dp.getCurrentSize();
-		file.setMaxSize(size);
-		file.write((U8*)buffer, size);
-
-		BOOL delayedUpload = FALSE;
-
-		// Upload that asset to the database
-		LLViewerInventoryItem* item = (LLViewerInventoryItem*) getItem();
-		if (item)
-		{
-			std::string agent_url = gAgent.getRegion()->getCapability("UpdateGestureAgentInventory");
-			std::string task_url = gAgent.getRegion()->getCapability("UpdateGestureTaskInventory");
-			if (mObjectUUID.isNull() && !agent_url.empty())
-			{
-				//need to disable the preview floater so item
-				//isn't re-saved before new asset arrives
-				//fake out refresh.
-				item->setComplete(FALSE);
-				refresh();				
-				item->setComplete(TRUE);
-
-				// Saving into agent inventory
-				LLSD body;
-				body["item_id"] = mItemUUID;
-				LLHTTPClient::post(agent_url, body,
-					new LLUpdateAgentInventoryResponder(body, asset_id, LLAssetType::AT_GESTURE));
-				delayedUpload = TRUE;
-			}
-			else if (!mObjectUUID.isNull() && !task_url.empty())
-			{
-				// Saving into task inventory
-				LLSD body;
-				body["task_id"] = mObjectUUID;
-				body["item_id"] = mItemUUID;
-				LLHTTPClient::post(task_url, body,
-					new LLUpdateTaskInventoryResponder(body, asset_id, LLAssetType::AT_GESTURE));
-			}
-			else if (gAssetStorage)
-			{
-				LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
-				LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);
-				gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, FALSE);
-			}
-		}
-
-		// If this gesture is active, then we need to update the in-memory
-		// active map with the new pointer.
-		if (!delayedUpload && LLGestureMgr::instance().isGestureActive(mItemUUID))
-		{
-			// gesture manager now owns the pointer
-			LLGestureMgr::instance().replaceGesture(mItemUUID, gesture, asset_id);
-
-			// replaceGesture may deactivate other gestures so let the
-			// inventory know.
-			gInventory.notifyObservers();
-		}
-		else
-		{
-			// we're done with this gesture
-			delete gesture;
-			gesture = NULL;
-		}
-
-		mDirty = FALSE;
-		// refresh will be called when callback
-		// if triggered when delayedUpload
-		if(!delayedUpload)
-		{
-			refresh();
-		}
-	}
-
-	delete [] buffer;
-	buffer = NULL;
-#endif
 }
 
 
