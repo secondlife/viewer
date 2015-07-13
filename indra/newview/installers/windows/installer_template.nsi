@@ -165,7 +165,9 @@ lbl_configure_default_lang:
 	StrCpy $LANGUAGE $0
 
 # For silent installs, no language prompt, use default
-    IfSilent lbl_return
+    IfSilent 0 +3
+    StrCpy $SKIP_AUTORUN "true"
+    Goto lbl_return
     StrCmp $SKIP_DIALOGS "true" lbl_return
   
 lbl_build_menu:
