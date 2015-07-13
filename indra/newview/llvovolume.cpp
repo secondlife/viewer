@@ -1639,7 +1639,7 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_GEN_VOLUME);
-		LLVolumeParams volume_params = getVolume()->getParams();
+		const LLVolumeParams &volume_params = getVolume()->getParams();
 		setVolume(volume_params, 0);
 	}
 
@@ -1724,8 +1724,6 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		return TRUE; // No update to complete
 	}
 
-	boost::function<bool(void)> fn_lod_or_sculpt_changed = boost::bind(&LLVOVolume::lodOrSculptChanged, this, drawable, boost::ref(compiled));
-
 	if (mVolumeChanged || mFaceMappingChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
@@ -1734,13 +1732,13 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 		if (mVolumeChanged)
 		{
-			was_regen_faces = fn_lod_or_sculpt_changed();
+			was_regen_faces = lodOrSculptChanged(drawable, compiled);
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
-		else if (mSculptChanged)
+		else if (mSculptChanged || mLODChanged)
 		{
 			compiled = TRUE;
-			was_regen_faces = fn_lod_or_sculpt_changed();
+			was_regen_faces = lodOrSculptChanged(drawable, compiled);
 		}
 
 		if (!was_regen_faces) {
@@ -1754,7 +1752,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 		compiled = TRUE;
-		fn_lod_or_sculpt_changed();
+		lodOrSculptChanged(drawable, compiled);
 		genBBoxes(FALSE);
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local
