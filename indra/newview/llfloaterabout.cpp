@@ -111,13 +111,13 @@ private:
 	void setSupportText(const std::string& server_release_notes_url);
 
 	// notifications for user requested checks
-	static void LLFloaterAbout::showCheckUpdateNotification(S32 state);
+	static void showCheckUpdateNotification(S32 state);
 
 	// callback method for manual checks
-	static bool LLFloaterAbout::callbackCheckUpdate(LLSD const & event);
+	static bool callbackCheckUpdate(LLSD const & event);
 
 	// listener name for update checks
-	static const std::string LLFloaterAbout::sCheckUpdateListenerName;
+	static const std::string sCheckUpdateListenerName;
 };
 
 
