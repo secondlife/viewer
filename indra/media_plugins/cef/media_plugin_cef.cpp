@@ -530,29 +530,7 @@ void MediaPluginCEF::keyEvent(EKeyEvent key_event, int key, EKeyboardModifier mo
 	uint32_t native_modifiers = 0;
 	deserializeKeyboardData(native_key_data, native_scan_code, native_virtual_key, native_modifiers);
 
-	//std::stringstream str;
-	//str << "@@@@@ KEYBOARD EVENT native_modifiers = " << native_modifiers;
-	//postDebugMessage(str.str());
-
 	mLLCEFLib->keyboardEvent(key_event, (uint32_t)key, utf8_text.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
-
-
-	std::stringstream str;
-	str << "@@@@@@@@@@@@@@@@ MediaPluginCEF::keyEvent";
-	postDebugMessage(str.str());
-
-	//uint32_t msg = native_key_data["msg"].asInteger();
-	//uint32_t wparam = native_key_data["w_param"].asInteger();
-	//uint64_t lparam = native_key_data["l_param"].asInteger();
-
-	//std::stringstream str;
-	//str << "@@@@@@@@@@@@@@@@ keyEvent Native message" << msg << ", " << wparam << ", " << lparam;
-	//postDebugMessage(str.str());
-
-	//mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
-
-
-	//checkEditState();
 };
 
 void MediaPluginCEF::unicodeInput(const std::string &utf8str, EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
@@ -571,24 +549,9 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, EKeyboardModifier 
 	uint32_t native_modifiers = 0;
 	deserializeKeyboardData(native_key_data, native_scan_code, native_virtual_key, native_modifiers);
 
-	std::stringstream str;
-	str << "@@@@@@@@@@@@@@@@ MediaPluginCEF::unicodeInput";
-	postDebugMessage(str.str());
-
-	//uint32_t msg = native_key_data["msg"].asInteger();
-	//uint32_t wparam = native_key_data["w_param"].asInteger();
-	//uint64_t lparam = native_key_data["l_param"].asInteger();
-
-	//std::stringstream str;
-	//str << "@@@@@@@@@@@@@@@@ unicodeInput Native message" << msg << ", " << wparam << ", " << lparam;
-	//postDebugMessage(str.str());
-
-	//mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
-
 	mLLCEFLib->keyboardEvent(KE_KEY_DOWN, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
 	mLLCEFLib->keyboardEvent(KE_KEY_UP, (uint32_t)key, utf8str.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
 
-	//	checkEditState();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
