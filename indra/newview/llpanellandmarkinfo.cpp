@@ -147,6 +147,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 				}
 				else
 				{
+					LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_NORMAL, agent_pos);
 					region_name = desc;
 				}
 
