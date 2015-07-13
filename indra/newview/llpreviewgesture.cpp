@@ -1051,7 +1051,7 @@ void LLPreviewGesture::saveIfNeeded()
 		return;
 	}
 
-#if 0
+#if 1
     // Copy the UI into a gesture
     LLMultiGesture* gesture = createGesture();
 
@@ -1123,7 +1123,7 @@ void LLPreviewGesture::saveIfNeeded()
             {
                 delayedUpload = true;
 
-                LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, _3, url, uploadInfo);
+                LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo);
 
                 LLCoprocedureManager::getInstance()->enqueueCoprocedure("LLViewerAssetUpload::AssetInventoryUploadCoproc", proc);
             }

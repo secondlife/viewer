@@ -449,7 +449,8 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType:
     mTaskId(LLUUID::null),
     mContents(buffer),
     mInvnFinishFn(finish),
-    mTaskFinishFn(NULL)
+    mTaskFinishFn(NULL),
+    mStoredToVFS(false)
 {
     setItemId(itemId);
     setAssetType(assetType);
@@ -463,7 +464,8 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemI
     mTaskId(taskId),
     mContents(buffer),
     mInvnFinishFn(NULL),
-    mTaskFinishFn(finish)
+    mTaskFinishFn(finish),
+    mStoredToVFS(false)
 {
     setItemId(itemId);
     setAssetType(assetType);
@@ -480,6 +482,9 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
     S32 size = mContents.length() + 1;
     file.setMaxSize(size);
     file.write((U8*)mContents.c_str(), size);
+
+    mStoredToVFS = true;
+
 
     return LLSD().with("success", LLSD::Boolean(true));
 }
@@ -501,6 +506,12 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
 {
     LLUUID newAssetId = result["new_asset"].asUUID();
     LLUUID itemId = getItemId();
+
+    if (mStoredToVFS)
+    {
+        LLAssetType::EType assetType(getAssetType());
+        gVFS->renameFile(getAssetId(), assetType, newAssetId, assetType);
+    }
 
     if (mTaskUpload)
     {
@@ -542,8 +553,8 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
 
 //=========================================================================
 /*static*/
-void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id,
-    std::string url, NewResourceUploadInfo::ptr_t uploadInfo)
+void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, 
+    const LLUUID &id, std::string url, NewResourceUploadInfo::ptr_t uploadInfo)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
