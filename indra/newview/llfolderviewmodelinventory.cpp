@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfolderviewmodelinventory.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
 #include "lltooldraganddrop.h"
 #include "llfavoritesbar.h"
@@ -277,7 +278,7 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
 
 	// We sort by name if we aren't sorting by date
 	// OR if these are folders and we are sorting folders by name.
-	bool by_name = (!mByDate || (mFoldersByName && (a->getSortGroup() != SG_ITEM)));
+	bool by_name = ((!mByDate || (mFoldersByName && (a->getSortGroup() != SG_ITEM))) && !mFoldersByWeight);
 
 	if (a->getSortGroup() != b->getSortGroup())
 	{
@@ -309,6 +310,31 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
 			return (compare < 0);
 		}
 	}
+    else if (mFoldersByWeight)
+    {
+        S32 weight_a = compute_stock_count(a->getUUID());
+        S32 weight_b = compute_stock_count(b->getUUID());
+		if (weight_a == weight_b)
+		{
+            // Equal weight -> use alphabetical order
+			return (LLStringUtil::compareDict(a->getDisplayName(), b->getDisplayName()) < 0);
+		}
+		else if (weight_a == COMPUTE_STOCK_INFINITE)
+        {
+            // No stock -> move a at the end of the list
+            return false;
+        }
+        else if (weight_b == COMPUTE_STOCK_INFINITE)
+        {
+            // No stock -> move b at the end of the list
+            return true;
+        }
+        else
+		{
+            // Lighter is first (sorted in increasing order of weight)
+            return (weight_a < weight_b);
+        }
+    }
 	else
 	{
 		time_t first_create = a->getCreationDate();

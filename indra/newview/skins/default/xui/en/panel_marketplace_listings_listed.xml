@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<inventory_panel
+    label="LISTED"
+    name="Active Items"
+    help_topic="marketplace_tab"
+    layout="topleft"
+    follows="all"
+    width="308"
+    height="370"
+    left_delta="0"
+    start_folder.name="Marketplace listings"
+    show_empty_message="true"
+    show_root_folder="false"
+    use_marketplace_folders="true"
+    allow_drop_on_root="false"
+    start_folder.type="merchant"
+    bg_opaque_color="DkGray2"
+    bg_alpha_color="DkGray2"
+    background_visible="true"
+    border="false"
+    bevel_style="none"
+    show_item_link_overlays="true">
+    <item allow_wear="false"/>
+</inventory_panel>

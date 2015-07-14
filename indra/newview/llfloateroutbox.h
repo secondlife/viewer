@@ -1,7 +1,6 @@
 /** 
  * @file llfloateroutbox.h
- * @brief LLFloaterOutbox
- * class definition
+ * @brief Implementation of the merchant outbox window
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -30,6 +29,7 @@
 
 #include "llfloater.h"
 #include "llfoldertype.h"
+#include "llinventoryfilter.h"
 #include "llnotificationptr.h"
 
 

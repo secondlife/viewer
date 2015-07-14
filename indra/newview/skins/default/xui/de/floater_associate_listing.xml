@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="associate listing" title="AUFLISTUNG VERKNÜPFEN">
+	<text name="message">Auflistungs-ID:</text>
+	<line_editor name="listing_id">ID hier eingeben</line_editor>
+	<button label="OK" name="OK"/>
+	<button label="Abbrechen" name="Cancel"/>
+</floater>
