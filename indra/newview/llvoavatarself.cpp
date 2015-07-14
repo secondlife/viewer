@@ -38,6 +38,7 @@
 #include "pipeline.h"
 
 #include "llagent.h" //  Get state values from here
+#include "llattachmentsmgr.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llhudeffecttrail.h"
@@ -1118,44 +1119,6 @@ BOOL LLVOAvatarSelf::isWearingAttachment(const LLUUID& inv_item_id) const
 }
 
 //-----------------------------------------------------------------------------
-BOOL LLVOAvatarSelf::attachmentWasRequested(const LLUUID& inv_item_id) const
-{
-	const F32 REQUEST_EXPIRATION_SECONDS = 5.0;  // any request older than this is ignored/removed.
-	std::map<LLUUID,LLTimer>::iterator it = mAttachmentRequests.find(inv_item_id);
-	if (it != mAttachmentRequests.end())
-	{
-		const LLTimer& request_time = it->second;
-		F32 request_time_elapsed = request_time.getElapsedTimeF32();
-		if (request_time_elapsed > REQUEST_EXPIRATION_SECONDS)
-		{
-			mAttachmentRequests.erase(it);
-			return FALSE;
-		}
-		else
-		{
-			return TRUE;
-		}
-	}
-	else
-	{
-		return FALSE;
-	}
-}
-
-//-----------------------------------------------------------------------------
-void LLVOAvatarSelf::addAttachmentRequest(const LLUUID& inv_item_id)
-{
-	LLTimer current_time;
-	mAttachmentRequests[inv_item_id] = current_time;
-}
-
-//-----------------------------------------------------------------------------
-void LLVOAvatarSelf::removeAttachmentRequest(const LLUUID& inv_item_id)
-{
-	mAttachmentRequests.erase(inv_item_id);
-}
-
-//-----------------------------------------------------------------------------
 // getWornAttachment()
 //-----------------------------------------------------------------------------
 LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
@@ -1221,8 +1184,6 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	{
 		const LLUUID& attachment_id = viewer_object->getAttachmentItemID();
 		LLAppearanceMgr::instance().registerAttachment(attachment_id);
-		// Clear any pending requests once the attachment arrives.
-		removeAttachmentRequest(attachment_id);
 		updateLODRiggedAttachments();		
 	}
 
