@@ -190,8 +190,12 @@ const U8 LL_SCULPT_TYPE_MESH      = 5;
 const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
 	LL_SCULPT_TYPE_CYLINDER | LL_SCULPT_TYPE_MESH;
 
+// for value checks, assign new value after adding new types
+const U8 LL_SCULPT_TYPE_MAX = LL_SCULPT_TYPE_MESH;
+
 const U8 LL_SCULPT_FLAG_INVERT    = 64;
 const U8 LL_SCULPT_FLAG_MIRROR    = 128;
+const U8 LL_SCULPT_FLAG_MASK = LL_SCULPT_FLAG_INVERT | LL_SCULPT_FLAG_MIRROR;
 
 const S32 LL_SCULPT_MESH_MAX_FACES = 8;
 
@@ -556,11 +560,10 @@ public:
 	{
 	}
 
-	LLVolumeParams(LLProfileParams &profile, LLPathParams &path,
-				   LLUUID sculpt_id = LLUUID::null, U8 sculpt_type = LL_SCULPT_TYPE_NONE)
-		: mProfileParams(profile), mPathParams(path), mSculptID(sculpt_id), mSculptType(sculpt_type)
-	{
-	}
+	LLVolumeParams( LLProfileParams &profile,
+					LLPathParams &path,
+					LLUUID sculpt_id = LLUUID::null,
+					U8 sculpt_type = LL_SCULPT_TYPE_NONE);
 
 	bool operator==(const LLVolumeParams &params) const;
 	bool operator!=(const LLVolumeParams &params) const;

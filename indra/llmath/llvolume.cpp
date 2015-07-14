@@ -3178,6 +3178,16 @@ BOOL LLVolume::isFlat(S32 face)
 }
 
 
+LLVolumeParams::LLVolumeParams( LLProfileParams &profile,
+								LLPathParams &path,
+								LLUUID sculpt_id,
+								U8 sculpt_type) :
+mProfileParams(profile),
+mPathParams(path)
+{
+	setSculptID(sculpt_id, sculpt_type);
+}
+
 bool LLVolumeParams::isSculpt() const
 {
 	return mSculptID.notNull();
@@ -3494,7 +3504,24 @@ bool LLVolumeParams::setSkew(const F32 skew_value)
 bool LLVolumeParams::setSculptID(const LLUUID sculpt_id, U8 sculpt_type)
 {
 	mSculptID = sculpt_id;
-	mSculptType = sculpt_type;
+	// Check sculpt type value, it consist of type and flags
+	U8 type = sculpt_type & LL_SCULPT_TYPE_MASK;
+	U8 flags = sculpt_type & LL_SCULPT_FLAG_MASK;
+	if (sculpt_type != (type | flags) || type > LL_SCULPT_TYPE_MAX)
+	{
+		if (sculpt_id != LLUUID::null)
+		{
+			mSculptType = LL_SCULPT_TYPE_MESH;
+		}
+		else
+		{
+			mSculptType = LL_SCULPT_TYPE_SPHERE;
+		}
+	}
+	else
+	{
+		mSculptType = sculpt_type;
+	}
 	return true;
 }
 
