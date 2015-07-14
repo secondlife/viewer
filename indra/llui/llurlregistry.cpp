@@ -76,9 +76,10 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntrySL());
 	mUrlEntrySLLabel = new LLUrlEntrySLLabel();
 	registerUrl(mUrlEntrySLLabel);
-	// most common pattern is a URL without any protocol,
-	// e.g., "secondlife.com"
+	// most common pattern is a URL without any protocol starting with "www",
+	// e.g., "www.secondlife.com"
 	registerUrl(new LLUrlEntryHTTPNoProtocol());	
+	registerUrl(new LLUrlEntryEmail());
 }
 
 LLUrlRegistry::~LLUrlRegistry()
@@ -155,11 +156,9 @@ static bool stringHasUrl(const std::string &text)
 	return (text.find("://") != std::string::npos ||
 			text.find("www.") != std::string::npos ||
 			text.find(".com") != std::string::npos ||
-			text.find(".net") != std::string::npos ||
-			text.find(".edu") != std::string::npos ||
-			text.find(".org") != std::string::npos ||
 			text.find("<nolink>") != std::string::npos ||
-			text.find("<icon") != std::string::npos);
+			text.find("<icon") != std::string::npos ||
+			text.find("@") != std::string::npos);
 }
 
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted)
@@ -218,7 +217,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 	// did we find a match? if so, return its details in the match object
 	if (match_entry)
 	{
-		// Skip if link is an email. See MAINT-5371.
+		// Skip if link is an email with an empty username (starting with @). See MAINT-5371.
 		if (match_start > 0 && text.substr(match_start - 1, 1) == "@")
 			return false;
 

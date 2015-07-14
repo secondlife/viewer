@@ -293,11 +293,7 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
 	: LLUrlEntryBase()
 {
-	mPattern = boost::regex("("
-				"\\bwww\\.\\S+\\.\\S+" // i.e. www.FOO.BAR
-				"|" // or
-				"(?<!@)\\b[^[:space:]:@/>]+\\.(?:com|net|edu|org)([/:][^[:space:]<]*)?\\b" // i.e. FOO.net
-				")",
+	mPattern = boost::regex("\\bwww\\.\\S+\\.\\S+", // i.e. www.FOO.BAR
 				boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
@@ -1399,6 +1395,40 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 		: LLStringUtil::null;
 	LLStringUtil::trim(mIcon);
 	return mIcon;
+}
+
+//
+// LLUrlEntryEmail Describes a generic mailto: Urls
+//
+LLUrlEntryEmail::LLUrlEntryEmail()
+	: LLUrlEntryBase()
+{
+	mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,6}",
+							boost::regex::perl | boost::regex::icase);
+	mMenuName = "menu_url_email.xml";
+	mTooltip = LLTrans::getString("TooltipEmail");
+}
+
+std::string LLUrlEntryEmail::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	int pos = url.find("mailto:");
+
+	if (pos == std::string::npos)
+	{
+		return escapeUrl(url);
+	}
+
+	std::string ret = escapeUrl(url.substr(pos + 7, url.length() - pos + 8));
+	return ret;
+}
+
+std::string LLUrlEntryEmail::getUrl(const std::string &string) const
+{
+	if (string.find("mailto:") == std::string::npos)
+	{
+		return "mailto:" + escapeUrl(string);
+	}
+	return escapeUrl(string);
 }
 
 LLUrlEntryExperienceProfile::LLUrlEntryExperienceProfile()
