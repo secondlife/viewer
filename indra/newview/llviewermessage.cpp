@@ -2861,6 +2861,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	
 	case IM_FROM_TASK:
 		{
+
 			if (is_do_not_disturb && !is_owned_by_me)
 			{
 				return;
@@ -2944,17 +2945,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["from_id"] = from_id;
 			payload["slurl"] = location;
 			payload["name"] = name;
-			std::string session_name;
+
 			if (from_group)
 			{
 				payload["group_owned"] = "true";
 			}
 
-			LLNotification::Params params("ServerObjectMessage");
-			params.substitutions = substitutions;
-			params.payload = payload;
-
-			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, from_group);
+			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
 		}
 		break;
 
