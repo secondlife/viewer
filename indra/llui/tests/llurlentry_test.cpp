@@ -653,45 +653,45 @@ namespace tut
 	void object::test<11>()
 	{
 		//
-		// test LLUrlEntryHTTPNoProtocol - general URLs without a protocol
+		// test LLUrlEntryHTTPNoProtocol - general URLs without a protocol, starting with "www." prefix (MAINT-5019)
 		//
 		LLUrlEntryHTTPNoProtocol url;
 
 		testRegex("naked .com URL", url,
 				  "see google.com",
-				  "http://google.com");
+				  "");
 
 		testRegex("naked .org URL", url,
 				  "see en.wikipedia.org for details",
-				  "http://en.wikipedia.org");
+				  "");
 
 		testRegex("naked .net URL", url,
 				  "example.net",
-				  "http://example.net");
+				  "");
 
-		testRegex("naked .edu URL (2 instances)", url,
+		testRegex("naked .edu URL (2 instances), .www prefix", url,
 				  "MIT web site is at web.mit.edu and also www.mit.edu",
-				  "http://web.mit.edu");
+				  "http://www.mit.edu");
 
 		testRegex("don't match e-mail addresses", url,
 				  "test@lindenlab.com",
 				  "");
 
-		testRegex(".com URL with path", url,
-				  "see secondlife.com/status for grid status",
-				  "http://secondlife.com/status");
+		testRegex("www.test.com URL with path", url,
+				  "see www.test.com/status for grid status",
+				  "http://www.test.com/status");
 
-		testRegex(".com URL with port", url,
-				  "secondlife.com:80",
-				  "http://secondlife.com:80");
+		testRegex("www.test.com URL with port", url,
+				  "www.test.com:80",
+				  "http://www.test.com:80");
 
-		testRegex(".com URL with port and path", url,
-				  "see secondlife.com:80/status",
-				  "http://secondlife.com:80/status");
+		testRegex("www.test.com URL with port and path", url,
+				  "see www.test.com:80/status",
+				  "http://www.test.com:80/status");
 
 		testRegex("www.*.com URL with port and path", url,
-				  "see www.secondlife.com:80/status",
-				  "http://www.secondlife.com:80/status");
+				  "see www.test.com:80/status",
+				  "http://www.test.com:80/status");
 
 		testRegex("invalid .com URL [1]", url,
 				  "..com",
@@ -714,12 +714,12 @@ namespace tut
 				  "");
 
 		testRegex("XML tags around URL [1]", url,
-				  "<foo>secondlife.com</foo>",
-				  "http://secondlife.com");
+				  "<foo>www.test.com</foo>",
+				  "http://www.test.com");
 
 		testRegex("XML tags around URL [2]", url,
-				  "<foo>secondlife.com/status?bar=1</foo>",
-				  "http://secondlife.com/status?bar=1");
+				  "<foo>www.test.com/status?bar=1</foo>",
+				  "http://www.test.com/status?bar=1");
 	}
 
 	template<> template<>
@@ -859,5 +859,39 @@ namespace tut
 		testLocation("Location /app/region/Product%20Engine", url,
 			"secondlife:///app/region/Product%20Engine",
 			"Product Engine");
+	}
+
+	template<> template<>
+	void object::test<14>()
+	{
+		//
+		// test LLUrlEntryemail - general emails
+		//
+		LLUrlEntryEmail url;
+
+		// Regex tests.
+		testRegex("match e-mail addresses", url,
+				  "test@lindenlab.com",
+				  "mailto:test@lindenlab.com");
+
+		testRegex("match e-mail addresses with mailto: prefix", url,
+				  "mailto:test@lindenlab.com",
+				  "mailto:test@lindenlab.com");
+
+		testRegex("match e-mail addresses with different domains", url,
+				  "test@foo.org.us",
+				  "mailto:test@foo.org.us");
+
+		testRegex("match e-mail addresses with different domains", url,
+				  "test@foo.bar",
+				  "mailto:test@foo.bar");
+
+		testRegex("don't match incorrect e-mail addresses", url,
+				  "test @foo.com",
+				  "");
+
+		testRegex("don't match incorrect e-mail addresses", url,
+				  "test@ foo.com",
+				  "");
 	}
 }
