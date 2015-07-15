@@ -1958,6 +1958,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				
 				if (sent_parentp && (sent_parentp != this) && !sent_parentp->isDead())
 				{
+                    if (((LLViewerObject*)sent_parentp)->isAvatar())
+                    {
+                        //LL_DEBUGS("Avatar") << "ATT got object update for attachment " << LL_ENDL; 
+                    }
+                    
 					//
 					// We have a viewer object for the parent, and it's not dead.
 					// Do the actual reparenting here.
