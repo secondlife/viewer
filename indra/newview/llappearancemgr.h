@@ -284,11 +284,6 @@ public:
 	BOOL getIsInCOF(const LLUUID& obj_id) const;
 	// Is this in the COF and can the user delete it from the COF?
 	BOOL getIsProtectedCOFItem(const LLUUID& obj_id) const;
-
-	/**
-	 * Checks if COF contains link to specified object.
-	 */
-	static bool isLinkInCOF(const LLUUID& obj_id);
 };
 
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
@@ -318,6 +313,15 @@ public:
 	
 private:
 	LLUUID mItemID;
+};
+
+class LLRequestServerAppearanceUpdateOnDestroy: public LLInventoryCallback
+{
+public:
+	LLRequestServerAppearanceUpdateOnDestroy() {}
+	~LLRequestServerAppearanceUpdateOnDestroy();
+
+	/* virtual */ void fire(const LLUUID& item_id) {}
 };
 
 LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name);

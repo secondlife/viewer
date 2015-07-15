@@ -5434,13 +5434,11 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 	// Check for duplicate request.
 	if (isAgentAvatarValid() &&
-		(gAgentAvatarp->attachmentWasRequested(item_id) ||
-		 gAgentAvatarp->isWearingAttachment(item_id)))
+		gAgentAvatarp->isWearingAttachment(item_id))
 	{
-		LL_WARNS() << "duplicate attachment request, ignoring" << LL_ENDL;
+		LL_WARNS() << "ATT duplicate attachment request, ignoring" << LL_ENDL;
 		return;
 	}
-	gAgentAvatarp->addAttachmentRequest(item_id);
 
 	S32 attach_pt = 0;
 	if (isAgentAvatarValid() && attachment)
@@ -5490,36 +5488,14 @@ bool confirm_attachment_rez(const LLSD& notification, const LLSD& response)
 
 		if (itemp)
 		{
-			/*
-			{
-				U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
-				
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
-				msg->nextBlockFast(_PREHASH_AgentData);
-				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-				msg->nextBlockFast(_PREHASH_ObjectData);
-				msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
-				msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
-				msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
-				pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
-				msg->addStringFast(_PREHASH_Name, itemp->getName());
-				msg->addStringFast(_PREHASH_Description, itemp->getDescription());
-				msg->sendReliable(gAgent.getRegion()->getHost());
-				return false;
-			}
-			*/
-
 			// Queue up attachments to be sent in next idle tick, this way the
 			// attachments are batched up all into one message versus each attachment
 			// being sent in its own separate attachments message.
 			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
 			BOOL is_add = notification["payload"]["is_add"].asBoolean();
 
-			LLAttachmentsMgr::instance().addAttachment(item_id,
-													   attachment_pt,
-													   is_add);
+			LL_DEBUGS("Avatar") << "ATT calling addAttachmentRequest " << (itemp ? itemp->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+			LLAttachmentsMgr::instance().addAttachmentRequest(item_id, attachment_pt, is_add);
 		}
 	}
 	return false;

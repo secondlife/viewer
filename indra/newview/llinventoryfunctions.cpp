@@ -231,7 +231,7 @@ BOOL get_is_item_worn(const LLUUID& id)
 		return FALSE;
 
 	// Consider the item as worn if it has links in COF.
-	if (LLAppearanceMgr::instance().isLinkInCOF(id))
+	if (LLAppearanceMgr::instance().isLinkedInCOF(id))
 	{
 		return TRUE;
 	}
@@ -265,7 +265,7 @@ BOOL get_can_item_be_worn(const LLUUID& id)
 	if (!item)
 		return FALSE;
 
-	if (LLAppearanceMgr::isLinkInCOF(item->getLinkedUUID()))
+	if (LLAppearanceMgr::instance().isLinkedInCOF(item->getLinkedUUID()))
 	{
 		// an item having links in COF (i.e. a worn item)
 		return FALSE;
@@ -1061,6 +1061,34 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
+// Succeeds iff all selected items are bridges to objects, in which
+// case returns their corresponding uuids.
+bool get_selection_object_uuids(LLFolderView *root, uuid_vec_t& ids)
+{
+	uuid_vec_t results;
+	S32 non_object = 0;
+	LLFolderView::selected_items_t selectedItems = root->getSelectedItems();
+	for(LLFolderView::selected_items_t::iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+	{
+		LLObjectBridge *view_model = dynamic_cast<LLObjectBridge *>((*it)->getViewModelItem());
+
+		if(view_model && view_model->getUUID().notNull())
+		{
+			results.push_back(view_model->getUUID());
+		}
+		else
+		{
+			non_object++;
+		}
+	}
+	if (non_object == 0)
+	{
+		ids = results;
+		return true;
+	}
+	return false;
+}
+
 void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action)
 {
 	if ("rename" == action)
@@ -1115,7 +1143,6 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 		LLFloater::setFloaterHost(multi_propertiesp);
 	}
 
-    
 	std::set<LLUUID> selected_uuid_set = LLAvatarActions::getInventorySelectedUUIDs();
     uuid_vec_t ids;
     std::copy(selected_uuid_set.begin(), selected_uuid_set.end(), std::back_inserter(ids));
@@ -1128,7 +1155,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     {
         wear_multiple(ids, false);
     }
-    else if (action == "take_off" || action == "detach")
+    else if (isRemoveAction(action))
     {
         LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
     }
