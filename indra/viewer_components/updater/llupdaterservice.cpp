@@ -269,12 +269,40 @@ void LLUpdaterServiceImpl::stopChecking()
 
 bool LLUpdaterServiceImpl::forceCheck()
 {
-	if (mTimer.getStarted()
-		&& !mIsDownloading)
+	if (!mIsDownloading && getState() != LLUpdaterService::CHECKING_FOR_UPDATE)
 	{
-		mTimer.setTimerExpirySec(0);
-		setState(LLUpdaterService::CHECKING_FOR_UPDATE);
-		return true;
+		if (mIsChecking)
+		{
+			// Service is running, just reset the timer
+			if (mTimer.getStarted())
+			{
+				mTimer.setTimerExpirySec(0);
+				setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+				return true;
+			}
+		}
+		else if (!mChannel.empty() && !mVersion.empty())
+		{
+			// one time check
+			bool has_install = checkForInstall(false);
+			if (!has_install)
+			{
+				std::string query_url = LLGridManager::getInstance()->getUpdateServiceURL();
+				if (!query_url.empty())
+				{
+					setState(LLUpdaterService::CHECKING_FOR_UPDATE);
+					mUpdateChecker.checkVersion(query_url, mChannel, mVersion,
+						mPlatform, mPlatformVersion, mUniqueId,
+						mWillingToTest);
+					return true;
+				}
+				else
+				{
+					LL_WARNS("UpdaterService")
+						<< "No updater service defined for grid '" << LLGridManager::getInstance()->getGrid() << LL_ENDL;
+				}
+			}
+		}
 	}
 	return false;
 }
@@ -415,9 +443,9 @@ bool LLUpdaterServiceImpl::checkForResume()
 
 void LLUpdaterServiceImpl::error(std::string const & message)
 {
+	setState(LLUpdaterService::TEMPORARY_ERROR);
 	if(mIsChecking)
 	{
-		setState(LLUpdaterService::TEMPORARY_ERROR);
 		restartTimer(mCheckPeriod);
 	}
 }
@@ -462,8 +490,12 @@ void LLUpdaterServiceImpl::response(LLSD const & content)
 	else
 	{
 		LL_WARNS("UpdaterService") << "Invalid update query response ignored; retry in "
-								   << mCheckPeriod << " seconds" << LL_ENDL;
-		restartTimer(mCheckPeriod);
+			<< mCheckPeriod << " seconds" << LL_ENDL;
+		setState(LLUpdaterService::TEMPORARY_ERROR);
+		if (mIsChecking)
+		{
+			restartTimer(mCheckPeriod);
+		}
 	}
 }
 
