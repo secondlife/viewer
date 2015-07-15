@@ -42,6 +42,7 @@
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
+#include "llsdutil.h"
 #include "llglslshader.h"
 
 // System includes
@@ -2068,6 +2069,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mKeyCharCode = 0; // don't know until wm_char comes in next
 			window_imp->mKeyScanCode = ( l_param >> 16 ) & 0xff;
 			window_imp->mKeyVirtualKey = w_param;
+			window_imp->mRawMsg = u_msg;
+			window_imp->mRawWParam = w_param;
+			window_imp->mRawLParam = l_param;
 
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYDOWN");
 			{
@@ -2090,6 +2094,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		{
 			window_imp->mKeyScanCode = ( l_param >> 16 ) & 0xff;
 			window_imp->mKeyVirtualKey = w_param;
+			window_imp->mRawMsg = u_msg;
+			window_imp->mRawWParam = w_param;
+			window_imp->mRawLParam = l_param;
 
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYUP");
 			LL_RECORD_BLOCK_TIME(FTM_KEYHANDLER);
@@ -2177,6 +2184,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_CHAR:
 			window_imp->mKeyCharCode = w_param;
+			window_imp->mRawMsg = u_msg;
+			window_imp->mRawWParam = w_param;
+			window_imp->mRawLParam = l_param;
 
 			// Should really use WM_UNICHAR eventually, but it requires a specific Windows version and I need
 			// to figure out how that works. - Doug
@@ -3238,6 +3248,9 @@ LLSD LLWindowWin32::getNativeKeyData()
 
 	result["scan_code"] = (S32)mKeyScanCode;
 	result["virtual_key"] = (S32)mKeyVirtualKey;
+	result["msg"] = ll_sd_from_U32(mRawMsg);
+	result["w_param"] = ll_sd_from_U32(mRawWParam);
+	result["l_param"] = ll_sd_from_U32(mRawLParam);
 
 	return result;
 }

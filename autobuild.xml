@@ -1536,11 +1536,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>15f7db04113c492d32918ff518cddca7</string>
+              <string>cd6b75ae4ebcf592155fada871b5e4e8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/303194/arch/Darwin/installer/llceflib-1.0.0.CEF-OSX-3.2171.2069-32.303194-darwin-303194.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/303548/arch/Darwin/installer/llceflib-1.0.0.CEF-OSX-3.2171.2069-32.303548-darwin-303548.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1550,18 +1550,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>baaf891741e1d21a4f73ac0b6045b6a1</string>
+              <string>d0dfc921a000ae10b0d931782ac782e6</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/303466/arch/CYGWIN/installer/llceflib-1.0.0.CEF-WIN-3.2272.gbda8dc7-32.303466-windows-303466.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/303548/arch/CYGWIN/installer/llceflib-1.0.0.CEF-WIN-3.2272.gbda8dc7-32.303548-windows-303548.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.0.CEF-WIN-3.2272.gbda8dc7-32.303466</string>
+        <string>1.0.0.CEF-OSX-3.2171.2069-32.303548</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
