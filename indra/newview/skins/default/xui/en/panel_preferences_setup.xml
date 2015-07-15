@@ -270,7 +270,7 @@
          value="1" />
       -->
         <combo_box.item
-         label="Download and install updates manually"
+         label="I will download and install updates manually"
          name="Install_manual"
          value="0" />
   </combo_box>
