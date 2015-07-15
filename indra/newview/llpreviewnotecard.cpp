@@ -56,7 +56,6 @@
 #include "llappviewer.h"		// app_abort_quit()
 #include "lllineeditor.h"
 #include "lluictrlfactory.h"
-#include "llcoproceduremanager.h"
 #include "llviewerassetupload.h"
 
 ///----------------------------------------------------------------------------
@@ -471,17 +470,17 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
             if (!agent_url.empty() && !task_url.empty())
             {
                 std::string url;
-                NewResourceUploadInfo::ptr_t uploadInfo;
+                LLResourceUploadInfo::ptr_t uploadInfo;
 
                 if (mObjectUUID.isNull() && !agent_url.empty())
                 {
-                    uploadInfo = NewResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
+                    uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
                         boost::bind(&finishInventoryUpload, _1, _2, _3)));
                     url = agent_url;
                 }
                 else if (!mObjectUUID.isNull() && !task_url.empty())
                 {
-                    uploadInfo = NewResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
+                    uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
                         boost::bind(&finishInventoryUpload, _1, _3, LLUUID::null)));
                     url = task_url;
                 }
@@ -491,9 +490,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
                     mAssetStatus = PREVIEW_ASSET_LOADING;
                     setEnabled(false);
 
-                    LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo);
-
-                    LLCoprocedureManager::getInstance()->enqueueCoprocedure("LLViewerAssetUpload::AssetInventoryUploadCoproc", proc);
+                    LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
                 }
 
             }

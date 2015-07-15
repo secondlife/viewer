@@ -119,6 +119,7 @@ private:
 };
 #endif
 
+#if 0
 class LLUpdateAgentInventoryResponder : public LLAssetUploadResponder
 {
 public:
@@ -130,6 +131,7 @@ public:
 											   LLAssetType::EType asset_type);
 	virtual void uploadComplete(const LLSD& content);
 };
+#endif
 
 class LLUpdateTaskInventoryResponder : public LLAssetUploadResponder
 {

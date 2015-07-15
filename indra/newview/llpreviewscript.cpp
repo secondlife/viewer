@@ -89,6 +89,7 @@
 #include "llexperiencecache.h"
 #include "llfloaterexperienceprofile.h"
 #include "llexperienceassociationresponder.h"
+#include "llviewerassetupload.h"
 
 const std::string HELLO_LSL =
 	"default\n"
@@ -1641,20 +1642,79 @@ void LLPreviewLSL::onSave(void* userdata, BOOL close_after_save)
 	self->saveIfNeeded();
 }
 
+void finishedLSLUpload(LLUUID itemId, LLSD response)
+{
+    // Find our window and close it if requested.
+    LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", LLSD(itemId));
+    if (preview)
+    {
+        // Bytecode save completed
+        if (response["compiled"])
+        {
+            preview->callbackLSLCompileSucceeded();
+        }
+        else
+        {
+            preview->callbackLSLCompileFailed(response["errors"]);
+        }
+    }
+}
+
 // Save needs to compile the text in the buffer. If the compile
 // succeeds, then save both assets out to the database. If the compile
 // fails, go ahead and save the text anyway.
 void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
 {
-	// LL_INFOS() << "LLPreviewLSL::saveIfNeeded()" << LL_ENDL;
-	if(!mScriptEd->hasChanged())
-	{
-		return;
-	}
+    if (!mScriptEd->hasChanged())
+    {
+        return;
+    }
 
-	mPendingUploads = 0;
-	mScriptEd->mErrorList->deleteAllItems();
-	mScriptEd->mEditor->makePristine();
+    mPendingUploads = 0;
+    mScriptEd->mErrorList->deleteAllItems();
+    mScriptEd->mEditor->makePristine();
+
+#if 1
+    if (sync)
+    {
+        mScriptEd->sync();
+    }
+
+    const LLInventoryItem *inv_item = getItem();
+    // save it out to asset server
+    std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
+    if(inv_item)
+    {
+        getWindow()->incBusyCount();
+        mPendingUploads++;
+        if (!url.empty())
+        {
+            std::string buffer(mScriptEd->mEditor->getText());
+            LLBufferedAssetUploadInfo::invnUploadFinish_f proc = boost::bind(&finishedLSLUpload, _1, _4);
+
+            LLResourceUploadInfo::ptr_t uploadInfo(new LLScriptAssetUpload(mItemUUID, buffer, proc));
+
+            LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+
+        }
+        else if (gAssetStorage)
+        {
+            // save off asset into file
+            LLTransactionID tid;
+            tid.generate();
+            LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+            std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, asset_id.asString());
+            std::string filename = filepath + ".lsl";
+
+            mScriptEd->writeToFile(filename);
+
+            uploadAssetLegacy(filename, mItemUUID, tid);
+        }
+    }
+
+
+#else
+	// LL_INFOS() << "LLPreviewLSL::saveIfNeeded()" << LL_ENDL;
 
 	// save off asset into file
 	LLTransactionID tid;
@@ -1686,8 +1746,10 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
 			uploadAssetLegacy(filename, mItemUUID, tid);
 		}
 	}
+#endif
 }
 
+#if 0
 void LLPreviewLSL::uploadAssetViaCaps(const std::string& url,
 									  const std::string& filename,
 									  const LLUUID& item_id)
@@ -1698,6 +1760,7 @@ void LLPreviewLSL::uploadAssetViaCaps(const std::string& url,
 	body["target"] = "lsl2";
 	LLHTTPClient::post(url, body, new LLUpdateAgentInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
 }
+#endif
 
 void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 									  const LLUUID& item_id,

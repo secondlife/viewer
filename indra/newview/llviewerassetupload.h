@@ -35,12 +35,13 @@
 #include "llcoros.h"
 #include "llcorehttputil.h"
 
-class NewResourceUploadInfo
+//=========================================================================
+class LLResourceUploadInfo
 {
 public:
-    typedef boost::shared_ptr<NewResourceUploadInfo> ptr_t;
+    typedef boost::shared_ptr<LLResourceUploadInfo> ptr_t;
 
-    NewResourceUploadInfo(
+    LLResourceUploadInfo(
         LLTransactionID transactId,
         LLAssetType::EType assetType,
         std::string name,
@@ -53,7 +54,7 @@ public:
         U32 everyonePerms,
         S32 expectedCost);
 
-    virtual ~NewResourceUploadInfo()
+    virtual ~LLResourceUploadInfo()
     { }
 
     virtual LLSD        prepareUpload();
@@ -84,7 +85,7 @@ public:
     LLAssetID           getAssetId() const { return mAssetId; }
 
 protected:
-    NewResourceUploadInfo(
+    LLResourceUploadInfo(
         std::string name,
         std::string description,
         S32 compressionInfo,
@@ -121,7 +122,8 @@ private:
     LLAssetID           mAssetId;
 };
 
-class NewFileResourceUploadInfo : public NewResourceUploadInfo
+//-------------------------------------------------------------------------
+class NewFileResourceUploadInfo : public LLResourceUploadInfo
 {
 public:
     NewFileResourceUploadInfo(
@@ -149,8 +151,8 @@ private:
 
 };
 
-
-class LLBufferedAssetUploadInfo : public NewResourceUploadInfo
+//-------------------------------------------------------------------------
+class LLBufferedAssetUploadInfo : public LLResourceUploadInfo
 {
 public:
     typedef boost::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
@@ -180,24 +182,27 @@ private:
     bool                mStoredToVFS;
 };
 
+//-------------------------------------------------------------------------
 class LLScriptAssetUpload : public LLBufferedAssetUploadInfo
 {
 public:
-    LLScriptAssetUpload(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish);
+    LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish);
     LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish);
 
     virtual LLSD        generatePostBody();
 
 };
 
+//=========================================================================
 class LLViewerAssetUpload
 {
 public:
+    static LLUUID EnqueueInventoryUpload(const std::string &url, const LLResourceUploadInfo::ptr_t &uploadInfo);
 
-    static void AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id, std::string url, NewResourceUploadInfo::ptr_t uploadInfo);
+    static void AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, const LLUUID &id, std::string url, LLResourceUploadInfo::ptr_t uploadInfo);
 
 private:
-    static void HandleUploadError(LLCore::HttpStatus status, LLSD &result, NewResourceUploadInfo::ptr_t &uploadInfo);
+    static void HandleUploadError(LLCore::HttpStatus status, LLSD &result, LLResourceUploadInfo::ptr_t &uploadInfo);
 };
 
 #endif // !VIEWER_ASSET_UPLOAD_H

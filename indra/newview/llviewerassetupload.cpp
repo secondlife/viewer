@@ -49,10 +49,11 @@
 #include "llgesturemgr.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewgesture.h"
+#include "llcoproceduremanager.h"
 
 void dialog_refresh_all();
 
-NewResourceUploadInfo::NewResourceUploadInfo(LLTransactionID transactId,
+LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
         LLAssetType::EType assetType, std::string name, std::string description,
         S32 compressionInfo, LLFolderType::EType destinationType,
         LLInventoryType::EType inventoryType, U32 nextOWnerPerms,
@@ -74,7 +75,7 @@ NewResourceUploadInfo::NewResourceUploadInfo(LLTransactionID transactId,
 { }
 
 
-NewResourceUploadInfo::NewResourceUploadInfo(std::string name, 
+LLResourceUploadInfo::LLResourceUploadInfo(std::string name, 
         std::string description, S32 compressionInfo, 
         LLFolderType::EType destinationType, LLInventoryType::EType inventoryType, 
         U32 nextOWnerPerms, U32 groupPerms, U32 everyonePerms, S32 expectedCost):
@@ -97,7 +98,7 @@ NewResourceUploadInfo::NewResourceUploadInfo(std::string name,
 }
 
 
-LLSD NewResourceUploadInfo::prepareUpload()
+LLSD LLResourceUploadInfo::prepareUpload()
 {
     if (mAssetId.isNull())
         generateNewAssetId();
@@ -108,17 +109,17 @@ LLSD NewResourceUploadInfo::prepareUpload()
     return LLSD().with("success", LLSD::Boolean(true));
 }
 
-std::string NewResourceUploadInfo::getAssetTypeString() const
+std::string LLResourceUploadInfo::getAssetTypeString() const
 {
     return LLAssetType::lookup(mAssetType);
 }
 
-std::string NewResourceUploadInfo::getInventoryTypeString() const
+std::string LLResourceUploadInfo::getInventoryTypeString() const
 {
     return LLInventoryType::lookup(mInventoryType);
 }
 
-LLSD NewResourceUploadInfo::generatePostBody()
+LLSD LLResourceUploadInfo::generatePostBody()
 {
     LLSD body;
 
@@ -135,7 +136,7 @@ LLSD NewResourceUploadInfo::generatePostBody()
 
 }
 
-void NewResourceUploadInfo::logPreparedUpload()
+void LLResourceUploadInfo::logPreparedUpload()
 {
     LL_INFOS() << "*** Uploading: " << std::endl <<
         "Type: " << LLAssetType::lookup(mAssetType) << std::endl <<
@@ -147,7 +148,7 @@ void NewResourceUploadInfo::logPreparedUpload()
         "Asset Type: " << LLAssetType::lookup(mAssetType) << LL_ENDL;
 }
 
-LLUUID NewResourceUploadInfo::finishUpload(LLSD &result)
+LLUUID LLResourceUploadInfo::finishUpload(LLSD &result)
 {
     if (getFolderId().isNull())
     {
@@ -225,7 +226,7 @@ LLUUID NewResourceUploadInfo::finishUpload(LLSD &result)
 }
 
 
-LLAssetID NewResourceUploadInfo::generateNewAssetId()
+LLAssetID LLResourceUploadInfo::generateNewAssetId()
 {
     if (gDisconnected)
     {
@@ -239,7 +240,7 @@ LLAssetID NewResourceUploadInfo::generateNewAssetId()
     return mAssetId;
 }
 
-void NewResourceUploadInfo::incrementUploadStats() const
+void LLResourceUploadInfo::incrementUploadStats() const
 {
     if (LLAssetType::AT_SOUND == mAssetType)
     {
@@ -255,7 +256,7 @@ void NewResourceUploadInfo::incrementUploadStats() const
     }
 }
 
-void NewResourceUploadInfo::assignDefaults()
+void LLResourceUploadInfo::assignDefaults()
 {
     if (LLInventoryType::IT_NONE == mInventoryType)
     {
@@ -279,7 +280,7 @@ void NewResourceUploadInfo::assignDefaults()
 
 }
 
-std::string NewResourceUploadInfo::getDisplayName() const
+std::string LLResourceUploadInfo::getDisplayName() const
 {
     return (mName.empty()) ? mAssetId.asString() : mName;
 };
@@ -296,7 +297,7 @@ NewFileResourceUploadInfo::NewFileResourceUploadInfo(
     U32 groupPerms,
     U32 everyonePerms,
     S32 expectedCost) :
-    NewResourceUploadInfo(name, description, compressionInfo,
+    LLResourceUploadInfo(name, description, compressionInfo,
     destinationType, inventoryType,
     nextOWnerPerms, groupPerms, everyonePerms, expectedCost),
     mFileName(fileName)
@@ -314,7 +315,7 @@ LLSD NewFileResourceUploadInfo::prepareUpload()
     if (result.has("error"))
         return result;
 
-    return NewResourceUploadInfo::prepareUpload();
+    return LLResourceUploadInfo::prepareUpload();
 }
 
 LLSD NewFileResourceUploadInfo::exportTempFile()
@@ -443,7 +444,7 @@ LLSD NewFileResourceUploadInfo::exportTempFile()
 
 //=========================================================================
 LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish) :
-    NewResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+    LLResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
         0, 0, 0, 0),
     mTaskUpload(false),
     mTaskId(LLUUID::null),
@@ -458,7 +459,7 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType:
 }
 
 LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish) :
-    NewResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+    LLResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
         0, 0, 0, 0),
     mTaskUpload(true),
     mTaskId(taskId),
@@ -552,9 +553,46 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
 }
 
 //=========================================================================
+
+LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish):
+    LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish)
+{
+}
+
+// LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish):
+//     LLBufferedAssetUploadInfo()
+// {
+// }
+
+LLSD LLScriptAssetUpload::generatePostBody()
+{
+    LLSD body;
+
+    if (getTaskId().isNull())
+    {
+        body["item_id"] = getItemId();
+        body["target"] = "lsl2";
+    }
+
+    return body;
+}
+
+//=========================================================================
+/*static*/
+LLUUID LLViewerAssetUpload::EnqueueInventoryUpload(const std::string &url, const LLResourceUploadInfo::ptr_t &uploadInfo)
+{
+    std::string procName("LLViewerAssetUpload::AssetInventoryUploadCoproc(");
+    
+    LLUUID queueId = LLCoprocedureManager::getInstance()->enqueueCoprocedure(procName + LLAssetType::lookup(uploadInfo->getAssetType()) + ")",
+        boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo));
+
+    return queueId;
+}
+
+//=========================================================================
 /*static*/
 void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, 
-    const LLUUID &id, std::string url, NewResourceUploadInfo::ptr_t uploadInfo)
+    const LLUUID &id, std::string url, LLResourceUploadInfo::ptr_t uploadInfo)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
@@ -667,7 +705,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
 //=========================================================================
 /*static*/
-void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &result, NewResourceUploadInfo::ptr_t &uploadInfo)
+void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &result, LLResourceUploadInfo::ptr_t &uploadInfo)
 {
     std::string reason;
     std::string label("CannotUploadReason");

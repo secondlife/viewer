@@ -203,9 +203,11 @@ protected:
 
 	virtual void loadAsset();
 	/*virtual*/ void saveIfNeeded(bool sync = true);
+#if  0
 	void uploadAssetViaCaps(const std::string& url,
 							const std::string& filename, 
 							const LLUUID& item_id);
+#endif //  0
 	void uploadAssetLegacy(const std::string& filename,
 							const LLUUID& item_id,
 							const LLTransactionID& tid);

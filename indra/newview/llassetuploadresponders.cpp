@@ -476,6 +476,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 }
 #endif
 
+#if 0
 LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(
 	const LLSD& post_data,
 	const LLUUID& vfile_id,
@@ -582,7 +583,7 @@ void LLUpdateAgentInventoryResponder::uploadComplete(const LLSD& content)
 		break;
 	}
 }
-
+#endif
 
 LLUpdateTaskInventoryResponder::LLUpdateTaskInventoryResponder(const LLSD& post_data,
 																 const LLUUID& vfile_id,

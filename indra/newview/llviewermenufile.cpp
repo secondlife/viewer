@@ -62,7 +62,6 @@
 #include "lluploaddialog.h"
 #include "lltrans.h"
 #include "llfloaterbuycurrency.h"
-#include "llcoproceduremanager.h"
 #include "llviewerassetupload.h"
 
 // linden libraries
@@ -437,7 +436,7 @@ class LLFileUploadBulk : public view_listener_t
                 LLStringUtil::stripNonprintable(asset_name);
                 LLStringUtil::trim(asset_name);
 
-                NewResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
+                LLResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
                     filename,
                     asset_name,
                     asset_name, 0,
@@ -636,7 +635,7 @@ LLUUID upload_new_resource(
 	void *userdata)
 {	
 
-    NewResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
+    LLResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
         src_filename,
         name, desc, compression_info,
         destination_folder_type, inv_type,
@@ -775,7 +774,7 @@ void upload_done_callback(
 }
 
 void upload_new_resource(
-    NewResourceUploadInfo::ptr_t &uploadInfo,
+    LLResourceUploadInfo::ptr_t &uploadInfo,
     LLAssetStorage::LLStoreAssetCallback callback,
     void *userdata)
 {
@@ -792,9 +791,7 @@ void upload_new_resource(
 
 	if ( !url.empty() )
 	{
-        LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo);
-
-        LLCoprocedureManager::getInstance()->enqueueCoprocedure("LLViewerAssetUpload::AssetInventoryUploadCoproc", proc);
+        LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
 	}
 	else
 	{

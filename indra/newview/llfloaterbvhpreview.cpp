@@ -994,7 +994,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 				std::string desc = floaterp->getChild<LLUICtrl>("description_form")->getValue().asString();
 				S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 
-                NewResourceUploadInfo::ptr_t assetUpdloadInfo(new NewResourceUploadInfo(
+                LLResourceUploadInfo::ptr_t assetUpdloadInfo(new LLResourceUploadInfo(
                     floaterp->mTransactionID, LLAssetType::AT_ANIMATION,
                     name, desc, 0,
                     LLFolderType::FT_NONE, LLInventoryType::IT_ANIMATION,

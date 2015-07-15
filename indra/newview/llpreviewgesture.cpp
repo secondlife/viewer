@@ -53,7 +53,6 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerassetupload.h"
-#include "llcoproceduremanager.h"
 
 std::string NONE_LABEL;
 std::string SHIFT_LABEL;
@@ -1097,7 +1096,7 @@ void LLPreviewGesture::saveIfNeeded()
         if (!agent_url.empty() && !task_url.empty())
         {
             std::string url;
-            NewResourceUploadInfo::ptr_t uploadInfo;
+            LLResourceUploadInfo::ptr_t uploadInfo;
 
             if (mObjectUUID.isNull() && !agent_url.empty())
             {
@@ -1108,13 +1107,13 @@ void LLPreviewGesture::saveIfNeeded()
                 refresh();
                 item->setComplete(true);
 
-                uploadInfo = NewResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_GESTURE, buffer,
+                uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_GESTURE, buffer,
                     boost::bind(&finishInventoryUpload, _1, _2)));
                 url = agent_url;
             }
             else if (!mObjectUUID.isNull() && !task_url.empty())
             {
-                uploadInfo = NewResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, NULL));
+                uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, NULL));
                 url = task_url;
             }
 
@@ -1122,9 +1121,7 @@ void LLPreviewGesture::saveIfNeeded()
             {
                 delayedUpload = true;
 
-                LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo);
-
-                LLCoprocedureManager::getInstance()->enqueueCoprocedure("LLViewerAssetUpload::AssetInventoryUploadCoproc", proc);
+                LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
             }
 
         }
