@@ -3,34 +3,70 @@
 	<panel.string name="loading_experience">
 		(cargando)
 	</panel.string>
-	<panel.string name="unknown">(desconocidas)</panel.string>
-	<panel.string name="unknown_multiple">(desconocido/múltiple)</panel.string>
-	<panel.string name="public">(público)</panel.string>
-	<panel.string name="you_can">Puedes:</panel.string>
-	<panel.string name="owner_can">El propietario puede:</panel.string>
-	<panel.string name="acquiredDate">[wkday,datetime,local][day,datetime,local] [mth,datetime,local] [year,datetime,local][hour,datetime,local]:[min,datetime,local]:[second,datetime,local]</panel.string>
-	<panel.string name="origin_inventory">(Inventario)</panel.string>
-	<panel.string name="origin_inworld">(En el mundo)</panel.string>
+	<panel.string name="unknown">
+		(desconocidas)
+	</panel.string>
+	<panel.string name="unknown_multiple">
+		(desconocido/múltiple)
+	</panel.string>
+	<panel.string name="public">
+		(público)
+	</panel.string>
+	<panel.string name="you_can">
+		Puedes:
+	</panel.string>
+	<panel.string name="owner_can">
+		El propietario puede:
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[wkday,datetime,local][day,datetime,local] [mth,datetime,local] [year,datetime,local][hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</panel.string>
+	<panel.string name="origin_inventory">
+		(Inventario)
+	</panel.string>
+	<panel.string name="origin_inworld">
+		(En el mundo)
+	</panel.string>
 	<text name="title" value="Perfil del elemento"/>
 	<text name="origin" value="(Inventario)"/>
 	<scroll_container name="item_profile_scroll">
 		<panel label="" name="item_profile">
-			<text name="LabelItemNameTitle">Nombre:</text>
-			<text name="LabelItemDescTitle">Descripción:</text>
-			<text name="LabelCreatorTitle">Creador:</text>
-			<text name="LabelOwnerTitle">Propietario:</text>
-			<text name="LabelAcquiredTitle">Obtenido:</text>
-			<text name="LabelItemExperienceTitle">Experiencia:</text>
+			<text name="LabelItemNameTitle">
+				Nombre:
+			</text>
+			<text name="LabelItemDescTitle">
+				Descripción:
+			</text>
+			<text name="LabelCreatorTitle">
+				Creador:
+			</text>
+			<text name="LabelOwnerTitle">
+				Propietario:
+			</text>
+			<text name="LabelAcquiredTitle">
+				Obtenido:
+			</text>
+			<text name="LabelItemExperienceTitle">
+				Experiencia:
+			</text>
 			<panel name="perms_inv">
-				<text name="perm_modify">Tú puedes:</text>
+				<text name="perm_modify">
+					Tú puedes:
+				</text>
 				<check_box label="Modificar" name="CheckOwnerModify"/>
 				<check_box label="Copiar" name="CheckOwnerCopy"/>
 				<check_box label="Transferir" name="CheckOwnerTransfer"/>
-				<text name="AnyoneLabel">Cualquiera:</text>
+				<text name="AnyoneLabel">
+					Cualquiera:
+				</text>
 				<check_box label="Copiar" name="CheckEveryoneCopy"/>
-				<text name="GroupLabel">Grupo:</text>
+				<text name="GroupLabel">
+					Grupo:
+				</text>
 				<check_box label="Compartir" name="CheckShareWithGroup" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación de este objeto. Debes transferirlo para activar las restricciones según los roles."/>
-				<text name="NextOwnerLabel">Próximo propietario:</text>
+				<text name="NextOwnerLabel">
+					Próximo propietario:
+				</text>
 				<check_box label="Modificar" name="CheckNextOwnerModify"/>
 				<check_box label="Copiar" name="CheckNextOwnerCopy"/>
 				<check_box label="Transferir" name="CheckNextOwnerTransfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>

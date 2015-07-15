@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="objectcontents" title="CONTENUTO DEGLI OGGETTI">
-	<text name="object_name">[DESC]:</text>
-	<text name="border_note">Copia nell&apos;inventario e indossa</text>
+	<text name="object_name">
+		[DESC]:
+	</text>
+	<text name="border_note">
+		Copia nell&apos;inventario e indossa
+	</text>
 	<button label="Aggiungi al vestiario" label_selected="Aggiungi al vestiario" name="copy_and_wear_button"/>
-	<button label="Copia nell&apos;Inventario" label_selected="Copia nell&apos;Inventario" name="copy_to_inventory_button"/>
-	<button label="Copia e aggiungi al vestiario" label_selected="Copia e aggiungi al vestiario" name="copy_and_wear_button"/>
 	<button label="Sostituisci vestiario" label_selected="Sostituisci vestiario" name="copy_and_replace_button"/>
 	<button label="Crea solo la copia nell&apos;inventario" label_selected="Crea solo la copia nell&apos;inventario" name="copy_to_inventory_button"/>
 	<button label="Annulla" label_selected="Annulla" name="cancel_button"/>
