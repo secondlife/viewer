@@ -1080,9 +1080,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="AgentNameSubst">
 		(あなた)
 	</string>
-	<string name="JoinAnExperience">
-		体験に参加する
-	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		土地のアクセスリストを管理するときにアラートを表示しない
 	</string>

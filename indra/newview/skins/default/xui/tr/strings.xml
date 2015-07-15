@@ -1078,9 +1078,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="AgentNameSubst">
 		(Siz)
 	</string>
-	<string name="JoinAnExperience">
-		Bir tecrübeye katılın
-	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Gayri menkul erişim listelerini yönetirken uyarıları bastır
 	</string>

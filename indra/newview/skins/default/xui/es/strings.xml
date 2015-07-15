@@ -1063,9 +1063,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="AgentNameSubst">
 		(Tú)
 	</string>
-	<string name="JoinAnExperience">
-		Únete a una experiencia
-	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas al gestionar las listas de acceso a un estado
 	</string>

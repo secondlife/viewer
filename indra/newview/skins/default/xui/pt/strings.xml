@@ -1027,9 +1027,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="AgentNameSubst">
 		(Você)
 	</string>
-	<string name="JoinAnExperience">
-		Participar de uma experiência
-	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas ao gerenciar listas de acesso ao terreno
 	</string>

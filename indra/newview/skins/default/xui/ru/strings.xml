@@ -1078,9 +1078,7 @@ support@secondlife.com.
 	<string name="AgentNameSubst">
 		(Вы)
 	</string>
-	<string name="JoinAnExperience">
-		Присоединяйтесь
-	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Отключить извещения при управлении списками доступа к землевладениям
 	</string>

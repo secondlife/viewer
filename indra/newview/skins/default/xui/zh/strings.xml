@@ -1073,9 +1073,7 @@ http://secondlife.com/viewer-access-faq
 	<string name="AgentNameSubst">
 		（你）
 	</string>
-	<string name="JoinAnExperience">
-		加入體驗
-	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		管理領出入許可名單時，不顯示警示
 	</string>
