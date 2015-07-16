@@ -452,7 +452,8 @@ class Windows_i686_Manifest(ViewerManifest):
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
                 self.path("llceflib_host.exe")
-                self.path("pdf.dll")
+                self.path("natives_blob.bin")
+                self.path("snapshot_blob.bin")
                 self.path("wow_helper.exe")
                 self.end_prefix()
         else:
@@ -465,7 +466,8 @@ class Windows_i686_Manifest(ViewerManifest):
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
                 self.path("llceflib_host.exe")
-                self.path("pdf.dll")
+                self.path("natives_blob.bin")
+                self.path("snapshot_blob.bin")
                 self.path("wow_helper.exe")
                 self.end_prefix()
 

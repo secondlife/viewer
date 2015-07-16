@@ -73,6 +73,7 @@ private:
 	void unicodeInput(const std::string &utf8str, EKeyboardModifier modifiers, LLSD native_key_data);
 
 	bool mEnableMediaPluginDebugging;
+	std::string mHostLanguage;
 	LLCEFLib* mLLCEFLib;
 };
 
@@ -86,6 +87,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mDepth = 4;
 	mPixels = 0;
 	mEnableMediaPluginDebugging = true;
+	mHostLanguage = "en";
 
 	mLLCEFLib = new LLCEFLib();
 }
@@ -286,6 +288,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.inital_height = 1024;
 				settings.javascript_enabled = true;
 				settings.cookies_enabled = true;
+				settings.accept_language_list = mHostLanguage;
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
 				{
@@ -338,6 +341,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				message.setValueS32("texture_height", texture_height);
 				sendMessage(message);
 
+			}
+			else if (message_name == "set_language_code")
+			{
+				mHostLanguage = message_in.getValue("language");
 			}
 			else if (message_name == "load_uri")
 			{
