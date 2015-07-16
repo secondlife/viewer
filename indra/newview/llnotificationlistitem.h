@@ -89,11 +89,19 @@ public:
     
     void setExpanded(BOOL value);
     virtual BOOL postBuild();
+
+    typedef enum e_time_type
+	{
+		SLT = 1,
+		Local = 2,
+		UTC = 3,
+	}ETimeType;
+
 protected:
     LLNotificationListItem(const Params& p);
     virtual ~LLNotificationListItem();
 
-    static std::string buildNotificationDate(const LLDate&);
+    static std::string buildNotificationDate(const LLDate& time_stamp, ETimeType time_type = SLT);
     void onClickExpandBtn();
     void onClickCondenseBtn();
     void onClickCloseBtn();
