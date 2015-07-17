@@ -1739,9 +1739,10 @@ void LLPanelObject::sendSculpt()
 		return;
 	
 	LLSculptParams sculpt_params;
+	LLUUID sculpt_id = LLUUID::null;
 
 	if (mCtrlSculptTexture)
-		sculpt_params.setSculptTexture(mCtrlSculptTexture->getImageAssetID());
+		sculpt_id = mCtrlSculptTexture->getImageAssetID();
 
 	U8 sculpt_type = 0;
 	
@@ -1765,7 +1766,7 @@ void LLPanelObject::sendSculpt()
 	if ((mCtrlSculptInvert) && (mCtrlSculptInvert->get()))
 		sculpt_type |= LL_SCULPT_FLAG_INVERT;
 	
-	sculpt_params.setSculptType(sculpt_type);
+	sculpt_params.setSculptTexture(sculpt_id, sculpt_type);
 	mObject->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, TRUE);
 }
 

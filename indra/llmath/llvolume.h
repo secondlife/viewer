@@ -560,10 +560,11 @@ public:
 	{
 	}
 
-	LLVolumeParams( LLProfileParams &profile,
-					LLPathParams &path,
-					LLUUID sculpt_id = LLUUID::null,
-					U8 sculpt_type = LL_SCULPT_TYPE_NONE);
+	LLVolumeParams(LLProfileParams &profile, LLPathParams &path,
+				   LLUUID sculpt_id = LLUUID::null, U8 sculpt_type = LL_SCULPT_TYPE_NONE)
+		: mProfileParams(profile), mPathParams(path), mSculptID(sculpt_id), mSculptType(sculpt_type)
+	{
+	}
 
 	bool operator==(const LLVolumeParams &params) const;
 	bool operator!=(const LLVolumeParams &params) const;

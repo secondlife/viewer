@@ -515,7 +515,7 @@ void LLLocalBitmap::updateUserSculpts(LLUUID old_id, LLUUID new_id)
 			{
 				LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 				LLSculptParams new_params(*old_params);
-				new_params.setSculptTexture(new_id);
+				new_params.setSculptTexture(new_id, (*old_params).getSculptType());
 				object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
 			}
 		}
