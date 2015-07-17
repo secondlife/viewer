@@ -74,6 +74,9 @@ private:
 
 	bool mEnableMediaPluginDebugging;
 	std::string mHostLanguage;
+	bool mCookiesEnabled;
+	bool mPluginsEnabled;
+	bool mJavascriptEnabled;
 	LLCEFLib* mLLCEFLib;
 };
 
@@ -88,7 +91,9 @@ MediaPluginBase(host_send_func, host_user_data)
 	mPixels = 0;
 	mEnableMediaPluginDebugging = true;
 	mHostLanguage = "en";
-
+	mCookiesEnabled = true;
+	mPluginsEnabled = false;
+	mJavascriptEnabled = true;
 	mLLCEFLib = new LLCEFLib();
 }
 
@@ -286,14 +291,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				LLCEFLibSettings settings;
 				settings.inital_width = 1024;
 				settings.inital_height = 1024;
-				settings.javascript_enabled = true;
-				settings.cookies_enabled = true;
+				settings.plugins_enabled = mPluginsEnabled;
+				settings.javascript_enabled = mJavascriptEnabled;
+				settings.cookies_enabled = mCookiesEnabled;
 				settings.accept_language_list = mHostLanguage;
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
 				{
-					// TODO - return something to indicate failure
-					//MessageBoxA(0, "FAIL INIT", 0, 0);
+					// if this fails, the media system in viewer will put up a message
 				}
 
 				// Plugin gets to decide the texture parameters to use.
@@ -423,7 +428,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 
 #elif LL_WINDOWS
-
 				std::string event = message_in.getValue("event");
 				S32 key = message_in.getValueS32("key");
 				std::string modifiers = message_in.getValue("modifiers");
@@ -441,9 +445,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 
 				keyEvent(key_event, key, decodeModifiers(modifiers), native_key_data);
-
 #endif
-
 			}
 			else if (message_name == "enable_media_plugin_debugging")
 			{
@@ -473,6 +475,22 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "browse_back")
 			{
 				mLLCEFLib->goBack();
+			}
+			else if (message_name == "cookies_enabled")
+			{
+				mCookiesEnabled = message_in.getValueBoolean("enable");
+std::stringstream str;
+str << "@@@@@@@##### cookies_enabled - mCookiesEnabled = " << mCookiesEnabled;
+postDebugMessage(str.str());
+
+			}
+			else if (message_name == "plugins_enabled")
+			{
+				mPluginsEnabled = message_in.getValueBoolean("enable");
+			}
+			else if (message_name == "javascript_enabled")
+			{
+				mJavascriptEnabled = message_in.getValueBoolean("enable");
 			}
 		}
 		else
