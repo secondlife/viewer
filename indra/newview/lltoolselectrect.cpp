@@ -71,7 +71,7 @@ void dialog_refresh_all(void);
 
 BOOL LLToolSelectRect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	handlePick(gViewerWindow->pickImmediate(x, y, TRUE));
+	handlePick(gViewerWindow->pickImmediate(x, y, TRUE, FALSE));
 
 	LLTool::handleMouseDown(x, y, mask);
 
