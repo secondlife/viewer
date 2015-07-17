@@ -5997,6 +5997,15 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
 	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
 
+    if (!mHasUploadPerm) 
+    {
+        LL_WARNS() << "Upload permission set to false because upload_status=\"" << upload_status << "\"" << LL_ENDL;
+    }
+    else if (mHasUploadPerm && mUploadModelUrl.empty())
+    {
+        LL_WARNS() << "Upload permission set to true but uploadModelUrl is empty!" << LL_ENDL;
+    }
+
 	//mUploadBtn->setEnabled(mHasUploadPerm);
 	mUploadBtn->setEnabled(mHasUploadPerm && !mUploadModelUrl.empty());
 	getChild<LLTextBox>("warning_title")->setVisible(!mHasUploadPerm);
