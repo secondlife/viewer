@@ -405,7 +405,7 @@ struct LLSaveNotecardInfo
 	}
 };
 
-void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId)
+void LLPreviewNotecard::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId)
 {
     // Update the UI with the new asset.
     LLPreviewNotecard* nc = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", LLSD(itemId));
@@ -475,13 +475,13 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
                 if (mObjectUUID.isNull() && !agent_url.empty())
                 {
                     uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
-                        boost::bind(&finishInventoryUpload, _1, _2, _3)));
+                        boost::bind(&LLPreviewNotecard::finishInventoryUpload, _1, _2, _3)));
                     url = agent_url;
                 }
                 else if (!mObjectUUID.isNull() && !task_url.empty())
                 {
                     uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
-                        boost::bind(&finishInventoryUpload, _1, _3, LLUUID::null)));
+                        boost::bind(&LLPreviewNotecard::finishInventoryUpload, _1, _3, LLUUID::null)));
                     url = task_url;
                 }
 

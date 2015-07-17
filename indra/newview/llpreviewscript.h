@@ -203,11 +203,7 @@ protected:
 
 	virtual void loadAsset();
 	/*virtual*/ void saveIfNeeded(bool sync = true);
-#if  0
-	void uploadAssetViaCaps(const std::string& url,
-							const std::string& filename, 
-							const LLUUID& item_id);
-#endif //  0
+
 	void uploadAssetLegacy(const std::string& filename,
 							const LLUUID& item_id,
 							const LLTransactionID& tid);
@@ -225,7 +221,7 @@ protected:
 protected:
 	static void* createScriptEdPanel(void* userdata);
 
-
+    static void finishedLSLUpload(LLUUID itemId, LLSD response);
 protected:
 
 	// Can safely close only after both text and bytecode are uploaded
@@ -272,12 +268,6 @@ private:
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
 	/*virtual*/ void saveIfNeeded(bool sync = true);
-	void uploadAssetViaCaps(const std::string& url,
-							const std::string& filename,
-							const LLUUID& task_id,
-							const LLUUID& item_id,
-							BOOL is_running,
-							const LLUUID& experience_public_id);
 	void uploadAssetLegacy(const std::string& filename,
 						   LLViewerObject* object,
 						   const LLTransactionID& tid,
@@ -304,6 +294,8 @@ private:
 	static void* createScriptEdPanel(void* userdata);
 
 	static void	onMonoCheckboxClicked(LLUICtrl*, void* userdata);
+
+    static void finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, bool isRunning);
 
 private:
 	bool				mIsNew;

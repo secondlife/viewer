@@ -1016,7 +1016,7 @@ struct LLSaveInfo
 };
 
 
-void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
+void LLPreviewGesture::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
 {
     // If this gesture is active, then we need to update the in-memory
     // active map with the new pointer.				
@@ -1108,7 +1108,7 @@ void LLPreviewGesture::saveIfNeeded()
                 item->setComplete(true);
 
                 uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_GESTURE, buffer,
-                    boost::bind(&finishInventoryUpload, _1, _2)));
+                    boost::bind(&LLPreviewGesture::finishInventoryUpload, _1, _2)));
                 url = agent_url;
             }
             else if (!mObjectUUID.isNull() && !task_url.empty())

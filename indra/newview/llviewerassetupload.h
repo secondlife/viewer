@@ -77,6 +77,7 @@ public:
     S32                 getExpectedUploadCost() const { return mExpectedUploadCost; };
 
     virtual bool        showUploadDialog() const { return true; }
+    virtual bool        showInventoryPanel() const { return true; }
 
     virtual std::string getDisplayName() const;
 
@@ -169,6 +170,7 @@ public:
     const std::string & getContents() const { return mContents; }
 
     virtual bool        showUploadDialog() const { return false; }
+    virtual bool        showInventoryPanel() const { return false; }
 
 protected:
 
@@ -186,10 +188,26 @@ private:
 class LLScriptAssetUpload : public LLBufferedAssetUploadInfo
 {
 public:
+    enum TargetType_t
+    {
+        LSL2,
+        MONO
+    };
+
     LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish);
-    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish);
+    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType, 
+            bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish);
 
     virtual LLSD        generatePostBody();
+
+    LLUUID              getExerienceId() const { return mExerienceId; }
+    TargetType_t        getTargetType() const { return mTargetType; }
+    bool                getIsRunning() const { return mIsRunning; }
+
+private:
+    LLUUID              mExerienceId;
+    TargetType_t        mTargetType;
+    bool                mIsRunning;
 
 };
 

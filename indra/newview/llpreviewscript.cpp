@@ -1642,7 +1642,8 @@ void LLPreviewLSL::onSave(void* userdata, BOOL close_after_save)
 	self->saveIfNeeded();
 }
 
-void finishedLSLUpload(LLUUID itemId, LLSD response)
+/*static*/
+void LLPreviewLSL::finishedLSLUpload(LLUUID itemId, LLSD response)
 {
     // Find our window and close it if requested.
     LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", LLSD(itemId));
@@ -1674,7 +1675,6 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
     mScriptEd->mErrorList->deleteAllItems();
     mScriptEd->mEditor->makePristine();
 
-#if 1
     if (sync)
     {
         mScriptEd->sync();
@@ -1690,12 +1690,11 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
         if (!url.empty())
         {
             std::string buffer(mScriptEd->mEditor->getText());
-            LLBufferedAssetUploadInfo::invnUploadFinish_f proc = boost::bind(&finishedLSLUpload, _1, _4);
+            LLBufferedAssetUploadInfo::invnUploadFinish_f proc = boost::bind(&LLPreviewLSL::finishedLSLUpload, _1, _4);
 
             LLResourceUploadInfo::ptr_t uploadInfo(new LLScriptAssetUpload(mItemUUID, buffer, proc));
 
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
-
         }
         else if (gAssetStorage)
         {
@@ -1711,56 +1710,7 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
             uploadAssetLegacy(filename, mItemUUID, tid);
         }
     }
-
-
-#else
-	// LL_INFOS() << "LLPreviewLSL::saveIfNeeded()" << LL_ENDL;
-
-	// save off asset into file
-	LLTransactionID tid;
-	tid.generate();
-	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id.asString());
-	std::string filename = filepath + ".lsl";
-
-	mScriptEd->writeToFile(filename);
-
-	if (sync)
-	{
-		mScriptEd->sync();
-	}
-
-	const LLInventoryItem *inv_item = getItem();
-	// save it out to asset server
-	std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgent");
-	if(inv_item)
-	{
-		getWindow()->incBusyCount();
-		mPendingUploads++;
-		if (!url.empty())
-		{
-			uploadAssetViaCaps(url, filename, mItemUUID);
-		}
-		else if (gAssetStorage)
-		{
-			uploadAssetLegacy(filename, mItemUUID, tid);
-		}
-	}
-#endif
 }
-
-#if 0
-void LLPreviewLSL::uploadAssetViaCaps(const std::string& url,
-									  const std::string& filename,
-									  const LLUUID& item_id)
-{
-	LL_INFOS() << "Update Agent Inventory via capability" << LL_ENDL;
-	LLSD body;
-	body["item_id"] = item_id;
-	body["target"] = "lsl2";
-	LLHTTPClient::post(url, body, new LLUpdateAgentInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
-}
-#endif
 
 void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 									  const LLUUID& item_id,
@@ -2384,6 +2334,33 @@ LLLiveLSLSaveData::LLLiveLSLSaveData(const LLUUID& id,
 	mItem = new LLViewerInventoryItem(item);
 }
 
+
+/*static*/
+void LLLiveLSLEditor::finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, bool isRunning)
+{
+    LLSD floater_key;
+    floater_key["taskid"] = taskId;
+    floater_key["itemid"] = itemId;
+
+    LLLiveLSLEditor* preview = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", floater_key);
+    if (preview)
+    {
+        preview->mItem->setAssetUUID(newAssetId);
+
+        // Bytecode save completed
+        if (response["compiled"])
+        {
+            preview->callbackLSLCompileSucceeded(taskId, itemId, isRunning);
+        }
+        else
+        {
+            preview->callbackLSLCompileFailed(response["errors"]);
+        }
+    }
+
+}
+
+
 // virtual
 void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 {
@@ -2394,7 +2371,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 		return;
 	}
 
-	if(mItem.isNull() || !mItem->isFinished())
+    if (mItem.isNull() || !mItem->isFinished())
 	{
 		// $NOTE: While the error message may not be exactly correct,
 		// it's pretty close.
@@ -2402,78 +2379,68 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 		return;
 	}
 
-	// get the latest info about it. We used to be losing the script
-	// name on save, because the viewer object version of the item,
-	// and the editor version would get out of synch. Here's a good
-	// place to synch them back up.
-	LLInventoryItem* inv_item = dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mItemUUID));
-	if(inv_item)
-	{
-		mItem->copyItem(inv_item);
-	}
+    // get the latest info about it. We used to be losing the script
+    // name on save, because the viewer object version of the item,
+    // and the editor version would get out of synch. Here's a good
+    // place to synch them back up.
+    LLInventoryItem* inv_item = dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mItemUUID));
+    if (inv_item)
+    {
+        mItem->copyItem(inv_item);
+    }
 
-	// Don't need to save if we're pristine
-	if(!mScriptEd->hasChanged())
-	{
-		return;
-	}
+    // Don't need to save if we're pristine
+    if(!mScriptEd->hasChanged())
+    {
+        return;
+    }
 
-	mPendingUploads = 0;
+    mPendingUploads = 0;
 
-	// save the script
-	mScriptEd->enableSave(FALSE);
-	mScriptEd->mEditor->makePristine();
-	mScriptEd->mErrorList->deleteAllItems();
+    // save the script
+    mScriptEd->enableSave(FALSE);
+    mScriptEd->mEditor->makePristine();
+    mScriptEd->mErrorList->deleteAllItems();
+    mScriptEd->mEditor->makePristine();
 
-	// set up the save on the local machine.
-	mScriptEd->mEditor->makePristine();
-	LLTransactionID tid;
-	tid.generate();
-	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,asset_id.asString());
-	std::string filename = llformat("%s.lsl", filepath.c_str());
+    if (sync)
+    {
+        mScriptEd->sync();
+    }
+    bool isRunning = getChild<LLCheckBoxCtrl>("running")->get();
+    getWindow()->incBusyCount();
+    mPendingUploads++;
 
-	mItem->setAssetUUID(asset_id);
-	mItem->setTransactionID(tid);
+    std::string url = object->getRegion()->getCapability("UpdateScriptTask");
 
-	mScriptEd->writeToFile(filename);
+    if (!url.empty())
+    {
+        std::string buffer(mScriptEd->mEditor->getText());
+        LLBufferedAssetUploadInfo::taskUploadFinish_f proc = boost::bind(&LLLiveLSLEditor::finishLSLUpload, _1, _2, _3, _4, isRunning);
 
-	if (sync)
-	{
-		mScriptEd->sync();
-	}
-	
-	// save it out to asset server
-	std::string url = object->getRegion()->getCapability("UpdateScriptTask");
-	getWindow()->incBusyCount();
-	mPendingUploads++;
-	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
-	if (!url.empty())
-	{
-		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running, mScriptEd->getAssociatedExperience());
-	}
-	else if (gAssetStorage)
-	{
-		uploadAssetLegacy(filename, object, tid, is_running);
-	}
-}
+        LLResourceUploadInfo::ptr_t uploadInfo(new LLScriptAssetUpload(mObjectUUID, mItemUUID, 
+                monoChecked() ? LLScriptAssetUpload::MONO : LLScriptAssetUpload::LSL2, 
+                isRunning, mScriptEd->getAssociatedExperience(), buffer, proc));
 
-void LLLiveLSLEditor::uploadAssetViaCaps(const std::string& url,
-										 const std::string& filename,
-										 const LLUUID& task_id,
-										 const LLUUID& item_id,
-										 BOOL is_running,
-										 const LLUUID& experience_public_id )
-{
-	LL_INFOS() << "Update Task Inventory via capability " << url << LL_ENDL;
-	LLSD body;
-	body["task_id"] = task_id;
-	body["item_id"] = item_id;
-	body["is_script_running"] = is_running;
-	body["target"] = monoChecked() ? "mono" : "lsl2";
-	body["experience"] = experience_public_id;
-	LLHTTPClient::post(url, body,
-		new LLUpdateTaskInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
+        LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+    }
+    else if (gAssetStorage)
+    {
+        // set up the save on the local machine.
+        LLTransactionID tid;
+        tid.generate();
+        LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+        std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, asset_id.asString());
+        std::string filename = llformat("%s.lsl", filepath.c_str());
+
+        mItem->setAssetUUID(asset_id);
+        mItem->setTransactionID(tid);
+
+        mScriptEd->writeToFile(filename);
+
+        uploadAssetLegacy(filename, object, tid, isRunning);
+    }
+
 }
 
 void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,

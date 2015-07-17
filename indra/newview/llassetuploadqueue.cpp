@@ -142,7 +142,6 @@ public:
 	std::string mScriptName;
 };
 
-
 LLAssetUploadQueue::LLAssetUploadQueue(LLAssetUploadQueueSupplier *supplier) :
 	mSupplier(supplier)
 {

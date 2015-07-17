@@ -559,10 +559,14 @@ LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invn
 {
 }
 
-// LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish):
-//     LLBufferedAssetUploadInfo()
-// {
-// }
+LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType,
+        bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish):
+    LLBufferedAssetUploadInfo(taskId, itemId, LLAssetType::AT_LSL_TEXT, buffer, finish),
+    mExerienceId(exerienceId),
+    mTargetType(targetType),
+    mIsRunning(isRunning)
+{
+}
 
 LLSD LLScriptAssetUpload::generatePostBody()
 {
@@ -572,6 +576,14 @@ LLSD LLScriptAssetUpload::generatePostBody()
     {
         body["item_id"] = getItemId();
         body["target"] = "lsl2";
+    }
+    else
+    {
+        body["task_id"] = getTaskId();
+        body["item_id"] = getItemId();
+        body["is_script_running"] = getIsRunning();
+        body["target"] = (getTargetType() == MONO) ? "mono" : "lsl2";
+        body["experience"] = getExerienceId();
     }
 
     return body;
@@ -670,25 +682,28 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
     LLUUID serverInventoryItem = uploadInfo->finishUpload(result);
 
-    if (serverInventoryItem.notNull())
+    if (uploadInfo->showInventoryPanel())
     {
-        success = true;
-
-        // Show the preview panel for textures and sounds to let
-        // user know that the image (or snapshot) arrived intact.
-        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel();
-        if (panel)
+        if (serverInventoryItem.notNull())
         {
-            LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
-            panel->setSelection(serverInventoryItem, TAKE_FOCUS_NO);
+            success = true;
 
-            // restore keyboard focus
-            gFocusMgr.setKeyboardFocus(focus);
+            // Show the preview panel for textures and sounds to let
+            // user know that the image (or snapshot) arrived intact.
+            LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel();
+            if (panel)
+            {
+                LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+                panel->setSelection(serverInventoryItem, TAKE_FOCUS_NO);
+
+                // restore keyboard focus
+                gFocusMgr.setKeyboardFocus(focus);
+            }
         }
-    }
-    else
-    {
-        LL_WARNS() << "Can't find a folder to put it in" << LL_ENDL;
+        else
+        {
+            LL_WARNS() << "Can't find a folder to put it in" << LL_ENDL;
+        }
     }
 
     // remove the "Uploading..." message
