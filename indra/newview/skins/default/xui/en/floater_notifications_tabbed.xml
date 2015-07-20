@@ -40,15 +40,26 @@
    name="title_notification_tabbed_window">
     NOTIFICATIONS
   </string>
-  <layout_stack width="336" height="550" enabled="true" orientation="vertical" name="TabButtonsStack" follows="left|top|right|bottom">
-  <layout_panel width="336" height="550" enabled="true" name="TabButtonsLayoutPanel">
+  <layout_stack
+    width="336"
+    height="533"
+    enabled="true"
+    orientation="vertical"
+    name="TabButtonsStack"
+    follows="left|top|right|bottom"
+    top="17">
+  <layout_panel
+    width="336"
+    height="530"
+    enabled="true"
+    name="TabButtonsLayoutPanel">
     <tab_container
      follows="left|top|right|bottom"
      halign="center"
      layout="topleft"
      tab_position="top"
      left="7"
-     top="24"
+     top="7"
      width="336"
      height="491"
      mouse_opaque="true"
