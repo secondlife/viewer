@@ -337,6 +337,11 @@ LLGroupNoticeNotificationListItem::LLGroupNoticeNotificationListItem(const Param
     buildFromFile("panel_notification_list_item.xml");
 }
 
+LLGroupNoticeNotificationListItem::~LLGroupNoticeNotificationListItem()
+{
+	LLGroupMgr::getInstance()->removeObserver(this);
+}
+
 BOOL LLGroupNoticeNotificationListItem::postBuild()
 {
     BOOL rv = LLGroupNotificationListItem::postBuild();
@@ -413,7 +418,8 @@ void LLGroupNotificationListItem::changed(LLGroupChange gc)
 {
     if (GC_PROPERTIES == gc)
     {
-        updateFromCache();
+    	updateFromCache();
+        LLGroupMgr::getInstance()->removeObserver(this);
     }
 }
 
@@ -427,19 +433,20 @@ bool LLGroupNotificationListItem::updateFromCache()
 
 void LLGroupNotificationListItem::setGroupId(const LLUUID& value)
 {
-    LLGroupMgr* gm = LLGroupMgr::getInstance();
-    if (mGroupId.notNull())
+	LLGroupMgr* gm = LLGroupMgr::getInstance();
+	if (mGroupId.notNull())
     {
         gm->removeObserver(this);
-    }
 
-    mID = mGroupId;
 
-    // Check if cache already contains image_id for that group
-    if (!updateFromCache())
-    {
-        gm->addObserver(this);
-        gm->sendGroupPropertiesRequest(mGroupId);
+        mID = mGroupId;
+
+        // Check if cache already contains image_id for that group
+        if (!updateFromCache())
+        {
+        	gm->addObserver(this);
+        	gm->sendGroupPropertiesRequest(mGroupId);
+        }
     }
 }
 
@@ -488,6 +495,7 @@ void LLGroupNoticeNotificationListItem::close()
         mInventoryOffer->forceResponse(IOR_DECLINE);
         mInventoryOffer = NULL;
     }
+    LLGroupMgr::getInstance()->removeObserver(this);
 }
 
 void LLGroupNoticeNotificationListItem::onClickAttachment()

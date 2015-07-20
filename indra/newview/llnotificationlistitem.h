@@ -184,6 +184,7 @@ class LLGroupNoticeNotificationListItem
     : public LLGroupNotificationListItem
 {
 public:
+	~LLGroupNoticeNotificationListItem();
     static std::set<std::string> getTypes();
     virtual BOOL postBuild();
 
