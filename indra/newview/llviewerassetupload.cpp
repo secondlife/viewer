@@ -486,7 +486,6 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
 
     mStoredToVFS = true;
 
-
     return LLSD().with("success", LLSD::Boolean(true));
 }
 
@@ -555,7 +554,10 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
 //=========================================================================
 
 LLScriptAssetUpload::LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish):
-    LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish)
+    LLBufferedAssetUploadInfo(itemId, LLAssetType::AT_LSL_TEXT, buffer, finish),
+    mExerienceId(),
+    mTargetType(LSL2),
+    mIsRunning(false)
 {
 }
 
@@ -567,6 +569,7 @@ LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetTyp
     mIsRunning(isRunning)
 {
 }
+
 
 LLSD LLScriptAssetUpload::generatePostBody()
 {

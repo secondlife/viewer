@@ -105,6 +105,8 @@ protected:
     void                incrementUploadStats() const;
     virtual void        assignDefaults();
 
+    void                setAssetId(LLUUID assetId) { mAssetId = assetId; }
+
 private:
     LLTransactionID     mTransactionId;
     LLAssetType::EType  mAssetType;
@@ -205,6 +207,7 @@ public:
     bool                getIsRunning() const { return mIsRunning; }
 
 private:
+    bool                mSaveToVFS;
     LLUUID              mExerienceId;
     TargetType_t        mTargetType;
     bool                mIsRunning;

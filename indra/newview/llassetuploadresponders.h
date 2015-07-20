@@ -133,6 +133,7 @@ public:
 };
 #endif
 
+#if 0
 class LLUpdateTaskInventoryResponder : public LLAssetUploadResponder
 {
 public:
@@ -152,5 +153,6 @@ public:
 private:
 	LLUUID mQueueId;
 };
+#endif 
 
 #endif // LL_LLASSETUPLOADRESPONDER_H

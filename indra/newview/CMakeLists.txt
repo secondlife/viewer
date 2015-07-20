@@ -123,7 +123,6 @@ set(viewer_SOURCE_FILES
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
-    llassetuploadqueue.cpp
     llassetuploadresponders.cpp
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
@@ -735,7 +734,6 @@ set(viewer_HEADER_FILES
     llappearancemgr.h
     llappviewer.h
     llappviewerlistener.h
-    llassetuploadqueue.h
     llassetuploadresponders.h
     llattachmentsmgr.h
     llaudiosourcevo.h
