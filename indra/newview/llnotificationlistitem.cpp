@@ -546,6 +546,9 @@ BOOL LLTransactionNotificationListItem::postBuild()
     BOOL rv = LLNotificationListItem::postBuild();
     mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
     mAvatarIconExp = getChild<LLAvatarIconCtrl>("avatar_icon_exp");
+    mAvatarIcon->setValue("System_Notification");
+    mAvatarIconExp->setValue("System_Notification");
+
     if (mParams.notification_name == "PaymentReceived")
     {
         mAvatarIcon->setValue(mParams.paid_from_id);
