@@ -164,7 +164,7 @@ void LLFloaterNameDesc::onBtnOK( )
 	void *nruserdata = NULL;
 	std::string display_name = LLStringUtil::null;
 
-    LLResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
+    LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
             mFilenameAndPath,
             getChild<LLUICtrl>("name_form")->getValue().asString(), 
             getChild<LLUICtrl>("description_form")->getValue().asString(), 0,

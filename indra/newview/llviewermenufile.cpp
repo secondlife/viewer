@@ -436,7 +436,7 @@ class LLFileUploadBulk : public view_listener_t
                 LLStringUtil::stripNonprintable(asset_name);
                 LLStringUtil::trim(asset_name);
 
-                LLResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
+                LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
                     filename,
                     asset_name,
                     asset_name, 0,
@@ -635,7 +635,7 @@ LLUUID upload_new_resource(
 	void *userdata)
 {	
 
-    LLResourceUploadInfo::ptr_t uploadInfo(new NewFileResourceUploadInfo(
+    LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
         src_filename,
         name, desc, compression_info,
         destination_folder_type, inv_type,

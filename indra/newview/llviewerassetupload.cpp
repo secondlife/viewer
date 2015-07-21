@@ -286,7 +286,7 @@ std::string LLResourceUploadInfo::getDisplayName() const
 };
 
 //=========================================================================
-NewFileResourceUploadInfo::NewFileResourceUploadInfo(
+LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
     std::string fileName,
     std::string name,
     std::string description,
@@ -306,7 +306,7 @@ NewFileResourceUploadInfo::NewFileResourceUploadInfo(
 
 
 
-LLSD NewFileResourceUploadInfo::prepareUpload()
+LLSD LLNewFileResourceUploadInfo::prepareUpload()
 {
     if (getAssetId().isNull())
         generateNewAssetId();
@@ -318,7 +318,7 @@ LLSD NewFileResourceUploadInfo::prepareUpload()
     return LLResourceUploadInfo::prepareUpload();
 }
 
-LLSD NewFileResourceUploadInfo::exportTempFile()
+LLSD LLNewFileResourceUploadInfo::exportTempFile()
 {
     std::string filename = gDirUtilp->getTempFilename();
 

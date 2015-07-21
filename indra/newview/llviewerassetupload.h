@@ -126,10 +126,10 @@ private:
 };
 
 //-------------------------------------------------------------------------
-class NewFileResourceUploadInfo : public LLResourceUploadInfo
+class LLNewFileResourceUploadInfo : public LLResourceUploadInfo
 {
 public:
-    NewFileResourceUploadInfo(
+    LLNewFileResourceUploadInfo(
         std::string fileName,
         std::string name,
         std::string description,
@@ -207,7 +207,6 @@ public:
     bool                getIsRunning() const { return mIsRunning; }
 
 private:
-    bool                mSaveToVFS;
     LLUUID              mExerienceId;
     TargetType_t        mTargetType;
     bool                mIsRunning;
