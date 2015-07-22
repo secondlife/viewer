@@ -458,6 +458,40 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType:
     
 }
 
+LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LLImageFormatted> image, invnUploadFinish_f finish) :
+    LLResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+        0, 0, 0, 0),
+    mTaskUpload(false),
+    mTaskId(LLUUID::null),
+    mContents(),
+    mInvnFinishFn(finish),
+    mTaskFinishFn(NULL),
+    mStoredToVFS(false)
+{
+    setItemId(itemId);
+
+    EImageCodec codec = static_cast<EImageCodec>(image->getCodec());
+
+    switch (codec)
+    {
+    case IMG_CODEC_JPEG:
+        setAssetType(LLAssetType::AT_IMAGE_JPEG);
+        LL_INFOS() << "Upload Asset type set to JPEG." << LL_ENDL;
+        break;
+    case IMG_CODEC_TGA:
+        setAssetType(LLAssetType::AT_IMAGE_TGA);
+        LL_INFOS() << "Upload Asset type set to TGA." << LL_ENDL;
+        break;
+    default:
+        LL_WARNS() << "Unknown codec to asset type transition. Codec=" << (int)codec << "." << LL_ENDL;
+        break;
+    }
+
+    size_t imageSize = image->getDataSize();
+    mContents.reserve(imageSize);
+    mContents.assign((char *)image->getData(), imageSize);
+}
+
 LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish) :
     LLResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
         0, 0, 0, 0),
@@ -526,24 +560,30 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
     }
     else
     {
-        LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(itemId);
-        if(!item)
+        LLUUID newItemId(LLUUID::null);
+
+        if (itemId.notNull())
         {
-            LL_WARNS() << "Inventory item for " << getDisplayName() << " is no longer in agent inventory." << LL_ENDL;
-            return newAssetId;
+            LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(itemId);
+            if (!item)
+            {
+                LL_WARNS() << "Inventory item for " << getDisplayName() << " is no longer in agent inventory." << LL_ENDL;
+                return newAssetId;
+            }
+
+            // Update viewer inventory item
+            LLPointer<LLViewerInventoryItem> newItem = new LLViewerInventoryItem(item);
+            newItem->setAssetUUID(newAssetId);
+
+            gInventory.updateItem(newItem);
+
+            newItemId = newItem->getUUID();
+            LL_INFOS() << "Inventory item " << item->getName() << " saved into " << newAssetId.asString() << LL_ENDL;
         }
-
-        // Update viewer inventory item
-        LLPointer<LLViewerInventoryItem> newItem = new LLViewerInventoryItem(item);
-        newItem->setAssetUUID(newAssetId);
-
-        gInventory.updateItem(newItem);
-
-        LL_INFOS() << "Inventory item " << item->getName() << " saved into " << newAssetId.asString() << LL_ENDL;
 
         if (mInvnFinishFn)
         {
-            mInvnFinishFn(itemId, newAssetId, newItem->getUUID(), result);
+            mInvnFinishFn(itemId, newAssetId, newItemId, result);
         }
         gInventory.notifyObservers();
     }
