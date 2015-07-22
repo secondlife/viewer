@@ -148,6 +148,22 @@ void LLResourceUploadInfo::logPreparedUpload()
         "Asset Type: " << LLAssetType::lookup(mAssetType) << LL_ENDL;
 }
 
+S32 LLResourceUploadInfo::getEconomyUploadCost()
+{
+    // Update L$ and ownership credit information
+    // since it probably changed on the server
+    if (getAssetType() == LLAssetType::AT_TEXTURE ||
+        getAssetType() == LLAssetType::AT_SOUND ||
+        getAssetType() == LLAssetType::AT_ANIMATION ||
+        getAssetType() == LLAssetType::AT_MESH)
+    {
+        return LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+    }
+
+    return 0;
+}
+
+
 LLUUID LLResourceUploadInfo::finishUpload(LLSD &result)
 {
     if (getFolderId().isNull())
@@ -660,7 +676,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
         return;
     }
 
-    //self.yield();
+    llcoro::yield();
 
     if (uploadInfo->showUploadDialog())
     {
@@ -686,43 +702,38 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
     std::string uploader = result["uploader"].asString();
 
-    result = httpAdapter->postFileAndYield(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
-    httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        HandleUploadError(status, result, uploadInfo);
-        if (uploadInfo->showUploadDialog())
-            LLUploadDialog::modalUploadFinished();
-        return;
-    }
-
-    S32 uploadPrice = 0;
-
-    // Update L$ and ownership credit information
-    // since it probably changed on the server
-    if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE ||
-        uploadInfo->getAssetType() == LLAssetType::AT_SOUND ||
-        uploadInfo->getAssetType() == LLAssetType::AT_ANIMATION ||
-        uploadInfo->getAssetType() == LLAssetType::AT_MESH)
-    {
-        uploadPrice = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-    }
-
     bool success = false;
-
-    if (uploadPrice > 0)
+    if (!uploader.empty() && uploadInfo->getAssetId().notNull())
     {
-        // this upload costed us L$, update our balance
-        // and display something saying that it cost L$
-        LLStatusBar::sendMoneyBalanceRequest();
+        result = httpAdapter->postFileAndYield(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
+        httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-        LLSD args;
-        args["AMOUNT"] = llformat("%d", uploadPrice);
-        LLNotificationsUtil::add("UploadPayment", args);
+        if (!status)
+        {
+            HandleUploadError(status, result, uploadInfo);
+            if (uploadInfo->showUploadDialog())
+                LLUploadDialog::modalUploadFinished();
+            return;
+        }
+
+        S32 uploadPrice = uploadInfo->getEconomyUploadCost();
+
+        if (uploadPrice > 0)
+        {
+            // this upload costed us L$, update our balance
+            // and display something saying that it cost L$
+            LLStatusBar::sendMoneyBalanceRequest();
+
+            LLSD args;
+            args["AMOUNT"] = llformat("%d", uploadPrice);
+            LLNotificationsUtil::add("UploadPayment", args);
+        }
     }
-
+    else
+    {
+        LL_WARNS() << "No upload url provided.  Nothing uploaded, responding with previous result." << LL_ENDL;
+    }
     LLUUID serverInventoryItem = uploadInfo->finishUpload(result);
 
     if (uploadInfo->showInventoryPanel())

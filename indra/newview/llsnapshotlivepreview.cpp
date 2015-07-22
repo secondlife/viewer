@@ -1005,7 +1005,6 @@ void LLSnapshotLivePreview::saveTexture()
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
 		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-#if 1
         std::string name = "Snapshot: " + pos_string;
         std::string desc = "Taken by " + who_took_it + " at " + pos_string;
 
@@ -1017,23 +1016,6 @@ void LLSnapshotLivePreview::saveTexture()
 
         upload_new_resource(assetUploadInfo);
 
-#else
-        LLAssetStorage::LLStoreAssetCallback callback = NULL;
-        void *userdata = NULL;
-
-		upload_new_resource(tid,	// tid
-			LLAssetType::AT_TEXTURE,
-			"Snapshot : " + pos_string,
-			"Taken by " + who_took_it + " at " + pos_string,
-			0,
-			LLFolderType::FT_SNAPSHOT_CATEGORY,
-			LLInventoryType::IT_SNAPSHOT,
-			PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
-			LLFloaterPerms::getGroupPerms("Uploads"), // that is more permissive than other uploads
-			LLFloaterPerms::getEveryonePerms("Uploads"),
-			"Snapshot : " + pos_string,
-			callback, expected_upload_cost, userdata);
-#endif
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else
