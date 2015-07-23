@@ -97,6 +97,23 @@ LLResourceUploadInfo::LLResourceUploadInfo(std::string name,
     mTransactionId.generate();
 }
 
+LLResourceUploadInfo::LLResourceUploadInfo(LLAssetID assetId, LLAssetType::EType assetType, std::string name) :
+    mAssetId(assetId),
+    mAssetType(assetType),
+    mName(name),
+    mDescription(),
+    mCompressionInfo(0),
+    mDestinationFolderType(LLFolderType::FT_NONE),
+    mInventoryType(LLInventoryType::IT_NONE),
+    mNextOwnerPerms(0),
+    mGroupPerms(0),
+    mEveryonePerms(0),
+    mExpectedUploadCost(0),
+    mTransactionId(),
+    mFolderId(LLUUID::null),
+    mItemId(LLUUID::null)
+{
+}
 
 LLSD LLResourceUploadInfo::prepareUpload()
 {
@@ -320,8 +337,6 @@ LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
 {
 }
 
-
-
 LLSD LLNewFileResourceUploadInfo::prepareUpload()
 {
     if (getAssetId().isNull())
@@ -471,7 +486,6 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType:
 {
     setItemId(itemId);
     setAssetType(assetType);
-    
 }
 
 LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LLImageFormatted> image, invnUploadFinish_f finish) :
@@ -521,7 +535,6 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemI
     setItemId(itemId);
     setAssetType(assetType);
 }
-
 
 LLSD LLBufferedAssetUploadInfo::prepareUpload()
 {
@@ -625,7 +638,6 @@ LLScriptAssetUpload::LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetTyp
     mIsRunning(isRunning)
 {
 }
-
 
 LLSD LLScriptAssetUpload::generatePostBody()
 {

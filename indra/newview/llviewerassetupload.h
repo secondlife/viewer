@@ -99,6 +99,11 @@ protected:
         U32 everyonePerms,
         S32 expectedCost);
 
+    LLResourceUploadInfo(
+        LLAssetID assetId,
+        LLAssetType::EType assetType,
+        std::string name );
+
     void                setTransactionId(LLTransactionID tid) { mTransactionId = tid; }
     void                setAssetType(LLAssetType::EType assetType) { mAssetType = assetType; }
     void                setItemId(LLUUID itemId) { mItemId = itemId; }
