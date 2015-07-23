@@ -766,7 +766,6 @@ Kitty Barnett
 	STORM-1905
     VWR-24217
 	STORM-1804
-	MAINT-5416
 Kolor Fall
 Komiko Okamoto
 Korvel Noh

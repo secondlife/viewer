@@ -1137,7 +1137,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 
 				if (prim_media_dnd_enabled)
 				{
-					LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/, FALSE );
+					LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
 
 					LLUUID object_id = pick_info.getObjectID();
 					S32 object_face = pick_info.mObjectFace;
@@ -2936,7 +2936,7 @@ void LLViewerWindow::updateUI()
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
 	{
 		gDebugRaycastFaceHit = -1;
-		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE,
+		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
 											  &gDebugRaycastFaceHit,
 											  &gDebugRaycastIntersection,
 											  &gDebugRaycastTexCoord,
@@ -3764,7 +3764,6 @@ void LLViewerWindow::pickAsync( S32 x,
 								MASK mask,
 								void (*callback)(const LLPickInfo& info),
 								BOOL pick_transparent,
-								BOOL pick_rigged,
 								BOOL pick_unselectable)
 {
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
@@ -3775,7 +3774,7 @@ void LLViewerWindow::pickAsync( S32 x,
 		pick_transparent = TRUE;
 	}
 
-	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, TRUE, pick_unselectable, callback);
+	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, FALSE, TRUE, pick_unselectable, callback);
 	schedulePick(pick_info);
 }
 
@@ -3831,7 +3830,7 @@ void LLViewerWindow::returnEmptyPicks()
 }
 
 // Performs the GL object/land pick.
-LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_particle)
+LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_transparent, BOOL pick_particle)
 {
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
 	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
@@ -3843,7 +3842,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, BOOL pick_transp
 	
 	// shortcut queueing in mPicks and just update mLastPick in place
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
-	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_rigged, pick_particle, TRUE, FALSE, NULL);
+	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_particle, TRUE, FALSE, NULL);
 	mLastPick.fetchResults();
 
 	return mLastPick;
@@ -3879,7 +3878,6 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 												LLViewerObject *this_object,
 												S32 this_face,
 												BOOL pick_transparent,
-												BOOL pick_rigged,
 												S32* face_hit,
 												LLVector4a *intersection,
 												LLVector2 *uv,
@@ -3950,7 +3948,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	{
 		if (this_object->isHUDAttachment()) // is a HUD object?
 		{
-			if (this_object->lineSegmentIntersect(mh_start, mh_end, this_face, pick_transparent, pick_rigged,
+			if (this_object->lineSegmentIntersect(mh_start, mh_end, this_face, pick_transparent,
 												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
@@ -3958,7 +3956,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 		}
 		else // is a world object
 		{
-			if (this_object->lineSegmentIntersect(mw_start, mw_end, this_face, pick_transparent, pick_rigged,
+			if (this_object->lineSegmentIntersect(mw_start, mw_end, this_face, pick_transparent,
 												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
@@ -3972,7 +3970,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 
 		if (!found) // if not found in HUD, look in world:
 		{
-			found = gPipeline.lineSegmentIntersectInWorld(mw_start, mw_end, pick_transparent, pick_rigged,
+			found = gPipeline.lineSegmentIntersectInWorld(mw_start, mw_end, pick_transparent,
 														  face_hit, intersection, uv, normal, tangent);
 			if (found && !pick_transparent)
 			{
@@ -5248,7 +5246,6 @@ LLPickInfo::LLPickInfo()
 	  mBinormal(),
 	  mHUDIcon(NULL),
 	  mPickTransparent(FALSE),
-	  mPickRigged(FALSE),
 	  mPickParticle(FALSE)
 {
 }
@@ -5256,7 +5253,6 @@ LLPickInfo::LLPickInfo()
 LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos, 
 		       MASK keyboard_mask, 
 		       BOOL pick_transparent,
-			   BOOL pick_rigged,
 			   BOOL pick_particle,
 		       BOOL pick_uv_coords,
 			   BOOL pick_unselectable,
@@ -5275,7 +5271,6 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
 	  mBinormal(),
 	  mHUDIcon(NULL),
 	  mPickTransparent(pick_transparent),
-	  mPickRigged(pick_rigged),
 	  mPickParticle(pick_particle),
 	  mPickUnselectable(pick_unselectable)
 {
@@ -5307,7 +5302,7 @@ void LLPickInfo::fetchResults()
 	}
 
 	LLViewerObject* hit_object = gViewerWindow->cursorIntersect(mMousePt.mX, mMousePt.mY, 512.f,
-									NULL, -1, mPickTransparent, mPickRigged, &face_hit,
+									NULL, -1, mPickTransparent, &face_hit,
 									&intersection, &uv, &normal, &tangent, &start, &end);
 	
 	mPickPt = mMousePt;
@@ -5452,7 +5447,7 @@ void LLPickInfo::getSurfaceInfo()
 	if (objectp)
 	{
 		if (gViewerWindow->cursorIntersect(ll_round((F32)mMousePt.mX), ll_round((F32)mMousePt.mY), 1024.f,
-										   objectp, -1, mPickTransparent, mPickRigged,
+										   objectp, -1, mPickTransparent,
 										   &mObjectFace,
 										   &intersection,
 										   &mSTCoords,

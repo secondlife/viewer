@@ -3883,7 +3883,7 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 }
 
 
-BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, S32 *face_hitp,
+BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
@@ -3902,9 +3902,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 	if (mDrawable->isState(LLDrawable::RIGGED))
 	{
-		if ((pick_rigged) || ((getAvatar()->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
+		if (LLFloater::isVisible(gFloaterTools) && getAvatar()->isSelf())
 		{
-			updateRiggedVolume(true);
+			updateRiggedVolume();
 			volume = mRiggedVolume;
 			transform = false;
 		}
@@ -4083,8 +4083,10 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 bool LLVOVolume::treatAsRigged()
 {
-	return isSelected() &&
-			isAttachment() &&
+	return LLFloater::isVisible(gFloaterTools) && 
+			isAttachment() && 
+			getAvatar() &&
+			getAvatar()->isSelf() &&
 			mDrawable.notNull() &&
 			mDrawable->isState(LLDrawable::RIGGED);
 }
@@ -4103,12 +4105,12 @@ void LLVOVolume::clearRiggedVolume()
 	}
 }
 
-void LLVOVolume::updateRiggedVolume(bool force_update)
+void LLVOVolume::updateRiggedVolume()
 {
 	//Update mRiggedVolume to match current animation frame of avatar. 
 	//Also update position/size in octree.  
 
-	if ((!force_update) && (!treatAsRigged()))
+	if (!treatAsRigged())
 	{
 		clearRiggedVolume();
 		
