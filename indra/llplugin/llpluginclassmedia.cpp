@@ -146,6 +146,8 @@ void LLPluginClassMedia::reset()
 	mClickTarget.clear();
 	mClickUUID.clear();
 	mStatusCode = 0;
+
+	mClickEnforceTarget = false;
 	
 	// media_time class
 	mCurrentTime = 0.0f;
@@ -1356,6 +1358,12 @@ void LLPluginClassMedia::addCertificateFilePath(const std::string& path)
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "add_certificate_file_path");
 	message.setValue("path", path);
 	sendMessage(message);
+}
+
+void LLPluginClassMedia::setOverrideClickTarget(const std::string &target)
+{
+	mClickEnforceTarget = true;
+	mOverrideClickTarget = target;
 }
 
 void LLPluginClassMedia::crashPlugin()
