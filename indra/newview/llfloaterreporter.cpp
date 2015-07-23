@@ -77,7 +77,6 @@
 #include "lluictrlfactory.h"
 #include "llviewernetwork.h"
 
-#include "llassetuploadresponders.h"
 #include "llagentui.h"
 
 #include "lltrans.h"

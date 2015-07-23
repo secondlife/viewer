@@ -70,16 +70,6 @@ void assign_defaults_and_show_upload_message(
 	const std::string& display_name,
 	std::string& description);
 
-void on_new_single_inventory_upload_complete(
-	LLAssetType::EType asset_type,
-	LLInventoryType::EType inventory_type,
-	const std::string inventory_type_string,
-	const LLUUID& item_folder_id,
-	const std::string& item_name,
-	const std::string& item_description,
-	const LLSD& server_response,
-	S32 upload_price);
-
 class LLFilePickerThread : public LLThread
 { //multi-threaded file picker (runs system specific file picker in background and calls "notify" from main thread)
 public:

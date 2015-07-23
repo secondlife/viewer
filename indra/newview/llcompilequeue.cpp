@@ -37,7 +37,6 @@
 #include "llcompilequeue.h"
 
 #include "llagent.h"
-#include "llassetuploadresponders.h"
 #include "llchat.h"
 #include "llfloaterreg.h"
 #include "llviewerwindow.h"

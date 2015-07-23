@@ -29,7 +29,6 @@
 #include "llpreviewscript.h"
 
 #include "llassetstorage.h"
-#include "llassetuploadresponders.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"

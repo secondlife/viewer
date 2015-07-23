@@ -31,7 +31,6 @@
 #include "llinventory.h"
 
 #include "llagent.h"
-#include "llassetuploadresponders.h"
 #include "lldraghandle.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"

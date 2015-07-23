@@ -65,7 +65,6 @@
 #include "llviewerassetupload.h"
 
 // linden libraries
-#include "llassetuploadresponders.h"
 #include "lleconomy.h"
 #include "llhttpclient.h"
 #include "llnotificationsutil.h"

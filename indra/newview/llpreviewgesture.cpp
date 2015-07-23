@@ -31,7 +31,6 @@
 #include "llanimstatelabels.h"
 #include "llanimationstates.h"
 #include "llappviewer.h"			// gVFS
-#include "llassetuploadresponders.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldatapacker.h"

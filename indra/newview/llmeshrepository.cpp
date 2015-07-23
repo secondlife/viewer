@@ -72,6 +72,10 @@
 #include "bufferstream.h"
 #include "llfasttimer.h"
 #include "llcorehttputil.h"
+#include "llstatusbar.h"
+#include "llinventorypanel.h"
+#include "lluploaddialog.h"
+#include "llfloaterreg.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -411,6 +415,17 @@ const char * const LOG_MESH = "Mesh";
 static unsigned int metrics_teleport_start_count = 0;
 boost::signals2::connection metrics_teleport_started_signal;
 static void teleport_started();
+
+void on_new_single_inventory_upload_complete(
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inventory_type,
+    const std::string inventory_type_string,
+    const LLUUID& item_folder_id,
+    const std::string& item_name,
+    const std::string& item_description,
+    const LLSD& server_response,
+    S32 upload_price);
+
 
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
@@ -4567,3 +4582,122 @@ void teleport_started()
 	LLMeshRepository::metricsStart();
 }
 
+
+void on_new_single_inventory_upload_complete(
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inventory_type,
+    const std::string inventory_type_string,
+    const LLUUID& item_folder_id,
+    const std::string& item_name,
+    const std::string& item_description,
+    const LLSD& server_response,
+    S32 upload_price)
+{
+    bool success = false;
+
+    if (upload_price > 0)
+    {
+        // this upload costed us L$, update our balance
+        // and display something saying that it cost L$
+        LLStatusBar::sendMoneyBalanceRequest();
+
+        LLSD args;
+        args["AMOUNT"] = llformat("%d", upload_price);
+        LLNotificationsUtil::add("UploadPayment", args);
+    }
+
+    if (item_folder_id.notNull())
+    {
+        U32 everyone_perms = PERM_NONE;
+        U32 group_perms = PERM_NONE;
+        U32 next_owner_perms = PERM_ALL;
+        if (server_response.has("new_next_owner_mask"))
+        {
+            // The server provided creation perms so use them.
+            // Do not assume we got the perms we asked for in
+            // since the server may not have granted them all.
+            everyone_perms = server_response["new_everyone_mask"].asInteger();
+            group_perms = server_response["new_group_mask"].asInteger();
+            next_owner_perms = server_response["new_next_owner_mask"].asInteger();
+        }
+        else
+        {
+            // The server doesn't provide creation perms
+            // so use old assumption-based perms.
+            if (inventory_type_string != "snapshot")
+            {
+                next_owner_perms = PERM_MOVE | PERM_TRANSFER;
+            }
+        }
+
+        LLPermissions new_perms;
+        new_perms.init(
+            gAgent.getID(),
+            gAgent.getID(),
+            LLUUID::null,
+            LLUUID::null);
+
+        new_perms.initMasks(
+            PERM_ALL,
+            PERM_ALL,
+            everyone_perms,
+            group_perms,
+            next_owner_perms);
+
+        U32 inventory_item_flags = 0;
+        if (server_response.has("inventory_flags"))
+        {
+            inventory_item_flags = (U32)server_response["inventory_flags"].asInteger();
+            if (inventory_item_flags != 0)
+            {
+                LL_INFOS() << "inventory_item_flags " << inventory_item_flags << LL_ENDL;
+            }
+        }
+        S32 creation_date_now = time_corrected();
+        LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
+            server_response["new_inventory_item"].asUUID(),
+            item_folder_id,
+            new_perms,
+            server_response["new_asset"].asUUID(),
+            asset_type,
+            inventory_type,
+            item_name,
+            item_description,
+            LLSaleInfo::DEFAULT,
+            inventory_item_flags,
+            creation_date_now);
+
+        gInventory.updateItem(item);
+        gInventory.notifyObservers();
+        success = true;
+
+        // Show the preview panel for textures and sounds to let
+        // user know that the image (or snapshot) arrived intact.
+        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel();
+        if (panel)
+        {
+            LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+
+            panel->setSelection(
+                server_response["new_inventory_item"].asUUID(),
+                TAKE_FOCUS_NO);
+
+            // restore keyboard focus
+            gFocusMgr.setKeyboardFocus(focus);
+        }
+    }
+    else
+    {
+        LL_WARNS() << "Can't find a folder to put it in" << LL_ENDL;
+    }
+
+    // remove the "Uploading..." message
+    LLUploadDialog::modalUploadFinished();
+
+    // Let the Snapshot floater know we have finished uploading a snapshot to inventory.
+    LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+    if (asset_type == LLAssetType::AT_TEXTURE && floater_snapshot)
+    {
+        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+    }
+}

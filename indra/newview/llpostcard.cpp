@@ -36,7 +36,6 @@
 
 #include "llagent.h"
 #include "llassetstorage.h"
-#include "llassetuploadresponders.h"
 #include "llviewerassetupload.h"
 
 ///////////////////////////////////////////////////////////////////////////////
