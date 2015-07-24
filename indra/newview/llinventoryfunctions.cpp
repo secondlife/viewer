@@ -2609,6 +2609,11 @@ void LLInventoryAction::buildMarketplaceFolders(LLFolderView* root)
     // Note: do not however put the marketplace listings root itself in this list or the whole marketplace data will be rebuilt.
     sMarketplaceFolders.clear();
     const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    if (marketplacelistings_id.isNull())
+    {
+    	return;
+    }
+
     std::set<LLFolderViewItem*> selected_items = root->getSelectionList();
     std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin();
     LLFolderViewModelItemInventory * viewModel = NULL;
