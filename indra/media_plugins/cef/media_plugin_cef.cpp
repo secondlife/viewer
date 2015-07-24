@@ -52,6 +52,7 @@ public:
 	/*virtual*/
 	void receiveMessage(const char* message_string);
 
+
 private:
 	bool init();
 
@@ -63,9 +64,10 @@ private:
 	void onLoadStartCallback();
 	void onLoadEndCallback(int httpStatusCode);
 	void onNavigateURLCallback(std::string url);
+	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
 
 	void postDebugMessage(const std::string& msg);
-
+	void authResponse(LLPluginMessage &message);
 
 	EKeyboardModifier decodeModifiers(std::string &modifiers);
 	void deserializeKeyboardData(LLSD native_key_data, uint32_t& native_scan_code, uint32_t& native_virtual_key, uint32_t& native_modifiers);
@@ -77,6 +79,9 @@ private:
 	bool mCookiesEnabled;
 	bool mPluginsEnabled;
 	bool mJavascriptEnabled;
+	std::string mAuthUsername;
+	std::string mAuthPassword;
+	bool mAuthOK;
 	LLCEFLib* mLLCEFLib;
 };
 
@@ -94,6 +99,9 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCookiesEnabled = true;
 	mPluginsEnabled = false;
 	mJavascriptEnabled = true;
+	mAuthUsername = "";
+	mAuthPassword = "";
+	mAuthOK = false;
 	mLLCEFLib = new LLCEFLib();
 }
 
@@ -205,6 +213,39 @@ void MediaPluginCEF::onNavigateURLCallback(std::string url)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+bool MediaPluginCEF::onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password)
+{
+	mAuthOK = false;
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "auth_request");
+	message.setValue("url", host);
+	message.setValue("realm", realm);
+	message.setValueBoolean("blocking_request", true);
+
+	// The "blocking_request" key in the message means this sendMessage call will block until a response is received.
+	sendMessage(message);
+
+	if (mAuthOK)
+	{
+		username = mAuthUsername;
+		password = mAuthPassword;
+	}
+
+	return mAuthOK;
+}
+
+void MediaPluginCEF::authResponse(LLPluginMessage &message)
+{
+	mAuthOK = message.getValueBoolean("ok");
+	if (mAuthOK)
+	{
+		mAuthUsername = message.getValue("username");
+		mAuthPassword = message.getValue("password");
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 void MediaPluginCEF::receiveMessage(const char* message_string)
 {
 	//  std::cerr << "MediaPluginWebKit::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
@@ -287,6 +328,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnLoadStartCallback(boost::bind(&MediaPluginCEF::onLoadStartCallback, this));
 				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
 				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1));
+				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
 
 				LLCEFLibSettings settings;
 				settings.inital_width = 1024;
@@ -450,6 +492,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "enable_media_plugin_debugging")
 			{
 				mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
+			}
+			if (message_name == "auth_response")
+			{
+				authResponse(message_in);
 			}
 		}
 		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
