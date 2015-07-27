@@ -56,7 +56,7 @@ public:
 private:
 	bool init();
 
-	void pageChangedCallback(unsigned char* pixels, int width, int height);
+	void onPageChangedCallback(unsigned char* pixels, int width, int height);
 	void onCustomSchemeURLCallback(std::string url);
 	void onConsoleMessageCallback(std::string message, std::string source, int line);
 	void onStatusMessageCallback(std::string value);
@@ -79,6 +79,7 @@ private:
 	bool mCookiesEnabled;
 	bool mPluginsEnabled;
 	bool mJavascriptEnabled;
+	std::string mUserAgentSubtring;
 	std::string mAuthUsername;
 	std::string mAuthPassword;
 	bool mAuthOK;
@@ -99,6 +100,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCookiesEnabled = true;
 	mPluginsEnabled = false;
 	mJavascriptEnabled = true;
+	mUserAgentSubtring = "";
 	mAuthUsername = "";
 	mAuthPassword = "";
 	mAuthOK = false;
@@ -130,7 +132,7 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::pageChangedCallback(unsigned char* pixels, int width, int height)
+void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int width, int height)
 {
 	if (mPixels && pixels)
 	{
@@ -320,7 +322,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			if (message_name == "init")
 			{
 				// event callbacks from LLCefLib
-				mLLCEFLib->setPageChangedCallback(boost::bind(&MediaPluginCEF::pageChangedCallback, this, _1, _2, _3));
+				mLLCEFLib->setOnPageChangedCallback(boost::bind(&MediaPluginCEF::onPageChangedCallback, this, _1, _2, _3));
 				mLLCEFLib->setOnCustomSchemeURLCallback(boost::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, _1));
 				mLLCEFLib->setOnConsoleMessageCallback(boost::bind(&MediaPluginCEF::onConsoleMessageCallback, this, _1, _2, _3));
 				mLLCEFLib->setOnStatusMessageCallback(boost::bind(&MediaPluginCEF::onStatusMessageCallback, this, _1));
@@ -337,6 +339,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.javascript_enabled = mJavascriptEnabled;
 				settings.cookies_enabled = mCookiesEnabled;
 				settings.accept_language_list = mHostLanguage;
+				settings.user_agent_substring = mUserAgentSubtring;
+
+				std::stringstream str;
+				str << "@@@@@@@@@@ Initializing with  = user_agent_substring = " << mUserAgentSubtring;
+				postDebugMessage(str.str());
+
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
 				{
@@ -525,10 +533,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "cookies_enabled")
 			{
 				mCookiesEnabled = message_in.getValueBoolean("enable");
-std::stringstream str;
-str << "@@@@@@@##### cookies_enabled - mCookiesEnabled = " << mCookiesEnabled;
-postDebugMessage(str.str());
+			}
+			else if (message_name == "set_user_agent")
+			{
+				mUserAgentSubtring = message_in.getValue("user_agent");
 
+				std::stringstream str;
+				str << "@@@@@@@@@@ setting mUserAgentSubtring = " << mUserAgentSubtring;
+				postDebugMessage(str.str());
 			}
 			else if (message_name == "plugins_enabled")
 			{
