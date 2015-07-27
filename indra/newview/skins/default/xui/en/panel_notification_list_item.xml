@@ -113,7 +113,7 @@
                     </panel>
                     <panel border="false" left="0" height="115" width="230" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_text_panel_exp" visible="true">
                       <text_editor enabled="false" top="0" left="0" width="230" height="110" layout="topleft" follows="left|top|right|bottom"
-                            word_wrap="true" max_length="65536" name="notification_text_exp" parse_highlights="true" parse_urls="true">
+                            word_wrap="true" max_length="65536" name="notification_text_exp" parse_urls="true">
                         Notice text goes here b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. bla bla bla bla bla bla bla bla bla bla bla bla bla .
                       </text_editor>
                     </panel>
