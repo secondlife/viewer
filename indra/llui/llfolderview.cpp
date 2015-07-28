@@ -730,7 +730,7 @@ void LLFolderView::removeSelectedItems()
 		// structures.
 		std::vector<LLFolderViewItem*> items;
 		S32 count = mSelectedItems.size();
-		if(count == 0) return;
+		if(count <= 0) return;
 		LLFolderViewItem* item = NULL;
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
