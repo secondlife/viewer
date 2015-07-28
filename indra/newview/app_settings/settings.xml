@@ -14340,6 +14340,24 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PoolSizeAIS</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for AIS</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>25</integer>
+        </map>
+    <key>PoolSizeUpload</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for Upload</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
 
     <!-- Settings below are for back compatibility only.
     They are not used in current viewer anymore. But they can't be removed to avoid

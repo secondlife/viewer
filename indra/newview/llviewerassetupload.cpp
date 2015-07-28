@@ -666,7 +666,8 @@ LLUUID LLViewerAssetUpload::EnqueueInventoryUpload(const std::string &url, const
 {
     std::string procName("LLViewerAssetUpload::AssetInventoryUploadCoproc(");
     
-    LLUUID queueId = LLCoprocedureManager::getInstance()->enqueueCoprocedure(procName + LLAssetType::lookup(uploadInfo->getAssetType()) + ")",
+    LLUUID queueId = LLCoprocedureManager::getInstance()->enqueueCoprocedure("Upload", 
+        procName + LLAssetType::lookup(uploadInfo->getAssetType()) + ")",
         boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo));
 
     return queueId;

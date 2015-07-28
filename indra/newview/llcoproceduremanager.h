@@ -33,6 +33,8 @@
 #include "llcorehttputil.h"
 #include "lluuid.h"
 
+class LLCoprocedurePool;
+
 class LLCoprocedureManager : public LLSingleton < LLCoprocedureManager >
 {
 public:
@@ -47,7 +49,7 @@ public:
     /// @param proc Is a bound function to be executed 
     /// 
     /// @return This method returns a UUID that can be used later to cancel execution.
-    LLUUID enqueueCoprocedure(const std::string &name, CoProcedure_t proc);
+    LLUUID enqueueCoprocedure(const std::string &pool, const std::string &name, CoProcedure_t proc);
 
     /// Cancel a coprocedure. If the coprocedure is already being actively executed 
     /// this method calls cancelYieldingOperation() on the associated HttpAdapter
@@ -60,58 +62,26 @@ public:
 
     /// Returns the number of coprocedures in the queue awaiting processing.
     ///
-    inline size_t countPending() const
-    {
-        return mPendingCoprocs.size();
-    }
+    size_t countPending() const;
+    size_t countPending(const std::string &pool) const;
 
     /// Returns the number of coprocedures actively being processed.
     ///
-    inline size_t countActive() const
-    {
-        return mActiveCoprocs.size();
-    }
+    size_t countActive() const;
+    size_t countActive(const std::string &pool) const;
 
     /// Returns the total number of coprocedures either queued or in active processing.
     ///
-    inline size_t count() const
-    {
-        return countPending() + countActive();
-    }
+    size_t count() const;
+    size_t count(const std::string &pool) const;
 
 private:
-    struct QueuedCoproc
-    {
-        typedef boost::shared_ptr<QueuedCoproc> ptr_t;
+    typedef boost::shared_ptr<LLCoprocedurePool> poolPtr_t;
+    typedef std::map<std::string, poolPtr_t> poolMap_t;
 
-        QueuedCoproc(const std::string &name, const LLUUID &id, CoProcedure_t proc):
-            mName(name),
-            mId(id),
-            mProc(proc)
-        {}
+    poolMap_t mPoolMap;
 
-        std::string mName;
-        LLUUID mId;
-        CoProcedure_t mProc;
-    };
-    
-    // we use a deque here rather than std::queue since we want to be able to 
-    // iterate through the queue and potentially erase an entry from the middle.
-    typedef std::deque<QueuedCoproc::ptr_t>  CoprocQueue_t;  
-    typedef std::map<LLUUID, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> ActiveCoproc_t;
-
-    CoprocQueue_t   mPendingCoprocs;
-    ActiveCoproc_t  mActiveCoprocs;
-    bool            mShutdown;
-    LLEventStream   mWakeupTrigger;
-
-
-    typedef std::map<std::string, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> CoroAdapterMap_t;
-    LLCore::HttpRequest::policy_t mHTTPPolicy;
-
-    CoroAdapterMap_t mCoroMapping;
-
-    void coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter);
+    poolPtr_t initializePool(const std::string &poolName);
 };
 
 #endif
