@@ -139,14 +139,14 @@ LLCoprocedureManager::~LLCoprocedureManager()
 
 LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::string &poolName)
 {
-    // *TODO: Retrieve the actual number of concurrent coroutines fro gSavedSettings and
-    // clamp to a "reasonable" number.
+    // Attempt to look up a pool size in the configuration.  If found use that
     std::string keyName = "PoolSize" + poolName;
     int size = 5;
 
     size = gSavedSettings.getU32(keyName);
     if (size == 0)
-    {
+    {   // if not found grab the know default... if there is no known 
+        // default use a reasonable number like 5.
         std::map<std::string, U32>::iterator it = DefaultPoolSizes.find(poolName);
         if (it == DefaultPoolSizes.end())
             size = DEFAULT_POOL_SIZE;
@@ -165,6 +165,8 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
 //-------------------------------------------------------------------------
 LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const std::string &name, CoProcedure_t proc)
 {
+    // Attempt to find the pool and enqueue the procedure.  If the pool does 
+    // not exist, create it.
     poolPtr_t targetPool;
     poolMap_t::iterator it = mPoolMap.find(pool);
 
