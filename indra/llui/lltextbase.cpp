@@ -2063,6 +2063,20 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 
 			// output the styled Url
 			appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
+			bool tooltip_required =  !match.getTooltip().empty();
+
+			// set the tooltip for the Url label
+			if (tooltip_required)
+			{
+				segment_set_t::iterator it = getSegIterContaining(getLength()-1);
+				if (it != mSegments.end())
+				{
+					LLTextSegmentPtr segment = *it;
+					segment->setToolTip(match.getTooltip());
+				}
+			}
+
+
 
 			// show query part of url with gray color only for LLUrlEntryHTTP url entries
 			std::string label = match.getQuery();
@@ -2071,16 +2085,16 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				link_params.color = LLColor4::grey;
 				link_params.readonly_color = LLColor4::grey;
 				appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
-			}
-			
-			// set the tooltip for the Url label
-			if (! match.getTooltip().empty())
-			{
-				segment_set_t::iterator it = getSegIterContaining(getLength()-1);
-				if (it != mSegments.end())
+
+				// set the tooltip for the query part of url
+				if (tooltip_required)
 				{
-					LLTextSegmentPtr segment = *it;
-					segment->setToolTip(match.getTooltip());
+					segment_set_t::iterator it = getSegIterContaining(getLength()-1);
+					if (it != mSegments.end())
+					{
+						LLTextSegmentPtr segment = *it;
+						segment->setToolTip(match.getTooltip());
+					}
 				}
 			}
 
