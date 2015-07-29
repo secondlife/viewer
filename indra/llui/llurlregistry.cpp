@@ -76,9 +76,6 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntrySL());
 	mUrlEntrySLLabel = new LLUrlEntrySLLabel();
 	registerUrl(mUrlEntrySLLabel);
-	// most common pattern is a URL without any protocol starting with "www",
-	// e.g., "www.secondlife.com"
-	registerUrl(new LLUrlEntryHTTPNoProtocol());	
 	registerUrl(new LLUrlEntryEmail());
 }
 
