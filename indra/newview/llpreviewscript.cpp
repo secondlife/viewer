@@ -1391,6 +1391,8 @@ void LLLiveLSLEditor::buildExperienceList()
 	else
 	{
 		mExperiences->setEnabled(TRUE);
+		mExperiences->sortByName(TRUE);
+		mExperiences->setCurrentByIndex(mExperiences->getCurrentIndex());
 		getChild<LLButton>("view_profile")->setVisible(TRUE);
 	}
 }
