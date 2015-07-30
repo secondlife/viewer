@@ -633,6 +633,10 @@ void LLAssetStorage::downloadCompleteCallback(
 			vfile.remove();
 		}
 	}
+
+	// we will be deleting elements of mPendingDownloads which req might be part of, save id and type for reference
+	LLUUID callback_id = req->getUUID();
+	LLAssetType::EType callback_type = req->getType();
 	
 	// find and callback ALL pending requests for this UUID
 	// SJB: We process the callbacks in reverse order, I do not know if this is important,
@@ -660,7 +664,7 @@ void LLAssetStorage::downloadCompleteCallback(
 			{
 				add(sFailedDownloadCount, 1);
 			}
-			tmp->mDownCallback(gAssetStorage->mVFS, req->getUUID(), req->getType(), tmp->mUserData, result, ext_status);
+			tmp->mDownCallback(gAssetStorage->mVFS, callback_id, callback_type, tmp->mUserData, result, ext_status);
 		}
 		delete tmp;
 	}
