@@ -456,6 +456,24 @@ public:
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
+
+    /// Execute a Post transaction on the supplied URL and yield execution of 
+    /// the coroutine until a result is available. 
+    /// 
+    /// @Note: the request's smart pointer is passed by value so that it will
+    /// not be deallocated during the yield.
+    LLSD patchAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+    LLSD patchAndYield(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return patchAndYield(request, url, body,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
+    }
+
     ///
     void cancelYieldingOperation();
 
@@ -517,6 +535,11 @@ private:
     LLSD deleteAndYield_(LLCore::HttpRequest::ptr_t &request,
         const std::string & url, LLCore::HttpOptions::ptr_t &options,
         LLCore::HttpHeaders::ptr_t &headers, HttpCoroHandler::ptr_t &handler);
+
+    LLSD patchAndYield_(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+        HttpCoroHandler::ptr_t &handler);
 
     static void trivialGetCoro(std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure);
     static void trivialPostCoro(std::string url, LLCore::HttpRequest::policy_t policyId, LLSD postData, completionCallback_t success, completionCallback_t failure);

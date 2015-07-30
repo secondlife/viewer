@@ -831,6 +831,44 @@ LLSD HttpCoroutineAdapter::deleteAndYield_(LLCore::HttpRequest::ptr_t &request,
     return results;
 }
 
+LLSD HttpCoroutineAdapter::patchAndYield(LLCore::HttpRequest::ptr_t request,
+    const std::string & url, const LLSD & body,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName + "Reply", true);
+    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+
+    return patchAndYield_(request, url, body, options, headers, httpHandler);
+}
+
+
+LLSD HttpCoroutineAdapter::patchAndYield_(LLCore::HttpRequest::ptr_t &request,
+    const std::string & url, const LLSD & body,
+    LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+    HttpCoroHandler::ptr_t &handler)
+{
+    HttpRequestPumper pumper(request);
+
+    checkDefaultHeaders(headers);
+
+    // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
+    // pointer from the smart pointer is safe in this case.
+    LLCore::HttpHandle hhandle = requestPatchWithLLSD(request,
+        mPolicyId, mPriority, url, body, options, headers,
+        handler.get());
+
+    if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
+    }
+
+    saveState(hhandle, request, handler);
+    LLSD results = llcoro::waitForEventOn(handler->getReplyPump());
+    cleanState();
+    //LL_INFOS() << "Results for transaction " << transactionId << LL_ENDL;
+    return results;
+}
+
 void HttpCoroutineAdapter::checkDefaultHeaders(LLCore::HttpHeaders::ptr_t &headers)
 {
     if (!headers)
@@ -838,6 +876,10 @@ void HttpCoroutineAdapter::checkDefaultHeaders(LLCore::HttpHeaders::ptr_t &heade
     if (!headers->find(HTTP_OUT_HEADER_ACCEPT))
     {
         headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
+    }
+    if (!headers->find(HTTP_OUT_HEADER_CONTENT_TYPE))
+    {
+        headers->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
     }
 
     if (!headers->find("X-SecondLife-UDP-Listen-Port") && gMessageSystem)

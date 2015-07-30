@@ -79,6 +79,15 @@ static const char * const LOG_INV("Inventory");
 static const char * const LOG_LOCAL("InventoryLocalize");
 static const char * const LOG_NOTECARD("copy_inventory_from_notecard");
 
+#if 1
+// temp code in transition
+void doInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
+{
+    if (cb.notNull())
+        cb->fire(id);
+}
+#endif
+
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names and their localized values.
 ///----------------------------------------------------------------------------
@@ -1255,8 +1264,13 @@ void link_inventory_array(const LLUUID& category,
 	{
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["links"] = links;
-		LLPointer<AISCommand> cmd_ptr = new CreateInventoryCommand(category, new_inventory, cb);
-		ais_ran = cmd_ptr->run_command();
+#if 1
+        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::CreateInventoryCommand(category, new_inventory, compl);
+#else
+ 		LLPointer<AISCommand> cmd_ptr = new CreateInventoryCommand(category, new_inventory, cb);
+ 		ais_ran = cmd_ptr->run_command();
+#endif
 	}
 
 	if (!ais_ran)
@@ -1331,8 +1345,13 @@ void update_inventory_item(
 			updates.erase("shadow_id");
 			updates["hash_id"] = update_item->getTransactionID();
 		}
+#if 1
+        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::UpdateItemCommand(item_id, updates, compl);
+#else
 		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
 		ais_ran = cmd_ptr->run_command();
+#endif
 	}
 	if (!ais_ran)
 	{
@@ -1373,8 +1392,13 @@ void update_inventory_item(
 	bool ais_ran = false;
 	if (AISCommand::isAPIAvailable())
 	{
+#if 1
+        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::UpdateItemCommand(item_id, updates, compl);
+#else
 		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
 		ais_ran = cmd_ptr->run_command();
+#endif
 	}
 	if (!ais_ran)
 	{
@@ -1429,8 +1453,13 @@ void update_inventory_category(
 		if (AISCommand::isAPIAvailable())
 		{
 			LLSD new_llsd = new_cat->asLLSD();
+#if 1
+            AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::UpdateCategoryCommand(cat_id, new_llsd, compl);
+#else
 			LLPointer<AISCommand> cmd_ptr = new UpdateCategoryCommand(cat_id, new_llsd, cb);
 			cmd_ptr->run_command();
+#endif
 		}
 		else // no cap
 		{
@@ -1494,8 +1523,13 @@ void remove_inventory_item(
 		LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << obj->getName() << LL_ENDL;
 		if (AISCommand::isAPIAvailable())
 		{
+#if 1
+            AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::RemoveItemCommand(item_id, compl);
+#else
 			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
 			cmd_ptr->run_command();
+#endif
 
 			if (immediate_delete)
 			{
@@ -1570,8 +1604,13 @@ void remove_inventory_category(
 		}
 		if (AISCommand::isAPIAvailable())
 		{
+#if 1
+            AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::RemoveCategoryCommand(cat_id, compl);
+#else
 			LLPointer<AISCommand> cmd_ptr = new RemoveCategoryCommand(cat_id, cb);
 			cmd_ptr->run_command();
+#endif
 		}
 		else // no cap
 		{
@@ -1673,8 +1712,13 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		{
 			if (AISCommand::isAPIAvailable())
 			{
-				LLPointer<AISCommand> cmd_ptr = new PurgeDescendentsCommand(id, cb);
+#if 1
+                AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+                AISAPI::PurgeDescendentsCommand(id, compl);
+#else
+                LLPointer<AISCommand> cmd_ptr = new PurgeDescendentsCommand(id, cb);
 				cmd_ptr->run_command();
+#endif
 			}
 			else // no cap
 			{
@@ -1825,8 +1869,13 @@ void slam_inventory_folder(const LLUUID& folder_id,
 	{
 		LL_DEBUGS(LOG_INV) << "using AISv3 to slam folder, id " << folder_id
 						   << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
+#if 1
+        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::SlamFolderCommand(folder_id, contents, compl);
+#else
 		LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
 		cmd_ptr->run_command();
+#endif
 	}
 	else // no cap
 	{
