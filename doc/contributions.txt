@@ -185,6 +185,9 @@ Ansariel Hiller
 	BUG-3764
 	STORM-1984
 	STORM-1979
+	STORM-2083
+	STORM-2094
+	MAINT-4677
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -328,6 +331,7 @@ Cinder Roxley
     STORM-2037
     STORM-2053
     STORM-2113
+    STORM-2098
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -723,6 +727,11 @@ Jonathan Yap
 	STORM-2034
 	STORM-2018
 	STORM-2082
+	STORM-2086
+	STORM-2085
+	STORM-2088
+	STORM-2094
+	STORM-2099
 Kadah Coba
 	STORM-1060
     STORM-1843

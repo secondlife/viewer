@@ -673,7 +673,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 						S32 seg_start = cur - base;
 						S32 seg_end = seg_start + seg_len;
 
-						// llinfos << "Seg: [" << word.c_str() << "]" << llendl;
+						// LL_INFOS("SyntaxLSL") << "Seg: [" << word.c_str() << "]" << LL_ENDL;
 
 						insertSegments(wtext, *seg_list,cur_token, text_len, seg_start, seg_end, defaultColor, editor);
 					}
@@ -740,10 +740,10 @@ void LLKeywords::insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSe
 #ifdef _DEBUG
 void LLKeywords::dump()
 {
-	llinfos << "LLKeywords" << llendl;
+	LL_INFOS() << "LLKeywords" << LL_ENDL;
 
 
-	llinfos << "LLKeywords::sWordTokenMap" << llendl;
+	LL_INFOS() << "LLKeywords::sWordTokenMap" << LL_ENDL;
 	word_token_map_t::iterator word_token_iter = mWordTokenMap.begin();
 	while( word_token_iter != mWordTokenMap.end() )
 	{
@@ -752,7 +752,7 @@ void LLKeywords::dump()
 		++word_token_iter;
 	}
 
-	llinfos << "LLKeywords::sLineTokenList" << llendl;
+	LL_INFOS() << "LLKeywords::sLineTokenList" << LL_ENDL;
 	for (token_list_t::iterator iter = mLineTokenList.begin();
 		 iter != mLineTokenList.end(); ++iter)
 	{
@@ -761,7 +761,7 @@ void LLKeywords::dump()
 	}
 
 
-	llinfos << "LLKeywords::sDelimiterTokenList" << llendl;
+	LL_INFOS() << "LLKeywords::sDelimiterTokenList" << LL_ENDL;
 	for (token_list_t::iterator iter = mDelimiterTokenList.begin();
 		 iter != mDelimiterTokenList.end(); ++iter)
 	{
@@ -772,12 +772,12 @@ void LLKeywords::dump()
 
 void LLKeywordToken::dump()
 {
-	llinfos << "[" <<
+	LL_INFOS() << "[" <<
 		mColor.mV[VX] << ", " <<
 		mColor.mV[VY] << ", " <<
 		mColor.mV[VZ] << "] [" <<
 		wstring_to_utf8str(mToken) << "]" <<
-		llendl;
+		LL_ENDL;
 }
 
 #endif  // DEBUG

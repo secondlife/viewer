@@ -160,6 +160,8 @@ public:
 	autoreplace_callback_t mAutoreplaceCallback;
 	void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
 
+	/*virtual*/ void	onSpellCheckPerformed();
+
 	//
 	// Text manipulation
 	//

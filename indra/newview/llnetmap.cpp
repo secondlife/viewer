@@ -96,13 +96,13 @@ LLNetMap::LLNetMap (const Params & p)
 	mToolTipMsg(),
 	mPopupMenu(NULL)
 {
+	mScale = gSavedSettings.getF32("MiniMapScale");
+	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
 	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
-	setScale(gSavedSettings.getF32("MiniMapScale"));
 }
 
 LLNetMap::~LLNetMap()
 {
-	gSavedSettings.setF32("MiniMapScale", mScale);
 }
 
 BOOL LLNetMap::postBuild()
@@ -136,6 +136,8 @@ void LLNetMap::setScale( F32 scale )
 
 	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
 	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
+
+	gSavedSettings.setF32("MiniMapScale", mScale);
 
 	mUpdateNow = true;
 }

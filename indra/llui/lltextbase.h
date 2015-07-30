@@ -362,6 +362,7 @@ public:
 	std::string				getMisspelledWord(U32 pos) const;
 	bool					isMisspelledWord(U32 pos) const;
 	void					onSpellCheckSettingsChange();
+	virtual void			onSpellCheckPerformed(){}
 
 	// used by LLTextSegment layout code
 	bool					getWordWrap() { return mWordWrap; }
