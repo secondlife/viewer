@@ -566,9 +566,19 @@ BOOL LLTransactionNotificationListItem::postBuild()
 
 LLSystemNotificationListItem::LLSystemNotificationListItem(const Params& p)
     : LLNotificationListItem(p),
-    mSystemNotificationIcon(NULL)
+    mSystemNotificationIcon(NULL),
+    mIsCaution(false)
 {
     buildFromFile("panel_notification_list_item.xml");
+    mIsCaution = p.notification_priority >= NOTIFICATION_PRIORITY_HIGH;
+    if (mIsCaution)
+    {
+        mTitleBox->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+        mTitleBoxExp->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+        mNoticeTextExp->setReadOnlyColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+        mTimeBox->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+        mTimeBoxExp->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+    }
 }
 
 BOOL LLSystemNotificationListItem::postBuild()

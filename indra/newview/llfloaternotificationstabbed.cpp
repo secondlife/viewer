@@ -396,6 +396,7 @@ void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
     p.paid_from_id = payload["from_id"];
     p.paid_to_id = payload["dest_id"];
     p.inventory_offer = payload["inventory_offer"];
+    p.notification_priority = notify->getPriority();
     addItem(p);
 }
 
@@ -403,7 +404,10 @@ void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
 void LLFloaterNotificationsTabbed::onItemClick(LLNotificationListItem* item)
 {
     LLUUID id = item->getID();
-    //LLFloaterReg::showInstance("inspect_toast", id);
+    if (item->showPopup())
+    {
+        LLFloaterReg::showInstance("inspect_toast", id);
+    }
 }
 
 //---------------------------------------------------------------------------------

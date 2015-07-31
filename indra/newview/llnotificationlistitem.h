@@ -59,6 +59,7 @@ public:
         LLDate          time_stamp;
         LLDate          received_time;
         LLSD            inventory_offer;
+        e_notification_priority notification_priority;
         Params()        {};
     };
 
@@ -87,6 +88,7 @@ public:
     boost::signals2::connection setOnItemCloseCallback(item_callback_t cb) { return mOnItemClose.connect(cb); }
     boost::signals2::connection setOnItemClickCallback(item_callback_t cb) { return mOnItemClick.connect(cb); }
     
+    virtual bool showPopup() { return true; }
     void setExpanded(BOOL value);
     virtual BOOL postBuild();
 
@@ -162,6 +164,8 @@ public:
     static std::set<std::string> getTypes();
     virtual BOOL postBuild();
 
+    /*virtual*/ bool showPopup() { return false; }
+
 private:
     friend class LLNotificationListItem;
     LLGroupInviteNotificationListItem(const Params& p);
@@ -187,6 +191,8 @@ public:
 	~LLGroupNoticeNotificationListItem();
     static std::set<std::string> getTypes();
     virtual BOOL postBuild();
+
+    /*virtual*/ bool showPopup() { return false; }
 
 private:
     friend class LLNotificationListItem;
@@ -232,6 +238,7 @@ private:
     LLSystemNotificationListItem & operator=(LLSystemNotificationListItem &);
     LLIconCtrl* mSystemNotificationIcon;
     LLIconCtrl* mSystemNotificationIconExp;
+    bool mIsCaution;
 };
 
 #endif // LL_LLNOTIFICATIONLISTITEM_H
