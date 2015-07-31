@@ -1265,8 +1265,8 @@ void link_inventory_array(const LLUUID& category,
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["links"] = links;
 #if 1
-        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-        AISAPI::CreateInventoryCommand(category, new_inventory, compl);
+        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::CreateInventoryCommand(category, new_inventory, cr);
 #else
  		LLPointer<AISCommand> cmd_ptr = new CreateInventoryCommand(category, new_inventory, cb);
  		ais_ran = cmd_ptr->run_command();
@@ -1346,8 +1346,8 @@ void update_inventory_item(
 			updates["hash_id"] = update_item->getTransactionID();
 		}
 #if 1
-        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-        AISAPI::UpdateItemCommand(item_id, updates, compl);
+        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::UpdateItemCommand(item_id, updates, cr);
 #else
 		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
 		ais_ran = cmd_ptr->run_command();
@@ -1393,8 +1393,8 @@ void update_inventory_item(
 	if (AISCommand::isAPIAvailable())
 	{
 #if 1
-        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-        AISAPI::UpdateItemCommand(item_id, updates, compl);
+        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::UpdateItemCommand(item_id, updates, cr);
 #else
 		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
 		ais_ran = cmd_ptr->run_command();
@@ -1454,8 +1454,8 @@ void update_inventory_category(
 		{
 			LLSD new_llsd = new_cat->asLLSD();
 #if 1
-            AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-            AISAPI::UpdateCategoryCommand(cat_id, new_llsd, compl);
+            AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::UpdateCategoryCommand(cat_id, new_llsd, cr);
 #else
 			LLPointer<AISCommand> cmd_ptr = new UpdateCategoryCommand(cat_id, new_llsd, cb);
 			cmd_ptr->run_command();
@@ -1524,8 +1524,8 @@ void remove_inventory_item(
 		if (AISCommand::isAPIAvailable())
 		{
 #if 1
-            AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-            AISAPI::RemoveItemCommand(item_id, compl);
+            AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::RemoveItemCommand(item_id, cr);
 #else
 			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
 			cmd_ptr->run_command();
@@ -1605,8 +1605,8 @@ void remove_inventory_category(
 		if (AISCommand::isAPIAvailable())
 		{
 #if 1
-            AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-            AISAPI::RemoveCategoryCommand(cat_id, compl);
+            AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::RemoveCategoryCommand(cat_id, cr);
 #else
 			LLPointer<AISCommand> cmd_ptr = new RemoveCategoryCommand(cat_id, cb);
 			cmd_ptr->run_command();
@@ -1713,8 +1713,8 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 			if (AISCommand::isAPIAvailable())
 			{
 #if 1
-                AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-                AISAPI::PurgeDescendentsCommand(id, compl);
+                AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+                AISAPI::PurgeDescendentsCommand(id, cr);
 #else
                 LLPointer<AISCommand> cmd_ptr = new PurgeDescendentsCommand(id, cb);
 				cmd_ptr->run_command();
@@ -1870,8 +1870,8 @@ void slam_inventory_folder(const LLUUID& folder_id,
 		LL_DEBUGS(LOG_INV) << "using AISv3 to slam folder, id " << folder_id
 						   << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
 #if 1
-        AISAPI::completion_t compl = boost::bind(&doInventoryCb, cb, _1);
-        AISAPI::SlamFolderCommand(folder_id, contents, compl);
+        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::SlamFolderCommand(folder_id, contents, cr);
 #else
 		LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
 		cmd_ptr->run_command();
