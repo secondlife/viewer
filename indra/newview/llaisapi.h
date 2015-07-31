@@ -42,7 +42,7 @@
 class AISAPI
 {
 public:
-    typedef boost::function<void(LLUUID invItem)>    completion_t;
+    typedef boost::function<void(const LLUUID &invItem)>    completion_t;
 
     static void CreateInventoryCommand(const LLUUID& parentId, const LLSD& newInventory, completion_t callback);
     static void SlamFolderCommand(const LLUUID& folderId, const LLSD& newInventory, completion_t callback);
