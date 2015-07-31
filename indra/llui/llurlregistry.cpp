@@ -214,12 +214,39 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 	// did we find a match? if so, return its details in the match object
 	if (match_entry)
 	{
+
 		// Skip if link is an email with an empty username (starting with @). See MAINT-5371.
 		if (match_start > 0 && text.substr(match_start - 1, 1) == "@")
 			return false;
 
 		// fill in the LLUrlMatch object and return it
 		std::string url = text.substr(match_start, match_end - match_start + 1);
+
+		LLUrlEntryBase *stripped_entry = NULL;
+		if(LLStringUtil::containsNonprintable(url))
+		{
+			LLStringUtil::stripNonprintable(url);
+
+			std::vector<LLUrlEntryBase *>::iterator iter;
+			for (iter = mUrlEntry.begin(); iter != mUrlEntry.end(); ++iter)
+			{
+				LLUrlEntryBase *url_entry = *iter;
+				U32 start = 0, end = 0;
+				if (matchRegex(url.c_str(), url_entry->getPattern(), start, end))
+				{
+					if (mLLUrlEntryInvalidSLURL == *iter)
+					{
+						if(url_entry && url_entry->isSLURLvalid(url))
+						{
+							continue;
+						}
+					}
+					stripped_entry = url_entry;
+					break;
+				}
+			}
+		}
+
 
 		if (match_entry == mUrlEntryTrusted)
 		{
@@ -228,10 +255,12 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 			url = up.normalizedUri();
 		}
 
+		std::string url_label = stripped_entry? stripped_entry->getLabel(url, cb) : match_entry->getLabel(url, cb);
+		std::string url_query = stripped_entry? stripped_entry->getQuery(url) : match_entry->getQuery(url);
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
-						match_entry->getLabel(url, cb),
-						match_entry->getQuery(url),
+						url_label,
+						url_query,
 						match_entry->getTooltip(url),
 						match_entry->getIcon(url),
 						match_entry->getStyle(),
