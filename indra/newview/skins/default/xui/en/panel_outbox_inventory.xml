@@ -3,7 +3,6 @@
     name="inventory_outbox"
     start_folder.name="Outbox"
     show_empty_message="false"
-    show_load_status="false"
     start_folder.type="outbox"
     follows="all" layout="topleft"
     top="0" left="0" height="165" width="308"
@@ -28,5 +27,5 @@
               text_pad_right="4"
               arrow_size="12"
               max_folder_item_overlap="2"/>
-      <item allow_open="false"/>
+      <item allow_wear="false"/>
 </inventory_panel>

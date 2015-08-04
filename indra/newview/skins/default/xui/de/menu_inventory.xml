@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
+	<menu_item_call label="Auflistung erstellen" name="Marketplace Create Listing"/>
+	<menu_item_call label="Auflistung verknüpfen" name="Marketplace Associate Listing"/>
+	<menu_item_call label="Auflistung abrufen (aktualisieren)" name="Marketplace Get Listing"/>
+	<menu_item_call label="Auf Fehler prüfen" name="Marketplace Check Listing"/>
+	<menu_item_call label="Auflistung bearbeiten" name="Marketplace Edit Listing"/>
+	<menu_item_call label="Auflisten" name="Marketplace List"/>
+	<menu_item_call label="Entfernen" name="Marketplace Unlist"/>
+	<menu_item_call label="Aktivieren" name="Marketplace Activate"/>
+	<menu_item_call label="Deaktivieren" name="Marketplace Deactivate"/>
 	<menu_item_call label="Teilen" name="Share"/>
 	<menu_item_call label="Kaufen" name="Task Buy"/>
 	<menu_item_call label="Öffnen" name="Task Open"/>
@@ -87,6 +96,7 @@
 	<menu_item_call label="Hinzufügen" name="Wearable Add"/>
 	<menu_item_call label="Ausziehen" name="Take Off"/>
 	<menu_item_call label="In Händler-Outbox kopieren" name="Merchant Copy"/>
-	<menu_item_call label="In Marktplatz übertragen" name="Marketplace Send"/>
+	<menu_item_call label="In Marktplatz-Auflistungen kopieren" name="Marketplace Copy"/>
+	<menu_item_call label="In Marktplatz-Auflistungen verschieben" name="Marketplace Move"/>
 	<menu_item_call label="--keine Optionen--" name="--no options--"/>
 </menu>

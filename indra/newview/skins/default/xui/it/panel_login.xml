@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php?lang=it
-	</panel.string>
+	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=it</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="Nome utente" name="username_combo" tool_tip="Il nome utente che hai scelto durante la registrazione, come roby12 o Stella Solare"/>
 			<line_editor label="Password" name="password_edit"/>
-			<check_box label="Ricordami" name="remember_check"/>
-			<text name="forgot_password_text">
-				Password dimenticata
-			</text>
-			<button label="Accedi" name="connect_btn"/>
-			<text name="At_My_Last_Location_Label">
-				all&apos;ultima ubicazione
-			</text>
 			<combo_box label="I miei luoghi preferiti" name="start_location_combo">
+				<combo_box.item label="La mia ultima ubicazione" name="MyLastLocation"/>
 				<combo_box.item label="Casa mia" name="MyHome"/>
 			</combo_box>
-			<button label="Accedi" name="connect_favorite_btn"/>
-			<line_editor label="Digita un&apos;ubicazione" name="location_edit"/>
-			<button label="Accedi" name="connect_location_btn"/>
+			<button label="Accedi" name="connect_btn"/>
+			<check_box label="Ricordami" name="remember_check"/>
+			<text name="forgot_password_text">Password dimenticata</text>
 			<combo_box label="Seleziona griglia" name="server_combo"/>
 		</layout_panel>
 	</layout_stack>

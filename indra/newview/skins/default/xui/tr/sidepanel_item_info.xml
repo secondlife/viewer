@@ -72,8 +72,9 @@
 				<check_box label="Aktar" name="CheckNextOwnerTransfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
 			</panel>
 			<check_box label="Satılık" name="CheckPurchase"/>
-			<combo_box name="combobox sale copy">
+			<combo_box name="ComboBoxSaleType">
 				<combo_box.item label="Kopyala" name="Copy"/>
+				<combo_box.item label="İçerik" name="Contents"/>
 				<combo_box.item label="Orijinal" name="Original"/>
 			</combo_box>
 			<spinner label="Fiyat: L$" name="Edit Cost"/>

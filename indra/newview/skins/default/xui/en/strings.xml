@@ -239,14 +239,20 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipTooManyWearables">You can't wear a folder containing more than [AMOUNT] items.  You can change this limit in Advanced > Show Debug Settings > WearFolderLimit.</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 
-	<string name="TooltipOutboxDragToWorld">You can not rez items in your merchant outbox</string>
-	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred.</string>
-	<string name="TooltipOutboxNotInInventory">Your merchant outbox can only accept items directly from your inventory</string>
-	<string name="TooltipOutboxWorn">You can not put items you are wearing into your merchant outbox</string>
-	<string name="TooltipOutboxCallingCard">You can not put calling cards into your merchant outbox</string>
-	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds 3</string>
-	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds 20</string>
-	<string name="TooltipOutboxTooManyObjects">Item count in top-level folder exceeds 200</string>
+    <string name="TooltipOutboxDragToWorld">You can't rez items from the Marketplace Listings folder</string>
+    <string name="TooltipOutboxWorn">You can't put items you are wearing in the Marketplace Listings folder</string>
+    <string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]. Decrease the depth of folders-within-folders; box items if necessary.</string>
+    <string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]. Decrease the number of folders in your listing; box items if necessary.</string>
+    <string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]. In order to sell more than [AMOUNT] items in one listing, you must box some of them.</string>
+    <string name="TooltipOutboxTooManyStockItems">Stock items count exceeds [AMOUNT].</string>
+    <string name="TooltipOutboxCannotDropOnRoot">You can only drop items or folders in the ALL or UNASSOCIATED tabs. Please select one of those tabs and move your item(s) or folder(s) again.</string>
+	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
+	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>
+	<string name="TooltipOutboxLinked">You can't put linked items or folders on the marketplace</string>
+	<string name="TooltipOutboxCallingCard">You can't put calling cards on the marketplace</string>
+	<string name="TooltipOutboxDragActive">You can't move a listed listing</string>
+	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
+	<string name="TooltipOutboxMixedStock">All items in a stock folder must have the same type and permission</string>
 	
 	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
 	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
@@ -492,7 +498,7 @@ Please try logging in again in a minute.</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
-	<string name="JoinAnExperience"></string> <!-- intentionally left blank -->
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">Suppress alerts when managing estate access lists</string>
 	<string name="OverrideYourAnimations">Replace your default animations</string>
 	<string name="ScriptReturnObjects">Return objects on your behalf</string>
@@ -523,6 +529,8 @@ Please try logging in again in a minute.</string>
 	<string name="load_file_verb">Load</string>
 	<string name="targa_image_files">Targa Images</string>
 	<string name="bitmap_image_files">Bitmap Images</string>
+	<string name="png_image_files">PNG Images</string>
+	<string name="save_texture_image_files">Targa or PNG Images</string>
 	<string name="avi_movie_file">AVI Movie File</string>
 	<string name="xaf_animation_file">XAF Anim File</string>
 	<string name="xml_file">XML File</string>
@@ -2257,6 +2265,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
 	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
+	<string name="MarketplaceNoMatchingItems">No items found. Check the spelling of your search string and try again.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
@@ -2284,16 +2293,45 @@ We are accessing your account on the [[MARKETPLACE_CREATE_STORE_URL] Marketplace
 	<string name="InventoryOutboxError">
 The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	</string>
+	<string name="InventoryMarketplaceError">
+This feature is currently in Beta. Please add your name to this [http://goo.gl/forms/FCQ7UXkakz Google form] if you would like to participate.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">Your Marketplace Listings folder is empty.</string>
+	<string name="InventoryMarketplaceListingsNoItemsTooltip"></string>
+	<string name="InventoryMarketplaceListingsNoItems">
+        Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
 
+	<string name="Marketplace Validation Log"></string>
+	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
+	<string name="Marketplace Validation Error Mixed Stock">: Error: all items in a stock folder must be no-copy and of the same type</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">: Error: stock folder cannot contain subfolders</string>
+	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any items</string>
+	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>
+	<string name="Marketplace Validation Warning Create Version">: Warning: creating version folder</string>
+	<string name="Marketplace Validation Warning Move">: Warning : moving items</string>
+	<string name="Marketplace Validation Warning Delete">: Warning: folder content transfered to stock folder, removing empty folder</string>
+	<string name="Marketplace Validation Error Stock Item">: Error: no-copy items must be contained by a stock folder</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">: Warning: items must be contained by a version folder</string>
+	<string name="Marketplace Validation Error">: Error: </string>
+	<string name="Marketplace Validation Warning">: Warning: </string>
+	<string name="Marketplace Validation Error Empty Version">: Warning: version folder must contain at least 1 item</string>
+	<string name="Marketplace Validation Error Empty Stock">: Warning: stock folder must contain at least 1 item</string>
+
+    <string name="Marketplace Validation No Error">No errors or warnings to report</string>
 	<string name="Marketplace Error None">No errors</string>
-	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
-	<string name="Marketplace Error Empty Folder">Error: This folder has no contents.</string>
-	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, log in to the marketplace website and reduce your unassociated item count.</string>
+	<string name="Marketplace Error Prefix">Error: </string>
+	<string name="Marketplace Error Not Merchant">Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
+	<string name="Marketplace Error Not Accepted">Cannot move item in that folder.</string>
+	<string name="Marketplace Error Unsellable Item">This item cannot be sold on the Marketplace.</string>
 
-	<string name="Marketplace Error Object Limit">Error: This item contains too many objects.  Fix this error by placing objects together in boxes to reduce the total count to less than 200.</string>
-	<string name="Marketplace Error Folder Depth">Error: This item contains too many levels of nested folders.  Reorganize it to a maximum of 3 levels of nested folders.</string>
-	<string name="Marketplace Error Unsellable Item">Error: This item can not be sold on the marketplace.</string>
-	<string name="Marketplace Error Internal Import">Error: There was a problem with this item.  Try again later.</string>
+	<string name="MarketplaceNoID">no Mkt ID</string>
+	<string name="MarketplaceLive">listed</string>
+	<string name="MarketplaceActive">active</string>
+	<string name="MarketplaceMax">max</string>
+	<string name="MarketplaceStock">stock</string>
+	<string name="MarketplaceNoStock">out of stock</string>
+	<string name="MarketplaceUpdating">updating...</string>
 
 	<string name="Open landmarks">Open landmarks</string>
   <string name="Unconstrained">Unconstrained</string>
@@ -2500,8 +2538,8 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 	<string name="CompileQueueProblemDownloading">Problem downloading</string>
 	<string name="CompileQueueInsufficientPermDownload">Insufficient permissions to download a script.</string>
 	<string name="CompileQueueInsufficientPermFor">Insufficient permissions for</string>
-   <string name="CompileQueueUnknownFailure">Unknown failure to download</string>
-   <string name="CompileNoExperiencePerm">Skipping script [SCRIPT] with Experience [EXPERIENCE].</string>
+	<string name="CompileQueueUnknownFailure">Unknown failure to download</string>
+	<string name="CompileNoExperiencePerm">Skipping script [SCRIPT] with Experience [EXPERIENCE].</string>
 	<string name="CompileQueueTitle">Recompilation Progress</string>
 	<string name="CompileQueueStart">recompile</string>
 	<string name="ResetQueueTitle">Reset Progress</string>
@@ -3957,6 +3995,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
+  <string name="Command_MarketplaceListings_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-map</string>
   <string name="Command_Move_Label">Walk / run / fly</string>
   <string name="Command_Outbox_Label">Merchant outbox</string>
@@ -3987,6 +4026,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Inventory_Tooltip">View and use your belongings</string>
   <string name="Command_Map_Tooltip">Map of the world</string>
   <string name="Command_Marketplace_Tooltip">Go shopping</string>
+  <string name="Command_MarketplaceListings_Tooltip">Sell your creation</string>
   <string name="Command_MiniMap_Tooltip">Show nearby people</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
   <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>

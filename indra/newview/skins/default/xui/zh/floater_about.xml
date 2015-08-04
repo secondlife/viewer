@@ -1,71 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_about" title="關於 [CAPITALIZED_APP_NAME]">
-	<floater.string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</floater.string>
-	<floater.string name="AboutCompiler">
-		以 [COMPILER_VERSION] 版本 [COMPILER] 建置
-	</floater.string>
-	<floater.string name="AboutPosition">
-		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
-第二人生 URL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
-（全域坐標：[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]）
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
-	</floater.string>
-	<floater.string name="AboutSystem">
-		CPU：[CPU]
-記憶體：[MEMORY_MB] MB
-作業系統版本：[OS_VERSION]
-顯示卡供應商：[GRAPHICS_CARD_VENDOR]
-顯示卡：[GRAPHICS_CARD]
-	</floater.string>
-	<floater.string name="AboutDriver">
-		Windows 顯示驅動程式版本：[GRAPHICS_DRIVER_VERSION]
-	</floater.string>
-	<floater.string name="AboutLibs">
-		OpenGL 版本：[OPENGL_VERSION]
-
-libcurl 版本： [LIBCURL_VERSION]
-J2C 解碼器版本： [J2C_VERSION]
-音效驅動程式版本： [AUDIO_DRIVER_VERSION]
-Qt Webkit 版本： [QT_WEBKIT_VERSION]
-語音伺服器版本： [VOICE_VERSION]
-	</floater.string>
-	<floater.string name="none">
-		（無）
-	</floater.string>
-	<floater.string name="AboutTraffic">
-		封包損失：[PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
-	</floater.string>
-	<floater.string name="ErrorFetchingServerReleaseNotesURL">
-		擷取伺服器版本說明 URL 時出錯。
-	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="資訊" name="support_panel">
 			<button label="覆製到剪貼簿" name="copy_btn"/>
 		</panel>
 		<panel label="貸記" name="credits_panel">
-			<text name="linden_intro">
-				「第二人生」由以下的 Linden 家族帶給你：
-			</text>
-			<text name="contrib_intro">
-				這些人士做了開放源碼的貢獻：
-			</text>
-			<text_editor name="contrib_names">
-				執行時期被取代的假名稱
-			</text_editor>
-			<text name="trans_intro">
-				以下人士提供翻譯：
-			</text>
-			<text_editor name="trans_names">
-				執行時期被取代的假名稱
-			</text_editor>
+			<text name="linden_intro">Second Life 由以下的 Linden 家族帶給你： 
+這些人士做了開放源碼的貢獻：</text>
+			<text_editor name="contrib_names">執行時期被取代的假名稱</text_editor>
 		</panel>
 		<panel label="許可" name="licenses_panel">
-			<text_editor name="credits_editor">
-				3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
+			<text_editor name="licenses_editor">3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
         APR Copyright (C) 2011 The Apache Software Foundation
         Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
         cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
@@ -92,8 +37,7 @@ Qt Webkit 版本： [QT_WEBKIT_VERSION]
 
         保留一切權利。  詳情見 licenses.txt。
 
-        語音聊天音頻技術：Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
-			</text_editor>
+        語音聊天音頻技術：Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)</text_editor>
 		</panel>
 	</tab_container>
 </floater>

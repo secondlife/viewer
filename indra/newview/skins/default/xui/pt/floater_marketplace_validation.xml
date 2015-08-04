@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_marketplace_validation" title="Auditar Listagens do Marketplace">
+	<button label="OK" label_selected="OK" name="OK"/>
+	<text_editor name="validation_text">MARKETPLACE_VALIDATION_TEXT</text_editor>
+</floater>

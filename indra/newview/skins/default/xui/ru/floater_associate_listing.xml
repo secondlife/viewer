@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="associate listing" title="СВЯЗАТЬ СПИСОК">
+	<text name="message">ID списка:</text>
+	<line_editor name="listing_id">Введите ID</line_editor>
+	<button label="OK" name="OK"/>
+	<button label="Отмена" name="Cancel"/>
+</floater>
