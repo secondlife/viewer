@@ -437,7 +437,13 @@ BOOL LLImageTGA::decodeTruecolorNonRle( LLImageRaw* raw_image, BOOL &alpha_opaqu
 	// Origin is the bottom left
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
+
 	S32 pixels = getWidth() * getHeight();
+	
+	if (pixels * (mIs15Bit ? 2 : getComponents()) > getDataSize() - mDataOffset)
+	{ //here we have situation when data size in src less than actually needed
+		return FALSE;
+	}
 
 	if (getComponents() == 4)
 	{
