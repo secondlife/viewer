@@ -454,28 +454,46 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$ :"/>
 	<string name="TooltipOutboxDragToWorld">
-		Impossible de rezzer des articles dans la boîte d&apos;envoi vendeur
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Impossible de vendre ou de transférer un ou plusieurs de ces objets.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		La boîte d&apos;envoi vendeur n&apos;accepte que les articles directement issus de votre inventaire.
+		Vous ne pouvez pas rezzer (charger) des articles du dossier Annonces de la Place de marché
 	</string>
 	<string name="TooltipOutboxWorn">
-		Impossible de placer des articles que vous portez dans votre boîte d&apos;envoi vendeur
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		Impossible de placer des cartes de visite dans votre boîte d&apos;envoi vendeur
+		Vous ne pouvez pas mettre d&apos;articles que vous portez dans le dossier Annonces de la Place du marché
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Il existe plus de 3 niveaux de dossiers imbriqués.
+		Le niveau de dossiers imbriqués dépasse [AMOUNT]. Diminuez le nombre de niveaux de dossiers imbriqués dans d&apos;autres dossiers. Si nécessaire, placez certains articles dans une boîte.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Le dossier de niveau supérieur contient plus de 20 sous-dossiers.
+		Le nombre de sous-dossiers dépasse [AMOUNT]. Diminuez le nombre de sous-dossiers dans votre annonce. Si nécessaire, placez certains articles dans une boîte.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Le dossier de niveau supérieur contient plus de 200 articles.
+		Le nombre d&apos;articles dépasse [AMOUNT]. Pour pouvoir vendre plus de [AMOUNT] articles au sein d&apos;une même annonce, vous devez placer certains de ces articles dans une boîte.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		Le nombre d&apos;articles de stock dépasse [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Vous ne pouvez déposer des articles ou des dossiers que dans l&apos;onglet TOUT. Veuillez activer cet onglet et déplacer à nouveau article(s) et dossier(s).
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Impossible de vendre ou de transférer un ou plusieurs de ces objets
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Vous ne pouvez mettre sur la Place du marché que des articles de votre inventaire
+	</string>
+	<string name="TooltipOutboxLinked">
+		Vous ne pouvez pas mettre des articles ou dossiers liés sur la Place du marché
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Vous ne pouvez pas mettre des cartes de visite sur la Place du marché
+	</string>
+	<string name="TooltipOutboxDragActive">
+		vous ne pouvez pas déplacer une annonce publiée
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Vous ne pouvez pas déplacer le dossier racine des annonces de la Place du marché
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		tous les articles d&apos;un dossier de stock doivent avoir le même type et droit
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		Impossible de déplacer un dossier vers son enfant
@@ -1063,7 +1081,7 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="AgentNameSubst">
 		(Vous)
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Supprimer les alertes lors de la gestion des listes d&apos;accès aux domaines
 	</string>
@@ -1129,6 +1147,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="bitmap_image_files">
 		Images Bitmap
+	</string>
+	<string name="png_image_files">
+		Images PNG
+	</string>
+	<string name="save_texture_image_files">
+		Images Targa ou PNG
 	</string>
 	<string name="avi_movie_file">
 		Fichier de film AVI
@@ -1379,6 +1403,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Aucun article trouvé. Vérifiez l&apos;orthographe de votre chaîne de recherche et réessayez.
+	</string>
 	<string name="InventoryNoTexture">
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
@@ -1426,29 +1453,95 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="InventoryOutboxError">
 		La [[MARKETPLACE_CREATE_STORE_URL] boutique de la Place du marché] renvoie des erreurs.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Cette fonctionnalité est en version bêta. Veuillez ajouter votre nom à ce [http://goo.gl/forms/FCQ7UXkakz formulaire Google] si vous souhaitez participer.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Votre dossier Annonces de la Place du marché est vide.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Pour mettre des dossiers en vente sur la [[MARKETPLACE_DASHBOARD_URL] Place du marché], faites-les glisser vers cette zone.
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		le dossier de stock doit être contenu dans un dossier de version
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Erreur : tous les articles d&apos;un dossier de stock doivent être non reproductibles et de même type
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Erreur : un dossier de stock ne peut pas contenir de sous-dossiers
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Avertissement : le dossier ne contient aucun article
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Avertissement : création du dossier de stock
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Avertissement : création du dossier de version
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Avertissement : déplacement d&apos;articles
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Avertissement : contenu du dossier transféré vers le dossier de stock, suppression du dossier vide
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Erreur : les articles non reproductibles doivent être contenus dans un dossier de stock
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Avertissement : les articles doivent être contenus dans un dossier de version
+	</string>
+	<string name="Marketplace Validation Error">
+		: Erreur :
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Avertissement :
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Avertissement : le dossier de version doit contenir au moins 1 article
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Avertissement : le dossier de stock doit contenir au moins 1 article
+	</string>
+	<string name="Marketplace Validation No Error">
+		Pas d&apos;erreur ni d&apos;avertissement à signaler
+	</string>
 	<string name="Marketplace Error None">
 		Aucune erreur
 	</string>
+	<string name="Marketplace Error Prefix">
+		Erreur :
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Erreur : avant d&apos;envoyer des articles vers la Place du marché, vous devez vous configurer comme vendeur (gratuit).
+		Avant d&apos;envoyer des articles vers la Place du marché, vous devez vous configurer comme vendeur (gratuit).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Erreur : ce dossier est vide.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Erreur : le chargement de cet article a échoué en raison d&apos;un nombre trop important d&apos;articles non associés à des produits au niveau de votre compte de vendeur. Pour résoudre ce problème, connectez-vous au site Web de la Place du marché et réduisez le nombre d&apos;articles non associés.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Erreur : cet article contient trop d&apos;objets. Pour résoudre le problème, regroupez des objets dans des paquets afin de réduire le nombre total à moins de 200.
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Erreur : trop de niveaux de dossiers imbriqués concernant cet article. Réorganisez le tout afin qu&apos;un maximum de 3 niveaux soit utilisé.
+	<string name="Marketplace Error Not Accepted">
+		Impossible de déplacer l&apos;article dans ce dossier.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Erreur : cet article ne peut pas être vendu sur la Place du marché.
+		Cet article ne peut pas être vendu sur la Place du marché.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Erreur : un problème est survenu concernant cet article. Veuillez réessayer ultérieurement.
+	<string name="MarketplaceNoID">
+		no Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		publié
+	</string>
+	<string name="MarketplaceActive">
+		actif
+	</string>
+	<string name="MarketplaceMax">
+		max.
+	</string>
+	<string name="MarketplaceStock">
+		stock
+	</string>
+	<string name="MarketplaceNoStock">
+		rupture de stock
+	</string>
+	<string name="MarketplaceUpdating">
+		mise à jour...
 	</string>
 	<string name="Open landmarks">
 		Ouvrir les repères
@@ -1469,6 +1562,7 @@ Veuillez réessayer de vous connecter dans une minute.
 		Aucun contenu
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (porté sur [ATTACHMENT_POINT])"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (actif)"/>
 	<string name="PermYes">
 		Oui
@@ -1739,6 +1833,15 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="Invalid Attachment">
 		Point d&apos;attache non valide
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Erreur : article manquant
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Erreur : article de base manquant
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Erreur : l&apos;objet est dans une tenue actuelle, mais il n&apos;est pas attaché
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1874,9 +1977,6 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="CompileQueueUnknownFailure">
 		Échec du téléchargement, erreur inconnue
 	</string>
-	<string name="CompileNoExperiencePerm">
-		En train d&apos;ignorer le script [SCRIPT] avec l&apos;expérience [EXPERIENCE].
-	</string>
 	<string name="CompileQueueTitle">
 		Recompilation - progrès
 	</string>
@@ -1910,6 +2010,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="SaveComplete">
 		Enregistrement terminé.
 	</string>
+	<string name="UploadFailed">
+		Échec du chargement de fichier :
+	</string>
 	<string name="ObjectOutOfRange">
 		Script (objet hors de portée)
 	</string>
@@ -1918,6 +2021,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="GroupsNone">
 		aucun
+	</string>
+	<string name="CompileNoExperiencePerm">
+		En train d&apos;ignorer le script [SCRIPT] avec l&apos;expérience [EXPERIENCE].
 	</string>
 	<string name="Group" value=" (groupe)"/>
 	<string name="Unknown">
@@ -5070,6 +5176,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Command_Marketplace_Label">
 		Place du marché
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Place du marché
+	</string>
 	<string name="Command_MiniMap_Label">
 		Mini-carte
 	</string>
@@ -5156,6 +5265,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		Faire du shopping
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Vendez votre création
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Afficher les personnes près de vous
@@ -5268,6 +5380,18 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="UserDictionary">
 		[User]
 	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Les conversations ne sont pas archivées. Pour commencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Aucune conversation ne sera plus enregistrée. Pour recommencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Il n&apos;y a aucune conversation enregistrée. Quand quelqu&apos;un vous contacte ou quand vous contactez quelqu&apos;un, une entrée de journal s&apos;affiche ici.
+	</string>
+	<string name="loading_chat_logs">
+		Chargement...
+	</string>
 	<string name="experience_tools_experience">
 		Expérience
 	</string>
@@ -5348,17 +5472,5 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Permission
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Les conversations ne sont pas archivées. Pour commencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Aucune conversation ne sera plus enregistrée. Pour recommencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Il n&apos;y a aucune conversation enregistrée. Quand quelqu&apos;un vous contacte ou quand vous contactez quelqu&apos;un, une entrée de journal s&apos;affiche ici.
-	</string>
-	<string name="loading_chat_logs">
-		Chargement...
 	</string>
 </strings>

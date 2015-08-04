@@ -1,3 +1,2 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<inbox_inventory_panel show_load_status="false"
-                       start_folder.type="inbox"/>
+<inbox_inventory_panel start_folder.type="inbox"/>

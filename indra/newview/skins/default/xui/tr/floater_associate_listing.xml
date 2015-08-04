@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="associate listing" title="İLANI İLİŞKİLENDİR">
+	<text name="message">İlan Kimliği:</text>
+	<line_editor name="listing_id">Kimliği buraya girin</line_editor>
+	<button label="Tamam" name="OK"/>
+	<button label="İptal" name="Cancel"/>
+</floater>

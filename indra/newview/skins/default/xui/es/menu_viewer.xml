@@ -22,6 +22,7 @@
 			<menu_item_check label="No molestar" name="Do Not Disturb"/>
 		</menu>
 		<menu_item_call label="Comprar L$..." name="Buy and Sell L$"/>
+		<menu_item_call label="Artículos del Mercado..." name="MarketplaceListings"/>
 		<menu_item_call label="Panel de control de la cuenta..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=es"/>
 		</menu_item_call>
@@ -249,6 +250,7 @@
 			<menu_item_check label="Texture Console" name="Texture Console"/>
 			<menu_item_check label="Debug Console" name="Debug Console"/>
 			<menu_item_call label="Notifications Console" name="Notifications"/>
+			<menu_item_check label="Consola de depuración de región" name="Region Debug Console"/>
 			<menu_item_check label="Fast Timers" name="Fast Timers"/>
 			<menu_item_check label="Memory" name="Memory"/>
 			<menu_item_check label="Datos de la escena" name="Scene Statistics"/>
@@ -324,7 +326,7 @@
 		<menu label="Red" name="Network">
 			<menu_item_check label="Pause Avatar" name="AgentPause"/>
 			<menu_item_call label="Drop a Packet" name="Drop a Packet"/>
-		</menu>		
+		</menu>
 		<menu label="Mundo virtual" name="DevelopWorld">
 			<menu_item_check label="Anular el sol del Sim" name="Sim Sun Override"/>
 			<menu_item_check label="Meteorología fija" name="Fixed Weather"/>

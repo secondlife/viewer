@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Marketplace" name="Marketplace Panel">
+	<panel name="tool_panel">
+		<menu_button name="sort_btn" tool_tip="檢視/排序的選項"/>
+		<button name="add_btn" tool_tip="新建一個刊登資料夾"/>
+		<button label="檢查是否有誤" name="audit_btn" tool_tip="檢查你的 Marketplace 刊登"/>
+	</panel>
+	<panel name="tab_container_panel">
+		<filter_editor label="過濾 Marketplace 刊登清單" name="filter_editor"/>
+	</panel>
+</panel>
