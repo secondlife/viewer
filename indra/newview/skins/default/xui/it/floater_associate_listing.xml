@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="associate listing" title="ASSOCIA ANNUNCIO">
+	<text name="message">ID annuncio:</text>
+	<line_editor name="listing_id">Digita qui l&apos;ID</line_editor>
+	<button label="OK" name="OK"/>
+	<button label="Annulla" name="Cancel"/>
+</floater>

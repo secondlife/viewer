@@ -104,7 +104,8 @@ LLFolderViewItem::Params::Params()
 	item_height("item_height"),
 	item_top_pad("item_top_pad"),
 	creation_date(),
-	allow_open("allow_open", true),
+    allow_wear("allow_wear", true),
+    allow_drop("allow_drop", true),
 	font_color("font_color"),
 	font_highlight_color("font_highlight_color"),
     left_pad("left_pad", 0),
@@ -137,7 +138,8 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mRoot(p.root),
 	mViewModelItem(p.listener),
 	mIsMouseOverTitle(false),
-	mAllowOpen(p.allow_open),
+	mAllowWear(p.allow_wear),
+    mAllowDrop(p.allow_drop),
 	mFontColor(p.font_color),
 	mFontHighlightColor(p.font_highlight_color),
     mLeftPad(p.left_pad),
@@ -471,7 +473,7 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLFolderViewItem::openItem( void )
 {
-	if (mAllowOpen)
+	if (mAllowWear || !getViewModelItem()->isItemWearable())
 	{
 		getViewModelItem()->openItem();
 	}
@@ -1337,7 +1339,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 			{
 				return;
 			}
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1356,7 +1358,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1378,7 +1380,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1397,7 +1399,7 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 				return;
 			}
 
-			if (selecting)
+			if (selecting && (*it)->getVisible())
 			{
 				items.push_back(*it);
 			}
@@ -1494,12 +1496,14 @@ void LLFolderViewFolder::destroyView()
     while (!mItems.empty())
     {
     	LLFolderViewItem *itemp = mItems.back();
+        mItems.pop_back();
     	itemp->destroyView(); // LLFolderViewItem::destroyView() removes entry from mItems
     }
 
 	while (!mFolders.empty())
 	{
 		LLFolderViewFolder *folderp = mFolders.back();
+        mFolders.pop_back();
 		folderp->destroyView(); // LLFolderVievFolder::destroyView() removes entry from mFolders
 	}
 
@@ -1797,9 +1801,16 @@ BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
 													   EAcceptance* accept,
 													   std::string& tooltip_msg)
 {
+    if (!mAllowDrop)
+    {
+		*accept = ACCEPT_NO;
+        tooltip_msg = LLTrans::getString("TooltipOutboxCannotDropOnRoot");
+        return TRUE;
+    }
+    
 	BOOL accepted = getViewModelItem()->dragOrDrop(mask,drop,cargo_type,cargo_data, tooltip_msg);
-	
-	if (accepted) 
+
+	if (accepted)
 	{
 		mDragAndDropTarget = TRUE;
 		*accept = ACCEPT_YES_MULTI;
