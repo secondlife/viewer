@@ -129,6 +129,88 @@ Aucun dossier n&apos;a été envoyé vers la Place du marché en raison d&apos;u
 L&apos;initialisation de la Place du marché a échoué en raison d&apos;une erreur système ou réseau.  Réessayez ultérieurement.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="StockPasteFailed">
+		Échec de la copie ou du déplacement vers le dossier de stock. Erreur :
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		Échec de la copie ou du déplacement vers les annonces Place du marché. Erreur :
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		La transaction avec la Place du marché a échoué en raison de l&apos;erreur suivante :
+        
+        Motif : &apos;[ERROR_REASON]&apos;
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		Nous ne pouvons pas publier ce produit ni activer le dossier de version. Cela est en général dû à des informations manquantes dans le formulaire de description de l&apos;annonce, mais parfois à cause d&apos;erreurs dans la structure du dossier. Modifiez l&apos;annonce ou consultez les erreurs du dossier de l&apos;annonce.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		Échec de la publication d&apos;une annonce sur la Place du marché. Erreur :
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		Échec de l&apos;activation de ce dossier de version. Erreur :
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		Cette action va modifier le contenu actif de cette annonce. Voulez-vous continuer ?
+		<usetemplate ignoretext="Confirmer avant que je ne modifie une annonce active sur la Place du marché" name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		Les articles glissés vers la fenêtre Annonces de la Place du marché sont déplacés de leur emplacement d&apos;origine, et non copiés. Voulez-vous continuer ?
+		<usetemplate ignoretext="Confirmer avant que je ne déplace un article de l&apos;inventaire vers la Place du marché" name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		Le déplacement ou la suppression d&apos;un dossier d&apos;annonces supprimera votre annonce de la Place du marché. Si vous souhaitez conserver l&apos;annonce de la Place du marché, déplacez ou supprimez le contenu du dossier de version que vous souhaitez modifier. Voulez-vous continuer ?
+		<usetemplate ignoretext="Confirmer avant que je déplace ou supprime une annonce de la Place du marché" name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		Vous n&apos;êtes pas autorisé à copier un ou plusieurs de ces articles vers la Place du marché. Vous pouvez les déplacer ou les laisser.
+		<usetemplate canceltext="Annuler" ignoretext="Confirmer avant que je ne copie une sélection contenant des articles non reproductibles vers la Place du marché" name="yesnocancelbuttons" notext="Ne pas déplacer les articles" yestext="Déplacer les articles"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		Cette action va annuler cette annonce. Voulez-vous continuer ?
+		<usetemplate ignoretext="Confirmer avant que j&apos;annule une annonce active sur la Place du marché" name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		Cette action va désactiver le dossier de version de l&apos;annonce active. Voulez-vous continuer ?
+		<usetemplate ignoretext="Confirmer avant que je ne désactive le dossier de version d&apos;une annonce de la Place du marché" name="okcancelignore" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		Impossible de mettre à jour cette annonce.
+[[URL] Cliquez ici] pour la modifier sur la Place du marché.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		Vous ne pouvez pas porter de vêtements ou des parties du corps se trouvant dans le dossier Annonces de la Place du marché.
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		ID d&apos;annonce non valide.
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		Il y a plusieurs dossiers de version (ou aucun) dans cette liste. Vous devrez en sélectionner et activer un indépendamment plus tard.
+		<usetemplate ignoretext="Alerter en cas d&apos;activation du dossier de version lorsque je crée une annonce avec plusieurs dossiers de version" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		Nous avons classé les articles du stock de types différents dans des dossiers de stocks distincts ; votre dossier est organisé de telle façon que nous pouvons le répertorier.
+		<usetemplate ignoretext="Alerter lorsque le dossier de stock est divisé avant publication" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		Nous avons retiré votre annonce car le stock est vide. Vous devez ajouter plus d&apos;unités au dossier de stock pour publier à nouveau l&apos;annonce.
+		<usetemplate ignoretext="Alerter lorsqu&apos;une annonce n&apos;est pas publiée parce que le dossier de stock est vide" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		Une erreur est survenue lors du chargement du texte pour un script, suite au problème suivant : [REASON]. Veuillez réessayer ultérieurement.
 	</notification>
@@ -471,6 +553,10 @@ Remarque : cela videra le cache.
 	<notification name="SaveChanges">
 		Enregistrer les changements ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Ne pas enregistrer" yestext="Enregistrer"/>
+	</notification>
+	<notification name="DeleteNotecard">
+		Supprimer la note ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		L&apos;enregistrement du geste a échoué.
@@ -1867,6 +1953,9 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 		La région que vous essayez de visiter comporte du contenu dont le niveau dépasse celui de vos préférences actuelles. Vous pouvez modifier vos préférences en accédant à Moi &gt; Préférences &gt; Général.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
+	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
 		La région que vous essayez de visiter comporte du contenu [REGIONMATURITY] uniquement accessible aux adultes.
 		<url name="url">
@@ -2154,6 +2243,10 @@ Déplacer les objets de l&apos;inventaire ?
 		<form name="form">
 			<ignore name="ignore" text="Je définis l&apos;action du clic Payer l&apos;objet lorsque je construis un objet sans le script money()"/>
 		</form>
+	</notification>
+	<notification name="PayConfirmation">
+		Confirmez que vous voulez payer [AMOUNT] L$ à [TARGET].
+		<usetemplate ignoretext="Confirmez avant de payer (sommes supérieures à 200 L$)" name="okcancelignore" notext="Annuler" yestext="Payer"/>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Vous n&apos;êtes autorisé à copier aucun élément dans cet objet.
@@ -3841,9 +3934,11 @@ Veuillez réessayer dans une minute.
 	</notification>
 	<notification name="TeleportedByAttachment">
 		Vous avez été téléporté par un élément sur [ITEM_ID]
+		<usetemplate ignoretext="Téléportation : vous avez été téléporté par un attachement." name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		Vous avez été téléporté par l&apos;objet [OBJECT_NAME] sur la parcelle [PARCEL_NAME].
+		<usetemplate ignoretext="Téléportation : vous avez été téléporté par un objet sur une parcelle" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		Vous avez été téléporté par l&apos;objet [OBJECT_NAME] appartenant à [OWNER_ID].
@@ -4175,7 +4270,7 @@ Veuillez sélectionner un terrain plus petit.
 		<usetemplate ignoretext="Impossible de déplacer les fichiers. Chemin précédent rétabli." name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		Une erreur est survenue lors de l&apos;enregistrement des droits par défaut, suite au problème suivant : [REASON].  Réessayez de définir les droits par défaut ultérieurement.
+		Problème lors de l&apos;enregistrement des droits d&apos;objet par défaut : [REASON].  Réessayez de définir les droits par défaut ultérieurement.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">
