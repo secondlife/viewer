@@ -79,6 +79,8 @@ public:
 
     // handlers
     virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
+	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
     //callbacks
     typedef boost::function<void (LLNotificationListItem* item)> item_callback_t;

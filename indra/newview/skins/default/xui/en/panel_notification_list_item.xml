@@ -42,7 +42,7 @@
 
   <panel top="0" left="0" width="331" height="196" bevel_style="none" layout="topleft" follows="left|top|right|bottom" name="panel_total_view">
     <layout_stack top="0" left="0" width="331" height="196" orientation="vertical" follows="left|top|right|bottom" name="item_vertical_stack">
-      <layout_panel top="0" left="0" height="30" follows="left|top|right|bottom" layout="topleft" name="layout_panel_condensed_view" visible="false">
+      <layout_panel top="0" left="0" height="30" follows="left|top|right|bottom" layout="topleft" name="layout_panel_condensed_view" visible="false" background_opaque="false" background_visible="true" bg_alpha_color="SysWellItemUnselected">
         <panel border="true" top="0" left="5" height="30" bevel_style="none" layout="topleft" follows="left|top|right|bottom" name="panel_condensed_view">
           <layout_stack top="0" left="0" width="325" height="50" orientation="horizontal" follows="left|top|right|bottom" name="horizontal_stack">
             <layout_panel width="30" height="39" orientation="horizontal" follows="left|top|right|bottom" name="layout_panel_right">
@@ -80,7 +80,7 @@
           </layout_stack>
         </panel>
       </layout_panel>
-      <layout_panel top="0" left="0" height="196" follows="left|top|right|bottom" layout="topleft" name="layout_panel_expanded_view" visible="true">
+      <layout_panel top="0" left="0" height="196" follows="left|top|right|bottom" layout="topleft" name="layout_panel_expanded_view" visible="true" background_opaque="false" background_visible="true" bg_alpha_color="SysWellItemUnselected">
         <panel border="true" top="0" left="5" height="196" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="panel_expanded_view">
           <layout_stack top="0" left="0" width="325" height="196" orientation="horizontal" follows="left|top|right|bottom" name="horizontal_stack">
             <layout_panel width="30" height="170" orientation="horizontal" follows="left|top|bottom" name="layout_panel_right_exp">
@@ -93,7 +93,7 @@
               <panel border="false" top="0" width="230" height="196" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="main_info_panel_expanded">
                 <layout_stack top="0" left="0" width="230" height="196" orientation="vertical" follows="left|top|right|bottom" name="main_info_panel_vertical_stack">
                   <layout_panel top="0" left="0" width="230" height="30" layout="topleft" follows="left|top|right|bottom" name="notification_title_layout_panel" visible="true">
-                    <panel border="false" top="0" left="0" width="230" height="30" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_title_panel_exp">
+                    <panel border="false" top="0" left="0" width="230" height="30" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_title_panel_exp" >
                       <text allow_scroll="false" font="SansSerif" top="6" left="0" width="233" height="10" layout="topleft" follows="right|left" text_color="White"
                         use_ellipses="true" word_wrap="false" mouse_opaque="false" name="notification_title_exp">
                         Notice Title Notice Title N o t i c e T i t l e N o t i c e T i t l e

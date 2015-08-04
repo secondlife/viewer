@@ -91,6 +91,7 @@ BOOL LLNotificationListItem::postBuild()
     mCondensedHeight = (S32)atoi(condensed_height_str.c_str());
     
     setExpanded(FALSE);
+
     return rv;
 }
 
@@ -145,6 +146,18 @@ BOOL LLNotificationListItem::handleMouseUp(S32 x, S32 y, MASK mask)
     BOOL res = LLPanel::handleMouseUp(x, y, mask);
     mOnItemClick(this);
     return res;
+}
+
+void LLNotificationListItem::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
+	mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
+}
+
+void LLNotificationListItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
+	mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
 }
 
 //static
