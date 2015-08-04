@@ -873,8 +873,11 @@
     <color
       name="ToolbarDropZoneColor"
       value=".48 .69 1 .5" />
-  
-    <!-- Generic color names (legacy) -->
+    <color
+      name="PanelNotificationListItem"
+      value="0.3 0.3 0.3 .3" />
+
+  <!-- Generic color names (legacy) -->
   <color
     name="white"
     value="1 1 1 1"/>
