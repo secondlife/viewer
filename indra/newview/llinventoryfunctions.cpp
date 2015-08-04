@@ -2586,7 +2586,7 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
 void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
+	if (option == 0 && !root.isDead() && !root.get()->isDead())
 	{
 		LLFolderView* folder_root = root.get();
 		//Need to remove item from DND before item is removed from root folder view
