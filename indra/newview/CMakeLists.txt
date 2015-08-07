@@ -1018,9 +1018,6 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
-    llfloaterimnearbychat.h
-    llfloaterimnearbychathandler.h
-    llfloaterimnearbychatlistener.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
