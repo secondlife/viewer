@@ -241,9 +241,15 @@ public:
 	S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
 
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ void	setToolTip(const std::string& tooltip);
+
 private:
 	class LLTextBase&	mEditor;
 	LLStyleConstSP	mStyle;
+
+protected:
+	std::string		mTooltip;
 };
 
 typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
@@ -391,6 +397,8 @@ public:
 
 	const	std::string& 	getLabel()	{ return mLabel.getString(); }
 	const	LLWString&		getWlabel() { return mLabel.getWString();}
+
+	void					setLastSegmentToolTip(const std::string &tooltip);
 
 	/**
 	 * If label is set, draws text label (which is LLLabelTextSegment)
