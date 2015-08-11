@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_photo">
-	<layout_stack name="stack_photo">
-		<layout_panel name="snapshot_panel">
-			<combo_box name="resolution_combobox" tool_tip="Résolution d’image">
-				<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
-				<combo_box.item label="640 x 480" name="640x480"/>
-				<combo_box.item label="800 x 600" name="800x600"/>
-				<combo_box.item label="1 024 x 768" name="1024x768"/>
-				<combo_box.item label="1 200 x 630" name="1200x630"/>
-			</combo_box>
-			<combo_box name="filters_combobox" tool_tip="Filtres d&apos;image">
-				<combo_box.item label="Aucun filtre" name="NoFilter"/>
-			</combo_box>
-			<button label="Actualiser" name="new_snapshot_btn" tool_tip="Cliquer pour actualiser"/>
-			<button label="Aperçu" name="big_preview_btn" tool_tip="Cliquer pour activer/désactiver l&apos;aperçu"/>
-			<text name="caption_label">
-				Commentaire (facultatif) :
-			</text>
-		</layout_panel>
-		<layout_panel name="photo_button_panel">
-			<button label="Publier" name="post_photo_btn"/>
-			<button label="Annuler" name="cancel_photo_btn"/>
-		</layout_panel>
-	</layout_stack>
+	<combo_box name="resolution_combobox" tool_tip="Résolution d’image">
+		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1 024 x 768" name="1024x768"/>
+		<combo_box.item label="1 200 x 630" name="1200x630"/>
+	</combo_box>
+	<combo_box name="filters_combobox" tool_tip="Filtres d&apos;image">
+		<combo_box.item label="Aucun filtre" name="NoFilter"/>
+	</combo_box>
+	<button label="Actualiser" name="new_snapshot_btn" tool_tip="Cliquer pour actualiser"/>
+	<button label="Aperçu" name="big_preview_btn" tool_tip="Cliquer pour activer/désactiver l&apos;aperçu"/>
+	<text name="caption_label">
+		Commentaire (facultatif) :
+	</text>
+	<button label="Publier" name="post_photo_btn"/>
+	<button label="Annuler" name="cancel_photo_btn"/>
 </panel>

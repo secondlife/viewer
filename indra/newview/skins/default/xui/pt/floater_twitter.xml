@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_twitter" title="TWITTER">
-	<panel name="background">
-		<tab_container name="tabs">
-			<panel label="REDIGIR" name="panel_twitter_photo"/>
-			<panel label="CONTA" name="panel_twitter_account"/>
-		</tab_container>
-		<panel name="connection_status_panel">
-			<text name="connection_error_text">
-				Erro
-			</text>
-			<text name="connection_loading_text">
-				Carregando...
-			</text>
-		</panel>
-	</panel>
+	<tab_container name="tabs">
+		<panel label="REDIGIR" name="panel_twitter_photo"/>
+		<panel label="CONTA" name="panel_twitter_account"/>
+	</tab_container>
+	<text name="connection_error_text">
+		Erro
+	</text>
+	<text name="connection_loading_text">
+		Carregando...
+	</text>
 </floater>

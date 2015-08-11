@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Experiences">
+	<string name="loading_experiences" value="体験をロード中..."/>
+	<string name="no_experiences" value="体験がありません。"/>
+	<string name="acquire" value="体験を取得"/>
+</panel>

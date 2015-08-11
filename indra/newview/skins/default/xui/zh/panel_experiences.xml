@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Experiences">
+	<string name="loading_experiences" value="體驗載入中..."/>
+	<string name="no_experiences" value="未設體驗。"/>
+	<string name="acquire" value="取得體驗"/>
+</panel>

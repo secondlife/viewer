@@ -3,6 +3,11 @@
 	<text name="object_name">
 		[DESC]：
 	</text>
-	<button label="覆製到收納區" label_selected="覆製到收納區" name="copy_to_inventory_button"/>
-	<button label="覆製且穿上" label_selected="覆製且穿上" name="copy_and_wear_button"/>
+	<text name="border_note">
+		複製到收納區並加以穿戴
+	</text>
+	<button label="新增到裝扮" label_selected="新增到裝扮" name="copy_and_wear_button"/>
+	<button label="取代裝扮" label_selected="取代裝扮" name="copy_and_replace_button"/>
+	<button label="只複製到收納區" label_selected="只複製到收納區" name="copy_to_inventory_button"/>
+	<button label="取消" label_selected="取消" name="cancel_button"/>
 </floater>

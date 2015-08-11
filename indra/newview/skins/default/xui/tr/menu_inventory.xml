@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
+	<menu_item_call label="İlan oluştur" name="Marketplace Create Listing"/>
+	<menu_item_call label="İlanı ilişkilendir" name="Marketplace Associate Listing"/>
+	<menu_item_call label="İlanı al (yenile)" name="Marketplace Get Listing"/>
+	<menu_item_call label="Hata kontrolü yap" name="Marketplace Check Listing"/>
+	<menu_item_call label="İlanı düzenle" name="Marketplace Edit Listing"/>
+	<menu_item_call label="Listele" name="Marketplace List"/>
+	<menu_item_call label="Listeden kaldır" name="Marketplace Unlist"/>
+	<menu_item_call label="Etkinleştir" name="Marketplace Activate"/>
+	<menu_item_call label="Devre Dışı Bırak" name="Marketplace Deactivate"/>
 	<menu_item_call label="Paylaş" name="Share"/>
 	<menu_item_call label="Satın Al" name="Task Buy"/>
 	<menu_item_call label="Aç" name="Task Open"/>
@@ -87,6 +96,7 @@
 	<menu_item_call label="Ekle" name="Wearable Add"/>
 	<menu_item_call label="Çıkar" name="Take Off"/>
 	<menu_item_call label="Satıcı Giden Kutusuna Kopyala" name="Merchant Copy"/>
-	<menu_item_call label="Pazaryerine Gönder" name="Marketplace Send"/>
+	<menu_item_call label="Pazaryeri İlanlarına Kopyala" name="Marketplace Copy"/>
+	<menu_item_call label="Pazaryeri İlanlarına Taşı" name="Marketplace Move"/>
 	<menu_item_call label="--seçenek yok--" name="--no options--"/>
 </menu>

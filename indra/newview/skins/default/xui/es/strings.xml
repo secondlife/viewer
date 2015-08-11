@@ -440,30 +440,51 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="TooltipMustSingleDrop">
 		Aquí se puede arrastrar sólo un ítem
 	</string>
+	<string name="TooltipTooManyWearables">
+		No puedes tener una carpeta de prendas que contenga más de [AMOUNT] elementos.  Puedes cambiar este límite en Avanzado &gt; Mostrar las configuraciones del depurador &gt; WearFolderLimit.
+	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$:"/>
 	<string name="TooltipOutboxDragToWorld">
-		No puedes colocar objetos en tu buzón de salida de comerciante
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Uno o varios de estos objetos no se pueden vender o transferir.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		Tu buzón de salida de comerciante sólo puede aceptar objetos procedentes directamente de tu inventario
+		No se pueden mostrar artículos desde la carpeta Artículos del mercado
 	</string>
 	<string name="TooltipOutboxWorn">
-		No puedes poner artículos que llevas puestos en el buzón de salida de comerciante
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		No puedes poner tarjetas de visita en tu buzón de salida de comerciante
+		Los artículos que tienes puestos no se pueden colocar en la carpeta Artículos del mercado
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		La profundidad de carpetas anidadas excede de 3
+		La profundidad de carpetas anidadas excede de [AMOUNT]. Disminuye la profundidad de las carpetas anidadas; si es necesario, agrupa los artículos.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		El número de subcarpetas de la carpeta de nivel superior excede de 20
+		La cantidad de subcarpetas excede de [AMOUNT]. Disminuye la cantidad de carpetas de tu lista de artículos; si es necesario, agrupa los artículos.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		El número de elementos de la carpeta de nivel superior excede de 200
+		La cantidad de artículos excede de [AMOUNT]. Para vender más de [AMOUNT] artículos en la misma lista, debes agrupar algunos.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		La cantidad de artículos en stock excede de [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Solo se pueden soltar artículos o carpetas en la pestaña TODOS. Selecciona esta pestaña y mueve otra vez los artículos o carpetas.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Uno o varios de estos objetos no se pueden vender o transferir
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Solo puedes colocar en el mercado artículos de tu inventario
+	</string>
+	<string name="TooltipOutboxLinked">
+		No puedes poner carpetas o artículos vinculados en el Mercado
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		No puedes colocar tarjetas de visita en el Mercado
+	</string>
+	<string name="TooltipOutboxDragActive">
+		No se puede mover una lista de artículos publicada
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		No se puede mover la carpeta raíz de artículos del Mercado
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		Todos los artículos de una carpeta de stock deben tener el mismo tipo y permiso
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		No puedes mover una carpeta a su carpeta secundaria
@@ -1042,9 +1063,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="AgentNameSubst">
 		(Tú)
 	</string>
-	<string name="JoinAnExperience">
-		Únete a una experiencia
-	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas al gestionar las listas de acceso a un estado
 	</string>
@@ -1110,6 +1129,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="bitmap_image_files">
 		Imágenes de mapa de bits
+	</string>
+	<string name="png_image_files">
+		Imágenes PNG
+	</string>
+	<string name="save_texture_image_files">
+		Imágenes Targa o PNG
 	</string>
 	<string name="avi_movie_file">
 		Archivo de película AVI
@@ -1360,6 +1385,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="FavoritesNoMatchingItems">
 		Arrastra aquí un hito para tenerlo en tus favoritos.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		No se han encontrado artículos. Comprueba si has escrito correctamente la cadena de búsqueda y vuelve a intentarlo.
+	</string>
 	<string name="InventoryNoTexture">
 		No tienes en tu inventario una copia de esta textura
 	</string>
@@ -1407,29 +1435,95 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="InventoryOutboxError">
 		La [[MARKETPLACE_CREATE_STORE_URL] tienda del Mercado] devuelve errores.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Esta función está actualmente en versión beta. Si quieres participar, añade tu nombre a este [http://goo.gl/forms/FCQ7UXkakz Formulario de Google].
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Tu carpeta Artículos del mercado está vacía.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Arrastra carpetas a esta sección para incluirlas en la lista de venta del [[MARKETPLACE_DASHBOARD_URL] Mercado].
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		La carpeta de stock debe estar contenida en una carpeta de versión
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Error: todos los artículos de una carpeta de stock deben ser del mismo tipo y que no se puedan copiar
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Error: la carpeta de stock no puede contener subcarpetas
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Atención: la carpeta no contiene ningún artículo
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Atención: creando carpeta de stock
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Atención: creando la carpeta de versión
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Atención: moviendo artículos
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Atención: se ha transferido el contenido de la carpeta a la carpeta de stock, y se eliminará la carpeta vacía
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Error: los artículos que no se pueden copiar deben estar contenidos en una carpeta de stock
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Atención: los artículos deben estar contenidos en una carpeta de versión
+	</string>
+	<string name="Marketplace Validation Error">
+		: Error:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Atención:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Atención: la carpeta de versión debe contener al menos un artículo
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Atención: la carpeta de stock debe contener al menos un artículo
+	</string>
+	<string name="Marketplace Validation No Error">
+		No se han producido errores ni advertencias
+	</string>
 	<string name="Marketplace Error None">
 		Sin errores
 	</string>
+	<string name="Marketplace Error Prefix">
+		Error:
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Error: Para poder enviar objetos al mercado, debes registrarte como comerciante (es gratis).
+		Para poder enviar objetos al mercado, debes registrarte como comerciante (es gratis).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Error: Esta carpeta está vacía.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Error: Este objeto no se pudo subir porque tu cuenta de comerciante tiene demasiados objetos que no están asociados a productos. Para corregirlo, inicia sesión en la página web del mercado y asocia más objetos.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Error: Este elemento contiene demasiados objetos. Para corregir el error, guarda objetos en cajas de forma que el total de objetos sea menor que 200.
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Error: Este objeto contiene demasiados niveles de carpetas anidadas. Reorganízalo de forma que tenga como máximo 3 niveles de carpetas anidadas.
+	<string name="Marketplace Error Not Accepted">
+		No se puede mover el artículo a esa carpeta.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Error: Este objeto no se puede vender en el mercado.
+		Este artículo no se puede vender en el Mercado.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Error: Este objeto tiene un problema. Vuelve a intentarlo más tarde.
+	<string name="MarketplaceNoID">
+		no Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		en la lista
+	</string>
+	<string name="MarketplaceActive">
+		activa
+	</string>
+	<string name="MarketplaceMax">
+		máx.
+	</string>
+	<string name="MarketplaceStock">
+		stock
+	</string>
+	<string name="MarketplaceNoStock">
+		existencias agotadas
+	</string>
+	<string name="MarketplaceUpdating">
+		actualizando...
 	</string>
 	<string name="Open landmarks">
 		Abrir hitos
@@ -1450,6 +1544,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		No hay contenido
 	</string>
 	<string name="WornOnAttachmentPoint" value="(lo llevas en: [ATTACHMENT_POINT])"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (activo)"/>
 	<string name="Chat Message" value="Chat:"/>
 	<string name="Sound" value="Sonido :"/>
@@ -1714,6 +1809,15 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="Invalid Attachment">
 		Punto de colocación no válido
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Error: falta un artículo
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Error: falta el artículo de base
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Error: el objeto se encuentra en el vestuario actual, pero no está anexado
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] de edad
 	</string>
@@ -1882,6 +1986,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="SaveComplete">
 		Guardado.
 	</string>
+	<string name="UploadFailed">
+		Error al subir el archivo:
+	</string>
 	<string name="ObjectOutOfRange">
 		Script (objeto fuera de rango)
 	</string>
@@ -1890,6 +1997,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="GroupsNone">
 		ninguno
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Omitiendo el script [SCRIPT] con la experiencia [EXPERIENCE].
 	</string>
 	<string name="Group" value="(grupo)"/>
 	<string name="Unknown">
@@ -4976,6 +5086,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Marketplace_Label">
 		Mercado
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Mercado
+	</string>
 	<string name="Command_MiniMap_Label">
 		Minimapa
 	</string>
@@ -5062,6 +5175,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		Ir de compras
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Vende tu creación
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Mostrar la gente que está cerca
@@ -5185,5 +5301,86 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="loading_chat_logs">
 		Cargando...
+	</string>
+	<string name="experience_tools_experience">
+		Experiencia
+	</string>
+	<string name="ExperienceNameNull">
+		(sin experiencia)
+	</string>
+	<string name="ExperienceNameUntitled">
+		(experiencia sin título)
+	</string>
+	<string name="Land-Scope">
+		Activa en el terreno
+	</string>
+	<string name="Grid-Scope">
+		Activa en el Grid
+	</string>
+	<string name="Allowed_Experiences_Tab">
+		PERMITIDO
+	</string>
+	<string name="Blocked_Experiences_Tab">
+		BLOQUEADO
+	</string>
+	<string name="Contrib_Experiences_Tab">
+		COLABORADOR
+	</string>
+	<string name="Admin_Experiences_Tab">
+		ADMIN.
+	</string>
+	<string name="Recent_Experiences_Tab">
+		RECIENTE
+	</string>
+	<string name="Owned_Experiences_Tab">
+		PROPIEDAD
+	</string>
+	<string name="ExperiencesCounter">
+		([EXPERIENCES], máx. [MAXEXPERIENCES])
+	</string>
+	<string name="ExperiencePermission1">
+		hacerte con tus controles
+	</string>
+	<string name="ExperiencePermission3">
+		activar animaciones en tu avatar
+	</string>
+	<string name="ExperiencePermission4">
+		anexar a tu avatar
+	</string>
+	<string name="ExperiencePermission9">
+		seguimiento de la cámara
+	</string>
+	<string name="ExperiencePermission10">
+		controlar tu cámara
+	</string>
+	<string name="ExperiencePermission11">
+		teleportarte
+	</string>
+	<string name="ExperiencePermission12">
+		aceptar automáticamente permisos de experiencias
+	</string>
+	<string name="ExperiencePermissionShortUnknown">
+		ha realizado una operación desconocida: [Permission]
+	</string>
+	<string name="ExperiencePermissionShort1">
+		Ponerte al mando
+	</string>
+	<string name="ExperiencePermissionShort3">
+		Activar animaciones
+	</string>
+	<string name="ExperiencePermissionShort4">
+		Anexar
+	</string>
+	<string name="ExperiencePermissionShort9">
+		Seguir la cámara
+	</string>
+	<string name="ExperiencePermissionShort10">
+		Controlar la cámara
+	</string>
+	<string name="ExperiencePermissionShort11">
+		Teleportarte
+	</string>
+	<string name="ExperiencePermissionShort12">
+		Otorgar permisos
 	</string>
 </strings>

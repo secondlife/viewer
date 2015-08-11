@@ -3,6 +3,11 @@
 	<text name="object_name">
 		[DESC]:
 	</text>
-	<button label="インベントリにコピー" label_selected="インベントリにコピー" name="copy_to_inventory_button"/>
-	<button label="コピーして装着" label_selected="コピーして装着" name="copy_and_wear_button"/>
+	<text name="border_note">
+		インベントリおよびウェアにコピー
+	</text>
+	<button label="アウトフィットに追加" label_selected="アウトフィットに追加" name="copy_and_wear_button"/>
+	<button label="アウトフィットを交換" label_selected="アウトフィットを交換" name="copy_and_replace_button"/>
+	<button label="インベントリにコピーするだけ" label_selected="インベントリにコピーするだけ" name="copy_to_inventory_button"/>
+	<button label="取り消し" label_selected="取り消し" name="cancel_button"/>
 </floater>

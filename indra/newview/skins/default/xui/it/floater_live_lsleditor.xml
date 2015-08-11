@@ -9,7 +9,24 @@
 	<floater.string name="Title">
 		SCRIPT: [NAME]
 	</floater.string>
+	<floater.string name="experience_enabled">
+		Rimuovi il segno di spunta per rimuovere l&apos;esperienza corrente
+	</floater.string>
+	<floater.string name="no_experiences">
+		Non hai l&apos;autorizzazione necessaria per alcuna esperienza
+	</floater.string>
+	<floater.string name="add_experiences">
+		Seleziona per aggiungere un&apos;esperienza
+	</floater.string>
+	<floater.string name="show_experience_profile">
+		Clicca per vedere il profilo dell&apos;esperienza
+	</floater.string>
+	<floater.string name="loading">
+		Caricamento in corso...
+	</floater.string>
 	<button label="Ripristina" label_selected="Ripristina" name="Reset"/>
 	<check_box initial_value="true" label="In esecuzione" left="4" name="running"/>
 	<check_box initial_value="true" label="Mono" left="106" name="mono"/>
+	<check_box label="Usa le esperienze:" name="enable_xp"/>
+	<button label="&gt;" name="view_profile"/>
 </floater>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="アイテムのプロフィール">
+	<panel.string name="loading_experience">
+		（ローディング）
+	</panel.string>
 	<panel.string name="unknown">
 		（不明）
 	</panel.string>
@@ -43,6 +46,9 @@
 			<text name="LabelAcquiredTitle">
 				取得：
 			</text>
+			<text name="LabelItemExperienceTitle">
+				体験：
+			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">
 					あなたができること：
@@ -66,8 +72,9 @@
 				<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
 			</panel>
 			<check_box label="販売中" name="CheckPurchase"/>
-			<combo_box name="combobox sale copy">
+			<combo_box name="ComboBoxSaleType">
 				<combo_box.item label="コピー" name="Copy"/>
+				<combo_box.item label="コンテンツ" name="Contents"/>
 				<combo_box.item label="オリジナル" name="Original"/>
 			</combo_box>
 			<spinner label="価格： L$" name="Edit Cost"/>

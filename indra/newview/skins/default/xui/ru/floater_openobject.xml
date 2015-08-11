@@ -3,6 +3,11 @@
 	<text name="object_name">
 		[DESC]:
 	</text>
-	<button label="Копировать в инвентарь" label_selected="Копировать в инвентарь" name="copy_to_inventory_button"/>
-	<button label="Копировать и надеть" label_selected="Копировать и надеть" name="copy_and_wear_button"/>
+	<text name="border_note">
+		Копировать в инвентарь и надеть
+	</text>
+	<button label="Добавить в костюм" label_selected="Добавить в костюм" name="copy_and_wear_button"/>
+	<button label="Заменить костюм" label_selected="Заменить костюм" name="copy_and_replace_button"/>
+	<button label="Только копировать в инвентарь" label_selected="Только копировать в инвентарь" name="copy_to_inventory_button"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel_button"/>
 </floater>

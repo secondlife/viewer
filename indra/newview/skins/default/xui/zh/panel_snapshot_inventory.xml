@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_inventory">
 	<text name="title">
-		儲存到我的收納區
+		收納區
 	</text>
 	<text name="hint_lbl">
 		將圖像儲存到收納區的費用為 L$[UPLOAD_COST]。 若要將圖像存為材質，請選擇一個正方格式。
@@ -13,8 +13,8 @@
 		<combo_box.item label="大（512x512）" name="Large(512x512)"/>
 		<combo_box.item label="自訂" name="Custom"/>
 	</combo_box>
-	<spinner label="寬" name="inventory_snapshot_width"/>
-	<spinner label="高度" name="inventory_snapshot_height"/>
+	<spinner label="寬 x 高" name="inventory_snapshot_width"/>
+	<spinner label="" name="inventory_snapshot_height"/>
 	<check_box label="鎖住比例" name="inventory_keep_aspect_check"/>
 	<button label="取消" name="cancel_btn"/>
 	<button label="儲存" name="save_btn"/>

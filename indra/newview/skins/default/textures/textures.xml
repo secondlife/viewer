@@ -140,6 +140,7 @@ with the same filename but different name
   <texture name="Command_Inventory_Icon"    file_name="toolbar_icons/inventory.png"    preload="true" />
   <texture name="Command_Map_Icon"          file_name="toolbar_icons/map.png"          preload="true" />
   <texture name="Command_Marketplace_Icon"  file_name="toolbar_icons/marketplace.png"  preload="true" />
+  <texture name="Command_MktListings_Icon"  file_name="toolbar_icons/mktlistings.png"  preload="true" />
   <texture name="Command_MiniCart_Icon"     file_name="toolbar_icons/mini_cart.png"    preload="true" />
   <texture name="Command_MiniMap_Icon"      file_name="toolbar_icons/mini_map.png"     preload="true" />
   <texture name="Command_Move_Icon"         file_name="toolbar_icons/move.png"         preload="true" />
@@ -222,6 +223,7 @@ with the same filename but different name
   <texture name="ForwardArrow_Off" file_name="icons/ForwardArrow_Off.png" preload="false" />
   <texture name="ForwardArrow_Press" file_name="icons/ForwardArrow_Press.png" preload="false" />
 
+  <texture name="Generic_Experience" file_name="Blank.png" preload="false" />
   <texture name="Generic_Group" file_name="icons/Generic_Group.png" preload="false" />
   <texture name="Generic_Group_Large" file_name="icons/Generic_Group_Large.png" preload="false" />
   <texture name="icon_group.tga" file_name="icons/Generic_Group.png" preload="false" />
@@ -305,6 +307,8 @@ with the same filename but different name
   <texture name="Inv_Snapshot" file_name="icons/Inv_Snapshot.png" preload="false" />
   <texture name="Inv_Socks" file_name="icons/Inv_Socks.png" preload="false" />
   <texture name="Inv_Sound" file_name="icons/Inv_Sound.png" preload="false" />
+  <texture name="Inv_StockFolderClosed" file_name="icons/Inv_StockFolderClosed.png" preload="false" />
+  <texture name="Inv_StockFolderOpen" file_name="icons/Inv_StockFolderOpen.png" preload="false" />
   <texture name="Inv_SysClosed" file_name="icons/Inv_SysClosed.png" preload="false" />
   <texture name="Inv_SysOpen" file_name="icons/Inv_SysOpen.png" preload="false" />
   <texture name="Inv_Tattoo" file_name="icons/Inv_Tattoo.png" preload="false" />
@@ -316,6 +320,8 @@ with the same filename but different name
   <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
   <texture name="Inv_Link" file_name="icons/Inv_Link.png" preload="false" />
   <texture name="Inv_Invalid" file_name="icons/Inv_Invalid.png" preload="false" />
+  <texture name="Inv_VersionFolderClosed" file_name="icons/Inv_VersionFolderClosed.png" preload="false" />
+  <texture name="Inv_VersionFolderOpen" file_name="icons/Inv_VersionFolderOpen.png" preload="false" />
   
   <texture name="Linden_Dollar_Alert" file_name="widgets/Linden_Dollar_Alert.png"/>
   <texture name="Linden_Dollar_Background" file_name="widgets/Linden_Dollar_Background.png"/>
@@ -333,6 +339,7 @@ with the same filename but different name
 
   <texture name="Map_Placeholder_Icon" file_name="icons/map_placeholder.png" preload="true" />
     
+  <texture name="Marketplace_Dropzone_Background" file_name="widgets/Marketplace_Dropzone_Background.png" preload="true" />
   <texture name="MarketplaceBtn_Off" file_name="widgets/MarketplaceBtn_Off.png" preload="true" scale.left="30" scale.top="19" scale.right="35" scale.bottom="4" />
   <texture name="MarketplaceBtn_Selected" file_name="widgets/MarketplaceBtn_Selected.png" preload="true" scale.left="30" scale.top="19" scale.right="35" scale.bottom="4" />
 

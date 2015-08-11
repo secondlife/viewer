@@ -168,6 +168,7 @@ void LLAssetUploadQueue::request(LLAssetUploadQueueSupplier** supplier)
 	body["item_id"] = data.mItemId;
 	body["is_script_running"] = data.mIsRunning;
 	body["target"] = data.mIsTargetMono? "mono" : "lsl2";
+	body["experience"] = data.mExperienceId;
 
 	std::string url = "";
 	LLViewerObject* object = gObjectList.findObject(data.mTaskId);
@@ -191,7 +192,8 @@ void LLAssetUploadQueue::queue(const std::string& filename,
 							   const LLUUID& queue_id,
 							   U8* script_data,
 							   U32 data_size,
-							   std::string script_name)
+							   std::string script_name,
+							   const LLUUID& experience_id)
 {
 	UploadData data;
 	data.mTaskId = task_id;
@@ -203,6 +205,7 @@ void LLAssetUploadQueue::queue(const std::string& filename,
 	data.mData = script_data;
 	data.mDataSize = data_size;
 	data.mScriptName = script_name;
+	data.mExperienceId = experience_id;
 			
 	mQueue.push_back(data);
 

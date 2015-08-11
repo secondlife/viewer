@@ -48,6 +48,7 @@
 
 #include "llares.h"
 #include "llavatarnamecache.h"
+#include "llexperiencecache.h"
 #include "lllandmark.h"
 #include "llcachename.h"
 #include "lldir.h"
@@ -194,6 +195,7 @@
 #include "llevents.h"
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
+#include "llexperiencelog.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -1306,6 +1308,9 @@ bool idle_startup()
 		gAgent.setPositionAgent(agent_start_position_region);
 
 		display_startup();
+		LLStartUp::initExperiences();
+
+		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
 		
 		LLConversationLog::getInstance();
@@ -1873,6 +1878,11 @@ bool idle_startup()
 			LLFloaterReg::toggleInstanceOrBringToFront("im_container");
 
 		}
+
+		display_startup();
+        
+        // *TODO : Uncomment that line once the whole grid migrated to SLM and suppress it from LLAgent::handleTeleportFinished() (llagent.cpp)
+        //check_merchant_status();
 
 		display_startup();
 
@@ -2824,6 +2834,14 @@ void LLStartUp::initNameCache()
 	LLAvatarNameCache::setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
 }
 
+
+void LLStartUp::initExperiences()
+{
+	LLAppViewer::instance()->loadExperienceCache();
+	LLExperienceCache::initClass();
+	LLExperienceLog::instance().initialize();
+}
+
 void LLStartUp::cleanupNameCache()
 {
 	LLAvatarNameCache::cleanupClass();
@@ -3525,3 +3543,4 @@ void transition_back_to_login_panel(const std::string& emsg)
 	reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	gSavedSettings.setBOOL("AutoLogin", FALSE);
 }
+

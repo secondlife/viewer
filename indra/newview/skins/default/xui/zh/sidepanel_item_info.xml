@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="物品檔案">
+	<panel.string name="loading_experience">
+		（載入中）
+	</panel.string>
 	<panel.string name="unknown">
 		（未知）
 	</panel.string>
@@ -43,17 +46,20 @@
 			<text name="LabelAcquiredTitle">
 				取得於：
 			</text>
+			<text name="LabelItemExperienceTitle">
+				體驗：
+			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">
 					你可以：
 				</text>
 				<check_box label="修改" name="CheckOwnerModify"/>
-				<check_box label="恚庨" name="CheckOwnerCopy"/>
+				<check_box label="複製" name="CheckOwnerCopy"/>
 				<check_box label="轉移" name="CheckOwnerTransfer"/>
 				<text name="AnyoneLabel">
 					任何人：
 				</text>
-				<check_box label="恚庨" name="CheckEveryoneCopy"/>
+				<check_box label="複製" name="CheckEveryoneCopy"/>
 				<text name="GroupLabel">
 					群組：
 				</text>
@@ -62,12 +68,13 @@
 					下一個所有人：
 				</text>
 				<check_box label="修改" name="CheckNextOwnerModify"/>
-				<check_box label="恚庨" name="CheckNextOwnerCopy"/>
+				<check_box label="複製" name="CheckNextOwnerCopy"/>
 				<check_box label="轉移" name="CheckNextOwnerTransfer" tool_tip="下一個所有人可贈送或轉售這個物件"/>
 			</panel>
 			<check_box label="出售" name="CheckPurchase"/>
-			<combo_box name="combobox sale copy">
-				<combo_box.item label="恚庨" name="Copy"/>
+			<combo_box name="ComboBoxSaleType">
+				<combo_box.item label="複製" name="Copy"/>
+				<combo_box.item label="內容" name="Contents"/>
 				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
 			<spinner label="價格： L$" name="Edit Cost"/>

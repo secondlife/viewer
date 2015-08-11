@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="Profilo articolo">
+	<panel.string name="loading_experience">
+		(caricamento in corso)
+	</panel.string>
 	<panel.string name="unknown">
 		(sconosciuto)
 	</panel.string>
@@ -43,6 +46,9 @@
 			<text name="LabelAcquiredTitle">
 				Acquisito:
 			</text>
+			<text name="LabelItemExperienceTitle">
+				Esperienza:
+			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">
 					Tu puoi:
@@ -66,8 +72,9 @@
 				<check_box label="Trasferisci" name="CheckNextOwnerTransfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
 			</panel>
 			<check_box label="In vendita" name="CheckPurchase"/>
-			<combo_box name="combobox sale copy">
+			<combo_box name="ComboBoxSaleType">
 				<combo_box.item label="Copia" name="Copy"/>
+				<combo_box.item label="Contenuti" name="Contents"/>
 				<combo_box.item label="Originale" name="Original"/>
 			</combo_box>
 			<spinner label="Prezzo: L$" name="Edit Cost"/>

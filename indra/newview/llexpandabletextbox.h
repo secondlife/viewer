@@ -103,7 +103,7 @@ public:
 		Optional<LLScrollContainer::Params> scroll;
 
 		Optional<S32> max_height;
-
+		
 		Optional<bool> bg_visible,
 					   expanded_bg_visible;
 

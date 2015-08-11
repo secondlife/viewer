@@ -39,17 +39,8 @@
 	<string name="local_failed_str">
 		Bilgisayara kaydedilemedi.
 	</string>
-	<button name="advanced_options_btn" tool_tip="Gelişmiş seçenekler"/>
-	<text name="image_res_text">
-		[WIDTH] x [HEIGHT] px
-	</text>
-	<text name="file_size_label">
-		[SIZE] KB
-	</text>
+	<button label="YENİLE" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
-		<text name="advanced_options_label">
-			GELİŞMİŞ SEÇENEKLER
-		</text>
 		<text name="layer_type_label">
 			Yakala:
 		</text>
@@ -68,4 +59,10 @@
 			<combo_box.item label="Filtre Yok" name="NoFilter"/>
 		</combo_box>
 	</panel>
+	<text name="image_res_text">
+		[WIDTH] px (genişlik) x [HEIGHT] px (yükseklik)
+	</text>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
 </floater>

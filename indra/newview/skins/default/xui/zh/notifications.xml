@@ -73,6 +73,10 @@
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="是"/>
 	</notification>
+	<notification name="GenericAlertOK">
+		[MESSAGE]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="BadInstallation">
 		[APP_NAME] 更新時出錯。  請 [http://get.secondlife.com 下載] 最新版本的 Viewer。
 		<usetemplate name="okbutton" yestext="確定"/>
@@ -124,6 +128,88 @@
 
 購物市集初始化失敗，系統或網路出錯。  請稍候再試一次。
 		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="StockPasteFailed">
+		複製或移到限量資料夾時發生問題：
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		複製或移到 Marketplace 刊登時發生問題：
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		和 Marketplace 進行的交易發生如下錯誤：
+        
+        原因：&apos;[ERROR_REASON]&apos;
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		我們無法刊登這產品或啓用版本資料夾。 通常這是因為刊登內容表的資料不齊，但也可能因為資料夾結構有錯所致。 請編輯刊登內容或檢查刊登資料夾看是否有誤。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		刊登到 Marketplace 時，發生錯誤：
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		啓用此版本資料夾時發生錯誤：
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		這個動作會改變此刊登的內容。 你確定要繼續嗎？
+		<usetemplate ignoretext="在我變更 Marketplace 的一項刊登內容之前，先跟我確認" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		你拖曳到 Marketplace 刊登視窗的物項，會從原來的位置移出來，不會被複製。 你確定要繼續嗎？
+		<usetemplate ignoretext="在我把物項從收納區移到 Marketplace 之前，先跟我確認" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		移動或刪除刊登資料夾將會刪除你的 Marketplace 刊登。 如你希望保留 Marketplace 刊登，請改而移動或刪除所想修改的版本資料夾的內容。 你確定要繼續嗎？
+		<usetemplate ignoretext="在我把物項從 Marketplace 移出或刪除之前，先跟我確認" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		你無權將這些物項的一或多個複製到 Marketplace。 你可以移動這些物項，或保留不動。
+		<usetemplate canceltext="取消" ignoretext="我試著選擇複製到 Marketplace 的內容如果含有「禁止複製」的物項，先向我確認" name="yesnocancelbuttons" notext="保留不移動物項" yestext="移動物項"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		這動作會停登這個刊登。 你確定要繼續嗎？
+		<usetemplate ignoretext="在我停登 Marketplace 的現有刊登內容前，先跟我確認" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		這個動作會停用此刊登的版本資料夾。 你確定要繼續嗎？
+		<usetemplate ignoretext="在我停用 Marketplace 某項刊登的版本資料夾之前，先跟我確認。" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		這刊登無法更新。
+[[URL] 點按這裡]即可在 Marketplace 進行編輯。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		你不能穿戴位在 Marketplace 刊登資料夾裡的衣物或身體部位。
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		無效的刊登 ID。
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		這個刊登有多個版本資料夾或缺少版本資料夾。 你事後必須選擇一個加以啓用。
+		<usetemplate ignoretext="當我要新建帶有多個版本資料夾的刊登前，提醒我啓動一個版本資料夾" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		我們已經將不同類型的限量物項分開放置到不同的存量資料夾，這樣你的資料夾才能夠刊登。
+		<usetemplate ignoretext="刊登前把限量資料夾一分為二時，告知我" name="okignore" yestext="確定"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		因為存量爲零，我們已經把你的刊登物下架。 你若希望重新刊登，必須先增加存量。
+		<usetemplate ignoretext="限量資料夾如果成空、導致刊登物下架，告知我" name="okignore" yestext="確定"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		上傳腳本文字時出問題，原因：[REASON]。 請稍候再試一次。
@@ -469,6 +555,10 @@
 		儲存變更？
 		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="不要儲存" yestext="儲存"/>
 	</notification>
+	<notification name="DeleteNotecard">
+		刪除記事卡？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		姿勢儲存失敗。
 這個姿勢步驟太多。
@@ -574,6 +664,9 @@
 	</notification>
 	<notification name="RegionNoTerraforming">
 		這個 [REGION] 地區並不允許變更地形。
+	</notification>
+	<notification name="ParcelNoTerraforming">
+		你無權針對地段 [PARCEL] 進行土地變形。
 	</notification>
 	<notification name="CannotCopyWarning">
 		你沒有權限複製以下項目：
@@ -1816,6 +1909,30 @@ SHA1 指紋：[MD5_DIGEST]
 		僅針對這個領地或針對 [ALL_ESTATES] 移除領地管理人？
 		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
 	</notification>
+	<notification label="選擇領地" name="EstateAllowedExperienceAdd">
+		僅針對這個領地或針對 [ALL_ESTATES] 將它新增到允許清單？
+		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateAllowedExperienceRemove">
+		僅針對這個領地或針對 [ALL_ESTATES] 將它從允許清單中移除？
+		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateBlockedExperienceAdd">
+		僅針對這個領地或針對 [ALL_ESTATES] 將它新增到封鎖清單？
+		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateBlockedExperienceRemove">
+		僅針對這個領地或針對 [ALL_ESTATES] 將它從封鎖清單中移除？
+		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateTrustedExperienceAdd">
+		僅針對這個領地或針對 [ALL_ESTATES] 將它新增到金鑰清單？
+		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
+	<notification label="選擇領地" name="EstateTrustedExperienceRemove">
+		僅針對這個領地或針對 [ALL_ESTATES] 將它從金鑰清單中移除？
+		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
+	</notification>
 	<notification label="確認踢出" name="EstateKickUser">
 		將 [EVIL_USER] 由這領地踢出？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
@@ -1827,6 +1944,9 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="RegionEntryAccessBlocked">
 		你所欲前往的地區含有超過你目前偏好的分級的內容。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
 		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
 	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
 		你所欲前往的地區含有 [REGIONMATURITY] 的分級內容，僅限成人。
@@ -1888,6 +2008,10 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="TeleportEntryAccessBlocked_PreferencesOutOfSync">
 		發生技術問題，你的偏好設定和伺服器上的不一致。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="RegionTPSpecialUsageBlocked">
+		無法進入地區。 &apos;[REGION_NAME]&apos; 是個「技巧性博奕」(Skill Gaming)地區，你必須符合一定條件才可進入。 欲知詳情，請參閱 [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life 技巧性博奕常見問題集]。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="PreferredMaturityChanged">
@@ -2111,6 +2235,10 @@ SHA1 指紋：[MD5_DIGEST]
 			<ignore name="ignore" text="我在創建不含 money() 腳本的物件時設定了「支付物件」動作"/>
 		</form>
 	</notification>
+	<notification name="PayConfirmation">
+		確認你真要支付 L$[AMOUNT] 給 [TARGET]。
+		<usetemplate ignoretext="付款前跟我確認（超過 L$200 的總額）" name="okcancelignore" notext="取消" yestext="支付"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		這物件中沒有任何准許你複製的物項。
 	</notification>
@@ -2195,6 +2323,9 @@ SHA1 指紋：[MD5_DIGEST]
 			<button ignore="自動取代" name="Yes" text="確定"/>
 			<button ignore="絕不取代" name="No" text="取消"/>
 		</form>
+	</notification>
+	<notification name="TooManyWearables">
+		你不能對含超過 [AMOUNT] 個物項的資料夾作穿戴動作。  欲變更此上限，可到「進階」&gt;「顯示除錯設定」&gt;「WearFolderLimit」。
 	</notification>
 	<notification label="「請勿打擾」模式警告" name="DoNotDisturbModePay">
 		你已開啟「請勿打擾」。 你將不會收到任何付款購買的物項。
@@ -2804,7 +2935,7 @@ SHA1 指紋：[MD5_DIGEST]
 
 [MESSAGE]
 
-來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人是 [NAME]）？
+來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人：[NAME]）
 		<form name="form">
 			<button name="Gotopage" text="前往頁面"/>
 			<button name="Cancel" text="取消"/>
@@ -2828,6 +2959,72 @@ SHA1 指紋：[MD5_DIGEST]
 			<button name="Yes" text="是"/>
 			<button name="No" text="否"/>
 			<button name="Mute" text="封鎖"/>
+		</form>
+	</notification>
+	<notification name="ExperienceAcquireFailed">
+		無法取得新的體驗：
+    [ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="NotInGroupExperienceProfileMessage">
+		已取消對體驗群組的變更，因為擁有人不是所選群組的成員。
+	</notification>
+	<notification name="UneditableExperienceProfileMessage">
+		已在更新體驗簡覽時忽略不可編輯的欄位 &apos;[field]&apos;。
+	</notification>
+	<notification name="RestrictedToOwnerExperienceProfileMessage">
+		已忽略對欄位 &apos;[field]&apos; 的變更，只有體驗擁有人可作此變更。
+	</notification>
+	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
+		你不能將體驗的內容分級設定為比擁有人所設更高的等級。
+	</notification>
+	<notification name="RestrictedTermExperienceProfileMessage">
+		以下項目導致無法更新體驗的名稱或描述：[extra_info]
+	</notification>
+	<notification name="TeleportedHomeExperienceRemoved">
+		你已移除金鑰體驗 secondlife:///app/experience/[public_id]/profile，因此被瞬間傳送離開 [region_name] 地區，因為你已無權續留。
+		<form name="form">
+			<ignore name="ignore" text="移除體驗後，已被踢出地區"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperienceEntry">
+		你已參與金鑰體驗 secondlife:///app/experience/[public_id]/profile，因此獲准進入 [region_name] 地區，若移除此體驗，你可能會被踢出地區。
+		<form name="form">
+			<ignore name="ignore" text="已透過體驗獲准進入地區"/>
+		</form>
+	</notification>
+	<notification name="TrustedExperiencesAvailable">
+		你並沒有權限進入此目的地。 若接受以下一項體驗，可獲准進入該地區：
+
+[EXPERIENCE_LIST]
+
+可能有其他金鑰體驗供選擇。
+	</notification>
+	<notification name="ExperienceEvent">
+		一個物件已得到 secondlife:///app/experience/[public_id]/profile 體驗允許，可以[EventType]。
+    所有人：secondlife:///app/agent/[OwnerID]/inspect
+    物件名稱：[ObjectName]
+    地段名稱：[ParcelName]
+	</notification>
+	<notification name="ExperienceEventAttachment">
+		一個附件已得到 secondlife:///app/experience/[public_id]/profile 體驗允許，可以[EventType]。
+    所有人：secondlife:///app/agent/[OwnerID]/inspect
+	</notification>
+	<notification name="ScriptQuestionExperience">
+		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;，一個由 &apos;[NAME]&apos; 擁有的物件，邀請你參與以下的 [GRID_WIDE] 體驗：
+
+[EXPERIENCE]
+
+允准之後，除非在「體驗簡覽」撤銷該權限，否則你將不再看到此訊息。
+
+本體驗的相關腳本，將可在啟用本體驗的地區進行以下動作： 
+
+[QUESTIONS] 你是否同意？
+		<form name="form">
+			<button name="BlockExperience" text="封鎖體驗"/>
+			<button name="Mute" text="封鎖物件"/>
+			<button name="Yes" text="是"/>
+			<button name="No" text="否"/>
 		</form>
 	</notification>
 	<notification name="ScriptQuestionCaution">
@@ -3148,6 +3345,10 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="AvatarRezSelfBakedTextureUpdateNotification">
 		（存續 [EXISTENCE] 秒鐘）
 你在 [TIME] 秒鐘後在本地為 &apos;[BODYREGION]&apos; 更新了一個 [RESOLUTION] 的定貌材質。
+	</notification>
+	<notification name="CannotUploadTexture">
+		無法上傳質料。
+[REASON]
 	</notification>
 	<notification name="LivePreviewUnavailable">
 		我們無法顯示這個材質的預覽，因為它設為「禁止複製」且 / 或「禁止轉移」。
@@ -3724,9 +3925,11 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="TeleportedByAttachment">
 		你已成功被 [ITEM_ID] 上的一個附件瞬間傳送
+		<usetemplate ignoretext="瞬間傳送：你已成功被一個附件瞬間傳送" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		你已成功被 &apos;[PARCEL_NAME]&apos; 地段的物件 &apos;[OBJECT_NAME]&apos; 瞬間傳送
+		<usetemplate ignoretext="瞬間傳送：你已被一個物件或地段瞬間傳送成功" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		你已成功被 [OWNER_ID] 擁有的物件 &apos;[OBJECT_NAME]&apos; 瞬間傳送
@@ -4058,7 +4261,7 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate ignoretext="無法移動檔案。 已恢復前一個路徑。" name="okignore" yestext="確定"/>
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		儲存預設權限時出問題，原因：[REASON]。  請稍後再嘗試儲存預設權限。
+		儲存預設物件權限時出問題，原因：[REASON]。  請稍後再嘗試儲存預設權限。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">

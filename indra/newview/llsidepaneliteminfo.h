@@ -67,6 +67,8 @@ protected:
 	void refreshFromItem(LLViewerInventoryItem* item);
 
 private:
+    static void setAssociatedExperience( LLHandle<LLSidepanelItemInfo> hInfo, const LLSD& experience );
+
 	void startObjectInventoryObserver();
 	void stopObjectInventoryObserver();
 

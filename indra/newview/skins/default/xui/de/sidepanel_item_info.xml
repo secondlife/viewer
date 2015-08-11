@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="Objektprofil">
+	<panel.string name="loading_experience">
+		(laden)
+	</panel.string>
 	<panel.string name="unknown">
 		(unbekannt)
 	</panel.string>
@@ -43,6 +46,9 @@
 			<text name="LabelAcquiredTitle">
 				Erworben:
 			</text>
+			<text name="LabelItemExperienceTitle">
+				Erlebnis:
+			</text>
 			<panel name="perms_inv">
 				<text name="perm_modify">
 					Sie können:
@@ -66,8 +72,9 @@
 				<check_box label="Übertragen" name="CheckNextOwnerTransfer" tool_tip="Nächster Eigentümer kann dieses Objekt weitergeben oder -verkaufen"/>
 			</panel>
 			<check_box label="Zum Verkauf" name="CheckPurchase"/>
-			<combo_box name="combobox sale copy">
-				<combo_box.item label="Kopieren" name="Copy"/>
+			<combo_box name="ComboBoxSaleType">
+				<combo_box.item label="Kopie" name="Copy"/>
+				<combo_box.item label="Inhalt" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
 			<spinner label="Preis: L$" name="Edit Cost"/>

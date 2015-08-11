@@ -48,6 +48,9 @@ Bir dakika sonra tekrar deneyin.
 		<message name="MustGetAgeRegion">
 			Bu bölgeye girebilmek için 18 veya üzeri bir yaşta olmanız gerekir.
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			Bölgeye girilemiyor. &quot;[REGION_NAME]&quot; bir Yetenek Oyunu Bölgesi. Buraya girebilmek için bazı ölçütleri karşılamanız gerekiyor. Ayrıntılar için lütfen [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life Skill Gaming FAQ] adresini ziyaret edin.
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">

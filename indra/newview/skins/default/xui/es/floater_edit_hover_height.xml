@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="HoverHeight" title="CONFIGURAR ALTURA DEL AVATAR">
+	<slider label="Altura" name="HoverHeightSlider"/>
+</floater>

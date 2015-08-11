@@ -46,6 +46,9 @@ Per ripetere l&apos;esercitazione, visita &apos;Welcome Island Public&apos;.
 		<message name="MustGetAgeRegion">
 			Per poter entrare in questa regione devi avere almeno 18 anni.
 		</message>
+		<message name="RegionTPSpecialUsageBlocked">
+			Impossibile entrare nella regione. &apos;[REGION_NAME]&apos; è una regione per giochi di abilità e per entrare è necessario soddisfare alcuni requisiti. Per dettagli, leggi le [http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life domande frequenti sui giochi di abilità].
+		</message>
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">

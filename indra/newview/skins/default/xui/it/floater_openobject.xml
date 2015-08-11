@@ -3,6 +3,11 @@
 	<text name="object_name">
 		[DESC]:
 	</text>
-	<button label="Copia nell&apos;inventario" label_selected="Copia nell&apos;inventario" name="copy_to_inventory_button"/>
-	<button label="Copia ed indossa" label_selected="Copia ed indossa" name="copy_and_wear_button"/>
+	<text name="border_note">
+		Copia nell&apos;inventario e indossa
+	</text>
+	<button label="Aggiungi al vestiario" label_selected="Aggiungi al vestiario" name="copy_and_wear_button"/>
+	<button label="Sostituisci vestiario" label_selected="Sostituisci vestiario" name="copy_and_replace_button"/>
+	<button label="Crea solo la copia nell&apos;inventario" label_selected="Crea solo la copia nell&apos;inventario" name="copy_to_inventory_button"/>
+	<button label="Annulla" label_selected="Annulla" name="cancel_button"/>
 </floater>
