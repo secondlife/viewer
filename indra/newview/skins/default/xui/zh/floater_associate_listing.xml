@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="associate listing" title="聯結刊登">
+	<text name="message">刊登 ID：</text>
+	<line_editor name="listing_id">在此鍵入 ID</line_editor>
+	<button label="確定" name="OK"/>
+	<button label="取消" name="Cancel"/>
+</floater>

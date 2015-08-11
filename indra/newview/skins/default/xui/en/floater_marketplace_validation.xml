@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+    title="Audit Marketplace Listings"
+    name="floater_marketplace_validation"
+    help_topic="floater_marketplace_validation"
+    layout="topleft"
+    positioning="cascading"
+    legacy_header_height="18"
+    width="600"
+    height="500"
+    min_width="400"
+    min_height="200"
+    can_close="true"
+    can_resize="true"
+    can_minimize="true"
+    save_rect="true"
+    reuse_instance="true"
+    save_visibility="false">
+    <button
+    name="OK"
+    label="OK"
+    label_selected="OK"
+    layout="topleft"
+    follows="right|bottom"
+    top="465"
+    width="100"
+    height="20"
+    left="484"/>
+    <text_editor
+     name="validation_text"
+     type="string"
+     font="SansSerif"
+     length="1"
+     max_length="65536"
+     layout="topleft"
+     follows="all"
+     bg_readonly_color="TextBgReadOnlyColor"
+     text_readonly_color="TextFgReadOnlyColor"
+     top="25"
+     bottom="455"
+     left="20"
+     right="-20"
+     word_wrap="true">
+        MARKETPLACE_VALIDATION_TEXT
+    </text_editor>
+</floater>
