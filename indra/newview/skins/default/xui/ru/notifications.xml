@@ -129,6 +129,88 @@
 Не удалось инициализировать торговый центр из-за ошибки системы или сети.  Повторите попытку позже.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="StockPasteFailed">
+		Не удалось скопировать или переместить в папку запасов, ошибка:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		Не удалось скопировать или переместить в списки товаров торгового центра, ошибка:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		Не удалось выполнить транзакцию с торговым центром, ошибка:
+        
+        Причина: &apos;[ERROR_REASON]&apos;
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		Не удалось опубликовать этот продукт или активировать папку версии. Обычно это происходит из-за отсутствия информации в форме описания списка, но также может быть связано с ошибками в структуре папки. Отредактируйте список или проверьте папку списка на отсутствие ошибок.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		Не удалось опубликовать в торговом центре, ошибка:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		Не удалось активировать эту папку версии, ошибка:
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		Это действие вызовет изменение активного содержимого данного списка. Продолжить?
+		<usetemplate ignoretext="Подтверждать смену активного списка в торговом центре" name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		При перетаскивании в окно списков товаров торгового центра предметы перемещаются со своего исходного места, а не копируются. Продолжить?
+		<usetemplate ignoretext="Подтверждать перемещение предмета из инвентаря в торговый центр" name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		В результате перемещения или удаления папки списка будет удален ваш список товаров в торговом центре. Если требуется сохранить список в торговом центре, переместите или удалите содержимое папки версии, которое необходимо изменить. Продолжить?
+		<usetemplate ignoretext="Подтверждать перемещение или удаление списка из торгового центра" name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		У вас нет прав на копирование этих предметов в торговый центр. Переместите их или оставьте здесь.
+		<usetemplate canceltext="Отмена" ignoretext="Подтверждать попытку копирования некопируемых предметов в торговый центр" name="yesnocancelbuttons" notext="Не перемещать предмет(ы)" yestext="Переместить предмет(ы)"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		Это действие вызовет отмену публикации списка. Продолжить?
+		<usetemplate ignoretext="Подтверждать отмену публикации активного списка в торговом центре" name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		Это действие вызовет деактивацию папки версии текущего списка. Продолжить?
+		<usetemplate ignoretext="Подтверждать деактивирование папки версии списка в торговом центре" name="okcancelignore" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		Не удалось обновить этот список.
+[[URL] Щелкните здесь], чтобы изменить его в торговом центре.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		Нельзя надеть одежду или часть тела, если они находятся в папке списков товаров торгового центра.
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		Неверный идентификатор списка.
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		В этом списке несколько папок версий или нет ни одной. Самостоятельно выберите и активируйте одну папку позже.
+		<usetemplate ignoretext="Предупреждать об активировании папки версии, если создан список с несколькими папками версий" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		Предметы разных типов распределены по отдельным папкам запасов, поэтому папка систематизирована так, чтобы ее можно было опубликовать.
+		<usetemplate ignoretext="Предупреждать о разделении папки запасов перед публикацией" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		Публикация вашего списка прекращена, так как папка запасов пуста. Добавьте предметы в папку запасов, чтобы опубликовать список снова.
+		<usetemplate ignoretext="Оповещать о неудавшейся публикации списка из-за того, что папка запасов пуста" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		Ошибка при передаче текста скрипта по следующей причине: [REASON]. Повторите попытку позже.
 	</notification>
@@ -472,6 +554,10 @@
 	<notification name="SaveChanges">
 		Сохранить изменения?
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Не сохранять" yestext="Сохранить"/>
+	</notification>
+	<notification name="DeleteNotecard">
+		Удалить заметку?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Не удалось сохранить жест.
@@ -1868,6 +1954,9 @@ http://secondlife.com/download.
 		Вы пытаетесь посетить регион, контент в котором не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
+	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
 		Вы пытаетесь посетить регион, контент в котором имеет рейтинг [REGIONMATURITY] и предназначен только для взрослых.
 		<url name="url">
@@ -2154,6 +2243,10 @@ http://secondlife.com/download.
 		<form name="form">
 			<ignore name="ignore" text="Установлено действие «Заплатить за объект» при построении объекта без скрипта money()"/>
 		</form>
+	</notification>
+	<notification name="PayConfirmation">
+		Подтвердите оплату L$[AMOUNT] для [TARGET].
+		<usetemplate ignoretext="Подтверждать перед оплатой (для сумм более L$200)" name="okcancelignore" notext="Отмена" yestext="Оплатить"/>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
 		В этом объекте нет вещей, которые вам разрешено копировать.
@@ -3841,9 +3934,11 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="TeleportedByAttachment">
 		Вы были телепортированы прикрепленным объектом [ITEM_ID]
+		<usetemplate ignoretext="Телепортация: вы были телепортированы прикрепленным объектом" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		Вы были телепортированы объектом «[OBJECT_NAME]» на участке «[PARCEL_NAME]»
+		<usetemplate ignoretext="Телепортация: вы были телепортированы объектом на участке" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		Вы были телепортированы объектом «[OBJECT_NAME]», владелец – [OWNER_ID]
@@ -4175,7 +4270,7 @@ http://secondlife.com/download.
 		<usetemplate ignoretext="Невозможно переместить файлы. Восстановлен прежний путь." name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		Ошибка при сохранении стандартных разрешений по следующей причине: [REASON].  Попробуйте задать стандартные разрешения через некоторое время.
+		Ошибка при сохранении стандартных разрешений на объект: [REASON].  Попробуйте задать стандартные разрешения через некоторое время.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">

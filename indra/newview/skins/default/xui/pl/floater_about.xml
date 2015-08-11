@@ -5,10 +5,8 @@
 			<button label="Kopiuj do schowka" name="copy_btn" />
 		</panel>
 		<panel label="Podziękowania"  name="credits_panel">
-			<text name="linden_intro">
-				Second Life zostało dla Ciebie stworzone przez Lindenów, 
-				z wkładem open source od:
-			</text>
+			<text name="linden_intro">Second Life zostało dla Ciebie stworzone przez Lindenów, 
+z wkładem open source od::</text>
 		</panel>
 		<panel label="Licencje" name="licenses_panel" />
 	</tab_container>

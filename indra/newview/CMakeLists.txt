@@ -268,6 +268,7 @@ set(viewer_SOURCE_FILES
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloaterloadprefpreset.cpp
+    llfloatermarketplacelistings.cpp
     llfloatermap.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
@@ -892,6 +893,7 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloaterloadprefpreset.h
     llfloatermap.h
+    llfloatermarketplacelistings.h
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloatermodelpreview.h
