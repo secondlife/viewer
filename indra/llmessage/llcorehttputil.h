@@ -457,7 +457,7 @@ public:
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
 
-    /// Execute a Post transaction on the supplied URL and yield execution of 
+    /// Execute a PATCH transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available. 
     /// 
     /// @Note: the request's smart pointer is passed by value so that it will
@@ -471,6 +471,46 @@ public:
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return patchAndYield(request, url, body,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
+    }
+
+    /// Execute a COPY transaction on the supplied URL and yield execution of 
+    /// the coroutine until a result is available. 
+    /// 
+    /// @Note: The destination is passed through the HTTP pipe as a header
+    /// The header used is defined as: HTTP_OUT_HEADER_DESTINATION("Destination");
+    /// 
+    /// @Note: the request's smart pointer is passed by value so that it will
+    /// not be deallocated during the yield.
+    LLSD copyAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, const std::string dest,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+    LLSD copyAndYield(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const std::string & dest,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return copyAndYield(request, url, dest,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
+    }
+
+    /// Execute a MOVE transaction on the supplied URL and yield execution of 
+    /// the coroutine until a result is available. 
+    /// 
+    /// @Note: The destination is passed through the HTTP pipe in the headers.
+    /// The header used is defined as: HTTP_OUT_HEADER_DESTINATION("Destination");
+    /// 
+    /// @Note: the request's smart pointer is passed by value so that it will
+    /// not be deallocated during the yield.
+    LLSD moveAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, const std::string dest,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+    LLSD moveAndYield(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const std::string & dest,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return moveAndYield(request, url, dest,
             LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
     }
 
@@ -538,6 +578,16 @@ private:
 
     LLSD patchAndYield_(LLCore::HttpRequest::ptr_t &request,
         const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+        HttpCoroHandler::ptr_t &handler);
+
+    LLSD copyAndYield_(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, 
+        LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+        HttpCoroHandler::ptr_t &handler);
+
+    LLSD moveAndYield_(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url,
         LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
         HttpCoroHandler::ptr_t &handler);
 

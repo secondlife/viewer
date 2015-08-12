@@ -380,6 +380,19 @@ HttpStatus HttpOpRequest::setupCopy(HttpRequest::policy_t policy_id,
 }
 
 
+HttpStatus HttpOpRequest::setupMove(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t &headers)
+{
+    setupCommon(policy_id, priority, url, NULL, options, headers);
+    mReqMethod = HOR_MOVE;
+
+    return HttpStatus();
+}
+
+
 void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 								HttpRequest::priority_t priority,
 								const std::string & url,
@@ -623,6 +636,11 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
     case HOR_COPY:
         code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "COPY");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        break;
+
+    case HOR_MOVE:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "MOVE");
         check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
         break;
 

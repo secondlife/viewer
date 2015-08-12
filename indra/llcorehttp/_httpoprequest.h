@@ -83,7 +83,8 @@ public:
 		HOR_PUT,
         HOR_DELETE,
         HOR_PATCH,
-        HOR_COPY
+        HOR_COPY,
+        HOR_MOVE
 	};
 	
 	virtual void stageFromRequest(HttpService *);
@@ -143,6 +144,12 @@ public:
                         const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupCopy(HttpRequest::policy_t policy_id,
+                        HttpRequest::priority_t priority,
+                        const std::string & url,
+                        const HttpOptions::ptr_t & options,
+                        const HttpHeaders::ptr_t & headers);
+
+    HttpStatus setupMove(HttpRequest::policy_t policy_id,
                         HttpRequest::priority_t priority,
                         const std::string & url,
                         const HttpOptions::ptr_t & options,

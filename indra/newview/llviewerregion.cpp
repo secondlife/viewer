@@ -2822,7 +2822,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("FetchInventory2");
 	capabilityNames.append("FetchInventoryDescendents2");
 	capabilityNames.append("IncrementCOFVersion");
-	AISCommand::getCapabilityNames(capabilityNames);
+	AISAPI::getCapNames(capabilityNames);
 
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetExperiences");

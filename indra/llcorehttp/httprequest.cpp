@@ -419,6 +419,37 @@ HttpHandle HttpRequest::requestCopy(policy_t policy_id,
     return handle;
 }
 
+HttpHandle HttpRequest::requestMove(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t & headers,
+    HttpHandler * user_handler)
+{
+    HttpStatus status;
+    HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+    HttpOpRequest * op = new HttpOpRequest();
+    if (!(status = op->setupMove(policy_id, priority, url, options, headers)))
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        op->release();
+        mLastReqStatus = status;
+        return handle;
+    }
+
+    mLastReqStatus = status;
+    handle = static_cast<HttpHandle>(op);
+
+    return handle;
+}
+
 
 HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
 {

@@ -478,7 +478,7 @@ public:
 						  HttpHandler * handler);
 
 
-    /// Queue a full HTTP PUT.  Query arguments and body may
+    /// Queue a full HTTP DELETE.  Query arguments and body may
     /// be provided.  Caller is responsible for escaping and
     /// encoding and communicating the content types.
     ///
@@ -497,7 +497,7 @@ public:
             const HttpHeaders::ptr_t & headers,
             HttpHandler * user_handler);
 
-    /// Queue a full HTTP PUT.  Query arguments and body may
+    /// Queue a full HTTP PATCH.  Query arguments and body may
     /// be provided.  Caller is responsible for escaping and
     /// encoding and communicating the content types.
     ///
@@ -520,7 +520,7 @@ public:
             const HttpHeaders::ptr_t & headers,
             HttpHandler * user_handler);
 
-    /// Queue a full HTTP PUT.  Query arguments and body may
+    /// Queue a full HTTP COPY.  Query arguments and body may
     /// be provided.  Caller is responsible for escaping and
     /// encoding and communicating the content types.
     ///
@@ -538,7 +538,26 @@ public:
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
             HttpHandler * user_handler);
-       
+
+    /// Queue a full HTTP MOVE.  Query arguments and body may
+    /// be provided.  Caller is responsible for escaping and
+    /// encoding and communicating the content types.
+    ///
+    /// @param	policy_id		@see requestGet()
+    /// @param	priority		"
+    /// @param	url				"
+    /// @param	options			@see requestGet()K(optional)
+    /// @param	headers			"
+    /// @param	handler			"
+    /// @return					"
+    ///
+    HttpHandle requestMove(policy_t policy_id,
+            priority_t priority,
+            const std::string & url,
+            const HttpOptions::ptr_t & options,
+            const HttpHeaders::ptr_t & headers,
+            HttpHandler * user_handler);
+
     /// Queue a NoOp request.
 	/// The request is queued and serviced by the working thread which
 	/// immediately processes it and returns the request to the reply

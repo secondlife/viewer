@@ -38,21 +38,38 @@
 #include "llcorehttputil.h"
 #include "llcoproceduremanager.h"
 
-#if 1
 class AISAPI
 {
 public:
     typedef boost::function<void(const LLUUID &invItem)>    completion_t;
 
-    static void CreateInventoryCommand(const LLUUID& parentId, const LLSD& newInventory, completion_t callback);
-    static void SlamFolderCommand(const LLUUID& folderId, const LLSD& newInventory, completion_t callback);
-    static void RemoveCategoryCommand(const LLUUID &categoryId, completion_t callback);
-    static void RemoveItemCommand(const LLUUID &itemId, completion_t callback);
-    static void PurgeDescendentsCommand(const LLUUID &categoryId, completion_t callback);
-    static void UpdateCategoryCommand(const LLUUID &categoryId, const LLSD &updates, completion_t callback);
-    static void UpdateItemCommand(const LLUUID &itemId, const LLSD &updates, completion_t callback);
+    static bool isAvailable();
+    static void getCapNames(LLSD& capNames);
+
+    static void CreateInventory(const LLUUID& parentId, const LLSD& newInventory, completion_t callback);
+    static void SlamFolder(const LLUUID& folderId, const LLSD& newInventory, completion_t callback);
+    static void RemoveCategory(const LLUUID &categoryId, completion_t callback);
+    static void RemoveItem(const LLUUID &itemId, completion_t callback);
+    static void PurgeDescendents(const LLUUID &categoryId, completion_t callback);
+    static void UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback);
+    static void UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback);
+    static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, completion_t callback);
 
 private:
+    typedef enum {
+        COPYINVENTORY,
+        SLAMFOLDER,
+        REMOVECATEGORY,
+        REMOVEITEM,
+        PURGEDESCENDENTS,
+        UPDATECATEGORY,
+        UPDATEITEM,
+        COPYLIBRARYCATEGORY
+    } COMMAND_TYPE;
+
+    static const std::string INVENTORY_CAP_NAME;
+    static const std::string LIBRARY_CAP_NAME;
+
     typedef boost::function < LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
         const std::string, LLSD, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
 
@@ -61,118 +78,11 @@ private:
     static std::string getInvCap();
     static std::string getLibCap();
 
-    static void InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter, invokationFn_t invoke, std::string url, LLUUID targetId, LLSD body, completion_t callback);
+    static void InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter, 
+        invokationFn_t invoke, std::string url, LLUUID targetId, LLSD body, 
+        completion_t callback, COMMAND_TYPE type);
 
-#if 0
-    static void CreateInventoryCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter, LLUUID parentId, LLSD newInventory, completion_t callback);
-    static void SlamFolderCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter, LLUUID folderId, LLSD newInventory, completion_t callback);
-    static void RemoveItemCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter, LLUUID itemId, completion_t callback);
-#endif
 };
-#endif 
-
-class AISCommand: public LLHTTPClient::Responder
-{
-public:
-	typedef boost::function<void()> command_func_type;
-
-	AISCommand(LLPointer<LLInventoryCallback> callback);
-
-	virtual ~AISCommand() {}
-
-	bool run_command();
-
-	void setCommandFunc(command_func_type command_func);
-	
-	// Need to do command-specific parsing to get an id here, for
-	// LLInventoryCallback::fire().  May or may not need to bother,
-	// since most LLInventoryCallbacks do their work in the
-	// destructor.
-	
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
-
-	static bool isAPIAvailable();
-	static bool getInvCap(std::string& cap);
-	static bool getLibCap(std::string& cap);
-	static void getCapabilityNames(LLSD& capabilityNames);
-
-protected:
-	virtual bool getResponseUUID(const LLSD& content, LLUUID& id);
-
-private:
-	command_func_type mCommandFunc;
-	LLPointer<LLHTTPRetryPolicy> mRetryPolicy;
-	LLPointer<LLInventoryCallback> mCallback;
-};
-
-// class RemoveItemCommand: public AISCommand
-// {
-// public:
-// 	RemoveItemCommand(const LLUUID& item_id,
-// 					  LLPointer<LLInventoryCallback> callback);
-// };
-
-// class RemoveCategoryCommand: public AISCommand
-// {
-// public:
-// 	RemoveCategoryCommand(const LLUUID& item_id,
-// 						  LLPointer<LLInventoryCallback> callback);
-// };
-
-// class PurgeDescendentsCommand: public AISCommand
-// {
-// public:
-// 	PurgeDescendentsCommand(const LLUUID& item_id,
-// 							LLPointer<LLInventoryCallback> callback);
-// };
-
-// class UpdateItemCommand: public AISCommand
-// {
-// public:
-// 	UpdateItemCommand(const LLUUID& item_id,
-// 					  const LLSD& updates,
-// 					  LLPointer<LLInventoryCallback> callback);
-// private:
-// 	LLSD mUpdates;
-// };
-
-// class UpdateCategoryCommand: public AISCommand
-// {
-// public:
-// 	UpdateCategoryCommand(const LLUUID& cat_id,
-// 						  const LLSD& updates,
-// 						  LLPointer<LLInventoryCallback> callback);
-// private:
-// 	LLSD mUpdates;
-// };
-
-// class SlamFolderCommand: public AISCommand
-// {
-// public:
-// 	SlamFolderCommand(const LLUUID& folder_id, const LLSD& contents, LLPointer<LLInventoryCallback> callback);
-// 	
-// private:
-// 	LLSD mContents;
-// };
-
-class CopyLibraryCategoryCommand: public AISCommand
-{
-public:
-	CopyLibraryCategoryCommand(const LLUUID& source_id, const LLUUID& dest_id, LLPointer<LLInventoryCallback> callback);
-
-protected:
-	/* virtual */ bool getResponseUUID(const LLSD& content, LLUUID& id);
-};
-
-// class CreateInventoryCommand: public AISCommand
-// {
-// public:
-// 	CreateInventoryCommand(const LLUUID& parent_id, const LLSD& new_inventory, LLPointer<LLInventoryCallback> callback);
-// 
-// private:
-// 	LLSD mNewInventory;
-// };
 
 class AISUpdate
 {
