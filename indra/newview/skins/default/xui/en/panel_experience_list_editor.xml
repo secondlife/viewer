@@ -47,19 +47,19 @@
       height="12"
       follows="top|left">
    </text>
-  <scroll_list
+  <name_list
     draw_heading="false"
     left="3"
     width="225"
     height="75"
     follows="all"
     name="experience_list">
-    <columns
+    <name_list.columns
       width="225"
       user_resize="false"
       name="experience_name"
       label="Name"/>
-  </scroll_list>
+  </name_list>
   <button
     layout="topleft"
     follows="top|right"

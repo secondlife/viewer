@@ -31,6 +31,7 @@
 #include "lluuid.h"
 #include <set>
 
+class LLNameListCtrl;
 class LLScrollListCtrl;
 class LLButton;
 class LLFloaterExperiencePicker;
@@ -82,7 +83,7 @@ private:
 	uuid_list_t mExperienceIds;
 
 
-	LLScrollListCtrl*			mItems;
+	LLNameListCtrl*				mItems;
 	filter_list					mFilters;
 	LLButton*					mAdd;
 	LLButton*					mRemove;

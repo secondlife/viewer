@@ -33,6 +33,7 @@
 #include "llfloaterexperiencepicker.h"
 #include "llfloaterreg.h"
 #include "llhandle.h"
+#include "llnamelistctrl.h"
 #include "llscrolllistctrl.h"
 #include "llviewerregion.h"
 #include "llagent.h"
@@ -54,7 +55,7 @@ LLPanelExperienceListEditor::LLPanelExperienceListEditor()
 
 BOOL LLPanelExperienceListEditor::postBuild()
 {
-	mItems = getChild<LLScrollListCtrl>("experience_list");
+	mItems = getChild<LLNameListCtrl>("experience_list");
 	mAdd = getChild<LLButton>("btn_add");
 	mRemove = getChild<LLButton>("btn_remove");
 	mProfile = getChild<LLButton>("btn_profile");
@@ -178,12 +179,13 @@ void LLPanelExperienceListEditor::onItems()
 	{
 		const LLUUID& experience = *it;
 		item["id"]=experience;
+		item["target"] = LLNameListCtrl::EXPERIENCE;
 		LLSD& columns = item["columns"];
 		columns[0]["column"] = "experience_name";
 		columns[0]["value"] = getString("loading");
 		mItems->addElement(item);
 
-		LLExperienceCache::get(experience, boost::bind(&LLPanelExperienceListEditor::experienceDetailsCallback, 
+		LLExperienceCache::get(experience, boost::bind(&LLPanelExperienceListEditor::experienceDetailsCallback,
 			getDerivedHandle<LLPanelExperienceListEditor>(), _1));
 	}
 
