@@ -377,12 +377,12 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 		case LLMotion::STATUS_SUCCESS:
 		    // add motion to our list
 		    mLoadedMotions.insert(motion);
-            // FIXME SO MUCH DUMP
+            // BENTO TEMP
             {
                 LLKeyframeMotion *km = dynamic_cast<LLKeyframeMotion*>(motion);
                 if (km)
                 {
-                    km->dumpToFile("");
+                    //km->dumpToFile("");
                 }
             }
 			break;
