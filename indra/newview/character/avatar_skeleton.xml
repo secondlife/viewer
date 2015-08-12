@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
-<linden_skeleton version="1.0" num_bones="53" num_collision_volumes="26">
+<linden_skeleton version="1.0" num_bones="53" num_collision_volumes="29">
 <bone name="mPelvis" pos="0.000 0.000 1.067" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 1.067015">
-  <bone name="mTail_1" pos="-0.500 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 0.000000">
-    <bone name="mTail_2" pos="-0.500 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 0.000000">
-      <bone name="mTail_3" pos="-0.500 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 0.000000">
+  <bone name="mTail_1" pos="0.000 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.25 0.000000 0.000000">
+    <bone name="mTail_2" pos="-0.2500 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-.25000000 0.000000 0.000000">
+      <bone name="mTail_3" pos="-0.2500 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.2500000 0.000000 0.000000">
+        <bone name="mTail_4" pos="-0.2500 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.25000000 0.000000 0.000000">
+        </bone>
       </bone>
     </bone>
   </bone>
@@ -15,6 +17,22 @@
 		<collision_volume name="LEFT_HANDLE" pos = "0.0 0.10 0.058" rot="0.000000 0.00000 0.000000" scale="0.05 0.05 0.05"/>
 		<collision_volume name="RIGHT_HANDLE" pos = "0.0 -0.10 0.058" rot="0.000000 0.00000 0.000000" scale="0.05 0.05 0.05"/>
 		<bone name="mChest" pos="-0.015 0.000 0.205" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.015368 0.000000 0.204877">
+            <bone name="mRightWingShoulder" pos="-0.07 -0.082 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.07 -0.082 0.165">
+              <bone name="mRightWingElbow" pos="-0.085 -0.115 0" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.085 -0.115 0">
+                <bone name="mRightWingWrist" pos="0.000 -0.231 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -.231 -0.000000">
+                  <bone name="mRightWingTip" pos="0.000 -0.214 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000 -0.214 -0.000">
+                  </bone>
+                </bone>
+              </bone>
+            </bone>
+            <bone name="mLeftWingShoulder" pos="-0.07 0.082 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.07 0.082 0.165">
+              <bone name="mLeftWingElbow" pos="-0.085 0.115 0" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.085 0.115 0">
+                <bone name="mLeftWingWrist" pos="0.000 0.231 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.231 -0.000000">
+                  <bone name="mLeftWingTip" pos="0.000 0.214 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000 0.214 -0.000">
+                  </bone>
+                </bone>
+              </bone>
+            </bone>
 			<collision_volume name="CHEST" pos = "0.028 0 0.07" rot="0.000000 -10.00000 0.000000" scale="0.11 0.15 0.2"/>
 			<collision_volume name="UPPER_BACK" pos = "0.0 0.0 0.017" rot="0.000000 0.00000 0.000000" scale="0.09 0.13 0.15"/>
 			<collision_volume name="LEFT_PEC" pos = "0.119 0.082 0.042" rot="0.000000 4.29000 0.000000" scale="0.05 0.05 0.05"/>
@@ -33,14 +51,6 @@
 			</bone>
 			<bone name="mCollarLeft" pos="-0.021 0.085 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.020927 0.084665 0.165396">
 				<collision_volume name="L_CLAVICLE" pos = "0.02 0 0.02" rot="0.000000 0.00000 0.000000" scale="0.07 0.14 0.05"/>
-				<bone name="mLeftWingShoulder" pos="0.000 0.079 -0.100" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                  <bone name="mLeftWingElbow" pos="0.000 0.50 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                    <bone name="mLeftWingWrist" pos="0.000 0.50 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                      <bone name="mLeftWingTip" pos="0.000 0.50 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                      </bone>
-                    </bone>
-                  </bone>
-                </bone>
 				<bone name="mShoulderLeft" pos="0.000 0.079 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
 					<collision_volume name="L_UPPER_ARM" pos = "0.0 0.12 0.01" rot="-5.000000 0.00000 0.000000" scale="0.05 0.17 0.05"/>
 					<bone name="mElbowLeft" pos="0.000 0.248 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.248000 0.000000">
@@ -53,14 +63,6 @@
 			</bone>
 			<bone name="mCollarRight" pos="-0.021 -0.085 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.020927 -0.085000 0.165396">
 				<collision_volume name="R_CLAVICLE" pos = "0.02 0 0.02" rot="0.000000 0.00000 0.000000" scale="0.07 0.14 0.05"/>
-				<bone name="mRightWingShoulder" pos="0.000 -0.079 -0.100" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                  <bone name="mRightWingElbow" pos="0.000 -0.50 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                    <bone name="mRightWingWrist" pos="0.000 -0.50 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                      <bone name="mRightWingTip" pos="0.000 -0.50 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-                      </bone>
-                    </bone>
-                  </bone>
-                </bone>
 				<bone name="mShoulderRight" pos="0.000 -0.079 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.079418 -0.000000">
 					<collision_volume name="R_UPPER_ARM" pos = "0.0 -0.12 0.01" rot="5.000000 0.00000 0.000000" scale="0.05 0.17 0.05"/>
 					<bone name="mElbowRight" pos="0.000 -0.248 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.248000 -0.000000">

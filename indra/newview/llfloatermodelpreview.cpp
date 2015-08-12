@@ -1343,6 +1343,21 @@ LLModelLoader::LLModelLoader( std::string filename, S32 lod, LLModelPreview* pre
 	mJointMap["mFootLeft"] = "mFootLeft";
 	mJointMap["mToeLeft"] = "mToeLeft";
 
+    // FIXME BENTO change this to use the skeleton info rather than hardwiring
+	mJointMap["mLeftWingShoulder"] = "mLeftWingShoulder";
+	mJointMap["mLeftWingElbow"] = "mLeftWingElbow";
+	mJointMap["mLeftWingWrist"] = "mLeftWingWrist";
+	mJointMap["mLeftWingTip"] = "mLeftWingTip";
+	mJointMap["mRightWingShoulder"] = "mRightWingShoulder";
+	mJointMap["mRightWingElbow"] = "mRightWingElbow";
+	mJointMap["mRightWingWrist"] = "mRightWingWrist";
+	mJointMap["mRightWingTip"] = "mRightWingTip";
+
+	mJointMap["mTail_1"] = "mTail_1";
+	mJointMap["mTail_2"] = "mTail_2";
+	mJointMap["mTail_3"] = "mTail_3";
+	mJointMap["mTail_4"] = "mTail_4";
+
 	mJointMap["avatar_mPelvis"] = "mPelvis";
 	mJointMap["avatar_mTorso"] = "mTorso";
 	mJointMap["avatar_mChest"] = "mChest";
