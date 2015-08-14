@@ -140,7 +140,6 @@ set(viewer_SOURCE_FILES
     llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallingcard.cpp
-    llcaphttpsender.cpp
     llchannelmanager.cpp
     llchatbar.cpp
     llchathistory.cpp
@@ -751,7 +750,6 @@ set(viewer_HEADER_FILES
     llcallbacklist.h
     llcallingcard.h
     llcapabilityprovider.h
-    llcaphttpsender.h
     llchannelmanager.h
     llchatbar.h
     llchathistory.h

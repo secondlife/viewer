@@ -47,7 +47,6 @@
 #include "llagentcamera.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "llcallingcard.h"
-#include "llcaphttpsender.h"
 #include "llcommandhandler.h"
 #include "lldir.h"
 #include "lleventpoll.h"
@@ -611,8 +610,9 @@ LLViewerRegion::~LLViewerRegion()
 	delete mParcelOverlay;
 	delete mImpl->mLandp;
 	delete mImpl->mEventPoll;
+#if 0
 	LLHTTPSender::clearSender(mImpl->mHost);
-	
+#endif	
 	std::for_each(mImpl->mObjectPartition.begin(), mImpl->mObjectPartition.end(), DeletePointer());
 
 	saveObjectCache();
@@ -2941,7 +2941,11 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	}
 	else if(name == "UntrustedSimulatorMessage")
 	{
+#if 1
+        mImpl->mHost.setUntrustedSimulatorCap(url);
+#else
 		LLHTTPSender::setSender(mImpl->mHost, new LLCapHTTPSender(url));
+#endif
 	}
 	else if (name == "SimulatorFeatures")
 	{

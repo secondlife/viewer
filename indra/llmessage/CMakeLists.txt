@@ -52,7 +52,6 @@ set(llmessage_SOURCE_FILES
     llhttpconstants.cpp
     llhttpnode.cpp
     llhttpsdhandler.cpp
-    llhttpsender.cpp
     llinstantmessage.cpp
     lliobuffer.cpp
     lliohttpserver.cpp
@@ -147,7 +146,6 @@ set(llmessage_HEADER_FILES
     llhttpnode.h
     llhttpnodeadapter.h
     llhttpsdhandler.h
-    llhttpsender.h
     llinstantmessage.h
     llinvite.h
     lliobuffer.h
@@ -233,6 +231,9 @@ target_link_libraries(
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}
   ${XMLRPCEPI_LIBRARIES}
+  ${BOOST_COROUTINE_LIBRARY}
+  ${BOOST_CONTEXT_LIBRARY}
+  ${BOOST_SYSTEM_LIBRARY}
   )
 
 # tests

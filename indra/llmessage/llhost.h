@@ -40,6 +40,7 @@ class LLHost {
 protected:
 	U32			mPort;
 	U32         mIP;
+    std::string mUntrustedSimCap;
 public:
 	
 	static LLHost invalid;
@@ -95,6 +96,9 @@ public:
 	std::string getIPString() const;
 	std::string getHostName() const;
 	std::string getIPandPort() const;
+
+    std::string getUntrustedSimulatorCap() const        { return mUntrustedSimCap; }
+    void setUntrustedSimulatorCap(const std::string &capurl) { mUntrustedSimCap = capurl; }
 
 	friend std::ostream& operator<< (std::ostream& os, const LLHost &hh);
 

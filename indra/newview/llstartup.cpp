@@ -56,7 +56,6 @@
 #include "llerrorcontrol.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
-#include "llhttpsender.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
@@ -291,20 +290,6 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 // local classes
 //
 
-namespace
-{
-	class LLNullHTTPSender : public LLHTTPSender
-	{
-		virtual void send(const LLHost& host, 
-						  const std::string& message, const LLSD& body, 
-						  LLHTTPClient::ResponderPtr response) const
-		{
-			LL_WARNS("AppInit") << " attemped to send " << message << " to " << host
-					<< " with null sender" << LL_ENDL;
-		}
-	};
-}
-
 void update_texture_fetch()
 {
 	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
@@ -509,8 +494,6 @@ bool idle_startup()
 			  {
 			    port = gSavedSettings.getU32("ConnectionPort");
 			  }
-
-			LLHTTPSender::setDefaultSender(new LLNullHTTPSender());
 
 			// TODO parameterize 
 			const F32 circuit_heartbeat_interval = 5;
