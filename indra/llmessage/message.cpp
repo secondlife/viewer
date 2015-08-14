@@ -97,45 +97,6 @@ public:
 	apr_pollfd_t mPollFD;
 };
 
-namespace
-{
-	class LLFnPtrResponder : public LLHTTPClient::Responder
-	{
-		LOG_CLASS(LLFnPtrResponder);
-	public:
-		LLFnPtrResponder(void (*callback)(void **,S32), void **callbackData, const std::string& name) :
-			mCallback(callback),
-			mCallbackData(callbackData),
-			mMessageName(name)
-		{
-		}
-
-	protected:
-		virtual void httpFailure()
-		{
-			// don't spam when agent communication disconnected already
-			if (HTTP_GONE != getStatus())
-			{
-				LL_WARNS("Messaging") << "error for message " << mMessageName
-									  << " " << dumpResponse() << LL_ENDL;
-			}
-			// TODO: Map status in to useful error code.
-			if(NULL != mCallback) mCallback(mCallbackData, LL_ERR_TCP_TIMEOUT);
-		}
-		
-		virtual void httpSuccess()
-		{
-			if(NULL != mCallback) mCallback(mCallbackData, LL_ERR_NOERR);
-		}
-
-	private:
-
-		void (*mCallback)(void **,S32);    
-		void **mCallbackData;
-		std::string mMessageName;
-	};
-}
-
 class LLMessageHandlerBridge : public LLHTTPNode
 {
 	virtual bool validate(const std::string& name, LLSD& context) const
