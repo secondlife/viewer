@@ -1259,7 +1259,7 @@ bool idle_startup()
 		LLPostProcess::initClass();
 		display_startup();
 
-		LLAvatarAppearance::initClass();
+		LLAvatarAppearance::initClass(gSavedSettings.getString("AvatarFileName"),gSavedSettings.getString("SkeletonFileName"));
 		display_startup();
 
 		LLViewerObject::initVOClasses();

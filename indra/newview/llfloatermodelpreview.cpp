@@ -1316,48 +1316,8 @@ LLModelLoader::LLModelLoader( std::string filename, S32 lod, LLModelPreview* pre
 , mJointsFromNode( jointsFromNodes )
 , LLThread("Model Loader"), mFilename(filename), mLod(lod), mPreview(preview), mFirstTransform(TRUE), mNumOfFetchingTextures(0)
 {
-	mJointMap["mPelvis"] = "mPelvis";
-	mJointMap["mTorso"] = "mTorso";
-	mJointMap["mChest"] = "mChest";
-	mJointMap["mNeck"] = "mNeck";
-	mJointMap["mHead"] = "mHead";
-	mJointMap["mSkull"] = "mSkull";
-	mJointMap["mEyeRight"] = "mEyeRight";
-	mJointMap["mEyeLeft"] = "mEyeLeft";
-	mJointMap["mCollarLeft"] = "mCollarLeft";
-	mJointMap["mShoulderLeft"] = "mShoulderLeft";
-	mJointMap["mElbowLeft"] = "mElbowLeft";
-	mJointMap["mWristLeft"] = "mWristLeft";
-	mJointMap["mCollarRight"] = "mCollarRight";
-	mJointMap["mShoulderRight"] = "mShoulderRight";
-	mJointMap["mElbowRight"] = "mElbowRight";
-	mJointMap["mWristRight"] = "mWristRight";
-	mJointMap["mHipRight"] = "mHipRight";
-	mJointMap["mKneeRight"] = "mKneeRight";
-	mJointMap["mAnkleRight"] = "mAnkleRight";
-	mJointMap["mFootRight"] = "mFootRight";
-	mJointMap["mToeRight"] = "mToeRight";
-	mJointMap["mHipLeft"] = "mHipLeft";
-	mJointMap["mKneeLeft"] = "mKneeLeft";
-	mJointMap["mAnkleLeft"] = "mAnkleLeft";
-	mJointMap["mFootLeft"] = "mFootLeft";
-	mJointMap["mToeLeft"] = "mToeLeft";
-
-    // FIXME BENTO change this to use the skeleton info rather than hardwiring
-	mJointMap["mLeftWingShoulder"] = "mLeftWingShoulder";
-	mJointMap["mLeftWingElbow"] = "mLeftWingElbow";
-	mJointMap["mLeftWingWrist"] = "mLeftWingWrist";
-	mJointMap["mLeftWingTip"] = "mLeftWingTip";
-	mJointMap["mRightWingShoulder"] = "mRightWingShoulder";
-	mJointMap["mRightWingElbow"] = "mRightWingElbow";
-	mJointMap["mRightWingWrist"] = "mRightWingWrist";
-	mJointMap["mRightWingTip"] = "mRightWingTip";
-
-	mJointMap["mTail_1"] = "mTail_1";
-	mJointMap["mTail_2"] = "mTail_2";
-	mJointMap["mTail_3"] = "mTail_3";
-	mJointMap["mTail_4"] = "mTail_4";
-
+    // Accepted joint aliases - the origins and continued relevance of these is unclear.
+    
 	mJointMap["avatar_mPelvis"] = "mPelvis";
 	mJointMap["avatar_mTorso"] = "mTorso";
 	mJointMap["avatar_mChest"] = "mChest";
@@ -1406,6 +1366,21 @@ LLModelLoader::LLModelLoader( std::string filename, S32 lod, LLModelPreview* pre
 	mJointMap["lThigh"] = "mHipLeft";
 	mJointMap["lShin"] = "mKneeLeft";
 	mJointMap["lFoot"] = "mFootLeft";
+
+    // Get all standard skeleton joints from the preview avatar.
+    if (mPreview)
+    {
+        LLVOAvatar *av = mPreview->getPreviewAvatar();
+        const LLVOAvatar::avatar_joint_list_t &skel = av->getSkeleton();
+        for (S32 i=0; i<skel.size(); i++)
+        {
+            LLAvatarJoint *joint = skel[i];
+            if (joint)
+            {
+                mJointMap[joint->getName()] = joint->getName();
+            }
+        }
+    }
 
 	if (mPreview)
 	{

@@ -10589,6 +10589,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SkeletonFileName</key>
+    <map>
+      <key>Comment</key>
+      <string>Alternative skeleton file name</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>avatar_skeleton.xml</string>
+    </map>
+    <key>AvatarFileName</key>
+    <map>
+      <key>Comment</key>
+      <string>Alternative avatar file name</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>avatar_lad.xml</string>
+    </map>
     <key>ShowAdvancedGraphicsSettings</key>
     <map>
       <key>Comment</key>
