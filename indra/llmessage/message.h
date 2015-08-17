@@ -60,8 +60,7 @@
 #include "llmessagesenderinterface.h"
 
 #include "llstoredmessage.h"
-#include "llcoros.h"
-#include "lleventcoro.h"
+#include "boost/function.hpp"
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
