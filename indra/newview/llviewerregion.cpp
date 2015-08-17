@@ -828,7 +828,6 @@ void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 	LLRegionInfoModel::instance().update(msg);
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);
-	LLFloaterReporter::processRegionInfo(msg);
 }
 
 void LLViewerRegion::setCacheID(const LLUUID& id)
@@ -2718,6 +2717,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("CreateInventoryCategory");
 	capabilityNames.append("DispatchRegionInfo");
+	capabilityNames.append("DirectDelivery");
 	capabilityNames.append("EnvironmentSettings");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");

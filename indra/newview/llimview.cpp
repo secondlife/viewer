@@ -1295,8 +1295,15 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		gAgent.sendReliableMessage();
 	}
 
+	bool is_group_chat = false;
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(im_session_id);
+	if(session)
+	{
+		is_group_chat = session->isGroupSessionType();
+	}
+
 	// If there is a mute list and this is not a group chat...
-	if ( LLMuteList::getInstance() )
+	if ( LLMuteList::getInstance() && !is_group_chat)
 	{
 		// ... the target should not be in our mute list for some message types.
 		// Auto-remove them if present.
@@ -1345,7 +1352,6 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 
 	if (is_not_group_id)
 	{
-		LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(im_session_id);
 		if( session == 0)//??? shouldn't really happen
 		{
 			LLRecentPeople::instance().add(other_participant_id);

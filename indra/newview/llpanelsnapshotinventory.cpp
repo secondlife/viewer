@@ -48,6 +48,8 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	void onResolutionCommit(LLUICtrl* ctrl);
+
 private:
 	/*virtual*/ std::string getWidthSpinnerName() const		{ return "inventory_snapshot_width"; }
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "inventory_snapshot_height"; }
@@ -72,6 +74,8 @@ BOOL LLPanelSnapshotInventory::postBuild()
 {
 	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(FALSE);
 	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
+
+	getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onResolutionCommit, this, _1));
 	return LLPanelSnapshot::postBuild();
 }
 
@@ -87,6 +91,13 @@ void LLPanelSnapshotInventory::updateControls(const LLSD& info)
 {
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
 	getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
+}
+
+void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
+{
+	BOOL current_window_selected = (getChild<LLComboBox>(getImageSizeComboName())->getCurrentIndex() == 3);
+	getChild<LLSpinCtrl>(getWidthSpinnerName())->setVisible(!current_window_selected);
+	getChild<LLSpinCtrl>(getHeightSpinnerName())->setVisible(!current_window_selected);
 }
 
 void LLPanelSnapshotInventory::onSend()

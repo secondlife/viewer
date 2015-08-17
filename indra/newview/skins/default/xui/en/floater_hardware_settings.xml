@@ -191,8 +191,18 @@
      label="OK"
      label_selected="OK"
      layout="topleft"
-     left="-102"
+     right="-105"
      name="OK"
      top="192"
+     width="90" />
+    <button
+     follows="right|bottom"
+     height="22"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="Cancel"
+     right="-10"
      width="90" />
 </floater>

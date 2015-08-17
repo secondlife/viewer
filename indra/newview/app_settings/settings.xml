@@ -3459,6 +3459,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>MinObjectsForUnlinkConfirm</key>
+    <map>
+      <key>Comment</key>
+      <string>Minimum amount of objects in linkset for showing confirmation dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>6</integer>
+    </map>
     <key>EffectScriptChatParticles</key>
       <map>
       <key>Comment</key>
@@ -4680,17 +4691,6 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
-    <key>InventoryDisplayOutbox</key>
-    <map>
-        <key>Comment</key>
-        <string>Override merchant inventory outbox display</string>
-        <key>Persist</key>
-        <integer>0</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
-    </map>
     <key>InventoryInboxToggleState</key>
     <map>
         <key>Comment</key>
@@ -4713,6 +4713,17 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+    <key>InventoryOutboxDisplayBoth</key>
+    <map>
+        <key>Comment</key>
+        <string>Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
 	<key>InventoryOutboxLogging</key>
 	<map>
 		<key>Comment</key>
@@ -4744,7 +4755,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>21</integer>
+      <integer>20</integer>
     </map>
     <key>InventoryOutboxMaxFolderDepth</key>
     <map>
@@ -4768,6 +4779,17 @@
       <key>Value</key>
       <integer>200</integer>
     </map>
+    <key>InventoryOutboxMaxStockItemCount</key>
+    <map>
+        <key>Comment</key>
+        <string>Maximum number of items allowed in a stock folder.</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>200</integer>
+    </map>
     <key>InventorySortOrder</key>
     <map>
       <key>Comment</key>
@@ -4778,6 +4800,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>7</integer>
+    </map>
+    <key>MarketplaceListingsSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort for marketplace listings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
     </map>
     <key>InvertMouse</key>
     <map>
@@ -5628,6 +5661,17 @@
       <key>Value</key>
       <string />
     </map>
+	<key>MarketplaceListingsLogging</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable debug output associated with the Marketplace Listings (SLM) API.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>MarketplaceURL</key>
     <map>
       <key>Comment</key>
@@ -14130,6 +14174,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>-1</integer>
+    </map>
+    <key>MaxFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Yield some time to the local host if we reach a threshold framerate.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-1.0</real>
     </map>
     <key>ForcePeriodicRenderingTime</key>
     <map>

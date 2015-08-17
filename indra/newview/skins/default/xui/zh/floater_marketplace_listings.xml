@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_marketplace_listings" title="MARKETPLACE 刊登">
+	<panel name="marketplace_listings_panel">
+		<panel>
+			<panel name="marketplace_listings_inventory_placeholder_panel">
+				<text name="marketplace_listings_inventory_placeholder_title">載入中…</text>
+			</panel>
+		</panel>
+	</panel>
+</floater>

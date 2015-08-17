@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php
-	</panel.string>
+	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="Kullanıcı Adı" name="username_combo" tool_tip="Kaydolduğunuzda seçtiğiniz kullanıcı adı, örn. mustafayalcin12 veya Faruk Gungoren"/>
 			<line_editor label="Parola" name="password_edit"/>
-			<check_box label="Beni hatırla" name="remember_check"/>
-			<text name="forgot_password_text">
-				Parolamı unuttum
-			</text>
-			<button label="Oturum Aç" name="connect_btn"/>
-			<text name="At_My_Last_Location_Label">
-				son konumum
-			</text>
 			<combo_box label="Sık kullandığım yerler" name="start_location_combo">
+				<combo_box.item label="Son konumum" name="MyLastLocation"/>
 				<combo_box.item label="Ana konumum" name="MyHome"/>
 			</combo_box>
-			<button label="Oturum Aç" name="connect_favorite_btn"/>
-			<line_editor label="Bir yer adı yazın" name="location_edit"/>
-			<button label="Oturum Aç" name="connect_location_btn"/>
+			<button label="Oturum Aç" name="connect_btn"/>
+			<check_box label="Beni hatırla" name="remember_check"/>
+			<text name="forgot_password_text">Parolamı unuttum</text>
 			<combo_box label="Ağ seç" name="server_combo"/>
 		</layout_panel>
 	</layout_stack>
