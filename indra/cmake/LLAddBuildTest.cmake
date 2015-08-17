@@ -34,8 +34,8 @@ INCLUDE(GoogleMock)
     # needed by the test harness itself
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
-    llcorehttp
     llcommon
+    llcorehttp
     )
   IF(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!
