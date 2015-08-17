@@ -240,8 +240,8 @@ target_link_libraries(
 if (LL_TESTS)
   SET(llmessage_TEST_SOURCE_FILES
     llnamevalue.cpp
-#    lltrustedmessageservice.cpp
-#    lltemplatemessagedispatcher.cpp
+    lltrustedmessageservice.cpp
+    lltemplatemessagedispatcher.cpp
     )
   LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
 

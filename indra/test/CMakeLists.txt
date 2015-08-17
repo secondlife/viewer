@@ -4,6 +4,7 @@ project (lltest)
 
 include(00-Common)
 include(LLCommon)
+include(LLCoreHttp)
 include(LLInventory)
 include(LLMath)
 include(LLMessage)
@@ -18,6 +19,7 @@ include(GoogleMock)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLDATABASE_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
@@ -91,6 +93,7 @@ target_link_libraries(lltest
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
