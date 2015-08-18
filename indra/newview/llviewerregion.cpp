@@ -827,7 +827,6 @@ void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 	LLRegionInfoModel::instance().update(msg);
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);
-	LLFloaterReporter::processRegionInfo(msg);
 }
 
 void LLViewerRegion::setCacheID(const LLUUID& id)

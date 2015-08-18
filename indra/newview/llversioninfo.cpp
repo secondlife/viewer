@@ -29,6 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include "llversioninfo.h"
+#include <boost/regex.hpp>
 
 #if ! defined(LL_VIEWER_CHANNEL)       \
  || ! defined(LL_VIEWER_VERSION_MAJOR) \
@@ -131,3 +132,43 @@ void LLVersionInfo::resetChannel(const std::string& channel)
 	sWorkingChannelName = channel;
 	sVersionChannel.clear(); // Reset version and channel string til next use.
 }
+
+//static
+LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
+{
+    ViewerMaturity maturity;
+    
+    std::string channel = getChannel();
+
+	static const boost::regex is_test_channel("\\bTest\\b");
+	static const boost::regex is_beta_channel("\\bBeta\\b");
+	static const boost::regex is_project_channel("\\bProject\\b");
+	static const boost::regex is_release_channel("\\bRelease\\b");
+
+    if (boost::regex_search(channel, is_release_channel))
+    {
+        maturity = RELEASE_VIEWER;
+    }
+    else if (boost::regex_search(channel, is_beta_channel))
+    {
+        maturity = BETA_VIEWER;
+    }
+    else if (boost::regex_search(channel, is_project_channel))
+    {
+        maturity = PROJECT_VIEWER;
+    }
+    else if (boost::regex_search(channel, is_test_channel))
+    {
+        maturity = TEST_VIEWER;
+    }
+    else
+    {
+        LL_WARNS() << "Channel '" << channel
+                   << "' does not follow naming convention, assuming Test"
+                   << LL_ENDL;
+        maturity = TEST_VIEWER;
+    }
+    return maturity;
+}
+
+    

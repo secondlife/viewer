@@ -92,6 +92,7 @@
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
 bool LLFloaterTools::sShowObjectCost = true;
+bool LLFloaterTools::sPreviousFocusOnAvatar = false;
 
 const std::string PANEL_NAMES[LLFloaterTools::PANEL_COUNT] =
 {
@@ -891,6 +892,12 @@ void LLFloaterTools::onClose(bool app_quitting)
 
 	// prepare content for next call
 	mPanelContents->clearContents();
+
+	if(sPreviousFocusOnAvatar)
+	{
+		sPreviousFocusOnAvatar = false;
+		gAgentCamera.setAllowChangeToFollow(TRUE);
+	}
 }
 
 void click_popup_info(void*)
