@@ -2320,22 +2320,6 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Marketplace Validation Error Empty Version">: Warning: version folder must contain at least 1 item</string>
 	<string name="Marketplace Validation Error Empty Stock">: Warning: stock folder must contain at least 1 item</string>
 
-	<string name="Marketplace Validation Log"></string>
-	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
-	<string name="Marketplace Validation Error Mixed Stock">: Error: all items in a stock folder must be no-copy and of the same type</string>
-	<string name="Marketplace Validation Error Subfolder In Stock">: Error: stock folder cannot contain subfolders</string>
-	<string name="Marketplace Validation Warning Empty">: Warning: folder doesn't contain any items</string>
-	<string name="Marketplace Validation Warning Create Stock">: Warning: creating stock folder</string>
-	<string name="Marketplace Validation Warning Create Version">: Warning: creating version folder</string>
-	<string name="Marketplace Validation Warning Move">: Warning : moving items</string>
-	<string name="Marketplace Validation Warning Delete">: Warning: folder content transfered to stock folder, removing empty folder</string>
-	<string name="Marketplace Validation Error Stock Item">: Error: no-copy items must be contained by a stock folder</string>
-	<string name="Marketplace Validation Warning Unwrapped Item">: Warning: items must be contained by a version folder</string>
-	<string name="Marketplace Validation Error">: Error: </string>
-	<string name="Marketplace Validation Warning">: Warning: </string>
-	<string name="Marketplace Validation Error Empty Version">: Warning: version folder must contain at least 1 item</string>
-	<string name="Marketplace Validation Error Empty Stock">: Warning: stock folder must contain at least 1 item</string>
-
     <string name="Marketplace Validation No Error">No errors or warnings to report</string>
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Prefix">Error: </string>
