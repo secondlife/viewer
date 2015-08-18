@@ -42,8 +42,6 @@ protected:
 	U32         mIP;
     std::string mUntrustedSimCap;
 public:
-	
-	static LLHost invalid;
 
 	// CREATORS
 	LLHost()

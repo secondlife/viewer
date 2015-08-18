@@ -232,7 +232,7 @@ void LLPreviewNotecard::loadAsset()
 			}
 			else
 			{
-				LLHost source_sim = LLHost::invalid;
+				LLHost source_sim = LLHost();
 				if (mObjectUUID.notNull())
 				{
 					LLViewerObject *objectp = gObjectList.findObject(mObjectUUID);
