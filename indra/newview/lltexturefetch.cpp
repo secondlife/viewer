@@ -1328,11 +1328,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 		static LLCachedControl<bool> use_http(gSavedSettings, "ImagePipelineUseHTTP", true);
 
-// 		if (mHost != LLHost::invalid) get_url = false;
+// 		if (mHost != LLHost()) get_url = false;
 		if ( use_http && mCanUseHTTP && mUrl.empty())//get http url.
 		{
 			LLViewerRegion* region = NULL;
-			if (mHost == LLHost::invalid)
+			if (mHost == LLHost())
 				region = gAgent.getRegion();
 			else
 				region = LLWorld::getInstance()->getRegion(mHost);
@@ -3224,7 +3224,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 	{
 		LLHost host = iter1->first;
 		// invalid host = use agent host
-		if (host == LLHost::invalid)
+		if (host == LLHost())
 		{
 			host = gAgent.getRegionHost();
 		}
@@ -3304,7 +3304,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 				 iter1 != mCancelQueue.end(); ++iter1)
 			{
 				LLHost host = iter1->first;
-				if (host == LLHost::invalid)
+				if (host == LLHost())
 				{
 					host = gAgent.getRegionHost();
 				}

@@ -290,7 +290,7 @@ LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, LLVFS 
 LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 							   LLVFS *vfs, LLVFS *static_vfs)
 {
-	_init(msg, xfer, vfs, static_vfs, LLHost::invalid);
+	_init(msg, xfer, vfs, static_vfs, LLHost());
 }
 
 

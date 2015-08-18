@@ -957,7 +957,7 @@ std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
 // LLUrlEntryParcel statics.
 LLUUID	LLUrlEntryParcel::sAgentID(LLUUID::null);
 LLUUID	LLUrlEntryParcel::sSessionID(LLUUID::null);
-LLHost	LLUrlEntryParcel::sRegionHost(LLHost::invalid);
+LLHost	LLUrlEntryParcel::sRegionHost;
 bool	LLUrlEntryParcel::sDisconnected(false);
 std::set<LLUrlEntryParcel*> LLUrlEntryParcel::sParcelInfoObservers;
 
@@ -1006,7 +1006,7 @@ std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelC
 
 void LLUrlEntryParcel::sendParcelInfoRequest(const LLUUID& parcel_id)
 {
-	if (sRegionHost == LLHost::invalid || sDisconnected) return;
+	if (sRegionHost == LLHost() || sDisconnected) return;
 
 	LLMessageSystem *msg = gMessageSystem;
 	msg->newMessage("ParcelInfoRequest");

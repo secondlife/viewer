@@ -1675,7 +1675,7 @@ LLHost LLMessageSystem::findHost(const U32 circuit_code)
 	}
 	else
 	{
-		return LLHost::invalid;
+		return LLHost();
 	}
 }
 
