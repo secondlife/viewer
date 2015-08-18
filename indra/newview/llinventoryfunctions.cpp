@@ -2591,11 +2591,11 @@ void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, con
 		LLFolderView* folder_root = root.get();
 		//Need to remove item from DND before item is removed from root folder view
 		//because once removed from root folder view the item is no longer a selected item
-		LLInventoryAction::removeItemFromDND(folder_root);
+		removeItemFromDND(folder_root);
 		folder_root->removeSelectedItems();
 
 		// Update the marketplace listings that have been affected by the operation
-		LLInventoryAction::updateMarketplaceFolders();
+		updateMarketplaceFolders();
 	}
 }
 

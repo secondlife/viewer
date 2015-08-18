@@ -461,13 +461,13 @@ struct LLInventoryAction
 	static void doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, BOOL user_confirm = TRUE);
 	static void callback_doToSelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
 	static void callback_copySelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
-	static void removeItemFromDND(LLFolderView* root);
 	static void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root);
-    
+	static void removeItemFromDND(LLFolderView* root);
+
 private:
-    static void buildMarketplaceFolders(LLFolderView* root);
-    static void updateMarketplaceFolders();
-    static std::list<LLUUID> sMarketplaceFolders; // Marketplace folders that will need update once the action is completed
+	static void buildMarketplaceFolders(LLFolderView* root);
+	static void updateMarketplaceFolders();
+	static std::list<LLUUID> sMarketplaceFolders; // Marketplace folders that will need update once the action is completed
 };
 
 
