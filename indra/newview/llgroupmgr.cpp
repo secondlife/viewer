@@ -1970,7 +1970,8 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!gdatap)
 		return;
-	
+
+	gdatap->clearBanList();
 	LLSD::map_const_iterator i		= content["ban_list"].beginMap();
 	LLSD::map_const_iterator iEnd	= content["ban_list"].endMap();
 	for(;i != iEnd; ++i)

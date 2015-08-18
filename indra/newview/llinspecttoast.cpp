@@ -47,6 +47,7 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& notification_id);
 	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ void removeChild(LLView* child);
 private:
 	void onToastDestroy(LLToast * toast);
 
@@ -98,7 +99,7 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
 	panel->setMouseOpaque(FALSE);
 	if(mPanel != NULL && mPanel->getParent() == this)
 	{
-		removeChild(mPanel);
+		LLInspect::removeChild(mPanel);
 	}
 	addChild(panel);
 	panel->setFocus(TRUE);
@@ -119,6 +120,16 @@ BOOL LLInspectToast::handleToolTip(S32 x, S32 y, MASK mask)
 	// (black tooltips look weird),
 	// so force using the default implementation (STORM-511).
 	return LLFloater::handleToolTip(x, y, mask);
+}
+
+// virtual
+void LLInspectToast::removeChild(LLView* child)
+{
+	if (mPanel == child)
+	{
+		mPanel = NULL;
+	}
+	LLInspect::removeChild(child);
 }
 
 void LLInspectToast::onToastDestroy(LLToast * toast)

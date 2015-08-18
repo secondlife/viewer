@@ -40,6 +40,7 @@ public:
 	/*virtual*/ ~LLFloaterHardwareSettings();
 	
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onClose(bool app_quitting);
 
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
@@ -47,6 +48,9 @@ public:
 	/// OK button
 	static void onBtnOK( void* userdata );
 	
+	/// Cancel button
+	static void onBtnCancel( void* userdata );
+
 	//// menu management
 
 	/// show off our menu
@@ -76,6 +80,7 @@ protected:
 	S32 mVideoCardMem;
 	F32 mFogRatio;
 	BOOL mProbeHardwareOnStartup;
+	BOOL mCompressTextures;
 
 private:
 };

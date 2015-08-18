@@ -39,6 +39,7 @@
 #include "llspatialpartition.h"
 #include "llagent.h"
 #include "pipeline.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerpartsim.h"
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
@@ -702,6 +703,13 @@ LLSceneMonitorView::LLSceneMonitorView(const LLRect& rect)
 	
 	setCanMinimize(false);
 	setCanClose(true);
+
+	sTeleportFinishConnection = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(boost::bind(&LLSceneMonitorView::onTeleportFinished, this));
+}
+
+LLSceneMonitorView::~LLSceneMonitorView()
+{
+	sTeleportFinishConnection.disconnect();
 }
 
 void LLSceneMonitorView::onClose(bool app_quitting)
@@ -712,6 +720,14 @@ void LLSceneMonitorView::onClose(bool app_quitting)
 void LLSceneMonitorView::onClickCloseBtn(bool app_quitting)
 {
 	setVisible(false);
+}
+
+void LLSceneMonitorView::onTeleportFinished()
+{
+	if(isInVisibleChain())
+	{
+		LLSceneMonitor::getInstance()->reset();
+	}
 }
 
 void LLSceneMonitorView::onVisibilityChange(BOOL visible)

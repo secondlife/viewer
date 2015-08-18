@@ -78,6 +78,8 @@ public:
 	// Certain grabs should not highlight the "Build" toolbar button
 	BOOL getHideBuildHighlight() { return mHideBuildHighlight; }
 
+	void setClickedInMouselook(BOOL is_clickedInMouselook) {mClickedInMouselook = is_clickedInMouselook;}
+
 	static void		pickCallback(const LLPickInfo& pick_info);
 private:
 	LLVector3d		getGrabPointGlobal();

@@ -49,6 +49,7 @@
 #include "llviewerinventory.h"
 #include "llviewerwindow.h"
 #include "lltrans.h"
+#include "roles_constants.h"
 
 // Constants
 
@@ -230,8 +231,23 @@ void LLPreview::refreshFromItem()
 	}
 	getChild<LLUICtrl>("desc")->setValue(item->getDescription());
 
-	BOOL can_agent_manipulate = item->getPermissions().allowModifyBy(gAgent.getID());
-	getChildView("desc")->setEnabled(can_agent_manipulate);
+	getChildView("desc")->setEnabled(canModify(mObjectUUID, item));
+}
+
+// static
+BOOL LLPreview::canModify(const LLUUID taskUUID, const LLInventoryItem* item)
+{
+	if (taskUUID.notNull())
+	{
+		LLViewerObject* object = gObjectList.findObject(taskUUID);
+		if(object && !object->permModify())
+		{
+			// No permission to edit in-world inventory
+			return FALSE;
+		}
+	}
+
+	return item && gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE);
 }
 
 // static 
