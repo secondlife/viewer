@@ -1397,7 +1397,7 @@ std::string LLUrlEntryEmail::getUrl(const std::string &string) const
 
 LLUrlEntryExperienceProfile::LLUrlEntryExperienceProfile()
 {
-    mPattern = boost::regex(APP_HEADER_REGEX "/experience/[\\da-f-]+/\\w+\\S*",
+    mPattern = boost::regex(APP_HEADER_REGEX "/experience/[\\da-f-]+/profile",
         boost::regex::perl|boost::regex::icase);
     mIcon = "Generic_Experience";
 	mMenuName = "menu_url_experience.xml";

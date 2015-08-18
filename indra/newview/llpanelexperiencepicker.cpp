@@ -42,6 +42,7 @@
 #include "llviewercontrol.h"
 #include "llfloater.h"
 #include "lltrans.h"
+#include <boost/regex.hpp>
 
 #define BTN_FIND		"find"
 #define BTN_OK			"ok_btn"
@@ -147,6 +148,46 @@ void LLPanelExperiencePicker::editKeystroke( class LLLineEditor* caller, void* u
 void LLPanelExperiencePicker::onBtnFind()
 {
 	mCurrentPage=1;
+	boost::cmatch what;
+	std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
+	const boost::regex expression("secondlife:///app/experience/[\\da-f-]+/profile");
+	if (boost::regex_match(text.c_str(), what, expression))
+	{
+		LLURI uri(text);
+		LLSD path_array = uri.pathArray();
+		if (path_array.size() == 4)
+		{
+			std::string exp_id = path_array.get(2).asString();
+			LLUUID experience_id(exp_id);
+			if (!experience_id.isNull())
+			{
+				const LLSD& experience_details = LLExperienceCache::get(experience_id);
+				if(!experience_details.isUndefined())
+				{
+					std::string experience_name_string = experience_details[LLExperienceCache::NAME].asString();
+					if(!experience_name_string.empty())
+					{
+						getChild<LLUICtrl>(TEXT_EDIT)->setValue(experience_name_string);
+					}
+				}
+				else
+				{
+					getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
+					getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("searching"));
+
+					getChildView(BTN_OK)->setEnabled(FALSE);
+					getChildView(BTN_PROFILE)->setEnabled(FALSE);
+
+					getChildView(BTN_RIGHT)->setEnabled(FALSE);
+					getChildView(BTN_LEFT)->setEnabled(FALSE);
+					LLExperienceCache::get(experience_id, boost::bind(&LLPanelExperiencePicker::onBtnFind, this));
+					return;
+				}
+			}
+		}
+	}
+
+
 	find();
 }
 
@@ -182,7 +223,6 @@ void LLPanelExperiencePicker::find()
 	getChildView(BTN_RIGHT)->setEnabled(FALSE);
 	getChildView(BTN_LEFT)->setEnabled(FALSE);
 }
-
 
 bool LLPanelExperiencePicker::isSelectButtonEnabled()
 {
