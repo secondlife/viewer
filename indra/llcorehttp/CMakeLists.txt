@@ -93,6 +93,7 @@ target_link_libraries(
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}
   ${BOOST_THREAD_LIBRARY}
+  ${LLMESSAGE_LIBRARIES}
   )
 
 # tests
