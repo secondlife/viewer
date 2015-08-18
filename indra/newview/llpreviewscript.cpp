@@ -1571,7 +1571,7 @@ void LLPreviewLSL::loadAsset()
 		if (gAgent.isGodlike() || (is_copyable && (is_modifiable || is_library)))
 		{
 			LLUUID* new_uuid = new LLUUID(mItemUUID);
-			gAssetStorage->getInvItemAsset(LLHost::invalid,
+			gAssetStorage->getInvItemAsset(LLHost(),
 										gAgent.getID(),
 										gAgent.getSessionID(),
 										item->getPermissions().getOwner(),

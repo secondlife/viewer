@@ -930,7 +930,7 @@ LLHost LLAgent::getRegionHost() const
 	}
 	else
 	{
-		return LLHost::invalid;
+		return LLHost();
 	}
 }
 
