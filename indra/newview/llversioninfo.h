@@ -68,6 +68,15 @@ public:
 	
 	/// reset the channel name used by the viewer.
 	static void resetChannel(const std::string& channel);
+
+    typedef enum
+    {
+        TEST_VIEWER,
+        PROJECT_VIEWER,
+        BETA_VIEWER,
+        RELEASE_VIEWER
+    } ViewerMaturity;
+    static ViewerMaturity getViewerMaturity();
 };
 
 #endif

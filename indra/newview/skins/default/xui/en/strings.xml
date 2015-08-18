@@ -96,7 +96,10 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
 	<string name="create_account_url">http://join.secondlife.com/?sourceid=[sourceid]</string>
-
+	
+	<string name="AgniGridLabel">Second Life Main Grid (Agni)</string>
+	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
+	
 	<string name="ViewerDownloadURL">http://secondlife.com/download</string>
 	<string name="LoginFailedViewerNotPermitted">
 The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:

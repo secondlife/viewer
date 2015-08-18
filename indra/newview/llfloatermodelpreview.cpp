@@ -2003,11 +2003,8 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 		mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
 		if (!mBaseModel.empty())
 		{
-			if (mFMP->getChild<LLUICtrl>("description_form")->getValue().asString().empty())
-			{
-				const std::string& model_name = mBaseModel[0]->getName();
-				mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
-			}
+			const std::string& model_name = mBaseModel[0]->getName();
+			mFMP->getChild<LLUICtrl>("description_form")->setValue(model_name);
 		}
 	}
 	refresh();
@@ -3136,7 +3133,8 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 		LLModel* base_mdl = *base_iter;
 		base_iter++;
 
-		for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
+		S32 num_faces = mdl->getNumVolumeFaces();
+		for (S32 i = 0; i < num_faces; ++i)
 		{
 			const LLVolumeFace &vf = mdl->getVolumeFace(i);
 			U32 num_vertices = vf.mNumVertices;
@@ -3489,8 +3487,11 @@ BOOL LLModelPreview::render()
 			mViewOption["show_skin_weight"] = false;
 			fmp->disableViewOption("show_skin_weight");
 			fmp->disableViewOption("show_joint_positions");
+
+			skin_weight = false;
+			mFMP->childSetValue("show_skin_weight", false);
+			fmp->setViewOptionEnabled("show_skin_weight", skin_weight);
 		}
-		skin_weight = false;
 	}
 
 	if (upload_skin && !has_skin_weights)
@@ -3594,6 +3595,11 @@ BOOL LLModelPreview::render()
 				const LLVertexBuffer* buff = vb_vec[0];
 				regen = buff->hasDataType(LLVertexBuffer::TYPE_WEIGHT4) != skin_weight;
 			}
+			else
+			{
+				LL_INFOS(" ") << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
+				regen = TRUE;
+			}
 		}
 
 		if (regen)
@@ -3619,7 +3625,9 @@ BOOL LLModelPreview::render()
 
 					gGL.multMatrix((GLfloat*) mat.mMatrix);
 
-					for (U32 i = 0; i < mVertexBuffer[mPreviewLOD][model].size(); ++i)
+
+					U32 num_models = mVertexBuffer[mPreviewLOD][model].size();
+					for (U32 i = 0; i < num_models; ++i)
 					{
 						LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 				
@@ -3759,7 +3767,9 @@ BOOL LLModelPreview::render()
 								{
 									genBuffers(LLModel::LOD_PHYSICS, false);
 								}
-								for (U32 i = 0; i < mVertexBuffer[LLModel::LOD_PHYSICS][model].size(); ++i)
+
+								U32 num_models = mVertexBuffer[mPreviewLOD][model].size();
+								for (U32 i = 0; i < num_models; ++i)
 								{
 									LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
 

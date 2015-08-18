@@ -53,6 +53,8 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 
+const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;
+
 static LLPanelInjector<LLPanelPlaceProfile> t_place_profile("panel_place_profile");
 
 // Statics for textures filenames
@@ -76,6 +78,7 @@ static std::string icon_see_avs_off;
 
 LLPanelPlaceProfile::LLPanelPlaceProfile()
 :	LLPanelPlaceInfo(),
+	mNextCovenantUpdateTime(0),
 	mForSalePanel(NULL),
 	mYouAreHerePanel(NULL),
 	mSelectedParcelID(-1),
@@ -162,6 +165,9 @@ BOOL LLPanelPlaceProfile::postBuild()
 	icon_see_avs_on = getString("icon_SeeAVs_On");
 	icon_see_avs_off = getString("icon_SeeAVs_Off");
 
+	mLastSelectedRegionID = LLUUID::null;
+	mNextCovenantUpdateTime = 0;
+
 	return TRUE;
 }
 
@@ -169,6 +175,9 @@ BOOL LLPanelPlaceProfile::postBuild()
 void LLPanelPlaceProfile::resetLocation()
 {
 	LLPanelPlaceInfo::resetLocation();
+
+	mLastSelectedRegionID = LLUUID::null;
+	mNextCovenantUpdateTime = 0;
 
 	mForSalePanel->setVisible(FALSE);
 	mYouAreHerePanel->setVisible(FALSE);
@@ -330,13 +339,20 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	if (!region || !parcel)
 		return;
 
-	// send EstateCovenantInfo message
-	LLMessageSystem *msg = gMessageSystem;
-	msg->newMessage("EstateCovenantRequest");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
-	msg->sendReliable(region->getHost());
+	if (mLastSelectedRegionID != region->getRegionID()
+		|| mNextCovenantUpdateTime < LLTimer::getElapsedSeconds())
+	{
+		// send EstateCovenantInfo message
+		// Note: LLPanelPlaceProfile doesn't change Covenant's content and any
+		// changes made by Estate floater should be requested by Estate floater
+		LLMessageSystem *msg = gMessageSystem;
+		msg->newMessage("EstateCovenantRequest");
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
+		msg->sendReliable(region->getHost());
+		mNextCovenantUpdateTime = LLTimer::getElapsedSeconds() + COVENANT_REFRESH_TIME_SEC;
+	}
 
 	LLParcelData parcel_data;
 

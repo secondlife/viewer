@@ -169,7 +169,12 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 		return LLModel::BAD_ELEMENT;
 	}
 
-	
+	if (!pos_source)
+	{
+		LL_WARNS() << "Unable to process mesh without position data; invalid model;  invalid model." << LL_ENDL;
+		return LLModel::BAD_ELEMENT;
+	}
+
 	domPRef p = tri->getP();
 	domListOfUInts& idx = p->getValue();
 	

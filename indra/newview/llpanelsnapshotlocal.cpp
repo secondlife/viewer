@@ -58,6 +58,8 @@ private:
 	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
 	/*virtual*/ void updateControls(const LLSD& info);
 
+	S32 mLocalFormat;
+
 	void onFormatComboCommit(LLUICtrl* ctrl);
 	void onQualitySliderCommit(LLUICtrl* ctrl);
 	void onSaveFlyoutCommit(LLUICtrl* ctrl);
@@ -67,6 +69,7 @@ static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal")
 
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
+	mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
 	mCommitCallbackRegistrar.add("Local.Cancel",	boost::bind(&LLPanelSnapshotLocal::cancel,		this));
 }
 
@@ -83,6 +86,10 @@ BOOL LLPanelSnapshotLocal::postBuild()
 // virtual
 void LLPanelSnapshotLocal::onOpen(const LLSD& key)
 {
+	if(gSavedSettings.getS32("SnapshotFormat") != mLocalFormat)
+	{
+		getChild<LLComboBox>("local_format_combo")->selectNthItem(mLocalFormat);
+	}
 	LLPanelSnapshot::onOpen(key);
 }
 
@@ -129,6 +136,7 @@ void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 
 void LLPanelSnapshotLocal::onFormatComboCommit(LLUICtrl* ctrl)
 {
+	mLocalFormat = getImageFormat();
 	// will call updateControls()
 	LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
 }
