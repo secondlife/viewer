@@ -6,6 +6,7 @@ include(00-Common)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
+include(LLCoreHttp)
 include(LLXML)
 include(LLPhysicsExtensions)
 
@@ -73,6 +74,8 @@ target_link_libraries(llprimitive
     ${LLCOREHTTP_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
     )
 
 

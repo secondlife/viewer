@@ -62,8 +62,8 @@ add_library(llupdaterservice
 
 target_link_libraries(llupdaterservice
     ${LLCOMMON_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
     ${LLVFS_LIBRARIES}
     )

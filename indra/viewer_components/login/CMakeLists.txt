@@ -10,6 +10,8 @@ include(LLCommon)
 include(LLMath)
 include(LLXML)
 include(Boost)
+include(LLCoreHttp)
+include(LLMessage)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
