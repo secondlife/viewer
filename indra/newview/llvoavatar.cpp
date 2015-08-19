@@ -984,8 +984,8 @@ std::string LLVOAvatar::rezStatusToString(S32 rez_status)
 {
 	if (rez_status==0) return "cloud";
 	if (rez_status==1) return "gray";
-	if (rez_status==2) return "textured";
-	if (rez_status==3) return "textured_and_downloaded";
+	if (rez_status==2) return "downloading";
+	if (rez_status==3) return "full";
 	return "unknown";
 }
 
@@ -6219,7 +6219,7 @@ bool LLVOAvatar::getIsCloud() const
 void LLVOAvatar::updateRezzedStatusTimers()
 {
 	// State machine for rezzed status. Statuses are -1 on startup, 0
-	// = cloud, 1 = gray, 2 = textured, 3 = textured_and_downloaded.
+	// = cloud, 1 = gray, 2 = downloading, 3 = full.
 	// Purpose is to collect time data for each it takes avatar to reach
 	// various loading landmarks: gray, textured (partial), textured fully.
 
