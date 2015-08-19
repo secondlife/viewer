@@ -40,7 +40,7 @@
 #include "xform.h"
 
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
-const U32 LL_CHARACTER_MAX_JOINTS = 48; // must be divisible by 4!
+const U32 LL_CHARACTER_MAX_JOINTS = 152; // must be divisible by 4!
 // FIXME BENTO - these should be higher than the joint_num of any
 // other joint, to avoid conflicts in updateMotionsByType()
 const U32 LL_HAND_JOINT_NUM = (LL_CHARACTER_MAX_JOINTS-1);
