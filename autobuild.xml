@@ -1506,9 +1506,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce1261a54d877ab5530ae6a9134a77a3</string>
+              <string>faa1e5b7cf70c143caabe190fa5588ce</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/294906/arch/Linux/installer/llappearance_utility-0.0.1-linux-294906.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/304432/arch/Linux/installer/llappearance_utility-0.0.1-linux-304432.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
