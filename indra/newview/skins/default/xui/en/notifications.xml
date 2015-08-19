@@ -3294,6 +3294,30 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
   </notification>
 
   <notification
+   icon = "notifytip.tga"
+   name = "RegionAndAgentComplexity"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+   Your visual complexity is [AGENT_COMPLEXITY].
+[OVERLIMIT_PCT]% of nearby users may not fully show you
+with complexity this high.
+  </notification>
+
+  <notification
+   icon = "notifytip.tga"
+   name = "AgentComplexity"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+Your visual complexity is [AGENT_COMPLEXITY].
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="FirstRun"
    type="alertmodal">

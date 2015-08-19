@@ -38,6 +38,7 @@
 #include "httpresponse.h"
 #include "llcorehttputil.h"
 #include "llappcorehttp.h"
+#include "llavatarrendernotifier.h"
 #include "lltimer.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h"
@@ -102,7 +103,7 @@ public:
 
 	void onCompleted(LLCore::HttpHandle handle,
 					 LLCore::HttpResponse* response)
-		{
+	{
             LLCore::HttpStatus status = response->getStatus();
             if (status)
             {
@@ -120,8 +121,8 @@ public:
                             U32 overlimit = avatar_render_info[KEY_OVER_COMPLEXITY_LIMIT].asInteger();
 
                             LL_DEBUGS("AvatarRenderInfo") << "complexity limit: "<<reporting<<" reporting, "<<overlimit<<" over limit"<<LL_ENDL;
-                            //@TODO - at this point, pass reporting and overlimit to something
-                            //        that remembers them and when they change displays a message
+
+							LLAvatarRenderNotifier::getInstance()->updateNotificationRegion(reporting, overlimit);
                         }
                         
 						if (avatar_render_info.has(KEY_AGENTS))

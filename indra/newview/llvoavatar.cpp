@@ -43,6 +43,7 @@
 #include "llanimationstates.h"
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llavatarrendernotifier.h"
 #include "llexperiencecache.h"
 #include "llphysicsmotion.h"
 #include "llviewercontrol.h"
@@ -8285,20 +8286,9 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 void LLVOAvatar::updateVisualComplexity()
 {
-    LL_DEBUGS("AvatarRender") << "avatar " << getID() << " appearance changed" << LL_ENDL;
-    // Set the cache time to in the past so it's updated ASAP
-    mVisualComplexityStale = true;
-    LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 5);
-
-    if ( isSelf() && show_my_complexity_changes )
-    {
-        // @TODO 
-        LL_INFOS("AvatarRender") << "popup that displays my complexity (" << mVisualComplexity << ")"
-                                 << " for " << show_my_complexity_changes << " seconds"
-                                 << LL_ENDL;
-    }
-
-        
+	LL_DEBUGS("AvatarRender") << "avatar " << getID() << " appearance changed" << LL_ENDL;
+	// Set the cache time to in the past so it's updated ASAP
+	mVisualComplexityStale = true;
 }
 
 // Calculations for mVisualComplexity value
@@ -8430,6 +8420,13 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
         }
 		mVisualComplexity = cost;
 		mVisualComplexityStale = false;
+
+		LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
+
+		if (isSelf() && show_my_complexity_changes)
+		{
+			LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
+		}
 	}
 }
 

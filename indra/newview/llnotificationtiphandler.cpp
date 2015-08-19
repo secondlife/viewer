@@ -113,11 +113,23 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification)
 	LLToast::Params p;
 	p.notif_id = notification->getID();
 	p.notification = notification;
-	p.lifetime_secs = gSavedSettings.getS32("NotificationTipToastLifeTime");
 	p.panel = notify_box;
 	p.is_tip = true;
 	p.can_be_stored = false;
-		
+
+	LLDate cur_time = LLDate::now();
+	LLDate exp_time = notification->getExpiration();
+	if (exp_time > cur_time)
+	{
+		// we have non-default expiration time - keep visible until expires
+		p.lifetime_secs = exp_time.secondsSinceEpoch() - cur_time.secondsSinceEpoch();
+	}
+	else
+	{
+		// use default time
+		p.lifetime_secs = gSavedSettings.getS32("NotificationTipToastLifeTime");
+	}
+
 	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 	if(channel)
 		channel->addToast(p);

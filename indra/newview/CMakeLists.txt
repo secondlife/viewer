@@ -133,6 +133,7 @@ set(viewer_SOURCE_FILES
     llavatarlist.cpp
     llavatarlistitem.cpp
     llavatarrenderinfoaccountant.cpp
+    llavatarrendernotifier.cpp
     llavatarpropertiesprocessor.cpp
     llblockedlistitem.cpp
     llblocklist.cpp
@@ -755,6 +756,7 @@ set(viewer_HEADER_FILES
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
     llavatarrenderinfoaccountant.h
+    llavatarrendernotifier.h
     llblockedlistitem.h
     llblocklist.h
     llbox.h
