@@ -290,6 +290,6 @@ if(LL_TESTS)
       )
   LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
   # INTEGRATION TESTS
-  set(test_libs llui llmessage llcorehttp llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+  set(test_libs llui llmessage llcorehttp llcommon ${LLCOMMON_LIBRARIES} ${BOOST_COROUTINE_LIBRARY} ${BOOST_CONTEXT_LIBRARY} ${BOOST_SYSTEM_LIBRARY} ${WINDOWS_LIBRARIES})
   LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
 endif(LL_TESTS)
