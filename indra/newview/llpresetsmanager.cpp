@@ -54,7 +54,7 @@ void LLPresetsManager::triggerChangeSignal()
 
 void LLPresetsManager::createMissingDefault()
 {
-	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, PRESETS_GRAPHIC, "default.xml");
+	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, PRESETS_GRAPHIC, "default.xml");
 	if (!gDirUtilp->fileExists(default_file))
 	{
 		LL_WARNS() << "No " << default_file << " found -- creating one" << LL_ENDL;
@@ -71,7 +71,7 @@ void LLPresetsManager::createMissingDefault()
 
 std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 {
-	std::string presets_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR);
+	std::string presets_path = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR);
 	std::string full_path;
 
 	if (!gDirUtilp->fileExists(presets_path))
@@ -79,7 +79,7 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 		LLFile::mkdir(presets_path);
 	}
 
-	full_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, PRESETS_DIR, subdirectory);
+	full_path = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, subdirectory);
 	if (!gDirUtilp->fileExists(full_path))
 	{
 		LLFile::mkdir(full_path);
