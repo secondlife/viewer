@@ -58,7 +58,6 @@ set(cmake_SOURCE_FILES
     JsonCpp.cmake
     LLAddBuildTest.cmake
     LLAppearance.cmake
-#   LLAppearanceUtility.cmake
     LLAudio.cmake
     LLCharacter.cmake
     LLCommon.cmake
