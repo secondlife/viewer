@@ -238,12 +238,12 @@ void LLUriParser::glueSecond(std::string& uri) const
 	{
 		uri += '?';
 		uri += mQuery;
+	}
 
-		if (mFragment.size())
-		{
-			uri += '#';
-			uri += mFragment;
-		}
+	if (mFragment.size())
+	{
+		uri += '#';
+		uri += mFragment;
 	}
 }
 
