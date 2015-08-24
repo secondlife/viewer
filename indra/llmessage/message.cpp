@@ -1151,8 +1151,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 	}
 
 	// NOTE: babbage: LLSD message -> HTTP, template message -> UDP
-//	if(mMessageBuilder == mLLSDMessageBuilder)
-  if (!host.getUntrustedSimulatorCap().empty())
+	if(mMessageBuilder == mLLSDMessageBuilder)
 	{
 		LLSD message = mLLSDMessageBuilder->getMessage();
 
