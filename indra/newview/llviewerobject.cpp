@@ -2840,6 +2840,11 @@ void LLViewerObject::clearInventoryListeners()
 	mInventoryCallbacks.clear();
 }
 
+bool LLViewerObject::hasInventoryListeners()
+{
+	return !mInventoryCallbacks.empty();
+}
+
 void LLViewerObject::requestInventory()
 {
 	if(mInventoryDirty && mInventory && !mInventoryCallbacks.empty())
@@ -2847,15 +2852,20 @@ void LLViewerObject::requestInventory()
 		mInventory->clear(); // will deref and delete entries
 		delete mInventory;
 		mInventory = NULL;
-		mInventoryDirty = FALSE; //since we are going to request it now
 	}
+
 	if(mInventory)
 	{
+		// inventory is either up to date or doesn't has a listener
+		// if it is dirty, leave it this way in case we gain a listener
 		doInventoryCallback();
 	}
-	// throw away duplicate requests
 	else
 	{
+		// since we are going to request it now
+		mInventoryDirty = FALSE;
+
+		// Note: throws away duplicate requests
 		fetchInventoryFromServer();
 	}
 }
@@ -2865,8 +2875,6 @@ void LLViewerObject::fetchInventoryFromServer()
 	if (!mInventoryPending)
 	{
 		delete mInventory;
-		mInventory = NULL;
-		mInventoryDirty = FALSE;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_RequestTaskInventory);
 		msg->nextBlockFast(_PREHASH_AgentData);
