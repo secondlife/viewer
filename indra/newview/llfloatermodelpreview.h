@@ -342,6 +342,7 @@ public:
 	void loadModel(std::string filename, S32 lod, bool force_disable_slm = false);
 	void loadModelCallback(S32 lod);
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
+	void genModelBBox(); // Generate just a model BBox if we can't generate proper LOD
 	void generateNormals();
 	void restoreNormals();
 	U32 calcResourceCost();
@@ -422,6 +423,7 @@ private:
 	U32			mLoadState;
 	bool		mResetJoints;
 	bool		mRigParityWithScene;
+	bool		mHasBrokenModel;
 	
 	std::map<std::string, bool> mViewOption;
 
