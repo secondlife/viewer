@@ -253,15 +253,17 @@ public:
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 	void 			idleUpdateRenderComplexity();
 	void			calculateUpdateRenderComplexity();
-	static const S32 VISUAL_COMPLEXITY_UNKNOWN;
+	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
 	
-	S32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
+	U32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
 	S32				getAttachmentGeometryBytes()	{ return mAttachmentGeometryBytes;		};		// number of bytes in attached geometry
+    void            modifyAttachmentGeometryBytes(S32 delta);
 	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
+    void            modifyAttachmentSurfaceArea(F32 delta);
 
-	S32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
-	void			setReportedVisualComplexity(S32 value)			{ mReportedVisualComplexity = value;			};
+	U32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
+	void			setReportedVisualComplexity(U32 value)			{ mReportedVisualComplexity = value;			};
 	
 	S32				getUpdatePeriod()				{ return mUpdatePeriod;			};
 	const LLColor4 &  getMutedAVColor()				{ return mMutedAVColor;			};
@@ -405,10 +407,10 @@ public:
 	static void	destroyGL();
 	static void	restoreGL();
 	S32			mSpecialRenderMode; // special lighting
+        
+  private:
 	S32			mAttachmentGeometryBytes; //number of bytes in attached geometry
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
-
-private:
 	bool		shouldAlphaMask();
 
 	BOOL 		mNeedsSkin; // avatar has been animated and verts have not been updated
@@ -418,9 +420,9 @@ private:
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
 	// the isTooComplex method uses these mutable values to avoid recalculating too frequently
-	mutable S32  mVisualComplexity;
+	mutable U32  mVisualComplexity;
 	mutable bool mVisualComplexityStale;
-	S32          mReportedVisualComplexity; // from other viewers through the simulator
+	U32          mReportedVisualComplexity; // from other viewers through the simulator
 
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV

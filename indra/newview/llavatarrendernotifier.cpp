@@ -133,9 +133,10 @@ void LLAvatarRenderNotifier::updateNotification()
 		// next 'over limit' update should be displayed as soon as possible if there is anything noteworthy
 		mPopUpDelayTimer.resetWithExpiry(0);
 	}
-	else if ((mPopUpDelayTimer.hasExpired() || is_visible)
-		&& (mOverLimitPct > 0 || mLatestOverLimitPct > 0)
-		&& abs(mOverLimitPct - mLatestOverLimitPct) > mLatestOverLimitPct * RENDER_ALLOWED_CHANGE_PCT)
+	else if (   (mPopUpDelayTimer.hasExpired() || is_visible)
+		     && (mOverLimitPct > 0 || mLatestOverLimitPct > 0)
+             && std::abs(mOverLimitPct - mLatestOverLimitPct) > mLatestOverLimitPct * RENDER_ALLOWED_CHANGE_PCT
+             )
 	{
 		// display in case of drop to/from zero and in case of significant (RENDER_ALLOWED_CHANGE_PCT) changes
 		display_notification = true;

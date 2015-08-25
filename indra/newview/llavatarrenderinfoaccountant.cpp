@@ -267,9 +267,10 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 					avatar->calculateUpdateRenderComplexity();			// Make sure the numbers are up-to-date
 
 					LLSD info = LLSD::emptyMap();
-					if (avatar->getVisualComplexity() > 0)
+                    U32 avatar_complexity = avatar->getVisualComplexity();
+					if (avatar_complexity > 0)
 					{
-						info[KEY_WEIGHT] = avatar->getVisualComplexity();
+						info[KEY_WEIGHT] = (S32)(avatar_complexity < S32_MAX ? avatar_complexity : S32_MAX);
 						info[KEY_TOO_COMPLEX]  = LLSD::Boolean(avatar->isTooComplex());
 						agents[avatar->getID().asString()] = info;
 

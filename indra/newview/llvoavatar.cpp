@@ -182,7 +182,7 @@ const F32 NAMETAG_UPDATE_THRESHOLD = 0.3f;
 const F32 NAMETAG_VERTICAL_SCREEN_OFFSET = 25.f;
 const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 
-const S32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
+const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 
 enum ERenderName
 {
@@ -668,8 +668,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLAvatarAppearance(&gAgentWearables),
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
-	mAttachmentGeometryBytes(-1),
-	mAttachmentSurfaceArea(-1.f),
+	mAttachmentGeometryBytes(0),
+	mAttachmentSurfaceArea(0.f),
 	mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mTurning(FALSE),
 	mLastSkeletonSerialNum( 0 ),
@@ -8283,6 +8283,16 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 	}
 }
 
+void LLVOAvatar::modifyAttachmentGeometryBytes(S32 delta)
+{
+    mAttachmentGeometryBytes = llmax(mAttachmentGeometryBytes + delta, 0);
+}
+
+void LLVOAvatar::modifyAttachmentSurfaceArea(F32 delta)
+{
+    F32 newval = mAttachmentSurfaceArea + delta;
+    mAttachmentSurfaceArea = ( newval > 0.0 ? newval : 0.0 );
+}
 
 void LLVOAvatar::updateVisualComplexity()
 {
