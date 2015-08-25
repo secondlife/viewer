@@ -448,9 +448,9 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 
 	floater->getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
 	floater->getChild<LLUICtrl>("file_size_label")->setColor(
-		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
-		&& got_bytes
-		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
+			shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD
+			&& got_bytes
+			&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
 
 	// Update the width and height spinners based on the corresponding resolution combos. (?)
 	switch(shot_type)
@@ -600,7 +600,11 @@ void LLFloaterSnapshot::Impl::onClickUICheck(LLUICtrl *ctrl, void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
-		checkAutoSnapshot(getPreviewView(view), TRUE);
+		LLSnapshotLivePreview* previewp = getPreviewView(view);
+		if(previewp)
+		{
+			previewp->updateSnapshot(TRUE, TRUE);
+		}
 		updateControls(view);
 	}
 }
@@ -614,7 +618,11 @@ void LLFloaterSnapshot::Impl::onClickHUDCheck(LLUICtrl *ctrl, void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
-		checkAutoSnapshot(getPreviewView(view), TRUE);
+		LLSnapshotLivePreview* previewp = getPreviewView(view);
+		if(previewp)
+		{
+			previewp->updateSnapshot(TRUE, TRUE);
+		}
 		updateControls(view);
 	}
 }

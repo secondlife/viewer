@@ -72,6 +72,7 @@
 #include "bufferstream.h"
 #include "llfasttimer.h"
 #include "llcorehttputil.h"
+#include "lltrans.h"
 #include "llstatusbar.h"
 #include "llinventorypanel.h"
 #include "lluploaddialog.h"
@@ -708,12 +709,16 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 	args["MESSAGE"] = message;
 	args["IDENTIFIER"] = identifier;
 	args["LABEL"] = model_name;
-	gMeshRepo.uploadError(args);
 
 	// Log details.
 	LL_WARNS(LOG_MESH) << "Error in stage:  " << stage
 					   << ", Reason:  " << status.toString()
 					   << " (" << status.toTerseString() << ")" << LL_ENDL;
+
+	std::ostringstream details;
+	typedef std::set<std::string> mav_errors_set_t;
+	mav_errors_set_t mav_errors;
+
 	if (content.has("error"))
 	{
 		const LLSD& err = content["error"];
@@ -723,8 +728,11 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 						   << "', message '" << err["message"].asString()
 						   << "', id '" << err["identifier"].asString()
 						   << "'" << LL_ENDL;
+
 		if (err.has("errors"))
 		{
+			details << std::endl << std::endl;
+
 			S32 error_num = 0;
 			const LLSD& err_list = err["errors"];
 			for (LLSD::array_const_iterator it = err_list.beginArray();
@@ -732,6 +740,13 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 				 ++it)
 			{
 				const LLSD& err_entry = *it;
+				std::string message = err_entry["message"];
+
+				if (message.length() > 0)
+				{
+					mav_errors.insert(message);
+				}
+
 				LL_WARNS(LOG_MESH) << "  error[" << error_num << "]:" << LL_ENDL;
 				for (LLSD::map_const_iterator map_it = err_entry.beginMap();
 					 map_it != err_entry.endMap();
@@ -748,6 +763,21 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 	{
 		LL_WARNS(LOG_MESH) << "Bad response to mesh request, no additional error information available." << LL_ENDL;
 	}
+	
+	mav_errors_set_t::iterator mav_errors_it = mav_errors.begin();
+	for (; mav_errors_it != mav_errors.end(); ++mav_errors_it)
+	{
+		std::string mav_details = "Mav_Details_" + *mav_errors_it;
+		details << "Message: '" << *mav_errors_it << "': " << LLTrans::getString(mav_details) << std::endl << std::endl;
+	}
+
+	std::string details_str = details.str();
+	if (details_str.length() > 0)
+	{
+		args["DETAILS"] = details_str;
+	}
+
+	gMeshRepo.uploadError(args);
 }
 
 LLMeshRepoThread::LLMeshRepoThread()

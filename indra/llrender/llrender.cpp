@@ -104,10 +104,10 @@ LLTexUnit::LLTexUnit(S32 index)
 	mCurrColorSrc1(TBS_TEX_COLOR), mCurrColorSrc2(TBS_PREV_COLOR),
 	mCurrAlphaSrc1(TBS_TEX_ALPHA), mCurrAlphaSrc2(TBS_PREV_ALPHA),
 	mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
-	mHasMipMaps(false)
+	mHasMipMaps(false),
+	mIndex(index)
 {
 	llassert_always(index < (S32)LL_NUM_TEXTURE_LAYERS);
-	mIndex = index;
 }
 
 //static
@@ -227,33 +227,34 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 	stop_glerror();
 	if (mIndex >= 0)
 	{
-	gGL.flush();
+		gGL.flush();
 
-	LLImageGL* gl_tex = NULL ;
+		LLImageGL* gl_tex = NULL ;
+
 		if (texture != NULL && (gl_tex = texture->getGLTexture()))
-	{
+		{
 			if (gl_tex->getTexName()) //if texture exists
-	{
-	//in audit, replace the selected texture by the default one.
-	if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
-	{
-		activate();
-		enable(gl_tex->getTarget());
-		mCurrTexture = gl_tex->getTexName();
-		glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
-		if(gl_tex->updateBindStats(gl_tex->mTextureMemory))
-		{
-			texture->setActive() ;
-			texture->updateBindStatsForTester() ;
-		}
-		mHasMipMaps = gl_tex->mHasMipMaps;
-		if (gl_tex->mTexOptionsDirty)
-		{
-			gl_tex->mTexOptionsDirty = false;
-			setTextureAddressMode(gl_tex->mAddressMode);
-			setTextureFilteringOption(gl_tex->mFilterOption);
-		}
-	}
+			{
+				//in audit, replace the selected texture by the default one.
+				if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
+				{
+					activate();
+					enable(gl_tex->getTarget());
+					mCurrTexture = gl_tex->getTexName();
+					glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
+					if(gl_tex->updateBindStats(gl_tex->mTextureMemory))
+					{
+						texture->setActive() ;
+						texture->updateBindStatsForTester() ;
+					}
+					mHasMipMaps = gl_tex->mHasMipMaps;
+					if (gl_tex->mTexOptionsDirty)
+					{
+						gl_tex->mTexOptionsDirty = false;
+						setTextureAddressMode(gl_tex->mAddressMode);
+						setTextureFilteringOption(gl_tex->mFilterOption);
+					}
+				}
 			}
 			else
 			{

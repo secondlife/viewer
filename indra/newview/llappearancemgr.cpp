@@ -1802,9 +1802,15 @@ bool LLAppearanceMgr::getCanRemoveFromCOF(const LLUUID& outfit_cat_id)
 	{
 		return false;
 	}
-
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
 	LLFindWearablesEx is_worn(/*is_worn=*/ true, /*include_body_parts=*/ false);
-	return gInventory.hasMatchingDirectDescendent(outfit_cat_id, is_worn);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_worn);
+	return items.size() > 0;
 }
 
 // static
@@ -2482,7 +2488,7 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 													std::string("wear_inventory_category_callback"), copy_cb);
 
         AISAPI::completion_t cr = boost::bind(&doAppearanceCb, track_cb, _1);
-        AISAPI::CopyLibraryCategory(category->getUUID(), parent_id, cr);
+        AISAPI::CopyLibraryCategory(category->getUUID(), parent_id, false, cr);
 	}
     else
 	{

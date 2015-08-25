@@ -737,7 +737,7 @@ void show_item_original(const LLUUID& item_uuid)
 	{
 		return;
 	}
-	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
+	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
 	
 	if(do_reset_inventory_filter)
 	{
@@ -2473,7 +2473,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		LLSD args;
 		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
-		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root));
+		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&onItemsRemovalConfirmation, _1, _2, root->getHandle()));
         // Note: marketplace listings will be updated in the callback if delete confirmed
 		return;
 	}
@@ -2583,18 +2583,19 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
     }
 }
 
-void LLInventoryAction::onItemsRemovalConfirmation( const LLSD& notification, const LLSD& response, LLFolderView* root )
+void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
+	if (option == 0 && !root.isDead() && !root.get()->isDead())
 	{
-        //Need to remove item from DND before item is removed from root folder view
-        //because once removed from root folder view the item is no longer a selected item
-        removeItemFromDND(root);
-		root->removeSelectedItems();
-        
-        // Update the marketplace listings that have been affected by the operation
-        updateMarketplaceFolders();
+		LLFolderView* folder_root = root.get();
+		//Need to remove item from DND before item is removed from root folder view
+		//because once removed from root folder view the item is no longer a selected item
+		removeItemFromDND(folder_root);
+		folder_root->removeSelectedItems();
+
+		// Update the marketplace listings that have been affected by the operation
+		updateMarketplaceFolders();
 	}
 }
 
@@ -2648,6 +2649,5 @@ void LLInventoryAction::updateMarketplaceFolders()
         sMarketplaceFolders.pop_back();
     }
 }
-
 
 

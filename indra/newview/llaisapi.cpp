@@ -223,7 +223,7 @@ void AISAPI::RemoveItem(const LLUUID &itemId, completion_t callback)
     EnqueueAISCommand("RemoveItem", proc);
 }
 
-void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, completion_t callback)
+void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback)
 {
     std::string cap;
 
@@ -240,6 +240,10 @@ void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, c
     tid.generate();
 
     std::string url = cap + std::string("/category/") + sourceId.asString() + "?tid=" + tid.asString();
+    if (!copySubfolders)
+    {
+        url += ",depth=0";
+    }
     LL_INFOS() << url << LL_ENDL;
 
     std::string destination = destId.asString();

@@ -53,7 +53,7 @@ public:
     static void PurgeDescendents(const LLUUID &categoryId, completion_t callback);
     static void UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback);
     static void UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback);
-    static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, completion_t callback);
+    static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback);
 
 private:
     typedef enum {

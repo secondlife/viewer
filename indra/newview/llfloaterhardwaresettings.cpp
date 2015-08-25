@@ -82,6 +82,7 @@ void LLFloaterHardwareSettings::refresh()
 	mVideoCardMem = gSavedSettings.getS32("TextureMemory");
 	mFogRatio = gSavedSettings.getF32("RenderFogRatio");
 	mProbeHardwareOnStartup = gSavedSettings.getBOOL("ProbeHardwareOnStartup");
+	mCompressTextures = gSavedSettings.getBOOL("RenderCompressTextures");
 
 	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer) mFSAASamples);
 	refreshEnabledState();
@@ -149,6 +150,7 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 BOOL LLFloaterHardwareSettings::postBuild()
 {
 	childSetAction("OK", onBtnOK, this);
+	childSetAction("Cancel", onBtnCancel, this);
 
 // Don't do this on Mac as their braindead GL versioning
 // sets this when 8x and 16x are indeed available
@@ -179,18 +181,17 @@ void LLFloaterHardwareSettings::apply()
 
 void LLFloaterHardwareSettings::cancel()
 {
-	gSavedSettings.setBOOL("RenderVBOEnable", mUseVBO);
-	gSavedSettings.setBOOL("RenderAnisotropic", mUseAniso);
-	gSavedSettings.setU32("RenderFSAASamples", mFSAASamples);
-	gSavedSettings.setF32("RenderGamma", mGamma);
-	gSavedSettings.setS32("TextureMemory", mVideoCardMem);
-	gSavedSettings.setF32("RenderFogRatio", mFogRatio);
-	gSavedSettings.setBOOL("ProbeHardwareOnStartup", mProbeHardwareOnStartup );
-
 	closeFloater();
 }
 
 // static 
+void LLFloaterHardwareSettings::onBtnCancel( void* userdata )
+{
+	LLFloaterHardwareSettings *fp =(LLFloaterHardwareSettings *)userdata;
+	fp->cancel();
+}
+
+// static
 void LLFloaterHardwareSettings::onBtnOK( void* userdata )
 {
 	LLFloaterHardwareSettings *fp =(LLFloaterHardwareSettings *)userdata;
@@ -198,4 +199,14 @@ void LLFloaterHardwareSettings::onBtnOK( void* userdata )
 	fp->closeFloater(false);
 }
 
-
+void LLFloaterHardwareSettings::onClose(bool app_quitting)
+{
+	gSavedSettings.setBOOL("RenderVBOEnable", mUseVBO);
+	gSavedSettings.setBOOL("RenderAnisotropic", mUseAniso);
+	gSavedSettings.setU32("RenderFSAASamples", mFSAASamples);
+	gSavedSettings.setF32("RenderGamma", mGamma);
+	gSavedSettings.setS32("TextureMemory", mVideoCardMem);
+	gSavedSettings.setF32("RenderFogRatio", mFogRatio);
+	gSavedSettings.setBOOL("ProbeHardwareOnStartup", mProbeHardwareOnStartup );
+	gSavedSettings.setBOOL("RenderCompressTextures", mCompressTextures );
+}

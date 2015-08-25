@@ -214,9 +214,9 @@ void LLFloaterAbout::startFetchServerReleaseNotes()
 /*static*/
 void LLFloaterAbout::handleServerReleaseNotes(LLSD results)
 {
-    LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
-    if (floater_about)
-    {
+//     LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
+//     if (floater_about)
+//     {
         LLSD http_headers;
         if (results.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS))
         {
@@ -234,7 +234,7 @@ void LLFloaterAbout::handleServerReleaseNotes(LLSD results)
             location = LLTrans::getString("ErrorFetchingServerReleaseNotesURL");
         }
         LLAppViewer::instance()->setServerReleaseNotesURL(location);
-    }
+//    }
 }
 
 class LLFloaterAboutListener: public LLEventAPI
@@ -300,3 +300,4 @@ void LLFloaterAboutUtil::registerFloater()
 		&LLFloaterReg::build<LLFloaterAbout>);
 
 }
+
