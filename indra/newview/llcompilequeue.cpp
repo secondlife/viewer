@@ -61,6 +61,7 @@
 #include "llexperiencecache.h"
 
 #include "llviewerassetupload.h"
+#include "llcorehttputil.h"
 
 // *NOTE$: A minor specialization of LLScriptAssetUpload, it does not require a buffer 
 // (and does not save a buffer to the vFS) and it finds the compile queue window and 
@@ -282,35 +283,6 @@ BOOL LLFloaterScriptQueue::startQueue()
 {
 	return nextObject();
 }
-
-class CompileQueueExperienceResponder : public LLHTTPClient::Responder
-{
-public:
-	CompileQueueExperienceResponder(const LLUUID& parent):mParent(parent)
-	{
-	}
-
-	LLUUID mParent;
-
-	/*virtual*/ void httpSuccess()
-	{	
-		sendResult(getContent());
-	}
-	/*virtual*/ void httpFailure()
-	{
-		sendResult(LLSD());
-	}
-	void sendResult(const LLSD& content)
-	{
-		LLFloaterCompileQueue* queue = LLFloaterReg::findTypedInstance<LLFloaterCompileQueue>("compile_queue", mParent);
-		if(!queue)
-			return;
-
-		queue->experienceIdsReceived(content["experience_ids"]);	
-	}
-};
-
-
 
 
 ///----------------------------------------------------------------------------
@@ -675,14 +647,29 @@ BOOL LLFloaterCompileQueue::startQueue()
 		std::string lookup_url=region->getCapability("GetCreatorExperiences"); 
 		if(!lookup_url.empty())
 		{
-			LLHTTPClient::get(lookup_url, new CompileQueueExperienceResponder(getKey().asUUID()));
-			return TRUE;
+            LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t success =
+                boost::bind(&LLFloaterCompileQueue::processExperienceIdResults, _1, getKey().asUUID());
+
+            LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t failure =
+                boost::bind(&LLFloaterCompileQueue::processExperienceIdResults, LLSD(), getKey().asUUID());
+
+            LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(lookup_url,
+                success, failure);
+            return TRUE;
 		}
 	}
 	return nextObject();
 }
 
+/*static*/
+void LLFloaterCompileQueue::processExperienceIdResults(LLSD result, LLUUID parent)
+{
+    LLFloaterCompileQueue* queue = LLFloaterReg::findTypedInstance<LLFloaterCompileQueue>("compile_queue", parent);
+    if (!queue)
+        return;
 
+    queue->experienceIdsReceived(result["experience_ids"]);
+}
 
 void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 										  LLInventoryObject::object_list_t* inv)

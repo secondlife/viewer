@@ -155,6 +155,8 @@ protected:
 	LLViewerInventoryItem::item_array_t mCurrentScripts;
 
 private:
+    static void processExperienceIdResults(LLSD result, LLUUID parent);
+
 	uuid_list_t mExperienceIds;
 };
 
