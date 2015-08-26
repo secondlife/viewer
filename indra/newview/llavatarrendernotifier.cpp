@@ -38,6 +38,7 @@
 #include "llnotificationtemplate.h"
 #include "lltimer.h"
 #include "llviewercontrol.h"
+#include "lltrans.h"
 // associated header
 #include "llavatarrendernotifier.h"
 
@@ -58,6 +59,38 @@ mShowOverLimitAgents(false)
 {
 }
 
+std::string LLAvatarRenderNotifier::overLimitMessage()
+{
+    
+    static const char* not_everyone = "av_render_not_everyone";
+    static const char* over_half = "av_render_over_half";
+    static const char* most = "av_render_most_of";
+    static const char* anyone = "av_render_anyone";
+
+    std::string message;
+    if ( mLatestOverLimitPct >= 99.0 )
+    {
+        message = anyone;
+    }
+    else if ( mLatestOverLimitPct >= 75.0 )
+    {
+        message = most;
+    }
+    else if ( mLatestOverLimitPct >= 50.0 )
+    {
+        message = over_half;        
+    }
+    else if ( mLatestOverLimitPct > 10.0 )
+    {
+        message = not_everyone;
+    }
+    else
+    {
+        // message is left empty
+    }
+    return LLTrans::getString(message);
+}
+
 void LLAvatarRenderNotifier::displayNotification()
 {
 	static LLCachedControl<U32> expire_delay(gSavedSettings, "ShowMyComplexityChanges", 20);
@@ -66,10 +99,11 @@ void LLAvatarRenderNotifier::displayNotification()
 	LLSD args;
 	args["AGENT_COMPLEXITY"] = LLSD::Integer(mLatestAgentComplexity);
 	std::string notification_name;
-	if (mShowOverLimitAgents)
+    std::string notification_message = overLimitMessage();
+	if (mShowOverLimitAgents && !notification_message.empty())
 	{
 		notification_name = "RegionAndAgentComplexity";
-		args["OVERLIMIT_PCT"] = LLSD::Integer(mLatestOverLimitPct);
+		args["OVERLIMIT_MSG"] = notification_message;
 	}
 	else
 	{

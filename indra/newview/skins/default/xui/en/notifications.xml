@@ -3302,8 +3302,7 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
      <context>AgentComplexityNotice</context>
    </unique>
    Your visual complexity is [AGENT_COMPLEXITY].
-[OVERLIMIT_PCT]% of nearby users may not fully show you
-with complexity this high.
+[OVERLIMIT_MSG]
   </notification>
 
   <notification

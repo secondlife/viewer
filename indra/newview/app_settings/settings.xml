@@ -8276,7 +8276,7 @@
   <key>RenderComplexityColorMin</key>
     <map>
       <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8292,7 +8292,7 @@
   <key>RenderComplexityColorMid</key>
     <map>
       <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8308,7 +8308,7 @@
   <key>RenderComplexityColorMax</key>
     <map>
       <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8324,7 +8324,7 @@
   <key>RenderComplexityThreshold</key>
     <map>
       <key>Comment</key>
-      <string>Only color objects higher than render threshold</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8335,8 +8335,7 @@
   <key>RenderComplexityStaticMax</key>
     <map>
       <key>Comment</key>
-      <string>Sets a static max value for scaling of RenderComplexity 
-        display (-1 for dynamic scaling)</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

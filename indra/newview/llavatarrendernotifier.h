@@ -68,6 +68,7 @@ private:
 	F32 mLatestOverLimitPct;
 
 	bool mShowOverLimitAgents;
+    std::string overLimitMessage();
 };
 
 #endif /* ! defined(LL_llavatarrendernotifier_H) */
