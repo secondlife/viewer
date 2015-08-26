@@ -164,12 +164,12 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	S32 idx_stride = 0;
 
-	if ( !get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source) || !pos_source )
+	if ( !get_dom_sources(inputs, pos_offset, tc_offset, norm_offset, idx_stride, pos_source, tc_source, norm_source))
 	{
 		return LLModel::BAD_ELEMENT;
 	}
 
-	if (!pos_source)
+	if (!pos_source || !pos_source->getFloat_array())
 	{
 		LL_WARNS() << "Unable to process mesh without position data; invalid model;  invalid model." << LL_ENDL;
 		return LLModel::BAD_ELEMENT;
@@ -185,7 +185,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 	if (pos_source)
 	{
-		if(!pos_source->getFloat_array() || (v.getCount() == 0))
+		if(v.getCount() == 0)
 		{
 			return LLModel::BAD_ELEMENT;
 		}
@@ -898,6 +898,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 		result = verifyController( pController );
 		if (!result)
 		{
+			LL_INFOS() << "Could not verify controller" << LL_ENDL;
 			setLoadState( ERROR_PARSING );
 			return true;
 		}
@@ -1024,6 +1025,8 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 		}
 	}
 
+	LL_INFOS()<< "Collada skins processed: " << count <<LL_ENDL;
+
 	daeElement* scene = root->getDescendant("visual_scene");
 	
 	if (!scene)
@@ -1041,6 +1044,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	
 	if ( badElement )
 	{
+		LL_INFOS()<<"Scene could not be parsed"<<LL_ENDL;
 		setLoadState( ERROR_PARSING );
 	}
 	
