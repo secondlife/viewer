@@ -4703,8 +4703,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	if (pAvatarVO)
 	{
-		pAvatarVO->modifyAttachmentGeometryBytes( -group->mGeometryBytes );
-		pAvatarVO->modifyAttachmentSurfaceArea( -group->mSurfaceArea );
+		pAvatarVO->subtractAttachmentSizes( group->mGeometryBytes, group->mSurfaceArea );
 	}
 
 	group->mGeometryBytes = 0;
@@ -5258,8 +5257,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	if (pAvatarVO)
 	{
-        pAvatarVO->modifyAttachmentGeometryBytes( group->mGeometryBytes );
-		pAvatarVO->modifyAttachmentSurfaceArea( group->mSurfaceArea );
+        pAvatarVO->addAttachmentSizes( group->mGeometryBytes, group->mSurfaceArea );
 	}
 }
 

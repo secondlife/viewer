@@ -862,8 +862,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 	{
 		if (bridge->mAvatar.notNull())
 		{
-			bridge->mAvatar->modifyAttachmentGeometryBytes( -mGeometryBytes );
-			bridge->mAvatar->modifyAttachmentSurfaceArea( -mSurfaceArea );
+			bridge->mAvatar->subtractAttachmentSizes( mGeometryBytes, mSurfaceArea );
 		}
 	}
 

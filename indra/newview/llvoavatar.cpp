@@ -8283,15 +8283,16 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 	}
 }
 
-void LLVOAvatar::modifyAttachmentGeometryBytes(S32 delta)
+void LLVOAvatar::addAttachmentSizes(U32 delta_bytes, F32 delta_area)
 {
-    mAttachmentGeometryBytes = llmax(mAttachmentGeometryBytes + delta, 0);
+    mAttachmentGeometryBytes += delta_bytes;
+    mAttachmentSurfaceArea   += delta_area;
 }
 
-void LLVOAvatar::modifyAttachmentSurfaceArea(F32 delta)
+void LLVOAvatar::subtractAttachmentSizes(U32 delta_bytes, F32 delta_area)
 {
-    F32 newval = mAttachmentSurfaceArea + delta;
-    mAttachmentSurfaceArea = ( newval > 0.0 ? newval : 0.0 );
+    mAttachmentGeometryBytes = delta_bytes > mAttachmentGeometryBytes ? 0 : mAttachmentGeometryBytes - delta_bytes;
+    mAttachmentSurfaceArea   = delta_area > mAttachmentSurfaceArea ? 0.0 : mAttachmentSurfaceArea - delta_area;
 }
 
 void LLVOAvatar::updateVisualComplexity()
