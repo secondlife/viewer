@@ -4316,49 +4316,49 @@ void LLModelPreview::genModelBBox()
 
 	std::vector<LLVector3> v_list;
 	v_list.resize(4);
-	std::map<U8, std::vector<LLVector3>> face_list;
+	std::map<U8, std::vector<LLVector3> > face_list;
 
 	// Face 0
 	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
 	v_list[1] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
 	v_list[2] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
 	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3>>(0, v_list));
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(0, v_list));
 
 	// Face 1
 	v_list[0] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
 	v_list[1] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
 	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
 	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3>>(1, v_list));
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(1, v_list));
 
 	// Face 2
 	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
 	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
 	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
 	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3>>(2, v_list));
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(2, v_list));
 
 	// Face 3
 	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
 	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
 	v_list[2] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
 	v_list[3] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3>>(3, v_list));
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(3, v_list));
 
 	// Face 4
 	v_list[0] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
 	v_list[1] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
 	v_list[2] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
 	v_list[3] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3>>(4, v_list));
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(4, v_list));
 
 	// Face 5
 	v_list[0] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
 	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
 	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
 	v_list[3] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3>>(5, v_list));
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(5, v_list));
 
 	U16 Idx[] = { 0, 1, 2, 3, 0, 2, };
 
@@ -4411,7 +4411,7 @@ void LLModelPreview::genModelBBox()
 			mModel[i].push_back(mdl);
 
 			mScene[i].clear();
-			mScene[i].insert(std::pair<LLMatrix4, std::vector<LLModelInstance>>(mat, instance_list));
+			mScene[i].insert(std::pair<LLMatrix4, std::vector<LLModelInstance> >(mat, instance_list));
 		}
 	}
 }
