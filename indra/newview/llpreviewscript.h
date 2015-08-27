@@ -296,6 +296,7 @@ private:
 	static void	onMonoCheckboxClicked(LLUICtrl*, void* userdata);
 
     static void finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, bool isRunning);
+    static void receiveExperienceIds(LLSD result, LLHandle<LLLiveLSLEditor> parent);
 
 private:
 	bool				mIsNew;

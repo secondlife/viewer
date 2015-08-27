@@ -118,26 +118,6 @@ static bool have_script_upload_cap(LLUUID& object_id)
 	return object && (! object->getRegion()->getCapability("UpdateScriptTask").empty());
 }
 
-
-class ExperienceResponder : public LLHTTPClient::Responder
-{
-public:
-	ExperienceResponder(const LLHandle<LLLiveLSLEditor>& parent):mParent(parent)
-	{
-	}
-
-	LLHandle<LLLiveLSLEditor> mParent;
-
-	/*virtual*/ void httpSuccess()
-	{
-		LLLiveLSLEditor* parent = mParent.get();
-		if(!parent)
-			return;
-
-		parent->setExperienceIds(getContent()["experience_ids"]);		
-	}
-};
-
 /// ---------------------------------------------------------------------------
 /// LLLiveLSLFile
 /// ---------------------------------------------------------------------------
@@ -1416,11 +1396,23 @@ void LLLiveLSLEditor::requestExperiences()
 		std::string lookup_url=region->getCapability("GetCreatorExperiences"); 
 		if(!lookup_url.empty())
 		{
-			LLHTTPClient::get(lookup_url, new ExperienceResponder(getDerivedHandle<LLLiveLSLEditor>()));
+            LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t success =
+                boost::bind(&LLLiveLSLEditor::receiveExperienceIds, _1, getDerivedHandle<LLLiveLSLEditor>());
+
+            LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(lookup_url, success);
 		}
 	}
 }
 
+/*static*/ 
+void LLLiveLSLEditor::receiveExperienceIds(LLSD result, LLHandle<LLLiveLSLEditor> hparent)
+{
+    LLLiveLSLEditor* parent = hparent.get();
+    if (!parent)
+        return;
+
+    parent->setExperienceIds(result["experience_ids"]);
+}
 
 
 /// ---------------------------------------------------------------------------
