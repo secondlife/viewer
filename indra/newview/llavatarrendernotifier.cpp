@@ -44,6 +44,8 @@
 
 // when change exceeds this ration, notification is shown
 static const F32 RENDER_ALLOWED_CHANGE_PCT = 0.1;
+// wait seconds before processing over limit updates after last complexity change
+static const U32 OVER_LIMIT_UPDATE_DELAY = 70;
 
 
 LLAvatarRenderNotifier::LLAvatarRenderNotifier() :
@@ -164,8 +166,8 @@ void LLAvatarRenderNotifier::updateNotification()
 		// if we have an agent complexity update, we always display it 
 		display_notification = true;
 
-		// next 'over limit' update should be displayed as soon as possible if there is anything noteworthy
-		mPopUpDelayTimer.resetWithExpiry(0);
+		// next 'over limit' update should be displayed after delay to make sure information got updated at server side
+		mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
 	}
 	else if (   (mPopUpDelayTimer.hasExpired() || is_visible)
 		     && (mOverLimitPct > 0 || mLatestOverLimitPct > 0)
