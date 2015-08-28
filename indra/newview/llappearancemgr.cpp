@@ -1869,7 +1869,7 @@ bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids)
 		{
 			++n_clothes;
 		}
-		else if (item->getType() == LLAssetType::AT_BODYPART)
+		else if (item->getType() == LLAssetType::AT_BODYPART || item->getType() == LLAssetType::AT_GESTURE)
 		{
 			return isAgentAvatarValid();
 		}
