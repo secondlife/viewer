@@ -1294,7 +1294,7 @@ void link_inventory_array(const LLUUID& category,
 	{
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["links"] = links;
-        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
         AISAPI::CreateInventory(category, new_inventory, cr);
 	}
     else
@@ -1368,7 +1368,7 @@ void update_inventory_item(
 			updates.erase("shadow_id");
 			updates["hash_id"] = update_item->getTransactionID();
 		}
-        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
         AISAPI::UpdateItem(item_id, updates, cr);
 	}
     else
@@ -1409,7 +1409,7 @@ void update_inventory_item(
 {
     if (AISAPI::isAvailable())
 	{
-        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
         AISAPI::UpdateItem(item_id, updates, cr);
 	}
     else
@@ -1465,7 +1465,7 @@ void update_inventory_category(
         if (AISAPI::isAvailable())
 		{
 			LLSD new_llsd = new_cat->asLLSD();
-            AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
             AISAPI::UpdateCategory(cat_id, new_llsd, cr);
 		}
 		else // no cap
@@ -1530,7 +1530,7 @@ void remove_inventory_item(
 		LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << obj->getName() << LL_ENDL;
         if (AISAPI::isAvailable())
 		{
-            AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
             AISAPI::RemoveItem(item_id, cr);
 
 			if (immediate_delete)
@@ -1606,7 +1606,7 @@ void remove_inventory_category(
 		}
         if (AISAPI::isAvailable())
 		{
-            AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
             AISAPI::RemoveCategory(cat_id, cr);
 		}
 		else // no cap
@@ -1709,7 +1709,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		{
             if (AISAPI::isAvailable())
 			{
-                AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+                AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
                 AISAPI::PurgeDescendents(id, cr);
 			}
 			else // no cap
@@ -1862,7 +1862,7 @@ void slam_inventory_folder(const LLUUID& folder_id,
 		LL_DEBUGS(LOG_INV) << "using AISv3 to slam folder, id " << folder_id
 						   << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
 
-        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
         AISAPI::SlamFolder(folder_id, contents, cr);
 	}
 	else // no cap

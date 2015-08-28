@@ -46,14 +46,14 @@ public:
     static bool isAvailable();
     static void getCapNames(LLSD& capNames);
 
-    static void CreateInventory(const LLUUID& parentId, const LLSD& newInventory, completion_t callback);
-    static void SlamFolder(const LLUUID& folderId, const LLSD& newInventory, completion_t callback);
-    static void RemoveCategory(const LLUUID &categoryId, completion_t callback);
-    static void RemoveItem(const LLUUID &itemId, completion_t callback);
-    static void PurgeDescendents(const LLUUID &categoryId, completion_t callback);
-    static void UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback);
-    static void UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback);
-    static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback);
+    static void CreateInventory(const LLUUID& parentId, const LLSD& newInventory, completion_t callback = completion_t());
+    static void SlamFolder(const LLUUID& folderId, const LLSD& newInventory, completion_t callback = completion_t());
+    static void RemoveCategory(const LLUUID &categoryId, completion_t callback = completion_t());
+    static void RemoveItem(const LLUUID &itemId, completion_t callback = completion_t());
+    static void PurgeDescendents(const LLUUID &categoryId, completion_t callback = completion_t());
+    static void UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback = completion_t());
+    static void UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback = completion_t());
+    static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback = completion_t());
 
 private:
     typedef enum {

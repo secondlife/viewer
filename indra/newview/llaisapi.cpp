@@ -400,7 +400,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
 
     gInventory.onAISUpdateReceived("AISCommand", result);
 
-    if (callback)
+    if (callback && !callback.empty())
     {   
         LLUUID id(LLUUID::null);
 
