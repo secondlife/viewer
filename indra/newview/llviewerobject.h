@@ -436,8 +436,8 @@ public:
 	void removeInventoryListener(LLVOInventoryListener* listener);
 	BOOL isInventoryPending() { return mInventoryPending; }
 	void clearInventoryListeners();
+	bool hasInventoryListeners();
 	void requestInventory();
-	void fetchInventoryFromServer();
 	static void processTaskInv(LLMessageSystem* msg, void** user_data);
 	void removeInventory(const LLUUID& item_id);
 
@@ -592,6 +592,9 @@ private:
 	void interpolateLinearMotion(const F64SecondsImplicit & time, const F32SecondsImplicit & dt);
 
 	static void initObjectDataMap();
+
+	// forms task inventory request if none are pending
+	void fetchInventoryFromServer();
 
 public:
 	//
