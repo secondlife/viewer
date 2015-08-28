@@ -463,7 +463,10 @@ void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_pare
 	if (old_rect.getWidth() != width || old_rect.getHeight() != height)
 	{
 		LL_DEBUGS() << "window reshaped, updating thumbnail" << LL_ENDL;
-		updateSnapshot(TRUE);
+		if (mViewContainer && mViewContainer->isInVisibleChain())
+		{
+			updateSnapshot(TRUE);
+		}
 	}
 }
 
