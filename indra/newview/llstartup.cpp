@@ -2820,9 +2820,10 @@ void LLStartUp::initNameCache()
 
 
 void LLStartUp::initExperiences()
-{
+{   
+    // just a get instance here.  Should trigger loading the cache.
+    LLExperienceCache::getInstance();
 	LLAppViewer::instance()->loadExperienceCache();
-	LLExperienceCache::initClass();
 	LLExperienceLog::instance().initialize();
 }
 
