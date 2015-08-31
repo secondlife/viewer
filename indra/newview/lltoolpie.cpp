@@ -319,6 +319,7 @@ BOOL LLToolPie::handleLeftClickPick()
 	{
 		gGrabTransientTool = this;
 		mMouseButtonDown = false;
+		LLToolGrab::getInstance()->setClickedInMouselook(gAgentCamera.cameraMouselook());
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
 		return LLToolGrab::getInstance()->handleObjectHit( mPick );
 	}

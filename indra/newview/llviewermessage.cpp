@@ -2707,6 +2707,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		break;
 	case IM_GROUP_INVITATION:
 		{
+			if (!is_muted)
+			{
+				// group is not blocked, but we still need to check agent that sent the invitation
+				// and we have no agent's id
+				// Note: server sends username "first.last".
+				is_muted |= LLMuteList::getInstance()->isMuted(name);
+			}
 			if (is_do_not_disturb || is_muted)
 			{
 				send_do_not_disturb_message(msg, from_id);
@@ -3600,6 +3607,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		|| LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagTextChat);
 	is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
 		LLMuteList::getInstance()->isLinden(from_name);
+
+	if (is_muted && (chat.mSourceType == CHAT_SOURCE_OBJECT))
+	{
+		return;
+	}
 
 	BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
 	chatter = gObjectList.findObject(from_id);

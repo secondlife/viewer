@@ -315,7 +315,8 @@ SlamFolderCommand::SlamFolderCommand(const LLUUID& folder_id, const LLSD& conten
 
 CopyLibraryCategoryCommand::CopyLibraryCategoryCommand(const LLUUID& source_id,
 													   const LLUUID& dest_id,
-													   LLPointer<LLInventoryCallback> callback):
+													   LLPointer<LLInventoryCallback> callback,
+													   bool copy_subfolders):
 	AISCommand(callback)
 {
 	std::string cap;
@@ -328,6 +329,10 @@ CopyLibraryCategoryCommand::CopyLibraryCategoryCommand(const LLUUID& source_id,
 	LLUUID tid;
 	tid.generate();
 	std::string url = cap + std::string("/category/") + source_id.asString() + "?tid=" + tid.asString();
+	if (!copy_subfolders)
+	{
+		url += ",depth=0";
+	}
 	LL_INFOS() << url << LL_ENDL;
 	LLCurl::ResponderPtr responder = this;
 	LLSD headers;

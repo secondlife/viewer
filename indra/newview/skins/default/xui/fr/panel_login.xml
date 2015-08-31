@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
 	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=fr</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=fr
+	</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="Nom d&apos;utilisateur" name="username_combo" tool_tip="Nom d&apos;utilisateur que vous avez choisi lors de votre inscription (par exemple, bobsmith12 ou Steller Sunshine)."/>
@@ -12,7 +15,7 @@
 			<button label="Connexion" name="connect_btn"/>
 			<check_box label="Mémoriser mes informations" name="remember_check"/>
 			<text name="forgot_password_text">Mot de passe oublié</text>
-			<combo_box label="Sélectionner la grille" name="server_combo"/>
+			<combo_box label="Sélectionner la grille" name="server_combo" left_pad="20"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

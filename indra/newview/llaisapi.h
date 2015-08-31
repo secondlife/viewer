@@ -124,7 +124,7 @@ private:
 class CopyLibraryCategoryCommand: public AISCommand
 {
 public:
-	CopyLibraryCategoryCommand(const LLUUID& source_id, const LLUUID& dest_id, LLPointer<LLInventoryCallback> callback);
+	CopyLibraryCategoryCommand(const LLUUID& source_id, const LLUUID& dest_id, LLPointer<LLInventoryCallback> callback, bool copy_subfolders = true);
 
 protected:
 	/* virtual */ bool getResponseUUID(const LLSD& content, LLUUID& id);

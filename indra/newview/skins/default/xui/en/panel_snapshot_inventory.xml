@@ -60,6 +60,10 @@
          name="Large(512x512)"
          value="[i512,i512]" />
         <combo_box.item
+         label="Current Window(512x512)"
+         name="CurrentWindow"
+         value="[i0,i0]" />
+        <combo_box.item
          label="Custom"
          name="Custom"
          value="[i-1,i-1]" />
