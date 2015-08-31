@@ -63,7 +63,7 @@ mShowOverLimitAgents(false)
 
 std::string LLAvatarRenderNotifier::overLimitMessage()
 {
-    
+    static const char* everyone_now = "av_render_everyone_now";
     static const char* not_everyone = "av_render_not_everyone";
     static const char* over_half = "av_render_over_half";
     static const char* most = "av_render_most_of";
@@ -80,7 +80,7 @@ std::string LLAvatarRenderNotifier::overLimitMessage()
     }
     else if ( mLatestOverLimitPct >= 50.0 )
     {
-        message = over_half;        
+        message = over_half;
     }
     else if ( mLatestOverLimitPct > 10.0 )
     {
@@ -88,7 +88,8 @@ std::string LLAvatarRenderNotifier::overLimitMessage()
     }
     else
     {
-        // message is left empty
+        // Will be shown only after overlimit was > 0
+        message = everyone_now;
     }
     return LLTrans::getString(message);
 }
@@ -101,11 +102,11 @@ void LLAvatarRenderNotifier::displayNotification()
 	LLSD args;
 	args["AGENT_COMPLEXITY"] = LLSD::Integer(mLatestAgentComplexity);
 	std::string notification_name;
-    std::string notification_message = overLimitMessage();
-	if (mShowOverLimitAgents && !notification_message.empty())
-	{
-		notification_name = "RegionAndAgentComplexity";
-		args["OVERLIMIT_MSG"] = notification_message;
+    if (mShowOverLimitAgents)
+    {
+        std::string notification_message = overLimitMessage();
+        notification_name = "RegionAndAgentComplexity";
+        args["OVERLIMIT_MSG"] = notification_message;
 	}
 	else
 	{
