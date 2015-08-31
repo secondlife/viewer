@@ -34,6 +34,8 @@ RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors     1   12
 RenderAvatarMaxComplexity              1	60000
 RenderAvatarVP					1	1
+RenderAutoMuteByteLimit     1	10000000
+RenderAutoMuteSurfaceAreaLimit     1	1.0E6
 RenderCubeMap					1	1
 RenderDelayVBUpdate				1	0
 RenderFarClip					1	256

@@ -1,5 +1,5 @@
 version 33
-// The version number above should be implemented IF AND ONLY IF some
+// The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
 // defaults.  This should be as rare an event as we can manage.
@@ -31,9 +31,11 @@ RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarMaxNonImpostors 1   12
-RenderAvatarMaxComplexity          1	60000
+RenderAvatarMaxNonImpostors 1   16
+RenderAvatarMaxComplexity          1	80000
 RenderAvatarVP				1	1
+RenderAutoMuteByteLimit     1	10000000
+RenderAutoMuteSurfaceAreaLimit     1	1.0E6
 RenderCubeMap				1	1
 RenderDelayVBUpdate			1	0
 RenderFarClip				1	256
@@ -79,7 +81,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   12
-RenderAvatarMaxComplexity          1	30000
+RenderAvatarMaxComplexity          1	35000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
@@ -110,7 +112,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   12
-RenderAvatarMaxComplexity          1	30000
+RenderAvatarMaxComplexity          1	35000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
