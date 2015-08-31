@@ -56,10 +56,45 @@ public:
 
 private:
     // Callback types for get() 
-//  typedef boost::signals2::signal < void(const LLSD &) > callback_signal_t;
-    typedef boost::signals2::signal < Callback_t > callback_signal_t;
-    typedef std::map<LLUUID, LLSD> cache_t;
-
+    typedef boost::signals2::signal < void(const LLSD &) > callback_signal_t;
+	typedef boost::shared_ptr<callback_signal_t> signal_ptr;
+	// May have multiple callbacks for a single ID, which are
+	// represented as multiple slots bound to the signal.
+	// Avoid copying signals via pointers.
+	typedef std::map<LLUUID, signal_ptr> signal_map_t;
+	typedef std::map<LLUUID, LLSD> cache_t;
+	
+	typedef std::set<LLUUID> ask_queue_t;
+	
+	
+	//--------------------------------------------
+	static const std::string PRIVATE_KEY;	// "private_id"
+	static const std::string MISSING;       // "DoesNotExist"
+	
+	static const std::string AGENT_ID;      // "agent_id"
+	static const std::string GROUP_ID;      // "group_id"
+	static const std::string EXPERIENCE_ID;	// "public_id"
+	static const std::string NAME;			// "name"
+	static const std::string PROPERTIES;	// "properties"
+	static const std::string EXPIRES;		// "expiration"  
+	static const std::string DESCRIPTION;	// "description"
+	static const std::string QUOTA;         // "quota"
+	static const std::string MATURITY;      // "maturity"
+	static const std::string METADATA;      // "extended_metadata"
+	static const std::string SLURL;         // "slurl"
+	
+	// should be in sync with experience-api/experiences/models.py
+	static const int PROPERTY_INVALID;		// 1 << 0
+	static const int PROPERTY_PRIVILEGED;	// 1 << 3
+	static const int PROPERTY_GRID;			// 1 << 4
+	static const int PROPERTY_PRIVATE;		// 1 << 5
+	static const int PROPERTY_DISABLED;		// 1 << 6  
+	static const int PROPERTY_SUSPENDED;	// 1 << 7
+	
+	// default values
+	static const F64 DEFAULT_EXPIRATION; 	// 600.0
+	static const S32 DEFAULT_QUOTA; 		// 128 this is megabytes
+	
 //--------------------------------------------
     LLExperienceCache();
     virtual ~LLExperienceCache();
@@ -70,36 +105,13 @@ private:
 //--------------------------------------------
     void processExperience(const LLUUID& public_key, const LLSD& experience);
 
-
-	const std::string PRIVATE_KEY	= "private_id";
-    const std::string MISSING       = "DoesNotExist";
-
-    const std::string AGENT_ID      = "agent_id";
-    const std::string GROUP_ID      = "group_id";
-	const std::string EXPERIENCE_ID	= "public_id";
-	const std::string NAME			= "name";
-	const std::string PROPERTIES	= "properties";
-	const std::string EXPIRES		= "expiration";  
-    const std::string DESCRIPTION	= "description";
-    const std::string QUOTA         = "quota";
-    const std::string MATURITY      = "maturity";
-    const std::string METADATA      = "extended_metadata";
-    const std::string SLURL         = "slurl";
-
-
-	// should be in sync with experience-api/experiences/models.py
-	const int PROPERTY_INVALID		= 1 << 0;
-	const int PROPERTY_PRIVILEGED	= 1 << 3;
-	const int PROPERTY_GRID			= 1 << 4;
-	const int PROPERTY_PRIVATE		= 1 << 5;
-	const int PROPERTY_DISABLED		= 1 << 6;  
-	const int PROPERTY_SUSPENDED	= 1 << 7;
-
-	// default values
-	const static F64 DEFAULT_EXPIRATION = 600.0;
-	const static S32 DEFAULT_QUOTA = 128; // this is megabytes
-
-
+//--------------------------------------------
+	cache_t			sCache;
+	signal_map_t	sSignalMap;	
+	ask_queue_t		sAskQueue;
+	
+	void eraseExpired();
+	
 	void setLookupURL(const std::string& lookup_url);
 	bool hasLookupURL();
 

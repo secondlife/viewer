@@ -32,22 +32,18 @@
 #include <set>
 #include <map>
 #include "boost/tokenizer.hpp"
+#include <boost/concept_check.hpp>
 
 
 typedef std::map<LLUUID, LLUUID> KeyMap;
 KeyMap privateToPublicKeyMap;
 
-void mapKeys(const LLSD& legacyKeys);
 
 std::string sLookupURL;
-
-typedef std::map<LLUUID, std::string> ask_queue_t;
-ask_queue_t sAskQueue;
 
 typedef std::map<LLUUID, F64> pending_queue_t;
 pending_queue_t sPendingQueue;
 
-LLExperienceCache::cache_t sCache;
 int sMaximumLookups = 10;
 
 LLFrameTimer sRequestTimer;
@@ -55,16 +51,41 @@ LLFrameTimer sRequestTimer;
 // Periodically clean out expired entries from the cache
 LLFrameTimer sEraseExpiredTimer;
 
-// May have multiple callbacks for a single ID, which are
-// represented as multiple slots bound to the signal.
-// Avoid copying signals via pointers.
-typedef std::map<LLUUID, callback_signal_t*> signal_map_t;
-signal_map_t sSignalMap;
 
+//=========================================================================
+namespace LLExperienceCacheImpl
+{
+	bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age);
+	void mapKeys(const LLSD& legacyKeys);
+}
 
-bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age);
-void eraseExpired();
+//=========================================================================
+const std::string LLExperienceCache::PRIVATE_KEY	= "private_id";
+const std::string LLExperienceCache::MISSING       	= "DoesNotExist";
 
+const std::string LLExperienceCache::AGENT_ID      	= "agent_id";
+const std::string LLExperienceCache::GROUP_ID      	= "group_id";
+const std::string LLExperienceCache::EXPERIENCE_ID	= "public_id";
+const std::string LLExperienceCache::NAME			= "name";
+const std::string LLExperienceCache::PROPERTIES		= "properties";
+const std::string LLExperienceCache::EXPIRES		= "expiration";  
+const std::string LLExperienceCache::DESCRIPTION	= "description";
+const std::string LLExperienceCache::QUOTA         	= "quota";
+const std::string LLExperienceCache::MATURITY      	= "maturity";
+const std::string LLExperienceCache::METADATA      	= "extended_metadata";
+const std::string LLExperienceCache::SLURL         	= "slurl";
+
+// should be in sync with experience-api/experiences/models.py
+const int LLExperienceCache::PROPERTY_INVALID		= 1 << 0;
+const int LLExperienceCache::PROPERTY_PRIVILEGED	= 1 << 3;
+const int LLExperienceCache::PROPERTY_GRID			= 1 << 4;
+const int LLExperienceCache::PROPERTY_PRIVATE		= 1 << 5;
+const int LLExperienceCache::PROPERTY_DISABLED		= 1 << 6;  
+const int LLExperienceCache::PROPERTY_SUSPENDED		= 1 << 7;
+
+// default values
+const F64 LLExperienceCache::DEFAULT_EXPIRATION		= 600.0;
+const S32 LLExperienceCache::DEFAULT_QUOTA			= 128; // this is megabytes
 
 //=========================================================================
 LLExperienceCache::LLExperienceCache()
@@ -118,7 +139,7 @@ void LLExperienceCache::exportFile(std::ostream& ostr) const
 // *TODO$: Rider: These three functions not seem to be used... it may be useful in testing.
 void LLExperienceCache::bootstrap(const LLSD& legacyKeys, int initialExpiration)
 {
-    mapKeys(legacyKeys);
+	LLExperienceCacheImpl::mapKeys(legacyKeys);
     LLSD::array_const_iterator it = legacyKeys.beginArray();
     for (/**/; it != legacyKeys.endArray(); ++it)
     {
@@ -136,18 +157,6 @@ void LLExperienceCache::bootstrap(const LLSD& legacyKeys, int initialExpiration)
             LL_WARNS("ExperienceCache")
                 << "Skipping bootstrap entry which is missing " << EXPERIENCE_ID
                 << LL_ENDL;
-        }
-    }
-}
-
-void LLExperienceCache::mapKeys(const LLSD& legacyKeys)
-{
-    LLSD::array_const_iterator exp = legacyKeys.beginArray();
-    for (/**/; exp != legacyKeys.endArray(); ++exp)
-    {
-        if (exp->has(LLExperienceCache::EXPERIENCE_ID) && exp->has(LLExperienceCache::PRIVATE_KEY))
-        {
-            privateToPublicKeyMap[(*exp)[LLExperienceCache::PRIVATE_KEY].asUUID()] = (*exp)[LLExperienceCache::EXPERIENCE_ID].asUUID();
         }
     }
 }
@@ -190,12 +199,10 @@ void LLExperienceCache::processExperience(const LLUUID& public_key, const LLSD& 
 	signal_map_t::iterator sig_it =	sSignalMap.find(public_key);
 	if (sig_it != sSignalMap.end())
 	{
-		callback_signal_t* signal = sig_it->second;
+		signal_ptr signal = sig_it->second;
 		(*signal)(experience);
 
 		sSignalMap.erase(public_key);
-
-		delete signal;
 	}
 }
 
@@ -235,60 +242,6 @@ bool LLExperienceCache::expirationFromCacheControl(LLSD headers, F64 *expires)
 static const std::string MAX_AGE("max-age");
 static const boost::char_separator<char> EQUALS_SEPARATOR("=");
 static const boost::char_separator<char> COMMA_SEPARATOR(",");
-
-bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
-{
-	// Split the string on "," to get a list of directives
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	tokenizer directives(cache_control, COMMA_SEPARATOR);
-
-	tokenizer::iterator token_it = directives.begin();
-	for ( ; token_it != directives.end(); ++token_it)
-	{
-		// Tokens may have leading or trailing whitespace
-		std::string token = *token_it;
-		LLStringUtil::trim(token);
-
-		if (token.compare(0, MAX_AGE.size(), MAX_AGE) == 0)
-		{
-			// ...this token starts with max-age, so let's chop it up by "="
-			tokenizer subtokens(token, EQUALS_SEPARATOR);
-			tokenizer::iterator subtoken_it = subtokens.begin();
-
-			// Must have a token
-			if (subtoken_it == subtokens.end()) return false;
-			std::string subtoken = *subtoken_it;
-
-			// Must exactly equal "max-age"
-			LLStringUtil::trim(subtoken);
-			if (subtoken != MAX_AGE) return false;
-
-			// Must have another token
-			++subtoken_it;
-			if (subtoken_it == subtokens.end()) return false;
-			subtoken = *subtoken_it;
-
-			// Must be a valid integer
-			// *NOTE: atoi() returns 0 for invalid values, so we have to
-			// check the string first.
-			// *TODO: Do servers ever send "0000" for zero?  We don't handle it
-			LLStringUtil::trim(subtoken);
-			if (subtoken == "0")
-			{
-				*max_age = 0;
-				return true;
-			}
-			S32 val = atoi( subtoken.c_str() );
-			if (val > 0 && val < S32_MAX)
-			{
-				*max_age = val;
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
-}
 
 
 class LLExperienceResponder : public LLHTTPClient::Responder
@@ -435,7 +388,6 @@ void LLExperienceCache::requestExperiences()
 
 	ostr << sLookupURL << "?page_size=" << PAGE_SIZE;
 
-
 	int request_count = 0;
 	while(!sAskQueue.empty() && request_count < sMaximumLookups)
 	{
@@ -503,7 +455,6 @@ bool LLExperienceCache::hasLookupURL()
 
 void LLExperienceCache::idle()
 {
-
 	const F32 SECS_BETWEEN_REQUESTS = 0.1f;
 	if (!sRequestTimer.checkExpirationAndReset(SECS_BETWEEN_REQUESTS))
 	{
@@ -516,7 +467,6 @@ void LLExperienceCache::idle()
 	{
 		eraseExpired();
 	}
-
 
 	if(!sAskQueue.empty())
 	{
@@ -568,7 +518,6 @@ void LLExperienceCache::eraseExpired()
 		}
 	}
 }
-
 	
 bool LLExperienceCache::fetch(const LLUUID& key, bool refresh/* = true*/)
 {
@@ -594,10 +543,12 @@ void LLExperienceCache::insert(const LLSD& experience_data)
 	}
 }
 
-static LLSD empty;
 const LLSD& LLExperienceCache::get(const LLUUID& key)
 {
-	if(key.isNull()) return empty;
+	static const LLSD empty;
+	
+	if(key.isNull()) 
+		return empty;
 	cache_t::const_iterator it = sCache.find(key);
 
 	if (it != sCache.end())
@@ -609,9 +560,10 @@ const LLSD& LLExperienceCache::get(const LLUUID& key)
 
 	return empty;
 }
-void LLExperienceCache::get(const LLUUID& key, callback_slot_t slot)
+void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::Callback_t slot)
 {
-	if(key.isNull()) return;
+	if(key.isNull()) 
+		return;
 
 	cache_t::const_iterator it = sCache.find(key);
 	if (it != sCache.end())
@@ -626,12 +578,20 @@ void LLExperienceCache::get(const LLUUID& key, callback_slot_t slot)
 
 	fetch(key);
 
+	signal_ptr signal = signal_ptr(new callback_signal_t());
+	
+	std::pair<signal_map_t::iterator, bool> result = sSignalMap.insert(signal_map_t::value_type(key, signal));
+	if (!result.second)
+		signal = result.first.second;
+	signal->connect(slot);
+	
+#if 0
 	// always store additional callback, even if request is pending
 	signal_map_t::iterator sig_it = sSignalMap.find(key);
 	if (sig_it == sSignalMap.end())
 	{
 		// ...new callback for this id
-		callback_signal_t* signal = new callback_signal_t();
+		signal_ptr signal = signal_ptr(new callback_signal_t());
 		signal->connect(slot);
 		sSignalMap[key] = signal;
 	}
@@ -641,6 +601,76 @@ void LLExperienceCache::get(const LLUUID& key, callback_slot_t slot)
 		callback_signal_t* signal = sig_it->second;
 		signal->connect(slot);
 	}
+#endif
 }
+
+//=========================================================================
+void LLExperienceCacheImpl::mapKeys(const LLSD& legacyKeys)
+{
+	LLSD::array_const_iterator exp = legacyKeys.beginArray();
+	for (/**/; exp != legacyKeys.endArray(); ++exp)
+	{
+		if (exp->has(LLExperienceCache::EXPERIENCE_ID) && exp->has(LLExperienceCache::PRIVATE_KEY))
+		{
+			privateToPublicKeyMap[(*exp)[LLExperienceCache::PRIVATE_KEY].asUUID()] = (*exp)[LLExperienceCache::EXPERIENCE_ID].asUUID();
+		}
+	}
+}
+
+bool LLExperienceCacheImpl::max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
+{
+	// Split the string on "," to get a list of directives
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	tokenizer directives(cache_control, COMMA_SEPARATOR);
+	
+	tokenizer::iterator token_it = directives.begin();
+	for ( ; token_it != directives.end(); ++token_it)
+	{
+		// Tokens may have leading or trailing whitespace
+		std::string token = *token_it;
+		LLStringUtil::trim(token);
+		
+		if (token.compare(0, MAX_AGE.size(), MAX_AGE) == 0)
+		{
+			// ...this token starts with max-age, so let's chop it up by "="
+			tokenizer subtokens(token, EQUALS_SEPARATOR);
+			tokenizer::iterator subtoken_it = subtokens.begin();
+			
+			// Must have a token
+			if (subtoken_it == subtokens.end()) return false;
+			std::string subtoken = *subtoken_it;
+			
+			// Must exactly equal "max-age"
+			LLStringUtil::trim(subtoken);
+			if (subtoken != MAX_AGE) return false;
+			
+			// Must have another token
+			++subtoken_it;
+			if (subtoken_it == subtokens.end()) return false;
+			subtoken = *subtoken_it;
+			
+			// Must be a valid integer
+			// *NOTE: atoi() returns 0 for invalid values, so we have to
+			// check the string first.
+			// *TODO: Do servers ever send "0000" for zero?  We don't handle it
+			LLStringUtil::trim(subtoken);
+			if (subtoken == "0")
+			{
+				*max_age = 0;
+				return true;
+			}
+			S32 val = atoi( subtoken.c_str() );
+			if (val > 0 && val < S32_MAX)
+			{
+				*max_age = val;
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}
+
+
 
 
