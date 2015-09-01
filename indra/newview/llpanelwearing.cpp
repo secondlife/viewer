@@ -131,7 +131,7 @@ protected:
 			{
 				bp_selected = true;
 			}
-			else if (type == LLAssetType::AT_OBJECT)
+			else if (type == LLAssetType::AT_OBJECT || type == LLAssetType::AT_GESTURE)
 			{
 				attachments_selected = true;
 			}

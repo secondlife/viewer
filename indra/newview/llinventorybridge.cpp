@@ -295,7 +295,11 @@ BOOL LLInvFVBridge::callback_cutToClipboard(const LLSD& notification, const LLSD
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0) // YES
     {
-        return perform_cutToClipboard();
+		const LLInventoryObject* obj = gInventory.getObject(mUUID);
+		LLUUID parent_uuid = obj->getParentUUID();
+		BOOL result = perform_cutToClipboard();
+		gInventory.addChangedMask(LLInventoryObserver::STRUCTURE, parent_uuid);
+		return result;
     }
     return FALSE;
 }
