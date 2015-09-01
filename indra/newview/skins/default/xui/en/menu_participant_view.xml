@@ -59,6 +59,19 @@
          function="IMFloaterContainer.Check"
          parameter="sort_participants_by_recent" />
     </menu_item_check>
+	<menu_item_separator
+     layout="topleft" />
+	<menu_item_check
+	 label="View people icons"
+	 layout="topleft"
+	 name="view_icons">
+		<on_click
+         function="IMFloaterContainer.Action"
+         parameter="view_icons" />
+		<on_check
+         function="IMFloaterContainer.Check"
+         parameter="view_icons" />
+	</menu_item_check>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
