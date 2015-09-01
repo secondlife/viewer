@@ -2820,9 +2820,11 @@ void LLStartUp::initNameCache()
 
 
 void LLStartUp::initExperiences()
-{
-	LLAppViewer::instance()->loadExperienceCache();
-	LLExperienceCache::initClass();
+{   
+    // Should trigger loading the cache.
+    LLExperienceCache::getInstance()->setCapabilityQuery(
+        boost::bind(&LLAgent::getRegionCapability, &gAgent, _1));
+
 	LLExperienceLog::instance().initialize();
 }
 

@@ -1430,7 +1430,7 @@ std::string LLUrlEntryExperienceProfile::getLabel( const std::string &url, const
         return LLTrans::getString("ExperienceNameNull");
     }
 
-    const LLSD& experience_details = LLExperienceCache::get(experience_id);
+    const LLSD& experience_details = LLExperienceCache::getInstance()->get(experience_id);
     if(!experience_details.isUndefined())
     {
 		std::string experience_name_string = experience_details[LLExperienceCache::NAME].asString();
@@ -1438,7 +1438,7 @@ std::string LLUrlEntryExperienceProfile::getLabel( const std::string &url, const
     }
 
     addObserver(experience_id_string, url, cb);
-    LLExperienceCache::get(experience_id, boost::bind(&LLUrlEntryExperienceProfile::onExperienceDetails, this, _1));
+    LLExperienceCache::getInstance()->get(experience_id, boost::bind(&LLUrlEntryExperienceProfile::onExperienceDetails, this, _1));
     return LLTrans::getString("LoadingData");
 
 }

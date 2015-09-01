@@ -11,11 +11,13 @@ include(LLMessage)
 include(LLCoreHttp)
 include(LLRender)
 include(LLWindow)
+include(LLCoreHttp)
 include(LLVFS)
 include(LLXML)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}

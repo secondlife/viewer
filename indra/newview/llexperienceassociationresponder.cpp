@@ -83,7 +83,7 @@ void ExperienceAssociationResponder::httpSuccess()
         return;
     }
 
-    LLExperienceCache::get(getContent()["experience"].asUUID(), boost::bind(&ExperienceAssociationResponder::sendResult, this, _1));
+    LLExperienceCache::getInstance()->get(getContent()["experience"].asUUID(), boost::bind(&ExperienceAssociationResponder::sendResult, this, _1));
 
 }
 

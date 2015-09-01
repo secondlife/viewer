@@ -238,7 +238,7 @@ void LLPanelExperiencePicker::processResponse( const LLUUID& query_id, const LLS
 	LLSD::array_const_iterator it = experiences.beginArray();
 	for ( ; it != experiences.endArray(); ++it)
 	{
-		LLExperienceCache::insert(*it);
+        LLExperienceCache::getInstance()->insert(*it);
 	}
 
 	getChildView(BTN_RIGHT)->setEnabled(content.has("next_page_url"));
