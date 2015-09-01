@@ -29,8 +29,8 @@
      function="People.Friends.ViewSort.Action"
      parameter="view_icons" />
     <menu_item_check.on_check
-     function="CheckControl"
-     parameter="FriendsListShowIcons" />
+     function="People.Friends.ViewSort.CheckItem"
+     parameter="view_icons" />
   </menu_item_check>
   <menu_item_check name="view_permissions" label="View Permissions Granted">
     <menu_item_check.on_click

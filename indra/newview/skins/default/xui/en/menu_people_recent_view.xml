@@ -29,7 +29,7 @@
      function="People.Recent.ViewSort.Action"
      parameter="view_icons" />
     <menu_item_check.on_check
-     function="CheckControl"
-     parameter="RecentListShowIcons" />
+     function="People.Recent.ViewSort.CheckItem"
+     parameter="view_icons" />
   </menu_item_check>
 </toggleable_menu>
