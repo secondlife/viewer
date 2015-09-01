@@ -4184,10 +4184,22 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	for (U32 j = 0; j < maxJoints; ++j)
 	{
 		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
+        if (!joint)
+        {
+            // Fall back to a point inside the avatar if mesh is
+            // rigged to an unknown joint.
+            joint = avatar->getJoint("mPelvis");
+        }
 		if (joint)
 		{
 			mat[j] = skin->mInvBindMatrix[j];
 			mat[j] *= joint->getWorldMatrix();
+		}
+		else
+		{
+            // This shouldn't be possible unless the avatar skeleton
+            // is corrupt.
+			llassert(false);
 		}
 	}
 
@@ -4228,8 +4240,21 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 						wght[k] = w - floorf(w);
 						scale += wght[k];
 					}
-
-					wght *= 1.f/scale;
+					if (scale > 0.f)
+					{
+						wght *= 1.f / scale;
+					}
+                    else
+                    {
+                        // Complete weighting fail - all zeroes.  Just
+                        // pick some values that add up to 1.0 so we
+                        // don't wind up with garbage vertices
+                        // pointing off at (0,0,0)
+                        wght[0] = 1.f;
+                        wght[1] = 0.f;
+                        wght[2] = 0.f;
+                        wght[3] = 0.f;
+                    }
 
 					for (U32 k = 0; k < 4; k++)
 					{
@@ -4237,9 +4262,8 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 						LLMatrix4a src;
 						// Insure ref'd bone is in our clamped array of mats
-						llassert(idx[k] < kMaxJoints);
-						// clamp k to kMaxJoints to avoid reading garbage off stack in release
-						src.setMul(mp[idx[(k < kMaxJoints) ? k : 0]], w);
+						// clamp idx to maxJoints to avoid reading garbage off stack in release
+						src.setMul(mp[(idx[k]<maxJoints)?idx[k]:0], w);
 						final_mat.add(src);
 					}
 
