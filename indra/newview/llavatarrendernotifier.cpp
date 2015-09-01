@@ -32,11 +32,14 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llagent.h"
 #include "llagentwearables.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llnotificationtemplate.h"
+#include "llstartup.h"
 #include "lltimer.h"
+#include "llvoavatarself.h"
 #include "llviewercontrol.h"
 #include "lltrans.h"
 // associated header
@@ -57,7 +60,8 @@ mLatestAgentsCount(0),
 mLatestOverLimitAgents(0),
 mLatestAgentComplexity(0),
 mLatestOverLimitPct(0.0f),
-mShowOverLimitAgents(false)
+mShowOverLimitAgents(false),
+mNotifyOutfitLoading(false)
 {
 }
 
@@ -212,9 +216,35 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
 
 void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
 {
-	// save the value for use in following messages
-	mLatestAgentComplexity = agentComplexity;
+    // save the value for use in following messages
+    mLatestAgentComplexity = agentComplexity;
 
-	updateNotification();
+    if (!mNotifyOutfitLoading)
+    {
+        // We should not notify about initial outfit and it's load process without reason
+        if (isAgentAvatarValid()
+            && gAgent.isInitialized()
+            && gAgent.isOutfitChosen()
+            && gAgentWearables.areWearablesLoaded()
+            && gAgentAvatarp->isFullyLoaded())
+        {
+            // Initial outfit was fully loaded
+            mNotifyOutfitLoading = true;
+        }
+        else if (mLatestOverLimitAgents > 0
+            || mAgentComplexity > mLatestAgentComplexity)
+        {
+            // Some users can't see agent already or user switched outfits,
+            // this is a reason to show load process
+            mNotifyOutfitLoading = true;
+        }
+        else
+        {
+            mAgentComplexity = mLatestAgentComplexity;
+            return;
+        }
+    }
+
+    updateNotification();
 }
 

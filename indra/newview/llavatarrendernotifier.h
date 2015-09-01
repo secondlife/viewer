@@ -68,6 +68,7 @@ private:
 	F32 mLatestOverLimitPct;
 
 	bool mShowOverLimitAgents;
+    bool mNotifyOutfitLoading;
     std::string overLimitMessage();
 };
 
