@@ -25,11 +25,7 @@
 * $/LicenseInfo$
 */
 
-#include "llviewerprecompiledheaders.h"
 #include "linden_common.h" 
-
-#include "llviewercontrol.h"
-
 #include "llcoproceduremanager.h"
 
 //=========================================================================
@@ -141,9 +137,13 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
 {
     // Attempt to look up a pool size in the configuration.  If found use that
     std::string keyName = "PoolSize" + poolName;
-    int size = 5;
+    int size = 0;
 
-    size = gSavedSettings.getU32(keyName);
+    if (mPropertyQueryFn && !mPropertyQueryFn.empty())
+    {
+        size = mPropertyQueryFn(keyName);
+    }
+
     if (size == 0)
     {   // if not found grab the know default... if there is no known 
         // default use a reasonable number like 5.
@@ -152,7 +152,9 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
             size = DEFAULT_POOL_SIZE;
         else
             size = (*it).second;
-        gSavedSettings.declareU32(keyName, size, "Coroutine Pool size for " + poolName, LLControlVariable::PERSIST_ALWAYS);
+
+        if (mPropertyDefineFn && !mPropertyDefineFn.empty())
+            mPropertyDefineFn(keyName, size, "Coroutine Pool size for " + poolName);
         LL_WARNS() << "LLCoprocedureManager: No setting for \"" << keyName << "\" setting pool size to default of " << size << LL_ENDL;
     }
 
@@ -205,6 +207,12 @@ void LLCoprocedureManager::shutdown(bool hardShutdown)
         (*it).second->shutdown(hardShutdown);
     }
     mPoolMap.clear();
+}
+
+void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn)
+{
+    mPropertyQueryFn = queryfn;
+    mPropertyDefineFn = updatefn;
 }
 
 //-------------------------------------------------------------------------

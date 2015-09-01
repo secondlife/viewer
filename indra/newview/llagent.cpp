@@ -953,6 +953,15 @@ BOOL LLAgent::inPrelude()
 }
 
 
+std::string LLAgent::getRegionCapability(const std::string &name)
+{
+    if (!mRegionp)
+        return std::string();
+    
+    return mRegionp->getCapability(name);
+}
+
+
 //-----------------------------------------------------------------------------
 // canManageEstate()
 //-----------------------------------------------------------------------------

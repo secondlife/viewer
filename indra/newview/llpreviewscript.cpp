@@ -1326,7 +1326,7 @@ void LLLiveLSLEditor::buildExperienceList()
 			position = ADD_TOP;
 		}
 		
-		const LLSD& experience = LLExperienceCache::get(id);
+        const LLSD& experience = LLExperienceCache::getInstance()->get(id);
 		if(experience.isUndefined())
 		{
 			mExperiences->add(getString("loading"), id, position);
@@ -1345,7 +1345,7 @@ void LLLiveLSLEditor::buildExperienceList()
 
 	if(!foundAssociated )
 	{
-		const LLSD& experience = LLExperienceCache::get(associated);
+        const LLSD& experience = LLExperienceCache::getInstance()->get(associated);
 		if(experience.isDefined())
 		{
 			std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
@@ -1366,7 +1366,7 @@ void LLLiveLSLEditor::buildExperienceList()
 	if(last.notNull())
 	{
 		mExperiences->setEnabled(FALSE);
-		LLExperienceCache::get(last, boost::bind(&LLLiveLSLEditor::buildExperienceList, this));  
+        LLExperienceCache::getInstance()->get(last, boost::bind(&LLLiveLSLEditor::buildExperienceList, this));
 	}
 	else
 	{

@@ -37,7 +37,12 @@ class LLCoprocedurePool;
 
 class LLCoprocedureManager : public LLSingleton < LLCoprocedureManager >
 {
+    friend class LLSingleton < LLCoprocedureManager > ;
+
 public:
+    typedef boost::function<U32(const std::string &)> SettingQuery_t;
+    typedef boost::function<void(const std::string &, U32, const std::string &)> SettingUpdate_t;
+
     typedef boost::function<void(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
 
     LLCoprocedureManager();
@@ -60,6 +65,8 @@ public:
     /// an immediate kill on the upload coroutine.
     void shutdown(bool hardShutdown = false);
 
+    void setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn);
+
     /// Returns the number of coprocedures in the queue awaiting processing.
     ///
     size_t countPending() const;
@@ -76,12 +83,16 @@ public:
     size_t count(const std::string &pool) const;
 
 private:
+
     typedef boost::shared_ptr<LLCoprocedurePool> poolPtr_t;
     typedef std::map<std::string, poolPtr_t> poolMap_t;
 
     poolMap_t mPoolMap;
 
     poolPtr_t initializePool(const std::string &poolName);
+
+    SettingQuery_t mPropertyQueryFn;
+    SettingUpdate_t mPropertyDefineFn;
 };
 
 #endif

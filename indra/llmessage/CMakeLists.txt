@@ -40,6 +40,7 @@ set(llmessage_SOURCE_FILES
     llchainio.cpp
     llcircuit.cpp
     llclassifiedflags.cpp
+    llcoproceduremanager.cpp
     llcorehttputil.cpp
     llcurl.cpp
     lldatapacker.cpp
@@ -128,6 +129,7 @@ set(llmessage_HEADER_FILES
     llcipher.h
     llcircuit.h
     llclassifiedflags.h
+    llcoproceduremanager.h
     llcorehttputil.h
     llcurl.h
     lldatapacker.h
