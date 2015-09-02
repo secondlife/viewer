@@ -27,13 +27,16 @@
 
 #include "linden_common.h" 
 #include "llcoproceduremanager.h"
+#include <boost/assign.hpp>
 
 //=========================================================================
 // Map of pool sizes for known pools
-static std::map<std::string, U32> DefaultPoolSizes;
-
 // *TODO$: When C++11 this can be initialized here as follows:
 // = {{"AIS", 25}, {"Upload", 1}}
+static std::map<std::string, U32> DefaultPoolSizes = 
+    boost::assign::map_list_of
+        (std::string("Upload"),  1)
+        (std::string("AIS"),    25);
 
 #define DEFAULT_POOL_SIZE 5
 
@@ -124,8 +127,6 @@ private:
 //=========================================================================
 LLCoprocedureManager::LLCoprocedureManager()
 {
-    DefaultPoolSizes.insert(std::map<std::string, U32>::value_type("Upload", 1));
-    DefaultPoolSizes.insert(std::map<std::string, U32>::value_type("AIS", 25));
 }
 
 LLCoprocedureManager::~LLCoprocedureManager()
