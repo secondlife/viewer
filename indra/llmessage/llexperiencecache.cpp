@@ -84,6 +84,7 @@ const int LLExperienceCache::PROPERTY_SUSPENDED	= 1 << 7;
 // default values
 const F64 LLExperienceCache::DEFAULT_EXPIRATION	= 600.0;
 const S32 LLExperienceCache::DEFAULT_QUOTA			= 128; // this is megabytes
+const int LLExperienceCache::SEARCH_PAGE_SIZE     = 30;
 
 //=========================================================================
 LLExperienceCache::LLExperienceCache():
@@ -549,8 +550,8 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
 void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID objectId, LLUUID itemId, ExperienceGetFn_t fn)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
-
     std::string url = mCapability("GetMetadata");
+
     if (url.empty())
     {
         LL_WARNS("ExperienceCache") << "No Metadata capability." << LL_ENDL;
@@ -589,6 +590,49 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
 
     LLUUID expId = result["experience"].asUUID();
     get(expId, fn);
+}
+
+//-------------------------------------------------------------------------
+void LLExperienceCache::findExperienceByName(const std::string text, int page, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Search Name",
+        boost::bind(&LLExperienceCache::findExperienceByNameCoro, this, _1, text, page, fn));
+}
+
+void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, std::string text, int page, ExperienceGetFn_t fn)
+{
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    std::ostringstream url;
+
+
+    url << mCapability("FindExperienceByName")  << "?page=" << page << "&page_size=" << SEARCH_PAGE_SIZE << "&query=" << LLURI::escape(text);
+
+    LLSD result = httpAdapter->getAndYield(httpRequest, url.str());
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        fn(LLSD());
+        return;
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+
+    const LLSD& experiences = result["experience_keys"];
+    for (LLSD::array_const_iterator it = experiences.beginArray(); it != experiences.endArray(); ++it)
+    {
+        insert(*it);
+    }
+
+    fn(result);
 }
 
 //=========================================================================

@@ -59,41 +59,6 @@ const static std::string columnSpace = " ";
 
 static LLPanelInjector<LLPanelExperiencePicker> t_panel_status("llpanelexperiencepicker");
 
-class LLExperienceSearchResponder : public LLHTTPClient::Responder
-{
-public:
-	LLUUID mQueryID;
-	LLHandle<LLPanelExperiencePicker> mParent;
-
-	LLExperienceSearchResponder(const LLUUID& id, const LLHandle<LLPanelExperiencePicker>& parent) : mQueryID(id), mParent(parent) { }
-
-protected:
-	/*virtual*/ void httpSuccess()
-	{
-		if(mParent.isDead())
-			return;
-
-		LLPanelExperiencePicker* panel =mParent.get();
-		if (panel)
-		{
-			panel->processResponse(mQueryID, getContent());
-		}
-	}
-
-	/*virtual*/ void httpFailure()
-	{
-		if(mParent.isDead())
-			return;
-
-		LLPanelExperiencePicker* panel =mParent.get();
-		if (panel)
-		{
-			panel->processResponse(mQueryID, LLSD());
-		}
-		LL_WARNS() << "experience picker failed [status:" << getStatus() << "]: " << getContent() << LL_ENDL;
-	}
-};
-
 LLPanelExperiencePicker::LLPanelExperiencePicker()
 	:LLPanel()
 {
@@ -164,17 +129,11 @@ void LLPanelExperiencePicker::find()
 {
 	std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
 	mQueryID.generate();
-	std::ostringstream url;
 
-	LLViewerRegion* region = gAgent.getRegion();
-	std::string cap = region->getCapability("FindExperienceByName");
-	if (!cap.empty())
-	{
-		url << cap << "?page=" << mCurrentPage << "&page_size=30&query=" << LLURI::escape(text);
-		LLHTTPClient::get(url.str(), new LLExperienceSearchResponder(mQueryID, getDerivedHandle<LLPanelExperiencePicker>()));
+    LLExperienceCache::getInstance()->findExperienceByName(text, mCurrentPage,
+        boost::bind(&LLPanelExperiencePicker::findResults, getDerivedHandle<LLPanelExperiencePicker>(), mQueryID, _1));
 
-	}
-	getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
+    getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
 	getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("searching"));
 	
 	getChildView(BTN_OK)->setEnabled(FALSE);
@@ -182,6 +141,19 @@ void LLPanelExperiencePicker::find()
 
 	getChildView(BTN_RIGHT)->setEnabled(FALSE);
 	getChildView(BTN_LEFT)->setEnabled(FALSE);
+}
+
+/*static*/
+void LLPanelExperiencePicker::findResults(LLHandle<LLPanelExperiencePicker> hparent, LLUUID queryId, LLSD foundResult)
+{
+    if (hparent.isDead())
+        return;
+
+    LLPanelExperiencePicker* panel = hparent.get();
+    if (panel)
+    {
+        panel->processResponse(queryId, foundResult);
+    }
 }
 
 
@@ -233,13 +205,6 @@ void LLPanelExperiencePicker::processResponse( const LLUUID& query_id, const LLS
 	}
 
 	mResponse = content;
-
-	const LLSD& experiences=mResponse["experience_keys"];
-	LLSD::array_const_iterator it = experiences.beginArray();
-	for ( ; it != experiences.endArray(); ++it)
-	{
-        LLExperienceCache::getInstance()->insert(*it);
-	}
 
 	getChildView(BTN_RIGHT)->setEnabled(content.has("next_page_url"));
 	getChildView(BTN_LEFT)->setEnabled(content.has("previous_page_url"));

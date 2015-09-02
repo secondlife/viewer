@@ -64,6 +64,7 @@ public:
 
     //-------------------------------------------
     void fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, ExperienceGetFn_t fn);
+    void findExperienceByName(const std::string text, int page, ExperienceGetFn_t fn);
 
     //-------------------------------------------
     static const std::string NAME;			// "name"
@@ -113,6 +114,7 @@ private:
 	// default values
 	static const F64 DEFAULT_EXPIRATION; 	// 600.0
 	static const S32 DEFAULT_QUOTA; 		// 128 this is megabytes
+    static const int SEARCH_PAGE_SIZE;
 	
 //--------------------------------------------
     void processExperience(const LLUUID& public_key, const LLSD& experience);
@@ -133,7 +135,8 @@ private:
     void requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, RequestQueue_t);
     void requestExperiences();
 
-    void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID objectId, LLUUID itemId, ExperienceGetFn_t fn);
+    void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID, LLUUID, ExperienceGetFn_t);
+    void findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, int, ExperienceGetFn_t);
 
     void bootstrap(const LLSD& legacyKeys, int initialExpiration);
     void exportFile(std::ostream& ostr) const;
