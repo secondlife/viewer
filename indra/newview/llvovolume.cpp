@@ -4164,7 +4164,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 	//build matrix palette
 	// BENTO JOINT COUNT LIMIT
-	static const size_t kMaxJoints = 64;
+	static const size_t kMaxJoints = 152;
 
 	LLMatrix4a mp[kMaxJoints];
 	LLMatrix4* mat = (LLMatrix4*) mp;
