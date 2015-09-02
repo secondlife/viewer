@@ -282,6 +282,7 @@ target_link_libraries(llui
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${HUNSPELL_LIBRARY}
+    ${LLMESSAGE_LIBRARIES}
     ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
     )
 
@@ -294,5 +295,7 @@ if(LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
   # INTEGRATION TESTS
   set(test_libs llui llmessage llcorehttp llcommon ${LLCOMMON_LIBRARIES} ${BOOST_COROUTINE_LIBRARY} ${BOOST_CONTEXT_LIBRARY} ${BOOST_SYSTEM_LIBRARY} ${WINDOWS_LIBRARIES})
-  LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
+  if(NOT LINUX)
+    LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
+  endif(NOT LINUX)
 endif(LL_TESTS)
