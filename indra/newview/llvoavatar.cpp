@@ -8305,6 +8305,12 @@ void LLVOAvatar::updateVisualComplexity()
 // Calculations for mVisualComplexity value
 void LLVOAvatar::calculateUpdateRenderComplexity()
 {
+    /*****************************************************************
+     * This calculation should not be modified by third party viewers,
+     * since it is used to limit rendering and should be uniform for
+     * everyone. If you have suggested improvements, submit them to
+     * the official viewer for consideration.
+     *****************************************************************/
 	static const U32 COMPLEXITY_BODY_PART_COST = 200;
 
 	// Diagnostic list of all textures on our avatar
