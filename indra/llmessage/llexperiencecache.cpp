@@ -356,7 +356,7 @@ void LLExperienceCache::requestExperiences()
         
         if (mRequestQueue.empty() || (ostr.tellp() > EXP_URL_SEND_THRESHOLD))
         {   // request is placed in the coprocedure pool for the ExpCache cache.  Throttling is done by the pool itself.
-            LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Request",
+            LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "RequestExperiences",
                 boost::bind(&LLExperienceCache::requestExperiencesCoro, this, _1, ostr.str(), requests) );
 
             ostr.str(std::string());
@@ -506,7 +506,8 @@ const LLSD& LLExperienceCache::get(const LLUUID& key)
 
 	return empty;
 }
-void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::Callback_t slot)
+
+void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::ExperienceGetFn_t slot)
 {
 	if(key.isNull()) 
 		return;
@@ -530,6 +531,64 @@ void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::Callback_t slo
 	if (!result.second)
 		signal = (*result.first).second;
 	signal->connect(slot);
+}
+
+//=========================================================================
+void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Fetch Associated",
+        boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId, fn));
+}
+
+void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID objectId, LLUUID itemId, ExperienceGetFn_t fn)
+{
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+    std::string url = mCapability("GetMetadata");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Metadata capability." << LL_ENDL;
+        return;
+    }
+
+    LLSD fields;
+    fields.append("experience");
+    LLSD data;
+    data["object-id"] = objectId;
+    data["item-id"] = itemId;
+    data["fields"] = fields;
+
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, data);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if ((!status) || (!result.has("experience")))
+    {
+        LLSD failure;
+        if (!status)
+        {
+            failure["error"] = (LLSD::Integer)status.getType();
+            failure["message"] = status.getMessage();
+        }
+        else 
+        {
+            failure["error"] = -1;
+            failure["message"] = "no experience";
+        }
+        if (fn && !fn.empty())
+            fn(failure);
+        return;
+    }
+
+    LLUUID expId = result["experience"].asUUID();
+    get(expId, fn);
 }
 
 //=========================================================================

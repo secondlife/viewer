@@ -87,7 +87,6 @@
 #include "llfloatergotoline.h"
 #include "llexperiencecache.h"
 #include "llfloaterexperienceprofile.h"
-#include "llexperienceassociationresponder.h"
 #include "llviewerassetupload.h"
 
 const std::string HELLO_LSL =
@@ -2039,8 +2038,9 @@ void LLLiveLSLEditor::loadAsset()
 
 			if(item)
 			{
-				ExperienceAssociationResponder::fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
-				
+                LLExperienceCache::getInstance()->fetchAssociatedExperience(item->getParentUUID(), item->getUUID(),
+                        boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
+
 				bool isGodlike = gAgent.isGodlike();
 				bool copyManipulate = gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE);
 				mIsModifiable = gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE);

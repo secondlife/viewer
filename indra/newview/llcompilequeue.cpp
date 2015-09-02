@@ -57,7 +57,6 @@
 #include "lltrans.h"
 
 #include "llselectmgr.h"
-#include "llexperienceassociationresponder.h"
 #include "llexperiencecache.h"
 
 #include "llviewerassetupload.h"
@@ -358,8 +357,8 @@ void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
 			LLScriptQueueData* datap = new LLScriptQueueData(getKey().asUUID(),
 				viewer_object->getID(), itemp);
 
-			ExperienceAssociationResponder::fetchAssociatedExperience(itemp->getParentUUID(), itemp->getUUID(), 
-				boost::bind(LLFloaterCompileQueue::requestAsset, datap, _1));
+            LLExperienceCache::getInstance()->fetchAssociatedExperience(itemp->getParentUUID(), itemp->getUUID(),
+                    boost::bind(LLFloaterCompileQueue::requestAsset, datap, _1));
 		}
 	}
 }

@@ -47,22 +47,25 @@ class LLExperienceCache: public LLSingleton < LLExperienceCache >
 
 public:
     typedef boost::function<std::string(const std::string &)> CapabilityQuery_t;
-    typedef boost::function<void(const LLSD &)> Callback_t;
+    typedef boost::function<void(const LLSD &)> ExperienceGetFn_t;
 
+    void setCapabilityQuery(CapabilityQuery_t queryfn);
     void cleanup();
 
+    //-------------------------------------------
+    // Cache methods 
     void erase(const LLUUID& key);
     bool fetch(const LLUUID& key, bool refresh = false);
     void insert(const LLSD& experience_data);
     const LLSD& get(const LLUUID& key);
-
-    // If name information is in cache, callback will be called immediately.
-    void get(const LLUUID& key, Callback_t slot);
+    void get(const LLUUID& key, ExperienceGetFn_t slot); // If name information is in cache, callback will be called immediately.
 
     bool isRequestPending(const LLUUID& public_key);
 
-    void setCapabilityQuery(CapabilityQuery_t queryfn);
+    //-------------------------------------------
+    void fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, ExperienceGetFn_t fn);
 
+    //-------------------------------------------
     static const std::string NAME;			// "name"
     static const std::string EXPERIENCE_ID;	// "public_id"
     static const std::string AGENT_ID;      // "agent_id"
@@ -120,7 +123,6 @@ private:
 	RequestQueue_t	mRequestQueue;
     PendingQueue_t  mPendingQueue;
 
-    LLFrameTimer    mRequestTimer;
     LLFrameTimer    mEraseExpiredTimer;    // Periodically clean out expired entries from the cache
     CapabilityQuery_t mCapability;
     std::string     mCacheFileName;
@@ -131,7 +133,7 @@ private:
     void requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, RequestQueue_t);
     void requestExperiences();
 
-	void setMaximumLookups(int maximumLookups);
+    void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID objectId, LLUUID itemId, ExperienceGetFn_t fn);
 
     void bootstrap(const LLSD& legacyKeys, int initialExpiration);
     void exportFile(std::ostream& ostr) const;
