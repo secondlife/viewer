@@ -313,4 +313,30 @@
 		<button.commit_callback
 		  function="Pref.Proxy" />
   </button>
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="10"
+    layout="topleft"
+    left="30"
+    name="People Icons:"
+    mouse_opaque="false"
+    top_pad="5"
+    width="300">
+		People Icons:
+  </text>
+  <check_box
+	top_delta="4"
+	enabled="true"
+	follows="left|top"
+	height="14"
+	initial_value="false"
+	control_name="GlobalShowIconsOverride"
+	label="Hide people icons (global override)"
+	left_delta="50"
+	mouse_opaque="true"
+	name="global_show_icons_override"
+	width="400"           
+	top_pad="10"/>
 </panel>

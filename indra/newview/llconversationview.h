@@ -83,7 +83,7 @@ public:
 	LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
 	void showVoiceIndicator(bool visible);
-
+	void setIconsVisible(bool visible);
 	virtual void refresh();
 
 	/*virtual*/ void setFlashState(bool flash_state);
@@ -109,6 +109,8 @@ private:
     bool                    mHasArrow;
 
 	bool					mIsInActiveVoiceChannel;
+
+	bool                    mShowIcons;
 
 	LLVoiceClientStatusObserver* mVoiceClientObserver;
 	
@@ -145,6 +147,7 @@ public:
     /*virtual*/ S32 getLabelXPos();
     /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	void hideSpeakingIndicator();
+	void setAvatarIconVisible(bool visible);
 
 protected:
 	friend class LLUICtrlFactory;
