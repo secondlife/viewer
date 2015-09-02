@@ -3301,7 +3301,7 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
    <unique combine = "cancel_old">
      <context>AgentComplexityNotice</context>
    </unique>
-   Your visual complexity is [AGENT_COMPLEXITY].
+Your [https://wiki.secondlife.com/wiki/Avatar_Rendering_Complexity visual complexity] is [AGENT_COMPLEXITY].
 [OVERLIMIT_MSG]
   </notification>
 
@@ -3313,7 +3313,7 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
    <unique combine = "cancel_old">
      <context>AgentComplexityNotice</context>
    </unique>
-Your visual complexity is [AGENT_COMPLEXITY].
+Your [https://wiki.secondlife.com/wiki/Avatar_Rendering_Complexity visual complexity] is [AGENT_COMPLEXITY].
   </notification>
 
   <notification
