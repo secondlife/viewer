@@ -83,6 +83,8 @@ private:
 	std::string mAuthUsername;
 	std::string mAuthPassword;
 	bool mAuthOK;
+	std::string mCachePath;
+	std::string mCookiePath;
 	LLCEFLib* mLLCEFLib;
 };
 
@@ -104,6 +106,8 @@ MediaPluginBase(host_send_func, host_user_data)
 	mAuthUsername = "";
 	mAuthPassword = "";
 	mAuthOK = false;
+	mCachePath = "";
+	mCookiePath = "";
 	mLLCEFLib = new LLCEFLib();
 }
 
@@ -338,6 +342,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.plugins_enabled = mPluginsEnabled;
 				settings.javascript_enabled = mJavascriptEnabled;
 				settings.cookies_enabled = mCookiesEnabled;
+				settings.cache_path = mCachePath;
+				settings.cookie_store_path = mCookiePath;
 				settings.accept_language_list = mHostLanguage;
 				settings.user_agent_substring = mUserAgentSubtring;
 
@@ -362,6 +368,16 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				message.setValueU32("type", GL_UNSIGNED_BYTE);
 				message.setValueBoolean("coords_opengl", false);
 				sendMessage(message);
+			}
+			else if (message_name == "set_user_data_path")
+			{
+				std::string user_data_path = message_in.getValue("path"); // n.b. always has trailing platform-specific dir-delimiter
+				mCachePath = user_data_path + "cef_cache";
+				mCookiePath = user_data_path + "cef_cookies";
+
+				std::stringstream str;
+				str << "@@@@@@@@@@ setting data paths to " << mCachePath << " and " << mCookiePath;
+				postDebugMessage(str.str());
 			}
 			else if (message_name == "size_change")
 			{
