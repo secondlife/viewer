@@ -347,10 +347,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.accept_language_list = mHostLanguage;
 				settings.user_agent_substring = mUserAgentSubtring;
 
-				std::stringstream str;
-				str << "@@@@@@@@@@ Initializing with  = user_agent_substring = " << mUserAgentSubtring;
-				postDebugMessage(str.str());
-
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
 				{
@@ -374,10 +370,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				std::string user_data_path = message_in.getValue("path"); // n.b. always has trailing platform-specific dir-delimiter
 				mCachePath = user_data_path + "cef_cache";
 				mCookiePath = user_data_path + "cef_cookies";
-
-				std::stringstream str;
-				str << "@@@@@@@@@@ setting data paths to " << mCachePath << " and " << mCookiePath;
-				postDebugMessage(str.str());
 			}
 			else if (message_name == "size_change")
 			{
@@ -553,10 +545,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "set_user_agent")
 			{
 				mUserAgentSubtring = message_in.getValue("user_agent");
-
-				std::stringstream str;
-				str << "@@@@@@@@@@ setting mUserAgentSubtring = " << mUserAgentSubtring;
-				postDebugMessage(str.str());
 			}
 			else if (message_name == "plugins_enabled")
 			{
