@@ -268,7 +268,7 @@ void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
 
 	if (LLUUID::null != mExperienceID)
 	{
-        const LLSD& experience = LLExperienceCache::getInstance()->get(mExperienceID);
+        const LLSD& experience = LLExperienceCache::instance().get(mExperienceID);
 		std::stringstream desc;
 
 		if(experience.isDefined())

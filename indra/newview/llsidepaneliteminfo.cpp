@@ -328,7 +328,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
         tb->setText(getString("loading_experience"));
         tb->setVisible(TRUE);
 
-        LLExperienceCache::getInstance()->fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), 
+        LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), 
             boost::bind(&LLSidepanelItemInfo::setAssociatedExperience, getDerivedHandle<LLSidepanelItemInfo>(), _1));
     }
     

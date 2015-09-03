@@ -140,6 +140,8 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
     std::string keyName = "PoolSize" + poolName;
     int size = 0;
 
+    LL_ERRS_IF(poolName.empty(), "CoprocedureManager") << "Poolname must not be empty" << LL_ENDL;
+
     if (mPropertyQueryFn && !mPropertyQueryFn.empty())
     {
         size = mPropertyQueryFn(keyName);
@@ -159,9 +161,10 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
         LL_WARNS() << "LLCoprocedureManager: No setting for \"" << keyName << "\" setting pool size to default of " << size << LL_ENDL;
     }
 
-    poolPtr_t pool = poolPtr_t(new LLCoprocedurePool(poolName, size));
+    poolPtr_t pool(new LLCoprocedurePool(poolName, size));
     mPoolMap.insert(poolMap_t::value_type(poolName, pool));
 
+    LL_ERRS_IF(!pool, "CoprocedureManager") << "Unable to create pool named \"" << poolName << "\" FATAL!" << LL_ENDL;
     return pool;
 }
 
@@ -180,12 +183,6 @@ LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const s
     else
     {
         targetPool = (*it).second;
-    }
-
-    if (!targetPool)
-    {
-        LL_WARNS() << "LLCoprocedureManager unable to create coprocedure pool named \"" << pool << "\"" << LL_ENDL;
-        return LLUUID::null;
     }
 
     return targetPool->enqueueCoprocedure(name, proc);
@@ -286,14 +283,12 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
 {
     for (size_t count = 0; count < mPoolSize; ++count)
     {
-        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter =
-            LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t(
-            new LLCoreHttpUtil::HttpCoroutineAdapter( mPoolName + "Adapter", mHTTPPolicy));
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter( mPoolName + "Adapter", mHTTPPolicy));
 
-        std::string uploadCoro = LLCoros::instance().launch("LLCoprocedurePool("+mPoolName+")::coprocedureInvokerCoro",
+        std::string pooledCoro = LLCoros::instance().launch("LLCoprocedurePool("+mPoolName+")::coprocedureInvokerCoro",
             boost::bind(&LLCoprocedurePool::coprocedureInvokerCoro, this, httpAdapter));
 
-        mCoroMapping.insert(CoroAdapterMap_t::value_type(uploadCoro, httpAdapter));
+        mCoroMapping.insert(CoroAdapterMap_t::value_type(pooledCoro, httpAdapter));
     }
 
     LL_INFOS() << "Created coprocedure pool named \"" << mPoolName << "\" with " << size << " items." << LL_ENDL;
@@ -313,12 +308,9 @@ void LLCoprocedurePool::shutdown(bool hardShutdown)
 
     for (it = mCoroMapping.begin(); it != mCoroMapping.end(); ++it)
     {
-        if (!(*it).first.empty())
+        if (hardShutdown)
         {
-            if (hardShutdown)
-            {
-                LLCoros::instance().kill((*it).first);
-            }
+            LLCoros::instance().kill((*it).first);
         }
         if ((*it).second)
         {
@@ -366,7 +358,7 @@ bool LLCoprocedurePool::cancelCoprocedure(const LLUUID &id)
         }
     }
 
-    LL_INFOS() << "Coprocedure with Id=" << id.asString() << " was not found." << " in pool \"" << mPoolName << "\"" << LL_ENDL;
+    LL_INFOS() << "Coprocedure with Id=" << id.asString() << " was not found in pool \"" << mPoolName << "\"" << LL_ENDL;
     return false;
 }
 
@@ -385,7 +377,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
         {
             QueuedCoproc::ptr_t coproc = mPendingCoprocs.front();
             mPendingCoprocs.pop_front();
-            mActiveCoprocs.insert(ActiveCoproc_t::value_type(coproc->mId, httpAdapter));
+            ActiveCoproc_t::iterator itActive = mActiveCoprocs.insert(ActiveCoproc_t::value_type(coproc->mId, httpAdapter)).first;
 
             LL_INFOS() << "Dequeued and invoking coprocedure(" << coproc->mName << ") with id=" << coproc->mId.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
@@ -405,11 +397,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
             LL_INFOS() << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
-            ActiveCoproc_t::iterator itActive = mActiveCoprocs.find(coproc->mId);
-            if (itActive != mActiveCoprocs.end())
-            {
-                mActiveCoprocs.erase(itActive);
-            }
+            mActiveCoprocs.erase(itActive);
         }
     }
 }

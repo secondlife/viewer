@@ -1325,7 +1325,7 @@ void LLLiveLSLEditor::buildExperienceList()
 			position = ADD_TOP;
 		}
 		
-        const LLSD& experience = LLExperienceCache::getInstance()->get(id);
+        const LLSD& experience = LLExperienceCache::instance().get(id);
 		if(experience.isUndefined())
 		{
 			mExperiences->add(getString("loading"), id, position);
@@ -1344,7 +1344,7 @@ void LLLiveLSLEditor::buildExperienceList()
 
 	if(!foundAssociated )
 	{
-        const LLSD& experience = LLExperienceCache::getInstance()->get(associated);
+        const LLSD& experience = LLExperienceCache::instance().get(associated);
 		if(experience.isDefined())
 		{
 			std::string experience_name_string = experience[LLExperienceCache::NAME].asString();
@@ -1365,7 +1365,7 @@ void LLLiveLSLEditor::buildExperienceList()
 	if(last.notNull())
 	{
 		mExperiences->setEnabled(FALSE);
-        LLExperienceCache::getInstance()->get(last, boost::bind(&LLLiveLSLEditor::buildExperienceList, this));
+        LLExperienceCache::instance().get(last, boost::bind(&LLLiveLSLEditor::buildExperienceList, this));
 	}
 	else
 	{
@@ -2038,7 +2038,7 @@ void LLLiveLSLEditor::loadAsset()
 
 			if(item)
 			{
-                LLExperienceCache::getInstance()->fetchAssociatedExperience(item->getParentUUID(), item->getUUID(),
+                LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(),
                         boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
 
 				bool isGodlike = gAgent.isGodlike();

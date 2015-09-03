@@ -99,7 +99,7 @@ public:
         if(params.size() != 2 || params[1].asString() != "profile")
             return false;
 
-        LLExperienceCache::getInstance()->get(params[0].asUUID(), boost::bind(&LLExperienceHandler::experienceCallback, this, _1));
+        LLExperienceCache::instance().get(params[0].asUUID(), boost::bind(&LLExperienceHandler::experienceCallback, this, _1));
         return true;
     }
 
@@ -288,8 +288,8 @@ BOOL LLFloaterExperienceProfile::postBuild()
 
     if (mExperienceId.notNull())
     {
-        LLExperienceCache::getInstance()->fetch(mExperienceId, true);
-        LLExperienceCache::getInstance()->get(mExperienceId, boost::bind(&LLFloaterExperienceProfile::experienceCallback,
+        LLExperienceCache::instance().fetch(mExperienceId, true);
+        LLExperienceCache::instance().get(mExperienceId, boost::bind(&LLFloaterExperienceProfile::experienceCallback,
             getDerivedHandle<LLFloaterExperienceProfile>(), _1)); 
         
         LLViewerRegion* region = gAgent.getRegion();
@@ -799,8 +799,8 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
     }
  
     refreshExperience(*it);
-    LLExperienceCache::getInstance()->insert(*it);
-    LLExperienceCache::getInstance()->fetch(id, true);
+    LLExperienceCache::instance().insert(*it);
+    LLExperienceCache::instance().fetch(id, true);
 
     if(mSaveCompleteAction==VIEW)
     {

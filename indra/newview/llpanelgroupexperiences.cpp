@@ -73,7 +73,7 @@ void LLPanelGroupExperiences::activate()
 		return;
 	}
 
-    LLExperienceCache::getInstance()->getGroupExperiences(getGroupID(),
+    LLExperienceCache::instance().getGroupExperiences(getGroupID(),
         boost::bind(&LLPanelGroupExperiences::groupExperiencesResults, getDerivedHandle<LLPanelGroupExperiences>(), _1));
 }
 

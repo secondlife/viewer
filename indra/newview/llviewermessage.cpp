@@ -6653,7 +6653,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			else if(experienceid.notNull())
 			{
 				payload["experience"]=experienceid;
-                LLExperienceCache::getInstance()->get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
+                LLExperienceCache::instance().get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
 				return;
 			}
 

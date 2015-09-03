@@ -3699,7 +3699,7 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mTrusted->loading();
 	mTrusted->setReadonly(!allow_modify);
 
-    LLExperienceCache::getInstance()->getRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
+    LLExperienceCache::instance().getRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
         boost::bind(&LLPanelRegionExperiences::infoCallback, getDerivedHandle<LLPanelRegionExperiences>(), _1));
 
     return LLPanelRegionInfo::refreshFromRegion(region);
@@ -3727,7 +3727,7 @@ BOOL LLPanelRegionExperiences::sendUpdate()
 	content["blocked"]=addIds(mBlocked);
 	content["trusted"]=addIds(mTrusted);
 
-    LLExperienceCache::getInstance()->setRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
+    LLExperienceCache::instance().setRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
         content, boost::bind(&LLPanelRegionExperiences::infoCallback, getDerivedHandle<LLPanelRegionExperiences>(), _1));
 
 	return TRUE;

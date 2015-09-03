@@ -183,7 +183,7 @@ void LLPanelExperienceListEditor::onItems()
 		columns[0]["value"] = getString("loading");
 		mItems->addElement(item);
 
-        LLExperienceCache::getInstance()->get(experience, boost::bind(&LLPanelExperienceListEditor::experienceDetailsCallback,
+        LLExperienceCache::instance().get(experience, boost::bind(&LLPanelExperienceListEditor::experienceDetailsCallback,
 			getDerivedHandle<LLPanelExperienceListEditor>(), _1));
 	}
 

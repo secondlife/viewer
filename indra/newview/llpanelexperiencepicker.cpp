@@ -130,7 +130,7 @@ void LLPanelExperiencePicker::find()
 	std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
 	mQueryID.generate();
 
-    LLExperienceCache::getInstance()->findExperienceByName(text, mCurrentPage,
+    LLExperienceCache::instance().findExperienceByName(text, mCurrentPage,
         boost::bind(&LLPanelExperiencePicker::findResults, getDerivedHandle<LLPanelExperiencePicker>(), mQueryID, _1));
 
     getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
