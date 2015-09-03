@@ -8438,7 +8438,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 		mVisualComplexity = cost;
 		mVisualComplexityStale = false;
 
-		LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
+        static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
 
 		if (isSelf() && show_my_complexity_changes)
 		{

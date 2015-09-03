@@ -37,7 +37,6 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llnotificationtemplate.h"
-#include "llstartup.h"
 #include "lltimer.h"
 #include "llvoavatarself.h"
 #include "llviewercontrol.h"
