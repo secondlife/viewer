@@ -536,13 +536,13 @@ void LLFeatureManager::fetchFeatureTableCoro(std::string tableName)
         // write to file
         const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
 
-        LL_INFOS() << "writing feature table to " << filename << LL_ENDL;
+        LL_INFOS() << "writing feature table to " << path << LL_ENDL;
 
         S32 size = raw.size();
         if (size > 0)
         {
             // write to file
-            LLAPRFile out(filename, LL_APR_WB);
+            LLAPRFile out(path, LL_APR_WB);
             out.write(raw.data(), size);
             out.close();
         }
