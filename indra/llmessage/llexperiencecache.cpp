@@ -657,6 +657,7 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
     if (url.empty())
     {
         LL_WARNS("ExperienceCache") << "No Group Experiences capability" << LL_ENDL;
+        return;
     }
 
     url += "?" + groupId.asString();
@@ -674,6 +675,52 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
 
     const LLSD& experienceIds = result["experience_ids"];
     fn(experienceIds);
+}
+
+//-------------------------------------------------------------------------
+void LLExperienceCache::getRegionExperiences(CapabilityQuery_t regioncaps, ExperienceGetFn_t fn)
+{
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Region Experiences",
+        boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, false, LLSD(), fn));
+}
+
+void LLExperienceCache::setRegionExperiences(CapabilityQuery_t regioncaps, const LLSD &experiences, ExperienceGetFn_t fn)
+{
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Region Experiences",
+        boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, true, experiences, fn));
+}
+
+void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter,
+    CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn)
+{
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+    // search for experiences owned by the current group
+    std::string url = regioncaps("RegionExperiences");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Region Experiences capability" << LL_ENDL;
+        return;
+    }
+
+    LLSD result;
+    if (update)
+        result = httpAdapter->postAndYield(httpRequest, url, experiences);
+    else
+        result = httpAdapter->getAndYield(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+//      fn(LLSD());
+        return;
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+    fn(result);
+
 }
 
 //=========================================================================

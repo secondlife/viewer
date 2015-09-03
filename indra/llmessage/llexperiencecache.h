@@ -67,6 +67,11 @@ public:
     void findExperienceByName(const std::string text, int page, ExperienceGetFn_t fn);
     void getGroupExperiences(const LLUUID &groupId, ExperienceGetFn_t fn);
 
+    // the Get/Set Region Experiences take a CapabilityQuery to get the capability since 
+    // the region being queried may not be the region that the agent is standing on.
+    void getRegionExperiences(CapabilityQuery_t regioncaps, ExperienceGetFn_t fn);
+    void setRegionExperiences(CapabilityQuery_t regioncaps, const LLSD &experiences, ExperienceGetFn_t fn);
+
     //-------------------------------------------
     static const std::string NAME;			// "name"
     static const std::string EXPERIENCE_ID;	// "public_id"
@@ -139,7 +144,7 @@ private:
     void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID, LLUUID, ExperienceGetFn_t);
     void findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, int, ExperienceGetFn_t);
     void getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID , ExperienceGetFn_t);
-
+    void regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn);
     void bootstrap(const LLSD& legacyKeys, int initialExpiration);
     void exportFile(std::ostream& ostr) const;
     void importFile(std::istream& istr);

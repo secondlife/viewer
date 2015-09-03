@@ -479,6 +479,8 @@ public:
 private:
 	void refreshRegionExperiences();
 
+    static std::string regionCapabilityQuery(LLViewerRegion* region, const std::string &cap);
+
 	LLPanelExperienceListEditor* setupList(const char* control_name, U32 add_id, U32 remove_id);
 	static LLSD addIds( LLPanelExperienceListEditor* panel );
 

@@ -3586,29 +3586,6 @@ void LLPanelRegionExperiences::processResponse( const LLSD& content )
 
 }
 
-
-class LLRegionExperienceResponder : public LLHTTPClient::Responder
-{
-public:
-	typedef boost::function<void (const LLSD&)> callback_t;
-
-	callback_t mCallback;
-
-	LLRegionExperienceResponder(callback_t callback) : mCallback(callback) { }
-
-protected:
-	/*virtual*/ void httpSuccess()
-	{
-		mCallback(getContent());
-	}
-
-	/*virtual*/ void httpFailure()
-	{
-		LL_WARNS() << "experience responder failed [status:" << getStatus() << "]: " << getContent() << LL_ENDL;
-	}
-};
-
-
 // Used for both access add and remove operations, depending on the flag
 // passed in (ESTATE_EXPERIENCE_ALLOWED_ADD, ESTATE_EXPERIENCE_ALLOWED_REMOVE, etc.)
 // static
@@ -3691,6 +3668,13 @@ void LLPanelRegionExperiences::infoCallback(LLHandle<LLPanelRegionExperiences> h
 	}
 }
 
+/*static*/
+std::string LLPanelRegionExperiences::regionCapabilityQuery(LLViewerRegion* region, const std::string &cap)
+{
+    // region->getHandle()  How to get a region * from a handle?
+
+    return region->getCapability(cap);
+}
 
 bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 {
@@ -3715,13 +3699,10 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
 	mTrusted->loading();
 	mTrusted->setReadonly(!allow_modify);
 
-	std::string url = region->getCapability("RegionExperiences");
-	if (!url.empty())
-	{
-		LLHTTPClient::get(url, new LLRegionExperienceResponder(boost::bind(&LLPanelRegionExperiences::infoCallback, 
-			getDerivedHandle<LLPanelRegionExperiences>(), _1)));
-	}
-	return LLPanelRegionInfo::refreshFromRegion(region);
+    LLExperienceCache::getInstance()->getRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
+        boost::bind(&LLPanelRegionExperiences::infoCallback, getDerivedHandle<LLPanelRegionExperiences>(), _1));
+
+    return LLPanelRegionInfo::refreshFromRegion(region);
 }
 
 LLSD LLPanelRegionExperiences::addIds(LLPanelExperienceListEditor* panel)
@@ -3739,18 +3720,15 @@ LLSD LLPanelRegionExperiences::addIds(LLPanelExperienceListEditor* panel)
 BOOL LLPanelRegionExperiences::sendUpdate()
 {
 	LLViewerRegion* region = gAgent.getRegion();
-	std::string url = region->getCapability("RegionExperiences");
-	if (!url.empty())
-	{
-		LLSD content;
 
-		content["allowed"]=addIds(mAllowed);
-		content["blocked"]=addIds(mBlocked);
-		content["trusted"]=addIds(mTrusted);
+    LLSD content;
 
-		LLHTTPClient::post(url, content, new LLRegionExperienceResponder(boost::bind(&LLPanelRegionExperiences::infoCallback, 
-			getDerivedHandle<LLPanelRegionExperiences>(), _1)));
-	}
+	content["allowed"]=addIds(mAllowed);
+	content["blocked"]=addIds(mBlocked);
+	content["trusted"]=addIds(mTrusted);
+
+    LLExperienceCache::getInstance()->setRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
+        content, boost::bind(&LLPanelRegionExperiences::infoCallback, getDerivedHandle<LLPanelRegionExperiences>(), _1));
 
 	return TRUE;
 }
