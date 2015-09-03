@@ -591,7 +591,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 					continue;
 				}
 			}
-
+			
 			LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
 			std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions ;
 			std::vector<LLQuaternion> child_rotations;
@@ -1294,7 +1294,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 	else
 	{
 		S32 axis_dir = mManipPart - LL_ROT_X;
-		if ((axis_dir >= 0) && (axis_dir < 3))
+		if ((axis_dir >= LL_NO_PART) && (axis_dir < LL_Z_ARROW))
 		{
 			axis.mV[axis_dir] = 1.f;
 		}
