@@ -65,6 +65,7 @@ public:
     //-------------------------------------------
     void fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, ExperienceGetFn_t fn);
     void findExperienceByName(const std::string text, int page, ExperienceGetFn_t fn);
+    void getGroupExperiences(const LLUUID &groupId, ExperienceGetFn_t fn);
 
     //-------------------------------------------
     static const std::string NAME;			// "name"
@@ -137,6 +138,7 @@ private:
 
     void fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID, LLUUID, ExperienceGetFn_t);
     void findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, int, ExperienceGetFn_t);
+    void getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID , ExperienceGetFn_t);
 
     void bootstrap(const LLSD& legacyKeys, int initialExpiration);
     void exportFile(std::ostream& ostr) const;

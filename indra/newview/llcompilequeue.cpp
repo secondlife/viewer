@@ -358,7 +358,7 @@ void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
 				viewer_object->getID(), itemp);
 
             LLExperienceCache::getInstance()->fetchAssociatedExperience(itemp->getParentUUID(), itemp->getUUID(),
-                    boost::bind(LLFloaterCompileQueue::requestAsset, datap, _1));
+                    boost::bind(&LLFloaterCompileQueue::requestAsset, datap, _1));
 		}
 	}
 }

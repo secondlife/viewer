@@ -635,6 +635,47 @@ void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAd
     fn(result);
 }
 
+//-------------------------------------------------------------------------
+void LLExperienceCache::getGroupExperiences(const LLUUID &groupId, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Group Experiences",
+        boost::bind(&LLExperienceCache::getGroupExperiencesCoro, this, _1, groupId, fn));
+}
+
+void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID groupId, ExperienceGetFn_t fn)
+{
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+    // search for experiences owned by the current group
+    std::string url = mCapability("GroupExperiences");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Group Experiences capability" << LL_ENDL;
+    }
+
+    url += "?" + groupId.asString();
+
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        fn(LLSD());
+        return;
+    }
+
+    const LLSD& experienceIds = result["experience_ids"];
+    fn(experienceIds);
+}
+
 //=========================================================================
 void LLExperienceCacheImpl::mapKeys(const LLSD& legacyKeys)
 {
