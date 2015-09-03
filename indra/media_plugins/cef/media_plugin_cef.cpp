@@ -64,6 +64,7 @@ private:
 	void onLoadStartCallback();
 	void onLoadEndCallback(int httpStatusCode);
 	void onNavigateURLCallback(std::string url);
+	void onExternalTargetLinkCallback(std::string url);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
 
 	void postDebugMessage(const std::string& msg);
@@ -74,6 +75,8 @@ private:
 	void keyEvent(EKeyEvent key_event, int key, EKeyboardModifier modifiers, LLSD native_key_data);
 	void unicodeInput(const std::string &utf8str, EKeyboardModifier modifiers, LLSD native_key_data);
 
+	void checkEditState();
+
 	bool mEnableMediaPluginDebugging;
 	std::string mHostLanguage;
 	bool mCookiesEnabled;
@@ -83,6 +86,9 @@ private:
 	std::string mAuthUsername;
 	std::string mAuthPassword;
 	bool mAuthOK;
+	bool mCanCut;
+	bool mCanCopy;
+	bool mCanPaste;
 	std::string mCachePath;
 	std::string mCookiePath;
 	LLCEFLib* mLLCEFLib;
@@ -106,6 +112,9 @@ MediaPluginBase(host_send_func, host_user_data)
 	mAuthUsername = "";
 	mAuthPassword = "";
 	mAuthOK = false;
+	mCanCut = false;
+	mCanCopy = false;
+	mCanPaste = false;
 	mCachePath = "";
 	mCookiePath = "";
 	mLLCEFLib = new LLCEFLib();
@@ -218,6 +227,13 @@ void MediaPluginCEF::onNavigateURLCallback(std::string url)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// triggered when user clicks link with "external" attribute
+void MediaPluginCEF::onExternalTargetLinkCallback(std::string url) 
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //
 bool MediaPluginCEF::onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password)
 {
@@ -279,6 +295,11 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "idle")
 			{
 				mLLCEFLib->update();
+
+				// this seems bad but unless the state changes (it won't until we figure out
+				// how to get CEF to tell us if copy/cut/paste is available) then this function
+				// will return immediately
+				checkEditState();
 			}
 			else if (message_name == "cleanup")
 			{
@@ -335,6 +356,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
 				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1));
 				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
+				mLLCEFLib->setOnExternalTargetLinkCallback(boost::bind(&MediaPluginCEF::onExternalTargetLinkCallback, this, _1));
 
 				LLCEFLibSettings settings;
 				settings.inital_width = 1024;
@@ -342,8 +364,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.plugins_enabled = mPluginsEnabled;
 				settings.javascript_enabled = mJavascriptEnabled;
 				settings.cookies_enabled = mCookiesEnabled;
-				settings.cache_path = mCachePath;
 				settings.cookie_store_path = mCookiePath;
+				settings.cache_enabled = true;
+				settings.cache_path = mCachePath;
 				settings.accept_language_list = mHostLanguage;
 				settings.user_agent_substring = mUserAgentSubtring;
 
@@ -513,6 +536,18 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				authResponse(message_in);
 			}
+			if (message_name == "edit_cut")
+			{
+				mLLCEFLib->editCut();
+			}
+			if (message_name == "edit_copy")
+			{
+				mLLCEFLib->editCopy();
+			}
+			if (message_name == "edit_paste")
+			{
+				mLLCEFLib->editPaste();
+			}
 		}
 		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER)
 		{
@@ -652,6 +687,40 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, EKeyboardModifier 
 	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
 };
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::checkEditState()
+{
+	bool can_cut = mLLCEFLib->editCanCut();
+	bool can_copy = mLLCEFLib->editCanCopy();
+	bool can_paste = mLLCEFLib->editCanPaste();
+
+	if ((can_cut != mCanCut) || (can_copy != mCanCopy) || (can_paste != mCanPaste))
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "edit_state");
+
+		if (can_cut != mCanCut)
+		{
+			mCanCut = can_cut;
+			message.setValueBoolean("cut", can_cut);
+		}
+
+		if (can_copy != mCanCopy)
+		{
+			mCanCopy = can_copy;
+			message.setValueBoolean("copy", can_copy);
+		}
+
+		if (can_paste != mCanPaste)
+		{
+			mCanPaste = can_paste;
+			message.setValueBoolean("paste", can_paste);
+		}
+
+		sendMessage(message);
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
