@@ -1819,6 +1819,7 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("favorites_on_login_check")->setEnabled(TRUE);
 	getChildView("log_path_button")->setEnabled(TRUE);
 	getChildView("chat_font_size")->setEnabled(TRUE);
+	getChildView("conversation_log_combo")->setEnabled(TRUE);
 }
 
 
