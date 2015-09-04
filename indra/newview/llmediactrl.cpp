@@ -993,19 +993,23 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			std::string target = self->getClickTarget();
 			std::string uuid = self->getClickUUID();
 
-			LLNotification::Params notify_params;
-			notify_params.name = "PopupAttempt";
-			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", mMediaTextureID);
-			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
+			LLWeb::loadURL(url, target, std::string());
 
-			if (mTrusted)
-			{
-				LLNotifications::instance().forceResponse(notify_params, 0);
-			}
-			else
-			{
-				LLNotifications::instance().add(notify_params);
-			}
+			// CP: removing this code because we no longer support popups so this breaks the flow.
+			//     replaced with a bare call to LLWeb::LoadURL(...)
+			//LLNotification::Params notify_params;
+			//notify_params.name = "PopupAttempt";
+			//notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", mMediaTextureID);
+			//notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
+
+			//if (mTrusted)
+			//{
+			//	LLNotifications::instance().forceResponse(notify_params, 0);
+			//}
+			//else
+			//{
+			//	LLNotifications::instance().add(notify_params);
+			//}
 			break;
 		};
 

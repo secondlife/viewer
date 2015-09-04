@@ -63,8 +63,8 @@ private:
 	void onTitleChangeCallback(std::string title);
 	void onLoadStartCallback();
 	void onLoadEndCallback(int httpStatusCode);
-	void onNavigateURLCallback(std::string url);
-	void onExternalTargetLinkCallback(std::string url);
+	void onAddressChangeCallback(std::string url);
+	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
 
 	void postDebugMessage(const std::string& msg);
@@ -159,16 +159,6 @@ void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int width, int
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onCustomSchemeURLCallback(std::string url)
-{
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
-	message.setValue("uri", url);
-	message.setValue("nav_type", "clicked");	// TODO: differentiate between click and navigate to
-	sendMessage(message);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
 void MediaPluginCEF::onConsoleMessageCallback(std::string message, std::string source, int line)
 {
 	std::stringstream str;
@@ -219,7 +209,7 @@ void MediaPluginCEF::onLoadEndCallback(int httpStatusCode)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onNavigateURLCallback(std::string url)
+void MediaPluginCEF::onAddressChangeCallback(std::string url)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "location_changed");
 	message.setValue("uri", url);
@@ -227,10 +217,24 @@ void MediaPluginCEF::onNavigateURLCallback(std::string url)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// triggered when user clicks link with "external" attribute
-void MediaPluginCEF::onExternalTargetLinkCallback(std::string url) 
+//
+void MediaPluginCEF::onNavigateURLCallback(std::string url, std::string target)
 {
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_href");
+	message.setValue("uri", url);
+	message.setValue("target", target);
+	message.setValue("uuid", "");	// not used right now
+	sendMessage(message);
+}
 
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onCustomSchemeURLCallback(std::string url)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "click_nofollow");
+	message.setValue("uri", url);
+	message.setValue("nav_type", "clicked");	// TODO: differentiate between click and navigate to
+	sendMessage(message);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -354,9 +358,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnTitleChangeCallback(boost::bind(&MediaPluginCEF::onTitleChangeCallback, this, _1));
 				mLLCEFLib->setOnLoadStartCallback(boost::bind(&MediaPluginCEF::onLoadStartCallback, this));
 				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
-				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1));
+				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1, _2));
 				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
-				mLLCEFLib->setOnExternalTargetLinkCallback(boost::bind(&MediaPluginCEF::onExternalTargetLinkCallback, this, _1));
 
 				LLCEFLibSettings settings;
 				settings.inital_width = 1024;
