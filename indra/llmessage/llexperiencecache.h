@@ -72,7 +72,14 @@ public:
     void getRegionExperiences(CapabilityQuery_t regioncaps, ExperienceGetFn_t fn);
     void setRegionExperiences(CapabilityQuery_t regioncaps, const LLSD &experiences, ExperienceGetFn_t fn);
 
-    //-------------------------------------------
+    void getExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn);
+    void setExperiencePermission(const LLUUID &experienceId, const std::string &permission, ExperienceGetFn_t fn);
+    void forgetExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn);
+
+    void getExperienceAdmin(const LLUUID &experienceId, ExperienceGetFn_t fn);
+
+    void updateExperience(LLSD updateData, ExperienceGetFn_t fn);
+        //-------------------------------------------
     static const std::string NAME;			// "name"
     static const std::string EXPERIENCE_ID;	// "public_id"
     static const std::string AGENT_ID;      // "agent_id"
@@ -101,6 +108,7 @@ private:
 
     virtual void initSingleton();
 
+    typedef boost::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLCore::HttpRequest::ptr_t, std::string)> permissionInvoker_fn;
 
     // Callback types for get() 
     typedef boost::signals2::signal < void(const LLSD &) > callback_signal_t;
@@ -145,6 +153,10 @@ private:
     void findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, int, ExperienceGetFn_t);
     void getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLUUID , ExperienceGetFn_t);
     void regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, CapabilityQuery_t regioncaps, bool update, LLSD experiences, ExperienceGetFn_t fn);
+    void experiencePermissionCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, permissionInvoker_fn invokerfn, std::string url, ExperienceGetFn_t fn);
+    void getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID experienceId, ExperienceGetFn_t fn);
+    void updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLSD updateData, ExperienceGetFn_t fn);
+
     void bootstrap(const LLSD& legacyKeys, int initialExpiration);
     void exportFile(std::ostream& ostr) const;
     void importFile(std::istream& istr);

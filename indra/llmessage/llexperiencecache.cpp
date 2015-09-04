@@ -723,6 +723,169 @@ void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapt
 
 }
 
+//-------------------------------------------------------------------------
+void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
+    
+    permissionInvoker_fn invoker(boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndYield), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
+        boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+}
+
+void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, const std::string &permission, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    std::string url = mCapability("ExperiencePreferences");
+    if (url.empty())
+        return;
+    LLSD permData;
+    LLSD data;
+    permData["permission"] = permission;
+    data[experienceId.asString()] = permData;
+
+    permissionInvoker_fn invoker(boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndYield), _1, _2, _3, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
+        boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+}
+
+void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
+
+
+    permissionInvoker_fn invoker(boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndYield), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
+        boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+}
+
+void LLExperienceCache::experiencePermissionCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, permissionInvoker_fn invokerfn, std::string url, ExperienceGetFn_t fn)
+{
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+    // search for experiences owned by the current group
+
+    LLSD result = invokerfn(httpAdapter, httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+
+    if (status)
+    {
+        fn(result);
+    }
+}
+
+//-------------------------------------------------------------------------
+void LLExperienceCache::getExperienceAdmin(const LLUUID &experienceId, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "IsAdmin",
+        boost::bind(&LLExperienceCache::getExperienceAdminCoro, this, _1, experienceId, fn));
+}
+
+void LLExperienceCache::getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID experienceId, ExperienceGetFn_t fn)
+{
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+    std::string url = mCapability("IsExperienceAdmin");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Region Experiences capability" << LL_ENDL;
+        return;
+    }
+    url += "?experience_id=" + experienceId.asString();
+
+    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+//     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+//     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    fn(result);
+}
+
+//-------------------------------------------------------------------------
+void LLExperienceCache::updateExperience(LLSD updateData, ExperienceGetFn_t fn)
+{
+    if (mCapability.empty())
+    {
+        LL_WARNS("ExperienceCache") << "Capability query method not set." << LL_ENDL;
+        return;
+    }
+
+    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "IsAdmin",
+        boost::bind(&LLExperienceCache::updateExperienceCoro, this, _1, updateData, fn));
+}
+
+void LLExperienceCache::updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLSD updateData, ExperienceGetFn_t fn)
+{
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+    std::string url = mCapability("UpdateExperience");
+    if (url.empty())
+    {
+        LL_WARNS("ExperienceCache") << "No Region Experiences capability" << LL_ENDL;
+        return;
+    }
+
+    updateData.erase(LLExperienceCache::QUOTA);
+    updateData.erase(LLExperienceCache::EXPIRES);
+    updateData.erase(LLExperienceCache::AGENT_ID);
+
+    LLSD result = httpAdapter->postAndYield(httpRequest, url, updateData);
+
+    fn(result);
+}
+
 //=========================================================================
 void LLExperienceCacheImpl::mapKeys(const LLSD& legacyKeys)
 {
