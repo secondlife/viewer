@@ -33,6 +33,8 @@
 #include "llfolderviewitem.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llinventoryfunctions.h"
+#include "llmarketplacefunctions.h"
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
@@ -68,7 +70,8 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 :	mName(p.name),
 	mFilterModified(FILTER_NONE),
 	mEmptyLookupMessage("InventoryNoMatchingItems"),
-    mFilterOps(p.filter_ops),
+	mFilterOps(p.filter_ops),
+	mBackupFilterOps(mFilterOps),
 	mFilterSubString(p.substring),
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
@@ -136,12 +139,64 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	}
 
 	// when applying a filter, matching folders get their contents downloaded first
-	if (mFilterSubString.size()
+	if (isNotDefault()
 		&& !gInventory.isCategoryComplete(folder_id))
 	{
 		LLInventoryModelBackgroundFetch::instance().start(folder_id);
 	}
 
+	// Marketplace folder filtering
+    const U32 filterTypes = mFilterOps.mFilterTypes;
+    const U32 marketplace_filter = FILTERTYPE_MARKETPLACE_ACTIVE | FILTERTYPE_MARKETPLACE_INACTIVE |
+                                   FILTERTYPE_MARKETPLACE_UNASSOCIATED | FILTERTYPE_MARKETPLACE_LISTING_FOLDER |
+                                   FILTERTYPE_NO_MARKETPLACE_ITEMS;
+    if (filterTypes & marketplace_filter)
+    {
+        S32 depth = depth_nesting_in_marketplace(folder_id);
+
+        if (filterTypes & FILTERTYPE_NO_MARKETPLACE_ITEMS)
+        {
+            if (depth >= 0)
+            {
+                return false;
+            }
+        }
+
+        if (filterTypes & FILTERTYPE_MARKETPLACE_LISTING_FOLDER)
+        {
+            if (depth > 1)
+            {
+                return false;
+            }
+        }
+        
+        if (depth > 0)
+        {
+            LLUUID listing_uuid = nested_parent_id(folder_id, depth);
+            if (filterTypes & FILTERTYPE_MARKETPLACE_ACTIVE)
+            {
+                if (!LLMarketplaceData::instance().getActivationState(listing_uuid))
+                {
+                    return false;
+                }
+            }
+            else if (filterTypes & FILTERTYPE_MARKETPLACE_INACTIVE)
+            {
+                if (!LLMarketplaceData::instance().isListed(listing_uuid) || LLMarketplaceData::instance().getActivationState(listing_uuid))
+                {
+                    return false;
+                }
+            }
+            else if (filterTypes & FILTERTYPE_MARKETPLACE_UNASSOCIATED)
+            {
+                if (LLMarketplaceData::instance().isListed(listing_uuid))
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    
 	// show folder links
 	LLViewerInventoryItem* item = gInventory.getItem(folder_id);
 	if (item && item->getActualType() == LLAssetType::AT_LINK_FOLDER)
@@ -501,6 +556,40 @@ void LLInventoryFilter::setFilterEmptySystemFolders()
 	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
 }
 
+void LLInventoryFilter::setFilterMarketplaceActiveFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_ACTIVE;
+}
+
+void LLInventoryFilter::setFilterMarketplaceInactiveFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_INACTIVE;
+}
+
+void LLInventoryFilter::setFilterMarketplaceUnassociatedFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_UNASSOCIATED;
+}
+
+void LLInventoryFilter::setFilterMarketplaceListingFolders(bool select_only_listing_folders)
+{
+    if (select_only_listing_folders)
+    {
+        mFilterOps.mFilterTypes |= FILTERTYPE_MARKETPLACE_LISTING_FOLDER;
+        setModified(FILTER_MORE_RESTRICTIVE);
+    }
+    else
+    {
+        mFilterOps.mFilterTypes &= ~FILTERTYPE_MARKETPLACE_LISTING_FOLDER;
+        setModified(FILTER_LESS_RESTRICTIVE);
+    }
+}
+
+void LLInventoryFilter::setFilterNoMarketplaceFolder()
+{
+    mFilterOps.mFilterTypes |= FILTERTYPE_NO_MARKETPLACE_ITEMS;
+}
+
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)
 {
 	if (mFilterOps.mFilterUUID == LLUUID::null)
@@ -546,17 +635,27 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 			setModified(FILTER_RESTART);
 		}
 
+		// Cancel out filter links once the search string is modified
+		if (mFilterOps.mFilterLinks == FILTERLINK_ONLY_LINKS)
+		{
+			if (mBackupFilterOps.mFilterLinks == FILTERLINK_ONLY_LINKS)
+			{
+				// we started viewer/floater in 'only links' mode
+				mFilterOps.mFilterLinks = FILTERLINK_INCLUDE_LINKS;
+			}
+			else
+			{
+				mFilterOps = mBackupFilterOps;
+				setModified(FILTER_RESTART);
+			}
+		}
+
 		// Cancel out UUID once the search string is modified
 		if (mFilterOps.mFilterTypes == FILTERTYPE_UUID)
 		{
 			mFilterOps.mFilterTypes &= ~FILTERTYPE_UUID;
 			mFilterOps.mFilterUUID = LLUUID::null;
 			setModified(FILTER_RESTART);
-		}
-
-		// Cancel out filter links once the search string is modified
-		{
-			mFilterOps.mFilterLinks = FILTERLINK_INCLUDE_LINKS;
 		}
 	}
 }
@@ -746,6 +845,22 @@ void LLInventoryFilter::setShowFolderState(EFolderShow state)
 			setModified();
 		}
 	}
+}
+
+void LLInventoryFilter::setFindAllLinksMode(const std::string &search_name, const LLUUID& search_id)
+{
+	// Save a copy of settings so that we will be able to restore it later
+	// but make sure we are not searching for links already
+	if(mFilterOps.mFilterLinks != FILTERLINK_ONLY_LINKS)
+	{
+		mBackupFilterOps = mFilterOps;
+	}
+	
+	// set search options
+	setFilterSubString(search_name);
+	setFilterUUID(search_id);
+	setShowFolderState(SHOW_NON_EMPTY_FOLDERS);
+	setFilterLinks(FILTERLINK_ONLY_LINKS);
 }
 
 void LLInventoryFilter::markDefault()

@@ -128,6 +128,10 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
 			std::string name = parcel_mgr->getAgentParcelName();
 			LLVector3 agent_pos = gAgent.getPositionAgent();
+			
+			std::string desc;
+			LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_FULL, agent_pos);
+			mNotesEditor->setText(desc);			
 
 			if (name.empty())
 			{
@@ -143,7 +147,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 				}
 				else
 				{
-					region_name = getString("unknown");
+					region_name = desc;
 				}
 
 				mLandmarkTitleEditor->setText(llformat("%s (%d, %d, %d)",
@@ -153,10 +157,6 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			{
 				mLandmarkTitleEditor->setText(name);
 			}
-
-			std::string desc;
-			LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_FULL, agent_pos);
-			mNotesEditor->setText(desc);
 
 			// Moved landmark creation here from LLPanelLandmarkInfo::processParcelInfo()
 			// because we use only agent's current coordinates instead of waiting for

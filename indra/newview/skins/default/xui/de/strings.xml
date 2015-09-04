@@ -454,28 +454,46 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$"/>
 	<string name="TooltipOutboxDragToWorld">
-		Sie können Artikel nicht in Ihrer Händler-Outbox rezzen
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Einer oder mehrere dieser Artikel können nicht verkauft oder übertragen werden.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		Nur Artikel direkt aus Ihrem Inventar können in Ihre Händler-Outbox gelegt werden
+		Sie können keine Objekte aus dem Marktplatz-Auflistungsordner rezzen
 	</string>
 	<string name="TooltipOutboxWorn">
-		Artikel, die Sie tragen, können nicht in Ihre Händler-Outbox gelegt werden.
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		Sie können keine Visitenkarten in Ihre Händler-Outbox legen
+		Sie können Objekte, die Sie tragen, nicht in den Marktplatz-Auflistungsordner stellen
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Tiefe der verschachtelten Ordner überschreitet 3
+		Tiefe der verschachtelten Ordner überschreitet [AMOUNT]. Reduzieren Sie die Ordnertiefe. Verpacken Sie ggf. einige Artikel.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Anzahl von Unterordnern im obersten Ordner überschreitet 20
+		Anzahl von Unterordnern überschreitet [AMOUNT]. Reduzieren Sie die Anzahl von Ordnern in Ihrer Auflistung. Verpacken Sie ggf. einige Artikel.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Anzahl von Artikeln im obersten Ordner überschreitet 200
+		Anzahl von Objekten überschreitet [AMOUNT]. Um mehr als [AMOUNT] Objekte in einer Auflistung verkaufen zu können, müssen Sie einige davon verpacken.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		Anzahl von Bestandsobjekten überschreitet [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Sie können Objekte oder Ordner nur in der Registerkarte „Alle“ ablegen. Wählen Sie diese Registerkarte aus und verschieben Sie Ihre Objekte bzw. Ordner noch einmal.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Mindestens eines dieser Objekte kann nicht verkauft oder übertragen werden
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Sie können nur Objekte aus Ihrem Inventar in den Marktplatz einstellen
+	</string>
+	<string name="TooltipOutboxLinked">
+		Sie können keine verknüpften Objekte oder Ordner in den Marktplatz einstellen
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Sie können Visitenkarten nicht in den Marktplatz einstellen
+	</string>
+	<string name="TooltipOutboxDragActive">
+		Sie können keine gelistete Auflistung entfernen
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Der Stammordner mit Marktplatz-Auflistungen kann nicht verschoben werden.
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		Alle Objekte in einem Bestandsordner müssen vom gleichen Typ sein und die gleiche Berechtigung haben
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		Sie können einen Ordner nicht in einen seiner untergeordneten Ordner verschieben
@@ -1063,7 +1081,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="AgentNameSubst">
 		(Sie)
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Beim Verwalten von Grundbesitzzugangslisten Warnhinweise unterdrücken
 	</string>
@@ -1129,6 +1147,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="bitmap_image_files">
 		Bitmap-Bilder
+	</string>
+	<string name="png_image_files">
+		PNG-Bilder
+	</string>
+	<string name="save_texture_image_files">
+		Targa- oder PNG-Bilder
 	</string>
 	<string name="avi_movie_file">
 		AVI-Filmdatei
@@ -1379,6 +1403,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="FavoritesNoMatchingItems">
 		Landmarke hier hin ziehen, um diese hinzuzufügen.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Keine übereinstimmenden Objekte gefunden. Überprüfen Sie die Schreibweise des Suchbegriffs und versuchen Sie es noch einmal.
+	</string>
 	<string name="InventoryNoTexture">
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
@@ -1426,29 +1453,95 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="InventoryOutboxError">
 		Der [[MARKETPLACE_CREATE_STORE_URL] Marktplatz-Laden] gibt Fehler zurück.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Diese Funktion befindet sich in der Betaphase. Wenn Sie teilnehmen möchten, tragen Sie sich in dieses [http://goo.gl/forms/FCQ7UXkakz Google-Formular] ein.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Ihr Ordner mit Marktplatz-Auflistungen ist leer.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Ziehen Sie Ordner in diesen Bereich, um sie im [[MARKETPLACE_DASHBOARD_URL] Marktplatz] zum Verkauf anzubieten.
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		Bestandsordner müssen in einem Versionsordner gespeichert sein
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Fehler: Alle Objekte in einem Bestandsordner müssen kopiergeschützt und vom gleichen Typ sein.
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Fehler: Bestandsordner kann keine Unterordner enthalten
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Warnung: Ordner enthält keine Objekte
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Warnung: Bestandsordner wird erstellt
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Warnung: Versionsordner wird erstellt
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Warnung: Objekte werden verschoben
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Warnung: Ordnerinhalte wurden in Bestandsordner übertragen; leerer Ordner wird entfernt
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Fehler: Kopiergeschützte Objekte müssen in einem Bestandsordner gespeichert sein
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Warnung: Objekte müssen in einem Versionsordner gespeichert sein
+	</string>
+	<string name="Marketplace Validation Error">
+		: Fehler:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Warnung:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Warnung: Versionsordner muss mindestens 1 Objekt enthalten
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Warnung: Bestandsordner muss mindestens 1 Objekt enthalten
+	</string>
+	<string name="Marketplace Validation No Error">
+		Keine Fehler oder Warnungen
+	</string>
 	<string name="Marketplace Error None">
 		Keine Fehler
 	</string>
+	<string name="Marketplace Error Prefix">
+		Fehler:
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Fehler: Bevor Sie Artikel in den Marktplatz übertragen können, müssen Sie sich als Händler registrieren (kostenlos).
+		Bevor Sie Artikel in den Marktplatz übertragen können, müssen Sie sich als Händler registrieren (kostenlos).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Fehler: Dieser Ordner ist leer.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Fehler: Dieser Artikel konnte nicht hochgeladen werden, da in Ihrem Händlerkonto zu viele Artikel nicht mit Produkten verknüpft sind. Um diesen Fehler zu beheben, melden Sie sich auf der Marktplatz-Website an und reduzieren Sie die Anzahl von Artikeln, die nicht mit Produkten verknüpft sind.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Fehler: Dieser Artikel enthält zu viele Objekte. Beheben Sie diesen Fehler, indem Sie Objekte zusammen in Behältern verpacken, um die Objektanzahl auf unter 200 zu verringern.
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Fehler: Dieser Artikel enthält zu viele verschachtelte Ordnerebenen. Organisieren Sie ihn neu, sodass maximal drei verschachtelte Ordnerebenen vorhanden sind.
+	<string name="Marketplace Error Not Accepted">
+		Objekt kann nicht in diesen Ordner verschoben werden.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Fehler: Dieser Artikel kann nicht im Marktplatz verkauft werden.
+		Dieses Objekt kann nicht im Marktplatz verkauft werden.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Fehler: Bei diesem Artikel ist ein Problem aufgetreten. Versuchen Sie es später erneut.
+	<string name="MarketplaceNoID">
+		keine Mkt-ID
+	</string>
+	<string name="MarketplaceLive">
+		aufgelistet
+	</string>
+	<string name="MarketplaceActive">
+		aktiv
+	</string>
+	<string name="MarketplaceMax">
+		max.
+	</string>
+	<string name="MarketplaceStock">
+		Bestand
+	</string>
+	<string name="MarketplaceNoStock">
+		ausverkauft
+	</string>
+	<string name="MarketplaceUpdating">
+		Aktualisierung läuft...
 	</string>
 	<string name="Open landmarks">
 		Landmarken öffnen
@@ -1469,6 +1562,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Keine Inhalte
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (getragen am [ATTACHMENT_POINT])"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (aktiviert)"/>
 	<string name="PermYes">
 		Ja
@@ -1739,6 +1833,15 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="Invalid Attachment">
 		Ungültige Stelle für Anhang
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Fehler: fehlendes Objekt
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Fehler: Basisobjekt fehlt
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Fehler: Objekt ist im aktuellen Outfit, aber nicht angehängt
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] alt
 	</string>
@@ -1874,9 +1977,6 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="CompileQueueUnknownFailure">
 		Unbekannter Fehler beim Herunterladen
 	</string>
-	<string name="CompileNoExperiencePerm">
-		Skript „[SCRIPT]“ mit Erlebnis „[EXPERIENCE]“ wird übersprungen.
-	</string>
 	<string name="CompileQueueTitle">
 		Rekompilierung
 	</string>
@@ -1910,6 +2010,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="SaveComplete">
 		Speichervorgang abgeschlossen.
 	</string>
+	<string name="UploadFailed">
+		Datei-Upload fehlgeschlagen:
+	</string>
 	<string name="ObjectOutOfRange">
 		Skript (Objekt außerhalb des Bereichs)
 	</string>
@@ -1918,6 +2021,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="GroupsNone">
 		keine
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Skript „[SCRIPT]“ mit Erlebnis „[EXPERIENCE]“ wird übersprungen.
 	</string>
 	<string name="Group" value=" (Gruppe)"/>
 	<string name="Unknown">
@@ -5070,6 +5176,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Marketplace_Label">
 		Marktplatz
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Marktplatz
+	</string>
 	<string name="Command_MiniMap_Label">
 		Minikarte
 	</string>
@@ -5156,6 +5265,9 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		Einkaufen gehen
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Ihre Kreation verkaufen
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Leute in der Nähe anzeigen
@@ -5268,6 +5380,18 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="UserDictionary">
 		[Benutzer]
 	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Unterhaltungen werden nicht protokolliert. Um ein Protokoll zu starten, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Es werden keine Unterhaltungen mehr protokolliert. Um weiterhin ein Protokoll zu führen, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Keine protokollierten Unterhaltungen verfügbar. Hier erscheint ein Protokolleintrag, wenn Sie eine Person kontaktieren oder von einer Person kontaktiert werden.
+	</string>
+	<string name="loading_chat_logs">
+		Laden...
+	</string>
 	<string name="experience_tools_experience">
 		Erlebnis
 	</string>
@@ -5348,17 +5472,5 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Berechtigung
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Unterhaltungen werden nicht protokolliert. Um ein Protokoll zu starten, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Es werden keine Unterhaltungen mehr protokolliert. Um weiterhin ein Protokoll zu führen, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Keine protokollierten Unterhaltungen verfügbar. Hier erscheint ein Protokolleintrag, wenn Sie eine Person kontaktieren oder von einer Person kontaktiert werden.
-	</string>
-	<string name="loading_chat_logs">
-		Laden...
 	</string>
 </strings>

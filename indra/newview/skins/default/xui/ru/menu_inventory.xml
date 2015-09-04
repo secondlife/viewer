@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
+	<menu_item_call label="Создать список" name="Marketplace Create Listing"/>
+	<menu_item_call label="Связать список" name="Marketplace Associate Listing"/>
+	<menu_item_call label="Получить (обновить) список" name="Marketplace Get Listing"/>
+	<menu_item_call label="Проверка на ошибки" name="Marketplace Check Listing"/>
+	<menu_item_call label="Изменить список" name="Marketplace Edit Listing"/>
+	<menu_item_call label="Опубликовать" name="Marketplace List"/>
+	<menu_item_call label="Отменить публикацию" name="Marketplace Unlist"/>
+	<menu_item_call label="Активировать" name="Marketplace Activate"/>
+	<menu_item_call label="Деактивировать" name="Marketplace Deactivate"/>
 	<menu_item_call label="Поделиться" name="Share"/>
 	<menu_item_call label="Купить" name="Task Buy"/>
 	<menu_item_call label="Открыть" name="Task Open"/>
@@ -87,6 +96,7 @@
 	<menu_item_call label="Добавить" name="Wearable Add"/>
 	<menu_item_call label="Снять" name="Take Off"/>
 	<menu_item_call label="Копировать в «Торговые исходящие»" name="Merchant Copy"/>
-	<menu_item_call label="Отправить в торговый центр" name="Marketplace Send"/>
+	<menu_item_call label="Копировать в списки товаров торгового центра" name="Marketplace Copy"/>
+	<menu_item_call label="Переместить в списки товаров торгового центра" name="Marketplace Move"/>
 	<menu_item_call label="- нет действий -" name="--no options--"/>
 </menu>

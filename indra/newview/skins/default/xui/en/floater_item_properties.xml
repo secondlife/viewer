@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="570"
+ layout="topleft"
+ name="Item Properties"
+ help_topic="item+properties"
+ title="ITEM PROPERTIES"
+ width="330">
+ <panel
+   follows="all"
+   layout="topleft"
+   left="0"
+   class="sidepanel_item_info"
+   filename="sidepanel_item_info.xml"
+   name="item_panel"
+   top="20"
+   label=""
+   height="570"
+   visible="true"
+   width="330">
+ </panel>
+</floater>

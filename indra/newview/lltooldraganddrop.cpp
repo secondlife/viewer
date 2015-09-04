@@ -821,6 +821,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 	if (!handled)
 	{
+        // *TODO: Suppress the "outbox" case once "marketplace" is used everywhere for everyone
 		// Disallow drag and drop to 3D from the outbox
 		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 		if (outbox_id.notNull())
@@ -828,6 +829,20 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
 			{
 				if (gInventory.isObjectDescendentOf(mCargoIDs[item_index], outbox_id))
+				{
+					*acceptance = ACCEPT_NO;
+					mToolTipMsg = LLTrans::getString("TooltipOutboxDragToWorld");
+					return;
+				}
+			}
+		}
+		// Disallow drag and drop to 3D from the marketplace
+        const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+		if (marketplacelistings_id.notNull())
+		{
+			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
+			{
+				if (gInventory.isObjectDescendentOf(mCargoIDs[item_index], marketplacelistings_id))
 				{
 					*acceptance = ACCEPT_NO;
 					mToolTipMsg = LLTrans::getString("TooltipOutboxDragToWorld");
@@ -994,9 +1009,15 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		return TRUE;
 	}
 
-	// In case the inventory has not been updated (e.g. due to some recent operation
-	// causing a dirty inventory), stall the user while fetching the inventory.
-	if (hit_obj->isInventoryDirty())
+	// In case the inventory has not been loaded (e.g. due to some recent operation
+	// causing a dirty inventory) and we can do an update, stall the user
+	// while fetching the inventory.
+	//
+	// Note: fetch only if inventory is both dirty and not present since previously checked faces
+	// could have requested new fetch for same item (removed inventory and marked as dirty=false).
+	// Objects without listeners (dirty==true and inventory!=NULL. In this specific case - before
+	// first fetch) shouldn't be updated either since we won't receive any changes.
+	if (hit_obj->isInventoryDirty() && hit_obj->getInventoryRoot() == NULL)
 	{
 		hit_obj->fetchInventoryFromServer();
 		LLSD args;

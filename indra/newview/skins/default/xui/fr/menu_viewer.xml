@@ -23,6 +23,7 @@
 		</menu>
 		<menu_item_call label="Acheter des L$..." name="Buy and Sell L$"/>
 		<menu_item_call label="Boîte d&apos;envoi vendeur..." name="MerchantOutbox"/>
+		<menu_item_call label="Annonces de Place du marché..." name="MarketplaceListings"/>
 		<menu_item_call label="Page d&apos;accueil du compte..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=fr"/>
 		</menu_item_call>
@@ -251,6 +252,7 @@
 			<menu_item_check label="Console de textures" name="Texture Console"/>
 			<menu_item_check label="Console de débogage" name="Debug Console"/>
 			<menu_item_call label="Console de notifications" name="Notifications"/>
+			<menu_item_check label="Console de débogage de région" name="Region Debug Console"/>
 			<menu_item_check label="Chronos" name="Fast Timers"/>
 			<menu_item_check label="Mémoire" name="Memory"/>
 			<menu_item_check label="Statistiques de la scène" name="Scene Statistics"/>
@@ -354,7 +356,7 @@
 			<menu_item_check label="Interpolation ping des positions des objets" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="Abandonner un paquet" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="Dump caméra scriptée" name="Dump Scripted Camera"/>		
+		<menu_item_call label="Dump caméra scriptée" name="Dump Scripted Camera"/>
 		<menu label="Enregistreur" name="Recorder">
 			<menu_item_call label="Commencer la lecture" name="Start Playback"/>
 			<menu_item_call label="Arrêter la lecture" name="Stop Playback"/>

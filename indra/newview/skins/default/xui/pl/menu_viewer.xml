@@ -1,48 +1,42 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Ja" name="Me">
-		<menu_item_call label="Ustawienia" name="Preferences"/>
-		<menu_item_call label="Dashboard" name="Manage My Account"/>
-		<menu_item_call label="Kup L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mój Profil" name="Profile"/>
 		<menu_item_call label="Mój wygląd" name="ChangeOutfit"/>
 		<menu_item_check label="Moja Szafa" name="Inventory"/>
-		<menu_item_check label="Moja Szafa" name="ShowSidetrayInventory"/>
-		<menu_item_check label="Moje gesturki" name="Gestures"/>
-		<menu_item_check label="Mój głos" name="ShowVoice"/>
 		<menu label="Ruch" name="Movement">
 			<menu_item_call label="Usiądź" name="Sit Down Here"/>
 			<menu_item_check label="Zacznij latać" name="Fly"/>
 			<menu_item_check label="Zawsze biegnij" name="Always Run"/>
 			<menu_item_call label="Zatrzymaj animacje" name="Stop Animating My Avatar"/>
 		</menu>
-		<menu label="Mój Status" name="Status">
-			<menu_item_call label="Tryb oddalenia" name="Set Away"/>
-			<menu_item_call label="Tryb pracy" name="Set Busy"/>
-		</menu>
+		<menu label="Mój Status" name="Status"/>
+		<menu_item_call label="Kup L$" name="Buy and Sell L$"/>
+		<menu_item_call label="Moje rzeczy na Marketplace" name="MarketplaceListings"/>
+		<menu_item_call label="Dashboard" name="Manage My Account"/>
+		<menu_item_call label="Ustawienia" name="Preferences"/>
 		<menu_item_call label="Wyłącz [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Komunikacja" name="Communicate">
-		<menu_item_call label="Znajomi" name="My Friends"/>
-		<menu_item_call label="Grupy" name="My Groups"/>
 		<menu_item_check label="Czat lokalny" name="Nearby Chat"/>
-		<menu_item_call label="Osoby w pobliżu" name="Active Speakers"/>
+		<menu_item_check label="Znajomi" name="My Friends"/>
+		<menu_item_check label="Grupy" name="My Groups"/>
+		<menu_item_check label="Osoby w pobliżu" name="Active Speakers"/>
 	</menu>
 	<menu label="Świat" name="World">
-		<menu_item_check label="Mini-Mapa" name="Mini-Map"/>
-		<menu_item_check label="Mapa Świata" name="World Map"/>
-		<menu_item_check label="Szukaj" name="Search"/>
-		<menu_item_call label="Zrób zdjęcie" name="Take Snapshot"/>
 		<menu_item_call label="Zapamiętaj to miejsce (LM)" name="Create Landmark Here"/>
-		<menu_item_separator/>
+		<menu_item_check label="Mapa Świata" name="World Map"/>
+		<menu_item_check label="Mini-Mapa" name="Mini-Map"/>
+		<menu_item_check label="Szukaj" name="Search"/>
+		<menu_item_call label="Teleportuj do Miejsca Startu" name="Teleport Home"/>
+		<menu_item_call label="Ustaw Miejsce Startu" name="Set Home to Here"/>
+		<menu_item_call label="Zrób zdjęcie" name="Take Snapshot"/>
 		<menu_item_call label="Profil miejsca" name="Place Profile"/>
 		<menu_item_call label="O posiadłości" name="About Land"/>
 		<menu_item_call label="Region/Majątek" name="Region/Estate"/>
-		<menu_item_call label="Kup posiadłość" name="Buy Land"/>
 		<menu_item_call label="Moje posiadłości" name="My Land"/>
+		<menu_item_call label="Kup posiadłość" name="Buy Land"/>
 		<menu label="Pokaż" name="LandShow">
-			<menu_item_check label="Ustawienia ruchu" name="Movement Controls"/>
-			<menu_item_check label="Zobacz ustawienia" name="Camera Controls"/>
 			<menu_item_check label="Linie bana" name="Ban Lines"/>
 			<menu_item_check label="Emitery" name="beacons"/>
 			<menu_item_check label="Granice posiadłości" name="Property Lines"/>
@@ -51,15 +45,11 @@
 			<menu_item_check label="Właściwości posiadłości" name="Parcel Properties"/>
 			<menu_item_check label="Menu Zaawansowane" name="Show Advanced Menu"/>
 		</menu>
-		<menu_item_call label="Teleportuj do Miejsca Startu" name="Teleport Home"/>
-		<menu_item_call label="Ustaw Miejsce Startu" name="Set Home to Here"/>
 		<menu label="Słońce" name="Sun">
-			<menu_item_call label="Wschód Słońca" name="Sunrise"/>
-			<menu_item_call label="Południe" name="Noon"/>
-			<menu_item_call label="Zachód Słońca" name="Sunset"/>
-			<menu_item_call label="Północ" name="Midnight"/>
-			<menu_item_call label="Używaj czasu Regionu" name="Revert to Region Default"/>
-			<menu_item_call label="Edytor środowiska" name="Environment Editor"/>
+			<menu_item_check label="Wschód Słońca" name="Sunrise"/>
+			<menu_item_check label="Południe" name="Noon"/>
+			<menu_item_check label="Zachód Słońca" name="Sunset"/>
+			<menu_item_check label="Północ" name="Midnight"/>
 		</menu>
 	</menu>
 	<menu label="Buduj" name="BuildTools">
@@ -86,7 +76,6 @@
 			<menu_item_call label="Kup" name="Menu Object Buy"/>
 			<menu_item_call label="Weź" name="Menu Object Take"/>
 			<menu_item_call label="Weź kopię" name="Take Copy"/>
-			<menu_item_call label="Zapisz obiekt do Szafy" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Zapisz do treści obiektu" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Zwróć obiekt" name="Return Object back to Owner"/>
 		</menu>
@@ -116,17 +105,14 @@
 			<menu_item_call label="dźwięk (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="animację (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="zbiór plików (L$[COST] za jeden plik)..." name="Bulk Upload"/>
-			<menu_item_call label="Ustaw domyślne pozwolenia ładowania" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Cofnij" name="Undo"/>
 		<menu_item_call label="Ponów" name="Redo"/>
 	</menu>
 	<menu label="Pomoc" name="Help">
-		<menu_item_call label="[SECOND_LIFE] Portal Pomocy" name="Second Life Help"/>
-		<menu_item_check label="Włącz podpowiedzi" name="Enable Hints"/>
 		<menu_item_call label="Złóż Raport o Nadużyciu" name="Report Abuse"/>
 		<menu_item_call label="Zgłoś błędy klienta" name="Report Bug"/>
-		<menu_item_call label="Zderzenia, popchnięcia &amp;  uderzenia" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="Zderzenia, popchnięcia i uderzenia" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="O [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Zaawansowane" name="Advanced">
@@ -147,7 +133,6 @@
 			<menu_item_check label="Ukryj cząsteczki" name="Hide Particles"/>
 			<menu_item_check label="Ukryj zaznaczone" name="Hide Selected"/>
 			<menu_item_check label="Pokaż przeźroczyste obiekty" name="Highlight Transparent"/>
-			<menu_item_check label="Pokaż załączniki HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Pokaż celownik myszki" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Rodzaje renderowania" name="Rendering Types">
@@ -178,7 +163,6 @@
 		<menu_item_call label="Wyczyść bufor danych grupy" name="ClearGroupCache"/>
 		<menu_item_check label="Wygładzanie ruchu myszki" name="Mouse Smoothing"/>
 		<menu label="Skróty" name="Shortcuts">
-			<menu_item_call label="Zwolnij klawisze" name="Release Keys"/>
 			<menu_item_check label="Pokaż menu Zaawansowane - skrót" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Zamknij okno" name="Close Window"/>
 			<menu_item_call label="Zamknij wszystkie okna" name="Close All Windows"/>
@@ -199,8 +183,7 @@
 			<menu_item_check label="Konsola tekstur" name="Texture Console"/>
 			<menu_item_check label="Debugowanie zdarzeń konsoli" name="Debug Console"/>
 			<menu_item_call label="Konsola powiadomień" name="Notifications"/>
-			<menu_item_check label="Konsola rozmiaru tekstury" name="Texture Size"/>
-			<menu_item_check label="Konsola kategorii tekstur" name="Texture Category"/>
+			<menu_item_check label="Konsola debugowania regionu" name="Region Debug Console"/>
 			<menu_item_check label="Szybkie timery" name="Fast Timers"/>
 			<menu_item_check label="Pamięć" name="Memory"/>
 			<menu_item_call label="Info Regionu do debugowania konsoli" name="Region Info to Debug Console"/>
@@ -240,12 +223,10 @@
 			<menu_item_check label="Oświetlenie i cienie" name="Advanced Lighting Model"/>
 			<menu_item_check label="Cienie Słońca/Księżyca/Projektory" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO and wygładzanie cienia" name="SSAO and Shadow Smoothing"/>
-			<menu_item_check label="Globalne oświetlenie (eksperymentalne)" name="Global Illumination"/>
 			<menu_item_check label="Automatyczne maski alpha (deferred)" name="Automatic Alpha Masks (deferred)"/>
 			<menu_item_check label="Automatyczne maski alpha (non-deferred)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Tekstury animacji" name="Animation Textures"/>
 			<menu_item_check label="Wyłącz tekstury" name="Disable Textures"/>
-			<menu_item_check label="Texture Atlas (experimental)" name="Texture Atlas"/>
 			<menu_item_check label="Renderowania załączonego światła" name="Render Attached Lights"/>
 			<menu_item_check label="Renderowanie załączonych cząsteczek" name="Render Attached Particles"/>
 			<menu_item_check label="Wyświetlaj obiekty odblaskowe" name="Hover Glow Objects"/>
@@ -253,7 +234,7 @@
 		<menu label="Sieć" name="Network">
 			<menu_item_check label="Zatrzymaj awatara" name="AgentPause"/>
 			<menu_item_call label="Upuść pakiet pamięci" name="Drop a Packet"/>
-		</menu>		
+		</menu>
 		<menu label="Świat" name="DevelopWorld">
 			<menu_item_check label="Domyślne ustawienia środowiska Regionu" name="Sim Sun Override"/>
 			<menu_item_check label="Ustalona pogoda" name="Fixed Weather"/>
@@ -263,8 +244,6 @@
 			<menu_item_call label="Test przeglądarki mediów" name="Web Browser Test"/>
 			<menu_item_call label="Przeglądarka zawartości strony" name="Web Content Browser"/>
 			<menu_item_call label="Drukuj zaznaczone informacje o obiekcie" name="Print Selected Object Info"/>
-			<menu_item_call label="Statystyki pamięci" name="Memory Stats"/>
-			<menu_item_check label="Konsola debugowania regionu" name="Region Debug Console"/>
 			<menu_item_check label="Debugowanie zdarzeń klikania" name="Debug Clicks"/>
 			<menu_item_check label="Debugowanie zdarzeń myszy" name="Debug Mouse Events"/>
 		</menu>
@@ -289,7 +268,6 @@
 			</menu>
 			<menu_item_call label="Powrót do domyślnych parametrów" name="Force Params to Default"/>
 			<menu_item_check label="Info o animacji" name="Animation Info"/>
-			<menu_item_check label="Wolne animacje" name="Slow Motion Animations"/>
 			<menu_item_check label="Wyłącz poziom detalu" name="Disable LOD"/>
 			<menu_item_check label="Pokaż szczegóły kolizji" name="Show Collision Skeleton"/>
 			<menu_item_check label="Wyświetl cel agenta" name="Display Agent Target"/>

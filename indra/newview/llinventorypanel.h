@@ -97,6 +97,9 @@ public:
 		Optional<StartFolder>               start_folder;
 		Optional<bool>						use_label_suffix;
 		Optional<bool>						show_empty_message;
+		Optional<bool>						show_root_folder;
+		Optional<bool>						allow_drop_on_root;
+		Optional<bool>						use_marketplace_folders;
 		Optional<LLScrollContainer::Params>	scroll;
 		Optional<bool>						accepts_drag_and_drop;
 		Optional<LLFolderView::Params>		folder_view;
@@ -111,7 +114,10 @@ public:
 			filter("filter"),
 			start_folder("start_folder"),
 			use_label_suffix("use_label_suffix", true),
-			show_empty_message("show_empty_message", true),
+            show_empty_message("show_empty_message", true),
+            show_root_folder("show_root_folder", false),
+            allow_drop_on_root("allow_drop_on_root", true),
+            use_marketplace_folders("use_marketplace_folders", false),
 			scroll("scroll"),
 			accepts_drag_and_drop("accepts_drag_and_drop"),
 			folder_view("folder_view"),
@@ -185,6 +191,7 @@ public:
 	LLFolderView* getRootFolder() { return mFolderRoot.get(); }
 	LLUUID getRootFolderID();
 	LLScrollContainer* getScrollableContainer() { return mScroller; }
+    bool getAllowDropOnRoot() { return mParams.allow_drop_on_root; }
 	
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	
@@ -293,7 +300,7 @@ protected:
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	
     virtual LLFolderView * createFolderRoot(LLUUID root_id );
-	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge);
+	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
 private:
 	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()

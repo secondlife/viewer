@@ -37,6 +37,7 @@
 #include "llfloaterinspect.h"
 #include "lltool.h"
 #include "llmanipscale.h"
+#include "llmarketplacefunctions.h"
 #include "llselectmgr.h"
 #include "lltoolbrush.h"
 #include "lltoolcomp.h"
@@ -83,6 +84,8 @@ LLToolMgr::LLToolMgr()
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", boost::bind(&LLToolMgr::inEdit, this));
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", boost::bind(&LLToolMgr::canEdit, this));
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this, _2));
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Marketplace.Enabled", boost::bind(&LLToolMgr::canAccessMarketplace, this));
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Marketplace.Toggle", boost::bind(&LLToolMgr::toggleMarketplace, this, _2));
 	
 	gToolNull = new LLTool(LLStringUtil::null);  // Does nothing
 	setCurrentTool(gToolNull);
@@ -343,6 +346,23 @@ bool LLToolMgr::inBuildMode()
 			&& mCurrentToolset != gFaceEditToolset);
 	
 	return b;
+}
+
+bool LLToolMgr::canAccessMarketplace()
+{
+	return (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT) || gSavedSettings.getBOOL("InventoryOutboxDisplayBoth");
+}
+
+void LLToolMgr::toggleMarketplace(const LLSD& sdname)
+{
+	const std::string& param = sdname.asString();
+    
+	if ((param != "marketplace") || !canAccessMarketplace())
+	{
+		return;
+	}
+    
+	LLFloaterReg::toggleInstanceOrBringToFront("marketplace_listings");
 }
 
 void LLToolMgr::setTransientTool(LLTool* tool)

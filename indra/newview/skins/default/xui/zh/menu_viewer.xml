@@ -23,6 +23,7 @@
 		</menu>
 		<menu_item_call label="購買 L$…" name="Buy and Sell L$"/>
 		<menu_item_call label="商家發件匣…" name="MerchantOutbox"/>
+		<menu_item_call label="Marketplace 刊登…" name="MarketplaceListings"/>
 		<menu_item_call label="帳戶主控臺…" name="Manage My Account"/>
 		<menu_item_call label="偏好設定…" name="Preferences"/>
 		<menu_item_call label="工具列按鈕…" name="Toolbars"/>
@@ -249,6 +250,7 @@
 			<menu_item_check label="材質控制台" name="Texture Console"/>
 			<menu_item_check label="除錯控制台" name="Debug Console"/>
 			<menu_item_call label="通知控制台" name="Notifications"/>
+			<menu_item_check label="地區除錯控制台" name="Region Debug Console"/>
 			<menu_item_check label="快速碼錶" name="Fast Timers"/>
 			<menu_item_check label="記憶體" name="Memory"/>
 			<menu_item_check label="場景統計資料" name="Scene Statistics"/>
@@ -352,7 +354,7 @@
 			<menu_item_check label="探詢內插物件位置" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="丟出一個封包" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="傾印腳本控制的攝影機" name="Dump Scripted Camera"/>		
+		<menu_item_call label="傾印腳本控制的攝影機" name="Dump Scripted Camera"/>
 		<menu label="錄製器" name="Recorder">
 			<menu_item_call label="開始播放" name="Start Playback"/>
 			<menu_item_call label="停止播放" name="Stop Playback"/>

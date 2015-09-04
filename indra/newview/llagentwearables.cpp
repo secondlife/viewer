@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llagentwearables.h"
 
+#include "llattachmentsmgr.h"
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -985,6 +986,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	S32 matched = 0, mismatched = 0;
 	const S32 arr_size = LLWearableType::WT_COUNT;
 	S32 type_counts[arr_size];
+	BOOL update_inventory = FALSE;
 	std::fill(type_counts,type_counts+arr_size,0);
 	for (S32 i = 0; i < count; i++)
 	{
@@ -1012,10 +1014,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			continue;
 		}
 
-		// Don't care about this case - ordering of wearables with the same asset id has no effect.
-		// Causes the two-alphas error case in MAINT-4158.
+		// Update only inventory in this case - ordering of wearables with the same asset id has no effect.
+		// Updating wearables in this case causes the two-alphas error in MAINT-4158.
 		// We should actually disallow wearing two wearables with the same asset id.
-#if 0
 		if (curr_wearable->getName() != new_item->getName() ||
 			curr_wearable->getItemID() != new_item->getUUID())
 		{
@@ -1023,10 +1024,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 								<< curr_wearable->getName() << " vs " << new_item->getName()
 								<< " item ids " << curr_wearable->getItemID() << " vs " << new_item->getUUID()
 								<< LL_ENDL;
-			mismatched++;
+			update_inventory = TRUE;
 			continue;
 		}
-#endif
 		// If we got here, everything matches.
 		matched++;
 	}
@@ -1040,14 +1040,15 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			mismatched++;
 		}
 	}
-	if (mismatched == 0)
+	if (mismatched == 0 && !update_inventory)
 	{
 		LL_DEBUGS("Avatar") << "no changes, bailing out" << LL_ENDL;
 		mCOFChangeInProgress = false;
 		return;
 	}
-	
-	
+
+	// updating inventory
+
 	// TODO: Removed check for ensuring that teens don't remove undershirt and underwear. Handle later
 	// note: shirt is the first non-body part wearable item. Update if wearable order changes.
 	// This loop should remove all clothing, but not any body parts
@@ -1068,7 +1069,8 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		if (new_wearable)
 		{
 			const LLWearableType::EType type = new_wearable->getType();
-		
+
+			LLUUID old_wearable_id = new_wearable->getItemID();
 			new_wearable->setName(new_item->getName());
 			new_wearable->setItemID(new_item->getUUID());
 
@@ -1076,17 +1078,33 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			{
 				// exactly one wearable per body part
 				setWearable(type,0,new_wearable);
+				if (old_wearable_id.notNull())
+				{
+					// we changed id before setting wearable, update old item manually
+					// to complete the swap.
+					gInventory.addChangedMask(LLInventoryObserver::LABEL, old_wearable_id);
+				}
 			}
 			else
 			{
 				pushWearable(type,new_wearable);
 			}
+
 			const BOOL removed = FALSE;
 			wearableUpdated(new_wearable, removed);
 		}
 	}
 
 	gInventory.notifyObservers();
+
+	if (mismatched == 0)
+	{
+		LL_DEBUGS("Avatar") << "inventory updated, wearable assets not changed, bailing out" << LL_ENDL;
+		mCOFChangeInProgress = false;
+		return;
+	}
+
+	// updating agent avatar
 
 	if (isAgentAvatarValid())
 	{
@@ -1353,6 +1371,7 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 	if (objects_to_remove.empty())
 		return;
 
+	LL_DEBUGS("Avatar") << "ATT [ObjectDetach] removing " << objects_to_remove.size() << " objects" << LL_ENDL;
 	gMessageSystem->newMessage("ObjectDetach");
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -1366,6 +1385,10 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 		//gAgentAvatarp->resetJointPositionsOnDetach(objectp);
 		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
 		gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
+		const LLUUID& item_id = objectp->getAttachmentItemID();
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		LL_DEBUGS("Avatar") << "ATT removing object, item is " << (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
+        LLAttachmentsMgr::instance().onDetachRequested(item_id);
 	}
 	gMessageSystem->sendReliable(gAgent.getRegionHost());
 }
@@ -1374,51 +1397,18 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 {
 	// Build a compound message to send all the objects that need to be rezzed.
 	S32 obj_count = obj_item_array.size();
-
-	// Limit number of packets to send
-	const S32 MAX_PACKETS_TO_SEND = 10;
-	const S32 OBJECTS_PER_PACKET = 4;
-	const S32 MAX_OBJECTS_TO_SEND = MAX_PACKETS_TO_SEND * OBJECTS_PER_PACKET;
-	if( obj_count > MAX_OBJECTS_TO_SEND )
+	if (obj_count > 0)
 	{
-		obj_count = MAX_OBJECTS_TO_SEND;
+		LL_DEBUGS("Avatar") << "ATT attaching multiple, total obj_count " << obj_count << LL_ENDL;
 	}
-				
-	// Create an id to keep the parts of the compound message together
-	LLUUID compound_msg_id;
-	compound_msg_id.generate();
-	LLMessageSystem* msg = gMessageSystem;
 
-	for(S32 i = 0; i < obj_count; ++i)
-	{
-		if( 0 == (i % OBJECTS_PER_PACKET) )
-		{
-			// Start a new message chunk
-			msg->newMessageFast(_PREHASH_RezMultipleAttachmentsFromInv);
-			msg->nextBlockFast(_PREHASH_AgentData);
-			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			msg->nextBlockFast(_PREHASH_HeaderData);
-			msg->addUUIDFast(_PREHASH_CompoundMsgID, compound_msg_id );
-			msg->addU8Fast(_PREHASH_TotalObjects, obj_count );
-			msg->addBOOLFast(_PREHASH_FirstDetachAll, false );
-		}
-
-		const LLInventoryItem* item = obj_item_array.at(i).get();
-		msg->nextBlockFast(_PREHASH_ObjectData );
-		msg->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
-		msg->addUUIDFast(_PREHASH_OwnerID, item->getPermissions().getOwner());
-		msg->addU8Fast(_PREHASH_AttachmentPt, 0 | ATTACHMENT_ADD);	// Wear at the previous or default attachment point
-		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
-		msg->addStringFast(_PREHASH_Name, item->getName());
-		msg->addStringFast(_PREHASH_Description, item->getDescription());
-
-		if( (i+1 == obj_count) || ((OBJECTS_PER_PACKET-1) == (i % OBJECTS_PER_PACKET)) )
-		{
-			// End of message chunk
-			msg->sendReliable( gAgent.getRegion()->getHost() );
-		}
-	}
+    for(LLInventoryModel::item_array_t::const_iterator it = obj_item_array.begin();
+        it != obj_item_array.end();
+        ++it)
+    {
+		const LLInventoryItem* item = *it;
+        LLAttachmentsMgr::instance().addAttachmentRequest(item->getLinkedUUID(), 0, TRUE);
+    }
 }
 
 // Returns false if the given wearable is already topmost/bottommost

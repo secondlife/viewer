@@ -182,6 +182,48 @@
 		Tylko pojedynczy obiekt może być tutaj przeciągnięty
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipOutboxDragToWorld">
+		Nie możesz rezzować obiektów z folderu rzeczy na Marketplace
+	</string>
+	<string name="TooltipOutboxWorn">
+		Nie możesz umieszczać na Marketplace przedmiotów, które masz na sobie założone
+	</string>
+	<string name="TooltipOutboxFolderLevels">
+		Głębokość zagnieżdżonych folderów przekracza [AMOUNT]. Zmniejsz ilość zagdzieżdżeń; Spakuj przedmioty w pudełka, jeśli to pomoże.
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		Ilość podfolderów w folderze najwyższego poziomu przekracza [AMOUNT]. Zmniejsz ilość folderów; Spakuj przedmioty w pudełka, jeśli to pomoże.
+	</string>
+	<string name="TooltipOutboxTooManyObjects">
+		Ilość pozycji w folderze najwyższego poziomu przekracza [AMOUNT]. Jeśli chcesz sprzedać więcej, niż [AMOUNT] przedmiotów jako jedną pozycję, to musisz je spakować w pudełka.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		Ilość przedmiotów w folderze magazynowym przekracza [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Możesz przenosić foldery lub przedmioty wyłącznie do karty WSZYSTKO. Wybierz teraz tą kartę i spróbuj ponownie.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Jeden lub kilka z tych obiektów nie może zostać sprzedany / przetransferowany
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Marketplace akceptuje tylko przedmioty bezpośrednio z Twojej Szafy.
+	</string>
+	<string name="TooltipOutboxLinked">
+		Nie możesz sprzedać zlinkowanych folderów lub przedmiotów na Marketplace
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Nie możesz umieszczać wizytówek na Marketplace
+	</string>
+	<string name="TooltipOutboxDragActive">
+		Nie można przenieść wylistowanego przedmiotu
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Nie możesz przenieść folderu głównego przedmiotów na Marketplace
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		Wszystkie przedmioty w folderze magazynowym muszą mieć ten sam typ i zezwolenia
+	</string>
 	<string name="TooltipHttpUrl">
 		Kliknij aby zobaczyć zawartość tej strony internetowej
 	</string>
@@ -428,9 +470,6 @@
 	</string>
 	<string name="AvatarAway">
 		Śpi
-	</string>
-	<string name="AvatarBusy">
-		Pracuje
 	</string>
 	<string name="AvatarMuted">
 		Wyciszony
@@ -723,6 +762,7 @@
 	<string name="ControlYourCamera">
 		Kontroluj kamerę
 	</string>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SIM_ACCESS_PG">
 		&apos;General&apos;
 	</string>
@@ -777,6 +817,12 @@
 	<string name="bitmap_image_files">
 		Obrazy bitmap
 	</string>
+	<string name="png_image_files">
+		Obrazy PNG
+	</string>
+	<string name="save_texture_image_files">
+		Obrazy Targa lub PNG
+	</string>
 	<string name="avi_movie_file">
 		Pliki filmowe AVI
 	</string>
@@ -797,18 +843,6 @@
 	</string>
 	<string name="choose_the_directory">
 		Wybierz katalog
-	</string>
-	<string name="AvatarSetNotAway">
-		Ustaw Nie Śpij
-	</string>
-	<string name="AvatarSetAway">
-		Śpij
-	</string>
-	<string name="AvatarSetNotBusy">
-		Ustawiaj Nie Pracuj
-	</string>
-	<string name="AvatarSetBusy">
-		Pracuj
 	</string>
 	<string name="shape">
 		Kształt
@@ -1032,10 +1066,102 @@
 	<string name="FavoritesNoMatchingItems">
 		Przeciągnij landmark tutaj aby dodać go do swoich ulubionych.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Niczego nie znaleziono. Sprawdź pisownię i spróbuj ponownie.
+	</string>
 	<string name="InventoryNoTexture">
 		Nie posiadasz kopii tej tekstury w Twojej Szafie.
 	</string>
-  <string name="Unconstrained">Swobodny</string>
+	<string name="InventoryMarketplaceError">
+		Ta funkcjonalność jest obecnie w fazie Beta. Dodaj proszę swoje imię do tego [http://goo.gl/forms/FCQ7UXkakz formularza Google] (w języku angielskim), jeśli chcesz wziąć udział w programie Beta i pomóc.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Twój folder przedmiotów na Marketplace jest pusty.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Przeciągnij foldery do tego obszaru, aby dodać je na listę sprzedaży w [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		folder magazynowy musi być zawarty w folderze wersji
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Błąd: wszystkie przedmioty w folderze magazynowym muszą mieć ten sam typ i być niekopiowalne
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Błąd: folder magazynowy nie może zawierać podfolderów
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Uwaga: folder jest pusty
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Uwaga: tworzę folder magazynowy
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Uwaga: tworzę folder wersji
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Uwaga: przenoszę przedmioty
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Uwaga: zawartość folderu przeniesiona do folderu magazynowego, usuwam pusty katalog
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Błąd: przedmioty bez praw kopiowania muszą się znajdować w folderze magazynowym
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Uwaga: przedmioty muszą się znajdować w folderze wersji
+	</string>
+	<string name="Marketplace Validation Error">
+		: Błąd:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Uwaga:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Uwaga: folder wersji musi zawierać przynajmniej jedną pozycję
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Uwaga: folder magazynowy musi zawierać przynajmniej jedną pozycję
+	</string>
+	<string name="Marketplace Validation No Error">
+		Brak błędów lub ostrzeżeń
+	</string>
+	<string name="Marketplace Error Prefix">
+		Błąd:
+	</string>
+	<string name="Marketplace Error Not Merchant">
+		Przed wysłaniem przedmiotów na Marketplace musisz zostać kupcem (darmowe).
+	</string>
+	<string name="Marketplace Error Not Accepted">
+		Nie można przenieść tego przedmiotu.
+	</string>
+	<string name="Marketplace Error Unsellable Item">
+		Ta pozycja nie może być sprzedana na Marketplace.
+	</string>
+	<string name="MarketplaceNoID">
+		no Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		na liście
+	</string>
+	<string name="MarketplaceActive">
+		aktywne
+	</string>
+	<string name="MarketplaceMax">
+		maks
+	</string>
+	<string name="MarketplaceStock">
+		magazyn
+	</string>
+	<string name="MarketplaceNoStock">
+		brak w magazynie
+	</string>
+	<string name="MarketplaceUpdating">
+		aktualizacja...
+	</string>
+	<string name="Unconstrained">
+		Swobodny
+	</string>
 	<string name="no_transfer" value=" (brak oddawania)"/>
 	<string name="no_modify" value=" (brak modyfikowania)"/>
 	<string name="no_copy" value=" (brak kopiowania)"/>
@@ -1049,6 +1175,7 @@
 		Brak zawartości
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (założony na [ATTACHMENT_POINT])"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (aktywne)"/>
 	<string name="Chat Message" value="Czat:"/>
 	<string name="Sound" value=" Dźwięk :"/>
@@ -1286,6 +1413,15 @@
 	<string name="Invalid Attachment">
 		Nieważny punkt załącznika
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Błąd: brakujący przedmiot
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Błąd: brakująca baza przedmiotu
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Błąd: obiekt jest w obecnym stroju, ale nie jest założony
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1450,6 +1586,9 @@
 	</string>
 	<string name="SaveComplete">
 		Zapisywanie zakończone.
+	</string>
+	<string name="UploadFailed">
+		Ładowanie nieudane:
 	</string>
 	<string name="ObjectOutOfRange">
 		Skrypt (obiekt poza zasięgiem)
@@ -1675,9 +1814,6 @@
 	<string name="PanelContentsNewScript">
 		Nowy skrypt
 	</string>
-	<string name="BusyModeResponseDefault">
-		Rezydent, do którego wysłałeś wiadomość prywatną znajduje się w trybie pracy. Oznacza to, iż Twoja wiadomość zostanie zapisana do przejrzenia poźniej.
-	</string>
 	<string name="MuteByName">
 		(Nazwa)
 	</string>
@@ -1779,9 +1915,6 @@
 	</string>
 	<string name="GroupMoneyDebits">
 		Debet
-	</string>
-	<string name="ViewerObjectContents">
-		Zawartość
 	</string>
 	<string name="AcquiredItems">
 		Zdobyte obiekty
@@ -4337,5 +4470,11 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	</string>
 	<string name="ParticleHiding">
 		Ukryj cząsteczki
+	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Marketplace
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Sprzedaj owoce swojej twórczości
 	</string>
 </strings>

@@ -129,6 +129,88 @@ Bir sistem veya ağ hatası nedeniyle Pazaryerine hiçbir klasör gönderilemedi
 Bir sistem veya ağ hatası nedeniyle Pazaryeri başlatılamadı.  Daha sonra tekrar deneyin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="StockPasteFailed">
+		Stok Klasörüne kopyalama ya da taşıma başarısız oldu. Hata kodu:
+        
+        &quot;[ERROR_CODE]&quot;
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		Pazaryeri İlanlarına kopyalama ya da taşıma başarısız oldu. Hata kodu:
+        
+        &quot;[ERROR_CODE]&quot;
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		Pazaryerinde yapılan işlem başarısız oldu. Hata kodu:
+        
+        Neden: &quot;[ERROR_REASON]&quot;
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		Bu ürünü listeleyemiyoruz ya da sürüm klasörünü etkinleştiremiyoruz. Bu sorun genellikle ilan açıklama formunda eksik bilgi olmasından kaynaklanır ama klasör yapısındaki hatalar yüzünden de gerçekleşmiş olabilir. İlanı düzenleyin ya da ilan klasöründe hata olup olmadığını kontrol edin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		İlan Pazaryerinde yayınlanamadı. Hata kodu:
+        
+        &quot;[ERROR_CODE]&quot;
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		Bu sürüm klasörünü etkinleştirilemedi. Hata kodu:
+
+        &quot;[ERROR_CODE]&quot;
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		Bu eylem, bu ilanın etkin içeriğini değiştirecek. Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Pazaryerindeki etkin bir ilanı değiştirmek istediğimde doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		Pazaryeri İlanları penceresine sürüklenen öğeler kopyalanmaz, orijinal konumlarından buraya taşınırlar. Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Bir öğeyi envanterden Pazaryerine taşımak istediğimde doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		Bir ilan klasörü taşınır veya silinirse, Pazaryerindeki ilanınız silinir. Pazaryeri ilanını saklamak isterseniz, değiştirmek istediğiniz sürüm klasörünün içeriğini taşıyın veya silin. Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Bir ilanı Pazaryerine taşımak ya da Pazaryerinden silmek istediğim zaman doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		Bu öğelerden birini ya da birden fazlasını Pazaryerine kopyalama izniniz yok. Bunları taşıyabilir veya bırakabilirsiniz.
+		<usetemplate canceltext="İptal" ignoretext="Kopyalanamaz öğeler içeren bir seçimi Pazaryerine kopyalamaya çalıştığım zaman doğrulama iste" name="yesnocancelbuttons" notext="Öğeleri taşıma" yestext="Öğeleri taşı"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		Bu eylem ilanı listeden kaldıracak. Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Pazaryerindeki etkin bir ilanı listeden kaldırmak istediğimde doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		Bu eylem, mevcut ilanın sürüm klasörünü devre dışı bırakacak. Devam etmek istiyor musunuz?
+		<usetemplate ignoretext="Pazaryerindeki bir ilanın sürüm klasörünü devre dışı bırakmak istediğimde doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		Bu ilan güncellenemedi.
+Bu öğeyi Pazaryeri üzerinde düzenlemek için [[URL] buraya tıklayın].
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		Pazaryeri İlanları klasöründe bulunan giysileri ve vücut bölümlerini kullanamazsınız.
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		Geçersiz ilan kimliği.
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		Bu ilanda ya birden fazla sürüm klasörü var ya da hiç sürüm klasörü yok. Daha sonra bir sürüm klasörünü bağımsız olarak seçip etkinleştirmeniz gerekiyor.
+		<usetemplate ignoretext="Birden fazla sürüm klasörü içeren bir ilan oluşturduğum zaman sürüm klasörünün etkinleştirilmesi hakkında uyar" name="okignore" yestext="Tamam"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		Farklı türdeki stok öğelerini ayrı stok klasörlerine yerleştirdik. Böylece klasörünüz listeleyebileceğimiz bir şekilde düzenlenir.
+		<usetemplate ignoretext="Stok klasörü listelenmeden önce bölündüğünde uyar" name="okignore" yestext="Tamam"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		Stok boş olduğu için ilanınızı yayından kaldırdık. İlanı yeniden yayınlamak için stok klasörüne daha fazla birim eklemeniz gerekir.
+		<usetemplate ignoretext="Bir ilan, stok klasörü boş olduğu için listeden kaldırılınca uyar" name="okignore" yestext="Tamam"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		Aşağıdaki nedenden dolayı, bir komut dosyası için metin karşıya yüklenirken bir sorun oluştu: [REASON]. Lütfen daha sonra tekrar deneyin.
 	</notification>
@@ -472,6 +554,10 @@ Not: Bu işlem önbelleği temizleyecek.
 	<notification name="SaveChanges">
 		Değişiklikler Kaydedilsin mi?
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Kaydetme" yestext="Kaydet"/>
+	</notification>
+	<notification name="DeleteNotecard">
+		Not kartı silinsin mi?
+		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Mimik kaydedilemedi.
@@ -1868,6 +1954,9 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 		Ziyaret etmeye çalıştığınız bölge, mevcut tercihlerinizi aşan içeriğe sahip.  Ben &gt; Tercihler &gt; Genel sekmesini kullanarak tercihlerinizi değiştirebilirsiniz.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
+	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
 		Ziyaret etmeye çalıştığınız bölge [REGIONMATURITY] içeriğe sahip, buna sadece yetişkinler erişebilir.
 		<url name="url">
@@ -2154,6 +2243,10 @@ Envanter öğesi/öğeleri taşınsın mı?
 		<form name="form">
 			<ignore name="ignore" text="Para() komut dosyası içermeyen bir nesne oluştururken &apos;Nesne için ödeme yap&apos; eylemi ayarladım"/>
 		</form>
+	</notification>
+	<notification name="PayConfirmation">
+		[TARGET] hedefine [AMOUNT]L$ ödemek istediğinizi doğrulayın.
+		<usetemplate ignoretext="Ödeme yapılmadan önce doğrulama iste (200L$ üzerinde tutarlar için)" name="okcancelignore" notext="İptal" yestext="Öde"/>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Bu nesne içinde kopyalama izniniz olan bir öğe yok.
@@ -3835,9 +3928,11 @@ Lütfen bir dakika sonra tekrar deneyin.
 	</notification>
 	<notification name="TeleportedByAttachment">
 		You have been teleported by an attachment on [ITEM_ID]
+		<usetemplate ignoretext="Işınlama: Bir ek tarafından ışınlandınız" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		&apos;[PARCEL_NAME]&apos; parseli üzerindeki &apos;[OBJECT_NAME]&apos; nesnesi tarafından ışınlandınız
+		<usetemplate ignoretext="Işınlama: Bir parsel üzerindeki bir nesne tarafından ışınlandınız" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		Sahibi [OWNER_ID] olan &apos;[OBJECT_NAME]&apos; nesnesi tarafından ışınlandınız
@@ -4169,7 +4264,7 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 		<usetemplate ignoretext="Dosyalar taşınamıyor. Önceki yol geri yüklendi." name="okignore" yestext="Tamam"/>
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		Aşağıdaki nedenden dolayı, varsayılan izinler kaydedilirken bir sorun oluştu: [REASON].  Varsayılan izinleri ayarlamayı lütfen daha sonra tekrar deneyin.
+		Varsayılan nesne izinleri kaydedilirken bir sorun oluştu: [REASON].  Varsayılan izinleri kaydetmeyi lütfen daha sonra tekrar deneyin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">

@@ -72,8 +72,9 @@
 				<check_box label="Передать" name="CheckNextOwnerTransfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
 			</panel>
 			<check_box label="Для продажи" name="CheckPurchase"/>
-			<combo_box name="combobox sale copy">
+			<combo_box name="ComboBoxSaleType">
 				<combo_box.item label="Копировать" name="Copy"/>
+				<combo_box.item label="Содержимое" name="Contents"/>
 				<combo_box.item label="Оригинал" name="Original"/>
 			</combo_box>
 			<spinner label="Цена: L$" name="Edit Cost"/>

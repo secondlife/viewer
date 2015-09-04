@@ -124,7 +124,7 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
 	// We don't use get_is_item_worn() here because this update is triggered by
 	// an inventory observer upon link in COF beind added or removed so actual
 	// worn status of a linked item may still remain unchanged.
-	if (mWornIndicationEnabled && LLAppearanceMgr::instance().isLinkInCOF(mInventoryItemUUID))
+	if (mWornIndicationEnabled && LLAppearanceMgr::instance().isLinkedInCOF(mInventoryItemUUID))
 	{
 		search_label += LLTrans::getString("worn");
 		item_state = IS_WORN;

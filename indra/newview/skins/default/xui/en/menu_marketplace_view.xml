@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ name="menu_marketplace_sort"
+ left="0" bottom="0" visible="false"
+ mouse_opaque="false">
+    <menu_item_check
+        label="Sort by name"
+        name="sort_by_name">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="sort_by_name" />
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="sort_by_name" />
+    </menu_item_check>
+    <menu_item_check
+        label="Sort by most recent"
+        name="sort_by_recent">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="sort_by_recent" />
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="sort_by_recent" />
+    </menu_item_check>
+    <menu_item_check
+        label="Sort by stock amount (low to high)"
+        name="sort_by_stock_amount">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="sort_by_stock_amount"/>
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="sort_by_stock_amount"/>
+    </menu_item_check>
+    <menu_item_separator
+    layout="topleft" />
+    <menu_item_check
+        label="Show only listing folders"
+        name="show_only_listing_folders">
+        <menu_item_check.on_click
+        function="Marketplace.ViewSort.Action"
+        parameter="show_only_listing_folders"/>
+        <menu_item_check.on_check
+        function="Marketplace.ViewSort.CheckItem"
+        parameter="show_only_listing_folders"/>
+    </menu_item_check>
+</toggleable_menu>

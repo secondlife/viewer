@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Marktplatz" name="Marketplace Panel">
+	<panel name="tool_panel">
+		<menu_button name="sort_btn" tool_tip="Anzeige-/Sortieroptionen"/>
+		<button name="add_btn" tool_tip="Neuen Auflistungsordner erstellen"/>
+		<button label="Auf Fehler prüfen" name="audit_btn" tool_tip="Marktplatz-Auflistungen überprüfen"/>
+	</panel>
+	<panel name="tab_container_panel">
+		<filter_editor label="Marktplatz-Auflistungen filtern" name="filter_editor"/>
+	</panel>
+</panel>

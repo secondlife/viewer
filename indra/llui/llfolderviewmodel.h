@@ -156,6 +156,8 @@ public:
 	virtual void openItem( void ) = 0;
 	virtual void closeItem( void ) = 0;
 	virtual void selectItem(void) = 0;
+    
+    virtual BOOL isItemWearable() const { return FALSE; }
 
 	virtual BOOL isItemRenameable() const = 0;
 	virtual BOOL renameItem(const std::string& new_name) = 0;
@@ -169,7 +171,7 @@ public:
 
 	virtual BOOL isItemCopyable() const = 0;
 	virtual BOOL copyToClipboard() const = 0;
-	virtual BOOL cutToClipboard() const = 0;
+	virtual BOOL cutToClipboard() = 0;
 
 	virtual BOOL isClipboardPasteable() const = 0;
 	virtual void pasteFromClipboard() = 0;

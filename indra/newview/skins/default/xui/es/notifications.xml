@@ -129,6 +129,88 @@ No se han enviado carpetas al Mercado a causa de un error del sistema o de la re
 La inicialización del mercado ha fallado por un error del sistema o de la red.  Vuelve a intentarlo más tarde.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="StockPasteFailed">
+		Ha ocurrido el siguiente error al copiar o mover a la carpeta de stock:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		Ha ocurrido el siguiente error al copiar o mover a artículos del Mercado:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		La transacción con el Mercado ha fallado por el siguiente error:
+        
+        Motivo: &apos;[ERROR_REASON]&apos;
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		No hemos podido incluir este producto en tus artículos o activar la carpeta de versión. Normalmente esto ocurre porque falta información en el formulario de descripción de los artículos, aunque también puede deberse a errores en la estructura de carpetas. Puedes editar los artículos o comprobar si la carpeta de artículos tiene algún error.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		Ha ocurrido el siguiente error en la lista de artículos del Mercado:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		Ha ocurrido el siguiente error al activar esta carpeta de versión:
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		Esta acción cambiará el contenido activo de esta lista de artículos. ¿Quieres continuar?
+		<usetemplate ignoretext="Confirmar antes de que cambie una lista de artículos activa en el Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		Los artículos arrastrados a la ventana Artículos del mercado se mueven desde sus ubicaciones originales, no se copian. ¿Quieres continuar?
+		<usetemplate ignoretext="Confirmar antes de mover un artículo desde el inventario al Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		Al mover o eliminar una carpeta de artículos, se eliminarán tus artículos del Mercado. Si deseas conservar los artículos del Mercado, mueve o elimina el contenido de la carpeta de versión que desees modificar. ¿Quieres continuar?
+		<usetemplate ignoretext="Confirmar antes de que mueva o elimine una lista de artículos del Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		No tienes permiso para copiar uno o varios de estos artículos en el Mercado. Puedes moverlos o dejártelos.
+		<usetemplate canceltext="Cancelar" ignoretext="Confirmar cuando intente copiar una selección que contiene artículos que no se pueden copiar en el Mercado" name="yesnocancelbuttons" notext="No mover objeto(s)" yestext="Mover objeto(s)"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		Esta acción retirará esta lista de artículos. ¿Quieres continuar?
+		<usetemplate ignoretext="Confirmar antes de que retire una lista de artículos activa en el Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		Esta acción desactivará la carpeta de versión de la lista de artículos actual. ¿Quieres continuar?
+		<usetemplate ignoretext="Confirmar antes de que desactive la carpeta de versión de una lista de artículos del Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		No se ha podido actualizar esta lista de artículos.
+[[URL] Haz clic aquí] para editarla en el Mercado.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		No puedes ponerte prendas ni partes del cuerpo que se encuentren en la carpeta Artículos del mercado.
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		Id. de lista de artículos no válida
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		Esta lista de artículos contiene varias carpetas de versión o ninguna. Tendrás que seleccionar y activar una por tu cuenta más tarde.
+		<usetemplate ignoretext="Mostrar una alerta de la activación de la carpeta de versión cuando cree una lista de artículos con varias carpetas de versión" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		Hemos separado los artículos en stock de diferentes tipos en carpetas distintas, para que tu carpeta esté organizada de tal forma que podamos incluirla en el Mercado.
+		<usetemplate ignoretext="Mostrar alerta cuando la carpeta de stock se divida antes de incluirla en la lista" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		Hemos retirado tu lista de artículos porque el stock está vacío. Para volver a publicar tus artículos, añade más unidades a la carpeta de stock.
+		<usetemplate ignoretext="Mostrar alerta cuando una lista de artículos se retire porque la carpeta de stock está vacía" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
 	</notification>
@@ -467,6 +549,10 @@ o hacer una puja?
 	<notification name="SaveChanges">
 		¿Guardar los cambios?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No guardar" yestext="Guardar"/>
+	</notification>
+	<notification name="DeleteNotecard">
+		¿Deseas borrar la nota?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Fallo al guardar el gesto.
@@ -1877,6 +1963,9 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 		Tus preferencias de contenido actuales te impiden visitar la región que has seleccionado.  Puedes cambiar las preferencias en Yo &gt; Preferencias &gt; General.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
+	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
 		La región que intentas visitar tiene un contenido [REGIONMATURITY], que solo es accesible para los adultos.
 		<url name="url">
@@ -2164,6 +2253,10 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		<form name="form">
 			<ignore name="ignore" text="He establecido la acción &apos;Pagar al objeto&apos; cuando construyo uno sin un script money()"/>
 		</form>
+	</notification>
+	<notification name="PayConfirmation">
+		Confirma que deseas pagar L$[AMOUNT] a [TARGET].
+		<usetemplate ignoretext="Confirmar antes de pagar (sumas mayores de 200 L$)" name="okcancelignore" notext="Cancelar" yestext="Pagar"/>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
 		En este objeto, no hay ítems que estés autorizado a copiar.
@@ -3840,9 +3933,11 @@ Prueba otra vez dentro de un minuto.
 	</notification>
 	<notification name="TeleportedByAttachment">
 		Has sido teleportado por un anexo de [ITEM_ID]
+		<usetemplate ignoretext="Teleportarme: has sido teleportado por un anexo" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		Has sido teleportado por el objeto &apos;[OBJECT_NAME]&apos; de la parcela &apos;[PARCEL_NAME]&apos;
+		<usetemplate ignoretext="Teleportarme: has sido teleportado por un objeto de una parcela" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		Has sido teleportado por el objeto &apos;[OBJECT_NAME]&apos; que es propiedad de [OWNER_ID]
@@ -4174,7 +4269,7 @@ Prueba a seleccionar un terreno más pequeño.
 		<usetemplate ignoretext="No se pueden mover los archivos. Ruta anterior restaurada." name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		Ha ocurrido un problema al guardar los permisos predeterminados por el siguiente motivo: [REASON]. Intenta configurar los permisos predeterminados más adelante.
+		Ha ocurrido un problema al guardar los permisos de objeto predeterminados: [REASON]. Intenta configurar los permisos predeterminados más adelante.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">

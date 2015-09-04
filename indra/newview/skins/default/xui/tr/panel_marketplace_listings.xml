@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Pazaryeri" name="Marketplace Panel">
+	<panel name="tool_panel">
+		<menu_button name="sort_btn" tool_tip="Seçenekleri görüntüleyin/sıralayın"/>
+		<button name="add_btn" tool_tip="Yeni bir ilan klasörü oluşturun"/>
+		<button label="Hatalara Karşı Kontrol Et" name="audit_btn" tool_tip="Pazaryeri ilanlarınızı kontrol edin"/>
+	</panel>
+	<panel name="tab_container_panel">
+		<filter_editor label="Pazaryeri İlanlarını Filtrele" name="filter_editor"/>
+	</panel>
+</panel>

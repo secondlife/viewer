@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php?lang=ja
-	</panel.string>
+	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=ja</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="ユーザー名" name="username_combo" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）"/>
 			<line_editor label="パスワード" name="password_edit"/>
-			<check_box label="記憶する" name="remember_check"/>
-			<text name="forgot_password_text">
-				パスワードを忘れた場合
-			</text>
-			<button label="ログイン" name="connect_btn"/>
-			<text name="At_My_Last_Location_Label">
-				前回の場所
-			</text>
 			<combo_box label="お気に入りの場所" name="start_location_combo">
+				<combo_box.item label="最後にログアウトした場所" name="MyLastLocation"/>
 				<combo_box.item label="ホーム" name="MyHome"/>
 			</combo_box>
-			<button label="ログイン" name="connect_favorite_btn"/>
-			<line_editor label="場所を入力" name="location_edit"/>
-			<button label="ログイン" name="connect_location_btn"/>
+			<button label="ログイン" name="connect_btn"/>
+			<check_box label="記憶する" name="remember_check"/>
+			<text name="forgot_password_text">パスワードを忘れた場合</text>
 			<combo_box label="グリッドを選択" name="server_combo"/>
 		</layout_panel>
 	</layout_stack>

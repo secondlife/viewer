@@ -198,7 +198,7 @@ public:
 	void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
 protected:
-	S32					mIndex;
+	const S32			mIndex;
 	U32					mCurrTexture;
 	eTextureType		mCurrTexType;
 	eTextureBlendType	mCurrBlendType;

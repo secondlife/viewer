@@ -474,13 +474,13 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				U32 flags = 0;
 				mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
-			
+                
 				if(flags & FLAGS_TEMPORARY_ON_REZ)
 				{
-				compressed_dp.unpackUUID(fullid, "ID");
-				compressed_dp.unpackU32(local_id, "LocalID");
-				compressed_dp.unpackU8(pcode, "PCode");
-			}
+                    compressed_dp.unpackUUID(fullid, "ID");
+                    compressed_dp.unpackU32(local_id, "LocalID");
+                    compressed_dp.unpackU8(pcode, "PCode");
+                }
 				else //send to object cache
 				{
 					regionp->cacheFullUpdate(compressed_dp, flags);
@@ -497,7 +497,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 								 gMessageSystem->getSenderPort());
 				if (fullid.isNull())
 				{
-					// LL_WARNS() << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << LL_ENDL;
+					LL_DEBUGS() << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << LL_ENDL;
 					mNumUnknownUpdates++;
 				}
 			}

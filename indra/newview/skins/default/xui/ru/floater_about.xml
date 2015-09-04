@@ -1,70 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_about" title="О [CAPITALIZED_APP_NAME]">
-	<floater.string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</floater.string>
-	<floater.string name="AboutCompiler">
-		Использован компилятор [COMPILER], версия [COMPILER_VERSION]
-	</floater.string>
-	<floater.string name="AboutPosition">
-		Вы в точке [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
-SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
-(глобальные координаты [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
-	</floater.string>
-	<floater.string name="AboutSystem">
-		ЦП: [CPU]
-Память: [MEMORY_MB] МБ
-Версия ОС: [OS_VERSION]
-Производитель графической платы: [GRAPHICS_CARD_VENDOR]
-Графическая плата: [GRAPHICS_CARD]
-	</floater.string>
-	<floater.string name="AboutDriver">
-		Версия графического драйвера Windows: [GRAPHICS_DRIVER_VERSION]
-	</floater.string>
-	<floater.string name="AboutLibs">
-		Версия OpenGL: [OPENGL_VERSION]
-Версия libcurl: [LIBCURL_VERSION]
-Версия декодера J2C: [J2C_VERSION]
-Версия драйвера звука: [AUDIO_DRIVER_VERSION]
-Версия Qt Webkit: [QT_WEBKIT_VERSION]
-Версия голосового сервера: [VOICE_VERSION]
-	</floater.string>
-	<floater.string name="none">
-		(нет)
-	</floater.string>
-	<floater.string name="AboutTraffic">
-		Потеряно пакетов: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
-	</floater.string>
-	<floater.string name="ErrorFetchingServerReleaseNotesURL">
-		Ошибка при получении URL-адреса заметок о выпуске сервера.
-	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Данные" name="support_panel">
 			<button label="Копировать в буфер обмена" name="copy_btn"/>
 		</panel>
 		<panel label="Создатели" name="credits_panel">
-			<text name="linden_intro">
-				Игра Second Life разработана лабораторией Lindens:
-			</text>
-			<text name="contrib_intro">
-				в написании открытого кода участвовали:
-			</text>
-			<text_editor name="contrib_names">
-				Псевдо-имя изменено при запуске
-			</text_editor>
-			<text name="trans_intro">
-				перевод:
-			</text>
-			<text_editor name="trans_names">
-				Псевдо-имя изменено при запуске
-			</text_editor>
+			<text name="linden_intro">Игра Second Life разработана лабораторией Lindens, 
+в написании открытого кода участвовали:</text>
+			<text_editor name="contrib_names">Псевдо-имя изменено при запуске</text_editor>
 		</panel>
 		<panel label="Лицензии" name="licenses_panel">
-			<text_editor name="credits_editor">
-				3Dconnexion SDK (C) 1992-2009 3Dconnexion
+			<text_editor name="licenses_editor">3Dconnexion SDK (C) 1992-2009 3Dconnexion
         APR (C) 2011 The Apache Software Foundation
         Collada DOM (C) 2006 Sony Computer Entertainment Inc.
         cURL (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
@@ -91,8 +37,7 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 
         Все права защищены.  Подробные сведения см. в файле licenses.txt.
 
-        Кодирование звука для голосового чата: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
-			</text_editor>
+        Кодирование звука для голосового чата: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)</text_editor>
 		</panel>
 	</tab_container>
 </floater>

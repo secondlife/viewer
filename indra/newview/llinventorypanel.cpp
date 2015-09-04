@@ -193,6 +193,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
     p.show_empty_message = mShowEmptyMessage;
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;
+    p.allow_drop = mParams.allow_drop_on_root;
     p.options_menu = "menu_inventory.xml";
 
     return LLUICtrlFactory::create<LLFolderView>(p);
@@ -292,7 +293,12 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
 	}
-
+    // hide marketplace listing box, unless we are a marketplace panel
+	if (!gSavedSettings.getBOOL("InventoryOutboxMakeVisible") && !mParams.use_marketplace_folders)
+	{
+		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS));
+    }
+    
 	// set the filter for the empty folder if the debug setting is on
 	if (gSavedSettings.getBOOL("DebugHideEmptySystemFolders"))
 	{
@@ -601,13 +607,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 
 LLUUID LLInventoryPanel::getRootFolderID()
 {
+    LLUUID root_id;
 	if (mFolderRoot.get() && mFolderRoot.get()->getViewModelItem())
 	{
-		return static_cast<LLFolderViewModelItemInventory*>(mFolderRoot.get()->getViewModelItem())->getUUID();
+		root_id = static_cast<LLFolderViewModelItemInventory*>(mFolderRoot.get()->getViewModelItem())->getUUID();
 	}
 	else
 	{
-		LLUUID root_id;
 		if (mParams.start_folder.id.isChosen())
 		{
 			root_id = mParams.start_folder.id;
@@ -635,8 +641,8 @@ LLUUID LLInventoryPanel::getRootFolderID()
 				}
 			}
 		}
-		return root_id;
 	}
+    return root_id;
 }
 
 // static
@@ -758,7 +764,7 @@ void LLInventoryPanel::initializeViews()
 }
 
 
-LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
+LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop)
 {
 	LLFolderViewFolder::Params params(mParams.folder);
 
@@ -766,6 +772,7 @@ LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * br
 	params.root = mFolderRoot.get();
 	params.listener = bridge;
 	params.tool_tip = params.name;
+    params.allow_drop = allow_drop;
 
 	params.font_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultColor));
 	params.font_highlight_color = (bridge->isLibraryItem() ? sLibraryColor : (bridge->isLink() ? sLinkColor : sDefaultHighlightColor));
@@ -794,37 +801,56 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
  	LLInventoryObject const* objectp = gInventory.getObject(id);
 	
-	if (!objectp) return NULL;
+	if (!objectp)
+    {
+        return NULL;
+    }
 
 	LLFolderViewItem* folder_view_item = getItemByID(id);
 
- 		const LLUUID &parent_id = objectp->getParentUUID();
+    const LLUUID &parent_id = objectp->getParentUUID();
 	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
   		
+    // Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
+    bool allow_drop = true;
+    bool create_root = false;
+    if (mParams.show_root_folder)
+    {
+        LLUUID root_id = getRootFolderID();
+        if (root_id == id)
+        {
+            // We insert an extra level that's seen by the UI but has no influence on the model
+            parent_folder = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
+            folder_view_item = NULL;
+            allow_drop = mParams.allow_drop_on_root;
+            create_root = true;
+        }
+    }
+
  	if (!folder_view_item && parent_folder)
   		{
   			if (objectp->getType() <= LLAssetType::AT_NONE ||
   				objectp->getType() >= LLAssetType::AT_COUNT)
   			{
   				LL_WARNS() << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
-  						<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
-  						<< LL_ENDL;
+                << ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
+                << LL_ENDL;
   				return NULL;
   			}
   		
   			if ((objectp->getType() == LLAssetType::AT_CATEGORY) &&
   				(objectp->getActualType() != LLAssetType::AT_LINK_FOLDER))
   			{
-  				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
-  																				objectp->getType(),
+  				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_CATEGORY,
+                                            (mParams.use_marketplace_folders ? LLAssetType::AT_MARKETPLACE_FOLDER : LLAssetType::AT_CATEGORY),
   																				LLInventoryType::IT_CATEGORY,
   																				this,
-																			&mInventoryViewModel,
+                                                                                &mInventoryViewModel,
   																				mFolderRoot.get(),
   																				objectp->getUUID());
   				if (new_listener)
   				{
-				folder_view_item = createFolderViewFolder(new_listener);
+                    folder_view_item = createFolderViewFolder(new_listener,allow_drop);
   				}
   			}
   			else
@@ -847,11 +873,16 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   			}
  
   	    if (folder_view_item)
-  			{
+        {
             llassert(parent_folder != NULL);
             folder_view_item->addToFolder(parent_folder);
 			addItemID(id, folder_view_item);
-		}
+            // In the case of the root folder been shown, open that folder by default once the widget is created
+            if (create_root)
+            {
+                folder_view_item->setOpen(TRUE);
+            }
+        }
 	}
 
 	// If this is a folder, add the children of the folder and recursively add any 
@@ -960,7 +991,7 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		// If folder view is empty the (x, y) point won't be in its rect
 		// so the handler must be called explicitly.
 		// but only if was not handled before. See EXT-6746.
-		if (!handled && !mFolderRoot.get()->hasVisibleChildren())
+		if (!handled && mParams.allow_drop_on_root && !mFolderRoot.get()->hasVisibleChildren())
 		{
 			handled = mFolderRoot.get()->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
@@ -1482,6 +1513,8 @@ public:
 		LLInventoryPanel::initFromParams(p);
 		// turn on inbox for recent items
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
+        // turn off marketplace for recent items
+        getFilter().setFilterNoMarketplaceFolder();
 	}
 
 protected:
@@ -1525,5 +1558,8 @@ namespace LLInitParam
 		declare(LLFolderType::lookup(LLFolderType::FT_INBOX)            , LLFolderType::FT_INBOX);
 		declare(LLFolderType::lookup(LLFolderType::FT_OUTBOX)           , LLFolderType::FT_OUTBOX);
 		declare(LLFolderType::lookup(LLFolderType::FT_BASIC_ROOT)       , LLFolderType::FT_BASIC_ROOT);
+		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_LISTINGS)   , LLFolderType::FT_MARKETPLACE_LISTINGS);
+		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_STOCK), LLFolderType::FT_MARKETPLACE_STOCK);
+		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_VERSION), LLFolderType::FT_MARKETPLACE_VERSION);
 	}
 }

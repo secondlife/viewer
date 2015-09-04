@@ -129,6 +129,88 @@ Aufgrund eines System- oder Netzwerkfehlers wurden keine Ordner an den Marktplat
 Marktplatzinitialisierung aufgrund eines System- oder Netzwerkfehlers fehlgeschlagen. Versuchen Sie es später erneut.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="StockPasteFailed">
+		Kopieren oder Verschieben in Bestandsordner fehlgeschlagen mit Fehler:
+        
+        „[ERROR_CODE]“
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		Kopieren oder Verschieben von Marktplatz-Auflistungen fehlgeschlagen mit Fehler:
+        
+        „[ERROR_CODE]“
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		Marktplatztransaktion fehlgeschlagen mit Fehler:
+        
+        Grund: „[ERROR_REASON]“
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		Wir konnten dieses Produkt nicht auflisten bzw. den Versionsordner nicht aktivieren. Dies liegt meist an fehlenden Informationen im Formular zur Beschreibung der Auflistung, kann aber auch auf eine falsche Ordnerstruktur zurückzuführen sein. Bearbeiten Sie die Auflistung oder überprüfen Sie den Auflistungsordner auf Fehler.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		Auflistung in Marktplatz fehlgeschlagen mit Fehler:
+        
+        „[ERROR_CODE]“
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		Aktivierung dieses Versionsordners fehlgeschlagen mit Fehler:
+
+        „[ERROR_CODE]“
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		Diese Aktion ändert den aktiven Inhalt dieser Auflistung. Möchten Sie fortfahren?
+		<usetemplate ignoretext="Vor Ändern einer aktiven Auflistung im Marktplatz bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		Objekte, die ins Marktplatz-Auflistungsfenster gezogen werden, werden verschoben, nicht kopiert. Möchten Sie fortfahren?
+		<usetemplate ignoretext="Vor Verschieben eines Objekts aus dem Inventar in den Marktplatz bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		Wenn Sie einen Auflistungsordner verschieben oder löschen, wird Ihre Marktplatz-Auflistung gelöscht. Um die Marktplatz-Auflistung beizubehalten, verschieben oder löschen Sie den Inhalt des Versionsordners, den Sie ändern möchten. Möchten Sie fortfahren?
+		<usetemplate ignoretext="Bestätigen, bevor ich eine Auflistung aus dem Marktplatz entferne oder verschiebe" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		Sie haben keine Berechtigung, eines oder mehrere dieser Objekte in den Marktplatz zu kopieren. Sie können sie verschieben oder zurücklassen.
+		<usetemplate canceltext="Abbrechen" ignoretext="Vor Kopieren einer Auswahl mit kopiergeschützten Objekten in den Marktplatz bestätigen" name="yesnocancelbuttons" notext="Artikel nicht verschieben" yestext="Artikel verschieben"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		Diese Aktion entfernt diese Auflistung. Möchten Sie fortfahren?
+		<usetemplate ignoretext="Vor Entfernen einer aktiven Auflistung aus dem Marktplatz bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		Diese Aktion deaktiviert den Versionsordner der aktuellen Auflistung. Möchten Sie fortfahren?
+		<usetemplate ignoretext="Vor Deaktivieren des Versionsordners einer Auflistung im Marktplatz bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		Diese Auflistung konnte nicht aktualisiert werden.
+[[URL] Klicken Sie hier], um sie im Marktplatz zu bearbeiten.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		Sie können keine Kleidung oder Körperteile tragen, die im Marktplatz-Auflistungsordner enthalten sind
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		Auflistungs-ID ungültig.
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		In dieser Auflistung gibt es mehrere oder keine Versionsordner. Sie müssen später einen auswählen und aktivieren.
+		<usetemplate ignoretext="Benachrichtung zur Versionsordneraktivierung, wenn ich eine Auflistung mit mehreren Versionsordnern erstelle" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		Wir haben Bestandsobjekte unterschiedlicher Typen in separate Bestandsordner gelegt, damit wir Ihren Ordner auflisten können.
+		<usetemplate ignoretext="Benachrichtigen,wenn Bestandsordner vor dem Auflisten aufgeteilt wird" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		Wir haben Ihre Auflistung entfernt, da der Bestandsordner leer ist. Um diese Auflistung wieder zu listen, müssen Sie weitere Einheiten zum Bestandsordner hinzufügen.
+		<usetemplate ignoretext="Benachrichtigen, wenn Auflistung aufgrund eines leeren Bestandsordners nicht aufgelistet wird" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		Der Text für ein Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
 	</notification>
@@ -479,6 +561,10 @@ Hinweis: Der Cache wird dabei gelöscht/geleert.
 	<notification name="SaveChanges">
 		Änderungen speichern?
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Nicht speichern" yestext="Speichern"/>
+	</notification>
+	<notification name="DeleteNotecard">
+		Notizkarte löschen?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Speichern der Geste fehlgeschlagen.
@@ -1882,6 +1968,9 @@ Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belas
 		Die Region, die Sie besuchen möchten, enthält Inhalte, die Ihre aktuellen Einstellungen überschreiten. Sie können Ihre Einstellungen unter „Ich“ &gt; „Einstellungen“ &gt; „Allgemein“ ändern.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
+	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
 		Die Region, die Sie besuchen möchten, enthält [REGIONMATURITY]-Inhalte, die nur für Erwachsene zugänglich sind.
 		<url name="url">
@@ -2170,6 +2259,10 @@ Inventarobjekt(e) verschieben?
 		<form name="form">
 			<ignore name="ignore" text="Ich habe die Aktion „Objekt bezahlen&quot; eingestellt, während ich ein Objekt gebaut habe, dass kein Geld()-Skript enthält."/>
 		</form>
+	</notification>
+	<notification name="PayConfirmation">
+		Bestätigen Sie, dass Sie L$ [AMOUNT] an [TARGET] zahlen möchten.
+		<usetemplate ignoretext="Vor den Bezahlen bestätigen (Summen über L$ 200)" name="okcancelignore" notext="Abbrechen" yestext="Bezahlen"/>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Sie haben keine Berechtigung zum Kopieren von Elementen in diesem Objekt.
@@ -3855,9 +3948,11 @@ Warten Sie kurz und versuchen Sie es noch einmal.
 	</notification>
 	<notification name="TeleportedByAttachment">
 		Sie wurden von einem Anhang an [ITEM_ID] teleportiert
+		<usetemplate ignoretext="Teleport: Sie wurden von einem Anhang teleportiert" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		Sie wurden von Objekt „[OBJECT_NAME]“ auf der Parzelle „[PARCEL_NAME]“ teleportiert
+		<usetemplate ignoretext="Teleport: Sie wurden von einem Objekt in einer Parzelle teleportiert" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		Sie wurden von Objekt „[OBJECT_NAME]“, das [OWNER_ID] gehört, teleportiert
@@ -4189,7 +4284,7 @@ Wählen Sie eine kleinere Landfläche aus.
 		<usetemplate ignoretext="Dateien können nicht verschoben werden. Vorheriger Pfad wurde wiederhergestellt." name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		Die Standardberechtigungen konnten aus folgendem Grund nicht gespeichert werden: [REASON].  Versuchen Sie später, die Standardberechtigungen einzustellen.
+		Problem beim Speichern der standardmäßigen Objektberechtigungen: [REASON].  Versuchen Sie später, die Standardberechtigungen einzustellen.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">

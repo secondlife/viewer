@@ -454,28 +454,46 @@ support@secondlife.com.
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
 	<string name="TooltipOutboxDragToWorld">
-		Нельзя выложить предметы из папке «Торговые исходящие»
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Часть этих объектов нельзя продать или передать.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		Ваша папка «Торговые исходящие» может получать вещи только непосредственно из вашего инвентаря
+		Нельзя выложить предметы из папки списков товаров торгового центра
 	</string>
 	<string name="TooltipOutboxWorn">
-		Носимые предметы нельзя поместить в папку «Торговые исходящие»
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		Визитки нельзя поместить в папку «Торговые исходящие»
+		Нельзя поместить предметы, которые вы носите, в папку списков товаров торгового центра
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Глубина вложения папок превышает 3
+		Глубина вложения папок превышает [AMOUNT]. Уменьшите глубину вложения; при необходимости сгруппируйте предметы.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		В папке верхнего уровня более 20 подпапок
+		Количество подпапок не может превышать [AMOUNT]. Уменьшите количество папок в списке; при необходимости сгруппируйте предметы.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		В папке верхнего уровня более 200 предметов
+		Количество предметов не может превышать [AMOUNT]. Для продажи более чем [AMOUNT] предм. в одном списке некоторые из них следует сгруппировать.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		Количество предметов не может превышать [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Можно перетаскивать предметы или папки только на вкладку «ВСЕ». Выберите эту вкладку и переместите предметы или папки снова.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Часть этих объектов нельзя продать или передать
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		В торговый центр можно поместить только предметы из своего инвентаря
+	</string>
+	<string name="TooltipOutboxLinked">
+		Привязанные предметы или папки нельзя поместить в торговый центр
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Нельзя поместить визитки в торговый центр
+	</string>
+	<string name="TooltipOutboxDragActive">
+		Опубликованный список нельзя переместить
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Корневую папку списков товаров торгового центра нельзя перемещать
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		У всех предметов в папке запасов должен быть один и тот же тип и разрешение
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		Папку нельзя переместить в ее подпапку
@@ -1060,7 +1078,7 @@ support@secondlife.com.
 	<string name="AgentNameSubst">
 		(Вы)
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Отключить извещения при управлении списками доступа к землевладениям
 	</string>
@@ -1126,6 +1144,12 @@ support@secondlife.com.
 	</string>
 	<string name="bitmap_image_files">
 		Изображения BMP
+	</string>
+	<string name="png_image_files">
+		Изображения PNG
+	</string>
+	<string name="save_texture_image_files">
+		Изображения Targa или PNG
 	</string>
 	<string name="avi_movie_file">
 		Видео AVI
@@ -1376,6 +1400,9 @@ support@secondlife.com.
 	<string name="FavoritesNoMatchingItems">
 		Перетащите сюда закладку, чтобы добавить ее в список избранного.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Предметы не найдены. Проверьте правильность строки поиска и повторите попытку.
+	</string>
 	<string name="InventoryNoTexture">
 		В вашем инвентаре нет копии этой текстуры
 	</string>
@@ -1423,29 +1450,95 @@ support@secondlife.com.
 	<string name="InventoryOutboxError">
 		[[MARKETPLACE_CREATE_STORE_URL] Магазин] возвращает ошибки.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Это бета-версия функции. Если вы хотите участвовать в ее тестировании, заполните эту [http://goo.gl/forms/FCQ7UXkakz форму Google].
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Папка списков товаров торгового центра пуста.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Перетащите папки в эту область, чтобы выставить их на продажу в [[MARKETPLACE_DASHBOARD_URL] Торговом центре].
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		В папке версии должна быть папка запасов
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Ошибка: все предметы в папке запасов должны быть некопируемыми и одного типа
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Ошибка: папка запасов не может содержать подпапки
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Предупреждение: папка не содержит предметов
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Предупреждение: создается папка запасов
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Предупреждение: создается папка версии
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Предупреждение: перемещаются предметы
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Предупреждение: содержимое папки переносится в папку запасов, пустая папка удаляется
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Ошибка: в папке запасов должны содержаться некопируемые предметы
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Предупреждение: в папке версии должны быть предметы
+	</string>
+	<string name="Marketplace Validation Error">
+		: Ошибка:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Предупреждение:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Предупреждение: папка версии должна содержать хотя бы 1 предмет
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Предупреждение: папка запасов должна содержать хотя бы 1 предмет
+	</string>
+	<string name="Marketplace Validation No Error">
+		Нет ошибок и предупреждений
+	</string>
 	<string name="Marketplace Error None">
 		Ошибок нет
 	</string>
+	<string name="Marketplace Error Prefix">
+		Ошибка:
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Ошибка. Прежде чем отправлять вещи в магазин, необходимо зарегистрироваться как торговец (бесплатно).
+		Прежде чем отправлять предметы в торговый центр, необходимо зарегистрироваться как торговец (бесплатно).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Ошибка. В этой папке нет контента.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Ошибка. Не удается передать эту вещь, поскольку в вашем торговом аккаунте слишком много вещей, не связанных с продуктами.  Чтобы исправить эту ошибку, войдите на веб-сайт торгового центра и уменьшите число своих вещей, которые ни с чем не связаны.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Ошибка. Эта вещь содержит слишком много объектов.  Исправьте эту ошибку, сложив объекты в коробки и уменьшив их общее число (должно быть меньше 200).
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Ошибка. Эта вещь содержит слишком много уровней вложенных папок.  Измените структуру так, чтобы уровней вложенных папок было не более 3.
+	<string name="Marketplace Error Not Accepted">
+		Невозможно переместить предмет в эту папку.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Ошибка. Эту вещь нельзя продать в магазине.
+		Этот предмет нельзя продать в торговом центре.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Ошибка. Эта вещь создает проблему.  Повторите попытку позже.
+	<string name="MarketplaceNoID">
+		нет ID торг. центра
+	</string>
+	<string name="MarketplaceLive">
+		опубликовано
+	</string>
+	<string name="MarketplaceActive">
+		активно
+	</string>
+	<string name="MarketplaceMax">
+		макс.
+	</string>
+	<string name="MarketplaceStock">
+		запас
+	</string>
+	<string name="MarketplaceNoStock">
+		нет в запасе
+	</string>
+	<string name="MarketplaceUpdating">
+		обновление...
 	</string>
 	<string name="Open landmarks">
 		Открыть закладки
@@ -1466,6 +1559,7 @@ support@secondlife.com.
 		Нет контента
 	</string>
 	<string name="WornOnAttachmentPoint" value="(где носится: [ATTACHMENT_POINT])"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (активно)"/>
 	<string name="PermYes">
 		Да
@@ -1736,6 +1830,15 @@ support@secondlife.com.
 	<string name="Invalid Attachment">
 		Неверная точка присоединения
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Ошибка: отсутствует предмет
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Ошибка: отсутствует базовый предмет
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Ошибка: объект входит в текущий костюм, но не прикреплен
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1871,9 +1974,6 @@ support@secondlife.com.
 	<string name="CompileQueueUnknownFailure">
 		Неизвестный сбой загрузки
 	</string>
-	<string name="CompileNoExperiencePerm">
-		Пропуск скрипта [SCRIPT] с приключением [EXPERIENCE].
-	</string>
 	<string name="CompileQueueTitle">
 		Ход повторной компиляции
 	</string>
@@ -1907,6 +2007,9 @@ support@secondlife.com.
 	<string name="SaveComplete">
 		Сохранение завершено.
 	</string>
+	<string name="UploadFailed">
+		Не удалось загрузить файл:
+	</string>
 	<string name="ObjectOutOfRange">
 		Скрипт (объект вне области)
 	</string>
@@ -1915,6 +2018,9 @@ support@secondlife.com.
 	</string>
 	<string name="GroupsNone">
 		нет
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Пропуск скрипта [SCRIPT] с приключением [EXPERIENCE].
 	</string>
 	<string name="Group" value="(группа)"/>
 	<string name="Unknown">
@@ -5076,6 +5182,9 @@ support@secondlife.com.
 	<string name="Command_Marketplace_Label">
 		Торговый центр
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Торговый центр
+	</string>
 	<string name="Command_MiniMap_Label">
 		Миникарта
 	</string>
@@ -5162,6 +5271,9 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		Покупки
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Продайте свои творения
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Показать людей поблизости
@@ -5274,6 +5386,18 @@ support@secondlife.com.
 	<string name="UserDictionary">
 		[Пользователь]
 	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Разговоры не записываются. Чтобы начать запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Разговоры больше не будут записываться. Чтобы восстановить запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Нет зарегистрированных разговоров. Если вы обратитесь к кому-то или наоборот, в журнале появится новая запись.
+	</string>
+	<string name="loading_chat_logs">
+		Загрузка...
+	</string>
 	<string name="experience_tools_experience">
 		Приключение
 	</string>
@@ -5354,17 +5478,5 @@ support@secondlife.com.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Разрешение
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Разговоры не записываются. Чтобы начать запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Разговоры больше не будут записываться. Чтобы восстановить запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Нет зарегистрированных разговоров. Если вы обратитесь к кому-то или наоборот, в журнале появится новая запись.
-	</string>
-	<string name="loading_chat_logs">
-		Загрузка...
 	</string>
 </strings>

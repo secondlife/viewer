@@ -454,28 +454,46 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
 	<string name="TooltipOutboxDragToWorld">
-		Satıcı giden kutunuzda öğeler oluşturamazsınız
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		Satıcı giden kutunuza sadece doğrudan kendi envanterinizden öğeler koyabilirsiniz
+		Pazaryeri İlanları klasöründen öğe oluşturamazsınız
 	</string>
 	<string name="TooltipOutboxWorn">
-		Giymekte olduğunuz öğeleri Satıcı giden kutunuza koyamazsınız.
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		Satıcı giden kutunuza arama kartları koyamazsınız
+		Üzerinizde bulunan öğeleri Pazaryeri İlanları klasörüne koyamazsınız
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		İç içe geçmiş klasörlerin derinliği üçü geçiyor
+		İç içe geçmiş klasörlerin derinliği [AMOUNT] değerini geçiyor. İç içe geçmiş klasörlerin derinliğini azaltın; gerekirse öğeleri kutu içine alın.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Üst seviyedeki klasördeki alt klasör sayısı 20&apos;yi geçiyor
+		Alt klasör sayısı [AMOUNT] değerini geçiyor. İlanınızdaki klasör sayısını azaltın; gerekirse öğeleri kutu içine alın.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Üst seviyedeki klasördeki öğe sayısı 200&apos;ü geçiyor
+		Öğe sayısı [AMOUNT] değerini geçiyor. Bir ilanda [AMOUNT] öğeden fazlasını satmak için bazılarını kutu içine almalısınız.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		Stok öğelerinin sayısı [AMOUNT] değerini geçiyor.
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Öğeleri veya klasörleri sadece TÜMÜ sekmesine bırakabilirsiniz. Lütfen bu sekmeyi seçin ve öğelerinizi ya da klasörlerinizi yeniden taşıyın.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Pazaryerine sadece envanterinizdeki öğelerden koyabilirsiniz
+	</string>
+	<string name="TooltipOutboxLinked">
+		Bağlı öğeleri veya klasörleri Pazaryerine koyamazsınız
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Arama kartlarını Pazaryerine koyamazsınız
+	</string>
+	<string name="TooltipOutboxDragActive">
+		Listeye alınmış bir ilanı taşıyamazsınız
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Pazaryeri ilanları kök klasörünü taşıyamazsınız
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		Bir stok klasöründeki tüm öğelerin tipi ve izni aynı olmalıdır
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		Bir klasörü alt klasörüne taşıyamazsınız
@@ -1060,7 +1078,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="AgentNameSubst">
 		(Siz)
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Gayri menkul erişim listelerini yönetirken uyarıları bastır
 	</string>
@@ -1126,6 +1144,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="bitmap_image_files">
 		Bitmap Görüntüler
+	</string>
+	<string name="png_image_files">
+		PNG Görüntüleri
+	</string>
+	<string name="save_texture_image_files">
+		Targa veya PNG Görüntüleri
 	</string>
 	<string name="avi_movie_file">
 		AVI Film Dosyası
@@ -1376,6 +1400,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="FavoritesNoMatchingItems">
 		Bir yer imini favorilerinize eklemek için buraya sürükleyin.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Öğe bulunamadı. Arama dizenizin yazımını kontrol edin ve yeniden deneyin.
+	</string>
 	<string name="InventoryNoTexture">
 		Envanterinizde bu dokunun kopyası yok
 	</string>
@@ -1423,29 +1450,95 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="InventoryOutboxError">
 		[[MARKETPLACE_CREATE_STORE_URL] Mağazası] hata döndürüyor.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Bu özellik şu anda Beta aşamasında. Katılmak istiyorsanız lütfen adınızı bu [http://goo.gl/forms/FCQ7UXkakz Google formuna] ekleyin.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Pazaryeri İlanları klasörünüz boş.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Klasörleri [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak listelemek için bu alana sürükleyin.
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		stok klasörü bir sürüm klasöründe bulunmalıdır
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Hata: Bir stok klasöründeki tüm öğeler aynı tipte ve kopyalanamaz olmalıdır
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Hata: stok klasörü alt klasörler içeremez
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Uyarı: Klasör hiçbir öğe içermiyor
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Uyarı: stok klasörü oluşturuluyor
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Uyarı: sürüm klasörü oluşturuluyor
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Uyarı: Öğeler taşınıyor
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Uyarı: klasör içeriği stok klasörüne aktarıldı, boş klasör kaldırılıyor
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Hata: Kopyalanamaz öğeler stok klasöründe saklanmalıdır
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Uyarı: Öğeler bir sürüm klasöründe bulunmalıdır
+	</string>
+	<string name="Marketplace Validation Error">
+		: Hata:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Uyarı:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Uyarı: sürüm klasörü en az 1 öğe içermelidir
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Uyarı: Stok klasörü en az 1 öğe içermelidir
+	</string>
+	<string name="Marketplace Validation No Error">
+		Raporlanacak hiçbir hata ya da uyarı yok
+	</string>
 	<string name="Marketplace Error None">
 		Hata yok
 	</string>
+	<string name="Marketplace Error Prefix">
+		Hata:
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Hata: Öğeleri Pazaryerine göndermeden önce kendinizi bir satıcı olarak belirlemelisiniz (ücretsizdir).
+		Öğeleri Pazaryerine göndermeden önce kendinizi bir satıcı olarak belirtmeniz gerekir (ücretsizdir).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Hata: Bu klasörün içeriği boş.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Hata: Bu öğe karşıya yüklenemedi çünkü satıcı hesabınızda ürünlerle ilişkisiz çok fazla öğe mevcut.  Bu hatayı düzeltmek için Pazaryeri web sitesine oturum açın ve ilişkisiz öğe sayınızı azaltın.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Hata: Bu öğe çok fazla nesne içeriyor.  Bu hatayı düzeltmek için nesneleri birlikte kutulara yerleştirerek, toplam nesne sayısını 200&apos;ün altına düşürün.
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Hata: Bu öğede çok fazla iç içe geçmiş klasör seviyesi var.  Bunu tekrar düzenleyerek maksimum 3 iç içe geçmiş klasör seviyesine indirin.
+	<string name="Marketplace Error Not Accepted">
+		Öğe bu klasöre taşınamıyor.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Hata: Bu öğe Pazaryerinde satılamaz.
+		Bu öğe Pazaryerinde satılamaz.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Hata: Bu öğede bir sorun var.  Daha sonra tekrar deneyin.
+	<string name="MarketplaceNoID">
+		no Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		listelenmiş
+	</string>
+	<string name="MarketplaceActive">
+		etkin
+	</string>
+	<string name="MarketplaceMax">
+		maks.
+	</string>
+	<string name="MarketplaceStock">
+		stok
+	</string>
+	<string name="MarketplaceNoStock">
+		stokta kalmadı
+	</string>
+	<string name="MarketplaceUpdating">
+		güncelleniyor...
 	</string>
 	<string name="Open landmarks">
 		Açık yer imleri
@@ -1466,6 +1559,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		İçerik yok
 	</string>
 	<string name="WornOnAttachmentPoint" value="([ATTACHMENT_POINT] üzerinde giyilmiş)"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (etkin)"/>
 	<string name="PermYes">
 		Evet
@@ -1736,6 +1830,15 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="Invalid Attachment">
 		Geçersiz Aksesuar Noktası
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Hata: eksik öğe
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Hata: Eksik temel öğe
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Hata: Nesne mevcut dış görünüme dahil ama eklenmemiş
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS]&apos;lık
 	</string>
@@ -1871,9 +1974,6 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="CompileQueueUnknownFailure">
 		Karşıdan yüklerken bilinmeyen hata
 	</string>
-	<string name="CompileNoExperiencePerm">
-		[SCRIPT] komut dizisi [EXPERIENCE] deneyimiyle atlanıyor.
-	</string>
 	<string name="CompileQueueTitle">
 		Tekrar Derleme İlerlemesi
 	</string>
@@ -1907,6 +2007,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="SaveComplete">
 		Kaydetme tamamlandı.
 	</string>
+	<string name="UploadFailed">
+		Dosya karşıya yüklenemedi:
+	</string>
 	<string name="ObjectOutOfRange">
 		Komut dosyası (nesne kapsam dışı)
 	</string>
@@ -1915,6 +2018,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="GroupsNone">
 		hiçbiri
+	</string>
+	<string name="CompileNoExperiencePerm">
+		[SCRIPT] komut dizisi [EXPERIENCE] deneyimiyle atlanıyor.
 	</string>
 	<string name="Group" value="(grup)"/>
 	<string name="Unknown">
@@ -5077,6 +5183,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Marketplace_Label">
 		Pazaryeri
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Pazaryeri
+	</string>
 	<string name="Command_MiniMap_Label">
 		Mini-harita
 	</string>
@@ -5163,6 +5272,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		Alışveriş yap
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Oluşturduğunuz öğeleri satın
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Yakındaki kişileri göster
@@ -5275,6 +5387,18 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="UserDictionary">
 		[User]
 	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
+	</string>
+	<string name="loading_chat_logs">
+		Yükleniyor...
+	</string>
 	<string name="experience_tools_experience">
 		Deneyim
 	</string>
@@ -5355,17 +5479,5 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		İzin
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
-	</string>
-	<string name="loading_chat_logs">
-		Yükleniyor...
 	</string>
 </strings>

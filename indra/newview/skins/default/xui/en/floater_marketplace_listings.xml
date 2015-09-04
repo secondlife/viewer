@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater
+  title="MARKETPLACE LISTINGS"
+  name="floater_marketplace_listings"
+  help_topic="floater_marketplace_listings"
+  positioning="cascading"
+  width="333"
+  height="445"
+  min_width="200"
+  min_height="300"
+  can_close="true"
+  can_resize="true"
+  save_rect="true"
+  save_visibility="false"
+  reuse_instance="true">
+  <panel
+    name="marketplace_listings_panel"
+    follows="all"
+    layout="topleft"
+    left="0"
+    top="0"
+    height="440"
+    width="333">
+    <panel
+      follows="all"
+      left="10"
+      height="440"
+      width="313"
+      top="0"
+      bg_opaque_color="InventoryBackgroundColor">
+      <panel
+        name="marketplace_listings_inventory_placeholder_panel"
+        follows="all"
+        layout="topleft"
+        top="0"
+        left="0"
+        width="313"
+        height="440"
+        bg_opaque_color="InventoryBackgroundColor">
+        <text
+          name="marketplace_listings_inventory_placeholder_title"
+          type="string"
+          follows="top|left|right"
+          layout="topleft"
+          top="10"
+          left="0"
+          width="313"
+          height="25"
+          wrap="true"
+          halign="center"
+          font="SansSerifBold">
+            Loading...
+        </text>
+        <text
+          name="marketplace_listings_inventory_placeholder_text"
+          type="string"
+          follows="top|left|right"
+          layout="topleft"
+          top="35"
+          left="0"
+          width="313"
+          height="130"
+          wrap="true"
+          halign="left" />
+      </panel>
+      <panel
+        name="panel_marketplace_listing"
+        filename="panel_marketplace_listings.xml"
+        class="llpanelmarketplacelistings"
+        top="0"
+        follows="all"/>
+      </panel>
+    <panel
+      name="marketplace_panel_status"
+      follows="bottom|left|right"
+      layout="topleft"
+      left="10"
+      width="313"
+      height="20">
+      <text
+        name="marketplace_status"
+        type="string"
+        follows="bottom|left|right"
+        layout="topleft"
+        top="0"
+        left="5"
+        width="150"
+        height="20"
+        wrap="true"
+        halign="left"
+        valign="center"
+        font="SansSerif"/>
+    </panel>
+    <layout_stack name="initialization_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
+      <layout_panel />
+      <layout_panel height="24" auto_resize="false">
+        <layout_stack orientation="horizontal" left="0" height="24" top="0" width="333" follows="all">
+          <layout_panel width="0" />
+          <layout_panel width="24" auto_resize="false">
+            <loading_indicator
+                height="24"
+                layout="topleft"
+                left="0"
+                top="0"
+                width="24" />
+          </layout_panel>
+          <layout_panel width="0" />
+        </layout_stack>
+      </layout_panel>
+      <layout_panel />
+    </layout_stack>
+  </panel>
+</floater>

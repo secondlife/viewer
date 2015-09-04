@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Place du marché" name="Marketplace Panel">
+	<panel name="tool_panel">
+		<menu_button name="sort_btn" tool_tip="Options d&apos;affichage/de tri"/>
+		<button name="add_btn" tool_tip="Créer un nouveau dossier d&apos;annonces"/>
+		<button label="Consulter les erreurs" name="audit_btn" tool_tip="Consulter vos annonces de Place du marché"/>
+	</panel>
+	<panel name="tab_container_panel">
+		<filter_editor label="Filtrer les annonces de Place du marché" name="filter_editor"/>
+	</panel>
+</panel>

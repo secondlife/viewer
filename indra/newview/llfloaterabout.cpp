@@ -289,15 +289,11 @@ void LLServerReleaseNotesURLFetcher::httpCompleted()
 	LL_DEBUGS("ServerReleaseNotes") << dumpResponse() 
 									<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
 
-	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
-	if (floater_about)
+	std::string location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
+	if (location.empty())
 	{
-		std::string location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-		if (location.empty())
-		{
-			location = LLTrans::getString("ErrorFetchingServerReleaseNotesURL");
-		}
-		LLAppViewer::instance()->setServerReleaseNotesURL(location);
+		location = LLTrans::getString("ErrorFetchingServerReleaseNotesURL");
 	}
+	LLAppViewer::instance()->setServerReleaseNotesURL(location);
 }
 

@@ -449,28 +449,46 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]："/>
 	<string name="TooltipOutboxDragToWorld">
-		商家發件匣內的物項無法產生到虛擬世界
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		至少一個物件無法出售或轉移。
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		你的商家發件匣只能接受直接來自收納區的物項。
+		你不能從 Marketplace 的刊登資料夾產生物件。
 	</string>
 	<string name="TooltipOutboxWorn">
-		你穿著中的物項無法放入商家發件匣。
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		名片不得放入商家發件匣
+		你不能把正在穿戴的物件放到 Marketplace 的刊登資料夾
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		巢狀資料夾深度超過 3
+		巢狀資料夾深度超過 [AMOUNT]。 請減少巢狀資料夾的深度，必要的話請把物件併整起來。
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		頂層資料夾的子資料夾數目超過 20
+		子資料夾數目超過 [AMOUNT]。 請減少刊登的資料夾數目，必要的話請把物件併整起來。
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		頂層資料夾物項數目超過 200
+		物件數目超過 [AMOUNT]。 若想在同一刊登中出售超過 [AMOUNT] 個物件，你需要把物件併整起來。
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		限量物件數目超過 [AMOUNT]。
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		你只能把物項或資料夾拖放到「所有」(ALL)頁籤 請選取該頁籤，再移動你的物項或資料夾。
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		至少一個物件無法出售或轉移
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		你只能將物件從收納區放到 Marketplace。
+	</string>
+	<string name="TooltipOutboxLinked">
+		你不能把聯結的物件或資料夾放到 Marketplace
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		你不能把名片放到 Marketplace
+	</string>
+	<string name="TooltipOutboxDragActive">
+		已登出的刊登內容不得移動
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		你不能移動 Marketplace 刊登的根目錄
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		限量資料夾的所有物件必須是相同的類型和權限
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		資料夾不得移到其子資料夾底下
@@ -1055,7 +1073,7 @@ http://secondlife.com/viewer-access-faq
 	<string name="AgentNameSubst">
 		（你）
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		管理領出入許可名單時，不顯示警示
 	</string>
@@ -1121,6 +1139,12 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="bitmap_image_files">
 		Bitmap 圖像
+	</string>
+	<string name="png_image_files">
+		PNG 圖像
+	</string>
+	<string name="save_texture_image_files">
+		Targa 或 PNG 圖像
 	</string>
 	<string name="avi_movie_file">
 		AVI 視頻檔案
@@ -1371,6 +1395,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="FavoritesNoMatchingItems">
 		將一個地標拖曳到這裡，加進「我的最愛」。
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		找不到物項。 請檢查搜尋字串的拼寫，再試一次。
+	</string>
 	<string name="InventoryNoTexture">
 		你的收納區裡沒有這個材質的副本
 	</string>
@@ -1418,29 +1445,95 @@ http://secondlife.com/viewer-access-faq
 	<string name="InventoryOutboxError">
 		[[MARKETPLACE_CREATE_STORE_URL] 購物市集商店]正傳回錯誤。
 	</string>
+	<string name="InventoryMarketplaceError">
+		這功能尚在 Beta 測試階段。 如你想參與，請到這個[http://goo.gl/forms/FCQ7UXkakz Google 表單]填寫姓名。
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		你的 Marketplace 刊登資料夾是空的。
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		將資料夾拖曳到這個區域，即可在[[MARKETPLACE_DASHBOARD_URL] Marketplace]刊登出售。
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		限量資料夾必須放在版本資料夾裡
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		：錯誤：限量資料夾的所有物件必須是「禁止複製」且同一類型
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		：錯誤：限量資料夾不得含有子資料夾
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		：警告：資料夾裡沒有東西
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		：警告：新建限量資料夾
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		：警告：新建版本資料夾
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		：警告：移動物項
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		：警告：資料夾內容已轉移到限量資料夾，空的資料夾已移除
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		：錯誤：「禁止複製」物件必須放在限量資料夾裡
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		：警告：物項必須放在一個版本資料夾裡
+	</string>
+	<string name="Marketplace Validation Error">
+		：錯誤：
+	</string>
+	<string name="Marketplace Validation Warning">
+		：警告：
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		：警告：版本資料夾必須包含至少一個物項
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		：警告：限量資料夾必須包含至少一個物項
+	</string>
+	<string name="Marketplace Validation No Error">
+		沒有需要報告的錯誤或警告
+	</string>
 	<string name="Marketplace Error None">
 		零錯誤
 	</string>
+	<string name="Marketplace Error Prefix">
+		錯誤：
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		發生錯誤：將物項送往第二人生購物市集之前，你必須取得商家的身份（免費）。
+		將物件移到 Marketplace 前，你必須取得商家的身份（免費）。
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		錯誤：此資料夾沒有內容。
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		錯誤：此物項上傳失敗，因為你的商家帳戶有太多和產品無關聯的物項。  要解決這個問題，請登入第二人生購物市集網站，減低你的無關聯物項數目。
-	</string>
-	<string name="Marketplace Error Object Limit">
-		錯誤：此物項包含太多物件。  要解決這錯誤，請將物件裝箱，使總物件數目不超過 200。
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		錯誤：此物項含有太多層的巢狀資料夾。  請加以重新整理，至多允許 3 層的巢狀資料夾。
+	<string name="Marketplace Error Not Accepted">
+		無法移動該資料夾的物項。
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		錯誤：此物項無法在第二人生購物市集出售。
+		此物項無法在 Marketplace 出售。
 	</string>
-	<string name="Marketplace Error Internal Import">
-		錯誤：這個物項有問題。  請稍候再試一次。
+	<string name="MarketplaceNoID">
+		沒有 Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		已刊登
+	</string>
+	<string name="MarketplaceActive">
+		使用中
+	</string>
+	<string name="MarketplaceMax">
+		最多
+	</string>
+	<string name="MarketplaceStock">
+		限量
+	</string>
+	<string name="MarketplaceNoStock">
+		缺貨
+	</string>
+	<string name="MarketplaceUpdating">
+		正在更新…
 	</string>
 	<string name="Open landmarks">
 		開啟地標
@@ -1461,6 +1554,7 @@ http://secondlife.com/viewer-access-faq
 		無內容
 	</string>
 	<string name="WornOnAttachmentPoint" value="（已穿 [ATTACHMENT_POINT]）"/>
+	<string name="AttachmentErrorMessage" value="（[ATTACHMENT_ERROR]）"/>
 	<string name="ActiveGesture" value="[GESLABEL]（使用中）"/>
 	<string name="PermYes">
 		是
@@ -1731,6 +1825,15 @@ http://secondlife.com/viewer-access-faq
 	<string name="Invalid Attachment">
 		無效的附接點
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		錯誤：缺少物件
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		錯誤：缺少基本物項
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		錯誤：物件在目前的裝扮裡，可是卻未附著
+	</string>
 	<string name="YearsMonthsOld">
 		年齡：[AGEYEARS] 年 [AGEMONTHS] 月
 	</string>
@@ -1866,9 +1969,6 @@ http://secondlife.com/viewer-access-faq
 	<string name="CompileQueueUnknownFailure">
 		下載失敗，原因不明
 	</string>
-	<string name="CompileNoExperiencePerm">
-		略過體驗 [EXPERIENCE] 的腳本 [SCRIPT]。
-	</string>
 	<string name="CompileQueueTitle">
 		重新編譯進度
 	</string>
@@ -1902,6 +2002,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="SaveComplete">
 		儲存完畢。
 	</string>
+	<string name="UploadFailed">
+		檔案上傳失敗：
+	</string>
 	<string name="ObjectOutOfRange">
 		腳本（物件超出範圍）
 	</string>
@@ -1910,6 +2013,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="GroupsNone">
 		無
+	</string>
+	<string name="CompileNoExperiencePerm">
+		略過體驗 [EXPERIENCE] 的腳本 [SCRIPT]。
 	</string>
 	<string name="Group" value="（群組）"/>
 	<string name="Unknown">
@@ -4400,7 +4506,7 @@ http://secondlife.com/viewer-access-faq
 		女性姿勢
 	</string>
 	<string name="Other Gestures">
-		其他���勢
+		其他姿勢
 	</string>
 	<string name="Speech Gestures">
 		演說姿勢
@@ -4662,7 +4768,7 @@ http://secondlife.com/viewer-access-faq
 		刪除所選取的物品？
 	</string>
 	<string name="DeleteItem">
-		刪除所選取的物���？
+		刪除所選取的物品？
 	</string>
 	<string name="EmptyOutfitText">
 		沒有任何物品在這個裝扮內
@@ -5074,6 +5180,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="Command_Marketplace_Label">
 		第二人生購物市集
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Marketplace
+	</string>
 	<string name="Command_MiniMap_Label">
 		迷你地圖
 	</string>
@@ -5160,6 +5269,9 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		前往購物
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		出售你的創作物
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		顯示附近的人
@@ -5272,6 +5384,18 @@ http://secondlife.com/viewer-access-faq
 	<string name="UserDictionary">
 		[User]
 	</string>
+	<string name="logging_calls_disabled_log_empty">
+		交談未留記錄。 若想開始留記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		將不再為交談留記錄。 若想恢復留存記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		目前沒有交談記錄。 在你聯絡某人或某人聯絡你之後，這裡將留存記錄。
+	</string>
+	<string name="loading_chat_logs">
+		載入中…
+	</string>
 	<string name="experience_tools_experience">
 		體驗
 	</string>
@@ -5352,17 +5476,5 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="ExperiencePermissionShort12">
 		權限
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		交談未留記錄。 若想開始留記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		將不再為交談留記錄。 若想恢復留存記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		目前沒有交談記錄。 在你聯絡某人或某人聯絡你之後，這裡將留存記錄。
-	</string>
-	<string name="loading_chat_logs">
-		載入中…
 	</string>
 </strings>

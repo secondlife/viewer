@@ -128,6 +128,88 @@ Nenhuma pasta foi enviada ao Marketplace devido a um erro do sistema ou da rede.
 Ocorreu uma falha na inicialização do Marketplace devido a um erro do sistema ou da rede.  Tente novamente mais tarde.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="StockPasteFailed">
+		Copiar ou mover para Pasta de estoque com falha com o erro:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		Copiar ou mover para Listagens do Marketplace com falha com o erro:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		Ocorreu uma falha na transação com o Marketplace com o seguinte erro:
+        
+        Motivo: &apos;[ERROR_REASON]&apos;
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		Não foi possível listar este produto ou ativar a pasta de versões. Geralmente, isso é causado por ausência de informações no formulário de descrição da listagem, mas pode ser causado por erros na estrutura de pastas. Edite a listagem ou verifique se há erros na pasta de listagem.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		Falha ao listar no Marketplace com erro:
+        
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		Falha ao ativar esta pasta de versões com erro:
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		Esta ação alterará o conteúdo ativo desta listagem. Deseja continuar?
+		<usetemplate ignoretext="Confirmar antes de alterar uma listagem ativa no Marketplace" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		Os itens arrastados para a janela Listagens do Marketplace são movidos de seus locais originais e não copiados. Deseja continuar?
+		<usetemplate ignoretext="Confirmar antes de mover um item do inventário para o Marketplace" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		Mover ou excluir uma pasta de listagem excluirá sua listagem do Marketplace. Se você deseja manter a listagem do Marketplace, mova ou exclua o conteúdo da pasta de versões que você deseja modificar. Deseja continuar?
+		<usetemplate ignoretext="Confirmar antes de mover ou excluir uma listagem do Marketplace" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		Você não tem permissão para copiar um ou mais deste itens para o Marketplace. Você pode movê-los ou deixá-los para trás.
+		<usetemplate canceltext="Cancelar" ignoretext="Confirmar antes de tentar copiar uma seleção que contenha itens de cópia proibida para o Marketplace" name="yesnocancelbuttons" notext="Não mover item(ns)" yestext="Mover item(ns)"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		Esta ação removerá esta listagem. Deseja continuar?
+		<usetemplate ignoretext="Confirmar antes de remover uma listagem ativa no Marketplace" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		Esta ação desativará a pasta de versões da listagem atual. Deseja continuar?
+		<usetemplate ignoretext="Confirmar antes de desativar a pasta de versões de uma listagem no Marketplace" name="okcancelignore" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		A listagem não pode ser atualizada.
+[[URL] Clique aqui] para editá-la no Marketplace.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		Não é possível usar roupas ou partes do corpo que estejam na pasta Listagens do Marketplace.
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		ID de listagem inválida.
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		Há várias pastas sem versão ou com várias versões nesta listagem. Você precisará selecionar e ativar uma delas separadamente mais tarde.
+		<usetemplate ignoretext="Alertar sobre a ativação da pasta de versões quando criar uma listagem com várias pastas de versões" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		Separamos itens de estoque de tipos diferentes em pastas de estoque diferentes para que sua pasta fique organizada de maneira que possamos listá-la.
+		<usetemplate ignoretext="Alertar quando a pasta de estoque for dividida antes de ser listada" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		Removemos sua listagem porque o estoque está vazio. Você precisa adicionar mais unidades à pasta de estoque para que a listagem seja exibida novamente.
+		<usetemplate ignoretext="Alertar quando uma listagem não for listada porque a pasta de estoque está vazia" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="CompileQueueSaveText">
 		Houve um problema com o carregamento do texto para um script devido à seguinte razão: [REASON]. Por favor, tente novamente mais tarde.
 	</notification>
@@ -466,6 +548,10 @@ Nota: Este procedimento limpa o cache.
 	<notification name="SaveChanges">
 		Salvar alterações?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Não Salvar" yestext="Salvar"/>
+	</notification>
+	<notification name="DeleteNotecard">
+		Excluir nota?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Falha ao salvar Gesto.
@@ -1860,6 +1946,9 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 		A região que você está tentando visitar tem conteúdo que excede suas preferências atuais.  Você pode alterar suas preferências acessando Eu &gt; Preferências &gt; Geral.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
+	</notification>
 	<notification name="RegionEntryAccessBlocked_AdultsOnlyContent">
 		A região que você está tentando visitar tem conteúdo [REGIONMATURITY], acessível apenas para adultos.
 		<url name="url">
@@ -2147,6 +2236,10 @@ Mover para o inventário o(s) item(s)?
 		<form name="form">
 			<ignore name="ignore" text="Definir &apos;Pagar por objeto&apos; ao construir um objeto sem script money()"/>
 		</form>
+	</notification>
+	<notification name="PayConfirmation">
+		Confirme que você deseja pagar L$[AMOUNT] a [TARGET].
+		<usetemplate ignoretext="Confirmar antes de pagar (somas acima de L$ 200)" name="okcancelignore" notext="Cancelar" yestext="Pagar"/>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Não há itens neste objeto que você está autorizado a copiar.
@@ -3829,9 +3922,11 @@ Tente novamente em instantes.
 	</notification>
 	<notification name="TeleportedByAttachment">
 		Você foi teletransportado por um anexo em [ITEM_ID]
+		<usetemplate ignoretext="Teletransportar: Você foi teletransportado por um anexo" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOnParcel">
 		Você foi teletransportado pelo objeto &apos;[OBJECT_NAME]&apos; no lote &apos;[PARCEL_NAME]&apos;
+		<usetemplate ignoretext="Teletransportar: Você foi teletransportado por um objeto em um lote" name="notifyignore"/>
 	</notification>
 	<notification name="TeleportedByObjectOwnedBy">
 		Você foi teletransportado pelo objeto &apos;[OBJECT_NAME]&apos; de propriedade de [OWNER_ID]
@@ -4163,7 +4258,7 @@ Tente selecionar uma quantidade menor de terreno.
 		<usetemplate ignoretext="Não foi possível mover arquivos. Caminho anterior restaurado." name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="DefaultObjectPermissions">
-		Ocorreu um problema ao salvar as permissões padrão devido ao seguinte motivo: [REASON].  Tente definir as permissões padrão mais tarde.
+		Ocorreu um problema ao salvar as permissões padrão do objeto: [REASON].  Tente definir as permissões padrão mais tarde.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ChatHistoryIsBusyAlert">

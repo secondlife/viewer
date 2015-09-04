@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+  label="Marketplace"
+  name="Marketplace Panel"
+  follows="all"
+  layout="topleft"
+  width="308"
+  height="440">
+  <panel
+    name="tool_panel"
+    follows="left|top|right"
+    layout="topleft"
+    height="30"
+    width="308"
+    top="0"
+    left="0">
+    <menu_button
+      name="sort_btn"
+      tool_tip="View/sort options"
+      layout="topleft"
+      follows="top|left"
+      width="31"
+      height="25"
+      left="2"
+      menu_filename="menu_marketplace_view.xml"
+      image_hover_unselected="Toolbar_Middle_Over"
+      image_overlay="Conv_toolbar_sort"
+      image_selected="Toolbar_Middle_Selected"
+      image_unselected="Toolbar_Middle_Off"
+      menu_position="bottomleft"/>
+    <button
+      name="add_btn"
+      tool_tip="Create a new listing folder"
+      layout="topleft"
+      follows="top|left"
+      width="31"
+      height="25"
+      left_pad="2"
+      image_hover_unselected="Toolbar_Middle_Over"
+      image_overlay="Conv_toolbar_plus"
+      image_selected="Toolbar_Middle_Selected"
+      image_unselected="Toolbar_Middle_Off"/>
+    <button
+      name="audit_btn"
+      label="Check for Errors"
+      tool_tip="Check your marketplace listings"
+      layout="topleft"
+      follows="top|right"
+      width="97"
+      height="26"
+      left_pad="143"/>
+  </panel>
+  <panel
+    name="tab_container_panel"
+    follows="all"
+    layout="topleft"
+    default_tab_group="1"
+    width="308"
+    height="350">
+  <filter_editor
+    text_pad_left="10"
+    follows="left|top|right"
+    height="23"
+    label="Filter Marketplace Listings"
+    layout="topleft"
+    left="0"
+    max_length_chars="300"
+    name="filter_editor"
+    top="0"
+    width="308" />
+  <tab_container
+    name="marketplace_filter_tabs"
+    follows="all"
+    layout="topleft"
+    top="30"
+    left="0"
+    top_pad="0"
+    width="308"
+    height="320"
+    halign="center"
+    tab_height="30"
+    tab_group="1"
+    tab_position="top"
+    tab_min_width="50">
+  </tab_container>
+  </panel>
+  <panel
+      name="marketplace_drop_zone"
+      mouse_opaque="true"
+      follows="bottom|left|right"
+      left="2"
+      width="306"
+      height="40"
+      background_visible="true"
+      background_opaque="true"
+      bg_alpha_image="none"
+      bg_alpha_color="EmphasisColor_35"
+      bg_opaque_image="Marketplace_Dropzone_Background"
+      border="true"
+      bevel_style="in"
+      visible="true">
+      <text
+          type="string"
+          follows="bottom|left|right"
+          layout="topleft"
+          top="13"
+          height="20"
+          left="2"
+          width="306"
+          halign="center"
+          font="SansSerifMedium"
+          font_shadow="hard"
+          valign="top">
+          Drop folders here to create new listings
+      </text>
+  </panel>
+</panel>

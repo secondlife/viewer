@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="associate listing" title="ASSOCIER L&apos;ANNONCE">
+	<text name="message">ID d&apos;annonce :</text>
+	<line_editor name="listing_id">Saisir l&apos;ID ici</line_editor>
+	<button label="OK" name="OK"/>
+	<button label="Annuler" name="Cancel"/>
+</floater>

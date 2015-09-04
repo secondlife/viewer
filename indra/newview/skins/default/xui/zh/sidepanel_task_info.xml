@@ -1,71 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="物件檔案">
-	<panel.string name="text deed continued">
-		讓渡
-	</panel.string>
-	<panel.string name="text deed">
-		讓渡
-	</panel.string>
-	<panel.string name="text modify info 1">
-		你能修改這個物件
-	</panel.string>
-	<panel.string name="text modify info 2">
-		你能修改這些物件
-	</panel.string>
-	<panel.string name="text modify info 3">
-		你不能修改這個物件
-	</panel.string>
-	<panel.string name="text modify info 4">
-		你不能修改這些物件
-	</panel.string>
-	<panel.string name="text modify info 5">
-		無法跨地區修改這個物件
-	</panel.string>
-	<panel.string name="text modify info 6">
-		無法跨地區修改這些物件
-	</panel.string>
-	<panel.string name="text modify warning">
-		這個物件含有聯結的部分
-	</panel.string>
-	<panel.string name="Cost Default">
-		價格： L$
-	</panel.string>
-	<panel.string name="Cost Total">
-		總價：L$
-	</panel.string>
-	<panel.string name="Cost Per Unit">
-		單價：L$
-	</panel.string>
-	<panel.string name="Cost Mixed">
-		混合價格
-	</panel.string>
-	<panel.string name="Sale Mixed">
-		混合銷售
-	</panel.string>
+	<panel.string name="text deed continued">讓渡</panel.string>
+	<panel.string name="text deed">讓渡</panel.string>
+	<panel.string name="text modify info 1">你能修改這個物件</panel.string>
+	<panel.string name="text modify info 2">你能修改這些物件</panel.string>
+	<panel.string name="text modify info 3">你不能修改這個物件</panel.string>
+	<panel.string name="text modify info 4">你不能修改這些物件</panel.string>
+	<panel.string name="text modify info 5">無法跨地區修改這個物件</panel.string>
+	<panel.string name="text modify info 6">無法跨地區修改這些物件</panel.string>
+	<panel.string name="text modify warning">這個物件含有聯結的部分</panel.string>
+	<panel.string name="Cost Default">價格： L$</panel.string>
+	<panel.string name="Cost Total">總價格：L$</panel.string>
+	<panel.string name="Cost Per Unit">單價：L$</panel.string>
+	<panel.string name="Cost Mixed">混合價格</panel.string>
+	<panel.string name="Sale Mixed">混合銷售</panel.string>
 	<text name="title" value="物件檔案"/>
 	<text name="where" value="（在虛擬世界）"/>
 	<panel label="" name="properties_panel">
-		<text name="Name:">
-			名稱：
-		</text>
-		<text name="Description:">
-			描述：
-		</text>
-		<text name="CreatorNameLabel">
-			創造者：
-		</text>
-		<text name="Owner:">
-			所有人：
-		</text>
-		<text name="Group_label">
-			群組：
-		</text>
+		<text name="Name:">名稱：</text>
+		<text name="Description:">描述：</text>
+		<text name="CreatorNameLabel">創造者：</text>
+		<text name="Owner:">所有人：</text>
+		<text name="Group_label">群組：</text>
 		<button name="button set group" tool_tip="選擇一個群組以分享這物件的權限"/>
 		<name_box initial_value="載入中..." name="Group Name Proxy"/>
 		<button label="讓渡" label_selected="讓渡" name="button deed" tool_tip="「讓渡」會把這物件贈送出去並賦予「下一個所有人」權限。 群組所分享的物件可由群組職員加以讓渡。"/>
-		<text name="label click action">
-			點按以：
-		</text>
+		<text name="label click action">點按以：</text>
 		<combo_box name="clickaction">
 			<combo_box.item label="觸碰（預設）" name="Touch/grab(default)"/>
 			<combo_box.item label="坐在物件上" name="Sitonobject"/>
@@ -75,21 +35,13 @@
 			<combo_box.item label="縮放" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
-			<text name="perm_modify">
-				你能修改這個物件
-			</text>
-			<text name="Anyone can:">
-				任何人：
-			</text>
+			<text name="perm_modify">你能修改這個物件</text>
+			<text name="Anyone can:">任何人：</text>
 			<check_box label="恚庨" name="checkbox allow everyone copy"/>
 			<check_box label="移動" name="checkbox allow everyone move"/>
-			<text name="GroupLabel">
-				群組：
-			</text>
+			<text name="GroupLabel">群組：</text>
 			<check_box label="分享" name="checkbox share with group" tool_tip="允許此群組所有成員共享你修改此物件的權限。 你必須讓渡才能啟動角色限制。"/>
-			<text name="NextOwnerLabel">
-				下一個所有人：
-			</text>
+			<text name="NextOwnerLabel">下一個所有人：</text>
 			<check_box label="修改" name="checkbox next owner can modify"/>
 			<check_box label="恚庨" name="checkbox next owner can copy"/>
 			<check_box label="轉移" name="checkbox next owner can transfer" tool_tip="下一個所有人可贈送或轉售這個物件"/>
@@ -102,27 +54,13 @@
 		</combo_box>
 		<spinner label="價格： L$" name="Edit Cost"/>
 		<check_box label="顯示在搜尋中" name="search_check" tool_tip="讓其他人可以在搜尋結果中察看到此物件"/>
-		<text name="pathfinding_attributes_label">
-			尋徑屬性：
-		</text>
-		<text name="B:">
-			B:
-		</text>
-		<text name="O:">
-			O:
-		</text>
-		<text name="G:">
-			G:
-		</text>
-		<text name="E:">
-			E:
-		</text>
-		<text name="N:">
-			N:
-		</text>
-		<text name="F:">
-			F:
-		</text>
+		<text name="pathfinding_attributes_label">尋徑屬性：</text>
+		<text name="B:">B:</text>
+		<text name="O:">O:</text>
+		<text name="G:">G:</text>
+		<text name="E:">E:</text>
+		<text name="N:">N:</text>
+		<text name="F:">F:</text>
 	</panel>
 	<panel name="button_panel">
 		<button label="打開" name="open_btn"/>

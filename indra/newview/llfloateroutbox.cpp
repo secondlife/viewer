@@ -160,6 +160,12 @@ BOOL LLFloaterOutbox::postBuild()
 	mCategoryAddedObserver = new LLOutboxAddedObserver(this);
 	gInventory.addObserver(mCategoryAddedObserver);
 	
+    // Setup callbacks for importer
+	LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
+    importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
+    importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
+    importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
+    
 	return TRUE;
 }
 
@@ -298,12 +304,8 @@ void LLFloaterOutbox::initializeMarketPlace()
 	// Initialize the marketplace import API
 	//
 	LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
-	
     if (!importer.isInitialized())
     {
-        importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
-        importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
-        importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
         importer.initialize();
     }
 }
@@ -516,7 +518,7 @@ void LLFloaterOutbox::onImportButtonClicked()
     {
         mOutboxInventoryPanel.get()->clearSelection();
     }
-
+    
 	mImportBusy = LLMarketplaceInventoryImporter::instance().triggerImport();
 }
 
@@ -616,4 +618,6 @@ void LLFloaterOutbox::showNotification(const LLNotificationPtr& notification)
 	
 	notification_handler->processNotification(notification);
 }
+
+
 

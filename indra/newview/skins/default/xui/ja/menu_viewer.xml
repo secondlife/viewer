@@ -23,6 +23,7 @@
 		</menu>
 		<menu_item_call label="L$ の購入..." name="Buy and Sell L$"/>
 		<menu_item_call label="マーチャントアウトボックス..." name="MerchantOutbox"/>
+		<menu_item_call label="マーケティングプレイスのリスト..." name="MarketplaceListings"/>
 		<menu_item_call label="マイアカウント..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
@@ -251,6 +252,7 @@
 			<menu_item_check label="テクスチャのコンソール" name="Texture Console"/>
 			<menu_item_check label="デバッグコンソール" name="Debug Console"/>
 			<menu_item_call label="通知コンソール" name="Notifications"/>
+			<menu_item_check label="地域デバッグコンソール" name="Region Debug Console"/>
 			<menu_item_check label="ファーストタイマー" name="Fast Timers"/>
 			<menu_item_check label="メモリ" name="Memory"/>
 			<menu_item_check label="風景の統計" name="Scene Statistics"/>
@@ -354,7 +356,7 @@
 			<menu_item_check label="挿入されたオブジェクトの位置の Ping" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="パケットドロップ" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="スクリプト付きカメラをダンプ" name="Dump Scripted Camera"/>		
+		<menu_item_call label="スクリプト付きカメラをダンプ" name="Dump Scripted Camera"/>
 		<menu label="レコーダー" name="Recorder">
 			<menu_item_call label="再生開始" name="Start Playback"/>
 			<menu_item_call label="再生停止" name="Stop Playback"/>

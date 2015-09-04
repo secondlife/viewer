@@ -1,71 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="Profil de l&apos;objet">
-	<panel.string name="text deed continued">
-		Céder
-	</panel.string>
-	<panel.string name="text deed">
-		Céder
-	</panel.string>
-	<panel.string name="text modify info 1">
-		Vous pouvez modifier cet objet
-	</panel.string>
-	<panel.string name="text modify info 2">
-		Vous pouvez modifier ces objets
-	</panel.string>
-	<panel.string name="text modify info 3">
-		Vous ne pouvez pas modifier cet objet
-	</panel.string>
-	<panel.string name="text modify info 4">
-		Vous ne pouvez pas modifier ces objets
-	</panel.string>
-	<panel.string name="text modify info 5">
-		Impossible de modifier cet objet au-delà de la frontière d&apos;une région
-	</panel.string>
-	<panel.string name="text modify info 6">
-		Impossible de modifier ces objets au-delà de la frontière d&apos;une région
-	</panel.string>
-	<panel.string name="text modify warning">
-		Cet objet comprend des parties liées
-	</panel.string>
-	<panel.string name="Cost Default">
-		Prix : L$
-	</panel.string>
-	<panel.string name="Cost Total">
-		Prix total : L$
-	</panel.string>
-	<panel.string name="Cost Per Unit">
-		Prix par : L$
-	</panel.string>
-	<panel.string name="Cost Mixed">
-		Prix mixte
-	</panel.string>
-	<panel.string name="Sale Mixed">
-		Vente mixte
-	</panel.string>
+	<panel.string name="text deed continued">Céder</panel.string>
+	<panel.string name="text deed">Céder</panel.string>
+	<panel.string name="text modify info 1">Vous pouvez modifier cet objet</panel.string>
+	<panel.string name="text modify info 2">Vous pouvez modifier ces objets</panel.string>
+	<panel.string name="text modify info 3">Vous ne pouvez pas modifier cet objet</panel.string>
+	<panel.string name="text modify info 4">Vous ne pouvez pas modifier ces objets</panel.string>
+	<panel.string name="text modify info 5">Impossible de modifier cet objet au-delà de la frontière d&apos;une région</panel.string>
+	<panel.string name="text modify info 6">Impossible de modifier ces objets au-delà de la frontière d&apos;une région</panel.string>
+	<panel.string name="text modify warning">Cet objet comprend des parties liées</panel.string>
+	<panel.string name="Cost Default">Prix : L$</panel.string>
+	<panel.string name="Cost Total">Prix total : L$</panel.string>
+	<panel.string name="Cost Per Unit">Prix par : L$</panel.string>
+	<panel.string name="Cost Mixed">Prix mixte</panel.string>
+	<panel.string name="Sale Mixed">Vente mixte</panel.string>
 	<text name="title" value="Profil de l&apos;objet"/>
 	<text name="where" value="(dans Second Life)"/>
 	<panel label="" name="properties_panel">
-		<text name="Name:">
-			Nom :
-		</text>
-		<text name="Description:">
-			Description :
-		</text>
-		<text name="CreatorNameLabel">
-			Créateur :
-		</text>
-		<text name="Owner:">
-			Propriétaire :
-		</text>
-		<text name="Group_label">
-			Groupe :
-		</text>
+		<text name="Name:">Nom :</text>
+		<text name="Description:">Description :</text>
+		<text name="CreatorNameLabel">Créateur :</text>
+		<text name="Owner:">Propriétaire :</text>
+		<text name="Group_label">Groupe :</text>
 		<button name="button set group" tool_tip="Choisir un groupe pour partager les droits relatifs à cet objet"/>
 		<name_box initial_value="Chargement…" name="Group Name Proxy"/>
 		<button label="Céder" label_selected="Céder" name="button deed" tool_tip="En cédant un objet, vous donnez aussi les droits au prochain propriétaire. Seul un officier peut céder les objets partagés d&apos;un groupe."/>
-		<text name="label click action">
-			Cliquer pour :
-		</text>
+		<text name="label click action">Cliquer pour :</text>
 		<combo_box name="clickaction">
 			<combo_box.item label="Toucher (défaut)" name="Touch/grab(default)"/>
 			<combo_box.item label="S&apos;asseoir sur l&apos;objet" name="Sitonobject"/>
@@ -75,21 +35,13 @@
 			<combo_box.item label="Zoom" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
-			<text name="perm_modify">
-				Vous pouvez modifier cet objet
-			</text>
-			<text name="Anyone can:">
-				N&apos;importe qui :
-			</text>
+			<text name="perm_modify">Vous pouvez modifier cet objet</text>
+			<text name="Anyone can:">N&apos;importe qui :</text>
 			<check_box label="Copier" name="checkbox allow everyone copy"/>
 			<check_box label="Bouger" name="checkbox allow everyone move"/>
-			<text name="GroupLabel">
-				Groupe :
-			</text>
+			<text name="GroupLabel">Groupe :</text>
 			<check_box label="Partager" name="checkbox share with group" tool_tip="Autoriser tous les membres du groupe choisi à partager vos droits de modification pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Céder."/>
-			<text name="NextOwnerLabel">
-				Le prochain propriétaire :
-			</text>
+			<text name="NextOwnerLabel">Le prochain propriétaire :</text>
 			<check_box label="Modifier" name="checkbox next owner can modify"/>
 			<check_box label="Copier" name="checkbox next owner can copy"/>
 			<check_box label="Transférer" name="checkbox next owner can transfer" tool_tip="Le prochain propriétaire peut donner ou revendre cet objet"/>
@@ -102,27 +54,13 @@
 		</combo_box>
 		<spinner label="Prix : L$" name="Edit Cost"/>
 		<check_box label="Afficher avec la recherche" name="search_check" tool_tip="Permettre aux autres résidents de voir cet objet dans les résultats de recherche"/>
-		<text name="pathfinding_attributes_label">
-			Attributs de recherche de chemin :
-		</text>
-		<text name="B:">
-			B :
-		</text>
-		<text name="O:">
-			O :
-		</text>
-		<text name="G:">
-			G :
-		</text>
-		<text name="E:">
-			E :
-		</text>
-		<text name="N:">
-			N :
-		</text>
-		<text name="F:">
-			F :
-		</text>
+		<text name="pathfinding_attributes_label">Attributs de recherche de chemin :</text>
+		<text name="B:">B :</text>
+		<text name="O:">O :</text>
+		<text name="G:">G :</text>
+		<text name="E:">E :</text>
+		<text name="N:">N :</text>
+		<text name="F:">F :</text>
 	</panel>
 	<panel name="button_panel">
 		<button label="Ouvrir" name="open_btn"/>

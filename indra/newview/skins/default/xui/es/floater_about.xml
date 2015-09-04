@@ -1,82 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_about" title="ACERCA DE [CAPITALIZED_APP_NAME]">
-	<floater.string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</floater.string>
-	<floater.string name="AboutCompiler">
-		Compilado con [COMPILER], versión [COMPILER_VERSION]
-	</floater.string>
-	<floater.string name="AboutPosition">
-		Estás en la posición [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] de [REGION], alojada en &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
-SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
-(coordenadas globales [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
-	</floater.string>
-	<floater.string name="AboutSystem">
-		CPU: [CPU]
-Memoria: [MEMORY_MB] MB
-Versión del Sistema Operativo: [OS_VERSION]
-Fabricante de la tarjeta gráfica: [GRAPHICS_CARD_VENDOR]
-Tarjeta gráfica: [GRAPHICS_CARD]
-	</floater.string>
-	<floater.string name="AboutDriver">
-		Versión de Windows Graphics Driver: [GRAPHICS_DRIVER_VERSION]
-	</floater.string>
-	<floater.string name="AboutLibs">
-		Versión de OpenGL: [OPENGL_VERSION]
-
-Versión de libcurl: [LIBCURL_VERSION]
-Versión de J2C Decoder: [J2C_VERSION]
-Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
-Versión de Qt Webkit: [QT_WEBKIT_VERSION]
-Versión del servidor de voz: [VOICE_VERSION]
-	</floater.string>
-	<floater.string name="none">
-		(no hay)
-	</floater.string>
-	<floater.string name="AboutTraffic">
-		Paquetes perdidos: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
-	</floater.string>
-	<floater.string name="ErrorFetchingServerReleaseNotesURL">
-		Error al obtener la URL de las notas de la versión del servidor.
-	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Información" name="support_panel">
 			<button label="Copiar al portapapeles" name="copy_btn" width="165"/>
 		</panel>
 		<panel label="Créditos" name="credits_panel">
-			<text name="linden_intro">
-				Second Life ofrecido por los Lindens:
-			</text>
-			<text_editor name="linden_names">
-				Philip, Andrew, Doug, Richard, Phoenix, Ian, Mark, Robin, Dan, Char, Ryan, Eric, Jim, Lee, Jeff, Michael, Kelly, Steve, Catherine, Bub, Ramzi, Jill, Jeska, Don, Kona, Callum, Charity, Jack, Shawn, babbage, James, Lauren, Blue, Brent, Reuben, Pathfinder, Jesse, Patsy, Torley, Bo, Cyn, Jonathan, Gia, Annette, Ginsu, Harry, Lex, Runitai, Guy, Cornelius, Beth, Swiss, Thumper, Wendy, Teeple, Seth, Dee, Mia, Sally, Liana, Aura, Beez, Milo, Red, Gulliver, Marius, Joe, Jose, Dore, Justin, Nora, Morpheus, Lexie, Amber, Chris, Xan, Leyla, Walker, Sabin, Joshua, Hiromi, Tofu, Fritz, June, Jean, Ivy, Dez, Ken, Betsy, Which, Spike, Rob, Zee, Dustin, George, Claudia, del, Matthew, jane, jay, Adrian, Yool, Rika, Yoz, siobhan, Qarl, Benjamin, Beast, Everett, madhavi, Christopher, Izzy, stephany, Jeremy, sean, adreanne, Pramod, Tobin, sejong, Iridium, maurice, kj, Meta, kari, JP, bert, kyle, Jon, Socrates, Bridie, Ivan, maria, Aric, Coco, Periapse, sandy, Storrs, Lotte, Colossus, Brad, Pastrami, Zen, BigPapi, Banzai, Sardonyx, Mani, Garry, Jaime, Neuro, Samuel, Niko, CeeLo, Austin, Soft, Poppy, emma, tessa, angelo, kurz, alexa, Sue, CG, Blake, Erica, Brett, Bevis, kristen, Q, simon, Enus, MJ, laurap, Kip, Scouse, Ron, Ram, kend, Marty, Prospero, melissa, kraft, Nat, Seraph, Hamilton, Lordan, Green, miz, Ashlei, Trinity, Ekim, Echo, Charlie, Rowan, Rome, Jt, Doris, benoc, Christy, Bao, Kate, Tj, Patch, Cheah, Johan, Brandy, Angela, Oreh, Cogsworth, Lan, Mitchell, Space, Bambers, Einstein, Bender, Malbers, Matias, Maggie, Rothman, Milton, Niall, Marin, Allison, Mango, Andrea, Katt, Yi, Ambroff, Rico, Raymond, Gail, Christa, William, Dawn, Usi, Dynamike, M, Corr, Dante, Molly, kaylee, Danica, Kelv, Lil, jacob, Nya, Rodney, elsie, Blondin, Grant, Nyx, Devin, Monty, Minerva, Keira, Katie, Jenn, Makai, Clare, Joy, Cody, Gayathri, FJ, spider, Oskar, Landon, Jarv, Noelle, Al, Doc, Gray, Vir, t, Maestro, Simone, Shannon, yang, Courtney, Scott, charlene, Quixote, Susan, Zed, Amanda, Katelin, Esbee, JoRoan, Enkidu, roxie, Scarlet, Merov, Kevin, Judy, Rand, Newell, Les, Dessie, Galen, Michon, Geo, Siz, Calyle, Pete, Praveen, Callen, Sheldon, Pink, Nelson, jenelle, Terrence, Nathan, Juan, Sascha, Huseby, Karina, Kaye, Kotler, Lis, Darv, Charrell, Dakota, Kimmora, Theeba, Taka, Mae, Perry, Ducot, dana, Esther, Dough, gisele, Doten, Viale, Fisher, jessieann, ashley, Torres, delby, rountree, kurt, Slaton, Madison, Rue, Gino, Wen, Casssandra, Brodesky, Squid, Gez, Rakesh, Gecko, Ladan, Tony, Tatem, Squire, Falcon, BK, Crimp, Tiggs, Bacon, Coyot, Carmilla, Webb, Sea, Arch, Jillian, Jason, Bernard, Vogt, Peggy, dragon, Pup, xandix, Wallace, Bewest, Inoshiro, Rhett, AG, Aimee, Ghengis, Itiaes, Eli, Steffan, Epic, Grapes, Stone, Prep, Scobu, Robert, Alain, Carla, Vicky, Tia, Alec, Taras, Lisa, Oz, Ariane, Log, House, Kazu, Kim, Drofnas, Tyler, Campbell, Michele, Madeline, Nelly, Baron, Thor, Lori, Hele, Fredrik, Teddy, Pixie, Berry, Gabrielle, Alfonso, Brooke, Wolf, Ringo, Cru, Charlar, Rodvik, Gibson, Elise, Bagman, Greger, Leonidas, Jerm, Leslie, CB, Brenda, Durian, Carlo, mm, Zeeshan, Caleb, Max, Elikak, Mercille, Steph, Chase
-			</text_editor>
-			<text name="contrib_intro">
-				con contribuciones de código abierto de:
-			</text>
-			<text_editor name="contrib_names">
-				Dummy Name sustituido durante la ejecución
-			</text_editor>
-			<text name="trans_intro">
-				y traducido por:
-			</text>
-			<text_editor name="trans_names">
-				Dummy Name sustituido durante la ejecución
-			</text_editor>
+			<text name="linden_intro">Second Life ofrecido por los Lindens, 
+con contribuciones de código abierto de:</text>
+			<text_editor name="contrib_names">Dummy Name sustituido durante la ejecución</text_editor>
 		</panel>
 		<panel label="Licencias" name="licenses_panel">
-			<text_editor name="credits_editor">
-				3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
+			<text_editor name="licenses_editor">3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
         APR Copyright (C) 2011 The Apache Software Foundation
         Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
         cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
         DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
         expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
-        FreeType Copyright (C) 1996-2002, 2006 David Turner, Robert Wilhelm, and Werner Lemberg.
+        FreeType Copyright (C) 1996-2002, 2006 David Turner, Robert Wilhelm y Werner Lemberg.
         GL Copyright (C) 1999-2004 Brian Paul.
-        GLOD Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University and David Luebke, Brenden Schubert, University of Virginia.
+        GLOD Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University y David Luebke, Brenden Schubert, University of Virginia.
         google-perftools Copyright (c) 2005, Google Inc.
         Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
         jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
@@ -87,7 +29,7 @@ Versión del servidor de voz: [VOICE_VERSION]
         SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
         SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
         xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
-        zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
+        zlib Copyright (C) 1995-2012 Jean-loup Gailly y Mark Adler.
 
         El visor de Second Life usa Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (y sus licenciadores). Reservados todos los derechos. Vea los detalles en www.havok.com.
 
@@ -95,8 +37,7 @@ Versión del servidor de voz: [VOICE_VERSION]
 
         Reservados todos los derechos.  Consulte los detalles en licenses.txt.
 
-        Codificación del audio del chat de voz: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
-			</text_editor>
+        Codificación del audio del chat de voz: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)</text_editor>
 		</panel>
 	</tab_container>
 </floater>

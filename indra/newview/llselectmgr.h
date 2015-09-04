@@ -506,6 +506,8 @@ public:
 
 	bool unlinkObjects();
 
+	void confirmUnlinkObjects(const LLSD& notification, const LLSD& response);
+
 	bool enableLinkObjects();
 
 	bool enableUnlinkObjects();
@@ -759,6 +761,7 @@ private:
 	void sendListToRegions(	const std::string& message_name,
 							void (*pack_header)(void *user_data), 
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
+							void (*log_func)(LLSelectNode* node, void *user_data), 
 							void *user_data,
 							ESendType send_type);
 
@@ -794,6 +797,9 @@ private:
 	static void packHingeHead(void *user_data);
 	static void packPermissionsHead(void* user_data);
 	static void packGodlikeHead(void* user_data);
+    static void logNoOp(LLSelectNode* node, void *user_data);
+    static void logAttachmentRequest(LLSelectNode* node, void *user_data);
+    static void logDetachRequest(LLSelectNode* node, void *user_data);
 	static bool confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle);
 
 	// Get the first ID that matches test and whether or not all ids are identical in selected objects.

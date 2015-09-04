@@ -451,28 +451,46 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="TooltipPrice" value="L$ [AMOUNT]:"/>
 	<string name="TooltipOutboxDragToWorld">
-		Non puoi rezzare elementi nella tua casella in uscita del rivenditore
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Almeno uno di questi oggetti non può essere venduto o trasferito.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		La tua casella in uscita del rivenditore può accettare solo elementi provenienti dal tuo inventario
+		Non puoi rezzare articoli dalla cartella degli annunci di Marketplace
 	</string>
 	<string name="TooltipOutboxWorn">
-		Non puoi mettere gli elementi che indossi nella casella in uscita del rivenditore
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		Non puoi inserire il tuo biglietto da visita nella tua casella in uscita del rivenditore
+		Non puoi inserire nella cartella degli annunci in Marketplace gli articoli che indossi
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		La profondità delle caselle nidificate è maggiore di 3
+		La profondità delle caselle nidificate è maggiore di [AMOUNT]. Diminuisci la profondità delle cartelle nidificate; se necessario, raggruppa gli articoli.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		Il numero di sottocartelle nella cartella al livello più alto è maggiore di 20
+		Il numero di sottocartelle è maggiore di [AMOUNT]. Diminuisci il numero delle cartelle nel tuo annuncio; se necessario, raggruppa gli articoli.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Il numero di elementi nella cartella al livello più alto è maggiore di 200
+		Il numero di articoli è maggiore di [AMOUNT]. Per vendere più di [AMOUNT] articoli in un annuncio, devi raggruppare alcuni di essi.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		Il numero di articoli in magazzino è maggiore di [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Puoi trascinare articoli o cartelle solo nella scheda TUTTI. Seleziona la scheda e sposta nuovamente gli articoli o le cartelle.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Almeno uno di questi oggetti non può essere venduto o trasferito
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Puoi aggiungere a Marketplace solo gli articoli nel tuo inventario
+	</string>
+	<string name="TooltipOutboxLinked">
+		Non puoi inserire cartelle o articoli collegati tramite link nel Marketplace
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Non puoi inserire biglietti da visita in Marketplace
+	</string>
+	<string name="TooltipOutboxDragActive">
+		non puoi muovere un annuncio attivo
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Non puoi spostare la cartella principale degli annunci di Marketplace
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		Tutti gli articoli in una cartella di magazzino devono essere dello stesso tipo e con le stesse autorizzazioni
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		Non puoi spostare una cartella nella relativa cartella secondaria
@@ -1054,7 +1072,7 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="AgentNameSubst">
 		(Tu)
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Omette gli avvisi durante la gestione degli elenchi di accesso alle proprietà immobiliari
 	</string>
@@ -1120,6 +1138,12 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="bitmap_image_files">
 		Immagini Bitmap
+	</string>
+	<string name="png_image_files">
+		Immagini PNG
+	</string>
+	<string name="save_texture_image_files">
+		Immagini Targa o PNG
 	</string>
 	<string name="avi_movie_file">
 		File video AVI
@@ -1370,6 +1394,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="FavoritesNoMatchingItems">
 		Trascina qui un punto di riferimento per aggiungerlo ai Preferiti.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Nessun articolo trovato. Controlla di aver digitato la stringa di ricerca correttamente e riprova.
+	</string>
 	<string name="InventoryNoTexture">
 		Non hai una copia di questa texture nel tuo inventario
 	</string>
@@ -1417,29 +1444,95 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="InventoryOutboxError">
 		Il [[MARKETPLACE_CREATE_STORE_URL] negozio nel Marketplace] ha riportato errori.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Questa funzione è al momento in versione beta. Per partecipare, aggiungi il tuo nome a questo [http://goo.gl/forms/FCQ7UXkakz modulo Google].
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		La cartella degli annunci di Marketplace è vuota.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Trascina le cartelle in questa area per metterle in vendita su [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		la cartella di magazzino deve essere inclusa in una cartella di versione
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Errore: tutti gli articoli un una cartella di magazzino devono essere non copiabili e dello stesso tipo
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Errore: la cartella di magazzino non può contenere sottocartelle
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Avviso: la cartella non contiene alcun articolo
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Avviso: creazione cartella di magazzino in corso
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Avviso: creazione cartella di versione in corso
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Avviso: spostamento articoli in corso
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Avviso: il contenuto della cartella è stato trasferito alla cartella di magazzino e la cartella vuota sta per essere rimossa
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Errore: gli articoli di cui non è permessa la copia devono essere all&apos;interno di una cartella di magazzino
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Avviso: gli articoli devono essere inclusi in una cartella di versione
+	</string>
+	<string name="Marketplace Validation Error">
+		: Errore:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Avviso:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Avviso: la cartella di versione deve contenere almeno 1 articolo
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Avviso: la cartella di magazzino deve contenere almeno 1 articolo
+	</string>
+	<string name="Marketplace Validation No Error">
+		Nessun errore o avviso da segnalare
+	</string>
 	<string name="Marketplace Error None">
 		Nessun errore
 	</string>
+	<string name="Marketplace Error Prefix">
+		Errore:
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Errore: Prima di inviare elementi al Marketplace devi essere impostato come rivenditore (gratis).
+		Prima di inviare gli articoli al Marketplace devi essere impostato come rivenditore (gratis).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Errore: questa cartella non include alcun contenuto.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Errore: Oggetto non caricato perché il tuo account venditore ha troppi oggetti che non sono associati con dei prodotti.  Per risolvere questo errore, esegui l&apos;accesso al sito di Marketplace e riduci il numero di oggetti non associati.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Errore: questo elemento contiene troppi oggetti. Per risolvere questo problema, inserisci più oggetti insieme in una scatola per ridurre a meno di 200 il numero totale di oggetti.
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Errore: questo elemento contiene troppi livelli di cartelle nidificate. Riorganizzalo per ottenere un massimo di 3 livelli di cartelle nidificate.
+	<string name="Marketplace Error Not Accepted">
+		L&apos;articolo non può essere spostato in quella cartella.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Errore: Questo elemento non può essere venduto nel Marketplace.
+		Questo articolo non può essere venduto nel Marketplace.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Errore: problema con questo elemento. Riprova più tardi.
+	<string name="MarketplaceNoID">
+		no Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		in elenco
+	</string>
+	<string name="MarketplaceActive">
+		attivi
+	</string>
+	<string name="MarketplaceMax">
+		massimo
+	</string>
+	<string name="MarketplaceStock">
+		magazzino
+	</string>
+	<string name="MarketplaceNoStock">
+		non in magazzino
+	</string>
+	<string name="MarketplaceUpdating">
+		in aggiornamento...
 	</string>
 	<string name="Open landmarks">
 		Apri luoghi di riferimento
@@ -1460,6 +1553,7 @@ Prova ad accedere nuovamente tra un minuto.
 		Nessun contenuto
 	</string>
 	<string name="WornOnAttachmentPoint" value="(indossato su [ATTACHMENT_POINT])"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (attivo)"/>
 	<string name="Chat Message" value="Chat:"/>
 	<string name="Sound" value="Suono :"/>
@@ -1724,6 +1818,15 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="Invalid Attachment">
 		Punto di collegamento non valido
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Errore: articolo mancante
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Errore: articolo di base mancante
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Errore: l&apos;oggetto è nel vestiario corrente ma non è collegato
+	</string>
 	<string name="YearsMonthsOld">
 		Nato da [AGEYEARS] [AGEMONTHS]
 	</string>
@@ -1859,9 +1962,6 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="CompileQueueUnknownFailure">
 		Errore di dowload sconosciuto
 	</string>
-	<string name="CompileNoExperiencePerm">
-		Saltato lo script [SCRIPT] con l&apos;esperienza [EXPERIENCE].
-	</string>
 	<string name="CompileQueueTitle">
 		Avanzamento ricompilazione
 	</string>
@@ -1895,6 +1995,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="SaveComplete">
 		Salvataggio completato.
 	</string>
+	<string name="UploadFailed">
+		Caricamento file non riuscito:
+	</string>
 	<string name="ObjectOutOfRange">
 		Script (oggetto fuori portata)
 	</string>
@@ -1903,6 +2006,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="GroupsNone">
 		nessuno
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Saltato lo script [SCRIPT] con l&apos;esperienza [EXPERIENCE].
 	</string>
 	<string name="Group" value="(gruppo)"/>
 	<string name="Unknown">
@@ -4983,6 +5089,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Marketplace_Label">
 		Mercato
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Marketplace
+	</string>
 	<string name="Command_MiniMap_Label">
 		Mini mappa
 	</string>
@@ -5069,6 +5178,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		Vai allo shopping
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Vendi le tue creazioni
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Mostra le persone vicine
@@ -5181,6 +5293,18 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="UserDictionary">
 		[User]
 	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Non verranno registrate più le conversazioni. Per riprendere a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Nessuna conversazione in registro. Dopo che hai contattato qualcuno o se qualcuno ti contatta, una voce del registro verrà mostrata qui.
+	</string>
+	<string name="loading_chat_logs">
+		Caricamento in corso...
+	</string>
 	<string name="experience_tools_experience">
 		Esperienza
 	</string>
@@ -5261,17 +5385,5 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Autorizzazione
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Non verranno registrate più le conversazioni. Per riprendere a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Nessuna conversazione in registro. Dopo che hai contattato qualcuno o se qualcuno ti contatta, una voce del registro verrà mostrata qui.
-	</string>
-	<string name="loading_chat_logs">
-		Caricamento in corso...
 	</string>
 </strings>

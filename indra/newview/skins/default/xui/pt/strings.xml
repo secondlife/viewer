@@ -406,28 +406,46 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]"/>
 	<string name="TooltipOutboxDragToWorld">
-		Não é possível fazer rez do itens em sua caixa de saída do lojista
-	</string>
-	<string name="TooltipOutboxNoTransfer">
-		Um ou mais destes objetos não podem ser vendidos ou transferidos.
-	</string>
-	<string name="TooltipOutboxNotInInventory">
-		Sua caixa de saída do lojista aceita apenas itens direto do seu inventário
+		Não é possível fazer rez de itens da pasta Listagens do Marketplace
 	</string>
 	<string name="TooltipOutboxWorn">
-		Você não pode colocar os itens que está vestindo na sua caixa de saída do lojista
-	</string>
-	<string name="TooltipOutboxCallingCard">
-		Não é possível colocar cartões de visita em sua caixa de saída do lojista
+		Não é possível colocar itens que você estiver usando na pasta Listagens do Marketplace
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		A profundidade das pastas aninhadas excede 3
+		A profundidade das pastas aninhadas excede [AMOUNT]. Diminua a profundidade das pastas dentro de pastas. Agrupe os itens se necessário.
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		A contagem de subpastas na pasta de nível superior excede 20
+		O número de subpastas excede [AMOUNT]. Diminua a o número de pastas em sua listagem. Agrupe os itens se necessário.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		A contagem de itens na pasta de nível superior excede 200
+		O número de itens excede [AMOUNT]. Para vender mais que [AMOUNT] itens em uma listagem, você deve agrupar alguns deles.
+	</string>
+	<string name="TooltipOutboxTooManyStockItems">
+		O número de itens de estoque excede [AMOUNT].
+	</string>
+	<string name="TooltipOutboxCannotDropOnRoot">
+		Você pode soltar somente itens ou pastas na aba TUDO. Selecione essa aba e mova seus itens ou pastas novamente.
+	</string>
+	<string name="TooltipOutboxNoTransfer">
+		Um ou mais objetos não podem ser vendidos ou transferidos
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		É possível colocar somente itens do seu inventário no Marketplace
+	</string>
+	<string name="TooltipOutboxLinked">
+		Não é possível colocar itens ou pastas vinculadas no Marketplace
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Não é possível colocar cartões de visitas no Marketplace
+	</string>
+	<string name="TooltipOutboxDragActive">
+		Não é possível mover uma listagem publicada
+	</string>
+	<string name="TooltipOutboxCannotMoveRoot">
+		Não é possível mover a pasta raiz das listagens do Marketplace
+	</string>
+	<string name="TooltipOutboxMixedStock">
+		Todos os itens em uma pasta de estoque têm o mesmo tipo e permissão
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		Não é possível mover uma pasta para seu filho
@@ -1009,7 +1027,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="AgentNameSubst">
 		(Você)
 	</string>
-	<string name="JoinAnExperience"/>
+	<string name="JoinAnExperience"/><!-- intentionally blank -->
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas ao gerenciar listas de acesso ao terreno
 	</string>
@@ -1075,6 +1093,12 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="bitmap_image_files">
 		Imagens Bitmap
+	</string>
+	<string name="png_image_files">
+		Imagens PNG
+	</string>
+	<string name="save_texture_image_files">
+		Imagens targa ou PNG
 	</string>
 	<string name="avi_movie_file">
 		Arquivo de vídeo AVI
@@ -1325,6 +1349,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="FavoritesNoMatchingItems">
 		Arraste um marco para adicioná-lo aos seus favoritos.
 	</string>
+	<string name="MarketplaceNoMatchingItems">
+		Nenhum item correspondente encontrado. Verifique a ortografia de sua cadeia de pesquisa e tente novamente.
+	</string>
 	<string name="InventoryNoTexture">
 		Você não possui uma cópia desta textura no seu inventário
 	</string>
@@ -1372,29 +1399,95 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="InventoryOutboxError">
 		A loja [[MARKETPLACE_CREATE_STORE_URL] no Marketplace] está retornando erros.
 	</string>
+	<string name="InventoryMarketplaceError">
+		Esse recurso está em beta. Inscreva-se neste [http://goo.gl/forms/FCQ7UXkakz formulário do Google] se você deseja participar.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItemsTitle">
+		Sua pasta Listagens do Marketplace está vazia.
+	</string>
+	<string name="InventoryMarketplaceListingsNoItems">
+		Arraste pastas para esta área para listá-las para venda no [Marketplace [MARKETPLACE_DASHBOARD_URL]].
+	</string>
+	<string name="Marketplace Validation Warning Stock">
+		a pasta de estoque deve estar em uma pasta de versões
+	</string>
+	<string name="Marketplace Validation Error Mixed Stock">
+		: Erro: todos os itens em uma pasta de estoque devem ser de cópia proibida e todos do mesmo tipo
+	</string>
+	<string name="Marketplace Validation Error Subfolder In Stock">
+		: Erro: a pasta de estoque não pode ter subpastas
+	</string>
+	<string name="Marketplace Validation Warning Empty">
+		: Aviso: a pasta não contém itens
+	</string>
+	<string name="Marketplace Validation Warning Create Stock">
+		: Aviso: criando pasta de estoque
+	</string>
+	<string name="Marketplace Validation Warning Create Version">
+		: Aviso: criando pasta de versões
+	</string>
+	<string name="Marketplace Validation Warning Move">
+		: Aviso: movendo itens
+	</string>
+	<string name="Marketplace Validation Warning Delete">
+		: Aviso: conteúdo da pasta transferido para pasta de estoque, removendo pasta vazia
+	</string>
+	<string name="Marketplace Validation Error Stock Item">
+		: Erro: itens de cópia proibida devem estar em uma pasta de estoque
+	</string>
+	<string name="Marketplace Validation Warning Unwrapped Item">
+		: Aviso: os itens devem estar em uma pasta de versões
+	</string>
+	<string name="Marketplace Validation Error">
+		: Erro:
+	</string>
+	<string name="Marketplace Validation Warning">
+		: Aviso:
+	</string>
+	<string name="Marketplace Validation Error Empty Version">
+		: Aviso: a pasta de versões deve conter pelo menos 1 item
+	</string>
+	<string name="Marketplace Validation Error Empty Stock">
+		: Aviso: a pasta de estoque deve conter pelo menos 1 item
+	</string>
+	<string name="Marketplace Validation No Error">
+		Não há erros ou avisos
+	</string>
 	<string name="Marketplace Error None">
 		Sem erros
 	</string>
+	<string name="Marketplace Error Prefix">
+		Erro:
+	</string>
 	<string name="Marketplace Error Not Merchant">
-		Erro: antes de enviar os itens para o Mercado, é necessário que você se defina como um lojista (sem custos).
+		antes de enviar os itens para o Marketplace, é necessário que você se defina como um lojista (sem custos).
 	</string>
-	<string name="Marketplace Error Empty Folder">
-		Erro: esta pasta está vazia.
-	</string>
-	<string name="Marketplace Error Unassociated Products">
-		Erro: ocorreu uma falha ao enviar este item, pois sua conta de lojista tem muitos itens não associados a produtos.  Para corrigir esse erro, faça o login no site do mercado e reduza a contagem de itens não associados.
-	</string>
-	<string name="Marketplace Error Object Limit">
-		Erro: este item contém muitos objetos. Corrija esse erro unindo os objetos em caixa para reduzir a contagem total a menos de 200.
-	</string>
-	<string name="Marketplace Error Folder Depth">
-		Erro: este item contém muitos níveis de pastas aninhadas. Reorganize-o em até 3 níveis de pastas aninhadas, no máximo.
+	<string name="Marketplace Error Not Accepted">
+		Não é possível mover o item nessa pasta.
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		Erro: este item não pode ser vendido no mercado.
+		Este item não pode ser vendido no Marketplace.
 	</string>
-	<string name="Marketplace Error Internal Import">
-		Erro: ocorreu um problema com este item. Tente novamente mais tarde.
+	<string name="MarketplaceNoID">
+		no Mkt ID
+	</string>
+	<string name="MarketplaceLive">
+		publicada
+	</string>
+	<string name="MarketplaceActive">
+		ativo
+	</string>
+	<string name="MarketplaceMax">
+		máx
+	</string>
+	<string name="MarketplaceStock">
+		estoque
+	</string>
+	<string name="MarketplaceNoStock">
+		esgotado
+	</string>
+	<string name="MarketplaceUpdating">
+		atualizando...
 	</string>
 	<string name="Open landmarks">
 		Marcos abertos
@@ -1415,6 +1508,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 		Nenhum conteúdo
 	</string>
 	<string name="WornOnAttachmentPoint" value="(vestido em [ATTACHMENT_POINT])"/>
+	<string name="AttachmentErrorMessage" value="([ATTACHMENT_ERROR])"/>
 	<string name="ActiveGesture" value="[GESLABEL] (ativado)"/>
 	<string name="Chat Message" value="Bate-papo:"/>
 	<string name="Sound" value="Som"/>
@@ -1679,6 +1773,15 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="Invalid Attachment">
 		Ponto de encaixe inválido
 	</string>
+	<string name="ATTACHMENT_MISSING_ITEM">
+		Erro: item ausente
+	</string>
+	<string name="ATTACHMENT_MISSING_BASE_ITEM">
+		Erro: item base ausente
+	</string>
+	<string name="ATTACHMENT_NOT_ATTACHED">
+		Erro: o objeto está no look atual, mas não foi anexado
+	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS] [AGEMONTHS] de idade
 	</string>
@@ -1814,9 +1917,6 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="CompileQueueUnknownFailure">
 		Falha desconhecida para download
 	</string>
-	<string name="CompileNoExperiencePerm">
-		Pulando script [SCRIPT] com experiência [EXPERIENCE]
-	</string>
 	<string name="CompileQueueTitle">
 		Progresso do recompilamento
 	</string>
@@ -1850,6 +1950,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="SaveComplete">
 		Salvo.
 	</string>
+	<string name="UploadFailed">
+		Falha ao carregar arquivo:
+	</string>
 	<string name="ObjectOutOfRange">
 		Script (objeto fora de alcance)
 	</string>
@@ -1858,6 +1961,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="GroupsNone">
 		nenhum
+	</string>
+	<string name="CompileNoExperiencePerm">
+		Pulando script [SCRIPT] com experiência [EXPERIENCE]
 	</string>
 	<string name="Group" value="(grupo)"/>
 	<string name="Unknown">
@@ -4940,6 +5046,9 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="Command_Marketplace_Label">
 		Mercado
 	</string>
+	<string name="Command_MarketplaceListings_Label">
+		Marketplace
+	</string>
 	<string name="Command_MiniMap_Label">
 		Mini Mapa
 	</string>
@@ -5026,6 +5135,9 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Command_Marketplace_Tooltip">
 		Faça compras
+	</string>
+	<string name="Command_MarketplaceListings_Tooltip">
+		Venda suas criações
 	</string>
 	<string name="Command_MiniMap_Tooltip">
 		Mostrar quem está aqui
@@ -5138,6 +5250,18 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="UserDictionary">
 		[Usuário]
 	</string>
+	<string name="logging_calls_disabled_log_empty">
+		As conversas não estão sendo registradas. Para começar a manter um registro, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Nenhuma conversa será registrada. Para recomeçar a gravação de registros, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Não há conversas registradas. Depois que você entrar em contato com alguém, ou alguém entrar em contato com você, um registro será exibido aqui.
+	</string>
+	<string name="loading_chat_logs">
+		Carregando...
+	</string>
 	<string name="experience_tools_experience">
 		Experiência
 	</string>
@@ -5218,17 +5342,5 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Autorização
-	</string>
-	<string name="logging_calls_disabled_log_empty">
-		As conversas não estão sendo registradas. Para começar a manter um registro, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Nenhuma conversa será registrada. Para recomeçar a gravação de registros, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Não há conversas registradas. Depois que você entrar em contato com alguém, ou alguém entrar em contato com você, um registro será exibido aqui.
-	</string>
-	<string name="loading_chat_logs">
-		Carregando...
 	</string>
 </strings>

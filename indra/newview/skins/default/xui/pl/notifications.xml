@@ -28,7 +28,7 @@
 	<template name="okcancelignore">
 		<form>
 			<button name="OK_okcancelignore" text="$yestext"/>
-			<button name="Cancel_okcancelignore" text="$canceltext"/>
+			<button name="Cancel_okcancelignore" text="$notext"/>
 		</form>
 	</template>
 	<template name="okhelpbuttons">
@@ -67,6 +67,10 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 		[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Tak"/>
 	</notification>
+	<notification name="GenericAlertOK">
+		[MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="BadInstallation">
 		Podczas aktualizacji [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę [http://get.secondlife.com pobierz najnowsza wersję] aby ściągnąć ostatnią wersję klienta.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -84,6 +88,88 @@ Upewnij się, że Twoje połączenie z internetem działa.
 	<notification name="WearableSave">
 		Zapisać zmiany dotyczące ubrania/części ciała?
 		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie Zapisuj" yestext="Zapisz"/>
+	</notification>
+	<notification name="StockPasteFailed">
+		Kopiowanie lub przeniesienie do folderu magazynowego nie powiodło się:
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantPasteFailed">
+		Kopiowanie lub przenoszenie przedmiotów na Marketplace nie powiodło się:
+
+&apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantTransactionFailed">
+		Transakcja z Marketplace nie powiodła się:
+
+        Powód: &apos;[ERROR_REASON]&apos;
+        [ERROR_DESCRIPTION]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantUnprocessableEntity">
+		Wylistowanie tego produktu lub aktywowanie folderu z wersją nie było możliwe. Zazwyczaj jest to spowodowane brakującymi informacjami w formularzu z opisem przedmiotu, ale może to również wynikać z błędów w strukturze folderów. Zmień opis przedmiotu lub sprawdź foldery, aby znaleźć błędy.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantListingFailed">
+		Listowanie na Marketplace nie powiodło się:
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="MerchantFolderActivationFailed">
+		Aktywacja tego folderu wersji nie powiodła się:
+
+        &apos;[ERROR_CODE]&apos;
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantActiveChange">
+		Jeśli kontynuujesz, to zmieni się aktywna zawartość tego przedmiotu. Czy chcesz kontynuować?
+		<usetemplate ignoretext="Potwierdź przed zmodyfikowaniem aktywnego przedmiotu na Marketplace" name="okcancelignore" notext="Anuluj" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantMoveInventory">
+		Przedmioty przeciągnięte do okna listowania na Marketplace są przenoszone z ich oryginalnych lokalizacji, a nie kopiowane. Czy chcesz kontynuować?
+		<usetemplate ignoretext="Potwierdź, zanim prześlę na Marketplace przedmiot z mojej Szafy" name="okcancelignore" notext="Anuluj" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmListingCutOrDelete">
+		Przeniesienie lub usunięcie folderu usunie również Twój przedmiot na Marketplace. Jeśli chcesz, aby przedmiot był ciągle widoczny na Marketplace musisz przesunąć lub usunąć zawartość folderu z wersją, którą chcesz zmodyfikować. Czy chcesz kontynuować?
+		<usetemplate ignoretext="Potwierdź, zanim usunę lub przeniosę przedmiot na Marketplace" name="okcancelignore" notext="Anuluj" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmCopyToMarketplace">
+		Nie masz praw do skopiowania jednego lub więcej obiektów na Marketplace. Możesz je przenieść lub pozostawić.
+		<usetemplate canceltext="Anuluj" ignoretext="Potwierdź, zanim wyślę na Marketplace przedmioty bez praw kopiowania" name="yesnocancelbuttons" notext="Nie przenoś" yestext="Przenieś"/>
+	</notification>
+	<notification name="ConfirmMerchantUnlist">
+		Jeśli kontynuujesz, to ten przedmiot zostanie usunięty z listy. Czy chcesz kontynuować?
+		<usetemplate ignoretext="Potwierdź, zanim usunę z listy przedmiot na Marketplace" name="okcancelignore" notext="Anuluj" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmMerchantClearVersion">
+		Jeśli kontynuujesz, to folder wersji tego przedmiotu zostanie zdeaktywowany. Czy chcesz kontynuować?
+		<usetemplate ignoretext="Potwierdź przed wyłączeniem folderu wersji dla przedmiotu na Marketplace" name="okcancelignore" notext="Anuluj" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingNotUpdated">
+		Ten przedmiot nie może zostać zaktualizowany.
+[[URL] Kliknij tutaj] aby zaktualizować go na Marketplace.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantListingCannotWear">
+		Nie możesz założyć ubrań lub części ciała, które znajdują się w folderze listingów Marketplace.
+	</notification>
+	<notification name="AlertMerchantListingInvalidID">
+		Nieprawidłowy ID przedmiotu.
+	</notification>
+	<notification name="AlertMerchantListingActivateRequired">
+		Istnieje kilka, lub żadna, wersji folderu dla tego przedmiotu. Będziesz musiała/ wybrać i uaktywnić jedną oddzielnie później.
+		<usetemplate ignoretext="Powiadamiaj o aktywacji folderu wersji, gdy tworzę przedmiot z kilkoma folderami wersji" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderSplit">
+		Przedmioty z ograniczonymi zasobami magazynowymi różnych typów zostały rozdzielone do osobnych folderów, aby ogólna hierarchia katalogów umożliwiała ich listowanie.
+		<usetemplate ignoretext="Powiadom, gdy folder magazynowy jest dzielony przed listowaniem" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="AlertMerchantStockFolderEmpty">
+		Twój przedmiot został usunięty z listy, ponieważ nie ma go już w magazynie. Musisz dodać więcej jego jednostek do folderu magazynowego, aby można było go ponownie wyświetlać na liście.
+		<usetemplate ignoretext="Powiadom, gdy przedmiot jest zdjęty z listy, bo folder zasobów magazynowych jest pusty" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		W trakcie ładwania tekstu dla skryptu pojawił się problem z następującego powodu: [REASON]. Spróbuj ponownie za kilka minut.
@@ -390,6 +476,10 @@ Pamiętaj: Opcja ta wyczyszcza bufor danych.
 	<notification name="SaveChanges">
 		Zapisać zmiany?
 		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie zapisuj" yestext="Zapisz"/>
+	</notification>
+	<notification name="DeleteNotecard">
+		Usunąć notkę?
+		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="GestureSaveFailedTooManySteps">
 		Nie można zapisać gesturki.
@@ -1075,9 +1165,6 @@ Przekazać tą posiadłość o powierzchni [AREA] m² grupie &apos;[GROUP_NAME]&
 	<notification name="DisplaySetToSafe">
 		Ustawienia grafiki zostały zmienione do bezpiecznego poziomu ponieważ opcja -safe została wybrana.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Ustawienia grafiki zostały zmienione do zalecanego poziomu na podstawie konfiguracji Twojego systemu.
-	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -1338,6 +1425,7 @@ W celu instalacji aktualizacji musi zostać wykonany restart [APP_NAME].
 	</notification>
 	<notification name="RequiredUpdateDownloadedDialog">
 		W celu instalacji aktualizacji musi zostać wykonany restart [APP_NAME].
+[[INFO_URL] Information about this update]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
@@ -1415,12 +1503,6 @@ Chcesz opuścić grupę?
 		Nie możesz zaoferować znajomości w tym momencie. Spróbuj jeszcze raz za chwilę.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="BusyModeSet">
-		Tryb Pracy jest włączony.
-Czat i IM będą ukryte. Wysłane IM będą otrzymywały Twoją odpowiedź Trybu Pracy. Propozycje teleportacji będą odrzucone.
-Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywane w folderze &quot;Kosz&quot; w Twojej szafie.
-		<usetemplate ignoretext="Status zmieniony na Tryb pracy" name="okignore" yestext="OK"/>
-	</notification>
 	<notification name="JoinedTooManyGroupsMember">
 		Należysz już do maksymalnej ilości grup. Opuść proszę przynajmniej jedną grupę żeby przyjąć członkostwo w tej grupie, albo odmów.
 [NAME] oferuje Ci członkostwo w grupie.
@@ -1434,8 +1516,8 @@ Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywa
 		Wyrzuć tego Rezydenta, wysyłając następujący komunikat.
 		<form name="form">
 			<input name="message">
-				Administrator wylogował Cię.
-			</input>
+		Administrator wylogował Cię.
+	</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
@@ -1444,8 +1526,8 @@ Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywa
 		Z jakim komunikatem wyrzucić wszystkich użytkowników z regionu?
 		<form name="form">
 			<input name="message">
-				Administrator wylogował Cię.
-			</input>
+		Administrator wylogował Cię.
+	</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
@@ -1454,8 +1536,8 @@ Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywa
 		Unieruchom tego Rezydenta, wysyłając następujący komunikat.
 		<form name="form">
 			<input name="message">
-				Unieruchomiono Cię. Nie możesz się ruszać ani rozmawiać. Administrator skontaktuje się z Tobą poprzez IM.
-			</input>
+		Unieruchomiono Cię. Nie możesz się ruszać ani rozmawiać. Administrator skontaktuje się z Tobą poprzez IM.
+	</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
@@ -1464,8 +1546,8 @@ Dodatkowo, wszystkie podarowane dla Ciebie obiekty będą automatycznie zapisywa
 		Cofnij unieruchomienie tego Rezydenta, wysyłając następujący komunikat.
 		<form name="form">
 			<input name="message">
-				Odblokowano Cię.
-			</input>
+		Odblokowano Cię.
+	</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
@@ -1617,14 +1699,8 @@ Kontynuować?
 Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="RegionEntryAccessBlocked_KB">
-		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie. 
-
-Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
-		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
-		</url>
-		<usetemplate ignoretext="Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie. Może być to wynikiem braku informacji na temat weryfikacji Twojego wieku." name="okcancelignore" notext="Zamknij" yestext="[SECOND_LIFE]:Pomoc"/>
+	<notification name="SLM_UPDATE_FOLDER">
+		[MESSAGE]
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
 		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie.
@@ -1648,15 +1724,6 @@ W celu uzyskania dostępu do tego regiony zmień proszę swój status ustawień 
 Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="LandClaimAccessBlocked_KB">
-		Ze względu na Twój wiek, nie możesz odzyskać tej posiadłości. 
-
-Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
-		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
-		</url>
-		<usetemplate ignoretext="W związku ze statusem ustawień Twojego wieku, nie możesz odzyskać tej posiadłości." name="okcancelignore" notext="Zamknij" yestext="[SECOND_LIFE]:Pomoc"/>
-	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
 		Ze względu na Twój wiek, nie możesz odzyskać tej posiadłości.
 	</notification>
@@ -1664,22 +1731,12 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		W związku ze statusem ustawień Twojego wieku, nie możesz odzyskać tej posiadłości.
 
 Możesz wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach Twojego wieku by uzyskać dostęp do regionu. Wówczas będziesz w stanie znaleźć oraz mieć dostęp do [REGIONMATURITY] treści. Jeżeli zdecydujesz się na powrót do poprzednich ustawień, wybierz Ja &gt; Ustawienia &gt; Główne.
-		<usetemplate ignoretext="Ze względu na Twój wiek, nie możesz odzyskać tej posiadłości." name="okcancelignore" notext="Zamknij" yestext="Zmień Ustawienia"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
 		Ze względu na Twój wiek, nie możesz kupić tej posiadłości. Może być to wynikiem braku informacji na temat weryfikacji Twojego wieku.
 
 Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="LandBuyAccessBlocked_KB">
-		Ze względu na Twój wiek, nie możesz kupić tej posiadłości. 
-
-Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
-		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
-		</url>
-		<usetemplate ignoretext="Ze względu na Twój wiek, nie możesz kupić tej posiadłości." name="okcancelignore" notext="Zamknij" yestext="[SECOND_LIFE]:Pomoc"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
 		Ze względu na Twój wiek, nie możesz kupić tej posiadłości.
@@ -1688,7 +1745,6 @@ Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostęp
 		W związku ze statusem ustawień Twojego wieku, nie możesz kupić tej posiadłości.
 
 Możesz wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach Twojego wieku by uzyskać dostęp do regionu. Wówczas będziesz w stanie znaleźć oraz mieć dostęp do [REGIONMATURITY] treści. Jeżeli zdecydujesz się na powrót do poprzednich ustawień, wybierz Ja &gt; Ustawienia &gt; Główne.
-		<usetemplate ignoretext="W związku ze statusem ustawień Twojego wieku, nie możesz kupić tej posiadłości." name="okcancelignore" notext="Zamknij" yestext="Zmień Ustawienia"/>
 	</notification>
 	<notification name="TooManyPrimsSelected">
 		Zbyt wiele wybranych obiektów. Wybierz [MAX_PRIM_COUNT] lub mniej i spróbuj ponownie
@@ -1849,6 +1905,10 @@ Przenieść obiekty szafy?
 			<ignore name="ignore" text="Opcja Zapłać Obiektowi została aktywowana podczas budowania obiektów bez skryptu z funkcją money()."/>
 		</form>
 	</notification>
+	<notification name="PayConfirmation">
+		Potwierdź, że na pewno chcesz zapłacić [AMOUNT]L$ dla [TARGET].
+		<usetemplate ignoretext="Potwierdź przed płaceniem (kwoty ponad 200 L$)" name="okcancelignore" notext="Anuluj" yestext="Płać"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		W tym obiekcie nie ma elementów które możesz skopiować.
 	</notification>
@@ -1918,16 +1978,6 @@ Chcesz go zamienić na wybrany obiekt?
 			<button ignore="Nie zamieniaj" name="No" text="Anuluj"/>
 		</form>
 	</notification>
-	<notification label="Ostrzeżenie Trybu Pracy" name="BusyModePay">
-		Jesteś w Trybie pracy co oznacza, że nie dostaniesz żadnych obiektów w zamian za tą opłatę.
-
-Chcesz wyłączyć Tryb pracy przed zakończeniem tej tranzakcji?
-		<form name="form">
-			<ignore name="ignore" save_option="true" text="Jesteś w Trybie Pracy co oznacza, że nie dostaniesz żadnych obiektów w zamian za tą opłatę. Chcesz wyłączyć Tryb Pracy przed zakończeniem tej transakcji?"/>
-			<button ignore="Zawsz wyłączaj tryb pracy" name="Yes" text="OK"/>
-			<button ignore="Nie wyłączaj trybu pracy" name="No" text="Anuluj"/>
-		</form>
-	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
 		Ten folder &apos;[FOLDERNAME]&apos; to folder systemowy. Usunięcie foldera systemowego spowoduje niestabilność. Czy na pewno chcesz go skasować?
 		<usetemplate ignoretext="Potwierdź zanim folder systemu zostanie skasowany" name="okcancelignore" notext="Anuluj" yestext="OK"/>
@@ -1965,10 +2015,6 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Chcesz zmienić zapisane ustawienia?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
 	</notification>
-	<notification name="WLDeletePresetAlert">
-		Chcesz usunąć [SKY]?
-		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
-	</notification>
 	<notification name="WLNoEditDefault">
 		Nie możesz edytować lub usunąć domyślnych ustawień.
 	</notification>
@@ -1978,35 +2024,6 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 	<notification name="PPSaveEffectAlert">
 		Efekt post-procesu już istnieje. Chcesz zapisać nowy na jego miejsce?
 		<usetemplate name="okcancelbuttons" notext="Nie" yestext="Tak"/>
-	</notification>
-	<notification name="NewSkyPreset">
-		Nazwij nowe niebo.
-		<form name="form">
-			<input name="message">
-				Nowe ustawienie
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Anuluj"/>
-		</form>
-	</notification>
-	<notification name="ExistsSkyPresetAlert">
-		Ustawienie już istnieje!
-	</notification>
-	<notification name="NewWaterPreset">
-		Nazwij nowe ustawienie wody.
-		<form name="form">
-			<input name="message">
-				Nowe ustawienie
-			</input>
-			<button name="OK" text="OK"/>
-			<button name="Cancel" text="Anuluj"/>
-		</form>
-	</notification>
-	<notification name="ExistsWaterPresetAlert">
-		Ustawienie już istnieje!
-	</notification>
-	<notification name="WaterNoEditDefault">
-		Domyślne ustawienie nie może być zmienione ani usunięte.
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		Błąd podczas rozpoczynania czatu/IM z [RECIPIENT].
@@ -2038,10 +2055,6 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Nie masz dostępu do tej posiadłości ze względu na brak weryfikacji Twojego wieku. Czy chcesz odwiedzić stronę [SECOND_LIFE] żeby to zmienić?
 
 [_URL]
-		<url name="url" option="0">
-			https://secondlife.com/account/verification.php
-		</url>
-		<usetemplate ignoretext="Brak weryfikacji wieku" name="okcancelignore" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Nie masz dostępu do tej posiadłości ze względu na brak danych o Twoim koncie. Czy chcesz odwiedzić stronę [SECOND_LIFE] żeby to zmienić?
@@ -2075,12 +2088,6 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 	</notification>
 	<notification name="GroupNotice">
 		Temat: [SUBJECT], Treść: [MESSAGE]
-	</notification>
-	<notification name="FriendOnline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; jest w Second Life
-	</notification>
-	<notification name="FriendOffline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; opuszcza Second Life
 	</notification>
 	<notification name="AddSelfFriend">
 		Nie możesz dodać siebie do listy znajomych.
@@ -2525,22 +2532,17 @@ Czy się zgadzasz?
 		<form name="form">
 			<button name="Grant" text="Zaakceptuj"/>
 			<button name="Deny" text="Odmów"/>
-			<button name="Details" text="Szczegóły..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
 		[NAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
-		<form name="form">
-			<button name="Ignore" text="Zignoruj"/>
-		</form>
+		<form name="form"/>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME]&apos;s &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
-		<form name="form">
-			<button name="Ignore" text="Zignoruj"/>
-		</form>
+		<form name="form"/>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Dziękujemy za wpłatę!
@@ -2857,10 +2859,6 @@ Kliknij i przeciągnij gdziekolwiek aby obrócić widok.
 			<button name="cancel" text="Anuluj"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Zmiana trybu wymaga restartu.
-		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		Tworzenie i edycja reklam jest możliwa tylko w trybie zaawansowanym. Czy chcesz wylogować się i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
 		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
@@ -2889,9 +2887,6 @@ Kliknij i przeciągnij gdziekolwiek aby obrócić widok.
 		Płacenie innym Rezydentom jest możliwe tylko w trybie zaawansowanym. Czy chcesz się wylogować i zmienić tryb? Opcja wyboru trybu życia jest widoczna na ekranie logowania.
 		<usetemplate name="okcancelbuttons" notext="Nie zamykaj" yestext="Zamknij"/>
 	</notification>
-	<global name="UnsupportedCPU">
-		- Prędkość Twojego CPU nie spełnia minimalnych wymagań.
-	</global>
 	<global name="UnsupportedGLRequirements">
 		Wygląda na to, że Twój system nie spełnia wymagań sprzętowych [APP_NAME]. [APP_NAME] wymaga karty graficznej kompatybilnej z OpenGL z multiteksturami. Jeżeli masz taką kartę zainstaluj najnowsze sterowniki do niej i uaktualnienia systemu operacyjnego.
 
@@ -2916,4 +2911,16 @@ W innym przypadku możesz poszukać na mapie miejsca oznaczone jako &quot;Infohu
 	<global name="You died and have been teleported to your home location">
 		Nastąpiła śmierć i teleportacja do Miejsca Startu.
 	</global>
+	<notification name="TeleportedByAttachment">
+		You have been teleported by an attachment on [ITEM_ID]
+		<usetemplate ignoretext="Zostałeś/aś teleportowany/a przez dodatek" name="notifyignore"/>
+	</notification>
+	<notification name="TeleportedByObjectOnParcel">
+		You have been teleported by the object '[OBJECT_NAME]' on the parcel '[PARCEL_NAME]'
+		<usetemplate ignoretext="Zostałeś/aś teleportowany/a przez obiekt na działce" name="notifyignore"/>
+	</notification>
+	<notification name="DefaultObjectPermissions">
+		Wystąpił problem z zapisywaniem domyślnych zezwoleń obiektu: [REASON]. Spróbuj ustawić je ponownie później.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 </notifications>

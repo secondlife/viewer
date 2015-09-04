@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="HoverHeight" title="設定懸浮高度">
+	<slider label="高度" name="HoverHeightSlider"/>
+</floater>
