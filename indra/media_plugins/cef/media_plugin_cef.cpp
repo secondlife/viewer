@@ -52,7 +52,6 @@ public:
 	/*virtual*/
 	void receiveMessage(const char* message_string);
 
-
 private:
 	bool init();
 
