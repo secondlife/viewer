@@ -140,7 +140,8 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
     std::string keyName = "PoolSize" + poolName;
     int size = 0;
 
-    LL_ERRS_IF(poolName.empty(), "CoprocedureManager") << "Poolname must not be empty" << LL_ENDL;
+    if (poolName.empty())
+        LL_ERRS("CoprocedureManager") << "Poolname must not be empty" << LL_ENDL;
 
     if (mPropertyQueryFn && !mPropertyQueryFn.empty())
     {
@@ -164,7 +165,8 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
     poolPtr_t pool(new LLCoprocedurePool(poolName, size));
     mPoolMap.insert(poolMap_t::value_type(poolName, pool));
 
-    LL_ERRS_IF(!pool, "CoprocedureManager") << "Unable to create pool named \"" << poolName << "\" FATAL!" << LL_ENDL;
+    if (!pool)
+        LL_ERRS("CoprocedureManager") << "Unable to create pool named \"" << poolName << "\" FATAL!" << LL_ENDL;
     return pool;
 }
 
