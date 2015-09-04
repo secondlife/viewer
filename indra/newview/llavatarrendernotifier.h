@@ -43,7 +43,6 @@ public:
 	void displayNotification();
 	bool isNotificationVisible();
 
-	void updateNotification();
 	void updateNotificationRegion(U32 agentcount, U32 overLimit);
 	void updateNotificationAgent(U32 agentComplexity);
 
