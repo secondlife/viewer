@@ -1639,7 +1639,21 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 				scale += wght[k];
 			}
 
-			wght *= 1.f/scale;
+            if (scale > 0.f)
+            {
+                wght *= 1.f/scale;
+            }
+            else
+            {
+                // Complete weighting fail - all zeroes.  Just
+                // pick some values that add up to 1.0 so we
+                // don't wind up with garbage vertices
+                // pointing off at (0,0,0)
+                wght[0] = 1.f;
+                wght[1] = 0.f;
+                wght[2] = 0.f;
+                wght[3] = 0.f;
+            }
 
 			for (U32 k = 0; k < 4; k++)
 			{
