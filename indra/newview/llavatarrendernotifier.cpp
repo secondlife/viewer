@@ -99,7 +99,6 @@ std::string LLAvatarRenderNotifier::overLimitMessage()
 
 void LLAvatarRenderNotifier::displayNotification()
 {
-    mAgentComplexity = mLatestAgentComplexity;
 	static LLCachedControl<U32> expire_delay(gSavedSettings, "ShowMyComplexityChanges", 20);
 
 	LLDate expire_date(LLDate::now().secondsSinceEpoch() + expire_delay);
@@ -108,10 +107,6 @@ void LLAvatarRenderNotifier::displayNotification()
 	std::string notification_name;
     if (mShowOverLimitAgents)
     {
-        mAgentsCount = mLatestAgentsCount;
-        mOverLimitAgents = mLatestOverLimitAgents;
-        mOverLimitPct = mLatestOverLimitPct;
-
         std::string notification_message = overLimitMessage();
         notification_name = "RegionAndAgentComplexity";
         args["OVERLIMIT_MSG"] = notification_message;
@@ -139,6 +134,69 @@ bool LLAvatarRenderNotifier::isNotificationVisible()
 	return mNotificationPtr != NULL && mNotificationPtr->isActive();
 }
 
+void LLAvatarRenderNotifier::updateNotification()
+{
+	if (mAgentsCount == mLatestAgentsCount
+		&& mOverLimitAgents == mLatestOverLimitAgents
+		&& mAgentComplexity == mLatestAgentComplexity)
+	{
+		//no changes since last notification
+		return;
+	}
+
+	if (mLatestAgentComplexity == 0
+		|| !gAgentWearables.areWearablesLoaded())
+	{
+		// data not ready, nothing to show.
+		return;
+	}
+
+	bool display_notification = false;
+	bool is_visible = isNotificationVisible();
+
+	if (mLatestOverLimitPct > 0 || mOverLimitPct > 0)
+	{
+		//include 'over limit' information into notification
+		mShowOverLimitAgents = true;
+	}
+	else
+	{
+		// make sure that 'over limit' won't be displayed only to be hidden in a second
+		mShowOverLimitAgents &= is_visible;
+	}
+
+	if (mAgentComplexity != mLatestAgentComplexity)
+	{
+		// if we have an agent complexity update, we always display it 
+		display_notification = true;
+
+		// next 'over limit' update should be displayed after delay to make sure information got updated at server side
+		mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
+	}
+	else if (   (mPopUpDelayTimer.hasExpired() || is_visible)
+		     && (mOverLimitPct > 0 || mLatestOverLimitPct > 0)
+             && std::abs(mOverLimitPct - mLatestOverLimitPct) > mLatestOverLimitPct * RENDER_ALLOWED_CHANGE_PCT
+             )
+	{
+		// display in case of drop to/from zero and in case of significant (RENDER_ALLOWED_CHANGE_PCT) changes
+		display_notification = true;
+
+		// default timeout before next notification
+		static LLCachedControl<U32> pop_up_delay(gSavedSettings, "ComplexityChangesPopUpDelay", 300);
+		mPopUpDelayTimer.resetWithExpiry(pop_up_delay);
+	}
+
+	if (display_notification)
+	{
+		mAgentComplexity = mLatestAgentComplexity;
+		mAgentsCount = mLatestAgentsCount;
+		mOverLimitAgents = mLatestOverLimitAgents;
+		mOverLimitPct = mLatestOverLimitPct;
+
+		displayNotification();
+	}
+}
+
 void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLimit)
 {
 	if (agentcount == 0)
@@ -152,39 +210,13 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
 	mLatestOverLimitAgents = overLimit;
 	mLatestOverLimitPct = mLatestAgentsCount != 0 ? ((F32)overLimit / (F32)mLatestAgentsCount) * 100.0 : 0;
 
-    if (mAgentsCount == mLatestAgentsCount
-        && mOverLimitAgents == mLatestOverLimitAgents)
-    {
-        //no changes since last notification
-        return;
-    }
-
-    if ((mPopUpDelayTimer.hasExpired() || (isNotificationVisible() && mShowOverLimitAgents))
-        && (mOverLimitPct > 0 || mLatestOverLimitPct > 0)
-        && std::abs(mOverLimitPct - mLatestOverLimitPct) > mLatestOverLimitPct * RENDER_ALLOWED_CHANGE_PCT
-        )
-    {
-        // display in case of drop to/from zero and in case of significant (RENDER_ALLOWED_CHANGE_PCT) changes
-
-        mShowOverLimitAgents = true;
-        displayNotification();
-
-        // default timeout before next notification
-        static LLCachedControl<U32> pop_up_delay(gSavedSettings, "ComplexityChangesPopUpDelay", 300);
-        mPopUpDelayTimer.resetWithExpiry(pop_up_delay);
-    }
+	updateNotification();
 }
 
 void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
 {
     // save the value for use in following messages
     mLatestAgentComplexity = agentComplexity;
-
-    if (!gAgentWearables.areWearablesLoaded())
-    {
-        // data not ready, nothing to show.
-        return;
-    }
 
     if (!mNotifyOutfitLoading)
     {
@@ -212,14 +244,6 @@ void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
         }
     }
 
-    if (mAgentComplexity != mLatestAgentComplexity)
-    {
-        // if we have an agent complexity change, we always display it and hide 'over limit'
-        mShowOverLimitAgents = false;
-        displayNotification();
-
-        // next 'over limit' update should be displayed after delay to make sure information got updated at server side
-        mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
-    }
+    updateNotification();
 }
 
