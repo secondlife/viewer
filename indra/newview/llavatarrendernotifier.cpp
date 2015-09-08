@@ -128,6 +128,8 @@ void LLAvatarRenderNotifier::displayNotification()
 		LLNotifications::instance().cancel(mNotificationPtr);
 	}
 
+    LL_INFOS("AvatarRenderInfo") << notification_name << " " << args << LL_ENDL;
+
 	mNotificationPtr = LLNotifications::instance().add(LLNotification::Params()
 		.name(notification_name)
 		.expiry(expire_date)
