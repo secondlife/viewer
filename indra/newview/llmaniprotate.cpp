@@ -591,7 +591,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 					continue;
 				}
 			}
-			
+
 			LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
 			std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions ;
 			std::vector<LLQuaternion> child_rotations;

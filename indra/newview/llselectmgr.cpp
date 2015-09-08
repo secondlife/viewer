@@ -1236,10 +1236,12 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	else if (mGridMode == GRID_MODE_REF_OBJECT && first_grid_object && first_grid_object->mDrawable.notNull())
 	{
 		LLSelectNode *node = mSelectedObjects->findNode(first_grid_object);
-		if (node) {
+		if (node)
+		{
 			mGridRotation = node->mSavedRotation;
 		}
-		else {
+		else
+		{
 			mGridRotation = first_grid_object->getRenderRotation();
 		}
 
