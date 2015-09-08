@@ -3768,7 +3768,7 @@ BOOL LLModelPreview::render()
 									genBuffers(LLModel::LOD_PHYSICS, false);
 								}
 
-								U32 num_models = mVertexBuffer[mPreviewLOD][model].size();
+								U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
 								for (U32 i = 0; i < num_models; ++i)
 								{
 									LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
