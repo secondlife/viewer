@@ -1554,7 +1554,7 @@
                  parameter="scene_load_stats" />
             </menu_item_call>
       <menu_item_check
-        label="Show avatar comlexity information"
+        label="Show avatar complexity information"
         name="Avatar Draw Info">
            <menu_item_check.on_check
             function="Advanced.CheckInfoDisplay"
