@@ -117,26 +117,37 @@
                  name="Media"
                  value="Media" />
             </combo_box>
-            <combo_box
-             height="23"
-             layout="topleft"
-             left_pad="10"
-             name="combobox mattype"
-             top_delta="0"
-             width="155">
-                <combo_box.item
-                 label="Texture (diffuse)"
-                 name="Texture (diffuse)"
-                 value="Texture (diffuse)" />
-                <combo_box.item
-                 label="Bumpiness (normal)"
-                 name="Bumpiness (normal)"
-                 value="Bumpiness (normal)" />
-                <combo_box.item
-                 label="Shininess (specular)"
-                 name="Shininess (specular)"
-                 value="Shininess (specular)" />
-            </combo_box>
+            <radio_group
+            control_name="ComboMaterialType"
+            height="50"
+            layout="topleft"
+            left_pad="20"
+            top_delta="-10"
+            width="150"
+            visible = "false"
+            name="radio_material_type">
+                <radio_item
+                label="Texture (diffuse)"
+                name="Texture (diffuse)"
+                top="0" 
+                layout="topleft"
+                height="16" 
+                value="0"/>
+                <radio_item
+                label="Bumpiness (normal)"
+                layout="topleft"
+                top_pad="1" 
+                height="16" 
+                name="Bumpiness (normal)"
+                value="1"/>
+                <radio_item
+                label="Shininess (specular)"
+                name="Shininess (specular)"
+                height="16"
+                layout="topleft"
+                top_pad="1"
+                value="2"/>
+            </radio_group> 
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -148,7 +159,7 @@
              left="10"
              name="texture control"
              tool_tip="Click to choose a picture"
-             top_pad="8"
+             top_pad="7"
              width="64" />
             <text
              type="string"
@@ -520,7 +531,7 @@
              left="10"
              name="tex gen"
              text_readonly_color="LabelDisabledColor"
-             top_pad="60"
+             top_pad="40"
              width="140">
                 Mapping
             </text>
