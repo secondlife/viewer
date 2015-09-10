@@ -2314,6 +2314,15 @@
             <key>tooltip</key>
             <string>Gets the attachment point to which the object is attached.\nReturns 0 if the object is not an attachment (or is an avatar, etc).</string>
          </map>
+         <key>OBJECT_BODY_SHAPE_TYPE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>26</integer>
+            <key>tooltip</key>
+            <string>This is a flag used with llGetObjectDetails to get the body type of the avatar, based on shape data.\nIf no data is available, -1.0 is returned.\nThis is normally between 0 and 1.0, with 0.5 and larger considered 'male'</string>
+         </map>
          <key>OBJECT_CHARACTER_TIME</key>
          <map>
             <key>type</key>
@@ -2322,6 +2331,15 @@
             <integer>17</integer>
             <key>tooltip</key>
             <string>Units in seconds</string>
+         </map>
+         <key>OBJECT_CLICK_ACTION</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>28</integer>
+            <key>tooltip</key>
+            <string>This is a flag used with llGetObjectDetails to get the click action.\nThe default is 0</string>
          </map>
          <key>OBJECT_CREATOR</key>
          <map>
@@ -2349,6 +2367,24 @@
             <integer>7</integer>
             <key>tooltip</key>
             <string>Gets the prims's group key. If id is an avatar, a NULL_KEY is returned.</string>
+         </map>
+         <key>OBJECT_HOVER_HEIGHT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>25</integer>
+            <key>tooltip</key>
+            <string>This is a flag used with llGetObjectDetails to get hover height of the avatar\nIf no data is available, 0.0 is returned.</string>
+         </map>
+         <key>OBJECT_LAST_OWNER_ID</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>27</integer>
+            <key>tooltip</key>
+            <string>Gets the object's last owner ID.</string>
          </map>
          <key>OBJECT_NAME</key>
          <map>
@@ -3277,6 +3313,51 @@
             <key>tooltip</key>
             <string>Play animation going forwards, then backwards.</string>
          </map>
+         <key>PRIM_ALPHA_MODE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>38</integer>
+            <key>tooltip</key>
+            <string>Prim parameter for materials using integer face, integer alpha_mode, integer alpha_cutoff.\nDefines how the alpha channel of the diffuse texture should be rendered.\nValid options for alpha_mode are PRIM_ALPHA_MODE_BLEND, _NONE, _MASK, and _EMISSIVE.\nalpha_cutoff is used only for PRIM_ALPHA_MODE_MASK.</string>
+         </map>
+         <key>PRIM_ALPHA_MODE_NONE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>0</integer>
+            <key>tooltip</key>
+            <string>Prim parameter setting for PRIM_ALPHA_MODE.\nIndicates that the diffuse texture's alpha channel should be ignored.</string>
+         </map>
+         <key>PRIM_ALPHA_MODE_BLEND</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>1</integer>
+            <key>tooltip</key>
+            <string>Prim parameter setting for PRIM_ALPHA_MODE.\nIndicates that the diffuse texture's alpha channel should be rendered as alpha-blended.</string>
+         </map>
+         <key>PRIM_ALPHA_MODE_MASK</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>2</integer>
+            <key>tooltip</key>
+            <string>Prim parameter setting for PRIM_ALPHA_MODE.\nIndicates that the diffuse texture's alpha channel should be rendered as fully opaque for alpha values above alpha_cutoff and fully transparent otherwise.</string>
+         </map>
+         <key>PRIM_ALPHA_MODE_EMISSIVE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>3</integer>
+            <key>tooltip</key>
+            <string>Prim parameter setting for PRIM_ALPHA_MODE.\nIndicates that the diffuse texture's alpha channel should be rendered as an emissivity mask.</string>
+         </map>
          <key>PRIM_BUMP_BARK</key>
          <map>
             <key>type</key>
@@ -3882,6 +3963,15 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>PRIM_NORMAL</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>37</integer>
+            <key>tooltip</key>
+            <string>Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians</string>
+         </map>
          <key>PRIM_OMEGA</key>
          <map>
             <key>type</key>
@@ -4107,6 +4197,15 @@
             <integer>35</integer>
             <key>tooltip</key>
             <string/>
+         </map>
+         <key>PRIM_SPECULAR</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>36</integer>
+            <key>tooltip</key>
+            <string>Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color, integer glossy, integer environment</string>
          </map>
          <key>PRIM_TEMP_ON_REZ</key>
          <map>
@@ -5017,6 +5116,15 @@
             <string>integer</string>
             <key>value</key>
             <string>0x80000</string>
+            <key>tooltip</key>
+            <string/>
+         </map>
+         <key>REGION_FLAG_BLOCK_FLYOVER</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <string>0x8000000</string>
             <key>tooltip</key>
             <string/>
          </map>
@@ -5979,6 +6087,177 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>XP_ERROR_EXPERIENCES_DISABLED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>2</integer>
+            <key>tooltip</key>
+            <string>The region currently has experiences disabled.</string>
+         </map>
+         <key>XP_ERROR_EXPERIENCE_DISABLED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>8</integer>
+            <key>tooltip</key>
+            <string>The experience owner has temporarily disabled the experience.</string>
+         </map>
+         <key>XP_ERROR_EXPERIENCE_SUSPENDED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>9</integer>
+            <key>tooltip</key>
+            <string>The experience has been suspended by Linden Customer Support.</string>
+         </map>
+         <key>XP_ERROR_INVALID_EXPERIENCE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>7</integer>
+            <key>tooltip</key>
+            <string>The script is associated with an experience that no longer exists.</string>
+         </map>
+         <key>XP_ERROR_INVALID_PARAMETERS</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>3</integer>
+            <key>tooltip</key>
+            <string>One of the string arguments was too big to fit in the key-value store.</string>
+         </map>
+         <key>XP_ERROR_KEY_NOT_FOUND</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>14</integer>
+            <key>tooltip</key>
+            <string>The requested key does not exist.</string>
+         </map>
+         <key>XP_ERROR_MATURITY_EXCEEDED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>16</integer>
+            <key>tooltip</key>
+            <string>The content rating of the experience exceeds that of the region.</string>
+         </map>
+         <key>XP_ERROR_NONE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>0</integer>
+            <key>tooltip</key>
+            <string>No error was detected.</string>
+         </map>
+         <key>XP_ERROR_NOT_FOUND</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>6</integer>
+            <key>tooltip</key>
+            <string>The sim was unable to verify the validity of the experience. Retrying after a short wait is advised.</string>
+         </map>
+         <key>XP_ERROR_NOT_PERMITTED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>4</integer>
+            <key>tooltip</key>
+            <string>This experience is not allowed to run by the requested agent.</string>
+         </map>
+         <key>XP_ERROR_NOT_PERMITTED_LAND</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>17</integer>
+            <key>tooltip</key>
+            <string>This experience is not allowed to run on the current region.</string>
+         </map>
+         <key>XP_ERROR_NO_EXPERIENCE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>5</integer>
+            <key>tooltip</key>
+            <string>This script is not associated with an experience.</string>
+         </map>
+         <key>XP_ERROR_QUOTA_EXCEEDED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>11</integer>
+            <key>tooltip</key>
+            <string>An attempted write data to the key-value store failed due to the data quota being met.</string>
+         </map>
+         <key>LSL_XP_ERROR_REQUEST_PERM_TIMEOUT</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>18</integer>
+            <key>tooltip</key>
+            <string>The request for experience permissions was ignored and timed out.</string>
+         </map>
+         <key>XP_ERROR_RETRY_UPDATE</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>15</integer>
+            <key>tooltip</key>
+            <string>A checked update failed due to an out of date request.</string>
+         </map>
+         <key>XP_ERROR_STORAGE_EXCEPTION</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>13</integer>
+            <key>tooltip</key>
+            <string>Unable to communicate with the key-value store.</string>
+         </map>
+         <key>XP_ERROR_STORE_DISABLED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>12</integer>
+            <key>tooltip</key>
+            <string>The key-value store is currently disabled on this region.</string>
+         </map>
+         <key>XP_ERROR_THROTTLED</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>1</integer>
+            <key>tooltip</key>
+            <string>The call failed due to too many recent calls.</string>
+         </map>
+         <key>XP_ERROR_UNKNOWN_ERROR</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>10</integer>
+            <key>tooltip</key>
+            <string>Other unknown error.</string>
+         </map>
          <key>ZERO_ROTATION</key>
          <map>
             <key>type</key>
@@ -6279,6 +6558,34 @@
             <key>tooltip</key>
             <string>This event is triggered when an email sent to this script arrives.
 			The number remaining tells how many more emails are known to be still pending.</string>
+         </map>
+         <key>experience_permissions</key>
+         <map>
+            <key>arguments</key>
+            <map>
+               <key>agent_id</key>
+               <map>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>tooltip</key>
+                  <string>ID of the agent approving permission for the Experience.</string>
+               </map>
+            </map>
+         </map>
+         <key>experience_permissions_denied</key>
+         <map>
+            <key>arguments</key>
+            <map>
+               <key>agent_id</key>
+               <map>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>tooltip</key>
+                  <string>ID of the agent denying permission for the Experience.</string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>One of the XP_ERROR_... constants describing the reason why the Experience permissions were denied for the agent.</string>
          </map>
          <key>http_request</key>
          <map>
@@ -6964,6 +7271,29 @@
             </array>
             <key>tooltip</key>
             <string>Adjusts the volume (0.0 - 1.0) of the currently playing attached sound.\nThis function has no effect on sounds started with llTriggerSound.</string>
+         </map>
+         <key>llAgentInExperience</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>integer</string>
+            <key>arguments</key>
+            <map>
+               <key>AgentID</key>
+               <map>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Returns TRUE if the agent is in the Experience and the Experience can run in the current location.
+            </string>
          </map>
          <key>llAllowInventoryDrop</key>
          <map>
@@ -7696,6 +8026,36 @@
             <key>tooltip</key>
             <string>Convert link-set to AI/Physics character.\nCreates a path-finding entity, known as a "character", from the object containing the script. Required to activate use of path-finding functions.\nOptions is a list of key/value pairs.</string>
          </map>
+         <key>llCreateKeyValue</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <map>
+               <key>Key</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+               <key>Value</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Starts an asychronous transaction to create a key-value pair. Will fail with XP_ERROR_STORAGE_EXCEPTION if the key already exists. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value passed to the function.
+            </string>
+         </map>
          <key>llCreateLink</key>
          <map>
             <key>energy</key>
@@ -7751,6 +8111,21 @@
             <key>tooltip</key>
             <string>Create a list from a string of comma separated values specified in Text.</string>
          </map>
+         <key>llDataSizeKeyValue</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <undef/>
+            <key>tooltip</key>
+            <string>
+               Starts an asychronous transaction the request the used and total amount of data allocated for the Experience. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the the amount in use and the third item will be the total available.
+            </string>
+         </map>
          <key>llDeleteCharacter</key>
          <map>
             <key>energy</key>
@@ -7763,6 +8138,29 @@
             <undef/>
             <key>tooltip</key>
             <string>Convert link-set from AI/Physics character to Physics object.\nConvert the current link-set back to a standard object, removing all path-finding properties.</string>
+         </map>
+         <key>llDeleteKeyValue</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <map>
+               <key>Key</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Starts an asychronous transaction to delete a key-value pair. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key.
+            </string>
          </map>
          <key>llDeleteSubList</key>
          <map>
@@ -8915,7 +9313,30 @@
             <key>arguments</key>
             <undef/>
             <key>tooltip</key>
-            <string>Returns the object's attachment point, or 0 if not attached.\nReturns the object attachment point, or 0 if not attached.</string>
+            <string>Returns the object's attachment point, or 0 if not attached.</string>
+         </map>
+         <key>llGetAttachedList</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>list</string>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>ID</key>
+                  <map>
+                     <key>type</key>
+                     <string>key</string>
+                     <key>tooltip</key>
+                     <string>Avatar to get attachments</string>
+                  </map>
+               </map>
+            </array>
+            <key>tooltip</key>
+            <string>Returns a list of keys of all visible (not HUD) attachments on the avatar identified by the ID argument</string>
          </map>
          <key>llGetBoundingBox</key>
          <map>
@@ -9118,6 +9539,52 @@
             </array>
             <key>tooltip</key>
             <string>Returns a string with the requested data about the region.</string>
+         </map>
+         <key>llGetExperienceDetails</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>list</string>
+            <key>arguments</key>
+            <map>
+               <key>ExperienceID</key>
+               <map>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>tooltip</key>
+                  <string>May be NULL_KEY to retrieve the details for the script's Experience</string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Returns a list with the following Experience properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State Message]. State is an integer corresponding to one of the constants XP_ERROR_... and State Message is the string returned by llGetExperienceErrorMessage for that integer.
+            </string>
+         </map>
+         <key>llGetExperienceErrorMessage</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>string</string>
+            <key>arguments</key>
+            <map>
+               <key>Error</key>
+               <map>
+                  <key>type</key>
+                  <string>integer</string>
+                  <key>tooltip</key>
+                  <string>An Experience error code to translate.</string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code.
+            </string>
          </map>
          <key>llGetForce</key>
          <map>
@@ -11446,6 +11913,51 @@
             <key>tooltip</key>
             <string>Returns the name of the prim or avatar specified by ID. The ID must be a valid rezzed prim or avatar key in the current simulator, otherwise an empty string is returned.\nFor avatars, the returned name is the legacy name</string>
          </map>
+         <key>llKeyCountKeyValue</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <undef/>
+            <key>tooltip</key>
+            <string>
+               Starts an asychronous transaction the request the number of keys in the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will the the number of keys in the system.
+            </string>
+         </map>
+         <key>llKeysKeyValue</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <map>
+               <key>First</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string>Index of the first key to return.</string>
+               </map>
+               <key>Count</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string>The number of keys to return.</string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Starts an asychronous transaction the request a number of keys from the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. The error XP_ERROR_KEY_NOT_FOUND is returned if First is greater than or equal to the number of keys in the data store. In the success case the subsequent items will be the keys requested. The number of keys returned may be less than requested if the return value is too large or if there is not enough keys remaining. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed. Because the keys are returned in a comma-delimited list it is not recommended to use commas in key names if this function is used.
+            </string>
+         </map>
          <key>llLinkParticleSystem</key>
          <map>
             <key>energy</key>
@@ -13577,6 +14089,29 @@
             <key>tooltip</key>
             <string>Applies Impulse and AngularImpulse to ObjectID.\nApplies the supplied impulse and angular impulse to the object specified.</string>
          </map>
+         <key>llReadKeyValue</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <map>
+               <key>Key</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Starts an asychronous transaction to retrieve the value associated with the key given. Will fail with XP_ERROR_KEY_NOT_FOUND if the key does not exist. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key.
+            </string>
+         </map>
          <key>llRefreshPrimURL</key>
          <map>
             <key>energy</key>
@@ -13996,6 +14531,36 @@
             </array>
             <key>tooltip</key>
             <string>Requests the display name of the agent. When the display name is available the dataserver event will be raised.\nThe avatar identified does not need to be in the same region or online at the time of the request.\nReturns a key that is used to identify the dataserver event when it is raised.</string>
+         </map>
+         <key>llRequestExperiencePermissions</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>void</string>
+            <key>arguments</key>
+            <map>
+               <key>AvatarID</key>
+               <map>
+                  <key>type</key>
+                  <string>key</string>
+                  <key>tooltip</key>
+                  <string/>
+               </map>
+               <key>unused</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string>Not used, should be &quot;&quot;</string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Ask the agent for permission to participate in an experience. This request is similar to llRequestPermissions with the following permissions: PERMISSION_TAKE_CONTROLS, PERMISSION_TRIGGER_ANIMATION, PERMISSION_ATTACH, PERMISSION_TRACK_CAMERA, PERMISSION_CONTROL_CAMERA and PERMISSION_TELEPORT. However, unlike llRequestPermissions the decision to allow or block the request is persistent and applies to all scripts using the experience grid wide. Subsequent calls to llRequestExperiencePermissions from scripts in the experience will receive the same response automatically with no user interaction. One of experience_permissions or experience_permissions_denied will be generated in response to this call. Outstanding permission requests will be lost if the script is derezzed, moved to another region or reset.
+            </string>
          </map>
          <key>llRequestInventoryData</key>
          <map>
@@ -17912,6 +18477,50 @@
             </array>
             <key>tooltip</key>
             <string>Updates settings for a pathfinding character.</string>
+         </map>
+         <key>llUpdateKeyValue</key>
+         <map>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>return</key>
+            <string>key</string>
+            <key>arguments</key>
+            <map>
+               <key>Key</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+               <key>Value</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+               <key>Checked</key>
+               <map>
+                  <key>type</key>
+                  <string>integer</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+               <key>OriginalValue</key>
+               <map>
+                  <key>type</key>
+                  <string>string</string>
+                  <key>tooltip</key>
+                  <string></string>
+               </map>
+            </map>
+            <key>tooltip</key>
+            <string>
+               Starts an asychronous transaction to update the value associated with the key given. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. If Checked is 1 the existing value in the data store must match the OriginalValue passed or XP_ERROR_RETRY_UPDATE will be returned. If Checked is 0 the key will be created if necessary.
+            </string>
          </map>
          <key>llVecDist</key>
          <map>
