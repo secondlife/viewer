@@ -1986,6 +1986,46 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 			mBaseScene = mScene[loaded_lod];
 			mVertexBuffer[5].clear();
 		}
+		else
+		{
+			BOOL importerDebug = gSavedSettings.getBOOL("ImporterDebug");
+			BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
+			if (!legacyMatching)
+			{
+				if (!mBaseModel.empty())
+				{ // replace the name of the model loaded for any non-HIGH LOD to match the others (MAINT-5601)
+					for (U32 idx = 0; idx < mModel[loaded_lod].size() && idx < mBaseModel.size(); ++idx)
+					{
+						std::string name = mBaseModel[idx]->mLabel;
+						std::string loaded_name = mModel[loaded_lod][idx]->mLabel; 
+
+						if ((loaded_name.find("_LOD") != -1) || (loaded_name.find("_PHYS") != -1))
+						{ // base model is LOD_HIGH so its name has no suffix, stripping loaded LOD name to match it
+							loaded_name = loaded_name.substr(0, loaded_name.rfind('_'));
+						}
+
+						if (loaded_name != name)
+						{
+							switch (loaded_lod)
+							{
+							case LLModel::LOD_IMPOSTOR: name += "_LOD0"; break;
+							case LLModel::LOD_LOW:      name += "_LOD1"; break;
+							case LLModel::LOD_MEDIUM:   name += "_LOD2"; break;
+							case LLModel::LOD_PHYSICS:  name += "_PHYS"; break;
+							case LLModel::LOD_HIGH:                      break;
+							}
+
+							if (importerDebug)
+							{
+								LL_INFOS() << "Loded model name " << mModel[loaded_lod][idx]->mLabel << " for LOD " << loaded_lod << " doesn't match the base model. Renaming to " << name << LL_ENDL;
+							}
+
+							mModel[loaded_lod][idx]->mLabel = name;
+						}
+					}
+				}
+			}
+		}
 
 		clearIncompatible(loaded_lod);
 
