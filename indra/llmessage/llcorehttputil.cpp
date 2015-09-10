@@ -35,7 +35,8 @@
 #include "llsd.h"
 #include "llsdjson.h"
 #include "llsdserialize.h"
-#include "reader.h" 
+#include "reader.h" // JSON
+#include "writer.h" // JSON
 #include "llvfile.h"
 
 #include "message.h" // for getting the port
@@ -570,7 +571,7 @@ LLSD HttpCoroutineAdapter::postAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     return postAndYield_(request, url, body, options, headers, httpHandler);
 }
@@ -607,7 +608,7 @@ LLSD HttpCoroutineAdapter::postAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     return postAndYield_(request, url, rawbody, options, headers, httpHandler);
 }
@@ -617,7 +618,7 @@ LLSD HttpCoroutineAdapter::postRawAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroRawHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroRawHandler(replyPump));
 
     return postAndYield_(request, url, rawbody, options, headers, httpHandler);
 }
@@ -676,6 +677,28 @@ LLSD HttpCoroutineAdapter::postFileAndYield(LLCore::HttpRequest::ptr_t request,
     return postAndYield(request, url, fileData, options, headers);
 }
 
+LLSD HttpCoroutineAdapter::postJsonAndYield(LLCore::HttpRequest::ptr_t request,
+    const std::string & url, const LLSD & body,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName, true);
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
+
+    LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
+
+    {
+        LLCore::BufferArrayStream outs(rawbody.get());
+        Json::Value root = LlsdToJson(body);
+        Json::FastWriter writer;
+
+        LL_WARNS("Http::post") << "JSON Generates: \"" << writer.write(root) << "\"" << LL_ENDL;
+
+        outs << writer.write(root);
+    }
+
+    return postAndYield_(request, url, rawbody, options, headers, httpHandler);
+}
+
 
 LLSD HttpCoroutineAdapter::postAndYield_(LLCore::HttpRequest::ptr_t &request,
     const std::string & url, LLCore::BufferArray::ptr_t &rawbody,
@@ -708,9 +731,30 @@ LLSD HttpCoroutineAdapter::putAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     return putAndYield_(request, url, body, options, headers, httpHandler);
+}
+
+LLSD HttpCoroutineAdapter::putJsonAndYield(LLCore::HttpRequest::ptr_t request,
+    const std::string & url, const LLSD & body,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName, true);
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
+
+    LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
+
+    {
+        LLCore::BufferArrayStream outs(rawbody.get());
+        Json::Value root = LlsdToJson(body);
+        Json::FastWriter writer;
+
+        LL_WARNS("Http::put") << "JSON Generates: \"" << writer.write(root) << "\"" << LL_ENDL;
+        outs << writer.write(root);
+    }
+
+    return putAndYield_(request, url, rawbody, options, headers, httpHandler);
 }
 
 LLSD HttpCoroutineAdapter::putAndYield_(LLCore::HttpRequest::ptr_t &request,
@@ -740,12 +784,39 @@ LLSD HttpCoroutineAdapter::putAndYield_(LLCore::HttpRequest::ptr_t &request,
     return results;
 }
 
+LLSD HttpCoroutineAdapter::putAndYield_(LLCore::HttpRequest::ptr_t &request,
+    const std::string & url, const LLCore::BufferArray::ptr_t & rawbody,
+    LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+    HttpCoroHandler::ptr_t &handler)
+{
+    HttpRequestPumper pumper(request);
+
+    checkDefaultHeaders(headers);
+
+    // The HTTPCoroHandler does not self delete, so retrieval of a the contained 
+    // pointer from the smart pointer is safe in this case.
+    LLCore::HttpHandle hhandle = request->requestPut(mPolicyId, mPriority, 
+        url, rawbody.get(), options, headers, handler.get());
+
+    if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
+    }
+
+    saveState(hhandle, request, handler);
+    LLSD results = llcoro::waitForEventOn(handler->getReplyPump());
+    cleanState();
+
+    return results;
+}
+
+
 LLSD HttpCoroutineAdapter::getAndYield(LLCore::HttpRequest::ptr_t request,
     const std::string & url,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     return getAndYield_(request, url, options, headers, httpHandler);
 }
@@ -755,7 +826,7 @@ LLSD HttpCoroutineAdapter::getRawAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroRawHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroRawHandler(replyPump));
 
     return getAndYield_(request, url, options, headers, httpHandler);
 }
@@ -764,7 +835,7 @@ LLSD HttpCoroutineAdapter::getJsonAndYield(LLCore::HttpRequest::ptr_t request,
     const std::string & url, LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroJSONHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
 
     return getAndYield_(request, url, options, headers, httpHandler);
 }
@@ -801,10 +872,21 @@ LLSD HttpCoroutineAdapter::deleteAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     return deleteAndYield_(request, url, options, headers, httpHandler);
 }
+
+LLSD HttpCoroutineAdapter::deleteJsonAndYield(LLCore::HttpRequest::ptr_t request,
+    const std::string & url, 
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName + "Reply", true);
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
+
+    return deleteAndYield_(request, url, options, headers, httpHandler);
+}
+
 
 LLSD HttpCoroutineAdapter::deleteAndYield_(LLCore::HttpRequest::ptr_t &request,
     const std::string & url, LLCore::HttpOptions::ptr_t &options, 
@@ -835,7 +917,7 @@ LLSD HttpCoroutineAdapter::patchAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     return patchAndYield_(request, url, body, options, headers, httpHandler);
 }
@@ -873,7 +955,7 @@ LLSD HttpCoroutineAdapter::copyAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     if (!headers)
         headers.reset(new LLCore::HttpHeaders);
@@ -915,7 +997,7 @@ LLSD HttpCoroutineAdapter::moveAndYield(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler = HttpCoroHandler::ptr_t(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
 
     if (!headers)
         headers.reset(new LLCore::HttpHeaders);

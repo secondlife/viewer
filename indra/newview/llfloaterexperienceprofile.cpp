@@ -131,19 +131,6 @@ LLFloaterExperienceProfile::~LLFloaterExperienceProfile()
 
 }
 
-template<class T> 
-class HandleResponder : public LLHTTPClient::Responder
-{
-public:
-    HandleResponder(const LLHandle<T>& parent):mParent(parent){}
-    LLHandle<T> mParent;
-
-    virtual void httpFailure()
-    {
-        LL_WARNS() << "HandleResponder failed with code: " << getStatus() << ", reason: " << getReason() << LL_ENDL;
-    }
-};
-
 BOOL LLFloaterExperienceProfile::postBuild()
 {
 

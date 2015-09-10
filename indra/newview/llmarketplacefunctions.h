@@ -261,6 +261,14 @@ private:
     void deleteSLMListing(S32 listing_id);
     std::string getSLMConnectURL(const std::string& route);
 
+    void getMerchantStatusCoro();
+    void getSLMListingsCoro(LLUUID folderId);
+    void getSingleListingCoro(S32 listingId, LLUUID folderId);
+    void createSLMListingCoro(LLUUID folderId, LLUUID versionId, S32 count);
+    void updateSLMListingCoro(LLUUID folderId, S32 listingId, LLUUID versionId, bool isListed, S32 count);
+    void associateSLMListingCoro(LLUUID folderId, S32 listingId, LLUUID versionId, LLUUID sourceFolderId);
+    void deleteSLMListingCoro(S32 listingId);
+
     // Handling Marketplace connection and inventory connection
 	U32  mMarketPlaceStatus;
 	status_updated_signal_t* mStatusUpdatedSignal;

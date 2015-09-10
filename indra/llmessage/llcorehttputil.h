@@ -337,6 +337,7 @@ public:
         const std::string & url, LLCore::BufferArray::ptr_t rawbody,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+
     LLSD postAndYield(LLCore::HttpRequest::ptr_t &request,
         const std::string & url, const LLSD & body,
         LLCore::HttpHeaders::ptr_t &headers)
@@ -393,6 +394,19 @@ public:
             LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
     }
 
+    LLSD postJsonAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+    LLSD postJsonAndYield(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return postJsonAndYield(request, url, body,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
+    }
+
+
 
     /// Execute a Put transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
@@ -404,11 +418,32 @@ public:
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
+    LLSD putAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpHeaders::ptr_t headers)
+    {
+        return putAndYield(request, url, body,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
+    }
+
+    LLSD putJsonAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+    LLSD putJsonAndYield(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLSD & body,
+        LLCore::HttpHeaders::ptr_t &headers)
+    {
+        return putJsonAndYield(request, url, body,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()), headers);
+    }
+
     /// Execute a Get transaction on the supplied URL and yield execution of 
     /// the coroutine until a result is available.
     /// 
     /// @Note: the request's smart pointer is passed by value so that it will
     /// not be deallocated during the yield.
+    /// 
     LLSD getAndYield(LLCore::HttpRequest::ptr_t request,
         const std::string & url,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
@@ -433,11 +468,15 @@ public:
             headers);
     }
 
+    /// These methods have the same behavior as @getAndYield() however they are 
+    /// expecting the server to return the results formatted in a JSON string. 
+    /// On a successful GET call the JSON results will be converted into LLSD 
+    /// before being returned to the caller.
     LLSD getJsonAndYield(LLCore::HttpRequest::ptr_t request,
         const std::string & url,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
-    LLSD getJsonndYield(LLCore::HttpRequest::ptr_t &request,
+    LLSD getJsonAndYield(LLCore::HttpRequest::ptr_t &request,
         const std::string & url, LLCore::HttpHeaders::ptr_t &headers)
     {
         return getJsonAndYield(request, url,
@@ -455,6 +494,29 @@ public:
         const std::string & url,
         LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+    LLSD deleteAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, LLCore::HttpHeaders::ptr_t headers)
+    {
+        return deleteAndYield(request, url,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+            headers);
+    }
+
+    /// These methods have the same behavior as @deleteAndYield() however they are 
+    /// expecting the server to return any results formatted in a JSON string. 
+    /// On a successful DELETE call the JSON results will be converted into LLSD 
+    /// before being returned to the caller.
+    LLSD deleteJsonAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url,
+        LLCore::HttpOptions::ptr_t options = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+        LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
+    LLSD deleteJsonAndYield(LLCore::HttpRequest::ptr_t request,
+        const std::string & url, LLCore::HttpHeaders::ptr_t headers)
+    {
+        return deleteJsonAndYield(request, url,
+            LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()),
+            headers);
+    }
 
 
     /// Execute a PATCH transaction on the supplied URL and yield execution of 
@@ -565,6 +627,11 @@ private:
 
     LLSD putAndYield_(LLCore::HttpRequest::ptr_t &request,
         const std::string & url, const LLSD & body,
+        LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
+        HttpCoroHandler::ptr_t &handler);
+
+    LLSD putAndYield_(LLCore::HttpRequest::ptr_t &request,
+        const std::string & url, const LLCore::BufferArray::ptr_t & rawbody,
         LLCore::HttpOptions::ptr_t &options, LLCore::HttpHeaders::ptr_t &headers,
         HttpCoroHandler::ptr_t &handler);
 

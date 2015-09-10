@@ -120,6 +120,8 @@
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
 
+#include "llexperiencecache.h"
+
 #if LL_MSVC
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
@@ -6468,17 +6470,14 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 			if (!region)
 			    return false;
 
-			std::string lookup_url=region->getCapability("ExperiencePreferences"); 
-			if(lookup_url.empty())
-				return false;
-			LLSD permission;
-			LLSD data;
-			permission["permission"]="Block";
+            LLExperienceCache::instance().setExperiencePermission(experience, std::string("Block"), LLExperienceCache::ExperienceGetFn_t());
 
-			data[experience.asString()]=permission;
-			LLHTTPClient::put(lookup_url, data, NULL);
-			data["experience"]=experience;
-			LLEventPumps::instance().obtain("experience_permission").post(data);
+            LLSD permission;
+            LLSD data;
+            permission["permission"] = "Block";
+            data[experience.asString()] = permission;
+            data["experience"] = experience;
+            LLEventPumps::instance().obtain("experience_permission").post(data);
 		}
 }
 	return false;

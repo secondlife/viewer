@@ -76,3 +76,51 @@ LLSD LlsdFromJson(const Json::Value &val)
     }
     return result;
 }
+
+//=========================================================================
+Json::Value LlsdToJson(const LLSD &val)
+{
+    Json::Value result;
+
+    switch (val.type())
+    {
+    case LLSD::TypeUndefined:
+        result = Json::Value::null;
+        break;
+    case LLSD::TypeBoolean:
+        result = Json::Value(static_cast<bool>(val.asBoolean()));
+        break;
+    case LLSD::TypeInteger:
+        result = Json::Value(static_cast<int>(val.asInteger()));
+        break;
+    case LLSD::TypeReal:
+        result = Json::Value(static_cast<double>(val.asReal()));
+        break;
+    case LLSD::TypeURI:
+    case LLSD::TypeDate:
+    case LLSD::TypeUUID:
+    case LLSD::TypeString:
+        result = Json::Value(val.asString());
+        break;
+    case LLSD::TypeMap:
+        result = Json::Value(Json::objectValue);
+        for (LLSD::map_const_iterator it = val.beginMap(); it != val.endMap(); ++it)
+        {
+            result[it->first] = LlsdToJson(it->second);
+        }
+        break;
+    case LLSD::TypeArray:
+        result = Json::Value(Json::arrayValue);
+        for (LLSD::array_const_iterator it = val.beginArray(); it != val.endArray(); ++it)
+        {
+            result.append(LlsdToJson(*it));
+        }
+        break;
+    case LLSD::TypeBinary:
+    default:
+        LL_ERRS("LlsdToJson") << "Unsupported conversion to JSON from LLSD type (" << val.type() << ")." << LL_ENDL;
+        break;
+    }
+
+    return result;
+}

@@ -561,7 +561,6 @@ set(viewer_SOURCE_FILES
     lltextureinfo.cpp
     lltextureinfodetails.cpp
     lltexturestats.cpp
-    lltexturestatsuploader.cpp
     lltextureview.cpp
     lltoast.cpp
     lltoastalertpanel.cpp
@@ -1160,7 +1159,6 @@ set(viewer_HEADER_FILES
     lltextureinfo.h
     lltextureinfodetails.h
     lltexturestats.h
-    lltexturestatsuploader.h
     lltextureview.h
     lltoast.h
     lltoastalertpanel.h
@@ -2386,7 +2384,6 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
-  #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
 
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES

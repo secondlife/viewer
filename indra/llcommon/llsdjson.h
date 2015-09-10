@@ -55,5 +55,23 @@
 /// Order is preserved for an array but not for objects.
 LLSD LlsdFromJson(const Json::Value &val);
 
+/// Convert an LLSD object into Parsed JSON object maintaining member names and 
+/// array indexs.
+/// 
+/// Types are converted as follows:
+/// LLSD Type     |  JSON Type
+/// --------------+----------------
+/// TypeUndefined | null
+/// TypeBoolean   | boolean
+/// TypeInteger   | integer
+/// TypeReal      | real/numeric
+/// TypeString    | string
+/// TypeURI       | string
+/// TypeDate      | string
+/// TypeUUID      | string
+/// TypeMap       | object
+/// TypeArray     | array
+/// TypeBinary    | unsupported 
+Json::Value LlsdToJson(const LLSD &val);
 
 #endif // LL_LLSDJSON_H
