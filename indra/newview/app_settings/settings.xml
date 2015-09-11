@@ -9971,6 +9971,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>ShowMyComplexityChanges</key>
+  <map>
+    <key>Comment</key>
+    <string>How long to show notices about avatar complexity (set to zero to disable those notices)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>20</integer>
+  </map>
   <key>RenderAvatarMaxComplexity</key>
   <map>
     <key>Comment</key>
