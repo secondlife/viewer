@@ -57,43 +57,43 @@ namespace {
 
     static std::string getMarketplaceDomain()
     {
-	    std::string domain = "secondlife.com";
-	
-	    if (!LLGridManager::getInstance()->isInProductionGrid())
-	    {
-		    const std::string& grid_id = LLGridManager::getInstance()->getGridId();
-		    const std::string& grid_id_lower = utf8str_tolower(grid_id);
-		
-		    if (grid_id_lower == "damballah")
-		    {
-			    domain = "secondlife-staging.com";
-		    }
-		    else
-		    {
-			    domain = llformat("%s.lindenlab.com", grid_id_lower.c_str());
-		    }
-	    }
-	
-	    return domain;
+        std::string domain = "secondlife.com";
+
+        if (!LLGridManager::getInstance()->isInProductionGrid())
+        {
+            const std::string& grid_id = LLGridManager::getInstance()->getGridId();
+            const std::string& grid_id_lower = utf8str_tolower(grid_id);
+
+            if (grid_id_lower == "damballah")
+            {
+                domain = "secondlife-staging.com";
+            }
+            else
+            {
+                domain = llformat("%s.lindenlab.com", grid_id_lower.c_str());
+            }
+        }
+
+        return domain;
     }
 
     static std::string getMarketplaceURL(const std::string& urlStringName)
     {
-	    LLStringUtil::format_map_t domain_arg;
-	    domain_arg["[MARKETPLACE_DOMAIN_NAME]"] = getMarketplaceDomain();
-	
-	    std::string marketplace_url = LLTrans::getString(urlStringName, domain_arg);
-	
-	    return marketplace_url;
+        LLStringUtil::format_map_t domain_arg;
+        domain_arg["[MARKETPLACE_DOMAIN_NAME]"] = getMarketplaceDomain();
+
+        std::string marketplace_url = LLTrans::getString(urlStringName, domain_arg);
+
+        return marketplace_url;
     }
 
     // Get the version folder: if there is only one subfolder, we will use it as a version folder
     LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
     {
         LLUUID version_id = LLUUID::null;
-	    LLInventoryModel::cat_array_t* categories;
-	    LLInventoryModel::item_array_t* items;
-	    gInventory.getDirectDescendentsOf(folder_id, categories, items);
+        LLInventoryModel::cat_array_t* categories;
+        LLInventoryModel::item_array_t* items;
+        gInventory.getDirectDescendentsOf(folder_id, categories, items);
         if (categories->size() == 1)
         {
             version_id = categories->begin()->get()->getUUID();
@@ -106,7 +106,7 @@ namespace {
     }
 
     ///////////////////////////////////////////////////////////////////////////////
-    // SLM Responders
+    // SLM Reporters
     void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
     {
         LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
@@ -126,6 +126,11 @@ namespace {
         }
     }
 
+    void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const LLSD& description)
+    {
+        log_SLM_warning(request, status, reason, code, std::string(ll_pretty_print_sd(description)));
+    }
+
     void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
     {
         if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
@@ -134,13 +139,11 @@ namespace {
         }
     }
 
-    void log_SLM_infos(const std::string& request, const std::string& url, const std::string& body)
+    void log_SLM_infos(const std::string& request, U32 status, const LLSD& body)
     {
-        if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
-        {
-            LL_INFOS("SLM") << "SLM API : Sending " << request << ". url : " << url << ", body : " << body << LL_ENDL;
-        }
+        log_SLM_infos(request, status, std::string(ll_pretty_print_sd(body)));
     }
+
 }
 
 LLSD getMarketplaceStringSubstitutions()
@@ -766,12 +769,12 @@ void LLMarketplaceData::getMerchantStatusCoro()
 
         if (httpCode == HTTP_NOT_FOUND)
         {
-            log_SLM_infos("Get /merchant", httpCode, "User is not a merchant");
+            log_SLM_infos("Get /merchant", httpCode, std::string("User is not a merchant"));
             setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
         }
         else if (httpCode == HTTP_SERVICE_UNAVAILABLE)
         {
-            log_SLM_infos("Get /merchant", httpCode, "Merchant is not migrated");
+            log_SLM_infos("Get /merchant", httpCode, std::string("Merchant is not migrated"));
             setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
         }
         else
@@ -784,7 +787,7 @@ void LLMarketplaceData::getMerchantStatusCoro()
         return;
     }
 
-    log_SLM_infos("Get /merchant", status.getType(), "User is a merchant");
+    log_SLM_infos("Get /merchant", status.getType(), std::string("User is a merchant"));
     setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
 }
 
@@ -829,14 +832,14 @@ void LLMarketplaceData::getSLMListingsCoro(LLUUID folderId)
 
     if (!status)
     {
-        log_SLM_warning("Get /listings", status.getType(), status.toString(), "", ll_pretty_print_sd(result));
+        log_SLM_warning("Get /listings", status.getType(), status.toString(), "", result);
         setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
         update_marketplace_category(folderId, false);
         gInventory.notifyObservers();
         return;
     }
 
-    log_SLM_infos("Get /listings", static_cast<U32>(status.getType()), ll_pretty_print_sd(result));
+    log_SLM_infos("Get /listings", static_cast<U32>(status.getType()), result);
 
     // Extract the info from the results
     for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -901,7 +904,7 @@ void LLMarketplaceData::getSingleListingCoro(S32 listingId, LLUUID folderId)
         }
         else
         {
-            log_SLM_warning("Get /listing", status.getType(), status.toString(), "", ll_pretty_print_sd(result));
+            log_SLM_warning("Get /listing", status.getType(), status.toString(), "", result);
         }
 
         update_marketplace_category(folderId, false);
@@ -909,7 +912,7 @@ void LLMarketplaceData::getSingleListingCoro(S32 listingId, LLUUID folderId)
         return;
     }
 
-    log_SLM_infos("Get /listings", static_cast<U32>(status.getType()), ll_pretty_print_sd(result));
+    log_SLM_infos("Get /listings", static_cast<U32>(status.getType()), result);
 
 
     // Extract the info from the results
@@ -976,13 +979,13 @@ void LLMarketplaceData::createSLMListingCoro(LLUUID folderId, LLUUID versionId, 
 
     if (!status)
     {
-        log_SLM_warning("Post /listings", status.getType(), status.toString(), "", ll_pretty_print_sd(result));
+        log_SLM_warning("Post /listings", status.getType(), status.toString(), "", result);
         update_marketplace_category(folderId, false);
         gInventory.notifyObservers();
         return;
     }
     
-    log_SLM_infos("Post /listings", status.getType(), ll_pretty_print_sd(result));
+    log_SLM_infos("Post /listings", status.getType(), result);
 
     // Extract the info from the results
     for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -1043,13 +1046,13 @@ void LLMarketplaceData::updateSLMListingCoro(LLUUID folderId, S32 listingId, LLU
 
     if (!status)
     {
-        log_SLM_warning("Put /listing", status.getType(), status.toString(), "", ll_pretty_print_sd(result));
+        log_SLM_warning("Put /listing", status.getType(), status.toString(), "", result);
         update_marketplace_category(folderId, false);
         gInventory.notifyObservers();
         return;
     }
 
-    log_SLM_infos("Put /listing", status.getType(), ll_pretty_print_sd(result));
+    log_SLM_infos("Put /listing", status.getType(), result);
 
     // Extract the info from the Json string
     for (LLSD::array_iterator it = result["listings"].beginArray();
@@ -1126,14 +1129,14 @@ void LLMarketplaceData::associateSLMListingCoro(LLUUID folderId, S32 listingId, 
 
     if (!status)
     {
-        log_SLM_warning("Put /associate_inventory", status.getType(), status.toString(), "", ll_pretty_print_sd(result));
+        log_SLM_warning("Put /associate_inventory", status.getType(), status.toString(), "", result);
         update_marketplace_category(folderId, false);
         update_marketplace_category(sourceFolderId, false);
         gInventory.notifyObservers();
         return;
     }
 
-    log_SLM_infos("Put /associate_inventory", status.getType(), ll_pretty_print_sd(result));
+    log_SLM_infos("Put /associate_inventory", status.getType(), result);
 
     for (LLSD::array_iterator it = result["listings"].beginArray();
             it != result["listings"].endArray(); ++it)
@@ -1199,13 +1202,13 @@ void LLMarketplaceData::deleteSLMListingCoro(S32 listingId)
 
     if (!status)
     {
-        log_SLM_warning("Delete /listing", status.getType(), status.toString(), "", ll_pretty_print_sd(result));
+        log_SLM_warning("Delete /listing", status.getType(), status.toString(), "", result);
         update_marketplace_category(folderId, false);
         gInventory.notifyObservers();
         return;
     }
 
-    log_SLM_infos("Delete /listing", status.getType(), ll_pretty_print_sd(result));
+    log_SLM_infos("Delete /listing", status.getType(), result);
 
     for (LLSD::array_iterator it = result["listings"].beginArray(); 
             it != result["listings"].endArray(); ++it)
