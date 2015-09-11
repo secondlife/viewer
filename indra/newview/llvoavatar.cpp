@@ -702,7 +702,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mUpdatePeriod(1),
 	mVisualComplexityStale(true),
 	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
-	mMutedAVColor(calcMutedAVColor(getID())),
+	mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
 	mFirstFullyVisible(TRUE),
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
@@ -3099,6 +3099,10 @@ bool LLVOAvatar::isVisuallyMuted() const
 		{	// Always want to see this AV as an impostor
 			muted = true;
 		}
+        else if (LLMuteList::getInstance()->isMuted(getID()))
+        {
+            muted = true;
+        }
 		else
 		{
 			muted = isTooComplex();
@@ -8089,19 +8093,10 @@ void LLVOAvatar::updateImpostors()
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead() && avatar->isVisible()
 			&& (avatar->isImpostor() && avatar->needsImpostorUpdate())
-			&& (avatar->getVisualMuteSettings() != AV_DO_NOT_RENDER))
+            )
 		{
+            avatar->calcMutedAVColor();
 			gPipeline.generateImpostor(avatar);
-		}
-		else
-		{
-			LL_DEBUGS_ONCE("AvatarRender") << "Avatar " << avatar->getID()
-				<< (avatar->isDead() ? " _is_ " : " is not ") << "dead"
-				<< (avatar->needsImpostorUpdate() ? " needs " : " _does_not_need_ ") << "impostor update"
-				<< (avatar->isVisible() ? " is " : " _is_not_ ") << "visible"
-				<< (avatar->isImpostor() ? " is " : " is not ") << "impostor"
-				<< (avatar->isTooComplex() ? " is " : " is not ") << "too complex"
-				<< LL_ENDL;
 		}
 	}
 
@@ -8446,31 +8441,59 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 	}
 }
 
-
-// static
-LLColor4 LLVOAvatar::calcMutedAVColor(const LLUUID av_id)
+void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 {
-	// select a color based on the first byte of the agents uuid so any muted agent is always the same color
-	F32 color_value = (F32) (av_id.mData[0]);
-	F32 spectrum = (color_value / 256.0);		// spectrum is between 0 and 1.f
+    mVisuallyMuteSetting = set;
+    mNeedsImpostorUpdate = true;
+}
 
-	// Array of colors.  These are arranged so only one RGB color changes between each step, 
-	// and it loops back to red so there is an even distribution.  It is not a heat map
-	const S32 NUM_SPECTRUM_COLORS = 7;              
-	static LLColor4 * spectrum_color[NUM_SPECTRUM_COLORS] = { &LLColor4::red, &LLColor4::magenta, &LLColor4::blue, &LLColor4::cyan, &LLColor4::green, &LLColor4::yellow, &LLColor4::red };
+
+void LLVOAvatar::calcMutedAVColor()
+{
+    LLColor4 new_color;
+    std::string change_msg;
+    LLUUID av_id(getID());
+
+    if (getVisualMuteSettings() == AV_DO_NOT_RENDER)
+    {
+        // explicitly not-rendered avatars are light grey
+        new_color = LLColor4::grey3;
+        change_msg = " not rendered: color is grey3";
+    }
+    else if (LLMuteList::getInstance()->isMuted(av_id)) // the user blocked them
+    {
+        // blocked avatars are dark grey
+        new_color = LLColor4::grey4;
+        change_msg = " blocked: color is grey4";
+    }
+    else if ( mMutedAVColor == LLColor4::white || mMutedAVColor == LLColor4::grey3 || mMutedAVColor == LLColor4::grey4 )
+    {
+        // select a color based on the first byte of the agents uuid so any muted agent is always the same color
+        F32 color_value = (F32) (av_id.mData[0]);
+        F32 spectrum = (color_value / 256.0);		// spectrum is between 0 and 1.f
+
+        // Array of colors.  These are arranged so only one RGB color changes between each step, 
+        // and it loops back to red so there is an even distribution.  It is not a heat map
+        const S32 NUM_SPECTRUM_COLORS = 7;              
+        static LLColor4 * spectrum_color[NUM_SPECTRUM_COLORS] = { &LLColor4::red, &LLColor4::magenta, &LLColor4::blue, &LLColor4::cyan, &LLColor4::green, &LLColor4::yellow, &LLColor4::red };
  
-	spectrum = spectrum * (NUM_SPECTRUM_COLORS - 1);		// Scale to range of number of colors
-	S32 spectrum_index_1  = floor(spectrum);				// Desired color will be after this index
-	S32 spectrum_index_2  = spectrum_index_1 + 1;			//    and before this index (inclusive)
-	F32 fractBetween = spectrum - (F32)(spectrum_index_1);  // distance between the two indexes (0-1)
+        spectrum = spectrum * (NUM_SPECTRUM_COLORS - 1);		// Scale to range of number of colors
+        S32 spectrum_index_1  = floor(spectrum);				// Desired color will be after this index
+        S32 spectrum_index_2  = spectrum_index_1 + 1;			//    and before this index (inclusive)
+        F32 fractBetween = spectrum - (F32)(spectrum_index_1);  // distance between the two indexes (0-1)
  
-	LLColor4 new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
-	new_color.normalize();
-	new_color *= 0.5f;		// Tone it down
+        new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
+        new_color.normalize();
+        new_color *= 0.5f;		// Tone it down
 
-	LL_DEBUGS("AvatarRender") << "avatar "<< av_id << " muted color " << std::setprecision(3) << new_color << LL_ENDL;
+        change_msg = " over limit color ";
+    }
 
-	return new_color;
+    if (mMutedAVColor != new_color) 
+    {
+        LL_DEBUGS("AvatarRender") << "avatar "<< av_id << change_msg << std::setprecision(3) << new_color << LL_ENDL;
+        mMutedAVColor = new_color;
+    }
 }
 
 // static

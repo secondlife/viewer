@@ -324,7 +324,7 @@ public:
 	static void 	logPendingPhasesAllAvatars();
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
-	static LLColor4 calcMutedAVColor(const LLUUID av_id);
+    void            calcMutedAVColor();
 
 protected:
 	LLViewerStats::PhaseMap& getPhases() { return mPhases; }
@@ -394,7 +394,7 @@ public:
 		AV_DO_NOT_RENDER   = 1,
 		AV_ALWAYS_RENDER   = 2
 	};
-	void		setVisualMuteSettings(VisualMuteSettings set)		{ mVisuallyMuteSetting = set;	};
+	void		setVisualMuteSettings(VisualMuteSettings set);
 	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
 
 	U32 		renderRigid();

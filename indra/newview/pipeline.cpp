@@ -11571,16 +11571,16 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		}
 
 
-		if (too_complex)
+		if (visually_muted)
 		{	// Visually muted avatar
             LLColor4 muted_color(avatar->getMutedAVColor());
-            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set jellybaby " << muted_color << LL_ENDL;
+            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " MUTED set solid color " << muted_color << LL_ENDL;
 			gGL.diffuseColor4fv( muted_color.mV );
 		}
 		else
 		{ //grey muted avatar
-            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " set grey" << LL_ENDL;
-			gGL.diffuseColor4ub(64,64,64,255);
+            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " MUTED set grey" << LL_ENDL;
+			gGL.diffuseColor4fv(LLColor4::pink.mV );
 		}
 
 		{

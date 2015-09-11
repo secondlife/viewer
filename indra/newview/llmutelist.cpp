@@ -218,6 +218,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	if ((mute.mType == LLMute::AGENT)
 		&& isLinden(mute.mName) && (flags & LLMute::flagTextChat || flags == 0))
 	{
+        LL_WARNS() << "Trying to mute a Linden; ignored" << LL_ENDL;
 		LLNotifications::instance().add("MuteLinden", LLSD(), LLSD());
 		return FALSE;
 	}
@@ -226,6 +227,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	if (mute.mType == LLMute::AGENT
 		&& mute.mID == gAgent.getID())
 	{
+        LL_WARNS() << "Trying to self; ignored" << LL_ENDL;
 		return FALSE;
 	}
 	
@@ -256,6 +258,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 		}
 		else
 		{
+			LL_INFOS() << "duplicate mute ignored" << LL_ENDL;
 			// was duplicate
 			return FALSE;
 		}
