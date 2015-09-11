@@ -2572,6 +2572,11 @@ LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
 	mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
 }
 
+void LLFloaterPreferenceGraphicsAdvanced::onOpen(const LLSD& key)
+{
+    refresh();
+}
+
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
 {
 }

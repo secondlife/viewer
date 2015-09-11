@@ -270,7 +270,7 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 public: 
 	LLFloaterPreferenceGraphicsAdvanced(const LLSD& key);
 	~LLFloaterPreferenceGraphicsAdvanced();
-
+	void onOpen(const LLSD& key);
 	void disableUnavailableSettings();
 	void refreshEnabledGraphics();
 	void refreshEnabledState();
