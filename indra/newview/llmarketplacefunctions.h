@@ -37,8 +37,6 @@
 #include "llstring.h"
 
 
-LLSD getMarketplaceStringSubstitutions();
-
 
 namespace MarketplaceErrorCodes
 {
@@ -183,6 +181,8 @@ class LLSLMDeleteListingsResponder;
 class LLMarketplaceData
     : public LLSingleton<LLMarketplaceData>
 {
+    friend class LLSingleton < LLMarketplaceData > ;
+
 public:
 	friend class LLSLMGetMerchantResponder;
     friend class LLSLMGetListingsResponder;
@@ -192,9 +192,8 @@ public:
     friend class LLSLMAssociateListingsResponder;
     friend class LLSLMDeleteListingsResponder;
 
-	LLMarketplaceData();
-    virtual ~LLMarketplaceData();
-    
+    static LLSD getMarketplaceStringSubstitutions();
+
     // Public SLM API : Initialization and status
 	typedef boost::signals2::signal<void ()> status_updated_signal_t;
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
@@ -241,8 +240,11 @@ public:
     // Used to decide when to run a validation on listing folders
     void setValidationWaiting(const LLUUID& folder_id, S32 count);
     void decrementValidationWaiting(const LLUUID& folder_id, S32 count = 1);
-    
+
 private:
+    LLMarketplaceData();
+    virtual ~LLMarketplaceData();
+
     // Modify Marketplace data set  : each method returns true if the function succeeds, false if error
     // Used internally only by SLM Responders when data are received from the SLM Server
     bool addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, const std::string& edit_url, S32 count);

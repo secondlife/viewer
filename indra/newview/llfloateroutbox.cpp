@@ -397,7 +397,7 @@ void LLFloaterOutbox::updateView()
 		std::string outbox_title;
 		std::string outbox_tooltip;
 		
-		const LLSD& subs = getMarketplaceStringSubstitutions();
+		const LLSD& subs = LLMarketplaceData::getMarketplaceStringSubstitutions();
 		U32 mkt_status = LLMarketplaceInventoryImporter::getInstance()->getMarketPlaceStatus();
 		
 		if (mOutboxId.notNull())
@@ -544,7 +544,7 @@ void LLFloaterOutbox::importReportResults(U32 status, const LLSD& content)
 	}
 	else if (status == MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS)
 	{
-		const LLSD& subs = getMarketplaceStringSubstitutions();
+		const LLSD& subs = LLMarketplaceData::getMarketplaceStringSubstitutions();
 
 		LLNotificationsUtil::add("OutboxImportHadErrors", subs);
 	}

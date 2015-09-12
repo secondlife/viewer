@@ -146,28 +146,6 @@ namespace {
 
 }
 
-LLSD getMarketplaceStringSubstitutions()
-{
-    std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
-    std::string marketplace_url_create = getMarketplaceURL("MarketplaceURL_CreateStore");
-    std::string marketplace_url_dashboard = getMarketplaceURL("MarketplaceURL_Dashboard");
-    std::string marketplace_url_imports = getMarketplaceURL("MarketplaceURL_Imports");
-    std::string marketplace_url_info = getMarketplaceURL("MarketplaceURL_LearnMore");
-
-    LLSD marketplace_sub_map;
-
-    marketplace_sub_map["[MARKETPLACE_URL]"] = marketplace_url;
-    marketplace_sub_map["[MARKETPLACE_CREATE_STORE_URL]"] = marketplace_url_create;
-    marketplace_sub_map["[MARKETPLACE_LEARN_MORE_URL]"] = marketplace_url_info;
-    marketplace_sub_map["[MARKETPLACE_DASHBOARD_URL]"] = marketplace_url_dashboard;
-    marketplace_sub_map["[MARKETPLACE_IMPORTS_URL]"] = marketplace_url_imports;
-
-    return marketplace_sub_map;
-}
-
-
-// SLM Responders End
-///////////////////////////////////////////////////////////////////////////////
 
 #if 1
 namespace LLMarketplaceImport
@@ -718,6 +696,26 @@ LLMarketplaceData::LLMarketplaceData() :
 LLMarketplaceData::~LLMarketplaceData()
 {
 	gInventory.removeObserver(mInventoryObserver);
+}
+
+
+LLSD LLMarketplaceData::getMarketplaceStringSubstitutions()
+{
+    std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
+    std::string marketplace_url_create = getMarketplaceURL("MarketplaceURL_CreateStore");
+    std::string marketplace_url_dashboard = getMarketplaceURL("MarketplaceURL_Dashboard");
+    std::string marketplace_url_imports = getMarketplaceURL("MarketplaceURL_Imports");
+    std::string marketplace_url_info = getMarketplaceURL("MarketplaceURL_LearnMore");
+
+    LLSD marketplace_sub_map;
+
+    marketplace_sub_map["[MARKETPLACE_URL]"] = marketplace_url;
+    marketplace_sub_map["[MARKETPLACE_CREATE_STORE_URL]"] = marketplace_url_create;
+    marketplace_sub_map["[MARKETPLACE_LEARN_MORE_URL]"] = marketplace_url_info;
+    marketplace_sub_map["[MARKETPLACE_DASHBOARD_URL]"] = marketplace_url_dashboard;
+    marketplace_sub_map["[MARKETPLACE_IMPORTS_URL]"] = marketplace_url_imports;
+
+    return marketplace_sub_map;
 }
 
 void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
