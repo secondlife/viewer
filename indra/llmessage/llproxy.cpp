@@ -408,16 +408,6 @@ void LLProxy::cleanupClass()
 	deleteSingleton();
 }
 
-void LLProxy::applyProxySettings(LLCurlEasyRequest* handle)
-{
-	applyProxySettings(handle->getEasy());
-}
-
-void LLProxy::applyProxySettings(LLCurl::Easy* handle)
-{
-	applyProxySettings(handle->getCurlHandle());
-}
-
 /**
  * @brief Apply proxy settings to a CuRL request if an HTTP proxy is enabled.
  *

@@ -48,7 +48,7 @@
 #include "llsingleton.h"
 
 class LLMutex;
-class LLCurlThread;
+//class LLCurlThread;
 
 // For whatever reason, this is not typedef'd in curl.h
 typedef size_t (*curl_header_callback)(void *ptr, size_t size, size_t nmemb, void *stream);
@@ -58,114 +58,6 @@ class LLCurl
 	LOG_CLASS(LLCurl);
 	
 public:
-	class Easy;
-	class Multi;
-
-	struct TransferInfo
-	{
-		TransferInfo() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
-		F64 mSizeDownload;
-		F64 mTotalTime;
-		F64 mSpeedDownload;
-	};
-	
-	class Responder : public LLThreadSafeRefCount
-	{
-	//LOG_CLASS(Responder);
-	public:
-
-		Responder();
-		virtual ~Responder();
-
-		virtual bool followRedir() 
-		{
-			return false;
-		}
-
-		/**
-		 * @brief return true if the status code indicates success.
-		 */
-		bool isGoodStatus() const { return isHttpGoodStatus(mStatus); }
-
-		S32 getStatus() const { return mStatus; }
-		const std::string& getReason() const { return mReason; }
-		const LLSD& getContent() const { return mContent; }
-		bool hasResponseHeader(const std::string& header) const;
-		const std::string& getResponseHeader(const std::string& header) const;
-		const LLSD& getResponseHeaders() const { return mResponseHeaders; }
-		const std::string& getURL() const { return mURL; }
-		EHTTPMethod getHTTPMethod() const { return mHTTPMethod; }
-
-		// This formats response information for use in log spam.  Includes content spam.
-		std::string dumpResponse() const;
-
-		// Allows direct triggering of success/error with different results.
-		void completeResult(S32 status, const std::string& reason, const LLSD& content = LLSD());
-		void successResult(const LLSD& content);
-		void failureResult(S32 status, const std::string& reason, const LLSD& content = LLSD());
-
-		// The default implementation will try to parse body content as an LLSD, however
-		// it should not spam about parsing failures unless the server sent a
-		// Content-Type: application/llsd+xml header.
-		virtual void completedRaw(
-			const LLChannelDescriptors& channels,
-			const LLIOPipe::buffer_ptr_t& buffer);
-			/**< Override point for clients that may want to use this
-			   class when the response is some other format besides LLSD
-			*/
-			
-
-		// The http* methods are not public since these should be triggered internally
-		// after status, reason, content, etc have been set.
-		// If you need to trigger a completion method, use the *Result methods, above.
-	protected:
-		// These methods are the preferred way to process final results.
-		// By default, when one of these is called the following information will be resolved:
-		// * HTTP status code - getStatus()
-		// * Reason string - getReason()
-		// * Content - getContent()
-		// * Response Headers - getResponseHeaders()
-
-		// By default, httpSuccess is triggered whenever httpCompleted is called with a 2xx status code.
-		virtual void httpSuccess();
-			//< called by completed for good status codes.
-
-		// By default, httpFailure is triggered whenever httpCompleted is called with a non-2xx status code.
-		virtual void httpFailure();
-			//< called by httpCompleted() on bad status 
-
-		// httpCompleted does not generally need to be overridden, unless
-		// you don't care about the status code (which determine httpFailure or httpSuccess)
-		// or if you want to re-interpret what a 'good' vs' bad' status code is.
-		virtual void httpCompleted();
-			/**< The default implementation calls
-				either:
-				* httpSuccess(), or
-				* httpFailure() 
-			*/
-
-	public:
-		void setHTTPMethod(EHTTPMethod method);
-		void setURL(const std::string& url);
-		void setResult(S32 status, const std::string& reason, const LLSD& content = LLSD());
-		void setResponseHeader(const std::string& header, const std::string& value);
-
-	private:
-		// These can be accessed by the get* methods.  Treated as 'read-only' during completion handlers.
-		EHTTPMethod mHTTPMethod;
-		std::string mURL;
-		LLSD mResponseHeaders;
-
-	protected:
-		// These should also generally be treated as 'read-only' during completion handlers
-		// and should be accessed by the get* methods.  The exception to this rule would
-		// be when overriding the completedRaw method in preparation for calling httpCompleted().
-		S32 mStatus;
-		std::string mReason;
-		LLSD mContent;
-	};
-	typedef LLPointer<Responder>	ResponderPtr;
-
 
 	/**
 	 * @ brief Set certificate authority file used to verify HTTPS certs.
@@ -214,7 +106,7 @@ public:
 	static void ssl_locking_callback(int mode, int type, const char *file, int line);
 	static unsigned long ssl_thread_id(void);
 
-	static LLCurlThread* getCurlThread() { return sCurlThread ;}
+//	static LLCurlThread* getCurlThread() { return sCurlThread ;}
 
 	static CURLM* newMultiHandle() ;
 	static CURLMcode deleteMultiHandle(CURLM* handle) ;
@@ -227,7 +119,8 @@ private:
 	static std::string sCAPath;
 	static std::string sCAFile;
 	static const unsigned int MAX_REDIRECTS;
-	static LLCurlThread* sCurlThread;
+    //	static LLCurlThread* sCurlThread;
+//    static LLCurlThread* sCurlThread;
 
 	static LLMutex* sHandleMutexp ;
 	static S32      sTotalHandles ;
@@ -238,232 +131,6 @@ public:
 	static F32      sCurlRequestTimeOut;	
 };
 
-class LLCurl::Easy
-{
-	LOG_CLASS(Easy);
-
-private:
-	Easy();
-
-public:
-	static Easy* getEasy();
-	~Easy();
-
-	CURL* getCurlHandle() const { return mCurlEasyHandle; }
-
-	void setErrorBuffer();
-	void setCA();
-
-	void setopt(CURLoption option, S32 value);
-	// These assume the setter does not free value!
-	void setopt(CURLoption option, void* value);
-	void setopt(CURLoption option, char* value);
-	// Copies the string so that it is guaranteed to stick around
-	void setoptString(CURLoption option, const std::string& value);
-
-	void slist_append(const std::string& header, const std::string& value);
-	void slist_append(const char* str);
-	void setHeaders();
-
-	S32 report(CURLcode);
-	void getTransferInfo(LLCurl::TransferInfo* info);
-
-	void prepRequest(const std::string& url, const std::vector<std::string>& headers, LLCurl::ResponderPtr, S32 time_out = 0, bool post = false);
-
-	const char* getErrorBuffer();
-
-	std::stringstream& getInput() { return mInput; }
-	std::stringstream& getHeaderOutput() { return mHeaderOutput; }
-	LLIOPipe::buffer_ptr_t& getOutput() { return mOutput; }
-	const LLChannelDescriptors& getChannels() { return mChannels; }
-
-	void resetState();
-
-	static CURL* allocEasyHandle();
-	static void releaseEasyHandle(CURL* handle);
-
-private:
-	friend class LLCurl;
-#if 1
-	friend class LLCurl::Multi;
-#endif
-
-	CURL*				mCurlEasyHandle;
-	struct curl_slist*	mHeaders;
-
-	std::stringstream	mRequest;
-	LLChannelDescriptors mChannels;
-	LLIOPipe::buffer_ptr_t mOutput;
-	std::stringstream	mInput;
-	std::stringstream	mHeaderOutput;
-	char				mErrorBuffer[CURL_ERROR_SIZE];
-
-	// Note: char*'s not strings since we pass pointers to curl
-	std::vector<char*>	mStrings;
-
-	LLCurl::ResponderPtr		mResponder;
-
-	static std::set<CURL*> sFreeHandles;
-	static std::set<CURL*> sActiveHandles;
-	static LLMutex*        sHandleMutexp ;
-
-	static void deleteAllActiveHandles();
-	static void deleteAllFreeHandles();
-};
-
-#if 1
-class LLCurl::Multi
-{
-	LOG_CLASS(Multi);
-
-	friend class LLCurlThread ;
-
-private:
-	~Multi();
-
-	void markDead() ;
-	bool doPerform();
-
-public:
-
-	typedef enum
-	{
-		STATE_READY=0,
-		STATE_PERFORMING=1,
-		STATE_COMPLETED=2
-	} ePerformState;
-
-	Multi(F32 idle_time_out = 0.f);	
-
-	LLCurl::Easy* allocEasy();
-	bool addEasy(LLCurl::Easy* easy);	
-	void removeEasy(LLCurl::Easy* easy);
-	
-	void lock() ;
-	void unlock() ;
-
-	void setState(ePerformState state) ;
-	ePerformState getState() ;
-	
-	bool isCompleted() ;
-	bool isValid() {return mCurlMultiHandle != NULL && mValid;}
-	bool isDead() {return mDead;}
-
-	bool waitToComplete() ;
-
-	S32 process();
-	
-	CURLMsg* info_read(S32* msgs_in_queue);
-
-	S32 mQueued;
-	S32 mErrorCount;
-	
-private:
-	void easyFree(LLCurl::Easy*);
-	void cleanup(bool deleted = false) ;
-	
-	CURLM* mCurlMultiHandle;
-
-	typedef std::set<LLCurl::Easy*> easy_active_list_t;
-	easy_active_list_t mEasyActiveList;
-	typedef std::map<CURL*, LLCurl::Easy*> easy_active_map_t;
-	easy_active_map_t mEasyActiveMap;
-	typedef std::set<LLCurl::Easy*> easy_free_list_t;
-	easy_free_list_t mEasyFreeList;
-
-	LLQueuedThread::handle_t mHandle ;
-	ePerformState mState;
-
-	BOOL mDead ;
-	BOOL mValid ;
-	LLMutex* mMutexp ;
-	LLMutex* mDeletionMutexp ;
-	LLMutex* mEasyMutexp ;
-	LLFrameTimer mIdleTimer ;
-	F32 mIdleTimeOut;
-};
-#endif
-
-#if 1
-class LLCurlThread : public LLQueuedThread
-{
-public:
-
-	class CurlRequest : public LLQueuedThread::QueuedRequest
-	{
-	protected:
-		virtual ~CurlRequest(); // use deleteRequest()
-		
-	public:
-		CurlRequest(handle_t handle, LLCurl::Multi* multi, LLCurlThread* curl_thread);
-
-		/*virtual*/ bool processRequest();
-		/*virtual*/ void finishRequest(bool completed);
-
-	private:
-		// input
-		LLCurl::Multi* mMulti;
-		LLCurlThread*  mCurlThread;
-	};
-	friend class CurlRequest;
-
-public:
-	LLCurlThread(bool threaded = true) ;
-	virtual ~LLCurlThread() ;
-
-	S32 update(F32 max_time_ms);
-
-	void addMulti(LLCurl::Multi* multi) ;
-	void killMulti(LLCurl::Multi* multi) ;
-
-private:
-	bool doMultiPerform(LLCurl::Multi* multi) ;
-	void deleteMulti(LLCurl::Multi* multi) ;
-	void cleanupMulti(LLCurl::Multi* multi) ;
-} ;
-#endif
-
-
-class LLCurlEasyRequest
-{
-public:
-	LLCurlEasyRequest();
-	~LLCurlEasyRequest();
-	void setopt(CURLoption option, S32 value);
-	void setoptString(CURLoption option, const std::string& value);
-	void setPost(char* postdata, S32 size);
-	void setHeaderCallback(curl_header_callback callback, void* userdata);
-	void setWriteCallback(curl_write_callback callback, void* userdata);
-	void setReadCallback(curl_read_callback callback, void* userdata);
-	void setSSLCtxCallback(curl_ssl_ctx_callback callback, void* userdata);
-	void slist_append(const std::string& header, const std::string& value);
-	void slist_append(const char* str);
-	void sendRequest(const std::string& url);
-	void requestComplete();
-	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
-	std::string getErrorString();
-#if 0
-    bool isCompleted() { return false; }
-    bool wait() { return false; }
-    bool isValid() { return false; }
-#else
-	bool isCompleted() {return mMulti->isCompleted() ;}
-	bool wait() { return mMulti->waitToComplete(); }
-	bool isValid() {return mMulti && mMulti->isValid(); }
-#endif
-	LLCurl::Easy* getEasy() const { return mEasy; }
-
-private:
-	CURLMsg* info_read(S32* queue, LLCurl::TransferInfo* info);
-	
-private:
-#if 1
-	LLCurl::Multi* mMulti;
-#endif
-	LLCurl::Easy* mEasy;
-	bool mRequestSent;
-	bool mResultReturned;
-};
 
 // Provide access to LLCurl free functions outside of llcurl.cpp without polluting the global namespace.
 namespace LLCurlFF

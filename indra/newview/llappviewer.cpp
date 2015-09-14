@@ -1556,11 +1556,6 @@ bool LLAppViewer::mainLoop()
 				}
 				gMeshRepo.update() ;
 				
-				if(!LLCurl::getCurlThread()->update(1))
-				{
-					LLCurl::getCurlThread()->pause() ; //nothing in the curl thread.
-				}
-
 				if(!total_work_pending) //pause texture fetching threads if nothing to process.
 				{
 					LLAppViewer::getTextureCache()->pause();
@@ -1998,7 +1993,6 @@ bool LLAppViewer::cleanup()
 		pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
-		pending += LLCurl::getCurlThread()->update(1) ;
 		F64 idle_time = idleTimer.getElapsedTimeF64();
 		if(!pending)
 		{
@@ -2010,7 +2004,6 @@ bool LLAppViewer::cleanup()
 			break;
 		}
 	}
-	LLCurl::getCurlThread()->pause() ;
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
@@ -2024,11 +2017,6 @@ bool LLAppViewer::cleanup()
 
 	LL_INFOS() << "Shutting down message system" << LL_ENDL;
 	end_messaging_system();
-
-	// *NOTE:Mani - The following call is not thread safe. 
-	LL_CHECK_MEMORY
-	LLCurl::cleanupClass();
-	LL_CHECK_MEMORY
 
 	// Non-LLCurl libcurl library
 	mAppCoreHttp.cleanup();
