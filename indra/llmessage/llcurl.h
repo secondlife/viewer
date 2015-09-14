@@ -284,7 +284,9 @@ public:
 
 private:
 	friend class LLCurl;
+#if 1
 	friend class LLCurl::Multi;
+#endif
 
 	CURL*				mCurlEasyHandle;
 	struct curl_slist*	mHeaders;
@@ -309,6 +311,7 @@ private:
 	static void deleteAllFreeHandles();
 };
 
+#if 1
 class LLCurl::Multi
 {
 	LOG_CLASS(Multi);
@@ -379,7 +382,9 @@ private:
 	LLFrameTimer mIdleTimer ;
 	F32 mIdleTimeOut;
 };
+#endif
 
+#if 1
 class LLCurlThread : public LLQueuedThread
 {
 public:
@@ -416,6 +421,7 @@ private:
 	void deleteMulti(LLCurl::Multi* multi) ;
 	void cleanupMulti(LLCurl::Multi* multi) ;
 } ;
+#endif
 
 
 class LLCurlEasyRequest
@@ -436,17 +442,24 @@ public:
 	void requestComplete();
 	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
 	std::string getErrorString();
+#if 0
+    bool isCompleted() { return false; }
+    bool wait() { return false; }
+    bool isValid() { return false; }
+#else
 	bool isCompleted() {return mMulti->isCompleted() ;}
 	bool wait() { return mMulti->waitToComplete(); }
 	bool isValid() {return mMulti && mMulti->isValid(); }
-
+#endif
 	LLCurl::Easy* getEasy() const { return mEasy; }
 
 private:
 	CURLMsg* info_read(S32* queue, LLCurl::TransferInfo* info);
 	
 private:
+#if 1
 	LLCurl::Multi* mMulti;
+#endif
 	LLCurl::Easy* mEasy;
 	bool mRequestSent;
 	bool mResultReturned;

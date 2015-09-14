@@ -76,8 +76,6 @@ set(llmessage_SOURCE_FILES
     llsdhttpserver.cpp
     llsdmessagebuilder.cpp
     llsdmessagereader.cpp
-    llsdrpcclient.cpp
-    llsdrpcserver.cpp
     llservicebuilder.cpp
     llservice.cpp
     llstoredmessage.cpp
@@ -91,7 +89,6 @@ set(llmessage_SOURCE_FILES
     lltransfertargetfile.cpp
     lltransfertargetvfile.cpp
     lltrustedmessageservice.cpp
-    llurlrequest.cpp
     lluseroperation.cpp
     llxfer.cpp
     llxfer_file.cpp
@@ -174,8 +171,6 @@ set(llmessage_HEADER_FILES
     llsdhttpserver.h
     llsdmessagebuilder.h
     llsdmessagereader.h
-    llsdrpcclient.h
-    llsdrpcserver.h
     llservice.h
     llservicebuilder.h
     llstoredmessage.h
@@ -191,7 +186,6 @@ set(llmessage_HEADER_FILES
     lltransfertargetfile.h
     lltransfertargetvfile.h
     lltrustedmessageservice.h
-    llurlrequest.h
     lluseroperation.h
     llvehicleparams.h
     llxfer.h

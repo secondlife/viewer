@@ -29,6 +29,7 @@
 #ifndef LL_LLSDRPCSERVER_H
 #define LL_LLSDRPCSERVER_H
 
+#if 0
 /** 
  * I've set this up to be pretty easy to use when you want to make a
  * structured data rpc server which responds to methods by
@@ -356,5 +357,5 @@ class LLXMLRPCNode : public LLHTTPNodeForFactory<
 };
 
 //@}
-
+#endif
 #endif // LL_LLSDRPCSERVER_H

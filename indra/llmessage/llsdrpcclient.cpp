@@ -43,6 +43,7 @@
 static std::string LLSDRPC_RESPONSE_NAME("response");
 static std::string LLSDRPC_FAULT_NAME("fault");
 
+#if 0
 /** 
  * LLSDRPCResponse
  */
@@ -106,7 +107,9 @@ LLIOPipe::EStatus LLSDRPCResponse::process_impl(
 	PUMP_DEBUG;
 	return STATUS_DONE;
 }
+#endif
 
+#if 0
 /** 
  * LLSDRPCClient
  */
@@ -243,3 +246,4 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 	}
 	return rv;
 }
+#endif

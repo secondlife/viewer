@@ -36,6 +36,7 @@
 #include "llsdserialize.h"
 #include "llstl.h"
 
+#if 0
 static const char FAULT_PART_1[] = "{'fault':{'code':i";
 static const char FAULT_PART_2[] = ", 'description':'";
 static const char FAULT_PART_3[] = "'}}";
@@ -337,3 +338,4 @@ void LLSDRPCServer::buildResponse(
 	LL_INFOS() << debug_ostr.str() << LL_ENDL;
 #endif
 }
+#endif

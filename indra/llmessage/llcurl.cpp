@@ -1060,6 +1060,8 @@ void LLCurl::Multi::removeEasy(Easy* easy)
 }
 
 #endif
+
+#if 1
 //------------------------------------------------------------
 //LLCurlThread
 LLCurlThread::CurlRequest::CurlRequest(handle_t handle, LLCurl::Multi* multi, LLCurlThread* curl_thread) :
@@ -1167,7 +1169,7 @@ void LLCurlThread::cleanupMulti(LLCurl::Multi* multi)
 		deleteMulti(multi) ;
 	}
 }
-
+#endif
 //------------------------------------------------------------
 
 //static

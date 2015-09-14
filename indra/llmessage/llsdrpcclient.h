@@ -41,6 +41,7 @@
 //#include "llurlrequest.h"
 #endif
 
+#if 0
 /** 
  * @class LLSDRPCClientResponse
  * @brief Abstract base class to represent a response from an SD server.
@@ -107,7 +108,9 @@ protected:
 	bool mIsError;
 	bool mIsFault;
 };
+#endif
 
+#if 0
 /** 
  * @class LLSDRPCClient
  * @brief Client class for a structured data remote procedure call.
@@ -219,111 +222,5 @@ protected:
 	EPassBackQueue mQueue;
 	LLIOPipe::ptr_t mResponse;
 };
-
-#if 0
-/** 
- * @class LLSDRPCClientFactory
- * @brief Basic implementation for making an SD RPC client factory
- *
- * This class eases construction of a basic sd rpc client. Here is an
- * example of it's use:
- * <code>
- *  class LLUsefulService : public LLService { ... }
- *  LLService::registerCreator(
- *    "useful",
- *    LLService::creator_t(new LLSDRPCClientFactory<LLUsefulService>))
- * </code>
- */
-template<class Client>
-class LLSDRPCClientFactory : public LLChainIOFactory
-{
-public:
-	LLSDRPCClientFactory() {}
-	LLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
-	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
-	{
-		LL_DEBUGS() << "LLSDRPCClientFactory::build" << LL_ENDL;
-		LLURLRequest* http(new LLURLRequest(HTTP_POST));
-		if(!http->isValid())
-		{
-			LL_WARNS() << "Creating LLURLRequest failed." << LL_ENDL ;
-			delete http;
-			return false;
-		}
-
-		LLIOPipe::ptr_t service(new Client);
-		chain.push_back(service);		
-		LLIOPipe::ptr_t http_pipe(http);
-		http->addHeader(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_LLSD);
-		if(mURL.empty())
-		{
-			chain.push_back(LLIOPipe::ptr_t(new LLContextURLExtractor(http)));
-		}
-		else
-		{
-			http->setURL(mURL);
-		}
-		chain.push_back(http_pipe);
-		chain.push_back(service);
-		return true;
-	}
-protected:
-	std::string mURL;
-};
 #endif
-
-#if 0
-/** 
- * @class LLXMLSDRPCClientFactory
- * @brief Basic implementation for making an XMLRPC to SD RPC client factory
- *
- * This class eases construction of a basic sd rpc client which uses
- * xmlrpc as a serialization grammar. Here is an example of it's use:
- * <code>
- *  class LLUsefulService : public LLService { ... }
- *  LLService::registerCreator(
- *    "useful",
- *    LLService::creator_t(new LLXMLSDRPCClientFactory<LLUsefulService>))
- * </code>
- */
-template<class Client>
-class LLXMLSDRPCClientFactory : public LLChainIOFactory
-{
-public:
-	LLXMLSDRPCClientFactory() {}
-	LLXMLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
-	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
-	{
-		LL_DEBUGS() << "LLXMLSDRPCClientFactory::build" << LL_ENDL;
-
-		LLURLRequest* http(new LLURLRequest(HTTP_POST));
-		if(!http->isValid())
-		{
-			LL_WARNS() << "Creating LLURLRequest failed." << LL_ENDL ;
-			delete http;
-			return false ;
-		}
-		LLIOPipe::ptr_t service(new Client);
-		chain.push_back(service);		
-		LLIOPipe::ptr_t http_pipe(http);
-		http->addHeader(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
-		if(mURL.empty())
-		{
-			chain.push_back(LLIOPipe::ptr_t(new LLContextURLExtractor(http)));
-		}
-		else
-		{
-			http->setURL(mURL);
-		}
-		chain.push_back(LLIOPipe::ptr_t(new LLFilterSD2XMLRPCRequest(NULL)));
-		chain.push_back(http_pipe);
-		chain.push_back(LLIOPipe::ptr_t(new LLFilterXMLRPCResponse2LLSD));
-		chain.push_back(service);
-		return true;
-	}
-protected:
-	std::string mURL;
-};
-#endif
-
 #endif // LL_LLSDRPCCLIENT_H

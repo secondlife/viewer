@@ -42,6 +42,7 @@
 #include "apr_env.h"
 #include "llapr.h"
 
+#if 0
 /**
  * String constants
  */
@@ -781,3 +782,4 @@ LLIOPipe::EStatus LLURLRequestComplete::process_impl(
 	complete(channels, buffer);
 	return STATUS_OK;
 }
+#endif

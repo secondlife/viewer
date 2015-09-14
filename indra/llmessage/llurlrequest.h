@@ -41,7 +41,7 @@
 #include <openssl/x509_vfy.h>
 #include "llcurl.h"
 
-
+#if 0
 /**
  * External constants
  */
@@ -353,5 +353,5 @@ protected:
 	// depends on correct usage from the LLURLRequest instance.
 	EStatus mRequestStatus;
 };
-
+#endif
 #endif // LL_LLURLREQUEST_H
