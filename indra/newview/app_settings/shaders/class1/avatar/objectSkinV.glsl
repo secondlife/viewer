@@ -40,8 +40,7 @@ mat4 getObjectSkinnedTransform()
 		 index = min(index, vec4(151.0));
 		 index = max(index, vec4( 0.0));
 
-	float scale = 1.0/(w.x+w.y+w.z+w.w);
-	w *= scale;
+    w *= 1.0/(w.x+w.y+w.z+w.w);
 	
 	int i1 = int(index.x);
 	int i2 = int(index.y);

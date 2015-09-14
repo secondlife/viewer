@@ -1554,7 +1554,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
 	{
 		if (drawable && drawable->isState(LLDrawable::REBUILD_ALL))
-		{ //rebuild EVERY face in the drawable, not just this one, to avoid missing drawable wide rebuild issues
+		{
+            //rebuild EVERY face in the drawable, not just this one, to avoid missing drawable wide rebuild issues
 			for (S32 i = 0; i < drawable->getNumFaces(); ++i)
 			{
 				LLFace* facep = drawable->getFace(i);
@@ -1571,13 +1572,15 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			buffer = face->getVertexBuffer();
 		}
 		else
-		{ //just rebuild this face
+		{
+			//just rebuild this face
 			getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
 		}
 	}
 
 	if (sShaderLevel <= 0 && face->mLastSkinTime < avatar->getLastSkinTime())
-	{ //perform software vertex skinning for this face
+	{
+		//perform software vertex skinning for this face
 		LLStrider<LLVector3> position;
 		LLStrider<LLVector3> normal;
 
@@ -1605,10 +1608,6 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			{
 				joint = avatar->getJoint("mPelvis");
 			}
-			if (!joint)
-			{
-				LL_DEBUGS("Avatar") << "Failed to find " << skin->mJointNames[j] << LL_ENDL;
-			}
 			if (joint)
 			{
 				mat[j] = skin->mInvBindMatrix[j];
@@ -1633,27 +1632,14 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			{
 				F32 w = weight[j][k];
 
-				idx[k] = llclamp((S32) floorf(w), 0, JOINT_COUNT-1);
+				idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)JOINT_COUNT-1);
 
 				wght[k] = w - floorf(w);
 				scale += wght[k];
 			}
-
-            if (scale > 0.f)
-            {
-                wght *= 1.f/scale;
-            }
-            else
-            {
-                // Complete weighting fail - all zeroes.  Just
-                // pick some values that add up to 1.0 so we
-                // don't wind up with garbage vertices
-                // pointing off at (0,0,0)
-                wght[0] = 1.f;
-                wght[1] = 0.f;
-                wght[2] = 0.f;
-                wght[3] = 0.f;
-            }
+            // This is enforced  in unpackVolumeFaces()
+            llassert(scale>0.f);
+			wght *= 1.f/scale;
 
 			for (U32 k = 0; k < 4; k++)
 			{
@@ -1752,6 +1738,10 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				for (U32 i = 0; i < count; ++i)
 				{
 					LLJoint* joint = avatar->getJoint(skin->mJointNames[i]);
+                    if (!joint)
+                    {
+                        joint = avatar->getJoint("mPelvis");
+                    }
 					if (joint)
 					{
 						mat[i] = skin->mInvBindMatrix[i];
