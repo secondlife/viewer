@@ -36,7 +36,6 @@
 #include "llexpandabletextbox.h"
 #include "llexperiencecache.h"
 #include "llfloaterreg.h"
-#include "llhttpclient.h"
 #include "lllayoutstack.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"

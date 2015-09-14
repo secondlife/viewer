@@ -42,7 +42,6 @@
 #include "llviewercontrol.h"
 #include "llfloater.h"
 #include "lltrans.h"
-#include "llhttpclient.h"  // *TODO: Rider, remove when converting
 
 #define BTN_FIND		"find"
 #define BTN_OK			"ok_btn"

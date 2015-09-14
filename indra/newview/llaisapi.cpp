@@ -380,7 +380,7 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
-    httpOptions->setTimeout(HTTP_REQUEST_EXPIRY_SECS);
+    httpOptions->setTimeout(LLCoreHttpUtil::HTTP_REQUEST_EXPIRY_SECS);
 
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 

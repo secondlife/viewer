@@ -34,7 +34,6 @@
 #include "llavatarnamecache.h"		// name lookup cap url
 #include "llfloaterreg.h"
 #include "llmath.h"
-#include "llhttpclient.h"
 #include "llregionflags.h"
 #include "llregionhandle.h"
 #include "llsurface.h"

@@ -48,7 +48,6 @@ set(llmessage_SOURCE_FILES
     llexperiencecache.cpp
     llfiltersd2xmlrpc.cpp
     llhost.cpp
-    llhttpclient.cpp
     llhttpconstants.cpp
     llhttpnode.cpp
     llhttpsdhandler.cpp
@@ -140,8 +139,6 @@ set(llmessage_HEADER_FILES
     llfiltersd2xmlrpc.h
     llfollowcamparams.h
     llhost.h
-    llhttpclient.h
-    llhttpclientinterface.h
     llhttpconstants.h
     llhttpnode.h
     llhttpnodeadapter.h

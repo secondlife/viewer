@@ -32,7 +32,6 @@
 #include "llevents.h"
 #include "llexperiencecache.h"
 #include "llfloaterregioninfo.h"
-#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llpanelexperiencelog.h"
 #include "llpanelexperiencepicker.h"

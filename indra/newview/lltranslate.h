@@ -27,7 +27,6 @@
 #ifndef LL_LLTRANSLATE_H
 #define LL_LLTRANSLATE_H
 
-#include "llhttpclient.h"
 #include "llbufferstream.h"
 #include <boost/function.hpp>
 
@@ -95,7 +94,6 @@ public :
 private:
 	static LLTranslationAPIHandler& getPreferredHandler();
 	static LLTranslationAPIHandler& getHandler(EService service);
-	static void sendRequest(const std::string& url, LLHTTPClient::ResponderPtr responder);
 };
 
 #endif

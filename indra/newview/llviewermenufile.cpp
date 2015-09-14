@@ -66,7 +66,6 @@
 
 // linden libraries
 #include "lleconomy.h"
-#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"

@@ -30,7 +30,6 @@
 
 #include "llagent.h"
 #include "llbufferstream.h"
-#include "llhttpclient.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"

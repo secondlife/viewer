@@ -574,25 +574,3 @@ LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
 
 	return bing;
 }
-
-// static
-void LLTranslate::sendRequest(const std::string& url, LLHTTPClient::ResponderPtr responder)
-{
-	static const float REQUEST_TIMEOUT = 5;
-	static LLSD sHeader;
-
-	if (!sHeader.size())
-	{
-	    std::string user_agent = llformat("%s %d.%d.%d (%d)",
-			LLVersionInfo::getChannel().c_str(),
-			LLVersionInfo::getMajor(),
-			LLVersionInfo::getMinor(),
-			LLVersionInfo::getPatch(),
-			LLVersionInfo::getBuild());
-
-		sHeader.insert(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
-		sHeader.insert(HTTP_OUT_HEADER_USER_AGENT, user_agent);
-	}
-
-	LLHTTPClient::get(url, responder, sHeader, REQUEST_TIMEOUT);
-}

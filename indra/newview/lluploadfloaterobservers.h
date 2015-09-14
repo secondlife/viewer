@@ -28,7 +28,6 @@
 #define LL_LLUPLOADFLOATEROBSERVERS_H
 
 #include "llfloater.h"
-#include "llhttpclient.h"
 #include "llhandle.h"
 
 class LLUploadPermissionsObserver

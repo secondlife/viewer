@@ -31,7 +31,6 @@
 #include "lluictrlfactory.h"
 #include "roles_constants.h"
 
-#include "llhttpclient.h"
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llflatlistview.h"

@@ -46,6 +46,10 @@ using namespace LLCore;
 
 namespace LLCoreHttpUtil
 {
+
+const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
+
+
 void logMessageSuccess(std::string logAuth, std::string url, std::string message)
 {
     LL_INFOS() << logAuth << " Success '" << message << "' for " << url << LL_ENDL;

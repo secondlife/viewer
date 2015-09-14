@@ -41,7 +41,6 @@
 #include "llui.h"
 #include "message.h"
 #include "roles_constants.h"
-#include "llhttpclient.h"
 #include "lltransactiontypes.h"
 #include "llstatusbar.h"
 #include "lleconomy.h"

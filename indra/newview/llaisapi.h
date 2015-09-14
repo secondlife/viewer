@@ -32,7 +32,6 @@
 #include <set>
 #include <string>
 #include "llcurl.h"
-#include "llhttpclient.h"
 #include "llhttpretrypolicy.h"
 #include "llviewerinventory.h"
 #include "llcorehttputil.h"

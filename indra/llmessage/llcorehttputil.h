@@ -57,6 +57,7 @@
 ///
 namespace LLCoreHttpUtil
 {
+    extern const F32 HTTP_REQUEST_EXPIRY_SECS;
 
 /// Attempt to convert a response object's contents to LLSD.
 /// It is expected that the response body will be of non-zero

@@ -26,7 +26,6 @@
 #include "llexperiencecache.h"
 
 #include "llavatarname.h"
-#include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llcoros.h"
 #include "lleventcoro.h"

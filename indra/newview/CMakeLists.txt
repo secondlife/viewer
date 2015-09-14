@@ -2224,7 +2224,6 @@ if (LL_TESTS)
 #    llmediadataclient.cpp
     lllogininstance.cpp
 #    llremoteparcelrequest.cpp
-#    lltranslate.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
     llworldmap.cpp
@@ -2244,12 +2243,6 @@ if (LL_TESTS)
     ${JSONCPP_LIBRARIES}
     ${CURL_LIBRARIES}
     )
-
-#  set_source_files_properties(
-#    lltranslate.cpp
-#    PROPERTIES
-#    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
-#  )
 
   set_source_files_properties(
     llmediadataclient.cpp

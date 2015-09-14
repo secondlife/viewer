@@ -27,7 +27,6 @@
 #ifndef LL_LLEVENTPOLL_H
 #define LL_LLEVENTPOLL_H
 
-#include "llhttpclient.h"
 #include "boost/move/unique_ptr.hpp"
 
 namespace boost
