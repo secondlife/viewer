@@ -8450,7 +8450,7 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 
 void LLVOAvatar::calcMutedAVColor()
 {
-    LLColor4 new_color;
+    LLColor4 new_color(mMutedAVColor);
     std::string change_msg;
     LLUUID av_id(getID());
 
