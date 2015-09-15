@@ -202,6 +202,15 @@ LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& mater
 	return NULL;
 }
 
+std::string stripSuffix(std::string name)
+{
+	if ((name.find("_LOD") != -1) || (name.find("_PHYS") != -1))
+	{
+		return name.substr(0, name.rfind('_'));
+	}
+	return name;
+}
+
 LLMeshFilePicker::LLMeshFilePicker(LLModelPreview* mp, S32 lod)
 : LLFilePickerThread(LLFilePicker::FFLOAD_COLLADA)
 	{
@@ -1993,34 +2002,71 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 			if (!legacyMatching)
 			{
 				if (!mBaseModel.empty())
-				{ // replace the name of the model loaded for any non-HIGH LOD to match the others (MAINT-5601)
-					for (U32 idx = 0; idx < mModel[loaded_lod].size() && idx < mBaseModel.size(); ++idx)
+				{ 
+					BOOL name_based = FALSE;
+					BOOL has_submodels = FALSE;
+					for (U32 idx = 0; idx < mBaseModel.size(); ++idx)
 					{
-						std::string name = mBaseModel[idx]->mLabel;
-						std::string loaded_name = mModel[loaded_lod][idx]->mLabel; 
-
-						if ((loaded_name.find("_LOD") != -1) || (loaded_name.find("_PHYS") != -1))
-						{ // base model is LOD_HIGH so its name has no suffix, stripping loaded LOD name to match it
-							loaded_name = loaded_name.substr(0, loaded_name.rfind('_'));
-						}
-
-						if (loaded_name != name)
-						{
-							switch (loaded_lod)
-							{
-							case LLModel::LOD_IMPOSTOR: name += "_LOD0"; break;
-							case LLModel::LOD_LOW:      name += "_LOD1"; break;
-							case LLModel::LOD_MEDIUM:   name += "_LOD2"; break;
-							case LLModel::LOD_PHYSICS:  name += "_PHYS"; break;
-							case LLModel::LOD_HIGH:                      break;
-							}
-
+						if (mBaseModel[idx]->mSubmodelID)
+						{ // don't do index-based renaming when the base model has submodels
+							has_submodels = TRUE;
 							if (importerDebug)
 							{
-								LL_INFOS() << "Loded model name " << mModel[loaded_lod][idx]->mLabel << " for LOD " << loaded_lod << " doesn't match the base model. Renaming to " << name << LL_ENDL;
+								LL_INFOS() << "High LOD has submodels" << LL_ENDL;
 							}
+							break;
+						}
+					}
 
-							mModel[loaded_lod][idx]->mLabel = name;
+					for (U32 idx = 0; idx < mModel[loaded_lod].size(); ++idx)
+					{
+						std::string loaded_name = stripSuffix(mModel[loaded_lod][idx]->mLabel);
+
+						LLModel* found_model = NULL;
+						LLMatrix4 transform;
+						FindModel(mBaseScene, loaded_name, found_model, transform);
+						if (found_model)
+						{ // don't rename correctly named models (even if they are placed in a wrong order)
+							name_based = TRUE;
+						}
+
+						if (mModel[loaded_lod][idx]->mSubmodelID)
+						{ // don't rename the models when loaded LOD model has submodels
+							has_submodels = TRUE;
+						}
+					}
+
+					if (importerDebug)
+					{
+						LL_INFOS() << "Loaded LOD " << loaded_lod << ": correct names" << (name_based ? "" : "NOT ") << "found; submodels " << (has_submodels ? "" : "NOT ") << "found" << LL_ENDL;
+					}
+
+					if (!name_based && !has_submodels)
+					{ // replace the name of the model loaded for any non-HIGH LOD to match the others (MAINT-5601)
+					  // this actually works like "ImporterLegacyMatching" for this particular LOD
+						for (U32 idx = 0; idx < mModel[loaded_lod].size() && idx < mBaseModel.size(); ++idx)
+						{ 
+							std::string name = mBaseModel[idx]->mLabel;
+							std::string loaded_name = stripSuffix(mModel[loaded_lod][idx]->mLabel);
+
+							if (loaded_name != name)
+							{
+								switch (loaded_lod)
+								{
+								case LLModel::LOD_IMPOSTOR: name += "_LOD0"; break;
+								case LLModel::LOD_LOW:      name += "_LOD1"; break;
+								case LLModel::LOD_MEDIUM:   name += "_LOD2"; break;
+								case LLModel::LOD_PHYSICS:  name += "_PHYS"; break;
+								case LLModel::LOD_HIGH:                      break;
+								}
+
+								if (importerDebug)
+								{
+									LL_WARNS() << "Loded model name " << mModel[loaded_lod][idx]->mLabel << " for LOD " << loaded_lod << " doesn't match the base model. Renaming to " << name << LL_ENDL;
+								}
+
+								mModel[loaded_lod][idx]->mLabel = name;
+							}
 						}
 					}
 				}
