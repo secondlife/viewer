@@ -8484,7 +8484,7 @@ void LLVOAvatar::calcMutedAVColor()
  
         new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
         new_color.normalize();
-        new_color *= 0.5f;		// Tone it down
+        new_color *= 0.28f;		// Tone it down
 
         change_msg = " over limit color ";
     }
