@@ -408,6 +408,10 @@ void LLFloaterNotificationsTabbed::onItemClick(LLNotificationListItem* item)
     {
         LLFloaterReg::showInstance("inspect_toast", id);
     }
+    else
+    {
+        item->setExpanded(TRUE);
+    }
 }
 
 //---------------------------------------------------------------------------------
