@@ -58,7 +58,6 @@
 #include "llviewerjoystick.h"
 #include "llallocator.h"
 #include "llares.h" 
-#include "llcurl.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
 #include "lldxhardware.h"
@@ -828,12 +827,7 @@ bool LLAppViewer::init()
 	// before consumers (LLTextureFetch).
 	mAppCoreHttp.init();
 	
-    // *NOTE:Mani - LLCurl::initClass is not thread safe. 
-    // Called before threads are created.
-    LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
-						gSavedSettings.getS32("CurlMaximumNumberOfHandles"), 
-						gSavedSettings.getBOOL("CurlUseMultipleThreads"));
-	LL_INFOS("InitInfo") << "LLCurl initialized." << LL_ENDL ;
+	LL_INFOS("InitInfo") << "LLCore::Http initialized." << LL_ENDL ;
 
     LLMachineID::init();
 	
@@ -903,7 +897,7 @@ bool LLAppViewer::init()
 	// the libs involved in getting to a full login screen.
 	//
 	LL_INFOS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
-	LL_INFOS("InitInfo") << "libcurl version is: " << LLCurl::getVersionString() << LL_ENDL;
+	LL_INFOS("InitInfo") << "libcurl version is: " << LLCore::LLHttp::getCURLVersion() << LL_ENDL;
 
 	/////////////////////////////////////////////////
 	// OS-specific login dialogs
@@ -1313,7 +1307,6 @@ bool LLAppViewer::mainLoop()
 		
 		// Create IO Pump to use for HTTP Requests.
 		gServicePump = new LLPumpIO(gAPRPoolp);
-		LLCurl::setCAFile(gDirUtilp->getCAFile());
 		
 		// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 		
@@ -3348,7 +3341,7 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
-	info["LIBCURL_VERSION"] = LLCurl::getVersionString();
+	info["LIBCURL_VERSION"] = LLCore::LLHttp::getCURLVersion();
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();

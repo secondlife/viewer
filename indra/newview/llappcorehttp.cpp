@@ -138,6 +138,9 @@ LLAppCoreHttp::~LLAppCoreHttp()
 
 void LLAppCoreHttp::init()
 {
+
+    LLCore::LLHttp::initialize();
+
 	LLCore::HttpStatus status = LLCore::HttpRequest::createService();
 	if (! status)
 	{

@@ -35,7 +35,6 @@
 #include "llassettype.h"
 #include "llfoldertype.h"
 #include "llframetimer.h"
-#include "llcurl.h"
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llviewerinventory.h"

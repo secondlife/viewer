@@ -26,6 +26,7 @@ set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
     bufferstream.cpp
     httpcommon.cpp
+    llhttpconstants.cpp
     httpheaders.cpp
     httpoptions.cpp
     httprequest.cpp
@@ -51,6 +52,7 @@ set(llcorehttp_HEADER_FILES
     bufferarray.h
     bufferstream.h
     httpcommon.h
+    llhttpconstants.h
     httphandler.h
     httpheaders.h
     httpoptions.h

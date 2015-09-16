@@ -50,7 +50,6 @@
 #include "lltimer.h"
 #include "llpacketring.h"
 #include "llhost.h"
-#include "llcurl.h"
 #include "llhttpnode.h"
 //#include "llpacketack.h"
 #include "llsingleton.h"

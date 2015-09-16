@@ -42,13 +42,11 @@ set(llmessage_SOURCE_FILES
     llclassifiedflags.cpp
     llcoproceduremanager.cpp
     llcorehttputil.cpp
-    llcurl.cpp
     lldatapacker.cpp
     lldispatcher.cpp
     llexperiencecache.cpp
     llfiltersd2xmlrpc.cpp
     llhost.cpp
-    llhttpconstants.cpp
     llhttpnode.cpp
     llhttpsdhandler.cpp
     llinstantmessage.cpp
@@ -126,7 +124,6 @@ set(llmessage_HEADER_FILES
     llclassifiedflags.h
     llcoproceduremanager.h
     llcorehttputil.h
-    llcurl.h
     lldatapacker.h
     lldbstrings.h
     lldispatcher.h
@@ -136,7 +133,6 @@ set(llmessage_HEADER_FILES
     llfiltersd2xmlrpc.h
     llfollowcamparams.h
     llhost.h
-    llhttpconstants.h
     llhttpnode.h
     llhttpnodeadapter.h
     llhttpsdhandler.h

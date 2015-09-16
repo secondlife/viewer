@@ -27,12 +27,12 @@
 #ifndef LL_PROXY_H
 #define LL_PROXY_H
 
-#include "llcurl.h"
 #include "llhost.h"
 #include "lliosocket.h"
 #include "llmemory.h"
 #include "llsingleton.h"
 #include "llthread.h"
+#include <curl/curl.h>
 #include <string>
 
 // SOCKS error codes returned from the StartProxy method

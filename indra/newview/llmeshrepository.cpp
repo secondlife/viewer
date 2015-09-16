@@ -36,7 +36,6 @@
 #include "llappviewer.h"
 #include "llbufferstream.h"
 #include "llcallbacklist.h"
-#include "llcurl.h"
 #include "lldatapacker.h"
 #include "lldeadmantimer.h"
 #include "llfloatermodelpreview.h"

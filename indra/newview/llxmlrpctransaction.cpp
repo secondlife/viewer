@@ -34,8 +34,8 @@
 #include "llxmlrpctransaction.h"
 #include "llxmlrpclistener.h"
 
-#include "llcurl.h"
 #include "httpcommon.h"
+#include "llhttpconstants.h"
 #include "httprequest.h"
 #include "httpoptions.h"
 #include "httpheaders.h"

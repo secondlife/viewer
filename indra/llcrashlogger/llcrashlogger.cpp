@@ -214,11 +214,13 @@ void LLCrashLogger::gatherFiles()
 		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
 		if(mDebugLog.has("CAFilename"))
 		{
-			LLCurl::setCAFile(mDebugLog["CAFilename"].asString());
+            LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+                LLCore::HttpRequest::GLOBAL_POLICY_ID, mDebugLog["CAFilename"].asString(), NULL);
 		}
 		else
 		{
-			LLCurl::setCAFile(gDirUtilp->getCAFile());
+            LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+                LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
 		}
 
 		LL_INFOS() << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
@@ -227,7 +229,8 @@ void LLCrashLogger::gatherFiles()
 	else
 	{
 		// Figure out the filename of the second life log
-		LLCurl::setCAFile(gDirUtilp->getCAFile());
+        LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+            LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
         
 		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
         mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
@@ -531,7 +534,7 @@ void LLCrashLogger::updateApplication(const std::string& message)
 
 bool LLCrashLogger::init()
 {
-	LLCurl::initClass(false);
+    LLCore::LLHttp::initialize();
 
 	// We assume that all the logs we're looking for reside on the current drive
 	gDirUtilp->initAppDirs("SecondLife");

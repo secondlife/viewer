@@ -76,6 +76,8 @@ public:
 	// virtual
 	bool shouldRetry(F32& seconds_to_wait) const;
 
+    static bool getSecondsUntilRetryAfter(const std::string& retry_after, F32& seconds_to_wait);
+
 protected:
 	void init();
 	bool getRetryAfter(const LLSD& headers, F32& retry_header_time);
