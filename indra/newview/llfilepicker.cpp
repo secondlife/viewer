@@ -40,6 +40,10 @@
 #include "llwindowsdl.h" // for some X/GTK utils to help with filepickers
 #endif // LL_SDL
 
+#if LL_LINUX || LL_SOLARIS
+#include "llhttpconstants.h"    // file picker uses some of thes constants on Linux
+#endif
+
 //
 // Globals
 //
