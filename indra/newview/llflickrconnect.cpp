@@ -168,8 +168,6 @@ void LLFlickrConnect::flickrShareCoro(LLSD share)
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    setConnectionState(LLFlickrConnect::FLICKR_POSTING);
-
     LLSD result = httpAdapter->postAndYield(httpRequest, getFlickrConnectURL("/share/photo", true), share, httpOpts);
 
     if (testShareStatus(result))
@@ -471,12 +469,15 @@ void LLFlickrConnect::uploadPhoto(const std::string& image_url, const std::strin
 	body["tags"] = tags;
 	body["safety_level"] = safety_level;
 
+    setConnectionState(LLFlickrConnect::FLICKR_POSTING);
+
     LLCoros::instance().launch("LLFlickrConnect::flickrShareCoro",
         boost::bind(&LLFlickrConnect::flickrShareCoro, this, body));
 }
 
 void LLFlickrConnect::uploadPhoto(LLPointer<LLImageFormatted> image, const std::string& title, const std::string& description, const std::string& tags, int safety_level)
 {
+    setConnectionState(LLFlickrConnect::FLICKR_POSTING);
 
     LLCoros::instance().launch("LLFlickrConnect::flickrShareImageCoro",
         boost::bind(&LLFlickrConnect::flickrShareImageCoro, this, image, 
