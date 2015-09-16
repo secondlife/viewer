@@ -66,6 +66,7 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 
 bool LLCrashLoggerMac::mainLoop()
 {
+
     if (mCrashBehavior == CRASH_BEHAVIOR_ALWAYS_SEND)
 	{
 		gSendReport = true;
@@ -82,6 +83,8 @@ bool LLCrashLoggerMac::mainLoop()
 		setUserText(gUserNotes);
 		sendCrashLogs();
 	}	
+
+	LL_INFOS() << "Sending of logs complete" << LL_ENDL;
 		
 	return true;
 }

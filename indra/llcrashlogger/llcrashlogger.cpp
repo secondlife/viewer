@@ -39,12 +39,14 @@
 #include "lltimer.h"
 #include "lldir.h"
 #include "llfile.h"
-#include "llsdserialize.h"
 #include "lliopipe.h"
 #include "llpumpio.h"
 #include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llproxy.h"
+#include "llsdutil.h"  //remove
+
+#include <boost/regex.hpp>
  
 LLPumpIO* gServicePump = NULL;
 BOOL gBreak = false;
@@ -140,16 +142,16 @@ std::string getStartupStateFromLog(std::string& sllog)
 	return startup_state;
 }
 
-bool LLCrashLogger::readDebugFromXML(LLSD& dest, const std::string& filename )
+bool LLCrashLogger::readFromXML(LLSD& dest, const std::string& filename )
 {
     std::string db_file_name = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,filename);
-    std::ifstream debug_log_file(db_file_name.c_str());
+    std::ifstream log_file(db_file_name.c_str());
     
-	// Look for it in the debug_info.log file
-	if (debug_log_file.is_open())
+	// Look for it in the given file
+	if (log_file.is_open())
 	{
-		LLSDSerialize::fromXML(dest, debug_log_file);
-        debug_log_file.close();
+		LLSDSerialize::fromXML(dest, log_file);
+        log_file.close();
         return true;
     }
     return false;
@@ -193,9 +195,18 @@ void LLCrashLogger::gatherFiles()
 
     LLSD static_sd;
     LLSD dynamic_sd;
+    //if we ever want to change the endpoint we send crashes to
+    //we can construct a file download ( a la feature table filename for example)
+    //containing the new endpoint
+    LLSD endpoint;
+    std::string grid;
+    std::string fqdn;
+
     
-    bool has_logs = readDebugFromXML( static_sd, "static_debug_info.log" );
-    has_logs |= readDebugFromXML( dynamic_sd, "dynamic_debug_info.log" );
+    bool has_logs = readFromXML( static_sd, "static_debug_info.log" );
+    has_logs |= readFromXML( dynamic_sd, "dynamic_debug_info.log" );
+    bool has_endpoint = readFromXML( endpoint, "endpoint.xml" );
+
     
     if ( has_logs )
     {
@@ -233,31 +244,41 @@ void LLCrashLogger::gatherFiles()
 
 	gatherPlatformSpecificFiles();
 
-	//Use the debug log to reconstruct the URL to send the crash report to
-	if(mDebugLog.has("CrashHostUrl"))
-	{
-		// Crash log receiver has been manually configured.
-		mCrashHost = mDebugLog["CrashHostUrl"].asString();
-	}
-	else if(mDebugLog.has("CurrentSimHost"))
-	{
-		mCrashHost = "https://";
-		mCrashHost += mDebugLog["CurrentSimHost"].asString();
-		mCrashHost += ":12043/crash/report";
-	}
-	else if(mDebugLog.has("GridName"))
-	{
-		// This is a 'little' hacky, but its the best simple solution.
-		std::string grid_host = mDebugLog["GridName"].asString();
-		LLStringUtil::toLower(grid_host);
 
-		mCrashHost = "https://login.";
-		mCrashHost += grid_host;
-		mCrashHost += ".lindenlab.com:12043/crash/report";
-	}
+    if ( has_endpoint && endpoint.has("ViewerCrashReceiver" ) )
+    {
+        mCrashHost = endpoint["ViewerCrashReceiver"].asString();
+    }
+    else if ( has_logs )
+    {
+    	//Use the debug log to reconstruct the URL to send the crash report to
+    	if(mDebugLog.has("CurrentSimHost"))
+    	{
+            mCrashHost = "http://viewercrashreport";
+            fqdn = mDebugLog["CurrentSimHost"].asString();
+            boost::regex sim_re( "sim[[:digit:]]+.[[:alpha:]]+.lindenlab.com" );
+            boost::match_results<std::string::const_iterator> results;
+            if ( regex_match( fqdn, sim_re ) )
+            {
+                boost::regex regex_delimited("\\.[[:alpha:]]+\\.");
+                boost::match_flag_type flags = boost::match_default;
+                std::string::const_iterator start = fqdn.begin();
+                std::string::const_iterator end = fqdn.end();
+                boost::regex_search(start, end, results, regex_delimited, flags);
+                grid = std::string(results[0].first, results[0].second);
+                mCrashHost += grid;
+                mCrashHost += "lindenlab.com/cgi-bin/viewercrashreceiver.py"; 
+            }
+            else
+            {
+                mCrashHost = "";
+            }
 
-	// Use login servers as the alternate, since they are already load balanced and have a known name
-	mAltCrashHost = "https://login.agni.lindenlab.com:12043/crash/report";
+    	}
+    } 
+
+	//default to agni, per product
+	mAltCrashHost = "http://viewercrashreport.agni.lindenlab.com/cgi-bin/viewercrashreceiver.py";
 
 	mCrashInfo["DebugLog"] = mDebugLog;
 	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"stats.log");
@@ -389,15 +410,15 @@ bool LLCrashLogger::saveCrashBehaviorSetting(S32 crash_behavior)
 
 bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout)
 {
-	gBreak = false;
 	for(int i = 0; i < retries; ++i)
 	{
 		updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
 		LLHTTPClient::post(host, data, new LLCrashLoggerResponder(), timeout);
-		while(!gBreak)
-		{
-			updateApplication(); // No new message, just pump the IO
-		}
+        while(!gBreak)
+        {
+            ms_sleep(250);
+            updateApplication(); // No new message, just pump the IO
+        }
 		if(gSent)
 		{
 			return gSent;
@@ -408,12 +429,13 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 
 bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 {
+
     gDirUtilp->setDumpDir( dump_dir );
     
     std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
                                                            "SecondLifeCrashReport");
     std::string report_file = dump_path + ".log";
-   
+
 	gatherFiles();
     
 	LLSD post_data;
@@ -423,18 +445,24 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 
 	std::ofstream out_file(report_file.c_str());
 	LLSDSerialize::toPrettyXML(post_data, out_file);
+    out_file.flush();
 	out_file.close();
     
 	bool sent = false;
     
 	//*TODO: Translate
 	if(mCrashHost != "")
-	{
+	{   
+        std::string msg = "Using derived crash server... ";
+        msg = msg+mCrashHost.c_str();
+        updateApplication(msg.c_str());
+        
 		sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), 3, 5);
 	}
     
 	if(!sent)
 	{
+        updateApplication("Using alternate (default) server...");
 		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to alternate server"), 3, 5);
 	}
     
@@ -446,65 +474,22 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 bool LLCrashLogger::sendCrashLogs()
 {
     
-    //pertinent code from below moved into a subroutine.
-    LLSD locks = mKeyMaster.getProcessList();
-    LLSD newlocks = LLSD::emptyArray();
-
 	LLSD opts = getOptionData(PRIORITY_COMMAND_LINE);
     LLSD rec;
 
-	if ( opts.has("pid") && opts.has("dumpdir") && opts.has("procname") )
+	if ( opts.has("dumpdir") )
     {
         rec["pid"]=opts["pid"];
         rec["dumpdir"]=opts["dumpdir"];
         rec["procname"]=opts["procname"];
     }
-	
-    if (locks.isArray())
+    else
     {
-        for (LLSD::array_iterator lock=locks.beginArray();
-             lock !=locks.endArray();
-             ++lock)
-        {
-            if ( (*lock).has("pid") && (*lock).has("dumpdir") && (*lock).has("procname") )
-            {
-                if ( mKeyMaster.isProcessAlive( (*lock)["pid"].asInteger(), (*lock)["procname"].asString() ) )
-                {
-                    newlocks.append(*lock);
-                }
-                else
-                {
-					//TODO:  This is a hack but I didn't want to include boost in another file or retest everything related to lldir 
-                    if (LLCrashLock::fileExists((*lock)["dumpdir"].asString()))
-                    {
-                        //the viewer cleans up the log directory on clean shutdown
-                        //but is ignorant of the locking table. 
-                        if (!sendCrashLog((*lock)["dumpdir"].asString()))
-                        {
-                            newlocks.append(*lock);    //Failed to send log so don't delete it.
-                        }
-                        else
-                        {
-                            //mCrashInfo["DebugLog"].erase("MinidumpPath");
+        return false;
+    }       
 
-                            mKeyMaster.cleanupProcess((*lock)["dumpdir"].asString());
-                        }
-                    }
-				}
-            }
-            else
-            {
-                LL_WARNS() << "Discarding corrupted entry from lock table." << LL_ENDL;
-            }
-        }
-    }
+    return sendCrashLog(rec["dumpdir"].asString());
 
-    if (rec)
-    {
-        newlocks.append(rec);
-    }
-    
-    mKeyMaster.putProcessList(newlocks);
     return true;
 }
 
@@ -540,25 +525,7 @@ bool LLCrashLogger::init()
 	// Set the log file to crashreport.log
 	LLError::logToFile(log_file);  //NOTE:  Until this line, LL_INFOS LL_WARNS, etc are blown to the ether. 
 
-    // Handle locking
-    bool locked = mKeyMaster.requestMaster();  //Request master locking file.  wait time is defaulted to 300S
-    
-    while (!locked && mKeyMaster.isWaiting())
-    {
-		LL_INFOS("CRASHREPORT") << "Waiting for lock." << LL_ENDL;
-#if LL_WINDOWS
-		Sleep(1000);
-#else
-        sleep(1);
-#endif 
-        locked = mKeyMaster.checkMaster();
-    }
-    
-    if (!locked)
-    {
-        LL_WARNS("CRASHREPORT") << "Unable to get master lock.  Another crash reporter may be hung." << LL_ENDL;
-        return false;
-    }
+    LL_INFOS() << "Crash reporter file rotation complete." << LL_ENDL;
 
     mCrashSettings.declareS32("CrashSubmitBehavior", CRASH_BEHAVIOR_ALWAYS_SEND,
 							  "Controls behavior when viewer crashes "

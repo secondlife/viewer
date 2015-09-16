@@ -46,7 +46,7 @@ public:
 	LLCrashLogger();
 	virtual ~LLCrashLogger();
 	S32 loadCrashBehaviorSetting();
-    bool readDebugFromXML(LLSD& dest, const std::string& filename );
+    bool readFromXML(LLSD& dest, const std::string& filename );
 	void gatherFiles();
     void mergeLogs( LLSD src_sd );
 
