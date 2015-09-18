@@ -4023,7 +4023,7 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
     postData["message"] = message;
     postData["body"] = body;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData, httpOpts);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

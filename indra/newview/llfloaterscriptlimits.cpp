@@ -220,7 +220,7 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(std::string url
 
     postData["parcel_id"] = mParcelId;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -260,7 +260,7 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro(std::string url)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptSummaryCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -312,7 +312,7 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro(std::string url)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptDetailsCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -963,7 +963,7 @@ void LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro(std::string url)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getAttachmentLimitsCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

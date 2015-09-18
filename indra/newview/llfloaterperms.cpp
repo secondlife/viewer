@@ -215,7 +215,7 @@ void LLFloaterPermsDefault::updateCapCoro(std::string url)
         LL_CONT << sent_perms_log.str() << LL_ENDL;
     }
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

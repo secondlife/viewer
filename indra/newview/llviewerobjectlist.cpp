@@ -1052,7 +1052,7 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
 
     postData["object_ids"] = idList;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1181,7 +1181,7 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
 
     postData["object_ids"] = idList;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

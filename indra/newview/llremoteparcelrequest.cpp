@@ -200,7 +200,7 @@ void LLRemoteParcelInfoProcessor::regionParcelInfoCoro(std::string url,
         bodyData["region_handle"] = ll_sd_from_U64(regionHandle);
     }
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, bodyData);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, bodyData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

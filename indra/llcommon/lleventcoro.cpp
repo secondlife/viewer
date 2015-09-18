@@ -45,14 +45,14 @@ namespace
 {
 
 /**
- * waitForEventOn() permits a coroutine to temporarily listen on an
+ * suspendUntilEventOn() permits a coroutine to temporarily listen on an
  * LLEventPump any number of times. We don't really want to have to ask
  * the caller to label each such call with a distinct string; the whole
- * point of waitForEventOn() is to present a nice sequential interface to
+ * point of suspendUntilEventOn() is to present a nice sequential interface to
  * the underlying LLEventPump-with-named-listeners machinery. So we'll use
  * LLEventPump::inventName() to generate a distinct name for each
  * temporary listener. On the other hand, because a given coroutine might
- * call waitForEventOn() any number of times, we don't really want to
+ * call suspendUntilEventOn() any number of times, we don't really want to
  * consume an arbitrary number of generated inventName()s: that namespace,
  * though large, is nonetheless finite. So we memoize an invented name for
  * each distinct coroutine instance.
@@ -73,7 +73,7 @@ std::string listenerNameForCoro()
 }
 
 /**
- * Implement behavior described for postAndWait()'s @a replyPumpNamePath
+ * Implement behavior described for postEventAndSuspend()'s @a replyPumpNamePath
  * parameter:
  *
  * * If <tt>path.isUndefined()</tt>, do nothing.
@@ -145,15 +145,15 @@ void storeToLLSDPath(LLSD& dest, const LLSD& rawPath, const LLSD& value)
 
 } // anonymous
 
-void llcoro::yield()
+void llcoro::suspend()
 {
     // By viewer convention, we post an event on the "mainloop" LLEventPump
     // each iteration of the main event-handling loop. So waiting for a single
-    // event on "mainloop" gives us a one-frame yield.
-    waitForEventOn("mainloop");
+    // event on "mainloop" gives us a one-frame suspend.
+    suspendUntilEventOn("mainloop");
 }
 
-LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+LLSD llcoro::postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                  const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
 {
     // declare the future
@@ -171,7 +171,7 @@ LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& request
         // request event.
         LLSD modevent(event);
         storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
-        LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+        LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << listenerName
                                  << " posting to " << requestPump.getPump().getName()
                                  << LL_ENDL;
 
@@ -179,7 +179,7 @@ LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& request
         //                         << ": " << modevent << LL_ENDL;
         requestPump.getPump().post(modevent);
     }
-    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+    LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << listenerName
                              << " about to wait on LLEventPump " << replyPump.getPump().getName()
                              << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
@@ -189,7 +189,7 @@ LLSD llcoro::postAndWait(const LLSD& event, const LLEventPumpOrPumpName& request
         llcoro::Suspending suspended;
         value = *future;
     } // destroy Suspending as soon as we're back
-    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+    LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << listenerName
                              << " resuming with " << value << LL_ENDL;
     // returning should disconnect the connection
     return value;
@@ -199,7 +199,7 @@ namespace
 {
 
 /**
- * This helper is specifically for the two-pump version of waitForEventOn().
+ * This helper is specifically for the two-pump version of suspendUntilEventOn().
  * We use a single future object, but we want to listen on two pumps with it.
  * Since we must still adapt from (the callable constructed by)
  * boost::dcoroutines::make_callback() (void return) to provide an event
@@ -242,7 +242,7 @@ WaitForEventOnHelper<LISTENER> wfeoh(const LISTENER& listener, int discriminator
 namespace llcoro
 {
 
-LLEventWithID postAndWait2(const LLSD& event,
+LLEventWithID postEventAndSuspend2(const LLSD& event,
                            const LLEventPumpOrPumpName& requestPump,
                            const LLEventPumpOrPumpName& replyPump0,
                            const LLEventPumpOrPumpName& replyPump1,
@@ -270,12 +270,12 @@ LLEventWithID postAndWait2(const LLSD& event,
                         replyPump0.getPump().getName());
         storeToLLSDPath(modevent, replyPump1NamePath,
                         replyPump1.getPump().getName());
-        LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+        LL_DEBUGS("lleventcoro") << "postEventAndSuspend2(): coroutine " << name
                                  << " posting to " << requestPump.getPump().getName()
                                  << ": " << modevent << LL_ENDL;
         requestPump.getPump().post(modevent);
     }
-    LL_DEBUGS("lleventcoro") << "postAndWait2(): coroutine " << name
+    LL_DEBUGS("lleventcoro") << "postEventAndSuspend2(): coroutine " << name
                              << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
                              << ", " << replyPump1.getPump().getName() << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
@@ -285,7 +285,7 @@ LLEventWithID postAndWait2(const LLSD& event,
         llcoro::Suspending suspended;
         value = *future;
     } // destroy Suspending as soon as we're back
-    LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << name
+    LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << name
                              << " resuming with (" << value.first << ", " << value.second << ")"
                              << LL_ENDL;
     // returning should disconnect both connections

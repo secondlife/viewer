@@ -248,7 +248,7 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
     //LL_INFOS("requestExperiencesCoro") << "url: " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
         
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -401,7 +401,7 @@ void LLExperienceCache::idleCoro()
     do 
     {
         timeout.eventAfter(SECS_BETWEEN_REQUESTS, LLSD());
-        llcoro::waitForEventOn(timeout);
+        llcoro::suspendUntilEventOn(timeout);
 
         if (mEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
         {
@@ -564,7 +564,7 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
     data["item-id"] = itemId;
     data["fields"] = fields;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, data);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, data);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -612,7 +612,7 @@ void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAd
 
     url << mCapability("FindExperienceByName")  << "?page=" << page << "&page_size=" << SEARCH_PAGE_SIZE << "&query=" << LLURI::escape(text);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url.str());
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url.str());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -661,7 +661,7 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
 
     url += "?" + groupId.asString();
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -704,9 +704,9 @@ void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapt
 
     LLSD result;
     if (update)
-        result = httpAdapter->postAndYield(httpRequest, url, experiences);
+        result = httpAdapter->postAndSuspend(httpRequest, url, experiences);
     else
-        result = httpAdapter->getAndYield(httpRequest, url);
+        result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -740,7 +740,7 @@ void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, Expe
         // _1 -> httpAdapter
         // _2 -> httpRequest
         // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndYield), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
 
     LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
@@ -770,7 +770,7 @@ void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, cons
         // _1 -> httpAdapter
         // _2 -> httpRequest
         // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndYield), _1, _2, _3, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
 
     LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
@@ -795,7 +795,7 @@ void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, E
         // _1 -> httpAdapter
         // _2 -> httpRequest
         // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndYield), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
 
     LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
@@ -845,7 +845,7 @@ void LLExperienceCache::getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdap
     }
     url += "?experience_id=" + experienceId.asString();
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 //     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
 //     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
@@ -880,7 +880,7 @@ void LLExperienceCache::updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapte
     updateData.erase(LLExperienceCache::EXPIRES);
     updateData.erase(LLExperienceCache::AGENT_ID);
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, updateData);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, updateData);
 
     fn(result);
 }

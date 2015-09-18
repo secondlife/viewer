@@ -191,7 +191,7 @@ namespace LLMarketplaceImport
         httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_XML);
         httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
 
-        LLSD result = httpAdapter->postAndYield(httpRequest, url, LLSD(), httpOpts, httpHeaders);
+        LLSD result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts, httpHeaders);
 
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -260,7 +260,7 @@ namespace LLMarketplaceImport
             httpHeaders = LLViewerMedia::getHttpHeaders();
         }
 
-        LLSD result = httpAdapter->getAndYield(httpRequest, url, httpOpts, httpHeaders);
+        LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts, httpHeaders);
 
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -755,7 +755,7 @@ void LLMarketplaceData::getMerchantStatusCoro()
         LL_INFOS("Marketplace") << "No marketplace capability on Sim" << LL_ENDL;
     }
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url, httpOpts);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -820,7 +820,7 @@ void LLMarketplaceData::getSLMListingsCoro(LLUUID folderId)
 
     std::string url = getSLMConnectURL("/listings");
 
-    LLSD result = httpAdapter->getJsonAndYield(httpRequest, url, httpHeaders);
+    LLSD result = httpAdapter->getJsonAndSuspend(httpRequest, url, httpHeaders);
 
     setUpdating(folderId, false);
 
@@ -885,7 +885,7 @@ void LLMarketplaceData::getSingleListingCoro(S32 listingId, LLUUID folderId)
 
     std::string url = getSLMConnectURL("/listing/") + llformat("%d", listingId);
 
-    LLSD result = httpAdapter->getJsonAndYield(httpRequest, url, httpHeaders);
+    LLSD result = httpAdapter->getJsonAndSuspend(httpRequest, url, httpHeaders);
 
     setUpdating(folderId, false);
 
@@ -967,7 +967,7 @@ void LLMarketplaceData::createSLMListingCoro(LLUUID folderId, LLUUID versionId, 
 
     std::string url = getSLMConnectURL("/listings");
 
-    LLSD result = httpAdapter->postJsonAndYield(httpRequest, url, postData, httpHeaders);
+    LLSD result = httpAdapter->postJsonAndSuspend(httpRequest, url, postData, httpHeaders);
 
     setUpdating(folderId, false);
 
@@ -1034,7 +1034,7 @@ void LLMarketplaceData::updateSLMListingCoro(LLUUID folderId, S32 listingId, LLU
     postData["listing"] = listing;
 
     std::string url = getSLMConnectURL("/listing/") + llformat("%d", listingId);
-    LLSD result = httpAdapter->putJsonAndYield(httpRequest, url, postData, httpHeaders);
+    LLSD result = httpAdapter->putJsonAndSuspend(httpRequest, url, postData, httpHeaders);
 
     setUpdating(folderId, false);
 
@@ -1116,7 +1116,7 @@ void LLMarketplaceData::associateSLMListingCoro(LLUUID folderId, S32 listingId, 
     // Send request
     std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d", listingId);
 
-    LLSD result = httpAdapter->putJsonAndYield(httpRequest, url, postData, httpHeaders);
+    LLSD result = httpAdapter->putJsonAndSuspend(httpRequest, url, postData, httpHeaders);
 
     setUpdating(folderId, false);
     setUpdating(sourceFolderId, false);
@@ -1190,7 +1190,7 @@ void LLMarketplaceData::deleteSLMListingCoro(S32 listingId)
 
     setUpdating(folderId, true);
 
-    LLSD result = httpAdapter->deleteJsonAndYield(httpRequest, url, httpHeaders);
+    LLSD result = httpAdapter->deleteJsonAndSuspend(httpRequest, url, httpHeaders);
 
     setUpdating(folderId, false);
 

@@ -67,7 +67,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
     if (!regionp)
@@ -190,7 +190,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
 
     report[KEY_AGENTS] = agents;
     regionp = NULL;
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, report);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, report);
 
     regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
     if (!regionp)

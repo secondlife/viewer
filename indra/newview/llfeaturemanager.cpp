@@ -526,7 +526,7 @@ void LLFeatureManager::fetchFeatureTableCoro(std::string tableName)
 
     LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
 
-    LLSD result = httpAdapter->getRawAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

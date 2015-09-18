@@ -106,33 +106,33 @@ VoidListener<LISTENER> voidlistener(const LISTENER& listener)
  * runs without suspending for nontrivial time, sprinkle in calls to this
  * function to avoid stalling the rest of the viewer processing.
  */
-void yield();
+void suspend();
 
 /**
- * Post specified LLSD event on the specified LLEventPump, then wait for a
+ * Post specified LLSD event on the specified LLEventPump, then suspend for a
  * response on specified other LLEventPump. This is more than mere
  * convenience: the difference between this function and the sequence
  * @code
  * requestPump.post(myEvent);
- * LLSD reply = waitForEventOn(replyPump);
+ * LLSD reply = suspendUntilEventOn(replyPump);
  * @endcode
  * is that the sequence above fails if the reply is posted immediately on
  * @a replyPump, that is, before <tt>requestPump.post()</tt> returns. In the
  * sequence above, the running coroutine isn't even listening on @a replyPump
- * until <tt>requestPump.post()</tt> returns and @c waitForEventOn() is
+ * until <tt>requestPump.post()</tt> returns and @c suspendUntilEventOn() is
  * entered. Therefore, the coroutine completely misses an immediate reply
- * event, making it wait indefinitely.
+ * event, making it suspend indefinitely.
  *
- * By contrast, postAndWait() listens on the @a replyPump @em before posting
+ * By contrast, postEventAndSuspend() listens on the @a replyPump @em before posting
  * the specified LLSD event on the specified @a requestPump.
  *
  * @param event LLSD data to be posted on @a requestPump
  * @param requestPump an LLEventPump on which to post @a event. Pass either
  * the LLEventPump& or its string name. However, if you pass a
  * default-constructed @c LLEventPumpOrPumpName, we skip the post() call.
- * @param replyPump an LLEventPump on which postAndWait() will listen for a
+ * @param replyPump an LLEventPump on which postEventAndSuspend() will listen for a
  * reply. Pass either the LLEventPump& or its string name. The calling
- * coroutine will wait until that reply arrives. (If you're concerned about a
+ * coroutine will suspend until that reply arrives. (If you're concerned about a
  * reply that might not arrive, please see also LLEventTimeout.)
  * @param replyPumpNamePath specifies the location within @a event in which to
  * store <tt>replyPump.getName()</tt>. This is a strictly optional convenience
@@ -155,21 +155,21 @@ void yield();
  *   @a replyPumpNamePath specifies the entry in the lowest-level structure in
  *   @a event into which to store <tt>replyPump.getName()</tt>.
  */
-LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+LLSD postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                  const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath=LLSD());
 
 /// Wait for the next event on the specified LLEventPump. Pass either the
 /// LLEventPump& or its string name.
 inline
-LLSD waitForEventOn(const LLEventPumpOrPumpName& pump)
+LLSD suspendUntilEventOn(const LLEventPumpOrPumpName& pump)
 {
-    // This is now a convenience wrapper for postAndWait().
-    return postAndWait(LLSD(), LLEventPumpOrPumpName(), pump);
+    // This is now a convenience wrapper for postEventAndSuspend().
+    return postEventAndSuspend(LLSD(), LLEventPumpOrPumpName(), pump);
 }
 
 } // namespace llcoro
 
-/// return type for two-pump variant of waitForEventOn()
+/// return type for two-pump variant of suspendUntilEventOn()
 typedef std::pair<LLSD, int> LLEventWithID;
 
 namespace llcoro
@@ -177,7 +177,7 @@ namespace llcoro
 
 /**
  * This function waits for a reply on either of two specified LLEventPumps.
- * Otherwise, it closely resembles postAndWait(); please see the documentation
+ * Otherwise, it closely resembles postAndSuspend(); please see the documentation
  * for that function for detailed parameter info.
  *
  * While we could have implemented the single-pump variant in terms of this
@@ -192,19 +192,19 @@ namespace llcoro
  * the index of the pump on which it arrived (0 or 1).
  *
  * @note
- * I'd have preferred to overload the name postAndWait() for both signatures.
+ * I'd have preferred to overload the name postAndSuspend() for both signatures.
  * But consider the following ambiguous call:
  * @code
- * postAndWait(LLSD(), requestPump, replyPump, "someString");
+ * postAndSuspend(LLSD(), requestPump, replyPump, "someString");
  * @endcode
  * "someString" could be converted to either LLSD (@a replyPumpNamePath for
  * the single-pump function) or LLEventOrPumpName (@a replyPump1 for two-pump
  * function).
  *
- * It seems less burdensome to write postAndWait2() than to write either
+ * It seems less burdensome to write postEventAndSuspend2() than to write either
  * LLSD("someString") or LLEventOrPumpName("someString").
  */
-LLEventWithID postAndWait2(const LLSD& event,
+LLEventWithID postEventAndSuspend2(const LLSD& event,
                            const LLEventPumpOrPumpName& requestPump,
                            const LLEventPumpOrPumpName& replyPump0,
                            const LLEventPumpOrPumpName& replyPump1,
@@ -216,17 +216,17 @@ LLEventWithID postAndWait2(const LLSD& event,
  */
 inline
 LLEventWithID
-waitForEventOn(const LLEventPumpOrPumpName& pump0, const LLEventPumpOrPumpName& pump1)
+suspendUntilEventOn(const LLEventPumpOrPumpName& pump0, const LLEventPumpOrPumpName& pump1)
 {
-    // This is now a convenience wrapper for postAndWait2().
-    return postAndWait2(LLSD(), LLEventPumpOrPumpName(), pump0, pump1);
+    // This is now a convenience wrapper for postEventAndSuspend2().
+    return postEventAndSuspend2(LLSD(), LLEventPumpOrPumpName(), pump0, pump1);
 }
 
 /**
- * Helper for the two-pump variant of waitForEventOn(), e.g.:
+ * Helper for the two-pump variant of suspendUntilEventOn(), e.g.:
  *
  * @code
- * LLSD reply = errorException(waitForEventOn(replyPump, errorPump),
+ * LLSD reply = errorException(suspendUntilEventOn(replyPump, errorPump),
  *                             "error response from login.cgi");
  * @endcode
  *
@@ -286,7 +286,7 @@ LL_COMMON_API LLSD errorLog(const LLEventWithID& result, const std::string& desc
  * 2. Provide its actual name to the event API in question as the name of the
  *    reply LLEventPump.
  * 3. Initiate the request to the event API.
- * 4. Call your LLEventTempStream's wait() method to wait for the reply.
+ * 4. Call your LLEventTempStream's suspend() method to suspend for the reply.
  * 5. Let the LLCoroEventPump go out of scope.
  */
 class LL_COMMON_API LLCoroEventPump
@@ -304,15 +304,15 @@ public:
     /**
      * Wait for an event on this LLEventPump.
      */
-    LLSD wait()
+    LLSD suspend()
     {
-        return llcoro::waitForEventOn(mPump);
+        return llcoro::suspendUntilEventOn(mPump);
     }
 
-    LLSD postAndWait(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+    LLSD postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                      const LLSD& replyPumpNamePath=LLSD())
     {
-        return llcoro::postAndWait(event, requestPump, mPump, replyPumpNamePath);
+        return llcoro::postEventAndSuspend(event, requestPump, mPump, replyPumpNamePath);
     }
 
 private:
@@ -348,49 +348,49 @@ public:
     /// request pump 1
     LLEventPump& getPump1() { return mPump1; }
 
-    /// waitForEventOn(either of our two LLEventPumps)
-    LLEventWithID wait()
+    /// suspendUntilEventOn(either of our two LLEventPumps)
+    LLEventWithID suspend()
     {
-        return llcoro::waitForEventOn(mPump0, mPump1);
+        return llcoro::suspendUntilEventOn(mPump0, mPump1);
     }
 
-    /// errorException(wait())
-    LLSD waitWithException()
+    /// errorException(suspend())
+    LLSD suspendWithException()
     {
-        return llcoro::errorException(wait(), std::string("Error event on ") + getName1());
+        return llcoro::errorException(suspend(), std::string("Error event on ") + getName1());
     }
 
-    /// errorLog(wait())
-    LLSD waitWithLog()
+    /// errorLog(suspend())
+    LLSD suspendWithLog()
     {
-        return llcoro::errorLog(wait(), std::string("Error event on ") + getName1());
+        return llcoro::errorLog(suspend(), std::string("Error event on ") + getName1());
     }
 
-    LLEventWithID postAndWait(const LLSD& event,
+    LLEventWithID postAndSuspend(const LLSD& event,
                               const LLEventPumpOrPumpName& requestPump,
                               const LLSD& replyPump0NamePath=LLSD(),
                               const LLSD& replyPump1NamePath=LLSD())
     {
-        return llcoro::postAndWait2(event, requestPump, mPump0, mPump1,
+        return llcoro::postEventAndSuspend2(event, requestPump, mPump0, mPump1,
                                     replyPump0NamePath, replyPump1NamePath);
     }
 
-    LLSD postAndWaitWithException(const LLSD& event,
+    LLSD postAndSuspendWithException(const LLSD& event,
                                   const LLEventPumpOrPumpName& requestPump,
                                   const LLSD& replyPump0NamePath=LLSD(),
                                   const LLSD& replyPump1NamePath=LLSD())
     {
-        return llcoro::errorException(postAndWait(event, requestPump,
+        return llcoro::errorException(postAndSuspend(event, requestPump,
                                                   replyPump0NamePath, replyPump1NamePath),
                                       std::string("Error event on ") + getName1());
     }
 
-    LLSD postAndWaitWithLog(const LLSD& event,
+    LLSD postAndSuspendWithLog(const LLSD& event,
                             const LLEventPumpOrPumpName& requestPump,
                             const LLSD& replyPump0NamePath=LLSD(),
                             const LLSD& replyPump1NamePath=LLSD())
     {
-        return llcoro::errorLog(postAndWait(event, requestPump,
+        return llcoro::errorLog(postAndSuspend(event, requestPump,
                                             replyPump0NamePath, replyPump1NamePath),
                                 std::string("Error event on ") + getName1());
     }

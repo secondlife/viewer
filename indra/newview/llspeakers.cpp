@@ -881,7 +881,7 @@ void LLIMSpeakerMgr::moderationActionCoro(std::string url, LLSD action)
 
     LLUUID sessionId = action["session-id"];
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, action, httpOpts);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, action, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

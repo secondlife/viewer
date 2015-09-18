@@ -2203,7 +2203,7 @@ void LLVOAvatarSelf::appearanceChangeMetricsCoro(std::string url)
 
     gPendingMetricsUploads++;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, msg);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, msg);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

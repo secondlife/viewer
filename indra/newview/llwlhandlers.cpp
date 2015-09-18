@@ -101,7 +101,7 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
             httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EnvironmentRequest", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     if (requestId != LLEnvironmentRequest::sLastRequest)
     {
@@ -185,7 +185,7 @@ void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EnvironmentApply", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, content);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, content);
 
     LLSD notify; // for error reporting.  If there is something to report to user this will be defined.
     /*

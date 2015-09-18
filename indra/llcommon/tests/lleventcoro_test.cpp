@@ -129,8 +129,8 @@ typedef coroutine<std::string::iterator(void)> match_coroutine_type;
 *****************************************************************************/
 /// Simulate an event API whose response is immediate: sent on receipt of the
 /// initial request, rather than after some delay. This is the case that
-/// distinguishes postAndWait() from calling post(), then calling
-/// waitForEventOn().
+/// distinguishes postEventAndSuspend() from calling post(), then calling
+/// suspendUntilEventOn().
 class ImmediateAPI
 {
 public:
@@ -241,13 +241,13 @@ namespace tut
 
             // declare the future
             boost::dcoroutines::future<LLSD> future(self);
-            // tell the future what to wait for
+            // tell the future what to suspend for
             LLTempBoundListener connection(
                 LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::dcoroutines::make_callback(future))));
             ensure("Not yet", ! future);
             // attempting to dereference ("resolve") the future causes the calling
-            // coroutine to wait for it
-            debug("about to wait");
+            // coroutine to suspend for it
+            debug("about to suspend");
             result = *future;
             ensure("Got it", future);
         }
@@ -269,9 +269,9 @@ namespace tut
         coro(std::nothrow);
         // When the coroutine waits for the event pump, it returns here.
         debug("about to send");
-        // Satisfy the wait.
+        // Satisfy the suspend.
         LLEventPumps::instance().obtain("source").post("received");
-        // Now wait for the coroutine to complete.
+        // Now suspend for the coroutine to complete.
         ensure("coroutine complete", ! coro);
         // ensure the coroutine ran and woke up again with the intended result
         ensure_equals(result.asString(), "received");
@@ -281,7 +281,7 @@ namespace tut
     {
         BEGIN
         {
-            result = waitForEventOn("source");
+            result = suspendUntilEventOn("source");
         }
         END
     }
@@ -303,7 +303,7 @@ namespace tut
     {
         BEGIN
         {
-            LLEventWithID pair = waitForEventOn("reply", "error");
+            LLEventWithID pair = suspendUntilEventOn("reply", "error");
             result = pair.first;
             which  = pair.second;
             debug(STRINGIZE("result = " << result << ", which = " << which));
@@ -347,7 +347,7 @@ namespace tut
         {
             LLCoroEventPump waiter;
             replyName = waiter.getName();
-            result = waiter.wait();
+            result = waiter.suspend();
         }
         END
     }
@@ -372,7 +372,7 @@ namespace tut
             LLCoroEventPumps waiter;
             replyName = waiter.getName0();
             errorName = waiter.getName1();
-            LLEventWithID pair(waiter.wait());
+            LLEventWithID pair(waiter.suspend());
             result = pair.first;
             which  = pair.second;
         }
@@ -414,7 +414,7 @@ namespace tut
             LLCoroEventPumps waiter;
             replyName = waiter.getName0();
             errorName = waiter.getName1();
-            result = waiter.waitWithException();
+            result = waiter.suspendWithException();
         }
         END
     }
@@ -441,7 +441,7 @@ namespace tut
             errorName = waiter.getName1();
             try
             {
-                result = waiter.waitWithException();
+                result = waiter.suspendWithException();
                 debug("no exception");
             }
             catch (const LLErrorEvent& e)
@@ -474,7 +474,7 @@ namespace tut
             LLCoroEventPumps waiter;
             replyName = waiter.getName0();
             errorName = waiter.getName1();
-            result = waiter.waitWithLog();
+            result = waiter.suspendWithLog();
         }
         END
     }
@@ -502,7 +502,7 @@ namespace tut
             WrapLLErrs capture;
             try
             {
-                result = waiter.waitWithLog();
+                result = waiter.suspendWithLog();
                 debug("no exception");
             }
             catch (const WrapLLErrs::FatalException& e)
@@ -532,7 +532,7 @@ namespace tut
     {
         BEGIN
         {
-            result = postAndWait(LLSDMap("value", 17),       // request event
+            result = postEventAndSuspend(LLSDMap("value", 17),       // request event
                                  immediateAPI.getPump(),     // requestPump
                                  "reply1",                   // replyPump
                                  "reply");                   // request["reply"] = name
@@ -554,7 +554,7 @@ namespace tut
     {
         BEGIN
         {
-            LLEventWithID pair = ::postAndWait2(LLSDMap("value", 18),
+            LLEventWithID pair = ::postEventAndSuspend2(LLSDMap("value", 18),
                                                 immediateAPI.getPump(),
                                                 "reply2",
                                                 "error2",
@@ -582,7 +582,7 @@ namespace tut
     {
         BEGIN
         {
-            LLEventWithID pair = ::postAndWait2(LLSDMap("value", 18)("fail", LLSD()),
+            LLEventWithID pair = ::postEventAndSuspend2(LLSDMap("value", 18)("fail", LLSD()),
                                                 immediateAPI.getPump(),
                                                 "reply2",
                                                 "error2",
@@ -611,7 +611,7 @@ namespace tut
         BEGIN
         {
             LLCoroEventPump waiter;
-            result = waiter.postAndWait(LLSDMap("value", 17),
+            result = waiter.postAndSuspend(LLSDMap("value", 17),
                                         immediateAPI.getPump(), "reply");
         }
         END
@@ -632,7 +632,7 @@ namespace tut
         BEGIN
         {
             LLCoroEventPumps waiter;
-            LLEventWithID pair(waiter.postAndWait(LLSDMap("value", 23),
+            LLEventWithID pair(waiter.postAndSuspend(LLSDMap("value", 23),
                                                   immediateAPI.getPump(), "reply", "error"));
             result = pair.first;
             which  = pair.second;
@@ -657,7 +657,7 @@ namespace tut
         {
             LLCoroEventPumps waiter;
             LLEventWithID pair(
-                waiter.postAndWait(LLSDMap("value", 23)("fail", LLSD()),
+                waiter.postAndSuspend(LLSDMap("value", 23)("fail", LLSD()),
                                    immediateAPI.getPump(), "reply", "error"));
             result = pair.first;
             which  = pair.second;
@@ -681,7 +681,7 @@ namespace tut
         BEGIN
         {
             LLCoroEventPumps waiter;
-            result = waiter.postAndWaitWithException(LLSDMap("value", 8),
+            result = waiter.postAndSuspendWithException(LLSDMap("value", 8),
                                                      immediateAPI.getPump(), "reply", "error");
         }
         END
@@ -704,7 +704,7 @@ namespace tut
             LLCoroEventPumps waiter;
             try
             {
-                result = waiter.postAndWaitWithException(
+                result = waiter.postAndSuspendWithException(
                     LLSDMap("value", 9)("fail", LLSD()),
                     immediateAPI.getPump(), "reply", "error");
                 debug("no exception");
@@ -734,7 +734,7 @@ namespace tut
         BEGIN
         {
             LLCoroEventPumps waiter;
-            result = waiter.postAndWaitWithLog(LLSDMap("value", 30),
+            result = waiter.postAndSuspendWithLog(LLSDMap("value", 30),
                                                immediateAPI.getPump(), "reply", "error");
         }
         END
@@ -758,7 +758,7 @@ namespace tut
             WrapLLErrs capture;
             try
             {
-                result = waiter.postAndWaitWithLog(
+                result = waiter.postAndSuspendWithLog(
                     LLSDMap("value", 31)("fail", LLSD()),
                     immediateAPI.getPump(), "reply", "error");
                 debug("no exception");

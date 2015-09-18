@@ -99,7 +99,7 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 
     // I may be suffering from golden hammer here, but the first part of this bind 
-    // is actually a static cast for &HttpCoroutineAdapter::postAndYield so that 
+    // is actually a static cast for &HttpCoroutineAdapter::postAndSuspend so that 
     // the compiler can identify the correct signature to select.
     // 
     // Reads as follows:
@@ -117,7 +117,7 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndYield), _1, _2, _3, _4, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndSuspend), _1, _2, _3, _4, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, postFn, url, parentId, newInventory, callback, COPYINVENTORY));
@@ -150,7 +150,7 @@ void AISAPI::SlamFolder(const LLUUID& folderId, const LLSD& newInventory, comple
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndYield), _1, _2, _3, _4, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, _4, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, putFn, url, folderId, newInventory, callback, SLAMFOLDER));
@@ -182,7 +182,7 @@ void AISAPI::RemoveCategory(const LLUUID &categoryId, completion_t callback)
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndYield), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, delFn, url, categoryId, LLSD(), callback, REMOVECATEGORY));
@@ -215,7 +215,7 @@ void AISAPI::RemoveItem(const LLUUID &itemId, completion_t callback)
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndYield), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, delFn, url, itemId, LLSD(), callback, REMOVEITEM));
@@ -258,7 +258,7 @@ void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, b
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::copyAndYield), _1, _2, _3, destination, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::copyAndSuspend), _1, _2, _3, destination, _5, _6);
          
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, copyFn, url, destId, LLSD(), callback, COPYLIBRARYCATEGORY));
@@ -291,7 +291,7 @@ void AISAPI::PurgeDescendents(const LLUUID &categoryId, completion_t callback)
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndYield), _1, _2, _3, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, delFn, url, categoryId, LLSD(), callback, PURGEDESCENDENTS));
@@ -323,7 +323,7 @@ void AISAPI::UpdateCategory(const LLUUID &categoryId, const LLSD &updates, compl
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndYield), _1, _2, _3, _4, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndSuspend), _1, _2, _3, _4, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, patchFn, url, categoryId, updates, callback, UPDATECATEGORY));
@@ -355,7 +355,7 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
         // _4 -> body 
         // _5 -> httpOptions
         // _6 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndYield), _1, _2, _3, _4, _5, _6);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndSuspend), _1, _2, _3, _4, _5, _6);
 
     LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
         _1, patchFn, url, itemId, updates, callback, UPDATEITEM));

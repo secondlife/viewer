@@ -153,7 +153,7 @@ void LLEstateInfoModel::commitEstateInfoCapsCoro(std::string url)
         << ", sun_hour = " << getSunHour() << LL_ENDL;
     LL_DEBUGS() << body << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, body);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

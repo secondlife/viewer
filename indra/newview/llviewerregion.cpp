@@ -273,7 +273,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             << " (attempt #" << mSeedCapAttempts << ")" << LL_ENDL;
 
         regionp = NULL;
-        result = httpAdapter->postAndYield(httpRequest, url, capabilityNames);
+        result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
 
         regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
@@ -363,7 +363,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
         LL_INFOS("AppInit", "Capabilities") << "Requesting second Seed from " << url << LL_ENDL;
 
         regionp = NULL;
-        result = httpAdapter->postAndYield(httpRequest, url, capabilityNames);
+        result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
 
         LLSD httpResults = result["http_result"];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -462,7 +462,7 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 region
         }
 
         regionp = NULL;
-        LLSD result = httpAdapter->getAndYield(httpRequest, url);
+        LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
         LLSD httpResults = result["http_result"];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

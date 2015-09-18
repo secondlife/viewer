@@ -146,7 +146,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, std::
         return;
     }
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -187,7 +187,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         return;
     }
 
-    LLSD result = httpAdapter->getRawAndYield(httpRequest, url, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

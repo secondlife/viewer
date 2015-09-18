@@ -689,7 +689,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
         return;
     }
 
-    llcoro::yield();
+    llcoro::suspend();
 
     if (uploadInfo->showUploadDialog())
     {
@@ -700,7 +700,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
     LLSD body = uploadInfo->generatePostBody();
 
-    result = httpAdapter->postAndYield(httpRequest, url, body);
+    result = httpAdapter->postAndSuspend(httpRequest, url, body);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -718,7 +718,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
     bool success = false;
     if (!uploader.empty() && uploadInfo->getAssetId().notNull())
     {
-        result = httpAdapter->postFileAndYield(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
+        result = httpAdapter->postFileAndSuspend(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType());
         httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 

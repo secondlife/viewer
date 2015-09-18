@@ -127,7 +127,7 @@ namespace Details
         if (adapter)
         {
             // cancel the yielding operation if any.
-            adapter->cancelYieldingOperation();
+            adapter->cancelSuspendedOperation();
         }
     }
 
@@ -154,7 +154,7 @@ namespace Details
 //              << LLSDXMLStreamer(request) << LL_ENDL;
 
             LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> posting and yielding." << LL_ENDL;
-            LLSD result = httpAdapter->postAndYield(mHttpRequest, url, request);
+            LLSD result = httpAdapter->postAndSuspend(mHttpRequest, url, request);
 
 //          LL_DEBUGS("LLEventPollImpl::eventPollCoro") << "<" << counter << "> result = "
 //              << LLSDXMLStreamer(result) << LL_ENDL;
@@ -197,7 +197,7 @@ namespace Details
                         " seconds, error count is now " << errorCount << LL_ENDL;
 
                     timeout.eventAfter(waitToRetry, LLSD());
-                    llcoro::waitForEventOn(timeout);
+                    llcoro::suspendUntilEventOn(timeout);
                     
                     if (mDone)
                         break;

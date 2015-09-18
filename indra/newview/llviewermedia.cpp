@@ -1280,7 +1280,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
     LL_DEBUGS("MediaAuth") << "Requesting " << url << LL_ENDL;
     LL_DEBUGS("MediaAuth") << "sOpenIDCookie = [" << sOpenIDCookie << "]" << LL_ENDL;
     
-    LLSD result = httpAdapter->getRawAndYield(httpRequest, url, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1347,7 +1347,7 @@ void LLViewerMedia::openIDSetupCoro(std::string openidUrl, std::string openidTok
 
     bas << std::noskipws << openidToken;
 
-    LLSD result = httpAdapter->postRawAndYield(httpRequest, openidUrl, rawbody, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->postRawAndSuspend(httpRequest, openidUrl, rawbody, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -2600,7 +2600,7 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
     httpHeaders->append(HTTP_OUT_HEADER_COOKIE, "");
 
-    LLSD result = httpAdapter->getRawAndYield(httpRequest, url, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts, httpHeaders);
 
     mMimeProbe.reset();
 
@@ -3634,7 +3634,7 @@ void LLViewerMediaImpl::cancelMimeTypeProbe()
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t probeAdapter = mMimeProbe.lock();
 
     if (probeAdapter)
-        probeAdapter->cancelYieldingOperation();
+        probeAdapter->cancelSuspendedOperation();
 }
 
 void LLViewerMediaImpl::addObject(LLVOVolume* obj) 

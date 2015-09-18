@@ -195,7 +195,7 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
         bool success = true;
 
         LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("NameCache", LLAvatarNameCache::sHttpPolicy);
-        LLSD results = httpAdapter.getAndYield(sHttpRequest, url);
+        LLSD results = httpAdapter.getAndSuspend(sHttpRequest, url);
         LLSD httpResults;
 
         LL_DEBUGS() << results << LL_ENDL;

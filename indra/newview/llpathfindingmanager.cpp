@@ -464,7 +464,7 @@ void LLPathfindingManager::navMeshStatusRequestCoro(std::string url, U64 regionH
     LLUUID regionUUID = region->getRegionID();
 
     region = NULL;
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     region = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
 
@@ -519,7 +519,7 @@ void LLPathfindingManager::navMeshStatusRequestCoro(std::string url, U64 regionH
     navMeshPtr->handleNavMeshStart(navMeshStatus);
 
     LLSD postData;
-    result = httpAdapter->postAndYield(httpRequest, navMeshURL, postData);
+    result = httpAdapter->postAndSuspend(httpRequest, navMeshURL, postData);
 
     U32 navMeshVersion = navMeshStatus.getVersion();
 
@@ -545,7 +545,7 @@ void LLPathfindingManager::navAgentStateRequestCoro(std::string url)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("NavAgentStateRequest", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -577,7 +577,7 @@ void LLPathfindingManager::navMeshRebakeCoro(std::string url, rebake_navmesh_cal
     LLSD postData = LLSD::emptyMap();
     postData["command"] = "rebuild";
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -606,11 +606,11 @@ void LLPathfindingManager::linksetObjectsCoro(std::string url, LinksetsResponder
 
     if (putData.isUndefined())
     {
-        result = httpAdapter->getAndYield(httpRequest, url);
+        result = httpAdapter->getAndSuspend(httpRequest, url);
     }
     else 
     {
-        result = httpAdapter->putAndYield(httpRequest, url, putData);
+        result = httpAdapter->putAndSuspend(httpRequest, url, putData);
     }
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -642,11 +642,11 @@ void LLPathfindingManager::linksetTerrainCoro(std::string url, LinksetsResponder
 
     if (putData.isUndefined())
     {
-        result = httpAdapter->getAndYield(httpRequest, url);
+        result = httpAdapter->getAndSuspend(httpRequest, url);
     }
     else 
     {
-        result = httpAdapter->putAndYield(httpRequest, url, putData);
+        result = httpAdapter->putAndSuspend(httpRequest, url, putData);
     }
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -673,7 +673,7 @@ void LLPathfindingManager::charactersCoro(std::string url, request_id_t requestI
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("LinksetTerrain", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, url);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

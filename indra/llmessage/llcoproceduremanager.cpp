@@ -58,7 +58,7 @@ public:
     LLUUID enqueueCoprocedure(const std::string &name, CoProcedure_t proc);
 
     /// Cancel a coprocedure. If the coprocedure is already being actively executed 
-    /// this method calls cancelYieldingOperation() on the associated HttpAdapter
+    /// this method calls cancelSuspendedOperation() on the associated HttpAdapter
     /// If it has not yet been dequeued it is simply removed from the queue.
     bool cancelCoprocedure(const LLUUID &id);
 
@@ -316,7 +316,7 @@ void LLCoprocedurePool::shutdown(bool hardShutdown)
         }
         if ((*it).second)
         {
-            (*it).second->cancelYieldingOperation();
+            (*it).second->cancelSuspendedOperation();
         }
     }
 
@@ -345,7 +345,7 @@ bool LLCoprocedurePool::cancelCoprocedure(const LLUUID &id)
     if (itActive != mActiveCoprocs.end())
     {
         LL_INFOS() << "Found and canceling active coprocedure with id=" << id.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
-        (*itActive).second->cancelYieldingOperation();
+        (*itActive).second->cancelSuspendedOperation();
         mActiveCoprocs.erase(itActive);
         return true;
     }
@@ -371,7 +371,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
     while (!mShutdown)
     {
-        llcoro::waitForEventOn(mWakeupTrigger);
+        llcoro::suspendUntilEventOn(mWakeupTrigger);
         if (mShutdown)
             break;
         

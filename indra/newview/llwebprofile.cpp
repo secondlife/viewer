@@ -124,7 +124,7 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
     httpHeaders = buildDefaultHeaders();
     httpHeaders->append(HTTP_OUT_HEADER_COOKIE, getAuthCookie());
 
-    LLSD result = httpAdapter->getJsonAndYield(httpRequest, configUrl, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->getJsonAndSuspend(httpRequest, configUrl, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -150,7 +150,7 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
     
     LLCore::BufferArray::ptr_t body = LLWebProfile::buildPostData(data, image, boundary);
 
-    result = httpAdapter->postAndYield(httpRequest, uploadUrl, body, httpOpts, httpHeaders);
+    result = httpAdapter->postAndSuspend(httpRequest, uploadUrl, body, httpOpts, httpHeaders);
 
     body.reset();
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -178,7 +178,7 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
 
     LL_DEBUGS("Snapshots") << "Got redirection URL: " << redirUrl << LL_ENDL;
 
-    result = httpAdapter->getRawAndYield(httpRequest, redirUrl, httpOpts, httpHeaders);
+    result = httpAdapter->getRawAndSuspend(httpRequest, redirUrl, httpOpts, httpHeaders);
 
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

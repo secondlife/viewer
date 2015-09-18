@@ -101,7 +101,7 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
 
         LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("AccountingCost", mHttpPolicy);
 
-        LLSD results = httpAdapter.postAndYield(mHttpRequest, url, dataToPost);
+        LLSD results = httpAdapter.postAndSuspend(mHttpRequest, url, dataToPost);
 
         LLSD httpResults;
         httpResults = results["http_result"];

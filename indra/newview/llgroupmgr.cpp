@@ -1870,7 +1870,7 @@ void LLGroupMgr::getGroupBanRequestCoro(std::string url, LLUUID groupId)
 
     std::string finalUrl = url + "?group_id=" + groupId.asString();
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, finalUrl);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, finalUrl);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1921,7 +1921,7 @@ void LLGroupMgr::postGroupBanRequestCoro(std::string url, LLUUID groupId,
 
     LL_WARNS() << "post: " << ll_pretty_print_sd(postData) << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, finalUrl, postData, httpOptions, httpHeaders);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, finalUrl, postData, httpOptions, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -2041,7 +2041,7 @@ void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID groupId)
     LLSD postData = LLSD::emptyMap();
     postData["group_id"] = groupId;
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, url, postData, httpOpts);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

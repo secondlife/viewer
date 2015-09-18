@@ -84,7 +84,7 @@ void LLTwitterConnect::twitterConnectCoro(std::string requestToken, std::string 
     if (!oauthVerifier.empty())
         body["oauth_verifier"] = oauthVerifier;
 
-    LLSD result = httpAdapter->putAndYield(httpRequest, getTwitterConnectURL("/connection"), body, httpOpts);
+    LLSD result = httpAdapter->putAndSuspend(httpRequest, getTwitterConnectURL("/connection"), body, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -166,7 +166,7 @@ void LLTwitterConnect::twitterShareCoro(std::string route, LLSD share)
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, getTwitterConnectURL(route, true), share, httpOpts);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getTwitterConnectURL(route, true), share, httpOpts);
 
     if (testShareStatus(result))
     {
@@ -231,7 +231,7 @@ void LLTwitterConnect::twitterShareImageCoro(LLPointer<LLImageFormatted> image, 
 
     body << "\r\n--" << boundary << "--\r\n";
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, getTwitterConnectURL("/share/photo", true), raw, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getTwitterConnectURL("/share/photo", true), raw, httpOpts, httpHeaders);
 
     if (testShareStatus(result))
     {
@@ -253,7 +253,7 @@ void LLTwitterConnect::twitterDisconnectCoro()
 
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->deleteAndYield(httpRequest, getTwitterConnectURL("/connection"), httpOpts);
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, getTwitterConnectURL("/connection"), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -287,7 +287,7 @@ void LLTwitterConnect::twitterConnectedCoro(bool autoConnect)
     httpOpts->setFollowRedirects(false);
     setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, getTwitterConnectURL("/connection", true), httpOpts);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getTwitterConnectURL("/connection", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -336,7 +336,7 @@ void LLTwitterConnect::twitterInfoCoro()
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, getTwitterConnectURL("/info", true), httpOpts);
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getTwitterConnectURL("/info", true), httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

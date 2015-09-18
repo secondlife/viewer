@@ -165,7 +165,7 @@ void LLFacebookConnect::facebookConnectCoro(std::string authCode, std::string au
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->putAndYield(httpRequest, getFacebookConnectURL("/connection"), putData, httpOpts, get_headers());
+    LLSD result = httpAdapter->putAndSuspend(httpRequest, getFacebookConnectURL("/connection"), putData, httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -240,7 +240,7 @@ void LLFacebookConnect::facebookShareCoro(std::string route, LLSD share)
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, getFacebookConnectURL(route, true), share, httpOpts, get_headers());
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getFacebookConnectURL(route, true), share, httpOpts, get_headers());
 
     if (testShareStatus(result))
     {
@@ -307,7 +307,7 @@ void LLFacebookConnect::facebookShareImageCoro(std::string route, LLPointer<LLIm
 
     setConnectionState(LLFacebookConnect::FB_POSTING);
 
-    LLSD result = httpAdapter->postAndYield(httpRequest, getFacebookConnectURL(route, true), raw, httpOpts, httpHeaders);
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getFacebookConnectURL(route, true), raw, httpOpts, httpHeaders);
 
     if (testShareStatus(result))
     {
@@ -329,7 +329,7 @@ void LLFacebookConnect::facebookDisconnectCoro()
 
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->deleteAndYield(httpRequest, getFacebookConnectURL("/connection"), httpOpts, get_headers());
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, getFacebookConnectURL("/connection"), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -365,7 +365,7 @@ void LLFacebookConnect::facebookConnectedCheckCoro(bool autoConnect)
 
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, getFacebookConnectURL("/connection", true), httpOpts, get_headers());
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getFacebookConnectURL("/connection", true), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -413,7 +413,7 @@ void LLFacebookConnect::facebookConnectInfoCoro()
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, getFacebookConnectURL("/info", true), httpOpts, get_headers());
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getFacebookConnectURL("/info", true), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -456,7 +456,7 @@ void LLFacebookConnect::facebookConnectFriendsCoro()
 
     httpOpts->setFollowRedirects(false);
 
-    LLSD result = httpAdapter->getAndYield(httpRequest, getFacebookConnectURL("/friends", true), httpOpts, get_headers());
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getFacebookConnectURL("/friends", true), httpOpts, get_headers());
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);

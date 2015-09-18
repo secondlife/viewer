@@ -293,7 +293,7 @@ void LLFloaterExperiences::retrieveExperienceList(const std::string &url,
         // _3 -> url
         // _4 -> httpOptions
         // _5 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndYield), _1, _2, _3, _4, _5);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _4, _5);
 
     LLCoros::instance().launch("LLFloaterExperiences::retrieveExperienceList",
         boost::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
@@ -314,7 +314,7 @@ void LLFloaterExperiences::requestNewExperience(const std::string &url,
         // _3 -> url
         // _4 -> httpOptions
         // _5 -> httpHeaders
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndYield), _1, _2, _3, LLSD(), _4, _5);
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndSuspend), _1, _2, _3, LLSD(), _4, _5);
 
     LLCoros::instance().launch("LLFloaterExperiences::requestNewExperience",
         boost::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
