@@ -356,7 +356,7 @@ void LLExperienceCache::requestExperiences()
         
         if (mRequestQueue.empty() || (ostr.tellp() > EXP_URL_SEND_THRESHOLD))
         {   // request is placed in the coprocedure pool for the ExpCache cache.  Throttling is done by the pool itself.
-            LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "RequestExperiences",
+            LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "RequestExperiences",
                 boost::bind(&LLExperienceCache::requestExperiencesCoro, this, _1, ostr.str(), requests) );
 
             ostr.str(std::string());
@@ -542,7 +542,7 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
         return;
     }
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Fetch Associated",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
         boost::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId, fn));
 }
 
@@ -600,7 +600,7 @@ void LLExperienceCache::findExperienceByName(const std::string text, int page, E
         return;
     }
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Search Name",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Search Name",
         boost::bind(&LLExperienceCache::findExperienceByNameCoro, this, _1, text, page, fn));
 }
 
@@ -643,7 +643,7 @@ void LLExperienceCache::getGroupExperiences(const LLUUID &groupId, ExperienceGet
         return;
     }
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Group Experiences",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Group Experiences",
         boost::bind(&LLExperienceCache::getGroupExperiencesCoro, this, _1, groupId, fn));
 }
 
@@ -679,13 +679,13 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
 //-------------------------------------------------------------------------
 void LLExperienceCache::getRegionExperiences(CapabilityQuery_t regioncaps, ExperienceGetFn_t fn)
 {
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Region Experiences",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
         boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, false, LLSD(), fn));
 }
 
 void LLExperienceCache::setRegionExperiences(CapabilityQuery_t regioncaps, const LLSD &experiences, ExperienceGetFn_t fn)
 {
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Region Experiences",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
         boost::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, true, experiences, fn));
 }
 
@@ -743,7 +743,7 @@ void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, Expe
         (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
         boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
 }
 
@@ -773,7 +773,7 @@ void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, cons
         (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
         boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
 }
 
@@ -798,7 +798,7 @@ void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, E
         (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
 
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "Preferences Set",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
         boost::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
 }
 
@@ -829,7 +829,7 @@ void LLExperienceCache::getExperienceAdmin(const LLUUID &experienceId, Experienc
         return;
     }
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "IsAdmin",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
         boost::bind(&LLExperienceCache::getExperienceAdminCoro, this, _1, experienceId, fn));
 }
 
@@ -861,7 +861,7 @@ void LLExperienceCache::updateExperience(LLSD updateData, ExperienceGetFn_t fn)
         return;
     }
 
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("ExpCache", "IsAdmin",
+    LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
         boost::bind(&LLExperienceCache::updateExperienceCoro, this, _1, updateData, fn));
 }
 

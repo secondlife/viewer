@@ -367,7 +367,7 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
 void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc)
 {
     std::string procFullName = "AIS(" + procName + ")";
-    LLCoprocedureManager::getInstance()->enqueueCoprocedure("AIS", procFullName, proc);
+    LLCoprocedureManager::instance().enqueueCoprocedure("AIS", procFullName, proc);
 
 }
 

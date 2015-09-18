@@ -174,7 +174,7 @@ S32 LLResourceUploadInfo::getEconomyUploadCost()
         getAssetType() == LLAssetType::AT_ANIMATION ||
         getAssetType() == LLAssetType::AT_MESH)
     {
-        return LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+        return LLGlobalEconomy::Singleton::instance().getPriceUpload();
     }
 
     return 0;
@@ -666,7 +666,7 @@ LLUUID LLViewerAssetUpload::EnqueueInventoryUpload(const std::string &url, const
 {
     std::string procName("LLViewerAssetUpload::AssetInventoryUploadCoproc(");
     
-    LLUUID queueId = LLCoprocedureManager::getInstance()->enqueueCoprocedure("Upload", 
+    LLUUID queueId = LLCoprocedureManager::instance().enqueueCoprocedure("Upload", 
         procName + LLAssetType::lookup(uploadInfo->getAssetType()) + ")",
         boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo));
 
