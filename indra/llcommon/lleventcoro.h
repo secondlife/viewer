@@ -123,14 +123,14 @@ void suspend();
  * entered. Therefore, the coroutine completely misses an immediate reply
  * event, making it suspend indefinitely.
  *
- * By contrast, postEventAndSuspend() listens on the @a replyPump @em before posting
+ * By contrast, postAndSuspend() listens on the @a replyPump @em before posting
  * the specified LLSD event on the specified @a requestPump.
  *
  * @param event LLSD data to be posted on @a requestPump
  * @param requestPump an LLEventPump on which to post @a event. Pass either
  * the LLEventPump& or its string name. However, if you pass a
  * default-constructed @c LLEventPumpOrPumpName, we skip the post() call.
- * @param replyPump an LLEventPump on which postEventAndSuspend() will listen for a
+ * @param replyPump an LLEventPump on which postAndSuspend() will listen for a
  * reply. Pass either the LLEventPump& or its string name. The calling
  * coroutine will suspend until that reply arrives. (If you're concerned about a
  * reply that might not arrive, please see also LLEventTimeout.)
@@ -155,7 +155,7 @@ void suspend();
  *   @a replyPumpNamePath specifies the entry in the lowest-level structure in
  *   @a event into which to store <tt>replyPump.getName()</tt>.
  */
-LLSD postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+LLSD postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                  const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath=LLSD());
 
 /// Wait for the next event on the specified LLEventPump. Pass either the
@@ -163,8 +163,8 @@ LLSD postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& request
 inline
 LLSD suspendUntilEventOn(const LLEventPumpOrPumpName& pump)
 {
-    // This is now a convenience wrapper for postEventAndSuspend().
-    return postEventAndSuspend(LLSD(), LLEventPumpOrPumpName(), pump);
+    // This is now a convenience wrapper for postAndSuspend().
+    return postAndSuspend(LLSD(), LLEventPumpOrPumpName(), pump);
 }
 
 } // namespace llcoro
@@ -201,10 +201,10 @@ namespace llcoro
  * the single-pump function) or LLEventOrPumpName (@a replyPump1 for two-pump
  * function).
  *
- * It seems less burdensome to write postEventAndSuspend2() than to write either
+ * It seems less burdensome to write postAndSuspend2() than to write either
  * LLSD("someString") or LLEventOrPumpName("someString").
  */
-LLEventWithID postEventAndSuspend2(const LLSD& event,
+LLEventWithID postAndSuspend2(const LLSD& event,
                            const LLEventPumpOrPumpName& requestPump,
                            const LLEventPumpOrPumpName& replyPump0,
                            const LLEventPumpOrPumpName& replyPump1,
@@ -218,8 +218,8 @@ inline
 LLEventWithID
 suspendUntilEventOn(const LLEventPumpOrPumpName& pump0, const LLEventPumpOrPumpName& pump1)
 {
-    // This is now a convenience wrapper for postEventAndSuspend2().
-    return postEventAndSuspend2(LLSD(), LLEventPumpOrPumpName(), pump0, pump1);
+    // This is now a convenience wrapper for postAndSuspend2().
+    return postAndSuspend2(LLSD(), LLEventPumpOrPumpName(), pump0, pump1);
 }
 
 /**
@@ -312,7 +312,7 @@ public:
     LLSD postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                      const LLSD& replyPumpNamePath=LLSD())
     {
-        return llcoro::postEventAndSuspend(event, requestPump, mPump, replyPumpNamePath);
+        return llcoro::postAndSuspend(event, requestPump, mPump, replyPumpNamePath);
     }
 
 private:
@@ -371,7 +371,7 @@ public:
                               const LLSD& replyPump0NamePath=LLSD(),
                               const LLSD& replyPump1NamePath=LLSD())
     {
-        return llcoro::postEventAndSuspend2(event, requestPump, mPump0, mPump1,
+        return llcoro::postAndSuspend2(event, requestPump, mPump0, mPump1,
                                     replyPump0NamePath, replyPump1NamePath);
     }
 

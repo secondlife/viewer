@@ -129,7 +129,7 @@ typedef coroutine<std::string::iterator(void)> match_coroutine_type;
 *****************************************************************************/
 /// Simulate an event API whose response is immediate: sent on receipt of the
 /// initial request, rather than after some delay. This is the case that
-/// distinguishes postEventAndSuspend() from calling post(), then calling
+/// distinguishes postAndSuspend() from calling post(), then calling
 /// suspendUntilEventOn().
 class ImmediateAPI
 {
@@ -532,7 +532,7 @@ namespace tut
     {
         BEGIN
         {
-            result = postEventAndSuspend(LLSDMap("value", 17),       // request event
+            result = postAndSuspend(LLSDMap("value", 17),       // request event
                                  immediateAPI.getPump(),     // requestPump
                                  "reply1",                   // replyPump
                                  "reply");                   // request["reply"] = name
@@ -554,7 +554,7 @@ namespace tut
     {
         BEGIN
         {
-            LLEventWithID pair = ::postEventAndSuspend2(LLSDMap("value", 18),
+            LLEventWithID pair = ::postAndSuspend2(LLSDMap("value", 18),
                                                 immediateAPI.getPump(),
                                                 "reply2",
                                                 "error2",
@@ -582,7 +582,7 @@ namespace tut
     {
         BEGIN
         {
-            LLEventWithID pair = ::postEventAndSuspend2(LLSDMap("value", 18)("fail", LLSD()),
+            LLEventWithID pair = ::postAndSuspend2(LLSDMap("value", 18)("fail", LLSD()),
                                                 immediateAPI.getPump(),
                                                 "reply2",
                                                 "error2",

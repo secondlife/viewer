@@ -175,7 +175,7 @@ void LLLogin::Impl::login_(std::string uri, LLSD login_params)
 		request["op"] = "rewriteURI";
 		request["uri"] = uri;
 		request["reply"] = replyPump.getName();
-		rewrittenURIs = llcoro::postEventAndSuspend(request, srv_pump_name, filter);
+		rewrittenURIs = llcoro::postAndSuspend(request, srv_pump_name, filter);
 		// EXP-772: If rewrittenURIs fail, try original URI as a fallback.
 		rewrittenURIs.append(uri);
     } // we no longer need the filter
@@ -215,13 +215,13 @@ void LLLogin::Impl::login_(std::string uri, LLSD login_params)
             sendProgressEvent("offline", "authenticating", progress_data);
 
             // We expect zero or more "Downloading" status events, followed by
-            // exactly one event with some other status. Use postEventAndSuspend() the
+            // exactly one event with some other status. Use postAndSuspend() the
             // first time, because -- at least in unit-test land -- it's
             // possible for the reply to arrive before the post() call
             // returns. Subsequent responses, of course, must be awaited
             // without posting again.
             for (mAuthResponse = validateResponse(loginReplyPump.getName(),
-                     llcoro::postEventAndSuspend(request, xmlrpcPump, loginReplyPump, "reply"));
+                     llcoro::postAndSuspend(request, xmlrpcPump, loginReplyPump, "reply"));
                  mAuthResponse["status"].asString() == "Downloading";
                  mAuthResponse = validateResponse(loginReplyPump.getName(),
                                                   llcoro::suspendUntilEventOn(loginReplyPump)))

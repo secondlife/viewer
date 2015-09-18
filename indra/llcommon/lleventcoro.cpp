@@ -73,7 +73,7 @@ std::string listenerNameForCoro()
 }
 
 /**
- * Implement behavior described for postEventAndSuspend()'s @a replyPumpNamePath
+ * Implement behavior described for postAndSuspend()'s @a replyPumpNamePath
  * parameter:
  *
  * * If <tt>path.isUndefined()</tt>, do nothing.
@@ -153,7 +153,7 @@ void llcoro::suspend()
     suspendUntilEventOn("mainloop");
 }
 
-LLSD llcoro::postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
                  const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
 {
     // declare the future
@@ -171,7 +171,7 @@ LLSD llcoro::postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName&
         // request event.
         LLSD modevent(event);
         storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
-        LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << listenerName
+        LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << listenerName
                                  << " posting to " << requestPump.getPump().getName()
                                  << LL_ENDL;
 
@@ -179,7 +179,7 @@ LLSD llcoro::postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName&
         //                         << ": " << modevent << LL_ENDL;
         requestPump.getPump().post(modevent);
     }
-    LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << listenerName
+    LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << listenerName
                              << " about to wait on LLEventPump " << replyPump.getPump().getName()
                              << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
@@ -189,7 +189,7 @@ LLSD llcoro::postEventAndSuspend(const LLSD& event, const LLEventPumpOrPumpName&
         llcoro::Suspending suspended;
         value = *future;
     } // destroy Suspending as soon as we're back
-    LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << listenerName
+    LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << listenerName
                              << " resuming with " << value << LL_ENDL;
     // returning should disconnect the connection
     return value;
@@ -242,7 +242,7 @@ WaitForEventOnHelper<LISTENER> wfeoh(const LISTENER& listener, int discriminator
 namespace llcoro
 {
 
-LLEventWithID postEventAndSuspend2(const LLSD& event,
+LLEventWithID postAndSuspend2(const LLSD& event,
                            const LLEventPumpOrPumpName& requestPump,
                            const LLEventPumpOrPumpName& replyPump0,
                            const LLEventPumpOrPumpName& replyPump1,
@@ -270,12 +270,12 @@ LLEventWithID postEventAndSuspend2(const LLSD& event,
                         replyPump0.getPump().getName());
         storeToLLSDPath(modevent, replyPump1NamePath,
                         replyPump1.getPump().getName());
-        LL_DEBUGS("lleventcoro") << "postEventAndSuspend2(): coroutine " << name
+        LL_DEBUGS("lleventcoro") << "postAndSuspend2(): coroutine " << name
                                  << " posting to " << requestPump.getPump().getName()
                                  << ": " << modevent << LL_ENDL;
         requestPump.getPump().post(modevent);
     }
-    LL_DEBUGS("lleventcoro") << "postEventAndSuspend2(): coroutine " << name
+    LL_DEBUGS("lleventcoro") << "postAndSuspend2(): coroutine " << name
                              << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
                              << ", " << replyPump1.getPump().getName() << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
@@ -285,7 +285,7 @@ LLEventWithID postEventAndSuspend2(const LLSD& event,
         llcoro::Suspending suspended;
         value = *future;
     } // destroy Suspending as soon as we're back
-    LL_DEBUGS("lleventcoro") << "postEventAndSuspend(): coroutine " << name
+    LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << name
                              << " resuming with (" << value.first << ", " << value.second << ")"
                              << LL_ENDL;
     // returning should disconnect both connections
