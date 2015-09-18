@@ -1,11 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
-			<combo_box label="My favorite places" name="start_location_combo">
-				<combo_box.item label="Ostatnia lokalizacja" name="MyLastLocation"/>
+			<combo_box label="Użytkownik" tool_tip="Nazwa użytkownika wybrana przy rejestracji, np. bobsmith12 lub Steller Sunshine" name="username_combo" />
+			<line_editor name="password_edit" label="Hasło" />
+			<combo_box label="Moje ulubione miejsca" name="start_location_combo">
+				<combo_box.item label="Ostatnia lokalizacja" name="MyLastLocation" />
+				<combo_box.item label="Moje miejsce startu" name="MyHome" />
 			</combo_box>
+			<button label="Zaloguj" name="connect_btn" />
+			<check_box label="Pamiętaj mnie" name="remember_check" />
+			<text name="forgot_password_text">
+				Zapomniałem/am hasła
+			</text>
+			<combo_box label="Wybierz siatkę" name="server_combo" />
 		</layout_panel>
 	</layout_stack>
 </panel>

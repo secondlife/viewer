@@ -64,9 +64,9 @@
 			</panel>
 			<check_box label="Na sprzedaż" name="CheckPurchase" />
 			<combo_box name="ComboBoxSaleType">
-				<combo_box.item label="Kopia" name="Copy"/>
-				<combo_box.item label="Zawartość" name="Contents"/>
-				<combo_box.item label="Oryginał" name="Original"/>
+				<combo_box.item label="Kopia" name="Copy" />
+				<combo_box.item label="Zawartość" name="Contents" />
+				<combo_box.item label="Oryginał" name="Original" />
 			</combo_box>
 			<spinner name="Edit Cost" label="Cena: L$" />
 		</panel>
