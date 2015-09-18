@@ -1231,7 +1231,7 @@ static std::string WindowsErrorString(const std::string& operation)
 #include <signal.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <sys/suspend.h>
+#include <sys/wait.h>
 
 void LLProcess::autokill()
 {
