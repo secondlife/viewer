@@ -126,7 +126,6 @@ void yield();
  * By contrast, postAndWait() listens on the @a replyPump @em before posting
  * the specified LLSD event on the specified @a requestPump.
  *
- * @param self The @c self object passed into a coroutine
  * @param event LLSD data to be posted on @a requestPump
  * @param requestPump an LLEventPump on which to post @a event. Pass either
  * the LLEventPump& or its string name. However, if you pass a
