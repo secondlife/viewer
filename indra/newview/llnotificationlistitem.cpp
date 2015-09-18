@@ -38,6 +38,7 @@
 #include "lluicolortable.h"
 #include "message.h"
 #include "llnotificationsutil.h"
+
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mParams(p),
     mTitleBox(NULL),
@@ -48,7 +49,8 @@ LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mExpandedViewPanel(NULL),
     mCondensedHeight(0),
     mExpandedHeight(0),
-    mExpandedHeightResize(0)
+    mExpandedHeightResize(0),
+    mExpanded(false)
 {
     mNotificationName = p.notification_name;
 }
@@ -58,7 +60,7 @@ BOOL LLNotificationListItem::postBuild()
     BOOL rv = LLPanel::postBuild();
     mTitleBox = getChild<LLTextBox>("notification_title");
     mTitleBoxExp = getChild<LLTextBox>("notification_title_exp"); 
-    mNoticeTextExp = getChild<LLViewerTextEditor>("notification_text_exp");
+    mNoticeTextExp = getChild<LLChatEntry>("notification_text_exp");
 
     mTimeBox = getChild<LLTextBox>("notification_time");
     mTimeBoxExp = getChild<LLTextBox>("notification_time_exp");
@@ -70,6 +72,8 @@ BOOL LLNotificationListItem::postBuild()
     mTitleBox->setValue(mParams.title);
     mTitleBoxExp->setValue(mParams.title);
     mNoticeTextExp->setValue(mParams.title);
+    mNoticeTextExp->setEnabled(FALSE);
+    mNoticeTextExp->setTextExpandedCallback(boost::bind(&LLNotificationListItem::reshapeNotification, this));
 
     mTimeBox->setValue(buildNotificationDate(mParams.time_stamp));
     mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp));
@@ -206,19 +210,31 @@ void LLNotificationListItem::onClickCondenseBtn()
     setExpanded(FALSE);
 }
 
+void LLNotificationListItem::reshapeNotification()
+{
+    if(mExpanded)
+    {
+        S32 width = this->getRect().getWidth();
+        this->reshape(width, mNoticeTextExp->getRect().getHeight() + mExpandedHeight, FALSE);
+    }
+}
+
 void LLNotificationListItem::setExpanded(BOOL value)
 {
     mCondensedViewPanel->setVisible(!value);
     mExpandedViewPanel->setVisible(value);
     S32 width = this->getRect().getWidth();
+
     if (value)
     {
-        this->reshape(width, mExpandedHeight + mExpandedHeightResize, FALSE);
+       this->reshape(width, mNoticeTextExp->getRect().getHeight() + mExpandedHeight, FALSE);
     }
     else
     {
         this->reshape(width, mCondensedHeight, FALSE);
     }
+    mExpanded = value;
+
 }
 
 std::set<std::string> LLGroupInviteNotificationListItem::getTypes()

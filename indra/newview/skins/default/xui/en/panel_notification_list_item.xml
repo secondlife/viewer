@@ -33,7 +33,7 @@
   </panel.string>
   <panel.string
     name="item_expanded_height">
-    175
+    87
   </panel.string>
   <panel.string
     name="expanded_height_resize_for_attachment">
@@ -91,9 +91,7 @@
             </layout_panel>
             <layout_panel width="230" height="196" orientation="horizontal" follows="left|top|right|bottom" name="layout_panel_middle_exp">
               <panel border="false" top="0" width="230" height="196" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="main_info_panel_expanded">
-                <layout_stack top="0" left="0" width="230" height="196" orientation="vertical" follows="left|top|right|bottom" name="main_info_panel_vertical_stack">
-                  <layout_panel top="0" left="0" width="230" height="30" layout="topleft" follows="left|top|right|bottom" name="notification_title_layout_panel" visible="true">
-                    <panel border="false" top="0" left="0" width="230" height="30" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_title_panel_exp" >
+              <panel border="false" top="0" left="0" width="230" height="30" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_title_panel_exp" >
                       <text allow_scroll="false" font="SansSerif" top="6" left="0" width="233" height="10" layout="topleft" follows="right|left" text_color="White"
                         use_ellipses="true" word_wrap="false" mouse_opaque="false" name="notification_title_exp">
                         Notice Title Notice Title N o t i c e T i t l e N o t i c e T i t l e
@@ -103,7 +101,7 @@
                         Group Name Group Name Group Na m e e
                       </text>
                     </panel>
-                    <panel border="false" left="0" width="230" height="12" bevel_style="none" follows="left|top|right" layout="topleft" name="sender_time_panel_exp">
+                    <panel border="false" left="0" width="230" height="15" bevel_style="none" follows="left|top|right" layout="topleft" name="sender_time_panel_exp">
                       <text allow_scroll="false" font="SansSerifSmall" top="0" left="0" width="145" height="13" layout="topleft" follows="right|left"
                         use_ellipses="true" word_wrap="false" mouse_opaque="false" name="sender_or_fee_box_exp" visible="false">
                         Sender: "Resident R e s i d e n t R e s i d e n t"
@@ -111,11 +109,11 @@
                       <text allow_scroll="false" font="SansSerifSmall" top="0" right="-1" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
                         name="notification_time_exp" value="2014/12/24 23:30" />
                     </panel>
-                    <panel border="false" left="0" height="115" width="230" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_text_panel_exp" visible="true">
-                      <text_editor enabled="false" top="0" left="0" width="230" height="110" layout="topleft" follows="left|top|right|bottom"
+                    <panel border="false" left="0" height="115" width="230" bevel_style="none" follows="left|right" layout="topleft" name="notification_text_panel_exp" visible="true">
+                      <chat_editor is_expandable="true" top="0" left="0" width="230" height="110" layout="topleft" follows="left|right"
                             word_wrap="true" max_length="65536" name="notification_text_exp" parse_urls="true">
                         Notice text goes here b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. bla bla bla bla bla bla bla bla bla bla bla bla bla .
-                      </text_editor>
+                      </chat_editor>
                     </panel>
                     <panel border="false" left="1" bottom="-5" width="230" height="22" bevel_style="none" follows="left|right|bottom" layout="topleft" name="attachment_panel" visible="false">
                       <text allow_scroll="false" font="SansSerifSmall" top="4" left="5" width="220" height="12" layout="topleft" follows="left|top|right|bottom"
@@ -123,13 +121,11 @@
                         Attachment goes here b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla .
                       </text>
                     </panel>
-                   <panel border="false" left="0" bottom="-4" height="30" bevel_style="none" follows="left|right|bottom" layout="topleft" name="button_panel" visible="false">
+                   <panel border="false" left="1" bottom="-5" height="55" bevel_style="none" follows="left|right|bottom" layout="topleft" name="button_panel" visible="false">
                       <button top="2" left="0" width="65" height="23" layout="topleft" follows="left|top|bottom" name="join_btn" mouse_opaque="true" tab_stop="false" label = "Join"/>                 
                       <button top="2" left_pad="12" width="65" height="23" layout="topleft" follows="left|top|bottom" name="decline_btn" mouse_opaque="true" tab_stop="false" label = "Decline"/>                  
                       <button top="2" left_pad="12" width="65" height="23" layout="topleft" follows="left|top|bottom" name="info_btn" mouse_opaque="true" tab_stop="false" label = "Info"/>                  
                    </panel>
-                  </layout_panel>
-                </layout_stack>
               </panel>              
             </layout_panel>             
             <layout_panel width="18" orientation="horizontal" follows="right|top|bottom" name="layout_panel_left_exp">

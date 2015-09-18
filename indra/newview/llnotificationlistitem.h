@@ -34,7 +34,7 @@
 #include "llbutton.h"
 #include "llgroupiconctrl.h"
 #include "llavatariconctrl.h"
-
+#include "llchatentry.h"
 #include "llgroupmgr.h"
 #include "llviewermessage.h"
 
@@ -93,6 +93,7 @@ public:
     virtual bool showPopup() { return true; }
     void setExpanded(BOOL value);
     virtual BOOL postBuild();
+    void reshapeNotification();
 
     typedef enum e_time_type
 	{
@@ -114,7 +115,7 @@ protected:
     Params              mParams;
     LLTextBox*          mTitleBox;
     LLTextBox*          mTitleBoxExp;
-    LLViewerTextEditor* mNoticeTextExp;
+    LLChatEntry* mNoticeTextExp;
     LLTextBox*          mTimeBox;
     LLTextBox*          mTimeBoxExp;
     LLButton*           mExpandBtn;
@@ -128,6 +129,7 @@ protected:
     S32                 mCondensedHeight;
     S32                 mExpandedHeight;
     S32                 mExpandedHeightResize;
+    bool                mExpanded;
 };
 
 class LLGroupNotificationListItem
