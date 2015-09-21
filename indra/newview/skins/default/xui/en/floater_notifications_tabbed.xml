@@ -7,7 +7,7 @@
  help_topic="notification_chiclet"
  save_rect="true"
  title="NOTIFICATIONS"
- width="435"
+ width="350"
  min_width="435"
  height="550"
  min_height="150"

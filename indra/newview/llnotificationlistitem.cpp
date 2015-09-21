@@ -578,6 +578,14 @@ BOOL LLTransactionNotificationListItem::postBuild()
     mAvatarIcon->setValue("System_Notification");
     mAvatarIconExp->setValue("System_Notification");
 
+    mAvatarIcon->setVisible(TRUE);
+    mAvatarIconExp->setVisible(TRUE);
+    if((GOVERNOR_LINDEN_ID == mParams.paid_to_id) ||
+       (GOVERNOR_LINDEN_ID == mParams.paid_from_id))
+    {
+        return rv;
+    }
+
     if (mParams.notification_name == "PaymentReceived")
     {
         mAvatarIcon->setValue(mParams.paid_from_id);
@@ -588,8 +596,7 @@ BOOL LLTransactionNotificationListItem::postBuild()
         mAvatarIcon->setValue(mParams.paid_to_id);
         mAvatarIconExp->setValue(mParams.paid_to_id);
     }
-    mAvatarIcon->setVisible(TRUE);
-    mAvatarIconExp->setVisible(TRUE);
+
     return rv;
 }
 
