@@ -44,6 +44,7 @@ public:
 	bool isNotificationVisible();
 
 	void updateNotificationRegion(U32 agentcount, U32 overLimit);
+    void updateNotificationState();
 	void updateNotificationAgent(U32 agentComplexity);
 
 private:
@@ -67,8 +68,13 @@ private:
 	F32 mLatestOverLimitPct;
 
 	bool mShowOverLimitAgents;
-    bool mNotifyOutfitLoading;
     std::string overLimitMessage();
+
+    // initial outfit related variables (state control)
+    bool mNotifyOutfitLoading;
+    S32 mInitialCofVersion;
+    S32 mInitialOtfitRezStatus;
+    S32 mLastSkeletonSerialNum;
 };
 
 #endif /* ! defined(LL_llavatarrendernotifier_H) */

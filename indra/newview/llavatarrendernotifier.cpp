@@ -61,7 +61,10 @@ mLatestOverLimitAgents(0),
 mLatestAgentComplexity(0),
 mLatestOverLimitPct(0.0f),
 mShowOverLimitAgents(false),
-mNotifyOutfitLoading(false)
+mNotifyOutfitLoading(false),
+mInitialCofVersion(-1),
+mInitialOtfitRezStatus(-1),
+mLastSkeletonSerialNum(-1)
 {
     mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
 }
@@ -178,12 +181,41 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
     }
 }
 
+void LLAvatarRenderNotifier::updateNotificationState()
+{
+    if (!isAgentAvatarValid())
+    {
+        // data not ready, nothing to show.
+        return;
+    }
+
+    if (mInitialCofVersion < 0
+        && gAgentWearables.areWearablesLoaded()
+        && !LLAttachmentsMgr::getInstance()->hasPendingAttachments()
+        && !LLAttachmentsMgr::getInstance()->hasAttachmentRequests()
+        && !LLAttachmentsMgr::getInstance()->hasRecentlyArrivedAttachments())
+    {
+        // cof formed
+        mInitialCofVersion = LLAppearanceMgr::instance().getCOFVersion();
+        mLastSkeletonSerialNum = gAgentAvatarp->mLastSkeletonSerialNum;
+    }
+
+    if (gAgentAvatarp->mLastRezzedStatus >= mInitialOtfitRezStatus)
+    {
+        mInitialOtfitRezStatus = gAgentAvatarp->mLastRezzedStatus;
+    }
+    else
+    {
+        // rez status decreased - outfit related action was initiated
+        mNotifyOutfitLoading = true;
+    }
+}
 void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
 {
     // save the value for use in following messages
     mLatestAgentComplexity = agentComplexity;
 
-    if (!gAgentWearables.areWearablesLoaded())
+    if (!isAgentAvatarValid() || !gAgentWearables.areWearablesLoaded())
     {
         // data not ready, nothing to show.
         return;
@@ -192,29 +224,11 @@ void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
     if (!mNotifyOutfitLoading)
     {
         // We should not notify about initial outfit and it's load process without reason
+        updateNotificationState();
 
-        if (!isAgentAvatarValid())
-        {
-            return;
-        }
-
-        static S32 initial_cof_version(-1);
-        static S32 rez_status(0);
-
-        if (initial_cof_version < 0
-            && gAgentWearables.areWearablesLoaded()
-            && !LLAttachmentsMgr::getInstance()->hasPendingAttachments()
-            && !LLAttachmentsMgr::getInstance()->hasAttachmentRequests()
-            && !LLAttachmentsMgr::getInstance()->hasRecentlyArrivedAttachments())
-        {
-            // cof formed
-            initial_cof_version = LLAppearanceMgr::instance().getCOFVersion();
-
-            // outfit might have been pre-loaded in one go, we are adding/removing items in such case
-            mNotifyOutfitLoading = gAgentAvatarp->isAllLocalTextureDataFinal();
-        }
-
-        if (initial_cof_version >= 0 && initial_cof_version != gAgentAvatarp->mLastUpdateRequestCOFVersion)
+        if (mInitialCofVersion >= 0
+            && (mInitialCofVersion != gAgentAvatarp->mLastUpdateRequestCOFVersion
+                || mLastSkeletonSerialNum != gAgentAvatarp->mLastSkeletonSerialNum))
         {
             // version mismatch in comparison to initial outfit - outfit changed
             mNotifyOutfitLoading = true;
@@ -222,15 +236,6 @@ void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
         else if (mLatestOverLimitAgents > 0)
         {
             // Some users can't see agent already, notify user about complexity growth
-            mNotifyOutfitLoading = true;
-        }
-        else if (gAgentAvatarp->mLastRezzedStatus >= rez_status)
-        {
-            rez_status = gAgentAvatarp->mLastRezzedStatus;
-        }
-        else
-        {
-            // rez status decreased - outfit related action was initiated
             mNotifyOutfitLoading = true;
         }
 

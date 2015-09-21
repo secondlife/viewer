@@ -6458,15 +6458,10 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	mFullyLoadedInitialized = TRUE;
 	mFullyLoadedFrameCounter++;
 
-    if (changed)
+    if (isSelf())
     {
-        static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
-
-        if (isSelf() && show_my_complexity_changes)
-        {
-            // to know about outfit switching
-            LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
-        }
+        // to know about outfit switching
+        LLAvatarRenderNotifier::getInstance()->updateNotificationState();
     }
 	
 	return changed;
