@@ -28,8 +28,6 @@ include_directories(
     )
 
 set(llmessage_SOURCE_FILES
-    llares.cpp
-    llareslistener.cpp
     llassetstorage.cpp
     llavatarname.cpp
     llavatarnamecache.cpp
@@ -109,8 +107,6 @@ set(llmessage_SOURCE_FILES
 set(llmessage_HEADER_FILES
     CMakeLists.txt
 
-    llares.h
-    llareslistener.h
     llassetstorage.h
     llavatarname.h
     llavatarnamecache.h

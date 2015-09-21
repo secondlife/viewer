@@ -57,7 +57,6 @@
 #include "llfocusmgr.h"
 #include "llviewerjoystick.h"
 #include "llallocator.h"
-#include "llares.h" 
 #include "llcalc.h"
 #include "llconversationlog.h"
 #include "lldxhardware.h"
@@ -1283,7 +1282,6 @@ static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
 static LLTrace::BlockTimerStatHandle FTM_IDLE("Idle");
 static LLTrace::BlockTimerStatHandle FTM_PUMP("Pump");
-static LLTrace::BlockTimerStatHandle FTM_PUMP_ARES("Ares");
 static LLTrace::BlockTimerStatHandle FTM_PUMP_SERVICE("Service");
 static LLTrace::BlockTimerStatHandle FTM_SERVICE_CALLBACK("Callback");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_AUTOPILOT("Autopilot");
@@ -1425,26 +1423,6 @@ bool LLAppViewer::mainLoop()
 					LL_RECORD_BLOCK_TIME(FTM_IDLE);
 					idle();
 
-					if (gAres != NULL && gAres->isInitialized())
-					{
-						pingMainloopTimeout("Main:ServicePump");				
-						LL_RECORD_BLOCK_TIME(FTM_PUMP);
-						{
-							LL_RECORD_BLOCK_TIME(FTM_PUMP_ARES);
-							gAres->process();
-						}
-						{
-							LL_RECORD_BLOCK_TIME(FTM_PUMP_SERVICE);
-							// this pump is necessary to make the login screen show up
-							gServicePump->pump();
-
-							{
-								LL_RECORD_BLOCK_TIME(FTM_SERVICE_CALLBACK);
-								gServicePump->callback();
-							}
-						}
-					}
-					
 					resumeMainloopTimeout();
 				}
  
@@ -2013,9 +1991,6 @@ bool LLAppViewer::cleanup()
 
 	// Non-LLCurl libcurl library
 	mAppCoreHttp.cleanup();
-
-	// NOTE The following call is not thread safe. 
-	ll_cleanup_ares();
 
 	LLFilePickerThread::cleanupClass();
 

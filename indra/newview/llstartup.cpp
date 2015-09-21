@@ -46,7 +46,6 @@
 #include "llaudioengine_openal.h"
 #endif
 
-#include "llares.h"
 #include "llavatarnamecache.h"
 #include "llexperiencecache.h"
 #include "lllandmark.h"
@@ -444,13 +443,6 @@ bool idle_startup()
 		// Load the throttle settings
 		gViewerThrottle.load();
 
-		if (ll_init_ares() == NULL || !gAres->isInitialized())
-		{
-			std::string diagnostic = "Could not start address resolution system";
-			LL_WARNS("AppInit") << diagnostic << LL_ENDL;
-			LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().with("DIAGNOSTIC", diagnostic));
-		}
-		
 		//
 		// Initialize messaging system
 		//
