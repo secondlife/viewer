@@ -87,10 +87,7 @@ public:
     void onDetachRequested(const LLUUID& inv_item_id);
     void onDetachCompleted(const LLUUID& inv_item_id);
 
-    bool hasPendingAttachments() { return mPendingAttachments.size() > 0; }
-    bool hasAttachmentRequests() { return mAttachmentRequests.size() > 0; }
-    bool hasDetachRequests() { return mAttachmentRequests.size() > 0; }
-    bool hasRecentlyArrivedAttachments() { return mRecentlyArrivedAttachments.size() > 0; }
+    bool isAttachmentStateComplete() const;
 
 private:
 

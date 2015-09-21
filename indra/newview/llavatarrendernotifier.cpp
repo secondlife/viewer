@@ -191,9 +191,7 @@ void LLAvatarRenderNotifier::updateNotificationState()
 
     if (mInitialCofVersion < 0
         && gAgentWearables.areWearablesLoaded()
-        && !LLAttachmentsMgr::getInstance()->hasPendingAttachments()
-        && !LLAttachmentsMgr::getInstance()->hasAttachmentRequests()
-        && !LLAttachmentsMgr::getInstance()->hasRecentlyArrivedAttachments())
+        && LLAttachmentsMgr::getInstance()->isAttachmentStateComplete())
     {
         // cof formed
         mInitialCofVersion = LLAppearanceMgr::instance().getCOFVersion();
