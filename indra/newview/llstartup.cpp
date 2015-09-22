@@ -752,10 +752,10 @@ bool idle_startup()
 			// Make sure the process dialog doesn't hide things
 			display_startup();
 			gViewerWindow->setShowProgress(FALSE);
-//			display_startup();
+			display_startup();
 			// Show the login dialog
 			login_show();
-//			display_startup();
+			display_startup();
 			// connect dialog is already shown, so fill in the names
 			if (gUserCredential.notNull())
 			{
@@ -2751,8 +2751,6 @@ void reset_login()
 	gAgent.cleanup();
 	LLWorld::getInstance()->destroyClass();
 
-	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-
 	if ( gViewerWindow )
 	{	// Hide menus and normal buttons
 		gViewerWindow->setNormalControlsVisible( FALSE );
@@ -2762,6 +2760,7 @@ void reset_login()
 
 	// Hide any other stuff
 	LLFloaterReg::hideVisibleInstances();
+    LLStartUp::setStartupState( STATE_BROWSER_INIT );
 }
 
 //---------------------------------------------------------------------------
