@@ -542,7 +542,7 @@ void LLFloaterTools::refresh()
 
 void LLFloaterTools::draw()
 {
-    bool has_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
+    BOOL has_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
     if(!has_selection && (mHasSelection != has_selection))
     {
         mDirty = TRUE;
