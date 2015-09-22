@@ -434,6 +434,12 @@ void LLPanelLogin::show(const LLRect &rect,
 						void (*callback)(S32 option, void* user_data),
 						void* callback_data)
 {
+#if 1
+    if (!LLPanelLogin::sInstance)
+    {
+        new LLPanelLogin(rect, callback, callback_data);
+    }
+#else
 	// instance management
 	if (LLPanelLogin::sInstance)
 	{
@@ -445,6 +451,7 @@ void LLPanelLogin::show(const LLRect &rect,
 	}
 
 	new LLPanelLogin(rect, callback, callback_data);
+#endif
 
 	if( !gFocusMgr.getKeyboardFocus() )
 	{
