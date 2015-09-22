@@ -62,8 +62,8 @@ mLatestAgentComplexity(0),
 mLatestOverLimitPct(0.0f),
 mShowOverLimitAgents(false),
 mNotifyOutfitLoading(false),
-mInitialCofVersion(-1),
-mInitialOtfitRezStatus(-1),
+mLastCofVersion(-1),
+mLastOutfitRezStatus(-1),
 mLastSkeletonSerialNum(-1)
 {
     mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
@@ -189,24 +189,32 @@ void LLAvatarRenderNotifier::updateNotificationState()
         return;
     }
 
-    if (mInitialCofVersion < 0
+    // Don't use first provided COF and Sceleton versions - let them load anf 'form' first
+    if (mLastCofVersion < 0
         && gAgentWearables.areWearablesLoaded()
         && LLAttachmentsMgr::getInstance()->isAttachmentStateComplete())
     {
         // cof formed
-        mInitialCofVersion = LLAppearanceMgr::instance().getCOFVersion();
+        mLastCofVersion = LLAppearanceMgr::instance().getCOFVersion();
+        mLastSkeletonSerialNum = gAgentAvatarp->mLastSkeletonSerialNum;
+    }
+    else if (mLastCofVersion >= 0
+        && (mLastCofVersion != gAgentAvatarp->mLastUpdateRequestCOFVersion
+            || mLastSkeletonSerialNum != gAgentAvatarp->mLastSkeletonSerialNum))
+    {
+        // version mismatch in comparison to previous outfit - outfit changed
+        mNotifyOutfitLoading = true;
+        mLastCofVersion = LLAppearanceMgr::instance().getCOFVersion();
         mLastSkeletonSerialNum = gAgentAvatarp->mLastSkeletonSerialNum;
     }
 
-    if (gAgentAvatarp->mLastRezzedStatus >= mInitialOtfitRezStatus)
-    {
-        mInitialOtfitRezStatus = gAgentAvatarp->mLastRezzedStatus;
-    }
-    else
+    if (gAgentAvatarp->mLastRezzedStatus < mLastOutfitRezStatus)
     {
         // rez status decreased - outfit related action was initiated
         mNotifyOutfitLoading = true;
     }
+
+    mLastOutfitRezStatus = gAgentAvatarp->mLastRezzedStatus;
 }
 void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
 {
@@ -224,14 +232,7 @@ void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
         // We should not notify about initial outfit and it's load process without reason
         updateNotificationState();
 
-        if (mInitialCofVersion >= 0
-            && (mInitialCofVersion != gAgentAvatarp->mLastUpdateRequestCOFVersion
-                || mLastSkeletonSerialNum != gAgentAvatarp->mLastSkeletonSerialNum))
-        {
-            // version mismatch in comparison to initial outfit - outfit changed
-            mNotifyOutfitLoading = true;
-        }
-        else if (mLatestOverLimitAgents > 0)
+        if (mLatestOverLimitAgents > 0)
         {
             // Some users can't see agent already, notify user about complexity growth
             mNotifyOutfitLoading = true;
