@@ -1550,18 +1550,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c6ef922e9adadcac8c8128b5d335aad2</string>
+              <string>32ab846d7848aad28cac71d5543bad8c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/305308/arch/CYGWIN/installer/llceflib-1.1.0.305308-windows-305308.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llceflib_3p-llceflib/rev/305320/arch/CYGWIN/installer/llceflib-1.1.0.305320-windows-305320.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.0.305308</string>
+        <string>1.1.0.305320</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
