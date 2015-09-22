@@ -2077,6 +2077,7 @@ bool LLAppViewer::cleanup()
 	}
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
 	LLProxy::cleanupClass();
+    LLCore::LLHttp::cleanup();
 
 	LLWearableType::cleanupClass();
 

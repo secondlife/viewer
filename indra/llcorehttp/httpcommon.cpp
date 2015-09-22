@@ -350,6 +350,11 @@ void deallocateEasyCurl(CURL *curlp)
 //static
 void ssl_locking_callback(int mode, int type, const char *file, int line)
 {
+    if (type >= sSSLMutex.size())
+    {
+        LL_WARNS() << "Attempt to get unknown MUTEX in SSL Lock." << LL_ENDL;
+    }
+
     if (mode & CRYPTO_LOCK)
     {
         sSSLMutex[type]->lock();
@@ -389,6 +394,18 @@ void initialize()
     CRYPTO_set_locking_callback(&ssl_locking_callback);
 #endif
 
+}
+
+
+void cleanup()
+{
+#if SAFE_SSL
+    CRYPTO_set_id_callback(NULL);
+    CRYPTO_set_locking_callback(NULL);
+    sSSLMutex.clear();
+#endif
+
+    curl_global_cleanup();
 }
 
 

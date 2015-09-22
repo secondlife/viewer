@@ -497,6 +497,7 @@ namespace LLHttp
     typedef boost::shared_ptr<CURL> CURL_ptr;
 
     void initialize();
+    void cleanup();
 
     CURL_ptr createEasyHandle();
     std::string getCURLVersion();
