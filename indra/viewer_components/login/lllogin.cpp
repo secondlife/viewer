@@ -310,29 +310,8 @@ LLEventPump& LLLogin::getEventPump()
 
 // The list associates to event with the original idle_startup() 'STATE'.
 
-// Rewrite URIs
- // State_LOGIN_AUTH_INIT
-// Given a vector of login uris (usually just one), perform a dns lookup for the 
-// SRV record from each URI. I think this is used to distribute login requests to 
-// a single URI to multiple hosts.
-// This is currently a synchronous action. (See LLSRV::rewriteURI() implementation)
-// On dns lookup error the output uris == the input uris.
-//
-// Input: A vector of login uris
-// Output: A vector of login uris
-//
-// Code:
-// std::vector<std::string> uris;
-// LLViewerLogin::getInstance()->getLoginURIs(uris);
-// std::vector<std::string>::const_iterator iter, end;
-// for (iter = uris.begin(), end = uris.end(); iter != end; ++iter)
-// {
-//	std::vector<std::string> rewritten;
-//	rewritten = LLSRV::rewriteURI(*iter);
-//	sAuthUris.insert(sAuthUris.end(),
-//					 rewritten.begin(), rewritten.end());
-// }
-// sAuthUriNum = 0;
+// Setup login
+// State_LOGIN_AUTH_INIT
 
 // Authenticate 
 // STATE_LOGIN_AUTHENTICATE

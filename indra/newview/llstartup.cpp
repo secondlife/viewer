@@ -752,10 +752,10 @@ bool idle_startup()
 			// Make sure the process dialog doesn't hide things
 			display_startup();
 			gViewerWindow->setShowProgress(FALSE);
-			display_startup();
+//			display_startup();
 			// Show the login dialog
 			login_show();
-			display_startup();
+//			display_startup();
 			// connect dialog is already shown, so fill in the names
 			if (gUserCredential.notNull())
 			{
