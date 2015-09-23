@@ -32,8 +32,9 @@
 // std headers
 // external library headers
 // other Linden headers
-#include "llagent.h"
 #include "llagentwearables.h"
+#include "llappearancemgr.h"
+#include "llattachmentsmgr.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llnotificationtemplate.h"
@@ -60,8 +61,12 @@ mLatestOverLimitAgents(0),
 mLatestAgentComplexity(0),
 mLatestOverLimitPct(0.0f),
 mShowOverLimitAgents(false),
-mNotifyOutfitLoading(false)
+mNotifyOutfitLoading(false),
+mLastCofVersion(-1),
+mLastOutfitRezStatus(-1),
+mLastSkeletonSerialNum(-1)
 {
+    mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
 }
 
 std::string LLAvatarRenderNotifier::overLimitMessage()
@@ -97,9 +102,10 @@ std::string LLAvatarRenderNotifier::overLimitMessage()
     return LLTrans::getString(message);
 }
 
-void LLAvatarRenderNotifier::displayNotification()
+void LLAvatarRenderNotifier::displayNotification(bool show_over_limit)
 {
     mAgentComplexity = mLatestAgentComplexity;
+    mShowOverLimitAgents = show_over_limit;
 	static LLCachedControl<U32> expire_delay(gSavedSettings, "ShowMyComplexityChanges", 20);
 
 	LLDate expire_date(LLDate::now().secondsSinceEpoch() + expire_delay);
@@ -157,7 +163,7 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
     if (mAgentsCount == mLatestAgentsCount
         && mOverLimitAgents == mLatestOverLimitAgents)
     {
-        //no changes since last notification
+        // no changes since last notification
         return;
     }
 
@@ -167,9 +173,7 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
         )
     {
         // display in case of drop to/from zero and in case of significant (RENDER_ALLOWED_CHANGE_PCT) changes
-
-        mShowOverLimitAgents = true;
-        displayNotification();
+        displayNotification(true);
 
         // default timeout before next notification
         static LLCachedControl<U32> pop_up_delay(gSavedSettings, "ComplexityChangesPopUpDelay", 300);
@@ -177,12 +181,47 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
     }
 }
 
+void LLAvatarRenderNotifier::updateNotificationState()
+{
+    if (!isAgentAvatarValid())
+    {
+        // data not ready, nothing to show.
+        return;
+    }
+
+    // Don't use first provided COF and Sceleton versions - let them load anf 'form' first
+    if (mLastCofVersion < 0
+        && gAgentWearables.areWearablesLoaded()
+        && LLAttachmentsMgr::getInstance()->isAttachmentStateComplete())
+    {
+        // cof formed
+        mLastCofVersion = LLAppearanceMgr::instance().getCOFVersion();
+        mLastSkeletonSerialNum = gAgentAvatarp->mLastSkeletonSerialNum;
+    }
+    else if (mLastCofVersion >= 0
+        && (mLastCofVersion != gAgentAvatarp->mLastUpdateRequestCOFVersion
+            || mLastSkeletonSerialNum != gAgentAvatarp->mLastSkeletonSerialNum))
+    {
+        // version mismatch in comparison to previous outfit - outfit changed
+        mNotifyOutfitLoading = true;
+        mLastCofVersion = LLAppearanceMgr::instance().getCOFVersion();
+        mLastSkeletonSerialNum = gAgentAvatarp->mLastSkeletonSerialNum;
+    }
+
+    if (gAgentAvatarp->mLastRezzedStatus < mLastOutfitRezStatus)
+    {
+        // rez status decreased - outfit related action was initiated
+        mNotifyOutfitLoading = true;
+    }
+
+    mLastOutfitRezStatus = gAgentAvatarp->mLastRezzedStatus;
+}
 void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
 {
     // save the value for use in following messages
     mLatestAgentComplexity = agentComplexity;
 
-    if (!gAgentWearables.areWearablesLoaded())
+    if (!isAgentAvatarValid() || !gAgentWearables.areWearablesLoaded())
     {
         // data not ready, nothing to show.
         return;
@@ -191,24 +230,17 @@ void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
     if (!mNotifyOutfitLoading)
     {
         // We should not notify about initial outfit and it's load process without reason
-        if (isAgentAvatarValid()
-            && gAgent.isInitialized()
-            && gAgent.isOutfitChosen()
-            && gAgentWearables.areWearablesLoaded()
-            && gAgentAvatarp->isFullyLoaded())
+        updateNotificationState();
+
+        if (mLatestOverLimitAgents > 0)
         {
-            // Initial outfit was fully loaded
+            // Some users can't see agent already, notify user about complexity growth
             mNotifyOutfitLoading = true;
         }
-        else if (mLatestOverLimitAgents > 0
-            || mAgentComplexity > mLatestAgentComplexity)
+
+        if (!mNotifyOutfitLoading)
         {
-            // Some users can't see agent already or user switched outfits,
-            // this is a reason to show load process
-            mNotifyOutfitLoading = true;
-        }
-        else
-        {
+            // avatar or outfit not ready
             mAgentComplexity = mLatestAgentComplexity;
             return;
         }
@@ -217,8 +249,7 @@ void LLAvatarRenderNotifier::updateNotificationAgent(U32 agentComplexity)
     if (mAgentComplexity != mLatestAgentComplexity)
     {
         // if we have an agent complexity change, we always display it and hide 'over limit'
-        mShowOverLimitAgents = false;
-        displayNotification();
+        displayNotification(false);
 
         // next 'over limit' update should be displayed after delay to make sure information got updated at server side
         mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);

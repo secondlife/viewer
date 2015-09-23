@@ -6457,6 +6457,12 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	mPreviousFullyLoaded = mFullyLoaded;
 	mFullyLoadedInitialized = TRUE;
 	mFullyLoadedFrameCounter++;
+
+    if (changed && isSelf())
+    {
+        // to know about outfit switching
+        LLAvatarRenderNotifier::getInstance()->updateNotificationState();
+    }
 	
 	return changed;
 }

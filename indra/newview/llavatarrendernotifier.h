@@ -40,10 +40,11 @@ class LLAvatarRenderNotifier : public LLSingleton<LLAvatarRenderNotifier>
 public:
 	LLAvatarRenderNotifier();
 
-	void displayNotification();
+    void displayNotification(bool show_over_limit);
 	bool isNotificationVisible();
 
 	void updateNotificationRegion(U32 agentcount, U32 overLimit);
+    void updateNotificationState();
 	void updateNotificationAgent(U32 agentComplexity);
 
 private:
@@ -67,8 +68,17 @@ private:
 	F32 mLatestOverLimitPct;
 
 	bool mShowOverLimitAgents;
-    bool mNotifyOutfitLoading;
     std::string overLimitMessage();
+
+    // initial outfit related variables (state control)
+    bool mNotifyOutfitLoading;
+
+    // COF (inventory folder) and Skeleton (voavatar) are used to spot changes in outfit.
+    S32 mLastCofVersion;
+    S32 mLastSkeletonSerialNum;
+    // Used to detect changes in voavatar's rezzed status.
+    // If value decreases - there were changes in outfit.
+    S32 mLastOutfitRezStatus;
 };
 
 #endif /* ! defined(LL_llavatarrendernotifier_H) */
