@@ -2202,7 +2202,7 @@ BOOL LLVolume::generate()
 			{
 				rot_mat.rotate(*profile++, tmp);
 				dst->setAdd(tmp,offset);
-				llassert(dst->isFinite3());
+				llassert(dst->isFinite3()); // MAINT-5660; don't know why this happens, does not affect Release builds
 				++dst;
 			}
 		}
@@ -5651,7 +5651,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 			tc->mV[0] = (*p)[0]+0.5f;
 			tc->mV[1] = (*p)[1]+0.5f;
 
-			llassert(src->isFinite3());
+			llassert(src->isFinite3()); // MAINT-5660; don't know why this happens, does not affect Release builds
 			update_min_max(min,max,*src);
 			update_min_max(min_uv, max_uv, *tc);
 		
