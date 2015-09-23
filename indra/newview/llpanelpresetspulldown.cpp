@@ -113,6 +113,13 @@ void LLPanelPresetsPulldown::onTopLost()
 }
 
 /*virtual*/
+BOOL LLPanelPresetsPulldown::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+    LLPanel::handleMouseDown(x,y,mask);
+    return TRUE;
+}
+
+/*virtual*/
 void LLPanelPresetsPulldown::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	mHoverTimer.start();
