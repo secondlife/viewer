@@ -13,7 +13,6 @@ set(cmake_SOURCE_FILES
     BerkeleyDB.cmake
     Boost.cmake
     BuildVersion.cmake
-    CARes.cmake
     CMakeCopyIfDifferent.cmake
     ConfigurePkgConfig.cmake
     CURL.cmake
@@ -27,7 +26,6 @@ set(cmake_SOURCE_FILES
     FindAPR.cmake
     FindAutobuild.cmake
     FindBerkeleyDB.cmake
-    FindCARes.cmake
     FindFMODEX.cmake
     FindGLH.cmake
     FindGoogleBreakpad.cmake

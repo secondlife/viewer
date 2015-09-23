@@ -87,60 +87,6 @@
         <key>version</key>
         <string>1.4.5.297252</string>
       </map>
-      <key>ares</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright 1998 by the Massachusetts Institute of Technology.</string>
-        <key>description</key>
-        <string>C-ares, an asynchronous resolver library.</string>
-        <key>license</key>
-        <string>c-ares</string>
-        <key>license_file</key>
-        <string>LICENSES/c-ares.txt</string>
-        <key>name</key>
-        <string>ares</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>637b4996f703f3e5bf835d847fc4cb81</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/Darwin/installer/ares-1.10.0.295506-darwin-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7771d3653a0daf22d35bf96055d02d9a</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/Linux/installer/ares-1.10.0.295506-linux-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>f044de05e704d3f3fb6934adf42447c2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/CYGWIN/installer/ares-1.10.0.295506-windows-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.10.0.295506</string>
-      </map>
       <key>boost</key>
       <map>
         <key>copyright</key>
