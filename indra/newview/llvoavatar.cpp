@@ -7357,7 +7357,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// appearance messages.
 	mLastUpdateReceivedCOFVersion = this_update_cof_version;
 		
-	applyParsedTEMessage(contents.mTEContents);
+    if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
+    {
+        updateVisualComplexity();
+    }
 
 	// prevent the overwriting of valid baked textures with invalid baked textures
 	for (U8 baked_index = 0; baked_index < mBakedTextureDatas.size(); baked_index++)
@@ -8429,6 +8432,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
                                       << " reported " << mReportedVisualComplexity
                                       << LL_ENDL;
         }
+        else
         {
             LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
                                       << " complexity updated no change " << mVisualComplexity
