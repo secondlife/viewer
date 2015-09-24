@@ -434,7 +434,7 @@ void LLPanelLogin::show(const LLRect &rect,
 						void (*callback)(S32 option, void* user_data),
 						void* callback_data)
 {
-#if 1
+#if 0
     if (!LLPanelLogin::sInstance)
     {
         new LLPanelLogin(rect, callback, callback_data);
