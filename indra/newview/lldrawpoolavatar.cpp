@@ -1600,24 +1600,6 @@ void LLDrawPoolAvatar::getPerVertexSkinMatrix(F32* weights, LLMatrix4a* mat, boo
     }
 }
 
-bool operator==(const LLMatrix4a& a, const LLMatrix4a& b)
-{
-    for (S32 i=0; i<4; i++)
-        for (S32 j=0; j<4; j++)
-        {
-            if (a.mMatrix[i][j] != b.mMatrix[i][j])
-            {
-                return false;
-            }
-        }
-    return true;
-}
-
-bool operator!=(const LLMatrix4a& a, const LLMatrix4a& b)
-{
-    return !(a==b);
-}
-
 void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
     LLVOAvatar* avatar,
     LLFace* face,
@@ -1697,7 +1679,6 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 		{
 			LLMatrix4a final_mat;
-			LLMatrix4a final_mat2;
             getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat);
 			
 			LLVector4a& v = vol_face.mPositions[j];
