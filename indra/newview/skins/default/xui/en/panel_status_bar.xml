@@ -109,7 +109,7 @@
      follows="right|top"
      height="16"
      image_name="Presets_Icon"
-     left_pad="5"
+     left_pad="8"
      top="2"
      name="presets_icon"
      width="18" />
