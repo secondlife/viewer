@@ -5026,6 +5026,7 @@ void LLModelPreview::addEmptyFace( LLModel* pTarget )
 	pTarget->setVolumeFaceData( faceCnt+1, pos, norm, tc, index, buff->getNumVerts(), buff->getNumIndices() );
 	
 }	
+
 //-----------------------------------------------------------------------------
 // render()
 //-----------------------------------------------------------------------------
@@ -5571,50 +5572,19 @@ BOOL LLModelPreview::render()
 							//quick 'n dirty software vertex skinning
 
 							//build matrix palette
-							
-							LLMatrix4 mat[64];
-							for (U32 j = 0; j < model->mSkinInfo.mJointNames.size(); ++j)
-							{
-								LLJoint* joint = getPreviewAvatar()->getJoint(model->mSkinInfo.mJointNames[j]);
-								if (joint)
-								{
-									mat[j] = model->mSkinInfo.mInvBindMatrix[j];
-									mat[j] *= joint->getWorldMatrix();
-								}
-							}
+
+							LLMatrix4 mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
+                            U32 count = llmin((U32) model->mSkinInfo.mJointNames.size(), (U32) LL_MAX_JOINTS_PER_MESH_OBJECT);
+                            LLDrawPoolAvatar::initSkinningMatrixPalette(mat, count, &model->mSkinInfo, getPreviewAvatar());
 
 							for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 							{
+                                LLMatrix4a final_mata;
+                                LLDrawPoolAvatar::getPerVertexSkinMatrix(weight[j].mV, (LLMatrix4a*)mat, true, final_mata);
+
+                                // BENTO GROSS KLUDGERY
 								LLMatrix4 final_mat;
-								final_mat.mMatrix[0][0] = final_mat.mMatrix[1][1] = final_mat.mMatrix[2][2] = final_mat.mMatrix[3][3] = 0.f;
-
-								LLVector4 wght;
-								S32 idx[4];
-
-								F32 scale = 0.f;
-								for (U32 k = 0; k < 4; k++)
-								{
-									F32 w = weight[j].mV[k];
-
-									idx[k] = (S32) floorf(w);
-									wght.mV[k] = w - floorf(w);
-									scale += wght.mV[k];
-								}
-
-								wght *= 1.f/scale;
-
-								for (U32 k = 0; k < 4; k++)
-								{
-									F32* src = (F32*) mat[idx[k]].mMatrix;
-									F32* dst = (F32*) final_mat.mMatrix;
-
-									F32 w = wght.mV[k];
-
-									for (U32 l = 0; l < 16; l++)
-									{
-										dst[l] += src[l]*w;
-									}
-								}
+                                memcpy(&final_mat,&final_mata,sizeof(LLMatrix4a));
 
 								//VECTORIZE THIS
 								LLVector3 v(face.mPositions[j].getF32ptr());
@@ -5792,7 +5762,14 @@ void LLFloaterModelPreview::refresh()
 }
 
 //static
-void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata )
+void LLModelPreview::textureLoadedCallback(
+    BOOL success,
+    LLViewerFetchedTexture *src_vi,
+    LLImageRaw* src,
+    LLImageRaw* src_aux,
+    S32 discard_level,
+    BOOL final,
+    void* userdata )
 {
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
