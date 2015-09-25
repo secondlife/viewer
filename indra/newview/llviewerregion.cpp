@@ -310,6 +310,10 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
                 << "Capability '" << iter->first << "' is '" << iter->second << "'" << LL_ENDL;
         }
 
+#if 0
+        log_capabilities(mCapabilities);
+#endif
+
         regionp->setCapabilitiesReceived(true);
 
         if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
@@ -389,6 +393,10 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
             regionp->setCapabilityDebug(iter->first, iter->second);
             //LL_INFOS()<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<LL_ENDL;
         }
+
+#if 0
+        log_capabilities(mCapabilities);
+#endif
 
         if (mCapabilities.size() != mSecondCapabilitiesTracker.size())
         {
@@ -2939,11 +2947,7 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	}
 	else if(name == "UntrustedSimulatorMessage")
 	{
-#if 1
         mImpl->mHost.setUntrustedSimulatorCap(url);
-#else
-		LLHTTPSender::setSender(mImpl->mHost, new LLCapHTTPSender(url));
-#endif
 	}
 	else if (name == "SimulatorFeatures")
 	{
@@ -3041,7 +3045,7 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 	{
 		mCapabilitiesReceivedSignal(getRegionID());
 
-		LLFloaterPermsDefault::sendInitialPerms();
+		//LLFloaterPermsDefault::sendInitialPerms();
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();

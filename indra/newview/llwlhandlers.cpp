@@ -126,7 +126,7 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
         regionId = gAgent.getRegion()->getRegionID();
     }
 
-    if (result[0]["regionID"].asUUID() != regionId)
+    if ((result[0]["regionID"].asUUID() != regionId) && regionId.notNull())
     {
         LL_WARNS("WindlightCaps") << "Not in the region from where this data was received (wanting "
             << regionId << " but got " << result[0]["regionID"].asUUID()
