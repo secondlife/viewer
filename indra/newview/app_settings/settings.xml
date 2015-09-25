@@ -10003,7 +10003,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.0</real>
+    <real>1.0E6</real>
   </map>
   <key>RenderAutoMuteLogging</key>
   <map>

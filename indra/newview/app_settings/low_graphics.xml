@@ -29,7 +29,7 @@
 	<!--Avater Impostors and Visual Muting Limits-->
     <RenderAvatarMaxNonImpostors     value="12"/>
     <RenderAvatarMaxComplexity              value="75000"/>
-    <RenderAutoMuteSurfaceAreaLimit  value="150"/>
+    <RenderAutoMuteSurfaceAreaLimit  value="1.0E6"/>
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="1.125"/>
 	<!--NO SHADERS-->
