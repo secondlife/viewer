@@ -447,13 +447,13 @@ class Windows_i686_Manifest(ViewerManifest):
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
-                self.path("ffmpegsumo.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
                 self.path("llceflib_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
+                self.path("widevinecdmadapter.dll")
                 self.path("wow_helper.exe")
                 self.end_prefix()
         else:
@@ -461,13 +461,13 @@ class Windows_i686_Manifest(ViewerManifest):
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
                 self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
-                self.path("ffmpegsumo.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
                 self.path("llceflib_host.exe")
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
+                self.path("widevinecdmadapter.dll")
                 self.path("wow_helper.exe")
                 self.end_prefix()
 
@@ -476,6 +476,7 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("cef.pak")
             self.path("cef_100_percent.pak")
             self.path("cef_200_percent.pak")
+            self.path("cef_extensions.pak")
             self.path("devtools_resources.pak")
             self.path("icudtl.dat")
             self.end_prefix()

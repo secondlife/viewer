@@ -361,8 +361,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
 
 				LLCEFLibSettings settings;
-				settings.inital_width = 1024;
-				settings.inital_height = 1024;
+				settings.initial_width = 1024;
+				settings.initial_height = 1024;
 				settings.plugins_enabled = mPluginsEnabled;
 				settings.javascript_enabled = mJavascriptEnabled;
 				settings.cookies_enabled = mCookiesEnabled;
