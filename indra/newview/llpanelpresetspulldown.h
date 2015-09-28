@@ -54,6 +54,7 @@ class LLPanelPresetsPulldown : public LLPanel
 	LLFrameTimer mHoverTimer;
 	static const F32 sAutoCloseFadeStartTimeSec;
 	static const F32 sAutoCloseTotalTimeSec;
+    LOG_CLASS(LLPanelPresetsPulldown);
 };
 
 #endif // LL_LLPANELPRESETSPULLDOWN_H

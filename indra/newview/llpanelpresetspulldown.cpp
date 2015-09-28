@@ -59,9 +59,10 @@ LLPanelPresetsPulldown::LLPanelPresetsPulldown()
 
 BOOL LLPanelPresetsPulldown::postBuild()
 {
-	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelPresetsPulldown::populatePanel, this));
+	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
+    presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPresetsPulldown::populatePanel, this));
 	// Make sure there is a default preference file
-	LLPresetsManager::getInstance()->createMissingDefault();
+    presetsMgr->createMissingDefault();
 
 	populatePanel();
 
@@ -82,7 +83,8 @@ void LLPanelPresetsPulldown::populatePanel()
 		for (std::list<std::string>::const_iterator it = mPresetNames.begin(); it != mPresetNames.end(); ++it)
 		{
 			const std::string& name = *it;
-
+            LL_DEBUGS() << "adding '" << name << "'" << LL_ENDL;
+            
 			LLSD row;
 			row["columns"][0]["column"] = "preset_name";
 			row["columns"][0]["value"] = name;
@@ -151,11 +153,20 @@ void LLPanelPresetsPulldown::onRowClick(const LLSD& user_data)
 		{
 			std::string name = item->getColumn(1)->getValue().asString();
 
+            LL_DEBUGS() << "selected '" << name << "'" << LL_ENDL;
 			LLPresetsManager::getInstance()->loadPreset(PRESETS_GRAPHIC, name);
 
 			setVisible(FALSE);
 		}
+        else
+        {
+            LL_DEBUGS() << "none selected" << LL_ENDL;
+        }
 	}
+    else
+    {
+        LL_DEBUGS() << "no scroll" << LL_ENDL;
+    }
 }
 
 void LLPanelPresetsPulldown::onGraphicsButtonClick(const LLSD& user_data)

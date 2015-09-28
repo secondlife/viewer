@@ -71,6 +71,9 @@ public:
 	~LLPresetsManager();
 
 	preset_list_signal_t mPresetListChangeSignal;
+
+  private:
+    LOG_CLASS(LLPresetsManager);
 };
 
 #endif // LL_PRESETSMANAGER_H

@@ -2422,8 +2422,10 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 	resetDirtyChilds();
 	setPresetText();
 
-	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
-
+	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
+    presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
+    presetsMgr->createMissingDefault(); // a no-op after the first time, but that's ok
+    
 	return LLPanelPreference::postBuild();
 }
 
