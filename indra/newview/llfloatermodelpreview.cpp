@@ -5573,26 +5573,30 @@ BOOL LLModelPreview::render()
 
 							//build matrix palette
 
-							LLMatrix4 mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-                            U32 count = llmin((U32) model->mSkinInfo.mJointNames.size(), (U32) LL_MAX_JOINTS_PER_MESH_OBJECT);
-                            LLDrawPoolAvatar::initSkinningMatrixPalette(mat, count, &model->mSkinInfo, getPreviewAvatar());
-
+							LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
+                            const LLMeshSkinInfo *skin = &model->mSkinInfo;
+                            U32 count = llmin((U32) skin->mJointNames.size(), (U32) LL_MAX_JOINTS_PER_MESH_OBJECT);
+                            LLDrawPoolAvatar::initSkinningMatrixPalette((LLMatrix4*)mat, count,
+                                                                        skin, getPreviewAvatar());
+                            LLMatrix4a bind_shape_matrix;
+                            bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 							for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 							{
-                                LLMatrix4a final_mata;
-                                LLDrawPoolAvatar::getPerVertexSkinMatrix(weight[j].mV, (LLMatrix4a*)mat, true, final_mata);
-
-                                // BENTO GROSS KLUDGERY
-								LLMatrix4 final_mat;
-                                memcpy(&final_mat,&final_mata,sizeof(LLMatrix4a));
+                                LLMatrix4a final_mat;
+                                F32 *wptr = weight[j].mV;
+                                LLDrawPoolAvatar::getPerVertexSkinMatrix(wptr, mat, true, final_mat);
 
 								//VECTORIZE THIS
-								LLVector3 v(face.mPositions[j].getF32ptr());
+                                LLVector4a& v = face.mPositions[j];
 
-								v = v * model->mSkinInfo.mBindShapeMatrix;
-								v = v * final_mat;
+                                LLVector4a t;
+                                LLVector4a dst;
+                                bind_shape_matrix.affineTransform(v, t);
+                                final_mat.affineTransform(t, dst);
 
-								position[j] = v;
+								position[j][0] = dst[0];
+								position[j][1] = dst[1];
+								position[j][2] = dst[2];
 							}
 
 							llassert(model->mMaterialList.size() > i);
