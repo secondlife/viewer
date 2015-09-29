@@ -6264,6 +6264,8 @@ void LLVOAvatar::updateRezzedStatusTimers()
 				selfStopPhase("update_appearance_from_cof");
 				selfStopPhase("wear_inventory_category", false);
 				selfStopPhase("process_initial_wearables_update", false);
+
+                updateVisualComplexity();
 			}
 		}
 		mLastRezzedStatus = rez_status;
