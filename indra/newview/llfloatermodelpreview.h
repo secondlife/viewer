@@ -37,6 +37,8 @@
 #include "llviewermenufile.h"
 #include "llfloatermodeluploadbase.h"
 
+#include "lldaeloader.h"
+
 class LLComboBox;
 class LLJoint;
 class LLViewerJointMesh;
@@ -45,102 +47,17 @@ class LLTextBox;
 class LLVertexBuffer;
 class LLModelPreview;
 class LLFloaterModelPreview;
+class DAE;
 class daeElement;
 class domProfile_COMMON;
 class domInstance_geometry;
 class domNode;
 class domTranslate;
 class domController;
+class domSkin;
+class domMesh;
 class LLMenuButton;
 class LLToggleableMenu;
-
-typedef std::map<std::string, LLMatrix4> JointTransformMap;
-typedef std::map<std::string, LLMatrix4>:: iterator JointTransformMapIt;
-
-const S32 NUM_LOD = 4;
-
-class LLModelLoader : public LLThread
-{
-public:
-	typedef enum
-	{
-		STARTING = 0,
-		READING_FILE,
-		CREATING_FACES,
-		GENERATING_VERTEX_BUFFERS,
-		GENERATING_LOD,
-		DONE,
-		ERROR_PARSING, //basically loading failed
-		ERROR_MATERIALS,
-	} eLoadState;
-
-	U32 mState;
-	std::string mFilename;
-	S32 mLod;
-	LLModelPreview* mPreview;
-	LLMatrix4 mTransform;
-	BOOL mFirstTransform;
-	LLVector3 mExtents[2];
-	bool mTrySLM;
-	
-	std::map<daeElement*, LLPointer<LLModel> > mModel;
-	
-	typedef std::vector<LLPointer<LLModel> > model_list;
-	model_list mModelList;
-
-	typedef std::vector<LLModelInstance> model_instance_list;
-	
-	typedef std::map<LLMatrix4, model_instance_list > scene;
-
-	scene mScene;
-
-	typedef std::queue<LLPointer<LLModel> > model_queue;
-
-	//queue of models that need a physics rep
-	model_queue mPhysicsQ;
-
-	LLModelLoader( std::string filename, S32 lod, LLModelPreview* preview, JointTransformMap& jointMap, 
-				   std::deque<std::string>& jointsFromNodes );
-	~LLModelLoader() ;
-
-	virtual void run();
-	bool doLoadModel();
-	bool loadFromSLM(const std::string& filename);
-	void loadModelCallback();
-
-	void loadTextures() ; //called in the main thread.
-	void processElement(daeElement* element, bool& badElement);
-	std::map<std::string, LLImportMaterial> getMaterials(LLModel* model, domInstance_geometry* instance_geo);
-	LLImportMaterial profileToMaterial(domProfile_COMMON* material);
-	std::string getElementLabel(daeElement *element);
-	LLColor4 getDaeColor(daeElement* element);
-	
-	daeElement* getChildFromElement( daeElement* pElement, std::string const & name );
-	
-	bool isNodeAJoint( domNode* pNode );
-	void processJointNode( domNode* pNode, std::map<std::string,LLMatrix4>& jointTransforms );
-	void extractTranslation( domTranslate* pTranslate, LLMatrix4& transform );
-	void extractTranslationViaElement( daeElement* pTranslateElement, LLMatrix4& transform );
-	void extractTranslationViaSID( daeElement* pElement, LLMatrix4& transform );
-
-	void setLoadState(U32 state);
-
-	void buildJointToNodeMappingFromScene( daeElement* pRoot );
-	void processJointToNodeMapping( domNode* pNode );
-	void processChildJoints( domNode* pParentNode );
-
-	//map of avatar joints as named in COLLADA assets to internal joint names
-	std::map<std::string, std::string> mJointMap;
-	JointTransformMap& mJointList;	
-	std::deque<std::string>& mJointsFromNode;
-
-	S32 mNumOfFetchingTextures ; //updated in the main thread
-	bool areTexturesReady() { return !mNumOfFetchingTextures; } //called in the main thread.
-
-private:
-	static std::list<LLModelLoader*> sActiveLoaderList;
-	static bool isAlive(LLModelLoader* loader) ;
-};
 
 class LLFloaterModelPreview : public LLFloaterModelUploadBase
 {
@@ -172,6 +89,7 @@ public:
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 	
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
@@ -209,6 +127,8 @@ public:
 	/*virtual*/ void onModelUploadSuccess();
 
 	/*virtual*/ void onModelUploadFailure();
+
+	bool isModelUploadAllowed();
 
 protected:
 	friend class LLModelPreview;
@@ -359,21 +279,14 @@ public:
 	void setHasPivot( bool val ) { mHasPivot = val; }
 	void setModelPivot( const LLVector3& pivot ) { mModelPivot = pivot; }
 
-	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
-	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
-	void critiqueJointToNodeMappingFromScene( void  );
 	//Is a rig valid so that it can be used as a criteria for allowing for uploading of joint positions
 	//Accessors for joint position upload friendly rigs
 	const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
 	void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
-	bool isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset );
-	//Determines if a rig is a legacy from the joint list
-	bool isRigLegacy( const std::vector<std::string> &jointListFromAsset );	
+
 	//Accessors for the legacy rigs
 	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
-	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }	
-	//Verify that a controller matches vertex counts
-	bool verifyController( domController* pController );
+	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }		
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 	
@@ -388,6 +301,16 @@ public:
 	
 	LLVector3 getTranslationForJointOffset( std::string joint );
 
+	static bool 		sIgnoreLoadedCallback;
+
+protected:
+
+	static void			loadedCallback(LLModelLoader::scene& scene,LLModelLoader::model_list& model_list, S32 lod, void* opaque);
+	static void			stateChangedCallback(U32 state, void* opaque);
+
+	static LLJoint*	lookupJointByName(const std::string&, void* opaque);
+	static U32			loadTextures(LLImportMaterial& material, void* opaque);
+
 private:
 	//Utility function for controller vertex compare
 	bool verifyCount( int expected, int result );
@@ -395,6 +318,8 @@ private:
 	void		createPreviewAvatar( void );
 	//Accessor for the dummy avatar
 	LLVOAvatar* getPreviewAvatar( void ) { return mPreviewAvatar; }
+	// Count amount of original models, excluding sub-models
+	static U32 countRootModels(LLModelLoader::model_list models);
 
  protected:
 	friend class LLModelLoader;
@@ -416,13 +341,15 @@ private:
 	LLVector3	mPreviewTarget;
 	LLVector3	mPreviewScale;
 	S32			mPreviewLOD;
+	S32			mPhysicsSearchLOD;
 	U32			mResourceCost;
 	std::string mLODFile[LLModel::NUM_LODS];
 	bool		mLoading;
 	U32			mLoadState;
 	bool		mResetJoints;
 	bool		mRigParityWithScene;
-	
+	bool		mModelNoErrors;
+
 	std::map<std::string, bool> mViewOption;
 
 	//GLOD object parameters (must rebuild object if these change)
@@ -459,7 +386,7 @@ private:
 	U32 mMaxTriangleLimit;
 	
 	LLMeshUploadThread::instance_list mUploadData;
-	std::set<LLViewerFetchedTexture* > mTextureSet;
+	std::set<LLViewerFetchedTexture * > mTextureSet;
 
 	//map of vertex buffers to models (one vertex buffer in vector per face in model
 	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS+1];
@@ -478,10 +405,9 @@ private:
 
 	bool		mLastJointUpdate;
 
-	std::deque<std::string> mMasterJointList;
-	std::deque<std::string> mMasterLegacyJointList;
-	std::deque<std::string> mJointsFromNode;
-	JointTransformMap		mJointTransformMap;
+	JointSet				mJointsFromNode;
+	JointTransformMap	mJointTransformMap;
+
 	LLPointer<LLVOAvatar>	mPreviewAvatar;
 };
 

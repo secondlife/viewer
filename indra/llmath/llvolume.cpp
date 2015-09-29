@@ -6072,7 +6072,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 
 	if (new_verts > mNumAllocatedVertices)
 	{ 
-		//double buffer size on expansion
+		// double buffer size on expansion
 		new_verts *= 2;
 
 		S32 new_tc_size = ((new_verts*8)+0xF) & ~0xF;
@@ -6088,18 +6088,21 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 		mNormals = mPositions+new_verts;
 		mTexCoords = (LLVector2*) (mNormals+new_verts);
 
-	//positions
-		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) old_buf, old_vsize);
-	
-	//normals
-		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) (old_buf+mNumVertices), old_vsize);
+		if (old_buf != NULL)
+		{
+			// copy old positions into new buffer
+			LLVector4a::memcpyNonAliased16((F32*)mPositions, (F32*)old_buf, old_vsize);
 
-	//tex coords
-		LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) (old_buf+mNumVertices*2), old_tc_size);
+			// normals
+			LLVector4a::memcpyNonAliased16((F32*)mNormals, (F32*)(old_buf + mNumVertices), old_vsize);
 
-	//just clear tangents
-	ll_aligned_free_16(mTangents);
-	mTangents = NULL;
+			// tex coords
+			LLVector4a::memcpyNonAliased16((F32*)mTexCoords, (F32*)(old_buf + mNumVertices * 2), old_tc_size);
+		}
+
+		// just clear tangents
+		ll_aligned_free_16(mTangents);
+		mTangents = NULL;
 		ll_aligned_free<64>(old_buf);
 
 		mNumAllocatedVertices = new_verts;
