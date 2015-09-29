@@ -140,7 +140,6 @@ set(viewer_SOURCE_FILES
     llbreadcrumbview.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
-    llcallbacklist.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
@@ -759,7 +758,6 @@ set(viewer_HEADER_FILES
     llbox.h
     llbreadcrumbview.h
     llbuycurrencyhtml.h
-    llcallbacklist.h
     llcallingcard.h
     llcapabilitylistener.h
     llcapabilityprovider.h
