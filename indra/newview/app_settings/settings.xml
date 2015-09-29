@@ -14178,7 +14178,7 @@
     <key>MaxFPS</key>
     <map>
       <key>Comment</key>
-      <string>Yield some time to the local host if we reach a threshold framerate.</string>
+      <string>OBSOLETE UNUSED setting.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
