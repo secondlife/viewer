@@ -205,17 +205,17 @@ protected:
 
 	vobj_list_t mMapObjects;
 
-	std::set<LLUUID> mDeadObjects;	
+    uuid_set_t   mDeadObjects;
 
 	std::map<LLUUID, LLPointer<LLViewerObject> > mUUIDObjectMap;
 
 	//set of objects that need to update their cost
-	std::set<LLUUID> mStaleObjectCost;
-	std::set<LLUUID> mPendingObjectCost;
+    uuid_set_t   mStaleObjectCost;
+    uuid_set_t   mPendingObjectCost;
 
 	//set of objects that need to update their physics flags
-	std::set<LLUUID> mStalePhysicsFlags;
-	std::set<LLUUID> mPendingPhysicsFlags;
+    uuid_set_t   mStalePhysicsFlags;
+    uuid_set_t   mPendingPhysicsFlags;
 
 	std::vector<LLDebugBeacon> mDebugBeacons;
 

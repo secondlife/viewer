@@ -71,16 +71,13 @@ public:
 	
 private:
 	//Set of objects that will be used to generate a cost
-	std::set<LLUUID> mObjectList;
+	uuid_set_t mObjectList;
 	//During fetchCosts we move object into a the pending set to signify that 
 	//a fetch has been instigated.
-	std::set<LLUUID> mPendingObjectQuota;
-	typedef std::set<LLUUID>::iterator IDIt;
+	uuid_set_t mPendingObjectQuota;
 
     void accountingCostCoro(std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
 
-    LLCore::HttpRequest::ptr_t		mHttpRequest;
-    LLCore::HttpRequest::policy_t	mHttpPolicy;
 };
 //===============================================================================
 

@@ -31,14 +31,12 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
+#include <algorithm>
+#include <iterator>
 
 //===============================================================================
-LLAccountingCostManager::LLAccountingCostManager():
-    mHttpRequest(),
-    mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
+LLAccountingCostManager::LLAccountingCostManager()
 {	
-    mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
-    //mHttpPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
 
 }
 
@@ -51,29 +49,23 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
     LL_DEBUGS("LLAccountingCostManager") << "Entering coroutine " << LLCoros::instance().getName()
         << " with url '" << url << LL_ENDL;
 
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AccountingCost", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
     try
     {
-        LLSD objectList;
-        U32  objectIndex = 0;
+        uuid_set_t diffSet;
 
-        IDIt IDIter = mObjectList.begin();
-        IDIt IDIterEnd = mObjectList.end();
+        std::set_difference(mObjectList.begin(), mObjectList.end(),
+            mPendingObjectQuota.begin(), mPendingObjectQuota.end(),
+            std::inserter(diffSet, diffSet.begin()));
 
-        for (; IDIter != IDIterEnd; ++IDIter)
-        {
-            // Check to see if a request for this object has already been made.
-            if (mPendingObjectQuota.find(*IDIter) == mPendingObjectQuota.end())
-            {
-                mPendingObjectQuota.insert(*IDIter);
-                objectList[objectIndex++] = *IDIter;
-            }
-        }
+        if (diffSet.empty())
+            return;
 
         mObjectList.clear();
-
-        //Post results
-        if (objectList.size() == 0)
-            return;
 
         std::string keystr;
         if (selectionType == Roots)
@@ -87,10 +79,17 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
         else
         {
             LL_INFOS() << "Invalid selection type " << LL_ENDL;
-            mObjectList.clear();
-            mPendingObjectQuota.clear();
             return;
         }
+
+        LLSD objectList(LLSD::emptyMap());
+
+        for (uuid_set_t::iterator it = diffSet.begin(); it != diffSet.end(); ++it)
+        {
+            objectList.append(*it);
+        }
+
+        mPendingObjectQuota.insert(diffSet.begin(), diffSet.end());
 
         LLSD dataToPost = LLSD::emptyMap();
         dataToPost[keystr.c_str()] = objectList;
@@ -99,27 +98,27 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
         LLUUID transactionId = observer->getTransactionID();
         observer = NULL;
 
-        LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("AccountingCost", mHttpPolicy);
 
-        LLSD results = httpAdapter.postAndSuspend(mHttpRequest, url, dataToPost);
 
-        LLSD httpResults;
-        httpResults = results["http_result"];
+        LLSD results = httpAdapter->postAndSuspend(httpRequest, url, dataToPost);
+
+        LLSD httpResults = results["http_result"];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
         // do/while(false) allows error conditions to break out of following 
         // block while normal flow goes forward once.
         do 
         {
             observer = observerHandle.get();
-            if ((!observer) || (observer->getTransactionID() != transactionId))
-            {   // *TODO: Rider: I've noticed that getTransactionID() does not 
-                // always match transactionId (the new transaction Id does not show a 
-                // corresponding request.) (ask Vir)
-                if (!observer)
-                    break;
-                LL_WARNS() << "Request transaction Id(" << transactionId
-                    << ") does not match observer's transaction Id("
-                    << observer->getTransactionID() << ")." << LL_ENDL;
+
+            if (!status || results.has("error"))
+            {
+                LL_WARNS() << "Error on fetched data" << LL_ENDL;
+                if (!status)
+                    observer->setErrorStatus(status.getType(), status.toString());
+                else
+                    observer->setErrorStatus(499, "Error on fetched data");
+
                 break;
             }
 
@@ -134,22 +133,18 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
                 break;
             }
 
-            if (!results.isMap() || results.has("error"))
-            {
-                LL_WARNS() << "Error on fetched data" << LL_ENDL;
-                observer->setErrorStatus(499, "Error on fetched data");
-                break;
-            }
 
             if (results.has("selected"))
             {
+                LLSD selected = results["selected"];
+
                 F32 physicsCost = 0.0f;
                 F32 networkCost = 0.0f;
                 F32 simulationCost = 0.0f;
 
-                physicsCost = results["selected"]["physics"].asReal();
-                networkCost = results["selected"]["streaming"].asReal();
-                simulationCost = results["selected"]["simulation"].asReal();
+                physicsCost = selected["physics"].asReal();
+                networkCost = selected["streaming"].asReal();
+                simulationCost = selected["simulation"].asReal();
 
                 SelectionCost selectionCost( physicsCost, networkCost, simulationCost);
 

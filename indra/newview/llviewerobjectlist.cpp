@@ -80,6 +80,9 @@
 #include "llvocache.h"
 #include "llcorehttputil.h"
 
+#include <algorithm>
+#include <iterator>
+
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
 
@@ -1021,33 +1024,30 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD idList;
-    U32 objectIndex = 0;
 
-    for (std::set<LLUUID>::iterator it = mStaleObjectCost.begin(); it != mStaleObjectCost.end(); )
-    {
-        // Check to see if a request for this object
-        // has already been made.
-        if (mPendingObjectCost.find(*it) == mPendingObjectCost.end())
-        {
-            mPendingObjectCost.insert(*it);
-            idList[objectIndex++] = *it;
-        }
 
-        mStaleObjectCost.erase(it++);
+    uuid_set_t diff;
 
-        if (objectIndex >= MAX_CONCURRENT_PHYSICS_REQUESTS)
-        {
-            break;
-        }
-    }
+    std::set_difference(mStaleObjectCost.begin(), mStaleObjectCost.end(),
+        mPendingObjectCost.begin(), mPendingObjectCost.end(), 
+        std::inserter(diff, diff.begin()));
 
-    if (idList.size() < 1)
+    if (diff.empty())
     {
         LL_INFOS() << "No outstanding object IDs to request." << LL_ENDL;
         return;
     }
-     
+
+    LLSD idList(LLSD::emptyArray());
+
+    for (uuid_set_t::iterator it = diff.begin(); it != diff.end(); ++it)
+    {
+        idList.append(*it);
+        mStaleObjectCost.erase(*it);
+    }
+
+    mPendingObjectCost.insert(diff.begin(), diff.end());
+
     LLSD postData = LLSD::emptyMap();
 
     postData["object_ids"] = idList;
@@ -1080,29 +1080,28 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
     {
         LLUUID objectId = it->asUUID();
 
+        // If the object was added to the StaleObjectCost set after it had been 
+        // added to mPendingObjectCost it would still be in the StaleObjectCost 
+        // set when we got the response back.
+        mStaleObjectCost.erase(objectId);
+        mPendingObjectCost.erase(objectId);
+
         // Check to see if the request contains data for the object
         if (result.has(it->asString()))
         {
-            const LLSD& data = result[it->asString()];
+            LLSD objectData = result[it->asString()];
 
-            S32 shapeType = data["PhysicsShapeType"].asInteger();
+            F32 linkCost = objectData["linked_set_resource_cost"].asReal();
+            F32 objectCost = objectData["resource_cost"].asReal();
+            F32 physicsCost = objectData["physics_cost"].asReal();
+            F32 linkPhysicsCost = objectData["linked_set_physics_cost"].asReal();
 
-            gObjectList.updatePhysicsShapeType(objectId, shapeType);
-
-            if (data.has("Density"))
-            {
-                F32 density = data["Density"].asReal();
-                F32 friction = data["Friction"].asReal();
-                F32 restitution = data["Restitution"].asReal();
-                F32 gravityMult = data["GravityMultiplier"].asReal();
-
-                gObjectList.updatePhysicsProperties(objectId, density, friction, restitution, gravityMult);
-            }
+            gObjectList.updateObjectCost(objectId, objectCost, linkCost, physicsCost, linkPhysicsCost);
         }
         else
         {
             // TODO*: Give user feedback about the missing data?
-            gObjectList.onPhysicsFlagsFetchFailure(objectId);
+            gObjectList.onObjectCostFetchFailure(objectId);
         }
     }
 
@@ -1153,7 +1152,7 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
     LLSD idList;
     U32 objectIndex = 0;
 
-    for (std::set<LLUUID>::iterator it = mStalePhysicsFlags.begin(); it != mStalePhysicsFlags.end(); )
+    for (uuid_set_t::iterator it = mStalePhysicsFlags.begin(); it != mStalePhysicsFlags.end();)
     {
         // Check to see if a request for this object
         // has already been made.
@@ -1522,8 +1521,6 @@ void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 
 void LLViewerObjectList::updateObjectCost(const LLUUID& object_id, F32 object_cost, F32 link_cost, F32 physics_cost, F32 link_physics_cost)
 {
-	mPendingObjectCost.erase(object_id);
-
 	LLViewerObject* object = findObject(object_id);
 	if (object)
 	{
