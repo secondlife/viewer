@@ -138,7 +138,6 @@ set(viewer_SOURCE_FILES
     llbreadcrumbview.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
-    llcallbacklist.cpp
     llcallingcard.cpp
     llchannelmanager.cpp
     llchatbar.cpp
@@ -743,7 +742,6 @@ set(viewer_HEADER_FILES
     llbox.h
     llbreadcrumbview.h
     llbuycurrencyhtml.h
-    llcallbacklist.h
     llcallingcard.h
     llcapabilityprovider.h
     llchannelmanager.h
