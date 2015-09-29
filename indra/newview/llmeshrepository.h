@@ -90,54 +90,6 @@ public:
 	}
 };
 
-class LLImportMaterial
-{
-public:
-	LLPointer<LLViewerFetchedTexture> mDiffuseMap;
-	std::string mDiffuseMapFilename;
-	std::string mDiffuseMapLabel;
-	std::string mBinding;
-	LLColor4 mDiffuseColor;
-	bool mFullbright;
-
-	bool operator<(const LLImportMaterial &params) const;
-
-	LLImportMaterial() 
-		: mFullbright(false) 
-	{ 
-		mDiffuseColor.set(1,1,1,1);
-	}
-
-	LLImportMaterial(LLSD& data);
-
-	LLSD asLLSD();
-};
-
-class LLModelInstance 
-{
-public:
-	LLPointer<LLModel> mModel;
-	LLPointer<LLModel> mLOD[5];
-	
-	std::string mLabel;
-
-	LLUUID mMeshID;
-	S32 mLocalMeshID;
-
-	LLMatrix4 mTransform;
-	std::map<std::string, LLImportMaterial> mMaterial;
-
-	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::map<std::string, LLImportMaterial>& materials)
-		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
-	{
-		mLocalMeshID = -1;
-	}
-
-	LLModelInstance(LLSD& data);
-
-	LLSD asLLSD();
-};
-
 class LLPhysicsDecomp : public LLThread
 {
 public:
@@ -482,6 +434,8 @@ public:
 
 	// Inherited from LLCore::HttpHandler
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
+        LLViewerFetchedTexture* FindViewerTexture(const LLImportMaterial& material);
 
 private:
 	LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;

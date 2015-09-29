@@ -28,6 +28,7 @@
 
 #include "linden_common.h"
 #include "llunits.h"
+#include "stdtypes.h"
 #if !LL_WINDOWS
 #include <stdint.h>
 #endif
@@ -59,7 +60,7 @@ class LLMutex ;
 LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
 #ifdef SHOW_ASSERT
-#define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(reinterpret_cast<uintptr_t>(ptr),((U32)alignment))
+#define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(uintptr_t(ptr),((U32)alignment))
 #else
 #define ll_assert_aligned(ptr,alignment)
 #endif
@@ -69,13 +70,13 @@ LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address) 
 { 
 	return reinterpret_cast<T*>(
-		(reinterpret_cast<uintptr_t>(address) + 0xF) & ~0xF);
+		(uintptr_t(address) + 0xF) & ~0xF);
 }
 
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address) 
 { 
 	return reinterpret_cast<T*>(
-		(reinterpret_cast<uintptr_t>(address) + 0x3F) & ~0x3F);
+		(uintptr_t(address) + 0x3F) & ~0x3F);
 }
 
 #if LL_LINUX || LL_DARWIN
