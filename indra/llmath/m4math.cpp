@@ -274,6 +274,19 @@ const LLMatrix4&	LLMatrix4::invert(void)
 	return *this;
 }
 
+// Convenience func for simplifying comparison-heavy code by
+// intentionally stomping values in [-FLT_EPS,FLT_EPS] to 0.0f
+//
+void LLMatrix4::condition(void)
+{
+	U32 i;
+	U32 j;
+	for (i = 0; i < 3;i++)
+		for (j = 0; j < 3;j++)
+			mMatrix[i][j] = ((mMatrix[i][j] > -FLT_EPSILON)
+							  && (mMatrix[i][j] < FLT_EPSILON)) ? 0.0f : mMatrix[i][j];
+}
+
 LLVector4 LLMatrix4::getFwdRow4() const
 {
 	return LLVector4(mMatrix[VX][VX], mMatrix[VX][VY], mMatrix[VX][VZ], mMatrix[VX][VW]);
