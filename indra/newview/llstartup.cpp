@@ -728,12 +728,9 @@ bool idle_startup()
 		if (gLoginMenuBarView == NULL)
 		{
 			LL_DEBUGS("AppInit") << "initializing menu bar" << LL_ENDL;
-//			display_startup();
 			initialize_edit_menu();
 			initialize_spellcheck_menu();
-//			display_startup();
 			init_menus();
-//			display_startup();
 		}
 
 		if (show_connect_box)
@@ -745,23 +742,17 @@ bool idle_startup()
 			if (gUserCredential.isNull())                                                                          
 			{                                                  
 				LL_DEBUGS("AppInit") << "loading credentials from gLoginHandler" << LL_ENDL;
-//				display_startup();
 				gUserCredential = gLoginHandler.initializeLoginInfo();                 
-//				display_startup();
 			}     
 			// Make sure the process dialog doesn't hide things
-//			display_startup();
 			gViewerWindow->setShowProgress(FALSE);
-//			display_startup();
 			// Show the login dialog
 			login_show();
-//			display_startup();
 			// connect dialog is already shown, so fill in the names
 			if (gUserCredential.notNull())
 			{
 				LLPanelLogin::setFields( gUserCredential, gRememberPassword);
 			}
-//			display_startup();
 			LLPanelLogin::giveFocus();
 
 			// MAINT-3231 Show first run dialog only for Desura viewer
@@ -787,22 +778,15 @@ bool idle_startup()
 			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		}
 
-//		display_startup();
 		gViewerWindow->setNormalControlsVisible( FALSE );	
-//		display_startup();
 		gLoginMenuBarView->setVisible( TRUE );
-//		display_startup();
 		gLoginMenuBarView->setEnabled( TRUE );
-//		display_startup();
 		show_debug_menus();
-//		display_startup();
 
 		// Hide the splash screen
 		LLSplashScreen::hide();
-//		display_startup();
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
-//		display_startup();
 
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
@@ -810,7 +794,6 @@ bool idle_startup()
 		MSG msg;
 		while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
 		{ }
-// 		display_startup();
 #endif
         display_startup();
         timeout.reset();
