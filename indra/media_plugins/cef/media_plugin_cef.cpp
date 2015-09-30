@@ -65,14 +65,15 @@ private:
 	void onAddressChangeCallback(std::string url);
 	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
+	void onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle);
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
 
-	EKeyboardModifier decodeModifiers(std::string &modifiers);
+	LLCEFLib::EKeyboardModifier decodeModifiers(std::string &modifiers);
 	void deserializeKeyboardData(LLSD native_key_data, uint32_t& native_scan_code, uint32_t& native_virtual_key, uint32_t& native_modifiers);
-	void keyEvent(EKeyEvent key_event, int key, EKeyboardModifier modifiers, LLSD native_key_data);
-	void unicodeInput(const std::string &utf8str, EKeyboardModifier modifiers, LLSD native_key_data);
+	void keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data);
+	void unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data);
 
 	void checkEditState();
 
@@ -259,6 +260,38 @@ bool MediaPluginCEF::onHTTPAuthCallback(const std::string host, const std::strin
 	return mAuthOK;
 }
 
+void MediaPluginCEF::onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle)
+{
+	std::string name = "";
+
+	switch (type)
+	{
+		case LLCEFLib::CT_POINTER:
+			name = "arrow";
+			break;
+		case LLCEFLib::CT_IBEAM:
+			name = "ibeam";
+			break;
+		case LLCEFLib::CT_NORTHSOUTHRESIZE:
+			name = "splitv";
+			break;
+		case LLCEFLib::CT_EASTWESTRESIZE:
+			name = "splith";
+			break;
+		case LLCEFLib::CT_HAND:
+			name = "hand";
+			break;
+
+		default:
+			LL_WARNS() << "Unknown cursor ID: " << (int)type << LL_ENDL;
+			break;
+	}
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "cursor_changed");
+	message.setValue("name", name);
+	sendMessage(message);
+}
+
 void MediaPluginCEF::authResponse(LLPluginMessage &message)
 {
 	mAuthOK = message.getValueBoolean("ok");
@@ -359,8 +392,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
 				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1, _2));
 				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
+				mLLCEFLib->setOnCursorChangedCallback(boost::bind(&MediaPluginCEF::onCursorChangedCallback, this, _1, _2));
 
-				LLCEFLibSettings settings;
+				LLCEFLib::LLCEFLibSettings settings;
 				settings.initial_width = 1024;
 				settings.initial_height = 1024;
 				settings.plugins_enabled = mPluginsEnabled;
@@ -449,14 +483,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				//std::string modifiers = message_in.getValue("modifiers");
 
 				S32 button = message_in.getValueS32("button");
-				EMouseButton btn = MB_MOUSE_BUTTON_LEFT;
-				if (button == 0) btn = MB_MOUSE_BUTTON_LEFT;
-				if (button == 1) btn = MB_MOUSE_BUTTON_RIGHT;
-				if (button == 2) btn = MB_MOUSE_BUTTON_MIDDLE;
+				LLCEFLib::EMouseButton btn = LLCEFLib::MB_MOUSE_BUTTON_LEFT;
+				if (button == 0) btn = LLCEFLib::MB_MOUSE_BUTTON_LEFT;
+				if (button == 1) btn = LLCEFLib::MB_MOUSE_BUTTON_RIGHT;
+				if (button == 2) btn = LLCEFLib::MB_MOUSE_BUTTON_MIDDLE;
 
 				if (event == "down")
 				{
-					mLLCEFLib->mouseButton(btn, ME_MOUSE_DOWN, x, y);
+					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_DOWN, x, y);
 					mLLCEFLib->setFocus(true);
 
 					std::stringstream str;
@@ -465,7 +499,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 				else if (event == "up")
 				{
-					mLLCEFLib->mouseButton(btn, ME_MOUSE_UP, x, y);
+					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_UP, x, y);
 
 					std::stringstream str;
 					str << "Mouse up at = " << x << ", " << y;
@@ -520,14 +554,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				LLSD native_key_data = message_in.getValueLLSD("native_key_data");
 
 				// Treat unknown events as key-up for safety.
-				EKeyEvent key_event = KE_KEY_UP;
+				LLCEFLib::EKeyEvent key_event = LLCEFLib::KE_KEY_UP;
 				if (event == "down")
 				{
-					key_event = KE_KEY_DOWN;
+					key_event = LLCEFLib::KE_KEY_DOWN;
 				}
 				else if (event == "repeat")
 				{
-					key_event = KE_KEY_REPEAT;
+					key_event = LLCEFLib::KE_KEY_REPEAT;
 				}
 
 				keyEvent(key_event, key, decodeModifiers(modifiers), native_key_data);
@@ -602,23 +636,23 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 	}
 }
 
-EKeyboardModifier MediaPluginCEF::decodeModifiers(std::string &modifiers)
+LLCEFLib::EKeyboardModifier MediaPluginCEF::decodeModifiers(std::string &modifiers)
 {
 	int result = 0;
 
 	if (modifiers.find("shift") != std::string::npos)
-		result |= KM_MODIFIER_SHIFT;
+		result |= LLCEFLib::KM_MODIFIER_SHIFT;
 
 	if (modifiers.find("alt") != std::string::npos)
-		result |= KM_MODIFIER_ALT;
+		result |= LLCEFLib::KM_MODIFIER_ALT;
 
 	if (modifiers.find("control") != std::string::npos)
-		result |= KM_MODIFIER_CONTROL;
+		result |= LLCEFLib::KM_MODIFIER_CONTROL;
 
 	if (modifiers.find("meta") != std::string::npos)
-		result |= KM_MODIFIER_META;
+		result |= LLCEFLib::KM_MODIFIER_META;
 
-	return (EKeyboardModifier)result;
+	return (LLCEFLib::EKeyboardModifier)result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -645,7 +679,7 @@ void MediaPluginCEF::deserializeKeyboardData(LLSD native_key_data, uint32_t& nat
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::keyEvent(EKeyEvent key_event, int key, EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
+void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 {
 #if LL_DARWIN
 	std::string utf8_text;
@@ -681,7 +715,7 @@ void MediaPluginCEF::keyEvent(EKeyEvent key_event, int key, EKeyboardModifier mo
 #endif
 };
 
-void MediaPluginCEF::unicodeInput(const std::string &utf8str, EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
+void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 {
 #if LL_DARWIN
 	//mLLCEFLib->keyPress(utf8str[0], true);
