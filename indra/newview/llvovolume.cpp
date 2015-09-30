@@ -4182,6 +4182,10 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	for (U32 j = 0; j < maxJoints; ++j)
 	{
 		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
+        if (!joint)
+        {
+            joint = avatar->getJoint("mPelvis");
+        }
 		if (joint)
 		{
 			mat[j] = skin->mInvBindMatrix[j];
