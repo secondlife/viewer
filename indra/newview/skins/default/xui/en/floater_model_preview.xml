@@ -31,6 +31,7 @@
   <string name="mesh_status_too_many_vertices">Level of detail has too many vertices.</string>
   <string name="mesh_status_missing_lod">Missing required level of detail.</string>
   <string name="mesh_status_invalid_material_list">LOD materials are not a subset of reference model.</string>
+  <string name="phys_status_vertex_limit_exceeded">Some physical hulls exceed vertex limitations.</string>
   <string name="layer_all">All</string> <!-- Text to display in physics layer combo box for "all layers" -->
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>
@@ -66,7 +67,7 @@
           follows="top|left"
           layout="topleft"
           height="19"
-          max_length_bytes="64"
+          max_length_bytes="63"
           name="description_form"
           prevalidate_callback="ascii"
           top_pad="5"
@@ -1027,19 +1028,19 @@
                   bg_alpha_color="0 0 0 0"
                   bg_opaque_color="0 0 0 0.3"
                   follows="left|top"
-                  height="16"
+                  height="19"
                   layout="topleft"
                   left="18"
                   name="physics info"
-                  top_pad="15"
-                  width="589">
+                  top_pad="12"
+                  width="319">
                     <text
                       follows="top|left"
                       height="15"
                       layout="topleft"
                       left="0"
                       text_color="White"
-                      top_pad="0"
+                      top_pad="3"
                       name="results_text"
                       width="50">
                       Results:
@@ -1076,6 +1077,33 @@
                       text_color="White">
                       Hulls: [HULLS]
                     </text>
+                </panel>
+                <panel
+                 bg_alpha_color="0 0 0 0"
+                 bg_opaque_color="0 0 0 0.3"
+                 follows="left|top"
+                 height="19"
+                 layout="topleft"
+                 left_pad="5"
+                 top_delta="0"
+                 name="physics message"
+                 width="270">
+                     <icon
+                      follows="left|top"
+                      height="16"
+                      left="0"
+                      layout="topleft"
+                      name="physics_status_message_icon"
+                      top_pad="0"
+                      width="16" />
+                     <text
+                      follows="left|top"
+                      height="15"
+                      layout="topleft"
+                      left_pad="2"
+                      name="physics_status_message_text"
+                      width="252"
+                      top_delta="3"/>
                 </panel>
         </panel>
       <!-- MODIFIERS PANEL -->
