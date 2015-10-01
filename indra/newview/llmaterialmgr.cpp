@@ -36,6 +36,9 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llworld.h"
+#include "llhttpsdhandler.h"
+#include "httpcommon.h"
+#include "llcorehttputil.h"
 
 /**
  * Materials cap parameters
@@ -59,56 +62,51 @@
 #define MATERIALS_PUT_THROTTLE_SECS               1.f
 #define MATERIALS_PUT_MAX_ENTRIES                 50
 
-/**
- * LLMaterialsResponder helper class
- */
 
-class LLMaterialsResponder : public LLHTTPClient::Responder
+
+class LLMaterialHttpHandler : public LLHttpSDHandler
 {
-public:
-	typedef boost::function<void (bool, const LLSD&)> CallbackFunction;
+public: 
+	typedef boost::function<void(bool, const LLSD&)> CallbackFunction;
+	typedef boost::shared_ptr<LLMaterialHttpHandler> ptr_t;
 
-	LLMaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback);
-	virtual ~LLMaterialsResponder();
+	LLMaterialHttpHandler(const std::string& method, CallbackFunction cback);
 
-	virtual void httpSuccess();
-	virtual void httpFailure();
+	virtual ~LLMaterialHttpHandler();
+
+protected:
+	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
+	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
 private:
 	std::string      mMethod;
-	std::string      mCapabilityURL;
 	CallbackFunction mCallback;
 };
 
-LLMaterialsResponder::LLMaterialsResponder(const std::string& pMethod, const std::string& pCapabilityURL, CallbackFunction pCallback)
-	: LLHTTPClient::Responder()
-	, mMethod(pMethod)
-	, mCapabilityURL(pCapabilityURL)
-	, mCallback(pCallback)
+LLMaterialHttpHandler::LLMaterialHttpHandler(const std::string& method, CallbackFunction cback):
+	LLHttpSDHandler(),
+	mMethod(method),
+	mCallback(cback)
+{
+
+}
+
+LLMaterialHttpHandler::~LLMaterialHttpHandler()
 {
 }
 
-LLMaterialsResponder::~LLMaterialsResponder()
+void LLMaterialHttpHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
-}
-
-void LLMaterialsResponder::httpSuccess()
-{
-	const LLSD& pContent = getContent();
-
 	LL_DEBUGS("Materials") << LL_ENDL;
-	mCallback(true, pContent);
+	mCallback(true, content);
 }
 
-void LLMaterialsResponder::httpFailure()
+void LLMaterialHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
 {
-	U32 pStatus = (U32) getStatus();
-	const std::string& pReason = getReason();
-	
 	LL_WARNS("Materials")
 		<< "\n--------------------------------------------------------------------------\n"
-		<< mMethod << " Error[" << pStatus << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
-		<< "'\n  with url '" << mCapabilityURL	<< "' because " << pReason 
+		<< mMethod << " Error[" << status.toULong() << "] cannot access cap '" << MATERIALS_CAPABILITY_NAME
+		<< "'\n  with url '" << response->getRequestURL() << "' because " << status.toString()
 		<< "\n--------------------------------------------------------------------------"
 		<< LL_ENDL;
 
@@ -116,12 +114,35 @@ void LLMaterialsResponder::httpFailure()
 	mCallback(false, emptyResult);
 }
 
+
+
 /**
  * LLMaterialMgr class
  */
-
-LLMaterialMgr::LLMaterialMgr()
+LLMaterialMgr::LLMaterialMgr():
+	mGetQueue(),
+	mGetPending(),
+	mGetCallbacks(),
+	mGetTECallbacks(),
+	mGetAllQueue(),
+	mGetAllRequested(),
+	mGetAllPending(),
+	mGetAllCallbacks(),
+	mPutQueue(),
+	mMaterials(),
+	mHttpRequest(),
+	mHttpHeaders(),
+	mHttpOptions(),
+	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+	mHttpPriority(0)
 {
+	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
+
+	mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest());
+	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
+	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_MATERIALS);
+
 	mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(LLMaterialID::null, LLMaterialPtr(NULL)));
 	gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, NULL);
 	LLWorld::instance().setRegionRemovedCallback(boost::bind(&LLMaterialMgr::onRegionRemoved, this, _1));
@@ -554,6 +575,8 @@ void LLMaterialMgr::onIdle(void*)
 	{
 		instancep->processPutQueue();
 	}
+
+	instancep->mHttpRequest->update(0L);
 }
 
 void LLMaterialMgr::processGetQueue()
@@ -629,10 +652,26 @@ void LLMaterialMgr::processGetQueue()
 		LLSD postData = LLSD::emptyMap();
 		postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
-		LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("POST", capURL, boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id));
-		LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '"<< capURL << " for " << materialsData.size() << " materials." 
+		LLMaterialHttpHandler * handler = 
+				new LLMaterialHttpHandler("POST",
+				boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
+				);
+
+		LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
 			<< "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
-		LLHTTPClient::post(capURL, postData, materialsResponder);
+
+		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, 
+				mHttpPolicy, mHttpPriority, capURL, 
+				postData, mHttpOptions, mHttpHeaders, handler);
+
+		if (handle == LLCORE_HTTP_HANDLE_INVALID)
+		{
+			delete handler;
+			LLCore::HttpStatus status = mHttpRequest->getStatus();
+			LL_ERRS("Meterials") << "Failed to execute material POST. Status = " <<
+				status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
+		}
+
 		regionp->resetMaterialsCapThrottle();
 	}
 }
@@ -667,8 +706,22 @@ void LLMaterialMgr::processGetAllQueue()
 		}
 
 		LL_DEBUGS("Materials") << "GET all for region " << region_id << "url " << capURL << LL_ENDL;
-		LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("GET", capURL, boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *itRegion));
-		LLHTTPClient::get(capURL, materialsResponder);
+		LLMaterialHttpHandler *handler = 
+			new LLMaterialHttpHandler("GET",
+			boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *itRegion)
+			);
+
+		LLCore::HttpHandle handle = mHttpRequest->requestGet(mHttpPolicy, mHttpPriority, capURL,
+				mHttpOptions, mHttpHeaders, handler);
+
+		if (handle == LLCORE_HTTP_HANDLE_INVALID)
+		{
+			delete handler;
+			LLCore::HttpStatus status = mHttpRequest->getStatus();
+			LL_ERRS("Meterials") << "Failed to execute material GET. Status = " <<
+				status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
+		}
+
 		regionp->resetMaterialsCapThrottle();
 		mGetAllPending.insert(std::pair<LLUUID, F64>(region_id, LLFrameTimer::getTotalSeconds()));
 		mGetAllQueue.erase(itRegion);	// Invalidates region_id
@@ -755,8 +808,24 @@ void LLMaterialMgr::processPutQueue()
 			putData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
 			LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces to region " << itRequest->first->getName() << LL_ENDL;
-			LLHTTPClient::ResponderPtr materialsResponder = new LLMaterialsResponder("PUT", capURL, boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2));
-			LLHTTPClient::put(capURL, putData, materialsResponder);
+
+			LLMaterialHttpHandler * handler =
+					new LLMaterialHttpHandler("PUT",
+					boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
+					);
+
+			LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(
+				mHttpRequest, mHttpPolicy, mHttpPriority, capURL,
+				putData, mHttpOptions, mHttpHeaders, handler);
+
+			if (handle == LLCORE_HTTP_HANDLE_INVALID)
+			{
+				delete handler;
+				LLCore::HttpStatus status = mHttpRequest->getStatus();
+				LL_ERRS("Meterials") << "Failed to execute material PUT. Status = " << 
+					status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
+			}
+
 			regionp->resetMaterialsCapThrottle();
 		}
 		else

@@ -122,8 +122,8 @@ HttpOpRequest::HttpOpRequest()
 	  mReqBody(NULL),
 	  mReqOffset(0),
 	  mReqLength(0),
-	  mReqHeaders(NULL),
-	  mReqOptions(NULL),
+	  mReqHeaders(),
+	  mReqOptions(),
 	  mCurlActive(false),
 	  mCurlHandle(NULL),
 	  mCurlService(NULL),
@@ -135,11 +135,12 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyOffset(0),
 	  mReplyLength(0),
 	  mReplyFullLength(0),
-	  mReplyHeaders(NULL),
+	  mReplyHeaders(),
 	  mPolicyRetries(0),
 	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
-	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT)
+	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT),
+	  mCallbackSSLVerify(NULL)
 {
 	// *NOTE:  As members are added, retry initialization/cleanup
 	// may need to be extended in @see prepareRequest().
@@ -155,18 +156,6 @@ HttpOpRequest::~HttpOpRequest()
 		mReqBody = NULL;
 	}
 	
-	if (mReqOptions)
-	{
-		mReqOptions->release();
-		mReqOptions = NULL;
-	}
-
-	if (mReqHeaders)
-	{
-		mReqHeaders->release();
-		mReqHeaders = NULL;
-	}
-
 	if (mCurlHandle)
 	{
 		// Uncertain of thread context so free using
@@ -193,11 +182,6 @@ HttpOpRequest::~HttpOpRequest()
 		mReplyBody = NULL;
 	}
 
-	if (mReplyHeaders)
-	{
-		mReplyHeaders->release();
-		mReplyHeaders = NULL;
-	}
 }
 
 
@@ -259,7 +243,9 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setStatus(mStatus);
 		response->setBody(mReplyBody);
 		response->setHeaders(mReplyHeaders);
-		if (mReplyOffset || mReplyLength)
+        response->setRequestURL(mReqURL);
+
+        if (mReplyOffset || mReplyLength)
 		{
 			// Got an explicit offset/length in response
 			response->setRange(mReplyOffset, mReplyLength, mReplyFullLength);
@@ -267,6 +253,14 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setContentType(mReplyConType);
 		response->setRetries(mPolicyRetries, mPolicy503Retries);
 		
+		HttpResponse::TransferStats::ptr_t stats = HttpResponse::TransferStats::ptr_t(new HttpResponse::TransferStats);
+
+		curl_easy_getinfo(mCurlHandle, CURLINFO_SIZE_DOWNLOAD, &stats->mSizeDownload);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_TOTAL_TIME, &stats->mTotalTime);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_SPEED_DOWNLOAD, &stats->mSpeedDownload);
+
+		response->setTransferStats(stats);
+
 		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
 		response->release();
@@ -287,8 +281,8 @@ HttpStatus HttpOpRequest::cancel()
 HttpStatus HttpOpRequest::setupGet(HttpRequest::policy_t policy_id,
 								   HttpRequest::priority_t priority,
 								   const std::string & url,
-								   HttpOptions * options,
-								   HttpHeaders * headers)
+                                   const HttpOptions::ptr_t & options,
+								   const HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, NULL, options, headers);
 	mReqMethod = HOR_GET;
@@ -302,8 +296,8 @@ HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
 											const std::string & url,
 											size_t offset,
 											size_t len,
-											HttpOptions * options,
-											HttpHeaders * headers)
+                                            const HttpOptions::ptr_t & options,
+                                            const HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, NULL, options, headers);
 	mReqMethod = HOR_GET;
@@ -322,8 +316,8 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
 									HttpRequest::priority_t priority,
 									const std::string & url,
 									BufferArray * body,
-									HttpOptions * options,
-									HttpHeaders * headers)
+                                    const HttpOptions::ptr_t & options,
+                                    const HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, body, options, headers);
 	mReqMethod = HOR_POST;
@@ -336,8 +330,8 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 								   HttpRequest::priority_t priority,
 								   const std::string & url,
 								   BufferArray * body,
-								   HttpOptions * options,
-								   HttpHeaders * headers)
+                                   const HttpOptions::ptr_t & options,
+								   const HttpHeaders::ptr_t & headers)
 {
 	setupCommon(policy_id, priority, url, body, options, headers);
 	mReqMethod = HOR_PUT;
@@ -346,12 +340,65 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
 }
 
 
+HttpStatus HttpOpRequest::setupDelete(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t & headers)
+{
+    setupCommon(policy_id, priority, url, NULL, options, headers);
+    mReqMethod = HOR_DELETE;
+
+    return HttpStatus();
+}
+
+
+HttpStatus HttpOpRequest::setupPatch(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    BufferArray * body,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t & headers)
+{
+    setupCommon(policy_id, priority, url, body, options, headers);
+    mReqMethod = HOR_PATCH;
+
+    return HttpStatus();
+}
+
+
+HttpStatus HttpOpRequest::setupCopy(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t &headers)
+{
+    setupCommon(policy_id, priority, url, NULL, options, headers);
+    mReqMethod = HOR_COPY;
+
+    return HttpStatus();
+}
+
+
+HttpStatus HttpOpRequest::setupMove(HttpRequest::policy_t policy_id,
+    HttpRequest::priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t &headers)
+{
+    setupCommon(policy_id, priority, url, NULL, options, headers);
+    mReqMethod = HOR_MOVE;
+
+    return HttpStatus();
+}
+
+
 void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 								HttpRequest::priority_t priority,
 								const std::string & url,
 								BufferArray * body,
-								HttpOptions * options,
-								HttpHeaders * headers)
+                                const HttpOptions::ptr_t & options,
+								const HttpHeaders::ptr_t & headers)
 {
 	mProcFlags = 0U;
 	mReqPolicy = policy_id;
@@ -364,12 +411,10 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 	}
 	if (headers && ! mReqHeaders)
 	{
-		headers->addRef();
 		mReqHeaders = headers;
 	}
-	if (options && ! mReqOptions)
+	if (options && !mReqOptions)
 	{
-		options->addRef();
 		mReqOptions = options;
 		if (options->getWantHeaders())
 		{
@@ -416,11 +461,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	mReplyOffset = 0;
 	mReplyLength = 0;
 	mReplyFullLength = 0;
-	if (mReplyHeaders)
-	{
-		mReplyHeaders->release();
-		mReplyHeaders = NULL;
-	}
+    mReplyHeaders.reset();
 	mReplyConType.clear();
 	
 	// *FIXME:  better error handling later
@@ -452,18 +493,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 	check_curl_easy_code(code, CURLOPT_ENCODING);
 
-	// The Linksys WRT54G V5 router has an issue with frequent
-	// DNS lookups from LAN machines.  If they happen too often,
-	// like for every HTTP request, the router gets annoyed after
-	// about 700 or so requests and starts issuing TCP RSTs to
-	// new connections.  Reuse the DNS lookups for even a few
-	// seconds and no RSTs.
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
-	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	check_curl_easy_code(code, CURLOPT_AUTOREFERER);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
 	check_curl_easy_code(code, CURLOPT_MAXREDIRS);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
@@ -474,10 +505,56 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	check_curl_easy_code(code, CURLOPT_READFUNCTION);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
 	check_curl_easy_code(code, CURLOPT_READDATA);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKFUNCTION, seekCallback);
+    check_curl_easy_code(code, CURLOPT_SEEKFUNCTION);
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKDATA, this);
+    check_curl_easy_code(code, CURLOPT_SEEKDATA);
+
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_COOKIEFILE, "");
+	check_curl_easy_code(code, CURLOPT_COOKIEFILE);
+
+	if (gpolicy.mSslCtxCallback)
+	{
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_FUNCTION, curlSslCtxCallback);
+		check_curl_easy_code(code, CURLOPT_SSL_CTX_FUNCTION);
+		code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_DATA, this);
+		check_curl_easy_code(code, CURLOPT_SSL_CTX_DATA);
+		mCallbackSSLVerify = gpolicy.mSslCtxCallback;
+	}
+
+	long follow_redirect(1L);
+	long sslPeerV(0L);
+	long sslHostV(0L);
+    long dnsCacheTimeout(-1L);
+    long nobody(0L);
+
+	if (mReqOptions)
+	{
+		follow_redirect = mReqOptions->getFollowRedirects() ? 1L : 0L;
+		sslPeerV = mReqOptions->getSSLVerifyPeer() ? 1L : 0L;
+		sslHostV = mReqOptions->getSSLVerifyHost() ? 2L : 0L;
+		dnsCacheTimeout = mReqOptions->getDNSCacheTimeout();
+        nobody = mReqOptions->getHeadersOnly() ? 1L : 0L;
+	}
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, follow_redirect);
+	check_curl_easy_code(code, CURLOPT_FOLLOWLOCATION);
+
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, sslPeerV);
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYPEER);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, sslHostV);
 	check_curl_easy_code(code, CURLOPT_SSL_VERIFYHOST);
+
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_NOBODY, nobody);
+    check_curl_easy_code(code, CURLOPT_NOBODY);
+
+	// The Linksys WRT54G V5 router has an issue with frequent
+	// DNS lookups from LAN machines.  If they happen too often,
+	// like for every HTTP request, the router gets annoyed after
+	// about 700 or so requests and starts issuing TCP RSTs to
+	// new connections.  Reuse the DNS lookups for even a few
+	// seconds and no RSTs.
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout);
+	check_curl_easy_code(code, CURLOPT_DNS_CACHE_TIMEOUT);
 
 	if (gpolicy.mUseLLProxy)
 	{
@@ -509,10 +586,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	switch (mReqMethod)
 	{
 	case HOR_GET:
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+        if (nobody == 0)
+            code = curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
 		check_curl_easy_code(code, CURLOPT_HTTPGET);
-		mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
-		mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		break;
 		
 	case HOR_POST:
@@ -531,12 +607,14 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
 			check_curl_easy_code(code, CURLOPT_POSTFIELDSIZE);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		
-	case HOR_PUT:
+    case HOR_PATCH:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "PATCH");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        // fall through.  The rest is the same as PUT
+    case HOR_PUT:
 		{
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
 			check_curl_easy_code(code, CURLOPT_UPLOAD);
@@ -547,21 +625,36 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			}
 			code = curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
 			check_curl_easy_code(code, CURLOPT_INFILESIZE);
-			code = curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
-			check_curl_easy_code(code, CURLOPT_POSTFIELDS);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
-			// *TODO: Should this be 'Keep-Alive' ?
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
-			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		
+    case HOR_DELETE:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "DELETE");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        break;
+
+    case HOR_COPY:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "COPY");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        break;
+
+    case HOR_MOVE:
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_CUSTOMREQUEST, "MOVE");
+        check_curl_easy_code(code, CURLOPT_CUSTOMREQUEST);
+        break;
+
 	default:
 		LL_ERRS(LOG_CORE) << "Invalid HTTP method in request:  "
 						  << int(mReqMethod)  << ".  Can't recover."
 						  << LL_ENDL;
 		break;
 	}
+
+
+    // *TODO: Should this be 'Keep-Alive' ?
+    mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
+    mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 
 	// Tracing
 	if (mTracing >= HTTP_TRACE_CURL_HEADERS)
@@ -723,6 +816,37 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 	return read_size;
 }
 
+
+int HttpOpRequest::seekCallback(void *userdata, curl_off_t offset, int origin)
+{
+    HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+
+    if (!op->mReqBody)
+    {
+        return 0;
+    }
+
+    size_t newPos = 0;
+    if (origin == SEEK_SET)
+        newPos = offset;
+    else if (origin == SEEK_END)
+        newPos = static_cast<curl_off_t>(op->mReqBody->size()) + offset;
+    else if (origin == SEEK_CUR)
+        newPos = static_cast<curl_off_t>(op->mCurlBodyPos) + offset;
+    else
+        return 2;
+
+    if (newPos >= op->mReqBody->size())
+    {
+        LL_WARNS(LOG_CORE) << "Attempt to seek to position outside post body." << LL_ENDL;
+        return 2;
+    }
+
+    op->mCurlBodyPos = (size_t)newPos;
+
+    return 0;
+}
+
 		
 size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, void * userdata)
 {
@@ -817,7 +941,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 		// Save headers in response
 		if (! op->mReplyHeaders)
 		{
-			op->mReplyHeaders = new HttpHeaders;
+			op->mReplyHeaders = HttpHeaders::ptr_t(new HttpHeaders);
 		}
 		op->mReplyHeaders->append(name, value ? value : "");
 	}
@@ -872,6 +996,35 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	return hdr_size;
 }
 
+
+CURLcode HttpOpRequest::curlSslCtxCallback(CURL *curl, void *sslctx, void *userdata)
+{
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+
+	if (op->mCallbackSSLVerify)
+	{
+		SSL_CTX * ctx = (SSL_CTX *)sslctx;
+		// disable any default verification for server certs
+		SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+		// set the verification callback.
+		SSL_CTX_set_cert_verify_callback(ctx, sslCertVerifyCallback, userdata);
+		// the calls are void
+	}
+
+	return CURLE_OK;
+}
+
+int HttpOpRequest::sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
+{
+	HttpOpRequest * op(static_cast<HttpOpRequest *>(param));
+
+	if (op->mCallbackSSLVerify)
+	{
+		op->mStatus = op->mCallbackSSLVerify(op->mReqURL, op->mUserHandler, ctx);
+	}
+
+	return (op->mStatus) ? 1 : 0;
+}
 
 int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffer, size_t len, void * userdata)
 {

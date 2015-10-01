@@ -99,6 +99,12 @@ protected:
     int mSaveCompleteAction;
     bool mDirty;
     bool mForceClose;
+
+private:
+    static bool hasPermission(const LLSD& content, const std::string &name, const LLUUID &test);
+    static void experiencePermissionResults(LLUUID exprienceId, LLSD result);
+    static void experienceIsAdmin(LLHandle<LLFloaterExperienceProfile> handle, const LLSD &result);
+    static void experienceUpdateResult(LLHandle<LLFloaterExperienceProfile> handle, const LLSD &result);
 };
 
 #endif // LL_LLFLOATEREXPERIENCEPROFILE_H

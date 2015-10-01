@@ -78,6 +78,10 @@
 #include "llappviewer.h"
 #include "llfloaterperms.h"
 #include "llvocache.h"
+#include "llcorehttputil.h"
+
+#include <algorithm>
+#include <iterator>
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -795,190 +799,6 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
 
-class LLObjectCostResponder : public LLCurl::Responder
-{
-	LOG_CLASS(LLObjectCostResponder);
-public:
-	LLObjectCostResponder(const LLSD& object_ids)
-		: mObjectIDs(object_ids)
-	{
-	}
-
-	// Clear's the global object list's pending
-	// request list for all objects requested
-	void clear_object_list_pending_requests()
-	{
-		// TODO*: No more hard coding
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
-		{
-			gObjectList.onObjectCostFetchFailure(iter->asUUID());
-		}
-	}
-
-private:
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-
-		// TODO*: Error message to user
-		// For now just clear the request from the pending list
-		clear_object_list_pending_requests();
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		const LLSD& content = getContent();
-		if ( !content.isMap() || content.has("error") )
-		{
-			// Improper response or the request had an error,
-			// show an error to the user?
-			LL_WARNS()
-				<< "Application level error when fetching object "
-				<< "cost.  Message: " << content["error"]["message"].asString()
-				<< ", identifier: " << content["error"]["identifier"].asString()
-				<< LL_ENDL;
-
-			// TODO*: Adaptively adjust request size if the
-			// service says we've requested too many and retry
-
-			// TODO*: Error message if not retrying
-			clear_object_list_pending_requests();
-			return;
-		}
-
-		// Success, grab the resource cost and linked set costs
-		// for an object if one was returned
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
-		{
-			LLUUID object_id = iter->asUUID();
-
-			// Check to see if the request contains data for the object
-			if ( content.has(iter->asString()) )
-			{
-				F32 link_cost =
-					content[iter->asString()]["linked_set_resource_cost"].asReal();
-				F32 object_cost =
-					content[iter->asString()]["resource_cost"].asReal();
-
-				F32 physics_cost = content[iter->asString()]["physics_cost"].asReal();
-				F32 link_physics_cost = content[iter->asString()]["linked_set_physics_cost"].asReal();
-
-				gObjectList.updateObjectCost(object_id, object_cost, link_cost, physics_cost, link_physics_cost);
-			}
-			else
-			{
-				// TODO*: Give user feedback about the missing data?
-				gObjectList.onObjectCostFetchFailure(object_id);
-			}
-		}
-	}
-
-private:
-	LLSD mObjectIDs;
-};
-
-
-class LLPhysicsFlagsResponder : public LLCurl::Responder
-{
-	LOG_CLASS(LLPhysicsFlagsResponder);
-public:
-	LLPhysicsFlagsResponder(const LLSD& object_ids)
-		: mObjectIDs(object_ids)
-	{
-	}
-
-	// Clear's the global object list's pending
-	// request list for all objects requested
-	void clear_object_list_pending_requests()
-	{
-		// TODO*: No more hard coding
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
-		{
-			gObjectList.onPhysicsFlagsFetchFailure(iter->asUUID());
-		}
-	}
-
-private:
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-
-		// TODO*: Error message to user
-		// For now just clear the request from the pending list
-		clear_object_list_pending_requests();
-	}
-
-	/* virtual void */ void httpSuccess()
-	{
-		const LLSD& content = getContent();
-		if ( !content.isMap() || content.has("error") )
-		{
-			// Improper response or the request had an error,
-			// show an error to the user?
-			LL_WARNS()
-				<< "Application level error when fetching object "
-				<< "physics flags.  Message: " << content["error"]["message"].asString()
-				<< ", identifier: " << content["error"]["identifier"].asString()
-				<< LL_ENDL;
-
-			// TODO*: Adaptively adjust request size if the
-			// service says we've requested too many and retry
-
-			// TODO*: Error message if not retrying
-			clear_object_list_pending_requests();
-			return;
-		}
-
-		// Success, grab the resource cost and linked set costs
-		// for an object if one was returned
-		for (
-			LLSD::array_iterator iter = mObjectIDs.beginArray();
-			iter != mObjectIDs.endArray();
-			++iter)
-		{
-			LLUUID object_id = iter->asUUID();
-
-			// Check to see if the request contains data for the object
-			if ( content.has(iter->asString()) )
-			{
-				const LLSD& data = content[iter->asString()];
-
-				S32 shape_type = data["PhysicsShapeType"].asInteger();
-
-				gObjectList.updatePhysicsShapeType(object_id, shape_type);
-
-				if (data.has("Density"))
-				{
-					F32 density = data["Density"].asReal();
-					F32 friction = data["Friction"].asReal();
-					F32 restitution = data["Restitution"].asReal();
-					F32 gravity_multiplier = data["GravityMultiplier"].asReal();
-					
-					gObjectList.updatePhysicsProperties(object_id, 
-						density, friction, restitution, gravity_multiplier);
-				}
-			}
-			else
-			{
-				// TODO*: Give user feedback about the missing data?
-				gObjectList.onPhysicsFlagsFetchFailure(object_id);
-			}
-		}
-	}
-
-private:
-	LLSD mObjectIDs;
-};
-
 static LLTrace::BlockTimerStatHandle FTM_IDLE_COPY("Idle Copy");
 
 void LLViewerObjectList::update(LLAgent &agent)
@@ -1174,41 +994,8 @@ void LLViewerObjectList::fetchObjectCosts()
 
 			if (!url.empty())
 			{
-				LLSD id_list;
-				U32 object_index = 0;
-
-				for (
-					std::set<LLUUID>::iterator iter = mStaleObjectCost.begin();
-					iter != mStaleObjectCost.end();
-					)
-				{
-					// Check to see if a request for this object
-					// has already been made.
-					if ( mPendingObjectCost.find(*iter) ==
-						 mPendingObjectCost.end() )
-					{
-						mPendingObjectCost.insert(*iter);
-						id_list[object_index++] = *iter;
-					}
-
-					mStaleObjectCost.erase(iter++);
-
-					if (object_index >= MAX_CONCURRENT_PHYSICS_REQUESTS)
-					{
-						break;
-					}
-				}
-									
-				if ( id_list.size() > 0 )
-				{
-					LLSD post_data = LLSD::emptyMap();
-
-					post_data["object_ids"] = id_list;
-					LLHTTPClient::post(
-						url,
-						post_data,
-						new LLObjectCostResponder(id_list));
-				}
+                LLCoros::instance().launch("LLViewerObjectList::fetchObjectCostsCoro",
+                    boost::bind(&LLViewerObjectList::fetchObjectCostsCoro, this, url));
 			}
 			else
 			{
@@ -1217,6 +1004,107 @@ void LLViewerObjectList::fetchObjectCosts()
 			}
 		}
 	}
+}
+
+/*static*/
+void LLViewerObjectList::reportObjectCostFailure(LLSD &objectList)
+{
+    // TODO*: No more hard coding
+    for (LLSD::array_iterator it = objectList.beginArray(); it != objectList.endArray(); ++it)
+    {
+        gObjectList.onObjectCostFetchFailure(it->asUUID());
+    }
+}
+
+
+void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+
+
+    uuid_set_t diff;
+
+    std::set_difference(mStaleObjectCost.begin(), mStaleObjectCost.end(),
+        mPendingObjectCost.begin(), mPendingObjectCost.end(), 
+        std::inserter(diff, diff.begin()));
+
+    if (diff.empty())
+    {
+        LL_INFOS() << "No outstanding object IDs to request." << LL_ENDL;
+        return;
+    }
+
+    LLSD idList(LLSD::emptyArray());
+
+    for (uuid_set_t::iterator it = diff.begin(); it != diff.end(); ++it)
+    {
+        idList.append(*it);
+        mStaleObjectCost.erase(*it);
+    }
+
+    mPendingObjectCost.insert(diff.begin(), diff.end());
+
+    LLSD postData = LLSD::emptyMap();
+
+    postData["object_ids"] = idList;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status || result.has("error"))
+    {
+        if (result.has("error"))
+        {
+            LL_WARNS() << "Application level error when fetching object "
+                << "cost.  Message: " << result["error"]["message"].asString()
+                << ", identifier: " << result["error"]["identifier"].asString()
+                << LL_ENDL;
+
+            // TODO*: Adaptively adjust request size if the
+            // service says we've requested too many and retry
+        }
+        reportObjectCostFailure(idList);
+
+        return;
+    }
+
+    // Success, grab the resource cost and linked set costs
+    // for an object if one was returned
+    for (LLSD::array_iterator it = idList.beginArray(); it != idList.endArray(); ++it)
+    {
+        LLUUID objectId = it->asUUID();
+
+        // If the object was added to the StaleObjectCost set after it had been 
+        // added to mPendingObjectCost it would still be in the StaleObjectCost 
+        // set when we got the response back.
+        mStaleObjectCost.erase(objectId);
+        mPendingObjectCost.erase(objectId);
+
+        // Check to see if the request contains data for the object
+        if (result.has(it->asString()))
+        {
+            LLSD objectData = result[it->asString()];
+
+            F32 linkCost = objectData["linked_set_resource_cost"].asReal();
+            F32 objectCost = objectData["resource_cost"].asReal();
+            F32 physicsCost = objectData["physics_cost"].asReal();
+            F32 linkPhysicsCost = objectData["linked_set_physics_cost"].asReal();
+
+            gObjectList.updateObjectCost(objectId, objectCost, linkCost, physicsCost, linkPhysicsCost);
+        }
+        else
+        {
+            // TODO*: Give user feedback about the missing data?
+            gObjectList.onObjectCostFetchFailure(objectId);
+        }
+    }
+
 }
 
 void LLViewerObjectList::fetchPhysicsFlags()
@@ -1232,41 +1120,8 @@ void LLViewerObjectList::fetchPhysicsFlags()
 
 			if (!url.empty())
 			{
-				LLSD id_list;
-				U32 object_index = 0;
-
-				for (
-					std::set<LLUUID>::iterator iter = mStalePhysicsFlags.begin();
-					iter != mStalePhysicsFlags.end();
-					)
-				{
-					// Check to see if a request for this object
-					// has already been made.
-					if ( mPendingPhysicsFlags.find(*iter) ==
-						 mPendingPhysicsFlags.end() )
-					{
-						mPendingPhysicsFlags.insert(*iter);
-						id_list[object_index++] = *iter;
-					}
-
-					mStalePhysicsFlags.erase(iter++);
-					
-					if (object_index >= MAX_CONCURRENT_PHYSICS_REQUESTS)
-					{
-						break;
-					}
-				}
-
-				if ( id_list.size() > 0 )
-				{
-					LLSD post_data = LLSD::emptyMap();
-
-					post_data["object_ids"] = id_list;
-					LLHTTPClient::post(
-						url,
-						post_data,
-						new LLPhysicsFlagsResponder(id_list));
-				}
+                LLCoros::instance().launch("LLViewerObjectList::fetchPhisicsFlagsCoro",
+                    boost::bind(&LLViewerObjectList::fetchPhisicsFlagsCoro, this, url));
 			}
 			else
 			{
@@ -1277,6 +1132,109 @@ void LLViewerObjectList::fetchPhysicsFlags()
 	}
 }
 
+/*static*/
+void LLViewerObjectList::reportPhysicsFlagFailure(LLSD &objectList)
+{
+    // TODO*: No more hard coding
+    for (LLSD::array_iterator it = objectList.beginArray(); it != objectList.endArray(); ++it)
+    {
+        gObjectList.onPhysicsFlagsFetchFailure(it->asUUID());
+    }
+}
+
+void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD idList;
+    U32 objectIndex = 0;
+
+    for (uuid_set_t::iterator it = mStalePhysicsFlags.begin(); it != mStalePhysicsFlags.end();)
+    {
+        // Check to see if a request for this object
+        // has already been made.
+        if (mPendingPhysicsFlags.find(*it) == mPendingPhysicsFlags.end())
+        {
+            mPendingPhysicsFlags.insert(*it);
+            idList[objectIndex++] = *it;
+        }
+
+        mStalePhysicsFlags.erase(it++);
+
+        if (objectIndex >= MAX_CONCURRENT_PHYSICS_REQUESTS)
+        {
+            break;
+        }
+    }
+
+    if (idList.size() < 1)
+    {
+        LL_INFOS() << "No outstanding object physics flags to request." << LL_ENDL;
+        return;
+    }
+
+    LLSD postData = LLSD::emptyMap();
+
+    postData["object_ids"] = idList;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status || result.has("error"))
+    {
+        if (result.has("error"))
+        {
+            LL_WARNS() << "Application level error when fetching object "
+                << "physics flags.  Message: " << result["error"]["message"].asString()
+                << ", identifier: " << result["error"]["identifier"].asString()
+                << LL_ENDL;
+
+            // TODO*: Adaptively adjust request size if the
+            // service says we've requested too many and retry
+        }
+        reportPhysicsFlagFailure(idList);
+
+        return;
+    }
+
+    // Success, grab the resource cost and linked set costs
+    // for an object if one was returned
+    for (LLSD::array_iterator it = idList.beginArray(); it != idList.endArray(); ++it)
+    {
+        LLUUID objectId = it->asUUID();
+
+        // Check to see if the request contains data for the object
+        if (result.has(it->asString()))
+        {
+            const LLSD& data = result[it->asString()];
+
+            S32 shapeType = data["PhysicsShapeType"].asInteger();
+
+            gObjectList.updatePhysicsShapeType(objectId, shapeType);
+
+            if (data.has("Density"))
+            {
+                F32 density = data["Density"].asReal();
+                F32 friction = data["Friction"].asReal();
+                F32 restitution = data["Restitution"].asReal();
+                F32 gravityMult = data["GravityMultiplier"].asReal();
+
+                gObjectList.updatePhysicsProperties(objectId, density, 
+                    friction, restitution, gravityMult);
+            }
+        }
+        else
+        {
+            // TODO*: Give user feedback about the missing data?
+            gObjectList.onPhysicsFlagsFetchFailure(objectId);
+        }
+    }
+}
 
 void LLViewerObjectList::clearDebugText()
 {
@@ -1563,8 +1521,6 @@ void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 
 void LLViewerObjectList::updateObjectCost(const LLUUID& object_id, F32 object_cost, F32 link_cost, F32 physics_cost, F32 link_physics_cost)
 {
-	mPendingObjectCost.erase(object_id);
-
 	LLViewerObject* object = findObject(object_id);
 	if (object)
 	{

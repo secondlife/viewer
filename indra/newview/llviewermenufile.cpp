@@ -62,11 +62,10 @@
 #include "lluploaddialog.h"
 #include "lltrans.h"
 #include "llfloaterbuycurrency.h"
+#include "llviewerassetupload.h"
 
 // linden libraries
-#include "llassetuploadresponders.h"
 #include "lleconomy.h"
-#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -83,8 +82,9 @@ class LLFileEnableUpload : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
-		return new_value;
+        return true;
+// 		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+// 		return new_value;
 	}
 };
 
@@ -410,7 +410,6 @@ class LLFileUploadBulk : public view_listener_t
 		}
 
 		// TODO:
-		// Iterate over all files
 		// Check extensions for uploadability, cost
 		// Check user balance for entire cost
 		// Charge user entire cost
@@ -422,37 +421,33 @@ class LLFileUploadBulk : public view_listener_t
 		LLFilePicker& picker = LLFilePicker::instance();
 		if (picker.getMultipleOpenFiles())
 		{
-			const std::string& filename = picker.getFirstFile();
-			std::string name = gDirUtilp->getBaseFileName(filename, true);
-			
-			std::string asset_name = name;
-			LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
-			LLStringUtil::replaceChar(asset_name, '|', '?');
-			LLStringUtil::stripNonprintable(asset_name);
-			LLStringUtil::trim(asset_name);
-			
-			std::string display_name = LLStringUtil::null;
-			LLAssetStorage::LLStoreAssetCallback callback = NULL;
-			S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-			void *userdata = NULL;
+            std::string filename = picker.getFirstFile();
+            S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 
-			upload_new_resource(
-				filename,
-				asset_name,
-				asset_name,
-				0,
-				LLFolderType::FT_NONE,
-				LLInventoryType::IT_NONE,
-				LLFloaterPerms::getNextOwnerPerms("Uploads"),
-				LLFloaterPerms::getGroupPerms("Uploads"),
-				LLFloaterPerms::getEveryonePerms("Uploads"),
-				display_name,
-				callback,
-				expected_upload_cost,
-				userdata);
+            while (!filename.empty())
+            {
+                std::string name = gDirUtilp->getBaseFileName(filename, true);
 
-			// *NOTE: Ew, we don't iterate over the file list here,
-			// we handle the next files in upload_done_callback()
+                std::string asset_name = name;
+                LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
+                LLStringUtil::replaceChar(asset_name, '|', '?');
+                LLStringUtil::stripNonprintable(asset_name);
+                LLStringUtil::trim(asset_name);
+
+                LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+                    filename,
+                    asset_name,
+                    asset_name, 0,
+                    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                    LLFloaterPerms::getGroupPerms("Uploads"),
+                    LLFloaterPerms::getEveryonePerms("Uploads"),
+                    expected_upload_cost));
+
+                upload_new_resource(uploadInfo, NULL, NULL);
+
+                filename = picker.getNextFile();
+            }
 		}
 		else
 		{
@@ -621,6 +616,7 @@ void handle_compress_image(void*)
 	}
 }
 
+
 LLUUID upload_new_resource(
 	const std::string& src_filename,
 	std::string name,
@@ -636,276 +632,16 @@ LLUUID upload_new_resource(
 	S32 expected_upload_cost,
 	void *userdata)
 {	
-	// Generate the temporary UUID.
-	std::string filename = gDirUtilp->getTempFilename();
-	LLTransactionID tid;
-	LLAssetID uuid;
-	
-	LLSD args;
 
-	std::string exten = gDirUtilp->getExtension(src_filename);
-	U32 codec = LLImageBase::getCodecFromExtension(exten);
-	LLAssetType::EType asset_type = LLAssetType::AT_NONE;
-	std::string error_message;
+    LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+        src_filename,
+        name, desc, compression_info,
+        destination_folder_type, inv_type,
+        next_owner_perms, group_perms, everyone_perms,
+        expected_upload_cost));
+    upload_new_resource(uploadInfo, callback, userdata);
 
-	BOOL error = FALSE;
-	
-	if (exten.empty())
-	{
-		std::string short_name = gDirUtilp->getBaseFileName(filename);
-		
-		// No extension
-		error_message = llformat(
-				"No file extension for the file: '%s'\nPlease make sure the file has a correct file extension",
-				short_name.c_str());
-		args["FILE"] = short_name;
- 		upload_error(error_message, "NoFileExtension", filename, args);
-		return LLUUID();
-	}
-	else if (codec != IMG_CODEC_INVALID)
-	{
-		// It's an image file, the upload procedure is the same for all
-		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerTextureList::createUploadFile(src_filename, filename, codec ))
-		{
-			error_message = llformat( "Problem with file %s:\n\n%s\n",
-									 src_filename.c_str(), LLImage::getLastError().c_str());
-			args["FILE"] = src_filename;
-			args["ERROR"] = LLImage::getLastError();
-			upload_error(error_message, "ProblemWithFile", filename, args);
-			return LLUUID();
-		}
-	}
-	else if(exten == "wav")
-	{
-		asset_type = LLAssetType::AT_SOUND;  // tag it as audio
-		S32 encode_result = 0;
-
-		LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
-
-		encode_result = encode_vorbis_file(src_filename, filename);
-		
-		if (LLVORBISENC_NOERR != encode_result)
-		{
-			switch(encode_result)
-			{
-				case LLVORBISENC_DEST_OPEN_ERR:
-				    error_message = llformat( "Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
-					args["FILE"] = filename;
-					upload_error(error_message, "CannotOpenTemporarySoundFile", filename, args);
-					break;
-
-				default:	
-				  error_message = llformat("Unknown vorbis encode failure on: %s\n", src_filename.c_str());
-					args["FILE"] = src_filename;
-					upload_error(error_message, "UnknownVorbisEncodeFailure", filename, args);
-					break;	
-			}	
-			return LLUUID();
-		}
-	}
-	else if(exten == "tmp")	 	
-	{	 	
-		// This is a generic .lin resource file	 	
-         asset_type = LLAssetType::AT_OBJECT;	 	
-         LLFILE* in = LLFile::fopen(src_filename, "rb");		/* Flawfinder: ignore */	 	
-         if (in)	 	
-         {	 	
-                 // read in the file header	 	
-                 char buf[16384];		/* Flawfinder: ignore */ 	
-                 size_t readbytes;
-                 S32  version;	 	
-                 if (fscanf(in, "LindenResource\nversion %d\n", &version))	 	
-                 {	 	
-                         if (2 == version)	 	
-                         {
-								// *NOTE: This buffer size is hard coded into scanf() below.
-                                 char label[MAX_STRING];		/* Flawfinder: ignore */	 	
-                                 char value[MAX_STRING];		/* Flawfinder: ignore */	 	
-                                 S32  tokens_read;	 	
-                                 while (fgets(buf, 1024, in))	 	
-                                 {	 	
-                                         label[0] = '\0';	 	
-                                         value[0] = '\0';	 	
-                                         tokens_read = sscanf(	/* Flawfinder: ignore */
-											 buf,
-											 "%254s %254s\n",
-											 label, value);	 	
-
-                                         LL_INFOS() << "got: " << label << " = " << value	 	
-                                                         << LL_ENDL;	 	
-
-                                         if (EOF == tokens_read)	 	
-                                         {	 	
-                                                 fclose(in);	 	
-                                                 error_message = llformat("corrupt resource file: %s", src_filename.c_str());
-												 args["FILE"] = src_filename;
-												 upload_error(error_message, "CorruptResourceFile", filename, args);
-                                                 return LLUUID();
-                                         }	 	
-
-                                         if (2 == tokens_read)	 	
-                                         {	 	
-                                                 if (! strcmp("type", label))	 	
-                                                 {	 	
-                                                         asset_type = (LLAssetType::EType)(atoi(value));	 	
-                                                 }	 	
-                                         }	 	
-                                         else	 	
-                                         {	 	
-                                                 if (! strcmp("_DATA_", label))	 	
-                                                 {	 	
-                                                         // below is the data section	 	
-                                                         break;	 	
-                                                 }	 	
-                                         }	 	
-                                         // other values are currently discarded	 	
-                                 }	 	
-
-                         }	 	
-                         else	 	
-                         {	 	
-                                 fclose(in);	 	
-                                 error_message = llformat("unknown linden resource file version in file: %s", src_filename.c_str());
-								 args["FILE"] = src_filename;
-								 upload_error(error_message, "UnknownResourceFileVersion", filename, args);
-                                 return LLUUID();
-                         }	 	
-                 }	 	
-                 else	 	
-                 {	 	
-                         // this is an original binary formatted .lin file	 	
-                         // start over at the beginning of the file	 	
-                         fseek(in, 0, SEEK_SET);	 	
-
-                         const S32 MAX_ASSET_DESCRIPTION_LENGTH = 256;	 	
-                         const S32 MAX_ASSET_NAME_LENGTH = 64;	 	
-                         S32 header_size = 34 + MAX_ASSET_DESCRIPTION_LENGTH + MAX_ASSET_NAME_LENGTH;	 	
-                         S16     type_num;	 	
-
-                         // read in and throw out most of the header except for the type	 	
-                         if (fread(buf, header_size, 1, in) != 1)
-						 {
-							 LL_WARNS() << "Short read" << LL_ENDL;
-						 }
-                         memcpy(&type_num, buf + 16, sizeof(S16));		/* Flawfinder: ignore */	 	
-                         asset_type = (LLAssetType::EType)type_num;	 	
-                 }	 	
-
-                 // copy the file's data segment into another file for uploading	 	
-                 LLFILE* out = LLFile::fopen(filename, "wb");		/* Flawfinder: ignore */	
-                 if (out)	 	
-                 {	 	
-                         while((readbytes = fread(buf, 1, 16384, in)))		/* Flawfinder: ignore */	 	
-                         {	 	
-							 if (fwrite(buf, 1, readbytes, out) != readbytes)
-							 {
-								 LL_WARNS() << "Short write" << LL_ENDL;
-							 }
-                         }	 	
-                         fclose(out);	 	
-                 }	 	
-                 else	 	
-                 {	 	
-                         fclose(in);	 	
-                         error_message = llformat( "Unable to create output file: %s", filename.c_str());
-						 args["FILE"] = filename;
-						 upload_error(error_message, "UnableToCreateOutputFile", filename, args);
-                         return LLUUID();
-                 }	 	
-
-                 fclose(in);	 	
-         }	 	
-         else	 	
-         {	 	
-                 LL_INFOS() << "Couldn't open .lin file " << src_filename << LL_ENDL;	 	
-         }	 	
-	}
-	else if (exten == "bvh")
-	{
-		error_message = llformat("We do not currently support bulk upload of animation files\n");
-		upload_error(error_message, "DoNotSupportBulkAnimationUpload", filename, args);
-		return LLUUID();
-	}
-	else if (exten == "anim")
-	{
-		asset_type = LLAssetType::AT_ANIMATION;
-		filename = src_filename;
-	}
-	else
-	{
-		// Unknown extension
-		error_message = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
-		error = TRUE;;
-	}
-
-	// gen a new transaction ID for this asset
-	tid.generate();
-
-	if (!error)
-	{
-		uuid = tid.makeAssetID(gAgent.getSecureSessionID());
-		// copy this file into the vfs for upload
-		S32 file_size;
-		LLAPRFile infile ;
-		infile.open(filename, LL_APR_RB, NULL, &file_size);
-		if (infile.getFileHandle())
-		{
-			LLVFile file(gVFS, uuid, asset_type, LLVFile::WRITE);
-
-			file.setMaxSize(file_size);
-
-			const S32 buf_size = 65536;
-			U8 copy_buf[buf_size];
-			while ((file_size = infile.read(copy_buf, buf_size)))
-			{
-				file.write(copy_buf, file_size);
-			}
-		}
-		else
-		{
-			error_message = llformat( "Unable to access output file: %s", filename.c_str());
-			error = TRUE;
-		}
-	}
-
-	if (!error)
-	{
-		std::string t_disp_name = display_name;
-		if (t_disp_name.empty())
-		{
-			t_disp_name = src_filename;
-		}
-		upload_new_resource(
-			tid,
-			asset_type,
-			name,
-			desc,
-			compression_info, // tid
-			destination_folder_type,
-			inv_type,
-			next_owner_perms,
-			group_perms,
-			everyone_perms,
-			display_name,
-			callback,
-			expected_upload_cost,
-			userdata);
-	}
-	else
-	{
-		LL_WARNS() << error_message << LL_ENDL;
-		LLSD args;
-		args["ERROR_MESSAGE"] = error_message;
-		LLNotificationsUtil::add("ErrorMessage", args);
-		if(LLFile::remove(filename) == -1)
-		{
-			LL_DEBUGS() << "unable to remove temp file" << LL_ENDL;
-		}
-		LLFilePicker::instance().reset();
-	}
-
-	return uuid;
+    return LLUUID::null;
 }
 
 void upload_done_callback(
@@ -1035,189 +771,62 @@ void upload_done_callback(
 	}
 }
 
-static LLAssetID upload_new_resource_prep(
-	const LLTransactionID& tid,
-	LLAssetType::EType asset_type,
-	LLInventoryType::EType& inventory_type,
-	std::string& name,
-	const std::string& display_name,
-	std::string& description)
-{
-	LLAssetID uuid = generate_asset_id_for_new_upload(tid);
-
-	increase_new_upload_stats(asset_type);
-
-	assign_defaults_and_show_upload_message(
-		asset_type,
-		inventory_type,
-		name,
-		display_name,
-		description);
-
-	return uuid;
-}
-
-LLSD generate_new_resource_upload_capability_body(
-	LLAssetType::EType asset_type,
-	const std::string& name,
-	const std::string& desc,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms)
-{
-	LLSD body;
-
-	body["folder_id"] = gInventory.findCategoryUUIDForType(
-		(destination_folder_type == LLFolderType::FT_NONE) ?
-		(LLFolderType::EType) asset_type :
-		destination_folder_type);
-
-	body["asset_type"] = LLAssetType::lookup(asset_type);
-	body["inventory_type"] = LLInventoryType::lookup(inv_type);
-	body["name"] = name;
-	body["description"] = desc;
-	body["next_owner_mask"] = LLSD::Integer(next_owner_perms);
-	body["group_mask"] = LLSD::Integer(group_perms);
-	body["everyone_mask"] = LLSD::Integer(everyone_perms);
-
-	return body;
-}
-
 void upload_new_resource(
-	const LLTransactionID &tid,
-	LLAssetType::EType asset_type,
-	std::string name,
-	std::string desc,
-	S32 compression_info,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms,
-	const std::string& display_name,
-	LLAssetStorage::LLStoreAssetCallback callback,
-	S32 expected_upload_cost,
-	void *userdata)
+    LLResourceUploadInfo::ptr_t &uploadInfo,
+    LLAssetStorage::LLStoreAssetCallback callback,
+    void *userdata)
 {
 	if(gDisconnected)
 	{
 		return ;
 	}
-	
-	LLAssetID uuid = 
-		upload_new_resource_prep(
-			tid,
-			asset_type,
-			inv_type,
-			name,
-			display_name,
-			desc);
-	
-	if( LLAssetType::AT_SOUND == asset_type )
-	{
-		add(LLStatViewer::UPLOAD_SOUND, 1);
-	}
-	else
-	if( LLAssetType::AT_TEXTURE == asset_type )
-	{
-		add(LLStatViewer::UPLOAD_TEXTURE, 1);
-	}
-	else
-	if( LLAssetType::AT_ANIMATION == asset_type)
-	{
-		add(LLStatViewer::ANIMATION_UPLOADS, 1);
-	}
 
-	if(LLInventoryType::IT_NONE == inv_type)
-	{
-		inv_type = LLInventoryType::defaultForAssetType(asset_type);
-	}
-	LLStringUtil::stripNonprintable(name);
-	LLStringUtil::stripNonprintable(desc);
-	if(name.empty())
-	{
-		name = "(No Name)";
-	}
-	if(desc.empty())
-	{
-		desc = "(No Description)";
-	}
-	
-	// At this point, we're ready for the upload.
-	std::string upload_message = "Uploading...\n\n";
-	upload_message.append(display_name);
-	LLUploadDialog::modalUploadDialog(upload_message);
+//     uploadInfo->setAssetType(assetType);
+//     uploadInfo->setTransactionId(tid);
 
-	LL_INFOS() << "*** Uploading: " << LL_ENDL;
-	LL_INFOS() << "Type: " << LLAssetType::lookup(asset_type) << LL_ENDL;
-	LL_INFOS() << "UUID: " << uuid << LL_ENDL;
-	LL_INFOS() << "Name: " << name << LL_ENDL;
-	LL_INFOS() << "Desc: " << desc << LL_ENDL;
-	LL_INFOS() << "Expected Upload Cost: " << expected_upload_cost << LL_ENDL;
-	LL_DEBUGS() << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type) << LL_ENDL;
-	LL_DEBUGS() << "Asset Type: " << LLAssetType::lookup(asset_type) << LL_ENDL;
 
-	std::string url = gAgent.getRegion()->getCapability(
-		"NewFileAgentInventory");
+	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
 
 	if ( !url.empty() )
 	{
-		LL_INFOS() << "New Agent Inventory via capability" << LL_ENDL;
-
-		LLSD body;
-		body = generate_new_resource_upload_capability_body(
-			asset_type,
-			name,
-			desc,
-			destination_folder_type,
-			inv_type,
-			next_owner_perms,
-			group_perms,
-			everyone_perms);
-
-		LLHTTPClient::post(
-			url,
-			body,
-			new LLNewAgentInventoryResponder(
-				body,
-				uuid,
-				asset_type));
+        LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
 	}
 	else
 	{
+        uploadInfo->prepareUpload();
+        uploadInfo->logPreparedUpload();
+
 		LL_INFOS() << "NewAgentInventory capability not found, new agent inventory via asset system." << LL_ENDL;
 		// check for adequate funds
 		// TODO: do this check on the sim
-		if (LLAssetType::AT_SOUND == asset_type ||
-			LLAssetType::AT_TEXTURE == asset_type ||
-			LLAssetType::AT_ANIMATION == asset_type)
+		if (LLAssetType::AT_SOUND == uploadInfo->getAssetType() ||
+            LLAssetType::AT_TEXTURE == uploadInfo->getAssetType() ||
+            LLAssetType::AT_ANIMATION == uploadInfo->getAssetType())
 		{
 			S32 balance = gStatusBar->getBalance();
-			if (balance < expected_upload_cost)
+			if (balance < uploadInfo->getExpectedUploadCost())
 			{
 				// insufficient funds, bail on this upload
 				LLStringUtil::format_map_t args;
-				args["NAME"] = name;
-				args["AMOUNT"] = llformat("%d", expected_upload_cost);
-				LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("UploadingCosts", args), expected_upload_cost );
+				args["NAME"] = uploadInfo->getName();
+                args["AMOUNT"] = llformat("%d", uploadInfo->getExpectedUploadCost());
+                LLBuyCurrencyHTML::openCurrencyFloater(LLTrans::getString("UploadingCosts", args), uploadInfo->getExpectedUploadCost());
 				return;
 			}
 		}
 
 		LLResourceData* data = new LLResourceData;
-		data->mAssetInfo.mTransactionID = tid;
-		data->mAssetInfo.mUuid = uuid;
-		data->mAssetInfo.mType = asset_type;
+		data->mAssetInfo.mTransactionID = uploadInfo->getTransactionId();
+		data->mAssetInfo.mUuid = uploadInfo->getAssetId();
+        data->mAssetInfo.mType = uploadInfo->getAssetType();
 		data->mAssetInfo.mCreatorID = gAgentID;
-		data->mInventoryType = inv_type;
-		data->mNextOwnerPerm = next_owner_perms;
-		data->mExpectedUploadCost = expected_upload_cost;
+		data->mInventoryType = uploadInfo->getInventoryType();
+		data->mNextOwnerPerm = uploadInfo->getNextOwnerPerms();
+		data->mExpectedUploadCost = uploadInfo->getExpectedUploadCost();
 		data->mUserData = userdata;
-		data->mAssetInfo.setName(name);
-		data->mAssetInfo.setDescription(desc);
-		data->mPreferredLocation = destination_folder_type;
+		data->mAssetInfo.setName(uploadInfo->getName());
+		data->mAssetInfo.setDescription(uploadInfo->getDescription());
+		data->mPreferredLocation = uploadInfo->getDestinationFolderType();
 
 		LLAssetStorage::LLStoreAssetCallback asset_callback = &upload_done_callback;
 		if (callback)
@@ -1231,66 +840,6 @@ void upload_new_resource(
 			(void*)data,
 			FALSE);
 	}
-}
-
-LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid)
-{
-	if ( gDisconnected )
-	{	
-		LLAssetID rv;
-
-		rv.setNull();
-		return rv;
-	}
-
-	LLAssetID uuid = tid.makeAssetID(gAgent.getSecureSessionID());
-
-	return uuid;
-}
-
-void increase_new_upload_stats(LLAssetType::EType asset_type)
-{
-	if ( LLAssetType::AT_SOUND == asset_type )
-	{
-		add(LLStatViewer::UPLOAD_SOUND, 1);
-	}
-	else if ( LLAssetType::AT_TEXTURE == asset_type )
-	{
-		add(LLStatViewer::UPLOAD_TEXTURE, 1);
-	}
-	else if ( LLAssetType::AT_ANIMATION == asset_type )
-	{
-		add(LLStatViewer::ANIMATION_UPLOADS, 1);
-	}
-}
-
-void assign_defaults_and_show_upload_message(
-	LLAssetType::EType asset_type,
-	LLInventoryType::EType& inventory_type,
-	std::string& name,
-	const std::string& display_name,
-	std::string& description)
-{
-	if ( LLInventoryType::IT_NONE == inventory_type )
-	{
-		inventory_type = LLInventoryType::defaultForAssetType(asset_type);
-	}
-	LLStringUtil::stripNonprintable(name);
-	LLStringUtil::stripNonprintable(description);
-
-	if ( name.empty() )
-	{
-		name = "(No Name)";
-	}
-	if ( description.empty() )
-	{
-		description = "(No Description)";
-	}
-
-	// At this point, we're ready for the upload.
-	std::string upload_message = "Uploading...\n\n";
-	upload_message.append(display_name);
-	LLUploadDialog::modalUploadDialog(upload_message);
 }
 
 

@@ -26,7 +26,7 @@
 #include "linden_common.h"
 
 #include "llupdatedownloader.h"
-
+#include "httpcommon.h"
 #include <stdexcept>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -39,7 +39,6 @@
 #include "llsdserialize.h"
 #include "llthread.h"
 #include "llupdaterservice.h"
-#include "llcurl.h"
 
 class LLUpdateDownloader::Implementation:
 	public LLThread
@@ -65,7 +64,7 @@ private:
 	curl_off_t mBandwidthLimit;
 	bool mCancelled;
 	LLUpdateDownloader::Client & mClient;
-	CURL * mCurl;
+	LLCore::LLHttp::CURL_ptr mCurl;
 	LLSD mDownloadData;
 	llofstream mDownloadStream;
 	unsigned char mDownloadPercent;
@@ -192,7 +191,7 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 	mBandwidthLimit(0),
 	mCancelled(false),
 	mClient(client),
-	mCurl(0),
+	mCurl(),
 	mDownloadPercent(0),
 	mHeaderList(0)
 {
@@ -212,10 +211,7 @@ LLUpdateDownloader::Implementation::~Implementation()
 	{
 		; // No op.
 	}
-	if(mCurl)
-	{
-		LLCurl::deleteEasyHandle(mCurl);
-	}
+    mCurl.reset();
 }
 
 
@@ -331,9 +327,9 @@ void LLUpdateDownloader::Implementation::setBandwidthLimit(U64 bytesPerSecond)
 {
 	if((mBandwidthLimit != bytesPerSecond) && isDownloading() && !mDownloadData["required"].asBoolean())
 	{
-		llassert(mCurl != 0);
+		llassert(static_cast<bool>(mCurl));
 		mBandwidthLimit = bytesPerSecond;
-		CURLcode code = curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, &mBandwidthLimit);
+		CURLcode code = curl_easy_setopt(mCurl.get(), CURLOPT_MAX_RECV_SPEED_LARGE, &mBandwidthLimit);
 		if(code != CURLE_OK)
 		{
 			LL_WARNS("UpdaterService") << "unable to change dowload bandwidth" << LL_ENDL;
@@ -416,7 +412,7 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 
 void LLUpdateDownloader::Implementation::run(void)
 {
-	CURLcode code = curl_easy_perform(mCurl);
+    CURLcode code = curl_easy_perform(mCurl.get());
 	mDownloadStream.close();
 	if(code == CURLE_OK)
 	{
@@ -460,36 +456,36 @@ void LLUpdateDownloader::Implementation::run(void)
 
 void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & url, bool processHeader)
 {
-	if(mCurl == 0)
+	if(!mCurl)
 	{
-		mCurl = LLCurl::newEasyHandle();
+		mCurl = LLCore::LLHttp::createEasyHandle();
 	}
 	else
 	{
-		curl_easy_reset(mCurl);
+        curl_easy_reset(mCurl.get());
 	}
 
-	if(mCurl == 0)
+	if(!mCurl)
 	{
 		throw DownloadError("failed to initialize curl");
 	}
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, true));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_FOLLOWLOCATION, true));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &write_function));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this));
+    throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_NOSIGNAL, true));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_FOLLOWLOCATION, true));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_WRITEFUNCTION, &write_function));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_WRITEDATA, this));
 	if(processHeader)
 	{
-	   throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERFUNCTION, &header_function));
-	   throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HEADERDATA, this));
+	   throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_HEADERFUNCTION, &header_function));
+	   throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_HEADERDATA, this));
 	}
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPGET, true));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_URL, url.c_str()));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSFUNCTION, &progress_callback));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_PROGRESSDATA, this));
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_NOPROGRESS, false));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_HTTPGET, true));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_URL, url.c_str()));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_PROGRESSFUNCTION, &progress_callback));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_PROGRESSDATA, this));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_NOPROGRESS, false));
 	// if it's a required update set the bandwidth limit to 0 (unlimited)
 	curl_off_t limit = mDownloadData["required"].asBoolean() ? 0 : mBandwidthLimit;
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_MAX_RECV_SPEED_LARGE, limit));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_MAX_RECV_SPEED_LARGE, limit));
 
 	mDownloadPercent = 0;
 }
@@ -511,7 +507,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	{
 		throw DownloadError("cannot add Range header");
 	}
-	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaderList));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_HTTPHEADER, mHeaderList));
 
 	mDownloadStream.open(mDownloadData["path"].asString().c_str(),
 						 std::ios_base::out | std::ios_base::binary | std::ios_base::app);

@@ -37,7 +37,6 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
 #include "llfolderview.h"
-#include "llhttpclient.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"

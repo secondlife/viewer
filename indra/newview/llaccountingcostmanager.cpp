@@ -27,90 +27,145 @@
 #include "llviewerprecompiledheaders.h"
 #include "llaccountingcostmanager.h"
 #include "llagent.h"
-#include "llcurl.h"
-#include "llhttpclient.h"
+#include "httpcommon.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
+#include "llcorehttputil.h"
+#include <algorithm>
+#include <iterator>
+
 //===============================================================================
 LLAccountingCostManager::LLAccountingCostManager()
 {	
+
 }
-//===============================================================================
-class LLAccountingCostResponder : public LLCurl::Responder
+
+// Coroutine for sending and processing avatar name cache requests.  
+// Do not call directly.  See documentation in lleventcoro.h and llcoro.h for
+// further explanation.
+void LLAccountingCostManager::accountingCostCoro(std::string url,
+    eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle)
 {
-	LOG_CLASS(LLAccountingCostResponder);
-public:
-	LLAccountingCostResponder( const LLSD& objectIDs, const LLHandle<LLAccountingCostObserver>& observer_handle )
-	: mObjectIDs( objectIDs ),
-	  mObserverHandle( observer_handle )
-	{
-		LLAccountingCostObserver* observer = mObserverHandle.get();
-		if (observer)
-		{
-			mTransactionID = observer->getTransactionID();
-		}
-	}
+    LL_DEBUGS("LLAccountingCostManager") << "Entering coroutine " << LLCoros::instance().getName()
+        << " with url '" << url << LL_ENDL;
 
-	void clearPendingRequests ( void )
-	{
-		for ( LLSD::array_iterator iter = mObjectIDs.beginArray(); iter != mObjectIDs.endArray(); ++iter )
-		{
-			LLAccountingCostManager::getInstance()->removePendingObject( iter->asUUID() );
-		}
-	}
-	
-protected:
-	void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-		clearPendingRequests();
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AccountingCost", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-		LLAccountingCostObserver* observer = mObserverHandle.get();
-		if (observer && observer->getTransactionID() == mTransactionID)
-		{
-			observer->setErrorStatus(getStatus(), getReason());
-		}
-	}
-	
-	void httpSuccess()
-	{
-		const LLSD& content = getContent();
-		//Check for error
-		if ( !content.isMap() || content.has("error") )
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Error on fetched data", content);
-			return;
-		}
-		else if (content.has("selected"))
-		{
-			F32 physicsCost		= 0.0f;
-			F32 networkCost		= 0.0f;
-			F32 simulationCost	= 0.0f;
+    try
+    {
+        uuid_set_t diffSet;
 
-			physicsCost		= content["selected"]["physics"].asReal();
-			networkCost		= content["selected"]["streaming"].asReal();
-			simulationCost	= content["selected"]["simulation"].asReal();
-				
-			SelectionCost selectionCost( /*transactionID,*/ physicsCost, networkCost, simulationCost );
+        std::set_difference(mObjectList.begin(), mObjectList.end(),
+            mPendingObjectQuota.begin(), mPendingObjectQuota.end(),
+            std::inserter(diffSet, diffSet.begin()));
 
-			LLAccountingCostObserver* observer = mObserverHandle.get();
-			if (observer && observer->getTransactionID() == mTransactionID)
-			{
-				observer->onWeightsUpdate(selectionCost);
-			}
-		}
+        if (diffSet.empty())
+            return;
 
-		clearPendingRequests();
-	}
-	
-private:
-	//List of posted objects
-	LLSD mObjectIDs;
+        mObjectList.clear();
 
-	// Current request ID
-	LLUUID mTransactionID;
+        std::string keystr;
+        if (selectionType == Roots)
+        {
+            keystr = "selected_roots";
+        }
+        else if (selectionType == Prims)
+        {
+            keystr = "selected_prims";
+        }
+        else
+        {
+            LL_INFOS() << "Invalid selection type " << LL_ENDL;
+            return;
+        }
 
-	// Cost update observer handle
-	LLHandle<LLAccountingCostObserver> mObserverHandle;
-};
+        LLSD objectList(LLSD::emptyMap());
+
+        for (uuid_set_t::iterator it = diffSet.begin(); it != diffSet.end(); ++it)
+        {
+            objectList.append(*it);
+        }
+
+        mPendingObjectQuota.insert(diffSet.begin(), diffSet.end());
+
+        LLSD dataToPost = LLSD::emptyMap();
+        dataToPost[keystr.c_str()] = objectList;
+
+        LLAccountingCostObserver* observer = observerHandle.get();
+        LLUUID transactionId = observer->getTransactionID();
+        observer = NULL;
+
+
+
+        LLSD results = httpAdapter->postAndSuspend(httpRequest, url, dataToPost);
+
+        LLSD httpResults = results["http_result"];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        // do/while(false) allows error conditions to break out of following 
+        // block while normal flow goes forward once.
+        do 
+        {
+            observer = observerHandle.get();
+
+            if (!status || results.has("error"))
+            {
+                LL_WARNS() << "Error on fetched data" << LL_ENDL;
+                if (!status)
+                    observer->setErrorStatus(status.getType(), status.toString());
+                else
+                    observer->setErrorStatus(499, "Error on fetched data");
+
+                break;
+            }
+
+            if (!httpResults["success"].asBoolean())
+            {
+                LL_WARNS() << "Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                    << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                if (observer)
+                {
+                    observer->setErrorStatus(httpResults["status"].asInteger(), httpResults["message"].asStringRef());
+                }
+                break;
+            }
+
+
+            if (results.has("selected"))
+            {
+                LLSD selected = results["selected"];
+
+                F32 physicsCost = 0.0f;
+                F32 networkCost = 0.0f;
+                F32 simulationCost = 0.0f;
+
+                physicsCost = selected["physics"].asReal();
+                networkCost = selected["streaming"].asReal();
+                simulationCost = selected["simulation"].asReal();
+
+                SelectionCost selectionCost( physicsCost, networkCost, simulationCost);
+
+                observer->onWeightsUpdate(selectionCost);
+            }
+
+        } while (false);
+
+    }
+    catch (std::exception e)
+    {
+        LL_WARNS() << "Caught exception '" << e.what() << "'" << LL_ENDL;
+    }
+    catch (...)
+    {
+        LL_WARNS() << "Caught unknown exception." << LL_ENDL;
+    }
+
+    mPendingObjectQuota.clear();
+}
+
 //===============================================================================
 void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
 										  const std::string& url,
@@ -119,50 +174,11 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
 	// Invoking system must have already determined capability availability
 	if ( !url.empty() )
 	{
-		LLSD objectList;
-		U32  objectIndex = 0;
-		
-		IDIt IDIter = mObjectList.begin();
-		IDIt IDIterEnd = mObjectList.end();
-		
-		for ( ; IDIter != IDIterEnd; ++IDIter )
-		{
-			// Check to see if a request for this object has already been made.
-			if ( mPendingObjectQuota.find( *IDIter ) ==	mPendingObjectQuota.end() )
-			{
-				mPendingObjectQuota.insert( *IDIter );
-				objectList[objectIndex++] = *IDIter;
-			}
-		}
-	
-		mObjectList.clear();
-		
-		//Post results
-		if ( objectList.size() > 0 )
-		{
-			std::string keystr;
-			if ( selectionType == Roots ) 
-			{ 
-				keystr="selected_roots"; 
-			}
-			else
-			if ( selectionType == Prims ) 
-			{ 
-				keystr="selected_prims";
-			}
-			else 
-			{
-				LL_INFOS()<<"Invalid selection type "<<LL_ENDL;
-				mObjectList.clear();
-				mPendingObjectQuota.clear();
-				return;
-			}
-			
-			LLSD dataToPost = LLSD::emptyMap();		
-			dataToPost[keystr.c_str()] = objectList;
+        std::string coroname = 
+            LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
+            boost::bind(&LLAccountingCostManager::accountingCostCoro, this, url, selectionType, observer_handle));
+        LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
 
-			LLHTTPClient::post( url, dataToPost, new LLAccountingCostResponder( objectList, observer_handle ));
-		}
 	}
 	else
 	{

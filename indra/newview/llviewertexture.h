@@ -266,7 +266,7 @@ class LLViewerFetchedTexture : public LLViewerTexture
 protected:
 	/*virtual*/ ~LLViewerFetchedTexture();
 public:
-	LLViewerFetchedTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost::invalid, BOOL usemipmaps = TRUE);
+	LLViewerFetchedTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost(), BOOL usemipmaps = TRUE);
 	LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, BOOL usemipmaps);
 	LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
 
@@ -498,7 +498,7 @@ protected:
 	S32 mCachedRawDiscardLevel;
 	BOOL mCachedRawImageReady; //the rez of the mCachedRawImage reaches the upper limit.	
 
-	LLHost mTargetHost;	// if LLHost::invalid, just request from agent's simulator
+	LLHost mTargetHost;	// if invalid, just request from agent's simulator
 
 	// Timers
 	LLFrameTimer mLastPacketTimer;		// Time since last packet.
@@ -528,7 +528,7 @@ protected:
 	/*virtual*/ ~LLViewerLODTexture(){}
 
 public:
-	LLViewerLODTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost::invalid, BOOL usemipmaps = TRUE);
+	LLViewerLODTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost(), BOOL usemipmaps = TRUE);
 	LLViewerLODTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
 
 	/*virtual*/ S8 getType() const;

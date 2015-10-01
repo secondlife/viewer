@@ -36,6 +36,7 @@
 #include "llextendedstatus.h"
 
 #include "llenvmanager.h" // for LLEnvironmentSettings
+#include "lleventcoro.h"
 
 class LLAvatarName;
 class LLDispatcher;
@@ -107,6 +108,8 @@ private:
 	
 	LLFloaterRegionInfo(const LLSD& seed);
 	~LLFloaterRegionInfo();
+
+
 	
 protected:
 	void onTabSelected(const LLSD& param);
@@ -475,6 +478,8 @@ public:
 	void processResponse( const LLSD& content );
 private:
 	void refreshRegionExperiences();
+
+    static std::string regionCapabilityQuery(LLViewerRegion* region, const std::string &cap);
 
 	LLPanelExperienceListEditor* setupList(const char* control_name, U32 add_id, U32 remove_id);
 	static LLSD addIds( LLPanelExperienceListEditor* panel );

@@ -2,6 +2,39 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
 <map>
+  <key>ImporterDebug</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable debug output to more precisely identify sources of import errors. Warning: the output can slow down import on many machines.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>ImporterLegacyMatching</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable index based model matching.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>ImporterModelLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Limits amount of importer generated models for dae files</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>768</integer>
+  </map>
     <key>IMShowTime</key>
     <map>
       <key>Comment</key>
@@ -2369,6 +2402,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+  <key>DebugSlshareLogTag</key>
+    <map>
+      <key>Comment</key>
+      <string>Request slshare-service debug logging</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string/>
     </map>
   <key>DebugStatModeFPS</key>
     <map>
@@ -14384,6 +14428,24 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PoolSizeAIS</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for AIS</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>25</integer>
+        </map>
+    <key>PoolSizeUpload</key>
+        <map>
+        <key>Comment</key>
+            <string>Coroutine Pool size for Upload</string>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
 
     <!-- Settings below are for back compatibility only.
     They are not used in current viewer anymore. But they can't be removed to avoid

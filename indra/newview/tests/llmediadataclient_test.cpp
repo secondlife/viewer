@@ -106,7 +106,7 @@ const char *DATA = _DATA(VALID_OBJECT_ID,"1.0","true");
 
 LLSD *gPostRecords = NULL;
 F64   gMinimumInterestLevel = (F64)0.0;
-
+#if 0
 // stubs:
 void LLHTTPClient::post(
 		const std::string& url,
@@ -140,6 +140,7 @@ void LLHTTPClient::post(
 	}
 	responder->successResult(result);
 }
+#endif
 
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
 

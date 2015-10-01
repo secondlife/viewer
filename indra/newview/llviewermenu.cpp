@@ -390,32 +390,10 @@ void set_underclothes_menu_options()
 
 void set_merchant_SLM_menu()
 {
-    // DD-170 : SLM Alpha and Beta program : for the moment, we always show the SLM menu and 
-    // tools so that all merchants can try out the UI, even if not migrated.
-    // *TODO : Keep SLM UI hidden for non migrated merchant in released viewer
-    
-    //if (LLMarketplaceData::instance().getSLMStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT)
-    //{
-        // Merchant not migrated: show only the old Merchant Outbox menu
-    //    gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(TRUE);
-    //}
-    //else
-    //{
-        // All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool
-        gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
-        LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
-		gToolBarView->enableCommand(command->id(), true);
-    //}
-}
-
-void set_merchant_outbox_menu(U32 status, const LLSD& content)
-{
-    // If the merchant is fully migrated, the API is disabled (503) and we won't show the old menu item.
-    // In all other cases, we show it.
-    if (status != MarketplaceErrorCodes::IMPORT_SERVER_API_DISABLED)
-    {
-        gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(TRUE);
-    }
+    // All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool
+    gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
+    LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
+	gToolBarView->enableCommand(command->id(), true);
 }
 
 void check_merchant_status()
@@ -434,17 +412,6 @@ void check_merchant_status()
         
         // Launch an SLM test connection to get the merchant status
         LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
-
-        // Do the Merchant Outbox init only once per session
-        if (LLMarketplaceInventoryImporter::instance().getMarketPlaceStatus() == MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
-        {
-            // Hide merchant outbox related menu item
-            gMenuHolder->getChild<LLView>("MerchantOutbox")->setVisible(FALSE);
-            
-            // Launch a Merchant Outbox test connection to get the migration status
-            LLMarketplaceInventoryImporter::instance().setStatusReportCallback(boost::bind(&set_merchant_outbox_menu,_1, _2));
-            LLMarketplaceInventoryImporter::instance().initialize();
-        }
     }
 }
 

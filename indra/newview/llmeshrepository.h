@@ -38,6 +38,7 @@
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "llthread.h"
 
 #define LLCONVEXDECOMPINTER_STATIC 1
 
@@ -88,54 +89,6 @@ public:
 	{
 		mRetries = 0;
 	}
-};
-
-class LLImportMaterial
-{
-public:
-	LLPointer<LLViewerFetchedTexture> mDiffuseMap;
-	std::string mDiffuseMapFilename;
-	std::string mDiffuseMapLabel;
-	std::string mBinding;
-	LLColor4 mDiffuseColor;
-	bool mFullbright;
-
-	bool operator<(const LLImportMaterial &params) const;
-
-	LLImportMaterial() 
-		: mFullbright(false) 
-	{ 
-		mDiffuseColor.set(1,1,1,1);
-	}
-
-	LLImportMaterial(LLSD& data);
-
-	LLSD asLLSD();
-};
-
-class LLModelInstance 
-{
-public:
-	LLPointer<LLModel> mModel;
-	LLPointer<LLModel> mLOD[5];
-	
-	std::string mLabel;
-
-	LLUUID mMeshID;
-	S32 mLocalMeshID;
-
-	LLMatrix4 mTransform;
-	std::map<std::string, LLImportMaterial> mMaterial;
-
-	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::map<std::string, LLImportMaterial>& materials)
-		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
-	{
-		mLocalMeshID = -1;
-	}
-
-	LLModelInstance(LLSD& data);
-
-	LLSD asLLSD();
 };
 
 class LLPhysicsDecomp : public LLThread
@@ -322,9 +275,9 @@ public:
 	// llcorehttp library interface objects.
 	LLCore::HttpStatus					mHttpStatus;
 	LLCore::HttpRequest *				mHttpRequest;
-	LLCore::HttpOptions *				mHttpOptions;
-	LLCore::HttpOptions *				mHttpLargeOptions;
-	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpOptions::ptr_t			mHttpOptions;
+	LLCore::HttpOptions::ptr_t			mHttpLargeOptions;
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
 	LLCore::HttpRequest::policy_t		mHttpLegacyPolicyClass;
 	LLCore::HttpRequest::policy_t		mHttpLargePolicyClass;
@@ -483,6 +436,8 @@ public:
 	// Inherited from LLCore::HttpHandler
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
+        LLViewerFetchedTexture* FindViewerTexture(const LLImportMaterial& material);
+
 private:
 	LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;
 	LLHandle<LLWholeModelUploadObserver> mUploadObserverHandle;
@@ -493,8 +448,8 @@ private:
 	// llcorehttp library interface objects.
 	LLCore::HttpStatus					mHttpStatus;
 	LLCore::HttpRequest *				mHttpRequest;
-	LLCore::HttpOptions *				mHttpOptions;
-	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpOptions::ptr_t			mHttpOptions;
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 };

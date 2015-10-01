@@ -83,7 +83,7 @@ public:
 	WorkingSet();
 	~WorkingSet();
 
-	bool reload(LLCore::HttpRequest *, LLCore::HttpOptions *);
+	bool reload(LLCore::HttpRequest *, LLCore::HttpOptions::ptr_t &);
 	
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
@@ -121,7 +121,7 @@ public:
 	int							mRetriesHttp503;
 	int							mSuccesses;
 	long						mByteCount;
-	LLCore::HttpHeaders *		mHeaders;
+	LLCore::HttpHeaders::ptr_t	mHeaders;
 };
 
 
@@ -304,7 +304,7 @@ int main(int argc, char** argv)
 	LLCore::HttpRequest * hr = new LLCore::HttpRequest();
 
 	// Get request options
-	LLCore::HttpOptions * opt = new LLCore::HttpOptions();
+	LLCore::HttpOptions::ptr_t opt = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
 	opt->setRetries(12);
 	opt->setUseRetryAfter(true);
 	
@@ -363,8 +363,7 @@ int main(int argc, char** argv)
 	// Clean up
 	hr->requestStopThread(NULL);
 	ms_sleep(1000);
-	opt->release();
-	opt = NULL;
+    opt.reset();
 	delete hr;
 	LLCore::HttpRequest::destroyService();
 	term_curl();
@@ -427,22 +426,17 @@ WorkingSet::WorkingSet()
 {
 	mAssets.reserve(30000);
 
-	mHeaders = new LLCore::HttpHeaders;
+	mHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHeaders->append("Accept", "image/x-j2c");
 }
 
 
 WorkingSet::~WorkingSet()
 {
-	if (mHeaders)
-	{
-		mHeaders->release();
-		mHeaders = NULL;
-	}
 }
 
 
-bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions * opt)
+bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions::ptr_t & opt)
 {
 	if (mRequestLowWater <= mHandles.size())
 	{

@@ -40,6 +40,9 @@
 #include "llnotificationptr.h"
 
 #include "llurl.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
+#include "llcorehttputil.h"
 
 class LLViewerMediaImpl;
 class LLUUID;
@@ -161,11 +164,15 @@ public:
 	static void setOnlyAudibleMediaTextureID(const LLUUID& texture_id);
 
 	static LLSD getHeaders();
+    static LLCore::HttpHeaders::ptr_t getHttpHeaders();
 	
 private:
 	static void setOpenIDCookie();
 	static void onTeleportFinished();
-	
+
+    static void openIDSetupCoro(std::string openidUrl, std::string openidToken);
+    static void getOpenIDCookieCoro(std::string url);
+
 	static LLPluginCookieStore *sCookieStore;
 	static LLURL sOpenIDURL;
 	static std::string sOpenIDCookie;
@@ -180,7 +187,6 @@ class LLViewerMediaImpl
 public:
 	
 	friend class LLViewerMedia;
-	friend class LLMimeDiscoveryResponder;
 	
 	LLViewerMediaImpl(
 		const LLUUID& texture_id,
@@ -453,7 +459,6 @@ private:
 	S32 mProximity;
 	F64 mProximityDistance;
 	F64 mProximityCamera;
-	LLMimeDiscoveryResponder *mMimeTypeProbe;
 	bool mMediaAutoPlay;
 	std::string mMediaEntryURL;
 	bool mInNearbyMediaList;	// used by LLPanelNearbyMedia::refreshList() for performance reasons
@@ -469,6 +474,10 @@ private:
 private:
 	BOOL mIsUpdated ;
 	std::list< LLVOVolume* > mObjectList ;
+
+    void mimeDiscoveryCoro(std::string url);
+    LLCoreHttpUtil::HttpCoroutineAdapter::wptr_t mMimeProbe;
+    bool mCanceling;
 
 private:
 	LLViewerMediaTexture *updatePlaceholderImage();

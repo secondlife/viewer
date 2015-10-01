@@ -64,6 +64,8 @@
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
 
+#include "llcorehttputil.h"
+
 #include "stringize.h"
 
 // for base64 decoding
@@ -122,66 +124,6 @@ static int scale_speaker_volume(float volume)
 	
 }
 
-class LLVivoxVoiceAccountProvisionResponder :
-	public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLVivoxVoiceAccountProvisionResponder);
-public:
-	LLVivoxVoiceAccountProvisionResponder(int retries)
-	{
-		mRetries = retries;
-	}
-
-private:
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS("Voice") << "ProvisionVoiceAccountRequest returned an error, "
-			<<  ( (mRetries > 0) ? "retrying" : "too many retries (giving up)" )
-			<< " " << dumpResponse() << LL_ENDL;
-
-		if ( mRetries > 0 )
-		{
-			LLVivoxVoiceClient::getInstance()->requestVoiceAccountProvision(mRetries - 1);
-		}
-		else
-		{
-			LLVivoxVoiceClient::getInstance()->giveUp();
-		}
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		std::string voice_sip_uri_hostname;
-		std::string voice_account_server_uri;
-		
-		LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
-		
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		if(content.has("voice_sip_uri_hostname"))
-			voice_sip_uri_hostname = content["voice_sip_uri_hostname"].asString();
-		
-		// this key is actually misnamed -- it will be an entire URI, not just a hostname.
-		if(content.has("voice_account_server_name"))
-			voice_account_server_uri = content["voice_account_server_name"].asString();
-		
-		LLVivoxVoiceClient::getInstance()->login(
-			content["username"].asString(),
-			content["password"].asString(),
-			voice_sip_uri_hostname,
-			voice_account_server_uri);
-	}
-
-private:
-	int mRetries;
-};
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 class LLVivoxVoiceClientMuteListObserver : public LLMuteListObserver
@@ -194,59 +136,6 @@ static LLVivoxVoiceClientMuteListObserver mutelist_listener;
 static bool sMuteListListener_listening = false;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-class LLVivoxVoiceClientCapResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLVivoxVoiceClientCapResponder);
-public:
-	LLVivoxVoiceClientCapResponder(LLVivoxVoiceClient::state requesting_state) : mRequestingState(requesting_state) {};
-
-private:
-	// called with bad status codes
-	/* virtual */ void httpFailure();
-	/* virtual */ void httpSuccess();
-
-	LLVivoxVoiceClient::state mRequestingState;  // state 
-};
-
-void LLVivoxVoiceClientCapResponder::httpFailure()
-{
-	LL_WARNS("Voice") << dumpResponse() << LL_ENDL;
-	LLVivoxVoiceClient::getInstance()->sessionTerminate();
-}
-
-void LLVivoxVoiceClientCapResponder::httpSuccess()
-{
-	LLSD::map_const_iterator iter;
-	
-	LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest response:" << dumpResponse() << LL_ENDL;
-
-	std::string uri;
-	std::string credentials;
-	
-	const LLSD& content = getContent();
-	if ( content.has("voice_credentials") )
-	{
-		LLSD voice_credentials = content["voice_credentials"];
-		if ( voice_credentials.has("channel_uri") )
-		{
-			uri = voice_credentials["channel_uri"].asString();
-		}
-		if ( voice_credentials.has("channel_credentials") )
-		{
-			credentials =
-				voice_credentials["channel_credentials"].asString();
-		}
-	}
-	
-	// set the spatial channel.  If no voice credentials or uri are 
-	// available, then we simply drop out of voice spatially.
-	if(LLVivoxVoiceClient::getInstance()->parcelVoiceInfoReceived(mRequestingState))
-	{
-		LLVivoxVoiceClient::getInstance()->setSpatialChannel(uri, credentials);
-	}
-}
-
 static LLProcessPtr sGatewayPtr;
 
 static bool isGatewayRunning()
@@ -556,14 +445,49 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 		
 		if ( !url.empty() ) 
 		{
-			LLHTTPClient::post(
-							   url,
-							   LLSD(),
-							   new LLVivoxVoiceAccountProvisionResponder(retries));
-		
+            LLCoros::instance().launch("LLVivoxVoiceClient::voiceAccountProvisionCoro",
+                boost::bind(&LLVivoxVoiceClient::voiceAccountProvisionCoro, this, url, retries));
 			setState(stateConnectorStart);		
 		}
 	}
+}
+
+void LLVivoxVoiceClient::voiceAccountProvisionCoro(std::string url, S32 retries)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceAccountProvision", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setRetries(retries);
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("Voice") << "Unable to provision voice account." << LL_ENDL;
+        giveUp();
+        return;
+    }
+
+    std::string voice_sip_uri_hostname;
+    std::string voice_account_server_uri;
+
+    //LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
+
+    if (result.has("voice_sip_uri_hostname"))
+        voice_sip_uri_hostname = result["voice_sip_uri_hostname"].asString();
+
+    // this key is actually misnamed -- it will be an entire URI, not just a hostname.
+    if (result.has("voice_account_server_name"))
+        voice_account_server_uri = result["voice_account_server_name"].asString();
+
+    login(result["username"].asString(), result["password"].asString(),
+        voice_sip_uri_hostname, voice_account_server_uri);
 }
 
 void LLVivoxVoiceClient::login(
@@ -4003,12 +3927,58 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 		LLSD data;
 		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
 		
-		LLHTTPClient::post(
-						url,
-						data,
-						new LLVivoxVoiceClientCapResponder(getState()));
+        LLCoros::instance().launch("LLVivoxVoiceClient::parcelVoiceInfoRequestCoro",
+            boost::bind(&LLVivoxVoiceClient::parcelVoiceInfoRequestCoro, this, url));
 		return true;
 	}
+}
+
+void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("parcelVoiceInfoRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    state requestingState = getState();
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, LLSD());
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("Voice") << "No voice on parcel" << LL_ENDL;
+        sessionTerminate();
+        return;
+    }
+
+    std::string uri;
+    std::string credentials;
+
+    if (result.has("voice_credentials"))
+    {
+        LLSD voice_credentials = result["voice_credentials"];
+        if (voice_credentials.has("channel_uri"))
+        {
+            uri = voice_credentials["channel_uri"].asString();
+        }
+        if (voice_credentials.has("channel_credentials"))
+        {
+            credentials =
+                voice_credentials["channel_credentials"].asString();
+        }
+    }
+
+    LL_INFOS("Voice") << "Voice URI is " << uri << LL_ENDL;
+
+    // set the spatial channel.  If no voice credentials or uri are 
+    // available, then we simply drop out of voice spatially.
+    if (parcelVoiceInfoReceived(requestingState))
+    {
+        setSpatialChannel(uri, credentials);
+    }
+
 }
 
 void LLVivoxVoiceClient::switchChannel(

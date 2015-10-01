@@ -39,6 +39,44 @@
 #include "llerror.h"
 #include "stringize.h"
 
+// do nothing, when we need nothing done
+void LLCoros::no_cleanup(CoroData*) {}
+
+// CoroData for the currently-running coroutine. Use a thread_specific_ptr
+// because each thread potentially has its own distinct pool of coroutines.
+// This thread_specific_ptr does NOT own the CoroData object! That's owned by
+// LLCoros::mCoros. It merely identifies it. For this reason we instantiate
+// it with a no-op cleanup function.
+boost::thread_specific_ptr<LLCoros::CoroData>
+LLCoros::sCurrentCoro(LLCoros::no_cleanup);
+
+//static
+LLCoros::coro::self& LLCoros::get_self()
+{
+    CoroData* current = sCurrentCoro.get();
+    if (! current)
+    {
+        LL_ERRS("LLCoros") << "Calling get_self() from non-coroutine context!" << LL_ENDL;
+    }
+    return *current->mSelf;
+}
+
+llcoro::Suspending::Suspending():
+    mSuspended(LLCoros::sCurrentCoro.get())
+{
+    // Revert mCurrentCoro to the value it had at the moment we last switched
+    // into this coroutine.
+    LLCoros::sCurrentCoro.reset(mSuspended->mPrev);
+}
+
+llcoro::Suspending::~Suspending()
+{
+    // Okay, we're back, update our mPrev
+    mSuspended->mPrev = LLCoros::sCurrentCoro.get();
+    // and reinstate our sCurrentCoro.
+    LLCoros::sCurrentCoro.reset(mSuspended);
+}
+
 LLCoros::LLCoros():
     // MAINT-2724: default coroutine stack size too small on Windows.
     // Previously we used
@@ -58,9 +96,9 @@ bool LLCoros::cleanup(const LLSD&)
     {
         // Has this coroutine exited (normal return, exception, exit() call)
         // since last tick?
-        if (mi->second->exited())
+        if (mi->second->mCoro.exited())
         {
-			   LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+            LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
             // The erase() call will invalidate its passed iterator value --
             // so increment mi FIRST -- but pass its original value to
             // erase(). This is what postincrement is all about.
@@ -94,7 +132,7 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
     {
         if (mCoros.find(name) == mCoros.end())
         {
-			   LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
+            LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
             return name;
         }
     }
@@ -114,20 +152,15 @@ bool LLCoros::kill(const std::string& name)
     return true;
 }
 
-std::string LLCoros::getNameByID(const void* self_id) const
+std::string LLCoros::getName() const
 {
-    // Walk the existing coroutines, looking for one from which the 'self_id'
-    // passed to us comes.
-    for (CoroMap::const_iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; ++mi)
+    CoroData* current = sCurrentCoro.get();
+    if (! current)
     {
-        namespace coro_private = boost::dcoroutines::detail;
-        if (static_cast<void*>(coro_private::coroutine_accessor::get_impl(const_cast<coro&>(*mi->second)).get())
-            == self_id)
-        {
-            return mi->first;
-        }
+        // not in a coroutine
+        return "";
     }
-    return "";
+    return current->mName;
 }
 
 void LLCoros::setStackSize(S32 stacksize)
@@ -136,10 +169,24 @@ void LLCoros::setStackSize(S32 stacksize)
     mStackSize = stacksize;
 }
 
+// Top-level wrapper around caller's coroutine callable. This function accepts
+// the coroutine library's implicit coro::self& parameter and sets sCurrentSelf
+// but does not pass it down to the caller's callable.
+void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& callable)
+{
+    // capture the 'self' param in CoroData
+    data->mSelf = &self;
+    // run the code the caller actually wants in the coroutine
+    callable();
+    // This cleanup isn't perfectly symmetrical with the way we initially set
+    // data->mPrev, but this is our last chance to reset mCurrentCoro.
+    sCurrentCoro.reset(data->mPrev);
+}
+
 /*****************************************************************************
 *   MUST BE LAST
 *****************************************************************************/
-// Turn off MSVC optimizations for just LLCoros::launchImpl() -- see
+// Turn off MSVC optimizations for just LLCoros::launch() -- see
 // DEV-32777. But MSVC doesn't support push/pop for optimization flags as it
 // does for warning suppression, and we really don't want to force
 // optimization ON for other code even in Debug or RelWithDebInfo builds.
@@ -147,15 +194,33 @@ void LLCoros::setStackSize(S32 stacksize)
 #if LL_MSVC
 // work around broken optimizations
 #pragma warning(disable: 4748)
+#pragma warning(disable: 4355) // 'this' used in initializer list: yes, intentionally
 #pragma optimize("", off)
 #endif // LL_MSVC
 
-std::string LLCoros::launchImpl(const std::string& prefix, coro* newCoro)
+LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
+                            const callable_t& callable, S32 stacksize):
+    mPrev(prev),
+    mName(name),
+    // Wrap the caller's callable in our toplevel() function so we can manage
+    // sCurrentCoro appropriately at startup and shutdown of each coroutine.
+    mCoro(boost::bind(toplevel, _1, this, callable), stacksize),
+    mSelf(0)
+{
+}
+
+std::string LLCoros::launch(const std::string& prefix, const callable_t& callable)
 {
     std::string name(generateDistinctName(prefix));
+    // pass the current value of sCurrentCoro as previous context
+    CoroData* newCoro = new CoroData(sCurrentCoro.get(), name,
+                                     callable, mStackSize);
+    // Store it in our pointer map
     mCoros.insert(name, newCoro);
+    // also set it as current
+    sCurrentCoro.reset(newCoro);
     /* Run the coroutine until its first wait, then return here */
-    (*newCoro)(std::nothrow);
+    (newCoro->mCoro)(std::nothrow);
     return name;
 }
 

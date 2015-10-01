@@ -50,6 +50,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
+#include "llcorehttputil.h"
 
 ///----------------------------------------------------------------------------
 /// LLFloaterScriptLimits
@@ -180,372 +181,6 @@ void LLPanelScriptLimitsInfo::updateChild(LLUICtrl* child_ctr)
 }
 
 ///----------------------------------------------------------------------------
-// Responders
-///----------------------------------------------------------------------------
-
-void fetchScriptLimitsRegionInfoResponder::httpSuccess()
-{
-	const LLSD& content = getContent();
-	if (!content.isMap())
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
-	//we don't need to test with a fake respose here (shouldn't anyway)
-
-#ifdef DUMP_REPLIES_TO_LLINFOS
-
-	LLSDNotationStreamer notation_streamer(content);
-	std::ostringstream nice_llsd;
-	nice_llsd << notation_streamer;
-
-	OSMessageBox(nice_llsd.str(), "main cap response:", 0);
-
-	LL_INFOS() << "main cap response:" << content << LL_ENDL;
-
-#endif
-
-	// at this point we have an llsd which should contain ether one or two urls to the services we want.
-	// first we look for the details service:
-	if(content.has("ScriptResourceDetails"))
-	{
-		LLHTTPClient::get(content["ScriptResourceDetails"], new fetchScriptLimitsRegionDetailsResponder(mInfo));
-	}
-	else
-	{
-		LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
-		if(!instance)
-		{
-			LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
-		}
-	}
-
-	// then the summary service:
-	if(content.has("ScriptResourceSummary"))
-	{
-		LLHTTPClient::get(content["ScriptResourceSummary"], new fetchScriptLimitsRegionSummaryResponder(mInfo));
-	}
-}
-
-void fetchScriptLimitsRegionInfoResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-}
-
-void fetchScriptLimitsRegionSummaryResponder::httpSuccess()
-{
-	const LLSD& content_ref = getContent();
-#ifdef USE_FAKE_RESPONSES
-
-	LLSD fake_content;
-	LLSD summary = LLSD::emptyMap();
-	LLSD available = LLSD::emptyArray();
-	LLSD available_urls = LLSD::emptyMap();
-	LLSD available_memory = LLSD::emptyMap();
-	LLSD used = LLSD::emptyArray();
-	LLSD used_urls = LLSD::emptyMap();
-	LLSD used_memory = LLSD::emptyMap();
-
-	used_urls["type"] = "urls";
-	used_urls["amount"] = FAKE_NUMBER_OF_URLS;
-	available_urls["type"] = "urls";
-	available_urls["amount"] = FAKE_AVAILABLE_URLS;
-	used_memory["type"] = "memory";
-	used_memory["amount"] = FAKE_AMOUNT_OF_MEMORY;
-	available_memory["type"] = "memory";
-	available_memory["amount"] = FAKE_AVAILABLE_MEMORY;
-
-//summary response:{'summary':{'available':[{'amount':i731,'type':'urls'},{'amount':i895577,'type':'memory'},{'amount':i731,'type':'urls'},{'amount':i895577,'type':'memory'}],'used':[{'amount':i329,'type':'urls'},{'amount':i66741,'type':'memory'}]}}
-
-	used.append(used_urls);
-	used.append(used_memory);
-	available.append(available_urls);
-	available.append(available_memory);
-
-	summary["available"] = available;
-	summary["used"] = used;
-	
-	fake_content["summary"] = summary;
-
-	const LLSD& content = fake_content;
-
-#else
-
-	const LLSD& content = content_ref;
-
-#endif
-
-	if (!content.isMap())
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
-
-
-#ifdef DUMP_REPLIES_TO_LLINFOS
-
-	LLSDNotationStreamer notation_streamer(content);
-	std::ostringstream nice_llsd;
-	nice_llsd << notation_streamer;
-
-	OSMessageBox(nice_llsd.str(), "summary response:", 0);
-
-	LL_WARNS() << "summary response:" << *content << LL_ENDL;
-
-#endif
-
-	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
-	if(!instance)
-	{
-		LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
-	}
-	else
-	{
-		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		if(tab)
-		{
-			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-			if(panel_memory)
-			{
-				panel_memory->getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
-
-				LLButton* btn = panel_memory->getChild<LLButton>("refresh_list_btn");
-				if(btn)
-				{
-					btn->setEnabled(true);
-				}
-
-				panel_memory->setRegionSummary(content);
-			}
-		}
-	}
-}
-
-void fetchScriptLimitsRegionSummaryResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-}
-
-void fetchScriptLimitsRegionDetailsResponder::httpSuccess()
-{
-	const LLSD& content_ref = getContent();
-#ifdef USE_FAKE_RESPONSES
-/*
-Updated detail service, ** denotes field added:
-
-result (map)
-+-parcels (array of maps)
-  +-id (uuid)
-  +-local_id (S32)**
-  +-name (string)
-  +-owner_id (uuid) (in ERS as owner, but owner_id in code)
-  +-objects (array of maps)
-    +-id (uuid)
-    +-name (string)
-	+-owner_id (uuid) (in ERS as owner, in code as owner_id)
-	+-owner_name (sting)**
-	+-location (map)**
-	  +-x (float)
-	  +-y (float)
-	  +-z (float)
-    +-resources (map) (this is wrong in the ERS but right in code)
-      +-type (string)
-      +-amount (int)
-*/
-	LLSD fake_content;
-	LLSD resource = LLSD::emptyMap();
-	LLSD location = LLSD::emptyMap();
-	LLSD object = LLSD::emptyMap();
-	LLSD objects = LLSD::emptyArray();
-	LLSD parcel = LLSD::emptyMap();
-	LLSD parcels = LLSD::emptyArray();
-
-	resource["urls"] = FAKE_NUMBER_OF_URLS;
-	resource["memory"] = FAKE_AMOUNT_OF_MEMORY;
-	
-	location["x"] = 128.0f;
-	location["y"] = 128.0f;
-	location["z"] = 0.0f;
-	
-	object["id"] = LLUUID("d574a375-0c6c-fe3d-5733-da669465afc7");
-	object["name"] = "Gabs fake Object!";
-	object["owner_id"] = LLUUID("8dbf2d41-69a0-4e5e-9787-0c9d297bc570");
-	object["owner_name"] = "Gabs Linden";
-	object["location"] = location;
-	object["resources"] = resource;
-
-	objects.append(object);
-
-	parcel["id"] = LLUUID("da05fb28-0d20-e593-2728-bddb42dd0160");
-	parcel["local_id"] = 42;
-	parcel["name"] = "Gabriel Linden\'s Sub Plot";
-	parcel["objects"] = objects;
-	parcels.append(parcel);
-
-	fake_content["parcels"] = parcels;
-	const LLSD& content = fake_content;
-
-#else
-
-	const LLSD& content = content_ref;
-
-#endif
-
-	if (!content.isMap())
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
-
-#ifdef DUMP_REPLIES_TO_LLINFOS
-
-	LLSDNotationStreamer notation_streamer(content);
-	std::ostringstream nice_llsd;
-	nice_llsd << notation_streamer;
-
-	OSMessageBox(nice_llsd.str(), "details response:", 0);
-
-	LL_INFOS() << "details response:" << content << LL_ENDL;
-
-#endif
-
-	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
-
-	if(!instance)
-	{
-		LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
-	}
-	else
-	{
-		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		if(tab)
-		{
-			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-			if(panel_memory)
-			{
-				panel_memory->setRegionDetails(content);
-			}
-			else
-			{
-				LL_WARNS() << "Failed to get scriptlimits memory panel" << LL_ENDL;
-			}
-		}
-		else
-		{
-			LL_WARNS() << "Failed to get scriptlimits_panels" << LL_ENDL;
-		}
-	}
-}
-
-void fetchScriptLimitsRegionDetailsResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-}
-
-void fetchScriptLimitsAttachmentInfoResponder::httpSuccess()
-{
-	const LLSD& content_ref = getContent();
-
-#ifdef USE_FAKE_RESPONSES
-
-	// just add the summary, as that's all I'm testing currently!
-	LLSD fake_content = LLSD::emptyMap();
-	LLSD summary = LLSD::emptyMap();
-	LLSD available = LLSD::emptyArray();
-	LLSD available_urls = LLSD::emptyMap();
-	LLSD available_memory = LLSD::emptyMap();
-	LLSD used = LLSD::emptyArray();
-	LLSD used_urls = LLSD::emptyMap();
-	LLSD used_memory = LLSD::emptyMap();
-
-	used_urls["type"] = "urls";
-	used_urls["amount"] = FAKE_NUMBER_OF_URLS;
-	available_urls["type"] = "urls";
-	available_urls["amount"] = FAKE_AVAILABLE_URLS;
-	used_memory["type"] = "memory";
-	used_memory["amount"] = FAKE_AMOUNT_OF_MEMORY;
-	available_memory["type"] = "memory";
-	available_memory["amount"] = FAKE_AVAILABLE_MEMORY;
-
-	used.append(used_urls);
-	used.append(used_memory);
-	available.append(available_urls);
-	available.append(available_memory);
-
-	summary["available"] = available;
-	summary["used"] = used;
-	
-	fake_content["summary"] = summary;
-	fake_content["attachments"] = content_ref["attachments"];
-
-	const LLSD& content = fake_content;
-
-#else
-
-	const LLSD& content = content_ref;
-
-#endif
-
-	if (!content.isMap())
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
-
-#ifdef DUMP_REPLIES_TO_LLINFOS
-
-	LLSDNotationStreamer notation_streamer(content);
-	std::ostringstream nice_llsd;
-	nice_llsd << notation_streamer;
-
-	OSMessageBox(nice_llsd.str(), "attachment response:", 0);
-	
-	LL_INFOS() << "attachment response:" << content << LL_ENDL;
-
-#endif
-
-	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
-
-	if(!instance)
-	{
-		LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
-	}
-	else
-	{
-		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		if(tab)
-		{
-			LLPanelScriptLimitsAttachment* panel = (LLPanelScriptLimitsAttachment*)tab->getChild<LLPanel>("script_limits_my_avatar_panel");
-			if(panel)
-			{
-				panel->getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
-
-				LLButton* btn = panel->getChild<LLButton>("refresh_list_btn");
-				if(btn)
-				{
-					btn->setEnabled(true);
-				}
-			
-				panel->setAttachmentDetails(content);
-			}
-			else
-			{
-				LL_WARNS() << "Failed to get script_limits_my_avatar_panel" << LL_ENDL;
-			}
-		}
-		else
-		{
-			LL_WARNS() << "Failed to get scriptlimits_panels" << LL_ENDL;
-		}
-	}
-}
-
-void fetchScriptLimitsAttachmentInfoResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-}
-
-///----------------------------------------------------------------------------
 // Memory Panel
 ///----------------------------------------------------------------------------
 
@@ -564,18 +199,155 @@ BOOL LLPanelScriptLimitsRegionMemory::getLandScriptResources()
 	std::string url = gAgent.getRegion()->getCapability("LandResources");
 	if (!url.empty())
 	{
-		body["parcel_id"] = mParcelId;
-
-		LLSD info;
-		info["parcel_id"] = mParcelId;
-		LLHTTPClient::post(url, body, new fetchScriptLimitsRegionInfoResponder(info));
-				
+        LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro",
+            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro, this, url));
 		return TRUE;
 	}
 	else
 	{
 		return FALSE;
 	}
+}
+
+void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptResourcesCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD postData;
+
+    postData["parcel_id"] = mParcelId;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS() << "Failed to get script resource info" << LL_ENDL;
+        return;
+    }
+
+    // We could retrieve these sequentially inline from this coroutine. But 
+    // since the original code retrieved them in parallel I'll spawn two 
+    // coroutines to do the retrieval. 
+
+    // The summary service:
+    if (result.has("ScriptResourceSummary"))
+    {
+        std::string urlResourceSummary = result["ScriptResourceSummary"].asString();
+        LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro",
+            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro, this, urlResourceSummary));
+    }
+
+    if (result.has("ScriptResourceDetails"))
+    {
+        std::string urlResourceDetails = result["ScriptResourceDetails"].asString();
+        LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro",
+            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro, this, urlResourceDetails));
+    }
+
+   
+}
+
+void LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptSummaryCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS() << "Unable to retrieve script summary." << LL_ENDL;
+        return;
+    }
+
+    LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
+    if (!instance)
+    {
+        LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
+        return;
+    }
+
+    LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
+    if (!tab)
+    {
+        LL_WARNS() << "Unable to access script limits tab" << LL_ENDL;
+        return;
+    }
+
+    LLPanelScriptLimitsRegionMemory* panelMemory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+    if (!panelMemory)
+    {
+        LL_WARNS() << "Unable to get memory panel." << LL_ENDL;
+        return;
+    }
+
+    panelMemory->getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
+
+    LLButton* btn = panelMemory->getChild<LLButton>("refresh_list_btn");
+    if (btn)
+    {
+        btn->setEnabled(true);
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+    panelMemory->setRegionSummary(result);
+
+}
+
+void LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptDetailsCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS() << "Unable to retrieve script details." << LL_ENDL;
+        return;
+    }
+
+    LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
+
+    if (!instance)
+    {
+        LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
+        return;
+    }
+
+    LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
+    if (!tab)
+    {
+        LL_WARNS() << "Unable to access script limits tab" << LL_ENDL;
+        return;
+    }
+
+    LLPanelScriptLimitsRegionMemory* panelMemory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+
+    if (!panelMemory)
+    {
+        LL_WARNS() << "Unable to get memory panel." << LL_ENDL;
+        return;
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+    panelMemory->setRegionDetails(result);
 }
 
 void LLPanelScriptLimitsRegionMemory::processParcelInfo(const LLParcelData& parcel_data)
@@ -935,17 +707,8 @@ BOOL LLPanelScriptLimitsRegionMemory::StartRequestChain()
 		std::string url = region->getCapability("RemoteParcelRequest");
 		if (!url.empty())
 		{
-			body["location"] = ll_sd_from_vector3(parcel_center);
-			if (!region_id.isNull())
-			{
-				body["region_id"] = region_id;
-			}
-			if (!pos_global.isExactlyZero())
-			{
-				U64 region_handle = to_region_handle(pos_global);
-				body["region_handle"] = ll_sd_from_U64(region_handle);
-			}
-			LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(getObserverHandle()));
+            LLRemoteParcelInfoProcessor::getInstance()->requestRegionParcelInfo(url, 
+                region_id, parcel_center, pos_global, getObserverHandle());
 		}
 		else
 		{
@@ -1183,7 +946,8 @@ BOOL LLPanelScriptLimitsAttachment::requestAttachmentDetails()
 	std::string url = gAgent.getRegion()->getCapability("AttachmentResources");
 	if (!url.empty())
 	{
-		LLHTTPClient::get(url, body, new fetchScriptLimitsAttachmentInfoResponder());
+        LLCoros::instance().launch("LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro",
+            boost::bind(&LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro, this, url));
 		return TRUE;
 	}
 	else
@@ -1191,6 +955,59 @@ BOOL LLPanelScriptLimitsAttachment::requestAttachmentDetails()
 		return FALSE;
 	}
 }
+
+void LLPanelScriptLimitsAttachment::getAttachmentLimitsCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getAttachmentLimitsCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS() << "Unable to retrieve attachment limits." << LL_ENDL;
+        return;
+    }
+
+    LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
+
+    if (!instance)
+    {
+        LL_WARNS() << "Failed to get llfloaterscriptlimits instance" << LL_ENDL;
+        return;
+    }
+
+    LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
+    if (!tab)
+    {
+        LL_WARNS() << "Failed to get scriptlimits_panels" << LL_ENDL;
+        return;
+    }
+
+    LLPanelScriptLimitsAttachment* panel = (LLPanelScriptLimitsAttachment*)tab->getChild<LLPanel>("script_limits_my_avatar_panel");
+    if (!panel)
+    {
+        LL_WARNS() << "Failed to get script_limits_my_avatar_panel" << LL_ENDL;
+        return;
+    }
+
+    panel->getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
+
+    LLButton* btn = panel->getChild<LLButton>("refresh_list_btn");
+    if (btn)
+    {
+        btn->setEnabled(true);
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+    panel->setAttachmentDetails(result);
+}
+
 
 void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 {

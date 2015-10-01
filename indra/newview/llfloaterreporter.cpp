@@ -77,12 +77,66 @@
 #include "lluictrlfactory.h"
 #include "llviewernetwork.h"
 
-#include "llassetuploadresponders.h"
 #include "llagentui.h"
 
 #include "lltrans.h"
 #include "llexperiencecache.h"
 
+#include "llcorehttputil.h"
+#include "llviewerassetupload.h"
+
+
+//=========================================================================
+//-----------------------------------------------------------------------------
+// Support classes
+//-----------------------------------------------------------------------------
+class LLARScreenShotUploader : public LLResourceUploadInfo
+{
+public:
+    LLARScreenShotUploader(LLSD report, LLUUID assetId, LLAssetType::EType assetType);
+
+    virtual LLSD        prepareUpload();
+    virtual LLSD        generatePostBody();
+    virtual S32         getEconomyUploadCost();
+    virtual LLUUID      finishUpload(LLSD &result);
+
+    virtual bool        showInventoryPanel() const { return false; }
+    virtual std::string getDisplayName() const { return "Abuse Report"; }
+
+private:
+
+    LLSD    mReport;
+};
+
+LLARScreenShotUploader::LLARScreenShotUploader(LLSD report, LLUUID assetId, LLAssetType::EType assetType) :
+    LLResourceUploadInfo(assetId, assetType, "Abuse Report"),
+    mReport(report)
+{
+}
+
+LLSD LLARScreenShotUploader::prepareUpload()
+{
+    return LLSD().with("success", LLSD::Boolean(true));
+}
+
+LLSD LLARScreenShotUploader::generatePostBody()
+{   // The report was pregenerated and passed in the constructor.
+    return mReport;
+}
+
+S32 LLARScreenShotUploader::getEconomyUploadCost()
+{   // Abuse report screen shots do not cost anything to upload.
+    return 0;
+}
+
+LLUUID LLARScreenShotUploader::finishUpload(LLSD &result)
+{
+    /* *TODO$: Report success or failure. Carried over from previous todo on responder*/
+    return LLUUID::null;
+}
+
+
+//=========================================================================
 //-----------------------------------------------------------------------------
 // Globals
 //-----------------------------------------------------------------------------
@@ -214,7 +268,7 @@ void LLFloaterReporter::getExperienceInfo(const LLUUID& experience_id)
 
 	if (LLUUID::null != mExperienceID)
 	{
-		const LLSD& experience = LLExperienceCache::get(mExperienceID);
+        const LLSD& experience = LLExperienceCache::instance().get(mExperienceID);
 		std::stringstream desc;
 
 		if(experience.isDefined())
@@ -706,59 +760,25 @@ void LLFloaterReporter::sendReportViaLegacy(const LLSD & report)
 	msg->sendReliable(regionp->getHost());
 }
 
-class LLUserReportScreenshotResponder : public LLAssetUploadResponder
+void LLFloaterReporter::finishedARPost(const LLSD &)
 {
-public:
-	LLUserReportScreenshotResponder(const LLSD & post_data, 
-									const LLUUID & vfile_id, 
-									LLAssetType::EType asset_type):
-	  LLAssetUploadResponder(post_data, vfile_id, asset_type)
-	{
-	}
-	void uploadFailed(const LLSD& content)
-	{
-		// *TODO pop up a dialog so the user knows their report screenshot didn't make it
-		LLUploadDialog::modalUploadFinished();
-	}
-	void uploadComplete(const LLSD& content)
-	{
-		// we don't care about what the server returns from this post, just clean up the UI
-		LLUploadDialog::modalUploadFinished();
-	}
-};
+    LLUploadDialog::modalUploadFinished();
 
-class LLUserReportResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLUserReportResponder);
-public:
-	LLUserReportResponder(): LLHTTPClient::Responder()  {}
-
-private:
-	void httpCompleted()
-	{
-		if (!isGoodStatus())
-		{
-			// *TODO do some user messaging here
-			LL_WARNS("UserReport") << dumpResponse() << LL_ENDL;
-		}
-		// we don't care about what the server returns
-		LLUploadDialog::modalUploadFinished();
-	}
-};
+}
 
 void LLFloaterReporter::sendReportViaCaps(std::string url, std::string sshot_url, const LLSD& report)
 {
 	if(getChild<LLUICtrl>("screen_check")->getValue().asBoolean() && !sshot_url.empty())
-	{
+    {
 		// try to upload screenshot
-		LLHTTPClient::post(sshot_url, report, new LLUserReportScreenshotResponder(report, 
-															mResourceDatap->mAssetInfo.mUuid, 
-															mResourceDatap->mAssetInfo.mType));			
+        LLResourceUploadInfo::ptr_t uploadInfo(new  LLARScreenShotUploader(report, mResourceDatap->mAssetInfo.mUuid, mResourceDatap->mAssetInfo.mType));
+        LLViewerAssetUpload::EnqueueInventoryUpload(sshot_url, uploadInfo);
 	}
 	else
 	{
-		// screenshot not wanted or we don't have screenshot cap
-		LLHTTPClient::post(url, report, new LLUserReportResponder());			
+        LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t proc = boost::bind(&LLFloaterReporter::finishedARPost, _1);
+        LLUploadDialog::modalUploadDialog("Abuse Report");
+        LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, report, proc, proc);
 	}
 }
 

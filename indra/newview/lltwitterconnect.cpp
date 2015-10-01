@@ -32,7 +32,6 @@
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llcommandhandler.h"
-#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
 #include "llimagepng.h"
@@ -43,6 +42,7 @@
 
 #include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
+#include "llcorehttputil.h"
 
 boost::scoped_ptr<LLEventPump> LLTwitterConnect::sStateWatcher(new LLEventStream("TwitterConnectState"));
 boost::scoped_ptr<LLEventPump> LLTwitterConnect::sInfoWatcher(new LLEventStream("TwitterConnectInfo"));
@@ -67,228 +67,305 @@ void toast_user_for_twitter_success()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLTwitterConnectResponder : public LLHTTPClient::Responder
+void LLTwitterConnect::twitterConnectCoro(std::string requestToken, std::string oauthVerifier)
 {
-	LOG_CLASS(LLTwitterConnectResponder);
-public:
-	
-    LLTwitterConnectResponder()
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    LLSD body;
+    if (!requestToken.empty())
+        body["request_token"] = requestToken;
+    if (!oauthVerifier.empty())
+        body["oauth_verifier"] = oauthVerifier;
+
+    LLSD result = httpAdapter->putAndSuspend(httpRequest, getTwitterConnectURL("/connection"), body, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
     {
-        LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
+        if ( status == LLCore::HttpStatus(HTTP_FOUND) )
+        {
+            std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+            if (location.empty())
+            {
+                LL_WARNS("FlickrConnect") << "Missing Location header " << LL_ENDL;
+            }
+            else
+            {
+                openTwitterWeb(location);
+            }
+        }
+        else
+        {
+            LL_WARNS("TwitterConnect") << "Connection failed " << status.toString() << LL_ENDL;
+            setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
+            log_twitter_connect_error("Connect", status.getStatus(), status.toString(),
+                result.get("error_code"), result.get("error_description"));
+        }
     }
-    
-	/* virtual */ void httpSuccess()
-	{
-		LL_DEBUGS("TwitterConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
-        LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		if ( HTTP_FOUND == getStatus() )
-		{
-			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-			if (location.empty())
-			{
-				LL_WARNS("TwitterConnect") << "Missing Location header " << dumpResponse()
-                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
-			}
-			else
-			{
-                LLTwitterConnect::instance().openTwitterWeb(location);
-			}
-		}
-		else
-		{
-			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
-			LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
-			const LLSD& content = getContent();
-			log_twitter_connect_error("Connect", getStatus(), getReason(),
-									   content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
+    else
+    {
+        LL_DEBUGS("TwitterConnect") << "Connect successful. " << LL_ENDL;
+        setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLTwitterShareResponder : public LLHTTPClient::Responder
+bool LLTwitterConnect::testShareStatus(LLSD &result)
 {
-	LOG_CLASS(LLTwitterShareResponder);
-public:
-    
-	LLTwitterShareResponder()
-	{
-		LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_POSTING);
-	}
-	
-	/* virtual */ void httpSuccess()
-	{
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status)
+        return true;
+
+    if (status == LLCore::HttpStatus(HTTP_FOUND))
+    {
+        std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+        if (location.empty())
+        {
+            LL_WARNS("TwitterConnect") << "Missing Location header " << LL_ENDL;
+        }
+        else
+        {
+            openTwitterWeb(location);
+        }
+    }
+    if (status == LLCore::HttpStatus(HTTP_NOT_FOUND))
+    {
+        LL_DEBUGS("TwitterConnect") << "Not connected. " << LL_ENDL;
+        connectToTwitter();
+    }
+    else
+    {
+        LL_WARNS("TwitterConnect") << "HTTP Status error " << status.toString() << LL_ENDL;
+        setConnectionState(LLTwitterConnect::TWITTER_POST_FAILED);
+        log_twitter_connect_error("Share", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    return false;
+}
+
+void LLTwitterConnect::twitterShareCoro(std::string route, LLSD share)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getTwitterConnectURL(route, true), share, httpOpts);
+
+    if (testShareStatus(result))
+    {
         toast_user_for_twitter_success();
-		LL_DEBUGS("TwitterConnect") << "Post successful. " << dumpResponse() << LL_ENDL;
-        LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_POSTED);
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		if ( HTTP_FOUND == getStatus() )
-		{
-			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-			if (location.empty())
-			{
-				LL_WARNS("TwitterConnect") << "Missing Location header " << dumpResponse()
-                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
-			}
-			else
-			{
-                LLTwitterConnect::instance().openTwitterWeb(location);
-			}
-		}
-		else if ( HTTP_NOT_FOUND == getStatus() )
-		{
-			LLTwitterConnect::instance().connectToTwitter();
-		}
-		else
-		{
-			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
-            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_POST_FAILED);
-			const LLSD& content = getContent();
-			log_twitter_connect_error("Share", getStatus(), getReason(),
-									   content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
-
-///////////////////////////////////////////////////////////////////////////////
-//
-class LLTwitterDisconnectResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLTwitterDisconnectResponder);
-public:
- 
-	LLTwitterDisconnectResponder()
-	{
-		LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_DISCONNECTING);
-	}
-
-	void setUserDisconnected()
-	{
-		// Clear data
-		LLTwitterConnect::instance().clearInfo();
-
-		//Notify state change
-		LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_NOT_CONNECTED);
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		LL_DEBUGS("TwitterConnect") << "Disconnect successful. " << dumpResponse() << LL_ENDL;
-		setUserDisconnected();
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		//User not found so already disconnected
-		if ( HTTP_NOT_FOUND == getStatus() )
-		{
-			LL_DEBUGS("TwitterConnect") << "Already disconnected. " << dumpResponse() << LL_ENDL;
-			setUserDisconnected();
-		}
-		else
-		{
-			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
-			LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_DISCONNECT_FAILED);
-			const LLSD& content = getContent();
-			log_twitter_connect_error("Disconnect", getStatus(), getReason(),
-									   content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
-
-///////////////////////////////////////////////////////////////////////////////
-//
-class LLTwitterConnectedResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLTwitterConnectedResponder);
-public:
-    
-	LLTwitterConnectedResponder(bool auto_connect) : mAutoConnect(auto_connect)
-    {
-		LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
+        LL_DEBUGS("TwitterConnect") << "Post successful. " << LL_ENDL;
+        setConnectionState(LLTwitterConnect::TWITTER_POSTED);
     }
-    
-	/* virtual */ void httpSuccess()
-	{
-		LL_DEBUGS("TwitterConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
-        LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		// show the facebook login page if not connected yet
-		if ( HTTP_NOT_FOUND == getStatus() )
-		{
-			LL_DEBUGS("TwitterConnect") << "Not connected. " << dumpResponse() << LL_ENDL;
-			if (mAutoConnect)
-			{
-                LLTwitterConnect::instance().connectToTwitter();
-			}
-			else
-			{
-                LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_NOT_CONNECTED);
-			}
-		}
-		else
-		{
-			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
-            LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
-			const LLSD& content = getContent();
-			log_twitter_connect_error("Connected", getStatus(), getReason(),
-									   content.get("error_code"), content.get("error_description"));
-		}
-	}
-    
-private:
-	bool mAutoConnect;
-};
+}
+
+void LLTwitterConnect::twitterShareImageCoro(LLPointer<LLImageFormatted> image, std::string status)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    std::string imageFormat;
+    if (dynamic_cast<LLImagePNG*>(image.get()))
+    {
+        imageFormat = "png";
+    }
+    else if (dynamic_cast<LLImageJPEG*>(image.get()))
+    {
+        imageFormat = "jpg";
+    }
+    else
+    {
+        LL_WARNS() << "Image to upload is not a PNG or JPEG" << LL_ENDL;
+        return;
+    }
+
+    // All this code is mostly copied from LLWebProfile::post()
+    const std::string boundary = "----------------------------0123abcdefab";
+
+    std::string contentType = "multipart/form-data; boundary=" + boundary;
+    httpHeaders->append("Content-Type", contentType.c_str());
+
+    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray()); // 
+    LLCore::BufferArrayStream body(raw.get());
+
+    // *NOTE: The order seems to matter.
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"status\"\r\n\r\n"
+        << status << "\r\n";
+
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"image\"; filename=\"Untitled." << imageFormat << "\"\r\n"
+        << "Content-Type: image/" << imageFormat << "\r\n\r\n";
+
+    // Insert the image data.
+    // *FIX: Treating this as a string will probably screw it up ...
+    U8* image_data = image->getData();
+    for (S32 i = 0; i < image->getDataSize(); ++i)
+    {
+        body << image_data[i];
+    }
+
+    body << "\r\n--" << boundary << "--\r\n";
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getTwitterConnectURL("/share/photo", true), raw, httpOpts, httpHeaders);
+
+    if (testShareStatus(result))
+    {
+        toast_user_for_twitter_success();
+        LL_DEBUGS("TwitterConnect") << "Post successful. " << LL_ENDL;
+        setConnectionState(LLTwitterConnect::TWITTER_POSTED);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLTwitterInfoResponder : public LLHTTPClient::Responder
+void LLTwitterConnect::twitterDisconnectCoro()
 {
-	LOG_CLASS(LLTwitterInfoResponder);
-public:
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
-	/* virtual */ void httpSuccess()
-	{
-		LL_INFOS("TwitterConnect") << "Twitter: Info received" << LL_ENDL;
-		LL_DEBUGS("TwitterConnect") << "Getting Twitter info successful. " << dumpResponse() << LL_ENDL;
-        LLTwitterConnect::instance().storeInfo(getContent());
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		if ( HTTP_FOUND == getStatus() )
-		{
-			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-			if (location.empty())
-			{
-				LL_WARNS("TwitterConnect") << "Missing Location header " << dumpResponse()
-                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
-			}
-			else
-			{
-                LLTwitterConnect::instance().openTwitterWeb(location);
-			}
-		}
-		else
-		{
-			LL_WARNS("TwitterConnect") << dumpResponse() << LL_ENDL;
-			const LLSD& content = getContent();
-			log_twitter_connect_error("Info", getStatus(), getReason(),
-									   content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
+    httpOpts->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, getTwitterConnectURL("/connection"), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status && (status != LLCore::HttpStatus(HTTP_NOT_FOUND)))
+    {
+        LL_WARNS("TwitterConnect") << "Disconnect failed!" << LL_ENDL;
+        setConnectionState(LLTwitterConnect::TWITTER_DISCONNECT_FAILED);
+
+        log_twitter_connect_error("Disconnect", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    else
+    {
+        LL_DEBUGS("TwitterConnect") << "Disconnect successful. " << LL_ENDL;
+        clearInfo();
+        setConnectionState(LLTwitterConnect::TWITTER_NOT_CONNECTED);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+void LLTwitterConnect::twitterConnectedCoro(bool autoConnect)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setFollowRedirects(false);
+    setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getTwitterConnectURL("/connection", true), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        if (status == LLCore::HttpStatus(HTTP_NOT_FOUND))
+        {
+            LL_DEBUGS("TwitterConnect") << "Not connected. " << LL_ENDL;
+            if (autoConnect)
+            {
+                connectToTwitter();
+            }
+            else
+            {
+                setConnectionState(LLTwitterConnect::TWITTER_NOT_CONNECTED);
+            }
+        }
+        else
+        {
+            LL_WARNS("TwitterConnect") << "Failed to test connection:" << status.toTerseString() << LL_ENDL;
+
+            setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
+            log_twitter_connect_error("Connected", status.getStatus(), status.toString(),
+                result.get("error_code"), result.get("error_description"));
+        }
+    }
+    else
+    {
+        LL_DEBUGS("TwitterConnect") << "Connect successful. " << LL_ENDL;
+        setConnectionState(LLTwitterConnect::TWITTER_CONNECTED);
+    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+void LLTwitterConnect::twitterInfoCoro()
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("TwitterConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getTwitterConnectURL("/info", true), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status == LLCore::HttpStatus(HTTP_FOUND))
+    {
+        std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+        if (location.empty())
+        {
+            LL_WARNS("TwitterConnect") << "Missing Location header " << LL_ENDL;
+        }
+        else
+        {
+            openTwitterWeb(location);
+        }
+    }
+    else if (!status)
+    {
+        LL_WARNS("TwitterConnect") << "Twitter Info failed: " << status.toString() << LL_ENDL;
+        log_twitter_connect_error("Info", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    else
+    {
+        LL_INFOS("TwitterConnect") << "Twitter: Info received" << LL_ENDL;
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        storeInfo(result);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -341,36 +418,32 @@ std::string LLTwitterConnect::getTwitterConnectURL(const std::string& route, boo
 
 void LLTwitterConnect::connectToTwitter(const std::string& request_token, const std::string& oauth_verifier)
 {
-	LLSD body;
-	if (!request_token.empty())
-		body["request_token"] = request_token;
-	if (!oauth_verifier.empty())
-		body["oauth_verifier"] = oauth_verifier;
-    
-	LLHTTPClient::put(getTwitterConnectURL("/connection"), body, new LLTwitterConnectResponder());
+    setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_IN_PROGRESS);
+
+    LLCoros::instance().launch("LLTwitterConnect::twitterConnectCoro",
+        boost::bind(&LLTwitterConnect::twitterConnectCoro, this, request_token, oauth_verifier));
 }
 
 void LLTwitterConnect::disconnectFromTwitter()
 {
-	LLHTTPClient::del(getTwitterConnectURL("/connection"), new LLTwitterDisconnectResponder());
+    setConnectionState(LLTwitterConnect::TWITTER_DISCONNECTING);
+
+    LLCoros::instance().launch("LLTwitterConnect::twitterDisconnectCoro",
+        boost::bind(&LLTwitterConnect::twitterDisconnectCoro, this));
 }
 
 void LLTwitterConnect::checkConnectionToTwitter(bool auto_connect)
 {
-	const bool follow_redirects = false;
-	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	LLHTTPClient::get(getTwitterConnectURL("/connection", true), new LLTwitterConnectedResponder(auto_connect),
-						LLSD(), timeout, follow_redirects);
+    LLCoros::instance().launch("LLTwitterConnect::twitterConnectedCoro",
+        boost::bind(&LLTwitterConnect::twitterConnectedCoro, this, auto_connect));
 }
 
 void LLTwitterConnect::loadTwitterInfo()
 {
 	if(mRefreshInfo)
 	{
-		const bool follow_redirects = false;
-		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getTwitterConnectURL("/info", true), new LLTwitterInfoResponder(),
-			LLSD(), timeout, follow_redirects);
+        LLCoros::instance().launch("LLTwitterConnect::twitterInfoCoro",
+            boost::bind(&LLTwitterConnect::twitterInfoCoro, this));
 	}
 }
 
@@ -379,62 +452,19 @@ void LLTwitterConnect::uploadPhoto(const std::string& image_url, const std::stri
 	LLSD body;
 	body["image"] = image_url;
 	body["status"] = status;
-	
-    // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getTwitterConnectURL("/share/photo", true), body, new LLTwitterShareResponder());
+
+    setConnectionState(LLTwitterConnect::TWITTER_POSTING);
+
+    LLCoros::instance().launch("LLTwitterConnect::twitterShareCoro",
+        boost::bind(&LLTwitterConnect::twitterShareCoro, this, "/share/photo", body));
 }
 
 void LLTwitterConnect::uploadPhoto(LLPointer<LLImageFormatted> image, const std::string& status)
 {
-	std::string imageFormat;
-	if (dynamic_cast<LLImagePNG*>(image.get()))
-	{
-		imageFormat = "png";
-	}
-	else if (dynamic_cast<LLImageJPEG*>(image.get()))
-	{
-		imageFormat = "jpg";
-	}
-	else
-	{
-		LL_WARNS() << "Image to upload is not a PNG or JPEG" << LL_ENDL;
-		return;
-	}
-	
-	// All this code is mostly copied from LLWebProfile::post()
-	const std::string boundary = "----------------------------0123abcdefab";
+    setConnectionState(LLTwitterConnect::TWITTER_POSTING);
 
-	LLSD headers;
-	headers["Content-Type"] = "multipart/form-data; boundary=" + boundary;
-
-	std::ostringstream body;
-
-	// *NOTE: The order seems to matter.
-	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"status\"\r\n\r\n"
-			<< status << "\r\n";
-
-	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"image\"; filename=\"Untitled." << imageFormat << "\"\r\n"
-			<< "Content-Type: image/" << imageFormat << "\r\n\r\n";
-
-	// Insert the image data.
-	// *FIX: Treating this as a string will probably screw it up ...
-	U8* image_data = image->getData();
-	for (S32 i = 0; i < image->getDataSize(); ++i)
-	{
-		body << image_data[i];
-	}
-
-	body <<	"\r\n--" << boundary << "--\r\n";
-
-	// postRaw() takes ownership of the buffer and releases it later.
-	size_t size = body.str().size();
-	U8 *data = new U8[size];
-	memcpy(data, body.str().data(), size);
-	
-    // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::postRaw(getTwitterConnectURL("/share/photo", true), data, size, new LLTwitterShareResponder(), headers);
+    LLCoros::instance().launch("LLTwitterConnect::twitterShareImageCoro",
+        boost::bind(&LLTwitterConnect::twitterShareImageCoro, this, image, status));
 }
 
 void LLTwitterConnect::updateStatus(const std::string& status)
@@ -442,8 +472,10 @@ void LLTwitterConnect::updateStatus(const std::string& status)
 	LLSD body;
 	body["status"] = status;
 	
-    // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getTwitterConnectURL("/share/status", true), body, new LLTwitterShareResponder());
+    setConnectionState(LLTwitterConnect::TWITTER_POSTING);
+
+    LLCoros::instance().launch("LLTwitterConnect::twitterShareCoro",
+        boost::bind(&LLTwitterConnect::twitterShareCoro, this, "/share/status", body));
 }
 
 void LLTwitterConnect::storeInfo(const LLSD& info)

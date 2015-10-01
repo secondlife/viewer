@@ -59,13 +59,12 @@ void HttpHeadersTestObjectType::test<1>()
 	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
-	HttpHeaders * headers = new HttpHeaders();
-	ensure("One ref on construction of HttpHeaders", headers->getRefCount() == 1);
+	HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
 	ensure("Memory being used", mMemTotal < GetMemTotal());
 	ensure("Nothing in headers", 0 == headers->size());
 
 	// release the implicit reference, causing the object to be released
-	headers->release();
+    headers.reset();
 
 	// make sure we didn't leak any memory
 	ensure(mMemTotal == GetMemTotal());
@@ -80,7 +79,7 @@ void HttpHeadersTestObjectType::test<2>()
 	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
-	HttpHeaders * headers = new HttpHeaders();
+	HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
 	
 	{
 		// Append a few strings
@@ -101,7 +100,7 @@ void HttpHeadersTestObjectType::test<2>()
 	}
 	
 	// release the implicit reference, causing the object to be released
-	headers->release();
+    headers.reset();
 
 	// make sure we didn't leak any memory
 	ensure(mMemTotal == GetMemTotal());
@@ -116,7 +115,7 @@ void HttpHeadersTestObjectType::test<3>()
 	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
-	HttpHeaders * headers = new HttpHeaders();
+	HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
 	
 	{
 		// Append a few strings
@@ -151,7 +150,7 @@ void HttpHeadersTestObjectType::test<3>()
 	}
 	
 	// release the implicit reference, causing the object to be released
-	headers->release();
+    headers.reset();
 
 	// make sure we didn't leak any memory
 	ensure(mMemTotal == GetMemTotal());
@@ -166,8 +165,8 @@ void HttpHeadersTestObjectType::test<4>()
 	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
-	HttpHeaders * headers = new HttpHeaders();
-	
+    HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
+
 	{
 		static char line1[] = " AcCePT : image/yourfacehere";
 		static char line1v[] = "image/yourfacehere";
@@ -251,7 +250,7 @@ void HttpHeadersTestObjectType::test<4>()
 	}
 	
 	// release the implicit reference, causing the object to be released
-	headers->release();
+    headers.reset();
 
 	// make sure we didn't leak any memory
 	ensure(mMemTotal == GetMemTotal());
@@ -267,7 +266,7 @@ void HttpHeadersTestObjectType::test<5>()
 	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
-	HttpHeaders * headers = new HttpHeaders();
+    HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
 
 	HttpHeaders::iterator end(headers->end()), begin(headers->begin());
 	ensure("Empty container has equal begin/end const iterators", end == begin);
@@ -337,7 +336,7 @@ void HttpHeadersTestObjectType::test<5>()
 	}
 	
 	// release the implicit reference, causing the object to be released
-	headers->release();
+    headers.reset();
 
 	// make sure we didn't leak any memory
 	ensure(mMemTotal == GetMemTotal());
@@ -353,7 +352,7 @@ void HttpHeadersTestObjectType::test<6>()
 	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
-	HttpHeaders * headers = new HttpHeaders();
+    HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
 
 	HttpHeaders::reverse_iterator rend(headers->rend()), rbegin(headers->rbegin());
 	ensure("Empty container has equal rbegin/rend const iterators", rend == rbegin);
@@ -421,7 +420,7 @@ void HttpHeadersTestObjectType::test<6>()
 	}
 	
 	// release the implicit reference, causing the object to be released
-	headers->release();
+    headers.reset();
 
 	// make sure we didn't leak any memory
 	ensure(mMemTotal == GetMemTotal());

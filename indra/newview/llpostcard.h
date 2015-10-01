@@ -29,7 +29,12 @@
 
 #include "llimage.h"
 #include "lluuid.h"
+#include "llviewerassetupload.h"
 
+/// *TODO$: this LLPostCard class is a hold over and should be removed.  Right now
+/// all it does is hold a pointer to a call back function which is invoked by 
+/// llpanelsnapshotpostcard's finish function. (and all that call back does is 
+/// set the status in the floater.
 class LLPostCard
 {
 	LOG_CLASS(LLPostCard);
@@ -37,12 +42,31 @@ class LLPostCard
 public:
 	typedef boost::function<void(bool ok)> result_callback_t;
 
-	static void send(LLPointer<LLImageFormatted> image, const LLSD& postcard_data);
 	static void setPostResultCallback(result_callback_t cb) { mResultCallback = cb; }
 	static void reportPostResult(bool ok);
 
 private:
 	static result_callback_t mResultCallback;
 };
+
+
+class LLPostcardUploadInfo : public LLBufferedAssetUploadInfo
+{
+public:
+    LLPostcardUploadInfo(std::string emailFrom, std::string nameFrom, std::string emailTo,
+        std::string subject, std::string message, LLVector3d globalPosition,
+        LLPointer<LLImageFormatted> image, invnUploadFinish_f finish);
+
+    virtual LLSD generatePostBody();
+private:
+    std::string mEmailFrom;
+    std::string mNameFrom;
+    std::string mEmailTo;
+    std::string mSubject;
+    std::string mMessage;
+    LLVector3d mGlobalPosition;
+
+};
+
 
 #endif // LL_LLPOSTCARD_H
