@@ -280,9 +280,12 @@ BOOL LLFloaterBvhPreview::postBuild()
 		LLDataPackerBinaryBuffer dp(buffer, buffer_size);
 
 		// pass animation data through memory buffer
+		LL_INFOS("BVH") << "Serializing loaderp" << LL_ENDL;
 		loaderp->serialize(dp);
 		dp.reset();
+		LL_INFOS("BVH") << "Deserializing motionp" << LL_ENDL;
 		BOOL success = motionp && motionp->deserialize(dp);
+		LL_INFOS("BVH") << "Done" << LL_ENDL;
 
 		delete []buffer;
 

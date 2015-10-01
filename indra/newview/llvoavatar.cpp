@@ -5153,7 +5153,10 @@ void LLVOAvatar::clearAttachmentPosOverrides()
 	for (; iter != end; ++iter)
 	{
 		LLJoint* pJoint = (*iter);
-		pJoint->clearAttachmentPosOverrides();
+		if (pJoint)
+		{
+			pJoint->clearAttachmentPosOverrides();
+		}
 	}
 }
 
@@ -5435,8 +5438,14 @@ BOOL LLVOAvatar::loadSkeletonNode ()
 			LLViewerJointAttachment* attachment = new LLViewerJointAttachment();
 
 			attachment->setName(info->mName);
-			LLJoint *parentJoint = getJoint(info->mJointName);
-			if (!parentJoint)
+			LLJoint *parent_joint = getJoint(info->mJointName);
+            if (!parent_joint)
+            {
+                // If the intended location for attachment point is unavailable, stick it in a default location.
+                LL_INFOS() << "attachment pt " << info->mName << " using mPelvis as default parent" << LL_ENDL;
+                parent_joint = getJoint("mPelvis");
+            }
+			if (!parent_joint)
 			{
 				LL_WARNS() << "No parent joint by name " << info->mJointName << " found for attachment point " << info->mName << LL_ENDL;
 				delete attachment;
@@ -5491,7 +5500,7 @@ BOOL LLVOAvatar::loadSkeletonNode ()
 			mAttachmentPoints[attachmentID] = attachment;
 
 			// now add attachment joint
-			parentJoint->addChild(attachment);
+			parent_joint->addChild(attachment);
 		}
 	}
 

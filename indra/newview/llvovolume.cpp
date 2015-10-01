@@ -4163,25 +4163,12 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	}
 
 	//build matrix palette
-	static const size_t kMaxJoints = 64;
+	// BENTO JOINT COUNT LIMIT
+	static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
 
-	LLMatrix4a mp[kMaxJoints];
-	LLMatrix4* mat = (LLMatrix4*) mp;
-	
+	LLMatrix4a mat[kMaxJoints];
 	U32 maxJoints = llmin(skin->mJointNames.size(), kMaxJoints);
-	for (U32 j = 0; j < maxJoints; ++j)
-	{
-		LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
-        if (!joint)
-        {
-            joint = avatar->getJoint("mPelvis");
-        }
-		if (joint)
-		{
-			mat[j] = skin->mInvBindMatrix[j];
-			mat[j] *= joint->getWorldMatrix();
-		}
-	}
+    LLDrawPoolAvatar::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
 
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
@@ -4205,36 +4192,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
 				{
 					LLMatrix4a final_mat;
-					final_mat.clear();
-
-					S32 idx[4];
-
-					LLVector4 wght;
-
-					F32 scale = 0.f;
-					for (U32 k = 0; k < 4; k++)
-					{
-						F32 w = weight[j][k];
-
-						idx[k] = (S32) floorf(w);
-						wght[k] = w - floorf(w);
-						scale += wght[k];
-					}
-
-					wght *= 1.f/scale;
-
-					for (U32 k = 0; k < 4; k++)
-					{
-						F32 w = wght[k];
-
-						LLMatrix4a src;
-						// Insure ref'd bone is in our clamped array of mats
-						llassert(idx[k] < kMaxJoints);
-						// clamp k to kMaxJoints to avoid reading garbage off stack in release
-						src.setMul(mp[idx[(k < kMaxJoints) ? k : 0]], w);
-						final_mat.add(src);
-					}
-
+                    LLDrawPoolAvatar::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat);
 				
 					LLVector4a& v = vol_face.mPositions[j];
 					LLVector4a t;

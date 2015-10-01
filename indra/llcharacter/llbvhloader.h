@@ -102,6 +102,7 @@ struct Joint
 		mNumRotKeys = 0;
 		mChildTreeMaxDepth = 0;
 		mPriority = 0;
+		mNumChannels = 3;
 	}
 
 	// Include aligned members first
@@ -123,6 +124,7 @@ struct Joint
 	S32				mNumRotKeys;
 	S32				mChildTreeMaxDepth;
 	S32				mPriority;
+	S32				mNumChannels;
 };
 
 
@@ -271,6 +273,8 @@ public:
 	// Load the specified BVH file.
 	// Returns status code.
 	ELoadStatus loadBVHFile(const char *buffer, char *error_text, S32 &error_line);
+
+	void dumpBVHInfo();
 
 	// Applies translations to BVH data loaded.
 	void applyTranslations();

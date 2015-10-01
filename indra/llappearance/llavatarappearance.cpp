@@ -323,20 +323,33 @@ LLAvatarAppearance::~LLAvatarAppearance()
 //static
 void LLAvatarAppearance::initClass()
 {
-	std::string xmlFile;
+    initClass("","");
+}
 
-	xmlFile = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR) + "_lad.xml";
-	BOOL success = sXMLTree.parseFile( xmlFile, FALSE );
+//static
+void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, const std::string& skeleton_file_name_arg)
+{
+	std::string avatar_file_name;
+
+    if (!avatar_file_name_arg.empty())
+    {
+        avatar_file_name = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,avatar_file_name_arg);
+    }
+    else
+    {
+        avatar_file_name = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR + "_lad.xml");
+    }
+	BOOL success = sXMLTree.parseFile( avatar_file_name, FALSE );
 	if (!success)
 	{
-		LL_ERRS() << "Problem reading avatar configuration file:" << xmlFile << LL_ENDL;
+		LL_ERRS() << "Problem reading avatar configuration file:" << avatar_file_name << LL_ENDL;
 	}
 
 	// now sanity check xml file
 	LLXmlTreeNode* root = sXMLTree.getRoot();
 	if (!root) 
 	{
-		LL_ERRS() << "No root node found in avatar configuration file: " << xmlFile << LL_ENDL;
+		LL_ERRS() << "No root node found in avatar configuration file: " << avatar_file_name << LL_ENDL;
 		return;
 	}
 
@@ -345,14 +358,14 @@ void LLAvatarAppearance::initClass()
 	//-------------------------------------------------------------------------
 	if( !root->hasName( "linden_avatar" ) )
 	{
-		LL_ERRS() << "Invalid avatar file header: " << xmlFile << LL_ENDL;
+		LL_ERRS() << "Invalid avatar file header: " << avatar_file_name << LL_ENDL;
 	}
 	
 	std::string version;
 	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
 	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
 	{
-		LL_ERRS() << "Invalid avatar file version: " << version << " in file: " << xmlFile << LL_ENDL;
+		LL_ERRS() << "Invalid avatar file version: " << version << " in file: " << avatar_file_name << LL_ENDL;
 	}
 
 	S32 wearable_def_version = 1;
@@ -365,16 +378,19 @@ void LLAvatarAppearance::initClass()
 	LLXmlTreeNode* skeleton_node = root->getChildByName( "skeleton" );
 	if (!skeleton_node)
 	{
-		LL_ERRS() << "No skeleton in avatar configuration file: " << xmlFile << LL_ENDL;
+		LL_ERRS() << "No skeleton in avatar configuration file: " << avatar_file_name << LL_ENDL;
 		return;
 	}
-	
-	std::string skeleton_file_name;
-	static LLStdStringHandle file_name_string = LLXmlTree::addAttributeString("file_name");
-	if (!skeleton_node->getFastAttributeString(file_name_string, skeleton_file_name))
-	{
-		LL_ERRS() << "No file name in skeleton node in avatar config file: " << xmlFile << LL_ENDL;
-	}
+
+    std::string skeleton_file_name = skeleton_file_name_arg;
+    if (skeleton_file_name.empty())
+    {
+        static LLStdStringHandle file_name_string = LLXmlTree::addAttributeString("file_name");
+        if (!skeleton_node->getFastAttributeString(file_name_string, skeleton_file_name))
+        {
+            LL_ERRS() << "No file name in skeleton node in avatar config file: " << avatar_file_name << LL_ENDL;
+        }
+    }
 	
 	std::string skeleton_path;
 	skeleton_path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,skeleton_file_name);
@@ -552,6 +568,12 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 {
 	LLJoint* joint = NULL;
 
+    LL_DEBUGS("BVH") << "bone info: name " << info->mName
+                     << " isJoint " << info->mIsJoint
+                     << " volume_num " << volume_num
+                     << " joint_num " << joint_num
+                     << LL_ENDL;
+
 	if (info->mIsJoint)
 	{
 		joint = getCharacterJoint(joint_num);
@@ -615,10 +637,7 @@ BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
 {
 	clearSkeleton();
 
-	for(S32 joint_num = 0; joint_num < (S32)num; joint_num++)
-	{
-		mSkeleton.push_back(createAvatarJoint(joint_num));
-	}
+    mSkeleton = avatar_joint_list_t(num,NULL);
 
 	return TRUE;
 }
@@ -629,6 +648,7 @@ BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
 //-----------------------------------------------------------------------------
 BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 {
+    LL_DEBUGS("BVH") << "numBones " << info->mNumBones << " numCollisionVolumes " << info->mNumCollisionVolumes << LL_ENDL;
 	//-------------------------------------------------------------------------
 	// allocate joints
 	//-------------------------------------------------------------------------
@@ -655,8 +675,8 @@ BOOL LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 	LLAvatarSkeletonInfo::bone_info_list_t::const_iterator iter;
 	for (iter = info->mBoneInfoList.begin(); iter != info->mBoneInfoList.end(); ++iter)
 	{
-		LLAvatarBoneInfo *info = *iter;
-		if (!setupBone(info, NULL, current_volume_num, current_joint_num))
+		LLAvatarBoneInfo *bone_info = *iter;
+		if (!setupBone(bone_info, NULL, current_volume_num, current_joint_num))
 		{
 			LL_ERRS() << "Error parsing bone in skeleton file" << LL_ENDL;
 			return FALSE;
@@ -1240,6 +1260,10 @@ LLJoint *LLAvatarAppearance::getCharacterJoint( U32 num )
 	{
 		return NULL;
 	}
+    if (!mSkeleton[num])
+    {
+        mSkeleton[num] = createAvatarJoint(num);
+    }
 	return mSkeleton[num];
 }
 

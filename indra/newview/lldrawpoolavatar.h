@@ -134,6 +134,8 @@ public:
 	void endDeferredRiggedBump();
 		
 	void getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face);
+    static void initSkinningMatrixPalette(LLMatrix4* mat, S32 count, const LLMeshSkinInfo* skin, LLVOAvatar *avatar);
+    static void getPerVertexSkinMatrix(F32* weights, LLMatrix4a* mat, bool handle_bad_scale, LLMatrix4a& final_mat);
 	void updateRiggedFaceVertexBuffer(LLVOAvatar* avatar,
 									  LLFace* facep, 
 									  const LLMeshSkinInfo* skin, 

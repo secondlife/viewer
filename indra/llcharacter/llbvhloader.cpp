@@ -29,6 +29,7 @@
 #include "llbvhloader.h"
 
 #include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "lldatapacker.h"
 #include "lldir.h"
@@ -163,10 +164,10 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	errorLine = 0;
 	mStatus = loadTranslationTable("anim.ini");
 	loadStatus = mStatus;
-	LL_INFOS()<<"Load Status 00 : "<< loadStatus << LL_ENDL;
+	LL_INFOS("BVH") << "Load Status 00 : " << loadStatus << LL_ENDL;
 	if (mStatus == E_ST_NO_XLT_FILE)
 	{
-		//LL_WARNS() << "NOTE: No translation table found." << LL_ENDL;
+		LL_WARNS("BVH") << "NOTE: No translation table found." << LL_ENDL;
 		loadStatus = mStatus;
 		return;
 	}
@@ -174,7 +175,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	{
 		if (mStatus != E_ST_OK)
 		{
-			//LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
+			LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
 			errorLine = getLineNumber();
 			loadStatus = mStatus;
 			return;
@@ -184,10 +185,14 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	char error_text[128];		/* Flawfinder: ignore */
 	S32 error_line;
 	mStatus = loadBVHFile(buffer, error_text, error_line);
+
+	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
+	LL_DEBUGS("BVH") << "Raw data from file" << LL_ENDL;
+	dumpBVHInfo();
 	
 	if (mStatus != E_ST_OK)
 	{
-		//LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
+		LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
 		loadStatus = mStatus;
 		errorLine = getLineNumber();
 		return;
@@ -196,6 +201,10 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	applyTranslations();
 	optimize();
 	
+	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
+	LL_DEBUGS("BVH") << "After translations and optimize" << LL_ENDL;
+	dumpBVHInfo();
+
 	mInitialized = TRUE;
 }
 
@@ -226,7 +235,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	if (!fp)
 		return E_ST_NO_XLT_FILE;
 
-	LL_INFOS() << "NOTE: Loading translation table: " << fileName << LL_ENDL;
+	LL_INFOS("BVH") << "NOTE: Loading translation table: " << fileName << LL_ENDL;
 
 	//--------------------------------------------------------------------
 	// register file to be closed on function exit
@@ -666,6 +675,33 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	return E_ST_OK;
 }
 
+void LLBVHLoader::dumpBVHInfo()
+{
+	for (U32 j=0; j<mJoints.size(); j++)
+	{
+		Joint *joint = mJoints[j];
+		LL_DEBUGS("BVH") << joint->mName << LL_ENDL;
+		for (S32 i=0; i<mNumFrames; i++)
+		{
+			Key &prevkey = joint->mKeys[llmax(i-1,0)];
+			Key &key = joint->mKeys[i];
+			if ((i==0) ||
+				(key.mPos[0] != prevkey.mPos[0]) ||
+				(key.mPos[1] != prevkey.mPos[1]) ||
+				(key.mPos[2] != prevkey.mPos[2]) ||
+				(key.mRot[0] != prevkey.mRot[0]) ||
+				(key.mRot[1] != prevkey.mRot[1]) ||
+				(key.mRot[2] != prevkey.mRot[2])
+				)
+			{
+				LL_DEBUGS("BVH") << "FRAME " << i 
+                                 << " POS " << key.mPos[0] << "," << key.mPos[1] << "," << key.mPos[2]
+                                 << " ROT " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
+			}
+		}
+	}
+
+}
 
 //------------------------------------------------------------------------
 // LLBVHLoader::loadBVHFile()
@@ -746,6 +782,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		{
 			iter++; // {
 			iter++; //     OFFSET
+			iter++; // }
 			S32 depth = 0;
 			for (S32 j = (S32)parent_joints.size() - 1; j >= 0; j--)
 			{
@@ -790,11 +827,14 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		//----------------------------------------------------------------
 		mJoints.push_back( new Joint( jointName ) );
 		Joint *joint = mJoints.back();
+		LL_DEBUGS("BVH") << "Created joint " << jointName << LL_ENDL;
+		LL_DEBUGS("BVH") << "- index " << mJoints.size()-1 << LL_ENDL;
 
 		S32 depth = 1;
 		for (S32 j = (S32)parent_joints.size() - 1; j >= 0; j--)
 		{
 			Joint *pjoint = mJoints[parent_joints[j]];
+			LL_DEBUGS("BVH") << "- ancestor " << pjoint->mName << LL_ENDL;
 			if (depth > pjoint->mChildTreeMaxDepth)
 			{
 				pjoint->mChildTreeMaxDepth = depth;
@@ -861,6 +901,22 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		{
 			strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
 			return E_ST_NO_CHANNELS;
+		}
+
+        // FIXME BENTO do we want to open up motion of non-hip joints or
+        // not? Already effectively allowed via .anim upload.
+		int res = sscanf(line.c_str(), " CHANNELS %d", &joint->mNumChannels);
+		if ( res != 1 )
+		{
+			// Assume default if not otherwise specified.
+			if (mJoints.size()==1)
+			{
+				joint->mNumChannels = 6;
+			}
+			else
+			{
+				joint->mNumChannels = 3;
+			}
 		}
 
 		//----------------------------------------------------------------
@@ -961,57 +1017,41 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		line = (*(iter++));
 		err_line++;
 
-		// read and store values
-		const char *p = line.c_str();
+		// Split line into a collection of floats.
+		std::deque<F32> floats;
+		boost::char_separator<char> whitespace_sep("\t ");
+		tokenizer float_tokens(line, whitespace_sep);
+		tokenizer::iterator float_token_iter = float_tokens.begin();
+		while (float_token_iter != float_tokens.end())
+		{
+            F32 val = boost::lexical_cast<float>(*float_token_iter);
+			floats.push_back(val);
+            float_token_iter++;
+		}
+		LL_DEBUGS("BVH") << "Got " << floats.size() << " floats " << LL_ENDL;
 		for (U32 j=0; j<mJoints.size(); j++)
 		{
 			Joint *joint = mJoints[j];
 			joint->mKeys.push_back( Key() );
 			Key &key = joint->mKeys.back();
 
-			// get 3 pos values for root joint only
-			if (j==0)
+			if (floats.size() < joint->mNumChannels)
 			{
-				if ( sscanf(p, "%f %f %f", key.mPos, key.mPos+1, key.mPos+2) != 3 )
-				{
-					strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
-					return E_ST_NO_POS;
-				}
+				strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
+				return E_ST_NO_POS;
 			}
 
-			// skip to next 3 values in the line
-			p = find_next_whitespace(p);
-			if (!p) 
+			// assume either numChannels == 6, in which case we have pos + rot,
+			// or numChannels == 3, in which case we have only rot.
+			if (joint->mNumChannels == 6)
 			{
-				strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
-				return E_ST_NO_ROT;
+				key.mPos[0] = floats.front(); floats.pop_front();
+				key.mPos[1] = floats.front(); floats.pop_front();
+				key.mPos[2] = floats.front(); floats.pop_front();
 			}
-			p = find_next_whitespace(++p);
-			if (!p) 
-			{
-				strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
-				return E_ST_NO_ROT;
-			}
-			p = find_next_whitespace(++p);
-			if (!p)
-			{
-				strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
-				return E_ST_NO_ROT;
-			}
-
-			// get 3 rot values for joint
-			F32 rot[3];
-			if ( sscanf(p, " %f %f %f", rot, rot+1, rot+2) != 3 )
-			{
-				strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
-				return E_ST_NO_ROT;
-			}
-
-			p++;
-
-			key.mRot[ joint->mOrder[0]-'X' ] = rot[0];
-			key.mRot[ joint->mOrder[1]-'X' ] = rot[1];
-			key.mRot[ joint->mOrder[2]-'X' ] = rot[2];
+			key.mRot[ joint->mOrder[0]-'X' ] = floats.front(); floats.pop_front();
+			key.mRot[ joint->mOrder[1]-'X' ] = floats.front(); floats.pop_front();
+			key.mRot[ joint->mOrder[2]-'X' ] = floats.front(); floats.pop_front();
 		}
 	}
 
