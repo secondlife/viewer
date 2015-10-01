@@ -801,15 +801,16 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 // LLDAELoader
 //-----------------------------------------------------------------------------
 LLDAELoader::LLDAELoader(
-	std::string				filename,
-	S32						lod,
+	std::string			filename,
+	S32					lod,
 	load_callback_t		load_cb,
 	joint_lookup_func_t	joint_lookup_func,
 	texture_load_func_t	texture_load_func,
-	state_callback_t		state_cb,
-	void*						opaque_userdata,
-	JointTransformMap&	jointMap,
-	JointSet&				jointsFromNodes,
+	state_callback_t	state_cb,
+	void*				opaque_userdata,
+	JointTransformMap&	jointTransformMap,
+	JointNameSet&		jointsFromNodes,
+    JointNameSet&		legalJointNames,
 	U32					modelLimit)
 : LLModelLoader(
 		filename,
@@ -819,8 +820,9 @@ LLDAELoader::LLDAELoader(
 		texture_load_func,
 		state_cb,
 		opaque_userdata,
-		jointMap,
-		jointsFromNodes),
+		jointTransformMap,
+		jointsFromNodes,
+        legalJointNames),
 mGeneratedModelLimit(modelLimit)
 {
 }
