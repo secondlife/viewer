@@ -538,13 +538,13 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				if (event == "down")
 				{
 					//mLLCEFLib->keyPress(key, true);
-					mLLCEFLib->keyboardEvent(KE_KEY_DOWN, (uint32_t)key, 0, KM_MODIFIER_NONE, 0, 0, 0);
+					mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_DOWN, (uint32_t)key, 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
 
 				}
 				else if (event == "up")
 				{
 					//mLLCEFLib->keyPress(key, false);
-					mLLCEFLib->keyboardEvent(KE_KEY_UP, (uint32_t)key, 0, KM_MODIFIER_NONE, 0, 0, 0);
+					mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_UP, (uint32_t)key, 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
 				}
 
 #elif LL_WINDOWS
@@ -719,7 +719,7 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboar
 {
 #if LL_DARWIN
 	//mLLCEFLib->keyPress(utf8str[0], true);
-	mLLCEFLib->keyboardEvent(KE_KEY_DOWN, (uint32_t)(utf8str[0]), 0, KM_MODIFIER_NONE, 0, 0, 0);
+	mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_DOWN, (uint32_t)(utf8str[0]), 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
