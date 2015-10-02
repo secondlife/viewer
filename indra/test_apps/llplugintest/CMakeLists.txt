@@ -268,10 +268,6 @@ if(WINDOWS)
     libgmodule-2.0-0.dll
     libgobject-2.0-0.dll
     libgthread-2.0-0.dll
-    qtcored4.dll
-    qtguid4.dll
-    qtnetworkd4.dll
-    qtopengld4.dll
     ssleay32.dll
     )
   copy_if_different(
@@ -282,40 +278,6 @@ if(WINDOWS)
     )
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
   
-  # Debug config runtime files required for the plugin test mule (Qt image format plugins)
-  set(plugintest_debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}/imageformats")
-  set(plugintest_debug_files
-    qgifd4.dll
-    qicod4.dll
-    qjpegd4.dll
-    qmngd4.dll
-    qsvgd4.dll
-    qtiffd4.dll
-    )
-  copy_if_different(
-    ${plugintest_debug_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/Debug/imageformats"
-    out_targets
-    ${plugintest_debug_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  # Debug config runtime files required for the plugin test mule (Qt codec plugins)
-  set(plugintest_debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}/codecs")
-  set(plugintest_debug_files
-    qcncodecsd4.dll
-    qjpcodecsd4.dll
-    qkrcodecsd4.dll
-    qtwcodecsd4.dll
-    )
-  copy_if_different(
-    ${plugintest_debug_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/Debug/codecs"
-    out_targets
-    ${plugintest_debug_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
- 
   # Release & ReleaseDebInfo config runtime files required for the plugin test mule
   set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
   set(plugintest_release_files
@@ -324,11 +286,6 @@ if(WINDOWS)
     libgmodule-2.0-0.dll
     libgobject-2.0-0.dll
     libgthread-2.0-0.dll
-    qtcore4.dll
-    qtgui4.dll
-    qtnetwork4.dll
-    qtopengl4.dll
-    qtxmlpatterns4.dll
     ssleay32.dll
     )
   copy_if_different(
@@ -347,56 +304,6 @@ if(WINDOWS)
     )
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
 
-  # Release & ReleaseDebInfo config runtime files required for the plugin test mule (Qt image format plugins)
-  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}/imageformats")
-  set(plugintest_release_files
-    qgif4.dll
-    qico4.dll
-    qjpeg4.dll
-    qmng4.dll
-    qsvg4.dll
-    qtiff4.dll
-    )
-  copy_if_different(
-    ${plugintest_release_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/Release/imageformats"
-    out_targets
-    ${plugintest_release_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  copy_if_different(
-    ${plugintest_release_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo/imageformats"
-    out_targets
-    ${plugintest_release_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  # Release & ReleaseDebInfo config runtime files required for the plugin test mule (Qt codec plugins)
-  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}/codecs")
-  set(plugintest_release_files
-    qcncodecs4.dll  
-    qjpcodecs4.dll  
-    qkrcodecs4.dll  
-    qtwcodecs4.dll  
-    )
-  copy_if_different(
-    ${plugintest_release_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/Release/codecs"
-    out_targets
-    ${plugintest_release_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  copy_if_different(
-    ${plugintest_release_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo/codecs"
-    out_targets
-    ${plugintest_release_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
- 
    add_custom_target(copy_plugintest_libs ALL
      DEPENDS 
      ${plugin_test_targets}
@@ -411,56 +318,10 @@ if (DARWIN)
     libaprutil-1.0.dylib
     libapr-1.0.dylib
     libexpat.1.5.2.dylib
-    libQtCore.4.7.1.dylib
-    libQtCore.4.dylib
-    libQtGui.4.7.1.dylib
-    libQtGui.4.dylib
-    libQtNetwork.4.7.1.dylib
-    libQtNetwork.4.dylib
-    libQtOpenGL.4.7.1.dylib
-    libQtOpenGL.4.dylib
-    libQtSvg.4.7.1.dylib
-    libQtSvg.4.dylib
-    libQtXml.4.7.1.dylib
-    libQtXml.4.dylib
     )
   copy_if_different(
     ${plugintest_release_src_dir}
     "${PLUGINS_DESTINATION_DIR}"
-    out_targets
-    ${plugintest_release_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  # Release & ReleaseDebInfo config runtime files required for the FB connect test (Qt image format plugins)
-  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_PLUGINS}/imageformats")
-  set(plugintest_release_files
-    libqgif.dylib
-    libqico.dylib
-    libqjpeg.dylib
-    libqmng.dylib
-    libqsvg.dylib
-    libqtiff.dylib
-    )
-  copy_if_different(
-    ${plugintest_release_src_dir}
-    "${PLUGINS_DESTINATION_DIR}/imageformats"
-    out_targets
-    ${plugintest_release_files}
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  # Release & ReleaseDebInfo config runtime files required for the FB connect test (Qt codec plugins)
-  set(plugintest_release_src_dir "${ARCH_PREBUILT_DIRS_PLUGINS}/codecs")
-  set(plugintest_release_files
-    libqcncodecs.dylib
-    libqjpcodecs.dylib
-    libqkrcodecs.dylib
-    libqtwcodecs.dylib
-    )
-  copy_if_different(
-    ${plugintest_release_src_dir}
-    "${PLUGINS_DESTINATION_DIR}/codecs"
     out_targets
     ${plugintest_release_files}
     )

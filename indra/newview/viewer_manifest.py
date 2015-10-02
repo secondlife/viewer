@@ -1216,36 +1216,6 @@ class Linux_i686_Manifest(LinuxManifest):
                 self.path("libvivoxplatform.so")
                 self.end_prefix("lib")
 
-            # plugin runtime
-            if self.prefix(src=os.path.join(pkgdir, "lib"), dst="lib"):
-                self.path("libQtCore.so*")
-                self.path("libQtGui.so*")
-                self.path("libQtNetwork.so*")
-                self.path("libQtOpenGL.so*")
-                self.path("libQtSvg.so*")
-                self.path("libQtXml.so*")
-                self.end_prefix("lib")
-
-            # For WebKit/Qt plugin runtimes (image format plugins)
-            if self.prefix(src=os.path.join(pkgdir, "llplugin", "imageformats"),
-                           dst="bin/llplugin/imageformats"):
-                self.path("libqgif.so")
-                self.path("libqico.so")
-                self.path("libqjpeg.so")
-                self.path("libqmng.so")
-                self.path("libqsvg.so")
-                self.path("libqtiff.so")
-                self.end_prefix("bin/llplugin/imageformats")
-
-            # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-            if self.prefix(src=os.path.join(pkgdir, "llplugin", "codecs"),
-                           dst="bin/llplugin/codecs"):
-                self.path("libqcncodecs.so")
-                self.path("libqjpcodecs.so")
-                self.path("libqkrcodecs.so")
-                self.path("libqtwcodecs.so")
-                self.end_prefix("bin/llplugin/codecs")
-
             self.strip_binaries()
 
 
