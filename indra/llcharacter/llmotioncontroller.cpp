@@ -789,12 +789,12 @@ void LLMotionController::updateLoadingMotions()
 			mLoadingMotions.erase(curiter);
 			// add motion to our loaded motion list
 			mLoadedMotions.insert(motionp);
-            // FIXME SO MUCH DUMP
+            // FIXME BENTO SO MUCH DUMP
             {
                 LLKeyframeMotion *km = dynamic_cast<LLKeyframeMotion*>(motionp);
                 if (km)
                 {
-                    km->dumpToFile("");
+                    //km->dumpToFile("");
                 }
             }
 			// this motion should be playing
