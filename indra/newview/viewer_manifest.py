@@ -1076,7 +1076,6 @@ class LinuxManifest(ViewerManifest):
 
         # plugins
         if self.prefix(src="", dst="bin/llplugin"):
-            self.path2basename("../media_plugins/webkit", "libmedia_plugin_webkit.so")
             self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
             self.end_prefix("bin/llplugin")
 
@@ -1224,7 +1223,6 @@ class Linux_i686_Manifest(LinuxManifest):
                 self.path("libQtNetwork.so*")
                 self.path("libQtOpenGL.so*")
                 self.path("libQtSvg.so*")
-                self.path("libQtWebKit.so*")
                 self.path("libQtXml.so*")
                 self.end_prefix("lib")
 

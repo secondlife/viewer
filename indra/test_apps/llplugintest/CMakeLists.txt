@@ -254,137 +254,7 @@ endif (DARWIN)
 #  )
 #endif (DARWIN)
 
-### llmediaplugintest
-
-set(llmediaplugintest_SOURCE_FILES
-    llmediaplugintest.cpp
-    llmediaplugintest.h
-    bookmarks.txt
-    )
-
-add_executable(llmediaplugintest
-    WIN32
-    MACOSX_BUNDLE
-    ${llmediaplugintest_SOURCE_FILES}
-)
-
-set_target_properties(llmediaplugintest
-    PROPERTIES
-    WIN32_EXECUTABLE
-    FALSE
-)
-
-target_link_libraries(llmediaplugintest
-  ${GLUT_LIBRARY}
-  ${GLUI_LIBRARY}
-  ${OPENGL_LIBRARIES}
-  ${LLPLUGIN_LIBRARIES}
-  ${LLMESSAGE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
-  ${PLUGIN_API_WINDOWS_LIBRARIES}
-)
-
-if (DARWIN)
-  # The testbed needs to use a couple of CoreFoundation calls now, to deal with being a bundled app.
-  target_link_libraries(llmediaplugintest
-    ${COREFOUNDATION_LIBRARY}
-  )
-endif (DARWIN)
-
-add_dependencies(llmediaplugintest
-  stage_third_party_libs
-  SLPlugin
-  media_plugin_quicktime
-  media_plugin_webkit
-  media_plugin_example
-  ${LLPLUGIN_LIBRARIES}
-  ${LLMESSAGE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
-)
-
-# turn off weird GLUI pragma 
-add_definitions(-DGLUI_NO_LIB_PRAGMA)
-
-if (DARWIN OR LINUX)
-  # glui.h contains code that triggers the "overloaded-virtual" warning in gcc.  
-  set_source_files_properties(llmediaplugintest.cpp PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
-endif (DARWIN OR LINUX)
-
 # Gather build products of the various dependencies into the build directory for the testbed.
-
-if (DARWIN)
-  # path inside the app bundle where we'll need to copy plugins and other related files
-  set(PLUGINS_DESTINATION_DIR
-    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llmediaplugintest.app/Contents/Resources
-  )
-  
-  # create the Contents/Resources directory
-  add_custom_command(
-    TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS
-      -E
-      make_directory
-      ${PLUGINS_DESTINATION_DIR}
-    COMMENT "Creating Resources directory in app bundle."
-  ) 
-else (DARWIN)
-  set(PLUGINS_DESTINATION_DIR
-    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
-  )
-endif (DARWIN)
-
-set(BUILT_SLPLUGIN $<TARGET_FILE:SLPlugin>)
-add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_SLPLUGIN}  ${PLUGINS_DESTINATION_DIR}
-  DEPENDS ${BUILT_SLPLUGIN}
-)
-
-set(BUILT_LLCOMMON $<TARGET_FILE:llcommon>)
-add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_LLCOMMON}  ${PLUGINS_DESTINATION_DIR}
-  DEPENDS ${BUILT_LLCOMMON}
-)
-
-set(BUILT_WEBKIT_PLUGIN $<TARGET_FILE:media_plugin_webkit>)
-add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
-  DEPENDS ${BUILT_WEBKIT_PLUGIN}
-)
-
-if (DARWIN OR WINDOWS)
-  set(BUILT_QUICKTIME_PLUGIN $<TARGET_FILE:media_plugin_quicktime>)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_QUICKTIME_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${BUILT_QUICKTIME_PLUGIN}
-  )
-endif (DARWIN OR WINDOWS)
-
-set(BUILT_EXAMPLE_PLUGIN $<TARGET_FILE:media_plugin_example>)
-add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_EXAMPLE_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
-  DEPENDS ${BUILT_EXAMPLE_PLUGIN}
-)
-
-# copy over bookmarks file if llmediaplugintest gets built
-set(BUILT_LLMEDIAPLUGINTEST $<TARGET_FILE:llmediaplugintest>)
-add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/
-  DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
-)
-
-# also copy it to the same place as SLPlugin, which is what the mac wants...
-add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${PLUGINS_DESTINATION_DIR}
-  DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
-)
-
-if (DARWIN)
-#   add_custom_command(TARGET llmediaplugintest POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
-#     DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libllqtwebkit.dylib
-#   )
-endif (DARWIN)
 
 if(WINDOWS)
   #********************
@@ -402,7 +272,6 @@ if(WINDOWS)
     qtguid4.dll
     qtnetworkd4.dll
     qtopengld4.dll
-    qtwebkitd4.dll
     ssleay32.dll
     )
   copy_if_different(
@@ -459,7 +328,6 @@ if(WINDOWS)
     qtgui4.dll
     qtnetwork4.dll
     qtopengl4.dll
-    qtwebkit4.dll
     qtxmlpatterns4.dll
     ssleay32.dll
     )
@@ -534,8 +402,6 @@ if(WINDOWS)
      ${plugin_test_targets}
      )
 
-  add_dependencies(llmediaplugintest copy_plugintest_libs)
-
 endif(WINDOWS)
 
 if (DARWIN)
@@ -553,8 +419,6 @@ if (DARWIN)
     libQtNetwork.4.dylib
     libQtOpenGL.4.7.1.dylib
     libQtOpenGL.4.dylib
-    libQtWebKit.4.7.1.dylib
-    libQtWebKit.4.dylib
     libQtSvg.4.7.1.dylib
     libQtSvg.4.dylib
     libQtXml.4.7.1.dylib
@@ -607,7 +471,5 @@ if (DARWIN)
     ${plugin_test_targets}
     )
 
-  add_dependencies(llmediaplugintest copy_plugintest_libs)
 endif (DARWIN)
 
-ll_deploy_sharedlibs_command(llmediaplugintest) 

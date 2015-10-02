@@ -57,13 +57,6 @@ add_subdirectory(${VIEWER_PREFIX}test)
 if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
-
-  # llplugin testbed code (is this the right way to include it?)
-  if (LL_TESTS AND NOT LINUX)
-    #removed during webkit -> cef update
-    #add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
-    #add_subdirectory(${VIEWER_PREFIX}test_apps/llfbconnecttest)
-  endif (LL_TESTS AND NOT LINUX)
 endif (ENABLE_MEDIA_PLUGINS)
 
 if (LINUX)

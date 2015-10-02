@@ -124,7 +124,9 @@
 #include "llleap.h"
 #include "stringize.h"
 #include "llcoros.h"
+#if !LL_LINUX
 #include "cef/llceflib.h"
+#endif
 
 // Third party library includes
 #include <boost/bind.hpp>
@@ -3370,7 +3372,11 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
 	}
 
+#if !LL_LINUX
 	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+#else
+	info["LLCEFLIB_VERSION"] = "Undefined";
+#endif
 
 	S32 packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
 	if (packets_in > 0)
