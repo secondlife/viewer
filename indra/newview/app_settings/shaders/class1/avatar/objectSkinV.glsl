@@ -27,8 +27,8 @@ ATTRIBUTE vec4 weight4;
 /* BENTO JOINT COUNT LIMITS
  * Note that the value in these two lines also needs to be updated to value-1 several places below.
  */
-uniform mat3 matrixPalette[112];
-uniform vec3 translationPalette[112];
+uniform mat3 matrixPalette[132];
+uniform vec3 translationPalette[132];
 
 mat4 getObjectSkinnedTransform()
 {
@@ -37,7 +37,7 @@ mat4 getObjectSkinnedTransform()
 	vec4 w = fract(weight4);
 	vec4 index = floor(weight4);
 	
-		 index = min(index, vec4(111.0));
+		 index = min(index, vec4(131.0));
 		 index = max(index, vec4( 0.0));
 
     w *= 1.0/(w.x+w.y+w.z+w.w);
