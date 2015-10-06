@@ -27,8 +27,8 @@ ATTRIBUTE vec4 weight4;
 /* BENTO JOINT COUNT LIMITS
  * Note that the value in these two lines also needs to be updated to value-1 several places below.
  */
-uniform mat3 matrixPalette[92];
-uniform vec3 translationPalette[92];
+uniform mat3 matrixPalette[112];
+uniform vec3 translationPalette[112];
 
 mat4 getObjectSkinnedTransform()
 {
@@ -37,7 +37,7 @@ mat4 getObjectSkinnedTransform()
 	vec4 w = fract(weight4);
 	vec4 index = floor(weight4);
 	
-		 index = min(index, vec4(91.0));
+		 index = min(index, vec4(111.0));
 		 index = max(index, vec4( 0.0));
 
     w *= 1.0/(w.x+w.y+w.z+w.w);
@@ -70,8 +70,8 @@ mat4 getObjectSkinnedTransform()
    // If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.
    mat3 dummy1 = matrixPalette[0];
    vec3 dummy2 = translationPalette[0];
-   mat3 dummy3 = matrixPalette[91];
-   vec3 dummy4 = translationPalette[91];
+   mat3 dummy3 = matrixPalette[111];
+   vec3 dummy4 = translationPalette[111];
 #endif
 
 }
