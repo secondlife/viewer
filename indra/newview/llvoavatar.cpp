@@ -6486,7 +6486,7 @@ bool LLVOAvatar::isTooComplex() const
 		// Determine if visually muted or not
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0U);
 		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0U);
-		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1.0E6f);
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 10.0E6f);
 		too_complex = ((max_render_cost > 0 && mVisualComplexity > max_render_cost)
 			|| (max_attachment_bytes > 0 && mAttachmentGeometryBytes > max_attachment_bytes)
 			|| (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
@@ -8247,7 +8247,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		mText->addLine(info_line, info_color, info_style);
 
 		// Attachment Surface Area
-		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1.0E6f);
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 10.0E6f);
 		info_line = llformat("%.2f m^2", mAttachmentSurfaceArea);
 
 		if (max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
