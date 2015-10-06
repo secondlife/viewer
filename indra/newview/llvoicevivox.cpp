@@ -1538,8 +1538,9 @@ void LLVivoxVoiceClient::stateMachine()
 			// Must do this first, since it uses mAudioSession.
 			notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
 			
-			if (mAudioSession)
+			if (mAudioSession && mSessionTerminateRequested)
 			{
+				// will only go this section on the frist frame when a call is being cancelled.
 				leaveAudioSession();
 				sessionState *oldSession = mAudioSession;
 
@@ -1556,6 +1557,8 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 	
 			// Always reset the terminate request flag when we get here.
+			// Some slower PCs have a race condition where they can switch to an incoming  P2P call faster than the state machine leaves 
+			// the region chat.
 			mSessionTerminateRequested = false;
 
 			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested  && !LLApp::isExiting())
@@ -3175,6 +3178,9 @@ void LLVivoxVoiceClient::leftAudioSession(
 				setState(stateSessionTerminated);
 			break;
 		}
+	}
+	else if  ( mAudioSession == NULL && (getState() == stateSessionTerminated) ){
+		setState(stateNoChannel);
 	}
 }
 
