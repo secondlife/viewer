@@ -390,6 +390,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnTitleChangeCallback(boost::bind(&MediaPluginCEF::onTitleChangeCallback, this, _1));
 				mLLCEFLib->setOnLoadStartCallback(boost::bind(&MediaPluginCEF::onLoadStartCallback, this));
 				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
+				mLLCEFLib->setOnAddressChangeCallback(boost::bind(&MediaPluginCEF::onAddressChangeCallback, this, _1));
 				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1, _2));
 				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
 				mLLCEFLib->setOnCursorChangedCallback(boost::bind(&MediaPluginCEF::onCursorChangedCallback, this, _1, _2));
