@@ -263,8 +263,6 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 
     buildStatusEntry(response, status, result);
 
-#if 1
-    // commenting out, but keeping since this can be useful for debugging
     if (!status)
     {
         LLSD &httpStatus = result[HttpCoroutineAdapter::HTTP_RESULTS];
@@ -276,10 +274,11 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         bas >> std::noskipws;
         bodyData.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
         httpStatus["error_body"] = LLSD(bodyData);
-
+#if 1
+        // commenting out, but keeping since this can be useful for debugging
         LL_WARNS() << "Returned body=" << std::endl << httpStatus["error_body"].asString() << LL_ENDL;
-    }
 #endif
+    }
 
     mReplyPump.post(result);
 }

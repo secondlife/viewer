@@ -36,6 +36,7 @@
 #include "llpermissionsflags.h"
 #include "llevents.h"
 #include "v3dmath.h"
+#include "httprequest.h"
 #include "llcorehttputil.h"
 
 #include <boost/function.hpp>
@@ -934,6 +935,8 @@ public:
 	/// HTTP using the agent's policy settings and headers.  
     bool requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
     bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+
+    LLCore::HttpRequest::policy_t getAgentPolicy() const { return mHttpPolicy; }
 
 /**                    Utility
  **                                                                            **
