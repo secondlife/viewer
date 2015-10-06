@@ -3455,7 +3455,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
                 }
             }
 
-            std::string message = (result.has("error")) ? result["error"] : status.toString();
+            std::string message = (result.has("error")) ? result["error"].asString() : status.toString();
             LL_WARNS("Avatar") << "Appearance Failure. server responded with \"" << message << "\"" << LL_ENDL;
 
             // We may have requested a bake for a stale COF (especially if the inventory 
