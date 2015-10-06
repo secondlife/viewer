@@ -225,15 +225,9 @@ public:
 	std::string getAppearanceServiceURL() const;
 
 
-	bool testCOFRequestVersion() const;
-	void decrementInFlightCounter()
-	{
-		mInFlightCounter = llmax(mInFlightCounter - 1, 0);
-	}
-
 
 private:
-    void serverAppearanceUpdateSuccess(const LLSD &result);
+    void serverAppearanceUpdateCoro();
     static void debugAppearanceUpdateCOF(const LLSD& content);
 
 	std::string		mAppearanceServiceURL;
