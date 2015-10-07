@@ -391,6 +391,7 @@ void LLVivoxVoiceClient::terminate()
 #endif
 		closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
 		cleanUp();
+		mConnected = false;
 	}
 	else
 	{
@@ -735,16 +736,18 @@ void LLVivoxVoiceClient::stateMachine()
 		//if((getState() != stateDisabled) && (getState() != stateDisableCleanup))
 		{
 			// User turned off voice support.  Send the cleanup messages, close the socket, and reset.
-			if(!mConnected || mTerminateDaemon)
+			if(!mConnected && mTerminateDaemon)
 			{
 				// if voice was turned off after the daemon was launched but before we could connect to it, we may need to issue a kill.
 				LL_INFOS("Voice") << "Disabling voice before connection to daemon, terminating." << LL_ENDL;
 				killGateway();
 				mTerminateDaemon = false;
+				mConnected = false;
 			}
-			
-			logout();
-			connectorShutdown();
+			else {
+				logout();
+				connectorShutdown();
+			}
 			
 			setState(stateDisableCleanup);
 		}
