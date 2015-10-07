@@ -1546,7 +1546,7 @@ U32 LLDrawPoolAvatar::getMaxJointCount()
 // static
 U32 LLDrawPoolAvatar::getMeshJointCount(const LLMeshSkinInfo *skin)
 {
-	return llmin(getMaxJointCount(), skin->mJointNames.size());
+	return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
 }
 
 // static
