@@ -106,10 +106,13 @@ namespace {
 
     ///////////////////////////////////////////////////////////////////////////////
     // SLM Reporters
-    void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
+    void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const LLSD& result)
     {
-        LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
-        if ((status == 422) && (description == "[\"You must have an English description to list the product\", \"You must choose a category for your product before it can be listed\", \"Listing could not change state.\", \"Price can't be blank\"]"))
+
+        LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << ll_pretty_print_sd(result) << LL_ENDL;
+        if ((status == 422) && (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT) && 
+            result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT].isArray() &&
+            result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT].size() > 4))
         {
             // Unprocessable Entity : Special case that error as it is a frequent answer when trying to list an incomplete listing
             LLNotificationsUtil::add("MerchantUnprocessableEntity");
@@ -120,14 +123,32 @@ namespace {
             LLSD subs;
             subs["[ERROR_REASON]"] = reason;
             // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
-            subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : "");
+            std::string description;
+            if (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT))
+            {
+                LLSD content = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT];
+                if (content.isArray())
+                {
+                    for (LLSD::array_iterator it = content.beginArray(); it != content.endArray(); ++it)
+                    {
+                        if (!description.empty())
+                            description += "\n";
+                        description += (*it).asString();
+                    }
+                }
+                else
+                {
+                    description = content.asString();
+                }
+            }
+            else
+            {
+                description = result.asString();
+            }
+            subs["[ERROR_DESCRIPTION]"] = description;
             LLNotificationsUtil::add("MerchantTransactionFailed", subs);
         }
-    }
 
-    void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const LLSD& description)
-    {
-        log_SLM_warning(request, status, reason, code, std::string(ll_pretty_print_sd(description)));
     }
 
     void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
@@ -777,8 +798,8 @@ void LLMarketplaceData::getMerchantStatusCoro()
         else
         {
             std::string err_code = result["error_code"].asString();
-            std::string err_description = result["error_description"].asString();
-            log_SLM_warning("Get /merchant", httpCode, status.toString(), err_code, err_description);
+            //std::string err_description = result["error_description"].asString();
+            log_SLM_warning("Get /merchant", httpCode, status.toString(), err_code, result["error_description"]);
             setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
         }
         return;

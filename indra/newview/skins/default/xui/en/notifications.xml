@@ -244,7 +244,7 @@ You don't have permission to copy one or more of these items to the Merchant Out
   <notification
    icon="OutboxStatus_Success"
    name="OutboxFolderCreated"
-   type="outbox">
+   type="alertmodal">
     <unique/>
 A new folder has been created for each item you have transferred into the top level of your Merchant Outbox.
 
@@ -257,7 +257,7 @@ A new folder has been created for each item you have transferred into the top le
   <notification
    icon="OutboxStatus_Success"
    name="OutboxImportComplete"
-   type="outbox">
+   type="alertmodal">
 Success
 
 All folders were successfully sent to the Marketplace.
@@ -271,7 +271,7 @@ All folders were successfully sent to the Marketplace.
   <notification
    icon="OutboxStatus_Warning"
    name="OutboxImportHadErrors"
-   type="outbox">
+   type="alertmodal">
 Some folders did not transfer
 
 Errors occurred when some folders were sent to the Marketplace.  Those folders are still in your Merchant Outbox.
@@ -286,7 +286,7 @@ See the [[MARKETPLACE_IMPORTS_URL] error log] for more information.
   <notification
    icon="OutboxStatus_Error"
    name="OutboxImportFailed"
-   type="outbox">
+   type="alertmodal">
 Transfer failed with error &apos;[ERROR_CODE]&apos;
 
 No folders were sent to the Marketplace because of a system or network error.  Try again later.
@@ -299,7 +299,7 @@ No folders were sent to the Marketplace because of a system or network error.  T
   <notification
    icon="OutboxStatus_Error"
    name="OutboxInitFailed"
-   type="outbox">
+   type="alertmodal">
 Marketplace initialization failed with error &apos;[ERROR_CODE]&apos;
 
 Initialization with the Marketplace failed because of a system or network error.  Try again later.
@@ -312,7 +312,7 @@ Initialization with the Marketplace failed because of a system or network error.
     <notification
         icon="OutboxStatus_Error"
         name="StockPasteFailed"
-        type="outbox">
+        type="alertmodal">
         Copy or move to Stock Folder failed with error :
         
         &apos;[ERROR_CODE]&apos;
@@ -325,7 +325,7 @@ Initialization with the Marketplace failed because of a system or network error.
     <notification
         icon="OutboxStatus_Error"
         name="MerchantPasteFailed"
-        type="outbox">
+        type="alertmodal">
         Copy or move to Marketplace Listings failed with error :
         
         &apos;[ERROR_CODE]&apos;
@@ -338,7 +338,7 @@ Initialization with the Marketplace failed because of a system or network error.
     <notification
         icon="OutboxStatus_Error"
         name="MerchantTransactionFailed"
-        type="outbox">
+        type="alertmodal">
         The transaction with the Marketplace failed with the following error :
         
         Reason : &apos;[ERROR_REASON]&apos;
@@ -352,7 +352,7 @@ Initialization with the Marketplace failed because of a system or network error.
     <notification
         icon="OutboxStatus_Error"
         name="MerchantUnprocessableEntity"
-        type="outbox">
+        type="alertmodal">
         We are unable to list this product or activate the version folder. Usually this is caused by missing information in the listing description form, but it may be due to errors in the folder structure. Either edit the listing or check the listing folder for errors.
         
         <usetemplate
@@ -363,7 +363,7 @@ Initialization with the Marketplace failed because of a system or network error.
     <notification
         icon="OutboxStatus_Error"
         name="MerchantListingFailed"
-        type="outbox">
+        type="alertmodal">
         Listing to Marketplace failed with error :
         
         &apos;[ERROR_CODE]&apos;
@@ -376,7 +376,7 @@ Initialization with the Marketplace failed because of a system or network error.
     <notification
         icon="OutboxStatus_Error"
         name="MerchantFolderActivationFailed"
-        type="outbox">
+        type="alertmodal">
         Activating this version folder failed with error :
 
         &apos;[ERROR_CODE]&apos;

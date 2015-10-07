@@ -282,6 +282,7 @@ public:
 protected:
     /// this method may modify the status value
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) = 0;
+    virtual LLSD parseBody(LLCore::HttpResponse *response) = 0;
 
 private:
     void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
