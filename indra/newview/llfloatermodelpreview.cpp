@@ -4028,16 +4028,17 @@ BOOL LLModelPreview::render()
 
 							LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
                             const LLMeshSkinInfo *skin = &model->mSkinInfo;
-                            U32 count = llmin((U32) skin->mJointNames.size(), (U32) LL_MAX_JOINTS_PER_MESH_OBJECT);
+							U32 count = LLDrawPoolAvatar::getMeshJointCount(skin);
                             LLDrawPoolAvatar::initSkinningMatrixPalette((LLMatrix4*)mat, count,
                                                                         skin, getPreviewAvatar());
                             LLMatrix4a bind_shape_matrix;
                             bind_shape_matrix.loadu(skin->mBindShapeMatrix);
+                            U32 max_joints = LLDrawPoolAvatar::getMaxJointCount();
 							for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 							{
                                 LLMatrix4a final_mat;
                                 F32 *wptr = weight[j].mV;
-                                LLDrawPoolAvatar::getPerVertexSkinMatrix(wptr, mat, true, final_mat);
+                                LLDrawPoolAvatar::getPerVertexSkinMatrix(wptr, mat, true, final_mat, max_joints);
 
 								//VECTORIZE THIS
                                 LLVector4a& v = face.mPositions[j];
