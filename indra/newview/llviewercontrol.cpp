@@ -761,6 +761,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
+    gSavedSettings.getControl("MaxJointsPerMeshObject")->getCommitSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL
