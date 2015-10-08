@@ -249,12 +249,30 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
     if (!status)
     {
         result = LLSD::emptyMap();
+        LLCore::HttpStatus::type_enum_t errType = status.getType();
+
         LL_WARNS()
             << "\n--------------------------------------------------------------------------\n"
-            << " Error[" << status.getType() << "] cannot access url '" << response->getRequestURL()
+            << " Error[" << errType << "] cannot access url '" << response->getRequestURL()
             << "' because " << status.toString()
             << "\n--------------------------------------------------------------------------"
             << LL_ENDL;
+        if ((errType >= 400) && (errType < 500))
+        {
+            LLSD body = this->parseBody(response);
+            if (!body.isUndefined())
+            {
+                if (!body.isMap())
+                {
+                    result[HttpCoroutineAdapter::HTTP_RESULTS_CONTENT] = body;
+                }
+                else
+                {
+                    result = body;
+                }
+            }
+
+        }
     }
     else
     {
@@ -344,6 +362,7 @@ public:
 
 protected:
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
+    virtual LLSD parseBody(LLCore::HttpResponse *response);
 };
 
 //-------------------------------------------------------------------------
@@ -357,8 +376,12 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
 {
     LLSD result;
 
-    const bool emit_parse_errors = false;
+//    const bool emit_parse_errors = false;
 
+
+    result = parseBody(response);
+
+#if 0
     bool parsed = !((response->getBodySize() == 0) ||
         !LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, result));
 
@@ -378,9 +401,26 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
             status = LLCore::HttpStatus(499, "Failed to deserialize LLSD.");
         }
     }
+#endif
 
     if (result.isUndefined())
-    {   // If we've gotten to this point and the result LLSD is still undefined 
+    {   
+#if 1
+        // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
+        LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
+        const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
+
+        if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
+        {
+            std::string thebody = LLCoreHttpUtil::responseToString(response);
+            LL_WARNS() << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
+                << " body: " << thebody << LL_ENDL;
+
+            // Replace the status with a new one indicating the failure.
+            status = LLCore::HttpStatus(499, "Failed to deserialize LLSD.");
+        }
+#endif
+        // If we've gotten to this point and the result LLSD is still undefined 
         // either there was an issue deserializing the body or the response was
         // blank.  Create an empty map to hold the result either way.
         result = LLSD::emptyMap();
@@ -397,6 +437,22 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
+LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response)
+{
+    if (response->getBodySize() == 0)
+        return LLSD();
+
+    LLSD result;
+
+    if (!LLCoreHttpUtil::responseToLLSD(response, true, result))
+    {
+        return LLSD();
+    }
+
+    return result;
+}
+
+
 //========================================================================
 /// The HttpCoroRawHandler is a specialization of the LLCore::HttpHandler for 
 /// interacting with coroutines. 
@@ -411,6 +467,7 @@ public:
     HttpCoroRawHandler(LLEventStream &reply);
 
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
+    virtual LLSD parseBody(LLCore::HttpResponse *response);
 };
 
 //-------------------------------------------------------------------------
@@ -465,6 +522,11 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     return result;
 }
 
+LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response)
+{
+    return LLSD();
+}
+
 //========================================================================
 /// The HttpCoroJSONHandler is a specialization of the LLCore::HttpHandler for 
 /// interacting with coroutines. 
@@ -479,6 +541,7 @@ public:
     HttpCoroJSONHandler(LLEventStream &reply);
 
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
+    virtual LLSD parseBody(LLCore::HttpResponse *response);
 };
 
 //-------------------------------------------------------------------------
@@ -516,6 +579,29 @@ LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
+LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response)
+{
+    BufferArray * body(response->getBody());
+    if (!body || !body->size())
+    {
+        return LLSD();
+    }
+
+    LLCore::BufferArrayStream bas(body);
+    Json::Value jsonRoot;
+
+    try
+    {
+        bas >> jsonRoot;
+    }
+    catch (std::runtime_error e)
+    {   
+        return LLSD();
+    }
+
+    // Convert the JSON structure to LLSD
+    return LlsdFromJson(jsonRoot);
+}
 
 //========================================================================
 HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request) :

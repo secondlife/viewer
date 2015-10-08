@@ -3440,21 +3440,6 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
 
         if (!status || !result["success"].asBoolean())
         {
-            if (httpResults.has("error_body"))
-            {
-                std::istringstream bodystream(httpResults["error_body"].asStringRef());
-                LLSD body_llsd;
-
-                if (LLSDSerialize::fromXML(body_llsd, bodystream, true) == LLSDParser::PARSE_FAILURE)
-                {
-                    LL_WARNS() << "Unable to parse body as LLSD" << LL_ENDL;
-                }
-                else
-                {
-                    result = body_llsd;
-                }
-            }
-
             std::string message = (result.has("error")) ? result["error"].asString() : status.toString();
             LL_WARNS("Avatar") << "Appearance Failure. server responded with \"" << message << "\"" << LL_ENDL;
 
