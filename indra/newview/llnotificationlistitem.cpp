@@ -75,6 +75,10 @@ BOOL LLNotificationListItem::postBuild()
     mNoticeTextExp->setEnabled(FALSE);
     mNoticeTextExp->setTextExpandedCallback(boost::bind(&LLNotificationListItem::reshapeNotification, this));
 
+    mTitleBox->setContentTrusted(false);
+    mTitleBoxExp->setContentTrusted(false);
+    mNoticeTextExp->setContentTrusted(false);
+
     mTimeBox->setValue(buildNotificationDate(mParams.time_stamp));
     mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp));
 
