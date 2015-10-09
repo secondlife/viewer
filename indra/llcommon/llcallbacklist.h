@@ -28,27 +28,34 @@
 #define LL_LLCALLBACKLIST_H
 
 #include "llstl.h"
+#include <boost/function.hpp>
+#include <list>
 
 class LLCallbackList
 {
 public:
 	typedef void (*callback_t)(void*);
+
+	typedef std::pair< callback_t,void* >	callback_pair_t;
+	// NOTE: It is confirmed that we DEPEND on the order provided by using a list :(
+	//
+	typedef std::list< callback_pair_t >	callback_list_t; 
 	
 	LLCallbackList();
 	~LLCallbackList();
 
-	void addFunction( callback_t func, void *data = NULL );		// register a callback, which will be called as func(data)
-	BOOL containsFunction( callback_t func, void *data = NULL );	// true if list already contains the function/data pair
-	BOOL deleteFunction( callback_t func, void *data = NULL );		// removes the first instance of this function/data pair from the list, false if not found
-	void callFunctions();												// calls all functions
+	void addFunction( callback_t func, void *data = NULL );			// register a callback, which will be called as func(data)
+	bool containsFunction( callback_t func, void *data = NULL );	// true if list already contains the function/data pair
+	bool deleteFunction( callback_t func, void *data = NULL );		// removes the first instance of this function/data pair from the list, false if not found
+	void callFunctions();														// calls all functions
 	void deleteAllFunctions();
 
 	static void test();
 
 protected:
-	// Use a list so that the callbacks are ordered in case that matters
-	typedef std::pair<callback_t,void*> callback_pair_t;
-	typedef std::list<callback_pair_t > callback_list_t;
+
+	inline callback_list_t::iterator find(callback_t func, void *data);
+
 	callback_list_t	mCallbackList;
 };
 
