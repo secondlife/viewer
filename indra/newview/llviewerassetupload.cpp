@@ -722,7 +722,9 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
         httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-        if (!status)
+        std::string ulstate = result["state"].asString();
+
+        if ((!status) || (ulstate != "complete"))
         {
             HandleUploadError(status, result, uploadInfo);
             if (uploadInfo->showUploadDialog())
@@ -730,7 +732,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
             return;
         }
 
-        S32 uploadPrice = uploadInfo->getEconomyUploadCost();
+        S32 uploadPrice = result["upload_price"].asInteger();//uploadInfo->getEconomyUploadCost();
 
         if (uploadPrice > 0)
         {
