@@ -97,7 +97,7 @@
                         Notice Title Notice Title N o t i c e T i t l e N o t i c e T i t l e
                       </text>
                       <text allow_scroll="false" font="SansSerif" left="0" width="233" height="10" layout="topleft" follows="right|left" text_color="White"
-                        use_ellipses="true" word_wrap="false" mouse_opaque="false" name="group_name_exp" visible="false">
+                        use_ellipses="true" word_wrap="false" mouse_opaque="false" name="group_name_exp" parse_urls="false" visible="false">
                         Group Name Group Name Group Na m e e
                       </text>
                     </panel>
@@ -109,7 +109,7 @@
                       <text allow_scroll="false" font="SansSerifSmall" top="0" right="-1" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
                         name="notification_time_exp" value="2014/12/24 23:30" />
                     </panel>
-                    <panel border="false" left="0" height="115" width="230" bevel_style="none" follows="left|right" layout="topleft" name="notification_text_panel_exp" visible="true">
+                    <panel border="false" left="0" height="115" width="230" bevel_style="none" follows="all" layout="topleft" name="notification_text_panel_exp" visible="true">
                       <chat_editor is_expandable="true" top="0" left="0" width="230" height="110" layout="topleft" follows="left|right"
                             word_wrap="true" max_length="65536" name="notification_text_exp" parse_urls="true">
                         Notice text goes here b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. bla bla bla bla bla bla bla bla bla bla bla bla bla .
