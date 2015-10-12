@@ -243,56 +243,59 @@ void LLPanelGroupInvite::impl::addRoleNames(LLGroupMgrGroupData* gdatap)
 	LLGroupMgrGroupData::member_list_t::iterator agent_iter =
 		gdatap->mMembers.find(gAgent.getID());
 
-	//get the member data for the agent if it exists
-	if ( agent_iter != gdatap->mMembers.end() )
-	{
-		LLGroupMemberData* member_data = (*agent_iter).second;
-
-		//loop over the agent's roles in the group
-		//then add those roles to the list of roles that the agent
-		//can invite people to be
-		if ( member_data && mRoleNames)
-		{
-			//if the user is the owner then we add
-			//all of the roles in the group
-			//else if they have the add to roles power
-			//we add every role but owner,
-			//else if they have the limited add to roles power
-			//we add every role the user is in
-			//else we just add to everyone
-			bool is_owner   = member_data->isOwner();
-			bool can_assign_any = gAgent.hasPowerInGroup(mGroupID,
+	//loop over the agent's roles in the group
+	//then add those roles to the list of roles that the agent
+	//can invite people to be.
+	//if the user is the owner then we add
+	//all of the roles in the group,
+	//else if they have the add to roles power
+	//we add every role but owner,
+	//else if they have the limited add to roles power
+	//we add every role the user is in,
+	//else we just add to everyone
+	bool is_owner = FALSE;
+	bool can_assign_any = gAgent.hasPowerInGroup(mGroupID,
 												 GP_ROLE_ASSIGN_MEMBER);
-			bool can_assign_limited = gAgent.hasPowerInGroup(mGroupID,
-												 GP_ROLE_ASSIGN_MEMBER_LIMITED);
-
-			LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.begin();
-			LLGroupMgrGroupData::role_list_t::iterator end = gdatap->mRoles.end();
-
-			//populate the role list
-			for ( ; rit != end; ++rit)
-			{
-				LLUUID role_id = (*rit).first;
-				LLRoleData rd;
-				if ( gdatap->getRoleData(role_id,rd) )
-				{
-					// Owners can add any role.
-					if ( is_owner 
-						// Even 'can_assign_any' can't add owner role.
-						 || (can_assign_any && role_id != gdatap->mOwnerRole)
-						// Add all roles user is in
-						 || (can_assign_limited && member_data->isInRole(role_id))
-						// Everyone role.
-						 || role_id == LLUUID::null )
-					{
-							mRoleNames->add(rd.mRoleName,
-											role_id,
-											ADD_BOTTOM);
-					}
-				}
-			}
+	bool can_assign_limited = gAgent.hasPowerInGroup(mGroupID,
+													 GP_ROLE_ASSIGN_MEMBER_LIMITED);
+	LLGroupMemberData* member_data = NULL;
+	//get the member data for the agent if it exists
+	if (agent_iter != gdatap->mMembers.end())
+	{
+		member_data = (*agent_iter).second;
+		if (member_data && mRoleNames)
+		{
+			is_owner = member_data->isOwner();
 		}//end if member data is not null
 	}//end if agent is in the group
+
+
+
+	LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.begin();
+	LLGroupMgrGroupData::role_list_t::iterator end = gdatap->mRoles.end();
+
+	//populate the role list:
+	for ( ; rit != end; ++rit)
+	{
+		LLUUID role_id = (*rit).first;
+		LLRoleData rd;
+		if ( gdatap->getRoleData(role_id,rd) )
+		{
+			// Owners can add any role.
+			if ( is_owner 
+				// Even 'can_assign_any' can't add owner role.
+				|| (can_assign_any && role_id != gdatap->mOwnerRole)
+				// Add all roles user is in
+				|| (can_assign_limited && member_data && member_data->isInRole(role_id))
+				// Everyone role.
+				|| role_id == LLUUID::null )
+			{
+				mRoleNames->add(rd.mRoleName,
+								role_id,
+								ADD_BOTTOM);
+			}
+		}
+	}
 }
 
 //static
@@ -579,7 +582,8 @@ void LLPanelGroupInvite::updateLists()
 		{
 			waiting = true;
 		}
-		if (gdatap->isRoleDataComplete() && gdatap->isMemberDataComplete() && gdatap->isRoleMemberDataComplete()) 
+		if (gdatap->isRoleDataComplete() && gdatap->isMemberDataComplete()
+			&& (gdatap->isRoleMemberDataComplete() || !gdatap->mMembers.size())) // MAINT-5270: large groups receives an empty members list without some powers, so RoleMemberData wouldn't be complete for them
 		{
 			if ( mImplementation->mRoleNames )
 			{

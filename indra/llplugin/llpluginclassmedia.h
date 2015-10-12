@@ -249,6 +249,13 @@ public:
 	// This is valid during MEDIA_EVENT_CLICK_LINK_HREF and MEDIA_EVENT_GEOMETRY_CHANGE
 	std::string getClickUUID() const { return mClickUUID; };
 
+	// mClickTarget is received from message and governs how link will be opened
+	// use this to enforce your own way of opening links inside plugins
+	void setOverrideClickTarget(const std::string &target);
+	void resetOverrideClickTarget() { mClickEnforceTarget = false; };
+	bool isOverrideClickTarget() const { return mClickEnforceTarget; }
+	std::string getOverrideClickTarget() const { return mOverrideClickTarget; };
+
 	// These are valid during MEDIA_EVENT_DEBUG_MESSAGE
 	std::string getDebugMessageText() const { return mDebugMessageText; };
 	std::string getDebugMessageLevel() const { return mDebugMessageLevel; };
@@ -404,6 +411,8 @@ protected:
 	std::string		mClickNavType;
 	std::string		mClickTarget;
 	std::string		mClickUUID;
+	bool			mClickEnforceTarget;
+	std::string		mOverrideClickTarget;
 	std::string		mDebugMessageText;
 	std::string		mDebugMessageLevel;
 	S32				mGeometryX;

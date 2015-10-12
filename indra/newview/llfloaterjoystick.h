@@ -45,6 +45,11 @@ public:
 	virtual void draw();
 	static  void setSNDefaults();
 
+protected:
+
+	void onClose(bool app_quitting);
+	void onClickCloseBtn(bool app_quitting);
+
 private:
 
 	LLFloaterJoystick(const LLSD& data);

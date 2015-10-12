@@ -2802,9 +2802,6 @@ Versuchen Sie es in einigen Minuten erneut.
 	<notification name="NoValidCircuit">
 		Kein gültiger Verbindungscode.
 	</notification>
-	<notification name="NoValidTimestamp">
-		Kein gültiger Zeitstempel.
-	</notification>
 	<notification name="NoPendingConnection">
 		Verbindung kann nicht hergestellt werden.
 	</notification>

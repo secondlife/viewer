@@ -84,7 +84,7 @@ void LLURLLineEditor::copyEscapedURLToClipboard()
 	const std::string unescaped_text = wstring_to_utf8str(mText.getWString().substr(left_pos, length));
 	LLWString text_to_copy;
 	// *HACK: Because LLSLURL is currently broken we cannot use it to check if unescaped_text is a valid SLURL (see EXT-8335).
-	if (LLStringUtil::startsWith(unescaped_text, "http://")) // SLURL
+	if (LLStringUtil::startsWith(unescaped_text, "http://") || LLStringUtil::startsWith(unescaped_text, "secondlife://")) // SLURL
 		text_to_copy = utf8str_to_wstring(LLWeb::escapeURL(unescaped_text));
 	else // human-readable location
 		text_to_copy = utf8str_to_wstring(unescaped_text);

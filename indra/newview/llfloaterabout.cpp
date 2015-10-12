@@ -34,10 +34,12 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentui.h"
-#include "llappviewer.h" 
+#include "llappviewer.h"
+#include "llnotificationsutil.h"
 #include "llslurl.h"
 #include "llvoiceclient.h"
 #include "lluictrlfactory.h"
+#include "llupdaterservice.h"
 #include "llviewertexteditor.h"
 #include "llviewercontrol.h"
 #include "llviewerstats.h"
@@ -99,9 +101,23 @@ public:
 	/// separated so that we can programmatically access the same info.
 	static LLSD getInfo();
 	void onClickCopyToClipboard();
+	void onClickUpdateCheck();
+
+	// checks state of updater service and starts a check outside of schedule.
+	// subscribes callback for closest state update
+	static void setUpdateListener();
 
 private:
 	void setSupportText(const std::string& server_release_notes_url);
+
+	// notifications for user requested checks
+	static void showCheckUpdateNotification(S32 state);
+
+	// callback method for manual checks
+	static bool callbackCheckUpdate(LLSD const & event);
+
+	// listener name for update checks
+	static const std::string sCheckUpdateListenerName;
 };
 
 
@@ -131,6 +147,9 @@ BOOL LLFloaterAbout::postBuild()
 
 	getChild<LLUICtrl>("copy_btn")->setCommitCallback(
 		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
+
+	getChild<LLUICtrl>("update_btn")->setCommitCallback(
+		boost::bind(&LLFloaterAbout::onClickUpdateCheck, this));
 
 	static const LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
 
@@ -235,6 +254,11 @@ void LLFloaterAbout::onClickCopyToClipboard()
 	support_widget->deselect();
 }
 
+void LLFloaterAbout::onClickUpdateCheck()
+{
+	setUpdateListener();
+}
+
 void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 {
 #if LL_WINDOWS
@@ -256,6 +280,68 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 }
 
 ///----------------------------------------------------------------------------
+/// Floater About Update-check related functions
+///----------------------------------------------------------------------------
+
+const std::string LLFloaterAbout::sCheckUpdateListenerName = "LLUpdateNotificationListener";
+
+void LLFloaterAbout::showCheckUpdateNotification(S32 state)
+{
+	switch (state)
+	{
+	case LLUpdaterService::UP_TO_DATE:
+		LLNotificationsUtil::add("UpdateViewerUpToDate");
+		break;
+	case LLUpdaterService::DOWNLOADING:
+	case LLUpdaterService::INSTALLING:
+		LLNotificationsUtil::add("UpdateDownloadInProgress");
+		break;
+	case LLUpdaterService::TERMINAL:
+		// download complete, user triggered check after download pop-up appeared
+		LLNotificationsUtil::add("UpdateDownloadComplete");
+		break;
+	default:
+		LLNotificationsUtil::add("UpdateCheckError");
+		break;
+	}
+}
+
+bool LLFloaterAbout::callbackCheckUpdate(LLSD const & event)
+{
+	if (!event.has("payload"))
+	{
+		return false;
+	}
+
+	LLSD payload = event["payload"];
+	if (payload.has("type") && payload["type"].asInteger() == LLUpdaterService::STATE_CHANGE)
+	{
+		LLEventPumps::instance().obtain("mainlooprepeater").stopListening(sCheckUpdateListenerName);
+		showCheckUpdateNotification(payload["state"].asInteger());
+	}
+	return false;
+}
+
+void LLFloaterAbout::setUpdateListener()
+{
+	LLUpdaterService update_service;
+	S32 service_state = update_service.getState();
+	// Note: Do not set state listener before forceCheck() since it set's new state
+	if (update_service.forceCheck() || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)
+	{
+		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainlooprepeater"));
+		if (mainloop.getListener(sCheckUpdateListenerName) == LLBoundListener()) // dummy listener
+		{
+			mainloop.listen(sCheckUpdateListenerName, boost::bind(&callbackCheckUpdate, _1));
+		}
+	}
+	else
+	{
+		showCheckUpdateNotification(service_state);
+	}
+}
+
+///----------------------------------------------------------------------------
 /// LLFloaterAboutUtil
 ///----------------------------------------------------------------------------
 void LLFloaterAboutUtil::registerFloater()
@@ -263,6 +349,11 @@ void LLFloaterAboutUtil::registerFloater()
 	LLFloaterReg::add("sl_about", "floater_about.xml",
 		&LLFloaterReg::build<LLFloaterAbout>);
 
+}
+
+void LLFloaterAboutUtil::checkUpdatesAndNotify()
+{
+	LLFloaterAbout::setUpdateListener();
 }
 
 ///----------------------------------------------------------------------------

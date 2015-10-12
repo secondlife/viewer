@@ -565,14 +565,6 @@
     <menu_item_call
      label="Delete"
      layout="topleft"
-     name="Remove Link">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="delete" />
-    </menu_item_call>
-    <menu_item_call
-     label="Delete"
-     layout="topleft"
      name="Delete">
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
@@ -784,14 +776,6 @@
 	<menu_item_separator
 	 layout="topleft"
 	 name="Marketplace Separator" />
-	<menu_item_call
-	 label="Copy to Merchant Outbox"
-	 layout="topleft"
-	 name="Merchant Copy">
-		<menu_item_call.on_click
-		 function="Inventory.DoToSelected"
-		 parameter="copy_to_outbox" />
-	</menu_item_call>
 	<menu_item_call
         label="Copy to Marketplace Listings"
         layout="topleft"
