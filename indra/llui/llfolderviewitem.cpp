@@ -129,6 +129,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mSelectPending(FALSE),
 	mLabelStyle( LLFontGL::NORMAL ),
 	mHasVisibleChildren(FALSE),
+	mIsFolderComplete(true),
     mLocalIndentation(p.folder_indentation),
 	mIndentation(0),
 	mItemHeight(p.item_height),
@@ -674,7 +675,7 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 	//
 	const S32 TOP_PAD = default_params.item_top_pad;
 
-	if (hasVisibleChildren())
+	if (hasVisibleChildren() || !isFolderComplete())
 	{
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
@@ -934,6 +935,8 @@ LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ):
 	mLastArrangeGeneration( -1 ),
 	mLastCalculatedWidth(0)
 {
+	// folder might have children that are not loaded yet. Mark it as incomplete until chance to check it.
+	mIsFolderComplete = false;
 }
 
 void LLFolderViewFolder::updateLabelRotation()
@@ -1016,6 +1019,12 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 
 		mHasVisibleChildren = found;
 	}
+	if (!mIsFolderComplete)
+	{
+		mIsFolderComplete = getFolderViewModel()->isFolderComplete(this);
+	}
+
+
 
 	// calculate height as a single item (without any children), and reshapes rectangle to match
 	LLFolderViewItem::arrange( width, height );
@@ -1463,31 +1472,37 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 	LLFolderView* root = getRoot();
 
-	for (std::vector<LLFolderViewItem*>::iterator it = items_to_select_forward.begin(), end_it = items_to_select_forward.end();
+	BOOL selection_reverse = new_selection->isSelected(); //indication that some elements are being deselected
+
+	// array always go from 'will be selected' to ' will be unselected', iterate
+	// in opposite direction to simplify identification of 'point of origin' in
+	// case it is in the list we are working with
+	for (std::vector<LLFolderViewItem*>::reverse_iterator it = items_to_select_forward.rbegin(), end_it = items_to_select_forward.rend();
 		it != end_it;
 		++it)
 	{
 		LLFolderViewItem* item = *it;
-		if (item->isSelected())
+		BOOL selected = item->isSelected();
+		if (!selection_reverse && selected)
 		{
-			root->removeFromSelectionList(item);
+			// it is our 'point of origin' where we shift/expand from
+			// don't deselect it
+			selection_reverse = TRUE;
 		}
 		else
 		{
-			item->selectItem();
+			root->changeSelection(item, !selected);
 		}
-		root->addToSelectionList(item);
 	}
 
-	if (new_selection->isSelected())
+	if (selection_reverse)
 	{
-		root->removeFromSelectionList(new_selection);
+		// at some point we reversed selection, first element should be deselected
+		root->changeSelection(last_selected_item_from_cur, FALSE);
 	}
-	else
-	{
-		new_selection->selectItem();
-	}
-	root->addToSelectionList(new_selection);
+
+	// element we expand to should always be selected
+	root->changeSelection(new_selection, TRUE);
 }
 
 
@@ -1677,7 +1692,9 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType r
 	mIsOpen = openitem;
 		if(!was_open && openitem)
 		{
-		getViewModelItem()->openItem();
+			getViewModelItem()->openItem();
+			// openItem() will request content, it won't be incomplete
+			mIsFolderComplete = true;
 		}
 		else if(was_open && !openitem)
 		{

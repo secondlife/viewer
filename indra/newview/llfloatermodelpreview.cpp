@@ -1765,7 +1765,6 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		clearGLODGroup();
 	}
 
-
     JointNameSet legal_joint_names;
     getLegalJointNames(legal_joint_names);
     
@@ -3712,6 +3711,10 @@ BOOL LLModelPreview::render()
 		if (regen)
 		{
 			genBuffers(mPreviewLOD, skin_weight);
+			{
+				LL_INFOS() << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
+				regen = TRUE;
+			}
 		}
 
 		if (!skin_weight)

@@ -2788,9 +2788,6 @@ Lütfen biraz sonra tekrar deneyin.
 	<notification name="NoValidCircuit">
 		Geçerli bir devre kodu yok.
 	</notification>
-	<notification name="NoValidTimestamp">
-		Geçerli bir zaman damgası yok.
-	</notification>
 	<notification name="NoPendingConnection">
 		Beklemedeki bağlantı oluşturulamıyor.
 	</notification>

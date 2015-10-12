@@ -109,6 +109,29 @@ bool LLFolderViewModelInventory::contentsReady()
 	return !LLInventoryModelBackgroundFetch::instance().folderFetchActive();
 }
 
+bool LLFolderViewModelInventory::isFolderComplete(LLFolderViewFolder* folder)
+{
+	LLFolderViewModelItemInventory* modelp = static_cast<LLFolderViewModelItemInventory*>(folder->getViewModelItem());
+	LLUUID cat_id = modelp->getUUID();
+	if (cat_id.isNull())
+	{
+		return false;
+	}
+	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+	if (cat)
+	{
+		// don't need to check version - descendents_server == -1 if we have no data
+		S32 descendents_server = cat->getDescendentCount();
+		S32 descendents_actual = cat->getViewerDescendentCount();
+		if (descendents_server == descendents_actual
+			|| (descendents_actual > 0 && descendents_server == -1)) // content was loaded in previous session
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void LLFolderViewModelItemInventory::requestSort()
 {
 	LLFolderViewModelItemCommon::requestSort();

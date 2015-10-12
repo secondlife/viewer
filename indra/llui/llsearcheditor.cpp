@@ -29,6 +29,7 @@
 #include "linden_common.h"
  
 #include "llsearcheditor.h"
+#include "llkeyboard.h"
 
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 :	LLUICtrl(p),
@@ -165,5 +166,17 @@ void LLSearchEditor::handleKeystroke()
 	if (mKeystrokeCallback)
 	{
 		mKeystrokeCallback(this, getValue());
+	}
+
+	KEY key = gKeyboard->currentKey();
+	if (key == KEY_LEFT ||
+		key == KEY_RIGHT)
+	{
+			return;
+	}
+
+	if (mTextChangedCallback)
+	{
+		mTextChangedCallback(this, getValue());
 	}
 }

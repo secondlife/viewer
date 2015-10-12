@@ -64,9 +64,9 @@ const std::string DEFAULT_CHECKIN_ICON_URL = "http://map.secondlife.com.s3.amazo
 const std::string DEFAULT_CHECKIN_QUERY_PARAMETERS = "?sourceid=slshare_checkin&utm_source=facebook&utm_medium=checkin&utm_campaign=slshare";
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=facebook&utm_medium=photo&utm_campaign=slshare";
 
-const S32 MAX_QUALITY = 100;        // Max quality value for jpeg images
-const S32 MIN_QUALITY = 0;          // Min quality value for jpeg images
-const S32 TARGET_DATA_SIZE = 95000; // Size of the image (compressed) we're trying to send to Facebook
+const S32 MAX_QUALITY = 100;         // Max quality value for jpeg images
+const S32 MIN_QUALITY = 0;           // Min quality value for jpeg images
+const S32 TARGET_DATA_SIZE = 950000; // Size of the image (compressed) we're trying to send to Facebook
 
 std::string get_map_url()
 {

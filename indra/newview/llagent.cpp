@@ -2843,7 +2843,7 @@ BOOL LLAgent::isInGroup(const LLUUID& group_id, BOOL ignore_god_mode /* FALSE */
 // This implementation should mirror LLAgentInfo::hasPowerInGroup
 BOOL LLAgent::hasPowerInGroup(const LLUUID& group_id, U64 power) const
 {
-	if (isGodlike())
+	if (isGodlikeWithoutAdminMenuFakery())
 		return true;
 
 	// GP_NO_POWERS can also mean no power is enough to grant an ability.

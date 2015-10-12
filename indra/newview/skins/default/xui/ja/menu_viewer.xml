@@ -15,7 +15,7 @@
 			<menu_item_check label="飛ぶ" name="Fly"/>
 			<menu_item_check label="常に走る" name="Always Run"/>
 			<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
-			<menu_item_call label="歩行／走行／飛行..." name="Walk / run / fly"/>
+			<menu_item_call label="歩行／走行／飛行..." name="WalkRunFly"/>
 		</menu>
 		<menu label="ログイン" name="Status">
 			<menu_item_check label="一時退席中" name="Away"/>
@@ -64,7 +64,7 @@
 		<menu_item_call label="スナップショット" name="Take Snapshot"/>
 		<menu_item_call label="場所のプロフィール" name="Place Profile"/>
 		<menu_item_call label="土地情報" name="About Land"/>
-		<menu_item_call label="地域 / 不動産" name="Region/Estate"/>
+		<menu_item_call label="地域 / 不動産" name="RegionEstate"/>
 		<menu_item_call label="保有地..." name="My Land"/>
 		<menu_item_call label="この土地を購入" name="Buy Land"/>
 		<menu label="表示" name="LandShow">
