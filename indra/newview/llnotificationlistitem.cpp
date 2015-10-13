@@ -38,6 +38,7 @@
 #include "lluicolortable.h"
 #include "message.h"
 #include "llnotificationsutil.h"
+#include <boost/regex.hpp>
 
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mParams(p),
@@ -284,6 +285,16 @@ BOOL LLGroupInviteNotificationListItem::postBuild()
     mJoinBtn = getChild<LLButton>("join_btn");
     mDeclineBtn = getChild<LLButton>("decline_btn");
     mInfoBtn = getChild<LLButton>("info_btn");
+
+    //invitation with any non-default group role, doesn't have newline characters at the end unlike simple invitations
+    std::string invitation_desc = mNoticeTextExp->getValue().asString();
+    boost::regex pattern = boost::regex("\n\n$", boost::regex::perl|boost::regex::icase);
+    boost::match_results<std::string::const_iterator> matches;
+    if(!boost::regex_search(invitation_desc, matches, pattern))
+    {
+        invitation_desc += "\n\n";
+        mNoticeTextExp->setValue(invitation_desc);
+    }
 
     mJoinBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickJoinBtn,this));
     mDeclineBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickDeclineBtn,this));
