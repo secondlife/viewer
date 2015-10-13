@@ -58,7 +58,7 @@
 		<menu_item_call label="Zrób zdjęcie" name="Take Snapshot" />
 		<menu_item_call label="Profil miejsca" name="Place Profile" />
 		<menu_item_call label="O działce" name="About Land" />
-		<menu_item_call label="Region / Majątek" name="Region/Estate" />
+		<menu_item_call label="Region/Majątek" name="RegionEstate"/>
 		<menu_item_call label="Moje działki..." name="My Land" />
 		<menu_item_call label="Kup działkę" name="Buy Land" />
 		<menu label="Pokaż więcej" name="LandShow">

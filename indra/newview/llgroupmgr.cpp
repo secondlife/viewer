@@ -239,7 +239,8 @@ LLGroupMgrGroupData::LLGroupMgrGroupData(const LLUUID& id) :
 	mRoleMemberDataComplete(false),
 	mGroupPropertiesDataComplete(false),
 	mPendingRoleMemberRequest(false),
-	mAccessTime(0.0f)
+	mAccessTime(0.0f),
+	mPendingBanRequest(false)
 {
 	mMemberVersion.generate();
 }
@@ -761,8 +762,69 @@ void LLGroupMgrGroupData::removeBanEntry(const LLUUID& ban_id)
 	mBanList.erase(ban_id);
 }
 
+void LLGroupMgrGroupData::banMemberById(const LLUUID& participant_uuid)
+{
+	if (!mMemberDataComplete ||
+		!mRoleDataComplete ||
+		!(mRoleMemberDataComplete && mMembers.size()))
+	{
+		LL_WARNS() << "No Role-Member data yet, setting ban request to pending." << LL_ENDL;
+		mPendingBanRequest = true;
+		mPendingBanMemberID = participant_uuid;
 
+		if (!mMemberDataComplete)
+		{
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mID);
+		}
 
+		if (!mRoleDataComplete)
+		{
+			LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mID);
+		}
+
+		return;
+	}
+	
+	LLGroupMgrGroupData::member_list_t::iterator mi = mMembers.find((participant_uuid));
+	if (mi == mMembers.end())
+	{
+		if (!mPendingBanRequest)
+		{
+			mPendingBanRequest = true;
+			mPendingBanMemberID = participant_uuid;
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mID); // member isn't in members list, request reloading
+		}
+		else
+		{
+			mPendingBanRequest = false;
+		}
+
+		return;
+	}
+
+	mPendingBanRequest = false;
+
+	LLGroupMemberData* member_data = (*mi).second;
+	if (member_data && member_data->isInRole(mOwnerRole))
+	{
+		return; // can't ban group owner
+	}
+
+	std::vector<LLUUID> ids;
+	ids.push_back(participant_uuid);
+
+	LLGroupBanData ban_data;
+	createBanEntry(participant_uuid, ban_data);
+	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mID, LLGroupMgr::BAN_CREATE, ids);
+	LLGroupMgr::getInstance()->sendGroupMemberEjects(mID, ids);
+	LLGroupMgr::getInstance()->sendGroupMembersRequest(mID);
+	LLSD args;
+	std::string name;
+	gCacheName->getFullName(participant_uuid, name);
+	args["AVATAR_NAME"] = name;
+	args["GROUP_NAME"] = mName;
+	LLNotifications::instance().add(LLNotification::Params("EjectAvatarFromGroup").substitutions(args));
+}
 
 //
 // LLGroupMgr
@@ -1245,6 +1307,11 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 
 	group_datap->mChanged = TRUE;
 	LLGroupMgr::getInstance()->notifyObservers(GC_ROLE_MEMBER_DATA);
+
+	if (group_datap->mPendingBanRequest)
+	{
+		group_datap->banMemberById(group_datap->mPendingBanMemberID);
+	}
 }
 
 // static
@@ -1993,8 +2060,6 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
 	LLGroupMgr::getInstance()->notifyObservers(GC_BANLIST);
 }
 
-
-
 // Responder class for capability group management
 class GroupMemberDataResponder : public LLHTTPClient::Responder
 {
@@ -2083,11 +2148,6 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 		return;
 	}
 
-	// If we have no members, there's no reason to do anything else
-	S32	num_members	= content["member_count"];
-	if(num_members < 1)
-		return;
-	
 	LLUUID group_id = content["group_id"].asUUID();
 
 	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
@@ -2097,6 +2157,18 @@ void LLGroupMgr::processCapGroupMembersRequest(const LLSD& content)
 		return;
 	}
 
+	// If we have no members, there's no reason to do anything else
+	S32	num_members	= content["member_count"];
+	if (num_members < 1)
+	{
+		LL_INFOS("GrpMgr") << "Received empty group members list for group id: " << group_id.asString() << LL_ENDL;
+		// Set mMemberDataComplete for correct handling of empty responses. See MAINT-5237
+		group_datap->mMemberDataComplete = true;
+		group_datap->mChanged = TRUE;
+		LLGroupMgr::getInstance()->notifyObservers(GC_MEMBER_DATA);
+		return;
+	}
+	
 	group_datap->mMemberCount = num_members;
 
 	LLSD	member_list	= content["members"];

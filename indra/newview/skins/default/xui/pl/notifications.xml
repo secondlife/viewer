@@ -2501,9 +2501,6 @@ Spróbuj ponownie za kilka minut.
 	<notification name="NoValidCircuit">
 		Brak poprawnego obwodu kodowania.
 	</notification>
-	<notification name="NoValidTimestamp">
-		Brak poprawnego znacznika czasu.
-	</notification>
 	<notification name="NoPendingConnection">
 		Brak możliwości wykonania połączenia.
 	</notification>

@@ -98,7 +98,7 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
 	// for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library
-	// change preprocessro code to: #if 1 && defined(LL_WINDOWS)
+	// change preprocessor code to: #if 1 && defined(LL_WINDOWS)
 
 #if 0 && defined(LL_WINDOWS)
 	void* ll_aligned_malloc_fallback( size_t size, int align );

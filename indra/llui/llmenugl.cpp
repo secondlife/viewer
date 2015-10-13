@@ -225,7 +225,6 @@ BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 
 BOOL LLMenuItemGL::handleHover(S32 x, S32 y, MASK mask)
 {
-	setHover(TRUE);
 	getWindow()->setCursor(UI_CURSOR_ARROW);
 	return TRUE;
 }
@@ -234,6 +233,18 @@ BOOL LLMenuItemGL::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLMenuItemGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return LLUICtrl::handleRightMouseDown(x,y,mask);
+}
+
+void LLMenuItemGL::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	setHover(TRUE);
+	LLUICtrl::onMouseEnter(x,y,mask);
+}
+
+void LLMenuItemGL::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	setHover(FALSE);
+	LLUICtrl::onMouseLeave(x,y,mask);
 }
 
 //virtual
@@ -533,9 +544,6 @@ void LLMenuItemGL::draw( void )
 			gl_line_2d(x_begin, (MENU_ITEM_PADDING / 2) + 1, x_end, (MENU_ITEM_PADDING / 2) + 1);
 		}
 	}
-
-	// clear got hover every frame
-	setHover(FALSE);
 }
 
 BOOL LLMenuItemGL::setLabelArg( const std::string& key, const LLStringExplicit& text )
@@ -1043,7 +1051,7 @@ void LLMenuItemBranchGL::onCommit( void )
 
 	// keyboard navigation automatically propagates highlight to sub-menu
 	// to facilitate fast menu control via jump keys
-	if (LLMenuGL::getKeyboardMode() && getBranch()&& !getBranch()->getHighlightedItem())
+	if (LLMenuGL::getKeyboardMode() && getBranch() && !getBranch()->getHighlightedItem())
 	{
 		getBranch()->highlightNextItem(NULL);
 	}
@@ -1456,7 +1464,16 @@ BOOL LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	// switch to mouse control mode
 	LLMenuGL::setKeyboardMode(FALSE);
-	onCommit();
+
+	if (getVisible() && isOpen())
+	{
+		LLMenuGL::sMenuContainer->hideMenus();
+	}
+	else
+	{
+		onCommit();
+	}
+
 	make_ui_sound("UISndClick");
 	return TRUE;
 }
@@ -1588,10 +1605,6 @@ void LLMenuItemBranchDownGL::draw( void )
 			gl_line_2d(x_begin, LABEL_BOTTOM_PAD_PIXELS, x_end, LABEL_BOTTOM_PAD_PIXELS);
 		}
 	}
-
-	// reset every frame so that we only show highlight 
-	// when we get hover events on that frame
-	setHover(FALSE);
 }
 
 
@@ -3381,6 +3394,11 @@ BOOL LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLMenuGL::handleMouseDown(x, y, mask);
 }
 
+BOOL LLMenuBarGL::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	return LLMenuGL::handleMouseDown(x, y, mask);
+}
+
 void LLMenuBarGL::draw()
 {
 	LLMenuItemGL* itemp = getHighlightedItem();
@@ -3625,8 +3643,24 @@ BOOL LLMenuHolderGL::handleMouseDown( S32 x, S32 y, MASK mask )
 	BOOL handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
 	if (!handled)
 	{
-		// clicked off of menu, hide them all
-		hideMenus();
+		LLMenuGL* visible_menu = (LLMenuGL*)getVisibleMenu();
+		LLMenuItemGL* parent_menu = visible_menu ? visible_menu->getParentMenuItem() : NULL;
+		if (parent_menu && parent_menu->getVisible())
+		{
+			// don't hide menu if parent was hit
+			LLRect parent_rect;
+			parent_menu->localRectToOtherView(parent_menu->getLocalRect(), &parent_rect, this);
+			if (!parent_rect.pointInRect(x, y))
+			{
+				// clicked off of menu and parent, hide them all
+				hideMenus();
+			}
+		}
+		else
+		{
+			// no visible parent, clicked off of menu, hide them all
+			hideMenus();
+		}
 	}
 	return handled;
 }

@@ -62,9 +62,10 @@ namespace
 	// They are not used immediately by the app.
 	int gArgC;
 	char** gArgV;
-	LLAppViewerMacOSX* gViewerAppPtr;
+	LLAppViewerMacOSX* gViewerAppPtr = NULL;
 
     void (*gOldTerminateHandler)() = NULL;
+    std::string gHandleSLURL;
 }
 
 static void exceptionTerminateHandler()
@@ -107,7 +108,11 @@ bool initViewer()
 	{
 		LL_WARNS() << "Application init failed." << LL_ENDL;
 	}
-
+    else if (!gHandleSLURL.empty())
+    {
+        dispatchUrl(gHandleSLURL);
+        gHandleSLURL = "";
+    }
 	return ok;
 }
 
@@ -393,22 +398,31 @@ bool LLAppViewerMacOSX::getMasterSystemAudioMute()
 
 void handleUrl(const char* url_utf8)
 {
-    if (url_utf8)
+    if (url_utf8 && gViewerAppPtr)
     {
-        std::string url = url_utf8;
-	    // Safari 3.2 silently mangles secondlife:///app/ URLs into
-	    // secondlife:/app/ (only one leading slash).
-	    // Fix them up to meet the URL specification. JC
-	    const std::string prefix = "secondlife:/app/";
-	    std::string test_prefix = url.substr(0, prefix.length());
-	    LLStringUtil::toLower(test_prefix);
-	    if (test_prefix == prefix)
-	    {
-		    url.replace(0, prefix.length(), "secondlife:///app/");
-	    }
-		
-	    LLMediaCtrl* web = NULL;
-    	const bool trusted_browser = false;
-	    LLURLDispatcher::dispatch(url, "", web, trusted_browser);
+        gHandleSLURL = "";
+        dispatchUrl(url_utf8);
     }
+    else if (url_utf8)
+    {
+        gHandleSLURL = url_utf8;
+    }
+}
+
+void dispatchUrl(std::string url)
+{
+    // Safari 3.2 silently mangles secondlife:///app/ URLs into
+    // secondlife:/app/ (only one leading slash).
+    // Fix them up to meet the URL specification. JC
+    const std::string prefix = "secondlife:/app/";
+    std::string test_prefix = url.substr(0, prefix.length());
+    LLStringUtil::toLower(test_prefix);
+    if (test_prefix == prefix)
+    {
+        url.replace(0, prefix.length(), "secondlife:///app/");
+    }
+    
+    LLMediaCtrl* web = NULL;
+    const bool trusted_browser = false;
+    LLURLDispatcher::dispatch(url, "", web, trusted_browser);
 }

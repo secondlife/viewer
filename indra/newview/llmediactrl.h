@@ -192,7 +192,8 @@ public:
 				mHidingInitialLoad,
 				mClearCache,
 				mHoverTextChanged,
-				mDecoupleTextureSize;
+				mDecoupleTextureSize,
+				mUpdateScrolls;
 
 		std::string mHomePageUrl,
 					mHomePageMimeType,

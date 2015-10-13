@@ -141,6 +141,12 @@ BOOL LLFloaterTOS::postBuild()
 		// Don't use the start_url parameter for this browser instance -- it may finish loading before we get to add our observer.
 		// Store the URL separately and navigate here instead.
 		web_browser->navigateTo( getString( "loading_url" ) );
+		LLPluginClassMedia* media_plugin = web_browser->getMediaPlugin();
+		if (media_plugin)
+		{
+			// All links from tos_html should be opened in external browser
+			media_plugin->setOverrideClickTarget("_external");
+		}
 	}
 
 	return TRUE;

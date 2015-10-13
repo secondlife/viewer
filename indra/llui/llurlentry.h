@@ -157,19 +157,6 @@ public:
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
-///
-/// LLUrlEntryHTTPNoProtocol Describes generic Urls like www.google.com
-///
-class LLUrlEntryHTTPNoProtocol : public LLUrlEntryBase
-{
-public:
-	LLUrlEntryHTTPNoProtocol();
-	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getQuery(const std::string &url) const;
-	/*virtual*/ std::string getUrl(const std::string &string) const;
-	/*virtual*/ std::string getTooltip(const std::string &url) const;
-};
-
 class LLUrlEntryInvalidSLURL : public LLUrlEntryBase
 {
 public:
@@ -504,6 +491,17 @@ public:
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getIcon(const std::string &url);
+};
+
+///
+/// LLUrlEntryEmail Describes a generic mailto: Urls
+///
+class LLUrlEntryEmail : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryEmail();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
 
