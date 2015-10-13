@@ -2536,6 +2536,8 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 					U32 cur_influence = 0;
 					LLVector4 wght(0,0,0,0);
+                    U32 joints[4] = {0,0,0,0};
+					LLVector4 joints_with_weights(0,0,0,0);
 
 					while (joint != END_INFLUENCES && idx < weights.size())
 					{
@@ -2543,7 +2545,9 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 						influence |= ((U16) weights[idx++] << 8);
 
 						F32 w = llclamp((F32) influence / 65535.f, 0.f, 0.99999f);
-						wght.mV[cur_influence++] = (F32) joint + w;
+						wght.mV[cur_influence] = w;
+						joints[cur_influence] = joint;
+						cur_influence++;
 
 						if (cur_influence >= 4)
 						{
@@ -2554,8 +2558,16 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 							joint = weights[idx++];
 						}
 					}
-
-					face.mWeights[cur_vertex].loadua(wght.mV);
+                    F32 wsum = wght.mV[VX] + wght.mV[VY] + wght.mV[VZ] + wght.mV[VW];
+                    if (wsum <= 0.f)
+                    {
+                        wght = LLVector4(0.99999f,0.f,0.f,0.f);
+                    }
+                    for (U32 k=0; k<4; k++)
+                    {
+                        joints_with_weights[k] = (F32) joints[k] + wght[k];
+                    }
+					face.mWeights[cur_vertex].loadua(joints_with_weights.mV);
 
 					cur_vertex++;
 				}
@@ -5584,7 +5596,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	{
 		resizeVertices(num_vertices+1);
 		
-		if (!partial_build)
+		//if (!partial_build)
 		{
 			resizeIndices(num_indices+3);
 		}
@@ -5592,7 +5604,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	else
 	{
 		resizeVertices(num_vertices);
-		if (!partial_build)
+		//if (!partial_build)
 		{
 			resizeIndices(num_indices);
 		}
@@ -5714,10 +5726,10 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 		
 	LL_CHECK_MEMORY
 		
-	if (partial_build)
-	{
-		return TRUE;
-	}
+	//if (partial_build)
+	//{
+	//	return TRUE;
+	//}
 
 	if (mTypeMask & HOLLOW_MASK)
 	{

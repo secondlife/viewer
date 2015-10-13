@@ -33,7 +33,7 @@
 		<menu_item_call label="Zrób zdjęcie" name="Take Snapshot"/>
 		<menu_item_call label="Profil miejsca" name="Place Profile"/>
 		<menu_item_call label="O posiadłości" name="About Land"/>
-		<menu_item_call label="Region/Majątek" name="Region/Estate"/>
+		<menu_item_call label="Region/Majątek" name="RegionEstate"/>
 		<menu_item_call label="Moje posiadłości" name="My Land"/>
 		<menu_item_call label="Kup posiadłość" name="Buy Land"/>
 		<menu label="Pokaż" name="LandShow">

@@ -105,7 +105,7 @@ public:
 	S32 setMediaFlags(const U8 index, const U8 media_flags);
 	S32 setGlow(const U8 index, const F32 glow);
 	S32 setMaterialID(const U8 index, const LLMaterialID& pMaterialID);
-	S32 setMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
+	S32 setMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams, bool isInitFromServer);
 
 	LLMaterialPtr getMaterialParams(const U8 index);
 

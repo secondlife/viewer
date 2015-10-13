@@ -303,7 +303,15 @@ void LLFloaterMove::onFlyButtonClick()
 void LLFloaterMove::setMovementMode(const EMovementMode mode)
 {
 	mCurrentMode = mode;
-	gAgent.setFlying(MM_FLY == mode);
+
+	if(MM_FLY == mode)
+	{
+		LLAgent::toggleFlying();
+	}
+	else
+	{
+		gAgent.setFlying(FALSE);
+	}
 
 	// attempts to set avatar flying can not set it real flying in some cases.
 	// For ex. when avatar fell down & is standing up.

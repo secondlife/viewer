@@ -2368,9 +2368,6 @@ Spróbuj ponowanie za kilka minut.
 	<notification name="NoValidCircuit">
 		Nieważny obwód kodowania.
 	</notification>
-	<notification name="NoValidTimestamp">
-		Niewłaściwy czas zapisu.
-	</notification>
 	<notification name="NoPendingConnection">
 		Brak możliwości wykonania połączenia.
 	</notification>
