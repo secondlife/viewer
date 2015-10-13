@@ -2793,9 +2793,6 @@ Riprova tra qualche istante.
 	<notification name="NoValidCircuit">
 		Nessun codice circuito valido.
 	</notification>
-	<notification name="NoValidTimestamp">
-		Nessuna data/timestamp valido.
-	</notification>
 	<notification name="NoPendingConnection">
 		Impossibile creare la connessione in sospeso.
 	</notification>

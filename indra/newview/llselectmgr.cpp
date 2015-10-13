@@ -2127,7 +2127,7 @@ void LLSelectMgr::selectionRemoveMaterial()
 			{
 			        LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
 				LLMaterialMgr::getInstance()->remove(object->getID(),face);
-				object->setTEMaterialParams(face, NULL);
+				object->setTEMaterialParams(face, NULL, FALSE);
 			}
 			return true;
 		}
@@ -4950,12 +4950,15 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 									ESendType send_type)
 {
 	LLSelectNode* node;
+	LLSelectNode* linkset_root = NULL;
 	LLViewerRegion*	last_region;
 	LLViewerRegion*	current_region;
 
 	S32 objects_sent = 0;
 	S32 packets_sent = 0;
 	S32 objects_in_this_packet = 0;
+
+	bool link_operation = message_name == "ObjectLink";
 
 	//clear update override data (allow next update through)
 	struct f : public LLSelectedNodeFunctor
@@ -5065,6 +5068,12 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 			&& (! gMessageSystem->isSendFull(NULL))
 			&& (objects_in_this_packet < MAX_OBJECTS_PER_PACKET))
 		{
+			if (link_operation && linkset_root == NULL)
+			{
+				// linksets over 254 will be split into multiple messages,
+				// but we need to provide same root for all messages or we will get separate linksets
+				linkset_root = node;
+			}
 			// add another instance of the body of the data
 			(*pack_body)(node, user_data);
             // do any related logging
@@ -5092,6 +5101,22 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 
 			gMessageSystem->newMessage(message_name.c_str());
 			(*pack_header)(user_data);
+
+			if (linkset_root != NULL)
+			{
+				if (current_region != last_region)
+				{
+					// root should be in one region with the child, reset it
+					linkset_root = NULL;
+				}
+				else
+				{
+					// add root instance into new message
+					(*pack_body)(linkset_root, user_data);
+					++objects_sent;
+					++objects_in_this_packet;
+				}
+			}
 
 			// don't move to the next object, we still need to add the
 			// body data. 

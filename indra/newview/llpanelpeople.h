@@ -93,6 +93,7 @@ private:
 
 	// UI callbacks
 	void					onFilterEdit(const std::string& search_string);
+	void					onGroupLimitInfo();
 	void					onTabSelected(const LLSD& param);
 	void					onAddFriendButtonClicked();
 	void					onAddFriendWizButtonClicked();

@@ -443,6 +443,10 @@ BOOL LLImageBMP::decodeColorMask32( U8* dst, U8* src )
 		mBitfieldMask[2] = 0x000000FF;
 	}
 
+	if (getWidth() * getHeight() * 4 > getDataSize() - mBitmapOffset)
+	{ //here we have situation when data size in src less than actually needed
+		return FALSE;
+	}
 
 	S32 src_row_span = getWidth() * 4;
 	S32 alignment_bytes = (3 * src_row_span) % 4;  // round up to nearest multiple of 4
@@ -476,6 +480,11 @@ BOOL LLImageBMP::decodeColorTable8( U8* dst, U8* src )
 	S32 src_row_span = getWidth() * 1;
 	S32 alignment_bytes = (3 * src_row_span) % 4;  // round up to nearest multiple of 4
 
+	if ((getWidth() * getHeight()) + getHeight() * alignment_bytes > getDataSize() - mBitmapOffset)
+	{ //here we have situation when data size in src less than actually needed
+		return FALSE;
+	}
+
 	for( S32 row = 0; row < getHeight(); row++ )
 	{
 		for( S32 col = 0; col < getWidth(); col++ )
@@ -500,6 +509,11 @@ BOOL LLImageBMP::decodeTruecolor24( U8* dst, U8* src )
 	llassert( 3 == getComponents() );
 	S32 src_row_span = getWidth() * 3;
 	S32 alignment_bytes = (3 * src_row_span) % 4;  // round up to nearest multiple of 4
+
+	if ((getWidth() * getHeight() * 3) + getHeight() * alignment_bytes > getDataSize() - mBitmapOffset)
+	{ //here we have situation when data size in src less than actually needed
+		return FALSE;
+	}
 
 	for( S32 row = 0; row < getHeight(); row++ )
 	{

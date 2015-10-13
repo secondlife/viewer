@@ -158,6 +158,10 @@ public:
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+
+	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
+	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
+
 	virtual void draw( void );
 
 	BOOL getHover() const { return mGotHover; }
@@ -753,6 +757,7 @@ public:
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL handleJumpKey(KEY key);
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL jumpKeysActive();

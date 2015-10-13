@@ -663,13 +663,19 @@ void LLFloaterSnapshot::Impl::onCommitFreezeFrame(LLUICtrl* ctrl, void* data)
 {
 	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+	LLSnapshotLivePreview* previewp = getPreviewView(view);
 		
-	if (!view || !check_box)
+	if (!view || !check_box || !previewp)
 	{
 		return;
 	}
 
 	gSavedSettings.setBOOL("UseFreezeFrame", check_box->get());
+
+	if (check_box->get())
+	{
+		previewp->prepareFreezeFrame();
+	}
 
 	updateLayout(view);
 }

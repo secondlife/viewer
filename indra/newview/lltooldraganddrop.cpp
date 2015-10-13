@@ -1155,8 +1155,7 @@ void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 	}
 
 	LLSculptParams sculpt_params;
-	sculpt_params.setSculptTexture(asset_id);
-	sculpt_params.setSculptType(LL_SCULPT_TYPE_MESH);
+	sculpt_params.setSculptTexture(asset_id, LL_SCULPT_TYPE_MESH);
 	hit_obj->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, TRUE);
 	
 	dialog_refresh_all();
