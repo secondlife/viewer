@@ -220,24 +220,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 	// Special-case for land ownership feedback
 	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		if (mVertexShaderLevel > 1)
-		{ //use fullbright shader for highlighting
-			LLGLSLShader* old_shader = sShader;
-			sShader->unbind();
-			sShader = &gHighlightProgram;
-			sShader->bind();
-			gGL.diffuseColor4f(1,1,1,1);
-			LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-1.0f, -1.0f);
-			renderOwnership();
-			sShader = old_shader;
-			sShader->bind();
-		}
-		else
-		{
-			gPipeline.disableLights();
-			renderOwnership();
-		}
+		hilightParcelOwners();
 	}
 }
 
@@ -265,7 +248,15 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	{
 		return;
 	}
+
 	renderFullShader();
+
+	// Special-case for land ownership feedback
+	if (gSavedSettings.getBOOL("ShowParcelOwners"))
+	{
+		hilightParcelOwners();
+	}
+
 }
 
 void LLDrawPoolTerrain::beginShadowPass(S32 pass)
@@ -452,6 +443,35 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
+}
+
+void LLDrawPoolTerrain::hilightParcelOwners()
+{
+	if (mVertexShaderLevel > 1)
+	{ //use fullbright shader for highlighting
+		LLGLSLShader* old_shader = sShader;
+
+		if (old_shader->mName != "Terrain Water Shader")
+		{
+			int n = 0;
+			n++;
+		}
+
+		sShader->unbind();
+		sShader = &gHighlightProgram;
+		sShader->bind();
+		gGL.diffuseColor4f(1, 1, 1, 1);
+		LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-1.0f, -1.0f);
+		renderOwnership();
+		sShader = old_shader;
+		sShader->bind();
+	}
+	else
+	{
+		gPipeline.disableLights();
+		renderOwnership();
+	}
 }
 
 void LLDrawPoolTerrain::renderFull4TU()
