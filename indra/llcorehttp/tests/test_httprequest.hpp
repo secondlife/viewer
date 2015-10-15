@@ -247,7 +247,7 @@ void HttpRequestTestObjectType::test<2>()
 		ensure("Memory being used", mMemTotal < GetMemTotal());
 
 		// Issue a NoOp
-		HttpHandle handle = req->requestNoOp(NULL);
+		HttpHandle handle = req->requestNoOp(LLCore::HttpHandler::ptr_t());
 		ensure("Request issued", handle != LLCORE_HTTP_HANDLE_INVALID);
 		
 		// release the request object
