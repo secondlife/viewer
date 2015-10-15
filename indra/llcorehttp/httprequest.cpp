@@ -632,7 +632,7 @@ HttpHandle HttpRequest::requestSpin(int mode)
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
 	HttpOpSpin * op = new HttpOpSpin(mode);
-	op->setReplyPath(mReplyQueue, NULL);
+    op->setReplyPath(mReplyQueue, HttpHandler::ptr_t());
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
 		op->release();

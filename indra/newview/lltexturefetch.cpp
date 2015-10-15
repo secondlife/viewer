@@ -968,7 +968,7 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 	if (mHttpActive)
 	{
 		// Issue a cancel on a live request...
-		mFetcher->getHttpRequest().requestCancel(mHttpHandle, NULL);
+        mFetcher->getHttpRequest().requestCancel(mHttpHandle, LLCore::HttpHandler::ptr_t());
 	}
 	if (mCacheReadHandle != LLTextureCache::nullHandle() && mFetcher->mTextureCache)
 	{

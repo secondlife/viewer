@@ -1,5 +1,4 @@
-ptr_t
-/** 
+/**
  * @file llmeshrepository.cpp
  * @brief Mesh repository implementation.
  *

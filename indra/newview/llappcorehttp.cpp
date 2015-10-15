@@ -403,7 +403,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 				handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
 												   mHttpClasses[app_policy].mPolicy,
 												   new_depth,
-												   NULL);
+                                                   LLCore::HttpHandler::ptr_t());
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					status = mRequest->getStatus();
@@ -453,7 +453,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
 											   mHttpClasses[app_policy].mPolicy,
 											   (mHttpClasses[app_policy].mPipelined ? 2 * setting : setting),
-											   NULL);
+                                               LLCore::HttpHandler::ptr_t());
 			if (LLCORE_HTTP_HANDLE_INVALID == handle)
 			{
 				status = mRequest->getStatus();
@@ -466,7 +466,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 				handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_PER_HOST_CONNECTION_LIMIT,
 												   mHttpClasses[app_policy].mPolicy,
 												   setting,
-												   NULL);
+                                                   LLCore::HttpHandler::ptr_t());
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					status = mRequest->getStatus();
