@@ -427,7 +427,7 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 			body["items"][0]["owner_id"]	= mPermissions.getOwner();
 			body["items"][0]["item_id"]		= mUUID;
 
-			LLInventoryModel::FetchItemHttpHandler * handler(new LLInventoryModel::FetchItemHttpHandler(body));
+            LLCore::HttpHandler::ptr_t handler(new LLInventoryModel::FetchItemHttpHandler(body));
 			gInventory.requestPost(true, url, body, handler, "Inventory Item");
 		}
 		else

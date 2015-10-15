@@ -39,7 +39,6 @@ namespace LLCore
 
 
 HttpReplyQueue::HttpReplyQueue()
-	: RefCounted(true)
 {
 }
 

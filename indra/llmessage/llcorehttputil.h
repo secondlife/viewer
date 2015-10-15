@@ -114,7 +114,7 @@ LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest * request,
     const LLSD & body,
     const LLCore::HttpOptions::ptr_t &options,
     const LLCore::HttpHeaders::ptr_t &headers,
-    LLCore::HttpHandler * handler);
+    const LLCore::HttpHandler::ptr_t &handler);
 
 inline LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & request,
 	LLCore::HttpRequest::policy_t policy_id,
@@ -123,7 +123,7 @@ inline LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & reque
 	const LLSD & body,
 	const LLCore::HttpOptions::ptr_t & options,
 	const LLCore::HttpHeaders::ptr_t & headers,
-	LLCore::HttpHandler * handler)
+    const LLCore::HttpHandler::ptr_t & handler)
 {
     return requestPostWithLLSD(request.get(), policy_id, priority,
         url, body, options, headers, handler);
@@ -134,7 +134,7 @@ inline LLCore::HttpHandle requestPostWithLLSD(LLCore::HttpRequest::ptr_t & reque
     LLCore::HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
-    LLCore::HttpHandler * handler)
+    const LLCore::HttpHandler::ptr_t &handler)
 {
     LLCore::HttpOptions::ptr_t options;
     LLCore::HttpHeaders::ptr_t headers;
@@ -167,7 +167,7 @@ LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest * request,
 	const LLSD & body,
 	const LLCore::HttpOptions::ptr_t &options,
 	const LLCore::HttpHeaders::ptr_t &headers,
-	LLCore::HttpHandler * handler);
+    const LLCore::HttpHandler::ptr_t &handler);
 
 inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & request,
 	LLCore::HttpRequest::policy_t policy_id,
@@ -176,7 +176,7 @@ inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & reques
 	const LLSD & body,
 	const LLCore::HttpOptions::ptr_t & options,
 	const LLCore::HttpHeaders::ptr_t & headers,
-	LLCore::HttpHandler * handler)
+    LLCore::HttpHandler::ptr_t handler)
 {
     return requestPutWithLLSD(request.get(), policy_id, priority,
         url, body, options, headers, handler);
@@ -187,7 +187,7 @@ inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & reques
     LLCore::HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
-    LLCore::HttpHandler * handler)
+    LLCore::HttpHandler::ptr_t handler)
 {
     LLCore::HttpOptions::ptr_t options;
     LLCore::HttpHeaders::ptr_t headers;
@@ -219,7 +219,7 @@ LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest * request,
     const LLSD & body,
     const LLCore::HttpOptions::ptr_t &options,
     const LLCore::HttpHeaders::ptr_t &headers,
-    LLCore::HttpHandler * handler);
+    const LLCore::HttpHandler::ptr_t &handler);
 
 inline LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & request,
     LLCore::HttpRequest::policy_t policy_id,
@@ -228,7 +228,7 @@ inline LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & requ
     const LLSD & body,
     const LLCore::HttpOptions::ptr_t & options,
     const LLCore::HttpHeaders::ptr_t & headers,
-    LLCore::HttpHandler * handler)
+    const LLCore::HttpHandler::ptr_t & handler)
 {
     return requestPatchWithLLSD(request.get(), policy_id, priority,
         url, body, options, headers, handler);
@@ -239,7 +239,7 @@ inline LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & requ
     LLCore::HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
-    LLCore::HttpHandler * handler)
+    const LLCore::HttpHandler::ptr_t &handler)
 {
     LLCore::HttpOptions::ptr_t options;
     LLCore::HttpHeaders::ptr_t headers;

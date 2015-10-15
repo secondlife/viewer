@@ -120,14 +120,18 @@ namespace Details
 
     void LLEventPollImpl::stop()
     {
-        LL_INFOS() << "requesting stop for event poll coroutine <" << mCounter << ">" << LL_ENDL;
         mDone = true;
 
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter = mAdapter.lock();
         if (adapter)
         {
+            LL_INFOS() << "requesting stop for event poll coroutine <" << mCounter << ">" << LL_ENDL;
             // cancel the yielding operation if any.
             adapter->cancelSuspendedOperation();
+        }
+        else
+        {
+            LL_INFOS() << "Coroutine for poll <" << mCounter << "> previously stopped.  No action taken." << LL_ENDL;
         }
     }
 
@@ -177,6 +181,12 @@ namespace Details
                     // return a 404 error (Not Found) before the cancel event
                     // comes back in the queue
                     LL_WARNS() << "Canceling coroutine" << LL_ENDL;
+                    break;
+                }
+                else if (!status.isHttpStatus())
+                {
+                    /// Some LLCore or LIBCurl error was returned.  This is unlikely to be recoverable
+                    LL_WARNS("LLEventPollImpl") << "Critical error from poll request returned from libraries.  Canceling coroutine." << LL_ENDL;
                     break;
                 }
                 LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "

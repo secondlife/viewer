@@ -58,21 +58,17 @@ class HttpOperation;
 /// will be coded anyway so it shouldn't be too much of a
 /// burden.
 
-class HttpReplyQueue : public LLCoreInt::RefCounted
+class HttpReplyQueue : private boost::noncopyable
 {
+
 public:
-	/// Caller acquires a Refcount on construction
+    typedef boost::shared_ptr<HttpReplyQueue>   ptr_t;
+
 	HttpReplyQueue();
-
-protected:
-	virtual ~HttpReplyQueue();							// Use release()
-
-private:
-	HttpReplyQueue(const HttpReplyQueue &);				// Not defined
-	void operator=(const HttpReplyQueue &);				// Not defined
+    virtual ~HttpReplyQueue();		
 
 public:
-	typedef std::vector<HttpOperation *> OpContainer;
+    typedef std::vector<HttpOperation *> OpContainer;
 
 	/// Insert an object at the back of the reply queue.
 	///
@@ -96,6 +92,7 @@ public:
 	void fetchAll(OpContainer & ops);
 	
 protected:
+
 	OpContainer							mQueue;
 	LLCoreInt::HttpMutex				mQueueMutex;
 	LLCoreInt::HttpConditionVariable	mQueueCV;

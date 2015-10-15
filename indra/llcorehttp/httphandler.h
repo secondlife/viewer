@@ -58,6 +58,9 @@ class HttpResponse;
 class HttpHandler 
 {
 public:
+    typedef boost::shared_ptr<HttpHandler>  ptr_t;
+    typedef boost::weak_ptr<HttpHandler>    wptr_t;
+
 	virtual ~HttpHandler()
 	{ }
 

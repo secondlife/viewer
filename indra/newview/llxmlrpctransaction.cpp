@@ -175,7 +175,7 @@ public:
 
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-	typedef boost::unique_ptr<LLXMLRPCTransaction::Handler> ptr_t;
+	typedef boost::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
 
 private:
 
@@ -390,7 +390,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	mHandler = LLXMLRPCTransaction::Handler::ptr_t(new Handler( mHttpRequest, this ));
 
 	mPostH = mHttpRequest->requestPost(LLCore::HttpRequest::DEFAULT_POLICY_ID, 0, 
-		mURI, body.get(), httpOpts, httpHeaders, mHandler.get());
+		mURI, body.get(), httpOpts, httpHeaders, mHandler);
 
 }
 

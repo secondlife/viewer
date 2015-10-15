@@ -2456,7 +2456,7 @@ void LLInventoryModel::handleResponses(bool foreground)
 LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 												 const std::string & url,
 												 const LLSD & body,
-												 LLCore::HttpHandler * handler,
+												 const LLCore::HttpHandler::ptr_t &handler,
 												 const char * const message)
 {
 	if (! mHttpRequestFG)
@@ -2485,7 +2485,6 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 						  << ", Status: " << status.toTerseString()
 						  << " Reason: '" << status.toString() << "'"
 						  << LL_ENDL;
-		delete handler;
 	}
 	return handle;
 }
@@ -4051,9 +4050,6 @@ void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle hand
 		processData(body_llsd, response);
 	}
 	while (false);
-
-	// Must delete on completion.
-	delete this;
 }
 
 void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore::HttpResponse * response)

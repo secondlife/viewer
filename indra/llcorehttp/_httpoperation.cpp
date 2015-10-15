@@ -57,8 +57,8 @@ namespace LLCore
 
 HttpOperation::HttpOperation()
 	: LLCoreInt::RefCounted(true),
-	  mReplyQueue(NULL),
-	  mUserHandler(NULL),
+	  mReplyQueue(),
+	  mUserHandler(),
 	  mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
 	  mReqPriority(0U),
 	  mTracing(HTTP_TRACE_OFF)
@@ -69,30 +69,15 @@ HttpOperation::HttpOperation()
 
 HttpOperation::~HttpOperation()
 {
-	setReplyPath(NULL, NULL);
+    setReplyPath(HttpReplyQueue::ptr_t(), HttpHandler::ptr_t());
 }
 
 
-void HttpOperation::setReplyPath(HttpReplyQueue * reply_queue,
-								 HttpHandler * user_handler)
+void HttpOperation::setReplyPath(HttpReplyQueue::ptr_t reply_queue,
+								 HttpHandler::ptr_t user_handler)
 {
-	if (reply_queue != mReplyQueue)
-	{
-		if (mReplyQueue)
-		{
-			mReplyQueue->release();
-		}
-
-		if (reply_queue)
-		{
-			reply_queue->addRef();
-		}
-
-		mReplyQueue = reply_queue;
-	}
-
-	// Not refcounted
-	mUserHandler = user_handler;
+    mReplyQueue.swap(reply_queue);
+	mUserHandler.swap(user_handler);
 }
 
 

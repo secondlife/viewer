@@ -254,6 +254,12 @@ static const S32 HTTP_NONPIPE_REQUESTS_LOW_WATER = 20;
 static const S32 HTTP_REQUESTS_RANGE_END_MAX = 20000000;
 
 //////////////////////////////////////////////////////////////////////////////
+namespace
+{
+    void NoOpDeletor(LLCore::HttpHandler *)
+    {
+    }
+}
 
 static const char* e_state_name[] =
 {
@@ -806,16 +812,10 @@ public:
 	 *							ownership of the copy and disposes of it
 	 *							when done.
 	 */
-	TFReqSendMetrics(const std::string & caps_url,
-					 const LLUUID & session_id,
-					 const LLUUID & agent_id,
-					 LLViewerAssetStats * main_stats)
-		: LLTextureFetch::TFRequest(),
-		  mCapsURL(caps_url),
-		  mSessionID(session_id),
-		  mAgentID(agent_id),
-		  mMainStats(main_stats)
-		{}
+    TFReqSendMetrics(const std::string & caps_url,
+        const LLUUID & session_id,
+        const LLUUID & agent_id,
+        LLViewerAssetStats * main_stats);
 	TFReqSendMetrics & operator=(const TFReqSendMetrics &);	// Not defined
 
 	virtual ~TFReqSendMetrics();
@@ -827,6 +827,9 @@ public:
 	const LLUUID mSessionID;
 	const LLUUID mAgentID;
 	LLViewerAssetStats * mMainStats;
+
+private:
+    LLCore::HttpHandler::ptr_t  mHandler;
 };
 
 /*
@@ -1569,7 +1572,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 															 mUrl,
 															 options,
 															 mFetcher->mHttpHeaders,
-															 this);
+                                                             LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
 		}
 		else
 		{
@@ -1582,7 +1585,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 																	  : mRequestedSize,
 																	  options,
 																	  mFetcher->mHttpHeaders,
-																	  this);
+                                                                      LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
 		}
 		if (LLCORE_HTTP_HANDLE_INVALID == mHttpHandle)
 		{
@@ -3937,9 +3940,6 @@ public:
 	}
 }; // end class AssetReportHandler
 
-AssetReportHandler stats_handler;
-
-
 /**
  * Implements the 'Set Region' command.
  *
@@ -3952,6 +3952,18 @@ TFReqSetRegion::doWork(LLTextureFetch *)
 
 	return true;
 }
+
+TFReqSendMetrics::TFReqSendMetrics(const std::string & caps_url,
+        const LLUUID & session_id,
+        const LLUUID & agent_id,
+        LLViewerAssetStats * main_stats): 
+    LLTextureFetch::TFRequest(),
+    mCapsURL(caps_url),
+    mSessionID(session_id),
+    mAgentID(agent_id),
+    mMainStats(main_stats),
+    mHandler(new AssetReportHandler)
+{}
 
 
 TFReqSendMetrics::~TFReqSendMetrics()
@@ -3971,7 +3983,6 @@ bool
 TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 {
 	static const U32 report_priority(1);
-	static LLCore::HttpHandler * const handler(fetcher->isQAMode() || true ? &stats_handler : NULL);
 	
 	//if (! gViewerAssetStatsThread1)
 	//	return true;
@@ -4021,7 +4032,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 											sd,
 											LLCore::HttpOptions::ptr_t(),
 											fetcher->getMetricsHeaders(),
-											handler);
+											mHandler);
 		LLTextureFetch::svMetricsDataBreak = false;
 	}
 	else
@@ -4598,7 +4609,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 																				   requestedSize,
 																				   LLCore::HttpOptions::ptr_t(),
 																				   mHttpHeaders,
-																				   this);
+                                                                                   LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
 		if (LLCORE_HTTP_HANDLE_INVALID != handle)
 		{
 			mHandleToFetchIndex[handle] = i;

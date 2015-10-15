@@ -36,8 +36,7 @@
 #include "llcorehttputil.h"
 
 //========================================================================
-LLHttpSDHandler::LLHttpSDHandler(bool selfDelete):
-    mSelfDelete(selfDelete)
+LLHttpSDHandler::LLHttpSDHandler()
 {
 }
 
@@ -75,31 +74,4 @@ void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 		this->onSuccess(response, resplsd);
 	}
 
-	// The handler must destroy itself when it is done. 
-	// *TODO: I'm not fond of this pattern. A class shooting itself in the head 
-	// outside of a smart pointer always makes me nervous.
-    if (mSelfDelete)
-    	delete this;
-}
-
-//========================================================================
-LLHttpSDGenericHandler::LLHttpSDGenericHandler(const std::string &name, bool selfDelete):
-	LLHttpSDHandler(selfDelete),
-	mName(name)
-{
-}
-
-void LLHttpSDGenericHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
-{
-	LL_DEBUGS() << mName << " Success." << LL_ENDL;
-}
-
-void LLHttpSDGenericHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
-{
-	LL_WARNS()
-		<< "\n--------------------------------------------------------------------------\n"
-		<< mName << " Error[" << status.toULong() << "] cannot access cap with url '" 
-		<< response->getRequestURL() << "' because " << status.toString()
-		<< "\n--------------------------------------------------------------------------"
-		<< LL_ENDL;
 }

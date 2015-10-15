@@ -283,7 +283,7 @@ public:
 	LLCore::HttpRequest::policy_t		mHttpLargePolicyClass;
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 
-	typedef std::set<LLCore::HttpHandler *> http_request_set;
+	typedef std::set<LLCore::HttpHandler::ptr_t> http_request_set;
 	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
 
 	std::string mGetMeshCapability;
@@ -351,7 +351,7 @@ private:
 	// Threads:  Repo thread only
 	LLCore::HttpHandle getByteRange(const std::string & url, int cap_version,
 									size_t offset, size_t len, 
-									LLCore::HttpHandler * handler);
+									const LLCore::HttpHandler::ptr_t &handler);
 };
 
 

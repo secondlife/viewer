@@ -353,14 +353,12 @@ void LLMediaDataClient::serviceQueue()
 		trackRequest(request);
 		
 		// and make the post
-        LLHttpSDHandler *handler = request->createHandler();
+        LLCore::HttpHandler::ptr_t handler = request->createHandler();
         LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, mHttpPolicy, 0,
             url, sd_payload, mHttpOpts, mHttpHeaders, handler);
 
         if (handle == LLCORE_HTTP_HANDLE_INVALID)
         {
-            // *TODO: Change this metaphore to use boost::shared_ptr<> for handlers.  Requires change in LLCore::HTTP
-            delete handler;
             LLCore::HttpStatus status = mHttpRequest->getStatus();
             LL_WARNS("LLMediaDataClient") << "'" << url << "' request POST failed. Reason "
                 << status.toTerseString() << " \"" << status.toString() << "\"" << LL_ENDL;
@@ -878,9 +876,9 @@ LLSD LLObjectMediaDataClient::RequestGet::getPayload() const
 	return result;
 }
 
-LLHttpSDHandler *LLObjectMediaDataClient::RequestGet::createHandler()
+LLCore::HttpHandler::ptr_t LLObjectMediaDataClient::RequestGet::createHandler()
 {
-	return new LLObjectMediaDataClient::Handler(shared_from_this());
+    return LLCore::HttpHandler::ptr_t(new LLObjectMediaDataClient::Handler(shared_from_this()));
 }
 
 
@@ -914,10 +912,10 @@ LLSD LLObjectMediaDataClient::RequestUpdate::getPayload() const
 	return result;
 }
 
-LLHttpSDHandler *LLObjectMediaDataClient::RequestUpdate::createHandler()
+LLCore::HttpHandler::ptr_t LLObjectMediaDataClient::RequestUpdate::createHandler()
 {
 	// This just uses the base class's responder.
-	return new LLMediaDataClient::Handler(shared_from_this());
+    return LLCore::HttpHandler::ptr_t(new LLMediaDataClient::Handler(shared_from_this()));
 }
 
 void LLObjectMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
@@ -1049,9 +1047,9 @@ LLSD LLObjectMediaNavigateClient::RequestNavigate::getPayload() const
 	return result;
 }
 
-LLHttpSDHandler *LLObjectMediaNavigateClient::RequestNavigate::createHandler()
+LLCore::HttpHandler::ptr_t LLObjectMediaNavigateClient::RequestNavigate::createHandler()
 {
-	return new LLObjectMediaNavigateClient::Handler(shared_from_this());
+    return LLCore::HttpHandler::ptr_t(new LLObjectMediaNavigateClient::Handler(shared_from_this()));
 }
 
 void LLObjectMediaNavigateClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)

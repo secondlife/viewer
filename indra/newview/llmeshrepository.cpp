@@ -1,3 +1,4 @@
+ptr_t
 /** 
  * @file llmeshrepository.cpp
  * @brief Mesh repository implementation.
@@ -392,6 +393,12 @@ U32 LLMeshRepository::sMaxLockHoldoffs = 0;
 	
 LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, false);	// true -> gather cpu metrics
 
+namespace {
+    void NoOpDeletor(LLCore::HttpHandler *)
+    {
+
+    }
+}
 
 static S32 dump_num = 0;
 std::string make_dump_name(std::string prefix, S32 num)
@@ -538,9 +545,12 @@ S32 LLMeshRepoThread::sRequestWaterLevel = 0;
 //     LLMeshPhysicsShapeHandler
 //   LLMeshUploadThread
 
-class LLMeshHandlerBase : public LLCore::HttpHandler
+class LLMeshHandlerBase : public LLCore::HttpHandler,
+    public boost::enable_shared_from_this<LLMeshHandlerBase>
 {
 public:
+    typedef boost::shared_ptr<LLMeshHandlerBase> ptr_t;
+
 	LOG_CLASS(LLMeshHandlerBase);
 	LLMeshHandlerBase(U32 offset, U32 requested_bytes)
 		: LLCore::HttpHandler(),
@@ -824,12 +834,6 @@ LLMeshRepoThread::~LLMeshRepoThread()
 					   << ", Max Lock Holdoffs:  " << LLMeshRepository::sMaxLockHoldoffs
 					   << LL_ENDL;
 
-	for (http_request_set::iterator iter(mHttpRequestSet.begin());
-		 iter != mHttpRequestSet.end();
-		 ++iter)
-	{
-		delete *iter;
-	}
 	mHttpRequestSet.clear();
     mHttpHeaders.reset();
 
@@ -1161,7 +1165,7 @@ void LLMeshRepoThread::constructUrl(LLUUID mesh_id, std::string * url, int * ver
 // Thread:  repo
 LLCore::HttpHandle LLMeshRepoThread::getByteRange(const std::string & url, int cap_version,
 												  size_t offset, size_t len,
-												  LLCore::HttpHandler * handler)
+												  const LLCore::HttpHandler::ptr_t &handler)
 {
 	// Also used in lltexturefetch.cpp
 	static LLCachedControl<bool> disable_range_req(gSavedSettings, "HttpRangeRequestsDisable", false);
@@ -1275,7 +1279,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 
 			if (!http_url.empty())
 			{
-				LLMeshSkinInfoHandler * handler = new LLMeshSkinInfoHandler(mesh_id, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshSkinInfoHandler(mesh_id, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1283,7 +1287,6 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					ret = false;
 				}
 				else
@@ -1369,7 +1372,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			
 			if (!http_url.empty())
 			{
-				LLMeshDecompositionHandler * handler = new LLMeshDecompositionHandler(mesh_id, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshDecompositionHandler(mesh_id, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1377,7 +1380,6 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					ret = false;
 				}
 				else
@@ -1462,7 +1464,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 			
 			if (!http_url.empty())
 			{
-				LLMeshPhysicsShapeHandler * handler = new LLMeshPhysicsShapeHandler(mesh_id, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshPhysicsShapeHandler(mesh_id, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1470,7 +1472,6 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					ret = false;
 				}
 				else
@@ -1561,7 +1562,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 		//within the first 4KB
 		//NOTE -- this will break of headers ever exceed 4KB		
 
-		LLMeshHeaderHandler * handler = new LLMeshHeaderHandler(mesh_params, 0, MESH_HEADER_SIZE);
+        LLMeshHandlerBase::ptr_t handler(new LLMeshHeaderHandler(mesh_params, 0, MESH_HEADER_SIZE));
 		LLCore::HttpHandle handle = getByteRange(http_url, cap_version, 0, MESH_HEADER_SIZE, handler);
 		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
@@ -1569,7 +1570,6 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 							   << ".  Reason:  " << mHttpStatus.toString()
 							   << " (" << mHttpStatus.toTerseString() << ")"
 							   << LL_ENDL;
-			delete handler;
 			retval = false;
 		}
 		else
@@ -1645,7 +1645,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 			
 			if (!http_url.empty())
 			{
-				LLMeshLODHandler * handler = new LLMeshLODHandler(mesh_params, lod, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshLODHandler(mesh_params, lod, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1653,7 +1653,6 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					retval = false;
 				}
 				else
@@ -2456,7 +2455,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 																		body,
 																		mHttpOptions,
 																		mHttpHeaders,
-																		this);
+                                                                        LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
 		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
 			mHttpStatus = mHttpRequest->getStatus();
@@ -2507,7 +2506,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 																	mModelData,
 																	mHttpOptions,
 																	mHttpHeaders,
-																	this);
+                                                                    LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
 	if (LLCORE_HTTP_HANDLE_INVALID == handle)
 	{
 		mHttpStatus = mHttpRequest->getStatus();
@@ -2948,8 +2947,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 
 	// Release handler
 common_exit:
-	gMeshRepo.mThread->mHttpRequestSet.erase(this);
-	delete this;		// Must be last statement
+	gMeshRepo.mThread->mHttpRequestSet.erase(this->shared_from_this());
 }
 
 

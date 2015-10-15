@@ -44,29 +44,12 @@ public:
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 	
 protected:
-    LLHttpSDHandler(bool selfDelete = true);
+    LLHttpSDHandler();
 
 	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content) = 0;
 	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) = 0;
 
-private:
-    bool mSelfDelete;
 
 };
 
-/// A trivial implementation of LLHttpSDHandler. This success and failure 
-/// methods log the action taken, the URI accessed and the status code returned 
-/// in the response.
-class LLHttpSDGenericHandler : public LLHttpSDHandler
-{
-public: 
-	LLHttpSDGenericHandler(const std::string &name, bool selfDelete = true);
-
-protected:
-	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
-	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
-
-private:
-	std::string mName;
-};
 #endif

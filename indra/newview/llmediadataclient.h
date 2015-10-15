@@ -124,7 +124,7 @@ protected:
         // Subclasses must implement this to build a payload for their request type.
         virtual LLSD getPayload() const = 0;
         // and must create the correct type of responder.
-        virtual LLHttpSDHandler *createHandler() = 0;
+        virtual LLCore::HttpHandler::ptr_t createHandler() = 0;
 
         virtual std::string getURL() { return ""; }
 
@@ -324,7 +324,7 @@ public:
 	public:
 		RequestGet(LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
 		/*virtual*/ LLSD getPayload() const;
-        /*virtual*/ LLHttpSDHandler *createHandler();
+        /*virtual*/ LLCore::HttpHandler::ptr_t createHandler();
 	};
 
 	class RequestUpdate: public Request
@@ -332,7 +332,7 @@ public:
 	public:
 		RequestUpdate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
 		/*virtual*/ LLSD getPayload() const;
-        /*virtual*/ LLHttpSDHandler *createHandler();
+        /*virtual*/ LLCore::HttpHandler::ptr_t createHandler();
 	};
 
 	// Returns true iff the queue is empty
@@ -409,7 +409,7 @@ public:
 	public:
 		RequestNavigate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc, U8 texture_index, const std::string &url);
 		/*virtual*/ LLSD getPayload() const;
-        /*virtual*/ LLHttpSDHandler *createHandler();
+        /*virtual*/ LLCore::HttpHandler::ptr_t createHandler();
 		/*virtual*/ std::string getURL() { return mURL; }
 	private:
 		std::string mURL;

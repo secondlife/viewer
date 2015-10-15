@@ -579,46 +579,56 @@ void LLMaterialMgr::onIdle(void*)
 	instancep->mHttpRequest->update(0L);
 }
 
+/*static*/
+void LLMaterialMgr::CapsRecvForRegion(const LLUUID& regionId, LLUUID regionTest, std::string pumpname)
+{
+    if (regionId == regionTest)
+    {
+        LLEventPumps::instance().obtain(pumpname).post(LLSD());
+    }
+}
+
 void LLMaterialMgr::processGetQueue()
 {
-	get_queue_t::iterator loopRegionQueue = mGetQueue.begin();
-	while (mGetQueue.end() != loopRegionQueue)
-	{
-		get_queue_t::iterator itRegionQueue = loopRegionQueue++;
+    get_queue_t::iterator loopRegionQueue = mGetQueue.begin();
+    while (mGetQueue.end() != loopRegionQueue)
+    {
+#if 1
+        get_queue_t::iterator itRegionQueue = loopRegionQueue++;
 
-		const LLUUID& region_id = itRegionQueue->first;
-		if (isGetAllPending(region_id))
-		{
-			continue;
-		}
+        const LLUUID& region_id = itRegionQueue->first;
+        if (isGetAllPending(region_id))
+        {
+            continue;
+        }
 
-		LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
-		if (!regionp)
-		{
-			LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
-			mGetQueue.erase(itRegionQueue);
-			continue;
-		}
-		else if (!regionp->capabilitiesReceived() || regionp->materialsCapThrottled())
-		{
-			continue;
-		}
-		else if (mGetAllRequested.end() == mGetAllRequested.find(region_id))
-		{
-			LL_DEBUGS("Materials") << "calling getAll for " << regionp->getName() << LL_ENDL;
-			getAll(region_id);
-			continue;
-		}
+        LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
+        if (!regionp)
+        {
+            LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
+            mGetQueue.erase(itRegionQueue);
+            continue;
+        }
+        else if (!regionp->capabilitiesReceived() || regionp->materialsCapThrottled())
+        {
+            continue;
+        }
+        else if (mGetAllRequested.end() == mGetAllRequested.find(region_id))
+        {
+            LL_DEBUGS("Materials") << "calling getAll for " << regionp->getName() << LL_ENDL;
+            getAll(region_id);
+            continue;
+        }
 
-		const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
-		if (capURL.empty())
-		{
-			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
-				<< "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
-			mGetQueue.erase(itRegionQueue);
-			continue;
-		}
-
+        const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
+        if (capURL.empty())
+        {
+            LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+                << "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
+            mGetQueue.erase(itRegionQueue);
+            continue;
+        }
+        
 		LLSD materialsData = LLSD::emptyArray();
 
 		material_queue_t& materials = itRegionQueue->second;
@@ -652,10 +662,9 @@ void LLMaterialMgr::processGetQueue()
 		LLSD postData = LLSD::emptyMap();
 		postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
-		LLMaterialHttpHandler * handler = 
-				new LLMaterialHttpHandler("POST",
+        LLCore::HttpHandler::ptr_t handler(new LLMaterialHttpHandler("POST",
 				boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
-				);
+				));
 
 		LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
 			<< "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
@@ -666,7 +675,6 @@ void LLMaterialMgr::processGetQueue()
 
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
 		{
-			delete handler;
 			LLCore::HttpStatus status = mHttpRequest->getStatus();
 			LL_ERRS("Meterials") << "Failed to execute material POST. Status = " <<
 				status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
@@ -674,6 +682,103 @@ void LLMaterialMgr::processGetQueue()
 
 		regionp->resetMaterialsCapThrottle();
 	}
+#endif
+}
+
+void LLMaterialMgr::processGetQueueCoro()
+{
+#if 0
+    get_queue_t::iterator itRegionQueue = loopRegionQueue++;
+
+    const LLUUID& region_id = itRegionQueue->first;
+    if (isGetAllPending(region_id))
+    {
+        continue;
+    }
+
+    LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
+    if (!regionp)
+    {
+        LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
+        mGetQueue.erase(itRegionQueue);
+        continue;
+    }
+    else if (!regionp->capabilitiesReceived() || regionp->materialsCapThrottled())
+    {
+        continue;
+    }
+    else if (mGetAllRequested.end() == mGetAllRequested.find(region_id))
+    {
+        LL_DEBUGS("Materials") << "calling getAll for " << regionp->getName() << LL_ENDL;
+        getAll(region_id);
+        continue;
+    }
+
+    const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
+    if (capURL.empty())
+    {
+        LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+            << "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
+        mGetQueue.erase(itRegionQueue);
+        continue;
+    }
+
+    LLSD materialsData = LLSD::emptyArray();
+
+    material_queue_t& materials = itRegionQueue->second;
+    U32 max_entries = regionp->getMaxMaterialsPerTransaction();
+    material_queue_t::iterator loopMaterial = materials.begin();
+    while ((materials.end() != loopMaterial) && (materialsData.size() < max_entries))
+    {
+        material_queue_t::iterator itMaterial = loopMaterial++;
+        materialsData.append((*itMaterial).asLLSD());
+        materials.erase(itMaterial);
+        markGetPending(region_id, *itMaterial);
+    }
+    if (materials.empty())
+    {
+        mGetQueue.erase(itRegionQueue);
+    }
+
+    std::string materialString = zip_llsd(materialsData);
+
+    S32 materialSize = materialString.size();
+    if (materialSize <= 0)
+    {
+        LL_ERRS("Materials") << "cannot zip LLSD binary content" << LL_ENDL;
+        return;
+    }
+
+    LLSD::Binary materialBinary;
+    materialBinary.resize(materialSize);
+    memcpy(materialBinary.data(), materialString.data(), materialSize);
+
+    LLSD postData = LLSD::emptyMap();
+    postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
+
+    LLMaterialHttpHandler * handler =
+        new LLMaterialHttpHandler("POST",
+        boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
+        );
+
+    LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
+        << "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
+
+    LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
+        mHttpPolicy, mHttpPriority, capURL,
+        postData, mHttpOptions, mHttpHeaders, handler);
+
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        delete handler;
+        LLCore::HttpStatus status = mHttpRequest->getStatus();
+        LL_ERRS("Meterials") << "Failed to execute material POST. Status = " <<
+            status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
+    }
+
+    regionp->resetMaterialsCapThrottle();
+#endif
+
 }
 
 void LLMaterialMgr::processGetAllQueue()
@@ -684,6 +789,10 @@ void LLMaterialMgr::processGetAllQueue()
 		getall_queue_t::iterator itRegion = loopRegion++;
 
 		const LLUUID& region_id = *itRegion;
+#if 1
+        LLCoros::instance().launch("LLMaterialMgr::processGetAllQueueCoro", boost::bind(&LLMaterialMgr::processGetAllQueueCoro,
+            this, region_id));
+#else
 		LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
 		if (regionp == NULL)
 		{
@@ -723,9 +832,82 @@ void LLMaterialMgr::processGetAllQueue()
 		}
 
 		regionp->resetMaterialsCapThrottle();
-		mGetAllPending.insert(std::pair<LLUUID, F64>(region_id, LLFrameTimer::getTotalSeconds()));
+#endif
+        mGetAllPending.insert(std::pair<LLUUID, F64>(region_id, LLFrameTimer::getTotalSeconds()));
 		mGetAllQueue.erase(itRegion);	// Invalidates region_id
 	}
+}
+
+void LLMaterialMgr::processGetAllQueueCoro(LLUUID regionId)
+{
+    LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(regionId);
+    if (regionp == NULL)
+    {
+        LL_WARNS("Materials") << "Unknown region with id " << regionId.asString() << LL_ENDL;
+        clearGetQueues(regionId);		// Invalidates region_id
+        return;
+    }
+    else if (!regionp->capabilitiesReceived()) 
+    {
+        LLEventStream capsRecv("waitForCaps", true);
+
+        regionp->setCapabilitiesReceivedCallback(
+            boost::bind(&LLMaterialMgr::CapsRecvForRegion,
+            _1, regionId, capsRecv.getName()));
+        
+        llcoro::suspendUntilEventOn(capsRecv);
+
+        // reget the region from the region ID since it may have gone away while waiting.
+        regionp = LLWorld::instance().getRegionFromID(regionId);
+        if (!regionp)
+        {
+            LL_WARNS("Materials") << "Region with ID " << regionId << " is no longer valid." << LL_ENDL;
+            return;
+        }
+    }
+    else if (regionp->materialsCapThrottled())
+    {
+        // TODO:
+        // Figure out how to handle the throttle.
+    }
+
+    std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
+    if (capURL.empty())
+    {
+        LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
+            << "' is not defined on the current region '" << regionp->getName() << "'" << LL_ENDL;
+        clearGetQueues(regionId);		// Invalidates region_id
+        return;
+    }
+
+    LL_DEBUGS("Materials") << "GET all for region " << regionId << "url " << capURL << LL_ENDL;
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
+            new LLCoreHttpUtil::HttpCoroutineAdapter("processGetAllQueue", LLCore::HttpRequest::DEFAULT_POLICY_ID));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, capURL);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        onGetAllResponse(false, LLSD(), regionId);
+    }
+    else
+    {
+        onGetAllResponse(true, result, regionId);
+    }
+
+    // reget the region from the region ID since it may have gone away while waiting.
+    regionp = LLWorld::instance().getRegionFromID(regionId);
+    if (!regionp)
+    {
+        LL_WARNS("Materials") << "Region with ID " << regionId << " is no longer valid." << LL_ENDL;
+        return;
+    }
+    regionp->resetMaterialsCapThrottle();
 }
 
 void LLMaterialMgr::processPutQueue()
@@ -749,34 +931,34 @@ void LLMaterialMgr::processPutQueue()
 		{
 			LLViewerRegion* regionp = objectp->getRegion();
 			if ( !regionp )
-		{
+		    {
 				LL_WARNS("Materials") << "Object region is NULL" << LL_ENDL;
 				mPutQueue.erase(itQueue);
-		}
+		    }
 			else if ( regionp->capabilitiesReceived() && !regionp->materialsCapThrottled())
 			{
-		LLSD& facesData = requests[regionp];
+		        LLSD& facesData = requests[regionp];
 
-		facematerial_map_t& face_map = itQueue->second;
-				U32 max_entries = regionp->getMaxMaterialsPerTransaction();
-		facematerial_map_t::iterator itFace = face_map.begin();
-				while ( (face_map.end() != itFace) && (facesData.size() < max_entries) )
-		{
-			LLSD faceData = LLSD::emptyMap();
-			faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
-			faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(objectp->getLocalID());
-			if (!itFace->second.isNull())
-			{
-				faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
-			}
-			facesData.append(faceData);
-			face_map.erase(itFace++);
-		}
-		if (face_map.empty())
-		{
-			mPutQueue.erase(itQueue);
-		}
-	}
+		        facematerial_map_t& face_map = itQueue->second;
+				        U32 max_entries = regionp->getMaxMaterialsPerTransaction();
+		        facematerial_map_t::iterator itFace = face_map.begin();
+				        while ( (face_map.end() != itFace) && (facesData.size() < max_entries) )
+		        {
+			        LLSD faceData = LLSD::emptyMap();
+			        faceData[MATERIALS_CAP_FACE_FIELD] = static_cast<LLSD::Integer>(itFace->first);
+			        faceData[MATERIALS_CAP_OBJECT_ID_FIELD] = static_cast<LLSD::Integer>(objectp->getLocalID());
+			        if (!itFace->second.isNull())
+			        {
+				        faceData[MATERIALS_CAP_MATERIAL_FIELD] = itFace->second.asLLSD();
+			        }
+			        facesData.append(faceData);
+			        face_map.erase(itFace++);
+		        }
+		        if (face_map.empty())
+		        {
+			        mPutQueue.erase(itQueue);
+		        }
+	        }
 		}
 	}
 
@@ -809,10 +991,9 @@ void LLMaterialMgr::processPutQueue()
 
 			LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces to region " << itRequest->first->getName() << LL_ENDL;
 
-			LLMaterialHttpHandler * handler =
-					new LLMaterialHttpHandler("PUT",
-					boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
-					);
+			LLCore::HttpHandler::ptr_t handler (new LLMaterialHttpHandler("PUT",
+										boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
+										));
 
 			LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(
 				mHttpRequest, mHttpPolicy, mHttpPriority, capURL,
@@ -820,7 +1001,6 @@ void LLMaterialMgr::processPutQueue()
 
 			if (handle == LLCORE_HTTP_HANDLE_INVALID)
 			{
-				delete handler;
 				LLCore::HttpStatus status = mHttpRequest->getStatus();
 				LL_ERRS("Meterials") << "Failed to execute material PUT. Status = " << 
 					status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
@@ -838,6 +1018,7 @@ void LLMaterialMgr::processPutQueue()
 void LLMaterialMgr::clearGetQueues(const LLUUID& region_id)
 {
 	mGetQueue.erase(region_id);
+
 	for (get_pending_map_t::iterator itPending = mGetPending.begin(); itPending != mGetPending.end();)
 	{
 		if (region_id == itPending->first.first)

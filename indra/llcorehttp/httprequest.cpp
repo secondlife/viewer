@@ -55,13 +55,13 @@ namespace LLCore
 
 
 HttpRequest::HttpRequest()
-	: mReplyQueue(NULL),
+	: mReplyQueue(),
 	  mRequestQueue(NULL)
 {
 	mRequestQueue = HttpRequestQueue::instanceOf();
 	mRequestQueue->addRef();
 
-	mReplyQueue = new HttpReplyQueue();
+	mReplyQueue.reset( new HttpReplyQueue() );
 }
 
 
@@ -73,11 +73,7 @@ HttpRequest::~HttpRequest()
 		mRequestQueue = NULL;
 	}
 
-	if (mReplyQueue)
-	{
-		mReplyQueue->release();
-		mReplyQueue = NULL;
-	}
+    mReplyQueue.reset();
 }
 
 
@@ -128,7 +124,7 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 }
 
 HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
-										long value, HttpHandler * handler)
+										long value, HttpHandler::ptr_t handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -156,7 +152,7 @@ HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
 
 
 HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
-										const std::string & value, HttpHandler * handler)
+										const std::string & value, HttpHandler::ptr_t handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -199,7 +195,7 @@ HttpHandle HttpRequest::requestGet(policy_t policy_id,
 								   const std::string & url,
                                    const HttpOptions::ptr_t & options,
 								   const HttpHeaders::ptr_t & headers,
-								   HttpHandler * user_handler)
+								   HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -233,7 +229,7 @@ HttpHandle HttpRequest::requestGetByteRange(policy_t policy_id,
 											size_t len,
                                             const HttpOptions::ptr_t & options,
 											const HttpHeaders::ptr_t & headers,
-											HttpHandler * user_handler)
+											HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -266,7 +262,7 @@ HttpHandle HttpRequest::requestPost(policy_t policy_id,
 									BufferArray * body,
                                     const HttpOptions::ptr_t & options,
 									const HttpHeaders::ptr_t & headers,
-									HttpHandler * user_handler)
+									HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -299,7 +295,7 @@ HttpHandle HttpRequest::requestPut(policy_t policy_id,
 								   BufferArray * body,
                                    const HttpOptions::ptr_t & options,
 								   const HttpHeaders::ptr_t & headers,
-								   HttpHandler * user_handler)
+								   HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -330,7 +326,7 @@ HttpHandle HttpRequest::requestDelete(policy_t policy_id,
     const std::string & url,
     const HttpOptions::ptr_t & options,
     const HttpHeaders::ptr_t & headers,
-    HttpHandler * user_handler)
+    HttpHandler::ptr_t user_handler)
 {
     HttpStatus status;
     HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -362,7 +358,7 @@ HttpHandle HttpRequest::requestPatch(policy_t policy_id,
     BufferArray * body,
     const HttpOptions::ptr_t & options,
     const HttpHeaders::ptr_t & headers,
-    HttpHandler * user_handler)
+    HttpHandler::ptr_t user_handler)
 {
     HttpStatus status;
     HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -393,7 +389,7 @@ HttpHandle HttpRequest::requestCopy(policy_t policy_id,
     const std::string & url,
     const HttpOptions::ptr_t & options,
     const HttpHeaders::ptr_t & headers,
-    HttpHandler * user_handler)
+    HttpHandler::ptr_t user_handler)
 {
     HttpStatus status;
     HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -424,7 +420,7 @@ HttpHandle HttpRequest::requestMove(policy_t policy_id,
     const std::string & url,
     const HttpOptions::ptr_t & options,
     const HttpHeaders::ptr_t & headers,
-    HttpHandler * user_handler)
+    HttpHandler::ptr_t user_handler)
 {
     HttpStatus status;
     HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -451,7 +447,7 @@ HttpHandle HttpRequest::requestMove(policy_t policy_id,
 }
 
 
-HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
+HttpHandle HttpRequest::requestNoOp(HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -521,7 +517,7 @@ HttpStatus HttpRequest::update(long usecs)
 // Request Management Methods
 // ====================================
 
-HttpHandle HttpRequest::requestCancel(HttpHandle request, HttpHandler * user_handler)
+HttpHandle HttpRequest::requestCancel(HttpHandle request, HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -543,7 +539,7 @@ HttpHandle HttpRequest::requestCancel(HttpHandle request, HttpHandler * user_han
 
 
 HttpHandle HttpRequest::requestSetPriority(HttpHandle request, priority_t priority,
-										   HttpHandler * handler)
+										   HttpHandler::ptr_t handler)
 {
 	HttpStatus status;
 	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
@@ -609,7 +605,7 @@ HttpStatus HttpRequest::startThread()
 }
 
 
-HttpHandle HttpRequest::requestStopThread(HttpHandler * user_handler)
+HttpHandle HttpRequest::requestStopThread(HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);

@@ -278,12 +278,19 @@ void setting_changed()
 	LLAppViewer::instance()->getAppCoreHttp().refreshSettings(false);
 }
 
+namespace
+{
+    void NoOpDeletor(LLCore::HttpHandler *)
+    {
+
+    }
+}
 
 void LLAppCoreHttp::requestStop()
 {
 	llassert_always(mRequest);
 
-	mStopHandle = mRequest->requestStopThread(this);
+	mStopHandle = mRequest->requestStopThread(LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 	if (LLCORE_HTTP_HANDLE_INVALID != mStopHandle)
 	{
 		mStopRequested = LLTimer::getTotalSeconds();
@@ -486,7 +493,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 }
 
 LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url, 
-	LLCore::HttpHandler const * const handler, void *appdata)
+	const LLCore::HttpHandler::ptr_t &handler, void *appdata)
 {
 	X509_STORE_CTX *ctx = static_cast<X509_STORE_CTX *>(appdata);
 	LLCore::HttpStatus result;

@@ -238,7 +238,7 @@ public:
 
 	/// Prototype for policy based callbacks.  The callback methods will be executed
 	/// on the worker thread so no modifications should be made to the HttpHandler object.
-    typedef boost::function<HttpStatus(const std::string &, HttpHandler const * const, void *)> policyCallback_t;
+    typedef boost::function<HttpStatus(const std::string &, const HttpHandler::ptr_t &, void *)> policyCallback_t;
 
 	/// Set a policy option for a global or class parameter at
 	/// startup time (prior to thread start).
@@ -270,9 +270,9 @@ public:
 	/// @return				Handle of dynamic request.  Use @see getStatus() if
 	///						the returned handle is invalid.
 	HttpHandle setPolicyOption(EPolicyOption opt, policy_t pclass, long value,
-							   HttpHandler * handler);
+							   HttpHandler::ptr_t handler);
 	HttpHandle setPolicyOption(EPolicyOption opt, policy_t pclass, const std::string & value,
-							   HttpHandler * handler);
+							   HttpHandler::ptr_t handler);
 
 	/// @}
 
@@ -350,7 +350,7 @@ public:
 						  const std::string & url,
                           const HttpOptions::ptr_t & options,
 						  const HttpHeaders::ptr_t & headers,
-						  HttpHandler * handler);
+						  HttpHandler::ptr_t handler);
 
 
 	/// Queue a full HTTP GET request to be issued with a 'Range' header.
@@ -393,7 +393,7 @@ public:
 								   size_t len,
                                    const HttpOptions::ptr_t & options,
 								   const HttpHeaders::ptr_t & headers,
-								   HttpHandler * handler);
+								   HttpHandler::ptr_t handler);
 
 
 	/// Queue a full HTTP POST.  Query arguments and body may
@@ -434,7 +434,7 @@ public:
 						   BufferArray * body,
                            const HttpOptions::ptr_t & options,
 						   const HttpHeaders::ptr_t & headers,
-						   HttpHandler * handler);
+						   HttpHandler::ptr_t handler);
 
 
 	/// Queue a full HTTP PUT.  Query arguments and body may
@@ -475,7 +475,7 @@ public:
 						  BufferArray * body,
                           const HttpOptions::ptr_t & options,
 						  const HttpHeaders::ptr_t & headers,
-						  HttpHandler * handler);
+						  HttpHandler::ptr_t handler);
 
 
     /// Queue a full HTTP DELETE.  Query arguments and body may
@@ -495,7 +495,7 @@ public:
             const std::string & url,
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
-            HttpHandler * user_handler);
+            HttpHandler::ptr_t user_handler);
 
     /// Queue a full HTTP PATCH.  Query arguments and body may
     /// be provided.  Caller is responsible for escaping and
@@ -518,7 +518,7 @@ public:
             BufferArray * body,
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
-            HttpHandler * user_handler);
+            HttpHandler::ptr_t user_handler);
 
     /// Queue a full HTTP COPY.  Query arguments and body may
     /// be provided.  Caller is responsible for escaping and
@@ -537,7 +537,7 @@ public:
             const std::string & url,
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
-            HttpHandler * user_handler);
+            HttpHandler::ptr_t user_handler);
 
     /// Queue a full HTTP MOVE.  Query arguments and body may
     /// be provided.  Caller is responsible for escaping and
@@ -556,7 +556,7 @@ public:
             const std::string & url,
             const HttpOptions::ptr_t & options,
             const HttpHeaders::ptr_t & headers,
-            HttpHandler * user_handler);
+            HttpHandler::ptr_t user_handler);
 
     /// Queue a NoOp request.
 	/// The request is queued and serviced by the working thread which
@@ -566,7 +566,7 @@ public:
 	/// @param	handler			@see requestGet()
 	/// @return					"
 	///
-	HttpHandle requestNoOp(HttpHandler * handler);
+	HttpHandle requestNoOp(HttpHandler::ptr_t handler);
 
 	/// While all the heavy work is done by the worker thread, notifications
 	/// must be performed in the context of the application thread.  These
@@ -591,7 +591,7 @@ public:
 	///
 	/// @{
 	
-	HttpHandle requestCancel(HttpHandle request, HttpHandler *);
+	HttpHandle requestCancel(HttpHandle request, HttpHandler::ptr_t);
 
 	/// Request that a previously-issued request be reprioritized.
 	/// The status of whether the change itself succeeded arrives
@@ -603,7 +603,7 @@ public:
 	/// @param	handler			@see requestGet()
 	/// @return					"
 	///
-	HttpHandle requestSetPriority(HttpHandle request, priority_t priority, HttpHandler * handler);
+	HttpHandle requestSetPriority(HttpHandle request, priority_t priority, HttpHandler::ptr_t handler);
 
 	/// @}
 
@@ -641,7 +641,7 @@ public:
 	///							As the request cannot be cancelled, the handle
 	///							is generally not useful.
 	///
-	HttpHandle requestStopThread(HttpHandler * handler);
+	HttpHandle requestStopThread(HttpHandler::ptr_t handler);
 
 	/// Queue a Spin request.
 	/// DEBUG/TESTING ONLY.  This puts the worker into a CPU spin for
@@ -658,11 +658,13 @@ protected:
 	void generateNotification(HttpOperation * op);
 
 private:
+    typedef boost::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
+
 	/// @name InstanceData
 	///
 	/// @{
 	HttpStatus			mLastReqStatus;
-	HttpReplyQueue *	mReplyQueue;
+    HttpReplyQueuePtr_t	mReplyQueue;
 	HttpRequestQueue *	mRequestQueue;
 	
 	/// @}

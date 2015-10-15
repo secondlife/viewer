@@ -67,9 +67,14 @@ private:
 	const LLMaterialPtr setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data);
 
 	static void onIdle(void*);
+
+    static void CapsRecvForRegion(const LLUUID& regionId, LLUUID regionTest, std::string pumpname);
+
 	void processGetQueue();
+    void processGetQueueCoro();
 	void onGetResponse(bool success, const LLSD& content, const LLUUID& region_id);
 	void processGetAllQueue();
+    void processGetAllQueueCoro(LLUUID regionId);
 	void onGetAllResponse(bool success, const LLSD& content, const LLUUID& region_id);
 	void processPutQueue();
 	void onPutResponse(bool success, const LLSD& content);
@@ -116,7 +121,9 @@ private:
 	typedef std::map<U8, LLMaterial> facematerial_map_t;
 	typedef std::map<LLUUID, facematerial_map_t> put_queue_t;
 
+
 	get_queue_t				mGetQueue;
+    uuid_set_t              mRegionGets;
 	get_pending_map_t		mGetPending;
 	get_callback_map_t		mGetCallbacks;
 

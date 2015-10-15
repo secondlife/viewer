@@ -80,6 +80,9 @@ public:
 	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
 	typedef std::set<LLUUID> changed_items_t;
 
+    // Rider: This is using the old responder patter.  It should be refactored to 
+    // take advantage of coroutines.
+
 	// HTTP handler for individual item requests (inventory or library).
 	// Background item requests are derived from this in the background
 	// inventory system.  All folder requests are also located there
@@ -563,7 +566,7 @@ public:
 	LLCore::HttpHandle requestPost(bool foreground,
 								   const std::string & url,
 								   const LLSD & body,
-								   LLCore::HttpHandler * handler,
+								   const LLCore::HttpHandler::ptr_t &handler,
 								   const char * const message);
 	
 private:

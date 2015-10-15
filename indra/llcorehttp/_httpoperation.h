@@ -72,6 +72,8 @@ class HttpService;
 class HttpOperation : public LLCoreInt::RefCounted
 {
 public:
+    typedef boost::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
+
 	/// Threading:  called by consumer thread.
 	HttpOperation();
 
@@ -110,8 +112,8 @@ public:
 	///
 	/// Threading:  called by consumer thread.
 	///
-	void setReplyPath(HttpReplyQueue * reply_queue,
-					  HttpHandler * handler);
+	void setReplyPath(HttpReplyQueuePtr_t reply_queue,
+					  HttpHandler::ptr_t handler);
 
 	/// The three possible staging steps in an operation's lifecycle.
 	/// Asynchronous requests like HTTP operations move from the
@@ -163,8 +165,8 @@ protected:
 	void addAsReply();
 	
 protected:
-	HttpReplyQueue *			mReplyQueue;			// Have refcount
-	HttpHandler *				mUserHandler;			// Naked pointer
+    HttpReplyQueuePtr_t         mReplyQueue;
+	HttpHandler::ptr_t			mUserHandler;
 
 public:
 	// Request Data

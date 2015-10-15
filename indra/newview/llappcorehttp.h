@@ -257,7 +257,7 @@ private:
 	bool						mPipelined;				// Global setting
 	boost::signals2::connection	mPipelinedSignal;		// Signal for 'HttpPipelining' setting
 
-	static LLCore::HttpStatus	sslVerify(const std::string &uri, LLCore::HttpHandler const * const handler, void *appdata);
+	static LLCore::HttpStatus	sslVerify(const std::string &uri, const LLCore::HttpHandler::ptr_t &handler, void *appdata);
 };
 
 
