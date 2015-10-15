@@ -3394,6 +3394,11 @@ BOOL LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLMenuGL::handleMouseDown(x, y, mask);
 }
 
+BOOL LLMenuBarGL::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	return LLMenuGL::handleMouseDown(x, y, mask);
+}
+
 void LLMenuBarGL::draw()
 {
 	LLMenuItemGL* itemp = getHighlightedItem();

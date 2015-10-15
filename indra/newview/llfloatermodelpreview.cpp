@@ -2573,13 +2573,11 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		shader->bind();
 	}
 }
-
 void LLModelPreview::genModelBBox()
 {
 	LLVector3 min, max;
 	min = this->mModelLoader->mExtents[0];
 	max = this->mModelLoader->mExtents[1];
-
 	std::vector<LLVector3> v_list;
 	v_list.resize(4);
 	std::map<U8, std::vector<LLVector3> > face_list;
@@ -3799,6 +3797,10 @@ BOOL LLModelPreview::render()
 		if (regen)
 		{
 			genBuffers(mPreviewLOD, skin_weight);
+			{
+				LL_INFOS() << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
+				regen = TRUE;
+			}
 		}
 
 		if (!skin_weight)

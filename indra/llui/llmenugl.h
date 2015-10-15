@@ -757,6 +757,7 @@ public:
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL handleJumpKey(KEY key);
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL jumpKeysActive();

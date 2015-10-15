@@ -781,14 +781,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			{
 				items.push_back(std::string("Marketplace Separator"));
 
-                if (gMenuHolder->getChild<LLView>("MerchantOutbox")->getVisible())
-                {
-                    items.push_back(std::string("Merchant Copy"));
-                    if (!canListOnOutboxNow())
-                    {
-                        disabled_items.push_back(std::string("Merchant Copy"));
-                    }
-                }
                 if (gMenuHolder->getChild<LLView>("MarketplaceListings")->getVisible())
                 {
                     items.push_back(std::string("Marketplace Copy"));
@@ -1709,16 +1701,6 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 
 		folder_view_itemp->getViewModelItem()->pasteLinkFromClipboard();
 		return;
-	}
-	else if (isMarketplaceCopyAction(action))
-	{
-		LL_INFOS() << "Copy item to marketplace action!" << LL_ENDL;
-
-		LLInventoryItem* itemp = model->getItem(mUUID);
-		if (!itemp) return;
-
-		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-		copy_item_to_outbox(itemp, outbox_id, LLUUID::null, LLToolDragAndDrop::getOperationId());
 	}
 	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
 	{
@@ -3308,16 +3290,6 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		removeSystemFolder();
 	}
 #endif
-	else if (isMarketplaceCopyAction(action))
-	{
-		LL_INFOS() << "Copy folder to marketplace action!" << LL_ENDL;
-
-		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
-		if (!cat) return;
-
-		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-		copy_folder_to_outbox(cat, outbox_id, cat->getUUID(), LLToolDragAndDrop::getOperationId());
-	}
 	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
 	{
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
