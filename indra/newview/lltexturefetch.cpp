@@ -256,9 +256,17 @@ static const S32 HTTP_REQUESTS_RANGE_END_MAX = 20000000;
 //////////////////////////////////////////////////////////////////////////////
 namespace
 {
+    // The NoOpDeletor is used when passing certain objects (the LLTextureFetchWorker and
+    // the LLTextureFetchDebugger) in a smart pointer below for passage into 
+    // the LLCore::Http libararies. When the smart pointer is destroyed,  no 
+    // action will be taken since we do not in these cases want the object to 
+    // be destroyed at the end of the call.
+    // 
+    // *NOTE$: Yes! It is "Deletor" 
+    // http://english.stackexchange.com/questions/4733/what-s-the-rule-for-adding-er-vs-or-when-nouning-a-verb
+    // "delete" derives from Latin "deletus"
     void NoOpDeletor(LLCore::HttpHandler *)
-    {
-    }
+    { /*NoOp*/ }
 }
 
 static const char* e_state_name[] =

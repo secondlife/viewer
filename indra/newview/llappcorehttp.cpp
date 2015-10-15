@@ -280,10 +280,16 @@ void setting_changed()
 
 namespace
 {
+    // The NoOpDeletor is used when wrapping LLAppCoreHttp in a smart pointer below for
+    // passage into the LLCore::Http libararies.  When the smart pointer is destroyed, 
+    // no action will be taken since we do not in this case want the entire LLAppCoreHttp object
+    // to be destroyed at the end of the call.
+    // 
+    // *NOTE$: Yes! It is "Deletor" 
+    // http://english.stackexchange.com/questions/4733/what-s-the-rule-for-adding-er-vs-or-when-nouning-a-verb
+    // "delete" derives from Latin "deletus"
     void NoOpDeletor(LLCore::HttpHandler *)
-    {
-
-    }
+    { /*NoOp*/ }
 }
 
 void LLAppCoreHttp::requestStop()

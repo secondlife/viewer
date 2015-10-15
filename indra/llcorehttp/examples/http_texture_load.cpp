@@ -361,7 +361,7 @@ int main(int argc, char** argv)
 			  << std::endl;
 
 	// Clean up
-	hr->requestStopThread(NULL);
+	hr->requestStopThread(LLCore::HttpHandler::ptr_t());
 	ms_sleep(1000);
     opt.reset();
 	delete hr;
@@ -435,6 +435,11 @@ WorkingSet::~WorkingSet()
 {
 }
 
+namespace
+{
+    void NoOpDeletor(LLCore::HttpHandler *)
+    { /*NoOp*/ }
+}
 
 bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions::ptr_t & opt)
 {
@@ -464,11 +469,11 @@ bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions::ptr_t & o
 		LLCore::HttpHandle handle;
 		if (offset || length)
 		{
-			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, this);
+			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 		}
 		else
 		{
-			handle = hr->requestGet(0, 0, buffer, opt, mHeaders, this);
+            handle = hr->requestGet(0, 0, buffer, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 		}
 		if (! handle)
 		{
