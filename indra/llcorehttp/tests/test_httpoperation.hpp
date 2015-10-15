@@ -96,13 +96,13 @@ namespace tut
 		mMemTotal = GetMemTotal();
 
 		// Get some handlers
-		TestHandler * h1 = new TestHandler();
+		LLCore::HttpHandler::ptr_t h1 (new TestHandler());
 		
 		// create a new ref counted object with an implicit reference
 		HttpOpNull * op = new HttpOpNull();
 
 		// Add the handlers
-		op->setReplyPath(NULL, h1);
+		op->setReplyPath(LLCore::HttpOperation::HttpReplyQueuePtr_t(), h1);
 
 		// Check ref count
 		ensure(op->getRefCount() == 1);
@@ -114,8 +114,7 @@ namespace tut
 		ensure(mMemTotal != GetMemTotal());
 		
 		// release the handlers
-		delete h1;
-		h1 = NULL;
+        h1.reset();
 
 		ensure(mMemTotal == GetMemTotal());
 	}

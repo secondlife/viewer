@@ -275,6 +275,10 @@ void HttpRequestTestObjectType::test<2>()
 	}
 }
 
+namespace
+{
+    void NoOpDeletor(LLCore::HttpHandler *) { }
+}
 
 template <> template <>
 void HttpRequestTestObjectType::test<3>()
@@ -287,7 +291,8 @@ void HttpRequestTestObjectType::test<3>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -296,9 +301,8 @@ void HttpRequestTestObjectType::test<3>()
 	
 	try
 	{
-		
 		// Get singletons created
-		HttpRequest::createService();
+        HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
 		// over the test.
@@ -309,7 +313,7 @@ void HttpRequestTestObjectType::test<3>()
 		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
 		// Issue a NoOp
-		HttpHandle handle = req->requestNoOp(&handler);
+		HttpHandle handle = req->requestNoOp(handlerp);
 		ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -324,7 +328,7 @@ void HttpRequestTestObjectType::test<3>()
 		ensure("One handler invocation for request", mHandlerCalls == 1);
 
 		// Okay, request a shutdown of the servicing thread
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -378,7 +382,10 @@ void HttpRequestTestObjectType::test<4>()
 	// references to it after completion of this method.
 	TestHandler2 handler1(this, "handler1");
 	TestHandler2 handler2(this, "handler2");
-		
+
+    LLCore::HttpHandler::ptr_t handler1p(&handler1, NoOpDeletor);
+    LLCore::HttpHandler::ptr_t handler2p(&handler2, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -388,7 +395,7 @@ void HttpRequestTestObjectType::test<4>()
 	
 	try
 	{
-		
+
 		// Get singletons created
 		HttpRequest::createService();
 		
@@ -402,11 +409,11 @@ void HttpRequestTestObjectType::test<4>()
 		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
 		// Issue some NoOps
-		HttpHandle handle = req1->requestNoOp(&handler1);
+		HttpHandle handle = req1->requestNoOp(handler1p);
 		ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		handler1.mExpectHandle = handle;
 
-		handle = req2->requestNoOp(&handler2);
+		handle = req2->requestNoOp(handler2p);
 		ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		handler2.mExpectHandle = handle;
 
@@ -423,7 +430,7 @@ void HttpRequestTestObjectType::test<4>()
 		ensure("One handler invocation for request", mHandlerCalls == 2);
 
 		// Okay, request a shutdown of the servicing thread
-		handle = req2->requestStopThread(&handler2);
+		handle = req2->requestStopThread(handler2p);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		handler2.mExpectHandle = handle;
 	
@@ -482,7 +489,8 @@ void HttpRequestTestObjectType::test<5>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -491,7 +499,6 @@ void HttpRequestTestObjectType::test<5>()
 	
 	try
 	{
-		
 		// Get singletons created
 		HttpRequest::createService();
 		
@@ -508,7 +515,7 @@ void HttpRequestTestObjectType::test<5>()
 		ensure("Valid handle returned for spin request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Issue a NoOp
-		handle = req->requestNoOp(&handler);
+		handle = req->requestNoOp(handlerp);
 		ensure("Valid handle returned for no-op request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -567,7 +574,8 @@ void HttpRequestTestObjectType::test<6>()
 	
 	try
 	{
-		
+        LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 		// Get singletons created
 		HttpRequest::createService();
 		
@@ -584,7 +592,7 @@ void HttpRequestTestObjectType::test<6>()
 		ensure("Valid handle returned for spin request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Issue a NoOp
-		handle = req->requestNoOp(&handler);
+		handle = req->requestNoOp(handlerp);
 		ensure("Valid handle returned for no-op request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -632,7 +640,9 @@ void HttpRequestTestObjectType::test<7>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -642,7 +652,7 @@ void HttpRequestTestObjectType::test<7>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -665,7 +675,7 @@ void HttpRequestTestObjectType::test<7>()
 													 0,
 													 opts,
 													 HttpHeaders::ptr_t(),
-													 &handler);
+													 handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -681,7 +691,7 @@ void HttpRequestTestObjectType::test<7>()
 
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -749,7 +759,8 @@ void HttpRequestTestObjectType::test<8>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -758,7 +769,7 @@ void HttpRequestTestObjectType::test<8>()
 
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -776,7 +787,7 @@ void HttpRequestTestObjectType::test<8>()
 											url_base,
 											HttpOptions::ptr_t(),
                                             HttpHeaders::ptr_t(),
-											&handler);
+											handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -792,7 +803,7 @@ void HttpRequestTestObjectType::test<8>()
 
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -857,7 +868,8 @@ void HttpRequestTestObjectType::test<9>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -866,7 +878,7 @@ void HttpRequestTestObjectType::test<9>()
 
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -886,7 +898,7 @@ void HttpRequestTestObjectType::test<9>()
 													 0,
 													 HttpOptions::ptr_t(),
                                                      HttpHeaders::ptr_t(),
-													 &handler);
+													 handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -902,7 +914,7 @@ void HttpRequestTestObjectType::test<9>()
 
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -967,7 +979,8 @@ void HttpRequestTestObjectType::test<10>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -977,7 +990,7 @@ void HttpRequestTestObjectType::test<10>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -998,7 +1011,7 @@ void HttpRequestTestObjectType::test<10>()
 											body,
                                             HttpOptions::ptr_t(),
                                             HttpHeaders::ptr_t(),
-                                            &handler);
+                                            handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1014,7 +1027,7 @@ void HttpRequestTestObjectType::test<10>()
 
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -1085,7 +1098,8 @@ void HttpRequestTestObjectType::test<11>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -1095,7 +1109,7 @@ void HttpRequestTestObjectType::test<11>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -1116,7 +1130,7 @@ void HttpRequestTestObjectType::test<11>()
 											 body,
                                              HttpOptions::ptr_t(),
                                              HttpHeaders::ptr_t(),
-                                             &handler);
+                                             handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1132,7 +1146,7 @@ void HttpRequestTestObjectType::test<11>()
 
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -1204,7 +1218,8 @@ void HttpRequestTestObjectType::test<12>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -1213,7 +1228,7 @@ void HttpRequestTestObjectType::test<12>()
 
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 
 		// Enable tracing
@@ -1236,7 +1251,7 @@ void HttpRequestTestObjectType::test<12>()
 													 0,
                                                      HttpOptions::ptr_t(),
                                                      HttpHeaders::ptr_t(),
-                                                     &handler);
+                                                     handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1252,7 +1267,7 @@ void HttpRequestTestObjectType::test<12>()
 
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -1321,7 +1336,8 @@ void HttpRequestTestObjectType::test<13>()
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
 	handler.mHeadersRequired.reserve(20);				// Avoid memory leak test failure
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -1331,7 +1347,7 @@ void HttpRequestTestObjectType::test<13>()
 
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 
 		// Enable tracing
@@ -1360,7 +1376,7 @@ void HttpRequestTestObjectType::test<13>()
 												 0,
 													 opts,
                                                      HttpHeaders::ptr_t(),
-                                                     &handler);
+                                                     handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// release options
@@ -1380,7 +1396,7 @@ void HttpRequestTestObjectType::test<13>()
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
 		handler.mHeadersRequired.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -1443,7 +1459,8 @@ void HttpRequestTestObjectType::test<14>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-	std::string url_base(get_base_url() + "/sleep/");	// path to a 30-second sleep
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+    std::string url_base(get_base_url() + "/sleep/");	// path to a 30-second sleep
 		
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -1454,7 +1471,7 @@ void HttpRequestTestObjectType::test<14>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -1478,7 +1495,7 @@ void HttpRequestTestObjectType::test<14>()
 													 0,
 													 opts,
                                                      HttpHeaders::ptr_t(),
-                                                     &handler);
+                                                     handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1494,7 +1511,7 @@ void HttpRequestTestObjectType::test<14>()
 
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -1563,6 +1580,7 @@ void HttpRequestTestObjectType::test<15>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
 
 	// Load and clear the string setting to preload std::string object
 	// for memory return tests.
@@ -1577,7 +1595,7 @@ void HttpRequestTestObjectType::test<15>()
 
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -1596,7 +1614,7 @@ void HttpRequestTestObjectType::test<15>()
 											url_base,
                                             HttpOptions::ptr_t(),
                                             HttpHeaders::ptr_t(),
-                                            &handler);
+                                            handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1613,7 +1631,7 @@ void HttpRequestTestObjectType::test<15>()
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
 		handler.mCheckContentType.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -1682,6 +1700,7 @@ void HttpRequestTestObjectType::test<16>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
 
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -1693,7 +1712,7 @@ void HttpRequestTestObjectType::test<16>()
 
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -1762,7 +1781,7 @@ void HttpRequestTestObjectType::test<16>()
 											url_base + "reflect/",
 											options,
 											HttpHeaders::ptr_t(),
-											&handler);
+											handlerp);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1839,7 +1858,7 @@ void HttpRequestTestObjectType::test<16>()
 										  47,
 										  options,
 										  headers,
-										  &handler);
+										  handlerp);
 		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -1858,7 +1877,7 @@ void HttpRequestTestObjectType::test<16>()
 		mStatus = HttpStatus();
 		handler.mHeadersRequired.clear();
 		handler.mHeadersDisallowed.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -1923,6 +1942,7 @@ void HttpRequestTestObjectType::test<17>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
 
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -1935,7 +1955,7 @@ void HttpRequestTestObjectType::test<17>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -2019,7 +2039,7 @@ void HttpRequestTestObjectType::test<17>()
 											 ba,
 											 options,
 											 HttpHeaders::ptr_t(),
-											 &handler);
+											 handlerp);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		ba->release();
 		ba = NULL;
@@ -2040,7 +2060,7 @@ void HttpRequestTestObjectType::test<17>()
 		mStatus = HttpStatus();
 		handler.mHeadersRequired.clear();
 		handler.mHeadersDisallowed.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -2110,6 +2130,7 @@ void HttpRequestTestObjectType::test<18>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
 
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -2122,7 +2143,7 @@ void HttpRequestTestObjectType::test<18>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -2207,7 +2228,7 @@ void HttpRequestTestObjectType::test<18>()
 											ba,
 											options,
 											HttpHeaders::ptr_t(),
-											&handler);
+											handlerp);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		ba->release();
 		ba = NULL;
@@ -2228,7 +2249,7 @@ void HttpRequestTestObjectType::test<18>()
 		mStatus = HttpStatus();
 		handler.mHeadersRequired.clear();
 		handler.mHeadersDisallowed.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -2298,6 +2319,7 @@ void HttpRequestTestObjectType::test<19>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
 
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -2309,7 +2331,7 @@ void HttpRequestTestObjectType::test<19>()
 
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -2397,7 +2419,7 @@ void HttpRequestTestObjectType::test<19>()
 											url_base + "reflect/",
 											options,
 											headers,
-											&handler);
+											handlerp);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
 		// Run the notification pump.
@@ -2415,7 +2437,7 @@ void HttpRequestTestObjectType::test<19>()
 		mStatus = HttpStatus();
 		handler.mHeadersRequired.clear();
 		handler.mHeadersDisallowed.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -2480,6 +2502,7 @@ void HttpRequestTestObjectType::test<20>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
 
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -2492,7 +2515,8 @@ void HttpRequestTestObjectType::test<20>()
 	
 	try
 	{
-		// Get singletons created
+
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -2596,7 +2620,7 @@ void HttpRequestTestObjectType::test<20>()
 											 ba,
 											 options,
 											 headers,
-											 &handler);
+											 handlerp);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		ba->release();
 		ba = NULL;
@@ -2617,7 +2641,7 @@ void HttpRequestTestObjectType::test<20>()
 		mStatus = HttpStatus();
 		handler.mHeadersRequired.clear();
 		handler.mHeadersDisallowed.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -2686,6 +2710,7 @@ void HttpRequestTestObjectType::test<21>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
 
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -2698,7 +2723,7 @@ void HttpRequestTestObjectType::test<21>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -2796,7 +2821,7 @@ void HttpRequestTestObjectType::test<21>()
 											ba,
 											options,
 											headers,
-											&handler);
+											handlerp);
 		ensure("Valid handle returned for get request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		ba->release();
 		ba = NULL;
@@ -2817,7 +2842,7 @@ void HttpRequestTestObjectType::test<21>()
 		mStatus = HttpStatus();
 		handler.mHeadersRequired.clear();
 		handler.mHeadersDisallowed.clear();
-		handle = req->requestStopThread(&handler);
+		handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -2882,7 +2907,8 @@ void HttpRequestTestObjectType::test<22>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-		
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
@@ -2892,7 +2918,7 @@ void HttpRequestTestObjectType::test<22>()
 
 	try
 	{
-		// options set
+        // options set
         options = HttpOptions::ptr_t(new HttpOptions());
 		options->setRetries(1);			// Partial_File is retryable and can timeout in here
 
@@ -2923,7 +2949,7 @@ void HttpRequestTestObjectType::test<22>()
 														 25,
 														 options,
                                                          HttpHeaders::ptr_t(),
-                                                         &handler);
+                                                         handlerp);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		}
 		
@@ -2955,7 +2981,7 @@ void HttpRequestTestObjectType::test<22>()
 														 25,
 														 options,
 														 HttpHeaders::ptr_t(),
-														 &handler);
+														 handlerp);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		}
 		
@@ -2987,7 +3013,7 @@ void HttpRequestTestObjectType::test<22>()
 														 25,
 														 options,
                                                          HttpHeaders::ptr_t(),
-                                                         &handler);
+                                                         handlerp);
 			ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 		}
 		
@@ -3007,7 +3033,7 @@ void HttpRequestTestObjectType::test<22>()
 		// ======================================
 		mStatus = HttpStatus();
 		mHandlerCalls = 0;
-		HttpHandle handle = req->requestStopThread(&handler);
+		HttpHandle handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
@@ -3074,7 +3100,8 @@ void HttpRequestTestObjectType::test<23>()
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
 	TestHandler2 handler(this, "handler");
-	std::string url_base(get_base_url() + "/503/");	// path to 503 generators
+    LLCore::HttpHandler::ptr_t handlerp(&handler, NoOpDeletor);
+    std::string url_base(get_base_url() + "/503/");	// path to 503 generators
 		
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
@@ -3085,7 +3112,7 @@ void HttpRequestTestObjectType::test<23>()
 	
 	try
 	{
-		// Get singletons created
+        // Get singletons created
 		HttpRequest::createService();
 		
 		// Start threading early so that thread memory is invariant
@@ -3114,7 +3141,7 @@ void HttpRequestTestObjectType::test<23>()
 														 0,
 														 opts,
                                                          HttpHeaders::ptr_t(),
-                                                         &handler);
+                                                         handlerp);
 
 			std::ostringstream testtag;
 			testtag << "Valid handle returned for 503 request #" << i;
@@ -3136,7 +3163,7 @@ void HttpRequestTestObjectType::test<23>()
 		// Okay, request a shutdown of the servicing thread
 		mStatus = HttpStatus();
 		mHandlerCalls = 0;
-		HttpHandle handle = req->requestStopThread(&handler);
+		HttpHandle handle = req->requestStopThread(handlerp);
 		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
 		// Run the notification pump again
