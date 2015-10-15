@@ -450,13 +450,6 @@ void LLDrawPoolTerrain::hilightParcelOwners()
 	if (mVertexShaderLevel > 1)
 	{ //use fullbright shader for highlighting
 		LLGLSLShader* old_shader = sShader;
-
-		if (old_shader->mName != "Terrain Water Shader")
-		{
-			int n = 0;
-			n++;
-		}
-
 		sShader->unbind();
 		sShader = &gHighlightProgram;
 		sShader->bind();
