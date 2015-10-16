@@ -443,13 +443,13 @@ HttpStatus HttpRequest::update(long usecs)
 				 ++iter)
 			{
 				// Swap op pointer for NULL;
-				op = *iter; *iter = NULL;	
+                op.reset();
+                op.swap(*iter);
 			
 				// Process operation
 				op->visitNotifier(this);
 		
 				// We're done with the operation
-                op.reset();
 			}
 		}
 	}

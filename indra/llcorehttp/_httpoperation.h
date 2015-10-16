@@ -162,7 +162,7 @@ public:
         ptr_t ptr = findByHandle(handle);
         if (!ptr)
             return boost::shared_ptr< OPT >();
-        return boost::dynamic_pointer_cast<HttpOpRequest>(ptr);
+        return boost::dynamic_pointer_cast< OPT >(ptr);
     }
 	
 protected:
