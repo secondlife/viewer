@@ -655,7 +655,6 @@ public:
 	/// @}
 	
 protected:
-	void generateNotification(HttpOperation * op);
 
 private:
     typedef boost::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;

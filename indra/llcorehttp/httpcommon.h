@@ -209,6 +209,7 @@ namespace LLCore
 /// becomes invalid and may be recycled for other queued requests.
 
 typedef void * HttpHandle;
+
 #define LLCORE_HTTP_HANDLE_INVALID		(NULL)
 
 /// For internal scheduling and metrics, we use a microsecond

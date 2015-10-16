@@ -71,11 +71,10 @@ void HttpLibcurl::shutdown()
 {
 	while (! mActiveOps.empty())
 	{
-		HttpOpRequest * op(* mActiveOps.begin());
+		HttpOpRequest::ptr_t op(* mActiveOps.begin());
 		mActiveOps.erase(mActiveOps.begin());
 
 		cancelRequest(op);
-		op->release();
 	}
 
 	if (mMultiHandles)
@@ -204,7 +203,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 
 
 // Caller has provided us with a ref count on op.
-void HttpLibcurl::addOp(HttpOpRequest * op)
+void HttpLibcurl::addOp(const HttpOpRequest::ptr_t &op)
 {
 	llassert_always(op->mReqPolicy < mPolicyCount);
 	llassert_always(mMultiHandles[op->mReqPolicy] != NULL);
@@ -235,21 +234,21 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 		HttpPolicy & policy(mService->getPolicy());
 		
 		LL_INFOS(LOG_CORE) << "TRACE, ToActiveQueue, Handle:  "
-						   << static_cast<HttpHandle>(op)
-						   << ", Actives:  " << mActiveOps.size()
-						   << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
-						   << LL_ENDL;
+                            << op->getHandle()
+						    << ", Actives:  " << mActiveOps.size()
+						    << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
+						    << LL_ENDL;
 	}
 }
 
 
 // Implements the transport part of any cancel operation.
 // See if the handle is an active operation and if so,
-// use the more complicated transport-based cancelation
+// use the more complicated transport-based cancellation
 // method to kill the request.
 bool HttpLibcurl::cancel(HttpHandle handle)
 {
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(handle));
+    HttpOpRequest::ptr_t op = HttpOpRequest::fromHandle<HttpOpRequest>(handle);
 	active_set_t::iterator it(mActiveOps.find(op));
 	if (mActiveOps.end() == it)
 	{
@@ -262,7 +261,6 @@ bool HttpLibcurl::cancel(HttpHandle handle)
 	// Drop references
 	mActiveOps.erase(it);
 	--mActiveHandles[op->mReqPolicy];
-	op->release();
 
 	return true;
 }
@@ -273,7 +271,7 @@ bool HttpLibcurl::cancel(HttpHandle handle)
 // remove the op from the active list and release the op *after*
 // calling this method.  It must be called first to deliver the
 // op to the reply queue with refcount intact.
-void HttpLibcurl::cancelRequest(HttpOpRequest * op)
+void HttpLibcurl::cancelRequest(const HttpOpRequest::ptr_t &op)
 {
 	// Deactivate request
 	op->mCurlActive = false;
@@ -287,7 +285,7 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS(LOG_CORE) << "TRACE, RequestCanceled, Handle:  "
-						   << static_cast<HttpHandle>(op)
+						   << op->getHandle()
 						   << ", Status:  " << op->mStatus.toTerseString()
 						   << LL_ENDL;
 	}
@@ -301,8 +299,11 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 // Keep them synchronized as necessary.
 bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
 {
-	HttpOpRequest * op(NULL);
-	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
+    HttpHandle ophandle(NULL);
+
+	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &ophandle);
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(ophandle));
+    
 
 	if (handle != op->mCurlHandle || ! op->mCurlActive)
 	{
@@ -364,9 +365,9 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS(LOG_CORE) << "TRACE, RequestComplete, Handle:  "
-						   << static_cast<HttpHandle>(op)
-						   << ", Status:  " << op->mStatus.toTerseString()
-						   << LL_ENDL;
+                            << op->getHandle()
+						    << ", Status:  " << op->mStatus.toTerseString()
+						    << LL_ENDL;
 	}
 
 	// Dispatch to next stage

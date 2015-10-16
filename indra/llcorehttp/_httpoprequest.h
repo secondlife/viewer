@@ -66,9 +66,10 @@ class BufferArray;
 class HttpOpRequest : public HttpOperation
 {
 public:
+    typedef boost::shared_ptr<HttpOpRequest> ptr_t;
+
 	HttpOpRequest();
 
-protected:
 	virtual ~HttpOpRequest();							// Use release()
 
 private:

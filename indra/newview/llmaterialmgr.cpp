@@ -594,6 +594,9 @@ void LLMaterialMgr::processGetQueue()
     while (mGetQueue.end() != loopRegionQueue)
     {
 #if 1
+        //* $TODO: This block is screaming to be turned into a coroutine.
+        // see processGetQueueCoro() below.
+        // 
         get_queue_t::iterator itRegionQueue = loopRegionQueue++;
 
         const LLUUID& region_id = itRegionQueue->first;
@@ -789,50 +792,10 @@ void LLMaterialMgr::processGetAllQueue()
 		getall_queue_t::iterator itRegion = loopRegion++;
 
 		const LLUUID& region_id = *itRegion;
-#if 1
+
         LLCoros::instance().launch("LLMaterialMgr::processGetAllQueueCoro", boost::bind(&LLMaterialMgr::processGetAllQueueCoro,
             this, region_id));
-#else
-		LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
-		if (regionp == NULL)
-		{
-			LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
-			clearGetQueues(region_id);		// Invalidates region_id
-			continue;
-		}
-		else if (!regionp->capabilitiesReceived() || regionp->materialsCapThrottled())
-		{
-			continue;
-		}
 
-		std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
-		if (capURL.empty())
-		{
-			LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
-				<< "' is not defined on the current region '" << regionp->getName() << "'" << LL_ENDL;
-			clearGetQueues(region_id);		// Invalidates region_id
-			continue;
-		}
-
-		LL_DEBUGS("Materials") << "GET all for region " << region_id << "url " << capURL << LL_ENDL;
-		LLMaterialHttpHandler *handler = 
-			new LLMaterialHttpHandler("GET",
-			boost::bind(&LLMaterialMgr::onGetAllResponse, this, _1, _2, *itRegion)
-			);
-
-		LLCore::HttpHandle handle = mHttpRequest->requestGet(mHttpPolicy, mHttpPriority, capURL,
-				mHttpOptions, mHttpHeaders, handler);
-
-		if (handle == LLCORE_HTTP_HANDLE_INVALID)
-		{
-			delete handler;
-			LLCore::HttpStatus status = mHttpRequest->getStatus();
-			LL_ERRS("Meterials") << "Failed to execute material GET. Status = " <<
-				status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
-		}
-
-		regionp->resetMaterialsCapThrottle();
-#endif
         mGetAllPending.insert(std::pair<LLUUID, F64>(region_id, LLFrameTimer::getTotalSeconds()));
 		mGetAllQueue.erase(itRegion);	// Invalidates region_id
 	}

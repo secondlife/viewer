@@ -62,13 +62,15 @@ class HttpReplyQueue : private boost::noncopyable
 {
 
 public:
+    typedef boost::shared_ptr<HttpOperation>    opPtr_t;
     typedef boost::shared_ptr<HttpReplyQueue>   ptr_t;
 
 	HttpReplyQueue();
     virtual ~HttpReplyQueue();		
 
 public:
-    typedef std::vector<HttpOperation *> OpContainer;
+
+    typedef std::vector< opPtr_t > OpContainer;
 
 	/// Insert an object at the back of the reply queue.
 	///
@@ -76,7 +78,7 @@ public:
 	/// through the queue.
 	///
 	/// Threading:  callable by any thread.
-	void addOp(HttpOperation * op);
+    void addOp(const opPtr_t &op);
 
 	/// Fetch an operation from the head of the queue.  Returns
 	/// NULL if none exists.
@@ -84,7 +86,7 @@ public:
 	/// Caller acquires reference count on returned operation.
 	///
 	/// Threading:  callable by any thread.
-	HttpOperation * fetchOp();
+    opPtr_t fetchOp();
 
 	/// Caller acquires reference count on each returned operation
 	///

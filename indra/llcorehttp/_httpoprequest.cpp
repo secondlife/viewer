@@ -187,15 +187,15 @@ HttpOpRequest::~HttpOpRequest()
 
 void HttpOpRequest::stageFromRequest(HttpService * service)
 {
-	addRef();
-	service->getPolicy().addOp(this);			// transfers refcount
+    HttpOpRequest::ptr_t self(boost::dynamic_pointer_cast<HttpOpRequest>(shared_from_this()));
+    service->getPolicy().addOp(self);			// transfers refcount
 }
 
 
 void HttpOpRequest::stageFromReady(HttpService * service)
 {
-	addRef();
-	service->getTransport().addOp(this);		// transfers refcount
+    HttpOpRequest::ptr_t self(boost::dynamic_pointer_cast<HttpOpRequest>(shared_from_this()));
+    service->getTransport().addOp(self);		// transfers refcount
 }
 
 
@@ -261,11 +261,18 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 
 		response->setTransferStats(stats);
 
-		mUserHandler->onCompleted(static_cast<HttpHandle>(this), response);
+		mUserHandler->onCompleted(this->getHandle(), response);
 
 		response->release();
 	}
 }
+
+// /*static*/
+// HttpOpRequest::ptr_t HttpOpRequest::fromHandle(HttpHandle handle)
+// {
+// 
+//     return boost::dynamic_pointer_cast<HttpOpRequest>((static_cast<HttpOpRequest *>(handle))->shared_from_this());
+// }
 
 
 HttpStatus HttpOpRequest::cancel()
@@ -488,7 +495,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	check_curl_easy_code(code, CURLOPT_NOPROGRESS);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
 	check_curl_easy_code(code, CURLOPT_URL);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
+	code = curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, getHandle());
 	check_curl_easy_code(code, CURLOPT_PRIVATE);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 	check_curl_easy_code(code, CURLOPT_ENCODING);
@@ -499,15 +506,15 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	check_curl_easy_code(code, CURLOPT_MAXREDIRS);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
 	check_curl_easy_code(code, CURLOPT_WRITEFUNCTION);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, getHandle());
 	check_curl_easy_code(code, CURLOPT_WRITEDATA);
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
 	check_curl_easy_code(code, CURLOPT_READFUNCTION);
-	code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, this);
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, getHandle());
 	check_curl_easy_code(code, CURLOPT_READDATA);
     code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKFUNCTION, seekCallback);
     check_curl_easy_code(code, CURLOPT_SEEKFUNCTION);
-    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKDATA, this);
+    code = curl_easy_setopt(mCurlHandle, CURLOPT_SEEKDATA, getHandle());
     check_curl_easy_code(code, CURLOPT_SEEKDATA);
 
 	code = curl_easy_setopt(mCurlHandle, CURLOPT_COOKIEFILE, "");
@@ -517,7 +524,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	{
 		code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_FUNCTION, curlSslCtxCallback);
 		check_curl_easy_code(code, CURLOPT_SSL_CTX_FUNCTION);
-		code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_DATA, this);
+        code = curl_easy_setopt(mCurlHandle, CURLOPT_SSL_CTX_DATA, getHandle());
 		check_curl_easy_code(code, CURLOPT_SSL_CTX_DATA);
 		mCallbackSSLVerify = gpolicy.mSslCtxCallback;
 	}
@@ -776,7 +783,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
 size_t HttpOpRequest::writeCallback(void * data, size_t size, size_t nmemb, void * userdata)
 {
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
 	if (! op->mReplyBody)
 	{
@@ -790,7 +797,7 @@ size_t HttpOpRequest::writeCallback(void * data, size_t size, size_t nmemb, void
 		
 size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void * userdata)
 {
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
 	if (! op->mReqBody)
 	{
@@ -819,7 +826,7 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 
 int HttpOpRequest::seekCallback(void *userdata, curl_off_t offset, int origin)
 {
-    HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
     if (!op->mReqBody)
     {
@@ -855,7 +862,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	static const char con_ran_line[] = "content-range";
 	static const char con_retry_line[] = "retry-after";
 	
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
 	const size_t hdr_size(size * nmemb);
 	const char * hdr_data(static_cast<const char *>(data));		// Not null terminated
@@ -999,7 +1006,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 
 CURLcode HttpOpRequest::curlSslCtxCallback(CURL *curl, void *sslctx, void *userdata)
 {
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
 	if (op->mCallbackSSLVerify)
 	{
@@ -1016,7 +1023,7 @@ CURLcode HttpOpRequest::curlSslCtxCallback(CURL *curl, void *sslctx, void *userd
 
 int HttpOpRequest::sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
 {
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(param));
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(param));
 
 	if (op->mCallbackSSLVerify)
 	{
@@ -1028,7 +1035,7 @@ int HttpOpRequest::sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
 
 int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffer, size_t len, void * userdata)
 {
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(userdata));
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
 	std::string safe_line;
 	std::string tag;
@@ -1108,7 +1115,7 @@ int HttpOpRequest::debugCallback(CURL * handle, curl_infotype info, char * buffe
 	if (logit)
 	{
 		LL_INFOS(LOG_CORE) << "TRACE, LibcurlDebug, Handle:  "
-						   << static_cast<HttpHandle>(op)
+						   << op->getHandle()
 						   << ", Type:  " << tag
 						   << ", Data:  " << safe_line
 						   << LL_ENDL;

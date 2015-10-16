@@ -30,8 +30,7 @@
 
 #include "httpcommon.h"
 #include "httprequest.h"
-#include "_refcounted.h"
-
+#include "_mutex.h"
 
 namespace LLCore
 {
@@ -69,21 +68,20 @@ class HttpService;
 /// via queue-like interfaces that are thread compatible
 /// and those interfaces establish the access rules.
 
-class HttpOperation : public LLCoreInt::RefCounted
+class HttpOperation : private boost::noncopyable,
+    public boost::enable_shared_from_this<HttpOperation>
 {
 public:
+    typedef boost::shared_ptr<HttpOperation> ptr_t;
+    typedef boost::weak_ptr<HttpOperation> wptr_t;
     typedef boost::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
 
 	/// Threading:  called by consumer thread.
 	HttpOperation();
 
-protected:
 	/// Threading:  called by any thread.
 	virtual ~HttpOperation();							// Use release()
 
-private:
-	HttpOperation(const HttpOperation &);				// Not defined
-	void operator=(const HttpOperation &);				// Not defined
 
 public:
 	/// Register a reply queue and a handler for completion notifications.
@@ -154,6 +152,18 @@ public:
 	/// Threading:  called by worker thread.
 	///
 	virtual HttpStatus cancel();
+
+    /// Retrieves a unique handle for this operation.
+    HttpHandle getHandle();
+
+    template< class OPT >
+    static boost::shared_ptr< OPT > fromHandle(HttpHandle handle)
+    {
+        ptr_t ptr = findByHandle(handle);
+        if (!ptr)
+            return boost::shared_ptr< OPT >();
+        return boost::dynamic_pointer_cast<HttpOpRequest>(ptr);
+    }
 	
 protected:
 	/// Delivers request to reply queue on completion.  After this
@@ -179,6 +189,21 @@ public:
 	// Tracing, debug and metrics
 	HttpTime					mMetricCreated;
 	int							mTracing;
+
+private:
+    typedef std::map<HttpHandle, wptr_t>    handleMap_t;
+
+    HttpHandle                  createHandle();
+    void                        destroyHandle();
+    HttpHandle                  mMyHandle;
+
+    static handleMap_t          mHandleMap;
+    static LLCoreInt::HttpMutex	mOpMutex;
+
+protected:
+    static ptr_t                findByHandle(HttpHandle handle);
+
+
 };  // end class HttpOperation
 
 
@@ -197,7 +222,6 @@ class HttpOpStop : public HttpOperation
 public:
 	HttpOpStop();
 
-protected:
 	virtual ~HttpOpStop();
 
 private:
@@ -220,7 +244,6 @@ class HttpOpNull : public HttpOperation
 public:
 	HttpOpNull();
 
-protected:
 	virtual ~HttpOpNull();
 
 private:
@@ -243,7 +266,6 @@ public:
 	// 1 does a soft spin continuously requeuing itself
 	HttpOpSpin(int mode);
 
-protected:
 	virtual ~HttpOpSpin();
 
 private:

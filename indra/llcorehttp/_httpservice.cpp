@@ -263,14 +263,13 @@ void HttpService::shutdown()
 	// Cancel requests already on the request queue
 	HttpRequestQueue::OpContainer ops;
 	mRequestQueue->fetchAll(false, ops);
-	while (! ops.empty())
-	{
-		HttpOperation * op(ops.front());
-		ops.erase(ops.begin());
 
-		op->cancel();
-		op->release();
-	}
+    for (HttpRequestQueue::OpContainer::iterator it = ops.begin();
+        it != ops.end(); ++it)
+    {
+        (*it)->cancel();
+    }
+    ops.clear();
 
 	// Shutdown transport canceling requests, freeing resources
 	mTransport->shutdown();
@@ -324,7 +323,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 	mRequestQueue->fetchAll(wait_for_req, ops);
 	while (! ops.empty())
 	{
-		HttpOperation * op(ops.front());
+		HttpOperation::ptr_t op(ops.front());
 		ops.erase(ops.begin());
 
 		// Process operation
@@ -338,7 +337,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 			if (op->mTracing > HTTP_TRACE_OFF)
 			{
 				LL_INFOS(LOG_CORE) << "TRACE, FromRequestQueue, Handle:  "
-								   << static_cast<HttpHandle>(op)
+								   << op->getHandle()
 								   << LL_ENDL;
 			}
 
@@ -347,7 +346,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 		}
 				
 		// Done with operation
-		op->release();
+        op.reset();
 	}
 
 	// Queue emptied, allow polling loop to sleep
