@@ -1549,6 +1549,156 @@ U32 LLDrawPoolAvatar::getMeshJointCount(const LLMeshSkinInfo *skin)
 	return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
 }
 
+bool getNameIndex(const std::string& name, std::vector<std::string>& names, U32& result)
+{
+    std::vector<std::string>::const_iterator find_it =
+        std::find(names.begin(), names.end(), name);
+    if (find_it != names.end())
+    {
+        result = find_it - names.begin();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+// Find a name table index that is also a valid joint on the
+// avatar. Order of preference is: requested name, mPelvis, first
+// valid match in names table.
+U32 getValidJointIndex(const std::string& name, LLVOAvatar *avatar, std::vector<std::string>& joint_names)
+{
+    U32 result;
+    if (avatar->getJoint(name) && getNameIndex(name,joint_names,result))
+    {
+        return result;
+    }
+    if (getNameIndex("mPelvis",joint_names,result))
+    {
+        return result;
+    }
+    for (U32 j=0; j<joint_names.size(); j++)
+    {
+        if (avatar->getJoint(joint_names[j]))
+        {
+            return j;
+        }
+    }
+    // BENTO how to handle?
+    LL_ERRS() << "no valid joints in joint_names" << LL_ENDL;
+    return 0;
+}
+
+// Which joint will stand in for this joint? 
+U32 getProxyJointIndex(U32 joint_index, LLVOAvatar *avatar, std::vector<std::string>& joint_names)
+{
+#if 1
+    bool include_enhanced = gSavedSettings.getBOOL("IncludeEnhancedSkeleton");
+    U32 j_proxy = getValidJointIndex(joint_names[joint_index], avatar, joint_names);
+    LLJoint *joint = avatar->getJoint(joint_names[j_proxy]);
+    llassert(joint);
+    // BENTO - test of simple push-to-base-ancestor
+    // complexity reduction scheme.  Find the first
+    // ancestor that's not flagged as extended, or the
+    // last ancestor that's rigged in this mesh, whichever
+    // comes first.
+    while (1)
+    {
+        if (include_enhanced || 
+            joint->getSupport()==LLJoint::SUPPORT_BASE)
+            break;
+        LLJoint *parent = joint->getParent();
+        if (!parent)
+            break;
+        if (!getNameIndex(parent->getName(), joint_names, j_proxy))
+        {
+            break;
+        }
+        joint = parent;
+    }
+    return j_proxy;
+#else
+    return 0;
+#endif
+}
+
+// static
+
+// Destructively remap the joints in skin info based on what joints
+// are known in the avatar, and which are currently supported.  This
+// will also populate mJointRemap[] in the skin, which can be used to
+// make the corresponding changes to the integer part of vertex
+// weights.
+//
+// This will throw away joint info for any joints that are not known
+// in the avatar, or not currently flagged to support based on the
+// debug setting for IncludeEnhancedSkeleton.
+void LLDrawPoolAvatar::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin)
+{
+	// skip if already done.
+    if (!skin->mJointRemap.empty())
+    {
+        return; 
+    }
+
+    // Compute the remap
+    std::vector<U32> j_proxy(skin->mJointNames.size());
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        U32 j_rep = getProxyJointIndex(j, avatar, skin->mJointNames);
+        j_proxy[j] = j_rep;
+    }
+    S32 top = 0;
+    std::vector<U32> j_remap(skin->mJointNames.size());
+    // Fill in j_remap for all joints that will make the cut.
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        if (j_proxy[j] == j)
+        {
+            // Joint will be included
+            j_remap[j] = top++;
+        }
+    }
+    // Then use j_proxy to fill in j_remap for the joints that will be discarded
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        if (j_proxy[j] != j)
+        {
+            j_remap[j] = j_remap[j_proxy[j]];
+        }
+    }
+    
+    
+    // Apply the remap to mJointNames, mInvBindMatrix, and mAlternateBindMatrix
+    std::vector<std::string> new_joint_names;
+    std::vector<LLMatrix4> new_inv_bind_matrix;
+    std::vector<LLMatrix4> new_alternate_bind_matrix;
+
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        if (j_proxy[j] == j)
+        {
+            new_joint_names.push_back(skin->mJointNames[j]);
+            new_inv_bind_matrix.push_back(skin->mInvBindMatrix[j]);
+            if (!skin->mAlternateBindMatrix.empty())
+            {
+                new_alternate_bind_matrix.push_back(skin->mAlternateBindMatrix[j]);
+            }
+        }
+    }
+
+    for (U32 j = 0; j < skin->mJointNames.size(); ++j)
+    {
+        LL_INFOS() << "Starting joint[" << j << "] = " << skin->mJointNames[j] << " j_remap " << j_remap[j] << " ==> " << new_joint_names[j_remap[j]] << LL_ENDL;
+    }
+
+    //skin->mJointNames = new_joint_names;
+    //skin->mInvBindMatrix = new_inv_bind_matrix;
+    //skin->mAlternateBindMatrix = new_alternate_bind_matrix;
+    skin->mJointRemap = j_remap;
+}
+
 // static
 void LLDrawPoolAvatar::initSkinningMatrixPalette(
     LLMatrix4* mat,
@@ -1556,38 +1706,57 @@ void LLDrawPoolAvatar::initSkinningMatrixPalette(
     const LLMeshSkinInfo* skin,
     LLVOAvatar *avatar)
 {
+    // BENTO ugly const cast
+    remapSkinInfoJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
+    
     // BENTO - switching to use Matrix4a and SSE might speed this up.
     // Note that we are mostly passing Matrix4a's to this routine anyway, just dubiously casted.
     for (U32 j = 0; j < count; ++j)
     {
         LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
+#if 1 // Don't need this stuff if we've already remapped/cleaned up above
         if (!joint)
         {
             joint = avatar->getJoint("mPelvis");
         }
         if (joint)
         {
-#if 0
-            // BENTO HACK - test of simple push-to-ancestor complexity reduction scheme.
-            const std::string& name = joint->getName();
-            S32 digit = name.back()-'0';
-            while (joint->getParent() && (digit<=9) && (digit>=5))
+            if (!gSavedSettings.getBOOL("IncludeEnhancedSkeleton"))
             {
-                joint = joint->getParent();
-				const std::string& name = joint->getName();
-                digit = name.back()-'0';
+                // BENTO - test of simple push-to-base-ancestor
+                // complexity reduction scheme.  Find the first
+                // ancestor that's not flagged as extended, or the
+                // last ancestor that's rigged in this mesh, whichever
+                // comes first.
+                U32 j_remap = 0;
+                while (1)
+                {
+                    if (joint->getSupport()==LLJoint::SUPPORT_BASE)
+                        break;
+                    LLJoint *parent = joint->getParent();
+                    if (!parent)
+                        break;
+                    std::vector<std::string>::const_iterator find_it =
+                        std::find(skin->mJointNames.begin(), skin->mJointNames.end(), parent->getName());
+                    if (find_it != skin->mJointNames.end())
+                    {
+                        j_remap = find_it - skin->mJointNames.begin();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    joint = parent;
+                }
+                mat[j] = skin->mInvBindMatrix[j_remap];
             }
-            U32 j_remap = 0;
-            std::vector<std::string>::const_iterator find_it =
-                std::find(skin->mJointNames.begin(), skin->mJointNames.end(), joint->getName());
-            if (find_it != skin->mJointNames.end())
+            else
             {
-                j_remap = find_it - skin->mJointNames.begin();
+                mat[j] = skin->mInvBindMatrix[j];
             }
-            // BENTO for hack, use invBindMatrix of up-casted joint
-            mat[j] = skin->mInvBindMatrix[j_remap];
-#endif
+#else
             mat[j] = skin->mInvBindMatrix[j];
+#endif
             mat[j] *= joint->getWorldMatrix();
         }
     }

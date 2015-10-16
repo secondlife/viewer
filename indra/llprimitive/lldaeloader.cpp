@@ -1257,7 +1257,8 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 								name = mJointMap[name];
 							}
 							model->mSkinInfo.mJointNames.push_back(name);
-							model->mSkinInfo.mJointMap[name] = j;
+                            // BENTO this does not appear to be used anywhere.
+							// model->mSkinInfo.mJointMap[name] = j;
 						}
 					}
 					else
@@ -1275,7 +1276,8 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 									name = mJointMap[name];
 								}
 								model->mSkinInfo.mJointNames.push_back(name);
-								model->mSkinInfo.mJointMap[name] = j;
+                                // BENTO not used?
+								// model->mSkinInfo.mJointMap[name] = j;
 							}
 						}
 					}

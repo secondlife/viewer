@@ -108,6 +108,7 @@ void LLJoint::init()
 	mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
 	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
 	mUpdateXform = TRUE;
+    mSupport = SUPPORT_BASE;
 }
 
 LLJoint::LLJoint() :
@@ -168,6 +169,27 @@ void LLJoint::setup(const std::string &name, LLJoint *parent)
 		parent->addChild( this );
 	}
 }
+
+//-----------------------------------------------------------------------------
+// setSupport()
+//-----------------------------------------------------------------------------
+void LLJoint::setSupport(const std::string& support_name)
+{
+    if (support_name == "extended")
+    {
+        setSupport(SUPPORT_EXTENDED);
+    }
+    else if (support_name == "base")
+    {
+        setSupport(SUPPORT_BASE);
+    }
+    else
+    {
+        LL_WARNS() << "unknown support string " << support_name << LL_ENDL;
+        setSupport(SUPPORT_BASE);
+    }
+}
+    
 
 //-----------------------------------------------------------------------------
 // touch()
