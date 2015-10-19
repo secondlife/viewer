@@ -749,7 +749,8 @@ void LLManipRotate::renderActiveRing( F32 radius, F32 width, const LLColor4& fro
 
 void LLManipRotate::renderSnapGuides()
 {
-	if (!gSavedSettings.getBOOL("SnapEnabled"))
+	static LLCachedControl<bool> snap_enabled(gSavedSettings, "SnapEnabled", true);
+	if (!snap_enabled)
 	{
 		return;
 	}
