@@ -1210,7 +1210,7 @@ void LLSelectMgr::setGridMode(EGridMode mode)
 	updateSelectionCenter();
 }
 
-void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale)
+void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale, bool for_snap_guides)
 {
 	mGridObjects.cleanupNodes();
 	
@@ -1236,7 +1236,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	else if (mGridMode == GRID_MODE_REF_OBJECT && first_grid_object && first_grid_object->mDrawable.notNull())
 	{
 		LLSelectNode *node = mSelectedObjects->findNode(first_grid_object);
-		if (node)
+		if (!for_snap_guides && node)
 		{
 			mGridRotation = node->mSavedRotation;
 		}
