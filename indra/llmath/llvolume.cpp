@@ -4568,6 +4568,7 @@ LLVolumeFace::LLVolumeFace() :
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+    mWeightsRemapped(FALSE),
 	mOctree(NULL),
 	mOptimized(FALSE)
 {

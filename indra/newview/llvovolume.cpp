@@ -4192,6 +4192,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 		if ( weight )
 		{
+            LLDrawPoolAvatar::checkSkinWeights(weight, dst_face.mNumVertices, skin);
 			LLMatrix4a bind_shape_matrix;
 			bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 

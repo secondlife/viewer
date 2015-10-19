@@ -1593,7 +1593,6 @@ U32 getValidJointIndex(const std::string& name, LLVOAvatar *avatar, std::vector<
 // Which joint will stand in for this joint? 
 U32 getProxyJointIndex(U32 joint_index, LLVOAvatar *avatar, std::vector<std::string>& joint_names)
 {
-#if 1
     bool include_enhanced = gSavedSettings.getBOOL("IncludeEnhancedSkeleton");
     U32 j_proxy = getValidJointIndex(joint_names[joint_index], avatar, joint_names);
     LLJoint *joint = avatar->getJoint(joint_names[j_proxy]);
@@ -1618,9 +1617,6 @@ U32 getProxyJointIndex(U32 joint_index, LLVOAvatar *avatar, std::vector<std::str
         joint = parent;
     }
     return j_proxy;
-#else
-    return 0;
-#endif
 }
 
 // static
@@ -1634,6 +1630,8 @@ U32 getProxyJointIndex(U32 joint_index, LLVOAvatar *avatar, std::vector<std::str
 // This will throw away joint info for any joints that are not known
 // in the avatar, or not currently flagged to support based on the
 // debug setting for IncludeEnhancedSkeleton.
+//
+// static
 void LLDrawPoolAvatar::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin)
 {
 	// skip if already done.
@@ -1693,9 +1691,9 @@ void LLDrawPoolAvatar::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* s
         LL_INFOS() << "Starting joint[" << j << "] = " << skin->mJointNames[j] << " j_remap " << j_remap[j] << " ==> " << new_joint_names[j_remap[j]] << LL_ENDL;
     }
 
-    //skin->mJointNames = new_joint_names;
-    //skin->mInvBindMatrix = new_inv_bind_matrix;
-    //skin->mAlternateBindMatrix = new_alternate_bind_matrix;
+    skin->mJointNames = new_joint_names;
+    skin->mInvBindMatrix = new_inv_bind_matrix;
+    skin->mAlternateBindMatrix = new_alternate_bind_matrix;
     skin->mJointRemap = j_remap;
 }
 
@@ -1706,67 +1704,59 @@ void LLDrawPoolAvatar::initSkinningMatrixPalette(
     const LLMeshSkinInfo* skin,
     LLVOAvatar *avatar)
 {
-    // BENTO ugly const cast
-    remapSkinInfoJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
-    
     // BENTO - switching to use Matrix4a and SSE might speed this up.
     // Note that we are mostly passing Matrix4a's to this routine anyway, just dubiously casted.
     for (U32 j = 0; j < count; ++j)
     {
         LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
-#if 1 // Don't need this stuff if we've already remapped/cleaned up above
-        if (!joint)
+        mat[j] = skin->mInvBindMatrix[j];
+        mat[j] *= joint->getWorldMatrix();
+    }
+}
+
+// Transform the weights based on the remap info stored in skin. Note
+// that this is destructive and non-idempotent, so we need to keep
+// track of whether we've done it already. If the desired remapping
+// changes, the viewer must be restarted.
+//
+// static
+void LLDrawPoolAvatar::remapSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
+{
+    llassert(skin->mJointRemap.size()>0); // Must call remapSkinInfoJoints() first, which this checks for.
+    const U32* remap = &skin->mJointRemap[0];
+    const S32 max_joints = skin->mJointNames.size();
+    for (U32 j=0; j<num_vertices; j++)
+    {
+        F32 *w = weights[j].getF32ptr();
+
+        for (U32 k=0; k<4; ++k)
         {
-            joint = avatar->getJoint("mPelvis");
-        }
-        if (joint)
-        {
-            if (!gSavedSettings.getBOOL("IncludeEnhancedSkeleton"))
-            {
-                // BENTO - test of simple push-to-base-ancestor
-                // complexity reduction scheme.  Find the first
-                // ancestor that's not flagged as extended, or the
-                // last ancestor that's rigged in this mesh, whichever
-                // comes first.
-                U32 j_remap = 0;
-                while (1)
-                {
-                    if (joint->getSupport()==LLJoint::SUPPORT_BASE)
-                        break;
-                    LLJoint *parent = joint->getParent();
-                    if (!parent)
-                        break;
-                    std::vector<std::string>::const_iterator find_it =
-                        std::find(skin->mJointNames.begin(), skin->mJointNames.end(), parent->getName());
-                    if (find_it != skin->mJointNames.end())
-                    {
-                        j_remap = find_it - skin->mJointNames.begin();
-                    }
-                    else
-                    {
-                        break;
-                    }
-                    joint = parent;
-                }
-                mat[j] = skin->mInvBindMatrix[j_remap];
-            }
-            else
-            {
-                mat[j] = skin->mInvBindMatrix[j];
-            }
-#else
-            mat[j] = skin->mInvBindMatrix[j];
-#endif
-            mat[j] *= joint->getWorldMatrix();
+            S32 i = llfloor(w[k]);
+            F32 f = w[k]-i;
+            i = llclamp(i,0,max_joints-1);
+            w[k] = remap[i] + f;
         }
     }
-    // This handles a bogus weights case that has turned up in
-    // practice, without the overhead of zeroing every matrix.  We are
-    // doing this here instead of in getPerVertexSkinMatrix so the fix
-    // will also work in the HW skinning case.
-    if (count < LL_MAX_JOINTS_PER_MESH_OBJECT)
+}
+
+// static
+void LLDrawPoolAvatar::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
+{
+    if (skin->mJointRemap.size()>0)
     {
-        mat[count].setIdentity();
+        // Check the weights are consistent with the current remap.
+        const S32 max_joints = skin->mJointNames.size();
+        for (U32 j=0; j<num_vertices; j++)
+        {
+            F32 *w = weights[j].getF32ptr();
+
+            for (U32 k=0; k<4; ++k)
+            {
+                S32 i = llfloor(w[k]);
+                llassert(i>=0);
+                llassert(i<max_joints);
+            }
+    }
     }
 }
 
@@ -1835,12 +1825,20 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 	{
 		return;
 	}
+    // BENTO ugly const cast
+    remapSkinInfoJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
 
 	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
 	LLDrawable* drawable = face->getDrawable();
 
 	U32 data_mask = face->getRiggedVertexBufferDataMask();
 	
+    if (!vol_face.mWeightsRemapped)
+    {
+        remapSkinWeights(weight, vol_face.mNumVertices, skin); 
+        vol_face.mWeightsRemapped = TRUE;
+    }
+
 	if (buffer.isNull() || 
 		buffer->getTypeMask() != data_mask ||
 		buffer->getNumVerts() != vol_face.mNumVertices ||
@@ -1894,6 +1892,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
         U32 count = getMeshJointCount(skin);
         initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
+        checkSkinWeights(weight, buffer->getNumVerts(), skin);
 
 		LLMatrix4a bind_shape_matrix;
 		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
