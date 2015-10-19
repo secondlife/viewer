@@ -432,7 +432,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 		
 		mNoPicks = !mPicksList->size();
 	}
-	else if(APT_CLASSIFIEDS == type)
+	else if((APT_CLASSIFIEDS == type) || (APT_CLASSIFIED_INFO == type))
 	{
 		LLAvatarClassifieds* c_info = static_cast<LLAvatarClassifieds*>(data);
 		if(c_info && getAvatarId() == c_info->target_id)

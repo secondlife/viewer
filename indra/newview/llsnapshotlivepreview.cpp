@@ -195,7 +195,8 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
         // Stop shining animation.
         mShineAnimTimer.stop();
 		mSnapshotDelayTimer.start();
-		mSnapshotDelayTimer.setTimerExpirySec(delay);
+		mSnapshotDelayTimer.resetWithExpiry(delay);
+
         
 		mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
 
@@ -670,10 +671,27 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		return FALSE;
 	}
 
-	// If we're in freeze-frame mode and camera has moved, update snapshot.
+	if (previewp->mSnapshotDelayTimer.getStarted()) // Wait for a snapshot delay timer
+	{
+		if (!previewp->mSnapshotDelayTimer.hasExpired())
+		{
+			return FALSE;
+		}
+		previewp->mSnapshotDelayTimer.stop();
+	}
+
+	if (LLToolCamera::getInstance()->hasMouseCapture()) // Hide full-screen preview while camming, either don't take snapshots while ALT-zoom active
+	{
+		previewp->setVisible(FALSE);
+		return FALSE;
+	}
+
+	// If we're in freeze-frame and/or auto update mode and camera has moved, update snapshot.
 	LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
 	LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
-	if (previewp->mForceUpdateSnapshot || (gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview &&
+	if (previewp->mForceUpdateSnapshot ||
+		(((gSavedSettings.getBOOL("AutoSnapshot") && LLView::isAvailable(previewp->mViewContainer)) ||
+		(gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview)) &&
 		(new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
 	{
 		previewp->mCameraPos = new_camera_pos;
@@ -688,11 +706,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->mForceUpdateSnapshot = FALSE;
 	}
 
-	// see if it's time yet to snap the shot and bomb out otherwise.
-	previewp->mSnapshotActive = 
-		(previewp->mSnapshotDelayTimer.getStarted() &&	previewp->mSnapshotDelayTimer.hasExpired())
-		&& !LLToolCamera::getInstance()->hasMouseCapture(); // don't take snapshots while ALT-zoom active
-	if (!previewp->mSnapshotActive && previewp->getSnapshotUpToDate() && previewp->getThumbnailUpToDate())
+	if (previewp->getSnapshotUpToDate() && previewp->getThumbnailUpToDate())
 	{
 		return FALSE;
 	}
@@ -705,6 +719,8 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         {
             previewp->mPreviewImage = new LLImageRaw;
         }
+
+        previewp->mSnapshotActive = TRUE;
 
         previewp->setVisible(FALSE);
         previewp->setEnabled(FALSE);
@@ -734,40 +750,9 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             // Full size preview is set: get the decoded image result and save it for animation
             if (gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview)
             {
-                // Get the decoded version of the formatted image
-                previewp->getEncodedImage();
-            
-                // We need to scale that a bit for display...
-                LLPointer<LLImageRaw> scaled = new LLImageRaw(
-                    previewp->mPreviewImageEncoded->getData(),
-                    previewp->mPreviewImageEncoded->getWidth(),
-                    previewp->mPreviewImageEncoded->getHeight(),
-                    previewp->mPreviewImageEncoded->getComponents());
-
-                if (!scaled->isBufferInvalid())
-                {
-                    // leave original image dimensions, just scale up texture buffer
-                    if (previewp->mPreviewImageEncoded->getWidth() > 1024 || previewp->mPreviewImageEncoded->getHeight() > 1024)
-                    {
-                        // go ahead and shrink image to appropriate power of 2 for display
-                        scaled->biasedScaleToPowerOfTwo(1024);
-                        previewp->setImageScaled(TRUE);
-                    }
-                    else
-                    {
-                        // expand image but keep original image data intact
-                        scaled->expandToPowerOfTwo(1024, FALSE);
-                    }
-
-                    previewp->mViewerImage[previewp->mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
-                    LLPointer<LLViewerTexture> curr_preview_image = previewp->mViewerImage[previewp->mCurImageIndex];
-                    gGL.getTexUnit(0)->bind(curr_preview_image);
-                    curr_preview_image->setFilteringOption(previewp->getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
-                    curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
-
-                    previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
-                }
+                previewp->prepareFreezeFrame();
             }
+
             // The snapshot is updated now...
             previewp->mSnapshotUpToDate = TRUE;
         
@@ -777,7 +762,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         }
         previewp->getWindow()->decBusyCount();
         previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
-        previewp->mSnapshotDelayTimer.stop();
         previewp->mSnapshotActive = FALSE;
         LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
     }
@@ -794,6 +778,47 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
     }
 
 	return TRUE;
+}
+
+void LLSnapshotLivePreview::prepareFreezeFrame()
+{
+    // Get the decoded version of the formatted image
+    getEncodedImage();
+
+    // We need to scale that a bit for display...
+    LLPointer<LLImageRaw> scaled = new LLImageRaw(
+        mPreviewImageEncoded->getData(),
+        mPreviewImageEncoded->getWidth(),
+        mPreviewImageEncoded->getHeight(),
+        mPreviewImageEncoded->getComponents());
+
+    if (!scaled->isBufferInvalid())
+    {
+        // leave original image dimensions, just scale up texture buffer
+        if (mPreviewImageEncoded->getWidth() > 1024 || mPreviewImageEncoded->getHeight() > 1024)
+        {
+            // go ahead and shrink image to appropriate power of 2 for display
+            scaled->biasedScaleToPowerOfTwo(1024);
+            setImageScaled(TRUE);
+        }
+        else
+        {
+            // expand image but keep original image data intact
+            scaled->expandToPowerOfTwo(1024, FALSE);
+        }
+
+        mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
+        LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
+        gGL.getTexUnit(0)->bind(curr_preview_image);
+        curr_preview_image->setFilteringOption(getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
+        curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
+
+
+        if (gSavedSettings.getBOOL("UseFreezeFrame") && mAllowFullScreenPreview)
+        {
+            mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
+        }
+    }
 }
 
 S32 LLSnapshotLivePreview::getEncodedImageWidth() const

@@ -57,6 +57,7 @@
 #include "llcallingcard.h"
 #include "llbuycurrencyhtml.h"
 #include "llfirstuse.h"
+#include "llfloaterbump.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
@@ -2351,7 +2352,8 @@ static void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::s
 	LLNotificationsUtil::add("GodMessage", args);
 
 	// Treat like a system message and put in chat history.
-	chat.mText = av_name.getCompleteName() + ": " + message;
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
+	chat.mText = message;
 
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
@@ -2862,6 +2864,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	
 	case IM_FROM_TASK:
 		{
+
 			if (is_do_not_disturb && !is_owned_by_me)
 			{
 				return;
@@ -2945,17 +2948,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["from_id"] = from_id;
 			payload["slurl"] = location;
 			payload["name"] = name;
-			std::string session_name;
+
 			if (from_group)
 			{
 				payload["group_owned"] = "true";
 			}
 
-			LLNotification::Params params("ServerObjectMessage");
-			params.substitutions = substitutions;
-			params.payload = payload;
-
-			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, from_group);
+			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
 		}
 		break;
 
@@ -3769,11 +3768,15 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			}
 		}
 
-		LLSD msg_notify = LLSD(LLSD::emptyMap());
-		msg_notify["session_id"] = LLUUID();
-        msg_notify["from_id"] = chat.mFromID;
-		msg_notify["source_type"] = chat.mSourceType;
-        on_new_message(msg_notify);
+		if (mesg != "")
+		{
+			LLSD msg_notify = LLSD(LLSD::emptyMap());
+			msg_notify["session_id"] = LLUUID();
+			msg_notify["from_id"] = chat.mFromID;
+			msg_notify["source_type"] = chat.mSourceType;
+			on_new_message(msg_notify);
+		}
+
 	}
 }
 
@@ -6242,6 +6245,11 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 			gMeanCollisionList.push_front(mcd);
 			gCacheName->get(perp, false, boost::bind(&mean_name_callback, _1, _2, _3));
 		}
+	}
+	LLFloaterBump* bumps_floater = LLFloaterBump::getInstance();
+	if(bumps_floater && bumps_floater->isInVisibleChain())
+	{
+		bumps_floater->populateCollisionList();
 	}
 }
 

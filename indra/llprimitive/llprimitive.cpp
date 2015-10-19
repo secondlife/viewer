@@ -317,9 +317,9 @@ S32 LLPrimitive::setTEMaterialID(const U8 index, const LLMaterialID& pMaterialID
 	return mTextureList.setMaterialID(index, pMaterialID);
 }
 
-S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams)
+S32 LLPrimitive::setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams, bool isInitFromServer)
 {
-	return mTextureList.setMaterialParams(index, pMaterialParams);
+	return mTextureList.setMaterialParams(index, pMaterialParams, isInitFromServer);
 }
 
 LLMaterialPtr LLPrimitive::getTEMaterialParams(const U8 index)
@@ -1869,9 +1869,12 @@ BOOL LLSculptParams::pack(LLDataPacker &dp) const
 
 BOOL LLSculptParams::unpack(LLDataPacker &dp)
 {
-	dp.unpackUUID(mSculptTexture, "texture");
-	dp.unpackU8(mSculptType, "type");
-	
+	U8 type;
+	LLUUID id;
+	dp.unpackUUID(id, "texture");
+	dp.unpackU8(type, "type");
+
+	setSculptTexture(id, type);
 	return TRUE;
 }
 
@@ -1896,8 +1899,7 @@ bool LLSculptParams::operator==(const LLNetworkData& data) const
 void LLSculptParams::copy(const LLNetworkData& data)
 {
 	const LLSculptParams *param = (LLSculptParams*)&data;
-	mSculptTexture = param->mSculptTexture;
-	mSculptType = param->mSculptType;
+	setSculptTexture(param->mSculptTexture, param->mSculptType);
 }
 
 
@@ -1915,20 +1917,38 @@ LLSD LLSculptParams::asLLSD() const
 bool LLSculptParams::fromLLSD(LLSD& sd)
 {
 	const char *w;
-	w = "texture";
-	if (sd.has(w))
-	{
-		setSculptTexture( sd[w] );
-	} else goto fail;
+	U8 type;
 	w = "type";
 	if (sd.has(w))
 	{
-		setSculptType( (U8)sd[w].asInteger() );
-	} else goto fail;
-	
+		type = sd[w].asInteger();
+	}
+	else return false;
+
+	w = "texture";
+	if (sd.has(w))
+	{
+		setSculptTexture(sd[w], type);
+	}
+	else return false;
+
 	return true;
- fail:
-	return false;
+}
+
+void LLSculptParams::setSculptTexture(const LLUUID& texture_id, U8 sculpt_type)
+{
+	U8 type = sculpt_type & LL_SCULPT_TYPE_MASK;
+	U8 flags = sculpt_type & LL_SCULPT_FLAG_MASK;
+	if (sculpt_type != (type | flags) || type > LL_SCULPT_TYPE_MAX)
+	{
+		mSculptTexture.set(SCULPT_DEFAULT_TEXTURE);
+		mSculptType = LL_SCULPT_TYPE_SPHERE;
+	}
+	else
+	{
+		mSculptTexture = texture_id;
+		mSculptType = sculpt_type;
+	}
 }
 
 //============================================================================

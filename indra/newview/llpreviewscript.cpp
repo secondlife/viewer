@@ -1370,6 +1370,8 @@ void LLLiveLSLEditor::buildExperienceList()
 	else
 	{
 		mExperiences->setEnabled(TRUE);
+		mExperiences->sortByName(TRUE);
+		mExperiences->setCurrentByIndex(mExperiences->getCurrentIndex());
 		getChild<LLButton>("view_profile")->setVisible(TRUE);
 	}
 }
@@ -2642,8 +2644,12 @@ void LLLiveLSLEditor::onLoad(void* userdata)
 void LLLiveLSLEditor::onSave(void* userdata, BOOL close_after_save)
 {
 	LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
-	self->mCloseAfterSave = close_after_save;
-	self->saveIfNeeded();
+	if(self)
+	{
+		self->mCloseAfterSave = close_after_save;
+		self->mScriptEd->mErrorList->setCommentText("");
+		self->saveIfNeeded();
+	}
 }
 
 

@@ -653,79 +653,6 @@ namespace tut
 	void object::test<11>()
 	{
 		//
-		// test LLUrlEntryHTTPNoProtocol - general URLs without a protocol
-		//
-		LLUrlEntryHTTPNoProtocol url;
-
-		testRegex("naked .com URL", url,
-				  "see google.com",
-				  "http://google.com");
-
-		testRegex("naked .org URL", url,
-				  "see en.wikipedia.org for details",
-				  "http://en.wikipedia.org");
-
-		testRegex("naked .net URL", url,
-				  "example.net",
-				  "http://example.net");
-
-		testRegex("naked .edu URL (2 instances)", url,
-				  "MIT web site is at web.mit.edu and also www.mit.edu",
-				  "http://web.mit.edu");
-
-		testRegex("don't match e-mail addresses", url,
-				  "test@lindenlab.com",
-				  "");
-
-		testRegex(".com URL with path", url,
-				  "see secondlife.com/status for grid status",
-				  "http://secondlife.com/status");
-
-		testRegex(".com URL with port", url,
-				  "secondlife.com:80",
-				  "http://secondlife.com:80");
-
-		testRegex(".com URL with port and path", url,
-				  "see secondlife.com:80/status",
-				  "http://secondlife.com:80/status");
-
-		testRegex("www.*.com URL with port and path", url,
-				  "see www.secondlife.com:80/status",
-				  "http://www.secondlife.com:80/status");
-
-		testRegex("invalid .com URL [1]", url,
-				  "..com",
-				  "");
-
-		testRegex("invalid .com URL [2]", url,
-				  "you.come",
-				  "");
-
-		testRegex("invalid .com URL [3]", url,
-				  "recommended",
-				  "");
-
-		testRegex("invalid .edu URL", url,
-				  "hi there scheduled maitenance has begun",
-				  "");
-
-		testRegex("invalid .net URL", url,
-				  "foo.netty",
-				  "");
-
-		testRegex("XML tags around URL [1]", url,
-				  "<foo>secondlife.com</foo>",
-				  "http://secondlife.com");
-
-		testRegex("XML tags around URL [2]", url,
-				  "<foo>secondlife.com/status?bar=1</foo>",
-				  "http://secondlife.com/status?bar=1");
-	}
-
-	template<> template<>
-	void object::test<12>()
-	{
-		//
 		// test LLUrlEntryNoLink - turn off hyperlinking
 		//
 		LLUrlEntryNoLink url;
@@ -752,7 +679,7 @@ namespace tut
 	}
 
 	template<> template<>
-	void object::test<13>()
+	void object::test<12>()
 	{
 		//
 		// test LLUrlEntryRegion - secondlife:///app/region/<location> URLs
@@ -859,5 +786,102 @@ namespace tut
 		testLocation("Location /app/region/Product%20Engine", url,
 			"secondlife:///app/region/Product%20Engine",
 			"Product Engine");
+	}
+
+	template<> template<>
+	void object::test<13>()
+	{
+		//
+		// test LLUrlEntryemail - general emails
+		//
+		LLUrlEntryEmail url;
+
+		// Regex tests.
+		testRegex("match e-mail addresses", url,
+				  "test@lindenlab.com",
+				  "mailto:test@lindenlab.com");
+
+		testRegex("match e-mail addresses with mailto: prefix", url,
+				  "mailto:test@lindenlab.com",
+				  "mailto:test@lindenlab.com");
+
+		testRegex("match e-mail addresses with different domains", url,
+				  "test@foo.org.us",
+				  "mailto:test@foo.org.us");
+
+		testRegex("match e-mail addresses with different domains", url,
+				  "test@foo.bar",
+				  "mailto:test@foo.bar");
+
+		testRegex("don't match incorrect e-mail addresses", url,
+				  "test @foo.com",
+				  "");
+
+		testRegex("don't match incorrect e-mail addresses", url,
+				  "test@ foo.com",
+				  "");
+	}
+
+	template<> template<>
+	void object::test<14>()
+	{
+		//
+		// test LLUrlEntrySimpleSecondlifeURL - http://*.secondlife.com/* and http://*lindenlab.com/* urls
+		//
+		LLUrlEntrySecondlifeURL url;
+
+		testRegex("match urls with protocol", url,
+				  "this url should match http://lindenlab.com/products/second-life",
+				  "http://lindenlab.com/products/second-life");
+
+		testRegex("match urls with protocol", url,
+				  "search something https://marketplace.secondlife.com/products/search on marketplace and test the https",
+				  "https://marketplace.secondlife.com/products/search");
+
+		testRegex("match urls with port", url,
+				  "let's specify some port http://secondlife.com:888/status",
+				  "http://secondlife.com:888/status");
+
+		testRegex("don't match urls w/o protocol", url,
+				  "looks like an url something www.marketplace.secondlife.com/products but no https prefix",
+				  "");
+
+		testRegex("but with a protocol www is fine", url,
+				  "so let's add a protocol http://www.marketplace.secondlife.com:8888/products",
+				  "http://www.marketplace.secondlife.com:8888/products");
+
+		testRegex("don't match urls w/o protocol", url,
+				  "and even no www something secondlife.com/status",
+				  "");
+	}
+
+	template<> template<>
+	void object::test<15>()
+	{
+		//
+		// test LLUrlEntrySimpleSecondlifeURL - http://*.secondlife.com and http://*lindenlab.com urls
+		//
+
+		LLUrlEntrySimpleSecondlifeURL url;
+
+		testRegex("match urls with a protocol", url,
+				  "this url should match http://lindenlab.com",
+				  "http://lindenlab.com");
+
+		testRegex("match urls with a protocol", url,
+				  "search something https://marketplace.secondlife.com on marketplace and test the https",
+				  "https://marketplace.secondlife.com");
+
+		testRegex("don't match urls w/o protocol", url,
+				  "looks like an url something www.marketplace.secondlife.com but no https prefix",
+				  "");
+
+		testRegex("but with a protocol www is fine", url,
+				  "so let's add a protocol http://www.marketplace.secondlife.com",
+				  "http://www.marketplace.secondlife.com");
+
+		testRegex("don't match urls w/o protocol", url,
+				  "and even no www something lindenlab.com",
+				  "");
 	}
 }

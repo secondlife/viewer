@@ -84,6 +84,7 @@ public:
 	
 	void startChecking(bool install_if_ready = false);
 	void stopChecking();
+	bool forceCheck();
 	bool isChecking();
 	eUpdaterState getState();
 

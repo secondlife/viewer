@@ -46,6 +46,10 @@ public:
 	/*virtual*/	BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	
+	static LLFloaterBump* getInstance();
+
+	void populateCollisionList();
+
 	void startIM();
 	void startCall();
 	void reportAbuse();

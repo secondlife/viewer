@@ -38,6 +38,8 @@
 #include "llsdserialize.h"
 #include "llvoavatar.h"
 #include "llcorehttputil.h"
+#include "lleventfilter.h"
+#include "lleventcoro.h"
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
@@ -167,11 +169,15 @@ void LLFloaterPermsDefault::onCommitCopy(const LLSD& user_data)
 	xfer->setEnabled(copyable);
 }
 
+const int MAX_HTTP_RETRIES = 5;
+const float RETRY_TIMEOUT = 5.0;
+
 void LLFloaterPermsDefault::sendInitialPerms()
 {
 	if(!mCapSent)
 	{
 		updateCap();
+		setCapSent(true);
 	}
 }
 
@@ -193,7 +199,8 @@ void LLFloaterPermsDefault::updateCap()
 /*static*/
 void LLFloaterPermsDefault::updateCapCoro(std::string url)
 {
-    static std::string previousReason;
+    int retryCount = 0;
+    std::string previousReason;
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
@@ -215,23 +222,37 @@ void LLFloaterPermsDefault::updateCapCoro(std::string url)
         LL_CONT << sent_perms_log.str() << LL_ENDL;
     }
 
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
+    while (true)
     {
-        const std::string& reason = status.toString();
-        // Do not display the same error more than once in a row
-        if (reason != previousReason)
+        ++retryCount;
+        LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (!status)
         {
-            previousReason = reason;
-            LLSD args;
-            args["REASON"] = reason;
-            LLNotificationsUtil::add("DefaultObjectPermissions", args);
+            LLEventTimeout timeout;
+
+            const std::string& reason = status.toString();
+            // Do not display the same error more than once in a row
+            if (reason != previousReason)
+            {
+                previousReason = reason;
+                LLSD args;
+                args["REASON"] = reason;
+                LLNotificationsUtil::add("DefaultObjectPermissions", args);
+            }
+
+            timeout.eventAfter(RETRY_TIMEOUT, LLSD());
+            llcoro::suspendUntilEventOn(timeout);
+            if (retryCount < MAX_HTTP_RETRIES)
+                continue;
+
+            LL_WARNS("ObjectPermissionsFloater") << "Unable to send default permissions.  Giving up for now." << LL_ENDL;
+            return;
         }
-        return;
+        break;
     }
 
     // Since we have had a successful POST call be sure to display the next error message
