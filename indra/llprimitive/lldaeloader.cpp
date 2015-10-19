@@ -1370,10 +1370,14 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 				LLMatrix4 newInverse = model->mSkinInfo.mInvBindMatrix[i];
 				newInverse.setTranslation( mJointList[lookingForJoint].getTranslation() );
 				model->mSkinInfo.mAlternateBindMatrix.push_back( newInverse );
-			}
+            }
 			else
 			{
 				LL_WARNS()<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<LL_ENDL;
+                //SL-202 15-31-10 Placeholders for the collision volume joints to keep array aligned.
+                LLMatrix4 emptyInverse;
+                emptyInverse.setZero();
+                model->mSkinInfo.mAlternateBindMatrix.push_back( emptyInverse );
 			}
 		}
 
