@@ -66,6 +66,7 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llvovolume.h"
+#include "llfloaterreg.h"
 #include "llwebprofile.h"
 #include "llwindow.h"
 #include "llvieweraudio.h"
@@ -1388,6 +1389,28 @@ LLSD LLViewerMedia::getHeaders()
 	return headers;
 }
 
+ /////////////////////////////////////////////////////////////////////////////////////////
+ // static
+bool LLViewerMedia::parseRawCookie(const std::string raw_cookie, std::string& name, std::string& value, std::string& path)
+{
+	std::size_t name_pos = raw_cookie.find_first_of("=");
+	if (name_pos != std::string::npos)
+	{
+		name = raw_cookie.substr(0, name_pos);
+		std::size_t value_pos = raw_cookie.find_first_of(";", name_pos);
+		if (value_pos != std::string::npos)
+		{
+			value = raw_cookie.substr(name_pos + 1, value_pos - name_pos - 1);
+			path = "/";	// assume root path for now
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::setOpenIDCookie()
@@ -1418,6 +1441,24 @@ void LLViewerMedia::setOpenIDCookie()
 		}
 		
 		getCookieStore()->setCookiesFromHost(sOpenIDCookie, authority.substr(host_start, host_end - host_start));
+
+		LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+		if (media_instance)
+		{
+			std::string cookie_host = authority.substr(host_start, host_end - host_start);
+			std::string cookie_name = "";
+			std::string cookie_value = "";
+			std::string cookie_path = "";
+			if (parseRawCookie(sOpenIDCookie, cookie_name, cookie_value, cookie_path))
+			{
+				std::string url = "http://id.secondlife.com/openid/webkit";
+				media_instance->getMediaPlugin()->setCookie(url, cookie_name, cookie_value, cookie_host, cookie_path);
+			}
+		};
+
+		// NOTE: this is the original OpenID cookie code, so of which is no longer needed now that we
+		// are using CEF - it's very intertwined with other code so, for the moment, I'm going to 
+		// leave it alone and make a task to come back to it once we're sure the CEF cookie code is robust.
 
 		// Do a web profile get so we can store the cookie 
 		LLSD headers = LLSD::emptyMap();

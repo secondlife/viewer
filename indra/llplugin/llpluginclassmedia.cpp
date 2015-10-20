@@ -670,6 +670,19 @@ bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers, LLSD
 	return true;
 }
 
+void LLPluginClassMedia::setCookie(std::string uri, std::string name, std::string value, std::string domain, std::string path)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_cookie");
+
+	message.setValue("uri", uri);
+	message.setValue("name", name);
+	message.setValue("value", value);
+	message.setValue("domain", domain);
+	message.setValue("path", path);
+
+	sendMessage(message);
+}
+
 void LLPluginClassMedia::loadURI(const std::string &uri)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "load_uri");

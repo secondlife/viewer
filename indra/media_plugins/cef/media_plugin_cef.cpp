@@ -479,6 +479,15 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				std::string uri = message_in.getValue("uri");
 				mLLCEFLib->navigate(uri);
 			}
+			else if (message_name == "set_cookie")
+			{
+				std::string uri = message_in.getValue("uri");
+				std::string name = message_in.getValue("name");
+				std::string value = message_in.getValue("value");
+				std::string domain = message_in.getValue("domain");
+				std::string path = message_in.getValue("path");
+				mLLCEFLib->setCookie(uri, name, value, domain, path);
+			}
 			else if (message_name == "mouse_event")
 			{
 				std::string event = message_in.getValue("event");

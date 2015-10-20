@@ -163,6 +163,7 @@ public:
 	static LLSD getHeaders();
 	
 private:
+	static bool parseRawCookie(const std::string raw_cookie, std::string& name, std::string& value, std::string& path);
 	static void setOpenIDCookie();
 	static void onTeleportFinished();
 	
