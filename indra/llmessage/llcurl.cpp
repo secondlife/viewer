@@ -178,6 +178,11 @@ void LLCurl::Responder::setURL(const std::string& url)
 	mURL = url;
 }
 
+const std::string& LLCurl::Responder::getURL()
+{
+	return mURL;
+}
+
 void LLCurl::Responder::successResult(const LLSD& content)
 {
 	setResult(HTTP_OK, "", content);

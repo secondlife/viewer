@@ -285,13 +285,16 @@ public:
 		const LLChannelDescriptors& channels,
 		const LLIOPipe::buffer_ptr_t& buffer)
 	{
+		const std::string url = getURL();
+		llinfos << "@@@ URL to set cookie on" << url << llendl;
+
 		// We don't care about the content of the response, only the Set-Cookie header.
-		LL_DEBUGS("MediaAuth") << dumpResponse() 
-				<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
+		llinfos << dumpResponse() 
+				<< " [headers:" << getResponseHeaders() << "]" << llendl;
 		const std::string& cookie = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 		
 		// *TODO: What about bad status codes?  Does this destroy previous cookies?
-		LLViewerMedia::openIDCookieResponse(cookie);
+		LLViewerMedia::openIDCookieResponse(url, cookie);
 	}
 
 };
@@ -1200,7 +1203,7 @@ void LLViewerMedia::clearAllCookies()
 	}
 	
 	// If we have an OpenID cookie, re-add it to the cookie store.
-	setOpenIDCookie();
+	setOpenIDCookie(std::string());
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1303,7 +1306,7 @@ void LLViewerMedia::loadCookieFile()
 	}
 	
 	// If we have an OpenID cookie, re-add it to the cookie store.
-	setOpenIDCookie();
+	setOpenIDCookie(std::string());
 }
 
 
@@ -1413,7 +1416,7 @@ bool LLViewerMedia::parseRawCookie(const std::string raw_cookie, std::string& na
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
-void LLViewerMedia::setOpenIDCookie()
+void LLViewerMedia::setOpenIDCookie(const std::string& url)
 {
 	if(!sOpenIDCookie.empty())
 	{
@@ -1442,19 +1445,21 @@ void LLViewerMedia::setOpenIDCookie()
 		
 		getCookieStore()->setCookiesFromHost(sOpenIDCookie, authority.substr(host_start, host_end - host_start));
 
-		LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-		if (media_instance)
+		if (url.length())
 		{
-			std::string cookie_host = authority.substr(host_start, host_end - host_start);
-			std::string cookie_name = "";
-			std::string cookie_value = "";
-			std::string cookie_path = "";
-			if (parseRawCookie(sOpenIDCookie, cookie_name, cookie_value, cookie_path))
+			LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+			if (media_instance)
 			{
-				std::string url = "http://id.secondlife.com/openid/webkit";
-				media_instance->getMediaPlugin()->setCookie(url, cookie_name, cookie_value, cookie_host, cookie_path);
+				std::string cookie_host = authority.substr(host_start, host_end - host_start);
+				std::string cookie_name = "";
+				std::string cookie_value = "";
+				std::string cookie_path = "";
+				if (parseRawCookie(sOpenIDCookie, cookie_name, cookie_value, cookie_path))
+				{
+					media_instance->getMediaPlugin()->setCookie(url, cookie_name, cookie_value, cookie_host, cookie_path);
+				}
 			}
-		};
+		}
 
 		// NOTE: this is the original OpenID cookie code, so of which is no longer needed now that we
 		// are using CEF - it's very intertwined with other code so, for the moment, I'm going to 
@@ -1514,13 +1519,13 @@ void LLViewerMedia::openIDSetup(const std::string &openid_url, const std::string
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // static
-void LLViewerMedia::openIDCookieResponse(const std::string &cookie)
+void LLViewerMedia::openIDCookieResponse(const std::string& url, const std::string &cookie)
 {
 	LL_DEBUGS("MediaAuth") << "Cookie received: \"" << cookie << "\"" << LL_ENDL;
 	
 	sOpenIDCookie += cookie;
 
-	setOpenIDCookie();
+	setOpenIDCookie(url);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
