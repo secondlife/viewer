@@ -10259,6 +10259,14 @@ Not enough script resources available to attach object!
   </notification>
 
   <notification
+  icon="alertmodal.tga"
+  name="IllegalAttachment"
+  type="notify">
+   <tag>fail</tag>
+   The attachment point specified is not valid and the item has been attached to the default location: chest.
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CantDropItemTrialUser"
    type="notify">
