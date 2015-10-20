@@ -315,7 +315,7 @@ public:
 	LLView*			getLoginPanelHolder() { return mLoginPanelHolder.get(); }
 	BOOL			handleKey(KEY key, MASK mask);
 	BOOL			handleKeyUp(KEY key, MASK mask);
-	void			handleScrollWheel(S32 clicks);
+	void			handleScrollWheel	(S32 clicks);
 
 	// add and remove views from "popup" layer
 	void			addPopup(LLView* popup);

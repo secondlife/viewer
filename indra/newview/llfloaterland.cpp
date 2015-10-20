@@ -2439,6 +2439,8 @@ void LLPanelLandAccess::refresh()
 			mListAccess->clearSortOrder();
 			mListAccess->deleteAllItems();
 			S32 count = parcel->mAccessList.size();
+			getChild<LLUICtrl>("AllowedText")->setTextArg("[COUNT]", llformat("%d",count));
+
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("AccessList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
@@ -2484,6 +2486,7 @@ void LLPanelLandAccess::refresh()
 			mListBanned->clearSortOrder();
 			mListBanned->deleteAllItems();
 			S32 count = parcel->mBanList.size();
+			getChild<LLUICtrl>("BanCheck")->setTextArg("[COUNT]", llformat("%d",count));
 
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",count));
 			getChild<LLUICtrl>("BannedList")->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",PARCEL_MAX_ACCESS_LIST));

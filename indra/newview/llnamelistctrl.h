@@ -44,22 +44,30 @@ class LLNameListItem : public LLScrollListItem, public LLHandleProvider<LLNameLi
 public:
 	bool isGroup() const { return mIsGroup; }
 	void setIsGroup(bool is_group) { mIsGroup = is_group; }
+	bool isExperience() const { return mIsExperience; }
+	void setIsExperience(bool is_experience) { mIsExperience = is_experience; }
 
 protected:
 	friend class LLNameListCtrl;
 
 	LLNameListItem( const LLScrollListItem::Params& p )
-	:	LLScrollListItem(p), mIsGroup(false)
+	:	LLScrollListItem(p), mIsGroup(false), mIsExperience(false)
 	{
 	}
 
 	LLNameListItem( const LLScrollListItem::Params& p, bool is_group )
-	:	LLScrollListItem(p), mIsGroup(is_group)
+	:	LLScrollListItem(p), mIsGroup(is_group), mIsExperience(false)
+	{
+	}
+
+	LLNameListItem( const LLScrollListItem::Params& p, bool is_group, bool is_experience )
+	:	LLScrollListItem(p), mIsGroup(is_group), mIsExperience(is_experience)
 	{
 	}
 
 private:
 	bool mIsGroup;
+	bool mIsExperience;
 };
 
 
@@ -73,7 +81,8 @@ public:
 	{
 		INDIVIDUAL,
 		GROUP,
-		SPECIAL
+		SPECIAL,
+		EXPERIENCE
 	} ENameType;
 
 	// provide names for enums
@@ -160,7 +169,7 @@ public:
 
 	/*virtual*/ void mouseOverHighlightNthItem( S32 index );
 private:
-	void showInspector(const LLUUID& avatar_id, bool is_group);
+	void showInspector(const LLUUID& avatar_id, bool is_group, bool is_experience = false);
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, std::string suffix, LLHandle<LLNameListItem> item);
 
 private:

@@ -2778,9 +2778,6 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="NoValidCircuit">
 		沒有有效的線路碼。
 	</notification>
-	<notification name="NoValidTimestamp">
-		沒有有效的時間戳記。
-	</notification>
 	<notification name="NoPendingConnection">
 		無法建立待通的連線。
 	</notification>

@@ -105,8 +105,10 @@ protected:
 	bool mUpdateDropDownItems;
 	bool mRestoreOverflowMenu;
 
-	LLUUID mSelectedItemID;
+	bool mGetPrevItems;
 
+	LLUUID mSelectedItemID;
+	LLFrameTimer mItemsChangedTimer;
 	LLUIImage* mImageDragIndication;
 
 private:
@@ -204,12 +206,23 @@ public:
 	 * @see cleanup()
 	 */
 	static void destroyClass();
+	static std::string getStoredFavoritesFilename();
+	static std::string getSavedOrderFileName();
+
+	BOOL saveFavoritesRecord(bool pref_changed = false);
+	void showFavoritesOnLoginChanged(BOOL show);
+
+	LLInventoryModel::item_array_t mPrevFavorites;
+
 
 	const static S32 NO_INDEX;
+	static bool mSaveOnExit;
+	bool mUpdateRequired;
+
 private:
 	friend class LLSingleton<LLFavoritesOrderStorage>;
-	LLFavoritesOrderStorage() : mIsDirty(false) { load(); }
-	~LLFavoritesOrderStorage() { save(); }
+	LLFavoritesOrderStorage() : mIsDirty(false), mUpdateRequired(false){ load(); }
+	~LLFavoritesOrderStorage() {}
     
 	/**
 	 * Removes sort indexes for items which are not in Favorites bar for now.
@@ -217,13 +230,8 @@ private:
 	void cleanup();
 
 	const static std::string SORTING_DATA_FILE_NAME;
-    std::string getSavedOrderFileName();
-    static std::string getStoredFavoritesFilename();
-    
-	void load();
-	void save();
 
-	void saveFavoritesSLURLs();
+	void load();
 
 	// Remove record of current user's favorites from file on disk.
 	void removeFavoritesRecordOfUser();

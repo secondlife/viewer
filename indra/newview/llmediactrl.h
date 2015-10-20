@@ -150,7 +150,7 @@ public:
 		void setTrustedContent(bool trusted);
 
 		// over-rides
-		virtual BOOL handleKeyHere(KEY key, MASK mask);
+		virtual BOOL handleKeyHere( KEY key, MASK mask);
 		virtual BOOL handleKeyUpHere(KEY key, MASK mask);
 		virtual void onVisibilityChange ( BOOL new_visibility );
 		virtual BOOL handleUnicodeCharHere(llwchar uni_char);
@@ -193,7 +193,8 @@ public:
 				mHidingInitialLoad,
 				mClearCache,
 				mHoverTextChanged,
-				mDecoupleTextureSize;
+				mDecoupleTextureSize,
+				mUpdateScrolls;
 
 		std::string mHomePageUrl,
 					mHomePageMimeType,

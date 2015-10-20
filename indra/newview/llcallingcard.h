@@ -143,6 +143,7 @@ public:
 	// observers left behind.
 	void addObserver(LLFriendObserver* observer);
 	void removeObserver(LLFriendObserver* observer);
+	void idleNotifyObservers();
 	void notifyObservers();
 
 	// Observers interested in updates of a particular avatar.
@@ -208,6 +209,8 @@ private:
 	// do not implement
 	LLAvatarTracker(const LLAvatarTracker&);
 	bool operator==(const LLAvatarTracker&);
+
+	BOOL mIsNotifyObservers;
 
 public:
 	// don't you dare create or delete this object

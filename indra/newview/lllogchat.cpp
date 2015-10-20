@@ -804,6 +804,22 @@ bool LLLogChat::isNearbyTranscriptExist()
 	return false;
 }
 
+bool LLLogChat::isAdHocTranscriptExist(std::string file_name)
+{
+	std::vector<std::string> list_of_transcriptions;
+	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
+
+	file_name = makeLogFileName(file_name);
+	BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
+	{
+	   	if (transcript_file_name == file_name)
+	   	{
+	   		return true;
+		}
+	}
+	return false;
+}
+
 //*TODO mark object's names in a special way so that they will be distinguishable form avatar name 
 //which are more strict by its nature (only firstname and secondname)
 //Example, an object's name can be written like "Object <actual_object's_name>"

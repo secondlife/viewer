@@ -2836,9 +2836,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="NoValidCircuit">
 		回路コードが無効です。
 	</notification>
-	<notification name="NoValidTimestamp">
-		タイムスタンプが無効です。
-	</notification>
 	<notification name="NoPendingConnection">
 		接続を生成できません。
 	</notification>

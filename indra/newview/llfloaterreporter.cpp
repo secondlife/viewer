@@ -35,6 +35,7 @@
 #include "llassetstorage.h"
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llcheckboxctrl.h"
 #include "llfontgl.h"
 #include "llimagej2c.h"
 #include "llinventory.h"
@@ -137,6 +138,7 @@ BOOL LLFloaterReporter::postBuild()
 	mOwnerName = LLStringUtil::null;
 
 	getChild<LLUICtrl>("summary_edit")->setFocus(TRUE);
+	getChild<LLCheckBoxCtrl>("screen_check")->set(TRUE);
 
 	mDefaultSummary = getChild<LLUICtrl>("details_edit")->getValue().asString();
 

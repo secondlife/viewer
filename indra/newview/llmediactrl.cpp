@@ -95,6 +95,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
 	mDecoupleTextureSize ( false ),
+	mUpdateScrolls( false ),
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 ),
 	mClearCache(false),
@@ -410,18 +411,18 @@ void LLMediaCtrl::onOpenWebInspector()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLMediaCtrl::handleKeyHere(KEY key, MASK mask)
+BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL result = FALSE;
-
+	
 	if (mMediaSource)
 	{
 		result = mMediaSource->handleKeyHere(key, mask);
 	}
-
-	if (!result)
+	
+	if ( ! result )
 		result = LLPanel::handleKeyHere(key, mask);
-
+		
 	return result;
 }
 
@@ -699,7 +700,13 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
 			mMediaSource->setTrustedBrowser(mTrusted);
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+
+			F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+			if (scale_factor != mMediaSource->getPageZoomFactor())
+			{
+				mMediaSource->setPageZoomFactor( scale_factor );
+				mUpdateScrolls = true;
+			}
 
 			if(mClearCache)
 			{
@@ -737,10 +744,11 @@ void LLMediaCtrl::draw()
 {
 	F32 alpha = getDrawContext().mAlpha;
 
-	if ( gRestoreGL == 1 )
+	if ( gRestoreGL == 1 || mUpdateScrolls)
 	{
 		LLRect r = getRect();
 		reshape( r.getWidth(), r.getHeight(), FALSE );
+		mUpdateScrolls = false;
 		return;
 	}
 
@@ -782,7 +790,12 @@ void LLMediaCtrl::draw()
 	{
 		gGL.pushUIMatrix();
 		{
-			mMediaSource->setPageZoomFactor( LLUI::getScaleFactor().mV[ VX ] );
+			F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+			if (scale_factor != mMediaSource->getPageZoomFactor())
+			{
+				mMediaSource->setPageZoomFactor( scale_factor );
+				mUpdateScrolls = true;
+			}
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
@@ -987,11 +1000,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
 		case MEDIA_EVENT_CLICK_LINK_HREF:
 		{
-			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
 			// retrieve the event parameters
 			std::string url = self->getClickURL();
-			std::string target = self->getClickTarget();
+			std::string target = self->isOverrideClickTarget() ? self->getOverrideClickTarget() : self->getClickTarget();
 			std::string uuid = self->getClickUUID();
+			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << target << "\", uri is " << url << LL_ENDL;
 
 			LLWeb::loadURL(url, target, std::string());
 

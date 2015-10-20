@@ -2788,9 +2788,6 @@ Veuillez réessayer dans quelques minutes.
 	<notification name="NoValidCircuit">
 		Aucun code de circuit valide.
 	</notification>
-	<notification name="NoValidTimestamp">
-		Timestamp non valide.
-	</notification>
 	<notification name="NoPendingConnection">
 		Impossible de créer la connexion en attente.
 	</notification>

@@ -119,7 +119,7 @@ public:
 	void generateThumbnailImage(BOOL force_update = FALSE) ;
 	void resetThumbnailImage() { mThumbnailImage = NULL ; }
 	void drawPreviewRect(S32 offset_x, S32 offset_y) ;
-
+	void prepareFreezeFrame();
     
 	LLViewerTexture* getBigThumbnailImage();
 	S32  getBigThumbnailWidth() const { return mBigThumbnailWidth ; }

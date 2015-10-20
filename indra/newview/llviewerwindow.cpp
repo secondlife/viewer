@@ -2348,15 +2348,15 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 		}
     }
     else
-	{
+    {
         switch (LLVersionInfo::getViewerMaturity())
-	{
+        {
         case LLVersionInfo::TEST_VIEWER:
             new_bg_color = LLUIColorTable::instance().getColor( "MenuBarTestBgColor" );
             break;
 
         case LLVersionInfo::PROJECT_VIEWER:
-		new_bg_color = LLUIColorTable::instance().getColor( "MenuBarProjectBgColor" );
+            new_bg_color = LLUIColorTable::instance().getColor( "MenuBarProjectBgColor" );
             break;
             
         case LLVersionInfo::BETA_VIEWER:
@@ -2365,13 +2365,13 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
             
         case LLVersionInfo::RELEASE_VIEWER:
             if(!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
-	}
-	else 
-	{
-		new_bg_color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
-	}
+            {
+                new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
+            }
+            else 
+            {
+                new_bg_color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
+            }
             break;
         }
     }

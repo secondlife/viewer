@@ -1677,12 +1677,12 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 				F32 alpha = (1.f - (1.f *  ((F32)llabs(i) / (F32)num_ticks_per_side1)));
 				LLVector3 tick_pos = mScaleCenter + (mScaleDir * (grid_multiple1 + i) * smallest_subdivision1);
 
-				F32 cur_subdivisions = llclamp(getSubdivisionLevel(tick_pos, mScaleDir, mScaleSnapUnit1, mTickPixelSpacing1), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
-
-				if (fmodf((F32)(i + sub_div_offset_1), (sGridMaxSubdivisionLevel / cur_subdivisions)) != 0.f)
+				//No need check this condition to prevent tick position scaling (FIX MAINT-5207/5208)
+				//F32 cur_subdivisions = llclamp(getSubdivisionLevel(tick_pos, mScaleDir, mScaleSnapUnit1, mTickPixelSpacing1), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+				/*if (fmodf((F32)(i + sub_div_offset_1), (sGridMaxSubdivisionLevel / cur_subdivisions)) != 0.f)
 				{
 					continue;
-				}
+				}*/
 
 				F32 tick_scale = 1.f;
 				for (F32 division_level = sGridMaxSubdivisionLevel; division_level >= sGridMinSubdivisionLevel; division_level /= 2.f)
@@ -1710,12 +1710,12 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
 				F32 alpha = (1.f - (1.f *  ((F32)llabs(i) / (F32)num_ticks_per_side2)));
 				LLVector3 tick_pos = mScaleCenter + (mScaleDir * (grid_multiple2 + i) * smallest_subdivision2);
 				
-				F32 cur_subdivisions = llclamp(getSubdivisionLevel(tick_pos, mScaleDir, mScaleSnapUnit2, mTickPixelSpacing2), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
-
-				if (fmodf((F32)(i + sub_div_offset_2), (sGridMaxSubdivisionLevel / cur_subdivisions)) != 0.f)
+				//No need check this condition to prevent tick position scaling (FIX MAINT-5207/5208)
+				//F32 cur_subdivisions = llclamp(getSubdivisionLevel(tick_pos, mScaleDir, mScaleSnapUnit2, mTickPixelSpacing2), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+				/*if (fmodf((F32)(i + sub_div_offset_2), (sGridMaxSubdivisionLevel / cur_subdivisions)) != 0.f)
 				{
 					continue;
-				}
+				}*/
 
 				F32 tick_scale = 1.f;
 				for (F32 division_level = sGridMaxSubdivisionLevel; division_level >= sGridMinSubdivisionLevel; division_level /= 2.f)
