@@ -2592,6 +2592,9 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
+    // Increment our refcount so that we do not go away while the coroutine is active.
+    this->ref();
+
     mMimeProbe = httpAdapter;
 
     httpOpts->setFollowRedirects(true);
@@ -2612,35 +2615,47 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
         LL_WARNS() << "Error retrieving media headers." << LL_ENDL;
     }
 
-    LLSD resultHeaders = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
-    
-    const std::string& mediaType = resultHeaders[HTTP_IN_HEADER_CONTENT_TYPE].asStringRef();
+    if (this->getNumRefs() > 1)
+    {   // if there is only a single ref count outstanding it will be the one we took out above...
+        // we can skip the rest of this routine
 
-    std::string::size_type idx1 = mediaType.find_first_of(";");
-    std::string mimeType = mediaType.substr(0, idx1);
+        LLSD resultHeaders = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
 
-    // We now no longer need to check the error code returned from the probe.
-    // If we have a mime type, use it.  If not, default to the web plugin and let it handle error reporting.
-    // The probe was successful.
-    if (mimeType.empty())
-    {
-        // Some sites don't return any content-type header at all.
-        // Treat an empty mime type as text/html.
-        mimeType = HTTP_CONTENT_TEXT_HTML;
-    }
+        const std::string& mediaType = resultHeaders[HTTP_IN_HEADER_CONTENT_TYPE].asStringRef();
 
-    LL_DEBUGS() << "Media type \"" << mediaType << "\", mime type is \"" << mimeType << "\"" << LL_ENDL;
+        std::string::size_type idx1 = mediaType.find_first_of(";");
+        std::string mimeType = mediaType.substr(0, idx1);
 
-    // the call to initializeMedia may disconnect the responder, which will clear mMediaImpl.
-    // Make a local copy so we can call loadURI() afterwards.
-
-    if (!mimeType.empty())
-    {
-        if (initializeMedia(mimeType))
+        // We now no longer need to check the error code returned from the probe.
+        // If we have a mime type, use it.  If not, default to the web plugin and let it handle error reporting.
+        // The probe was successful.
+        if (mimeType.empty())
         {
-            loadURI();
+            // Some sites don't return any content-type header at all.
+            // Treat an empty mime type as text/html.
+            mimeType = HTTP_CONTENT_TEXT_HTML;
         }
+
+        LL_DEBUGS() << "Media type \"" << mediaType << "\", mime type is \"" << mimeType << "\"" << LL_ENDL;
+
+        // the call to initializeMedia may disconnect the responder, which will clear mMediaImpl.
+        // Make a local copy so we can call loadURI() afterwards.
+
+        if (!mimeType.empty())
+        {
+            if (initializeMedia(mimeType))
+            {
+                loadURI();
+            }
+        }
+
     }
+    else
+    {
+        LL_WARNS() << "LLViewerMediaImpl to be released." << LL_ENDL;
+    }
+
+    this->unref();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
