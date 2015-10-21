@@ -54,6 +54,7 @@
 #include "llspatialpartition.h"
 #include "llhudmanager.h"
 #include "llflexibleobject.h"
+#include "llskinningutil.h"
 #include "llsky.h"
 #include "lltexturefetch.h"
 #include "llvector4a.h"
@@ -4179,8 +4180,8 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
 
 	LLMatrix4a mat[kMaxJoints];
-	U32 maxJoints = LLDrawPoolAvatar::getMeshJointCount(skin);
-    LLDrawPoolAvatar::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
+	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
+    LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
 
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
@@ -4192,7 +4193,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 		if ( weight )
 		{
-            LLDrawPoolAvatar::checkSkinWeights(weight, dst_face.mNumVertices, skin);
+            LLSkinningUtil::checkSkinWeights(weight, dst_face.mNumVertices, skin);
 			LLMatrix4a bind_shape_matrix;
 			bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
@@ -4202,11 +4203,11 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 			{
 				LL_RECORD_BLOCK_TIME(FTM_SKIN_RIGGED);
 
-                U32 max_joints = LLDrawPoolAvatar::getMaxJointCount();
+                U32 max_joints = LLSkinningUtil::getMaxJointCount();
 				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
 				{
 					LLMatrix4a final_mat;
-                    LLDrawPoolAvatar::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
+                    LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
 				
 					LLVector4a& v = vol_face.mPositions[j];
 					LLVector4a t;
