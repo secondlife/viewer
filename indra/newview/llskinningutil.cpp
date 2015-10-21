@@ -256,22 +256,24 @@ void LLSkinningUtil::remapSkinWeights(LLVector4a* weights, U32 num_vertices, con
 // static
 void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	const S32 max_joints = skin->mJointNames.size();
     if (skin->mJointRemap.size()>0)
     {
         // Check the weights are consistent with the current remap.
-        const S32 max_joints = skin->mJointNames.size();
         for (U32 j=0; j<num_vertices; j++)
         {
             F32 *w = weights[j].getF32ptr();
-
+            
             for (U32 k=0; k<4; ++k)
             {
                 S32 i = llfloor(w[k]);
                 llassert(i>=0);
                 llassert(i<max_joints);
             }
+        }
     }
-    }
+#endif
 }
 
 // static
