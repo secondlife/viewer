@@ -44,6 +44,7 @@
 #include "message.h"
 #include "llstartup.h"              // login_alert_done
 #include "llcorehttputil.h"
+#include "llfloaterreg.h"
 
 LLFloaterTOS::LLFloaterTOS(const LLSD& data)
 :	LLModalDialog( data["message"].asString() ),
@@ -196,7 +197,7 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
             std::string url(getString("real_url"));
 
             LLCoros::instance().launch("LLFloaterTOS::testSiteIsAliveCoro",
-                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, this, url));
+                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, url));
 		}
 		else if(mRealNavigateBegun)
 		{
@@ -216,18 +217,25 @@ void LLFloaterTOS::testSiteIsAliveCoro(std::string url)
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 
+
     httpOpts->setWantHeaders(true);
 
-    LL_INFOS("HttpCoroutineAdapter", "genericPostCoro") << "Generic POST for " << url << LL_ENDL;
+
+    LL_INFOS("testSiteIsAliveCoro") << "Generic POST for " << url << LL_ENDL;
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
+    LLFloaterTOS *that = LLFloaterReg::findTypedInstance<LLFloaterTOS>("message_tos");
     // double not.  
-    // First ! returns a boolean error status, second ! is true if success result.
-    setSiteIsAlive(!!status); 
+    if (that)
+        that->setSiteIsAlive(static_cast<bool>(status)); 
+    else
+    {
+        LL_WARNS("testSiteIsAliveCoro") << "Dialog canceled before response." << LL_ENDL;
+    }
 }
 
 
