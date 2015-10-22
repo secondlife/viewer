@@ -286,11 +286,7 @@ public:
 		const LLIOPipe::buffer_ptr_t& buffer)
 	{
 		const std::string url = getURL();
-		llinfos << "@@@ URL to set cookie on" << url << llendl;
 
-		// We don't care about the content of the response, only the Set-Cookie header.
-		llinfos << dumpResponse()
-				<< " [headers:" << getResponseHeaders() << "]" << llendl;
 		const std::string& cookie = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 
 		// *TODO: What about bad status codes?  Does this destroy previous cookies?
@@ -1870,8 +1866,12 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	{
 		std::string launcher_name = gDirUtilp->getLLPluginLauncher();
 		std::string plugin_name = gDirUtilp->getLLPluginFilename(plugin_basename);
-		std::string user_data_path = gDirUtilp->getOSUserAppDir();
-		user_data_path += gDirUtilp->getDirDelimiter();
+
+		std::string user_data_path_cache = gDirUtilp->getCacheDir(false);
+		user_data_path_cache += gDirUtilp->getDirDelimiter();
+
+		std::string user_data_path_cookies = gDirUtilp->getOSUserAppDir();
+		user_data_path_cookies += gDirUtilp->getDirDelimiter();
 
 		// Fix for EXT-5960 - make browser profile specific to user (cache, cookies etc.)
 		// If the linden username returned is blank, that can only mean we are
@@ -1882,8 +1882,8 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		if ( ! linden_user_dir.empty() )
 		{
 			// gDirUtilp->getLindenUserDir() is whole path, not just Linden name
-			user_data_path = linden_user_dir;
-			user_data_path += gDirUtilp->getDirDelimiter();
+			user_data_path_cookies = linden_user_dir;
+			user_data_path_cookies += gDirUtilp->getDirDelimiter();
 		};
 
 		// See if the plugin executable exists
@@ -1900,7 +1900,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			media_source->setUserDataPath(user_data_path);
+			media_source->setUserDataPath(user_data_path_cache, user_data_path_cookies);
 			media_source->setLanguageCode(LLUI::getLanguage());
 
 			// collect 'cookies enabled' setting from prefs and send to embedded browser
