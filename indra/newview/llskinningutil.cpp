@@ -154,6 +154,8 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
         return; 
     }
 
+    U32 max_joints = getMeshJointCount(skin);
+
     // Compute the remap
     std::vector<U32> j_proxy(skin->mJointNames.size());
     for (U32 j = 0; j < skin->mJointNames.size(); ++j)
@@ -163,13 +165,19 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
     }
     S32 top = 0;
     std::vector<U32> j_remap(skin->mJointNames.size());
-    // Fill in j_remap for all joints that will make the cut.
+    // Fill in j_remap for all joints that will be kept.
     for (U32 j = 0; j < skin->mJointNames.size(); ++j)
     {
         if (j_proxy[j] == j)
         {
             // Joint will be included
-            j_remap[j] = top++;
+            j_remap[j] = top;
+            if (top < max_joints-1)
+            {
+                top++;
+            }
+
+             
         }
     }
     // Then use j_proxy to fill in j_remap for the joints that will be discarded
@@ -189,7 +197,7 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
 
     for (U32 j = 0; j < skin->mJointNames.size(); ++j)
     {
-        if (j_proxy[j] == j)
+        if (j_proxy[j] == j && new_joint_names.size() < max_joints)
         {
             new_joint_names.push_back(skin->mJointNames[j]);
             new_inv_bind_matrix.push_back(skin->mInvBindMatrix[j]);
@@ -199,6 +207,7 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
             }
         }
     }
+    llassert(new_joint_names.size() <= max_joints);
 
     for (U32 j = 0; j < skin->mJointNames.size(); ++j)
     {
