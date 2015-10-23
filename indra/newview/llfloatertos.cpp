@@ -196,8 +196,10 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 			mLoadingScreenLoaded = true;
             std::string url(getString("real_url"));
 
+            LLHandle<LLFloater> handle = getHandle();
+
             LLCoros::instance().launch("LLFloaterTOS::testSiteIsAliveCoro",
-                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, url));
+                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, handle, url));
 		}
 		else if(mRealNavigateBegun)
 		{
@@ -209,7 +211,7 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 	}
 }
 
-void LLFloaterTOS::testSiteIsAliveCoro(std::string url)
+void LLFloaterTOS::testSiteIsAliveCoro(LLHandle<LLFloater> handle, std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -228,13 +230,19 @@ void LLFloaterTOS::testSiteIsAliveCoro(std::string url)
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    LLFloaterTOS *that = LLFloaterReg::findTypedInstance<LLFloaterTOS>("message_tos");
-    // double not.  
+    if (handle.isDead())
+    {
+        LL_WARNS("testSiteIsAliveCoro") << "Dialog canceled before response." << LL_ENDL;
+        return;
+    }
+
+    LLFloaterTOS *that = dynamic_cast<LLFloaterTOS *>(handle.get());
+    
     if (that)
         that->setSiteIsAlive(static_cast<bool>(status)); 
     else
     {
-        LL_WARNS("testSiteIsAliveCoro") << "Dialog canceled before response." << LL_ENDL;
+        LL_WARNS("testSiteIsAliveCoro") << "Handle was not a TOS floater." << LL_ENDL;
     }
 }
 
