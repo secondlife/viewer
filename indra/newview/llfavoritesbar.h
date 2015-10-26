@@ -218,6 +218,7 @@ public:
 	const static S32 NO_INDEX;
 	static bool mSaveOnExit;
 	bool mUpdateRequired;
+	std::map<LLUUID,std::string> mFavoriteNames;
 
 private:
 	friend class LLSingleton<LLFavoritesOrderStorage>;
