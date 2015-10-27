@@ -193,7 +193,7 @@ public:
 	bool	canPaste() const { return mCanPaste; };
 	
 	// These can be called before init(), and they will be queued and sent before the media init message.
-	void	setUserDataPath(const std::string &user_data_path);
+	void	setUserDataPath(const std::string &user_data_path_cache, const std::string &user_data_path_cookies);
 	void	setLanguageCode(const std::string &language_code);
 	void	setPluginsEnabled(const bool enabled);
 	void	setJavascriptEnabled(const bool enabled);

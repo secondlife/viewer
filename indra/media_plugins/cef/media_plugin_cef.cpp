@@ -432,9 +432,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "set_user_data_path")
 			{
-				std::string user_data_path = message_in.getValue("path"); // n.b. always has trailing platform-specific dir-delimiter
-				mCachePath = user_data_path + "cef_cache";
-				mCookiePath = user_data_path + "cef_cookies";
+				std::string user_data_path_cache = message_in.getValue("cache_path");
+				std::string user_data_path_cookies = message_in.getValue("cookies_path");
+				mCachePath = user_data_path_cache + "cef_cache";
+				mCookiePath = user_data_path_cookies + "cef_cookies";
 			}
 			else if (message_name == "size_change")
 			{
@@ -734,8 +735,6 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
-    //if ((msg == WM_CHAR) && (key_event == ))
-
 	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
 };
