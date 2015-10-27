@@ -25,7 +25,7 @@
     <item name="2x Average" label="2x Average"/>
     <item name="Max" label="Max"/>
     <item name="Recent Max" label="Recent Max"/>
-    <item nme="100ms" label="100ms"/>
+    <item name="100ms" label="100ms"/>
   </combo_box>
   <combo_box name="metric_combo"
              follows="left|top"
