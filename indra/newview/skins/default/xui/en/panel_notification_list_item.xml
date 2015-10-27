@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+<panel
+  translate="false"
+  name="main_panel"
+  title="panel_notification_list_item"
+  visible="true"
+  top="0"
+  left="0"
+  width="331"
+  height="202"
+  can_resize="true"
+  layout="topleft"
+  follows="left|top|right|bottom" >
+  <!-- background_opaque="false" -->
+  <!-- background_visible="true"> -->
+  <!-- bg_alpha_color="PanelNotificationListItem"> -->
+  <panel.string
+    name="sender_resident_text">
+    Sender: "[SENDER_RESIDENT]"
+  </panel.string>
+  <panel.string
+    name="group_name_text">
+    Group: "[GROUP_NAME]"
+  </panel.string>
+  <panel.string
+    name="group_fee_text">
+    Fee: [GROUP_FEE]
+  </panel.string>
+  <panel.string
+    name="item_condensed_height">
+    50
+  </panel.string>
+  <panel.string
+    name="item_expanded_height">
+    87
+  </panel.string>
+  <panel.string
+    name="expanded_height_resize_for_attachment">
+    27
+  </panel.string>
+
+  <panel top="0" left="0" width="331" height="196" bevel_style="none" layout="topleft" follows="left|top|right|bottom" name="panel_total_view">
+    <layout_stack top="0" left="0" width="331" height="196" orientation="vertical" follows="left|top|right|bottom" name="item_vertical_stack">
+      <layout_panel top="0" left="0" height="30" follows="left|top|right|bottom" layout="topleft" name="layout_panel_condensed_view" visible="false" background_opaque="false" background_visible="true" bg_alpha_color="SysWellItemUnselected">
+        <panel border="true" top="0" left="5" height="30" bevel_style="none" layout="topleft" follows="left|top|right|bottom" name="panel_condensed_view">
+          <layout_stack top="0" left="0" width="325" height="50" orientation="horizontal" follows="left|top|right|bottom" name="horizontal_stack">
+            <layout_panel width="30" height="39" orientation="horizontal" follows="left|top|right|bottom" name="layout_panel_right">
+              <group_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="group_icon" tool_tip="Group" default_icon_name="Generic_Group" visible="true"/>
+              <avatar_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="avatar_icon" tool_tip="Avatar" default_icon_name="Generic_Person" visible="false"/>
+              <icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="system_notification_icon" tool_tip="Icon" image_name="System_Notification" visible="false"/>
+            </layout_panel>
+            <layout_panel width="260" height="50" orientation="horizontal" name="layout_panel_middle">
+              <panel border="false" top="0" width="260" height="38" bevel_style="none" follows="left|top|right" layout="topleft" name="main_info_panel">
+                <panel border="false" top="0" left="0" width="260" height="19" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="notification_title_panel">
+                  <text allow_scroll="false" font="SansSerifSmall" top="6" left="0" width="260" height="12" layout="topleft" follows="right|left" text_color="White"
+                    use_ellipses="true" word_wrap="true" mouse_opaque="false" name="notification_title" >
+                    Group Name:Notice Title N o t i c e T i t l e N o t i c e T i t l e N o t i c e T i t l e N oticeTitle
+                  </text>
+                  <icon top="1" left="242" width="21" height="21" image_name="Icon_Attachment_Small" follows="right" mouse_opaque="true" name="attachment_icon" tool_tip="Attachment" visible="false"/>
+                </panel>
+                <panel border="false" top="23" left="0" width="260" height="15" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="sender_time_panel">
+                  <text allow_scroll="false" font="SansSerifSmall" top="0" left="0" width="170" height="13" layout="topleft" follows="right|left"
+                    use_ellipses="true" word_wrap="false" mouse_opaque="false" name="sender_or_fee_box" visible="false">
+                    Sender: "Resident R e s i d e n t R e s i d e n t"
+                  </text>
+                  <text allow_scroll="false" font="SansSerifSmall" top="0" right="-5" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
+                    name="notification_time" value="2014/12/24 23:30" />
+                </panel>
+              </panel>
+            </layout_panel>
+            <layout_panel width="18" height="48" orientation="horizontal" follows="right|top|bottom" name="layout_panel_right">
+              <panel top="0" left="0" width="17"  height="39" follows="left|top|right|bottom" layout="topleft" name="close_expand_panel">
+                <button top="0" left="0" width="17" height="17" layout="topleft" follows="top" name="close_btn" mouse_opaque="true"
+                  tab_stop="false" image_unselected="Icon_Close_Foreground" image_selected="Icon_Close_Press" />
+                <button bottom="-16" right="15" width="17" height="17" layout="topleft" follows="bottom" name="expand_btn" mouse_opaque="true"
+                  tab_stop="false" image_unselected="Notification_Expand" image_selected="Notification_Expand" />
+              </panel>
+            </layout_panel>
+          </layout_stack>
+        </panel>
+      </layout_panel>
+      <layout_panel top="0" left="0" height="196" follows="left|top|right|bottom" layout="topleft" name="layout_panel_expanded_view" visible="true" background_opaque="false" background_visible="true" bg_alpha_color="SysWellItemUnselected">
+        <panel border="true" top="0" left="5" height="196" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="panel_expanded_view">
+          <layout_stack top="0" left="0" width="325" height="196" orientation="horizontal" follows="left|top|right|bottom" name="horizontal_stack">
+            <layout_panel width="30" height="170" orientation="horizontal" follows="left|top|bottom" name="layout_panel_right_exp">
+              <group_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="group_icon_exp" tool_tip="Group" default_icon_name="Generic_Group" visible="true"/>
+              <avatar_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="avatar_icon_exp" tool_tip="Avatar" default_icon_name="Generic_Person" visible="false"/>
+              <icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="system_notification_icon_exp" tool_tip="Icon" image_name="System_Notification" visible="false"/>
+              <icon left="12" top="144" width="20" height="20" name="attachment_icon_exp" tool_tip="Attachment" image_name="Icon_Attachment_Large" follows="left" mouse_opaque="true" visible="false"/>
+            </layout_panel>
+            <layout_panel width="230" height="196" orientation="horizontal" follows="left|top|right|bottom" name="layout_panel_middle_exp">
+              <panel border="false" top="0" width="230" height="196" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="main_info_panel_expanded">
+              <panel border="false" top="0" left="0" width="230" height="30" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_title_panel_exp" >
+                      <text allow_scroll="false" font="SansSerif" top="6" left="0" width="233" height="10" layout="topleft" follows="right|left" text_color="White"
+                        use_ellipses="true" word_wrap="false" mouse_opaque="false" name="notification_title_exp">
+                        Notice Title Notice Title N o t i c e T i t l e N o t i c e T i t l e
+                      </text>
+                      <text allow_scroll="false" font="SansSerif" left="0" width="233" height="10" layout="topleft" follows="right|left" text_color="White"
+                        use_ellipses="true" word_wrap="false" mouse_opaque="false" name="group_name_exp" parse_urls="false" visible="false">
+                        Group Name Group Name Group Na m e e
+                      </text>
+                    </panel>
+                    <panel border="false" left="0" width="230" height="15" bevel_style="none" follows="left|top|right" layout="topleft" name="sender_time_panel_exp">
+                      <text allow_scroll="false" font="SansSerifSmall" top="0" left="0" width="145" height="13" layout="topleft" follows="right|left"
+                        use_ellipses="true" word_wrap="false" mouse_opaque="false" name="sender_or_fee_box_exp" visible="false">
+                        Sender: "Resident R e s i d e n t R e s i d e n t"
+                      </text>
+                      <text allow_scroll="false" font="SansSerifSmall" top="0" right="-1" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
+                        name="notification_time_exp" value="2014/12/24 23:30" />
+                    </panel>
+                    <panel border="false" left="0" height="115" width="230" bevel_style="none" follows="all" layout="topleft" name="notification_text_panel_exp" visible="true">
+                      <chat_editor is_expandable="true" top="0" left="0" width="230" height="110" layout="topleft" follows="left|right"
+                            word_wrap="true" max_length="65536" name="notification_text_exp" parse_urls="true">
+                        Notice text goes here b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. bla bla bla bla bla bla bla bla bla bla bla bla bla .
+                      </chat_editor>
+                    </panel>
+                    <panel border="false" left="1" bottom="-5" width="230" height="22" bevel_style="none" follows="left|right|bottom" layout="topleft" name="attachment_panel" visible="false">
+                      <text allow_scroll="false" font="SansSerifSmall" top="4" left="5" width="220" height="12" layout="topleft" follows="left|top|right|bottom"
+                            use_ellipses="true" word_wrap="true" max_length="96" name="attachment_text">
+                        Attachment goes here b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a b l a bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla .
+                      </text>
+                    </panel>
+                   <panel border="false" left="1" bottom="-5" height="55" bevel_style="none" follows="left|right|bottom" layout="topleft" name="button_panel" visible="false">
+                      <button top="2" left="0" width="65" height="23" layout="topleft" follows="left|top|bottom" name="join_btn" mouse_opaque="true" tab_stop="false" label = "Join"/>                 
+                      <button top="2" left_pad="12" width="65" height="23" layout="topleft" follows="left|top|bottom" name="decline_btn" mouse_opaque="true" tab_stop="false" label = "Decline"/>                  
+                      <button top="2" left_pad="12" width="65" height="23" layout="topleft" follows="left|top|bottom" name="info_btn" mouse_opaque="true" tab_stop="false" label = "Info"/>                  
+                   </panel>
+              </panel>              
+            </layout_panel>             
+            <layout_panel width="18" orientation="horizontal" follows="right|top|bottom" name="layout_panel_left_exp">
+              <panel top="0" left="0" width="17" follows="left|top|right|bottom" layout="topleft" name="close_expand_panel_exp">
+                <button top="0" left="2" width="17" height="17" layout="topleft" follows="top" name="close_expanded_btn" mouse_opaque="true"
+                  tab_stop="false" image_unselected="Icon_Close_Foreground" image_selected="Icon_Close_Press" />
+                <button bottom="5" left="0" width="17" height="17" layout="topleft" follows="bottom" name="condense_btn" mouse_opaque="true"
+                  tab_stop="false" image_unselected="Notification_Condense" image_selected="Notification_Condense" />
+              </panel>
+            </layout_panel>
+          </layout_stack>
+        </panel>
+      </layout_panel>
+    </layout_stack>
+  </panel>
+</panel>

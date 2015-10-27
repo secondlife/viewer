@@ -92,7 +92,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
 							+LLTrans::getString("UTCTimeSec")+"] ["
 							+LLTrans::getString("UTCTimeTimezone")+"]";
 	const LLDate timeStamp = notification->getDate();
-	LLDate notice_date = timeStamp.notNull() ? timeStamp : LLDate::now();
+	LLDate notice_date = timeStamp.notNull() ? timeStamp : payload["received_time"].asDate();
 	LLSD substitution;
 	substitution["datetime"] = (S32) notice_date.secondsSinceEpoch();
 	LLStringUtil::format(timeStr, substitution);
