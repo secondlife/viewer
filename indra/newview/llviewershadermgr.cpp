@@ -44,7 +44,7 @@
 #include "llvosky.h"
 #include "llrender.h"
 #include "lljoint.h"
-#include "lldrawpoolavatar.h"
+#include "llskinningutil.h"
 
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
@@ -876,7 +876,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 
 	boost::unordered_map<std::string, std::string> attribs;
 	attribs["MAX_JOINTS_PER_MESH_OBJECT"] = 
-		boost::lexical_cast<std::string>(LLDrawPoolAvatar::getMaxJointCount());
+		boost::lexical_cast<std::string>(LLSkinningUtil::getMaxJointCount());
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)

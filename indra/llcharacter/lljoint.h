@@ -42,7 +42,7 @@
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
 // BENTO JOINT COUNT LIMIT
 const U32 LL_CHARACTER_MAX_JOINTS = 152; // must be divisible by 4!
-const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 152;
+const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 132;
 
 // FIXME BENTO - these should be higher than the joint_num of any
 // other joint, to avoid conflicts in updateMotionsByType()
@@ -91,8 +91,16 @@ public:
 		POSITION_DIRTY = 0x1 << 2,
 		ALL_DIRTY = 0x7
 	};
+public:
+    enum SupportCategory
+    {
+        SUPPORT_BASE,
+        SUPPORT_EXTENDED
+    };
 protected:
 	std::string	mName;
+
+	SupportCategory mSupport;
 
 	// parent joint
 	LLJoint	*mParent;
@@ -144,6 +152,11 @@ public:
 	const std::string& getName() const { return mName; }
 	void setName( const std::string &name ) { mName = name; }
 
+    // get/set support
+    SupportCategory getSupport() const { return mSupport; }
+    void setSupport( const SupportCategory& support) { mSupport = support; }
+    void setSupport( const std::string& support_string);
+    
 	// getParent
 	LLJoint *getParent() { return mParent; }
 

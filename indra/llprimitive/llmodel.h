@@ -46,7 +46,9 @@ public:
 	std::vector<std::string> mJointNames;
 	std::vector<LLMatrix4> mInvBindMatrix;
 	std::vector<LLMatrix4> mAlternateBindMatrix;
-	std::map<std::string, U32> mJointMap;
+    std::vector<U32> mJointRemap;
+    // BENTO not used?
+	//std::map<std::string, U32> mJointMap;
 
 	LLMeshSkinInfo() { }
 	LLMeshSkinInfo(LLSD& data);

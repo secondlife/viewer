@@ -274,6 +274,7 @@ set(viewer_SOURCE_FILES
     llfloatermodeluploadbase.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
+    llfloaternotificationstabbed.cpp 
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloateroutbox.cpp
@@ -408,6 +409,8 @@ set(viewer_SOURCE_FILES
     llnotificationgrouphandler.cpp
     llnotificationhandlerutil.cpp
     llnotificationhinthandler.cpp
+    llnotificationlistitem.cpp
+    llnotificationlistview.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
@@ -541,6 +544,7 @@ set(viewer_SOURCE_FILES
     llsidepaneliteminfo.cpp
     llsidepaneltaskinfo.cpp
     llsidetraypanelcontainer.cpp
+    llskinningutil.cpp
     llsky.cpp
     llslurl.cpp
     llsnapshotlivepreview.cpp
@@ -893,6 +897,7 @@ set(viewer_HEADER_FILES
     llfloatermodeluploadbase.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
+    llfloaternotificationstabbed.h 
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloateroutbox.h
@@ -1020,6 +1025,8 @@ set(viewer_HEADER_FILES
     llnavigationbar.h
     llnetmap.h
     llnotificationhandler.h
+    llnotificationlistitem.h
+    llnotificationlistview.h
     llnotificationmanager.h
     llnotificationstorage.h
     lloutfitslist.h
@@ -1147,6 +1154,7 @@ set(viewer_HEADER_FILES
     llsidepaneliteminfo.h
     llsidepaneltaskinfo.h
     llsidetraypanelcontainer.h
+    llskinningutil.h
     llsky.h
     llslurl.h
     llsnapshotlivepreview.h

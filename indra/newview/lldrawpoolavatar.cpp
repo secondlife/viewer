@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawpoolavatar.h"
+#include "llskinningutil.h"
 #include "llrender.h"
 
 #include "llvoavatar.h"
@@ -1537,123 +1538,6 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 	buffer->flush();
 }
 
-// static
-U32 LLDrawPoolAvatar::getMaxJointCount()
-{
-    return llmin(LL_MAX_JOINTS_PER_MESH_OBJECT, gSavedSettings.getU32("MaxJointsPerMeshObject"));
-}
-
-// static
-U32 LLDrawPoolAvatar::getMeshJointCount(const LLMeshSkinInfo *skin)
-{
-	return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
-}
-
-// static
-void LLDrawPoolAvatar::initSkinningMatrixPalette(
-    LLMatrix4* mat,
-    S32 count, 
-    const LLMeshSkinInfo* skin,
-    LLVOAvatar *avatar)
-{
-    // BENTO - switching to use Matrix4a and SSE might speed this up.
-    // Note that we are mostly passing Matrix4a's to this routine anyway, just dubiously casted.
-    for (U32 j = 0; j < count; ++j)
-    {
-        LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
-        if (!joint)
-        {
-            joint = avatar->getJoint("mPelvis");
-        }
-        if (joint)
-        {
-#if 0
-            // BENTO HACK - test of simple push-to-ancestor complexity reduction scheme.
-            const std::string& name = joint->getName();
-            S32 digit = name.back()-'0';
-            while (joint->getParent() && (digit<=9) && (digit>=5))
-            {
-                joint = joint->getParent();
-				const std::string& name = joint->getName();
-                digit = name.back()-'0';
-            }
-            U32 j_remap = 0;
-            std::vector<std::string>::const_iterator find_it =
-                std::find(skin->mJointNames.begin(), skin->mJointNames.end(), joint->getName());
-            if (find_it != skin->mJointNames.end())
-            {
-                j_remap = find_it - skin->mJointNames.begin();
-            }
-            // BENTO for hack, use invBindMatrix of up-casted joint
-            mat[j] = skin->mInvBindMatrix[j_remap];
-#endif
-            mat[j] = skin->mInvBindMatrix[j];
-            mat[j] *= joint->getWorldMatrix();
-        }
-    }
-    // This handles a bogus weights case that has turned up in
-    // practice, without the overhead of zeroing every matrix.  We are
-    // doing this here instead of in getPerVertexSkinMatrix so the fix
-    // will also work in the HW skinning case.
-    if (count < LL_MAX_JOINTS_PER_MESH_OBJECT)
-    {
-        mat[count].setIdentity();
-    }
-}
-
-// static
-void LLDrawPoolAvatar::getPerVertexSkinMatrix(
-    F32* weights,
-    LLMatrix4a* mat,
-    bool handle_bad_scale,
-    LLMatrix4a& final_mat,
-    U32 max_joints)
-{
-
-    final_mat.clear();
-
-    S32 idx[4];
-
-    LLVector4 wght;
-
-    F32 scale = 0.f;
-    for (U32 k = 0; k < 4; k++)
-    {
-        F32 w = weights[k];
-
-        // BENTO potential optimizations
-        // - Do clamping in unpackVolumeFaces() (once instead of every time)
-        // - int vs floor: if we know w is
-        // >= 0.0, we can use int instead of floorf; the latter
-        // allegedly has a lot of overhead due to ieeefp error
-        // checking which we should not need.
-        idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)max_joints-1);
-
-        wght[k] = w - floorf(w);
-        scale += wght[k];
-    }
-    if (handle_bad_scale && scale <= 0.f)
-    {
-        wght = LLVector4(1.0f, 0.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        // This is enforced  in unpackVolumeFaces()
-        llassert(scale>0.f);
-        wght *= 1.f/scale;
-    }
-
-    for (U32 k = 0; k < 4; k++)
-    {
-        F32 w = wght[k];
-
-        LLMatrix4a src;
-        src.setMul(mat[idx[k]], w);
-
-        final_mat.add(src);
-    }
-}
-
 void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
     LLVOAvatar* avatar,
     LLFace* face,
@@ -1666,12 +1550,20 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 	{
 		return;
 	}
+    // BENTO ugly const cast
+    LLSkinningUtil::remapSkinInfoJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
 
 	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
 	LLDrawable* drawable = face->getDrawable();
 
 	U32 data_mask = face->getRiggedVertexBufferDataMask();
 	
+    if (!vol_face.mWeightsRemapped)
+    {
+        LLSkinningUtil::remapSkinWeights(weight, vol_face.mNumVertices, skin); 
+        vol_face.mWeightsRemapped = TRUE;
+    }
+
 	if (buffer.isNull() || 
 		buffer->getTypeMask() != data_mask ||
 		buffer->getNumVerts() != vol_face.mNumVertices ||
@@ -1723,17 +1615,18 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		
 		//build matrix palette
 		LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-        U32 count = getMeshJointCount(skin);
-        initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
+        U32 count = LLSkinningUtil::getMeshJointCount(skin);
+        LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
+        LLSkinningUtil::checkSkinWeights(weight, buffer->getNumVerts(), skin);
 
 		LLMatrix4a bind_shape_matrix;
 		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
-        const U32 max_joints = getMaxJointCount();
+        const U32 max_joints = LLSkinningUtil::getMaxJointCount();
 		for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 		{
 			LLMatrix4a final_mat;
-            getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
+            LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
 			
 			LLVector4a& v = vol_face.mPositions[j];
 			LLVector4a t;
@@ -1816,8 +1709,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			{
                 // upload matrix palette to shader
 				LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-				U32 count = getMeshJointCount(skin);
-                initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
+				U32 count = LLSkinningUtil::getMeshJointCount(skin);
+                LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
 
 				stop_glerror();
 

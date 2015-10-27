@@ -1,64 +1,63 @@
-<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
-<linden_skeleton version="1.0" num_bones="152" num_collision_volumes="26">
-  <bone name="mPelvis" pos="0.000 0.000 1.067" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 1.067015">
-	<collision_volume name="PELVIS" pos = "-0.01 0 -0.02" rot="0.000000 8.00000 0.000000" scale="0.12 0.16 0.17"/>
-	<collision_volume name="BUTT" pos = "-0.06 0 -0.1" rot="0.000000 0.00000 0.000000" scale="0.1 0.1 0.1"/>
-	<bone name="mTorso" pos="0.000 0.000 0.084" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 0.084073">
-      <collision_volume name="BELLY" pos = "0.028 0 0.04" rot="0.000000 8.00000 0.000000" scale="0.09 0.13 0.15"/>
-      <collision_volume name="LOWER_BACK" pos = "0.0 0.0 0.023" rot="0.000000 0.00000 0.000000" scale="0.09 0.13 0.15"/>
-      <collision_volume name="LEFT_HANDLE" pos = "0.0 0.10 0.058" rot="0.000000 0.00000 0.000000" scale="0.05 0.05 0.05"/>
-      <collision_volume name="RIGHT_HANDLE" pos = "0.0 -0.10 0.058" rot="0.000000 0.00000 0.000000" scale="0.05 0.05 0.05"/>
-      <bone name="mChest" pos="-0.015 0.000 0.205" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.015368 0.000000 0.204877">
-        <collision_volume name="CHEST" pos = "0.028 0 0.07" rot="0.000000 -10.00000 0.000000" scale="0.11 0.15 0.2"/>
-        <collision_volume name="UPPER_BACK" pos = "0.0 0.0 0.017" rot="0.000000 0.00000 0.000000" scale="0.09 0.13 0.15"/>
-        <collision_volume name="LEFT_PEC" pos = "0.119 0.082 0.042" rot="0.000000 4.29000 0.000000" scale="0.05 0.05 0.05"/>
-        <collision_volume name="RIGHT_PEC" pos = "0.119 -0.082 0.042" rot="0.000000 4.29000 0.000000" scale="0.05 0.05 0.05"/>
-        <bone name="mNeck" pos="-0.010 0.000 0.251" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.009507 0.000000 0.251108">
-          <collision_volume name="NECK" pos = "0.0 0 0.02" rot="0.000000 0.000000 0.000000" scale="0.05 0.06 0.08"/>
-          <bone name="mHead" pos="0.000 -0.000 0.076" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.000000 0.075630">
-            <collision_volume name="HEAD" pos = "0.02 0 0.07" rot="0.000000 0.000000 0.000000" scale="0.11 0.09 0.12"/>
-            <bone name="mSkull" pos="0.000 0.000 0.079" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 0.079000">
+<linden_skeleton version="1.0" num_bones="152" num_collision_volumes="26" support="base">
+  <bone name="mPelvis" pos="0.000 0.000 1.067" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 1.067015" support="base">
+	<collision_volume name="PELVIS" pos="-0.01 0 -0.02" rot="0.000000 8.00000 0.000000" scale="0.12 0.16 0.17" support="base"/>
+	<collision_volume name="BUTT" pos="-0.06 0 -0.1" rot="0.000000 0.00000 0.000000" scale="0.1 0.1 0.1" support="base"/>
+	<bone name="mTorso" pos="0.000 0.000 0.084" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 0.084073" support="base">
+      <collision_volume name="BELLY" pos="0.028 0 0.04" rot="0.000000 8.00000 0.000000" scale="0.09 0.13 0.15" support="base"/>
+      <collision_volume name="LOWER_BACK" pos="0.0 0.0 0.023" rot="0.000000 0.00000 0.000000" scale="0.09 0.13 0.15" support="base"/>
+      <collision_volume name="LEFT_HANDLE" pos="0.0 0.10 0.058" rot="0.000000 0.00000 0.000000" scale="0.05 0.05 0.05" support="base"/>
+      <collision_volume name="RIGHT_HANDLE" pos="0.0 -0.10 0.058" rot="0.000000 0.00000 0.000000" scale="0.05 0.05 0.05" support="base"/>
+      <bone name="mChest" pos="-0.015 0.000 0.205" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.015368 0.000000 0.204877" support="base">
+        <collision_volume name="CHEST" pos="0.028 0 0.07" rot="0.000000 -10.00000 0.000000" scale="0.11 0.15 0.2" support="base"/>
+        <collision_volume name="UPPER_BACK" pos="0.0 0.0 0.017" rot="0.000000 0.00000 0.000000" scale="0.09 0.13 0.15" support="base"/>
+        <collision_volume name="LEFT_PEC" pos="0.119 0.082 0.042" rot="0.000000 4.29000 0.000000" scale="0.05 0.05 0.05" support="base"/>
+        <collision_volume name="RIGHT_PEC" pos="0.119 -0.082 0.042" rot="0.000000 4.29000 0.000000" scale="0.05 0.05 0.05" support="base"/>
+        <bone name="mNeck" pos="-0.010 0.000 0.251" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.009507 0.000000 0.251108" support="base">
+          <collision_volume name="NECK" pos="0.0 0 0.02" rot="0.000000 0.000000 0.000000" scale="0.05 0.06 0.08" support="base"/>
+          <bone name="mHead" pos="0.000 -0.000 0.076" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.000000 0.075630" support="base">
+            <collision_volume name="HEAD" pos="0.02 0 0.07" rot="0.000000 0.000000 0.000000" scale="0.11 0.09 0.12" support="base"/>
+            <bone name="mSkull" pos="0.000 0.000 0.079" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.000000 0.079000" support="base">
             </bone>
-            <bone name="mEyeRight" pos="0.098 -0.036 0.079" rot="0.000000 0.000000 -0.000000" scale="1.000 1.000 1.000" pivot="0.098466 -0.036000 0.079000">
+            <bone name="mEyeRight" pos="0.098 -0.036 0.079" rot="0.000000 0.000000 -0.000000" scale="1.000 1.000 1.000" pivot="0.098466 -0.036000 0.079000" support="base">
             </bone>
-            <bone name="mEyeLeft" pos="0.098 0.036 0.079" rot="0.000000 -0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.098461 0.036000 0.079000">
+            <bone name="mEyeLeft" pos="0.098 0.036 0.079" rot="0.000000 -0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.098461 0.036000 0.079000" support="base">
             </bone>
           </bone>
         </bone>
-        <bone name="mCollarLeft" pos="-0.021 0.085 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.020927 0.084665 0.165396">
-          <collision_volume name="L_CLAVICLE" pos = "0.02 0 0.02" rot="0.000000 0.00000 0.000000" scale="0.07 0.14 0.05"/>
-          <bone name="mShoulderLeft" pos="0.000 0.079 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000">
-            <collision_volume name="L_UPPER_ARM" pos = "0.0 0.12 0.01" rot="-5.000000 0.00000 0.000000" scale="0.05 0.17 0.05"/>
-            <bone name="mElbowLeft" pos="0.000 0.248 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.248000 0.000000">
-              <collision_volume name="L_LOWER_ARM" pos = "0.0 0.1 0.0" rot="-3.000000 0.00000 0.000000" scale="0.04 0.14 0.04"/>
-              <bone name="mWristLeft" pos="-0.000 0.205 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000000 0.204846 0.000000">
-                <collision_volume name="L_HAND" pos = "0.01 0.05 0.0" rot="-3.000000 0.00000 -10.000000" scale="0.05 0.08 0.03"/>
+        <bone name="mCollarLeft" pos="-0.021 0.085 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.020927 0.084665 0.165396" support="base">
+          <collision_volume name="L_CLAVICLE" pos="0.02 0 0.02" rot="0.000000 0.00000 0.000000" scale="0.07 0.14 0.05" support="base"/>
+          <bone name="mShoulderLeft" pos="0.000 0.079 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.079000 -0.000000" support="base">
+            <collision_volume name="L_UPPER_ARM" pos="0.0 0.12 0.01" rot="-5.000000 0.00000 0.000000" scale="0.05 0.17 0.05" support="base"/>
+            <bone name="mElbowLeft" pos="0.000 0.248 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 0.248000 0.000000" support="base">
+              <collision_volume name="L_LOWER_ARM" pos="0.0 0.1 0.0" rot="-3.000000 0.00000 0.000000" scale="0.04 0.14 0.04" support="base"/>
+              <bone name="mWristLeft" pos="-0.000 0.205 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000000 0.204846 0.000000" support="base">
+                <collision_volume name="L_HAND" pos="0.01 0.05 0.0" rot="-3.000000 0.00000 -10.000000" scale="0.05 0.08 0.03" support="base"/>
               </bone>
             </bone>
           </bone>
         </bone>
-        <bone name="mCollarRight" pos="-0.021 -0.085 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.020927 -0.085000 0.165396">
-          <collision_volume name="R_CLAVICLE" pos = "0.02 0 0.02" rot="0.000000 0.00000 0.000000" scale="0.07 0.14 0.05"/>
-          <bone name="mShoulderRight" pos="0.000 -0.079 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.079418 -0.000000">
-            <collision_volume name="R_UPPER_ARM" pos = "0.0 -0.12 0.01" rot="5.000000 0.00000 0.000000" scale="0.05 0.17 0.05"/>
-            <bone name="mElbowRight" pos="0.000 -0.248 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.248000 -0.000000">
-              <collision_volume name="R_LOWER_ARM" pos = "0.0 -0.1 0.0" rot="3.000000 0.00000 0.000000" scale="0.04 0.14 0.04"/>
-              <bone name="mWristRight" pos="0.000 -0.205 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000000 -0.205000 -0.000000">
-                <collision_volume name="R_HAND" pos = "0.01 -0.05 0.0" rot="3.000000 0.00000 10.000000" scale="0.05 0.08 0.03"/>
+        <bone name="mCollarRight" pos="-0.021 -0.085 0.165" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.020927 -0.085000 0.165396" support="base">
+          <collision_volume name="R_CLAVICLE" pos="0.02 0 0.02" rot="0.000000 0.00000 0.000000" scale="0.07 0.14 0.05" support="base"/>
+          <bone name="mShoulderRight" pos="0.000 -0.079 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.079418 -0.000000" support="base">
+            <collision_volume name="R_UPPER_ARM" pos="0.0 -0.12 0.01" rot="5.000000 0.00000 0.000000" scale="0.05 0.17 0.05" support="base"/>
+            <bone name="mElbowRight" pos="0.000 -0.248 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.000000 -0.248000 -0.000000" support="base">
+              <collision_volume name="R_LOWER_ARM" pos="0.0 -0.1 0.0" rot="3.000000 0.00000 0.000000" scale="0.04 0.14 0.04" support="base"/>
+              <bone name="mWristRight" pos="0.000 -0.205 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000000 -0.205000 -0.000000" support="base">
+                <collision_volume name="R_HAND" pos="0.01 -0.05 0.0" rot="3.000000 0.00000 10.000000" scale="0.05 0.08 0.03" support="base"/>
               </bone>
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle0_0" pos="0.0 0.0 0.0" rot="0.0 0.0 0.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle0_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle0_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle0_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle0_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle0_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle0_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle0_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle0_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle0_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle0_0" pos="0.0 0.0 0.0" rot="0.0 0.0 0.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle0_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle0_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle0_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle0_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle0_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle0_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle0_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle0_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle0_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -69,16 +68,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle1_0" pos="0.0 0.0 0.0" rot="0.0 0.0 36.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle1_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle1_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle1_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle1_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle1_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle1_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle1_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle1_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle1_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle1_0" pos="0.0 0.0 0.0" rot="0.0 0.0 36.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle1_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle1_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle1_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle1_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle1_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle1_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle1_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle1_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle1_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -89,16 +88,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle2_0" pos="0.0 0.0 0.0" rot="0.0 0.0 72.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle2_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle2_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle2_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle2_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle2_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle2_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle2_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle2_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle2_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle2_0" pos="0.0 0.0 0.0" rot="0.0 0.0 72.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle2_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle2_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle2_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle2_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle2_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle2_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle2_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle2_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle2_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -109,16 +108,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle3_0" pos="0.0 0.0 0.0" rot="0.0 0.0 108.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle3_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle3_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle3_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle3_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle3_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle3_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle3_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle3_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle3_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle3_0" pos="0.0 0.0 0.0" rot="0.0 0.0 108.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle3_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle3_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle3_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle3_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle3_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle3_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle3_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle3_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle3_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -129,16 +128,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle4_0" pos="0.0 0.0 0.0" rot="0.0 0.0 144.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle4_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle4_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle4_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle4_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle4_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle4_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle4_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle4_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle4_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle4_0" pos="0.0 0.0 0.0" rot="0.0 0.0 144.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle4_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle4_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle4_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle4_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle4_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle4_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle4_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle4_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle4_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -149,16 +148,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle5_0" pos="0.0 0.0 0.0" rot="0.0 0.0 180.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle5_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle5_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle5_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle5_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle5_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle5_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle5_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle5_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle5_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle5_0" pos="0.0 0.0 0.0" rot="0.0 0.0 180.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle5_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle5_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle5_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle5_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle5_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle5_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle5_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle5_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle5_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -169,16 +168,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle6_0" pos="0.0 0.0 0.0" rot="0.0 0.0 216.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle6_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle6_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle6_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle6_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle6_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle6_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle6_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle6_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle6_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle6_0" pos="0.0 0.0 0.0" rot="0.0 0.0 216.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle6_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle6_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle6_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle6_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle6_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle6_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle6_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle6_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle6_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -189,16 +188,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle7_0" pos="0.0 0.0 0.0" rot="0.0 0.0 252.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle7_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle7_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle7_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle7_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle7_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle7_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle7_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle7_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle7_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle7_0" pos="0.0 0.0 0.0" rot="0.0 0.0 252.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle7_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle7_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle7_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle7_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle7_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle7_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle7_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle7_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle7_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -209,16 +208,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle8_0" pos="0.0 0.0 0.0" rot="0.0 0.0 288.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle8_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle8_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle8_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle8_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle8_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle8_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle8_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle8_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle8_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle8_0" pos="0.0 0.0 0.0" rot="0.0 0.0 288.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle8_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle8_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle8_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle8_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle8_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle8_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle8_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle8_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle8_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -229,16 +228,16 @@
             </bone>
           </bone>
         </bone>
-        <bone name="mTentacle9_0" pos="0.0 0.0 0.0" rot="0.0 0.0 324.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0">
-          <bone name="mTentacle9_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-            <bone name="mTentacle9_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-              <bone name="mTentacle9_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                <bone name="mTentacle9_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                  <bone name="mTentacle9_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                    <bone name="mTentacle9_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                      <bone name="mTentacle9_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                        <bone name="mTentacle9_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
-                          <bone name="mTentacle9_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0">
+        <bone name="mTentacle9_0" pos="0.0 0.0 0.0" rot="0.0 0.0 324.000000" scale="1.0 1.0 1.0" pivot="0.0 0.0 0.0" support="extended">
+          <bone name="mTentacle9_1" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+            <bone name="mTentacle9_2" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+              <bone name="mTentacle9_3" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                <bone name="mTentacle9_4" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                  <bone name="mTentacle9_5" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                    <bone name="mTentacle9_6" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                      <bone name="mTentacle9_7" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                        <bone name="mTentacle9_8" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
+                          <bone name="mTentacle9_9" pos="0.100000 0.0 0.0" rot="0.0 0.0 0.0" scale="1.0 1.0 1.0" pivot="0.1 0.0 0.0" support="extended">
                           </bone>
                         </bone>
                       </bone>
@@ -251,27 +250,27 @@
         </bone>
       </bone>
 	</bone>
-	<bone name="mHipRight" pos="0.034 -0.129 -0.041" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.033620 -0.128806 -0.041086">
-      <collision_volume name="R_UPPER_LEG" pos = "-0.02 0.05 -0.22" rot="0.000000 0.00000 0.000000" scale="0.09 0.09 0.32"/>
-      <bone name="mKneeRight" pos="-0.001 0.049 -0.491" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000780 0.048635 -0.490922">
-        <collision_volume name="R_LOWER_LEG" pos = "-0.02 0.0 -0.2" rot="0.000000 0.00000 0.000000" scale="0.06 0.06 0.25"/>
-        <bone name="mAnkleRight" pos="-0.029 0.000 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.028869 0.000000 -0.468494">
-          <collision_volume name="R_FOOT"  pos = "0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05"/>
-          <bone name="mFootRight" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.111956 -0.000000 -0.060637">
-            <bone name="mToeRight" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.105399 -0.010408 -0.000104">
+	<bone name="mHipRight" pos="0.034 -0.129 -0.041" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.033620 -0.128806 -0.041086" support="base">
+      <collision_volume name="R_UPPER_LEG" pos="-0.02 0.05 -0.22" rot="0.000000 0.00000 0.000000" scale="0.09 0.09 0.32" support="base"/>
+      <bone name="mKneeRight" pos="-0.001 0.049 -0.491" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000780 0.048635 -0.490922" support="base">
+        <collision_volume name="R_LOWER_LEG" pos="-0.02 0.0 -0.2" rot="0.000000 0.00000 0.000000" scale="0.06 0.06 0.25" support="base"/>
+        <bone name="mAnkleRight" pos="-0.029 0.000 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.028869 0.000000 -0.468494" support="base">
+          <collision_volume name="R_FOOT" pos="0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05" support="base"/>
+          <bone name="mFootRight" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.111956 -0.000000 -0.060637" support="base">
+            <bone name="mToeRight" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.105399 -0.010408 -0.000104" support="base">
             </bone>
           </bone>
         </bone>
       </bone>
 	</bone>
-	<bone name="mHipLeft" pos="0.034 0.127 -0.041" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.033757 0.126765 -0.040998">
-      <collision_volume name="L_UPPER_LEG" pos = "-0.02 -0.05 -0.22" rot="0.000000 0.00000 0.000000" scale="0.09 0.09 0.32"/>
-      <bone name="mKneeLeft" pos="-0.001 -0.046 -0.491" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000887 -0.045568 -0.491053">
-        <collision_volume name="L_LOWER_LEG" pos = "-0.02 0.0 -0.2" rot="0.000000 0.00000 0.000000" scale="0.06 0.06 0.25"/>
-        <bone name="mAnkleLeft" pos="-0.029 0.001 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.028887 0.001378 -0.468449">
-          <collision_volume name="L_FOOT" pos = "0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05"/>
-          <bone name="mFootLeft" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.111956 -0.000000 -0.060620">
-            <bone name="mToeLeft" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.105387 0.008270 0.000871">
+	<bone name="mHipLeft" pos="0.034 0.127 -0.041" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.033757 0.126765 -0.040998" support="base">
+      <collision_volume name="L_UPPER_LEG" pos="-0.02 -0.05 -0.22" rot="0.000000 0.00000 0.000000" scale="0.09 0.09 0.32" support="base"/>
+      <bone name="mKneeLeft" pos="-0.001 -0.046 -0.491" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.000887 -0.045568 -0.491053" support="base">
+        <collision_volume name="L_LOWER_LEG" pos="-0.02 0.0 -0.2" rot="0.000000 0.00000 0.000000" scale="0.06 0.06 0.25" support="base"/>
+        <bone name="mAnkleLeft" pos="-0.029 0.001 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="-0.028887 0.001378 -0.468449" support="base">
+          <collision_volume name="L_FOOT" pos="0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05" support="base"/>
+          <bone name="mFootLeft" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.111956 -0.000000 -0.060620" support="base">
+            <bone name="mToeLeft" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" pivot="0.105387 0.008270 0.000871" support="base">
             </bone>
           </bone>
         </bone>
