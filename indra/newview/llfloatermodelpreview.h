@@ -300,8 +300,6 @@ public:
 	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
 	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
 	
-	LLVector3 getTranslationForJointOffset( std::string joint );
-
 	static bool 		sIgnoreLoadedCallback;
 
 protected:

@@ -103,6 +103,5 @@ protected:
 
 private:
 	U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
-
 };
 #endif  // LL_LLDAELLOADER_H

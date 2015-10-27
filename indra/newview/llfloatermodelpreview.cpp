@@ -1721,6 +1721,13 @@ void LLModelPreview::getLegalJointNames(JointNameSet& legal_joint_names)
             legal_joint_names.push_back(joint->getName());
         }
     }
+    
+    std::stringstream cvstr;
+    for (S32 i = 0; i < av->mNumCollisionVolumes; i++)
+    {
+        legal_joint_names.push_back(av->mCollisionVolumes[i].getName());
+        cvstr << legal_joint_names[i];
+    }
 }
 
 void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable_slm)
@@ -3351,19 +3358,6 @@ void LLModelPreview::update()
 	}
 }
 
-//-----------------------------------------------------------------------------
-// getTranslationForJointOffset()
-//-----------------------------------------------------------------------------
-LLVector3 LLModelPreview::getTranslationForJointOffset( std::string joint )
-{
-	LLMatrix4 jointTransform;
-	if ( mJointTransformMap.find( joint ) != mJointTransformMap.end() )
-	{
-		jointTransform = mJointTransformMap[joint];
-		return jointTransform.getTranslation();
-	}
-	return LLVector3(0.0f,0.0f,0.0f);								
-}
 //-----------------------------------------------------------------------------
 // createPreviewAvatar
 //-----------------------------------------------------------------------------

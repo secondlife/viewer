@@ -1303,8 +1303,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 									mat.mMatrix[i][j] = transform[k*16 + i + j*4];
 								}
 							}
-
-							model->mSkinInfo.mInvBindMatrix.push_back(mat);											
+							model->mSkinInfo.mInvBindMatrix.push_back(mat);
 						}
 					}
 				}
@@ -1362,20 +1361,15 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 			std::string lookingForJoint = (*jointIt).c_str();
 			//Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
 			//and store it in the alternate bind matrix
-			if ( mJointList.find( lookingForJoint ) != mJointList.end() )
+			if ( mJointMap.find( lookingForJoint ) != mJointMap.end() )
 			{
-				LLMatrix4 jointTransform = mJointList[lookingForJoint];
 				LLMatrix4 newInverse = model->mSkinInfo.mInvBindMatrix[i];
 				newInverse.setTranslation( mJointList[lookingForJoint].getTranslation() );
 				model->mSkinInfo.mAlternateBindMatrix.push_back( newInverse );
             }
 			else
 			{
-				LL_WARNS()<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<LL_ENDL;
-                //SL-202 15-31-10 Placeholders for the collision volume joints to keep array aligned.
-                LLMatrix4 emptyInverse;
-                emptyInverse.setZero();
-                model->mSkinInfo.mAlternateBindMatrix.push_back( emptyInverse );
+                LL_WARNS()<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<LL_ENDL;
 			}
 		}
 

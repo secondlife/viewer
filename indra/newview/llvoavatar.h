@@ -68,11 +68,8 @@ class LLVoiceVisualizer;
 class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
-struct LLVOAvatarBoneInfo;
-struct LLVOAvatarChildJoint;
-//class LLViewerJoint;
+
 struct LLAppearanceMessageContents;
-struct LLVOAvatarSkeletonInfo;
 class LLViewerJointMesh;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -213,24 +213,6 @@ struct LLTextureMaskData
  **
  **/
 
-//------------------------------------------------------------------------
-// LLVOAvatarBoneInfo
-// Trans/Scale/Rot etc. info about each avatar bone.  Used by LLVOAvatarSkeleton.
-//------------------------------------------------------------------------
-struct LLVOAvatarCollisionVolumeInfo : public LLInitParam::Block<LLVOAvatarCollisionVolumeInfo>
-{
-	LLVOAvatarCollisionVolumeInfo() 
-	:	name("name"),
-		pos("pos"),
-		rot("rot"),
-		scale("scale")
-	{}
-
-	Mandatory<std::string>	name;
-	Mandatory<LLVector3>	pos,
-							rot,
-							scale;
-};
 
 struct LLAppearanceMessageContents
 {
@@ -251,49 +233,6 @@ struct LLAppearanceMessageContents
 	LLVector3 mHoverOffset;
 	bool mHoverOffsetWasSet;
 };
-
-struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoint>
-	{
-	Alternative<Lazy<struct LLVOAvatarBoneInfo, IS_A_BLOCK> >	bone;
-	Alternative<LLVOAvatarCollisionVolumeInfo>		collision_volume;
-	
-	LLVOAvatarChildJoint()
-	:	bone("bone"),
-		collision_volume("collision_volume")
-	{}
-};
-
-	
-
-struct LLVOAvatarBoneInfo : public LLInitParam::Block<LLVOAvatarBoneInfo, LLVOAvatarCollisionVolumeInfo>
-{
-	LLVOAvatarBoneInfo() 
-	:	pivot("pivot")
-	{}
-	
-	Mandatory<LLVector3>					pivot;
-	Multiple<LLVOAvatarChildJoint>			children;
-};
-
-//------------------------------------------------------------------------
-// LLVOAvatarSkeletonInfo
-// Overall avatar skeleton
-//------------------------------------------------------------------------
-struct LLVOAvatarSkeletonInfo : public LLInitParam::Block<LLVOAvatarSkeletonInfo>
-{
-	LLVOAvatarSkeletonInfo()
-	:	skeleton_root(""),
-		num_bones("num_bones"),
-		num_collision_volumes("num_collision_volumes"),
-		version("version")
-	{}
-	
-	Mandatory<std::string>			version;
-	Mandatory<S32>					num_bones,
-									num_collision_volumes;
-	Mandatory<LLVOAvatarChildJoint>	skeleton_root;
-};
-
 
 
 //-----------------------------------------------------------------------------
@@ -1527,7 +1466,7 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 		for (S32 i = 0; i < mNumCollisionVolumes; ++i)
 		{
 			mCollisionVolumes[i].updateWorldMatrix();
-
+            
 			glh::matrix4f mat((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix);
 			glh::matrix4f inverse = mat.inverse();
 			glh::matrix4f norm_mat = inverse.transpose();
