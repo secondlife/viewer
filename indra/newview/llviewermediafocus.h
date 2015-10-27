@@ -88,6 +88,10 @@ public:
 	// Return the ID of the media instance the controls are currently attached to (either focus or hover).
 	LLUUID getControlsMediaID();
 
+    // The MoaP object wants keyup and keydown events.  Overridden to return true.
+    virtual bool    wantsKeyUpKeyDown() const;
+    virtual bool    wantsReturnKey() const;
+
 protected:
 	/*virtual*/ void	onFocusReceived();
 	/*virtual*/ void	onFocusLost();

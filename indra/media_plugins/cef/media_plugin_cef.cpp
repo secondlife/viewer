@@ -734,6 +734,8 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
+    //if ((msg == WM_CHAR) && (key_event == ))
+
 	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
 };

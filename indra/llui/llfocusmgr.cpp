@@ -58,6 +58,18 @@ BOOL LLFocusableElement::handleUnicodeChar(llwchar uni_char, BOOL called_from_pa
 	return FALSE;
 }
 
+// virtual 
+bool LLFocusableElement::wantsKeyUpKeyDown() const
+{
+    return false;
+}
+
+//virtual 
+bool LLFocusableElement::wantsReturnKey() const
+{
+    return false;
+}
+
 // virtual
 LLFocusableElement::~LLFocusableElement()
 {

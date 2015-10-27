@@ -172,6 +172,10 @@ public:
 
 		void updateContextMenuParent(LLView* pNewParent);
 
+        // The Browser windows want keyup and keydown events. Overridden from LLFocusableElement to return true.
+        virtual bool    wantsKeyUpKeyDown() const;
+        virtual bool    wantsReturnKey() const;
+
 	protected:
 		void convertInputCoords(S32& x, S32& y);
 

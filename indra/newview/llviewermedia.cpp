@@ -286,11 +286,11 @@ public:
 		const LLIOPipe::buffer_ptr_t& buffer)
 	{
 		const std::string url = getURL();
-		llinfos << "@@@ URL to set cookie on" << url << llendl;
+		LL_INFOS() << "@@@ URL to set cookie on" << url << LL_ENDL;
 
 		// We don't care about the content of the response, only the Set-Cookie header.
-		llinfos << dumpResponse()
-				<< " [headers:" << getResponseHeaders() << "]" << llendl;
+		LL_INFOS() << dumpResponse()
+				<< " [headers:" << getResponseHeaders() << "]" << LL_ENDL;
 		const std::string& cookie = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
 
 		// *TODO: What about bad status codes?  Does this destroy previous cookies?
@@ -2759,8 +2759,7 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 
 		if (!result)
 		{
-
-			LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+            LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
 			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN, key, mask, native_key_data);
 		}
 	}
