@@ -57,6 +57,7 @@ public:
 		JointTransformMap&					jointTransformMap,
 		JointNameSet&						jointsFromNodes,
         JointNameSet&						legalJointNames,
+        U32									maxJointsPerMesh,
 		U32									modelLimit);
 	virtual ~LLDAELoader() ;
 

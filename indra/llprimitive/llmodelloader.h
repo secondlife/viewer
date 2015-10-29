@@ -117,6 +117,7 @@ public:
 	JointMap			mJointMap;
 	JointTransformMap&	mJointList;	
 	JointNameSet&		mJointsFromNode;
+    U32					mMaxJointsPerMesh;
 
 	LLModelLoader(
 		std::string							filename,
@@ -128,7 +129,8 @@ public:
 		void*								opaque_userdata,
 		JointTransformMap&					jointTransformMap,
 		JointNameSet&						jointsFromNodes,
-        JointNameSet&						legalJointNames);
+        JointNameSet&						legalJointNames,
+        U32									maxJointsPerMesh);
 	virtual ~LLModelLoader() ;
 
 	virtual void setNoNormalize() { mNoNormalize = true; }
