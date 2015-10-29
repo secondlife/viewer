@@ -239,7 +239,7 @@ do
       build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
       if `cat "$build_dir/build_ok"`
       then
-          if [ "$variant" == "Release" -o "$variant" == "Doxygen" ]
+          if [ "$variant" == "Release" ]
           then
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
@@ -410,6 +410,7 @@ then
             (cd "$build_dir/doxygen/html"; tar cjf "$build_dir/viewer-doxygen.tar.bz2" .)
             upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
         fi
+        ;;
       *)
         echo "Skipping mapfile for $last_built_variant"
         ;;
