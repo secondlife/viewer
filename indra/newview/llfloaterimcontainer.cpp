@@ -1925,19 +1925,17 @@ bool LLFloaterIMContainer::canBanSelectedMember(const LLUUID& participant_uuid)
 
 	if (gdatap->isRoleMemberDataComplete())
 	{
-		if (!gdatap->mMembers.size())
-		{
-			return false;
-		}
-
-		LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find((participant_uuid));
-		if (mi != gdatap->mMembers.end())
-		{
-			LLGroupMemberData* member_data = (*mi).second;
-			// Is the member an owner?
-			if (member_data && member_data->isInRole(gdatap->mOwnerRole))
+		if (gdatap->mMembers.size())
+		{			
+			LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find((participant_uuid));
+			if (mi != gdatap->mMembers.end())
 			{
-				return false;
+				LLGroupMemberData* member_data = (*mi).second;
+				// Is the member an owner?
+				if (member_data && member_data->isInRole(gdatap->mOwnerRole))
+				{
+					return false;
+				}
 			}
 		}
 	}
