@@ -192,11 +192,14 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    std::string translation, detected_lang, err_msg;
+    std::string translation, err_msg;
+    std::string detected_lang(fromTo.second);
 
     int parseResult = status.getType();
-    if (this->parseResponse(parseResult, result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asString(), 
-        translation, detected_lang, err_msg))
+    const LLSD::Binary &rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+    std::string body(rawBody.cbegin(), rawBody.cend());
+
+    if (this->parseResponse(parseResult, body, translation, detected_lang, err_msg))
     {
         // Fix up the response
         LLStringUtil::replaceString(translation, "&lt;", "<");

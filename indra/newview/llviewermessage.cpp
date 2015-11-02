@@ -3496,7 +3496,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
 {
     // filter out non-interesting responses  
     if (!translation.empty()
-        && (expectLang != detected_language)
+        && ((detected_language.empty()) || (expectLang != detected_language))
         && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
     {
         chat.mText += " (" + translation + ")";
