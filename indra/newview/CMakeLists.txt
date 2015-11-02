@@ -1375,7 +1375,6 @@ if (DARWIN)
   set(viewer_RESOURCE_FILES
     secondlife.icns
     macview.r
-    gpu_table.txt
     Info-SecondLife.plist
     SecondLife.xib/
     # CMake doesn't seem to support Xcode language variants well just yet
