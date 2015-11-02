@@ -113,6 +113,7 @@ U32 get_proxy_joint_index(U32 joint_index, LLVOAvatar *avatar, std::vector<std::
 void LLSkinningUtil::initClass()
 {
     sIncludeEnhancedSkeleton = gSavedSettings.getBOOL("IncludeEnhancedSkeleton");
+	// BENTO - remove MaxJointsPerMeshObject before release.
     sMaxJointsPerMeshObject = gSavedSettings.getU32("MaxJointsPerMeshObject");
 }
 
