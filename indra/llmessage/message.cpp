@@ -77,6 +77,7 @@
 #include "v3math.h"
 #include "v4math.h"
 #include "lltransfertargetvfile.h"
+#include "llpounceable.h"
 
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
@@ -1776,7 +1777,9 @@ std::ostream& operator<<(std::ostream& s, LLMessageSystem &msg)
 	return s;
 }
 
-LLMessageSystem	*gMessageSystem = NULL;
+// LLPounceable supports callWhenReady(), to permit clients to queue up (e.g.)
+// callback registrations for when gMessageSystem is first assigned
+LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 
 // update appropriate ping info
 void	process_complete_ping_check(LLMessageSystem *msgsystem, void** /*user_data*/)
@@ -2693,7 +2696,7 @@ void end_messaging_system(bool print_summary)
 			LL_INFOS("Messaging") << str.str().c_str() << LL_ENDL;
 		}
 
-		delete gMessageSystem;
+		delete static_cast<LLMessageSystem*>(gMessageSystem);
 		gMessageSystem = NULL;
 	}
 }

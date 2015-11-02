@@ -103,7 +103,7 @@ namespace tut
 		~LLMessageSystemTestData()
 		{
 			// not end_messaging_system()
-			delete gMessageSystem;
+			delete static_cast<LLMessageSystem*>(gMessageSystem);
 			gMessageSystem = NULL;
 
 			// rm contents of temp dir

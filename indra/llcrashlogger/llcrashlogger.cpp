@@ -45,6 +45,7 @@
 #include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llproxy.h"
+#include "llcleanup.h"
  
 LLPumpIO* gServicePump = NULL;
 BOOL gBreak = false;
@@ -587,5 +588,5 @@ bool LLCrashLogger::init()
 void LLCrashLogger::commonCleanup()
 {
 	LLError::logToFile("");   //close crashreport.log
-	LLProxy::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLProxy);
 }

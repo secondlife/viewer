@@ -334,7 +334,7 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 	// deal with L$ errors
 	if (reason == "insufficient funds")
 	{
-		S32 price = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		S32 price = LLGlobalEconomy::getInstance()->getPriceUpload();
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", price);
 		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("uploading_costs", args), price );
@@ -405,7 +405,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		asset_type == LLAssetType::AT_MESH)
 	{
 		expected_upload_cost = 
-			LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+			LLGlobalEconomy::getInstance()->getPriceUpload();
 	}
 
 	on_new_single_inventory_upload_complete(
@@ -467,7 +467,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 			everyone_perms,
 			display_name,
 			callback,
-			LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(),
+			LLGlobalEconomy::getInstance()->getPriceUpload(),
 			userdata);
 	}
 

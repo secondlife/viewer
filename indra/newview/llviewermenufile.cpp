@@ -83,7 +83,7 @@ class LLFileEnableUpload : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+		bool new_value = gStatusBar && LLGlobalEconomy::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::getInstance()->getPriceUpload());
 		return new_value;
 	}
 };
@@ -433,7 +433,7 @@ class LLFileUploadBulk : public view_listener_t
 			
 			std::string display_name = LLStringUtil::null;
 			LLAssetStorage::LLStoreAssetCallback callback = NULL;
-			S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+			S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 			void *userdata = NULL;
 
 			upload_new_resource(
