@@ -197,7 +197,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 
     int parseResult = status.getType();
     const LLSD::Binary &rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
-    std::string body(rawBody.cbegin(), rawBody.cend());
+    std::string body(rawBody.begin(), rawBody.end());
 
     if (this->parseResponse(parseResult, body, translation, detected_lang, err_msg))
     {
