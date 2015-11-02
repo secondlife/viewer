@@ -122,6 +122,20 @@ BOOL LLPanelPresetsPulldown::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 /*virtual*/
+BOOL LLPanelPresetsPulldown::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+    LLPanel::handleRightMouseDown(x, y, mask);
+    return TRUE;
+}
+
+/*virtual*/
+BOOL LLPanelPresetsPulldown::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+    LLPanel::handleDoubleClick(x, y, mask);
+    return TRUE;
+}
+
+/*virtual*/
 void LLPanelPresetsPulldown::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	mHoverTimer.start();
