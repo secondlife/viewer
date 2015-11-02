@@ -7,7 +7,9 @@ you under the terms of the GNU Lesser General Public License, version 2.1
 ("LGPL"), unless you have obtained a separate licensing agreement
 ("Other License"), formally executed by you and Linden Lab.  Terms of
 the GPL can be found in doc/LGPL-license.txt in this distribution, or
-online at http://secondlife.com/developers/opensource/lgplv2_1
+online at 
+
+https://wiki.secondlife.com/wiki/Linden_Lab_Official:GNU_Lesser_General_Public_License,_version_2.1
 
 By copying, modifying or distributing this software, you acknowledge
 that you have read and understood your obligations described above,

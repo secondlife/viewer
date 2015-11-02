@@ -91,8 +91,11 @@ endif (LINUX)
 add_subdirectory(${VIEWER_PREFIX}newview)
 add_dependencies(viewer secondlife-bin)
 
+add_subdirectory(${VIEWER_PREFIX}doxygen EXCLUDE_FROM_ALL)
+
 if (LL_TESTS)
   # Define after the custom targets are created so
   # individual apps can add themselves as dependencies
   add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)
 endif (LL_TESTS)
+
