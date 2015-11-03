@@ -819,7 +819,7 @@ void LLVivoxVoiceClient::stateMachine()
 						std::string shutdown_timeout = gSavedSettings.getString("VivoxShutdownTimeout");
 						if(loglevel.empty())
 						{
-							loglevel = "0";	// turn logging off completely
+							loglevel = "-1";	// turn logging off completely, was 0 for error level logging.
 						}
 							
 						params.args.add("-ll");
