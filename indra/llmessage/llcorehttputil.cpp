@@ -248,6 +248,7 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
 
     if (!status)
     {
+        bool parseSuccess(false);
         result = LLSD::emptyMap();
         LLCore::HttpStatus::type_enum_t errType = status.getType();
 
@@ -259,7 +260,7 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
             << LL_ENDL;
         if ((errType >= 400) && (errType < 500))
         {
-            LLSD body = this->parseBody(response);
+            LLSD body = this->parseBody(response, parseSuccess);
             if (!body.isUndefined())
             {
                 if (!body.isMap())
@@ -362,7 +363,7 @@ public:
 
 protected:
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response);
+    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
 };
 
 //-------------------------------------------------------------------------
@@ -377,9 +378,9 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     LLSD result;
 
 //    const bool emit_parse_errors = false;
+    bool success(false);
 
-
-    result = parseBody(response);
+    result = parseBody(response, success);
 
 #if 0
     bool parsed = !((response->getBodySize() == 0) ||
@@ -403,7 +404,7 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     }
 #endif
 
-    if (result.isUndefined())
+    if (!success)
     {   
 #if 1
         // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
@@ -437,8 +438,9 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
-LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response)
+LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response, bool &success)
 {
+    success = true;
     if (response->getBodySize() == 0)
         return LLSD();
 
@@ -446,6 +448,7 @@ LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response)
 
     if (!LLCoreHttpUtil::responseToLLSD(response, true, result))
     {
+        success = false;
         return LLSD();
     }
 
@@ -467,7 +470,7 @@ public:
     HttpCoroRawHandler(LLEventStream &reply);
 
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response);
+    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
 };
 
 //-------------------------------------------------------------------------
@@ -522,8 +525,9 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     return result;
 }
 
-LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response)
+LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response, bool &success)
 {
+    success = true;
     return LLSD();
 }
 
@@ -541,7 +545,7 @@ public:
     HttpCoroJSONHandler(LLEventStream &reply);
 
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response);
+    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
 };
 
 //-------------------------------------------------------------------------
@@ -579,8 +583,9 @@ LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
-LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response)
+LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &success)
 {
+    success = true;
     BufferArray * body(response->getBody());
     if (!body || !body->size())
     {
@@ -596,6 +601,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response)
     }
     catch (std::runtime_error e)
     {   
+        success = false;
         return LLSD();
     }
 
