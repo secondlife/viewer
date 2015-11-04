@@ -903,8 +903,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 			return E_ST_NO_CHANNELS;
 		}
 
-        // FIXME BENTO do we want to open up motion of non-hip joints or
-        // not? Already effectively allowed via .anim upload.
+        // Animating position (via mNumChannels = 6) is only supported for mPelvis.
 		int res = sscanf(line.c_str(), " CHANNELS %d", &joint->mNumChannels);
 		if ( res != 1 )
 		{

@@ -85,9 +85,7 @@ U32 get_proxy_joint_index(U32 joint_index, LLVOAvatar *avatar, std::vector<std::
     U32 j_proxy = get_valid_joint_index(joint_names[joint_index], avatar, joint_names);
     LLJoint *joint = avatar->getJoint(joint_names[j_proxy]);
     llassert(joint);
-    // BENTO - test of simple push-to-base-ancestor
-    // complexity reduction scheme.  Find the first
-    // ancestor that's not flagged as extended, or the
+    // Find the first ancestor that's not flagged as extended, or the
     // last ancestor that's rigged in this mesh, whichever
     // comes first.
     while (1)
