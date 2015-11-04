@@ -3578,6 +3578,7 @@ BOOL LLModelPreview::render()
 			fmp->enableViewOption("show_skin_weight");
 			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);	
 			mFMP->childEnable("upload_skin");
+			mFMP->childSetValue("show_skin_weight", skin_weight);
 		}
 	}
 	else
