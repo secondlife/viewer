@@ -404,6 +404,8 @@ public:
 	void setCanSelect(BOOL canSelect);
 
 	void setDebugText(const std::string &utf8text);
+	void initHudText();
+	void restoreHudText();
 	void setIcon(LLViewerTexture* icon_image);
 	void clearIcon();
 
@@ -673,6 +675,9 @@ public:
 	// TODO: Make all this stuff private.  JC
 	LLPointer<LLHUDText> mText;
 	LLPointer<class LLHUDIcon> mIcon;
+
+	std::string mHudText;
+	LLColor4 mHudTextColor;
 
 	static			BOOL		sUseSharedDrawables;
 

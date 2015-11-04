@@ -1282,7 +1282,7 @@ void LLViewerObjectList::clearDebugText()
 {
 	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
 	{
-		(*iter)->setDebugText("");
+		(*iter)->restoreHudText();
 	}
 }
 
