@@ -2476,7 +2476,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>Doxyfile</string>
+                  <string>doxygen/Doxyfile</string>
                 </array>
                 <key>command</key>
                 <string>doxygen</string>
@@ -2508,7 +2508,7 @@
               <map>
                 <key>options</key>
                 <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>

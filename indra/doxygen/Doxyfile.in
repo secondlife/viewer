@@ -574,7 +574,7 @@ WARN_LOGFILE           = @CMAKE_CURRENT_BINARY_DIR@/doxygen_warnings.log
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../indra
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../../indra
 ## TODO We would like to also have the includes from  @CMAKE_CURRENT_BINARY_DIR@/packages/include
 ##      but at present that is too expensive.  Ideally, we will modify each package build to do 
 ##      generation of doxygen docs, and install them in a modular way that we can connect.  See TAGS
