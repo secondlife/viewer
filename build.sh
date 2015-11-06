@@ -424,9 +424,6 @@ then
               end_section "Upload Extenstion $extension"
           done
       fi
-
-      # Upload stub installers
-      upload_stub_installers "$build_dir_stubs"
     fi
     end_section Upload Installer
   else
