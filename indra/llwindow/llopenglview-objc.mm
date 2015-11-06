@@ -42,6 +42,7 @@
     return screen;
 }
 
+
 - (NSPoint)convertPointToScreenCoordinates:(NSPoint)aPoint
 {
     float normalizedX = fabs(fabs(self.frame.origin.x) - fabs(aPoint.x));
@@ -56,6 +57,24 @@
 }
 
 @end
+
+void extractKeyDataFromEvent (NSEvent *theEvent, NativeKeyEventData * eventData)
+{
+    if ([theEvent characters].length)
+    {
+        eventData->mCharacter = (wchar_t)[[theEvent characters] characterAtIndex:0];
+    }
+    else
+    {
+        eventData->mCharacter = [theEvent keyCode];
+    }
+    eventData->mKeyEvent = NativeKeyEventData::KEYUNKNOWN;
+    eventData->mKeyCode = [theEvent keyCode];
+    eventData->mKeyModifiers = [theEvent modifierFlags];
+    eventData->mScanCode = [theEvent keyCode ];
+    eventData->mKeyboardType = 0;
+}
+
 
 attributedStringInfo getSegments(NSAttributedString *str)
 {
@@ -402,11 +421,20 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) keyUp:(NSEvent *)theEvent
 {
-	callKeyUp([theEvent keyCode], [theEvent modifierFlags]);
+    NativeKeyEventData eventData;
+ 
+    extractKeyDataFromEvent( theEvent, &eventData );
+    eventData.mKeyEvent = NativeKeyEventData::KEYUP;
+	callKeyUp(&eventData, [theEvent keyCode], [theEvent modifierFlags]);
 }
 
 - (void) keyDown:(NSEvent *)theEvent
 {
+    NativeKeyEventData eventData;
+    
+    extractKeyDataFromEvent( theEvent, &eventData );
+    eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
+   
     uint keycode = [theEvent keyCode];
     // We must not depend on flagsChange event to detect modifier flags changed,
     // must depend on the modifire flags in the event parameter.
@@ -414,7 +442,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // e.g. OS Window for upload something or Input Window...
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
 	mModifiers = [theEvent modifierFlags];
-    bool acceptsText = mHasMarkedText ? false : callKeyDown(keycode, mModifiers);
+    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers);
     unichar ch;
     if (acceptsText &&
         !mMarkedTextAllowed &&
@@ -435,12 +463,17 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // Since SL assumes we receive those, we fake it here.
     if (mModifiers & NSCommandKeyMask && !mHasMarkedText)
     {
-        callKeyUp([theEvent keyCode], mModifiers);
+        eventData.mKeyEvent = NativeKeyEventData::KEYUP;
+        callKeyUp(&eventData, [theEvent keyCode], mModifiers);
     }
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent
 {
+    NativeKeyEventData eventData;
+    
+    extractKeyDataFromEvent( theEvent, &eventData );
+ 
 	mModifiers = [theEvent modifierFlags];
 	callModifier([theEvent modifierFlags]);
      
@@ -462,11 +495,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     
     if (mModifiers & mask)
     {
-        callKeyDown([theEvent keyCode], 0);
+        eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
+        callKeyDown(&eventData, [theEvent keyCode], 0);
     }
     else
     {
-        callKeyUp([theEvent keyCode], 0);
+        eventData.mKeyEvent = NativeKeyEventData::KEYUP;
+        callKeyUp(&eventData, [theEvent keyCode], 0);
     }  
 }
 

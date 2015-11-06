@@ -1450,7 +1450,8 @@ void LLViewerMedia::setOpenIDCookie(const std::string& url)
 				std::string cookie_name = "";
 				std::string cookie_value = "";
 				std::string cookie_path = "";
-				if (parseRawCookie(sOpenIDCookie, cookie_name, cookie_value, cookie_path))
+				if (parseRawCookie(sOpenIDCookie, cookie_name, cookie_value, cookie_path) &&
+                    media_instance->getMediaPlugin())
 				{
 					media_instance->getMediaPlugin()->setCookie(url, cookie_name, cookie_value, cookie_host, cookie_path);
 				}

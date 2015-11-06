@@ -2559,7 +2559,7 @@ BOOL LLViewerWindow::handleKeyUp(KEY key, MASK mask)
 		// We have keyboard focus, and it's not an accelerator
         if (keyboard_focus && keyboard_focus->wantsKeyUpKeyDown())
         {
-            return keyboard_focus->handleKey(key, mask, FALSE);
+            return keyboard_focus->handleKeyUp(key, mask, FALSE);
         }
         else if (key < 0x80)
 		{

@@ -551,6 +551,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 #if LL_DARWIN
 				std::string event = message_in.getValue("event");
 				S32 key = message_in.getValueS32("key");
+                LLSD native_key_data = message_in.getValueLLSD("native_key_data");
+
+#if 0
 				if (event == "down")
 				{
 					//mLLCEFLib->keyPress(key, true);
@@ -562,7 +565,21 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 					//mLLCEFLib->keyPress(key, false);
 					mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_UP, (uint32_t)key, 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
 				}
-
+#else
+                // Treat unknown events as key-up for safety.
+                LLCEFLib::EKeyEvent key_event = LLCEFLib::KE_KEY_UP;
+                if (event == "down")
+                {
+                    key_event = LLCEFLib::KE_KEY_DOWN;
+                }
+                else if (event == "repeat")
+                {
+                    key_event = LLCEFLib::KE_KEY_REPEAT;
+                }
+                
+                keyEvent(key_event, key, LLCEFLib::KM_MODIFIER_NONE, native_key_data);
+              
+#endif
 #elif LL_WINDOWS
 				std::string event = message_in.getValue("event");
 				S32 key = message_in.getValueS32("key");
@@ -708,12 +725,20 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 #if LL_DARWIN
 	std::string utf8_text;
 
+    uint32_t native_char_code = native_key_data["char_code"].asInteger();
+    uint32_t native_scan_code = native_key_data["scan_code"].asInteger();
+    uint32_t native_virtual_key = native_key_data["key_code"].asInteger();
+    uint32_t native_modifiers = native_key_data["modifiers"].asInteger();
+
+    
+    
 	if (key < 128)
 	{
-		utf8_text = (char)key;
+		utf8_text = (char)native_virtual_key;
 	}
-
+    
 	switch ((KEY)key)
+    
 	{
 		case KEY_BACKSPACE:		utf8_text = (char)8;		break;
 		case KEY_TAB:			utf8_text = (char)9;		break;
@@ -725,16 +750,12 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 		break;
 	}
 
-	uint32_t native_scan_code = 0;
-	uint32_t native_virtual_key = 0;
-	uint32_t native_modifiers = 0;
-	deserializeKeyboardData(native_key_data, native_scan_code, native_virtual_key, native_modifiers);
-
-	mLLCEFLib->keyboardEvent(key_event, (uint32_t)key, utf8_text.c_str(), modifiers, native_scan_code, native_virtual_key, native_modifiers);
+	mLLCEFLib->keyboardEvent(key_event, native_char_code, utf8_text.c_str(), native_modifiers, native_scan_code, native_virtual_key, native_modifiers);
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
+    
 	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
 };
@@ -743,7 +764,7 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboar
 {
 #if LL_DARWIN
 	//mLLCEFLib->keyPress(utf8str[0], true);
-	mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_DOWN, (uint32_t)(utf8str[0]), 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
+	//mLLCEFLib->keyboardEvent(LLCEFLib::KE_KEY_DOWN, (uint32_t)(utf8str[0]), 0, LLCEFLib::KM_MODIFIER_NONE, 0, 0, 0);
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);

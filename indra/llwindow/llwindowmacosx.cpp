@@ -47,6 +47,10 @@ extern BOOL gDebugWindowProc;
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;
 
+namespace
+{
+    NSKeyEventRef mRawKeyEvent = NULL;
+}
 //
 // LLWindowMacOSX
 //
@@ -194,14 +198,20 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 // These functions are used as wrappers for our internal event handling callbacks.
 // It's a good idea to wrap these to avoid reworking more code than we need to within LLWindow.
 
-bool callKeyUp(unsigned short key, unsigned int mask)
+bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask)
 {
-	return gKeyboard->handleKeyUp(key, mask);
+    mRawKeyEvent = event;
+	bool retVal = gKeyboard->handleKeyUp(key, mask);
+    mRawKeyEvent = NULL;
+    return retVal;
 }
 
-bool callKeyDown(unsigned short key, unsigned int mask)
+bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask)
 {
-	return gKeyboard->handleKeyDown(key, mask);
+    mRawKeyEvent = event;
+	bool retVal = gKeyboard->handleKeyDown(key, mask);
+    mRawKeyEvent = NULL;
+    return retVal;
 }
 
 void callResetKeys()
@@ -1713,23 +1723,15 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 LLSD LLWindowMacOSX::getNativeKeyData()
 {
 	LLSD result = LLSD::emptyMap();
-#if 0
+#if 1
 	if(mRawKeyEvent)
 	{
-		char char_code = 0;
-		UInt32 key_code = 0;
-		UInt32 modifiers = 0;
-		UInt32 keyboard_type = 0;
 
-		GetEventParameter (mRawKeyEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(char), NULL, &char_code);
-		GetEventParameter (mRawKeyEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(UInt32), NULL, &key_code);
-		GetEventParameter (mRawKeyEvent, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(UInt32), NULL, &modifiers);
-		GetEventParameter (mRawKeyEvent, kEventParamKeyboardType, typeUInt32, NULL, sizeof(UInt32), NULL, &keyboard_type);
-
-		result["char_code"] = (S32)char_code;
-		result["key_code"] = (S32)key_code;
-		result["modifiers"] = (S32)modifiers;
-		result["keyboard_type"] = (S32)keyboard_type;
+        result["char_code"] = (S32)(mRawKeyEvent)->mCharacter;
+        result["scan_code"] = (S32)(mRawKeyEvent)->mScanCode;
+		result["key_code"] = (S32)(mRawKeyEvent->mKeyCode);
+		result["modifiers"] = (S32)(mRawKeyEvent->mKeyModifiers);
+		result["keyboard_type"] = (S32)(mRawKeyEvent->mKeyboardType);
 
 #if 0
 		// This causes trouble for control characters -- apparently character codes less than 32 (escape, control-A, etc)
