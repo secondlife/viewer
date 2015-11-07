@@ -128,7 +128,7 @@ MediaPluginBase(host_send_func, host_user_data)
 //
 MediaPluginCEF::~MediaPluginCEF()
 {
-	mLLCEFLib->reset();
+	mLLCEFLib->requestExit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -532,11 +532,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "scroll_event")
 			{
+				S32 x = message_in.getValueS32("y");
 				S32 y = message_in.getValueS32("y");
 				const int scaling_factor = 40;
 				y *= -scaling_factor;
 
-				mLLCEFLib->mouseWheel(y);
+				mLLCEFLib->mouseWheel(x, y);
 			}
 			else if (message_name == "text_event")
 			{
@@ -576,9 +577,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 {
                     key_event = LLCEFLib::KE_KEY_REPEAT;
                 }
-                
+
                 keyEvent(key_event, key, LLCEFLib::KM_MODIFIER_NONE, native_key_data);
-              
+
 #endif
 #elif LL_WINDOWS
 				std::string event = message_in.getValue("event");
@@ -730,15 +731,15 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
     uint32_t native_virtual_key = native_key_data["key_code"].asInteger();
     uint32_t native_modifiers = native_key_data["modifiers"].asInteger();
 
-    
-    
+
+
 	if (key < 128)
 	{
 		utf8_text = (char)native_virtual_key;
 	}
-    
+
 	switch ((KEY)key)
-    
+
 	{
 		case KEY_BACKSPACE:		utf8_text = (char)8;		break;
 		case KEY_TAB:			utf8_text = (char)9;		break;
@@ -750,12 +751,16 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 		break;
 	}
 
-	mLLCEFLib->keyboardEvent(key_event, native_char_code, utf8_text.c_str(), native_modifiers, native_scan_code, native_virtual_key, native_modifiers);
+	mLLCEFLib->keyboardEvent(key_event, native_char_code,
+							  utf8_text.c_str(), modifiers,
+							  native_scan_code, native_virtual_key,
+							  native_modifiers);
+
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
-    
+
 	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
 };
