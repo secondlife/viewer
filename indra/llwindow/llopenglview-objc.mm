@@ -28,6 +28,18 @@
 #include "llwindowmacosx-objc.h"
 #import "llappdelegate-objc.h"
 
+
+
+//---------------------------
+// Coppied from indra_constants.h
+//#include "indra_constats.h"
+const uint32_t MASK_CONTROL =		0x0001;		// Mapped to cmd on Macs
+const uint32_t MASK_ALT =			0x0002;
+const uint32_t MASK_SHIFT =			0x0004;
+//const uint32_t MASK_MAC_CONTROL =	0x0008;		// Un-mapped Ctrl key on Macs, not used on Windows
+
+//---------------------------
+
 @implementation NSScreen (PointConversion)
 
 + (NSScreen *)currentScreenForMouseLocation
@@ -70,7 +82,17 @@ void extractKeyDataFromEvent (NSEvent *theEvent, NativeKeyEventData * eventData)
     }
     eventData->mKeyEvent = NativeKeyEventData::KEYUNKNOWN;
     eventData->mKeyCode = [theEvent keyCode];
-    eventData->mKeyModifiers = [theEvent modifierFlags];
+
+    unsigned int modifiers = [theEvent modifierFlags];
+    
+    if (modifiers & (NSAlphaShiftKeyMask | NSShiftKeyMask))
+        modifiers |= MASK_SHIFT;
+    if (modifiers & NSAlternateKeyMask)
+        modifiers |= MASK_ALT;
+    if (modifiers & NSControlKeyMask)
+        modifiers |= MASK_CONTROL;
+    
+    eventData->mKeyModifiers = modifiers;
     eventData->mScanCode = [theEvent keyCode ];
     eventData->mKeyboardType = 0;
 }

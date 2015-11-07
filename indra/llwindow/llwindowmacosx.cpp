@@ -1733,6 +1733,7 @@ LLSD LLWindowMacOSX::getNativeKeyData()
 		result["modifiers"] = (S32)(mRawKeyEvent->mKeyModifiers);
 		result["keyboard_type"] = (S32)(mRawKeyEvent->mKeyboardType);
 
+        
 #if 0
 		// This causes trouble for control characters -- apparently character codes less than 32 (escape, control-A, etc)
 		// cause llsd serialization to create XML that the llsd deserializer won't parse!
