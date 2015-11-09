@@ -128,7 +128,7 @@ MediaPluginBase(host_send_func, host_user_data)
 //
 MediaPluginCEF::~MediaPluginCEF()
 {
-	mLLCEFLib->reset();
+	mLLCEFLib->requestExit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -532,11 +532,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "scroll_event")
 			{
+				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
 				const int scaling_factor = 40;
 				y *= -scaling_factor;
 
-				mLLCEFLib->mouseWheel(y);
+				mLLCEFLib->mouseWheel(x, y);
 			}
 			else if (message_name == "text_event")
 			{
