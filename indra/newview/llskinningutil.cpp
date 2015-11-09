@@ -232,7 +232,18 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     {
         LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
         mat[j] = skin->mInvBindMatrix[j];
-        mat[j] *= joint->getWorldMatrix();
+        if (joint)
+        {
+            mat[j] *= joint->getWorldMatrix();
+        }
+        else
+        {
+            // This  shouldn't  happen   -  in  mesh  upload,  skinned
+            // rendering  should  be disabled  unless  all joints  are
+            // valid.  In other  cases of  skinned  rendering, invalid
+            // joints should already have  been removed during remap.
+            LL_WARNS_ONCE("Avatar") << "Rigged to invalid joint name " << skin->mJointNames[j] << LL_ENDL;
+        }
     }
 }
 
