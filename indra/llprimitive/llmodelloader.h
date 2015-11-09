@@ -161,16 +161,12 @@ public:
 
 	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
 	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
-	void critiqueJointToNodeMappingFromScene( void  );
 
 	//Determines if a rig is a legacy from the joint list
 	bool isRigLegacy( const std::vector<std::string> &jointListFromAsset );
 
 	//Determines if a rig is suitable for upload
 	bool isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset );
-
-	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
-	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
 
 	const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
 	void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
@@ -194,7 +190,6 @@ protected:
 	LLModelLoader::state_callback_t		mStateCallback;
 	void*								mOpaqueData;
 
-	bool		mRigParityWithScene;
 	bool		mRigValidJointUpload;
 	bool		mLegacyRigValid;
 

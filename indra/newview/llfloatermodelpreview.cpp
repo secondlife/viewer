@@ -1184,7 +1184,6 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mPhysicsSearchLOD( LLModel::LOD_PHYSICS )
 , mResetJoints( false )
 , mModelNoErrors( true )
-, mRigParityWithScene( false )
 , mLastJointUpdate( false )
 {
 	mNeedsUpdate = TRUE;

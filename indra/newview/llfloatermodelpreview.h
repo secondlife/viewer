@@ -297,8 +297,6 @@ public:
 	
 	void setLoadState( U32 state ) { mLoadState = state; }
 	U32 getLoadState() { return mLoadState; }
-	void setRigWithSceneParity( bool state ) { mRigParityWithScene = state; }
-	const bool getRigWithSceneParity( void ) const { return mRigParityWithScene; }
 	
 	static bool 		sIgnoreLoadedCallback;
 
@@ -346,7 +344,6 @@ private:
 	bool		mLoading;
 	U32			mLoadState;
 	bool		mResetJoints;
-	bool		mRigParityWithScene;
 	bool		mModelNoErrors;
 
 	std::map<std::string, bool> mViewOption;
