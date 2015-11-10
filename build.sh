@@ -263,13 +263,14 @@ do
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
-                  (cd "$build_dir/doxygen/html"; tar cjf "$build_dir/viewer-doxygen.tar.bz2" .)
+                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
                   upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
               fi
               ;;
             *)
               ;;
           esac
+
       else
           record_failure "Build of \"$variant\" failed."
       fi
