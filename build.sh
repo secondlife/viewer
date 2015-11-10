@@ -238,8 +238,8 @@ do
       build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
       if `cat "$build_dir/build_ok"`
       then
-          if [ "$variant" == "Release" ]
-          then
+          case "$variant" in
+            Release)
               if [ -r "$build_dir/autobuild-package.xml" ]
               then
                   begin_section "Autobuild metadata"
@@ -254,9 +254,22 @@ do
               else
                   record_event "no autobuild metadata at '$build_dir/autobuild-package.xml'"
               fi
-          else
-              record_event "do not record autobuild metadata for $variant"
-          fi
+              ;;
+            Doxygen)
+              if [ -r "$build_dir/doxygen_warnings.log" ]
+              then
+                  record_event "Doxygen warnings generated; see doxygen_warnings.log"
+                  upload_item log "$build_dir/doxygen_warnings.log" text/plain
+              fi
+              if [ -d "$build_dir/doxygen/html" ]
+              then
+                  (cd "$build_dir/doxygen/html"; tar cjf "$build_dir/viewer-doxygen.tar.bz2" .)
+                  upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
+              fi
+              ;;
+            *)
+              ;;
+          esac
       else
           record_failure "Build of \"$variant\" failed."
       fi
@@ -398,18 +411,6 @@ then
             upload_item private_artifact "$llphysicsextensions_package" binary/octet-stream
         fi
         ;;
-      Doxygen)
-        if [ -r "$build_dir/doxygen_warnings.log" ]
-        then
-            record_event "Doxygen warnings generated; see doxygen_warnings.log"
-            upload_item log "$build_dir/doxygen_warnings.log" text/plain
-        fi
-        if [ -d "$build_dir/doxygen/html" ]
-        then
-            (cd "$build_dir/doxygen/html"; tar cjf "$build_dir/viewer-doxygen.tar.bz2" .)
-            upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
-        fi
-        ;;
       *)
         ;;
       esac
@@ -417,9 +418,9 @@ then
       # Run upload extensions
       if [ -d ${build_dir}/packages/upload-extensions ]; then
           for extension in ${build_dir}/packages/upload-extensions/*.sh; do
-              begin_section "Upload Extenstion $extension"
+              begin_section "Upload Extension $extension"
               . $extension
-              end_section "Upload Extenstion $extension"
+              end_section "Upload Extension $extension"
           done
       fi
     fi
@@ -427,6 +428,8 @@ then
   else
     echo skipping upload of installer
   fi
+
+  
 else
   echo skipping upload of installer due to failed build.
 fi
