@@ -109,7 +109,7 @@ pre_build()
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
 
- end_section "Configure $variant"
+  end_section "Configure $variant"
 }
 
 package_llphysicsextensions_tpv()
@@ -395,15 +395,13 @@ then
         then
             llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
             upload_item private_artifact "$llphysicsextensions_package" binary/octet-stream
-        else
-            echo "No llphysicsextensions_package"
         fi
         ;;
       Doxygen)
         if [ -r "$build_dir/doxygen_warnings.log" ]
         then
             record_event "Doxygen warnings generated; see doxygen_warnings.log"
-            upload_item log "$build_dir/doxygen_warnings.log" binary/octet-stream
+            upload_item log "$build_dir/doxygen_warnings.log" text/plain
         fi
         if [ -d "$build_dir/doxygen/html" ]
         then
@@ -412,7 +410,6 @@ then
         fi
         ;;
       *)
-        echo "Skipping mapfile for $last_built_variant"
         ;;
       esac
 

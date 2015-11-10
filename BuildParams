@@ -19,6 +19,8 @@ build_Linux_Debug = false
 build_Darwin_Debug = false
 build_Debug = false
 
+# enable Doxygen building on Linux for TeamCity (it can be done manually on any platform)
+build_Linux_Doxygen = true
 
 # Update Public Inworld Build Status Indicators (setting should mirror "public_build")
 email_status_this_is_os = true
