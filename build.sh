@@ -101,7 +101,7 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    "$autobuild" configure -c $variant -- \
+    "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
@@ -119,12 +119,12 @@ package_llphysicsextensions_tpv()
   if [ "$variant" = "Release" ]
   then 
       llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
-      "$autobuild" build --verbose --config-file $llpetpvcfg -c Tpv
+      "$autobuild" build --quiet --config-file $llpetpvcfg -c Tpv
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$autobuild" package --verbose --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
+      "$autobuild" package --quiet --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
       tpv_status=$?
       if [ -r "${PKGTMP}" ]
       then
@@ -146,7 +146,7 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    "$autobuild" build --no-configure -c $variant
+    "$autobuild" build --quiet --no-configure -c $variant
     build_ok=$?
 
     # Run build extensions
@@ -223,17 +223,16 @@ do
   # Only the last built arch is available for upload
   last_built_variant="$variant"
 
-  begin_section "$variant"
   build_dir=`build_dir_$arch $variant`
   build_dir_stubs="$build_dir/win_setup/$variant"
 
-  begin_section "Initialize Build Directory"
+  begin_section "Initialize $variant Build Directory"
   rm -rf "$build_dir"
   mkdir -p "$build_dir"
   mkdir -p "$build_dir/tmp"
-  end_section "Initialize Build Directory"
+  end_section "Initialize $variant Build Directory"
 
-  if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
+  if pre_build "$variant" "$build_dir"
   then
       begin_section "Build $variant"
       build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
@@ -262,8 +261,10 @@ do
           record_failure "Build of \"$variant\" failed."
       fi
       end_section "Build $variant"
+  else
+      record_event "configure for $variant failed: build skipped"
   fi
-  end_section "$variant"
+
   if ! $succeeded 
   then
       record_event "remaining variants skipped due to $variant failure"
