@@ -42,6 +42,7 @@
 #include "llvoavatarself.h"
 #include "llviewercontrol.h"
 #include "lltrans.h"
+#include "llagentcamera.h"
 // associated header
 #include "llavatarrendernotifier.h"
 
@@ -104,6 +105,12 @@ std::string LLAvatarRenderNotifier::overLimitMessage()
 
 void LLAvatarRenderNotifier::displayNotification(bool show_over_limit)
 {
+	if (gAgentCamera.getLastCameraMode() == CAMERA_MODE_MOUSELOOK)
+	{
+		LL_WARNS("AvatarRenderInfo") << "Suppressing a notification while in mouselook" << LL_ENDL;
+		return;
+	}
+
     mAgentComplexity = mLatestAgentComplexity;
     mShowOverLimitAgents = show_over_limit;
 	static LLCachedControl<U32> expire_delay(gSavedSettings, "ShowMyComplexityChanges", 20);
