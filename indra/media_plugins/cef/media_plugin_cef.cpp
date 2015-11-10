@@ -344,6 +344,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "cleanup")
 			{
+                LLPluginMessage message("base", "goodbye");
+                sendMessage(message);
 			}
 			else if (message_name == "shm_added")
 			{
