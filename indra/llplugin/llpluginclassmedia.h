@@ -374,7 +374,7 @@ protected:
 	int			mPadding;
 	
 	
-	LLPluginProcessParent *mPlugin;
+	LLPluginProcessParent::ptr_t mPlugin;
 	
 	LLRect mDirtyRect;
 	

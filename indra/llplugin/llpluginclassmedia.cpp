@@ -48,7 +48,6 @@ static int nextPowerOf2( int value )
 LLPluginClassMedia::LLPluginClassMedia(LLPluginClassMediaOwner *owner)
 {
 	mOwner = owner;
-	mPlugin = NULL;
 	reset();
 
 	//debug use
@@ -68,7 +67,7 @@ bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::s
 	LL_DEBUGS("Plugin") << "dir: " << plugin_dir << LL_ENDL;
 	LL_DEBUGS("Plugin") << "plugin: " << plugin_filename << LL_ENDL;
 
-	mPlugin = new LLPluginProcessParent(this);
+	mPlugin = LLPluginProcessParent::create(this);
 	mPlugin->setSleepTime(mSleepTime);
 
 	// Queue up the media init message -- it will be sent after all the currently queued messages.
@@ -84,10 +83,10 @@ bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::s
 
 void LLPluginClassMedia::reset()
 {
-	if(mPlugin != NULL)
+	if(mPlugin)
 	{
-		delete mPlugin;
-		mPlugin = NULL;
+        mPlugin->requestShutdown();
+        mPlugin.reset();
 	}
 
 	mTextureParamsReceived = false;
