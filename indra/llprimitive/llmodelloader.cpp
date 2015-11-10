@@ -475,14 +475,14 @@ void LLModelLoader::critiqueRigForUploadApplicability( const std::vector<std::st
 	if ( !isJointPositionUploadOK )
 	{
         // This starts out true, becomes false if false for any loaded
-        // model. May be multiple loaded models.
+        // mesh. 
 		setRigValidForJointPositionUpload( false );
 	}
 
 	if ( !isRigLegacyOK) 
 	{	
         // This starts out true, becomes false if false for any loaded
-        // model. May be multiple loaded models.
+        // mesh. 
 		setLegacyRigValid( false );
 	}
 
@@ -503,7 +503,7 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
     if (jointListFromAsset.size()>mMaxJointsPerMesh)
     {
         LL_WARNS() << "Rigged to " << jointListFromAsset.size() << " joints, max is " << mMaxJointsPerMesh << LL_ENDL;
-        LL_WARNS() << "Skinning disabled" << LL_ENDL;
+        LL_WARNS() << "Skinning disabled due to too many joints" << LL_ENDL;
         return false;
     }
 
@@ -514,77 +514,65 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
     {
         if (mJointMap.find(*it)==mJointMap.end())
         {
-            LL_WARNS() << "Rig to unrecognized name " << *it << ", isRigLegacy() will fail" << LL_ENDL;
+            LL_WARNS() << "Rigged to unrecognized joint name " << *it << LL_ENDL;
             unknown_joint_count++;
         }
     }
     if (unknown_joint_count>0)
     {
+        LL_WARNS() << "Skinning disabled due to unknown joints" << LL_ENDL;
         return false;
     }
 
-	bool result = false;
-
+	// Note that this is basically the same code as
+	// isRigSuitableForJointPositionUpload(), but the set of joints is
+	// different.
 	JointNameSet :: const_iterator masterJointIt = mMasterLegacyJointList.begin();	
 	JointNameSet :: const_iterator masterJointEndIt = mMasterLegacyJointList.end();
 	
 	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
 	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
-	
+
+    S32 missing_joint_count = 0;
 	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
 	{
-		result = false;
-		modelJointIt = jointListFromAsset.begin();
-
-		for ( ;modelJointIt!=modelJointItEnd; ++modelJointIt )
-		{
-			if ( *masterJointIt == *modelJointIt )
-			{
-				result = true;
-				break;
-			}			
-		}		
-		if ( !result )
-		{
-			LL_INFOS() <<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
-			break;
-		}
+        if (std::find(modelJointIt,modelJointItEnd,*masterJointIt)==modelJointItEnd)
+        {
+			LL_INFOS() <<" Asset did not contain a joint required for skinned mesh upload: " << *masterJointIt<< LL_ENDL;
+            missing_joint_count++;
+        }
 	}	
-	return result;
+    if (missing_joint_count>0)
+    {
+        LL_WARNS() << "Skinning disabled due to missing joints" << LL_ENDL;
+    }
+	return missing_joint_count==0;
 }
 //-----------------------------------------------------------------------------
 // isRigSuitableForJointPositionUpload()
 //-----------------------------------------------------------------------------
 bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset )
 {
-	bool result = false;
-
 	JointNameSet :: const_iterator masterJointIt = mMasterJointList.begin();	
 	JointNameSet :: const_iterator masterJointEndIt = mMasterJointList.end();
 	
 	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
 	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
 	
+    S32 missing_joint_count = 0;
 	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
 	{
-		result = false;
-		modelJointIt = jointListFromAsset.begin();
-
-		for ( ;modelJointIt!=modelJointItEnd; ++modelJointIt )
-		{
-			if ( *masterJointIt == *modelJointIt )
-			{
-				result = true;
-				break;
-			}			
-		}		
-		if ( !result )
-		{
-			LL_INFOS() <<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
-			break;
-		}
+        if (std::find(modelJointIt,modelJointItEnd,*masterJointIt)==modelJointItEnd)
+        {
+			LL_INFOS() <<" Asset did not contain a joint required for joint position upload: " << *masterJointIt<< LL_ENDL;
+            missing_joint_count++;
+        }
 	}	
-	return result;
+    if (missing_joint_count>0)
+    {
+        LL_WARNS() << "Joint upload disabled due to missing joints" << LL_ENDL;
+    }
+	return missing_joint_count==0;
 }
 
 
