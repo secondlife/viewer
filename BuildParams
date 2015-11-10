@@ -19,8 +19,6 @@ build_Linux_Debug = false
 build_Darwin_Debug = false
 build_Debug = false
 
-# Include doxygen generation in the Linux build
-build_Linux_Doxygen = true
 
 # Update Public Inworld Build Status Indicators (setting should mirror "public_build")
 email_status_this_is_os = true
