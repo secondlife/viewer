@@ -437,7 +437,7 @@ void LLConversationViewSession::setIconsVisible(bool visible)
 		
 	// Show/hide icons for the 1-n-1 chat.
 	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
-	if (vmi)
+	if (vmi && mItemPanel)
 	{
 		switch (vmi->getType())
 		{
