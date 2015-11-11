@@ -1605,9 +1605,9 @@ void LLDAELoader::processChildJoints( domNode* pParentNode )
 //-----------------------------------------------------------------------------
 bool LLDAELoader::isNodeAJoint( domNode* pNode )
 {
-	if ( !pNode )
+    if ( !pNode || !pNode->getName() )
 	{
-		LL_INFOS()<<"Created node is NULL"<<LL_ENDL;
+		LL_INFOS()<<"Created node is NULL or invalid"<<LL_ENDL;
 		return false;
 	}
 	
