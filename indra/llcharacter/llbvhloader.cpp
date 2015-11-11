@@ -37,6 +37,7 @@
 #include "llquantize.h"
 #include "llstl.h"
 #include "llapr.h"
+#include "llsdserialize.h"
 
 
 using namespace std;
@@ -122,47 +123,21 @@ LLQuaternion::Order bvhStringToOrder( char *str )
 // LLBVHLoader()
 //-----------------------------------------------------------------------------
 
-/*
- LLBVHLoader::LLBVHLoader(const char* buffer)
-{
-	reset();
-
-	mStatus = loadTranslationTable("anim.ini");
-
-	if (mStatus == LLBVHLoader::ST_NO_XLT_FILE)
-	{
-		LL_WARNS() << "NOTE: No translation table found." << LL_ENDL;
-		return;
-	}
-	else
-	{
-		if (mStatus != LLBVHLoader::ST_OK)
-		{
-			LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
-			return;
-		}
-	}
-
-	char error_text[128];		// Flawfinder: ignore 
-	S32 error_line;
-	mStatus = loadBVHFile(buffer, error_text, error_line);
-	if (mStatus != LLBVHLoader::ST_OK)
-	{
-		LL_WARNS() << "ERROR: [line: " << getLineNumber() << "] " << mStatus << LL_ENDL;
-		return;
-	}
-
-	applyTranslations();
-	optimize();
-
-	mInitialized = TRUE;
-}
-*/
-LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine)
+LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::deque<std::string>& legal_joint_names)
 {
 	reset();
 	errorLine = 0;
-	mStatus = loadTranslationTable("anim.ini");
+    
+    // Recognize all names we've been told are legal.
+    for (std::deque<std::string>::iterator joint_name_it = legal_joint_names.begin();
+         joint_name_it != legal_joint_names.end(); ++joint_name_it)
+    {
+        const std::string& name = *joint_name_it;
+
+        makeTranslation(name, name);
+    }
+
+	mStatus = loadAliases("joint_aliases.xml"); //Load joint name aliases
 	loadStatus = mStatus;
 	LL_INFOS("BVH") << "Load Status 00 : " << loadStatus << LL_ENDL;
 	if (mStatus == E_ST_NO_XLT_FILE)
@@ -184,7 +159,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 	
 	char error_text[128];		/* Flawfinder: ignore */
 	S32 error_line;
-	mStatus = loadBVHFile(buffer, error_text, error_line);
+	mStatus = loadBVHFile(buffer, error_text, error_line); //Reads all joints in BVH file.
 
 	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
 	LL_DEBUGS("BVH") << "Raw data from file" << LL_ENDL;
@@ -198,7 +173,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 		return;
 	}
 	
-	applyTranslations();
+	applyTranslations();  //Maps between joints found in file and the aliased names.
 	optimize();
 	
 	LL_DEBUGS("BVH") << "============================================================" << LL_ENDL;
@@ -215,464 +190,64 @@ LLBVHLoader::~LLBVHLoader()
 	mJoints.clear();
 }
 
-//------------------------------------------------------------------------
-// LLBVHLoader::loadTranslationTable()
-//------------------------------------------------------------------------
-ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
+void LLBVHLoader::makeTranslation(std::string alias_name, std::string joint_name)
 {
-	mLineNumber = 0;
-	mTranslations.clear();
-	mConstraints.clear();
+    //Translation &newTrans = (foomap.insert(value_type(alias_name, Translation()))).first();
+    Translation &newTrans = mTranslations[ alias_name ];  //Uses []'s implicit call to ctor.
+    
+    newTrans.mOutName = joint_name;
+    LLMatrix3 fm;
+    LLVector3 vect1(0, 1, 0);
+    LLVector3 vect2(0, 0, 1);
+    LLVector3 vect3(1, 0, 0);
+    fm.setRows(vect1, vect2, vect3);
+    
+    newTrans.mFrameMatrix = fm;
+    
+    if (joint_name == "mPelvis")
+    {
+        newTrans.mRelativePositionKey = TRUE;
+        newTrans.mRelativeRotationKey = TRUE;
+    }
 
-	//--------------------------------------------------------------------
-	// open file
-	//--------------------------------------------------------------------
-	std::string path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,fileName);
+}
 
-	LLAPRFile infile ;
-	infile.open(path, LL_APR_R);
-	apr_file_t *fp = infile.getFileHandle();
-	if (!fp)
-		return E_ST_NO_XLT_FILE;
+ELoadStatus LLBVHLoader::loadAliases(const char * filename)
+{
+    LLSD aliases_sd;
+ 
+    std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,filename);
+    
+    llifstream input_stream;
+    input_stream.open(fullpath.c_str(), std::ios::in | std::ios::binary);
+    
+    if(input_stream.is_open())
+    {
+        if ( LLSDSerialize::fromXML(aliases_sd, input_stream) )
+        {
+            for(LLSD::map_iterator alias_iter = aliases_sd.beginMap();
+                alias_iter != aliases_sd.endMap();
+                ++alias_iter)
+            {
+                LLSD::String alias_name = alias_iter->first;
+                LLSD::String joint_name = alias_iter->second;
+                makeTranslation(alias_name, joint_name);
+                
+            }
+        }
+        else
+        {
+            return E_ST_NO_XLT_HEADER;
+        }
+        input_stream.close();
+    }
+    else
+    {
+        LL_WARNS("BVH") << "Can't open joint alias file " << fullpath << LL_ENDL;
+        return E_ST_NO_XLT_FILE;
+    }
 
-	LL_INFOS("BVH") << "NOTE: Loading translation table: " << fileName << LL_ENDL;
-
-	//--------------------------------------------------------------------
-	// register file to be closed on function exit
-	//--------------------------------------------------------------------
-	
-	//--------------------------------------------------------------------
-	// load header
-	//--------------------------------------------------------------------
-	if ( ! getLine(fp) )
-		return E_ST_EOF;
-	if ( strncmp(mLine, "Translations 1.0", 16) )
-		return E_ST_NO_XLT_HEADER;
-
-	//--------------------------------------------------------------------
-	// load data one line at a time
-	//--------------------------------------------------------------------
-	BOOL loadingGlobals = FALSE;
-	Translation *trans = NULL;
-	while ( getLine(fp) )
-	{
-		//----------------------------------------------------------------
-		// check the 1st token on the line to determine if it's empty or a comment
-		//----------------------------------------------------------------
-		char token[128]; /* Flawfinder: ignore */
-		if ( sscanf(mLine, " %127s", token) != 1 )	/* Flawfinder: ignore */
-			continue;
-
-		if (token[0] == '#')
-			continue;
-
-		//----------------------------------------------------------------
-		// check if a [jointName] or [GLOBALS] was specified.
-		//----------------------------------------------------------------
-		if (token[0] == '[')
-		{
-			char name[128]; /* Flawfinder: ignore */
-			if ( sscanf(mLine, " [%127[^]]", name) != 1 )
-				return E_ST_NO_XLT_NAME;
-
-			if (strcmp(name, "GLOBALS")==0)
-			{
-				loadingGlobals = TRUE;
-				continue;
-			}
-			else
-			{
-				loadingGlobals = FALSE;
-				Translation &newTrans = mTranslations[ name ];
-				trans = &newTrans;
-				continue;
-			}
-		}
-
-		//----------------------------------------------------------------
-		// check for optional emote 
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "emote")==0)
-		{
-			char emote_str[1024];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %1023s", emote_str) != 1 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_EMOTE;
-
-			mEmoteName.assign( emote_str );
-//			LL_INFOS() << "NOTE: Emote: " << mEmoteName.c_str() << LL_ENDL;
-			continue;
-		}
-
-
-		//----------------------------------------------------------------
-		// check for global priority setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "priority")==0)
-		{
-			S32 priority;
-			if ( sscanf(mLine, " %*s = %d", &priority) != 1 )
-				return E_ST_NO_XLT_PRIORITY;
-
-			mPriority = priority;
-//			LL_INFOS() << "NOTE: Priority: " << mPriority << LL_ENDL;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global loop setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "loop")==0)
-		{
-			char trueFalse[128];		/* Flawfinder: ignore */
-			trueFalse[0] = '\0';
-			
-			F32 loop_in = 0.f;
-			F32 loop_out = 1.f;
-
-			if ( sscanf(mLine, " %*s = %f %f", &loop_in, &loop_out) == 2 )
-			{
-				mLoop = TRUE;
-			}
-			else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )	/* Flawfinder: ignore */	
-			{
-				mLoop = (LLStringUtil::compareInsensitive(trueFalse, "true")==0);
-			}
-			else
-			{
-				return E_ST_NO_XLT_LOOP;
-			}
-
-			mLoopInPoint = loop_in * mDuration;
-			mLoopOutPoint = loop_out * mDuration;
-
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global easeIn setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "easein")==0)
-		{
-			F32 duration;
-			char type[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_EASEIN;
-
-			mEaseIn = duration;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global easeOut setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "easeout")==0)
-		{
-			F32 duration;
-			char type[128];		/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_EASEOUT;
-
-			mEaseOut = duration;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for global handMorph setting
-		//----------------------------------------------------------------
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "hand")==0)
-		{
-			S32 handMorph;
-			if (sscanf(mLine, " %*s = %d", &handMorph) != 1)
-				return E_ST_NO_XLT_HAND;
-
-			mHand = handMorph;
-			continue;
-		}
-
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "constraint")==0)
-		{
-			Constraint constraint;
-
-			// try reading optional target direction
-			if(sscanf( /* Flawfinder: ignore */
-				mLine,
-				" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f %f %f %f", 
-				&constraint.mChainLength,
-				&constraint.mEaseInStart,
-				&constraint.mEaseInStop,
-				&constraint.mEaseOutStart,
-				&constraint.mEaseOutStop,
-				constraint.mSourceJointName,
-				&constraint.mSourceOffset.mV[VX],
-				&constraint.mSourceOffset.mV[VY],
-				&constraint.mSourceOffset.mV[VZ],
-				constraint.mTargetJointName,
-				&constraint.mTargetOffset.mV[VX],
-				&constraint.mTargetOffset.mV[VY],
-				&constraint.mTargetOffset.mV[VZ],
-				&constraint.mTargetDir.mV[VX],
-				&constraint.mTargetDir.mV[VY],
-				&constraint.mTargetDir.mV[VZ]) != 16)
-			{
-				if(sscanf( /* Flawfinder: ignore */
-					mLine,
-					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f", 
-					&constraint.mChainLength,
-					&constraint.mEaseInStart,
-					&constraint.mEaseInStop,
-					&constraint.mEaseOutStart,
-					&constraint.mEaseOutStop,
-					constraint.mSourceJointName,
-					&constraint.mSourceOffset.mV[VX],
-					&constraint.mSourceOffset.mV[VY],
-					&constraint.mSourceOffset.mV[VZ],
-					constraint.mTargetJointName,
-					&constraint.mTargetOffset.mV[VX],
-					&constraint.mTargetOffset.mV[VY],
-					&constraint.mTargetOffset.mV[VZ]) != 13)
-				{
-					return E_ST_NO_CONSTRAINT;
-				}
-			}
-			else
-			{
-				// normalize direction
-				if (!constraint.mTargetDir.isExactlyZero())
-				{
-					constraint.mTargetDir.normVec();
-				}
-
-			}
-			
-			constraint.mConstraintType = CONSTRAINT_TYPE_POINT;
-			mConstraints.push_back(constraint);
-			continue;
-		}
-
-		if (loadingGlobals && LLStringUtil::compareInsensitive(token, "planar_constraint")==0)
-		{
-			Constraint constraint;
-
-			// try reading optional target direction
-			if(sscanf( /* Flawfinder: ignore */
-				mLine,
-				" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f %f %f %f", 
-				&constraint.mChainLength,
-				&constraint.mEaseInStart,
-				&constraint.mEaseInStop,
-				&constraint.mEaseOutStart,
-				&constraint.mEaseOutStop,
-				constraint.mSourceJointName,
-				&constraint.mSourceOffset.mV[VX],
-				&constraint.mSourceOffset.mV[VY],
-				&constraint.mSourceOffset.mV[VZ],
-				constraint.mTargetJointName,
-				&constraint.mTargetOffset.mV[VX],
-				&constraint.mTargetOffset.mV[VY],
-				&constraint.mTargetOffset.mV[VZ],
-				&constraint.mTargetDir.mV[VX],
-				&constraint.mTargetDir.mV[VY],
-				&constraint.mTargetDir.mV[VZ]) != 16)
-			{
-				if(sscanf( /* Flawfinder: ignore */
-					mLine,
-					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f", 
-					&constraint.mChainLength,
-					&constraint.mEaseInStart,
-					&constraint.mEaseInStop,
-					&constraint.mEaseOutStart,
-					&constraint.mEaseOutStop,
-					constraint.mSourceJointName,
-					&constraint.mSourceOffset.mV[VX],
-					&constraint.mSourceOffset.mV[VY],
-					&constraint.mSourceOffset.mV[VZ],
-					constraint.mTargetJointName,
-					&constraint.mTargetOffset.mV[VX],
-					&constraint.mTargetOffset.mV[VY],
-					&constraint.mTargetOffset.mV[VZ]) != 13)
-				{
-					return E_ST_NO_CONSTRAINT;
-				}
-			}
-			else
-			{
-				// normalize direction
-				if (!constraint.mTargetDir.isExactlyZero())
-				{
-					constraint.mTargetDir.normVec();
-				}
-
-			}
-			
-			constraint.mConstraintType = CONSTRAINT_TYPE_PLANE;
-			mConstraints.push_back(constraint);
-			continue;
-		}
-
-
-		//----------------------------------------------------------------
-		// at this point there must be a valid trans pointer
-		//----------------------------------------------------------------
-		if ( ! trans )
-			return E_ST_NO_XLT_NAME;
-
-		//----------------------------------------------------------------
-		// check for ignore flag
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "ignore")==0 )
-		{
-			char trueFalse[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", trueFalse) != 1 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_IGNORE;
-
-			trans->mIgnore = (LLStringUtil::compareInsensitive(trueFalse, "true")==0);
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for relativepos flag
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "relativepos")==0 )
-		{
-			F32 x, y, z;
-			char relpos[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %f %f %f", &x, &y, &z) == 3 )
-			{
-				trans->mRelativePosition.setVec( x, y, z );
-			}
-			else if ( sscanf(mLine, " %*s = %127s", relpos) == 1 )	/* Flawfinder: ignore */
-			{
-				if ( LLStringUtil::compareInsensitive(relpos, "firstkey")==0 )
-				{
-					trans->mRelativePositionKey = TRUE;
-				}
-				else
-				{
-					return E_ST_NO_XLT_RELATIVE;
-				}
-			}
-			else
-			{
-				return E_ST_NO_XLT_RELATIVE;
-			}
-
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for relativerot flag
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "relativerot")==0 )
-		{
-			//F32 x, y, z;
-			char relpos[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", relpos) == 1 )	/* Flawfinder: ignore */
-			{
-				if ( LLStringUtil::compareInsensitive(relpos, "firstkey")==0 )
-				{
-					trans->mRelativeRotationKey = TRUE;
-				}
-				else
-				{
-					return E_ST_NO_XLT_RELATIVE;
-				}
-			}
-			else
-			{
-				return E_ST_NO_XLT_RELATIVE;
-			}
-
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for outname value
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "outname")==0 )
-		{
-			char outName[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", outName) != 1 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_OUTNAME;
-
-			trans->mOutName = outName;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for frame matrix value
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "frame")==0 )
-		{
-			LLMatrix3 fm;
-			if ( sscanf(mLine, " %*s = %f %f %f, %f %f %f, %f %f %f",
-					&fm.mMatrix[0][0], &fm.mMatrix[0][1], &fm.mMatrix[0][2],
-					&fm.mMatrix[1][0], &fm.mMatrix[1][1], &fm.mMatrix[1][2],
-					&fm.mMatrix[2][0], &fm.mMatrix[2][1], &fm.mMatrix[2][2]	) != 9 )
-				return E_ST_NO_XLT_MATRIX;
-
-			trans->mFrameMatrix = fm;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for offset matrix value
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "offset")==0 )
-		{
-			LLMatrix3 om;
-			if ( sscanf(mLine, " %*s = %f %f %f, %f %f %f, %f %f %f",
-					&om.mMatrix[0][0], &om.mMatrix[0][1], &om.mMatrix[0][2],
-					&om.mMatrix[1][0], &om.mMatrix[1][1], &om.mMatrix[1][2],
-					&om.mMatrix[2][0], &om.mMatrix[2][1], &om.mMatrix[2][2]	) != 9 )
-				return E_ST_NO_XLT_MATRIX;
-
-			trans->mOffsetMatrix = om;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for mergeparent value
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "mergeparent")==0 )
-		{
-			char mergeParentName[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", mergeParentName) != 1 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_MERGEPARENT;
-
-			trans->mMergeParentName = mergeParentName;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for mergechild value
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "mergechild")==0 )
-		{
-			char mergeChildName[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", mergeChildName) != 1 )	/* Flawfinder: ignore */
-				return E_ST_NO_XLT_MERGECHILD;
-
-			trans->mMergeChildName = mergeChildName;
-			continue;
-		}
-
-		//----------------------------------------------------------------
-		// check for per-joint priority
-		//----------------------------------------------------------------
-		if ( LLStringUtil::compareInsensitive(token, "priority")==0 )
-		{
-			S32 priority;
-			if ( sscanf(mLine, " %*s = %d", &priority) != 1 )
-				return E_ST_NO_XLT_PRIORITY;
-
-			trans->mPriorityModifier = priority;
-			continue;
-		}
-
-	}
-
-	infile.close() ;
-	return E_ST_OK;
+    return E_ST_OK;
 }
 
 void LLBVHLoader::dumpBVHInfo()
@@ -1374,6 +949,7 @@ void LLBVHLoader::reset()
 	mInitialized = FALSE;
 
 	mEmoteName = "";
+    mTranslations.clear();
 }
 
 //------------------------------------------------------------------------
@@ -1603,28 +1179,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		}
 	}
 
-	S32 num_constraints = (S32)mConstraints.size();
-	dp.packS32(num_constraints, "num_constraints");
-
-	for (ConstraintVector::iterator constraint_it = mConstraints.begin();
-		constraint_it != mConstraints.end();
-		constraint_it++)
-		{
-			U8 byte = constraint_it->mChainLength;
-			dp.packU8(byte, "chain_length");
-			
-			byte = constraint_it->mConstraintType;
-			dp.packU8(byte, "constraint_type");
-			dp.packBinaryDataFixed((U8*)constraint_it->mSourceJointName, 16, "source_volume");
-			dp.packVector3(constraint_it->mSourceOffset, "source_offset");
-			dp.packBinaryDataFixed((U8*)constraint_it->mTargetJointName, 16, "target_volume");
-			dp.packVector3(constraint_it->mTargetOffset, "target_offset");
-			dp.packVector3(constraint_it->mTargetDir, "target_dir");
-			dp.packF32(constraint_it->mEaseInStart,	"ease_in_start");
-			dp.packF32(constraint_it->mEaseInStop,	"ease_in_stop");
-			dp.packF32(constraint_it->mEaseOutStart,	"ease_out_start");
-			dp.packF32(constraint_it->mEaseOutStop,	"ease_out_stop");
-		}
-
+	dp.packS32(0, "num_constraints");
+	
 	return TRUE;
 }

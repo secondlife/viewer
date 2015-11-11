@@ -128,7 +128,8 @@ public:
 		void*								opaque_userdata,
 		JointTransformMap&					jointTransformMap,
 		JointNameSet&						jointsFromNodes,
-        JointNameSet&						legalJointNames);
+        JointNameSet&						legalJointNames,
+        std::string                         jointAliasFilename);
 	virtual ~LLModelLoader() ;
 
 	virtual void setNoNormalize() { mNoNormalize = true; }

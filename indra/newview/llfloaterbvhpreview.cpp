@@ -178,6 +178,14 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
+void LLFloaterBvhPreview::getLegalJointNames(std::deque<std::string>& legal_joint_names)
+{
+    // Get all standard skeleton joints from the preview avatar.
+    LLPointer<LLVOAvatar> av = (LLVOAvatar*)mAnimPreview->getDummyAvatar();
+    av->getLegalJointNames(legal_joint_names, false);
+}
+
+
 //-----------------------------------------------------------------------------
 // postBuild()
 //-----------------------------------------------------------------------------
@@ -215,6 +223,8 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 	getChildView("bad_animation_text")->setVisible(FALSE);
 
+    mAnimPreview = new LLPreviewAnimation(256, 256);
+    
 	std::string exten = gDirUtilp->getExtension(mFilename);
 	if (exten == "bvh")
 	{
@@ -241,8 +251,10 @@ BOOL LLFloaterBvhPreview::postBuild()
 				file_buffer[file_size] = '\0';
 				LL_INFOS() << "Loading BVH file " << mFilename << LL_ENDL;
 				ELoadStatus load_status = E_ST_OK;
-				S32 line_number = 0; 
-				loaderp = new LLBVHLoader(file_buffer, load_status, line_number);
+				S32 line_number = 0;
+                std::deque<std::string> legal_joint_names;
+                getLegalJointNames(legal_joint_names);
+				loaderp = new LLBVHLoader(file_buffer, load_status, line_number, legal_joint_names);
 				std::string status = getString(STATUS[load_status]);
 				
 				if(load_status == E_ST_NO_XLT_FILE)
@@ -265,8 +277,6 @@ BOOL LLFloaterBvhPreview::postBuild()
 		// generate unique id for this motion
 		mTransactionID.generate();
 		mMotionID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
-
-		mAnimPreview = new LLPreviewAnimation(256, 256);
 
 		// motion will be returned, but it will be in a load-pending state, as this is a new motion
 		// this motion will not request an asset transfer until next update, so we have a chance to 

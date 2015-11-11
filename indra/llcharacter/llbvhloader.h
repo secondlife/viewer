@@ -32,6 +32,7 @@
 #include "llmath.h"
 #include "llapr.h"
 #include "llbvhconsts.h"
+#include <deque>
 
 const S32 BVH_PARSER_LINE_SIZE = 2048;
 class LLDataPacker;
@@ -228,7 +229,8 @@ class LLBVHLoader
 public:
 	// Constructor
 //	LLBVHLoader(const char* buffer);
-	LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine);
+    LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine);
+	LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::deque<std::string>& legal_joint_names);
 	~LLBVHLoader();
 
 /*	
@@ -267,8 +269,15 @@ public:
 	static const char *ST_NO_XLT_EMOTE;
 	static const char *ST_BAD_ROOT;
 */
+
 	// Loads the specified translation table.
 	ELoadStatus loadTranslationTable(const char *fileName);
+
+    //Create a new joint alias
+    void makeTranslation(std::string key, std::string value);
+    
+    // Loads joint aliases from XML file.
+    ELoadStatus loadAliases(const char * filename);
 
 	// Load the specified BVH file.
 	// Returns status code.

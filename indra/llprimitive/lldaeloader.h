@@ -57,6 +57,7 @@ public:
 		JointTransformMap&					jointTransformMap,
 		JointNameSet&						jointsFromNodes,
         JointNameSet&						legalJointNames,
+        std::string                         jointAliasesFilename,
 		U32									modelLimit);
 	virtual ~LLDAELoader() ;
 

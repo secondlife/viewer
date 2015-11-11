@@ -1712,6 +1712,8 @@ void LLModelPreview::getLegalJointNames(JointNameSet& legal_joint_names)
 {
     // Get all standard skeleton joints from the preview avatar.
     LLVOAvatar *av = getPreviewAvatar();
+ 
+    av->getLegalJointNames(legal_joint_names, true);
     const LLVOAvatar::avatar_joint_list_t &skel = av->getSkeleton();
     for (S32 i=0; i<skel.size(); i++)
     {
@@ -1775,6 +1777,10 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
     JointNameSet legal_joint_names;
     getLegalJointNames(legal_joint_names);
     
+    std::string joint_aliases_filename =
+                    gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"joint_aliases.xml");
+
+
 	mModelLoader = new LLDAELoader(
 		filename,
 		lod, 
@@ -1786,6 +1792,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		mJointTransformMap,
 		mJointsFromNode,
         legal_joint_names,
+        joint_aliases_filename,
 		gSavedSettings.getU32("ImporterModelLimit"));
 
 	if (force_disable_slm)

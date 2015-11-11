@@ -937,6 +937,29 @@ std::string LLVOAvatar::rezStatusToString(S32 rez_status)
 	return "unknown";
 }
 
+void LLVOAvatar::getLegalJointNames(std::deque<std::string>& legal_joint_names,
+                                    bool include_collision_volumes)
+{
+    // Get all standard skeleton joints from the preview avatar.
+    const LLVOAvatar::avatar_joint_list_t &skel = getSkeleton();
+    for (S32 i=0; i<skel.size(); i++)
+    {
+        LLAvatarJoint *joint = skel[i];
+        if (joint)
+        {
+            legal_joint_names.push_back(joint->getName());
+        }
+    }
+    
+    if (include_collision_volumes)
+    {
+        for (S32 i = 0; i < mNumCollisionVolumes; i++)
+        {
+            legal_joint_names.push_back(mCollisionVolumes[i].getName());
+        }
+    }
+}
+
 // static
 void LLVOAvatar::dumpBakedStatus()
 {

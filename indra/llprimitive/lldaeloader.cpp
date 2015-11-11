@@ -811,6 +811,7 @@ LLDAELoader::LLDAELoader(
 	JointTransformMap&	jointTransformMap,
 	JointNameSet&		jointsFromNodes,
     JointNameSet&		legalJointNames,
+    std::string         jointAliasesFilename,
 	U32					modelLimit)
 : LLModelLoader(
 		filename,
@@ -822,7 +823,8 @@ LLDAELoader::LLDAELoader(
 		opaque_userdata,
 		jointTransformMap,
 		jointsFromNodes,
-        legalJointNames),
+        legalJointNames,
+        jointAliasesFilename),
 mGeneratedModelLimit(modelLimit)
 {
 }
