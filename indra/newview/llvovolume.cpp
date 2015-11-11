@@ -2022,7 +2022,7 @@ void LLVOVolume::setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLM
 		LLTextureEntry* texture_entry = pVol->getTE(te);
 		if (texture_entry && (texture_entry->getMaterialID() == pMaterialID))
 		{
-			pVol->setTEMaterialParams(te, pMaterialParams, FALSE);
+			pVol->setTEMaterialParams(te, pMaterialParams);
 		}
 	}
 }
@@ -2093,7 +2093,7 @@ bool LLVOVolume::notifyAboutCreatingTexture(LLViewerTexture *texture)
 	for(map_te_material::const_iterator it = new_material.begin(), end = new_material.end(); it != end; ++it)
 	{
 		LLMaterialMgr::getInstance()->put(getID(), it->first, *it->second);
-		LLViewerObject::setTEMaterialParams(it->first, it->second, FALSE);
+		LLViewerObject::setTEMaterialParams(it->first, it->second);
 	}
 
 	//clear wait-list
@@ -2170,7 +2170,7 @@ bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
 	for(map_te_material::const_iterator it = new_material.begin(), end = new_material.end(); it != end; ++it)
 	{
 		LLMaterialMgr::getInstance()->put(getID(), it->first, *it->second);
-		LLViewerObject::setTEMaterialParams(it->first, it->second, FALSE);
+		LLViewerObject::setTEMaterialParams(it->first, it->second);
 	}
 
 	//clear wait-list
@@ -2179,7 +2179,7 @@ bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
 	return 0 != new_material.size();
 }
 
-S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams, bool isInitFromServer)
+S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams)
 {
 	LLMaterialPtr pMaterial = const_cast<LLMaterialPtr&>(pMaterialParams);
 
@@ -2276,7 +2276,7 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 		}
 	}
 
-	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterial, isInitFromServer);
+	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterial);
 
 	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterial) ? pMaterial->asLLSD() : LLSD("null")) << " res " << res
 							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )

@@ -331,7 +331,7 @@ public:
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/ S32     setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
-	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams, bool isInitFromServer);
+	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
 
 	// Used by Materials update functions to properly kick off rebuilds
 	// of VBs etc when materials updates require changes.
