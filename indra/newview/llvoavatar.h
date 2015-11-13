@@ -147,8 +147,6 @@ public:
 	void 						collectBakedTextureUUIDs(std::set<LLUUID>& ids) const;
 	void 						collectTextureUUIDs(std::set<LLUUID>& ids);
 	void						releaseOldTextures();
-    void                        getLegalJointNames(std::deque<std::string>& legal_joint_names,
-                                                   bool include_collision_volumes);
 	/*virtual*/ void   	 	 	updateTextures();
 	LLViewerFetchedTexture*		getBakedTextureImage(const U8 te, const LLUUID& uuid);
 	/*virtual*/ S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.

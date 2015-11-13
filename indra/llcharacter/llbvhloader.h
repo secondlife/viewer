@@ -32,7 +32,6 @@
 #include "llmath.h"
 #include "llapr.h"
 #include "llbvhconsts.h"
-#include <deque>
 
 const S32 BVH_PARSER_LINE_SIZE = 2048;
 class LLDataPacker;
@@ -228,8 +227,6 @@ class LLBVHLoader
 	friend class LLKeyframeMotion;
 public:
 	// Constructor
-//	LLBVHLoader(const char* buffer);
-    LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine);
     LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string>& joint_alias_map );
 	~LLBVHLoader();
 

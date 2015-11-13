@@ -937,27 +937,6 @@ std::string LLVOAvatar::rezStatusToString(S32 rez_status)
 	return "unknown";
 }
 
-void LLVOAvatar::getLegalJointNames(std::deque<std::string>& legal_joint_names,
-                                    bool include_collision_volumes)
-{
-    LLAvatarAppearance::joint_alias_map_t alias_map = getJointAliases();
-
-    std::map<std::string, std::string>::iterator iter;
-
-    for (iter = alias_map.begin(); iter != alias_map.end(); ++iter)
-    {
-        legal_joint_names.push_back(iter->first);
-    }
-    
-    if (include_collision_volumes)
-    {
-        for (S32 i = 0; i < mNumCollisionVolumes; i++)
-        {
-            legal_joint_names.push_back(mCollisionVolumes[i].getName());
-        }
-    }
-}
-
 // static
 void LLVOAvatar::dumpBakedStatus()
 {
