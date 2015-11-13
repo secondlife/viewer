@@ -3301,8 +3301,6 @@ LLSD LLAppViewer::getViewerInfo() const
 	version.append(LLVersionInfo::getBuild());
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
-	info["BUILD_DATE"] = __DATE__;
-	info["BUILD_TIME"] = __TIME__;
 	info["CHANNEL"] = LLVersionInfo::getChannel();
 
 	// return a URL to the release notes for this viewer, such as:
