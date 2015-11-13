@@ -109,7 +109,8 @@ public:
 									   S32 status, LLExtStat ext_status);
 private:
 	void setAnimCallbacks() ;
-    void getLegalJointNames(std::deque<std::string>& legal_joint_names);
+    std::map <std::string, std::string> getJointAliases();
+
 
 protected:
 	void			draw();

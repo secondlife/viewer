@@ -44,6 +44,7 @@
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
 #include "boost/bind.hpp"
+#include "boost/tokenizer.hpp"
 
 
 #if LL_MSVC
@@ -88,6 +89,7 @@ public:
 private:
 	std::string mName;
     std::string mSupport;
+    std::string mAliases;
 	BOOL mIsJoint;
 	LLVector3 mPos;
 	LLVector3 mRot;
@@ -119,6 +121,7 @@ public:
 private:
 	S32 mNumBones;
 	S32 mNumCollisionVolumes;
+    LLAvatarAppearance::joint_alias_map_t mJointAliasMap;
 	typedef std::vector<LLAvatarBoneInfo*> bone_info_list_t;
 	bone_info_list_t mBoneInfoList;
 };
@@ -1529,6 +1532,9 @@ BOOL LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
 			LL_WARNS() << "Bone without name" << LL_ENDL;
 			return FALSE;
 		}
+        
+        static LLStdStringHandle aliases_string = LLXmlTree::addAttributeString("aliases");
+        node->getFastAttributeString(aliases_string, mAliases ); //Aliases are not required.
 	}
 	else if (node->hasName("collision_volume"))
 	{
@@ -1627,6 +1633,54 @@ BOOL LLAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
 	}
 	return TRUE;
 }
+
+//Make aliases for joint and push to map.
+void LLAvatarAppearance::makeJointAliases(LLAvatarBoneInfo *bone_info)
+{
+    if (! bone_info->mIsJoint )
+    {
+        return;
+    }
+    
+    std::string bone_name = bone_info->mName;
+    mJointAliasMap[bone_name] = bone_name; //Actual name is a valid alias.
+    
+    std::string aliases = bone_info->mAliases;
+    
+    boost::char_separator<char> sep(" ");
+    boost::tokenizer<boost::char_separator<char> > tok(aliases, sep);
+    for(boost::tokenizer<boost::char_separator<char> >::iterator i = tok.begin(); i != tok.end(); ++i)
+    {
+        if ( mJointAliasMap.find(*i) != mJointAliasMap.end() )
+        {
+            LL_WARNS() << "avatar skeleton:  Joint alias \"" << *i << "\" remapped from " << mJointAliasMap[*i] << " to " << bone_name << LL_ENDL;
+        }
+        mJointAliasMap[*i] = bone_name;
+    }
+    
+    LLAvatarBoneInfo::child_list_t::const_iterator iter;
+    for (iter = bone_info->mChildList.begin(); iter != bone_info->mChildList.end(); ++iter)
+    {
+        makeJointAliases( *iter );
+    }
+}
+
+const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases ()
+{
+    LLAvatarAppearance::joint_alias_map_t alias_map;
+    if (mJointAliasMap.empty())
+    {
+        
+        LLAvatarSkeletonInfo::bone_info_list_t::const_iterator iter;
+        for (iter = sAvatarSkeletonInfo->mBoneInfoList.begin(); iter != sAvatarSkeletonInfo->mBoneInfoList.end(); ++iter)
+        {
+            //LLAvatarBoneInfo *bone_info = *iter;
+            makeJointAliases( *iter );
+        }
+    }
+    
+    return mJointAliasMap;
+} 
 
 
 //-----------------------------------------------------------------------------

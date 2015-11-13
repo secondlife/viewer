@@ -111,13 +111,14 @@ LLModelLoader::LLModelLoader(
 	void*				opaque_userdata,
 	JointTransformMap&	jointTransformMap,
 	JointNameSet&		jointsFromNodes,
-    JointNameSet&		legalJointNames,
-    std::string         jointAliasFilename)
+    JointMap&           legalJointNamesMap,
+    U32					maxJointsPerMesh)
 : mJointList( jointTransformMap )
 , mJointsFromNode( jointsFromNodes )
 , LLThread("Model Loader")
 , mFilename(filename)
 , mLod(lod)
+, mTrySLM(false)
 , mFirstTransform(TRUE)
 , mNumOfFetchingTextures(0)
 , mLoadCallback(load_cb)
@@ -125,38 +126,14 @@ LLModelLoader::LLModelLoader(
 , mTextureLoadFunc(texture_load_func)
 , mStateCallback(state_cb)
 , mOpaqueData(opaque_userdata)
+, mRigValidJointUpload(true)
+, mLegacyRigValid(true)
 , mNoNormalize(false)
 , mNoOptimize(false)
 , mCacheOnlyHitIfRigged(false)
-{
-    // Recognize all names we've been told are legal.
-    for (JointNameSet::iterator joint_name_it = legalJointNames.begin();
-         joint_name_it != legalJointNames.end(); ++joint_name_it)
-    {
-        const std::string& name = *joint_name_it;
-        mJointMap[name] = name;
-    }
-    
-
-    // Also support various legacy aliases for commonly used joints
-    LLSD aliases_sd;
-    llifstream input_stream;
-    input_stream.open(jointAliasFilename.c_str(), std::ios::in | std::ios::binary);
-    
-    if(input_stream.is_open())
-    {
-        LLSDSerialize::fromXML(aliases_sd, input_stream);
-        for(LLSD::map_iterator alias_iter = aliases_sd.beginMap();
-            alias_iter != aliases_sd.endMap();
-            ++alias_iter)
-        {
-            LLSD::String alias_name = alias_iter->first;
-            LLSD::String joint_name = alias_iter->second;
-            mJointMap[ alias_name ] = joint_name;
-        }
-        input_stream.close();
-    }
-    
+, mMaxJointsPerMesh(maxJointsPerMesh)
+, mJointMap(legalJointNamesMap)
+{    
 	//move into joint mapper class
 	//1. joints for joint offset verification
 	mMasterJointList.push_front("mPelvis");
@@ -426,8 +403,6 @@ void LLModelLoader::loadModelCallback()
 //-----------------------------------------------------------------------------
 void LLModelLoader::critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset )
 {
-	critiqueJointToNodeMappingFromScene();
-	
 	//Determines the following use cases for a rig:
 	//1. It is suitable for upload with skin weights & joint positions, or
 	//2. It is suitable for upload as standard av with just skin weights
@@ -435,59 +410,27 @@ void LLModelLoader::critiqueRigForUploadApplicability( const std::vector<std::st
 	bool isJointPositionUploadOK = isRigSuitableForJointPositionUpload( jointListFromAsset );
 	bool isRigLegacyOK			 = isRigLegacy( jointListFromAsset );
 
-	//It's OK that both could end up being true, both default to false
-	if ( isJointPositionUploadOK )
+	// It's OK that both could end up being true.
+
+    // Both start out as true and are forced to false if any mesh in
+    // the model file is not vald by that criterion. Note that a file
+    // can contain multiple meshes.
+	if ( !isJointPositionUploadOK )
 	{
-		setRigValidForJointPositionUpload( true );
+        // This starts out true, becomes false if false for any loaded
+        // mesh. 
+		setRigValidForJointPositionUpload( false );
 	}
 
-	if ( isRigLegacyOK) 
+	if ( !isRigLegacyOK) 
 	{	
-		setLegacyRigValid( true );
+        // This starts out true, becomes false if false for any loaded
+        // mesh. 
+		setLegacyRigValid( false );
 	}
 
 }
-//-----------------------------------------------------------------------------
-// critiqueJointToNodeMappingFromScene()
-//-----------------------------------------------------------------------------
-void LLModelLoader::critiqueJointToNodeMappingFromScene( void  )
-{
-	//Do the actual nodes back the joint listing from the dae?
-	//if yes then this is a fully rigged asset, otherwise it's just a partial rig
-	
-	JointNameSet::iterator jointsFromNodeIt = mJointsFromNode.begin();
-	JointNameSet::iterator jointsFromNodeEndIt = mJointsFromNode.end();
-	bool result = true;
 
-	if ( !mJointsFromNode.empty() )
-	{
-		for ( ;jointsFromNodeIt!=jointsFromNodeEndIt;++jointsFromNodeIt )
-		{
-			std::string name = *jointsFromNodeIt;
-			if ( mJointTransformMap.find( name ) != mJointTransformMap.end() )
-			{
-				continue;
-			}
-			else
-			{
-				LL_INFOS() <<"critiqueJointToNodeMappingFromScene is missing a: " << name << LL_ENDL;
-				result = false;				
-			}
-		}
-	}
-	else
-	{
-		result = false;
-	}
-
-	//Determines the following use cases for a rig:
-	//1. Full av rig  w/1-1 mapping from the scene and joint array
-	//2. Partial rig but w/o parity between the scene and joint array
-	if ( result )
-	{		
-		setRigWithSceneParity( true );
-	}	
-}
 //-----------------------------------------------------------------------------
 // isRigLegacy()
 //-----------------------------------------------------------------------------
@@ -499,68 +442,80 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
 		return false;
 	}
 
-	bool result = false;
+    // Too many joints in asset
+    if (jointListFromAsset.size()>mMaxJointsPerMesh)
+    {
+        LL_WARNS() << "Rigged to " << jointListFromAsset.size() << " joints, max is " << mMaxJointsPerMesh << LL_ENDL;
+        LL_WARNS() << "Skinning disabled due to too many joints" << LL_ENDL;
+        return false;
+    }
 
+    // Unknown joints in asset
+    S32 unknown_joint_count = 0;
+    for (std::vector<std::string>::const_iterator it = jointListFromAsset.begin();
+         it != jointListFromAsset.end(); ++it)
+    {
+        if (mJointMap.find(*it)==mJointMap.end())
+        {
+            LL_WARNS() << "Rigged to unrecognized joint name " << *it << LL_ENDL;
+            unknown_joint_count++;
+        }
+    }
+    if (unknown_joint_count>0)
+    {
+        LL_WARNS() << "Skinning disabled due to unknown joints" << LL_ENDL;
+        return false;
+    }
+
+	// Note that this is basically the same code as
+	// isRigSuitableForJointPositionUpload(), but the set of joints is
+	// different.
 	JointNameSet :: const_iterator masterJointIt = mMasterLegacyJointList.begin();	
 	JointNameSet :: const_iterator masterJointEndIt = mMasterLegacyJointList.end();
 	
 	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
 	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
-	
+
+    S32 missing_joint_count = 0;
 	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
 	{
-		result = false;
-		modelJointIt = jointListFromAsset.begin();
-
-		for ( ;modelJointIt!=modelJointItEnd; ++modelJointIt )
-		{
-			if ( *masterJointIt == *modelJointIt )
-			{
-				result = true;
-				break;
-			}			
-		}		
-		if ( !result )
-		{
-			LL_INFOS() <<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
-			break;
-		}
+        if (std::find(modelJointIt,modelJointItEnd,*masterJointIt)==modelJointItEnd)
+        {
+			LL_INFOS() <<" Asset did not contain a joint required for skinned mesh upload: " << *masterJointIt<< LL_ENDL;
+            missing_joint_count++;
+        }
 	}	
-	return result;
+    if (missing_joint_count>0)
+    {
+        LL_WARNS() << "Skinning disabled due to missing joints" << LL_ENDL;
+    }
+	return missing_joint_count==0;
 }
 //-----------------------------------------------------------------------------
 // isRigSuitableForJointPositionUpload()
 //-----------------------------------------------------------------------------
 bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset )
 {
-	bool result = false;
-
 	JointNameSet :: const_iterator masterJointIt = mMasterJointList.begin();	
 	JointNameSet :: const_iterator masterJointEndIt = mMasterJointList.end();
 	
 	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
 	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
 	
+    S32 missing_joint_count = 0;
 	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
 	{
-		result = false;
-		modelJointIt = jointListFromAsset.begin();
-
-		for ( ;modelJointIt!=modelJointItEnd; ++modelJointIt )
-		{
-			if ( *masterJointIt == *modelJointIt )
-			{
-				result = true;
-				break;
-			}			
-		}		
-		if ( !result )
-		{
-			LL_INFOS() <<" Asset did not contain the joint (if you're u/l a fully rigged asset w/joint positions - it is required)." << *masterJointIt<< LL_ENDL;
-			break;
-		}
+        if (std::find(modelJointIt,modelJointItEnd,*masterJointIt)==modelJointItEnd)
+        {
+			LL_INFOS() <<" Asset did not contain a joint required for joint position upload: " << *masterJointIt<< LL_ENDL;
+            missing_joint_count++;
+        }
 	}	
-	return result;
+    if (missing_joint_count>0)
+    {
+        LL_WARNS() << "Joint upload disabled due to missing joints" << LL_ENDL;
+    }
+	return missing_joint_count==0;
 }
 
 

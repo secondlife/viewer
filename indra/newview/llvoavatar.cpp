@@ -940,15 +940,13 @@ std::string LLVOAvatar::rezStatusToString(S32 rez_status)
 void LLVOAvatar::getLegalJointNames(std::deque<std::string>& legal_joint_names,
                                     bool include_collision_volumes)
 {
-    // Get all standard skeleton joints from the preview avatar.
-    const LLVOAvatar::avatar_joint_list_t &skel = getSkeleton();
-    for (S32 i=0; i<skel.size(); i++)
+    LLAvatarAppearance::joint_alias_map_t alias_map = getJointAliases();
+
+    std::map<std::string, std::string>::iterator iter;
+
+    for (iter = alias_map.begin(); iter != alias_map.end(); ++iter)
     {
-        LLAvatarJoint *joint = skel[i];
-        if (joint)
-        {
-            legal_joint_names.push_back(joint->getName());
-        }
+        legal_joint_names.push_back(iter->first);
     }
     
     if (include_collision_volumes)

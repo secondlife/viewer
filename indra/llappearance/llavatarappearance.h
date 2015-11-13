@@ -127,6 +127,9 @@ protected:
 	virtual LLAvatarJoint*	createAvatarJoint() = 0;
 	virtual LLAvatarJoint*	createAvatarJoint(S32 joint_num) = 0;
 	virtual LLAvatarJointMesh*	createAvatarJointMesh() = 0;
+    void makeJointAliases(LLAvatarBoneInfo *bone_info);
+
+
 public:
 	F32					getPelvisToFoot() const { return mPelvisToFoot; }
 	/*virtual*/ LLJoint*	getRootJoint() { return mRoot; }
@@ -142,6 +145,9 @@ public:
 public:
 	typedef std::vector<LLAvatarJoint*> avatar_joint_list_t;
     const avatar_joint_list_t& getSkeleton() { return mSkeleton; }
+    typedef std::map<std::string, std::string> joint_alias_map_t;
+    const joint_alias_map_t& getJointAliases();
+
 
 protected:
 	static BOOL			parseSkeletonFile(const std::string& filename);
@@ -156,6 +162,7 @@ protected:
 	BOOL				mIsBuilt; // state of deferred character building
 	avatar_joint_list_t	mSkeleton;
 	LLPosOverrideMap	mPelvisFixups;
+    joint_alias_map_t   mJointAliasMap;
 
 	//--------------------------------------------------------------------
 	// Pelvis height adjustment members.

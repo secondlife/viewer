@@ -85,9 +85,7 @@ U32 get_proxy_joint_index(U32 joint_index, LLVOAvatar *avatar, std::vector<std::
     U32 j_proxy = get_valid_joint_index(joint_names[joint_index], avatar, joint_names);
     LLJoint *joint = avatar->getJoint(joint_names[j_proxy]);
     llassert(joint);
-    // BENTO - test of simple push-to-base-ancestor
-    // complexity reduction scheme.  Find the first
-    // ancestor that's not flagged as extended, or the
+    // Find the first ancestor that's not flagged as extended, or the
     // last ancestor that's rigged in this mesh, whichever
     // comes first.
     while (1)
@@ -113,6 +111,7 @@ U32 get_proxy_joint_index(U32 joint_index, LLVOAvatar *avatar, std::vector<std::
 void LLSkinningUtil::initClass()
 {
     sIncludeEnhancedSkeleton = gSavedSettings.getBOOL("IncludeEnhancedSkeleton");
+	// BENTO - remove MaxJointsPerMeshObject before release.
     sMaxJointsPerMeshObject = gSavedSettings.getU32("MaxJointsPerMeshObject");
 }
 
@@ -233,7 +232,18 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     {
         LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
         mat[j] = skin->mInvBindMatrix[j];
-        mat[j] *= joint->getWorldMatrix();
+        if (joint)
+        {
+            mat[j] *= joint->getWorldMatrix();
+        }
+        else
+        {
+            // This  shouldn't  happen   -  in  mesh  upload,  skinned
+            // rendering  should  be disabled  unless  all joints  are
+            // valid.  In other  cases of  skinned  rendering, invalid
+            // joints should already have  been removed during remap.
+            LL_WARNS_ONCE("Avatar") << "Rigged to invalid joint name " << skin->mJointNames[j] << LL_ENDL;
+        }
     }
 }
 

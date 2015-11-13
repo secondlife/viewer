@@ -1184,7 +1184,6 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mPhysicsSearchLOD( LLModel::LOD_PHYSICS )
 , mResetJoints( false )
 , mModelNoErrors( true )
-, mRigParityWithScene( false )
 , mLastJointUpdate( false )
 {
 	mNeedsUpdate = TRUE;
@@ -1708,27 +1707,17 @@ void LLModelPreview::clearModel(S32 lod)
 	mScene[lod].clear();
 }
 
-void LLModelPreview::getLegalJointNames(JointNameSet& legal_joint_names)
+void LLModelPreview::getJointAliases( JointMap& joint_map)
 {
     // Get all standard skeleton joints from the preview avatar.
     LLVOAvatar *av = getPreviewAvatar();
- 
-    av->getLegalJointNames(legal_joint_names, true);
-    const LLVOAvatar::avatar_joint_list_t &skel = av->getSkeleton();
-    for (S32 i=0; i<skel.size(); i++)
-    {
-        LLAvatarJoint *joint = skel[i];
-        if (joint)
-        {
-            legal_joint_names.push_back(joint->getName());
-        }
-    }
     
-    std::stringstream cvstr;
+    //Joint names and aliases come from avatar_skeleton.xml
+    
+    joint_map = av->getJointAliases();
     for (S32 i = 0; i < av->mNumCollisionVolumes; i++)
     {
-        legal_joint_names.push_back(av->mCollisionVolumes[i].getName());
-        cvstr << legal_joint_names[i];
+        joint_map[av->mCollisionVolumes[i].getName()] = av->mCollisionVolumes[i].getName();
     }
 }
 
@@ -1774,13 +1763,9 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		clearGLODGroup();
 	}
 
-    JointNameSet legal_joint_names;
-    getLegalJointNames(legal_joint_names);
+    std::map<std::string, std::string> joint_alias_map;
+    getJointAliases(joint_alias_map);
     
-    std::string joint_aliases_filename =
-                    gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"joint_aliases.xml");
-
-
 	mModelLoader = new LLDAELoader(
 		filename,
 		lod, 
@@ -1791,8 +1776,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		this,
 		mJointTransformMap,
 		mJointsFromNode,
-        legal_joint_names,
-        joint_aliases_filename,
+        joint_alias_map,
+		LLSkinningUtil::getMaxJointCount(),
 		gSavedSettings.getU32("ImporterModelLimit"));
 
 	if (force_disable_slm)
@@ -3584,6 +3569,7 @@ BOOL LLModelPreview::render()
 			fmp->enableViewOption("show_skin_weight");
 			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);	
 			mFMP->childEnable("upload_skin");
+			mFMP->childSetValue("show_skin_weight", skin_weight);
 		}
 	}
 	else

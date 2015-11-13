@@ -230,7 +230,7 @@ public:
 	// Constructor
 //	LLBVHLoader(const char* buffer);
     LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine);
-	LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::deque<std::string>& legal_joint_names);
+    LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine, std::map<std::string, std::string>& joint_alias_map );
 	~LLBVHLoader();
 
 /*	

@@ -810,8 +810,8 @@ LLDAELoader::LLDAELoader(
 	void*				opaque_userdata,
 	JointTransformMap&	jointTransformMap,
 	JointNameSet&		jointsFromNodes,
-    JointNameSet&		legalJointNames,
-    std::string         jointAliasesFilename,
+    std::map<std::string, std::string>&		jointAliasMap,
+    U32					maxJointsPerMesh,
 	U32					modelLimit)
 : LLModelLoader(
 		filename,
@@ -823,8 +823,8 @@ LLDAELoader::LLDAELoader(
 		opaque_userdata,
 		jointTransformMap,
 		jointsFromNodes,
-        legalJointNames,
-        jointAliasesFilename),
+        jointAliasMap,
+        maxJointsPerMesh),
 mGeneratedModelLimit(modelLimit)
 {
 }
@@ -1187,6 +1187,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 							extractTranslation( pTranslateA, workingTransform );
 						}
 						else
+                        {
 							if ( pTranslateB )
 							{
 								extractTranslation( pTranslateB, workingTransform );
@@ -1211,9 +1212,10 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 									}
 
 							}
+                        }
 
-							//Store the joint transform w/respect to it's name.
-							mJointList[(*jointIt).second.c_str()] = workingTransform;
+                        //Store the joint transform w/respect to its name.
+                        mJointList[(*jointIt).second.c_str()] = workingTransform;
 					}
 				}
 
@@ -1259,8 +1261,6 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 								name = mJointMap[name];
 							}
 							model->mSkinInfo.mJointNames.push_back(name);
-                            // BENTO this does not appear to be used anywhere.
-							// model->mSkinInfo.mJointMap[name] = j;
 						}
 					}
 					else
@@ -1278,8 +1278,6 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 									name = mJointMap[name];
 								}
 								model->mSkinInfo.mJointNames.push_back(name);
-                                // BENTO not used?
-								// model->mSkinInfo.mJointMap[name] = j;
 							}
 						}
 					}
@@ -1323,35 +1321,40 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 
 		if ( !missingSkeletonOrScene )
 		{
-			//Set the joint translations on the avatar - if it's a full mapping
-			//The joints are reset in the dtor
-			if ( getRigWithSceneParity() )
-			{	
-				JointMap :: const_iterator masterJointIt = mJointMap.begin();
-				JointMap :: const_iterator masterJointItEnd = mJointMap.end();
-				for (;masterJointIt!=masterJointItEnd;++masterJointIt )
-				{
-					std::string lookingForJoint = (*masterJointIt).first.c_str();
+			//Set the joint translations on the avatar
+            JointMap :: const_iterator masterJointIt = mJointMap.begin();
+            JointMap :: const_iterator masterJointItEnd = mJointMap.end();
+            for (;masterJointIt!=masterJointItEnd;++masterJointIt )
+            {
+                std::string lookingForJoint = (*masterJointIt).first.c_str();
 
-					if ( mJointList.find( lookingForJoint ) != mJointList.end() )
-					{
-						//LL_INFOS()<<"joint "<<lookingForJoint.c_str()<<LL_ENDL;
-						LLMatrix4 jointTransform = mJointList[lookingForJoint];
-						LLJoint* pJoint = mJointLookupFunc(lookingForJoint,mOpaqueData);
-						if ( pJoint )
-						{   
-							LLUUID fake_mesh_id;
-							fake_mesh_id.generate();
-							pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, "");
-						}
-						else
-						{
-							//Most likely an error in the asset.
-							LL_WARNS()<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << LL_ENDL;
-						}
-					}
-				}
-			}
+                if ( mJointList.find( lookingForJoint ) != mJointList.end() )
+                {
+                    //LL_INFOS()<<"joint "<<lookingForJoint.c_str()<<LL_ENDL;
+                    LLMatrix4 jointTransform = mJointList[lookingForJoint];
+                    LLJoint* pJoint = mJointLookupFunc(lookingForJoint,mOpaqueData);
+                    if ( pJoint )
+                    {   
+                        // FIXME: mesh_id is used to determine which
+                        // mesh gets to set the joint offset, in the
+                        // event of a conflict. Since we don't know
+                        // the mesh id yet, we can't guarantee that
+                        // joint offsets will be applied with the same
+                        // priority as in the uploaded model. If the
+                        // file contains multiple meshes with
+                        // conflicting joint offsets, preview may be
+                        // incorrect.
+                        LLUUID fake_mesh_id;
+                        fake_mesh_id.generate();
+                        pJoint->addAttachmentPosOverride( jointTransform.getTranslation(), fake_mesh_id, "");
+                    }
+                    else
+                    {
+                        //Most likely an error in the asset.
+                        LL_WARNS()<<"Tried to apply joint position from .dae, but it did not exist in the avatar rig." << LL_ENDL;
+                    }
+                }
+            }
 		} //missingSkeletonOrScene
 
 		//We need to construct the alternate bind matrix (which contains the new joint positions)
@@ -1373,7 +1376,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             }
 			else
 			{
-                LL_WARNS()<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<" ] "<<LL_ENDL;
+                LL_DEBUGS("Mesh")<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<"] "<<LL_ENDL;
 			}
 		}
 
@@ -1820,7 +1823,7 @@ daeElement* LLDAELoader::getChildFromElement( daeElement* pElement, std::string 
 	{
 		return pChildOfElement;
 	}
-	LL_WARNS()<< "Could not find a child [" << name << "] for the element: \"" << pElement->getAttribute("id") << "\"" << LL_ENDL;
+	LL_DEBUGS("Mesh")<< "Could not find a child [" << name << "] for the element: \"" << pElement->getAttribute("id") << "\"" << LL_ENDL;
     return NULL;
 }
 

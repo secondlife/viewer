@@ -40,9 +40,9 @@
 #include "xform.h"
 
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
-// BENTO JOINT COUNT LIMIT
+// BENTO JOINT COUNT LIMIT - need to set this to final skeleton size + 2
 const U32 LL_CHARACTER_MAX_JOINTS = 152; // must be divisible by 4!
-const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 132;
+const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 110;
 
 // FIXME BENTO - these should be higher than the joint_num of any
 // other joint, to avoid conflicts in updateMotionsByType()

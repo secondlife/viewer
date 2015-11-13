@@ -178,13 +178,11 @@ void LLFloaterBvhPreview::setAnimCallbacks()
 	getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
-void LLFloaterBvhPreview::getLegalJointNames(std::deque<std::string>& legal_joint_names)
+std::map <std::string, std::string> LLFloaterBvhPreview::getJointAliases()
 {
-    // Get all standard skeleton joints from the preview avatar.
     LLPointer<LLVOAvatar> av = (LLVOAvatar*)mAnimPreview->getDummyAvatar();
-    av->getLegalJointNames(legal_joint_names, false);
+    return av->getJointAliases();
 }
-
 
 //-----------------------------------------------------------------------------
 // postBuild()
@@ -252,9 +250,10 @@ BOOL LLFloaterBvhPreview::postBuild()
 				LL_INFOS() << "Loading BVH file " << mFilename << LL_ENDL;
 				ELoadStatus load_status = E_ST_OK;
 				S32 line_number = 0;
-                std::deque<std::string> legal_joint_names;
-                getLegalJointNames(legal_joint_names);
-				loaderp = new LLBVHLoader(file_buffer, load_status, line_number, legal_joint_names);
+
+                std::map<std::string, std::string> joint_alias_map = getJointAliases();
+    
+				loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
 				std::string status = getString(STATUS[load_status]);
 				
 				if(load_status == E_ST_NO_XLT_FILE)
