@@ -30,13 +30,6 @@
 
 
 
-//---------------------------
-// Coppied from indra_constants.h
-//#include "indra_constats.h"
-const uint32_t MASK_CONTROL =		0x0001;		// Mapped to cmd on Macs
-const uint32_t MASK_ALT =			0x0002;
-const uint32_t MASK_SHIFT =			0x0004;
-//const uint32_t MASK_MAC_CONTROL =	0x0008;		// Un-mapped Ctrl key on Macs, not used on Windows
 
 //---------------------------
 
@@ -72,29 +65,16 @@ const uint32_t MASK_SHIFT =			0x0004;
 
 void extractKeyDataFromEvent (NSEvent *theEvent, NativeKeyEventData * eventData)
 {
-    if ([theEvent characters].length)
-    {
-        eventData->mCharacter = (wchar_t)[[theEvent characters] characterAtIndex:0];
-    }
-    else
-    {
-        eventData->mCharacter = [theEvent keyCode];
-    }
     eventData->mKeyEvent = NativeKeyEventData::KEYUNKNOWN;
-    eventData->mKeyCode = [theEvent keyCode];
+    eventData->mEventType = [theEvent type];
+    eventData->mEventModifiers = [theEvent modifierFlags];
+    eventData->mEventKeyCode = [theEvent keyCode];
+    NSString *strEventChars = [theEvent characters];
+    eventData->mEventChars = (strEventChars.length) ? [strEventChars characterAtIndex:0] : 0;
+    NSString *strEventUChars = [theEvent charactersIgnoringModifiers];
+    eventData->mEventUnmodChars = (strEventUChars.length) ? [strEventUChars characterAtIndex:0] : 0;
+    eventData->mEventRepeat = [theEvent isARepeat];
 
-    unsigned int modifiers = [theEvent modifierFlags];
-    
-    if (modifiers & (NSAlphaShiftKeyMask | NSShiftKeyMask))
-        modifiers |= MASK_SHIFT;
-    if (modifiers & NSAlternateKeyMask)
-        modifiers |= MASK_ALT;
-    if (modifiers & NSControlKeyMask)
-        modifiers |= MASK_CONTROL;
-    
-    eventData->mKeyModifiers = modifiers;
-    eventData->mScanCode = [theEvent keyCode ];
-    eventData->mKeyboardType = 0;
 }
 
 

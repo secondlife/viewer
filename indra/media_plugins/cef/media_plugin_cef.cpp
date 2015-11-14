@@ -726,46 +726,18 @@ void MediaPluginCEF::deserializeKeyboardData(LLSD native_key_data, uint32_t& nat
 void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::EKeyboardModifier modifiers_x, LLSD native_key_data = LLSD::emptyMap())
 {
 #if LL_DARWIN
-	std::string utf8_text;
 
-    uint32_t native_char_code = native_key_data["char_code"].asInteger();
-    uint32_t native_scan_code = native_key_data["scan_code"].asInteger();
-    uint32_t native_virtual_key = native_key_data["key_code"].asInteger();
-    uint32_t native_modifiers = native_key_data["modifiers"].asInteger();
-    
-	if (key < 128)
-	{
-		utf8_text = (char)native_virtual_key;
-	}
-    
-    unsigned int modifers = LLCEFLib::KM_MODIFIER_NONE;
+    uint32_t eventType = native_key_data["event_type"].asInteger();
+    uint32_t eventModifiers = native_key_data["event_modifiers"].asInteger();
+    uint32_t eventKeycode = native_key_data["event_keycode"].asInteger();
+    char eventChars = static_cast<char>(native_key_data["event_chars"].isUndefined() ? 0 : native_key_data["event_chars"].asInteger());
+    char eventUChars = static_cast<char>(native_key_data["event_umodchars"].isUndefined() ? 0 : native_key_data["event_umodchars"].asInteger());
+    bool eventIsRepeat = native_key_data["event_isrepeat"].asBoolean();
 
-    if (native_modifiers & (MASK_CONTROL | MASK_MAC_CONTROL))
-        modifers |= LLCEFLib::KM_MODIFIER_CONTROL;
-    if (native_modifiers & MASK_SHIFT)
-        modifers |= LLCEFLib::KM_MODIFIER_SHIFT;
-    if (native_modifiers & MASK_ALT)
-        modifers |= LLCEFLib::KM_MODIFIER_ALT;
-
-    //modifers |= LLCEFLib::KM_MODIFIER_META;
     
-	switch ((KEY)key)
-    
-	{
-		case KEY_BACKSPACE:		utf8_text = (char)8;		break;
-		case KEY_TAB:			utf8_text = (char)9;		break;
-		case KEY_RETURN:		utf8_text = (char)13;		break;
-		case KEY_PAD_RETURN:	utf8_text = (char)13;		break;
-		case KEY_ESCAPE:		utf8_text = (char)27;		break;
-
-	default:
-		break;
-	}
-
-	mLLCEFLib->keyboardEvent(key_event, native_char_code, utf8_text.c_str(),
-            static_cast<LLCEFLib::EKeyboardModifier>(modifers),
-            native_scan_code, native_virtual_key, native_modifiers);
-    
+    mLLCEFLib->keyboardEventOSX(eventType, eventModifiers, (eventChars) ? &eventChars : NULL,
+                                (eventUChars) ? &eventUChars : NULL, eventIsRepeat, eventKeycode);
+        
 #elif LL_WINDOWS
 	U32 msg = ll_U32_from_sd(native_key_data["msg"]);
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);

@@ -1726,39 +1726,12 @@ LLSD LLWindowMacOSX::getNativeKeyData()
 #if 1
 	if(mRawKeyEvent)
 	{
-
-        result["char_code"] = (S32)(mRawKeyEvent)->mCharacter;
-        result["scan_code"] = (S32)(mRawKeyEvent)->mScanCode;
-		result["key_code"] = (S32)(mRawKeyEvent->mKeyCode);
-		result["modifiers"] = (S32)(mRawKeyEvent->mKeyModifiers);
-		result["keyboard_type"] = (S32)(mRawKeyEvent->mKeyboardType);
-
-        
-#if 0
-		// This causes trouble for control characters -- apparently character codes less than 32 (escape, control-A, etc)
-		// cause llsd serialization to create XML that the llsd deserializer won't parse!
-		std::string unicode;
-		S32 err = noErr;
-		EventParamType actualType = typeUTF8Text;
-		UInt32 actualSize = 0;
-		char *buffer = NULL;
-
-		err = GetEventParameter (mRawKeyEvent, kEventParamKeyUnicodes, typeUTF8Text, &actualType, 0, &actualSize, NULL);
-		if(err == noErr)
-		{
-			// allocate a buffer and get the actual data.
-			buffer = new char[actualSize];
-			err = GetEventParameter (mRawKeyEvent, kEventParamKeyUnicodes, typeUTF8Text, &actualType, actualSize, &actualSize, buffer);
-			if(err == noErr)
-			{
-				unicode.assign(buffer, actualSize);
-			}
-			delete[] buffer;
-		}
-
-		result["unicode"] = unicode;
-#endif
-
+        result["event_type"] = LLSD::Integer(mRawKeyEvent->mEventType);
+        result["event_modifiers"] = LLSD::Integer(mRawKeyEvent->mEventModifiers);
+        result["event_keycode"] = LLSD::Integer(mRawKeyEvent->mEventKeyCode);
+        result["event_chars"] = (mRawKeyEvent->mEventChars) ? LLSD(LLSD::Integer(mRawKeyEvent->mEventChars)) : LLSD();
+        result["event_umodchars"] = (mRawKeyEvent->mEventUnmodChars) ? LLSD(LLSD::Integer(mRawKeyEvent->mEventUnmodChars)) : LLSD();
+        result["event_isrepeat"] = LLSD::Boolean(mRawKeyEvent->mEventRepeat);
 	}
 #endif
 
