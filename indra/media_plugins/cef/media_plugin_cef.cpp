@@ -62,6 +62,7 @@ private:
 	void onStatusMessageCallback(std::string value);
 	void onTitleChangeCallback(std::string title);
 	void onLoadStartCallback();
+	void onRequestExitCallback();
 	void onLoadEndCallback(int httpStatusCode);
 	void onAddressChangeCallback(std::string url);
 	void onNavigateURLCallback(std::string url, std::string target);
@@ -128,7 +129,6 @@ MediaPluginBase(host_send_func, host_user_data)
 //
 MediaPluginCEF::~MediaPluginCEF()
 {
-	mLLCEFLib->requestExit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -196,6 +196,16 @@ void MediaPluginCEF::onLoadStartCallback()
 	//message.setValue("uri", event.getEventUri());  // not easily available here in CEF - needed?
 	message.setValueBoolean("history_back_available", mLLCEFLib->canGoBack());
 	message.setValueBoolean("history_forward_available", mLLCEFLib->canGoForward());
+	sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onRequestExitCallback()
+{
+	mLLCEFLib->shutdown();
+
+	LLPluginMessage message("base", "goodbye");
 	sendMessage(message);
 }
 
@@ -344,8 +354,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "cleanup")
 			{
-                LLPluginMessage message("base", "goodbye");
-                sendMessage(message);
+				mLLCEFLib->requestExit();
 			}
 			else if (message_name == "shm_added")
 			{
@@ -401,6 +410,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1, _2));
 				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
 				mLLCEFLib->setOnCursorChangedCallback(boost::bind(&MediaPluginCEF::onCursorChangedCallback, this, _1, _2));
+				mLLCEFLib->setOnRequestExitCallback(boost::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
 				LLCEFLib::LLCEFLibSettings settings;
 				settings.initial_width = 1024;
