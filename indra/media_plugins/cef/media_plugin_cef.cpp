@@ -727,6 +727,12 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 {
 #if LL_DARWIN
 
+    if (!native_key_data.has("event_type") ||
+            !native_key_data.has("event_modifiers") ||
+            !native_key_data.has("event_keycode") ||
+            !native_key_data.has("event_isrepeat"))
+        return;
+    
     uint32_t eventType = native_key_data["event_type"].asInteger();
     uint32_t eventModifiers = native_key_data["event_modifiers"].asInteger();
     uint32_t eventKeycode = native_key_data["event_keycode"].asInteger();
