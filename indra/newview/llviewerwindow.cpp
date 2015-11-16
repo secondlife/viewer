@@ -2022,6 +2022,7 @@ void LLViewerWindow::initWorldUI()
 		}
 		gHUDView = new LLHUDView(hud_rect);
 		getRootView()->addChild(gHUDView);
+		getRootView()->sendChildToBack(gHUDView);
 	}
 
 	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
