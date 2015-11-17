@@ -3690,6 +3690,7 @@ void LLAgent::clearVisualParams(void *data)
 // protected
 bool LLAgent::teleportCore(bool is_local)
 {
+    LL_INFOS("Teleport") << "In teleport core!" << LL_ENDL;
 	if ((TELEPORT_NONE != mTeleportState) && (mTeleportState != TELEPORT_PENDING))
 	{
 		LL_WARNS() << "Attempt to teleport when already teleporting." << LL_ENDL;
@@ -3783,6 +3784,7 @@ bool LLAgent::hasRestartableFailedTeleportRequest()
 
 void LLAgent::restartFailedTeleportRequest()
 {
+    LL_INFOS("Teleport") << "Agent wishes to restart failed teleport." << LL_ENDL;
 	if (hasRestartableFailedTeleportRequest())
 	{
 		mTeleportRequest->setStatus(LLTeleportRequest::kRestartPending);
@@ -3814,6 +3816,7 @@ bool LLAgent::hasPendingTeleportRequest()
 
 void LLAgent::startTeleportRequest()
 {
+    LL_INFOS("Telport") << "Agent handling start teleport request." << LL_ENDL;
     if(LLVoiceClient::instanceExists())
     {
         LLVoiceClient::getInstance()->setHidden(TRUE);
@@ -3848,6 +3851,7 @@ void LLAgent::startTeleportRequest()
 
 void LLAgent::handleTeleportFinished()
 {
+    LL_INFOS("Teleport") << "Agent handling teleport finished." << LL_ENDL;
 	clearTeleportRequest();
 	if (mIsMaturityRatingChangingDuringTeleport)
 	{
@@ -3869,12 +3873,18 @@ void LLAgent::handleTeleportFinished()
 
 void LLAgent::handleTeleportFailed()
 {
+    LL_WARNS("Teleport") << "Agent handling teleport failure!" << LL_ENDL;
     if(LLVoiceClient::instanceExists())
     {
         LLVoiceClient::getInstance()->setHidden(FALSE);
     }
 
-	if (mTeleportRequest != NULL)
+    setTeleportState(LLAgent::TELEPORT_NONE);
+    // Unlock the UI if the progress bar has been shown.
+//     gViewerWindow->setShowProgress(FALSE);
+//     gTeleportDisplay = FALSE;
+
+    if (mTeleportRequest)
 	{
 		mTeleportRequest->setStatus(LLTeleportRequest::kFailed);
 	}
@@ -4076,6 +4086,13 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
 
 void LLAgent::setTeleportState(ETeleportState state)
 {
+    if (mTeleportRequest && (state != TELEPORT_NONE) && (mTeleportRequest->getStatus() == LLTeleportRequest::kFailed))
+    {   // A late message has come in regarding a failed teleport.  
+        // We have already decided that it failed so should not reinitiate the teleport sequence in the viewer.
+        LL_WARNS("Teleport") << "Attempt to set teleport state to " << state <<
+            " for previously failed teleport.  Ignore!" << LL_ENDL;
+        return;
+    }
 	mTeleportState = state;
 	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
 	{
@@ -4422,24 +4439,29 @@ LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandma
 	: LLTeleportRequest(),
 	mLandmarkId(pLandmarkId)
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark created." << LL_ENDL;
 }
 
 LLTeleportRequestViaLandmark::~LLTeleportRequestViaLandmark()
 {
+    LL_INFOS("Teleport") << "~LLTeleportRequestViaLandmark" << LL_ENDL;
 }
 
 bool LLTeleportRequestViaLandmark::canRestartTeleport()
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::canRestartTeleport? -> true" << LL_ENDL;
 	return true;
 }
 
 void LLTeleportRequestViaLandmark::startTeleport()
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::startTeleport" << LL_ENDL;
 	gAgent.doTeleportViaLandmark(getLandmarkId());
 }
 
 void LLTeleportRequestViaLandmark::restartTeleport()
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::restartTeleport" << LL_ENDL;
 	gAgent.doTeleportViaLandmark(getLandmarkId());
 }
 
@@ -4451,10 +4473,12 @@ LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL p
 	: LLTeleportRequestViaLandmark(pLureId),
 	mIsLureGodLike(pIsLureGodLike)
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLure created" << LL_ENDL;
 }
 
 LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
 {
+    LL_INFOS("Teleport") << "~LLTeleportRequestViaLure" << LL_ENDL;
 }
 
 bool LLTeleportRequestViaLure::canRestartTeleport()
@@ -4471,11 +4495,13 @@ bool LLTeleportRequestViaLure::canRestartTeleport()
 	//    8. User B's viewer then attempts to teleport via lure again
 	//    9. This request will time-out on the viewer-side because User A's initial request has been removed from the "queue" in step 4
 
-	return false;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLure::canRestartTeleport? -> false" << LL_ENDL;
+    return false;
 }
 
 void LLTeleportRequestViaLure::startTeleport()
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLure::startTeleport" << LL_ENDL;
 	gAgent.doTeleportViaLure(getLandmarkId(), isLureGodLike());
 }
 
@@ -4487,25 +4513,30 @@ LLTeleportRequestViaLocation::LLTeleportRequestViaLocation(const LLVector3d &pPo
 	: LLTeleportRequest(),
 	mPosGlobal(pPosGlobal)
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocation created" << LL_ENDL;
 }
 
 LLTeleportRequestViaLocation::~LLTeleportRequestViaLocation()
 {
+    LL_INFOS("Teleport") << "~LLTeleportRequestViaLocation" << LL_ENDL;
 }
 
 bool LLTeleportRequestViaLocation::canRestartTeleport()
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocation::canRestartTeleport -> true" << LL_ENDL;
 	return true;
 }
 
 void LLTeleportRequestViaLocation::startTeleport()
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocation::startTeleport" << LL_ENDL;
 	gAgent.doTeleportViaLocation(getPosGlobal());
 }
 
 void LLTeleportRequestViaLocation::restartTeleport()
 {
-	gAgent.doTeleportViaLocation(getPosGlobal());
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocation::restartTeleport" << LL_ENDL;
+    gAgent.doTeleportViaLocation(getPosGlobal());
 }
 
 //-----------------------------------------------------------------------------
@@ -4515,25 +4546,30 @@ void LLTeleportRequestViaLocation::restartTeleport()
 LLTeleportRequestViaLocationLookAt::LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal)
 	: LLTeleportRequestViaLocation(pPosGlobal)
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocationLookAt created" << LL_ENDL;
 }
 
 LLTeleportRequestViaLocationLookAt::~LLTeleportRequestViaLocationLookAt()
 {
+    LL_INFOS("Teleport") << "~LLTeleportRequestViaLocationLookAt" << LL_ENDL;
 }
 
 bool LLTeleportRequestViaLocationLookAt::canRestartTeleport()
 {
-	return true;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocationLookAt::canRestartTeleport -> true" << LL_ENDL;
+    return true;
 }
 
 void LLTeleportRequestViaLocationLookAt::startTeleport()
 {
-	gAgent.doTeleportViaLocationLookAt(getPosGlobal());
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocationLookAt::startTeleport" << LL_ENDL;
+    gAgent.doTeleportViaLocationLookAt(getPosGlobal());
 }
 
 void LLTeleportRequestViaLocationLookAt::restartTeleport()
 {
-	gAgent.doTeleportViaLocationLookAt(getPosGlobal());
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocationLookAt::restartTeleport" << LL_ENDL;
+    gAgent.doTeleportViaLocationLookAt(getPosGlobal());
 }
 
 // EOF
