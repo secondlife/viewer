@@ -1390,7 +1390,7 @@ LLSD LLViewerMedia::getHeaders()
 
  /////////////////////////////////////////////////////////////////////////////////////////
  // static
-bool LLViewerMedia::parseRawCookie(const std::string raw_cookie, std::string& name, std::string& value, std::string& path)
+bool LLViewerMedia::parseRawCookie(const std::string raw_cookie, std::string& name, std::string& value, std::string& path, bool& httponly, bool& secure)
 {
 	std::size_t name_pos = raw_cookie.find_first_of("=");
 	if (name_pos != std::string::npos)
@@ -1401,6 +1401,9 @@ bool LLViewerMedia::parseRawCookie(const std::string raw_cookie, std::string& na
 		{
 			value = raw_cookie.substr(name_pos + 1, value_pos - name_pos - 1);
 			path = "/";	// assume root path for now
+
+			httponly = true;	// hard coded for now
+			secure = true;
 
 			return true;
 		}
@@ -1450,10 +1453,12 @@ void LLViewerMedia::setOpenIDCookie(const std::string& url)
 				std::string cookie_name = "";
 				std::string cookie_value = "";
 				std::string cookie_path = "";
-				if (parseRawCookie(sOpenIDCookie, cookie_name, cookie_value, cookie_path) &&
+				bool httponly = true;
+				bool secure = true;
+				if (parseRawCookie(sOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
                     media_instance->getMediaPlugin())
 				{
-					media_instance->getMediaPlugin()->setCookie(url, cookie_name, cookie_value, cookie_host, cookie_path);
+					media_instance->getMediaPlugin()->setCookie(url, cookie_name, cookie_value, cookie_host, cookie_path, httponly, secure);
 				}
 			}
 		}

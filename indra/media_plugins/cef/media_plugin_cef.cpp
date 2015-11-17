@@ -499,7 +499,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				std::string value = message_in.getValue("value");
 				std::string domain = message_in.getValue("domain");
 				std::string path = message_in.getValue("path");
-				mLLCEFLib->setCookie(uri, name, value, domain, path);
+				bool httponly = message_in.getValueBoolean("httponly");
+				bool secure = message_in.getValueBoolean("secure");
+				mLLCEFLib->setCookie(uri, name, value, domain, path, httponly, secure);
 			}
 			else if (message_name == "mouse_event")
 			{
@@ -665,6 +667,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "set_user_agent")
 			{
 				mUserAgentSubtring = message_in.getValue("user_agent");
+			}
+			else if (message_name == "show_web_inspector")
+			{
+				mLLCEFLib->showDevTools(true);
 			}
 			else if (message_name == "plugins_enabled")
 			{

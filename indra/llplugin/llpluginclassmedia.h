@@ -133,7 +133,7 @@ public:
 	// Text may be unicode (utf8 encoded)
 	bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 	
-	void setCookie(std::string uri, std::string name, std::string value, std::string domain, std::string path);
+	void setCookie(std::string uri, std::string name, std::string value, std::string domain, std::string path, bool httponly, bool secure);
 
 	void loadURI(const std::string &uri);
 	
