@@ -2807,7 +2807,7 @@ void warn_move_inventory(LLViewerObject* object, boost::shared_ptr<LLMoveInv> mo
 		dialog = "MoveInventoryFromObject";
 	}
 
-    static LLNotificationPtr notification_ptr = NULL;
+    static LLNotificationPtr notification_ptr;
     static boost::shared_ptr<LLMoveInv> inv_ptr;
 
     // Notification blocks user from interacting with inventories so everything that comes after first message
