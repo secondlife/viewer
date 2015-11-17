@@ -117,6 +117,10 @@ public:
 	// describes the skin binding pose
 	LLVector3		mSkinOffset;
 
+    // Endpoint of the bone, if applicable. This is only relevant for
+    // external programs like Blender, and for diagnostic display.
+    LLVector3		mEnd;
+
 	S32				mJointNum;
 
 	// child joints
@@ -156,6 +160,10 @@ public:
     SupportCategory getSupport() const { return mSupport; }
     void setSupport( const SupportCategory& support) { mSupport = support; }
     void setSupport( const std::string& support_string);
+
+    // get/set end point
+    void setEnd( const LLVector3& end) { mEnd = end; }
+    const LLVector3& getEnd() const { return mEnd; }
     
 	// getParent
 	LLJoint *getParent() { return mParent; }

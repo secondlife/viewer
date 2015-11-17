@@ -1360,6 +1360,54 @@ void LLVOAvatar::renderCollisionVolumes()
 	addDebugText(ostr.str());
 }
 
+void LLVOAvatar::renderBones()
+{
+	std::ostringstream ostr;
+	std::ostringstream nullstr;
+
+	avatar_joint_list_t::iterator iter = mSkeleton.begin();
+	avatar_joint_list_t::iterator end  = mSkeleton.end();
+
+	for (; iter != end; ++iter)
+	{
+		LLJoint* jointp = *iter;
+		if (!jointp)
+		{
+			continue;
+		}
+
+		ostr << jointp->getName() << ", ";
+
+		jointp->updateWorldMatrix();
+	
+		gGL.pushMatrix();
+		gGL.multMatrix( &jointp->getXform()->getWorldMatrix().mMatrix[0][0] );
+
+		gGL.diffuseColor3f( 1.f, 0.f, 1.f );
+	
+		gGL.begin(LLRender::LINES);
+	
+		LLVector3 v[] = 
+		{
+			LLVector3(0,0,0),
+			LLVector3(0,0,0),
+        };
+        v[1] = jointp->getEnd();
+
+		gGL.vertex3fv(v[0].mV); 
+		gGL.vertex3fv(v[1].mV);
+
+		gGL.end();
+
+		gGL.popMatrix();
+	}
+
+	mDebugText.clear();
+	addDebugText(ostr.str());
+	addDebugText(nullstr.str());
+}
+
+
 void LLVOAvatar::renderJoints()
 {
 	std::ostringstream ostr;

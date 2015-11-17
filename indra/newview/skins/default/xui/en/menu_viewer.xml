@@ -3555,6 +3555,16 @@
                  parameter="collision skeleton" />
             </menu_item_check>
             <menu_item_check
+             label="Show Bones"
+             name="Show Bones">
+                <menu_item_check.on_check
+                 function="Advanced.CheckInfoDisplay"
+                 parameter="joints" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleInfoDisplay"
+                 parameter="joints" />
+            </menu_item_check>
+            <menu_item_check
              label="Display Agent Target"
              name="Display Agent Target">
                 <menu_item_check.on_check

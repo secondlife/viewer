@@ -109,6 +109,7 @@ void LLJoint::init()
 	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
 	mUpdateXform = TRUE;
     mSupport = SUPPORT_BASE;
+    mEnd = LLVector3(0.0f, 0.0f, 0.0f);
 }
 
 LLJoint::LLJoint() :

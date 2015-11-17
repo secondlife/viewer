@@ -92,6 +92,7 @@ private:
     std::string mAliases;
 	BOOL mIsJoint;
 	LLVector3 mPos;
+    LLVector3 mEnd;
 	LLVector3 mRot;
 	LLVector3 mScale;
 	LLVector3 mPivot;
@@ -610,6 +611,7 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 							 info->mRot.mV[VZ], LLQuaternion::XYZ));
 	joint->setScale(info->mScale);
     joint->setSupport(info->mSupport);
+	joint->setEnd(info->mEnd);
 
 	if (info->mIsJoint)
 	{
@@ -1572,10 +1574,18 @@ BOOL LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
 		return FALSE;
 	}
 
+    // BENTO rename leaf->end
+	static LLStdStringHandle end_string = LLXmlTree::addAttributeString("leaf");
+	if (!node->getFastAttributeVector3(end_string, mEnd))
+	{
+		LL_WARNS() << "Bone without end " << mName << LL_ENDL;
+        mEnd = LLVector3(1.0f, 0.0f, 0.0f);
+	}
+
 	static LLStdStringHandle support_string = LLXmlTree::addAttributeString("support");
     if (!node->getFastAttributeString(support_string,mSupport))
     {
-        LL_WARNS() << "Bone without support" << LL_ENDL;
+        LL_WARNS() << "Bone without support " << mName << LL_ENDL;
         mSupport = "base";
     }
 
