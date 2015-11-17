@@ -361,7 +361,7 @@
              name="label shininess"
              left_pad="10"
              text_readonly_color="LabelDisabledColor"
-             top_delta="6"
+             top_delta="4"
              width="90">
                 Shininess
             </text>
@@ -405,7 +405,7 @@
              left_delta="-100"
              name="label glossiness"
              text_readonly_color="LabelDisabledColor"
-             top_pad="8"
+             top_pad="7"
              width="116">
                 Glossiness
             </text>
@@ -531,7 +531,7 @@
              left="10"
              name="tex gen"
              text_readonly_color="LabelDisabledColor"
-             top_pad="40"
+             top_pad="46"
              width="140">
                 Mapping
             </text>
