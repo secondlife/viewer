@@ -5043,7 +5043,13 @@ void LLViewerObject::updateText()
 	{
 		if (mText.notNull())
 		{		
-			LLVector3 up_offset(0,0,0);
+		    LLVOAvatar* avatar = getAvatar();
+		    if (avatar)
+		    {
+		        mText->setHidden(avatar->isInMuteList());
+		    }
+
+		    LLVector3 up_offset(0,0,0);
 			up_offset.mV[2] = getScale().mV[VZ]*0.6f;
 			
 			if (mDrawable.notNull())
