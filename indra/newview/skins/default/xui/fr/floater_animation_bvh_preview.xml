@@ -141,35 +141,35 @@ La limite maximale est de [MAX_LENGTH] secondes.
 		Expression
 	</text>
 	<combo_box name="emote_combo" tool_tip="Contrôle ce que fait le visage pendant l&apos;animation.">
-		<item label="(Aucune)" name="[None]" value=""/>
-		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
-		<item label="Effrayé" name="Afraid" value="Effrayé"/>
-		<item label="En colère" name="Angry" value="En colère"/>
-		<item label="Grand sourire" name="BigSmile" value="Grand sourire"/>
-		<item label="Ennui" name="Bored" value="Ennui"/>
-		<item label="Pleurer" name="Cry" value="Pleurer"/>
-		<item label="Mépris" name="Disdain" value="Mépris"/>
-		<item label="Gêne" name="Embarrassed" value="Gêne"/>
-		<item label="Froncer les sourcils" name="Frown" value="Froncer les sourcils"/>
-		<item label="Embrasser" name="Kiss" value="Embrasser"/>
-		<item label="Rire" name="Laugh" value="Rire"/>
-		<item label="Tirer la langue" name="Plllppt" value="Tirer la langue"/>
-		<item label="Dégoût" name="Repulsed" value="Dégoût"/>
-		<item label="Triste" name="Sad" value="Triste"/>
-		<item label="Hausser les épaules" name="Shrug" value="Hausser les épaules"/>
-		<item label="Sourire" name="Smile" value="Sourire"/>
-		<item label="Surprise" name="Surprise" value="Surprise"/>
-		<item label="Clin d&apos;œil" name="Wink" value="Clin d&apos;œil"/>
-		<item label="Inquiétude" name="Worry" value="Inquiétude"/>
+		<item label="(Aucune)" name="[None]"/>
+		<item label="Aaaaah" name="Aaaaah"/>
+		<item label="Effrayé" name="Afraid"/>
+		<item label="En colère" name="Angry"/>
+		<item label="Grand sourire" name="BigSmile"/>
+		<item label="Ennui" name="Bored"/>
+		<item label="Pleurer" name="Cry"/>
+		<item label="Mépris" name="Disdain"/>
+		<item label="Gêne" name="Embarrassed"/>
+		<item label="Froncer les sourcils" name="Frown"/>
+		<item label="Embrasser" name="Kiss"/>
+		<item label="Rire" name="Laugh"/>
+		<item label="Tirer la langue" name="Plllppt"/>
+		<item label="Dégoût" name="Repulsed"/>
+		<item label="Triste" name="Sad"/>
+		<item label="Hausser les épaules" name="Shrug"/>
+		<item label="Sourire" name="Smile"/>
+		<item label="Surprise" name="Surprise"/>
+		<item label="Clin d&apos;œil" name="Wink"/>
+		<item label="Inquiétude" name="Worry"/>
 	</combo_box>
 	<text name="preview_label">
 		Aperçu
 	</text>
 	<combo_box name="preview_base_anim" tool_tip="Permet de tester le comportement de l&apos;animation lorsque votre avatar effectue certaines actions courantes.">
-		<item label="Debout" name="Standing" value="Debout"/>
-		<item label="En marche" name="Walking" value="En marche"/>
-		<item label="Assis" name="Sitting" value="Assis"/>
-		<item label="En vol" name="Flying" value="En vol"/>
+		<item label="Debout" name="Standing"/>
+		<item label="En marche" name="Walking"/>
+		<item label="Assis" name="Sitting"/>
+		<item label="En vol" name="Flying"/>
 	</combo_box>
 	<spinner label="Transition début (s)" name="ease_in_time" tool_tip="Durée (en secondes) de l&apos;entrée en fondu de l&apos;animation."/>
 	<spinner label="Transition fin (s)" name="ease_out_time" tool_tip="Durée (en secondes) de la sortie en fondu de l&apos;animation."/>
