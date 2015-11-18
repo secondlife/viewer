@@ -1362,6 +1362,9 @@ void LLVOAvatar::renderCollisionVolumes()
 
 void LLVOAvatar::renderBones()
 {
+    
+    LLGLEnable blend(GL_BLEND);
+
 	std::ostringstream ostr;
 	std::ostringstream nullstr;
 
@@ -1379,12 +1382,10 @@ void LLVOAvatar::renderBones()
 		ostr << jointp->getName() << ", ";
 
 		jointp->updateWorldMatrix();
-	
+
 		gGL.pushMatrix();
 		gGL.multMatrix( &jointp->getXform()->getWorldMatrix().mMatrix[0][0] );
 
-		gGL.diffuseColor3f( 1.f, 0.f, 1.f );
-	
 		gGL.begin(LLRender::LINES);
 	
 		LLVector3 v[] = 
@@ -1393,6 +1394,19 @@ void LLVOAvatar::renderBones()
 			LLVector3(0,0,0),
         };
         v[1] = jointp->getEnd();
+
+        LLGLDepthTest normal_depth(GL_TRUE);
+
+        // Unoccluded bone portions
+		gGL.diffuseColor3f( 1.f, 1.f, 1.f );
+	
+		gGL.vertex3fv(v[0].mV); 
+		gGL.vertex3fv(v[1].mV);
+
+        LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
+
+        // Unoccluded bone portions
+		gGL.diffuseColor3f( 1.0f, 0.f, 0.0f );
 
 		gGL.vertex3fv(v[0].mV); 
 		gGL.vertex3fv(v[1].mV);
