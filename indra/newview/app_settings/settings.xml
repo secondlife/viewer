@@ -8081,7 +8081,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>5.0</real>
+    <real>10.0</real>
   </map>
   <key>MediaRollOffMax</key>
   <map>
