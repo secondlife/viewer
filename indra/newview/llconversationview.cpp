@@ -85,8 +85,7 @@ LLConversationViewSession::LLConversationViewSession(const LLConversationViewSes
     mHasArrow(true),
 	mIsInActiveVoiceChannel(false),
 	mFlashStateOn(false),
-	mFlashStarted(false),
-	mShowIcons(true)
+	mFlashStarted(false)
 {
 	mFlashTimer = new LLFlashTimer();
 }
@@ -174,7 +173,7 @@ BOOL LLConversationViewSession::postBuild()
 			if (session)
 			{
 				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
-				icon->setVisible(mShowIcons);
+				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
 				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
                 mHasArrow = false;
@@ -427,49 +426,6 @@ void LLConversationViewSession::showVoiceIndicator(bool visible)
 	requestArrange();
 }
 
-void LLConversationViewSession::setIconsVisible(bool visible)
-{
-	if (visible == mShowIcons) // nothing to be done here.
-		return;
-
-	// Save the new value for new items to use.
-	mShowIcons = visible;
-		
-	// Show/hide icons for the 1-n-1 chat.
-	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
-	if (vmi)
-	{
-		switch (vmi->getType())
-		{
-		case LLConversationItem::CONV_PARTICIPANT:
-		case LLConversationItem::CONV_SESSION_1_ON_1:
-		{
-			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("avatar_icon");
-			icon->setVisible(mShowIcons);
-			break;
-		}
-		/*
-		case LLConversationItem::CONV_SESSION_AD_HOC:
-		case LLConversationItem::CONV_SESSION_GROUP:
-		{
-			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("group_icon");
-			icon->setVisible(mShowIcons);
-			break;
-		}
-		*/
-		default:
-			break;
-		}
-	}
-
-	// Show/hide icons for all existing items.
-	items_t::const_iterator iter;
-	for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
-	{
-		dynamic_cast<LLConversationViewParticipant*>(*iter)->setAvatarIconVisible(mShowIcons);
-	}
-}
-
 void LLConversationViewSession::refresh()
 {
 	// Refresh the session view from its model data
@@ -502,9 +458,6 @@ void LLConversationViewSession::refresh()
 			}
 		}
 	}
-	
-	setIconsVisible(gSavedSettings.getBOOL("ChatShowIcons"));
-	
 	requestArrange();
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
@@ -556,7 +509,7 @@ void LLConversationViewParticipant::initFromParams(const LLConversationViewParti
     LLAvatarIconCtrl::Params avatar_icon_params(params.avatar_icon());
     applyXUILayout(avatar_icon_params, this);
     LLAvatarIconCtrl * avatarIcon = LLUICtrlFactory::create<LLAvatarIconCtrl>(avatar_icon_params);
-    addChild(avatarIcon);
+    addChild(avatarIcon);	
     
 	LLButton::Params info_button_params(params.info_button());
     applyXUILayout(info_button_params, this);
@@ -572,7 +525,6 @@ void LLConversationViewParticipant::initFromParams(const LLConversationViewParti
 BOOL LLConversationViewParticipant::postBuild()
 {
     mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	mAvatarIcon->setVisible(gSavedSettings.getBOOL("ChatShowIcons"));
 
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
@@ -636,12 +588,12 @@ S32 LLConversationViewParticipant::arrange(S32* width, S32* height)
     S32 arranged = LLFolderViewItem::arrange(width, height);
 
     //Adjusts the avatar icon based upon the indentation
-	LLRect avatarRect(getIndentation(),
-						mAvatarIcon->getRect().mTop,
-						getIndentation() + mAvatarIcon->getRect().getWidth(),
-						mAvatarIcon->getRect().mBottom);
-	mAvatarIcon->setShape(avatarRect);
-	
+    LLRect avatarRect(getIndentation(), 
+                        mAvatarIcon->getRect().mTop,
+                        getIndentation() + mAvatarIcon->getRect().getWidth(),
+                        mAvatarIcon->getRect().mBottom);
+    mAvatarIcon->setShape(avatarRect);
+
     //Since dimensions changed, adjust the children (info button, speaker indicator)
     updateChildren();
 
@@ -713,7 +665,7 @@ void LLConversationViewParticipant::onMouseLeave(S32 x, S32 y, MASK mask)
 
 S32 LLConversationViewParticipant::getLabelXPos()
 {
-    return getIndentation() + (mAvatarIcon->getVisible() ? mAvatarIcon->getRect().getWidth() : 0) + mIconPad;
+    return getIndentation() + mAvatarIcon->getRect().getWidth() + mIconPad;
 }
 
 // static
@@ -790,19 +742,6 @@ LLView* LLConversationViewParticipant::getItemChildView(EAvatarListItemChildInde
 void LLConversationViewParticipant::hideSpeakingIndicator()
 {
 	mSpeakingIndicator->setVisible(false);
-}
-
-void LLConversationViewParticipant::setAvatarIconVisible(bool visible)
-{
-	// Already done? Then do nothing.
-	if (mAvatarIcon->getVisible() == (BOOL)visible)
-	{
-		return;
-	}
-
-	// Show/hide avatar icon.
-	mAvatarIcon->setVisible(visible);
-	updateChildren();
 }
 
 // EOF

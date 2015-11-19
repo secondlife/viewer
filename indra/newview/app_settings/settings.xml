@@ -1730,17 +1730,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-	<key>ChatShowIcons</key>
-	<map>
-		<key>Comment</key>
-		<string>Show/hide people icons in chat</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>1</integer>
-	</map>
     <key>CheesyBeacon</key>
     <map>
       <key>Comment</key>
