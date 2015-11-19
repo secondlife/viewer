@@ -56,7 +56,7 @@ public:
 private:
 	bool init();
 
-	void onPageChangedCallback(unsigned char* pixels, int width, int height);
+	void onPageChangedCallback(unsigned char* pixels, int x, int y, int width, int height, bool is_popup);
 	void onCustomSchemeURLCallback(std::string url);
 	void onConsoleMessageCallback(std::string message, std::string source, int line);
 	void onStatusMessageCallback(std::string value);
@@ -149,13 +149,31 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int width, int height)
+void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int x, int y, int width, int height, bool is_popup)
 {
 	if (mPixels && pixels)
 	{
-		if (mWidth == width && mHeight == height)
+		if (is_popup)
 		{
-			memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
+			for (int line = 0; line < height; ++line)
+			{
+				int inverted_y = mHeight - y - height;
+				int src = line * width * mDepth;
+				int dst = (inverted_y + line) * mWidth * mDepth + x * mDepth;
+
+				if (dst + width * mDepth < mWidth * mHeight * mDepth)
+				{
+					memcpy(mPixels + dst, pixels + src, width * mDepth);
+				}
+			}
+		}
+		else
+		{
+			if (mWidth == width && mHeight == height)
+			{
+				memcpy(mPixels, pixels, mWidth * mHeight * mDepth);
+			}
+			
 		}
 		setDirty(0, 0, mWidth, mHeight);
 	}
@@ -399,7 +417,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			if (message_name == "init")
 			{
 				// event callbacks from LLCefLib
-				mLLCEFLib->setOnPageChangedCallback(boost::bind(&MediaPluginCEF::onPageChangedCallback, this, _1, _2, _3));
+				mLLCEFLib->setOnPageChangedCallback(boost::bind(&MediaPluginCEF::onPageChangedCallback, this, _1, _2, _3, _4, _5, _6));
 				mLLCEFLib->setOnCustomSchemeURLCallback(boost::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, _1));
 				mLLCEFLib->setOnConsoleMessageCallback(boost::bind(&MediaPluginCEF::onConsoleMessageCallback, this, _1, _2, _3));
 				mLLCEFLib->setOnStatusMessageCallback(boost::bind(&MediaPluginCEF::onStatusMessageCallback, this, _1));
