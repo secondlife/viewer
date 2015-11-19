@@ -926,8 +926,7 @@ void LLFloaterIMContainer::onCustomAction(const LLSD& userdata)
 	}
 	if ("view_icons" == command)
 	{
-		gSavedSettings.setBOOL("ChatShowIcons", !(gSavedSettings.getBOOL("ChatShowIcons") && !gSavedSettings.getBOOL("GlobalShowIconsOverride")));
-		gSavedSettings.setBOOL("GlobalShowIconsOverride", (!gSavedSettings.getBOOL("ChatShowIcons") && gSavedSettings.getBOOL("GlobalShowIconsOverride")));
+		gSavedSettings.setBOOL("ChatShowIcons", !gSavedSettings.getBOOL("ChatShowIcons"));
 	}
 	if ("chat_preferences" == command)
 	{
@@ -981,7 +980,7 @@ BOOL LLFloaterIMContainer::isActionChecked(const LLSD& userdata)
 	}
 	if ("view_icons" == command)
 	{
-		return gSavedSettings.getBOOL("ChatShowIcons") && !gSavedSettings.getBOOL("GlobalShowIconsOverride");
+		return gSavedSettings.getBOOL("ChatShowIcons");
 	}
 	if ("Translating.Enabled" == command)
 	{

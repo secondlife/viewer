@@ -63,18 +63,16 @@ bool LLAvatarList::contains(const LLUUID& id)
 	return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
-void LLAvatarList::setIconsVisible(bool visible)
+void LLAvatarList::toggleIcons()
 {
-	if (visible == mShowIcons) // nothing to be done here.
-		return;
-
 	// Save the new value for new items to use.
-	mShowIcons = visible;
-
+	mShowIcons = !mShowIcons;
+	gSavedSettings.setBOOL(mIconParamName, mShowIcons);
+	
 	// Show/hide icons for all existing items.
 	std::vector<LLPanel*> items;
 	getItems(items);
-	for (std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
 		static_cast<LLAvatarListItem*>(*it)->setAvatarIconVisible(mShowIcons);
 	}
@@ -188,8 +186,6 @@ void LLAvatarList::draw()
 	{
 		updateAvatarNames();
 	}
-
-	setIconsVisible(gSavedSettings.getBOOL(mIconParamName) && !gSavedSettings.getBOOL("GlobalShowIconsOverride"));
 
 	if (mDirty)
 		refresh();

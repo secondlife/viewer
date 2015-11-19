@@ -76,7 +76,7 @@ public:
 	void setSessionID(const LLUUID& session_id) { mSessionID = session_id; }
 	const LLUUID& getSessionID() { return mSessionID; }
 
-	void setIconsVisible(bool visible);
+	void toggleIcons();
 	void setSpeakingIndicatorsVisible(bool visible);
 	void showPermissions(bool visible);
 	void sortByName();

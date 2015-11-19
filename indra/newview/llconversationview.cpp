@@ -503,7 +503,7 @@ void LLConversationViewSession::refresh()
 		}
 	}
 	
-	setIconsVisible(gSavedSettings.getBOOL("ChatShowIcons") && !gSavedSettings.getBOOL("GlobalShowIconsOverride"));
+	setIconsVisible(gSavedSettings.getBOOL("ChatShowIcons"));
 	
 	requestArrange();
 	// Do the regular upstream refresh
@@ -572,7 +572,7 @@ void LLConversationViewParticipant::initFromParams(const LLConversationViewParti
 BOOL LLConversationViewParticipant::postBuild()
 {
     mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	mAvatarIcon->setVisible(gSavedSettings.getBOOL("ChatShowIcons") && !gSavedSettings.getBOOL("GlobalShowIconsOverride"));
+	mAvatarIcon->setVisible(gSavedSettings.getBOOL("ChatShowIcons"));
 
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));

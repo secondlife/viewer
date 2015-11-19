@@ -39,8 +39,8 @@
          function="People.Nearby.ViewSort.Action"
          parameter="view_icons" />
         <menu_item_check.on_check
-         function="People.Nearby.ViewSort.CheckItem"
-         parameter="view_icons"/>
+         function="CheckControl"
+         parameter="NearbyListShowIcons" />
     </menu_item_check>
     <menu_item_check name ="view_map" label="View Map">
         <menu_item_check.on_check
