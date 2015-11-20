@@ -1399,7 +1399,7 @@ void LLVOAvatar::renderBones()
         LLGLDepthTest normal_depth(GL_TRUE);
 
         // Unoccluded bone portions
-        if (sc == LLJoint::SupportCategory::SUPPORT_BASE)
+        if (sc == LLJoint::SUPPORT_BASE)
         {
             gGL.diffuseColor3f( 1.0f, 0.5f, 0.5f );
         }
@@ -1415,7 +1415,7 @@ void LLVOAvatar::renderBones()
         LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
 
         // Unoccluded bone portions
-		if (sc == LLJoint::SupportCategory::SUPPORT_BASE)
+		if (sc == LLJoint::SUPPORT_BASE)
         {
             gGL.diffuseColor3f( 1.0f, 0.0f, 0.0f );
         }
