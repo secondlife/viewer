@@ -676,7 +676,7 @@ private:
 	// Teleport State
 	//--------------------------------------------------------------------
 public:
-	ETeleportState	getTeleportState() const 						{ return mTeleportState; }
+    ETeleportState	getTeleportState() const;
 	void			setTeleportState(ETeleportState state);
 private:
 	ETeleportState	mTeleportState;

@@ -4084,6 +4084,13 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
 	teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
 }
 
+LLAgent::ETeleportState	LLAgent::getTeleportState() const
+{
+    return (mTeleportRequest && (mTeleportRequest->getStatus() == LLTeleportRequest::kFailed)) ? 
+        TELEPORT_NONE : mTeleportState;
+}
+
+
 void LLAgent::setTeleportState(ETeleportState state)
 {
     if (mTeleportRequest && (state != TELEPORT_NONE) && (mTeleportRequest->getStatus() == LLTeleportRequest::kFailed))
