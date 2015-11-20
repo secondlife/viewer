@@ -168,9 +168,9 @@ namespace Details
 
             if (!status)
             {
-                if (status == LLCore::HttpStatus(HTTP_BAD_GATEWAY))
-                {   // A HTTP_BAD_GATEWAY (502) error is our standard timeout response
-                    // we get this when there are no events.
+                if (status == LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT))
+                {   // A standard timeout response we get this when there are no events.
+                    LL_INFOS("LLEventPollImpl") << "All is very quiet on target server. It may have gone idle?" << LL_ENDL;
                     errorCount = 0;
                     continue;
                 }
@@ -180,7 +180,7 @@ namespace Details
                     // some cases the server gets ahead of the viewer and will 
                     // return a 404 error (Not Found) before the cancel event
                     // comes back in the queue
-                    LL_WARNS() << "Canceling coroutine" << LL_ENDL;
+                    LL_WARNS("LLEventPollImpl") << "Canceling coroutine" << LL_ENDL;
                     break;
                 }
                 else if (!status.isHttpStatus())
