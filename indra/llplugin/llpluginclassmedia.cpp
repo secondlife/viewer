@@ -845,14 +845,14 @@ void LLPluginClassMedia::setLanguageCode(const std::string &language_code)
 
 void LLPluginClassMedia::setPluginsEnabled(const bool enabled)
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "plugins_enabled");
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "plugins_enabled");
 	message.setValueBoolean("enable", enabled);
 	sendMessage(message);
 }
 
 void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "javascript_enabled");
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "javascript_enabled");
 	message.setValueBoolean("enable", enabled);
 	sendMessage(message);
 }

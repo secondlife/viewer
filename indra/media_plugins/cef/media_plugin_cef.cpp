@@ -338,7 +338,7 @@ void MediaPluginCEF::authResponse(LLPluginMessage &message)
 //
 void MediaPluginCEF::receiveMessage(const char* message_string)
 {
-	//  std::cerr << "MediaPluginWebKit::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
+	//  std::cerr << "MediaPluginCEF::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
 	LLPluginMessage message_in;
 
 	if (message_in.parse(message_string) >= 0)
@@ -356,7 +356,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				versions[LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER] = LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER_VERSION;
 				message.setValueLLSD("versions", versions);
 
-				std::string plugin_version = "CEF plugin 1.0.0";
+				std::string plugin_version = "CEF plugin 1.1.3";
 				message.setValue("plugin_version", plugin_version);
 				sendMessage(message);
 			}
@@ -400,7 +400,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 				else
 				{
-					//std::cerr << "MediaPluginWebKit::receiveMessage: unknown shared memory region!" << std::endl;
 				}
 
 				LLPluginMessage message("base", "shm_remove_response");
@@ -409,7 +408,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else
 			{
-				//std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
 			}
 		}
 		else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA)
@@ -709,7 +707,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
         }
         else
 		{
-			//std::cerr << "MediaPluginWebKit::receiveMessage: unknown message class: " << message_class << std::endl;
 		};
 	}
 }
