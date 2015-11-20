@@ -232,7 +232,6 @@ void LLVOAvatarSelf::initInstance()
 	{
 		mDebugBakedTextureTimes[i][0] = -1.0f;
 		mDebugBakedTextureTimes[i][1] = -1.0f;
-		mInitialBakeIDs[i] = LLUUID::null;
 	}
 
 	status &= buildMenus();

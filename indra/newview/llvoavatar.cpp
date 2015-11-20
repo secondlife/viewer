@@ -1382,6 +1382,7 @@ void LLVOAvatar::renderBones()
 		ostr << jointp->getName() << ", ";
 
 		jointp->updateWorldMatrix();
+        LLJoint::SupportCategory sc = jointp->getSupport();
 
 		gGL.pushMatrix();
 		gGL.multMatrix( &jointp->getXform()->getWorldMatrix().mMatrix[0][0] );
@@ -1398,7 +1399,15 @@ void LLVOAvatar::renderBones()
         LLGLDepthTest normal_depth(GL_TRUE);
 
         // Unoccluded bone portions
-		gGL.diffuseColor3f( 1.f, 1.f, 1.f );
+        if (sc == LLJoint::SupportCategory::SUPPORT_BASE)
+        {
+            gGL.diffuseColor3f( 1.0f, 0.5f, 0.5f );
+        }
+        else
+        {
+            gGL.diffuseColor3f( 0.5f, 1.0f, 0.5f );
+        }
+        
 	
 		gGL.vertex3fv(v[0].mV); 
 		gGL.vertex3fv(v[1].mV);
@@ -1406,7 +1415,14 @@ void LLVOAvatar::renderBones()
         LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
 
         // Unoccluded bone portions
-		gGL.diffuseColor3f( 1.0f, 0.f, 0.0f );
+		if (sc == LLJoint::SupportCategory::SUPPORT_BASE)
+        {
+            gGL.diffuseColor3f( 1.0f, 0.0f, 0.0f );
+        }
+        else
+        {
+            gGL.diffuseColor3f( 0.0f, 1.0f, 0.0f );
+        }
 
 		gGL.vertex3fv(v[0].mV); 
 		gGL.vertex3fv(v[1].mV);
