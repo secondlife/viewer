@@ -3970,7 +3970,8 @@ void LLVivoxVoiceClient::parcelVoiceInfoRequestCoro(std::string url)
         }
     }
 
-    LL_INFOS("Voice") << "Voice URI is " << uri << LL_ENDL;
+    if (!uri.empty())
+        LL_INFOS("Voice") << "Voice URI is " << uri << LL_ENDL;
 
     // set the spatial channel.  If no voice credentials or uri are 
     // available, then we simply drop out of voice spatially.

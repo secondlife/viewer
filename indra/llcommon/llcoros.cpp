@@ -91,6 +91,8 @@ LLCoros::LLCoros():
 
 bool LLCoros::cleanup(const LLSD&)
 {
+    static std::string previousName;
+    static int previousCount = 0;
     // Walk the mCoros map, checking and removing completed coroutines.
     for (CoroMap::iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; )
     {
@@ -98,7 +100,24 @@ bool LLCoros::cleanup(const LLSD&)
         // since last tick?
         if (mi->second->mCoro.exited())
         {
-            LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+            if (previousName != mi->first)
+            { 
+                previousName = mi->first;
+                previousCount = 1;
+            }
+            else
+            {
+                ++previousCount;
+            }
+               
+            if ((previousCount < 5) || !(previousCount % 50))
+            {
+                if (previousCount < 5)
+                    LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
+                else
+                    LL_INFOS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << "("<< previousCount << ")" << LL_ENDL;
+
+            }
             // The erase() call will invalidate its passed iterator value --
             // so increment mi FIRST -- but pass its original value to
             // erase(). This is what postincrement is all about.
@@ -116,6 +135,9 @@ bool LLCoros::cleanup(const LLSD&)
 
 std::string LLCoros::generateDistinctName(const std::string& prefix) const
 {
+    static std::string previousName;
+    static int previousCount = 0;
+
     // Allowing empty name would make getName()'s not-found return ambiguous.
     if (prefix.empty())
     {
@@ -132,7 +154,25 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
     {
         if (mCoros.find(name) == mCoros.end())
         {
-            LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
+            if (previousName != name)
+            {
+                previousName = name;
+                previousCount = 1;
+            }
+            else
+            {
+                ++previousCount;
+            }
+
+            if ((previousCount < 5) || !(previousCount % 50))
+            {
+                if (previousCount < 5)
+                    LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
+                else
+                    LL_INFOS("LLCoros") << "LLCoros: launching coroutine " << name << "(" << previousCount << ")" << LL_ENDL;
+
+            }
+
             return name;
         }
     }
