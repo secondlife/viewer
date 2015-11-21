@@ -438,7 +438,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
 				settings.accept_language_list = mHostLanguage;
-				settings.user_agent_substring = mUserAgentSubtring;
+				settings.user_agent_substring = mLLCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
 
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
