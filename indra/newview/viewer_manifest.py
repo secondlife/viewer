@@ -400,8 +400,6 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("vivoxsdk.dll")
             self.path("ortp.dll")
             self.path("libsndfile-1.dll")
-            self.path("zlib1.dll")
-            self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
             self.path("ca-bundle.crt")
             
