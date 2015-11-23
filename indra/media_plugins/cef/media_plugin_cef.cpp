@@ -526,15 +526,13 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
 
-				//std::string modifiers = message_in.getValue("modifiers");
-
+				// only even send left mouse button events to LLCEFLib
+				// (partially prompted by crash in OS X CEF when sending right button events)
+				// we catch the right click in viewer and display our own context menu anyway
 				S32 button = message_in.getValueS32("button");
 				LLCEFLib::EMouseButton btn = LLCEFLib::MB_MOUSE_BUTTON_LEFT;
-				if (button == 0) btn = LLCEFLib::MB_MOUSE_BUTTON_LEFT;
-				if (button == 1) btn = LLCEFLib::MB_MOUSE_BUTTON_RIGHT;
-				if (button == 2) btn = LLCEFLib::MB_MOUSE_BUTTON_MIDDLE;
 
-				if (event == "down")
+				if (event == "down" && button == 0)
 				{
 					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_DOWN, x, y);
 					mLLCEFLib->setFocus(true);
@@ -543,7 +541,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 					str << "Mouse down at = " << x << ", " << y;
 					postDebugMessage(str.str());
 				}
-				else if (event == "up")
+				else if (event == "up" && button == 0)
 				{
 					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_UP, x, y);
 
