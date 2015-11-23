@@ -1578,7 +1578,7 @@ BOOL LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
 	if (!node->getFastAttributeVector3(end_string, mEnd))
 	{
 		LL_WARNS() << "Bone without end " << mName << LL_ENDL;
-        mEnd = LLVector3(1.0f, 0.0f, 0.0f);
+        mEnd = LLVector3(0.0f, 0.0f, 0.0f);
 	}
 
 	static LLStdStringHandle support_string = LLXmlTree::addAttributeString("support");

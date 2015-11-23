@@ -3977,20 +3977,6 @@ BOOL LLModelPreview::render()
 															  LLVector3::z_axis,																	// up
 															  target_pos);											// point of interest
 
-			if (joint_positions)
-			{
-				LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-				if (shader)
-				{
-					gDebugProgram.bind();
-				}
-				getPreviewAvatar()->renderCollisionVolumes();
-				if (shader)
-				{
-					shader->bind();
-				}
-			}
-
 			for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
 			{
 				for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
@@ -4074,6 +4060,22 @@ BOOL LLModelPreview::render()
 					}
 				}
 			}
+
+			if (joint_positions)
+			{
+				LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+				if (shader)
+				{
+					gDebugProgram.bind();
+				}
+				getPreviewAvatar()->renderCollisionVolumes();
+				getPreviewAvatar()->renderBones();
+				if (shader)
+				{
+					shader->bind();
+				}
+			}
+
 		}
 	}
 
