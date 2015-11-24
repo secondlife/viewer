@@ -337,7 +337,13 @@ BOOL LLFloaterExperienceProfile::postBuild()
 
     LLEventPumps::instance().obtain("experience_permission").listen(mExperienceId.asString()+"-profile", 
         boost::bind(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
-    
+
+    if (mPostEdit && mExperienceId.notNull())
+    {
+        mPostEdit = false;
+        changeToEdit();
+    }
+
     return TRUE;
 }
 
@@ -621,12 +627,6 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     mDirty=false;
     mForceClose = false;
     getChild<LLButton>(BTN_SAVE)->setEnabled(mDirty);
-
-    if (mPostEdit)
-    {
-        mPostEdit = false;
-        changeToEdit();
-    }
 }
 
 void LLFloaterExperienceProfile::setPreferences( const LLSD& content )
