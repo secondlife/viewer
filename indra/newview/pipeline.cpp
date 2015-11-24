@@ -6111,6 +6111,13 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		{
 			const Light* light = &(*iter);
 			LLDrawable* drawable = light->drawable;
+            const LLViewerObject *vobj = light->drawable->getVObj();
+            if(vobj && vobj->getAvatar() && vobj->getAvatar()->isInMuteList())
+            {
+                drawable->clearState(LLDrawable::NEARBY_LIGHT);
+                continue;
+            }
+
 			LLVOVolume* volight = drawable->getVOVolume();
 			if (!volight || !drawable->isState(LLDrawable::LIGHT))
 			{
