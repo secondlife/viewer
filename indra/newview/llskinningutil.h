@@ -45,7 +45,6 @@ public:
 
     // This is initialized from gSavedSettings at startup and then left alone.
     static bool sIncludeEnhancedSkeleton;
-    static U32 sMaxJointsPerMeshObject;
 };
 
 #endif

@@ -6123,17 +6123,6 @@
       <key>Value</key>
       <real>1.6</real>
     </map>
-    <key>MaxJointsPerMeshObject</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum joints per rigged mesh object</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <real>999</real>
-    </map>
     <key>MaxPersistentNotifications</key>
     <map>
       <key>Comment</key>

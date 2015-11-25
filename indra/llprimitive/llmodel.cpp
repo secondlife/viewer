@@ -867,7 +867,7 @@ LLSD LLModel::writeModel(
 						S32 count = 0;
 						for (weight_list::iterator iter = weights.begin(); iter != weights.end(); ++iter)
 						{
-                            // BENTO JOINT COUNT LIMIT 255?
+							// Note joint index cannot exceed 255.
 							if (iter->mJointIdx < 255 && iter->mJointIdx >= 0)
 							{
 								U8 idx = (U8) iter->mJointIdx;

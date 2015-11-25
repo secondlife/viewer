@@ -33,7 +33,6 @@
 #include "llmeshrepository.h"
 
 bool LLSkinningUtil::sIncludeEnhancedSkeleton = true;
-U32 LLSkinningUtil::sMaxJointsPerMeshObject = LL_MAX_JOINTS_PER_MESH_OBJECT;
 
 namespace {
 
@@ -111,17 +110,19 @@ U32 get_proxy_joint_index(U32 joint_index, LLVOAvatar *avatar, std::vector<std::
 void LLSkinningUtil::initClass()
 {
     sIncludeEnhancedSkeleton = gSavedSettings.getBOOL("IncludeEnhancedSkeleton");
-	// BENTO - remove MaxJointsPerMeshObject before release.
-    sMaxJointsPerMeshObject = gSavedSettings.getU32("MaxJointsPerMeshObject");
 }
 
 // static
 U32 LLSkinningUtil::getMaxJointCount()
 {
-    U32 result = llmin(LL_MAX_JOINTS_PER_MESH_OBJECT, sMaxJointsPerMeshObject);
+    U32 result = LL_MAX_JOINTS_PER_MESH_OBJECT;
     if (!sIncludeEnhancedSkeleton)
     {
-        result = llmin(result,(U32)52); // BENTO replace with LLAvatarAppearance::getBaseJointCount()) or equivalent 
+		// BENTO replace with LLAvatarAppearance::getBaseJointCount()) or equivalent 
+        // BENTO - currently the remap logic does not guarantee joint count <= 52;
+        // if one of the base ancestors is not rigged in a given mesh, an extended
+		// joint can still be included.
+        result = llmin(result,(U32)52);
     }
 	return result;
 }
@@ -144,6 +145,10 @@ U32 LLSkinningUtil::getMeshJointCount(const LLMeshSkinInfo *skin)
 // in the avatar, or not currently flagged to support based on the
 // debug setting for IncludeEnhancedSkeleton.
 //
+
+// BENTO maybe this really only makes sense for new leaf joints? New spine
+// joints may need different logic.
+
 // static
 void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin)
 {
