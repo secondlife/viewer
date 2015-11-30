@@ -143,7 +143,9 @@ protected:
 	void 	onCommitShinyColor(const LLSD& data);
 	void 	onCommitAlpha(const LLSD& data);
 	void 	onCancelColor(const LLSD& data);
+	void 	onCancelShinyColor(const LLSD& data);
 	void 	onSelectColor(const LLSD& data);
+	void 	onSelectShinyColor(const LLSD& data);
 
 	void 	onCloseTexturePicker(const LLSD& data);
 

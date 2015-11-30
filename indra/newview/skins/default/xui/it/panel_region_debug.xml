@@ -27,9 +27,9 @@
 	<check_box label="Sul terreno di un altro residente" name="return_other_land" tool_tip="Restituisci solo gli oggetti che sono in terreni appartenenti a qualcun altro"/>
 	<check_box label="In tutte le regioni di questa proprietà" name="return_estate_wide" tool_tip="Restituisci tutti gli oggetti nelle varie regioni che costituiscono l&apos;insieme dei possedimenti terrieri"/>
 	<button label="Restituisci" name="return_btn"/>
-	<button label="Visualizza l&apos;elenco dei maggiori collidenti..." name="top_colliders_btn" tool_tip="Elenco degli oggetti che stanno potenzialmente subendo le maggiori collisioni" width="280"/>
-	<button label="Riavvia la regione" name="restart_btn" tool_tip="Dai 2 minuti di tempo massimo e fai riavviare la regione"/>
-	<button label="Visualizza l&apos;elenco degli script più pesanti..." name="top_scripts_btn" tool_tip="Elenco degli oggetti che impiegano più tempo a far girare gli script" width="280"/>
-	<button label="Annulla riavvio" name="cancel_restart_btn" tool_tip="Annulla riavvio regione"/>
-	<button label="Console di debug regione" name="region_debug_console_btn" tool_tip="Apri console di debug regione"/>
+	<button label="Visualizza l&apos;elenco dei maggiori collidenti..." name="top_colliders_btn" tool_tip="Elenco degli oggetti che stanno potenzialmente subendo le maggiori collisioni" width="270"/>
+	<button label="Riavvia la regione" name="restart_btn" tool_tip="Dai 2 minuti di tempo massimo e fai riavviare la regione" left_pad="90" width="140"/>
+	<button label="Visualizza l&apos;elenco degli script più pesanti..." name="top_scripts_btn" tool_tip="Elenco degli oggetti che impiegano più tempo a far girare gli script" width="270"/>
+	<button label="Annulla riavvio" name="cancel_restart_btn" tool_tip="Annulla riavvio regione" left_pad="90" width="140"/>
+	<button label="Console di debug regione" name="region_debug_console_btn" tool_tip="Apri console di debug regione" width="270"/>
 </panel>

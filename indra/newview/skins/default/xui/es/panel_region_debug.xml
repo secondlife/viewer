@@ -27,9 +27,9 @@
 	<check_box label="En el terreno de otros" name="return_other_land" tool_tip="Devolver sólo los objetos que están en terreno de otro"/>
 	<check_box label="En cada región de este estado" name="return_estate_wide" tool_tip="Devolver los objetos de todas las regiones que forman este estado"/>
 	<button label="Devolver" name="return_btn"/>
-	<button label="Listar los objetos que colisionan..." name="top_colliders_btn" tool_tip="Lista de los objetos con más posibles colisiones potenciales" width="280"/>
-	<button label="Reiniciar la región" name="restart_btn" tool_tip="Cuenta atrás de 2 minutos y reiniciar la región"/>
-	<button label="Listar los scripts según su uso..." name="top_scripts_btn" tool_tip="Lista de los objetos que más tiempo emplean ejecutando scripts" width="280"/>
-	<button label="Cancelar reinicio" name="cancel_restart_btn" tool_tip="Cancelar el reinicio de región"/>
-	<button label="Consola de depuración de región" name="region_debug_console_btn" tool_tip="Abrir consola de depuración de región"/>
+	<button label="Listar los objetos que colisionan..." name="top_colliders_btn" tool_tip="Lista de los objetos con más posibles colisiones potenciales" width="240"/>
+	<button label="Reiniciar la región" name="restart_btn" tool_tip="Cuenta atrás de 2 minutos y reiniciar la región" left_pad="90" width="160"/>
+	<button label="Listar los scripts según su uso..." name="top_scripts_btn" tool_tip="Lista de los objetos que más tiempo emplean ejecutando scripts" width="240"/>
+	<button label="Cancelar reinicio" name="cancel_restart_btn" tool_tip="Cancelar el reinicio de región" left_pad="90" width="160"/>
+	<button label="Consola de depuración de región" name="region_debug_console_btn" tool_tip="Abrir consola de depuración de región" width="240"/>
 </panel>

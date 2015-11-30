@@ -94,32 +94,44 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 
 #define LL_ALIGN_16(var) LL_ALIGN_PREFIX(16) var LL_ALIGN_POSTFIX(16)
 
+//------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+	// for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library
+	// change preprocessro code to: #if 1 && defined(LL_WINDOWS)
 
-inline void* ll_aligned_malloc_fallback( size_t size, int align )
-{
-#if defined(LL_WINDOWS)
-	return _aligned_malloc(size, align);
+#if 0 && defined(LL_WINDOWS)
+	void* ll_aligned_malloc_fallback( size_t size, int align );
+	void ll_aligned_free_fallback( void* ptr );
+//------------------------------------------------------------------------------------------------
 #else
-	void* mem = malloc( size + (align - 1) + sizeof(void*) );
-	char* aligned = ((char*)mem) + sizeof(void*);
-	aligned += align - ((uintptr_t)aligned & (align - 1));
-
-	((void**)aligned)[-1] = mem;
-	return aligned;
-#endif
-}
-
-inline void ll_aligned_free_fallback( void* ptr )
-{
-#if defined(LL_WINDOWS)
-	_aligned_free(ptr);
-#else
-	if (ptr)
+	inline void* ll_aligned_malloc_fallback( size_t size, int align )
 	{
-		free( ((void**)ptr)[-1] );
+	#if defined(LL_WINDOWS)
+		return _aligned_malloc(size, align);
+	#else
+		void* mem = malloc( size + (align - 1) + sizeof(void*) );
+		char* aligned = ((char*)mem) + sizeof(void*);
+		aligned += align - ((uintptr_t)aligned & (align - 1));
+
+		((void**)aligned)[-1] = mem;
+		return aligned;
+	#endif
+	}
+
+	inline void ll_aligned_free_fallback( void* ptr )
+	{
+	#if defined(LL_WINDOWS)
+		_aligned_free(ptr);
+	#else
+		if (ptr)
+		{
+			free( ((void**)ptr)[-1] );
+		}
+	#endif
 	}
 #endif
-}
+//------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 
 #if !LL_USE_TCMALLOC
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().

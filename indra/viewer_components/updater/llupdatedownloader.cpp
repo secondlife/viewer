@@ -270,7 +270,7 @@ void LLUpdateDownloader::Implementation::resume(void)
 	}
 
 	mDownloadRecordPath = downloadMarkerPath();
-	llifstream dataStream(mDownloadRecordPath);
+	llifstream dataStream(mDownloadRecordPath.c_str());
 	if(!dataStream)
 	{
 		mClient.downloadError("no download marker");
@@ -362,7 +362,7 @@ size_t LLUpdateDownloader::Implementation::onHeader(void * buffer, size_t size)
 			LL_INFOS("UpdaterService") << "download size is " << size << LL_ENDL;
 
 			mDownloadData["size"] = LLSD(LLSD::Integer(size));
-			llofstream odataStream(mDownloadRecordPath);
+			llofstream odataStream(mDownloadRecordPath.c_str());
 			LLSDSerialize::toPrettyXML(mDownloadData, odataStream);
 		} catch (std::exception const & e) {
 			LL_WARNS("UpdaterService") << "unable to read content length ("
@@ -513,7 +513,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	}
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaderList));
 
-	mDownloadStream.open(mDownloadData["path"].asString(),
+	mDownloadStream.open(mDownloadData["path"].asString().c_str(),
 						 std::ios_base::out | std::ios_base::binary | std::ios_base::app);
 	start();
 }
@@ -534,10 +534,10 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 		<< " from " << uri.asString() << LL_ENDL;
 	LL_INFOS("UpdaterService") << "hash of file is " << hash << LL_ENDL;
 
-	llofstream dataStream(mDownloadRecordPath);
+	llofstream dataStream(mDownloadRecordPath.c_str());
 	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
 
-	mDownloadStream.open(filePath, std::ios_base::out | std::ios_base::binary);
+	mDownloadStream.open(filePath.c_str(), std::ios_base::out | std::ios_base::binary);
 	initializeCurlGet(uri.asString(), true);
 	start();
 }
@@ -570,7 +570,7 @@ bool LLUpdateDownloader::Implementation::validateOrRemove(const std::string& fil
 
 bool LLUpdateDownloader::Implementation::validateDownload(const std::string& filePath)
 {
-	llifstream fileStream(filePath, std::ios_base::in | std::ios_base::binary);
+	llifstream fileStream(filePath.c_str(), std::ios_base::in | std::ios_base::binary);
 	if(!fileStream)
 	{
 		LL_INFOS("UpdaterService") << "can't open " << filePath << ", invalid" << LL_ENDL;

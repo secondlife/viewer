@@ -95,7 +95,7 @@ LLPidLockFile& LLPidLockFile::instance()
 
 void LLPidLockFile::writeLockFile(LLSD pids)
 {
-	llofstream ofile(mLockName);
+	llofstream ofile(mLockName.c_str());
 
 	if (!LLSDSerialize::toXML(pids,ofile))
 	{
@@ -119,7 +119,7 @@ bool LLPidLockFile::requestLock(LLNameTable<void *> *name_table, bool autosave,
 	LLSD out_pids;
 	out_pids.append( (LLSD::Integer)mPID );
 
-	llifstream ifile(mLockName);
+	llifstream ifile(mLockName.c_str());
 
 	if (ifile.is_open()) 
 	{									//If file exists, we need to decide whether or not to continue.
@@ -175,7 +175,7 @@ bool LLPidLockFile::checkLock()
 
 void LLPidLockFile::releaseLock()
 {
-	llifstream ifile(mLockName);
+	llifstream ifile(mLockName.c_str());
 	LLSD in_pids;
 	LLSD out_pids;
 	bool write_file=FALSE;

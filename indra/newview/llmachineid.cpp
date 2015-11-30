@@ -88,7 +88,7 @@ S32 LLMachineID::init()
                           
         if (FAILED(hres))
         {
-            LL_DEBUGS("AppInit") << "Failed to initialize security. Error code = 0x"  << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Failed to initialize security. Error code = 0x"  << hex << hres << LL_ENDL;
             CoUninitialize();
             return 1;                    // Program has failed.
         }
@@ -106,7 +106,7 @@ S32 LLMachineID::init()
      
         if (FAILED(hres))
         {
-            LL_DEBUGS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << hex << hres << LL_ENDL;
             CoUninitialize();
             return 1;                 // Program has failed.
         }
@@ -132,7 +132,7 @@ S32 LLMachineID::init()
         
         if (FAILED(hres))
         {
-            LL_DEBUGS("AppInit") << "Could not connect. Error code = 0x"  << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Could not connect. Error code = 0x"  << hex << hres << LL_ENDL;
             pLoc->Release();     
             CoUninitialize();
             return 1;                // Program has failed.
@@ -157,7 +157,7 @@ S32 LLMachineID::init()
 
         if (FAILED(hres))
         {
-            LL_DEBUGS("AppInit") << "Could not set proxy blanket. Error code = 0x"   << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x"   << hex << hres << LL_ENDL;
             pSvc->Release();
             pLoc->Release();     
             CoUninitialize();
@@ -178,7 +178,7 @@ S32 LLMachineID::init()
         
         if (FAILED(hres))
         {
-            LL_DEBUGS("AppInit") << "Query for operating system name failed." << " Error code = 0x"  << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x"  << hex << hres << LL_ENDL;
             pSvc->Release();
             pLoc->Release();
             CoUninitialize();
@@ -205,7 +205,7 @@ S32 LLMachineID::init()
 
             // Get the value of the Name property
             hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
-            LL_DEBUGS("AppInit") << " Serial Number : " << vtProp.bstrVal << LL_ENDL;
+            LL_INFOS("AppInit") << " Serial Number : " << vtProp.bstrVal << LL_ENDL;
             // use characters in the returned Serial Number to create a byte array of size len
             BSTR serialNumber ( vtProp.bstrVal);
             unsigned int j = 0;
@@ -252,7 +252,7 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
     if (has_static_unique_id)
     {
         memcpy ( unique_id, &static_unique_id, len);
-        LL_DEBUGS("AppInit") << "UniqueID: 0x";
+        LL_INFOS_ONCE("AppInit") << "UniqueID: 0x";
         // Code between here and LL_ENDL is not executed unless the LL_DEBUGS
         // actually produces output
         for (size_t i = 0; i < len; ++i)

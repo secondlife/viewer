@@ -622,7 +622,7 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
     LLSD clpConfigLLSD;
     
     llifstream input_stream;
-    input_stream.open(config_filename, std::ios::in | std::ios::binary);
+    input_stream.open(config_filename.c_str(), std::ios::in | std::ios::binary);
 
     if(input_stream.is_open())
     {

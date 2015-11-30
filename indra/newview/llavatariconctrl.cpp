@@ -76,7 +76,7 @@ void LLAvatarIconIDCache::load	()
 	
 	// build filename for each user
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mFilename);
-	llifstream file(resolved_filename);
+	llifstream file(resolved_filename.c_str());
 
 	if (!file.is_open())
 		return;
@@ -114,7 +114,7 @@ void LLAvatarIconIDCache::save	()
 	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mFilename);
 
 	// open a file for writing
-	llofstream file (resolved_filename);
+	llofstream file (resolved_filename.c_str());
 	if (!file.is_open())
 	{
 		LL_WARNS() << "can't open avatar icons cache file\"" << mFilename << "\" for writing" << LL_ENDL;

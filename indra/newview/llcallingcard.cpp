@@ -860,7 +860,7 @@ bool LLCollectMappableBuddies::operator()(const LLUUID& buddy_id, LLRelationship
 {
 	LLAvatarName av_name;
 	LLAvatarNameCache::get( buddy_id, &av_name);
-	buddy_map_t::value_type value(av_name.getDisplayName(), buddy_id);
+	buddy_map_t::value_type value(buddy_id, av_name.getDisplayName());
 	if(buddy->isOnline() && buddy->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION))
 	{
 		mMappable.insert(value);
@@ -871,7 +871,7 @@ bool LLCollectMappableBuddies::operator()(const LLUUID& buddy_id, LLRelationship
 bool LLCollectOnlineBuddies::operator()(const LLUUID& buddy_id, LLRelationship* buddy)
 {
 	gCacheName->getFullName(buddy_id, mFullName);
-	buddy_map_t::value_type value(mFullName, buddy_id);
+	buddy_map_t::value_type value(buddy_id, mFullName);
 	if(buddy->isOnline())
 	{
 		mOnline.insert(value);
@@ -883,8 +883,8 @@ bool LLCollectAllBuddies::operator()(const LLUUID& buddy_id, LLRelationship* bud
 {
 	LLAvatarName av_name;
 	LLAvatarNameCache::get(buddy_id, &av_name);
-	mFullName = av_name.getDisplayName();
-	buddy_map_t::value_type value(mFullName, buddy_id);
+	mFullName = av_name.getCompleteName();
+	buddy_map_t::value_type value(buddy_id, mFullName);
 	if(buddy->isOnline())
 	{
 		mOnline.insert(value);

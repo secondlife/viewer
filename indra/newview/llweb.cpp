@@ -49,7 +49,7 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llnotificationsutil.h"
-
+#include "lluriparser.h"
 #include "uriparser/Uri.h"
 
 #include <boost/regex.hpp>
@@ -240,19 +240,10 @@ bool LLWeb::useExternalBrowser(const std::string &url)
 	}
 	else if (gSavedSettings.getU32("PreferredBrowserBehavior") == BROWSER_INT_LL_EXT_OTHERS)
 	{
-		UriParserStateA state;
-		UriUriA uri;
-		state.uri = &uri;
-
-		std::string uri_string = url;
-		uriParseUriA(&state, uri_string.c_str());
-		if (uri.hostText.first)
-		{
-			S32 length = uri.hostText.afterLast - uri.hostText.first;
-			std::string buf = uri.hostText.first;
-			uri_string = buf.substr(0,length);
-		}
-		uriFreeUriMembersA(&uri);
+		LLUriParser up(url);
+		up.normalize();
+		up.extractParts();
+		std::string uri_string = up.host();
 
 		boost::regex pattern = boost::regex("\\b(lindenlab.com|secondlife.com)$", boost::regex::perl|boost::regex::icase);
 		boost::match_results<std::string::const_iterator> matches;

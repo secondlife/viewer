@@ -86,12 +86,6 @@ public:
 	static  const char * tmpdir();
 };
 
-// Remove ll[io]fstream support for [LL]FILE*, preparing to remove dependency
-// on GNU's standard library.
-#if ! defined(llstream_LLFILE)
-#define llstream_LLFILE 0
-#endif
-
 /**
  *  @brief Provides a layer of compatibility for C/POSIX.
  *
@@ -198,7 +192,7 @@ protected:
 #endif
 };
 
-
+#if LL_WINDOWS
 /**
  *  @brief  Controlling input for files.
  *
@@ -207,11 +201,11 @@ protected:
  *  sequence, an instance of std::basic_filebuf (or a platform-specific derivative)
  *  which allows construction using a pre-exisintg file stream buffer. 
  *  We refer to this std::basic_filebuf (or derivative) as @c sb.
-*/
+ */
 class LL_COMMON_API llifstream	:	public	std::istream
 {
 	// input stream associated with a C stream
-public:
+  public:
 	// Constructors:
 	/**
 	 *  @brief  Default constructor.
@@ -219,7 +213,7 @@ public:
 	 *  Initializes @c sb using its default constructor, and passes
 	 *  @c &sb to the base class initializer.  Does not open any files
 	 *  (you haven't given it a filename to open).
-	*/
+     */
 	llifstream();
 
 	/**
@@ -228,50 +222,21 @@ public:
 	 *  @param  Mode  Open file in specified mode (see std::ios_base).
 	 *
      *  @c ios_base::in is automatically included in @a mode.
-	*/
+     */
 	explicit llifstream(const std::string& _Filename,
-			ios_base::openmode _Mode = ios_base::in);
+                        ios_base::openmode _Mode = ios_base::in);
 	explicit llifstream(const char* _Filename,
-			ios_base::openmode _Mode = ios_base::in);
-
-#if llstream_LLFILE
-	/**
-	 *  @brief  Create a stream using an open c file stream.
-	 *  @param  File  An open @c FILE*.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-	explicit llifstream(_Filet *_File,
-			ios_base::openmode _Mode = ios_base::in,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-	
-	/**
-	 *  @brief  Create a stream using an open file descriptor.
-	 *  @param  fd    An open file descriptor.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-#if !LL_WINDOWS
-	explicit llifstream(int __fd,
-			ios_base::openmode _Mode = ios_base::in,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-#endif
-#endif // llstream_LLFILE
+                        ios_base::openmode _Mode = ios_base::in);
 
 	/**
 	 *  @brief  The destructor does nothing.
 	 *
 	 *  The file is closed by the filebuf object, not the formatting
 	 *  stream.
-	*/
+     */
 	virtual ~llifstream() {}
 
 	// Members:
-#if llstream_LLFILE
 	/**
 	 *  @brief  Accessing the underlying buffer.
 	 *  @return  The current basic_filebuf buffer.
@@ -280,12 +245,11 @@ public:
 	*/
 	llstdio_filebuf* rdbuf() const
 	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
-#endif // llstream_LLFILE
 
 	/**
 	 *  @brief  Wrapper to test for an open file.
 	 *  @return  @c rdbuf()->is_open()
-	*/
+     */
 	bool is_open() const;
 
 	/**
@@ -295,22 +259,22 @@ public:
 	 *
 	 *  Calls @c llstdio_filebuf::open(s,mode|in).  If that function
 	 *  fails, @c failbit is set in the stream's error state.
-	*/
+     */
 	void open(const std::string& _Filename,
-			ios_base::openmode _Mode = ios_base::in)
+              ios_base::openmode _Mode = ios_base::in)
 	{ open(_Filename.c_str(), _Mode); }
 	void open(const char* _Filename,
-			ios_base::openmode _Mode = ios_base::in);
+              ios_base::openmode _Mode = ios_base::in);
 
 	/**
 	 *  @brief  Close the file.
 	 *
 	 *  Calls @c llstdio_filebuf::close().  If that function
 	 *  fails, @c failbit is set in the stream's error state.
-	*/
+     */
 	void close();
 
-private:
+  private:
 	llstdio_filebuf _M_filebuf;
 };
 
@@ -326,7 +290,7 @@ private:
 */
 class LL_COMMON_API llofstream	:	public	std::ostream
 {
-public:
+  public:
 	// Constructors:
 	/**
 	 *  @brief  Default constructor.
@@ -334,7 +298,7 @@ public:
 	 *  Initializes @c sb using its default constructor, and passes
 	 *  @c &sb to the base class initializer.  Does not open any files
 	 *  (you haven't given it a filename to open).
-	*/
+     */
 	llofstream();
 
 	/**
@@ -344,39 +308,11 @@ public:
 	 *
 	 *  @c ios_base::out|ios_base::trunc is automatically included in
 	 *  @a mode.
-	*/
+     */
 	explicit llofstream(const std::string& _Filename,
-			ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
+                        ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 	explicit llofstream(const char* _Filename,
-			ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
-
-#if llstream_LLFILE
-	/**
-	 *  @brief  Create a stream using an open c file stream.
-	 *  @param  File  An open @c FILE*.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-	explicit llofstream(_Filet *_File,
-			ios_base::openmode _Mode = ios_base::out,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-
-	/**
-	 *  @brief  Create a stream using an open file descriptor.
-	 *  @param  fd    An open file descriptor.
-        @param  Mode  Same meaning as in a standard filebuf.
-        @param  Size  Optimal or preferred size of internal buffer, in chars.
-                      Defaults to system's @c BUFSIZ.
-	*/
-#if !LL_WINDOWS
-	explicit llofstream(int __fd,
-			ios_base::openmode _Mode = ios_base::out,
-			//size_t _Size = static_cast<size_t>(BUFSIZ));
-			size_t _Size = static_cast<size_t>(1));
-#endif
-#endif // llstream_LLFILE
+                        ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 
 	/**
 	 *  @brief  The destructor does nothing.
@@ -387,7 +323,6 @@ public:
 	virtual ~llofstream() {}
 
 	// Members:
-#if llstream_LLFILE
 	/**
 	 *  @brief  Accessing the underlying buffer.
 	 *  @return  The current basic_filebuf buffer.
@@ -396,7 +331,6 @@ public:
 	*/
 	llstdio_filebuf* rdbuf() const
 	{ return const_cast<llstdio_filebuf*>(&_M_filebuf); }
-#endif // llstream_LLFILE
 
 	/**
 	 *  @brief  Wrapper to test for an open file.
@@ -411,22 +345,22 @@ public:
 	 *
 	 *  Calls @c llstdio_filebuf::open(s,mode|out).  If that function
 	 *  fails, @c failbit is set in the stream's error state.
-	*/
+     */
 	void open(const std::string& _Filename,
-			ios_base::openmode _Mode = ios_base::out|ios_base::trunc)
+              ios_base::openmode _Mode = ios_base::out|ios_base::trunc)
 	{ open(_Filename.c_str(), _Mode); }
 	void open(const char* _Filename,
-			ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
+              ios_base::openmode _Mode = ios_base::out|ios_base::trunc);
 
 	/**
 	 *  @brief  Close the file.
 	 *
 	 *  Calls @c llstdio_filebuf::close().  If that function
 	 *  fails, @c failbit is set in the stream's error state.
-	*/
+     */
 	void close();
 
-private:
+  private:
 	llstdio_filebuf _M_filebuf;
 };
 
@@ -440,5 +374,13 @@ private:
  */
 std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
 std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
+
+#else // ! LL_WINDOWS
+
+// on non-windows, llifstream and llofstream are just mapped directly to the std:: equivalents
+typedef std::ifstream llifstream;
+typedef std::ofstream llofstream;
+
+#endif // LL_WINDOWS or ! LL_WINDOWS
 
 #endif // not LL_LLFILE_H

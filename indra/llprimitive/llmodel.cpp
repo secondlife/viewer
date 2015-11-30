@@ -1681,11 +1681,11 @@ LLSD LLModel::writeModel(
 						}
 					}
 					
-					F32* src_tc = (F32*) face.mTexCoords[j].mV;
-
 					//texcoord
 					if (face.mTexCoords)
 					{
+						F32* src_tc = (F32*) face.mTexCoords[j].mV;
+
 						for (U32 k = 0; k < 2; ++k)
 						{ //for each component
 							//convert to 16-bit normalized
@@ -2012,7 +2012,7 @@ bool LLModel::loadModel(std::istream& is)
 		}
 	}
 
-	std::string nm[] = 
+	static const std::string nm[] = 
 	{
 		"lowest_lod",
 		"low_lod",

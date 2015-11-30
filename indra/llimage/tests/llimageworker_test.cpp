@@ -67,6 +67,8 @@ LLImageRaw::~LLImageRaw() { }
 void LLImageRaw::deleteData() { }
 U8* LLImageRaw::allocateData(S32 size) { return NULL; }
 U8* LLImageRaw::reallocateData(S32 size) { return NULL; }
+const U8* LLImageBase::getData() const { return NULL; }
+U8* LLImageBase::getData() { return NULL; }
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------

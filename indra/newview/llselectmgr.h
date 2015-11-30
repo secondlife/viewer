@@ -179,6 +179,7 @@ public:
 	void setObject(LLViewerObject* object);
 	// *NOTE: invalidate stored textures and colors when # faces change
 	void saveColors();
+	void saveShinyColors();
 	void saveTextures(const uuid_vec_t& textures);
 	void saveTextureScaleRatios(LLRender::eTexIndex index_to_query);
 
@@ -215,6 +216,7 @@ public:
 	std::string		mSitName;
 	U64				mCreationDate;
 	std::vector<LLColor4>	mSavedColors;
+	std::vector<LLColor4>	mSavedShinyColors;
 	uuid_vec_t		mSavedTextures;
 	std::vector<LLVector3>  mTextureScaleRatios;
 	std::vector<LLVector3>	mSilhouetteVertices;	// array of vertices to render silhouette of object
@@ -452,7 +454,7 @@ public:
 	//
 	// *NOTE: You must hold on to the object selection handle, otherwise
 	// the objects will be automatically deselected in 1 frame.
-	LLObjectSelectionHandle selectObjectAndFamily(LLViewerObject* object, BOOL add_to_end = FALSE);
+	LLObjectSelectionHandle selectObjectAndFamily(LLViewerObject* object, BOOL add_to_end = FALSE, BOOL ignore_select_owned = FALSE);
 
 	// For when you want just a child object.
 	LLObjectSelectionHandle selectObjectOnly(LLViewerObject* object, S32 face = SELECT_ALL_TES);
@@ -545,6 +547,7 @@ public:
 	////////////////////////////////////////////////////////////////
 	void saveSelectedObjectTransform(EActionType action_type);
 	void saveSelectedObjectColors();
+	void saveSelectedShinyColors();
 	void saveSelectedObjectTextures();
 
 	// Sets which texture channel to query for scale and rot of display
@@ -573,6 +576,7 @@ public:
 	void selectionSetColorOnly(const LLColor4 &color); // Set only the RGB channels
 	void selectionSetAlphaOnly(const F32 alpha); // Set only the alpha channel
 	void selectionRevertColors();
+	void selectionRevertShinyColors();
 	BOOL selectionRevertTextures();
 	void selectionSetBumpmap( U8 bumpmap );
 	void selectionSetTexGen( U8 texgen );
@@ -605,7 +609,7 @@ public:
 	void validateSelection();
 
 	// returns TRUE if it is possible to select this object
-	BOOL canSelectObject(LLViewerObject* object);
+	BOOL canSelectObject(LLViewerObject* object, BOOL ignore_select_owned = FALSE);
 
 	// Returns TRUE if the viewer has information on all selected objects
 	BOOL selectGetAllRootsValid();

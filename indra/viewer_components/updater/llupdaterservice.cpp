@@ -285,7 +285,7 @@ bool LLUpdaterServiceImpl::checkForInstall(bool launchInstaller)
 {
 	bool foundInstall = false; // return true if install is found.
 
-	llifstream update_marker(update_marker_path(), 
+	llifstream update_marker(update_marker_path().c_str(), 
 							 std::ios::in | std::ios::binary);
 
 	if(update_marker.is_open())
@@ -365,7 +365,7 @@ bool LLUpdaterServiceImpl::checkForResume()
 	std::string download_marker_path = mUpdateDownloader.downloadMarkerPath();
 	if(LLFile::isfile(download_marker_path))
 	{
-		llifstream download_marker_stream(download_marker_path, 
+		llifstream download_marker_stream(download_marker_path.c_str(), 
 								 std::ios::in | std::ios::binary);
 		if(download_marker_stream.is_open())
 		{
@@ -460,7 +460,7 @@ void LLUpdaterServiceImpl::downloadComplete(LLSD const & data)
 
 	// Save out the download data to the SecondLifeUpdateReady
 	// marker file. 
-	llofstream update_marker(update_marker_path());
+	llofstream update_marker(update_marker_path().c_str());
 	LLSDSerialize::toPrettyXML(data, update_marker);
 	
 	LLSD event;
@@ -558,7 +558,7 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			LL_DEBUGS("UpdaterService") << "found marker " << ll_install_failed_marker_path() << LL_ENDL;
 			int requiredValue = 0; 
 			{
-				llifstream stream(ll_install_failed_marker_path());
+				llifstream stream(ll_install_failed_marker_path().c_str());
 				stream >> requiredValue;
 				if(stream.fail())
 				{

@@ -128,6 +128,7 @@
 		<menu_item_check label="Aktiver tips" name="Enable Hints"/>
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
+		<menu_item_call label="Stød, skub &amp; slag" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
@@ -261,8 +262,7 @@
 		<menu label="Netværk" name="Network">
 			<menu_item_check label="Pause avatar" name="AgentPause"/>
 			<menu_item_call label="Mist en netværkspakke" name="Drop a Packet"/>
-		</menu>
-		<menu_item_call label="Stød, skub &amp; slag" name="Bumps, Pushes &amp;amp; Hits"/>
+		</menu>		
 		<menu label="Verden" name="DevelopWorld">
 			<menu_item_check label="Vælg anden sol end region" name="Sim Sun Override"/>
 			<menu_item_check label="Fast vejr" name="Fixed Weather"/>

@@ -3757,7 +3757,12 @@ BOOL LLViewerWindow::clickPointOnSurfaceGlobal(const S32 x, const S32 y, LLViewe
 	return intersect;
 }
 
-void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& info), BOOL pick_transparent)
+void LLViewerWindow::pickAsync( S32 x,
+								S32 y_from_bot,
+								MASK mask,
+								void (*callback)(const LLPickInfo& info),
+								BOOL pick_transparent,
+								BOOL pick_unselectable)
 {
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
 	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
@@ -3767,7 +3772,7 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 		pick_transparent = TRUE;
 	}
 
-	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, FALSE, TRUE, callback);
+	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, FALSE, TRUE, pick_unselectable, callback);
 	schedulePick(pick_info);
 }
 
@@ -3835,7 +3840,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 	
 	// shortcut queueing in mPicks and just update mLastPick in place
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
-	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_particle, TRUE, NULL);
+	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_particle, TRUE, FALSE, NULL);
 	mLastPick.fetchResults();
 
 	return mLastPick;
@@ -4084,7 +4089,7 @@ BOOL LLViewerWindow::mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, con
 
 
 // Returns global position
-BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d *land_position_global)
+BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d *land_position_global, BOOL ignore_distance)
 {
 	LLVector3		mouse_direction_global = mouseDirectionGlobal(x,y);
 	F32				mouse_dir_scale;
@@ -4093,6 +4098,7 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 	F32			land_z;
 	const F32	FIRST_PASS_STEP = 1.0f;		// meters
 	const F32	SECOND_PASS_STEP = 0.1f;	// meters
+	const F32	draw_distance = ignore_distance ? MAX_FAR_CLIP : gAgentCamera.mDrawDistance;
 	LLVector3d	camera_pos_global;
 
 	camera_pos_global = gAgentCamera.getCameraPositionGlobal();
@@ -4100,7 +4106,7 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 	LLVector3		probe_point_region;
 
 	// walk forwards to find the point
-	for (mouse_dir_scale = FIRST_PASS_STEP; mouse_dir_scale < gAgentCamera.mDrawDistance; mouse_dir_scale += FIRST_PASS_STEP)
+	for (mouse_dir_scale = FIRST_PASS_STEP; mouse_dir_scale < draw_distance; mouse_dir_scale += FIRST_PASS_STEP)
 	{
 		LLVector3d mouse_direction_global_d;
 		mouse_direction_global_d.setVec(mouse_direction_global * mouse_dir_scale);
@@ -5247,6 +5253,7 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
 		       BOOL pick_transparent,
 			   BOOL pick_particle,
 		       BOOL pick_uv_coords,
+			   BOOL pick_unselectable,
 		       void (*pick_callback)(const LLPickInfo& pick_info))
 	: mMousePt(mouse_pos),
 	  mKeyMask(keyboard_mask),
@@ -5262,7 +5269,8 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
 	  mBinormal(),
 	  mHUDIcon(NULL),
 	  mPickTransparent(pick_transparent),
-	  mPickParticle(pick_particle)
+	  mPickParticle(pick_particle),
+	  mPickUnselectable(pick_unselectable)
 {
 }
 
@@ -5337,7 +5345,7 @@ void LLPickInfo::fetchResults()
 
 			// put global position into land_pos
 			LLVector3d land_pos;
-			if (!gViewerWindow->mousePointOnLandGlobal(mPickPt.mX, mPickPt.mY, &land_pos))
+			if (!gViewerWindow->mousePointOnLandGlobal(mPickPt.mX, mPickPt.mY, &land_pos, mPickUnselectable))
 			{
 				// The selected point is beyond the draw distance or is otherwise 
 				// not selectable. Return before calling mPickCallback().

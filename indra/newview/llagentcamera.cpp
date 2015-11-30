@@ -35,6 +35,7 @@
 #include "llfloaterreg.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
+#include "llmorphview.h"
 #include "llmoveview.h"
 #include "llselectmgr.h"
 #include "llsmoothstep.h"
@@ -2267,7 +2268,10 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 
 		gFocusMgr.setKeyboardFocus( NULL );
 		gFocusMgr.setMouseCapture( NULL );
-
+		if( gMorphView )
+		{
+			gMorphView->setVisible( TRUE );
+		}
 		// Remove any pitch or rotation from the avatar
 		LLVector3 at = gAgent.getAtAxis();
 		at.mV[VZ] = 0.f;

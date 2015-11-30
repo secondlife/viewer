@@ -37,6 +37,7 @@
 #include "message.h"
 #include "llfloaterautoreplacesettings.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
 #include "llcombobox.h"
@@ -74,6 +75,7 @@
 #include "llviewermessage.h"
 #include "llviewershadermgr.h"
 #include "llviewerthrottle.h"
+#include "llvoavatarself.h"
 #include "llvotree.h"
 #include "llvosky.h"
 #include "llfloaterpathfindingconsole.h"
@@ -247,6 +249,14 @@ void handleDisplayNamesOptionChanged(const LLSD& newvalue)
 	LLVOAvatar::invalidateNameTags();
 }
 
+void handleAppearanceCameraMovementChanged(const LLSD& newvalue)
+{
+	if(!newvalue.asBoolean() && gAgentCamera.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
+	{
+		gAgentCamera.changeCameraToDefault();
+		gAgentCamera.resetView();
+	}
+}
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
 {
@@ -357,6 +367,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
 	
+	gSavedSettings.getControl("AppearanceCameraMovement")->getCommitSignal()->connect(boost::bind(&handleAppearanceCameraMovementChanged,  _2));
+
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));

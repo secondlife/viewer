@@ -993,6 +993,7 @@ public:
 	void resizePath(S32 length);
 	const LLAlignedArray<LLVector4a,64>&	getMesh() const				{ return mMesh; }
 	const LLVector4a& getMeshPt(const U32 i) const			{ return mMesh[i]; }
+	
 
 	void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
 
@@ -1045,6 +1046,8 @@ public:
 	
 	void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level);
 	void copyVolumeFaces(const LLVolume* volume);
+	void copyFacesTo(std::vector<LLVolumeFace> &faces) const;
+	void copyFacesFrom(const std::vector<LLVolumeFace> &faces);
 	void cacheOptimize();
 
 private:

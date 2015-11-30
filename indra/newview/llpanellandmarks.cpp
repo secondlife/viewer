@@ -1173,7 +1173,8 @@ bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFold
 
 	if ("copy" == command_name)
 	{
-		return root_folder->canCopy();
+		// we shouldn't be able to copy folders from My Inventory Panel
+		return can_be_modified && root_folder->canCopy();
 	}
 	else if ("collapse" == command_name)
 	{

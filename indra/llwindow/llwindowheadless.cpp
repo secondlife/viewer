@@ -51,4 +51,3 @@ LLWindowHeadless::~LLWindowHeadless()
 void LLWindowHeadless::swapBuffers()
 {
 }
-

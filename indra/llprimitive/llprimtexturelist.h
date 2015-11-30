@@ -107,6 +107,8 @@ public:
 	S32 setMaterialID(const U8 index, const LLMaterialID& pMaterialID);
 	S32 setMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 
+	LLMaterialPtr getMaterialParams(const U8 index);
+
 	S32 size() const;
 
 //	void forceResize(S32 new_size);

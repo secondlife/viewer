@@ -102,7 +102,7 @@
             allow_text_entry="true"
             follows="left|bottom"
             height="32"
-            left="0"
+            left="2"
             label="Username"
             combo_editor.font="SansSerifLarge"
             max_chars="128"
@@ -163,7 +163,7 @@
             text_color="EmphasisColor"
             height="16"
             name="forgot_password_text"
-            left="216"
+            left="219"
             top="34"
             width="200">
             Forgotten password

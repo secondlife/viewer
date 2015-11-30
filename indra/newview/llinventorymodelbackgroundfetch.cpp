@@ -181,8 +181,6 @@ private:
 };
 
 
-const S32 MAX_FETCH_RETRIES = 10;
-
 const char * const LOG_INV("Inventory");
 
 } // end of namespace anonymous
@@ -199,10 +197,7 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
 	mAllFoldersFetched(FALSE),
 	mRecursiveInventoryFetchStarted(FALSE),
 	mRecursiveLibraryFetchStarted(FALSE),
-	mNumFetchRetries(0),
-	mMinTimeBetweenFetches(0.3f),
-	mMaxTimeBetweenFetches(10.f),
-	mTimelyFetchPending(FALSE)
+	mMinTimeBetweenFetches(0.3f)
 {}
 
 LLInventoryModelBackgroundFetch::~LLInventoryModelBackgroundFetch()
@@ -351,164 +346,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 	if (mBackgroundFetchActive && gAgent.getRegion() && gAgent.getRegion()->capabilitiesReceived())
 	{
 		// If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
-		if (gSavedSettings.getBOOL("UseHTTPInventory")) 
-		{
-			bulkFetch();
-			return;
-		}
-		
-#if 1
-		//--------------------------------------------------------------------------------
-		// DEPRECATED OLD CODE
-		//
-
-		// No more categories to fetch, stop fetch process.
-		if (mFetchQueue.empty())
-		{
-			setAllFoldersFetched();
-			return;
-		}
-
-		F32 fast_fetch_time = lerp(mMinTimeBetweenFetches, mMaxTimeBetweenFetches, 0.1f);
-		F32 slow_fetch_time = lerp(mMinTimeBetweenFetches, mMaxTimeBetweenFetches, 0.5f);
-		if (mTimelyFetchPending && mFetchTimer.getElapsedTimeF32() > slow_fetch_time)
-		{
-			// Double timeouts on failure.
-			mMinTimeBetweenFetches = llmin(mMinTimeBetweenFetches * 2.f, 10.f);
-			mMaxTimeBetweenFetches = llmin(mMaxTimeBetweenFetches * 2.f, 120.f);
-			LL_DEBUGS(LOG_INV) << "Inventory fetch times grown to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << LL_ENDL;
-			// fetch is no longer considered "timely" although we will wait for full time-out.
-			mTimelyFetchPending = FALSE;
-		}
-
-		while(1)
-		{
-			if (mFetchQueue.empty())
-			{
-				break;
-			}
-
-			if (gDisconnected)
-			{
-				// Just bail if we are disconnected.
-				break;
-			}
-
-			const FetchQueueInfo info = mFetchQueue.front();
-
-			if (info.mIsCategory)
-			{
-
-				LLViewerInventoryCategory* cat = gInventory.getCategory(info.mUUID);
-
-				// Category has been deleted, remove from queue.
-				if (!cat)
-				{
-					mFetchQueue.pop_front();
-					continue;
-				}
-			
-				if (mFetchTimer.getElapsedTimeF32() > mMinTimeBetweenFetches && 
-					LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
-				{
-					// Category exists but has no children yet, fetch the descendants
-					// for now, just request every time and rely on retry timer to throttle.
-					if (cat->fetch())
-					{
-						mFetchTimer.reset();
-						mTimelyFetchPending = TRUE;
-					}
-					else
-					{
-						//  The catagory also tracks if it has expired and here it says it hasn't
-						//  yet.  Get out of here because nothing is going to happen until we
-						//  update the timers.
-						break;
-					}
-				}
-				// Do I have all my children?
-				else if (gInventory.isCategoryComplete(info.mUUID))
-				{
-					// Finished with this category, remove from queue.
-					mFetchQueue.pop_front();
-
-					// Add all children to queue.
-					LLInventoryModel::cat_array_t* categories;
-					LLInventoryModel::item_array_t* items;
-					gInventory.getDirectDescendentsOf(cat->getUUID(), categories, items);
-					for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
-						 it != categories->end();
-						 ++it)
-					{
-						mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(),info.mRecursive));
-					}
-
-					// We received a response in less than the fast time.
-					if (mTimelyFetchPending && mFetchTimer.getElapsedTimeF32() < fast_fetch_time)
-					{
-						// Shrink timeouts based on success.
-						mMinTimeBetweenFetches = llmax(mMinTimeBetweenFetches * 0.8f, 0.3f);
-						mMaxTimeBetweenFetches = llmax(mMaxTimeBetweenFetches * 0.8f, 10.f);
-						LL_DEBUGS(LOG_INV) << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << LL_ENDL;
-					}
-
-					mTimelyFetchPending = FALSE;
-					continue;
-				}
-				else if (mFetchTimer.getElapsedTimeF32() > mMaxTimeBetweenFetches)
-				{
-					// Received first packet, but our num descendants does not match db's num descendants
-					// so try again later.
-					mFetchQueue.pop_front();
-
-					if (mNumFetchRetries++ < MAX_FETCH_RETRIES)
-					{
-						// push on back of queue
-						mFetchQueue.push_back(info);
-					}
-					mTimelyFetchPending = FALSE;
-					mFetchTimer.reset();
-					break;
-				}
-
-				// Not enough time has elapsed to do a new fetch
-				break;
-			}
-			else
-			{
-				LLViewerInventoryItem* itemp = gInventory.getItem(info.mUUID);
-
-				mFetchQueue.pop_front();
-				if (!itemp) 
-				{
-					continue;
-				}
-
-				if (mFetchTimer.getElapsedTimeF32() > mMinTimeBetweenFetches)
-				{
-					itemp->fetchFromServer();
-					mFetchTimer.reset();
-					mTimelyFetchPending = TRUE;
-				}
-				else if (itemp->mIsComplete)
-				{
-					mTimelyFetchPending = FALSE;
-				}
-				else if (mFetchTimer.getElapsedTimeF32() > mMaxTimeBetweenFetches)
-				{
-					mFetchQueue.push_back(info);
-					mFetchTimer.reset();
-					mTimelyFetchPending = FALSE;
-				}
-				// Not enough time has elapsed to do a new fetch
-				break;
-			}
-		}
-
-		//
-		// DEPRECATED OLD CODE
-		//--------------------------------------------------------------------------------
-#endif
+		bulkFetch();
 	}
 }
 

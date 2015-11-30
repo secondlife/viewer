@@ -33,6 +33,7 @@
 #include <string>
 
 LL_COMMON_API bool ll_get_stack_trace(std::vector<std::string>& lines);
+LL_COMMON_API void ll_get_stack_trace_internal(std::vector<std::string>& lines);
 
 #endif
 

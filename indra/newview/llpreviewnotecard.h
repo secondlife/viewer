@@ -93,6 +93,7 @@ protected:
 							   S32 status, LLExtStat ext_status);
 
 	bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
+	bool handleConfirmDeleteDialog(const LLSD& notification, const LLSD& response);
 
 protected:
 	LLViewerTextEditor* mEditor;

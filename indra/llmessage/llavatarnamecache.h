@@ -46,7 +46,7 @@ namespace LLAvatarNameCache
 	void cleanupClass();
 
 	// Import/export the name cache to file.
-	void importFile(std::istream& istr);
+	bool importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
 
 	// On the viewer, usually a simulator capabilitity.

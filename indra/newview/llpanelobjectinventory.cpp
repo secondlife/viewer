@@ -654,7 +654,7 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		return;
 	}
 
-	if(gAgent.allowOperation(PERM_OWNER, item->getPermissions(),
+	if(!gAgent.allowOperation(PERM_OWNER, item->getPermissions(),
 							 GP_OBJECT_MANIPULATE)
 	   && item->getSaleInfo().isForSale())
 	{
@@ -689,10 +689,6 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	else if (canOpenItem())
 	{
 		items.push_back(std::string("Task Open"));
-		if (!isItemCopyable())
-		{
-			disabled_items.push_back(std::string("Task Open"));
-		}
 	}
 	items.push_back(std::string("Task Properties"));
 	if(isItemRenameable())
@@ -909,6 +905,7 @@ void LLTaskTextureBridge::openItem()
 	LLPreviewTexture* preview = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", LLSD(mUUID), TAKE_FOCUS_YES);
 	if(preview)
 	{
+		preview->setAuxItem(findItem());
 		preview->setObjectID(mPanel->getTaskUUID());
 	}
 }
@@ -1107,7 +1104,10 @@ void LLTaskLSLBridge::openItem()
 	}
 	if (object->permModify() || gAgent.isGodlike())
 	{
-		LLLiveLSLEditor* preview = LLFloaterReg::showTypedInstance<LLLiveLSLEditor>("preview_scriptedit", LLSD(mUUID), TAKE_FOCUS_YES);
+		LLSD floater_key;
+		floater_key["taskid"] = mPanel->getTaskUUID();
+		floater_key["itemid"] = mUUID;
+		LLLiveLSLEditor* preview = LLFloaterReg::showTypedInstance<LLLiveLSLEditor>("preview_scriptedit", floater_key, TAKE_FOCUS_YES);
 		if (preview)
 		{
 			preview->setObjectID(mPanel->getTaskUUID());

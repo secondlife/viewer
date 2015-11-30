@@ -32,6 +32,7 @@
 #include "llfloatertools.h"
 #include "llavataractions.h"
 #include "llavatarnamecache.h"
+#include "llgroupactions.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llselectmgr.h"
@@ -147,8 +148,17 @@ void LLFloaterInspect::onClickOwnerProfile()
 		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
 		if(node)
 		{
-			const LLUUID& owner_id = node->mPermissions->getOwner();
-			LLAvatarActions::showProfile(owner_id);
+			if(node->mPermissions->isGroupOwned())
+			{
+				const LLUUID& idGroup = node->mPermissions->getGroup();
+				LLGroupActions::show(idGroup);
+			}
+			else
+			{
+				const LLUUID& owner_id = node->mPermissions->getOwner();
+				LLAvatarActions::showProfile(owner_id);
+			}
+
 		}
 	}
 }
@@ -219,21 +229,42 @@ void LLFloaterInspect::refresh()
 		const LLUUID& idCreator = obj->mPermissions->getCreator();
 		LLAvatarName av_name;
 
-		// Only work with the names if we actually get a result
-		// from the name cache. If not, defer setting the
-		// actual name and set a placeholder.
-		if (LLAvatarNameCache::get(idOwner, &av_name))
+		if(obj->mPermissions->isGroupOwned())
 		{
-			owner_name = av_name.getCompleteName();
+			std::string group_name;
+			const LLUUID& idGroup = obj->mPermissions->getGroup();
+			if(gCacheName->getGroupName(idGroup, group_name))
+			{
+				owner_name = "[" + group_name + "] (group)";
+			}
+			else
+			{
+				owner_name = LLTrans::getString("RetrievingData");
+				if (mOwnerNameCacheConnection.connected())
+				{
+					mOwnerNameCacheConnection.disconnect();
+				}
+				mOwnerNameCacheConnection = gCacheName->getGroup(idGroup, boost::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
+			}
 		}
 		else
 		{
-			owner_name = LLTrans::getString("RetrievingData");
-			if (mOwnerNameCacheConnection.connected())
+			// Only work with the names if we actually get a result
+			// from the name cache. If not, defer setting the
+			// actual name and set a placeholder.
+			if (LLAvatarNameCache::get(idOwner, &av_name))
 			{
-				mOwnerNameCacheConnection.disconnect();
+				owner_name = av_name.getCompleteName();
 			}
-			mOwnerNameCacheConnection = LLAvatarNameCache::get(idOwner, boost::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
+			else
+			{
+				owner_name = LLTrans::getString("RetrievingData");
+				if (mOwnerNameCacheConnection.connected())
+				{
+					mOwnerNameCacheConnection.disconnect();
+				}
+				mOwnerNameCacheConnection = LLAvatarNameCache::get(idOwner, boost::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
+			}
 		}
 
 		if (LLAvatarNameCache::get(idCreator, &av_name))

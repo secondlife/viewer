@@ -302,7 +302,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 		return;
 	}
 	
-	llofstream file (LLLogChat::makeLogFileName(filename), std::ios_base::app);
+	llofstream file(LLLogChat::makeLogFileName(filename).c_str(), std::ios_base::app);
 	if (!file.is_open())
 	{
 		LL_WARNS() << "Couldn't open chat history log! - " + filename << LL_ENDL;

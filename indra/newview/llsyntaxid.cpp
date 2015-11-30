@@ -83,7 +83,7 @@ public:
 		const std::string xml = str.str();
 
 		// save the str to disk, usually to the cache.
-		llofstream file(mFileSpec, std::ios_base::out);
+		llofstream file(mFileSpec.c_str(), std::ios_base::out);
 		file.write(xml.c_str(), str.str().size());
 		file.close();
 
@@ -269,7 +269,7 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 {
 	LLSD content;
 	llifstream file;
-	file.open(mFullFileSpec);
+	file.open(mFullFileSpec.c_str());
 	if (file.is_open())
 	{
 		if (LLSDSerialize::fromXML(content, file) != LLSDParser::PARSE_FAILURE)

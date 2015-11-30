@@ -49,7 +49,7 @@ bool LLLiveAppConfig::loadFile()
 {
 	LL_INFOS() << "LLLiveAppConfig::loadFile(): reading from "
 		<< filename() << LL_ENDL;
-    llifstream file(filename());
+    llifstream file(filename().c_str());
 	LLSD config;
     if (file.is_open())
     {

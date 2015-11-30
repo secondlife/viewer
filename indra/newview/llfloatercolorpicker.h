@@ -122,6 +122,9 @@ class LLFloaterColorPicker
 		static void onImmediateCheck ( LLUICtrl* ctrl, void* data );
 			   void onColorSelect( const class LLTextureEntry& te );
 	private:
+		// mutators for color values, can raise event to preview changes at object
+		void selectCurRgb ( F32 curRIn, F32 curGIn, F32 curBIn );
+		void selectCurHsl ( F32 curHIn, F32 curSIn, F32 curLIn );
 		// draws color selection palette
 		void drawPalette ();
 

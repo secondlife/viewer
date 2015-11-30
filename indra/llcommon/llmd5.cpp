@@ -118,6 +118,12 @@ void LLMD5::update (const uint1 *input, const uint4 input_length) {
 
   buffer_space = 64 - buffer_index;  // how much space is left in buffer
 
+  // now, transform each 64-byte piece of the input, bypassing the buffer
+  if (input == NULL || input_length == 0){
+	  std::cerr << "LLMD5::update:  Invalid input!" << std::endl;
+	  return;
+  }
+
   // Transform as many times as possible.
   if (input_length >= buffer_space) { // ie. we have enough to fill the buffer
     // fill the rest of the buffer and transform
@@ -126,12 +132,6 @@ void LLMD5::update (const uint1 *input, const uint4 input_length) {
 		input,
 		buffer_space);
     transform (buffer);
-
-    // now, transform each 64-byte piece of the input, bypassing the buffer
-  if (input == NULL || input_length == 0){
-	std::cerr << "LLMD5::update:  Invalid input!" << std::endl;
-	return;
-  }
 
     for (input_index = buffer_space; input_index + 63 < input_length; 
 	 input_index += 64)

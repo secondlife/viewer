@@ -150,7 +150,7 @@ void LLWaterParamManager::savePreset(const std::string & name)
 	paramsData = mParamList[name].getAll();
 
 	// write to file
-	llofstream presetsXML(pathName);
+	llofstream presetsXML(pathName.c_str());
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(paramsData, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
 	presetsXML.close();

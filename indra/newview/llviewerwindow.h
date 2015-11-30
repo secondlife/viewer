@@ -91,6 +91,7 @@ public:
 		BOOL pick_transparent,
 		BOOL pick_particle,
 		BOOL pick_surface_info,
+		BOOL pick_unselectable,
 		void (*pick_callback)(const LLPickInfo& pick_info));
 
 	void fetchResults();
@@ -123,6 +124,7 @@ public:
 	LLVector3		mBinormal;
 	BOOL			mPickTransparent;
 	BOOL			mPickParticle;
+	BOOL			mPickUnselectable;
 	void		    getSurfaceInfo();
 
 private:
@@ -360,7 +362,12 @@ public:
 	void			performPick();
 	void			returnEmptyPicks();
 
-	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info), BOOL pick_transparent = FALSE);
+	void			pickAsync(	S32 x,
+								S32 y_from_bot,
+								MASK mask,
+								void (*callback)(const LLPickInfo& pick_info),
+								BOOL pick_transparent = FALSE,
+								BOOL pick_unselectable = FALSE);
 	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_particle = FALSE);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
 										   LLVector4a* intersection);
@@ -386,7 +393,7 @@ public:
 	//const LLVector3d& lastNonFloraObjectHitOffset();
 
 	// mousePointOnLand() returns true if found point
-	BOOL			mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d *land_pos_global);
+	BOOL			mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d *land_pos_global, BOOL ignore_distance = FALSE);
 	BOOL			mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, const S32 y, const LLVector3d &plane_point, const LLVector3 &plane_normal);
 	LLVector3d		clickPointInWorldGlobal(const S32 x, const S32 y_from_bot, LLViewerObject* clicked_object) const;
 	BOOL			clickPointOnSurfaceGlobal(const S32 x, const S32 y, LLViewerObject *objectp, LLVector3d &point_global) const;

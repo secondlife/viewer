@@ -503,6 +503,7 @@ class LLFileCloseWindow : public view_listener_t
 		{
 			LLFloater::closeFrontmostFloater();
 		}
+		if (gMenuHolder) gMenuHolder->hideMenus();
 		return true;
 	}
 };
@@ -525,6 +526,7 @@ class LLFileCloseAllWindows : public view_listener_t
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
 		LLFloaterSnapshot::getInstance()->closeFloater(app_quitting);
+		if (gMenuHolder) gMenuHolder->hideMenus();
 		return true;
 	}
 };

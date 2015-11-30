@@ -378,6 +378,7 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 				{
 					// Pass the new_message icon state further.
 					set_new_message = chicletp->getShowNewMessagesIcon();
+					chicletp->hidePopupMenu();
 				}
 			}
 

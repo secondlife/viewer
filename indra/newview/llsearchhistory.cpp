@@ -43,7 +43,7 @@ bool LLSearchHistory::load()
 {
 	// build filename for each user
 	std::string resolved_filename = getHistoryFilePath();
-	llifstream file(resolved_filename);
+	llifstream file(resolved_filename.c_str());
 	if (!file.is_open())
 	{
 		return false;
@@ -76,7 +76,7 @@ bool LLSearchHistory::save()
 	// build filename for each user
 	std::string resolved_filename = getHistoryFilePath();
 	// open a file for writing
-	llofstream file (resolved_filename);
+	llofstream file(resolved_filename.c_str());
 	if (!file.is_open())
 	{
 		return false;

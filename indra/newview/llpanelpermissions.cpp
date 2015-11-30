@@ -851,6 +851,14 @@ void LLPanelPermissions::refresh()
 			combo_click_action->setValue(LLSD(combo_value));
 		}
 	}
+
+	if(LLSelectMgr::getInstance()->getSelection()->isAttachment())
+	{
+		getChildView("checkbox for sale")->setEnabled(FALSE);
+		getChildView("Edit Cost")->setEnabled(FALSE);
+		getChild<LLComboBox>("sale type")->setEnabled(FALSE);
+	}
+
 	getChildView("label click action")->setEnabled(is_perm_modify && is_nonpermanent_enforced  && all_volume);
 	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 }

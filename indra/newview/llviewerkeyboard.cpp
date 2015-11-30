@@ -148,6 +148,8 @@ void camera_move_forward( EKeystate s );
 
 void agent_push_forward( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
+
 	//in free camera control mode we need to intercept keyboard events for avatar movements
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
@@ -163,6 +165,8 @@ void camera_move_backward( EKeystate s );
 
 void agent_push_backward( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
+
 	//in free camera control mode we need to intercept keyboard events for avatar movements
 	if (LLFloaterCamera::inFreeCameraMode())
 	{
@@ -198,12 +202,14 @@ static void agent_slide_leftright( EKeystate s, S32 direction, LLAgent::EDoubleT
 
 void agent_slide_left( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
 	agent_slide_leftright(s, 1, LLAgent::DOUBLETAP_SLIDELEFT);
 }
 
 
 void agent_slide_right( EKeystate s )
 {
+	if(gAgent.isMovementLocked()) return;
 	agent_slide_leftright(s, -1, LLAgent::DOUBLETAP_SLIDERIGHT);
 }
 
@@ -217,6 +223,8 @@ void agent_turn_left( EKeystate s )
 		camera_spin_around_cw(s);
 		return;
 	}
+
+	if(gAgent.isMovementLocked()) return;
 
 	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
@@ -245,6 +253,8 @@ void agent_turn_right( EKeystate s )
 		camera_spin_around_ccw(s);
 		return;
 	}
+
+	if(gAgent.isMovementLocked()) return;
 
 	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
@@ -319,8 +329,8 @@ void camera_spin_around_cw( EKeystate s )
 
 void camera_spin_around_ccw_sitting( EKeystate s )
 {
-	if( KEYSTATE_UP == s ) return;
-	if (gAgent.rotateGrabbed() || gAgentCamera.sitCameraEnabled())
+	if( KEYSTATE_UP == s && gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_SLIDERIGHT ) return;
+	if (gAgent.rotateGrabbed() || gAgentCamera.sitCameraEnabled() || gAgent.getRunning())
 	{
 		//send keystrokes, but do not change camera
 		agent_turn_right(s);
@@ -335,8 +345,8 @@ void camera_spin_around_ccw_sitting( EKeystate s )
 
 void camera_spin_around_cw_sitting( EKeystate s )
 {
-	if( KEYSTATE_UP == s  ) return;
-	if (gAgent.rotateGrabbed() || gAgentCamera.sitCameraEnabled())
+	if( KEYSTATE_UP == s && gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_SLIDELEFT ) return;
+	if (gAgent.rotateGrabbed() || gAgentCamera.sitCameraEnabled() || gAgent.getRunning())
 	{
 		//send keystrokes, but do not change camera
 		agent_turn_left(s);
@@ -412,8 +422,8 @@ void camera_move_backward( EKeystate s )
 
 void camera_move_forward_sitting( EKeystate s )
 {
-	if( KEYSTATE_UP == s  ) return;
-	if (gAgent.forwardGrabbed() || gAgentCamera.sitCameraEnabled())
+	if( KEYSTATE_UP == s && gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_FORWARD ) return;
+	if (gAgent.forwardGrabbed() || gAgentCamera.sitCameraEnabled() || gAgent.getRunning())
 	{
 		agent_push_forward(s);
 	}
@@ -426,9 +436,9 @@ void camera_move_forward_sitting( EKeystate s )
 
 void camera_move_backward_sitting( EKeystate s )
 {
-	if( KEYSTATE_UP == s  ) return;
+	if( KEYSTATE_UP == s && gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_BACKWARD ) return;
 
-	if (gAgent.backwardGrabbed() || gAgentCamera.sitCameraEnabled())
+	if (gAgent.backwardGrabbed() || gAgentCamera.sitCameraEnabled() || gAgent.getRunning())
 	{
 		agent_push_backward(s);
 	}

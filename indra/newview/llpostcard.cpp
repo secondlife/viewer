@@ -95,6 +95,12 @@ public:
 	{
 	}
 
+	/*virtual*/ void httpFailure()
+	{
+		LL_WARNS() << "Sending postcard failed, status: " << getStatus() << LL_ENDL;
+		LLPostCard::reportPostResult(false);
+	}
+
 	/*virtual*/ void uploadComplete(const LLSD& content)
 	{
 		LL_INFOS() << "Postcard sent" << LL_ENDL;

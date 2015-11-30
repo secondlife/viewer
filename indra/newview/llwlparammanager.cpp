@@ -334,7 +334,7 @@ void LLWLParamManager::savePreset(LLWLParamKey key)
 	paramsData = mParamList[key].getAll();
 
 	// write to file
-	llofstream presetsXML(pathName);
+	llofstream presetsXML(pathName.c_str());
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(paramsData, presetsXML, LLSDFormatter::OPTIONS_PRETTY);
 	presetsXML.close();

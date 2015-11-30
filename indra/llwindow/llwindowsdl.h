@@ -97,6 +97,7 @@ public:
 	/*virtual*/ void processMiscNativeEvents();
 	/*virtual*/ void gatherInput();
 	/*virtual*/ void swapBuffers();
+	/*virtual*/ void restoreGLContext() {};
 
 	/*virtual*/ void delayInputProcessing() { };
 

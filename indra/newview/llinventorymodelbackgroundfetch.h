@@ -87,12 +87,9 @@ private:
 	BOOL mBackgroundFetchActive;
 	bool mFolderFetchActive;
 	S32 mFetchCount;
-	BOOL mTimelyFetchPending;
-	S32 mNumFetchRetries;
 
 	LLFrameTimer mFetchTimer;
 	F32 mMinTimeBetweenFetches;
-	F32 mMaxTimeBetweenFetches;
 
 	struct FetchQueueInfo
 	{

@@ -103,6 +103,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mPeakBPSOut(0.f),
 	mPeriodTime(0.0),
 	mExistenceTimer(),
+	mAckCreationTime(0.f),
 	mCurrentResendCount(0),
 	mLastPacketGap(0),
 	mHeartbeatInterval(circuit_heartbeat_interval), 
@@ -1078,60 +1079,69 @@ BOOL LLCircuitData::collectRAck(TPACKETID packet_num)
 	}
 
 	mAcks.push_back(packet_num);
+	if (mAckCreationTime == 0)
+	{
+		mAckCreationTime = getAgeInSeconds();
+	}
 	return TRUE;
 }
 
 // this method is called during the message system processAcks() to
 // send out any acks that did not get sent already.
-void LLCircuit::sendAcks()
+void LLCircuit::sendAcks(F32 collect_time)
 {
+	collect_time = llclamp(collect_time, 0.f, LL_COLLECT_ACK_TIME_MAX);
 	LLCircuitData* cd;
-	circuit_data_map::iterator end = mSendAckMap.end();
-	for(circuit_data_map::iterator it = mSendAckMap.begin(); it != end; ++it)
+	circuit_data_map::iterator it = mSendAckMap.begin();
+	while (it != mSendAckMap.end())
 	{
-		cd = (*it).second;
-
+		circuit_data_map::iterator cur_it = it++;
+		cd = (*cur_it).second;
 		S32 count = (S32)cd->mAcks.size();
-		if(count > 0)
+		F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
+		if (age > collect_time || count == 0)
 		{
-			// send the packet acks
-			S32 acks_this_packet = 0;
-			for(S32 i = 0; i < count; ++i)
+			if (count>0)
 			{
-				if(acks_this_packet == 0)
+				// send the packet acks
+				S32 acks_this_packet = 0;
+				for(S32 i = 0; i < count; ++i)
 				{
-					gMessageSystem->newMessageFast(_PREHASH_PacketAck);
+					if(acks_this_packet == 0)
+					{
+						gMessageSystem->newMessageFast(_PREHASH_PacketAck);
+					}
+					gMessageSystem->nextBlockFast(_PREHASH_Packets);
+					gMessageSystem->addU32Fast(_PREHASH_ID, cd->mAcks[i]);
+					++acks_this_packet;
+					if(acks_this_packet > 250)
+					{
+						gMessageSystem->sendMessage(cd->mHost);
+						acks_this_packet = 0;
+					}
 				}
-				gMessageSystem->nextBlockFast(_PREHASH_Packets);
-				gMessageSystem->addU32Fast(_PREHASH_ID, cd->mAcks[i]);
-				++acks_this_packet;
-				if(acks_this_packet > 250)
+				if(acks_this_packet > 0)
 				{
 					gMessageSystem->sendMessage(cd->mHost);
-					acks_this_packet = 0;
 				}
-			}
-			if(acks_this_packet > 0)
-			{
-				gMessageSystem->sendMessage(cd->mHost);
-			}
 
-			if(gMessageSystem->mVerboseLog)
-			{
-				std::ostringstream str;
-				str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
-				std::ostream_iterator<TPACKETID> append(str, " ");
-				std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
-				LL_INFOS() << str.str() << LL_ENDL;
-			}
+				if(gMessageSystem->mVerboseLog)
+				{
+					std::ostringstream str;
+					str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
+					std::ostream_iterator<TPACKETID> append(str, " ");
+					std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
+					LL_INFOS() << str.str() << LL_ENDL;
+				}
 
-			// empty out the acks list
-			cd->mAcks.clear();
+				// empty out the acks list
+				cd->mAcks.clear();
+				cd->mAckCreationTime = 0.f;
+			}
+			// remove data map
+			mSendAckMap.erase(cur_it);
 		}
 	}
-
-	// All acks have been sent, clear the map
-	mSendAckMap.clear();
 }
 
 

@@ -40,29 +40,32 @@ const int MAX_URL_COUNT = 10;
 // static
 bool LLURLHistory::loadFile(const std::string& filename)
 {
+    bool dataloaded = false;
+    sHistorySD = LLSD();
 	LLSD data;
-	{
-		std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
 
-		llifstream file((temp_str + filename));
+    std::string user_filename(gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + filename);
 
-		if (file.is_open())
-		{
-			LL_INFOS() << "Loading history.xml file at " << filename << LL_ENDL;
-			LLSDSerialize::fromXML(data, file);
-		}
-
-		if (data.isUndefined())
-		{
-			LL_INFOS() << "file missing, ill-formed, "
-				"or simply undefined; not changing the"
-				" file" << LL_ENDL;
-			sHistorySD = LLSD();
-			return false;
-		}
-	}
-	sHistorySD = data;
-	return true;
+    llifstream file(user_filename.c_str());
+    if (file.is_open())
+    {
+        LLSDSerialize::fromXML(data, file);
+        if (data.isUndefined())
+        {
+            LL_WARNS() << "error loading " << user_filename << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS() << "Loaded history file at " << user_filename << LL_ENDL;
+            sHistorySD = data;
+            dataloaded = true;
+        }
+    }
+    else
+    {
+        LL_INFOS() << "Unable to open history file at " << user_filename << LL_ENDL;
+    }
+	return dataloaded;
 }
 
 // static
@@ -76,10 +79,10 @@ bool LLURLHistory::saveFile(const std::string& filename)
 	}
 
 	temp_str += gDirUtilp->getDirDelimiter() + filename;
-	llofstream out(temp_str);
+	llofstream out(temp_str.c_str());
 	if (!out.good())
 	{
-		LL_WARNS() << "Unable to open " << filename << " for output." << LL_ENDL;
+		LL_WARNS() << "Unable to open " << temp_str << " for output." << LL_ENDL;
 		return false;
 	}
 

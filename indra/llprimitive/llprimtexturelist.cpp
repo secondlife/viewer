@@ -377,6 +377,16 @@ S32 LLPrimTextureList::setMaterialParams(const U8 index, const LLMaterialPtr pMa
 	return TEM_CHANGE_NONE;
 }
 
+LLMaterialPtr LLPrimTextureList::getMaterialParams(const U8 index)
+{
+	if (index < mEntryList.size())
+	{
+		return mEntryList[index]->getMaterialParams();
+	}
+	
+	return LLMaterialPtr();
+}
+
 S32 LLPrimTextureList::size() const
 {
 	return mEntryList.size();

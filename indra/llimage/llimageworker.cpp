@@ -143,7 +143,8 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 											  mFormattedImage->getComponents());
 		}
 		done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice); // 1ms
-		mDecodedRaw = done;
+		// some decoders are removing data when task is complete and there were errors
+		mDecodedRaw = done && mDecodedImageRaw->getData();
 	}
 	if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
 	{
@@ -155,7 +156,7 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 											  1);
 		}
 		done = mFormattedImage->decodeChannels(mDecodedImageAux, decode_time_slice, 4, 4); // 1ms
-		mDecodedAux = done;
+		mDecodedAux = done && mDecodedImageAux->getData();
 	}
 
 	return done;

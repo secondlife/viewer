@@ -97,7 +97,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>true</integer>
+            <integer>1</integer>
     </map>   
     <key>InstantMessageLogPath</key>
         <map>

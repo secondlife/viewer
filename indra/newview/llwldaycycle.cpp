@@ -109,7 +109,7 @@ LLSD LLWLDayCycle::loadDayCycleFromPath(const std::string& file_path)
 {
 	LL_INFOS("Windlight") << "Loading DayCycle settings from " << file_path << LL_ENDL;
 	
-	llifstream day_cycle_xml(file_path);
+	llifstream day_cycle_xml(file_path.c_str());
 	if (day_cycle_xml.is_open())
 	{
 		// load and parse it
@@ -137,7 +137,7 @@ void LLWLDayCycle::save(const std::string& file_path)
 {
 	LLSD day_data = asLLSD();
 
-	llofstream day_cycle_xml(file_path);
+	llofstream day_cycle_xml(file_path.c_str());
 	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 	formatter->format(day_data, day_cycle_xml, LLSDFormatter::OPTIONS_PRETTY);
 	day_cycle_xml.close();

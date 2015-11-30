@@ -303,7 +303,8 @@ void LLEnvManagerNew::loadUserPrefs()
 	mUserPrefs.mSkyPresetName	= gSavedSettings.getString("SkyPresetName");
 	mUserPrefs.mDayCycleName	= gSavedSettings.getString("DayCycleName");
 
-	mUserPrefs.mUseRegionSettings	= gSavedSettings.getBOOL("UseEnvironmentFromRegion");
+	bool use_region_settings = gSavedSettings.getBOOL("EnvironmentPersistAcrossLogin") ? gSavedSettings.getBOOL("UseEnvironmentFromRegion") : true;
+	mUserPrefs.mUseRegionSettings	= use_region_settings;
 	mUserPrefs.mUseDayCycle			= gSavedSettings.getBOOL("UseDayCycle");
 
 	if (mUserPrefs.mUseRegionSettings)

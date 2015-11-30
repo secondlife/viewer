@@ -126,6 +126,7 @@
 		<menu_item_check label="Włącz podpowiedzi" name="Enable Hints"/>
 		<menu_item_call label="Złóż Raport o Nadużyciu" name="Report Abuse"/>
 		<menu_item_call label="Zgłoś błędy klienta" name="Report Bug"/>
+		<menu_item_call label="Zderzenia, popchnięcia &amp;  uderzenia" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="O [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Zaawansowane" name="Advanced">
@@ -252,8 +253,7 @@
 		<menu label="Sieć" name="Network">
 			<menu_item_check label="Zatrzymaj awatara" name="AgentPause"/>
 			<menu_item_call label="Upuść pakiet pamięci" name="Drop a Packet"/>
-		</menu>
-		<menu_item_call label="Zderzenia, popchnięcia &amp;  uderzenia" name="Bumps, Pushes &amp;amp; Hits"/>
+		</menu>		
 		<menu label="Świat" name="DevelopWorld">
 			<menu_item_check label="Domyślne ustawienia środowiska Regionu" name="Sim Sun Override"/>
 			<menu_item_check label="Ustalona pogoda" name="Fixed Weather"/>

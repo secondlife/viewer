@@ -1113,7 +1113,15 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 		if (irc_me && !use_plain_text_chat_history)
 		{
-			message = chat.mFromName + message;
+			std::string from_name = chat.mFromName;
+			LLAvatarName av_name;
+			if (!chat.mFromID.isNull() &&
+						LLAvatarNameCache::get(chat.mFromID, &av_name) &&
+						!av_name.isDisplayNameDefault())
+			{
+				from_name = av_name.getCompleteName();
+			}
+			message = from_name + message;
 		}
 		
 		if (square_brackets)

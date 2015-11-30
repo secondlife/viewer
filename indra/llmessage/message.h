@@ -331,7 +331,7 @@ public:
 
 	BOOL	poll(F32 seconds); // Number of seconds that we want to block waiting for data, returns if data was received
 	BOOL	checkMessages( S64 frame_count = 0 );
-	void	processAcks();
+	void	processAcks(F32 collect_time = 0.f);
 
 	BOOL	isMessageFast(const char *msg);
 	BOOL	isMessage(const char *msg)

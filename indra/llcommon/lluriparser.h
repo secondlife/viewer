@@ -36,7 +36,7 @@ class LL_COMMON_API LLUriParser
 {
 public:
 	LLUriParser(const std::string& u);
-	virtual ~LLUriParser();
+	~LLUriParser();
 
 	const char * scheme() const;
 	void sheme (const std::string& s);
@@ -60,6 +60,8 @@ public:
 
 	void extractParts();
 	void glue(std::string& uri) const;
+	void glueFirst(std::string& uri) const;
+	void glueSecond(std::string& uri) const;
 	bool test() const;
 	S32 normalize();
 
@@ -79,6 +81,7 @@ private:
 
 	S32 mRes;
 	bool mTmpScheme;
+	bool mNormalizedTmp;
 };
 
 #endif // LL_LLURIPARSER_H

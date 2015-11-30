@@ -304,16 +304,20 @@
      left_pad="5"
      layout="topleft"
      follows="left|top"
-     name="combobox sale copy"
+     name="ComboBoxSaleType"
      width="110">
-        <combo_box.item
-         label="Copy"
+       <combo_box.item
          name="Copy"
-         value="Copy" />
-        <combo_box.item
-         label="Original"
+         label="Copy"
+         value="2" />
+       <combo_box.item
+         name="Contents"
+         label="Contents"
+         value="3" />
+       <combo_box.item
          name="Original"
-         value="Original" />
+         label="Original"
+         value="1" />
     </combo_box>
     <spinner
         follows="left|top"
@@ -426,34 +430,6 @@
      width="330">
         Mark Item:
     </text-->
-
-
-    <!--radio_group
-     draw_border="false"
-     follows="left|top|right"
-     height="16"
-     layout="topleft"
-     left_delta="78"
-     name="RadioSaleType"
-     top_delta="0"
-     width="252">
-        <radio_item
-         height="16"
-         label="Original"
-         layout="topleft"
-         left="0"
-         name="radio"
-         top="0"
-         width="70" />
-        <radio_item
-         height="16"
-         label="Copy"
-         layout="topleft"
-         left_delta="60"
-         name="radio2"
-         top_delta="0"
-         width="70" />
-    </radio_group-->
 
     <!--text
      type="string"

@@ -640,7 +640,7 @@ LLBasicCertificateStore::~LLBasicCertificateStore()
 // persist the store
 void LLBasicCertificateStore::save()
 {
-	llofstream file_store(mFilename, llofstream::binary);
+	llofstream file_store(mFilename.c_str(), std::ios_base::binary);
 	if(!file_store.fail())
 	{
 		for(iterator cert = begin();
@@ -1331,7 +1331,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	std::string tmp_filename = mProtectedDataFilename + ".tmp";
 	
 	llofstream protected_data_stream(tmp_filename.c_str(), 
-										llofstream::binary);
+                                     std::ios_base::binary);
 	try
 	{
 		
@@ -1364,6 +1364,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	}
 	catch (...)
 	{
+		LL_WARNS() << "LLProtectedDataException(Error writing Protected Data Store)" << LL_ENDL;
 		// it's good practice to clean up any secure information on error
 		// (even though this file isn't really secure.  Perhaps in the future
 		// it may be, however.
@@ -1372,20 +1373,35 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		// EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
 		// Decided throwing an exception here was overkill until we figure out why this happens
 		//throw LLProtectedDataException("Error writing Protected Data Store");
-		LL_INFOS() << "LLProtectedDataException(Error writing Protected Data Store)" << LL_ENDL;
 	}
 
-	// move the temporary file to the specified file location.
-	if((((LLFile::isfile(mProtectedDataFilename) != 0) && 
-		 (LLFile::remove(mProtectedDataFilename) != 0))) || 
-	   (LLFile::rename(tmp_filename, mProtectedDataFilename)))
+    try
+    {
+        // move the temporary file to the specified file location.
+        if(((   (LLFile::isfile(mProtectedDataFilename) != 0)
+             && (LLFile::remove(mProtectedDataFilename) != 0)))
+           || (LLFile::rename(tmp_filename, mProtectedDataFilename)))
+        {
+            LL_WARNS() << "LLProtectedDataException(Could not overwrite protected data store)" << LL_ENDL;
+            LLFile::remove(tmp_filename);
+
+            // EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
+            // Decided throwing an exception here was overkill until we figure out why this happens
+            //throw LLProtectedDataException("Could not overwrite protected data store");
+        }
+	}
+	catch (...)
 	{
+		LL_WARNS() << "LLProtectedDataException(Error renaming '" << tmp_filename
+                   << "' to '" << mProtectedDataFilename << "')" << LL_ENDL;
+		// it's good practice to clean up any secure information on error
+		// (even though this file isn't really secure.  Perhaps in the future
+		// it may be, however.
 		LLFile::remove(tmp_filename);
 
-		// EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
+		//crash in LLSecAPIBasicHandler::_writeProtectedData()
 		// Decided throwing an exception here was overkill until we figure out why this happens
-		//throw LLProtectedDataException("Could not overwrite protected data store");
-		LL_INFOS() << "LLProtectedDataException(Could not overwrite protected data store)" << LL_ENDL;
+		//throw LLProtectedDataException("Error writing Protected Data Store");
 	}
 }
 		
@@ -1552,7 +1568,7 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
 {
 	const S32 HASHED_LENGTH = 32;	
 	std::vector<U8> buffer(HASHED_LENGTH);
-	llifstream password_file(mLegacyPasswordPath, llifstream::binary);
+	llifstream password_file(mLegacyPasswordPath.c_str(), llifstream::binary);
 	
 	if(password_file.fail())
 	{

@@ -3061,6 +3061,24 @@ void LLIMMgr::inviteToSession(
 		{
 			if (gAgent.isDoNotDisturb() && !isRejectGroupCall && !isRejectNonFriendCall)
 			{
+				if (!hasSession(session_id) && (type == IM_SESSION_P2P_INVITE))
+				{
+					std::string fixed_session_name = caller_name;
+					if(!session_name.empty() && session_name.size()>1)
+					{
+						fixed_session_name = session_name;
+					}
+					else
+					{
+						LLAvatarName av_name;
+						if (LLAvatarNameCache::get(caller_id, &av_name))
+						{
+							fixed_session_name = av_name.getDisplayName();
+						}
+					}
+					LLIMModel::getInstance()->newSession(session_id, fixed_session_name, IM_NOTHING_SPECIAL, caller_id, false, false);
+				}
+
 				LLSD args;
 				addSystemMessage(session_id, "you_auto_rejected_call", args);
 				send_do_not_disturb_message(gMessageSystem, caller_id, session_id);

@@ -119,9 +119,8 @@ namespace tut
 
 		void writeConfigFile(const LLSD& config)
 		{
-			std::ostringstream ostr;
-			ostr << mTestConfigDir << mSep << "message.xml";
-			llofstream file(ostr.str());
+			std::string ostr(mTestConfigDir + mSep + "message.xml");
+			llofstream file(ostr.c_str());
 			if (file.is_open())
 			{
 				LLSDSerialize::toPrettyXML(config, file);

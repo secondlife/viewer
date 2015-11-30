@@ -787,7 +787,7 @@ S32	LLMessageSystem::getReceiveBytes() const
 }
 
 
-void LLMessageSystem::processAcks()
+void LLMessageSystem::processAcks(F32 collect_time)
 {
 	F64Seconds mt_sec = getMessageTimeSeconds();
 	{
@@ -813,7 +813,7 @@ void LLMessageSystem::processAcks()
 		mCircuitInfo.resendUnackedPackets(mUnackedListDepth, mUnackedListSize);
 
 		//cycle through ack list for each host we need to send acks to
-		mCircuitInfo.sendAcks();
+		mCircuitInfo.sendAcks(collect_time);
 
 		if (!mDenyTrustedCircuitSet.empty())
 		{

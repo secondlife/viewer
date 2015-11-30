@@ -226,21 +226,34 @@ void LLAssetUploadResponder::httpFailure()
 {
 	// *TODO: Add adaptive retry policy?
 	LL_WARNS() << dumpResponse() << LL_ENDL;
-	LLSD args;
+	std::string reason;
 	if (isHttpClientErrorStatus(getStatus()))
 	{
-		args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
-		args["REASON"] = "Error in upload request.  Please visit "
+		reason = "Error in upload request.  Please visit "
 			"http://secondlife.com/support for help fixing this problem.";
-		LLNotificationsUtil::add("CannotUploadReason", args);
 	}
 	else
 	{
-		args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
-		args["REASON"] = "The server is experiencing unexpected "
+		reason = "The server is experiencing unexpected "
 			"difficulties.";
-		LLNotificationsUtil::add("CannotUploadReason", args);
 	}
+	LLSD args;
+	args["FILE"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
+	args["REASON"] = reason;
+	LLNotificationsUtil::add("CannotUploadReason", args);
+
+	// unfreeze script preview
+	if(mAssetType == LLAssetType::AT_LSL_TEXT)
+	{
+		LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", mPostData["item_id"]);
+		if (preview)
+		{
+			LLSD errors;
+			errors.append(LLTrans::getString("UploadFailed") + reason);
+			preview->callbackLSLCompileFailed(errors);
+		}
+	}
+
 	LLUploadDialog::modalUploadFinished();
 	LLFilePicker::instance().reset();  // unlock file picker when bulk upload fails
 }
@@ -295,8 +308,22 @@ void LLAssetUploadResponder::uploadUpload(const LLSD& content)
 void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
 	LL_WARNS() << dumpResponse() << LL_ENDL;
+
+	// unfreeze script preview
+	if(mAssetType == LLAssetType::AT_LSL_TEXT)
+	{
+		LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", mPostData["item_id"]);
+		if (preview)
+		{
+			LLSD errors;
+			errors.append(LLTrans::getString("UploadFailed") + content["message"].asString());
+			preview->callbackLSLCompileFailed(errors);
+		}
+	}
+
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();
+
 	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
 	if (floater_snapshot)
 	{
@@ -622,7 +649,10 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 		  }
 		  else
 		  {
-			  LLLiveLSLEditor* preview = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", LLSD(item_id));
+			  LLSD floater_key;
+			  floater_key["taskid"] = task_id;
+			  floater_key["itemid"] = item_id;
+			  LLLiveLSLEditor* preview = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", floater_key);
 			  if (preview)
 			  {
 				  // Bytecode save completed

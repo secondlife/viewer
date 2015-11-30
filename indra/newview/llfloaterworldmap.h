@@ -68,6 +68,8 @@ public:
 	/*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ void draw();
 
+	/*virtual*/ void onFocusLost();
+
 	// methods for dealing with inventory. The observe() method is
 	// called during program startup. inventoryUpdated() will be
 	// called by a helper object when an interesting change has

@@ -331,7 +331,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	U32		version;
 	
 	cleanupFeatureTables(); // in case an earlier attempt left partial results
-	file.open(filename); 	 /*Flawfinder: ignore*/
+	file.open(filename.c_str()); 	 /*Flawfinder: ignore*/
 
 	if (!file)
 	{
