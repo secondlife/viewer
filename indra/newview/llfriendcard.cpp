@@ -162,7 +162,7 @@ void LLInitialFriendCardsFetch::done()
 
 // LLFriendCardsManager Constructor / Destructor
 LLFriendCardsManager::LLFriendCardsManager()
-:   mState(EManagerState::INIT)
+:   mState(INIT)
 {
 	LLAvatarTracker::instance().addObserver(this);
 }
