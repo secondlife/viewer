@@ -1258,8 +1258,7 @@ bool idle_startup()
 		LLPostProcess::initClass();
 		display_startup();
 
-		// BENTO - remove these settings before release.
-        LLAvatarAppearance::initClass(gSavedSettings.getString("AvatarFileName"),gSavedSettings.getString("SkeletonFileName"));
+        LLAvatarAppearance::initClass("avatar_lad.xml","avatar_skeleton.xml");
 		display_startup();
 
 		LLViewerObject::initVOClasses();
