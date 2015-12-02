@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="left|top|right|bottom"
- height="418"
+ height="438"
  label="Graphics"
  layout="topleft"
  left="102"
@@ -813,6 +813,19 @@
            function="Pref.VertexShaderEnable" />
       </check_box>
       <check_box
+       control_name="RenderAvatarEnhancedSkeleton"
+       height="16"
+       initial_value="true"
+       label="Enhanced skeleton"
+       layout="topleft"
+       left_delta="0"
+       name="AvatarEnhancedSkeleton"
+       top_pad="1"
+       width="256">
+          <check_box.commit_callback
+           function="Pref.EnhancedSkeletonEnable" />
+      </check_box>
+      <check_box
        control_name="RenderAvatarCloth"
        height="16"
        initial_value="true"
@@ -869,7 +882,7 @@
      layout="topleft"
      left="10"
      name="Apply"
-     top="390"
+     top="400"
      width="115">
         <button.commit_callback
          function="Pref.Apply" />
@@ -881,7 +894,7 @@
      layout="topleft"
      left_pad="3"
      name="Defaults"
-     top="390"
+     top="400"
      width="115">
         <button.commit_callback
          function="Pref.HardwareDefaults" />

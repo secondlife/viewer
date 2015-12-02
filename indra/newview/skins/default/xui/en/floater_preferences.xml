@@ -3,7 +3,7 @@
  legacy_header_height="18"
  positioning="centered"
  default_tab_group="1"
- height="460"
+ height="512"
  layout="topleft"
  name="Preferences"
  help_topic="preferences"
@@ -19,7 +19,7 @@
      layout="topleft"
      right="-105"
      name="OK"
-     top="433"
+     top="473"
      width="90">
         <button.commit_callback
          function="Pref.OK" />
@@ -40,7 +40,7 @@
     <tab_container
      follows="all"
      halign="left"
-     height="410"
+     height="440"
      layout="topleft"
      left="0"
      name="pref core"
