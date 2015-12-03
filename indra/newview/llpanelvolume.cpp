@@ -821,7 +821,12 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
 				self->getChild<LLUICtrl>("Light Ambiance")->setValue(spot_params.mV[2]);
 			}
 			else
-			{ //modifying existing params
+			{ //modifying existing params, this time volobjp won't change params on its own.
+                if (volobjp->getLightTextureID() != id)
+                {
+                    volobjp->setLightTextureID(id);
+                }
+
 				LLVector3 spot_params;
 				spot_params.mV[0] = (F32) self->getChild<LLUICtrl>("Light FOV")->getValue().asReal();
 				spot_params.mV[1] = (F32) self->getChild<LLUICtrl>("Light Focus")->getValue().asReal();
