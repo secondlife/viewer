@@ -221,7 +221,23 @@ void callResetKeys()
 
 bool callUnicodeCallback(wchar_t character, unsigned int mask)
 {
-	return gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
+    NativeKeyEventData eventData;
+    
+    memset(&eventData, 0, sizeof(NativeKeyEventData));
+    
+    eventData.mKeyEvent = NativeKeyEventData::KEYCHAR;
+    eventData.mEventType = 0;
+    eventData.mEventModifiers = mask;
+    eventData.mEventKeyCode = 0;
+    eventData.mEventChars = character;
+    eventData.mEventUnmodChars = character;
+    eventData.mEventRepeat = false;
+    
+    mRawKeyEvent = &eventData;
+    
+    bool result = gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
+    mRawKeyEvent = NULL;
+    return result;
 }
 
 void callFocus()
