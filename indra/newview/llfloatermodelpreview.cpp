@@ -610,7 +610,7 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
 
-	fp->mModelPreview->genLODs();
+    fp->mModelPreview->queryLODs();
 }
 
 void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
@@ -638,7 +638,12 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 //-----------------------------------------------------------------------------
 void LLFloaterModelPreview::draw()
 {
-	LLFloater::draw();
+    LLFloater::draw();
+
+    if (!mModelPreview)
+    {
+        return;
+    }
 
 	mModelPreview->update();
 
@@ -668,7 +673,7 @@ void LLFloaterModelPreview::draw()
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
-	if (mModelPreview)
+    if (mModelPreview->lodsReady())
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
 
@@ -1178,6 +1183,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
+, mLodsQuery()
 , mPelvisZOffset( 0.0f )
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
@@ -3316,14 +3322,25 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 void LLModelPreview::update()
 {
     if (mGenLOD)
-	{
-		mGenLOD = false;
-		genLODs();
-		refresh();
-		updateStatusMessages();
-	}
+    {
+        bool subscribe_for_generation = mLodsQuery.empty();
+        mGenLOD = false;
+        mDirty = true;
+        mLodsQuery.clear();
 
-	if (mDirty)
+        for (S32 lod = LLModel::LOD_HIGH; lod >= 0; --lod)
+        {
+            // adding all lods into query for generation
+            mLodsQuery.push_back(lod);
+        }
+
+        if (subscribe_for_generation)
+        {
+            doOnIdleRepeating(lodQueryCallback);
+        }
+    }
+
+    if (mDirty && mLodsQuery.empty())
 	{
 		mDirty = false;
 		mResourceCost = calcResourceCost();
@@ -3563,6 +3580,7 @@ BOOL LLModelPreview::render()
 			fmp->enableViewOption("show_skin_weight");
 			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);	
 			mFMP->childEnable("upload_skin");
+			mFMP->childSetValue("show_skin_weight", skin_weight);
 		}
 	}
 	else
@@ -3683,7 +3701,7 @@ BOOL LLModelPreview::render()
 			}
 			else
 			{
-				LL_INFOS(" ") << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
+				LL_INFOS() << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
 				regen = TRUE;
 			}
 		}
@@ -4241,6 +4259,29 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 			preview->mModelLoader->mNumOfFetchingTextures-- ;
 		}
 	}
+}
+
+// static
+bool LLModelPreview::lodQueryCallback()
+{
+    // not the best solution, but model preview belongs to floater
+    // so it is an easy way to check that preview still exists.
+    LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+    if (fmp && fmp->mModelPreview)
+    {
+        LLModelPreview* preview = fmp->mModelPreview;
+        if (preview->mLodsQuery.size() > 0)
+        {
+            S32 lod = preview->mLodsQuery.back();
+            preview->mLodsQuery.pop_back();
+            preview->genLODs(lod);
+
+            // return false to continue cycle
+            return false;
+        }
+    }
+    // nothing to process
+    return true;
 }
 
 void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)

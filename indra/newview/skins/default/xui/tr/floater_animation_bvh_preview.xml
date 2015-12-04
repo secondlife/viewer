@@ -141,35 +141,35 @@ Maksimum animasyon uzunluğu [LENGTH] saniye.
 		İfade
 	</text>
 	<combo_box name="emote_combo" tool_tip="Yüzün animasyon sırasındaki ifadesini kontrol eder">
-		<item label="(Hiçbiri)" name="[None]" value=""/>
-		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
-		<item label="Korkmuş" name="Afraid" value="Korkmuş"/>
-		<item label="Kızgın" name="Angry" value="Kızgın"/>
-		<item label="Yaygın Gülümseyiş" name="BigSmile" value="Yaygın Gülümseyiş"/>
-		<item label="Canı Sıkılmış" name="Bored" value="Canı Sıkılmış"/>
-		<item label="Ağlama" name="Cry" value="Ağlama"/>
-		<item label="Dudak Bükme" name="Disdain" value="Dudak Bükme"/>
-		<item label="Utanmış" name="Embarrassed" value="Utanmış"/>
-		<item label="Kaş Çatma" name="Frown" value="Kaş Çatma"/>
-		<item label="Öpücük" name="Kiss" value="Öpücük"/>
-		<item label="Gülme" name="Laugh" value="Gülme"/>
-		<item label="Kahkaha" name="Plllppt" value="Kahkaha"/>
-		<item label="Tiksinmiş" name="Repulsed" value="Tiksinmiş"/>
-		<item label="Üzgün" name="Sad" value="Üzgün"/>
-		<item label="Omuz Silkme" name="Shrug" value="Omuz Silkme"/>
-		<item label="Gülümseme" name="Smile" value="Gülümseme"/>
-		<item label="Sürpriz" name="Surprise" value="Sürpriz"/>
-		<item label="Göz Kırpma" name="Wink" value="Göz Kırpma"/>
-		<item label="Endişelenme" name="Worry" value="Endişelenme"/>
+		<item label="(Hiçbiri)" name="[None]"/>
+		<item label="Aaaaah" name="Aaaaah"/>
+		<item label="Korkmuş" name="Afraid"/>
+		<item label="Kızgın" name="Angry"/>
+		<item label="Yaygın Gülümseyiş" name="BigSmile"/>
+		<item label="Canı Sıkılmış" name="Bored"/>
+		<item label="Ağlama" name="Cry"/>
+		<item label="Dudak Bükme" name="Disdain"/>
+		<item label="Utanmış" name="Embarrassed"/>
+		<item label="Kaş Çatma" name="Frown"/>
+		<item label="Öpücük" name="Kiss"/>
+		<item label="Gülme" name="Laugh"/>
+		<item label="Kahkaha" name="Plllppt"/>
+		<item label="Tiksinmiş" name="Repulsed"/>
+		<item label="Üzgün" name="Sad"/>
+		<item label="Omuz Silkme" name="Shrug"/>
+		<item label="Gülümseme" name="Smile"/>
+		<item label="Sürpriz" name="Surprise"/>
+		<item label="Göz Kırpma" name="Wink"/>
+		<item label="Endişelenme" name="Worry"/>
 	</combo_box>
 	<text name="preview_label">
 		Şu sırada önizle
 	</text>
 	<combo_box name="preview_base_anim" tool_tip="Animasyon davranışınızı avatarınız genel hareketleri yaparken test etmek için bunu kullanın.">
-		<item label="Ayakta Duruyor" name="Standing" value="Ayakta Duruyor"/>
-		<item label="Yürüyor" name="Walking" value="Yürüyor"/>
-		<item label="Oturuyor" name="Sitting" value="Oturuyor"/>
-		<item label="Uçuyor" name="Flying" value="Uçuyor"/>
+		<item label="Ayakta Duruyor" name="Standing"/>
+		<item label="Yürüyor" name="Walking"/>
+		<item label="Oturuyor" name="Sitting"/>
+		<item label="Uçuyor" name="Flying"/>
 	</combo_box>
 	<spinner label="Yavaş Başlangıç (saniye)" name="ease_in_time" tool_tip="Animasyonun kaynaştığı süre (saniye olarak)"/>
 	<spinner label="Yavaş Bitiş (saniye)" name="ease_out_time" tool_tip="Animasyonun ayrıştığı süre (saniye olarak)"/>

@@ -36,14 +36,16 @@ static LLTrace::CountStatHandle<S32> sTextureDownloadsCompleted("texture_downloa
 static LLTrace::CountStatHandle<S32Bytes > sTextureDataDownloaded("texture_data_downloaded", "amount of texture data downloaded");
 static LLTrace::CountStatHandle<U32Milliseconds > sTexureDownloadTime("texture_download_time", "amount of time spent fetching textures");
 
-LLTextureInfo::LLTextureInfo() : 
+LLTextureInfo::LLTextureInfo(bool postponeStartRecoreder) :
 	mLogTextureDownloadsToViewerLog(false),
 	mLogTextureDownloadsToSimulator(false),
 	mTextureDownloadProtocol("NONE"),
 	mTextureLogThreshold(LLUnits::Kilobytes::fromValue(100))
 {
-	mTextures.clear();
-	mRecording.start();
+	if (!postponeStartRecoreder)
+	{
+		startRecording();
+	}
 }
 
 void LLTextureInfo::setUpLogging(bool writeToViewerLog, bool sendToSim, U32Bytes textureLogThreshold)
@@ -78,15 +80,7 @@ U32 LLTextureInfo::getTextureInfoMapSize()
 
 bool LLTextureInfo::has(const LLUUID& id)
 {
-	std::map<LLUUID, LLTextureInfoDetails *>::iterator iterator = mTextures.find(id);
-	if (iterator == mTextures.end())
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+	return mTextures.end() != mTextures.find(id);
 }
 
 void LLTextureInfo::setRequestStartTime(const LLUUID& id, U64 startTime)
@@ -192,15 +186,12 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
 LLSD LLTextureInfo::getAverages()
 {
 	LLSD averagedTextureData;
-	S32 averageDownloadRate;
-	U32Milliseconds download_time = mRecording.getSum(sTexureDownloadTime);
-	if(download_time == (U32Milliseconds)0)
+	S32 averageDownloadRate = 0;
+	unsigned int download_time = mRecording.getSum(sTexureDownloadTime).valueInUnits<LLUnits::Seconds>();
+	
+	if (0 != download_time)
 	{
-		averageDownloadRate = 0;
-	}
-	else
-	{
-		averageDownloadRate = mRecording.getSum(sTextureDataDownloaded).valueInUnits<LLUnits::Bits>() / download_time.valueInUnits<LLUnits::Seconds>();
+		averageDownloadRate = mRecording.getSum(sTextureDataDownloaded).valueInUnits<LLUnits::Bits>() / download_time;
 	}
 
 	averagedTextureData["bits_per_second"]             = averageDownloadRate;
@@ -210,6 +201,16 @@ LLSD LLTextureInfo::getAverages()
 	averagedTextureData["transport"]                   = mTextureDownloadProtocol;
 
 	return averagedTextureData;
+}
+
+void LLTextureInfo::startRecording()
+{
+	mRecording.start();
+}
+
+void LLTextureInfo::stopRecording()
+{
+	mRecording.stop();
 }
 
 void LLTextureInfo::resetTextureStatistics()

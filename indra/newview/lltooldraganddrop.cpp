@@ -861,12 +861,12 @@ void LLToolDragAndDrop::dragOrDrop3D( S32 x, S32 y, MASK mask, BOOL drop, EAccep
 	if (mDrop)
 	{
 		// don't allow drag and drop onto transparent objects
-		pick(gViewerWindow->pickImmediate(x, y, FALSE));
+		pick(gViewerWindow->pickImmediate(x, y, FALSE, FALSE));
 	}
 	else
 	{
 		// don't allow drag and drop onto transparent objects
-		gViewerWindow->pickAsync(x, y, mask, pickCallback, FALSE);
+		gViewerWindow->pickAsync(x, y, mask, pickCallback, FALSE, FALSE);
 	}
 
 	*acceptance = mLastAccept;
@@ -1013,13 +1013,10 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 	// causing a dirty inventory) and we can do an update, stall the user
 	// while fetching the inventory.
 	//
-	// Note: fetch only if inventory is both dirty and not present since previously checked faces
-	// could have requested new fetch for same item (removed inventory and marked as dirty=false).
-	// Objects without listeners (dirty==true and inventory!=NULL. In this specific case - before
-	// first fetch) shouldn't be updated either since we won't receive any changes.
-	if (hit_obj->isInventoryDirty() && hit_obj->getInventoryRoot() == NULL)
+	// Fetch if inventory is dirty and listener is present (otherwise we will not receive update)
+	if (hit_obj->isInventoryDirty() && hit_obj->hasInventoryListeners())
 	{
-		hit_obj->fetchInventoryFromServer();
+		hit_obj->requestInventory();
 		LLSD args;
 		args["ERROR_MESSAGE"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
 		LLNotificationsUtil::add("ErrorMessage", args);
@@ -1099,10 +1096,12 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		{
 			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 		}
-		// Force the object to update its refetch its inventory so it has this texture.
-		hit_obj->fetchInventoryFromServer();
- 		// TODO: Check to see if adding the item was successful; if not, then
-		// we should return false here.
+		// Force the object to update and refetch its inventory so it has this texture.
+		hit_obj->dirtyInventory();
+		hit_obj->requestInventory();
+		// TODO: Check to see if adding the item was successful; if not, then
+		// we should return false here. This will requre a separate listener
+		// since without listener, we have no way to receive update
 	}
 	return TRUE;
 }

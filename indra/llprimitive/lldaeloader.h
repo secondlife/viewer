@@ -89,19 +89,22 @@ protected:
 	static bool addVolumeFacesFromDomMesh(LLModel* model, domMesh* mesh);
 	static bool createVolumeFacesFromDomMesh(LLModel* model, domMesh *mesh);
 
-	static LLModel* loadModelFromDomMesh(domMesh* mesh);
+	static LLModel* loadModelFromDomMesh(domMesh* mesh, bool forceIdNaming);
+	LLModel* loadModelFromDomMesh(domMesh* mesh);
 
 	// Loads a mesh breaking it into one or more models as necessary
 	// to get around volume face limitations while retaining >8 materials
 	//
 	bool loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& models_out, U32 submodel_limit);
 
-	static std::string getElementLabel(daeElement *element);
+	static std::string getElementLabel(daeElement *element, bool forceIdNaming);
+	std::string getElementLabel(daeElement *element);
 	static size_t getSuffixPosition(std::string label);
-	static std::string getLodlessLabel(daeElement *element);
+	static std::string getLodlessLabel(daeElement *element, bool forceIdNaming = false);
 
 private:
 	U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
+	bool mForceIdNaming;
 
 };
 #endif  // LL_LLDAELLOADER_H

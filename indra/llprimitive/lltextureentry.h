@@ -160,8 +160,6 @@ public:
 	const LLMaterialID& getMaterialID() const { return mMaterialID; };
 	const LLMaterialPtr getMaterialParams() const { return mMaterial; };
 
-	bool isMatParamsInitFromServer() const { return mInitMatParamsFromServer; };
-
     // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return NULL.
     // CONVERSELY, it is also possible for hasMedia() to return false, but getMediaData()
     // to NOT return NULL.  
@@ -219,8 +217,6 @@ protected:
 	bool                mMaterialUpdatePending;
 	LLMaterialID        mMaterialID;
 	LLMaterialPtr		mMaterial;
-	bool                mInitMatParamsFromServer; // Flag to identification when material paramas initialized from 
-
 
 	// Note the media data is not sent via the same message structure as the rest of the TE
 	LLMediaEntry*		mMediaEntry;			// The media data for the face

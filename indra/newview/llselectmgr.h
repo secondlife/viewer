@@ -527,7 +527,7 @@ public:
 	void			clearGridObjects();
 	void			setGridMode(EGridMode mode);
 	EGridMode		getGridMode() { return mGridMode; }
-	void			getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale);
+	void			getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale, bool for_snap_guides = false);
 
 	BOOL getTEMode()		{ return mTEMode; }
 	void setTEMode(BOOL b)	{ mTEMode = b; }

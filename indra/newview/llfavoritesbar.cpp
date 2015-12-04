@@ -655,11 +655,12 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 		LLInventoryModel::cat_array_t cats;
 		LLIsType is_type(LLAssetType::AT_LANDMARK);
 		gInventory.collectDescendentsIf(mFavoriteFolderId, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
-		
+
 		for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
 		{
 			LLFavoritesOrderStorage::instance().getSLURL((*i)->getAssetUUID());
 		}
+
 		updateButtons();
 		if (!mItemsChangedTimer.getStarted())
 		{
@@ -751,7 +752,11 @@ void LLFavoritesBarCtrl::updateButtons()
 
 	if(mGetPrevItems)
 	{
-		LLFavoritesOrderStorage::instance().mPrevFavorites = mItems;
+	    for (LLInventoryModel::item_array_t::iterator it = mItems.begin(); it != mItems.end(); it++)
+	    {
+	        LLFavoritesOrderStorage::instance().mFavoriteNames[(*it)->getUUID()]= (*it)->getName();
+	    }
+	    LLFavoritesOrderStorage::instance().mPrevFavorites = mItems;
 		mGetPrevItems = false;
 	}
 
@@ -778,7 +783,7 @@ void LLFavoritesBarCtrl::updateButtons()
 			const LLViewerInventoryItem *item = mItems[first_changed_item_index].get();
 			if (item)
 			{
-				// an child's order  and mItems  should be same   
+			    // an child's order  and mItems  should be same
 				if (button->getLandmarkId() != item->getUUID() // sort order has been changed
 					|| button->getLabelSelected() != item->getName() // favorite's name has been changed
 					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
@@ -964,6 +969,7 @@ BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &it
 		{
 			LLFavoritesOrderStorage::instance().setSortIndex((*i), ++sortField);
 		}
+		LLFavoritesOrderStorage::instance().mSaveOnExit = true;
 	}
 
 	return TRUE;
@@ -1525,10 +1531,10 @@ void LLFavoritesOrderStorage::destroyClass()
 	{
 		file.close();
 		LLFile::remove(filename);
-		if(mSaveOnExit)
-		{
-			LLFavoritesOrderStorage::instance().saveFavoritesRecord(true);
-		}
+	}
+	if(mSaveOnExit)
+	{
+	    LLFavoritesOrderStorage::instance().saveFavoritesRecord(true);
 	}
 }
 
@@ -1783,10 +1789,20 @@ BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 	gInventory.collectDescendentsIf(favorite_folder, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
 
 	std::sort(items.begin(), items.end(), LLFavoritesSort());
+	bool name_changed = false;
 
-	if((items != mPrevFavorites) || pref_changed)
+	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)
 	{
-		std::string filename = getStoredFavoritesFilename();
+	    if(mFavoriteNames[(*it)->getUUID()] != ((*it)->getName()))
+	    {
+	        mFavoriteNames[(*it)->getUUID()] = (*it)->getName();
+	        name_changed = true;
+	    }
+	}
+
+	if((items != mPrevFavorites) || name_changed || pref_changed)
+	{
+	    std::string filename = getStoredFavoritesFilename();
 		if (!filename.empty())
 		{
 			llifstream in_file;

@@ -148,6 +148,9 @@ BOOL LLPanelPickInfo::postBuild()
 	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
 	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
 
+	LLTextEditor* text_desc = getChild<LLTextEditor>(XML_DESC);
+	text_desc->setContentTrusted(false);
+
 	return TRUE;
 }
 
