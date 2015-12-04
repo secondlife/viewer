@@ -132,6 +132,17 @@ LLEventPump& LLEventPumps::obtain(const std::string& name)
     return *newInstance;
 }
 
+bool LLEventPumps::post(const std::string&name, const LLSD&message)
+{
+    PumpMap::iterator found = mPumpMap.find(name);
+
+    if (found == mPumpMap.end())
+        return false;
+
+    return (*found).second->post(message);
+}
+
+
 void LLEventPumps::flush()
 {
     // Flush every known LLEventPump instance. Leave it up to each instance to

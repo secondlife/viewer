@@ -41,6 +41,8 @@
 #include "llerror.h"
 #include "llcoros.h"
 
+#include "lleventfilter.h"
+
 namespace
 {
 
@@ -151,6 +153,14 @@ void llcoro::suspend()
     // each iteration of the main event-handling loop. So waiting for a single
     // event on "mainloop" gives us a one-frame suspend.
     suspendUntilEventOn("mainloop");
+}
+
+void llcoro::suspendUntilTimeout(float seconds)
+{
+    LLEventTimeout timeout;
+
+    timeout.eventAfter(seconds, LLSD());
+    llcoro::suspendUntilEventOn(timeout);
 }
 
 LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,

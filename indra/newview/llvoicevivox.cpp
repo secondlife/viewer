@@ -66,6 +66,7 @@
 #include "llnotificationsutil.h"
 
 #include "llcorehttputil.h"
+#include "lleventfilter.h"
 
 #include "stringize.h"
 
@@ -377,7 +378,9 @@ void LLVivoxVoiceClient::connectorCreate()
 	std::string loglevel = "0";
 	
 	// Transition to stateConnectorStarted when the connector handle comes back.
+#if 0
 	setState(stateConnectorStarting);
+#endif
 
 	std::string savedLogLevel = gSavedSettings.getString("VivoxDebugLevel");
 		
@@ -435,6 +438,7 @@ void LLVivoxVoiceClient::userAuthorized(const std::string& user_id, const LLUUID
 	mAccountName = nameFromID(agentID);
 }
 
+#if 0
 void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 {
 	LLViewerRegion *region = gAgent.getRegion();
@@ -453,7 +457,7 @@ void LLVivoxVoiceClient::requestVoiceAccountProvision(S32 retries)
 		{
             LLCoros::instance().launch("LLVivoxVoiceClient::voiceAccountProvisionCoro",
                 boost::bind(&LLVivoxVoiceClient::voiceAccountProvisionCoro, this, url, retries));
-			setState(stateConnectorStart);		
+//			setState(stateConnectorStart);		
 		}
 	}
 }
@@ -465,20 +469,39 @@ void LLVivoxVoiceClient::voiceAccountProvisionCoro(std::string url, S32 retries)
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceAccountProvision", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+    int retryCount(0);
 
-    httpOpts->setRetries(retries);
 
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
+    LLSD result;
+        
+    do 
     {
-        LL_WARNS("Voice") << "Unable to provision voice account." << LL_ENDL;
-        giveUp();
-        return;
-    }
+        result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts);
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (status == LLCore::HttpStatus(404))
+        {
+            if (++retryCount > retries)
+            {
+                LL_WARNS("Voice") << "Could not access voice provision cap after " << retries << " attempts." << LL_ENDL;
+                giveUp();
+                return;
+            }
+            LL_WARNS("Voice") << "Provision CAP 404.  Retrying in 1.0" << LL_ENDL;
+            llcoro::suspendUntilTimeout(1.0);
+
+            continue;
+        }
+        else if (!status)
+        {
+            LL_WARNS("Voice") << "Unable to provision voice account." << LL_ENDL;
+            giveUp();
+            return;
+        }
+        break;
+    } while (true);
 
     std::string voice_sip_uri_hostname;
     std::string voice_account_server_uri;
@@ -492,11 +515,12 @@ void LLVivoxVoiceClient::voiceAccountProvisionCoro(std::string url, S32 retries)
     if (result.has("voice_account_server_name"))
         voice_account_server_uri = result["voice_account_server_name"].asString();
 
-    login(result["username"].asString(), result["password"].asString(),
+    setLoginInfo(result["username"].asString(), result["password"].asString(),
         voice_sip_uri_hostname, voice_account_server_uri);
 }
+#endif
 
-void LLVivoxVoiceClient::login(
+void LLVivoxVoiceClient::setLoginInfo(
 	const std::string& account_name,
 	const std::string& password,
 	const std::string& voice_sip_uri_hostname,
@@ -701,10 +725,24 @@ void LLVivoxVoiceClient::stateMachine()
 		case stateDisabled:
 			if(mTuningMode || ((mVoiceEnabled || !mIsInitialized) && !mAccountName.empty()))
 			{
+#if 1
+                LLCoros::instance().launch("LLVivoxVoiceClient::startAndConnectSession",
+                    boost::bind(&LLVivoxVoiceClient::startAndConnectSession, this));
+#else
 				setState(stateStart);
+#endif
 			}
 		break;
-		
+
+//--------------------------------------------------------------------------
+#if 1
+        case stateStart:
+        case stateDaemonLaunched:
+        case stateConnecting:
+        case stateConnected:
+            // moved to coroutine LLVivoxVoiceClient::startAndLaunchDaemon
+            break;
+#else
 		//MARK: stateStart
 		case stateStart:
 			if(gSavedSettings.getBOOL("CmdLineDisableVoice"))
@@ -861,30 +899,47 @@ void LLVivoxVoiceClient::stateMachine()
 
 			setState(stateIdle);
 		break;
+#endif
+//--------------------------------------------------------------------------
 
 		//MARK: stateIdle
 		case stateIdle:
 			// This is the idle state where we're connected to the daemon but haven't set up a connector yet.
 			if(mTuningMode)
 			{
-				mTuningExitState = stateIdle;
-				setState(stateMicTuningStart);
-			}
+#if 1
+                LLCoros::instance().launch("LLVivoxVoiceClient::performMicTuning",
+                    boost::bind(&LLVivoxVoiceClient::performMicTuning, this, stateIdle));
+#else
+                mTuningExitState = stateIdle;
+                setState(stateMicTuningStart);
+#endif
+            }
 			else if(!mVoiceEnabled && mIsInitialized)
 			{
 				// We never started up the connector.  This will shut down the daemon.
 				setState(stateConnectorStopped);
 			}
+#if 0
 			else if(!mAccountName.empty())
 			{
 				if ( mAccountPassword.empty() )
 				{
-					requestVoiceAccountProvision();
+					requestVoiceAccountProvision(5);
 				}
 			}
+#endif
 		break;
 
-		//MARK: stateMicTuningStart
+//--------------------------------------------------------------------------
+#if 1
+        case stateMicTuningStart:
+        case stateMicTuningRunning:
+        case stateMicTuningStop:
+            // moved to coroutine LLVivoxVoiceClient::performMicTuning
+            break;
+#else
+        //MARK: stateMicTuningStart
 		case stateMicTuningStart:
 			if(mUpdateTimer.hasExpired())
 			{
@@ -985,6 +1040,8 @@ void LLVivoxVoiceClient::stateMachine()
 			
 		}
 		break;
+#endif
+//--------------------------------------------------------------------------
 
 		//MARK: stateCaptureBufferPaused
 		case stateCaptureBufferPaused:
@@ -1075,7 +1132,16 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 		break;
 
-			//MARK: stateConnectorStart
+//-------------------------------------------------------------------------
+#if 1
+        case stateConnectorStart:
+        case stateConnectorStarting:	
+        case stateConnectorStarted:	
+            // moved to establishVoiceConnection
+            break;
+
+#else
+		//MARK: stateConnectorStart
 		case stateConnectorStart:
 			if(!mVoiceEnabled && mIsInitialized)
 			{
@@ -1106,7 +1172,18 @@ void LLVivoxVoiceClient::stateMachine()
 				setState(stateNeedsLogin);
 			}
 		break;
-				
+#endif
+//-------------------------------------------------------------------------
+
+#if 1
+        case stateLoginRetry:
+        case stateLoginRetryWait:
+        case stateNeedsLogin:
+        case stateLoggingIn:
+        case stateLoggedIn:
+            // moved to loginToVivox
+            break;
+#else
 		//MARK: stateLoginRetry
 		case stateLoginRetry:
 			if(mLoginRetryCount == 0)
@@ -1194,7 +1271,14 @@ void LLVivoxVoiceClient::stateMachine()
 			sendLocalAudioUpdates();
 				
 		break;
+#endif
 
+#if 1
+        case stateVoiceFontsWait:		// Await voice font list
+        case stateVoiceFontsReceived:	// Voice font list received
+            // moved to retrieveVoiceFonts
+            break;
+#else
 		//MARK: stateVoiceFontsWait
 		case stateVoiceFontsWait:		// Await voice font list
 			// accountGetSessionFontsResponse() will transition from here to
@@ -1207,15 +1291,17 @@ void LLVivoxVoiceClient::stateMachine()
 			// Set up the timer to check for expiring voice fonts
 			mVoiceFontExpiryTimer.start();
 			mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
-
 #if USE_SESSION_GROUPS			
-			// create the main session group
-			setState(stateCreatingSessionGroup);
-			sessionGroupCreateSendMessage();
+            // create the main session group
+            setState(stateCreatingSessionGroup);
+            sessionGroupCreateSendMessage();
 #else
-			setState(stateNoChannel);				
+            setState(stateNoChannel);				
 #endif
-		break;
+            break;
+
+#endif
+
 		
 		//MARK: stateCreatingSessionGroup
 		case stateCreatingSessionGroup:
@@ -1260,8 +1346,13 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else if(mTuningMode)
 			{
-				mTuningExitState = stateNoChannel;
-				setState(stateMicTuningStart);
+#if 1
+                LLCoros::instance().launch("LLVivoxVoiceClient::performMicTuning",
+                    boost::bind(&LLVivoxVoiceClient::performMicTuning, this, stateNoChannel));
+#else
+                mTuningExitState = stateNoChannel;
+                setState(stateMicTuningStart);
+#endif
 			}
 			else if(mCaptureBufferMode)
 			{
@@ -1528,7 +1619,8 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 		break;
 		
-		//MARK: stateConnectorStopping
+//-------------------------------------------------------------------------
+        //MARK: stateConnectorStopping
 		case stateConnectorStopping:	// waiting for connector stop
 			// The handler for the Connector.InitiateShutdown response will transition from here to stateConnectorStopped.
 			mShutdownComplete = true;
@@ -1539,7 +1631,8 @@ void LLVivoxVoiceClient::stateMachine()
 			setState(stateDisableCleanup);
 		break;
 
-		//MARK: stateConnectorFailed
+//-------------------------------------------------------------------------
+        //MARK: stateConnectorFailed
 		case stateConnectorFailed:
 			setState(stateConnectorFailedWaiting);
 		break;
@@ -1550,6 +1643,7 @@ void LLVivoxVoiceClient::stateMachine()
 				setState(stateDisableCleanup);
 			}
 		break;
+//-------------------------------------------------------------------------
 
 		//MARK: stateLoginFailed
 		case stateLoginFailed:
@@ -1608,6 +1702,537 @@ void LLVivoxVoiceClient::stateMachine()
 		notifyParticipantObservers();
 	}
 }
+
+//=========================================================================
+// the following are methods to support the coroutine implementation of the 
+// voice connection and processing.  They should only be called in the context 
+// of a coroutine.
+// 
+// calls to setState() in these are historical and used because some of the other
+// query routines will ask what state the state machine is in.
+// 
+
+bool LLVivoxVoiceClient::startAndConnectSession()
+{
+    if (!startAndLaunchDaemon())
+    {
+        setState(stateJail);
+        return false;
+    }
+
+    if (!provisionVoiceAccount())
+    {
+        giveUp();
+        return false;
+    }
+
+    if (!establishVoiceConnection())
+    {
+        if (getState() != stateConnectorFailed)
+        {
+            setState(stateLoggedOut);
+        }
+        giveUp();
+        return false;
+    }
+
+
+    if (!loginToVivox())
+    {
+        setState(stateLoginFailed);
+        return false;
+    }
+
+    if (LLVoiceClient::instance().getVoiceEffectEnabled())
+    {
+        retrieveVoiceFonts();
+
+        // Request the set of available voice fonts.
+        refreshVoiceEffectLists(true);
+    }
+    else
+    {
+        // If voice effects are disabled, pretend we've received them and carry on.
+        setState(stateNoChannel);
+    }
+
+#if USE_SESSION_GROUPS			
+    // create the main session group
+    setState(stateCreatingSessionGroup);
+    sessionGroupCreateSendMessage();
+#else
+    setState(stateNoChannel);
+#endif
+
+    return true;
+}
+
+bool LLVivoxVoiceClient::startAndLaunchDaemon()
+{
+    //---------------------------------------------------------------------
+    setState(stateStart);
+
+    if (gSavedSettings.getBOOL("CmdLineDisableVoice"))
+    {
+        // Voice is locked out, we must not launch the vivox daemon.
+        setState(stateJail);
+        return false;
+    }
+
+    if (!isGatewayRunning() && gSavedSettings.getBOOL("EnableVoiceChat"))
+    {
+#ifndef VIVOXDAEMON_REMOTEHOST
+        // Launch the voice daemon
+
+        // *FIX:Mani - Using the executable dir instead 
+        // of mAppRODataDir, the working directory from which the app
+        // is launched.
+        //std::string exe_path = gDirUtilp->getAppRODataDir();
+        std::string exe_path = gDirUtilp->getExecutableDir();
+        exe_path += gDirUtilp->getDirDelimiter();
+#if LL_WINDOWS
+        exe_path += "SLVoice.exe";
+#elif LL_DARWIN
+        exe_path += "../Resources/SLVoice";
+#else
+        exe_path += "SLVoice";
+#endif
+        // See if the vivox executable exists
+        llstat s;
+        if (!LLFile::stat(exe_path, &s))
+        {
+            // vivox executable exists.  Build the command line and launch the daemon.
+            LLProcess::Params params;
+            params.executable = exe_path;
+
+            std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
+            std::string shutdown_timeout = gSavedSettings.getString("VivoxShutdownTimeout");
+            if (loglevel.empty())
+            {
+                loglevel = "-1";	// turn logging off completely, was 0 for error level logging.
+            }
+
+            params.args.add("-ll");
+            params.args.add(loglevel);
+
+            std::string log_folder = gSavedSettings.getString("VivoxLogDirectory");
+
+            if (log_folder.empty())
+            {
+                log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+            }
+
+            params.args.add("-lf");
+            params.args.add(log_folder);
+
+            if (!shutdown_timeout.empty())
+            {
+                params.args.add("-st");
+                params.args.add(shutdown_timeout);
+            }
+            params.cwd = gDirUtilp->getAppRODataDir();
+            sGatewayPtr = LLProcess::create(params);
+
+            mDaemonHost = LLHost(gSavedSettings.getString("VivoxVoiceHost").c_str(), gSavedSettings.getU32("VivoxVoicePort"));
+        }
+        else
+        {
+            LL_INFOS("Voice") << exe_path << " not found." << LL_ENDL;
+            return false;
+        }
+#else
+        // SLIM SDK: port changed from 44124 to 44125.
+        // We can connect to a client gateway running on another host.  This is useful for testing.
+        // To do this, launch the gateway on a nearby host like this:
+        //  vivox-gw.exe -p tcp -i 0.0.0.0:44125
+        // and put that host's IP address here.
+        mDaemonHost = LLHost(gSavedSettings.getString("VivoxVoiceHost"), gSavedSettings.getU32("VivoxVoicePort"));
+#endif
+
+        mUpdateTimer.start();
+        mUpdateTimer.setTimerExpirySec(CONNECT_THROTTLE_SECONDS);
+
+        // Dirty the states we'll need to sync with the daemon when it comes up.
+        mMuteMicDirty = true;
+        mMicVolumeDirty = true;
+        mSpeakerVolumeDirty = true;
+        mSpeakerMuteDirty = true;
+        // These only need to be set if they're not default (i.e. empty string).
+        mCaptureDeviceDirty = !mCaptureDevice.empty();
+        mRenderDeviceDirty = !mRenderDevice.empty();
+
+        mMainSessionGroupHandle.clear();
+    }
+
+    //---------------------------------------------------------------------
+    llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
+    setState(stateDaemonLaunched);
+
+    LL_DEBUGS("Voice") << "Connecting to vivox daemon:" << mDaemonHost << LL_ENDL;
+
+    int connectAttempt = 0;
+
+    while (!mConnected)
+    {
+        ++connectAttempt;
+        LL_DEBUGS("Voice") << "Connecting to vivox daemon:" << mDaemonHost << " (#" << connectAttempt << ")" << LL_ENDL;
+        closeSocket();
+        if (!mSocket)
+        {
+            mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
+        }
+
+        mConnected = mSocket->blockingConnect(mDaemonHost);
+    }
+
+    //---------------------------------------------------------------------
+    llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
+    setState(stateConnecting);
+
+
+    while (!mPump)
+    {   // Can't do this until we have the pump available.
+        llcoro::suspend();
+    }
+
+    
+    // MBW -- Note to self: pumps and pipes examples in
+    //  indra/test/io.cpp
+    //  indra/test/llpipeutil.{cpp|h}
+
+    // Attach the pumps and pipes
+
+    LLPumpIO::chain_t readChain;
+
+    readChain.push_back(LLIOPipe::ptr_t(new LLIOSocketReader(mSocket)));
+    readChain.push_back(LLIOPipe::ptr_t(new LLVivoxProtocolParser()));
+
+    mPump->addChain(readChain, NEVER_CHAIN_EXPIRY_SECS);
+
+    //---------------------------------------------------------------------
+    llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
+    setState(stateConnected);
+
+    // Initial devices query
+    getCaptureDevicesSendMessage();
+    getRenderDevicesSendMessage();
+
+    mLoginRetryCount = 0;
+
+    setState(stateIdle);
+
+    return true;
+}
+
+bool LLVivoxVoiceClient::provisionVoiceAccount()
+{
+
+    while (!gAgent.getRegion())
+    {
+        // *TODO* Set up a call back on agent that sends a message to a pump we can use to wake up.
+        llcoro::suspend();
+    }
+
+    LLViewerRegion *region = gAgent.getRegion();
+
+    while (!region->capabilitiesReceived())
+    {
+        // *TODO* Pump a message for wake up.
+        llcoro::suspend();
+    }
+
+    std::string url = region->getCapability("ProvisionVoiceAccountRequest");
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceAccountProvision", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+    int retryCount(0);
+
+    LLSD result;
+
+    do
+    {
+        result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts);
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (status == LLCore::HttpStatus(404))
+        {
+            if (++retryCount > 5)
+            {
+                LL_WARNS("Voice") << "Could not access voice provision cap after 5 attempts." << LL_ENDL;
+                return false;
+            }
+            LL_WARNS("Voice") << "Provision CAP 404.  Retrying in 1.0" << LL_ENDL;
+            llcoro::suspendUntilTimeout(1.0);
+
+            continue;
+        }
+        else if (!status)
+        {
+            LL_WARNS("Voice") << "Unable to provision voice account." << LL_ENDL;
+            return false;
+        }
+        break;
+    } while (true);
+
+    std::string voiceSipUriHostname;
+    std::string voiceAccountServerUri;
+    std::string voiceUserName = result["username"].asString();
+    std::string voicePassword = result["password"].asString();
+
+    //LL_DEBUGS("Voice") << "ProvisionVoiceAccountRequest response:" << dumpResponse() << LL_ENDL;
+
+    if (result.has("voice_sip_uri_hostname"))
+        voiceSipUriHostname = result["voice_sip_uri_hostname"].asString();
+
+    // this key is actually misnamed -- it will be an entire URI, not just a hostname.
+    if (result.has("voice_account_server_name"))
+        voiceAccountServerUri = result["voice_account_server_name"].asString();
+
+    setLoginInfo(voiceUserName, voicePassword, voiceSipUriHostname, voiceAccountServerUri);
+
+    return true;
+}
+
+
+bool LLVivoxVoiceClient::establishVoiceConnection()
+{
+    LLEventPump &voiceConnectPump = LLEventPumps::instance().obtain("vivoxClientPump");
+
+    if (!mVoiceEnabled && mIsInitialized)
+        return false;
+
+    setState(stateConnectorStart);
+
+    connectorCreate();
+
+    setState(stateConnectorStarting);
+
+    LLSD result;
+    do
+    {
+        result = llcoro::suspendUntilEventOn(voiceConnectPump);
+    } 
+    while (!result.has("connector"));
+
+    if (!result["connector"])
+    {
+
+        setState(stateConnectorFailed);
+        return false;
+    }
+
+    setState(stateConnectorStarted);
+    if (!mVoiceEnabled && mIsInitialized)
+        return false;
+
+    return true;
+}
+
+bool LLVivoxVoiceClient::loginToVivox()
+{
+    int loginRetryCount(0);
+    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+
+    do 
+    {
+        setState(stateLoggingIn);
+        loginSendMessage();
+
+        LLSD result;
+        do
+        {
+            result = llcoro::suspendUntilEventOn(voicePump);
+        } while (!result.has("login"));
+
+        if (result["login"])
+            break;
+
+        if (!loginRetryCount)
+        {   // on first retry notify user
+            notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGIN_RETRY);
+        }
+
+        if ((++loginRetryCount > MAX_LOGIN_RETRIES) || (!result["login_retry"]))        
+        {
+            LL_WARNS("Voice") << "too many login retries, giving up." << LL_ENDL;
+            LLSD args;
+            std::stringstream errs;
+            errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
+            args["HOSTID"] = errs.str();
+            mTerminateDaemon = true;
+            if (LLGridManager::getInstance()->isSystemGrid())
+            {
+                LLNotificationsUtil::add("NoVoiceConnect", args);
+            }
+            else
+            {
+                LLNotificationsUtil::add("NoVoiceConnect-GIAB", args);
+            }
+
+            setState(stateLoginFailed);
+            return false;
+        }
+
+        LL_INFOS("Voice") << "will retry login in " << LOGIN_RETRY_SECONDS << " seconds." << LL_ENDL;
+        setState(stateLoginRetryWait);
+        llcoro::suspendUntilTimeout(LOGIN_RETRY_SECONDS);
+    } while (true);
+
+    setState(stateLoggedIn);
+    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
+
+
+    // Set up the mute list observer if it hasn't been set up already.
+    if ((!sMuteListListener_listening))
+    {
+        LLMuteList::getInstance()->addObserver(&mutelist_listener);
+        sMuteListListener_listening = true;
+    }
+
+    // Set the initial state of mic mute, local speaker volume, etc.
+    sendLocalAudioUpdates();
+
+    return true;
+}
+
+bool LLVivoxVoiceClient::retrieveVoiceFonts()
+{
+    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+
+    // Request the set of available voice fonts.
+    setState(stateVoiceFontsWait);
+    refreshVoiceEffectLists(true);
+
+    LLSD result;
+    do 
+    {
+        result = llcoro::suspendUntilEventOn(voicePump);
+
+        if (result.has("voice_fonts"))
+            break;
+    } while (true);
+
+
+    mVoiceFontExpiryTimer.start();
+    mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
+
+    setState(stateNoChannel);
+
+    return result["voice_fonts"].asBoolean();
+}
+
+bool LLVivoxVoiceClient::performMicTuning(LLVivoxVoiceClient::state exitState)
+{
+    //---------------------------------------------------------------------
+    setState(stateMicTuningStart);
+
+    while (!mUpdateTimer.hasExpired())
+    {   // do not start mic tuning before the update timer has expired.
+        llcoro::suspend();
+    }
+
+    while (mTuningMode)
+    {
+
+        if (mCaptureDeviceDirty || mRenderDeviceDirty)
+        {
+            // These can't be changed while in tuning mode.  Set them before starting.
+            std::ostringstream stream;
+
+            buildSetCaptureDevice(stream);
+            buildSetRenderDevice(stream);
+
+            if (!stream.str().empty())
+            {
+                writeString(stream.str());
+            }
+
+            llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
+        }
+
+        // loop mic back to render device.
+        //setMuteMic(0);						// make sure the mic is not muted
+        std::ostringstream stream;
+
+        stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
+            << "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+            << "<Value>false</Value>"
+            << "</Request>\n\n\n";
+
+        // Dirty the mute mic state so that it will get reset when we finishing previewing
+        mMuteMicDirty = true;
+        mTuningSpeakerVolumeDirty = true;
+
+        writeString(stream.str());
+        tuningCaptureStartSendMessage(1);  // 1-loop, zero, don't loop
+
+        //---------------------------------------------------------------------
+        setState(stateMicTuningRunning);
+        llcoro::suspend();
+
+        while (mTuningMode && !mCaptureDeviceDirty && !mRenderDeviceDirty)
+        {
+            // process mic/speaker volume changes
+            if (mTuningMicVolumeDirty || mTuningSpeakerVolumeDirty)
+            {
+                std::ostringstream stream;
+
+                if (mTuningMicVolumeDirty)
+                {
+                    LL_INFOS("Voice") << "setting tuning mic level to " << mTuningMicVolume << LL_ENDL;
+                    stream
+                        << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.SetMicLevel.1\">"
+                        << "<Level>" << mTuningMicVolume << "</Level>"
+                        << "</Request>\n\n\n";
+                }
+
+                if (mTuningSpeakerVolumeDirty)
+                {
+                    stream
+                        << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.SetSpeakerLevel.1\">"
+                        << "<Level>" << mTuningSpeakerVolume << "</Level>"
+                        << "</Request>\n\n\n";
+                }
+
+                mTuningMicVolumeDirty = false;
+                mTuningSpeakerVolumeDirty = false;
+
+                if (!stream.str().empty())
+                {
+                    writeString(stream.str());
+                }
+            }
+            llcoro::suspend();
+        }
+
+        //---------------------------------------------------------------------
+        setState(stateMicTuningStop);
+
+        // transition out of mic tuning
+        tuningCaptureStopSendMessage();
+        if (mCaptureDeviceDirty || mRenderDeviceDirty)
+        {
+            llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
+        }
+    }
+
+    setState(mTuningExitState);
+
+    // if we exited just to change devices, this will keep us from re-entering too fast.
+    mUpdateTimer.start();
+    mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
+
+    //---------------------------------------------------------------------
+    setState(exitState);
+    return true;
+}
+
+//=========================================================================
 
 void LLVivoxVoiceClient::closeSocket(void)
 {
@@ -2645,10 +3270,16 @@ void LLVivoxVoiceClient::sendLocalAudioUpdates()
 
 void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &statusString, std::string &connectorHandle, std::string &versionID)
 {	
+#if 1
+    LLSD result = LLSD::emptyMap();
+#endif
+
 	if(statusCode != 0)
 	{
 		LL_WARNS("Voice") << "Connector.Create response failure: " << statusString << LL_ENDL;
+#if 0
 		setState(stateConnectorFailed);
+#endif
 		LLSD args;
 		std::stringstream errs;
 		errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
@@ -2662,6 +3293,10 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 		{
 			LLNotificationsUtil::add("NoVoiceConnect-GIAB", args);	
 		}
+
+#if 1
+        result["connector"] = LLSD::Boolean(false);
+#endif
 	}
 	else
 	{
@@ -2670,16 +3305,28 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 		mVoiceVersion.serverVersion = versionID;
 		mConnectorHandle = connectorHandle;
 		mTerminateDaemon = false;
+#if 1
+        result["connector"] = LLSD::Boolean(true);
+#else
 		if(getState() == stateConnectorStarting)
 		{
 			setState(stateConnectorStarted);
 		}
+#endif
 	}
+
+#if 1
+    LLEventPumps::instance().post("vivoxClientPump", result);
+#endif
 }
 
 void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString, std::string &accountHandle, int numberOfAliases)
 { 
-	LL_DEBUGS("Voice") << "Account.Login response (" << statusCode << "): " << statusString << LL_ENDL;
+#if 1
+    LLSD result = LLSD::emptyMap();
+#endif
+
+    LL_DEBUGS("Voice") << "Account.Login response (" << statusCode << "): " << statusString << LL_ENDL;
 	
 	// Status code of 20200 means "bad password".  We may want to special-case that at some point.
 	
@@ -2687,24 +3334,40 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 	{
 		// Login failure which is probably caused by the delay after a user's password being updated.
 		LL_INFOS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
+#if 1
+        result["login"] = LLSD::Boolean(false);
+        result["login_retry"] = LLSD::Boolean(true);
+#else
 		setState(stateLoginRetry);
+#endif
 	}
 	else if(statusCode != 0)
 	{
 		LL_WARNS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
-		setState(stateLoginFailed);
+#if 1
+        result["login"] = LLSD::Boolean(false);
+        result["login_retry"] = LLSD::Boolean(false);
+#else
+        setState(stateLoginFailed);
+#endif
 	}
 	else
 	{
 		// Login succeeded, move forward.
 		mAccountHandle = accountHandle;
 		mNumberOfAliases = numberOfAliases;
+        result["login"] = LLSD::Boolean(true);
 		// This needs to wait until the AccountLoginStateChangeEvent is received.
 //		if(getState() == stateLoggingIn)
 //		{
 //			setState(stateLoggedIn);
 //		}
 	}
+
+#if 1
+    LLEventPumps::instance().post("vivoxClientPump", result);
+#endif
+
 }
 
 void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statusCode, std::string &statusString, std::string &sessionHandle)
@@ -2910,7 +3573,7 @@ void LLVivoxVoiceClient::sessionGroupAddedEvent(std::string &sessionGroupHandle)
 {
 	LL_DEBUGS("Voice") << "handle " << sessionGroupHandle << LL_ENDL;
 	
-#if USE_SESSION_GROUPS
+#if  USE_SESSION_GROUPS
 	if(mMainSessionGroupHandle.empty())
 	{
 		// This is the first (i.e. "main") session group.  Save its handle.
@@ -5970,11 +6633,20 @@ void LLVivoxVoiceClient::sessionSetVoiceFontSendMessage(sessionState *session)
 
 void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::string &statusString)
 {
+#if 1
+    LLSD result = LLSD::emptyMap();
+
+    result["voice_fonts"] = LLSD::Boolean(true);
+
+    LLEventPumps::instance().post("vivoxClientPump", result);
+
+#else
 	// Voice font list entries were updated via addVoiceFont() during parsing.
 	if(getState() == stateVoiceFontsWait)
 	{
 		setState(stateVoiceFontsReceived);
 	}
+#endif
 
 	notifyVoiceFontObservers();
 	mVoiceFontsReceived = true;

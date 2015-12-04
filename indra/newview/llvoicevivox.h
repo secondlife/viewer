@@ -433,8 +433,8 @@ protected:
 	void connectorShutdown();	
 	void closeSocket(void);	
 	
-	void requestVoiceAccountProvision(S32 retries = 3);
-	void login(
+//	void requestVoiceAccountProvision(S32 retries = 3);
+	void setLoginInfo(
 			   const std::string& account_name,
 			   const std::string& password,
 			   const std::string& voice_sip_uri_hostname,
@@ -639,10 +639,21 @@ protected:
 
 private:
     
-    void voiceAccountProvisionCoro(std::string url, S32 retries);
+//  void voiceAccountProvisionCoro(std::string url, S32 retries);
     void parcelVoiceInfoRequestCoro(std::string url);
 
 	LLVoiceVersionInfo mVoiceVersion;
+
+    // Coroutine support methods
+    bool startAndConnectSession();
+
+    bool startAndLaunchDaemon();
+    bool provisionVoiceAccount();
+    bool establishVoiceConnection();
+    bool loginToVivox();
+    bool retrieveVoiceFonts();
+
+    bool performMicTuning(state exitState);
 
 	/// Clean up objects created during a voice session.
 	void cleanUp();

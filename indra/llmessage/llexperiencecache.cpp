@@ -396,12 +396,9 @@ void LLExperienceCache::idleCoro()
     const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds
 
     LL_INFOS("ExperienceCache") << "Launching Experience cache idle coro." << LL_ENDL;
-    LLEventTimeout timeout;
-
     do 
     {
-        timeout.eventAfter(SECS_BETWEEN_REQUESTS, LLSD());
-        llcoro::suspendUntilEventOn(timeout);
+        llcoro::suspendUntilTimeout(SECS_BETWEEN_REQUESTS);
 
         if (mEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
         {

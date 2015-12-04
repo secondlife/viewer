@@ -232,8 +232,6 @@ void LLFloaterPermsDefault::updateCapCoro(std::string url)
 
         if (!status)
         {
-            LLEventTimeout timeout;
-
             const std::string& reason = status.toString();
             // Do not display the same error more than once in a row
             if (reason != previousReason)
@@ -244,8 +242,7 @@ void LLFloaterPermsDefault::updateCapCoro(std::string url)
                 LLNotificationsUtil::add("DefaultObjectPermissions", args);
             }
 
-            timeout.eventAfter(RETRY_TIMEOUT, LLSD());
-            llcoro::suspendUntilEventOn(timeout);
+            llcoro::suspendUntilTimeout(RETRY_TIMEOUT);
             if (retryCount < MAX_HTTP_RETRIES)
                 continue;
 

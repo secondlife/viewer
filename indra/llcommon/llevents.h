@@ -217,6 +217,18 @@ public:
      * an instance without conferring @em ownership.
      */
     LLEventPump& obtain(const std::string& name);
+
+    /**
+     * Find the named LLEventPump instance. If it exists post the message to it.
+     * If the pump does not exist, do nothing.
+     * 
+     * returns the result of the LLEventPump::post. If no pump exists returns false.
+     * 
+     * This is syntactically similar to LLEventPumps::instance().post(name, message),
+     * however if the pump does not already exist it will not be created.
+     */
+    bool post(const std::string&, const LLSD&);
+
     /**
      * Flush all known LLEventPump instances
      */

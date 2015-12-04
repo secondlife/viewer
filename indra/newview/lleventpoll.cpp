@@ -197,7 +197,6 @@ namespace Details
                     // request. Calculate a timeout and wait for it to expire(sleep)
                     // before trying again.  The sleep time is increased by 5 seconds
                     // for each consecutive error.
-                    LLEventTimeout timeout;
                     ++errorCount;
 
                     F32 waitToRetry = EVENT_POLL_ERROR_RETRY_SECONDS
@@ -206,8 +205,7 @@ namespace Details
                     LL_WARNS("LLEventPollImpl") << "<" << counter << "> Retrying in " << waitToRetry <<
                         " seconds, error count is now " << errorCount << LL_ENDL;
 
-                    timeout.eventAfter(waitToRetry, LLSD());
-                    llcoro::suspendUntilEventOn(timeout);
+                    llcoro::suspendUntilTimeout(waitToRetry);
                     
                     if (mDone)
                         break;
