@@ -652,6 +652,9 @@ private:
     bool establishVoiceConnection();
     bool loginToVivox();
     bool retrieveVoiceFonts();
+    void recordingAndPlaybackMode();
+    int voiceRecordBuffer();
+    int voicePlaybackBuffer();
 
     bool performMicTuning(state exitState);
 

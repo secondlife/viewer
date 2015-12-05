@@ -1043,6 +1043,16 @@ void LLVivoxVoiceClient::stateMachine()
 #endif
 //--------------------------------------------------------------------------
 
+#if 0
+        //MARK: stateCaptureBufferPaused
+        case stateCaptureBufferPaused:
+            // moved to recordingAndPlaybackMode()
+        case stateCaptureBufferRecStart:
+        case stateCaptureBufferRecording:
+        case stateCaptureBufferPlayStart:
+        case stateCaptureBufferPlaying:
+            break;
+#else
 		//MARK: stateCaptureBufferPaused
 		case stateCaptureBufferPaused:
 			if (!mCaptureBufferMode)
@@ -1131,7 +1141,7 @@ void LLVivoxVoiceClient::stateMachine()
 				setState(stateCaptureBufferPaused);
 			}
 		break;
-
+#endif
 //-------------------------------------------------------------------------
 #if 1
         case stateConnectorStart:
@@ -1750,11 +1760,6 @@ bool LLVivoxVoiceClient::startAndConnectSession()
         // Request the set of available voice fonts.
         refreshVoiceEffectLists(true);
     }
-    else
-    {
-        // If voice effects are disabled, pretend we've received them and carry on.
-        setState(stateNoChannel);
-    }
 
 #if USE_SESSION_GROUPS			
     // create the main session group
@@ -2121,10 +2126,121 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
     mVoiceFontExpiryTimer.start();
     mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
 
-    setState(stateNoChannel);
-
     return result["voice_fonts"].asBoolean();
 }
+
+void LLVivoxVoiceClient::recordingAndPlaybackMode()
+{
+    LL_INFOS("Voice") << "In voice capture/playback mode." << LL_ENDL;
+    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+
+    while (mCaptureBufferMode)
+    {
+        setState(stateCaptureBufferPaused);
+
+        LLSD command;
+        do
+        {
+            command = llcoro::suspendUntilEventOn(voicePump);
+        } while (!command.has("recplay"));
+
+        if (command["recplay"].asString() == "quit")
+        {
+            mCaptureBufferMode = false;
+            break;
+        }
+        else if (command["recplay"].asString() == "record")
+        {
+            if (!voiceRecordBuffer())
+                break;
+        }
+        else if (command["recplay"].asString() == "playback")
+        {
+            if (!voicePlaybackBuffer())
+                break;
+        }
+    }
+
+    LL_INFOS("Voice") << "Leaving capture/playback mode." << LL_ENDL;
+    mCaptureBufferRecording = false;
+    mCaptureBufferRecorded = false;
+    mCaptureBufferPlaying = false;
+    return;
+}
+
+int LLVivoxVoiceClient::voiceRecordBuffer()
+{
+#if 0
+    // need to talk to Nat about susppendUntilEventOn(p0, p1)...
+//    static LLSD timeoutResult = LLSD().with("recplay") = LLSD::String("stop");
+    LL_INFOS("Voice") << "Recording voice buffer" << LL_ENDL;
+
+    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+    // Flag that something is recorded to allow playback.
+    mCaptureBufferRecorded = true;
+    LLEventTimeout timeout;
+
+    timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, LLSD());
+    LLSD recordResult;
+
+    do 
+    {
+        recordResult = llcoro::suspendUntilEventOn(voicePump, timeout);
+
+    } while (!recordResult.has("recplay"));
+
+    captureBufferRecordStopSendMessage();
+    mCaptureBufferRecording = false;
+
+    // Update UI, should really use a separate callback.
+    notifyVoiceFontObservers();
+
+    return (recordResult["recplay"] == "stop");
+    /*TODO expand return to move directly into play*/
+#endif
+    return false;
+}
+
+int LLVivoxVoiceClient::voicePlaybackBuffer()
+{
+#if 0
+    //MARK: stateCaptureBufferPlayStart
+        case stateCaptureBufferPlayStart:
+            captureBufferPlayStartSendMessage(mPreviewVoiceFont);
+
+            // Store the voice font being previewed, so that we know to restart if it changes.
+            mPreviewVoiceFontLast = mPreviewVoiceFont;
+
+            // Update UI, should really use a separate callback.
+            notifyVoiceFontObservers();
+
+            setState(stateCaptureBufferPlaying);
+            break;
+
+            //MARK: stateCaptureBufferPlaying
+        case stateCaptureBufferPlaying:
+            if (mCaptureBufferPlaying && mPreviewVoiceFont != mPreviewVoiceFontLast)
+            {
+                // If the preview voice font changes, restart playing with the new font.
+                setState(stateCaptureBufferPlayStart);
+            }
+            else if (!mCaptureBufferMode || !mCaptureBufferPlaying || mCaptureBufferRecording)
+            {
+                // Stop playing.
+                captureBufferPlayStopSendMessage();
+                mCaptureBufferPlaying = false;
+
+                // Update UI, should really use a separate callback.
+                notifyVoiceFontObservers();
+
+                setState(stateCaptureBufferPaused);
+            }
+            break;
+#endif
+    return true;
+}
+
+
 
 bool LLVivoxVoiceClient::performMicTuning(LLVivoxVoiceClient::state exitState)
 {
