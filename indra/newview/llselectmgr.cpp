@@ -1628,7 +1628,11 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mImageID(id) {}
 		bool apply(LLViewerObject* objectp, S32 te)
 		{
-			if (mItem)
+		    if(objectp && !objectp->permModify())
+		    {
+		        return false;
+		    }
+		    if (mItem)
 			{
 				if (te == -1) // all faces
 				{
