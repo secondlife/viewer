@@ -100,6 +100,8 @@ protected:
 	static size_t getSuffixPosition(std::string label);
 	static std::string getLodlessLabel(daeElement *element);
 
+	static std::string preprocessDAE(std::string filename);
+
 private:
 	U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
 

@@ -62,6 +62,9 @@
 #include "glh/glh_linear.h"
 #include "llmatrix4a.h"
 
+#include <regex>
+#include <boost/algorithm/string/replace.hpp>
+
 std::string colladaVersion[VERSIONTYPE_COUNT+1] = 
 {
 	"1.4.0",
@@ -845,7 +848,9 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 {
 	//no suitable slm exists, load from the .dae file
 	DAE dae;
-	domCOLLADA* dom = dae.open(filename);
+	
+	std::string fileURI = "from memory"; // set to a null device
+	domCOLLADA* dom = dae.openFromMemory(fileURI, preprocessDAE(filename).c_str());
 	
 	if (!dom)
 	{
@@ -873,7 +878,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	
 	daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
 	
-	daeDocument* doc = dae.getDoc(mFilename);
+	daeDocument* doc = dae.getDoc(fileURI);
 	if (!doc)
 	{
 		LL_WARNS() << "can't find internal doc" << LL_ENDL;
@@ -1049,6 +1054,41 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	}
 	
 	return true;
+}
+
+std::string LLDAELoader::preprocessDAE(std::string filename)
+{
+	// Open a DAE file for some preprocessing (like removing space characters in IDs), see MAINT-5678
+	std::ifstream inFile;
+	inFile.open(filename);
+	std::stringstream strStream;
+	strStream << inFile.rdbuf();
+	std::string buffer = strStream.str();
+
+	LL_INFOS() << "Preprocessing dae file to remove spaces from the names, ids, etc." << LL_ENDL;
+
+	try
+	{
+		std::regex re("\"[\\w\\.@#$-]*(\\s[\\w\\.@#$-]*)+\"");
+		std::sregex_iterator next(buffer.begin(), buffer.end(), re);
+		std::sregex_iterator end;
+		while (next != end)
+		{
+			std::smatch match = *next;
+			std::string s = match.str();
+			LL_INFOS() << s << " found" << LL_ENDL;
+			boost::replace_all(s, " ", "_");
+			LL_INFOS() << "Replacing with " << s << LL_ENDL;
+			boost::replace_all(buffer, match.str(), s);
+			next++;
+		}
+	}
+	catch (std::regex_error &)
+	{
+		LL_INFOS() << "Regex error" << LL_ENDL;
+	}
+
+	return buffer;
 }
 
 void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, domMesh* mesh, domSkin* skin)
