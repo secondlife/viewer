@@ -652,6 +652,9 @@ private:
     bool establishVoiceConnection();
     bool loginToVivox();
     bool retrieveVoiceFonts();
+
+    bool addAndJoinSession(sessionState *nextSession);
+
     void recordingAndPlaybackMode();
     int voiceRecordBuffer();
     int voicePlaybackBuffer();

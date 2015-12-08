@@ -1043,14 +1043,18 @@ void LLVivoxVoiceClient::stateMachine()
 #endif
 //--------------------------------------------------------------------------
 
-#if 0
+#if 1
+        // *TODO: Not working yet....
+
         //MARK: stateCaptureBufferPaused
         case stateCaptureBufferPaused:
             // moved to recordingAndPlaybackMode()
         case stateCaptureBufferRecStart:
         case stateCaptureBufferRecording:
+            // moved to voiceRecordBuffer()
         case stateCaptureBufferPlayStart:
         case stateCaptureBufferPlaying:
+            // moved to voicePlaybackBuffer()
             break;
 #else
 		//MARK: stateCaptureBufferPaused
@@ -1366,7 +1370,13 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else if(mCaptureBufferMode)
 			{
-				setState(stateCaptureBufferPaused);
+#if 1
+                setState(stateCaptureBufferPaused);
+                LLCoros::instance().launch("LLVivoxVoiceClient::recordingAndPlaybackMode",
+                    boost::bind(&LLVivoxVoiceClient::recordingAndPlaybackMode, this));
+#else
+                setState(stateCaptureBufferPaused);
+#endif
 			}
 			else if(checkParcelChanged() || (mNextAudioSession == NULL))
 			{
@@ -1385,6 +1395,11 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 			else if(mNextAudioSession)
 			{				
+#if 1
+                LLCoros::instance().launch("LLVivoxVoiceClient::addAndJoinSession",
+                    boost::bind(&LLVivoxVoiceClient::addAndJoinSession, this, mNextAudioSession));
+#else
+            // moved to addAndJoinSession()
 				sessionState *oldSession = mAudioSession;
 
 				mAudioSession = mNextAudioSession;
@@ -1411,10 +1426,18 @@ void LLVivoxVoiceClient::stateMachine()
 
 				notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINING);
 				setState(stateJoiningSession);
+#endif
 			}
 		break;
-			
-		//MARK: stateJoiningSession
+
+#if 1
+        case stateJoiningSession:		// waiting for session handle
+        case stateSessionJoined:		// session handle received
+            // moved to addAndJoinSession()
+            break;
+#else
+        //-------------------------------------------------------------------------
+        //MARK: stateJoiningSession
 		case stateJoiningSession:		// waiting for session handle
 			
 			// If this is true we have problem with connection to voice server (EXT-4313).
@@ -1500,7 +1523,9 @@ void LLVivoxVoiceClient::stateMachine()
 				}
 			}	
 		break;
-		
+//-------------------------------------------------------------------------
+#endif
+
 		//MARK: stateRunning
 		case stateRunning:				// steady state
 			// Disabling voice or disconnect requested.
@@ -2021,6 +2046,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     do
     {
         result = llcoro::suspendUntilEventOn(voiceConnectPump);
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } 
     while (!result.has("connector"));
 
@@ -2052,6 +2078,7 @@ bool LLVivoxVoiceClient::loginToVivox()
         do
         {
             result = llcoro::suspendUntilEventOn(voicePump);
+            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         } while (!result.has("login"));
 
         if (result["login"])
@@ -2118,6 +2145,7 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
     {
         result = llcoro::suspendUntilEventOn(voicePump);
 
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("voice_fonts"))
             break;
     } while (true);
@@ -2129,12 +2157,162 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
     return result["voice_fonts"].asBoolean();
 }
 
+
+bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
+{
+    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+
+    sessionState *oldSession = mAudioSession;
+
+    mAudioSession = nextSession;
+    mAudioSessionChanged = true;
+    if (!mAudioSession->mReconnect)
+    {
+        mNextAudioSession = NULL;
+    }
+
+    // The old session may now need to be deleted.
+    reapSession(oldSession);
+
+    if (!mAudioSession->mHandle.empty())
+    {
+        // Connect to a session by session handle
+
+        sessionMediaConnectSendMessage(mAudioSession);
+    }
+    else
+    {
+        // Connect to a session by URI
+        sessionCreateSendMessage(mAudioSession, true, false);
+    }
+
+    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINING);
+
+    setState(stateJoiningSession);
+    llcoro::suspend();
+
+    LLSD result;
+
+    if (mSpatialJoiningNum == MAX_NORMAL_JOINING_SPATIAL_NUM)
+    {
+        // Notify observers to let them know there is problem with voice
+        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
+        LL_WARNS() << "There seems to be problem with connection to voice server. Disabling voice chat abilities." << LL_ENDL;
+    }
+
+    // Increase mSpatialJoiningNum only for spatial sessions- it's normal to reach this case for
+    // example for p2p many times while waiting for response, so it can't be used to detect errors
+    if (mAudioSession && mAudioSession->mIsSpatial)
+    {
+
+        mSpatialJoiningNum++;
+    }
+
+    // joinedAudioSession() will transition from here to stateSessionJoined.
+    if (!mVoiceEnabled && mIsInitialized)
+    {
+        // User bailed out during connect -- jump straight to teardown.
+        setState(stateSessionTerminated);
+        return false;
+    }
+    else if (mSessionTerminateRequested)
+    {
+        if (mAudioSession && !mAudioSession->mHandle.empty())
+        {
+            // Only allow direct exits from this state in p2p calls (for cancelling an invite).
+            // Terminating a half-connected session on other types of calls seems to break something in the vivox gateway.
+            if (mAudioSession->mIsP2P)
+            {
+                sessionMediaDisconnectSendMessage(mAudioSession);
+                setState(stateSessionTerminated);
+                return false;
+            }
+        }
+    }
+
+    bool added(false);
+    bool joined(false);
+
+    // It appears that I need to wait for BOTH the SessionGroup.AddSession response and the SessionStateChangeEvent with state 4
+    // before continuing from this state.  They can happen in either order, and if I don't wait for both, things can get stuck.
+    // For now, the SessionGroup.AddSession response handler sets mSessionHandle and the SessionStateChangeEvent handler transitions to stateSessionJoined.
+    // This is a cheap way to make sure both have happened before proceeding.
+    do
+    {
+        result = llcoro::suspendUntilEventOn(voicePump);
+
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        if (result.has("session"))
+        {
+            std::string message = result["session"].asString();
+            if ((message == "added") || (message == "created"))
+                added = true;
+            else if (message == "joined")
+                joined = true;
+            else if (message == "failed")
+            {
+                setState(stateJoinSessionFailed);
+                return false;
+            }
+        }
+    } while (!added || !joined);
+
+    setState(stateSessionJoined);
+
+    if (mSpatialJoiningNum > 100)
+    {
+        LL_WARNS() << "There seems to be problem with connecting to a voice channel. Frames to join were " << mSpatialJoiningNum << LL_ENDL;
+    }
+
+    mSpatialJoiningNum = 0;
+    if (mAudioSession && mAudioSession->mVoiceEnabled)
+    {
+        // Dirty state that may need to be sync'ed with the daemon.
+        mMuteMicDirty = true;
+        mSpeakerVolumeDirty = true;
+        mSpatialCoordsDirty = true;
+
+        setState(stateRunning);
+
+        // Start the throttle timer
+        mUpdateTimer.start();
+        mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
+
+        // Events that need to happen when a session is joined could go here.
+        // Maybe send initial spatial data?
+        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
+
+        return true;
+    }
+    else if (!mVoiceEnabled && mIsInitialized)
+    {
+        // User bailed out during connect -- jump straight to teardown.
+        setState(stateSessionTerminated);
+        return false;
+    }
+    else if (mSessionTerminateRequested)
+    {
+        // Only allow direct exits from this state in p2p calls (for cancelling an invite).
+        // Terminating a half-connected session on other types of calls seems to break something in the vivox gateway.
+        if (mAudioSession && mAudioSession->mIsP2P)
+        {
+            sessionMediaDisconnectSendMessage(mAudioSession);
+            setState(stateSessionTerminated);
+            return false;
+        }
+    }
+    return false;
+}
+
+
+
+
 void LLVivoxVoiceClient::recordingAndPlaybackMode()
 {
     LL_INFOS("Voice") << "In voice capture/playback mode." << LL_ENDL;
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
 
-    while (mCaptureBufferMode)
+    while (true)
     {
         setState(stateCaptureBufferPaused);
 
@@ -2142,6 +2320,7 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
         do
         {
             command = llcoro::suspendUntilEventOn(voicePump);
+            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(command) << LL_ENDL;
         } while (!command.has("recplay"));
 
         if (command["recplay"].asString() == "quit")
@@ -2151,13 +2330,11 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
         }
         else if (command["recplay"].asString() == "record")
         {
-            if (!voiceRecordBuffer())
-                break;
+            voiceRecordBuffer();
         }
         else if (command["recplay"].asString() == "playback")
         {
-            if (!voicePlaybackBuffer())
-                break;
+            voicePlaybackBuffer();
         }
     }
 
@@ -2165,29 +2342,36 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
     mCaptureBufferRecording = false;
     mCaptureBufferRecorded = false;
     mCaptureBufferPlaying = false;
+
+    setState(stateNoChannel);
     return;
 }
 
 int LLVivoxVoiceClient::voiceRecordBuffer()
 {
-#if 0
-    // need to talk to Nat about susppendUntilEventOn(p0, p1)...
-//    static LLSD timeoutResult = LLSD().with("recplay") = LLSD::String("stop");
+    setState(stateCaptureBufferRecStart);
+
+    LLSD timeoutResult; 
+    timeoutResult["recplay"] = LLSD::String("stop");
+
     LL_INFOS("Voice") << "Recording voice buffer" << LL_ENDL;
 
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
-    // Flag that something is recorded to allow playback.
-    mCaptureBufferRecorded = true;
-    LLEventTimeout timeout;
+    LLEventTimeout timeout(voicePump);
+    timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, timeoutResult);
+    LLSD result;
 
-    timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, LLSD());
-    LLSD recordResult;
+    setState(stateCaptureBufferRecording);
+    captureBufferRecordStartSendMessage();
 
-    do 
+    notifyVoiceFontObservers();
+    do
     {
-        recordResult = llcoro::suspendUntilEventOn(voicePump, timeout);
+        result = llcoro::suspendUntilEventOn(voicePump);
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+    } while (!result.has("recplay"));
 
-    } while (!recordResult.has("recplay"));
+    mCaptureBufferRecorded = true;
 
     captureBufferRecordStopSendMessage();
     mCaptureBufferRecording = false;
@@ -2195,51 +2379,56 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
     // Update UI, should really use a separate callback.
     notifyVoiceFontObservers();
 
-    return (recordResult["recplay"] == "stop");
+    return true;
     /*TODO expand return to move directly into play*/
-#endif
-    return false;
 }
 
 int LLVivoxVoiceClient::voicePlaybackBuffer()
 {
-#if 0
-    //MARK: stateCaptureBufferPlayStart
-        case stateCaptureBufferPlayStart:
-            captureBufferPlayStartSendMessage(mPreviewVoiceFont);
+    setState(stateCaptureBufferPlayStart);
 
-            // Store the voice font being previewed, so that we know to restart if it changes.
-            mPreviewVoiceFontLast = mPreviewVoiceFont;
+    LLSD timeoutResult;
+    timeoutResult["recplay"] = LLSD::String("stop");
 
+    LL_INFOS("Voice") << "Playing voice buffer" << LL_ENDL;
+
+    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+    LLEventTimeout timeout(voicePump);
+    timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, timeoutResult);
+    LLSD result;
+
+    setState(stateCaptureBufferPlaying);
+    do
+    {
+        captureBufferPlayStartSendMessage(mPreviewVoiceFont);
+
+        // Store the voice font being previewed, so that we know to restart if it changes.
+        mPreviewVoiceFontLast = mPreviewVoiceFont;
+
+        do
+        {
             // Update UI, should really use a separate callback.
             notifyVoiceFontObservers();
 
-            setState(stateCaptureBufferPlaying);
-            break;
+            result = llcoro::suspendUntilEventOn(voicePump);
+            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        } while (!result.has("recplay"));
 
-            //MARK: stateCaptureBufferPlaying
-        case stateCaptureBufferPlaying:
-            if (mCaptureBufferPlaying && mPreviewVoiceFont != mPreviewVoiceFontLast)
-            {
-                // If the preview voice font changes, restart playing with the new font.
-                setState(stateCaptureBufferPlayStart);
-            }
-            else if (!mCaptureBufferMode || !mCaptureBufferPlaying || mCaptureBufferRecording)
-            {
-                // Stop playing.
-                captureBufferPlayStopSendMessage();
-                mCaptureBufferPlaying = false;
+        if (result["recplay"] == "playback")
+            continue;   // restart playback... May be a font change.
 
-                // Update UI, should really use a separate callback.
-                notifyVoiceFontObservers();
+        break;
+    } while (true);
 
-                setState(stateCaptureBufferPaused);
-            }
-            break;
-#endif
+    // Stop playing.
+    captureBufferPlayStopSendMessage();
+    mCaptureBufferPlaying = false;
+
+    // Update UI, should really use a separate callback.
+    notifyVoiceFontObservers();
+
     return true;
 }
-
 
 
 bool LLVivoxVoiceClient::performMicTuning(LLVivoxVoiceClient::state exitState)
@@ -3504,8 +3693,16 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 			session->mErrorStatusString = statusString;
 			if(session == mAudioSession)
 			{
-				setState(stateJoinSessionFailed);
-			}
+#if 1
+                LLSD vivoxevent = LLSD::emptyMap();
+
+                vivoxevent["session"] = LLSD::String("failed");
+
+                LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
+#else
+                setState(stateJoinSessionFailed);
+#endif
+            }
 			else
 			{
 				reapSession(session);
@@ -3519,6 +3716,14 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 		{
 			setSessionHandle(session, sessionHandle);
 		}
+#if 1
+        LLSD vivoxevent = LLSD::emptyMap();
+
+        vivoxevent["session"] = LLSD::String("created");
+
+        LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
+#endif
+
 	}
 }
 
@@ -3540,7 +3745,15 @@ void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, 
 			session->mErrorStatusString = statusString;
 			if(session == mAudioSession)
 			{
-				setState(stateJoinSessionFailed);
+#if 1
+                LLSD vivoxevent = LLSD::emptyMap();
+
+                vivoxevent["session"] = LLSD::String("failed");
+
+                LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
+#else
+                setState(stateJoinSessionFailed);
+#endif
 			}
 			else
 			{
@@ -3555,6 +3768,15 @@ void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, 
 		{
 			setSessionHandle(session, sessionHandle);
 		}
+
+#if 1
+        LLSD vivoxevent = LLSD::emptyMap();
+
+        vivoxevent["session"] = LLSD::String("added");
+
+        LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
+#endif
+
 	}
 }
 
@@ -3719,7 +3941,16 @@ void LLVivoxVoiceClient::joinedAudioSession(sessionState *session)
 	// This is the session we're joining.
 	if(getState() == stateJoiningSession)
 	{
+#if 1
+        LLSD vivoxevent = LLSD::emptyMap();
+
+        vivoxevent["session"] = LLSD::String("joined");
+
+        LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
+
+#else
 		setState(stateSessionJoined);
+#endif
 		
 		// Add the current user as a participant here.
 		participantState *participant = session->addParticipant(sipURIFromName(mAccountName));
@@ -3935,9 +4166,14 @@ void LLVivoxVoiceClient::accountLoginStateChangeEvent(
 
 void LLVivoxVoiceClient::mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType)
 {
+    LLSD result;
+
 	if (mediaCompletionType == "AuxBufferAudioCapture")
 	{
 		mCaptureBufferRecording = false;
+#if 1
+        result["recplay"] = "end";
+#endif
 	}
 	else if (mediaCompletionType == "AuxBufferAudioRender")
 	{
@@ -3945,12 +4181,21 @@ void LLVivoxVoiceClient::mediaCompletionEvent(std::string &sessionGroupHandle, s
 		if (--mPlayRequestCount <= 0)
 		{
 			mCaptureBufferPlaying = false;
-		}
+#if 1
+            result["recplay"] = "end";
+//          result["recplay"] = "done";
+#endif
+        }
 	}
 	else
 	{
 		LL_DEBUGS("Voice") << "Unknown MediaCompletionType: " << mediaCompletionType << LL_ENDL;
 	}
+
+#if 1
+    if (!result.isUndefined())
+        LLEventPumps::instance().post("vivoxClientPump", result);
+#endif
 }
 
 void LLVivoxVoiceClient::mediaStreamUpdatedEvent(
@@ -6906,7 +7151,16 @@ void LLVivoxVoiceClient::notifyVoiceFontObservers()
 
 void LLVivoxVoiceClient::enablePreviewBuffer(bool enable)
 {
-	mCaptureBufferMode = enable;
+    LLSD result;
+    mCaptureBufferMode = enable;
+
+    if (enable)
+        result["recplay"] = "start";
+    else
+        result["recplay"] = "quit";
+
+    LLEventPumps::instance().post("vivoxClientPump", result);
+
 	if(mCaptureBufferMode && getState() >= stateNoChannel)
 	{
 		LL_DEBUGS("Voice") << "no channel" << LL_ENDL;
@@ -6924,6 +7178,11 @@ void LLVivoxVoiceClient::recordPreviewBuffer()
 	}
 
 	mCaptureBufferRecording = true;
+#if 1
+    LLSD result;
+    result["recplay"] = "record";
+    LLEventPumps::instance().post("vivoxClientPump", result);
+#endif
 }
 
 void LLVivoxVoiceClient::playPreviewBuffer(const LLUUID& effect_id)
@@ -6944,12 +7203,24 @@ void LLVivoxVoiceClient::playPreviewBuffer(const LLUUID& effect_id)
 
 	mPreviewVoiceFont = effect_id;
 	mCaptureBufferPlaying = true;
+
+#if 1
+    LLSD result;
+    result["recplay"] = "playback";
+    LLEventPumps::instance().post("vivoxClientPump", result);
+#endif
 }
 
 void LLVivoxVoiceClient::stopPreviewBuffer()
 {
 	mCaptureBufferRecording = false;
 	mCaptureBufferPlaying = false;
+
+#if 1
+    LLSD result;
+    result["recplay"] = "quit";
+    LLEventPumps::instance().post("vivoxClientPump", result);
+#endif
 }
 
 bool LLVivoxVoiceClient::isPreviewRecording()
