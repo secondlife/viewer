@@ -2069,55 +2069,82 @@ bool LLVivoxVoiceClient::loginToVivox()
     int loginRetryCount(0);
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
 
+    bool response_ok(false);
+    bool account_login(false);
+    bool send_login(true);
+
     do 
     {
         setState(stateLoggingIn);
-        loginSendMessage();
+        if (send_login)
+            loginSendMessage();
+
+        send_login = false;
 
         LLSD result;
-        do
+
+        result = llcoro::suspendUntilEventOn(voicePump);
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+
+        if (result.has("login"))
         {
-            result = llcoro::suspendUntilEventOn(voicePump);
-            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
-        } while (!result.has("login"));
+            std::string loginresp = result["login"];
 
-        if (result["login"])
-            break;
+            if (loginresp == "retry")
+            {
+                if (!loginRetryCount)
+                {   // on first retry notify user
+                    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGIN_RETRY);
+                }
 
-        if (!loginRetryCount)
-        {   // on first retry notify user
-            notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGIN_RETRY);
+                if ((++loginRetryCount > MAX_LOGIN_RETRIES) || (!result["login_retry"]))
+                {
+                    LL_WARNS("Voice") << "too many login retries, giving up." << LL_ENDL;
+                    LLSD args;
+                    std::stringstream errs;
+                    errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
+                    args["HOSTID"] = errs.str();
+                    mTerminateDaemon = true;
+                    if (LLGridManager::getInstance()->isSystemGrid())
+                    {
+                        LLNotificationsUtil::add("NoVoiceConnect", args);
+                    }
+                    else
+                    {
+                        LLNotificationsUtil::add("NoVoiceConnect-GIAB", args);
+                    }
+
+                    setState(stateLoginFailed);
+                    return false;
+                }
+
+                response_ok = false;
+                account_login = false;
+                send_login = true;
+
+                LL_INFOS("Voice") << "will retry login in " << LOGIN_RETRY_SECONDS << " seconds." << LL_ENDL;
+                setState(stateLoginRetryWait);
+                llcoro::suspendUntilTimeout(LOGIN_RETRY_SECONDS);
+            }
+            else if (loginresp == "failed")
+            {
+                setState(stateLoginFailed);
+                return false;
+            }
+            else if (loginresp == "response_ok")
+            {
+                response_ok = true;
+            }
+            else if (loginresp == "account_login")
+            {
+                account_login = true;
+            }
         }
 
-        if ((++loginRetryCount > MAX_LOGIN_RETRIES) || (!result["login_retry"]))        
-        {
-            LL_WARNS("Voice") << "too many login retries, giving up." << LL_ENDL;
-            LLSD args;
-            std::stringstream errs;
-            errs << mVoiceAccountServerURI << "\n:UDP: 3478, 3479, 5060, 5062, 12000-17000";
-            args["HOSTID"] = errs.str();
-            mTerminateDaemon = true;
-            if (LLGridManager::getInstance()->isSystemGrid())
-            {
-                LLNotificationsUtil::add("NoVoiceConnect", args);
-            }
-            else
-            {
-                LLNotificationsUtil::add("NoVoiceConnect-GIAB", args);
-            }
-
-            setState(stateLoginFailed);
-            return false;
-        }
-
-        LL_INFOS("Voice") << "will retry login in " << LOGIN_RETRY_SECONDS << " seconds." << LL_ENDL;
-        setState(stateLoginRetryWait);
-        llcoro::suspendUntilTimeout(LOGIN_RETRY_SECONDS);
-    } while (true);
+    } while (!response_ok || !account_login);
 
     setState(stateLoggedIn);
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
-
 
     // Set up the mute list observer if it hasn't been set up already.
     if ((!sMuteListListener_listening))
@@ -3640,8 +3667,7 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 		// Login failure which is probably caused by the delay after a user's password being updated.
 		LL_INFOS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
 #if 1
-        result["login"] = LLSD::Boolean(false);
-        result["login_retry"] = LLSD::Boolean(true);
+        result["login"] = LLSD::String("retry");
 #else
 		setState(stateLoginRetry);
 #endif
@@ -3650,8 +3676,7 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 	{
 		LL_WARNS("Voice") << "Account.Login response failure (" << statusCode << "): " << statusString << LL_ENDL;
 #if 1
-        result["login"] = LLSD::Boolean(false);
-        result["login_retry"] = LLSD::Boolean(false);
+        result["login"] = LLSD::String("failed");
 #else
         setState(stateLoginFailed);
 #endif
@@ -3661,7 +3686,7 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 		// Login succeeded, move forward.
 		mAccountHandle = accountHandle;
 		mNumberOfAliases = numberOfAliases;
-        result["login"] = LLSD::Boolean(true);
+        result["login"] = LLSD::String("response_ok");
 		// This needs to wait until the AccountLoginStateChangeEvent is received.
 //		if(getState() == stateLoggingIn)
 //		{
@@ -4127,6 +4152,10 @@ void LLVivoxVoiceClient::accountLoginStateChangeEvent(
 		std::string &statusString, 
 		int state)
 {
+#if 1
+    LLSD levent = LLSD::emptyMap();
+
+#endif
 	/*
 		According to Mike S., status codes for this event are:
 		login_state_logged_out=0,
@@ -4141,12 +4170,17 @@ void LLVivoxVoiceClient::accountLoginStateChangeEvent(
 	switch(state)
 	{
 		case 1:
-		if(getState() == stateLoggingIn)
-		{
-			setState(stateLoggedIn);
-		}
-		break;
+#if 1
+            levent["login"] = LLSD::String("account_login");
 
+            LLEventPumps::instance().post("vivoxClientPump", levent);
+#else
+		    if(getState() == stateLoggingIn)
+		    {
+			    setState(stateLoggedIn);
+		    }
+#endif
+        break;
 		case 3:
 			// The user is in the process of logging out.
 			setState(stateLoggingOut);
@@ -6994,21 +7028,21 @@ void LLVivoxVoiceClient::sessionSetVoiceFontSendMessage(sessionState *session)
 
 void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::string &statusString)
 {
+    if (getState() == stateVoiceFontsWait)
+    {
 #if 1
-    LLSD result = LLSD::emptyMap();
+        // *TODO: We seem to get multiple events of this type.  Should figure a way to advance only after
+        // receiving the last one.
+        LLSD result = LLSD::emptyMap();
 
-    result["voice_fonts"] = LLSD::Boolean(true);
+        result["voice_fonts"] = LLSD::Boolean(true);
 
-    LLEventPumps::instance().post("vivoxClientPump", result);
-
+        LLEventPumps::instance().post("vivoxClientPump", result);
 #else
-	// Voice font list entries were updated via addVoiceFont() during parsing.
-	if(getState() == stateVoiceFontsWait)
-	{
-		setState(stateVoiceFontsReceived);
-	}
+        // Voice font list entries were updated via addVoiceFont() during parsing.
+        setState(stateVoiceFontsReceived);
 #endif
-
+    }
 	notifyVoiceFontObservers();
 	mVoiceFontsReceived = true;
 }
