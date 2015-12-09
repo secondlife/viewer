@@ -672,12 +672,19 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		//---------------------------------------------------------------
 		// we require the root joint be "hip" - DEV-26188
 		//---------------------------------------------------------------
-		const char* FORCED_ROOT_NAME = "hip";
-		if ( (mJoints.size() == 0 ) && ( !strstr(jointName, FORCED_ROOT_NAME) ) )
-		{
-			strncpy(error_text, line.c_str(), 127);	/* Flawfinder: ignore */
-			return E_ST_BAD_ROOT;
-		}
+        if (mJoints.size() == 0 )
+        {
+            //The root joint of the BVH file must be hip (mPelvis) or an alias of mPelvis.
+            const char* FORCED_ROOT_NAME = "hip";
+            
+            TranslationMap::iterator hip_joint = mTranslations.find( FORCED_ROOT_NAME );
+            TranslationMap::iterator root_joint = mTranslations.find( jointName );
+            if ( hip_joint == mTranslations.end() || root_joint == mTranslations.end() || root_joint->second.mOutName != hip_joint->second.mOutName )
+            {
+                strncpy(error_text, line.c_str(), 127);	/* Flawfinder: ignore */
+                return E_ST_BAD_ROOT;
+            }
+        }
 
 		
 		//----------------------------------------------------------------
