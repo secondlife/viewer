@@ -182,38 +182,12 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mSymbolPos(p.symbol_pos)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
-	
-	LLRect rect = p.rect;
 
-	// BottomRight is the default position
-	S32 left = rect.getWidth() - mSymbolSize - mSymbolHpad;
-	S32 bottom = mSymbolVpad;
-
-	switch(mSymbolPos)
-	{
-	case LLAvatarIconCtrlEnums::BOTTOM_LEFT:
-	{
-		left = mSymbolHpad;
-		bottom = mSymbolVpad;
-	}
-
-	case LLAvatarIconCtrlEnums::TOP_LEFT:
-	{
-		left = mSymbolHpad;
-		bottom = rect.getHeight() - mSymbolSize - mSymbolVpad;
-	}
-
-	case LLAvatarIconCtrlEnums::TOP_RIGHT:
-	{
-		left = rect.getWidth() - mSymbolSize - mSymbolHpad;
-		bottom = rect.getHeight() - mSymbolSize - mSymbolVpad;
-	}
-
-	case LLAvatarIconCtrlEnums::BOTTOM_RIGHT:
-		// fallthrough, is default
-	default:
-		rect.setOriginAndSize(left, bottom, mSymbolSize, mSymbolSize);
-	}
+    // don't request larger image then necessary to save gl memory,
+    // but ensure that quality is sufficient
+    LLRect rect = p.rect;
+    mMaxHeight = llmax((S32)p.min_height, rect.getHeight());
+    mMaxWidth = llmax((S32)p.min_width, rect.getWidth());
 
 	if (p.avatar_id.isProvided())
 	{
