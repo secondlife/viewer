@@ -70,7 +70,7 @@
      top="32"
      word_wrap="true"
      width="552">
-       To continue logging in to [SECOND_LIFE], you must accept the [https://id.secondlife.com/openid/login?return_to=https%3A%2F%2Fmy.secondlife.com%2Fopenid Terms of Service and Privacy Policy].
+       You will need to go to my.secondlife.com and log in to accept the Terms of Service before you can proceed. Thank you!
      </text>
     <web_browser
       trusted_content="true" 
