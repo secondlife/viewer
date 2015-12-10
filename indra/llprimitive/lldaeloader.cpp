@@ -239,7 +239,10 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 
 					// Don't share verts within the same tri, degenerate
 					//
-					if ((indices.size() % 3) && (indices[indices.size()-1] != shared_index))
+                    U32 indx_size = indices.size();
+                    U32 verts_new_tri = indx_size % 3;
+                    if ((verts_new_tri < 1 || indices[indx_size - 1] != shared_index)
+                        && (verts_new_tri < 2 || indices[indx_size - 2] != shared_index))
 					{
 						found = true;
 						indices.push_back(shared_index);
