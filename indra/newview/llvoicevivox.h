@@ -138,7 +138,7 @@ public:
 	virtual void setNonSpatialChannel(const std::string &uri,
 									  const std::string &credentials);
 	
-	virtual void setSpatialChannel(const std::string &uri,
+	virtual bool setSpatialChannel(const std::string &uri,
 								   const std::string &credentials);
 	
 	virtual void leaveNonSpatialChannel();
@@ -640,7 +640,7 @@ protected:
 private:
     
 //  void voiceAccountProvisionCoro(std::string url, S32 retries);
-    void parcelVoiceInfoRequestCoro(std::string url);
+//  void parcelVoiceInfoRequestCoro(std::string url);
 
 	LLVoiceVersionInfo mVoiceVersion;
 
@@ -653,7 +653,12 @@ private:
     bool loginToVivox();
     bool retrieveVoiceFonts();
 
+    bool requestParcelVoiceInfo(state exitState);
+
     bool addAndJoinSession(sessionState *nextSession);
+    bool terminateAudioSession(bool wait);
+
+    bool runSession(sessionState *session);
 
     void recordingAndPlaybackMode();
     int voiceRecordBuffer();
@@ -755,9 +760,11 @@ private:
 	bool checkParcelChanged(bool update = false);
 	// This should be called when the code detects we have changed parcels.
 	// It initiates the call to the server that gets the parcel channel.
+#if 0
 	bool requestParcelVoiceInfo();
-	
-	void switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
+#endif
+
+	bool switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
 	void joinSession(sessionState *session);
 	
 	std::string nameFromAvatar(LLVOAvatar *avatar);

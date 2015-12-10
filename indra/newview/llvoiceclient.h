@@ -156,7 +156,7 @@ public:
 	virtual void setNonSpatialChannel(const std::string &uri,
 									  const std::string &credentials)=0;
 	
-	virtual void setSpatialChannel(const std::string &uri,
+	virtual bool setSpatialChannel(const std::string &uri,
 								   const std::string &credentials)=0;
 	
 	virtual void leaveNonSpatialChannel()=0;
