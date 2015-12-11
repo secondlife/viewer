@@ -62,7 +62,7 @@
 #include "glh/glh_linear.h"
 #include "llmatrix4a.h"
 
-#include <regex>
+#include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 std::string colladaVersion[VERSIONTYPE_COUNT+1] = 
@@ -1060,7 +1060,7 @@ std::string LLDAELoader::preprocessDAE(std::string filename)
 {
 	// Open a DAE file for some preprocessing (like removing space characters in IDs), see MAINT-5678
 	std::ifstream inFile;
-	inFile.open(filename);
+	inFile.open(filename.c_str(), std::ios_base::in);
 	std::stringstream strStream;
 	strStream << inFile.rdbuf();
 	std::string buffer = strStream.str();
@@ -1069,12 +1069,12 @@ std::string LLDAELoader::preprocessDAE(std::string filename)
 
 	try
 	{
-		std::regex re("\"[\\w\\.@#$-]*(\\s[\\w\\.@#$-]*)+\"");
-		std::sregex_iterator next(buffer.begin(), buffer.end(), re);
-		std::sregex_iterator end;
+		boost::regex re("\"[\\w\\.@#$-]*(\\s[\\w\\.@#$-]*)+\"");
+		boost::sregex_iterator next(buffer.begin(), buffer.end(), re);
+		boost::sregex_iterator end;
 		while (next != end)
 		{
-			std::smatch match = *next;
+			boost::smatch match = *next;
 			std::string s = match.str();
 			LL_INFOS() << s << " found" << LL_ENDL;
 			boost::replace_all(s, " ", "_");
@@ -1083,7 +1083,7 @@ std::string LLDAELoader::preprocessDAE(std::string filename)
 			next++;
 		}
 	}
-	catch (std::regex_error &)
+	catch (boost::regex_error &)
 	{
 		LL_INFOS() << "Regex error" << LL_ENDL;
 	}
