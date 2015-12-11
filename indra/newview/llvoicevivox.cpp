@@ -728,8 +728,8 @@ void LLVivoxVoiceClient::stateMachine()
 			if(mTuningMode || ((mVoiceEnabled || !mIsInitialized) && !mAccountName.empty()))
 			{
 #if 1
-                LLCoros::instance().launch("LLVivoxVoiceClient::startAndConnectSession",
-                    boost::bind(&LLVivoxVoiceClient::startAndConnectSession, this));
+                LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+                    boost::bind(&LLVivoxVoiceClient::voiceControlCoro, this));
 #else
 				setState(stateStart);
 #endif
@@ -904,7 +904,11 @@ void LLVivoxVoiceClient::stateMachine()
 #endif
 //--------------------------------------------------------------------------
 
-		//MARK: stateIdle
+#if 1
+        case stateIdle:
+            break;
+#else
+        //MARK: stateIdle
 		case stateIdle:
 			// This is the idle state where we're connected to the daemon but haven't set up a connector yet.
 			if(mTuningMode)
@@ -932,7 +936,7 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 #endif
 		break;
-
+#endif
 //--------------------------------------------------------------------------
 #if 1
         case stateMicTuningStart:
@@ -1334,7 +1338,11 @@ void LLVivoxVoiceClient::stateMachine()
 			}
 		break;
 			
-		//MARK: stateRetrievingParcelVoiceInfo
+#if 1
+        case stateRetrievingParcelVoiceInfo:
+        break;
+#else
+        //MARK: stateRetrievingParcelVoiceInfo
 		case stateRetrievingParcelVoiceInfo: 
 			// wait until parcel voice info is received.
 			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
@@ -1352,9 +1360,14 @@ void LLVivoxVoiceClient::stateMachine()
 #endif
 			}
 			break;
-			
-					
-		//MARK: stateNoChannel
+#endif			
+
+#if 1
+        case stateNoChannel:
+            // moved to waitForChannel
+            break;
+#else
+            //MARK: stateNoChannel
 		case stateNoChannel:
 			LL_DEBUGS("Voice") << "State No Channel" << LL_ENDL;
 			mSpatialJoiningNum = 0;
@@ -1451,7 +1464,7 @@ void LLVivoxVoiceClient::stateMachine()
 #endif
 			}
 		break;
-
+#endif
 #if 1
         case stateJoiningSession:		// waiting for session handle
         case stateSessionJoined:		// session handle received
@@ -1798,6 +1811,21 @@ void LLVivoxVoiceClient::stateMachine()
 // calls to setState() in these are historical and used because some of the other
 // query routines will ask what state the state machine is in.
 // 
+void LLVivoxVoiceClient::voiceControlCoro()
+{
+    startAndConnectSession();
+
+    if (mTuningMode)
+    {
+        performMicTuning(stateIdle);
+    }
+    else if (mVoiceEnabled)
+    {
+        waitForChannel();
+    }
+
+}
+
 
 bool LLVivoxVoiceClient::startAndConnectSession()
 {
@@ -1823,7 +1851,7 @@ bool LLVivoxVoiceClient::startAndConnectSession()
         return false;
     }
 
-
+#if 0
     if (!loginToVivox())
     {
         setState(stateLoginFailed);
@@ -1845,6 +1873,8 @@ bool LLVivoxVoiceClient::startAndConnectSession()
 #else
     setState(stateNoChannel);
 #endif
+#endif
+    setState(stateIdle);
 
     return true;
 }
@@ -2001,8 +2031,6 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
     mLoginRetryCount = 0;
 
-    setState(stateIdle);
-
     return true;
 }
 
@@ -2079,7 +2107,6 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
 
     return true;
 }
-
 
 bool LLVivoxVoiceClient::establishVoiceConnection()
 {
@@ -2236,10 +2263,11 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
     return result["voice_fonts"].asBoolean();
 }
 
-
 bool LLVivoxVoiceClient::requestParcelVoiceInfo(state exitState)
 {
     setState(stateRetrievingParcelVoiceInfo);
+
+    LL_INFOS("Voice") << "Requesting voice info for Parcel" << LL_ENDL;
 
     LLViewerRegion * region = gAgent.getRegion();
     if (region == NULL || !region->capabilitiesReceived())
@@ -2273,8 +2301,24 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo(state exitState)
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    if (!status)
+    if (mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
     {
+        // if a terminate request has been received,
+        // bail and go to the stateSessionTerminated
+        // state.  If the cap request is still pending,
+        // the responder will check to see if we've moved
+        // to a new session and won't change any state.
+        terminateAudioSession(true);
+        return false;
+    }
+
+    if ((!status) || (mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized)))
+    {
+        if (mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
+        {
+            LL_WARNS("Voice") << "Session terminated." << LL_ENDL;
+        }
+
         LL_WARNS("Voice") << "No voice on parcel" << LL_ENDL;
         sessionTerminate();
         return false;
@@ -2315,6 +2359,8 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
 
     sessionState *oldSession = mAudioSession;
+
+    LL_INFOS("Voice") << "Adding or joining voice session " << nextSession->mHandle << LL_ENDL;
 
     mAudioSession = nextSession;
     mAudioSessionChanged = true;
@@ -2454,14 +2500,13 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
     return false;
 }
 
-
 bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
 {
-
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
 
     if (mAudioSession)
     {
+        LL_INFOS("Voice") << "Terminating current voice session " << mAudioSession->mHandle << LL_ENDL;
 
         if (!mAudioSession->mHandle.empty())
         {
@@ -2531,7 +2576,6 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
     if ((mVoiceEnabled || !mIsInitialized) && !mRelogRequested  && !LLApp::isExiting())
     {
         // Just leaving a channel, go back to stateNoChannel (the "logged in but have no channel" state).
-        setState(stateNoChannel);
         return true;
     }
 
@@ -2589,8 +2633,75 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
 #endif
 }
 
+bool LLVivoxVoiceClient::waitForChannel()
+{
+    LL_INFOS("Voice") << "Waiting for channel" << LL_ENDL;
+
+    do 
+    {
+        if (!loginToVivox())
+        {
+            setState(stateLoginFailed);
+            return false;
+        }
+
+        if (LLVoiceClient::instance().getVoiceEffectEnabled())
+        {
+            retrieveVoiceFonts();
+
+            // Request the set of available voice fonts.
+            refreshVoiceEffectLists(true);
+        }
+
+#if USE_SESSION_GROUPS			
+        // create the main session group
+        setState(stateCreatingSessionGroup);
+        sessionGroupCreateSendMessage();
+#endif
+
+        do
+        {
+            LL_INFOS("Voice") << "Waiting for channel" << LL_ENDL;
+            setState(stateNoChannel);
+            llcoro::suspend();
+
+            if (mTuningMode)
+            {
+                performMicTuning(stateNoChannel);
+            }
+            else if (mCaptureBufferMode)
+            {
+                recordingAndPlaybackMode();
+            }
+            else if (checkParcelChanged() || (mNextAudioSession == NULL))
+            {
+                // the parcel is changed, or we have no pending audio sessions,
+                // so try to request the parcel voice info
+                // if we have the cap, we move to the appropriate state
+                requestParcelVoiceInfo(stateNoChannel);
+            }
+            else if (sessionNeedsRelog(mNextAudioSession))
+            {
+                requestRelog();
+                terminateAudioSession(true);
+                break;
+            }
+            else if (mNextAudioSession)
+            {
+                runSession(mNextAudioSession);
+            }
+        } while (mVoiceEnabled && !mRelogRequested);
+
+    } while (mVoiceEnabled && mRelogRequested);
+
+    return true;
+}
+
 bool LLVivoxVoiceClient::runSession(sessionState *session)
 {
+    LL_INFOS("Voice") << "running new voice session " << session->mHandle << LL_ENDL;
+    bool doTerminate(true);
+
     if (!addAndJoinSession(session))
     {
         terminateAudioSession(true);
@@ -2648,20 +2759,22 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
         mIsInitialized = true;
         timeout.eventAfter(UPDATE_THROTTLE_SECONDS, timeoutEvent);
         LLSD result = llcoro::suspendUntilEventOn(timeout);
-
+        if (!result.has("timeout"))
+            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {   
             std::string message = result["session"];
 
             if (message == "removed")
             {
+                doTerminate = false;
                 break;
             }
-
         }
     }
 
-    terminateAudioSession(true);
+    if (doTerminate)
+        terminateAudioSession(true);
     return true;
 }
 
@@ -2701,7 +2814,6 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
     mCaptureBufferRecorded = false;
     mCaptureBufferPlaying = false;
 
-    setState(stateNoChannel);
     return;
 }
 
@@ -2791,7 +2903,7 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
 
 bool LLVivoxVoiceClient::performMicTuning(LLVivoxVoiceClient::state exitState)
 {
-    //---------------------------------------------------------------------
+    LL_INFOS("Voice") << "Entering voice tuning mode." << LL_ENDL;
     setState(stateMicTuningStart);
 
     while (!mUpdateTimer.hasExpired())
@@ -4375,16 +4487,6 @@ void LLVivoxVoiceClient::sessionRemovedEvent(
 		// Already reaped this session.
 		LL_DEBUGS("Voice") << "unknown session " << sessionHandle << " removed" << LL_ENDL;
 	}
-#if 1
-    LLSD vivoxevent = LLSD::emptyMap();
-
-    vivoxevent["session"] = LLSD::String("removed");
-
-    LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
-
-#else
-    setState(stateSessionJoined);
-#endif
 
 }
 
@@ -4459,6 +4561,16 @@ bool LLVivoxVoiceClient::sessionNeedsRelog(sessionState *session)
 void LLVivoxVoiceClient::leftAudioSession(
 	sessionState *session)
 {
+#if 1
+    if (mAudioSession == session)
+    {
+        LLSD vivoxevent = LLSD::emptyMap();
+
+        vivoxevent["session"] = LLSD::String("removed");
+
+        LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
+    }
+#else
 	if(mAudioSession == session)
 	{
 		switch(getState())
@@ -4488,6 +4600,7 @@ void LLVivoxVoiceClient::leftAudioSession(
 	else if  ( mAudioSession == NULL && (getState() == stateSessionTerminated) ){
 		setState(stateNoChannel);
 	}
+#endif
 }
 
 void LLVivoxVoiceClient::accountLoginStateChangeEvent(

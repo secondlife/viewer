@@ -645,6 +645,8 @@ private:
 	LLVoiceVersionInfo mVoiceVersion;
 
     // Coroutine support methods
+    void voiceControlCoro();
+
     bool startAndConnectSession();
 
     bool startAndLaunchDaemon();
@@ -658,6 +660,8 @@ private:
     bool addAndJoinSession(sessionState *nextSession);
     bool terminateAudioSession(bool wait);
 
+
+    bool waitForChannel();
     bool runSession(sessionState *session);
 
     void recordingAndPlaybackMode();
