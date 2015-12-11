@@ -1,5 +1,5 @@
 <linden_skeleton num_bones="106" num_collision_volumes="26" version="1.0">
-   <!--Generated with Avastar on Thu Dec 10 19:56:40 2015-->
+   <!--Generated with Avastar on Fri Dec 11 19:35:12 2015-->
    <bone aliases="hip avatar_mPelvis" end="0.000 0.000 0.084" group="SL Base" name="mPelvis" pivot="0.000000 0.000000 1.067015" pos="0.000 0.000 1.067" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base" connected="false">
       <collision_volume end="0.020 0.000 0.100" group="Collision" name="PELVIS" pos="-0.01 0 -0.02" rot="0.000000 8.00000 0.000000" scale="0.12 0.16 0.17" support="base"/>
       <collision_volume end="-0.100 0.000 0.000" group="Collision" name="BUTT" pos="-0.06 0 -0.1" rot="0.000000 0.00000 0.000000" scale="0.1 0.1 0.1" support="base"/>
@@ -64,32 +64,32 @@
                      <collision_volume end="0.000 0.100 0.000" group="Collision" name="L_LOWER_ARM" pos="0.0 0.1 0.0" rot="-3.000000 0.00000 0.000000" scale="0.04 0.14 0.04" support="base"/>
                      <bone aliases="lHand avatar_mWristLeft" connected="true" end="0.000 0.060 0.000" group="SL Base" name="mWristLeft" pivot="-0.000000 0.204846 0.000000" pos="-0.000 0.205 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
                         <collision_volume end="0.000 0.050 0.000" group="Collision" name="L_HAND" pos="0.01 0.05 0.0" rot="-3.000000 0.00000 -10.000000" scale="0.05 0.08 0.03" support="base"/>
-                        <bone end="-0.001 0.042 -0.005" group="Hand" name="mHandMiddle1Left" pivot="0.013427 0.099641 0.008427" pos="0.013 0.100 0.008" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="-0.001 0.040 -0.004" group="Hand" name="mHandMiddle2Left" pivot="-0.000987 0.041672 -0.004584" pos="-0.001 0.042 -0.005" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="-0.002 0.041 -0.003" group="Hand" name="mHandMiddle3Left" pivot="-0.001357 0.040107 -0.004114" pos="-0.001 0.040 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="-0.001 0.041 -0.004" group="Hand" name="mHandMiddle1Left" pivot="0.013427 0.099641 0.008427" pos="0.013 0.100 0.008" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="-0.001 0.049 -0.006" group="Hand" name="mHandMiddle2Left" pivot="-0.000959 0.040656 -0.004287" pos="-0.001 0.041 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="-0.002 0.033 -0.004" group="Hand" name="mHandMiddle3Left" pivot="-0.001476 0.048719 -0.005798" pos="-0.001 0.049 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="0.020 0.047 -0.006" group="Hand" name="mHandIndex1Left" pivot="0.039273 0.090347 0.010424" pos="0.039 0.090 0.010" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="0.012 0.028 -0.003" group="Hand" name="mHandIndex2Left" pivot="0.019917 0.046586 -0.005845" pos="0.020 0.047 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="0.011 0.025 -0.003" group="Hand" name="mHandIndex3Left" pivot="0.011987 0.028038 -0.003251" pos="0.012 0.028 -0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="0.019 0.042 -0.005" group="Hand" name="mHandIndex1Left" pivot="0.036416 0.091419 0.010424" pos="0.036 0.091 0.010" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="0.014 0.032 -0.004" group="Hand" name="mHandIndex2Left" pivot="0.019031 0.041504 -0.004969" pos="0.019 0.042 -0.005" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="0.011 0.025 -0.003" group="Hand" name="mHandIndex3Left" pivot="0.014330 0.032011 -0.004359" pos="0.014 0.032 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="-0.013 0.040 -0.006" group="Hand" name="mHandRing1Left" pivot="-0.010432 0.098025 0.003099" pos="-0.010 0.098 0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="-0.013 0.039 -0.006" group="Hand" name="mHandRing2Left" pivot="-0.013363 0.039558 -0.005859" pos="-0.013 0.040 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="-0.010 0.029 -0.004" group="Hand" name="mHandRing3Left" pivot="-0.013024 0.038688 -0.005691" pos="-0.013 0.039 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="-0.013 0.039 -0.005" group="Hand" name="mHandRing1Left" pivot="-0.010432 0.098025 0.003099" pos="-0.010 0.098 0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="-0.013 0.040 -0.007" group="Hand" name="mHandRing2Left" pivot="-0.013326 0.038577 -0.005495" pos="-0.013 0.039 -0.005" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="-0.010 0.028 -0.004" group="Hand" name="mHandRing3Left" pivot="-0.013398 0.039825 -0.006514" pos="-0.013 0.040 -0.007" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="-0.020 0.025 -0.004" group="Hand" name="mHandPinky1Left" pivot="-0.035119 0.095515 -0.001334" pos="-0.035 0.096 -0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="-0.015 0.018 -0.003" group="Hand" name="mHandPinky2Left" pivot="-0.020490 0.024572 -0.004103" pos="-0.020 0.025 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="-0.013 0.015 -0.002" group="Hand" name="mHandPinky3Left" pivot="-0.015238 0.018275 -0.003070" pos="-0.015 0.018 -0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="-0.020 0.024 -0.004" group="Hand" name="mHandPinky1Left" pivot="-0.035119 0.095515 -0.001334" pos="-0.035 0.096 -0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="-0.015 0.018 -0.003" group="Hand" name="mHandPinky2Left" pivot="-0.020450 0.023623 -0.003633" pos="-0.020 0.024 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="-0.013 0.016 -0.003" group="Hand" name="mHandPinky3Left" pivot="-0.015199 0.018236 -0.003472" pos="-0.015 0.018 -0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="0.030 0.028 0.000" group="Hand" name="mHandThumb1Left" pivot="0.034968 0.036950 -0.000008" pos="0.035 0.037 -0.000" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="0.019 0.025 0.000" group="Hand" name="mHandThumb2Left" pivot="0.029656 0.028295 0.000000" pos="0.030 0.028 0.000" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="0.017 0.023 0.000" group="Hand" name="mHandThumb3Left" pivot="0.019024 0.025199 0.000000" pos="0.019 0.025 0.000" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="0.028 0.030 0.001" group="Hand" name="mHandThumb1Left" pivot="0.035471 0.035681 -0.000635" pos="0.035 0.036 -0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="0.018 0.026 0.001" group="Hand" name="mHandThumb2Left" pivot="0.028355 0.029579 0.001081" pos="0.028 0.030 0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="0.016 0.024 0.001" group="Hand" name="mHandThumb3Left" pivot="0.017873 0.026014 0.000851" pos="0.018 0.026 0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                     </bone>
+				     </bone>
                   </bone>
                </bone>
             </bone>
@@ -101,29 +101,29 @@
                      <collision_volume end="0.000 -0.100 0.000" group="Collision" name="R_LOWER_ARM" pos="0.0 -0.1 0.0" rot="3.000000 0.00000 0.000000" scale="0.04 0.14 0.04" support="base"/>
                      <bone aliases="rHand avatar_mWristRight" connected="true" end="0.000 -0.060 0.000" group="SL Base" name="mWristRight" pivot="-0.000000 -0.205000 -0.000000" pos="0.000 -0.205 -0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
                         <collision_volume end="0.000 -0.050 0.000" group="Collision" name="R_HAND" pos="0.01 -0.05 0.0" rot="3.000000 0.00000 10.000000" scale="0.05 0.08 0.03" support="base"/>
-                        <bone end="-0.001 -0.042 -0.005" group="Hand" name="mHandMiddle1Right" pivot="0.013427 -0.099641 0.008427" pos="0.013 -0.100 0.008" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="-0.001 -0.040 -0.004" group="Hand" name="mHandMiddle2Right" pivot="-0.000987 -0.041672 -0.004584" pos="-0.001 -0.042 -0.005" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="-0.002 -0.041 -0.003" group="Hand" name="mHandMiddle3Right" pivot="-0.001357 -0.040107 -0.004114" pos="-0.001 -0.040 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="-0.001 -0.041 -0.004" group="Hand" name="mHandMiddle1Right" pivot="0.013427 -0.099641 0.008427" pos="0.013 -0.100 0.008" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="-0.001 -0.049 -0.006" group="Hand" name="mHandMiddle2Right" pivot="-0.000959 -0.040656 -0.004287" pos="-0.001 -0.041 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="-0.002 -0.033 -0.004" group="Hand" name="mHandMiddle3Right" pivot="-0.001476 -0.048719 -0.005798" pos="-0.001 -0.049 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="0.020 -0.047 -0.006" group="Hand" name="mHandIndex1Right" pivot="0.039273 -0.090347 0.010424" pos="0.039 -0.090 0.010" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="0.012 -0.028 -0.003" group="Hand" name="mHandIndex2Right" pivot="0.019917 -0.046586 -0.005845" pos="0.020 -0.047 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="0.011 -0.025 -0.003" group="Hand" name="mHandIndex3Right" pivot="0.011987 -0.028038 -0.003251" pos="0.012 -0.028 -0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="0.019 -0.042 -0.005" group="Hand" name="mHandIndex1Right" pivot="0.036416 -0.091419 0.010424" pos="0.036 -0.091 0.010" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="0.014 -0.032 -0.004" group="Hand" name="mHandIndex2Right" pivot="0.019031 -0.041504 -0.004969" pos="0.019 -0.042 -0.005" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="0.011 -0.025 -0.003" group="Hand" name="mHandIndex3Right" pivot="0.014330 -0.032011 -0.004359" pos="0.014 -0.032 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="-0.013 -0.040 -0.006" group="Hand" name="mHandRing1Right" pivot="-0.010432 -0.098025 0.003099" pos="-0.010 -0.098 0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="-0.013 -0.039 -0.006" group="Hand" name="mHandRing2Right" pivot="-0.013363 -0.039558 -0.005859" pos="-0.013 -0.040 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="-0.010 -0.029 -0.004" group="Hand" name="mHandRing3Right" pivot="-0.013024 -0.038688 -0.005691" pos="-0.013 -0.039 -0.006" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="-0.013 -0.039 -0.005" group="Hand" name="mHandRing1Right" pivot="-0.010432 -0.098025 0.003099" pos="-0.010 -0.098 0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="-0.013 -0.040 -0.007" group="Hand" name="mHandRing2Right" pivot="-0.013326 -0.038577 -0.005495" pos="-0.013 -0.039 -0.005" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="-0.010 -0.028 -0.004" group="Hand" name="mHandRing3Right" pivot="-0.013398 -0.039825 -0.006514" pos="-0.013 -0.040 -0.007" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="-0.020 -0.025 -0.004" group="Hand" name="mHandPinky1Right" pivot="-0.035119 -0.095515 -0.001334" pos="-0.035 -0.096 -0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="-0.015 -0.018 -0.003" group="Hand" name="mHandPinky2Right" pivot="-0.020490 -0.024572 -0.004103" pos="-0.020 -0.025 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="-0.013 -0.015 -0.002" group="Hand" name="mHandPinky3Right" pivot="-0.015238 -0.018275 -0.003070" pos="-0.015 -0.018 -0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="-0.020 -0.024 -0.004" group="Hand" name="mHandPinky1Right" pivot="-0.035119 -0.095515 -0.001334" pos="-0.035 -0.096 -0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="-0.015 -0.018 -0.003" group="Hand" name="mHandPinky2Right" pivot="-0.020450 -0.023623 -0.003633" pos="-0.020 -0.024 -0.004" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="-0.013 -0.016 -0.003" group="Hand" name="mHandPinky3Right" pivot="-0.015199 -0.018236 -0.003472" pos="-0.015 -0.018 -0.003" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
-                        <bone end="0.030 -0.028 0.000" group="Hand" name="mHandThumb1Right" pivot="0.034968 -0.036950 -0.000008" pos="0.035 -0.037 -0.000" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
-                           <bone connected="true" end="0.019 -0.025 0.000" group="Hand" name="mHandThumb2Right" pivot="0.029656 -0.028295 0.000000" pos="0.030 -0.028 0.000" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
-                              <bone connected="true" end="0.017 -0.023 0.000" group="Hand" name="mHandThumb3Right" pivot="0.019024 -0.025199 0.000000" pos="0.019 -0.025 0.000" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                        <bone end="0.028 -0.030 0.001" group="Hand" name="mHandThumb1Right" pivot="0.035471 -0.035681 -0.000635" pos="0.035 -0.036 -0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended" connected="false">
+                           <bone connected="true" end="0.018 -0.026 0.001" group="Hand" name="mHandThumb2Right" pivot="0.028355 -0.029579 0.001081" pos="0.028 -0.030 0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="true" end="0.016 -0.024 0.001" group="Hand" name="mHandThumb3Right" pivot="0.017873 -0.026014 0.000851" pos="0.018 -0.026 0.001" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                            </bone>
                         </bone>
                      </bone>
