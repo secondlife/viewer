@@ -612,9 +612,6 @@ protected:
 	// Does the actual work to get out of the audio session
 	void leaveAudioSession();
 	
-	// notifies the voice client that we've received parcel voice info
-	bool parcelVoiceInfoReceived(state requesting_state);
-	
 	friend class LLVivoxVoiceClientCapResponder;
 	
 	
@@ -655,7 +652,7 @@ private:
     bool loginToVivox();
     bool retrieveVoiceFonts();
 
-    bool requestParcelVoiceInfo(state exitState);
+    bool requestParcelVoiceInfo();
 
     bool addAndJoinSession(sessionState *nextSession);
     bool terminateAudioSession(bool wait);
@@ -839,8 +836,6 @@ private:
 	std::string mWriteString;
 	size_t		mWriteOffset;
 	
-	LLTimer		mUpdateTimer;
-	
 	BOOL		mLipSyncEnabled;
 
 	typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
@@ -935,10 +930,13 @@ private:
 	bool mCaptureBufferRecorded;	// A voice sample is captured in the buffer ready to play.
 	bool mCaptureBufferPlaying;		// A voice sample is being played.
 
-	LLTimer	mCaptureTimer;
-	LLUUID mPreviewVoiceFont;
-	LLUUID mPreviewVoiceFontLast;
-	S32 mPlayRequestCount;
+	LLTimer mCaptureTimer;
+	LLUUID  mPreviewVoiceFont;
+	LLUUID  mPreviewVoiceFontLast;
+	S32     mPlayRequestCount;
+    bool    mIsInTuningMode;
+    bool    mIsInChannel;
+    bool    mIsJoiningSession;
 };
 
 /** 
@@ -1049,6 +1047,7 @@ protected:
 	void			EndTag(const char *tag);
 	void			CharData(const char *buffer, int length);
 	LLDate			expiryTimeStampToLLDate(const std::string& vivox_ts);
+
 };
 
 
