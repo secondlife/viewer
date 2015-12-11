@@ -37,6 +37,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "lloutfitobserver.h"
+#include "lloutfitgallery.h"
 #include "lloutfitslist.h"
 #include "llpanelwearing.h"
 #include "llsaveoutfitcombobtn.h"
@@ -44,6 +45,7 @@
 #include "llviewerfoldertype.h"
 
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
+static const std::string OUTFIT_GALLERY_TAB_NAME = "outfit_gallery_tab";
 static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLPanelInjector<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
@@ -268,11 +270,15 @@ bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 
 void LLPanelOutfitsInventory::initTabPanels()
 {
+    //TODO: Add LLOutfitGallery change callback
 	mCurrentOutfitPanel = findChild<LLPanelWearing>(COF_TAB_NAME);
 	mCurrentOutfitPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
 	mMyOutfitsPanel = findChild<LLOutfitsList>(OUTFITS_TAB_NAME);
 	mMyOutfitsPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+
+    mOutfitGalleryPanel = findChild<LLOutfitGallery>(OUTFIT_GALLERY_TAB_NAME);
+    mOutfitGalleryPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
 	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));

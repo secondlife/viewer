@@ -283,7 +283,7 @@ void LLLayoutStack::removeChild(LLView* view)
 	if (embedded_panelp)
 	{
 		mPanels.erase(std::find(mPanels.begin(), mPanels.end(), embedded_panelp));
-		delete embedded_panelp;
+		//delete embedded_panelp;
 		updateFractionalSizes();
 		mNeedsLayout = true;
 	}

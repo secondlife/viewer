@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   border="true"
+   bevel_style="none"
+   follows="left|top"
+   height="169"
+   width="149"
+   name="Outfit Gallery Item"
+   layout="topleft"
+   left="0"
+   top="0"
+   >
+  <icon
+      left="0"
+      top="0"
+      layout="topleft"
+      name="preview_outfit"
+      height="149"
+      width="149"
+      follows="left|top"
+      visible="true"
+      image_name="Popup_Caution"
+    />
+  <text
+    length="1"
+    follows="left|top"
+    left="1"
+    height="10"
+    layout="topleft"
+    name="outfit_name"
+    top="150"
+    width="150">
+    Summer hipster, Pierce
+  </text>
+  <text
+    length="1"
+    follows="left|top"
+    left="1"
+    height="10"
+    layout="topleft"
+    name="outfit_worn_text"
+    top="160"
+    width="150">
+    (worn)
+  </text>
+
+</panel>
