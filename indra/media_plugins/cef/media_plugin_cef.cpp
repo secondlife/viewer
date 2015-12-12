@@ -245,7 +245,7 @@ void MediaPluginCEF::onAddressChangeCallback(std::string url)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "location_changed");
 	message.setValue("uri", url);
-	sendMessage(message);
+	sendMessage(message); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -551,7 +551,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 				else if (event == "double_click")
 				{
-					// TODO: do we need this ?
+					mLLCEFLib->mouseButton(btn, LLCEFLib::ME_MOUSE_DOUBLE_CLICK, x, y);
 				}
 				else
 				{
