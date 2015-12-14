@@ -749,6 +749,15 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
                                              FALSE /* ignore transparent */,
                                              FALSE /* ignore particles */);
 
+        if(mPick.mPickType == LLPickInfo::PICK_OBJECT)
+        {
+            if (mPick.getObject() && mPick.getObject()->isHUDAttachment())
+            {
+                mPick = savedPick;
+                return FALSE;
+            }
+        }
+
 		if ((mPick.mPickType == LLPickInfo::PICK_LAND && !mPick.mPosGlobal.isExactlyZero()) ||
 			(mPick.mObjectID.notNull()  && !mPick.mPosGlobal.isExactlyZero()))
 		{
