@@ -73,7 +73,7 @@
      joint="mFootLeft"
      position="0 0.0 0.0"
      rotation="0 0 0"
-   visible_in_first_person="true"/>
+     visible_in_first_person="true"/>
 
     <attachment_point
      id="8"
@@ -83,7 +83,7 @@
      joint="mFootRight"
      position="0 0.0 0.0"
      rotation="0 0 0"
-   visible_in_first_person="true"/>
+     visible_in_first_person="true"/>
 
     <attachment_point
      id="9"
@@ -93,7 +93,7 @@
      joint="mChest"
      position="-0.15 0 -0.1"
      rotation="0 -90 90"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="10"
@@ -103,7 +103,7 @@
      joint="mPelvis"
      position="0 0 -0.15"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="11"
@@ -113,8 +113,8 @@
      joint="mHead"
      position="0.12 0 0.001"
      rotation="0 0 0"
-   visible_in_first_person="false"/>
-
+     visible_in_first_person="false"/>
+    
     <attachment_point
      id="12"
      group="2"
@@ -123,7 +123,7 @@
      joint="mHead"
      position="0.12 0 -0.04"
      rotation="0 0 0"
-   visible_in_first_person="false" />
+     visible_in_first_person="false" />
 
     <attachment_point
      id="13"
@@ -133,7 +133,7 @@
      joint="mHead"
      position="0.015 0.08 0.017"
      rotation="0 0 0"
-   visible_in_first_person="false" />
+     visible_in_first_person="false" />
 
     <attachment_point
      id="14"
@@ -143,7 +143,7 @@
      joint="mHead"
      position="0.015 -0.08 0.017"
      rotation="0 0 0"
-   visible_in_first_person="false" />
+     visible_in_first_person="false" />
 
     <attachment_point
      id="15"
@@ -153,7 +153,7 @@
      joint="mEyeLeft"
      position="0 0 0"
      rotation="0 0 0"
-   visible_in_first_person="false"/>
+     visible_in_first_person="false"/>
 
     <attachment_point
      id="16"
@@ -163,7 +163,7 @@
      joint="mEyeRight"
      position="0 0 0"
      rotation="0 0 0"
-   visible_in_first_person="false" />
+     visible_in_first_person="false" />
 
     <attachment_point
      id="17"
@@ -173,7 +173,7 @@
      joint="mHead"
      position="0.1 0 0.05"
      rotation="0 0 0"
-   visible_in_first_person="false"/>
+     visible_in_first_person="false"/>
 
     <attachment_point
      id="18"
@@ -183,7 +183,7 @@
      joint="mShoulderRight"
      position="0.01 -0.13 0.01"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="19"
@@ -193,7 +193,7 @@
      joint="mElbowRight"
      position="0 -0.12 0"
      rotation="0 0 0"
-   visible_in_first_person="true"/>
+     visible_in_first_person="true"/>
 
     <attachment_point
      id="20"
@@ -203,7 +203,7 @@
      joint="mShoulderLeft"
      position="0.01 0.15 -0.01"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="21"
@@ -213,7 +213,7 @@
      joint="mElbowLeft"
      position="0 0.113 0"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="22"
@@ -223,7 +223,7 @@
      joint="mHipRight"
      position="0 0 0"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="23"
@@ -233,7 +233,7 @@
      joint="mHipRight"
      position="-0.017 0.041 -0.310"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="24"
@@ -243,7 +243,7 @@
      joint="mKneeRight"
      position="-0.044 -0.007 -0.262"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="25"
@@ -253,8 +253,8 @@
      joint="mHipLeft"
      position="0 0 0"
      rotation="0 0 0"
-   visible_in_first_person="true" />
-
+     visible_in_first_person="true" />
+    
     <attachment_point
      id="26"
      group="5"
@@ -263,7 +263,7 @@
      joint="mHipLeft"
      position="-0.019 -0.034 -0.310"
      rotation="0 0 0"
-   visible_in_first_person="true"/>
+     visible_in_first_person="true"/>
 
     <attachment_point
      id="27"
@@ -273,7 +273,7 @@
      joint="mKneeLeft"
      position="-0.044 -0.007 -0.261"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="28"
@@ -283,7 +283,7 @@
      joint="mPelvis"
      position="0.092 0.0 0.088"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="29"
@@ -293,7 +293,7 @@
      joint="mTorso"
      position="0.104 0.082 0.247"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
      id="30"
@@ -303,11 +303,11 @@
      joint="mTorso"
      position="0.104 -0.082 0.247"
      rotation="0 0 0"
-   visible_in_first_person="true" />
+     visible_in_first_person="true" />
 
     <attachment_point
        id="31"
-       group="8"
+       group="9"
        name="Center 2"
        joint="mScreen"
        position="0 0 0"
@@ -318,7 +318,7 @@
 
     <attachment_point
        id="32"
-       group="8"
+       group="9"
        name="Top Right"
        joint="mScreen"
        position="0 -0.5 0.5"
@@ -329,7 +329,7 @@
 
     <attachment_point
        id="33"
-       group="8"
+       group="9"
        name="Top"
        joint="mScreen"
        position="0 0 0.5"
@@ -340,7 +340,7 @@
 
     <attachment_point
        id="34"
-       group="8"
+       group="9"
        name="Top Left"
        joint="mScreen"
        position="0 0.5 0.5"
@@ -351,7 +351,7 @@
 
     <attachment_point
        id="35"
-       group="8"
+       group="9"
        name="Center"
        joint="mScreen"
        position="0 0 0"
@@ -362,7 +362,7 @@
 
     <attachment_point
        id="36"
-       group="8"
+       group="9"
        name="Bottom Left"
        joint="mScreen"
        position="0 0.5 -0.5"
@@ -373,7 +373,7 @@
 
     <attachment_point
        id="37"
-       group="8"
+       group="9"
        name="Bottom"
        joint="mScreen"
        position="0 0 -0.5"
@@ -384,7 +384,7 @@
 
     <attachment_point
        id="38"
-       group="8"
+       group="9"
        name="Bottom Right"
        joint="mScreen"
        position="0 -0.5 -0.5"
@@ -413,6 +413,140 @@
        rotation="0 0 0"
        visible_in_first_person="true" />
   	
+    <!-- BENTO ADDITIONS -->
+
+    <attachment_point
+     id="41"
+     group="8"
+     pie_slice="0"
+     name="Left Ring Finger"
+     joint="mHandRing1Left"
+     position="-0.006 0.019 -0.002"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="42"
+     group="8"
+     pie_slice="1"
+     name="Right Ring Finger"
+     joint="mHandRing1Right"
+     position="-0.006 -0.019 -0.002"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="43"
+     group="8"
+     pie_slice="2"
+     name="Tail Base"
+     joint="mTail1"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="44"
+     group="8"
+     pie_slice="3"
+     name="Tail Tip"
+     joint="mTail6"
+     position="-0.025 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="45"
+     group="8"
+     pie_slice="4"
+     name="Left Wing"
+     joint="mWing4Left"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="46"
+     group="8"
+     pie_slice="5"
+     name="Right Wing"
+     joint="mWing4Right"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="47"
+     group="8"
+     pie_slice="6"
+     name="Jaw"
+     joint="mFaceJaw"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="48"
+     group="8"
+     pie_slice="7"
+     name="Alt Left Ear"
+     joint="mFaceEarLeft"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="49"
+     group="8"
+     pie_slice="8"
+     name="Alt Right Ear"
+     joint="mFaceEarRight"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="50"
+     group="8"
+     pie_slice="9"
+     name="Alt Left Eye"
+     joint="mFaceEyeAltLeft"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="51"
+     group="8"
+     pie_slice="10"
+     name="Alt Right Eye"
+     joint="mFaceEyeAltRight"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="52"
+     group="8"
+     pie_slice="11"
+     name="Tongue"
+     joint="mFaceTongueTip"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="53"
+     group="8"
+     pie_slice="12"
+     name="Groin"
+     joint="mGroin"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <!-- END BENTO -->
+
     <param
        id="32"
        group="1"
