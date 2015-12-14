@@ -232,6 +232,14 @@ namespace tut
 		testRegex("http url with newlines", url,
 				  "XX\nhttp://www.secondlife.com/\nXX",
 				  "http://www.secondlife.com/");
+
+		testRegex("http url without tld shouldn't be decorated (1)", url,
+				  "http://test",
+				  "");
+
+		testRegex("http url without tld shouldn't be decorated (2)", url,
+				  "http://test .com",
+				  "");
 	}
 
 	template<> template<>
