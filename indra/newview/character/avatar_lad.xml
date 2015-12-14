@@ -478,6 +478,13 @@
         <bone
          name="mKneeRight"
          scale=".05 .05 .1" />
+
+        <bone name="mWingsRoot1" scale="1 0 0" offset="0 0 0" />
+        <bone name="mWingsRoot2" scale="1 0 0" offset="0 0 0" />
+        <bone name="mWingsRoot3" scale="1 0 0" offset="0 0 0" />
+		<bone name="mWing1Right" scale="0 0 0" offset="0.02 0 0" />
+		<bone name="mWing1Left"  scale="0 0 0" offset="0.02 0 0" />
+
       </param_skeleton>
     </param>
 
@@ -624,6 +631,17 @@
         <bone
          name="mKneeRight"
          scale="0.12 0.12 0" />
+
+		<bone name="mTail1" scale="0.05 0.1 0.1" />
+		<bone name="mTail2" scale="0.05 0.1 0.1" />
+		<bone name="mTail3" scale="0.05 0.1 0.1" />
+		<bone name="mTail4" scale="0.05 0.1 0.1" />
+		<bone name="mTail5" scale="0.05 0.1 0.1" />
+		<bone name="mTail6" scale="0.05 0    0" />
+
+		<bone name="mWing1Right" offset="-0.01 -0.01 0" />
+		<bone name="mWing1Left"  offset="-0.01  0.01 0" />
+
       </param_skeleton>
     </param>
 
@@ -662,6 +680,10 @@
         <bone
          name="mChest"
          scale="0.02 0.08 0" />
+
+		<bone name="mWing1Right" offset="0 -0.02 0" />
+		<bone name="mWing1Left"  offset="0 0.02 0" />
+
       </param_skeleton>
     </param>
 
@@ -693,6 +715,11 @@
          name="mHipRight"
          scale="0 0 0"
          offset="0 -.004 0" />
+
+		<bone name="mTail1" scale="0.0 0.05 0" />
+		<bone name="mTail2" scale="0.0 0.02 0" />
+		<bone name="mTail3" scale="0.0 0.01 0" />
+
       </param_skeleton>
     </param>
 
@@ -774,6 +801,17 @@
          name="mEyeRight"
          scale="0 0 0"
          offset="0 -.009 0" />
+		 
+	    <bone
+         name="mFaceEyeAltLeft"
+         scale="0 0 0 "
+         offset="0 .009 0" />
+
+        <bone
+         name="mFaceEyeAltRight"
+         scale="0 0 0 "
+         offset="0 -.009 0" />
+		 
       </param_skeleton>
     </param>
 
@@ -797,6 +835,17 @@
          name="mEyeRight"
          scale="0 0 0"
          offset="0 0 -.004" />
+		 
+        <bone
+         name="mFaceEyeAltLeft"
+         scale="0 0 0"
+         offset="0 0 .004" />
+
+        <bone
+         name="mFaceEyeAltRight"
+         scale="0 0 0"
+         offset="0 0 -.004" />
+
       </param_skeleton>
     </param>
 
@@ -820,6 +869,17 @@
          name="mEyeRight"
          scale="0 0 0"
          offset=".016 0 0" />
+
+        <bone
+         name="mFaceEyeAltLeft"
+         scale="0 0 0"
+         offset=".016 0 0" />
+
+        <bone
+         name="mFaceEyeAltRight"
+         scale="0 0 0"
+         offset=".016 0 0" />
+		
       </param_skeleton>
     </param>
 
@@ -841,6 +901,15 @@
 
         <bone
          name="mEyeRight"
+         scale="0 0 0"
+         offset=".005 0 0" />
+        <bone
+         name="mFaceEyeAltLeft"
+         scale="0 0 0"
+         offset=".005 0 0" />
+
+        <bone
+         name="mFaceEyeAltRight"
          scale="0 0 0"
          offset=".005 0 0" />
       </param_skeleton>
@@ -878,6 +947,147 @@
          name="mEyeRight"
          scale="1 1 1"
          offset="0 0 0" />
+		 
+	    <bone
+         name="mFaceEyeAltLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceEyeAltRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+		 
+        <bone
+         name="mFaceForeheadLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceForeheadRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceEyebrowOuterLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceEyebrowCenterLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceEyebrowInnerLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceEyebrowOuterRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+		 
+        <bone
+         name="mFaceEyebrowCenterRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+		 
+        <bone
+         name="mFaceEyebrowInnerRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+        
+        <bone
+         name="mFaceEyeLidUpperLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+        
+        <bone
+         name="mFaceEyeLidLowerLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+                
+        <bone
+         name="mFaceEyeLidUpperRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+        
+        <bone
+         name="mFaceEyeLidLowerRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+        
+        <bone
+         name="mFaceNoseLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+		 
+	    <bone
+         name="mFaceNoseCenter"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceoseRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceCheekUpperInnerLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceCheekUpperOuterLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceCheekUpperInnerRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceCheekUpperOuterRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceJaw"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceLipUpperLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceLipUpperRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceLipCornerLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceLipCornerRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceLipLowerLeft"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceLipLowerRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+		 
       </param_skeleton>
     </param>
 
@@ -951,6 +1161,47 @@
          name="mWristLeft"
          scale="1 1 1"
          offset="0 0 0" />
+
+		<bone name  = "mHandThumb1Right"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandThumb2Right"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandThumb3Right"  scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandIndex1Right"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandIndex2Right"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandIndex3Right"  scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandMiddle1Right" scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandMiddle2Right" scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandMiddle3Right" scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandRing1Right"   scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandRing2Right"   scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandRing3Right"   scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandPinky1Right"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandPinky2Right"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandPinky3Right"  scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandThumb1Left"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandThumb2Left"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandThumb3Left"  scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandIndex1Left"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandIndex2Left"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandIndex3Left"  scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandMiddle1Left" scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandMiddle2Left" scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandMiddle3Left" scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandRing1Left"   scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandRing2Left"   scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandRing3Left"   scale  = "1 1 1" offset = "0 0 0" />
+
+		<bone name  = "mHandPinky1Left"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandPinky2Left"  scale  = "1 1 1" offset = "0 0 0" />
+		<bone name  = "mHandPinky3Left"  scale  = "1 1 1" offset = "0 0 0" />
+
       </param_skeleton>
     </param>
 
@@ -997,6 +1248,17 @@
          name="mEyeRight"
          scale="0 0 0"
          offset="-.005 0 0" />
+		 
+        <bone
+         name="mFaceEyeAltLeft"
+         scale="0 0 0"
+         offset="-.005 0 0" />
+
+        <bone
+         name="mFaceEyeAltRight"
+         scale="0 0 0"
+         offset="-.005 0 0" />
+		 
       </param_skeleton>
     </param>
 
