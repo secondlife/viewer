@@ -2426,6 +2426,17 @@ void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 	}
 }
 
+void LLViewerMediaImpl::mouseDoubleClick(const LLVector2& texture_coords, MASK mask)
+{
+    if (mMediaSource)
+    {
+        S32 x, y;
+        scaleTextureCoords(texture_coords, &x, &y);
+
+        mouseDoubleClick(x, y, mask);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 {

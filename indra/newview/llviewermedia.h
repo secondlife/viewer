@@ -226,7 +226,8 @@ public:
 	void mouseDown(const LLVector2& texture_coords, MASK mask, S32 button = 0);
 	void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
 	void mouseMove(const LLVector2& texture_coords, MASK mask);
-	void mouseDoubleClick(S32 x,S32 y, MASK mask, S32 button = 0);
+    void mouseDoubleClick(const LLVector2& texture_coords, MASK mask);
+    void mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button = 0);
 	void scrollWheel(S32 x, S32 y, MASK mask);
 	void mouseCapture();
 	
