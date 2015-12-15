@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <linden_avatar
- version="1.0" wearable_definition_version="22"> 
+ version="2.0" wearable_definition_version="22"> 
   <!-- The wearable_definition_version is checked during asset upload. -->
   <!-- If you increment it, check indra/lib/python/indra/assetutil.py.  -->
   <skeleton

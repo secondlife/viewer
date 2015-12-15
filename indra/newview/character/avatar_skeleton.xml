@@ -1,5 +1,4 @@
-<linden_skeleton num_bones="106" num_collision_volumes="26" version="1.0">
-   <!--Generated with Avastar on Fri Dec 11 21:36:56 2015-->
+<linden_skeleton num_bones="106" num_collision_volumes="26" version="2.0">
    <bone aliases="hip avatar_mPelvis" end="0.000 0.000 0.084" group="SL Base" name="mPelvis" pivot="0.000000 0.000000 1.067015" pos="0.000 0.000 1.067" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base" connected="false">
       <collision_volume end="0.020 0.000 0.100" group="Collision" name="PELVIS" pos="-0.01 0 -0.02" rot="0.000000 8.00000 0.000000" scale="0.12 0.16 0.17" support="base"/>
       <collision_volume end="-0.100 0.000 0.000" group="Collision" name="BUTT" pos="-0.06 0 -0.1" rot="0.000000 0.00000 0.000000" scale="0.1 0.1 0.1" support="base"/>

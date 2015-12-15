@@ -118,7 +118,6 @@ U32 LLSkinningUtil::getMaxJointCount()
     U32 result = LL_MAX_JOINTS_PER_MESH_OBJECT;
     if (!sIncludeEnhancedSkeleton)
     {
-		// BENTO replace with LLAvatarAppearance::getBaseJointCount()) or equivalent 
         // BENTO - currently the remap logic does not guarantee joint count <= 52;
         // if one of the base ancestors is not rigged in a given mesh, an extended
 		// joint can still be included.
