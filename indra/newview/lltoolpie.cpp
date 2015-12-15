@@ -86,7 +86,8 @@ LLToolPie::LLToolPie()
 	mBlockClickToWalk(false),
 	mClickAction(0),
 	mClickActionBuyEnabled( gSavedSettings.getBOOL("ClickActionBuyEnabled") ),
-	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") )
+	mClickActionPayEnabled( gSavedSettings.getBOOL("ClickActionPayEnabled") ),
+	mDoubleClickTimer()
 {
 }
 
@@ -102,7 +103,12 @@ BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktyp
 
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	mMouseOutsideSlop = FALSE;
+    if (mDoubleClickTimer.getStarted())
+    {
+        mDoubleClickTimer.stop();
+    }
+
+    mMouseOutsideSlop = FALSE;
 	mMouseDownX = x;
 	mMouseDownY = y;
 
@@ -644,7 +650,15 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLViewerObject* obj = mPick.getObject();
+    if (!mDoubleClickTimer.getStarted())
+    {
+        mDoubleClickTimer.start();
+    }
+    else
+    {
+        mDoubleClickTimer.reset();
+    }
+    LLViewerObject* obj = mPick.getObject();
 	U8 click_action = final_click_action(obj);
 
 	// let media have first pass at click
@@ -737,6 +751,13 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		LL_INFOS() << "LLToolPie handleDoubleClick (becoming mouseDown)" << LL_ENDL;
 	}
+
+	if (!mDoubleClickTimer.getStarted() || (mDoubleClickTimer.getElapsedTimeF32() > 0.3f))
+	{
+	    mDoubleClickTimer.stop();
+	    return FALSE;
+	}
+	mDoubleClickTimer.stop();
 
 	if (gSavedSettings.getBOOL("DoubleClickAutoPilot"))
 	{
