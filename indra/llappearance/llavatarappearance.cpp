@@ -359,7 +359,7 @@ void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, cons
 	}
 
 	//-------------------------------------------------------------------------
-	// <linden_avatar version="1.0"> (root)
+	// <linden_avatar version="2.0"> (root)
 	//-------------------------------------------------------------------------
 	if( !root->hasName( "linden_avatar" ) )
 	{
@@ -368,7 +368,7 @@ void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, cons
 	
 	std::string version;
 	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
-	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
+	if( !root->getFastAttributeString( version_string, version ) || ((version != "1.0") && (version != "2.0")))
 	{
 		LL_ERRS() << "Invalid avatar file version: " << version << " in file: " << avatar_file_name << LL_ENDL;
 	}
@@ -557,7 +557,7 @@ BOOL LLAvatarAppearance::parseSkeletonFile(const std::string& filename)
 
 	std::string version;
 	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
-	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
+	if( !root->getFastAttributeString( version_string, version ) || ((version != "1.0") && (version != "2.0")))
 	{
 		LL_ERRS() << "Invalid avatar skeleton file version: " << version << " in file: " << filename << LL_ENDL;
 		return FALSE;
