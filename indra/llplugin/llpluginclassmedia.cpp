@@ -1090,6 +1090,11 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mAuthRealm = message.getValue("realm");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_AUTH_REQUEST);
 		}
+		else if (message_name == "file_download")
+		{
+			mFileDownloadFilename = message.getValue("filename");
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_FILE_DOWNLOAD);
+		}
 		else if(message_name == "debug_message")
 		{
 			mDebugMessageText = message.getValue("message_text");

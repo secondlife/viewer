@@ -279,6 +279,10 @@ public:
 	std::string	getHoverText() const { return mHoverText; };
 	std::string	getHoverLink() const { return mHoverLink; };
 	
+	// these are valid during MEDIA_EVENT_LINK_HOVERED 
+	std::string getFileDownloadFilename() const { return mFileDownloadFilename; }
+
+
 	const std::string& getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
 
@@ -426,6 +430,7 @@ protected:
 	std::string		mAuthRealm;
 	std::string		mHoverText;
 	std::string		mHoverLink;
+	std::string     mFileDownloadFilename;
 	
 	/////////////////////////////////////////
 	// media_time class

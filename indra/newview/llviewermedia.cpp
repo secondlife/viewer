@@ -3300,6 +3300,13 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		}
 		break;
 
+		case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
+		{
+			//llinfos << "Media event - file download requested - filename is " << self->getFileDownloadFilename() << llendl;
+			LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+		}
+		break;
+
 		case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_NAVIGATE_BEGIN, uri is: " << plugin->getNavigateURI() << LL_ENDL;

@@ -68,6 +68,7 @@ private:
 	void onNavigateURLCallback(std::string url, std::string target);
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
 	void onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle);
+	void onFileDownloadCallback(std::string filename);
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
@@ -292,6 +293,18 @@ bool MediaPluginCEF::onHTTPAuthCallback(const std::string host, const std::strin
 	return mAuthOK;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onFileDownloadCallback(const std::string filename)
+{
+	mAuthOK = false;
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "file_download");
+	message.setValue("filename", filename);
+
+	sendMessage(message);
+}
+
 void MediaPluginCEF::onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle)
 {
 	std::string name = "";
@@ -425,6 +438,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnAddressChangeCallback(boost::bind(&MediaPluginCEF::onAddressChangeCallback, this, _1));
 				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1, _2));
 				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
+				mLLCEFLib->setOnFileDownloadCallback(boost::bind(&MediaPluginCEF::onFileDownloadCallback, this, _1));
 				mLLCEFLib->setOnCursorChangedCallback(boost::bind(&MediaPluginCEF::onCursorChangedCallback, this, _1, _2));
 				mLLCEFLib->setOnRequestExitCallback(boost::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
