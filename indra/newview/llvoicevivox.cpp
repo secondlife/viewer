@@ -985,6 +985,8 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
         }
 
         mConnected = mSocket->blockingConnect(mDaemonHost);
+        if (!mConnected)
+            llcoro::suspendUntilTimeout(CONNECT_THROTTLE_SECONDS);
     }
 
     //---------------------------------------------------------------------
