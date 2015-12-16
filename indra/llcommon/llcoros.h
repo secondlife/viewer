@@ -150,6 +150,18 @@ public:
     /// get the current coro::self& for those who really really care
     static coro::self& get_self();
 
+    /**
+     * Most coroutines, most of the time, don't "consume" the events for which
+     * they're suspending. This way, an arbitrary number of listeners (whether
+     * coroutines or simple callbacks) can be registered on a particular
+     * LLEventPump, every listener responding to each of the events on that
+     * LLEventPump. But a particular coroutine can assert that it will consume
+     * each event for which it suspends. (See also llcoro::postAndSuspend(),
+     * llcoro::VoidListener)
+     */
+    static void set_consuming(bool consuming);
+    static bool get_consuming();
+
 private:
     LLCoros();
     friend class LLSingleton<LLCoros>;
@@ -159,6 +171,7 @@ private:
     struct CoroData;
     static void no_cleanup(CoroData*);
     static void toplevel(coro::self& self, CoroData* data, const callable_t& callable);
+    static CoroData& get_CoroData(const std::string& caller);
 
     S32 mStackSize;
 
@@ -178,6 +191,8 @@ private:
         const std::string mName;
         // the actual coroutine instance
         LLCoros::coro mCoro;
+        // set_consuming() state
+        bool mConsuming;
         // When the dcoroutine library calls a top-level callable, it implicitly
         // passes coro::self& as the first parameter. All our consumer code used
         // to explicitly pass coro::self& down through all levels of call stack,

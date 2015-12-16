@@ -167,7 +167,7 @@ LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requ
                  const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
 {
     // declare the future
-    boost::dcoroutines::future<LLSD> future(LLCoros::get_self());
+    boost::dcoroutines::future<LLSD_consumed> future(LLCoros::get_self());
     // make a callback that will assign a value to the future, and listen on
     // the specified LLEventPump with that callback
     std::string listenerName(listenerNameForCoro());
@@ -193,20 +193,24 @@ LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requ
                              << " about to wait on LLEventPump " << replyPump.getPump().getName()
                              << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
-    LLSD value;
+    LLSD_consumed value;
     {
         // instantiate Suspending to manage the "current" coroutine
         llcoro::Suspending suspended;
         value = *future;
     } // destroy Suspending as soon as we're back
     LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << listenerName
-                             << " resuming with " << value << LL_ENDL;
+                             << " resuming with " << value.first << LL_ENDL;
+    // immediately set consumed according to consuming
+    *value.second = LLCoros::get_consuming();
     // returning should disconnect the connection
-    return value;
+    return value.first;
 }
 
 namespace
 {
+
+typedef std::pair<LLEventWithID, bool*> LLEventWithID_consumed;
 
 /**
  * This helper is specifically for the two-pump version of suspendUntilEventOn().
@@ -227,13 +231,15 @@ public:
         mListener(listener),
         mDiscrim(discriminator)
     {}
+
     // this signature is required for an LLEventPump listener
     bool operator()(const LLSD& event)
     {
-        // our future object is defined to accept LLEventWithID
-        mListener(LLEventWithID(event, mDiscrim));
-        // don't swallow the event, let other listeners see it
-        return false;
+        bool consumed = false;
+        // our future object is defined to accept LLEventWithID_consumed
+        mListener(LLEventWithID_consumed(LLEventWithID(event, mDiscrim), &consumed));
+        // tell LLEventPump whether or not event was consumed
+        return consumed;
     }
 private:
     LISTENER mListener;
@@ -260,7 +266,7 @@ LLEventWithID postAndSuspend2(const LLSD& event,
                            const LLSD& replyPump1NamePath)
 {
     // declare the future
-    boost::dcoroutines::future<LLEventWithID> future(LLCoros::get_self());
+    boost::dcoroutines::future<LLEventWithID_consumed> future(LLCoros::get_self());
     // either callback will assign a value to this future; listen on
     // each specified LLEventPump with a callback
     std::string name(listenerNameForCoro());
@@ -289,17 +295,19 @@ LLEventWithID postAndSuspend2(const LLSD& event,
                              << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
                              << ", " << replyPump1.getPump().getName() << LL_ENDL;
     // trying to dereference ("resolve") the future makes us wait for it
-    LLEventWithID value;
+    LLEventWithID_consumed value;
     {
         // instantiate Suspending to manage "current" coroutine
         llcoro::Suspending suspended;
         value = *future;
     } // destroy Suspending as soon as we're back
     LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << name
-                             << " resuming with (" << value.first << ", " << value.second << ")"
-                             << LL_ENDL;
+                             << " resuming with (" << value.first.first
+                             << ", " << value.first.second << ")" << LL_ENDL;
+    // tell LLEventPump whether we're consuming
+    *value.second = LLCoros::get_consuming();
     // returning should disconnect both connections
-    return value;
+    return value.first;
 }
 
 LLSD errorException(const LLEventWithID& result, const std::string& desc)

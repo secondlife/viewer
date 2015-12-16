@@ -51,14 +51,32 @@ boost::thread_specific_ptr<LLCoros::CoroData>
 LLCoros::sCurrentCoro(LLCoros::no_cleanup);
 
 //static
-LLCoros::coro::self& LLCoros::get_self()
+LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
     CoroData* current = sCurrentCoro.get();
     if (! current)
     {
-        LL_ERRS("LLCoros") << "Calling get_self() from non-coroutine context!" << LL_ENDL;
+        LL_ERRS("LLCoros") << "Calling " << caller << " from non-coroutine context!" << LL_ENDL;
     }
-    return *current->mSelf;
+    return *current;
+}
+
+//static
+LLCoros::coro::self& LLCoros::get_self()
+{
+    return *get_CoroData("get_self()").mSelf;
+}
+
+//static
+void LLCoros::set_consuming(bool consuming)
+{
+    get_CoroData("set_consuming()").mConsuming = consuming;
+}
+
+//static
+bool LLCoros::get_consuming()
+{
+    return get_CoroData("get_consuming()").mConsuming;
 }
 
 llcoro::Suspending::Suspending():
@@ -245,6 +263,8 @@ LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
     // Wrap the caller's callable in our toplevel() function so we can manage
     // sCurrentCoro appropriately at startup and shutdown of each coroutine.
     mCoro(boost::bind(toplevel, _1, this, callable), stacksize),
+    // don't consume events unless specifically directed
+    mConsuming(false),
     mSelf(0)
 {
 }
