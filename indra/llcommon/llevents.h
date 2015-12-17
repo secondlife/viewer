@@ -554,12 +554,13 @@ private:
     virtual void reset();
 
 private:
-    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
-                                        const NameList& after,
-                                        const NameList& before);
     std::string mName;
 
 protected:
+    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+                                        const NameList& after,
+                                        const NameList& before);
+    
     /// implement the dispatching
     boost::shared_ptr<LLStandardSignal> mSignal;
 
@@ -598,10 +599,38 @@ public:
 };
 
 /*****************************************************************************
+ *   LLEventMailDrop
+ *****************************************************************************/
+/**
+ * LLEventMailDrop is a specialization of LLEventStream. Events are posted normally, 
+ * however if no listeners return that they have handled the event it is placed in 
+ * a list.  Subsequent attaching listeners will recieve stored events until a 
+ * listener indicates that the event has been handled.
+ */
+class LL_COMMON_API LLEventMailDrop: public LLEventPump
+{
+public:
+    LLEventMailDrop(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
+    virtual ~LLEventMailDrop() {}
+    
+    /// Post an event to all listeners
+    virtual bool post(const LLSD& event);
+    
+protected:
+    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+                                        const NameList& after,
+                                        const NameList& before);
+
+private:
+    typedef std::list<LLSD> EventList;
+    EventList mEventHistory;
+};
+
+/*****************************************************************************
 *   LLEventQueue
 *****************************************************************************/
 /**
- * LLEventQueue isa LLEventPump whose post() method defers calling registered
+ * LLEventQueue is a LLEventPump whose post() method defers calling registered
  * listeners until flush() is called.
  */
 class LL_COMMON_API LLEventQueue: public LLEventPump

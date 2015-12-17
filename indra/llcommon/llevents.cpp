@@ -508,6 +508,37 @@ bool LLEventStream::post(const LLSD& event)
 }
 
 /*****************************************************************************
+ *   LLEventMailDrop
+ *****************************************************************************/
+bool LLEventMailDrop::post(const LLSD& event)
+{
+    bool posted = LLEventPump::post(event);
+    
+    if (!posted)
+    {
+        mEventHistory.push_back(event);
+    }
+    
+    return posted;
+}
+
+LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
+                                    const LLEventListener& listener,
+                                    const NameList& after,
+                                    const NameList& before)
+{
+    LLBoundListener bndlistener = LLEventPump::listen_impl(name, listener, after, before);
+    
+    return bndlistener;
+}
+
+//    typedef std::list<LLSD> EventList;
+//    EventList mEventHistory;
+
+
+
+
+/*****************************************************************************
 *   LLEventQueue
 *****************************************************************************/
 bool LLEventQueue::post(const LLSD& event)
