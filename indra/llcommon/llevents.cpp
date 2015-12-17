@@ -57,6 +57,7 @@
 #include "stringize.h"
 #include "llerror.h"
 #include "llsdutil.h"
+#include "llcoros.h"
 #if LL_MSVC
 #pragma warning (disable : 4702)
 #endif
@@ -512,7 +513,10 @@ bool LLEventStream::post(const LLSD& event)
  *****************************************************************************/
 bool LLEventMailDrop::post(const LLSD& event)
 {
-    bool posted = LLEventStream::post(event);
+    bool posted = false;
+    
+    if (!mSignal->empty())
+        posted = LLEventStream::post(event);
     
     if (!posted)
     {   // if the event was not handled we will save it for later so that it can 
@@ -530,7 +534,7 @@ LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
 {
     if (!mEventHistory.empty())
     {
-        if (listener(mEventHistory.front()))
+        if (listener(mEventHistory.front()) || LLCoros::get_consuming())
         {
             mEventHistory.pop_front();
         }
