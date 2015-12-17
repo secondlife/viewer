@@ -471,6 +471,12 @@ class Windows_i686_Manifest(ViewerManifest):
                 self.path("wow_helper.exe")
                 self.end_prefix()
 
+        # MSVC DLLs needed for CEF and have to be in same directory as plugin
+        if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release'), dst="llplugin"):
+            self.path("msvcp120.dll")
+            self.path("msvcr120.dll")
+            self.end_prefix()
+
         # CEF files common to all configurations
         if self.prefix(src=os.path.join(os.pardir, 'packages', 'resources'), dst="llplugin"):
             self.path("cef.pak")
