@@ -512,10 +512,11 @@ bool LLEventStream::post(const LLSD& event)
  *****************************************************************************/
 bool LLEventMailDrop::post(const LLSD& event)
 {
-    bool posted = LLEventPump::post(event);
+    bool posted = LLEventStream::post(event);
     
     if (!posted)
-    {
+    {   // if the event was not handled we will save it for later so that it can 
+        // be posted to any future listeners when they attach.
         mEventHistory.push_back(event);
     }
     
@@ -527,15 +528,17 @@ LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
                                     const NameList& after,
                                     const NameList& before)
 {
-    LLBoundListener bndlistener = LLEventPump::listen_impl(name, listener, after, before);
-    
-    return bndlistener;
+    if (!mEventHistory.empty())
+    {
+        if (listener(mEventHistory.front()))
+        {
+            mEventHistory.pop_front();
+        }
+    }
+
+    return LLEventStream::listen_impl(name, listener, after, before);
+
 }
-
-//    typedef std::list<LLSD> EventList;
-//    EventList mEventHistory;
-
-
 
 
 /*****************************************************************************

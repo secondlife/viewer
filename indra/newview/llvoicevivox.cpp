@@ -220,7 +220,9 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mAvatarNameCacheConnection(),
     mIsInTuningMode(false),
     mIsInChannel(false),
-    mIsJoiningSession(false)
+    mIsJoiningSession(false),
+
+    mVivoxPump("vivoxClientPump")
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -242,6 +244,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 		// Ignoring SIGCHLD should prevent zombies from being created.  Alternately, we could use wait(), but I'd rather not do that.
 		signal(SIGCHLD, SIG_IGN);
 #endif
+
 
 	// set up state machine
 	setState(stateDisabled);
@@ -806,17 +809,17 @@ void LLVivoxVoiceClient::stateMachine()
 
 	}
 	
-	if (mAudioSessionChanged)
-	{
-		mAudioSessionChanged = false;
-		notifyParticipantObservers();
-		notifyVoiceFontObservers();
-	}
-	else if (mAudioSession && mAudioSession->mParticipantsChanged)
-	{
-		mAudioSession->mParticipantsChanged = false;
-		notifyParticipantObservers();
-	}
+// 	if (mAudioSessionChanged)
+// 	{
+// 		mAudioSessionChanged = false;
+// 		notifyParticipantObservers();
+// 		notifyVoiceFontObservers();
+// 	}
+// 	else if (mAudioSession && mAudioSession->mParticipantsChanged)
+// 	{
+// 		mAudioSession->mParticipantsChanged = false;
+// 		notifyParticipantObservers();
+// 	}
 }
 
 //=========================================================================
@@ -829,6 +832,7 @@ void LLVivoxVoiceClient::stateMachine()
 // 
 void LLVivoxVoiceClient::voiceControlCoro()
 {
+    LLCoros::set_consuming(true);
     startAndConnectSession();
 
     if (mTuningMode)
@@ -1429,6 +1433,15 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
         LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
+            if (result.has("handle"))
+            {
+                if (result["handle"] != mAudioSession->mHandle)
+                {
+                    LL_WARNS("Voice") << "Message for session handle \"" << result["handle"] << "\" while waiting for \"" << mAudioSession->mHandle << "\"." << LL_ENDL;
+                    continue;
+                }
+            }
+
             std::string message = result["session"].asString();
             if ((message == "added") || (message == "created"))
                 added = true;
@@ -1447,7 +1460,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
 
     if (mSpatialJoiningNum > 100)
     {
-        LL_WARNS() << "There seems to be problem with connecting to a voice channel. Frames to join were " << mSpatialJoiningNum << LL_ENDL;
+        LL_WARNS("Voice") << "There seems to be problem with connecting to a voice channel. Frames to join were " << mSpatialJoiningNum << LL_ENDL;
     }
 
     mSpatialJoiningNum = 0;
@@ -1465,7 +1478,6 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
 
 bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
 {
-    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
 
     if (mAudioSession)
     {
@@ -1502,6 +1514,15 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
                     LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
                     if (result.has("session"))
                     {
+                        if (result.has("handle"))
+                        {
+                            if (result["handle"] != mAudioSession->mHandle)
+                            {
+                                LL_WARNS("Voice") << "Message for session handle \"" << result["handle"] << "\" while waiting for \"" << mAudioSession->mHandle << "\"." << LL_ENDL;
+                                continue;
+                            }
+                        }
+
                         std::string message = result["session"].asString();
                         if (message == "removed")
                             break;
@@ -1529,6 +1550,8 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
     {
         LL_WARNS("Voice") << "stateSessionTerminated with NULL mAudioSession" << LL_ENDL;
     }
+
+    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
     setState(stateSessionTerminated);
 
     // Always reset the terminate request flag when we get here.
@@ -1602,6 +1625,9 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 runSession(mNextAudioSession);
             }
+
+            if (!mNextAudioSession)
+                llcoro::suspendUntilTimeout(1.0);
         } while (mVoiceEnabled && !mRelogRequested);
 
     } while (mVoiceEnabled && mRelogRequested);
@@ -1623,6 +1649,9 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
 
         return false;
     }
+
+    notifyParticipantObservers();
+    notifyVoiceFontObservers();
 
     LLSD timeoutEvent = LLSD::emptyMap();
     timeoutEvent["timeout"] = LLSD::Boolean(true);
@@ -1680,6 +1709,15 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
             LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {   
+            if (result.has("handle"))
+            {
+                if (result["handle"] != mAudioSession->mHandle)
+                {
+                    LL_WARNS("Voice") << "Message for session handle \"" << result["handle"] << "\" while waiting for \"" << mAudioSession->mHandle << "\"." << LL_ENDL;
+                    continue;
+                }
+            }
+
             std::string message = result["session"];
 
             if (message == "removed")
@@ -1687,6 +1725,12 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
                 doTerminate = false;
                 break;
             }
+        }
+    
+        if (mAudioSession && mAudioSession->mParticipantsChanged)
+        {
+            mAudioSession->mParticipantsChanged = false;
+            notifyParticipantObservers();
         }
     }
 
@@ -3038,6 +3082,7 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 			{
                 LLSD vivoxevent = LLSD::emptyMap();
 
+                vivoxevent["handle"] = LLSD::String(sessionHandle);
                 vivoxevent["session"] = LLSD::String("failed");
 
                 LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
@@ -3057,6 +3102,7 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 		}
         LLSD vivoxevent = LLSD::emptyMap();
 
+        vivoxevent["handle"] = LLSD::String(sessionHandle);
         vivoxevent["session"] = LLSD::String("created");
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
@@ -3083,6 +3129,7 @@ void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, 
 			{
                 LLSD vivoxevent = LLSD::emptyMap();
 
+                vivoxevent["handle"] = LLSD::String(sessionHandle);
                 vivoxevent["session"] = LLSD::String("failed");
 
                 LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
@@ -3103,6 +3150,7 @@ void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, 
 
         LLSD vivoxevent = LLSD::emptyMap();
 
+        vivoxevent["handle"] = LLSD::String(sessionHandle);
         vivoxevent["session"] = LLSD::String("added");
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
@@ -3273,6 +3321,7 @@ void LLVivoxVoiceClient::joinedAudioSession(sessionState *session)
 	{
         LLSD vivoxevent = LLSD::emptyMap();
 
+        vivoxevent["handle"] = LLSD::String(session->mHandle);
         vivoxevent["session"] = LLSD::String("joined");
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
@@ -3421,6 +3470,7 @@ void LLVivoxVoiceClient::leftAudioSession(
     {
         LLSD vivoxevent = LLSD::emptyMap();
 
+        vivoxevent["handle"] = LLSD::String(session->mHandle);
         vivoxevent["session"] = LLSD::String("removed");
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);

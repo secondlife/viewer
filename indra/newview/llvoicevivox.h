@@ -937,6 +937,8 @@ private:
     bool    mIsInTuningMode;
     bool    mIsInChannel;
     bool    mIsJoiningSession;
+
+    LLEventMailDrop mVivoxPump;
 };
 
 /** 

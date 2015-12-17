@@ -508,7 +508,7 @@ public:
         // at the boost::bind object itself before that happens.
         return LLEventDetail::visit_and_connect(name,
                                                 listener,
-                                                boost::bind(&LLEventPump::listen_impl,
+                                                boost::bind(&LLEventPump::listen_invoke,
                                                             this,
                                                             name,
                                                             _1,
@@ -553,7 +553,16 @@ private:
 
     virtual void reset();
 
+
+
 private:
+    LLBoundListener listen_invoke(const std::string& name, const LLEventListener& listener,
+        const NameList& after,
+        const NameList& before)
+    {
+        return this->listen_impl(name, listener, after, before);
+    }
+
     std::string mName;
 
 protected:
@@ -604,13 +613,14 @@ public:
 /**
  * LLEventMailDrop is a specialization of LLEventStream. Events are posted normally, 
  * however if no listeners return that they have handled the event it is placed in 
- * a list.  Subsequent attaching listeners will recieve stored events until a 
- * listener indicates that the event has been handled.
+ * a queue. Subsequent attaching listeners will receive stored events from the queue 
+ * until a listener indicates that the event has been handled.  In order to receive 
+ * multiple events from a mail drop the listener must disconnect and reconnect.
  */
-class LL_COMMON_API LLEventMailDrop: public LLEventPump
+class LL_COMMON_API LLEventMailDrop : public LLEventStream
 {
 public:
-    LLEventMailDrop(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
+    LLEventMailDrop(const std::string& name, bool tweak = false) : LLEventStream(name, tweak) {}
     virtual ~LLEventMailDrop() {}
     
     /// Post an event to all listeners
