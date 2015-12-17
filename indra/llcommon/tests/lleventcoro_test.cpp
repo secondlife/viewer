@@ -240,7 +240,7 @@ namespace tut
             // ... do whatever preliminary stuff must happen ...
 
             // declare the future
-            boost::dcoroutines::future<LLSD> future(self);
+            boost::dcoroutines::future<llcoro::LLSD_consumed> future(self);
             // tell the future what to suspend for
             LLTempBoundListener connection(
                 LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::dcoroutines::make_callback(future))));
@@ -248,7 +248,7 @@ namespace tut
             // attempting to dereference ("resolve") the future causes the calling
             // coroutine to suspend for it
             debug("about to suspend");
-            result = *future;
+            result = (*future).first;
             ensure("Got it", future);
         }
         END
