@@ -252,7 +252,21 @@ if (LL_TESTS)
   #    set(TEST_DEBUG on)
   
 if (LINUX)
-  
+  set(test_libs
+    ${WINDOWS_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${CURL_LIBRARIES}
+    ${LLCOMMON_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
+    ${JSONCPP_LIBRARIES}
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
+    rt
+    ${GOOGLEMOCK_LIBRARIES}
+    )
+else (LINUX)
   set(test_libs
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
@@ -266,6 +280,7 @@ if (LINUX)
     ${BOOST_CONTEXT_LIBRARY}
     ${GOOGLEMOCK_LIBRARIES}
     )
+endif(LINUX)
 
   #LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
