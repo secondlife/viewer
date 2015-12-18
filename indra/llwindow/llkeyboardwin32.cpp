@@ -258,7 +258,7 @@ void LLKeyboardWin32::scanKeyboard()
 			// *TODO: I KNOW there must be a better way of
 			// interrogating the key state than this, using async key
 			// state can cause ALL kinds of bugs - Doug
-			if (key < KEY_BUTTON0)
+            if ((key < KEY_BUTTON0) && ((key < '0') || (key > '9')))
 			{
 				// ...under windows make sure the key actually still is down.
 				// ...translate back to windows key
@@ -267,7 +267,7 @@ void LLKeyboardWin32::scanKeyboard()
 				if (!pending_key_events && !(GetAsyncKeyState(virtual_key) & 0x8000))
 				{
  					//LL_INFOS() << "Key up event missed, resetting" << LL_ENDL;
-					mKeyLevel[key] = FALSE;
+    				mKeyLevel[key] = FALSE;
 				}
 			}
 		}

@@ -352,6 +352,18 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	return true;
 }
 
+BOOL LLViewerMediaFocus::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+{
+    LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+    if (media_impl)
+    {
+        media_impl->handleKeyUpHere(key, mask);
+    }
+    return true;
+}
+
+
+
 BOOL LLViewerMediaFocus::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 {
 	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
@@ -602,4 +614,14 @@ LLUUID LLViewerMediaFocus::getControlsMediaID()
 	}
 	
 	return LLUUID::null;
+}
+
+bool LLViewerMediaFocus::wantsKeyUpKeyDown() const
+{
+    return true;
+}
+
+bool LLViewerMediaFocus::wantsReturnKey() const
+{
+    return true;
 }

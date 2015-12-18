@@ -224,19 +224,6 @@
     radio_style="false"
     width="400"
     top_pad="5"/>
-  <check_box
-    top_delta="4"
-    enabled="true"
-    follows="left|top"
-    height="14"
-    initial_value="false"
-    control_name="MediaEnablePopups"
-    label="Enable media browser pop-ups"
-    left_delta="0"
-    mouse_opaque="true"
-    name="media_popup_enabled"
-    width="400"           
-    top_pad="5"/>
   <text
      type="string"
      length="1"

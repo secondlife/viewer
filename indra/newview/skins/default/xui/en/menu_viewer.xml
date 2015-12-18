@@ -1438,7 +1438,7 @@
                  function="Floater.Show"
                  parameter="bumps" />
         </menu_item_call>
-        <menu_item_separator/>
+        <menu_item_separator/>    
         <menu_item_call
          label="About [APP_NAME]"
          name="About Second Life">
@@ -3171,7 +3171,7 @@
            shortcut="control|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
-             parameter="http://google.com"/>
+             parameter="https://callum-linden.s3.amazonaws.com/ceftests.html"/>
           </menu_item_call>
           <menu_item_call
            label="FB Connect Test"
