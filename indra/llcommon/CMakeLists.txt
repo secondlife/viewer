@@ -294,7 +294,14 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-  set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} ${GOOGLEMOCK_LIBRARIES})
+  set(test_libs llcommon 
+      ${LLCOMMON_LIBRARIES} 
+      ${WINDOWS_LIBRARIES} 
+      ${GOOGLEMOCK_LIBRARIES} 
+      ${BOOST_COROUTINE_LIBRARY} 
+      ${BOOST_CONTEXT_LIBRARY} 
+      ${BOOST_THREAD_LIBRARY} 
+      ${BOOST_SYSTEM_LIBRARY})
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
@@ -316,7 +323,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(lleventcoro "" "${test_libs};${BOOST_COROUTINE_LIBRARY};${BOOST_CONTEXT_LIBRARY};${BOOST_THREAD_LIBRARY};${BOOST_SYSTEM_LIBRARY}")
+  LL_ADD_INTEGRATION_TEST(lleventcoro "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
