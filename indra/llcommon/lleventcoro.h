@@ -76,36 +76,6 @@ private:
 namespace llcoro
 {
 
-typedef std::pair<LLSD, bool*> LLSD_consumed;
-
-/// This is an adapter for a signature like void LISTENER(const LLSD&), which
-/// isn't a valid LLEventPump listener: such listeners should return bool.
-template <typename LISTENER>
-class VoidListener
-{
-public:
-    VoidListener(const LISTENER& listener):
-        mListener(listener)
-    {}
-
-    bool operator()(const LLSD& event)
-    {
-        bool consumed = false;
-        mListener(LLSD_consumed(event, &consumed));
-        // tell upstream LLEventPump whether listener consumed
-        return consumed;
-    }
-private:
-    LISTENER mListener;
-};
-
-/// VoidListener helper function to infer the type of the LISTENER
-template <typename LISTENER>
-VoidListener<LISTENER> voidlistener(const LISTENER& listener)
-{
-    return VoidListener<LISTENER>(listener);
-}
-
 /**
  * Yield control from a coroutine for one "mainloop" tick. If your coroutine
  * runs without suspending for nontrivial time, sprinkle in calls to this

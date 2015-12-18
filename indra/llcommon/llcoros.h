@@ -30,6 +30,7 @@
 #define LL_LLCOROS_H
 
 #include <boost/dcoroutine/coroutine.hpp>
+#include <boost/dcoroutine/future.hpp>
 #include "llsingleton.h"
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/function.hpp>
@@ -162,6 +163,15 @@ public:
     static void set_consuming(bool consuming);
     static bool get_consuming();
 
+    /**
+     * Please do NOT directly use boost::dcoroutines::future! It is essential
+     * to maintain the "current" coroutine at every context switch. This
+     * Future wraps the essential boost::dcoroutines::future functionality
+     * with that maintenance.
+     */
+    template <typename T>
+    class Future;
+
 private:
     LLCoros();
     friend class LLSingleton<LLCoros>;
@@ -232,5 +242,43 @@ private:
 };
 
 } // namespace llcoro
+
+template <typename T>
+class LLCoros::Future
+{
+    typedef boost::dcoroutines::future<T> dfuture;
+
+public:
+    Future():
+        mFuture(get_self())
+    {}
+
+    typedef typename boost::dcoroutines::make_callback_result<dfuture>::type callback_t;
+
+    callback_t make_callback()
+    {
+        return boost::dcoroutines::make_callback(mFuture);
+    }
+
+    explicit operator bool() const
+    {
+        return bool(mFuture);
+    }
+
+    bool operator!() const
+    {
+        return ! mFuture;
+    }
+
+    T get()
+    {
+        // instantiate Suspending to manage the "current" coroutine
+        llcoro::Suspending suspended;
+        return *mFuture;
+    }
+
+private:
+    dfuture mFuture;
+};
 
 #endif /* ! defined(LL_LLCOROS_H) */
