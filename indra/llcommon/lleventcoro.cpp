@@ -34,12 +34,11 @@
 #include <map>
 // std headers
 // external library headers
-#include <boost/dcoroutine/coroutine.hpp>
-#include <boost/dcoroutine/future.hpp>
 // other Linden headers
 #include "llsdserialize.h"
 #include "llerror.h"
 #include "llcoros.h"
+#include "llmake.h"
 
 #include "lleventfilter.h"
 
@@ -145,6 +144,36 @@ void storeToLLSDPath(LLSD& dest, const LLSD& rawPath, const LLSD& value)
     *pdest = value;
 }
 
+/// For LLCoros::Future<LLSD>::make_callback(), the callback has a signature
+/// like void callback(LLSD), which isn't a valid LLEventPump listener: such
+/// listeners must return bool.
+template <typename LISTENER>
+class FutureListener
+{
+public:
+    // FutureListener is instantiated on the coroutine stack: the stack, in
+    // other words, that wants to suspend.
+    FutureListener(const LISTENER& listener):
+        mListener(listener),
+        // Capture the suspending coroutine's flag as a consuming or
+        // non-consuming listener.
+        mConsume(LLCoros::get_consuming())
+    {}
+
+    // operator()() is called on the main stack: the stack on which the
+    // expected event is fired.
+    bool operator()(const LLSD& event)
+    {
+        mListener(event);
+        // tell upstream LLEventPump whether listener consumed
+        return mConsume;
+    }
+
+protected:
+    LISTENER mListener;
+    bool mConsume;
+};
+
 } // anonymous
 
 void llcoro::suspend()
@@ -167,13 +196,13 @@ LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requ
                  const LLEventPumpOrPumpName& replyPump, const LLSD& replyPumpNamePath)
 {
     // declare the future
-    boost::dcoroutines::future<LLSD_consumed> future(LLCoros::get_self());
+    LLCoros::Future<LLSD> future;
     // make a callback that will assign a value to the future, and listen on
     // the specified LLEventPump with that callback
     std::string listenerName(listenerNameForCoro());
     LLTempBoundListener connection(
         replyPump.getPump().listen(listenerName,
-                                   voidlistener(boost::dcoroutines::make_callback(future))));
+                                   llmake<FutureListener>(future.make_callback())));
     // skip the "post" part if requestPump is default-constructed
     if (requestPump)
     {
@@ -192,66 +221,55 @@ LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requ
     LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << listenerName
                              << " about to wait on LLEventPump " << replyPump.getPump().getName()
                              << LL_ENDL;
-    // trying to dereference ("resolve") the future makes us wait for it
-    LLSD_consumed value;
-    {
-        // instantiate Suspending to manage the "current" coroutine
-        llcoro::Suspending suspended;
-        value = *future;
-    } // destroy Suspending as soon as we're back
+    // calling get() on the future makes us wait for it
+    LLSD value(future.get());
     LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << listenerName
-                             << " resuming with " << value.first << LL_ENDL;
-    // immediately set consumed according to consuming
-    *value.second = LLCoros::get_consuming();
+                             << " resuming with " << value << LL_ENDL;
     // returning should disconnect the connection
-    return value.first;
+    return value;
 }
 
 namespace
 {
 
-typedef std::pair<LLEventWithID, bool*> LLEventWithID_consumed;
-
 /**
- * This helper is specifically for the two-pump version of suspendUntilEventOn().
- * We use a single future object, but we want to listen on two pumps with it.
- * Since we must still adapt from (the callable constructed by)
- * boost::dcoroutines::make_callback() (void return) to provide an event
- * listener (bool return), we've adapted VoidListener for the purpose. The
- * basic idea is that we construct a distinct instance of WaitForEventOnHelper
- * -- binding different instance data -- for each of the pumps. Then, when a
- * pump delivers an LLSD value to either WaitForEventOnHelper, it can combine
- * that LLSD with its discriminator to feed the future object.
+ * This helper is specifically for postAndSuspend2(). We use a single future
+ * object, but we want to listen on two pumps with it. Since we must still
+ * adapt from the callable constructed by boost::dcoroutines::make_callback()
+ * (void return) to provide an event listener (bool return), we've adapted
+ * FutureListener for the purpose. The basic idea is that we construct a
+ * distinct instance of FutureListener2 -- binding different instance data --
+ * for each of the pumps. Then, when a pump delivers an LLSD value to either
+ * FutureListener2, it can combine that LLSD with its discriminator to feed
+ * the future object.
+ *
+ * DISCRIM is a template argument so we can use llmake() rather than
+ * having to write our own argument-deducing helper function.
  */
-template <typename LISTENER>
-class WaitForEventOnHelper
+template <typename LISTENER, typename DISCRIM>
+class FutureListener2: public FutureListener<LISTENER>
 {
+    typedef FutureListener<LISTENER> super;
+
 public:
-    WaitForEventOnHelper(const LISTENER& listener, int discriminator):
-        mListener(listener),
+    // instantiated on coroutine stack: the stack about to suspend
+    FutureListener2(const LISTENER& listener, DISCRIM discriminator):
+        super(listener),
         mDiscrim(discriminator)
     {}
 
-    // this signature is required for an LLEventPump listener
+    // called on main stack: the stack on which event is fired
     bool operator()(const LLSD& event)
     {
-        bool consumed = false;
-        // our future object is defined to accept LLEventWithID_consumed
-        mListener(LLEventWithID_consumed(LLEventWithID(event, mDiscrim), &consumed));
+        // our future object is defined to accept LLEventWithID
+        super::mListener(LLEventWithID(event, mDiscrim));
         // tell LLEventPump whether or not event was consumed
-        return consumed;
+        return super::mConsume;
     }
-private:
-    LISTENER mListener;
-    const int mDiscrim;
-};
 
-/// WaitForEventOnHelper type-inference helper
-template <typename LISTENER>
-WaitForEventOnHelper<LISTENER> wfeoh(const LISTENER& listener, int discriminator)
-{
-    return WaitForEventOnHelper<LISTENER>(listener, discriminator);
-}
+private:
+    const DISCRIM mDiscrim;
+};
 
 } // anonymous
 
@@ -266,16 +284,18 @@ LLEventWithID postAndSuspend2(const LLSD& event,
                            const LLSD& replyPump1NamePath)
 {
     // declare the future
-    boost::dcoroutines::future<LLEventWithID_consumed> future(LLCoros::get_self());
+    LLCoros::Future<LLEventWithID> future;
     // either callback will assign a value to this future; listen on
     // each specified LLEventPump with a callback
     std::string name(listenerNameForCoro());
     LLTempBoundListener connection0(
-        replyPump0.getPump().listen(name + "a",
-                                    wfeoh(boost::dcoroutines::make_callback(future), 0)));
+        replyPump0.getPump().listen(
+            name + "a",
+            llmake<FutureListener2>(future.make_callback(), 0)));
     LLTempBoundListener connection1(
-        replyPump1.getPump().listen(name + "b",
-                                    wfeoh(boost::dcoroutines::make_callback(future), 1)));
+        replyPump1.getPump().listen(
+            name + "b",
+            llmake<FutureListener2>(future.make_callback(), 1)));
     // skip the "post" part if requestPump is default-constructed
     if (requestPump)
     {
@@ -294,20 +314,13 @@ LLEventWithID postAndSuspend2(const LLSD& event,
     LL_DEBUGS("lleventcoro") << "postAndSuspend2(): coroutine " << name
                              << " about to wait on LLEventPumps " << replyPump0.getPump().getName()
                              << ", " << replyPump1.getPump().getName() << LL_ENDL;
-    // trying to dereference ("resolve") the future makes us wait for it
-    LLEventWithID_consumed value;
-    {
-        // instantiate Suspending to manage "current" coroutine
-        llcoro::Suspending suspended;
-        value = *future;
-    } // destroy Suspending as soon as we're back
+    // calling get() on the future makes us wait for it
+    LLEventWithID value(future.get());
     LL_DEBUGS("lleventcoro") << "postAndSuspend(): coroutine " << name
-                             << " resuming with (" << value.first.first
-                             << ", " << value.first.second << ")" << LL_ENDL;
-    // tell LLEventPump whether we're consuming
-    *value.second = LLCoros::get_consuming();
+                             << " resuming with (" << value.first << ", " << value.second << ")"
+                             << LL_ENDL;
     // returning should disconnect both connections
-    return value.first;
+    return value;
 }
 
 LLSD errorException(const LLEventWithID& result, const std::string& desc)
