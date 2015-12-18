@@ -153,7 +153,7 @@ public:
 	static void removeCookie(const std::string &name, const std::string &domain, const std::string &path = std::string("/") );
 
 	static void openIDSetup(const std::string &openid_url, const std::string &openid_token);
-	static void openIDCookieResponse(const std::string &cookie);
+	static void openIDCookieResponse(const std::string& url, const std::string &cookie);
 	
 	static void proxyWindowOpened(const std::string &target, const std::string &uuid);
 	static void proxyWindowClosed(const std::string &uuid);
@@ -167,7 +167,8 @@ public:
     static LLCore::HttpHeaders::ptr_t getHttpHeaders();
 	
 private:
-	static void setOpenIDCookie();
+	static bool parseRawCookie(const std::string raw_cookie, std::string& name, std::string& value, std::string& path, bool& httponly, bool& secure);
+	static void setOpenIDCookie(const std::string& url);
 	static void onTeleportFinished();
 
     static void openIDSetupCoro(std::string openidUrl, std::string openidToken);
@@ -231,7 +232,8 @@ public:
 	void mouseDown(const LLVector2& texture_coords, MASK mask, S32 button = 0);
 	void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
 	void mouseMove(const LLVector2& texture_coords, MASK mask);
-	void mouseDoubleClick(S32 x,S32 y, MASK mask, S32 button = 0);
+    void mouseDoubleClick(const LLVector2& texture_coords, MASK mask);
+    void mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button = 0);
 	void scrollWheel(S32 x, S32 y, MASK mask);
 	void mouseCapture();
 	
@@ -244,6 +246,7 @@ public:
 	void navigateInternal();
 	void navigateStop();
 	bool handleKeyHere(KEY key, MASK mask);
+	bool handleKeyUpHere(KEY key, MASK mask);
 	bool handleUnicodeCharHere(llwchar uni_char);
 	bool canNavigateForward();
 	bool canNavigateBack();
