@@ -203,6 +203,25 @@ set_source_files_properties(${llmessage_HEADER_FILES}
 list(APPEND llmessage_SOURCE_FILES ${llmessage_HEADER_FILES})
 
 add_library (llmessage ${llmessage_SOURCE_FILES})
+
+if (LINUX)
+target_link_libraries(
+  llmessage
+  ${CURL_LIBRARIES}
+  ${LLCOMMON_LIBRARIES}
+  ${LLVFS_LIBRARIES}
+  ${LLMATH_LIBRARIES}
+  ${JSONCPP_LIBRARIES}
+  ${OPENSSL_LIBRARIES}
+  ${CRYPTO_LIBRARIES}
+  ${XMLRPCEPI_LIBRARIES}
+  ${LLCOREHTTP_LIBRARIES}
+  ${BOOST_COROUTINE_LIBRARY}
+  ${BOOST_CONTEXT_LIBRARY}
+  ${BOOST_SYSTEM_LIBRARY}
+  rt
+  )
+else (LINUX)
 target_link_libraries(
   llmessage
   ${CURL_LIBRARIES}
@@ -218,6 +237,7 @@ target_link_libraries(
   ${BOOST_CONTEXT_LIBRARY}
   ${BOOST_SYSTEM_LIBRARY}
   )
+endif(LINUX)
 
 # tests
 if (LL_TESTS)
@@ -230,6 +250,8 @@ if (LL_TESTS)
 
   
   #    set(TEST_DEBUG on)
+  
+if (LINUX)
   
   set(test_libs
     ${WINDOWS_LIBRARIES}
