@@ -327,7 +327,8 @@ static LLDefaultChildRegistry::Register<LLOutfitGalleryItem> r("outfit_gallery_i
 
 LLOutfitGalleryItem::LLOutfitGalleryItem(const Params& p)
     : LLPanel(p),
-    mTexturep(NULL)
+    mTexturep(NULL),
+    mSelected(false)
 {
     buildFromFile("panel_outfit_gallery_item.xml");
 }
@@ -343,6 +344,8 @@ BOOL LLOutfitGalleryItem::postBuild()
 
     mOutfitNameText = getChild<LLTextBox>("outfit_name");
     mOutfitWornText = getChild<LLTextBox>("outfit_worn_text");
+    mFotoBgPanel = getChild<LLPanel>("foto_bg_panel");
+    mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     setOutfitWorn(false);
     return TRUE;
 }
@@ -351,35 +354,32 @@ void LLOutfitGalleryItem::draw()
 {
     LLPanel::draw();
 
-    // In case texture is not set, don't draw it over default image
-    if (!mTexturep)
-    {
-        return;
-    }
-
-    // Border
+    
+    // Draw border
+    LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "FrogGreen" : "MouseGray", LLColor4::white);
     LLRect border = getChildView("preview_outfit")->getRect();
-    //gl_rect_2d(border, LLColor4::black, FALSE);
-
-
-    // Interior
-    LLRect interior = border;
-    //interior.stretch(-1);
+    border.mRight = border.mRight + 1;
+    gl_rect_2d(border, border_color.get(), FALSE);
 
     // If the floater is focused, don't apply its alpha to the texture (STORM-677).
     const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
     if (mTexturep)
     {
-        if (mTexturep->getComponents() == 4)
-        {
-            gl_rect_2d_checkerboard(interior, alpha);
-        }
+        //if (mTexturep->getComponents() == 4)
+        //{
+        //    gl_rect_2d_checkerboard(interior, alpha);
+        //}
 
-        gl_draw_scaled_image(interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
+        // Interior
+        LLRect interior = border;
+        interior.stretch(-1);
+
+        gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
 
         // Pump the priority
         mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
     }
+    
 }
 
 void LLOutfitGalleryItem::setOutfitName(std::string name)
@@ -404,14 +404,8 @@ void LLOutfitGalleryItem::setOutfitWorn(bool value)
 
 void LLOutfitGalleryItem::setSelected(bool value)
 {
-    if (value)
-    {
-        mOutfitWornText->setValue("(selected)");
-    }
-    else
-    {
-        mOutfitWornText->setValue("");
-    }
+    mSelected = value;
+    mTextBgPanel->setBackgroundVisible(value);
 }
 
 BOOL LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)

@@ -147,6 +147,9 @@ private:
     LLPointer<LLViewerTexture> mTexturep;
     LLTextBox* mOutfitNameText;
     LLTextBox* mOutfitWornText;
+    LLPanel* mTextBgPanel;
+    LLPanel* mFotoBgPanel;
+    bool     mSelected;
 };
 
 #endif  // LL_LLOUTFITGALLERYCTRL_H
