@@ -7,7 +7,7 @@
 		none
 	</defaultwidget>
 	<defaultimpl>
-		media_plugin_webkit
+		media_plugin_cef
 	</defaultimpl>
 	<widgetset name="web">
 		<label name="web_label">
@@ -141,7 +141,7 @@
 			none
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="none/none">
@@ -152,7 +152,7 @@
 			none
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="audio/*">
@@ -185,7 +185,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="video/vnd.secondlife.qt.legacy">
@@ -207,7 +207,7 @@
 			web
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/ogg">
@@ -229,7 +229,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/postscript">
@@ -240,7 +240,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/rtf">
@@ -251,7 +251,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/smil">
@@ -262,7 +262,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
@@ -273,7 +273,7 @@
 			web
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/x-director">
@@ -284,7 +284,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -339,7 +339,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/gif">
@@ -350,7 +350,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/jpeg">
@@ -361,7 +361,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/png">
@@ -372,7 +372,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="image/svg+xml">
@@ -383,7 +383,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/tiff">
@@ -394,7 +394,7 @@
 			image
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="text/html">
@@ -405,7 +405,7 @@
 			web
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="text/plain">
@@ -416,7 +416,7 @@
 			text
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="text/xml">
@@ -427,7 +427,7 @@
 			text
 		</widgettype>
 		<impl>
-			media_plugin_webkit
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="video/mpeg">
