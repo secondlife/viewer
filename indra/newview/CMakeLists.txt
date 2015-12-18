@@ -2240,6 +2240,7 @@ if (LL_TESTS)
   )
 
   set(test_libs
+    ${LLCOMMON_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${CURL_LIBRARIES}
     )

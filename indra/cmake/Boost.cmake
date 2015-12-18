@@ -123,3 +123,8 @@ else (USESYSTEMLIBS)
         debug boost_thread-mt-d)
   endif (WINDOWS)
 endif (USESYSTEMLIBS)
+
+if (LINUX)
+    set(BOOST_SYSTEM_LIBRARY ${BOOST_SYSTEM_LIBRARY} rt)
+endif (LINUX)
+

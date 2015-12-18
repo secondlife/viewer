@@ -73,18 +73,23 @@ if(LL_TESTS)
       llupdaterservice.cpp
       )
 
+set(test_libs
+    ${LLCOMMON_LIBRARIES})
+
 
 set_source_files_properties(
     llupdaterservice.cpp
     PROPERTIES
-      LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+      LL_TEST_ADDITIONAL_LIBRARIES ${test_libs}
 # *NOTE:Mani - I was trying to use the preprocessor seam to mock out
 #              llifstream (and other) llcommon classes. It didn't work
 #              because of the windows declspec(dllimport)attribute.
 #     LL_TEST_ADDITIONAL_CFLAGS "-Dllifstream=llus_mock_llifstream"
     )
 
-  LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}")
+if (NOT LINUX)
+  LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}" ${test_libs})
+endif (NOT LINUX)
 endif(LL_TESTS)
 
 set(UPDATER_INCLUDE_DIRS 
