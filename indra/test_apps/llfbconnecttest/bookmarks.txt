@@ -1,4 +1,0 @@
-# format is description, url (don't put ',' chars in description :)
-# if no ',' found, whole line is used for both description and url
-Google Home Page,http://www.google.com
-Facebook Home Page,http://www.facebook.com
