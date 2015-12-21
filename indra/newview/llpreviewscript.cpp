@@ -1961,7 +1961,8 @@ LLLiveLSLEditor::LLLiveLSLEditor(const LLSD& key) :
 	mCloseAfterSave(FALSE),
 	mPendingUploads(0),
 	mIsModifiable(FALSE),
-	mIsNew(false)
+	mIsNew(false),
+	mIsSaving(FALSE)
 {
 	mFactoryMap["script ed panel"] = LLCallbackMap(LLLiveLSLEditor::createScriptEdPanel, this);
 }
@@ -2002,6 +2003,8 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 	LL_DEBUGS() << "LSL Bytecode saved" << LL_ENDL;
 	mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessful"));
 	mScriptEd->mErrorList->setCommentText(LLTrans::getString("SaveComplete"));
+	getChild<LLCheckBoxCtrl>("running")->set(is_script_running);
+	mIsSaving = FALSE;
 	closeIfNeeded();
 }
 
@@ -2022,6 +2025,7 @@ void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 		mScriptEd->mErrorList->addElement(row);
 	}
 	mScriptEd->selectFirstError();
+	mIsSaving = FALSE;
 	closeIfNeeded();
 }
 
@@ -2249,12 +2253,12 @@ void LLLiveLSLEditor::draw()
 		if(object->permAnyOwner())
 		{
 			runningCheckbox->setLabel(getString("script_running"));
-			runningCheckbox->setEnabled(TRUE);
+			runningCheckbox->setEnabled(!mIsSaving);
 
 			if(object->permAnyOwner())
 			{
 				runningCheckbox->setLabel(getString("script_running"));
-				runningCheckbox->setEnabled(TRUE);
+				runningCheckbox->setEnabled(!mIsSaving);
 			}
 			else
 			{
@@ -2387,6 +2391,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 	getWindow()->incBusyCount();
 	mPendingUploads++;
 	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
+	mIsSaving = TRUE;
 	if (!url.empty())
 	{
 		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running, mScriptEd->getAssociatedExperience());
