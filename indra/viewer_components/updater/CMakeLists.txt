@@ -69,13 +69,17 @@ target_link_libraries(llupdaterservice
     )
 
 if(LL_TESTS)
+if (NOT LINUX)
   SET(llupdater_service_TEST_SOURCE_FILES
       llupdaterservice.cpp
       )
 
 set(test_libs
-    ${LLCOMMON_LIBRARIES})
-
+    ${LLCOMMON_LIBRARIES}
+    ${BOOST_COROUTINE_LIBRARY} 
+    ${BOOST_CONTEXT_LIBRARY} 
+    ${BOOST_THREAD_LIBRARY} 
+    ${BOOST_SYSTEM_LIBRARY})
 
 set_source_files_properties(
     llupdaterservice.cpp
@@ -87,7 +91,6 @@ set_source_files_properties(
 #     LL_TEST_ADDITIONAL_CFLAGS "-Dllifstream=llus_mock_llifstream"
     )
 
-if (NOT LINUX)
   LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}" ${test_libs})
 endif (NOT LINUX)
 endif(LL_TESTS)
