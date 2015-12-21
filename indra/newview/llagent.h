@@ -616,6 +616,7 @@ public:
 	void 			teleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
 	void			teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
 	void 			teleportCancel();										// May or may not be allowed by server
+    void            restoreCanceledTeleportRequest();
 	bool			getTeleportKeepsLookAt() { return mbTeleportKeepsLookAt; } // Whether look-at reset after teleport
 protected:
 	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
@@ -638,6 +639,7 @@ private:
 	friend class LLTeleportRequestViaLocationLookAt;
 
 	LLTeleportRequestPtr        mTeleportRequest;
+	LLTeleportRequestPtr        mTeleportCanceled;
 	boost::signals2::connection mTeleportFinishedSlot;
 	boost::signals2::connection mTeleportFailedSlot;
 

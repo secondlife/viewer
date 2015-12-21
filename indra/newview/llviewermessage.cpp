@@ -3996,6 +3996,13 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 		LL_WARNS("Messaging") << "Got teleport notification for wrong agent!" << LL_ENDL;
 		return;
 	}
+
+    if (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)
+    {
+        // Server either ignored teleport cancel message or did not receive it in time.
+        // This message can't be ignored since teleport is complete at server side
+        gAgent.restoreCanceledTeleportRequest();
+    }
 	
 	// Teleport is finished; it can't be cancelled now.
 	gViewerWindow->setProgressCancelButtonVisible(FALSE);
