@@ -36,9 +36,17 @@ StringVec sv(const StringVec& listof) { return listof; }
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
-#endif
 
+// WOLF-300: It appears that driving a megabyte of data through an LLLeap pipe
+// causes Windows abdominal pain such that it later fails code-signing in some
+// mysterious way. Entirely suppressing these LLLeap tests pushes the failure
+// rate MUCH lower. Can we re-enable them with a smaller data size on Windows?
+const size_t BUFFERED_LENGTH =  100*1024;
+
+#else // not Windows
 const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte of data
+
+#endif
 
 void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
 {

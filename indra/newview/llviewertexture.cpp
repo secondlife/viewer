@@ -97,6 +97,7 @@ S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez;
 const S32 MAX_CACHED_RAW_TERRAIN_IMAGE_AREA = 128 * 128;
+const S32 DEFAULT_ICON_DIMENTIONS = 32;
 S32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
 S32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 BOOL LLViewerTexture::sFreezeImageScalingDown = FALSE;
@@ -1178,6 +1179,17 @@ void LLViewerFetchedTexture::loadFromFastCache()
 		}
 		else
 		{
+            if (mBoostLevel == LLGLTexture::BOOST_ICON)
+            {
+                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
+                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+                if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+                {
+                    // scale oversized icon, no need to give more work to gl
+                    mRawImage->scale(expected_width, expected_height);
+                }
+            }
+
 			mRequestedDiscardLevel = mDesiredDiscardLevel + 1;
 			mIsRawImageValid = TRUE;			
 			addToCreateTexture();
@@ -1506,6 +1518,17 @@ void LLViewerFetchedTexture::processTextureStats()
 		{
 			mDesiredDiscardLevel = 0;
 		}
+        else if (mDontDiscard && mBoostLevel == LLGLTexture::BOOST_ICON)
+        {
+            if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
+            {
+                mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+            }
+            else
+            {
+                mDesiredDiscardLevel = 0;
+            }
+        }
 		else if(!mFullWidth || !mFullHeight)
 		{
 			mDesiredDiscardLevel = 	llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel);
@@ -1935,6 +1958,17 @@ bool LLViewerFetchedTexture::updateFetch()
 					mIsRawImageValid = TRUE;			
 					addToCreateTexture();
 				}
+
+                if (mBoostLevel == LLGLTexture::BOOST_ICON)
+                {
+                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
+                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+                    if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+                    {
+                        // scale oversized icon, no need to give more work to gl
+                        mRawImage->scale(expected_width, expected_height);
+                    }
+                }
 
 				return TRUE;
 			}
@@ -2670,7 +2704,7 @@ LLImageRaw* LLViewerFetchedTexture::reloadRawImage(S8 discard_level)
 
 	if(mSavedRawDiscardLevel >= 0 && mSavedRawDiscardLevel <= discard_level)
 	{
-		if(mSavedRawDiscardLevel != discard_level)
+		if (mSavedRawDiscardLevel != discard_level && mBoostLevel != BOOST_ICON)
 		{
 			mRawImage = new LLImageRaw(getWidth(discard_level), getHeight(discard_level), getComponents());
 			mRawImage->copy(getSavedRawImage());
@@ -2771,8 +2805,25 @@ void LLViewerFetchedTexture::switchToCachedImage()
 void LLViewerFetchedTexture::setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) 
 {
 	if(imageraw != mRawImage.get())
-	{
-		mCachedRawImage = imageraw;
+    {
+        if (mBoostLevel == LLGLTexture::BOOST_ICON)
+        {
+            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
+            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+            if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+            {
+                mCachedRawImage = new LLImageRaw(expected_width, expected_height, imageraw->getComponents());
+                mCachedRawImage->copyScaled(imageraw);
+            }
+            else
+            {
+                mCachedRawImage = imageraw;
+            }
+        }
+        else
+        {
+            mCachedRawImage = imageraw;
+        }
 		mCachedRawDiscardLevel = discard_level;
 		mCachedRawImageReady = TRUE;
 	}
@@ -2862,7 +2913,24 @@ void LLViewerFetchedTexture::saveRawImage()
 	}
 
 	mSavedRawDiscardLevel = mRawDiscardLevel;
-	mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
+    if (mBoostLevel == LLGLTexture::BOOST_ICON)
+    {
+        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
+        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+        if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+        {
+            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
+            mSavedRawImage->copyScaled(mRawImage);
+        }
+        else
+        {
+            mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
+        }
+    }
+    else
+    {
+        mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
+    }
 
 	if(mForceToSaveRawImage && mSavedRawDiscardLevel <= mDesiredSavedRawDiscardLevel)
 	{
