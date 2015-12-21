@@ -65,14 +65,11 @@
 // Boost.Coroutine #include is the *first* #include of the platform header.
 // That means that client code must generally #include Boost.Coroutine headers
 // before anything else.
-#define BOOST_RESULT_OF_USE_TR1 1
 #include <boost/dcoroutine/coroutine.hpp>
-// Normally, lleventcoro.h obviates future.hpp. We only include this because
-// we implement a "by hand" test of future functionality.
-#include <boost/dcoroutine/future.hpp>
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
 #include <boost/utility.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "linden_common.h"
 
@@ -218,7 +215,7 @@ namespace tut
     // use static data so we can intersperse coroutine functions with the
     // tests that engage them
     ImmediateAPI immediateAPI;
-    std::string replyName, errorName, threw;
+    std::string replyName, errorName, threw, stringdata;
     LLSD result, errordata;
     int which;
 
@@ -228,28 +225,40 @@ namespace tut
         replyName.clear();
         errorName.clear();
         threw.clear();
+        stringdata.clear();
         result = LLSD();
         errordata = LLSD();
         which = 0;
     }
 
-    void explicit_wait(boost::dcoroutines::coroutine<void()>::self& self)
+    void explicit_wait(boost::shared_ptr<LLCoros::Future<std::string>::callback_t>& cbp)
     {
         BEGIN
         {
-            // ... do whatever preliminary stuff must happen ...
+            // The point of this test is to verify / illustrate suspending a
+            // coroutine for something other than an LLEventPump. In other
+            // words, this shows how to adapt to any async operation that
+            // provides a callback-style notification (and prove that it
+            // works).
 
-            // declare the future
-            boost::dcoroutines::future<llcoro::LLSD_consumed> future(self);
-            // tell the future what to suspend for
-            LLTempBoundListener connection(
-                LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::dcoroutines::make_callback(future))));
+            LLCoros::Future<std::string> future;
+            // get the callback from that future
+            LLCoros::Future<std::string>::callback_t callback(future.make_callback());
+
+            // Perhaps we would send a request to a remote server and arrange
+            // for 'callback' to be called on response. Of course that might
+            // involve an adapter object from the actual callback signature to
+            // the signature of 'callback' -- in this case, void(std::string).
+            // For test purposes, instead of handing 'callback' (or the
+            // adapter) off to some I/O subsystem, we'll just pass it back to
+            // our caller.
+            cbp.reset(new LLCoros::Future<std::string>::callback_t(callback));
+
             ensure("Not yet", ! future);
-            // attempting to dereference ("resolve") the future causes the calling
-            // coroutine to suspend for it
+            // calling get() on the future causes us to suspend
             debug("about to suspend");
-            result = (*future).first;
-            ensure("Got it", future);
+            stringdata = future.get();
+            ensure("Got it", bool(future));
         }
         END
     }
@@ -262,19 +271,16 @@ namespace tut
         DEBUG;
 
         // Construct the coroutine instance that will run explicit_wait.
-        // Pass the ctor a callable that accepts the coroutine_type::self
-        // param passed by the library.
-        boost::dcoroutines::coroutine<void()> coro(explicit_wait);
-        // Start the coroutine
-        coro(std::nothrow);
-        // When the coroutine waits for the event pump, it returns here.
-        debug("about to send");
-        // Satisfy the suspend.
-        LLEventPumps::instance().obtain("source").post("received");
-        // Now suspend for the coroutine to complete.
-        ensure("coroutine complete", ! coro);
+        boost::shared_ptr<LLCoros::Future<std::string>::callback_t> respond;
+        LLCoros::instance().launch("test<2>",
+                                   boost::bind(explicit_wait, boost::ref(respond)));
+        // When the coroutine waits for the future, it returns here.
+        debug("about to respond");
+        // Now we're the I/O subsystem delivering a result. This immediately
+        // transfers control back to the coroutine.
+        (*respond)("received");
         // ensure the coroutine ran and woke up again with the intended result
-        ensure_equals(result.asString(), "received");
+        ensure_equals(stringdata, "received");
     }
 
     void waitForEventOn1()
