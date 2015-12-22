@@ -151,6 +151,7 @@ public:
 
 		// over-rides
 		virtual BOOL handleKeyHere( KEY key, MASK mask);
+		virtual BOOL handleKeyUpHere(KEY key, MASK mask);
 		virtual void onVisibilityChange ( BOOL new_visibility );
 		virtual BOOL handleUnicodeCharHere(llwchar uni_char);
 		virtual void reshape( S32 width, S32 height, BOOL called_from_parent = TRUE);
@@ -170,6 +171,10 @@ public:
 		LLUUID getTextureID() {return mMediaTextureID;}
 
 		void updateContextMenuParent(LLView* pNewParent);
+
+        // The Browser windows want keyup and keydown events. Overridden from LLFocusableElement to return true.
+        virtual bool    wantsKeyUpKeyDown() const;
+        virtual bool    wantsReturnKey() const;
 
 	protected:
 		void convertInputCoords(S32& x, S32& y);

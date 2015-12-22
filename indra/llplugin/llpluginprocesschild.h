@@ -80,6 +80,7 @@ private:
 		STATE_PLUGIN_LOADED,		// plugin library has been loaded
 		STATE_PLUGIN_INITIALIZING,	// plugin is processing init message
 		STATE_RUNNING,				// steady state (processing messages)
+        STATE_SHUTDOWNREQ,          // Parent has requested a shutdown.
 		STATE_UNLOADING,			// plugin has sent shutdown_response and needs to be unloaded
 		STATE_UNLOADED,				// plugin has been unloaded
 		STATE_ERROR,				// generic bailout state
@@ -101,12 +102,12 @@ private:
 	sharedMemoryRegionsType mSharedMemoryRegions;
 	
 	LLTimer mHeartbeat;
-	F64		mSleepTime;
-	F64		mCPUElapsed;
+    F64		mSleepTime;
+    F64		mCPUElapsed;
 	bool	mBlockingRequest;
 	bool	mBlockingResponseReceived;
 	std::queue<std::string> mMessageQueue;
-	
+    LLTimer mWaitGoodbye;
 	void deliverQueuedMessages();
 	
 };

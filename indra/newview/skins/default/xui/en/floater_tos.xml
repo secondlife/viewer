@@ -57,6 +57,21 @@
      width="552">
         Please read the following Terms of Service and Privacy Policy carefully. To continue logging in to [SECOND_LIFE], you must accept the agreement.
     </text>
+     <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="30"
+     layout="topleft"
+     left="16"
+     name="external_tos_required"
+     visible="false"
+     top="32"
+     word_wrap="true"
+     width="552">
+       You will need to go to my.secondlife.com and log in to accept the Terms of Service before you can proceed. Thank you!
+     </text>
     <web_browser
       trusted_content="true" 
      follows="left|top"
