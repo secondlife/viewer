@@ -150,6 +150,7 @@ private:
     LLPanel* mTextBgPanel;
     LLPanel* mFotoBgPanel;
     bool     mSelected;
+    bool     mWorn;
 };
 
 #endif  // LL_LLOUTFITGALLERYCTRL_H

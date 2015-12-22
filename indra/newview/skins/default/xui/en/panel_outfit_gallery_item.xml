@@ -15,6 +15,9 @@
    left="0"
    top="0"
    >
+  <string name="worn_string">
+    (worn)
+  </string>
   <icon
       left="1"
       top="0"
@@ -29,7 +32,7 @@
   <panel
    background_visible="false"
    background_opaque="true"
-   bg_opaque_color="FrogGreen"
+   bg_opaque_color="OutfitGalleryItemSelected"
    border="false"
    bevel_style="none"
    follows="left|top"

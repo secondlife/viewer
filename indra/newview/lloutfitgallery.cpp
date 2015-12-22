@@ -328,7 +328,8 @@ static LLDefaultChildRegistry::Register<LLOutfitGalleryItem> r("outfit_gallery_i
 LLOutfitGalleryItem::LLOutfitGalleryItem(const Params& p)
     : LLPanel(p),
     mTexturep(NULL),
-    mSelected(false)
+    mSelected(false),
+    mWorn(false)
 {
     buildFromFile("panel_outfit_gallery_item.xml");
 }
@@ -356,7 +357,7 @@ void LLOutfitGalleryItem::draw()
 
     
     // Draw border
-    LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "FrogGreen" : "MouseGray", LLColor4::white);
+    LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "OutfitGalleryItemSelected" : "OutfitGalleryItemUnselected", LLColor4::white);
     LLRect border = getChildView("preview_outfit")->getRect();
     border.mRight = border.mRight + 1;
     gl_rect_2d(border, border_color.get(), FALSE);
@@ -389,23 +390,22 @@ void LLOutfitGalleryItem::setOutfitName(std::string name)
 
 void LLOutfitGalleryItem::setOutfitWorn(bool value)
 {
+    mWorn = value;
     //LLStringUtil::format_map_t string_args;
     //std::string worn_text = getString("worn_text", string_args);
-
-    if (value)
-    {
-        mOutfitWornText->setValue("(worn)");
-    }
-    else
-    {
-        mOutfitWornText->setValue("");
-    }
+    LLStringUtil::format_map_t worn_string_args;
+    std::string worn_string = getString("worn_string", worn_string_args);
+    LLUIColor text_color = LLUIColorTable::instance().getColor(mSelected ? "White" : (mWorn ? "OutfitGalleryItemWorn" : "White"), LLColor4::white);
+    mOutfitWornText->setReadOnlyColor(text_color.get());
+    mOutfitNameText->setReadOnlyColor(text_color.get());
+    mOutfitWornText->setValue(value ? worn_string : "");
 }
 
 void LLOutfitGalleryItem::setSelected(bool value)
 {
     mSelected = value;
     mTextBgPanel->setBackgroundVisible(value);
+    setOutfitWorn(mWorn);
 }
 
 BOOL LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
