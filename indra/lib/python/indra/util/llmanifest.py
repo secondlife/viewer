@@ -512,11 +512,7 @@ class LLManifest(object):
             # ensure that destination path exists
             self.cmakedirs(os.path.dirname(dst))
             self.created_paths.append(dst)
-            if not os.path.isdir(src):
-                self.ccopy(src,dst)
-            else:
-                # src is a dir
-                self.ccopytree(src,dst)
+            self.ccopymumble(src, dst)
         else:
             print "Doesn't exist:", src
 
@@ -595,28 +591,38 @@ class LLManifest(object):
                 else:
                     os.remove(path)
 
-    def ccopy(self, src, dst):
-        """ Copy a single file or symlink.  Uses filecmp to skip copying for existing files."""
+    def ccopymumble(self, src, dst):
+        """Copy a single symlink, file or directory."""
         if os.path.islink(src):
             linkto = os.readlink(src)
-            if os.path.islink(dst) or os.path.exists(dst):
+            if os.path.islink(dst) or os.path.isfile(dst):
                 os.remove(dst)  # because symlinking over an existing link fails
+            elif os.path.isdir(dst):
+                shutil.rmtree(dst)
             os.symlink(linkto, dst)
+        elif os.path.isdir(src):
+            self.ccopytree(src, dst)
         else:
-            # Don't recopy file if it's up-to-date.
-            # If we seem to be not not overwriting files that have been
-            # updated, set the last arg to False, but it will take longer.
-            if os.path.exists(dst) and filecmp.cmp(src, dst, True):
-                return
-            # only copy if it's not excluded
-            if self.includes(src, dst):
-                try:
-                    os.unlink(dst)
-                except OSError, err:
-                    if err.errno != errno.ENOENT:
-                        raise
+            self.ccopyfile(src, dst)
+            # XXX What about devices, sockets etc.?
+            # YYY would we put such things into a viewer package?!
 
-                shutil.copy2(src, dst)
+    def ccopyfile(self, src, dst):
+        """ Copy a single file.  Uses filecmp to skip copying for existing files."""
+        # Don't recopy file if it's up-to-date.
+        # If we seem to be not not overwriting files that have been
+        # updated, set the last arg to False, but it will take longer.
+        if os.path.exists(dst) and filecmp.cmp(src, dst, True):
+            return
+        # only copy if it's not excluded
+        if self.includes(src, dst):
+            try:
+                os.unlink(dst)
+            except OSError, err:
+                if err.errno != errno.ENOENT:
+                    raise
+
+            shutil.copy2(src, dst)
 
     def ccopytree(self, src, dst):
         """Direct copy of shutil.copytree with the additional
@@ -632,11 +638,7 @@ class LLManifest(object):
             srcname = os.path.join(src, name)
             dstname = os.path.join(dst, name)
             try:
-                if os.path.isdir(srcname):
-                    self.ccopytree(srcname, dstname)
-                else:
-                    self.ccopy(srcname, dstname)
-                    # XXX What about devices, sockets etc.?
+                self.ccopymumble(srcname, dstname)
             except (IOError, os.error), why:
                 errors.append((srcname, dstname, why))
         if errors:

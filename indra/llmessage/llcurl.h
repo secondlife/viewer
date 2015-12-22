@@ -147,6 +147,7 @@ public:
 	public:
 		void setHTTPMethod(EHTTPMethod method);
 		void setURL(const std::string& url);
+		const std::string& getURL();
 		void setResult(S32 status, const std::string& reason, const LLSD& content = LLSD());
 		void setResponseHeader(const std::string& header, const std::string& value);
 

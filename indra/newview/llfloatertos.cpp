@@ -46,7 +46,6 @@
 #include "message.h"
 #include "llstartup.h"              // login_alert_done
 
-
 LLFloaterTOS::LLFloaterTOS(const LLSD& data)
 :	LLModalDialog( data["message"].asString() ),
 	mMessage(data["message"].asString()),
@@ -85,7 +84,7 @@ protected:
 	{
 		if ( mParent )
 		{
-			mParent->setSiteIsAlive( true );
+			mParent->setSiteIsAlive(true);
 		}
 	}
 
@@ -136,6 +135,20 @@ BOOL LLFloaterTOS::postBuild()
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
 	if ( web_browser )
 	{
+// if we are forced to send users to an external site in their system browser
+// (e.g.) Linux users because of lack of media support for HTML ToS page
+// remove exisiting UI and replace with a link to external page where users can accept ToS
+#ifdef EXTERNAL_TOS
+		LLTextBox* header = getChild<LLTextBox>("tos_heading");
+		if (header)
+			header->setVisible(false);
+
+		LLTextBox* external_prompt = getChild<LLTextBox>("external_tos_required");
+		if (external_prompt)
+			external_prompt->setVisible(true);
+
+		web_browser->setVisible(false);
+#else
 		web_browser->addObserver(this);
 
 		// Don't use the start_url parameter for this browser instance -- it may finish loading before we get to add our observer.
@@ -147,6 +160,7 @@ BOOL LLFloaterTOS::postBuild()
 			// All links from tos_html should be opened in external browser
 			media_plugin->setOverrideClickTarget("_external");
 		}
+#endif
 	}
 
 	return TRUE;
@@ -154,6 +168,13 @@ BOOL LLFloaterTOS::postBuild()
 
 void LLFloaterTOS::setSiteIsAlive( bool alive )
 {
+// if we are forced to send users to an external site in their system browser
+// (e.g.) Linux users because of lack of media support for HTML ToS page
+// force the regular HTML UI to deactivate so alternative is rendered instead.
+#ifdef EXTERNAL_TOS
+	mSiteAlive = false;
+#else
+
 	mSiteAlive = alive;
 	
 	// only do this for TOS pages
@@ -182,6 +203,7 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 			tos_agreement->setEnabled( true );
 		}
 	}
+#endif
 }
 
 LLFloaterTOS::~LLFloaterTOS()
