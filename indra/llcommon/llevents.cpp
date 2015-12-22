@@ -57,7 +57,6 @@
 #include "stringize.h"
 #include "llerror.h"
 #include "llsdutil.h"
-#include "llcoros.h"
 #if LL_MSVC
 #pragma warning (disable : 4702)
 #endif
@@ -534,7 +533,7 @@ LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
 {
     if (!mEventHistory.empty())
     {
-        if (listener(mEventHistory.front()) || LLCoros::get_consuming())
+        if (listener(mEventHistory.front()))
         {
             mEventHistory.pop_front();
         }
