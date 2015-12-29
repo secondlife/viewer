@@ -56,9 +56,9 @@ public:
 		return mEditor->getDocumentView()->getRect().getWidth();
 	}
 
-	/*virtual*/ F32	draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+	/*virtual*/ F32	draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 	{
-		gl_line_2d(draw_rect.mLeft + 5, draw_rect.getCenterY(), draw_rect.mRight - 5, draw_rect.getCenterY(), LLColor4::grey);
+		gl_line_2d((S32)(draw_rect.mLeft + 5), (S32)draw_rect.getCenterY(), (S32)(draw_rect.mRight - 5), (S32)draw_rect.getCenterY(), LLColor4::grey);
 		return draw_rect.getWidth();
 	}
 
