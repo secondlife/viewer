@@ -480,6 +480,10 @@ BOOL LLFloaterPreference::postBuild()
 
 	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
 
+	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
+	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
+	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
+
 	return TRUE;
 }
 
