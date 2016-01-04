@@ -242,7 +242,6 @@ inline T* get_ptr_in_map(const std::map<K,T*>& inmap, const K& key)
 template <typename K, typename T>
 inline bool is_in_map(const std::map<K,T>& inmap, const K& key)
 {
-	typedef typename std::map<K,T>::const_iterator map_iter;
 	if(inmap.find(key) == inmap.end())
 	{
 		return false;
