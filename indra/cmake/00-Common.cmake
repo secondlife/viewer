@@ -136,12 +136,14 @@ if (LINUX)
   # Hacks to work around gcc 4.1 TC build pool machines which can't process pragma warning disables
   # This is pure rubbish; I wish there was another way.
   #
+  set(CMAKE_CXX_FLAGS "-Wno-unused-variable -Wno-unused-function -Wno-unused-local-typedefs -Wno-maybe-uninitialized")
+
   if(${CXX_VERSION_NUMBER} LESS 420)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-uninitialized -Wno-unused-variable -Wno-unused-function -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-uninitialized ${CMAKE_CXX_FLAGS}")
   endif (${CXX_VERSION_NUMBER} LESS 420)
 
   if(${CXX_VERSION_NUMBER} GREATER 459)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unused-but-set-variable ${CMAKE_CXX_FLAGS}")
   endif (${CXX_VERSION_NUMBER} GREATER 459)
 
   # gcc 4.3 and above don't like the LL boost and also
