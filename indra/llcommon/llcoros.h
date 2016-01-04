@@ -260,7 +260,10 @@ public:
         return boost::dcoroutines::make_callback(mFuture);
     }
 
-    explicit operator bool() const
+#ifndef LL_LINUX
+    explicit
+#endif
+    operator bool() const
     {
         return bool(mFuture);
     }
