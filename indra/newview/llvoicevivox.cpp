@@ -268,6 +268,10 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
 {
 	// constructor will set up LLVoiceClient::getInstance()
 	LLVivoxVoiceClient::getInstance()->mPump = pump;
+
+    LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+        boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
+
 }
 
 void LLVivoxVoiceClient::terminate()
@@ -508,8 +512,8 @@ void LLVivoxVoiceClient::setLoginInfo(
 
 void LLVivoxVoiceClient::idle(void* user_data)
 {
-	LLVivoxVoiceClient* self = (LLVivoxVoiceClient*)user_data;
-	self->stateMachine();
+// 	LLVivoxVoiceClient* self = (LLVivoxVoiceClient*)user_data;
+// 	self->stateMachine();
 }
 
 std::string LLVivoxVoiceClient::state2string(LLVivoxVoiceClient::state inState)
@@ -1694,6 +1698,9 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
             expireVoiceFonts();
             mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
         }
+
+        // send any requests to adjust mic and speaker settings if they have changed
+        sendLocalAudioUpdates();
 
         // Send an update only if the ptt or mute state has changed (which shouldn't be able to happen that often
         // -- the user can only click so fast) or every 10hz, whichever is sooner.
@@ -4395,7 +4402,8 @@ bool LLVivoxVoiceClient::switchChannel(
 			mNextAudioSession->mIsP2P = is_p2p;
 		}
 		
-		if(getState() >= stateRetrievingParcelVoiceInfo)
+// 		if(getState() >= stateRetrievingParcelVoiceInfo)
+        if (mAudioSession)
 		{
 			// If we're already in a channel, or if we're joining one, terminate
 			// so we can rejoin with the new session data.
@@ -4409,16 +4417,23 @@ bool LLVivoxVoiceClient::switchChannel(
 void LLVivoxVoiceClient::joinSession(sessionState *session)
 {
 	mNextAudioSession = session;
-	
-	if(getState() <= stateNoChannel)
-	{
-		// We're already set up to join a channel, just needed to fill in the session handle
-	}
-	else
-	{
-		// State machine will come around and rejoin if uri/handle is not empty.
-		sessionTerminate();
-	}
+
+    if (mAudioSession)
+    {
+        // If we're already in a channel, or if we're joining one, terminate
+        // so we can rejoin with the new session data.
+        sessionTerminate();
+    }
+
+// 	if(getState() <= stateNoChannel)
+// 	{
+// 		// We're already set up to join a channel, just needed to fill in the session handle
+// 	}
+// 	else
+// 	{
+// 		// State machine will come around and rejoin if uri/handle is not empty.
+// 		sessionTerminate();
+// 	}
 }
 
 void LLVivoxVoiceClient::setNonSpatialChannel(
