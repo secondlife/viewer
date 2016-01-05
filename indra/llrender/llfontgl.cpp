@@ -94,26 +94,33 @@ BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dp
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_FONTS("Fonts");
 
-S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
+S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
+    ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
+{
+    LLRectf rect_float(rect.mLeft, rect.mTop, rect.mRight, rect.mBottom);
+    return render(wstr, begin_offset, rect_float, color, halign, valign, style, shadow, max_chars, right_x, use_ellipses);
+}
+
+S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
 {
-	F32 x = (F32)rect.mLeft;
+	F32 x = rect.mLeft;
 	F32 y = 0.f;
 
 	switch(valign)
 	{
 	case TOP:
-		y = (F32)rect.mTop;
+		y = rect.mTop;
 		break;
 	case VCENTER:
-		y = (F32)rect.getCenterY();
+		y = rect.getCenterY();
 		break;
 	case BASELINE:
 	case BOTTOM:
-		y = (F32)rect.mBottom;
+		y = rect.mBottom;
 		break;
 	default:
-		y = (F32)rect.mBottom;
+		y = rect.mBottom;
 		break;
 	}
 	return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, rect.getWidth(), right_x, use_ellipses);
@@ -357,7 +364,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	if (right_x)
 	{
-		*right_x = (cur_x - origin.mV[VX]) / sScaleX;
+        F32 cr_x = (cur_x - origin.mV[VX]) / sScaleX;
+        if (*right_x < cr_x)
+        {
+            // rightmost edge of previously drawn text, don't draw over previous text
+            *right_x = cr_x;
+        }
 	}
 
 	//FIXME: add underline as glyph?
