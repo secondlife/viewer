@@ -53,6 +53,7 @@ const F32 VERTICAL_PADDING = 12.f;
 const F32 BUFFER_SIZE = 2.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
 const F32 HUD_TEXT_MAX_WIDTH_NO_BUBBLE = 1000.f;
+const F32 MAX_DRAW_DISTANCE = 64.f;
 
 std::set<LLPointer<LLHUDText> > LLHUDText::sTextObjects;
 std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleTextObjects;
@@ -384,8 +385,8 @@ void LLHUDText::updateVisibility()
 	}
 
 	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
-
-	if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
+	F32 obj_dist = dist_vec(mSourceObject->getPosition(), LLViewerCamera::getInstance()->getOrigin());
+	if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)) || (obj_dist > MAX_DRAW_DISTANCE))
 	{
 		mVisible = FALSE;
 		return;
