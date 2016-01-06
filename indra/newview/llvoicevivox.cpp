@@ -1433,12 +1433,12 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
         mSpatialJoiningNum++;
     }
 
-    // joinedAudioSession() will transition from here to stateSessionJoined.
     if (!mVoiceEnabled && mIsInitialized)
     {
         mIsJoiningSession = false;
         // User bailed out during connect -- jump straight to teardown.
         terminateAudioSession(true);
+        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
         return false;
     }
     else if (mSessionTerminateRequested)
@@ -1451,6 +1451,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
             {
                 terminateAudioSession(true);
                 mIsJoiningSession = false;
+                notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
                 return false;
             }
         }
@@ -1484,10 +1485,10 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
                 added = true;
             else if (message == "joined")
                 joined = true;
-            else if (message == "failed")
-            {
+            else if ((message == "failed") || (message == "removed"))
+            {   // we will get a removed message if a voice call is declined.
+                notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
                 mIsJoiningSession = false;
-                setState(stateJoinSessionFailed);
                 return false;
             }
         }
@@ -1598,7 +1599,6 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
     }
 
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
-    setState(stateSessionTerminated);
 
     // Always reset the terminate request flag when we get here.
     // Some slower PCs have a race condition where they can switch to an incoming  P2P call faster than the state machine leaves 
@@ -1699,7 +1699,6 @@ bool LLVivoxVoiceClient::waitForChannel()
 bool LLVivoxVoiceClient::runSession(sessionState *session)
 {
     LL_INFOS("Voice") << "running new voice session " << session->mHandle << LL_ENDL;
-    bool doTerminate(true);
 
     if (!addAndJoinSession(session))
     {
@@ -1792,7 +1791,7 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
 
             if (message == "removed")
             {
-                doTerminate = false;
+                notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
                 break;
             }
         }
@@ -1800,8 +1799,8 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
     }
 
     mIsInChannel = false;
-    if (doTerminate)
-        terminateAudioSession(true);
+    terminateAudioSession(true);
+
     return true;
 }
 
@@ -3764,7 +3763,7 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 		
 		if(participant)
 		{
-            LL_INFOS("Voice") << "Participant Update for " << participant->mDisplayName << LL_ENDL;
+            //LL_INFOS("Voice") << "Participant Update for " << participant->mDisplayName << LL_ENDL;
 
 			participant->mIsSpeaking = isSpeaking;
 			participant->mIsModeratorMuted = isModeratorMuted;
