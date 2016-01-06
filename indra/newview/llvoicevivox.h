@@ -650,6 +650,7 @@ private:
     bool provisionVoiceAccount();
     bool establishVoiceConnection();
     bool loginToVivox();
+    void logoutOfVivox(bool wait);
     bool retrieveVoiceFonts();
 
     bool requestParcelVoiceInfo();
@@ -679,10 +680,12 @@ private:
 	int mSpatialJoiningNum;
 	
 	void setState(state inState);
-	state getState(void)  { return mState; };
+#if 0
+    state getState(void)  { return mState; };
 	std::string state2string(state inState);
 	
-	void stateMachine();
+    void stateMachine();
+#endif
 	static void idle(void *user_data);
 	
 	LLHost mDaemonHost;
@@ -756,7 +759,6 @@ private:
 
 	bool mIsInitialized;
 	bool mShutdownComplete;
-	
 	
 	bool checkParcelChanged(bool update = false);
 	// This should be called when the code detects we have changed parcels.
@@ -937,6 +939,10 @@ private:
     bool    mIsInTuningMode;
     bool    mIsInChannel;
     bool    mIsJoiningSession;
+    bool    mIsWaitingForFonts;
+    bool    mIsLoggingIn;
+    bool    mIsLoggedIn;
+    bool    mIsProcessingChannels;
 
     LLEventMailDrop mVivoxPump;
 };
