@@ -225,6 +225,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
     mIsLoggingIn(false),
     mIsLoggedIn(false),
     mIsProcessingChannels(false),
+    mIsCoroutineActive(false),
     mVivoxPump("vivoxClientPump")
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
@@ -272,30 +273,20 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
 	// constructor will set up LLVoiceClient::getInstance()
 	LLVivoxVoiceClient::getInstance()->mPump = pump;
 
-    LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
-        boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
+//     LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+//         boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
 
 }
 
 void LLVivoxVoiceClient::terminate()
 {
+    // needs to be done manually here since we will not get another pass in 
+    // coroutines... that mechanism is long since gone.
+    if (mIsLoggedIn)
+        logoutOfVivox(false);
 	if(mConnected)
 	{
-		logout();
-		connectorShutdown(); 
-#if 0
-#ifdef LL_WINDOWS
-		int count=0;
-		while (!mShutdownComplete && 10 > count++)
-		{
-			stateMachine();
-			_sleep(1000);
-		}
-
-#endif
-#endif
-		closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
-		cleanUp();
+        breakVoiceConnection(false);
 		mConnected = false;
 	}
 	else
@@ -847,6 +838,7 @@ void LLVivoxVoiceClient::stateMachine()
 // 
 void LLVivoxVoiceClient::voiceControlCoro()
 {
+    mIsCoroutineActive = true;
     LLCoros::set_consuming(true);
     startAndConnectSession();
 
@@ -859,6 +851,8 @@ void LLVivoxVoiceClient::voiceControlCoro()
         waitForChannel();
     }
 
+    endAndDisconnectSession();
+    mIsCoroutineActive = false;
 }
 
 
@@ -878,10 +872,6 @@ bool LLVivoxVoiceClient::startAndConnectSession()
 
     if (!establishVoiceConnection())
     {
-//         if (getState() != stateConnectorFailed)
-//         {
-//             setState(stateLoggedOut);
-//         }
         giveUp();
         return false;
     }
@@ -890,6 +880,16 @@ bool LLVivoxVoiceClient::startAndConnectSession()
 
     return true;
 }
+
+bool LLVivoxVoiceClient::endAndDisconnectSession()
+{
+    breakVoiceConnection(true);
+
+    killGateway();
+
+    return true;
+}
+
 
 bool LLVivoxVoiceClient::startAndLaunchDaemon()
 {
@@ -987,7 +987,6 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
     //---------------------------------------------------------------------
     llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
-    setState(stateDaemonLaunched);
 
     LL_DEBUGS("Voice") << "Connecting to vivox daemon:" << mDaemonHost << LL_ENDL;
 
@@ -1010,14 +1009,11 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
     //---------------------------------------------------------------------
     llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
-    setState(stateConnecting);
-
 
     while (!mPump)
     {   // Can't do this until we have the pump available.
         llcoro::suspend();
     }
-
     
     // MBW -- Note to self: pumps and pipes examples in
     //  indra/test/io.cpp
@@ -1034,7 +1030,6 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
     //---------------------------------------------------------------------
     llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
-    setState(stateConnected);
 
     // Initial devices query
     getCaptureDevicesSendMessage();
@@ -1126,11 +1121,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     if (!mVoiceEnabled && mIsInitialized)
         return false;
 
-    setState(stateConnectorStart);
-
     connectorCreate();
-
-    setState(stateConnectorStarting);
 
     LLSD result;
     do
@@ -1142,16 +1133,45 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
 
     if (!result["connector"])
     {
-
-        setState(stateConnectorFailed);
         return false;
     }
 
-    setState(stateConnectorStarted);
     if (!mVoiceEnabled && mIsInitialized)
         return false;
 
     return true;
+}
+
+bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
+{
+    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+    bool retval(true);
+
+    mShutdownComplete = false;
+    connectorShutdown();
+
+    if (corowait)
+    {
+        LLSD result = llcoro::suspendUntilEventOn(voicePump);
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+
+        retval = result.has("connector");
+    }
+    else
+    {   // If we are not doing a corowait then we must sleep until the connector has responded
+        // otherwise we may very well close the socket too early.
+        int count = 0;
+        while (!mShutdownComplete && 10 > count++)
+        {
+            _sleep(1000);
+        }
+    }
+
+    closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
+    cleanUp();
+    mConnected = false;
+
+    return retval;
 }
 
 bool LLVivoxVoiceClient::loginToVivox()
@@ -1622,7 +1642,6 @@ bool LLVivoxVoiceClient::waitForChannel()
     {
         if (!loginToVivox())
         {
-            setState(stateLoginFailed);
             return false;
         }
 
@@ -1644,7 +1663,6 @@ bool LLVivoxVoiceClient::waitForChannel()
         {
             LL_INFOS("Voice") << "Waiting for channel" << LL_ENDL;
             mIsProcessingChannels = true;
-            setState(stateNoChannel);
             llcoro::suspend();
 
             if (mTuningMode)
@@ -1728,7 +1746,6 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
             mAudioSession->mParticipantsChanged = false;
             notifyParticipantObservers();
         }
-
         
         if (!inSpatialChannel())
         {
@@ -1741,6 +1758,9 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
 
             if (checkParcelChanged())
             {
+                // *RIDER: I think I can just return here if the parcel has changed 
+                // and grab the new voice channel from the outside loop.
+                // 
                 // if the parcel has changed, attempted to request the
                 // cap for the parcel voice info.  If we can't request it
                 // then we don't have the cap URL so we do nothing and will
@@ -1752,6 +1772,7 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
             }
             // Do the calculation that enforces the listener<->speaker tether (and also updates the real camera position)
             enforceTether();
+            sendPositionalUpdate();
         }
 
         // Do notifications for expiring Voice Fonts.
@@ -1764,13 +1785,6 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
         // send any requests to adjust mic and speaker settings if they have changed
         sendLocalAudioUpdates();
 
-        // Send an update only if the ptt or mute state has changed (which shouldn't be able to happen that often
-        // -- the user can only click so fast) or every 10hz, whichever is sooner.
-        // Sending for every volume update causes an excessive flood of messages whenever a volume slider is dragged.
-        if ((mAudioSession && mAudioSession->mMuteDirty) || mMuteMicDirty)
-        {
-            sendPositionalUpdate();
-        }
         mIsInitialized = true;
         timeout.eventAfter(UPDATE_THROTTLE_SECONDS, timeoutEvent);
         LLSD result = llcoro::suspendUntilEventOn(timeout);
@@ -1845,8 +1859,6 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
 
 int LLVivoxVoiceClient::voiceRecordBuffer()
 {
-    setState(stateCaptureBufferRecStart);
-
     LLSD timeoutResult; 
     timeoutResult["recplay"] = LLSD::String("stop");
 
@@ -1857,7 +1869,6 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
     timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, timeoutResult);
     LLSD result;
 
-    setState(stateCaptureBufferRecording);
     captureBufferRecordStartSendMessage();
 
     notifyVoiceFontObservers();
@@ -1881,8 +1892,6 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
 
 int LLVivoxVoiceClient::voicePlaybackBuffer()
 {
-    setState(stateCaptureBufferPlayStart);
-
     LLSD timeoutResult;
     timeoutResult["recplay"] = LLSD::String("stop");
 
@@ -1893,7 +1902,6 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
     timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, timeoutResult);
     LLSD result;
 
-    setState(stateCaptureBufferPlaying);
     do
     {
         captureBufferPlayStartSendMessage(mPreviewVoiceFont);
@@ -2062,7 +2070,6 @@ void LLVivoxVoiceClient::logout()
 	mAccountPassword.clear();
 	mVoiceAccountServerURI.clear();
 	
-	setState(stateLoggingOut);
 	logoutSendMessage();
 }
 
@@ -2424,7 +2431,12 @@ void LLVivoxVoiceClient::tuningStart()
 {
     LL_DEBUGS("Voice") << "Starting tuning" << LL_ENDL;
     mTuningMode = true;
-    if (mIsInChannel)
+    if (!mIsCoroutineActive)
+    {
+        LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+            boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
+    }
+    else if (mIsInChannel)
 	{
 		LL_DEBUGS("Voice") << "no channel" << LL_ENDL;
 		sessionTerminate();
@@ -5021,6 +5033,12 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 		{
 			LLVoiceChannel::getCurrentVoiceChannel()->activate();
 			status = LLVoiceClientStatusObserver::STATUS_VOICE_ENABLED;
+
+            if (!mIsCoroutineActive)
+            {
+                LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+                    boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
+            }
 		}
 		else
 		{

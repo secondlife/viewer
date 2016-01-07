@@ -645,10 +645,12 @@ private:
     void voiceControlCoro();
 
     bool startAndConnectSession();
+    bool endAndDisconnectSession();
 
     bool startAndLaunchDaemon();
     bool provisionVoiceAccount();
     bool establishVoiceConnection();
+    bool breakVoiceConnection(bool wait);
     bool loginToVivox();
     void logoutOfVivox(bool wait);
     bool retrieveVoiceFonts();
@@ -943,6 +945,7 @@ private:
     bool    mIsLoggingIn;
     bool    mIsLoggedIn;
     bool    mIsProcessingChannels;
+    bool    mIsCoroutineActive;
 
     LLEventMailDrop mVivoxPump;
 };
