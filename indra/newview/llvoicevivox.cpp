@@ -155,7 +155,6 @@ static void killGateway()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 LLVivoxVoiceClient::LLVivoxVoiceClient() :
-	mState(stateDisabled),
 	mSessionTerminateRequested(false),
 	mRelogRequested(false),
 	mConnected(false),
@@ -250,9 +249,6 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 #endif
 
 
-	// set up state machine
-	setState(stateDisabled);
-	
 	gIdleCallbacks.addFunction(idle, this);
 }
 
@@ -414,8 +410,6 @@ void LLVivoxVoiceClient::connectorCreate()
 
 void LLVivoxVoiceClient::connectorShutdown()
 {
-	setState(stateConnectorStopping);
-	
 	if(!mConnectorHandle.empty())
 	{
 		std::ostringstream stream;
@@ -577,6 +571,7 @@ std::string LLVivoxVoiceClient::state2string(LLVivoxVoiceClient::state inState)
 #endif
 
 
+#if 0
 void LLVivoxVoiceClient::setState(state inState)
 {
     LL_WARNS("Voice") << "call to setting state." << LL_ENDL;
@@ -585,7 +580,6 @@ void LLVivoxVoiceClient::setState(state inState)
 	mState = inState;
 }
 
-#if 0
 void LLVivoxVoiceClient::stateMachine()
 {
 	if(gDisconnected)
@@ -833,8 +827,6 @@ void LLVivoxVoiceClient::stateMachine()
 // voice connection and processing.  They should only be called in the context 
 // of a coroutine.
 // 
-// calls to setState() in these are historical and used because some of the other
-// query routines will ask what state the state machine is in.
 // 
 void LLVivoxVoiceClient::voiceControlCoro()
 {
@@ -860,7 +852,6 @@ bool LLVivoxVoiceClient::startAndConnectSession()
 {
     if (!startAndLaunchDaemon())
     {
-        setState(stateJail);
         return false;
     }
 
@@ -875,8 +866,6 @@ bool LLVivoxVoiceClient::startAndConnectSession()
         giveUp();
         return false;
     }
-
-    setState(stateIdle);
 
     return true;
 }
@@ -894,12 +883,9 @@ bool LLVivoxVoiceClient::endAndDisconnectSession()
 bool LLVivoxVoiceClient::startAndLaunchDaemon()
 {
     //---------------------------------------------------------------------
-    setState(stateStart);
-
     if (gSavedSettings.getBOOL("CmdLineDisableVoice"))
     {
         // Voice is locked out, we must not launch the vivox daemon.
-        setState(stateJail);
         return false;
     }
 
@@ -1320,8 +1306,6 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
 
 bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 {
-    setState(stateRetrievingParcelVoiceInfo);
-
     LL_INFOS("Voice") << "Requesting voice info for Parcel" << LL_ENDL;
 
     LLViewerRegion * region = gAgent.getRegion();
@@ -1337,7 +1321,6 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
     {
         // Region dosn't have the cap. Stop probing.
         LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest capability not available in this region" << LL_ENDL;
-        setState(stateDisableCleanup);
         return false;
     }
  
@@ -1690,7 +1673,9 @@ bool LLVivoxVoiceClient::waitForChannel()
             }
             else if (mNextAudioSession)
             {
-                runSession(mNextAudioSession);
+                sessionState *joinSession = mNextAudioSession;
+                mNextAudioSession = NULL;
+                runSession(joinSession);
             }
 
             if (!mNextAudioSession)
@@ -1827,8 +1812,6 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
 
     while (true)
     {
-        setState(stateCaptureBufferPaused);
-
         LLSD command;
         do
         {
@@ -2030,7 +2013,6 @@ bool LLVivoxVoiceClient::performMicTuning(LLVivoxVoiceClient::state exitState)
     mIsInTuningMode = false;
 
     //---------------------------------------------------------------------
-    setState(exitState);
     return true;
 }
 
@@ -2574,7 +2556,7 @@ void LLVivoxVoiceClient::daemonDied()
 	LL_WARNS("Voice") << "Connection to vivox daemon lost.  Resetting state."<< LL_ENDL;
 
 	// Try to relaunch the daemon
-	setState(stateDisableCleanup);
+    /*TODO:*/
 }
 
 void LLVivoxVoiceClient::giveUp()
@@ -2582,8 +2564,6 @@ void LLVivoxVoiceClient::giveUp()
 	// All has failed.  Clean up and stop trying.
 	closeSocket();
 	cleanUp();
-	
-	setState(stateJail);
 }
 
 static void oldSDKTransform (LLVector3 &left, LLVector3 &up, LLVector3 &at, LLVector3d &pos, LLVector3 &vel)
@@ -3225,16 +3205,14 @@ void LLVivoxVoiceClient::sessionConnectResponse(std::string &requestId, int stat
 			session->mMediaConnectInProgress = false;
 			session->mErrorStatusCode = statusCode;
 			session->mErrorStatusString = statusString;
-			if (session == mAudioSession)
-			{
-				setState(stateJoinSessionFailed);
-			}
 		}
 	}
 	else
 	{
 		LL_DEBUGS("Voice") << "Session.Connect response received (success)" << LL_ENDL;
 	}
+
+    /*TODO: Post response?*/
 }
 
 void LLVivoxVoiceClient::logoutResponse(int statusCode, std::string &statusString)
@@ -3249,7 +3227,6 @@ void LLVivoxVoiceClient::logoutResponse(int statusCode, std::string &statusStrin
     vivoxevent["logout"] = LLSD::Boolean(true);
 
     LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
-
 }
 
 void LLVivoxVoiceClient::connectorShutdownResponse(int statusCode, std::string &statusString)

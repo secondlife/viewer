@@ -673,7 +673,6 @@ private:
 	/// Clean up objects created during a voice session.
 	void cleanUp();
 
-	state mState;
 	bool mSessionTerminateRequested;
 	bool mRelogRequested;
 	// Number of times (in a row) "stateJoiningSession" case for spatial channel is reached in stateMachine().
@@ -681,8 +680,9 @@ private:
 	// Introduced while fixing EXT-4313.
 	int mSpatialJoiningNum;
 	
-	void setState(state inState);
 #if 0
+    state mState;
+    void setState(state inState);
     state getState(void)  { return mState; };
 	std::string state2string(state inState);
 	
