@@ -1160,7 +1160,7 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
     else
     {   // If we are not doing a corowait then we must sleep until the connector has responded
         // otherwise we may very well close the socket too early.
-#ifdef LL_WINDOWS
+#if LL_WINDOWS
         int count = 0;
         while (!mShutdownComplete && 10 > count++)
         {
