@@ -171,9 +171,9 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mDevicesListUpdated(false),
 
 	mAreaVoiceDisabled(false),
-	mAudioSession(NULL),
+	mAudioSession(),
 	mAudioSessionChanged(false),
-	mNextAudioSession(NULL),
+	mNextAudioSession(),
 
 	mCurrentParcelLocalID(0),
 	mNumberOfAliases(0),
@@ -1084,7 +1084,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     mAudioSessionChanged = true;
     if (!mAudioSession->mReconnect)
     {
-        mNextAudioSession = NULL;
+        mNextAudioSession.reset();
     }
 
     // The old session may now need to be deleted.
@@ -1274,7 +1274,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
 
         sessionStatePtr_t oldSession = mAudioSession;
 
-        mAudioSession = NULL;
+        mAudioSession.reset();
         // We just notified status observers about this change.  Don't do it again.
         mAudioSessionChanged = false;
 
@@ -4126,7 +4126,8 @@ LLVivoxVoiceClient::sessionStatePtr_t LLVivoxVoiceClient::startUserIMSession(con
 		session = addSession(uri);
 
 		llassert(session);
-		if (!session) return NULL;
+		if (!session)
+            return session;
 
 		session->mIsSpatial = false;
 		session->mReconnect = false;	
@@ -5223,14 +5224,14 @@ void LLVivoxVoiceClient::deleteSession(const sessionStatePtr_t &session)
 	// If this is the current audio session, clean up the pointer which will soon be dangling.
 	if(mAudioSession == session)
 	{
-		mAudioSession = NULL;
+		mAudioSession.reset();
 		mAudioSessionChanged = true;
 	}
 
 	// ditto for the next audio session
 	if(mNextAudioSession == session)
 	{
-		mNextAudioSession = NULL;
+		mNextAudioSession.reset();
 	}
 
 	// delete the session
