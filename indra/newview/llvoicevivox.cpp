@@ -168,7 +168,6 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mTuningMicVolumeDirty(true),
 	mTuningSpeakerVolume(50),     // Set to 50 so the user can hear himself when he sets his mic volume
 	mTuningSpeakerVolumeDirty(true),
-	mTuningExitState(stateDisabled),
 	mDevicesListUpdated(false),
 
 	mAreaVoiceDisabled(false),
@@ -504,323 +503,8 @@ void LLVivoxVoiceClient::setLoginInfo(
 
 void LLVivoxVoiceClient::idle(void* user_data)
 {
-// 	LLVivoxVoiceClient* self = (LLVivoxVoiceClient*)user_data;
-// 	self->stateMachine();
 }
 
-#if 0
-std::string LLVivoxVoiceClient::state2string(LLVivoxVoiceClient::state inState)
-{
-	std::string result = "UNKNOWN";
-	
-		// Prevent copy-paste errors when updating this list...
-#define CASE(x)  case x:  result = #x;  break
-
-	switch(inState)
-	{
-		CASE(stateDisableCleanup);
-		CASE(stateDisabled);
-		CASE(stateStart);
-		CASE(stateDaemonLaunched);
-		CASE(stateConnecting);
-		CASE(stateConnected);
-		CASE(stateIdle);
-		CASE(stateMicTuningStart);
-		CASE(stateMicTuningRunning);
-		CASE(stateMicTuningStop);
-		CASE(stateCaptureBufferPaused);
-		CASE(stateCaptureBufferRecStart);
-		CASE(stateCaptureBufferRecording);
-		CASE(stateCaptureBufferPlayStart);
-		CASE(stateCaptureBufferPlaying);
-		CASE(stateConnectorStart);
-		CASE(stateConnectorStarting);
-		CASE(stateConnectorStarted);
-		CASE(stateLoginRetry);
-		CASE(stateLoginRetryWait);
-		CASE(stateNeedsLogin);
-		CASE(stateLoggingIn);
-		CASE(stateLoggedIn);
-		CASE(stateVoiceFontsWait);
-		CASE(stateVoiceFontsReceived);
-		CASE(stateCreatingSessionGroup);
-		CASE(stateNoChannel);		
-		CASE(stateRetrievingParcelVoiceInfo);
-		CASE(stateJoiningSession);
-		CASE(stateSessionJoined);
-		CASE(stateRunning);
-		CASE(stateLeavingSession);
-		CASE(stateSessionTerminated);
-		CASE(stateLoggingOut);
-		CASE(stateLoggedOut);
-		CASE(stateConnectorStopping);
-		CASE(stateConnectorStopped);
-		CASE(stateConnectorFailed);
-		CASE(stateConnectorFailedWaiting);
-		CASE(stateLoginFailed);
-		CASE(stateLoginFailedWaiting);
-		CASE(stateJoinSessionFailed);
-		CASE(stateJoinSessionFailedWaiting);
-		CASE(stateJail);
-	}
-
-#undef CASE
-	
-	return result;
-}
-#endif
-
-
-#if 0
-void LLVivoxVoiceClient::setState(state inState)
-{
-    LL_WARNS("Voice") << "call to setting state." << LL_ENDL;
-//	LL_DEBUGS("Voice") << "entering state " << state2string(inState) << LL_ENDL;
-	
-	mState = inState;
-}
-
-void LLVivoxVoiceClient::stateMachine()
-{
-	if(gDisconnected)
-	{
-		// The viewer has been disconnected from the sim.  Disable voice.
-		setVoiceEnabled(false);
-	}
-	
-	if ((getState() == stateRunning) && inSpatialChannel() && /*mUpdateTimer.hasExpired() &&*/ !mTerminateDaemon)
-	{
-#if 0
-		// poll the avatar position so its available in various states when a 3d position is sent.
-		updatePosition();
-#endif
-	}
-	else if(mTuningMode)
-	{
-		// Tuning mode is special -- it needs to launch SLVoice even if voice is disabled.
-	}
-	else
-	{
-		if (!gSavedSettings.getBOOL("EnableVoiceChat"))
-		//if((getState() != stateDisabled) && (getState() != stateDisableCleanup))
-		{
-			// User turned off voice support.  Send the cleanup messages, close the socket, and reset.
-			if(!mConnected && mTerminateDaemon)
-			{
-				// if voice was turned off after the daemon was launched but before we could connect to it, we may need to issue a kill.
-				LL_INFOS("Voice") << "Disabling voice before connection to daemon, terminating." << LL_ENDL;
-				killGateway();
-				mTerminateDaemon = false;
-				mConnected = false;
-			}
-			else {
-				logout();
-				connectorShutdown();
-			}
-			
-			setState(stateDisableCleanup);
-		}
-	}
-	
-	
-	// send any requests to adjust mic and speaker settings if they have changed
-	sendLocalAudioUpdates(); 
-
-
-	switch(getState())
-	{
-		//MARK: stateDisableCleanup
-		case stateDisableCleanup:
-			// Clean up and reset everything.
-			closeSocket();
-			cleanUp();
-
-			mAccountHandle.clear();
-			mAccountPassword.clear();
-			mVoiceAccountServerURI.clear();
-			
-			setState(stateDisabled);	
-		break;
-		
-		//MARK: stateDisabled
-		case stateDisabled:
-			if(mTuningMode || ((mVoiceEnabled || !mIsInitialized) && !mAccountName.empty()))
-			{
-                LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
-                    boost::bind(&LLVivoxVoiceClient::voiceControlCoro, this));
-			}
-		break;
-
-//--------------------------------------------------------------------------
-        case stateStart:
-        case stateDaemonLaunched:
-        case stateConnecting:
-        case stateConnected:
-            // moved to coroutine LLVivoxVoiceClient::startAndLaunchDaemon
-            break;
-//--------------------------------------------------------------------------
-
-        case stateIdle:
-            break;
-//--------------------------------------------------------------------------
-        case stateMicTuningStart:
-        case stateMicTuningRunning:
-        case stateMicTuningStop:
-            // moved to coroutine LLVivoxVoiceClient::performMicTuning
-            break;
-//--------------------------------------------------------------------------
-
-        // *TODO: Not working yet....
-
-        //MARK: stateCaptureBufferPaused
-        case stateCaptureBufferPaused:
-            // moved to recordingAndPlaybackMode()
-        case stateCaptureBufferRecStart:
-        case stateCaptureBufferRecording:
-            // moved to voiceRecordBuffer()
-        case stateCaptureBufferPlayStart:
-        case stateCaptureBufferPlaying:
-            // moved to voicePlaybackBuffer()
-            break;
-//-------------------------------------------------------------------------
-        case stateConnectorStart:
-        case stateConnectorStarting:	
-        case stateConnectorStarted:	
-            // moved to establishVoiceConnection
-            break;
-
-//-------------------------------------------------------------------------
-        case stateLoginRetry:
-        case stateLoginRetryWait:
-        case stateNeedsLogin:
-        case stateLoggingIn:
-        case stateLoggedIn:
-            // moved to loginToVivox
-            break;
-
-        case stateVoiceFontsWait:		// Await voice font list
-        case stateVoiceFontsReceived:	// Voice font list received
-            // moved to retrieveVoiceFonts
-            break;
-		
-		//MARK: stateCreatingSessionGroup
-		case stateCreatingSessionGroup:
-			if(mSessionTerminateRequested || (!mVoiceEnabled && mIsInitialized))
-			{
-				// *TODO: Question: is this the right way out of this state
-				setState(stateSessionTerminated);
-			}
-			else if(!mMainSessionGroupHandle.empty())
-			{
-				// Start looped recording (needed for "panic button" anti-griefing tool)
-				recordingLoopStart();
-				setState(stateNoChannel);	
-			}
-		break;
-			
-        case stateRetrievingParcelVoiceInfo:
-            break;
-
-        case stateNoChannel:
-            // moved to waitForChannel
-            break;
-        case stateJoiningSession:		// waiting for session handle
-        case stateSessionJoined:		// session handle received
-            // moved to addAndJoinSession()
-            break;
-        //MARK: stateRunning
-        case stateRunning:				// steady state
-            //MARK: stateRunning
-            // moved to runSession
-            break;
-		case stateLeavingSession:		// waiting for terminate session response
-        case stateSessionTerminated:
-            // moved to terminateAudioSession
-            break;
-		//MARK: stateLoggingOut
-		case stateLoggingOut:			// waiting for logout response
-			// The handler for the AccountLoginStateChangeEvent will transition from here to stateLoggedOut.
-		break;
-		
-		//MARK: stateLoggedOut
-		case stateLoggedOut:			// logout response received
-			
-			// Once we're logged out, these things are invalid.
-			mAccountHandle.clear();
-			cleanUp();
-
-			if((mVoiceEnabled || !mIsInitialized) && !mRelogRequested)
-			{
-				// User was logged out, but wants to be logged in.  Send a new login request.
-				setState(stateNeedsLogin);
-			}
-			else
-			{
-				// shut down the connector
-				connectorShutdown();
-			}
-		break;
-		
-//-------------------------------------------------------------------------
-        //MARK: stateConnectorStopping
-		case stateConnectorStopping:	// waiting for connector stop
-			// The handler for the Connector.InitiateShutdown response will transition from here to stateConnectorStopped.
-			mShutdownComplete = true;
-		break;
-
-		//MARK: stateConnectorStopped
-		case stateConnectorStopped:		// connector stop received
-			setState(stateDisableCleanup);
-		break;
-
-//-------------------------------------------------------------------------
-        //MARK: stateConnectorFailed
-		case stateConnectorFailed:
-			setState(stateConnectorFailedWaiting);
-		break;
-		//MARK: stateConnectorFailedWaiting
-		case stateConnectorFailedWaiting:
-			if(!mVoiceEnabled)
-			{
-				setState(stateDisableCleanup);
-			}
-		break;
-//-------------------------------------------------------------------------
-
-		//MARK: stateLoginFailed
-		case stateLoginFailed:
-			setState(stateLoginFailedWaiting);
-		break;
-		//MARK: stateLoginFailedWaiting
-		case stateLoginFailedWaiting:
-			if(!mVoiceEnabled)
-			{
-				setState(stateDisableCleanup);
-			}
-		break;
-        case stateJoinSessionFailed:
-        case stateJoinSessionFailedWaiting:
-            break;
-		//MARK: stateJail
-		case stateJail:
-			// We have given up.  Do nothing.
-		break;
-
-	}
-	
-// 	if (mAudioSessionChanged)
-// 	{
-// 		mAudioSessionChanged = false;
-// 		notifyParticipantObservers();
-// 		notifyVoiceFontObservers();
-// 	}
-// 	else if (mAudioSession && mAudioSession->mParticipantsChanged)
-// 	{
-// 		mAudioSession->mParticipantsChanged = false;
-// 		notifyParticipantObservers();
-// 	}
-}
-#endif
 
 //=========================================================================
 // the following are methods to support the coroutine implementation of the 
@@ -836,7 +520,7 @@ void LLVivoxVoiceClient::voiceControlCoro()
 
     if (mTuningMode)
     {
-        performMicTuning(stateIdle);
+        performMicTuning();
     }
     else if (mVoiceEnabled)
     {
@@ -1113,7 +797,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     do
     {
         result = llcoro::suspendUntilEventOn(voiceConnectPump);
-        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } 
     while (!result.has("connector"));
 
@@ -1139,7 +823,7 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
     if (corowait)
     {
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
-        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         retval = result.has("connector");
     }
@@ -1181,7 +865,7 @@ bool LLVivoxVoiceClient::loginToVivox()
         send_login = false;
 
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
-        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         if (result.has("login"))
         {
@@ -1269,7 +953,7 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
     {
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         if (result.has("logout"))
         {
@@ -1292,7 +976,7 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
     {
         result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("voice_fonts"))
             break;
     } while (true);
@@ -1387,12 +1071,12 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
     return !setSpatialChannel(uri, credentials);
 }
 
-bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
+bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
 {
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
     mIsJoiningSession = true;
 
-    sessionState *oldSession = mAudioSession;
+    sessionStatePtr_t oldSession = mAudioSession;
 
     LL_INFOS("Voice") << "Adding or joining voice session " << nextSession->mHandle << LL_ENDL;
 
@@ -1473,7 +1157,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(sessionState *nextSession)
     {
         result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
             if (result.has("handle"))
@@ -1563,7 +1247,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
                 {
                      result = llcoro::suspendUntilEventOn(voicePump);
 
-                    LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+                    LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
                     if (result.has("session"))
                     {
                         if (result.has("handle"))
@@ -1588,7 +1272,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
             LL_WARNS("Voice") << "called with no session handle" << LL_ENDL;
         }
 
-        sessionState *oldSession = mAudioSession;
+        sessionStatePtr_t oldSession = mAudioSession;
 
         mAudioSession = NULL;
         // We just notified status observers about this change.  Don't do it again.
@@ -1652,7 +1336,7 @@ bool LLVivoxVoiceClient::waitForChannel()
 
             if (mTuningMode)
             {
-                performMicTuning(stateNoChannel);
+                performMicTuning();
             }
             else if (mCaptureBufferMode)
             {
@@ -1673,8 +1357,8 @@ bool LLVivoxVoiceClient::waitForChannel()
             }
             else if (mNextAudioSession)
             {
-                sessionState *joinSession = mNextAudioSession;
-                mNextAudioSession = NULL;
+                sessionStatePtr_t joinSession = mNextAudioSession;
+                mNextAudioSession.reset();
                 runSession(joinSession);
             }
 
@@ -1696,12 +1380,10 @@ bool LLVivoxVoiceClient::waitForChannel()
         }
     } while (mVoiceEnabled && mRelogRequested);
 
-    
-
     return true;
 }
 
-bool LLVivoxVoiceClient::runSession(sessionState *session)
+bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 {
     LL_INFOS("Voice") << "running new voice session " << session->mHandle << LL_ENDL;
 
@@ -1776,7 +1458,7 @@ bool LLVivoxVoiceClient::runSession(sessionState *session)
         timeout.eventAfter(UPDATE_THROTTLE_SECONDS, timeoutEvent);
         LLSD result = llcoro::suspendUntilEventOn(timeout);
         if (!result.has("timeout")) // logging the timeout event spamms the log
-            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {   
             if (result.has("handle"))
@@ -1816,7 +1498,7 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
         do
         {
             command = llcoro::suspendUntilEventOn(voicePump);
-            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(command) << LL_ENDL;
+            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(command) << LL_ENDL;
         } while (!command.has("recplay"));
 
         if (command["recplay"].asString() == "quit")
@@ -1860,7 +1542,7 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
     do
     {
         result = llcoro::suspendUntilEventOn(voicePump);
-        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } while (!result.has("recplay"));
 
     mCaptureBufferRecorded = true;
@@ -1900,7 +1582,7 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
             notifyVoiceFontObservers();
 
             result = llcoro::suspendUntilEventOn(voicePump);
-            LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         } while (!result.has("recplay"));
 
         if (result["recplay"] == "playback")
@@ -1920,7 +1602,7 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
 }
 
 
-bool LLVivoxVoiceClient::performMicTuning(LLVivoxVoiceClient::state exitState)
+bool LLVivoxVoiceClient::performMicTuning()
 {
     LL_INFOS("Voice") << "Entering voice tuning mode." << LL_ENDL;
 
@@ -2093,7 +1775,7 @@ void LLVivoxVoiceClient::sessionGroupCreateSendMessage()
 	}
 }
 
-void LLVivoxVoiceClient::sessionCreateSendMessage(sessionState *session, bool startAudio, bool startText)
+void LLVivoxVoiceClient::sessionCreateSendMessage(const sessionStatePtr_t &session, bool startAudio, bool startText)
 {
 	LL_DEBUGS("Voice") << "Requesting create: " << session->mSIPURI << LL_ENDL;
 
@@ -2133,7 +1815,7 @@ void LLVivoxVoiceClient::sessionCreateSendMessage(sessionState *session, bool st
 	writeString(stream.str());
 }
 
-void LLVivoxVoiceClient::sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio, bool startText)
+void LLVivoxVoiceClient::sessionGroupAddSessionSendMessage(const sessionStatePtr_t &session, bool startAudio, bool startText)
 {
 	LL_DEBUGS("Voice") << "Requesting create: " << session->mSIPURI << LL_ENDL;
 
@@ -2174,7 +1856,7 @@ void LLVivoxVoiceClient::sessionGroupAddSessionSendMessage(sessionState *session
 	writeString(stream.str());
 }
 
-void LLVivoxVoiceClient::sessionMediaConnectSendMessage(sessionState *session)
+void LLVivoxVoiceClient::sessionMediaConnectSendMessage(const sessionStatePtr_t &session)
 {
 	LL_DEBUGS("Voice") << "Connecting audio to session handle: " << session->mHandle << LL_ENDL;
 
@@ -2196,7 +1878,7 @@ void LLVivoxVoiceClient::sessionMediaConnectSendMessage(sessionState *session)
 	writeString(stream.str());
 }
 
-void LLVivoxVoiceClient::sessionTextConnectSendMessage(sessionState *session)
+void LLVivoxVoiceClient::sessionTextConnectSendMessage(const sessionStatePtr_t &session)
 {
 	LL_DEBUGS("Voice") << "connecting text to session handle: " << session->mHandle << LL_ENDL;
 	
@@ -2261,7 +1943,7 @@ void LLVivoxVoiceClient::leaveAudioSession()
     sessionTerminate();
 }
 
-void LLVivoxVoiceClient::sessionTerminateSendMessage(sessionState *session)
+void LLVivoxVoiceClient::sessionTerminateSendMessage(const sessionStatePtr_t &session)
 {
 	std::ostringstream stream;
 
@@ -2278,7 +1960,7 @@ void LLVivoxVoiceClient::sessionTerminateSendMessage(sessionState *session)
 	*/
 }
 
-void LLVivoxVoiceClient::sessionGroupTerminateSendMessage(sessionState *session)
+void LLVivoxVoiceClient::sessionGroupTerminateSendMessage(const sessionStatePtr_t &session)
 {
 	std::ostringstream stream;
 	
@@ -2291,7 +1973,7 @@ void LLVivoxVoiceClient::sessionGroupTerminateSendMessage(sessionState *session)
 	writeString(stream.str());
 }
 
-void LLVivoxVoiceClient::sessionMediaDisconnectSendMessage(sessionState *session)
+void LLVivoxVoiceClient::sessionMediaDisconnectSendMessage(const sessionStatePtr_t &session)
 {
 	std::ostringstream stream;
 	sessionGroupTerminateSendMessage(session);
@@ -2852,7 +2534,7 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 		
 		for(; iter != mAudioSession->mParticipantsByURI.end(); iter++)
 		{
-			participantState *p = iter->second;
+			participantStatePtr_t p(iter->second);
 			
 			if(p->mVolumeDirty)
 			{
@@ -3090,7 +2772,7 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 
 void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statusCode, std::string &statusString, std::string &sessionHandle)
 {	
-	sessionState *session = findSessionBeingCreatedByURI(requestId);
+    sessionStatePtr_t session(findSessionBeingCreatedByURI(requestId));
 	
 	if(session)
 	{
@@ -3137,7 +2819,7 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 
 void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, int statusCode, std::string &statusString, std::string &sessionHandle)
 {	
-	sessionState *session = findSessionBeingCreatedByURI(requestId);
+    sessionStatePtr_t session(findSessionBeingCreatedByURI(requestId));
 	
 	if(session)
 	{
@@ -3186,7 +2868,7 @@ void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, 
 
 void LLVivoxVoiceClient::sessionConnectResponse(std::string &requestId, int statusCode, std::string &statusString)
 {
-	sessionState *session = findSession(requestId);
+    sessionStatePtr_t session(findSession(requestId));
 	// 1026 is session already has media,  somehow mediaconnect was called twice on the same session.
 	// set the session info to reflect that the user is already connected.
 	if (statusCode == 1026)
@@ -3256,7 +2938,7 @@ void LLVivoxVoiceClient::sessionAddedEvent(
 		std::string &nameString,
 		std::string &applicationString)
 {
-	sessionState *session = NULL;
+    sessionStatePtr_t session;
 
 	LL_INFOS("Voice") << "session " << uriString << ", alias " << alias << ", name " << nameString << " handle " << sessionHandle << LL_ENDL;
 	
@@ -3332,12 +3014,12 @@ void LLVivoxVoiceClient::sessionGroupAddedEvent(std::string &sessionGroupHandle)
 #endif
 }
 
-void LLVivoxVoiceClient::joinedAudioSession(sessionState *session)
+void LLVivoxVoiceClient::joinedAudioSession(const sessionStatePtr_t &session)
 {
 	LL_DEBUGS("Voice") << "Joined Audio Session" << LL_ENDL;
 	if(mAudioSession != session)
 	{
-		sessionState *oldSession = mAudioSession;
+        sessionStatePtr_t oldSession = mAudioSession;
 
 		mAudioSession = session;
 		mAudioSessionChanged = true;
@@ -3357,7 +3039,7 @@ void LLVivoxVoiceClient::joinedAudioSession(sessionState *session)
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
 
 		// Add the current user as a participant here.
-		participantState *participant = session->addParticipant(sipURIFromName(mAccountName));
+        participantStatePtr_t participant(session->addParticipant(sipURIFromName(mAccountName)));
 		if(participant)
 		{
 			participant->mIsSelf = true;
@@ -3370,7 +3052,7 @@ void LLVivoxVoiceClient::joinedAudioSession(sessionState *session)
 		if(!session->mIsChannel)
 		{
 			// this is a p2p session.  Make sure the other end is added as a participant.
-			participantState *participant = session->addParticipant(session->mSIPURI);
+            participantStatePtr_t participant(session->addParticipant(session->mSIPURI));
 			if(participant)
 			{
 				if(participant->mAvatarIDValid)
@@ -3397,7 +3079,7 @@ void LLVivoxVoiceClient::sessionRemovedEvent(
 {
 	LL_INFOS("Voice") << "handle " << sessionHandle << LL_ENDL;
 	
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	if(session)
 	{
 		leftAudioSession(session);
@@ -3424,7 +3106,7 @@ void LLVivoxVoiceClient::sessionRemovedEvent(
 
 }
 
-void LLVivoxVoiceClient::reapSession(sessionState *session)
+void LLVivoxVoiceClient::reapSession(const sessionStatePtr_t &session)
 {
 	if(session)
 	{
@@ -3450,7 +3132,6 @@ void LLVivoxVoiceClient::reapSession(sessionState *session)
 			// We don't have a reason to keep tracking this session, so just delete it.
 			LL_DEBUGS("Voice") << "deleting session " << session->mSIPURI << LL_ENDL;
 			deleteSession(session);
-			session = NULL;
 		}	
 	}
 	else
@@ -3460,11 +3141,11 @@ void LLVivoxVoiceClient::reapSession(sessionState *session)
 }
 
 // Returns true if the session seems to indicate we've moved to a region on a different voice server
-bool LLVivoxVoiceClient::sessionNeedsRelog(sessionState *session)
+bool LLVivoxVoiceClient::sessionNeedsRelog(const sessionStatePtr_t &session)
 {
 	bool result = false;
 	
-	if(session != NULL)
+	if(session)
 	{
 		// Only make this check for spatial channels (so it won't happen for group or p2p calls)
 		if(session->mIsSpatial)
@@ -3492,8 +3173,7 @@ bool LLVivoxVoiceClient::sessionNeedsRelog(sessionState *session)
 	return result;
 }
 
-void LLVivoxVoiceClient::leftAudioSession(
-	sessionState *session)
+void LLVivoxVoiceClient::leftAudioSession(const sessionStatePtr_t &session)
 {
     if (mAudioSession == session)
     {
@@ -3587,7 +3267,7 @@ void LLVivoxVoiceClient::mediaStreamUpdatedEvent(
 	int state, 
 	bool incoming)
 {
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	
 	LL_DEBUGS("Voice") << "session " << sessionHandle << ", status code " << statusCode << ", string \"" << statusString << "\"" << LL_ENDL;
 	
@@ -3670,10 +3350,10 @@ void LLVivoxVoiceClient::participantAddedEvent(
 		std::string &displayNameString, 
 		int participantType)
 {
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	if(session)
 	{
-		participantState *participant = session->addParticipant(uriString);
+        participantStatePtr_t participant(session->addParticipant(uriString));
 		if(participant)
 		{
 			participant->mAccountName = nameString;
@@ -3716,10 +3396,10 @@ void LLVivoxVoiceClient::participantRemovedEvent(
 		std::string &alias, 
 		std::string &nameString)
 {
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	if(session)
 	{
-		participantState *participant = session->findParticipant(uriString);
+        participantStatePtr_t participant(session->findParticipant(uriString));
 		if(participant)
 		{
 			session->removeParticipant(participant);
@@ -3747,10 +3427,10 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 		int volume, 
 		F32 energy)
 {
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	if(session)
 	{
-		participantState *participant = session->findParticipant(uriString);
+		participantStatePtr_t participant(session->findParticipant(uriString));
 		
 		if(participant)
 		{
@@ -3938,7 +3618,7 @@ void LLVivoxVoiceClient::messageEvent(
 		
 //		LL_DEBUGS("Voice") << "    stripped message = \n" << message << LL_ENDL;
 		
-		sessionState *session = findSession(sessionHandle);
+        sessionStatePtr_t session(findSession(sessionHandle));
 		if(session)
 		{
 			bool is_do_not_disturb = gAgent.isDoNotDisturb();
@@ -3979,11 +3659,11 @@ void LLVivoxVoiceClient::messageEvent(
 
 void LLVivoxVoiceClient::sessionNotificationEvent(std::string &sessionHandle, std::string &uriString, std::string &notificationType)
 {
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	
 	if(session)
 	{
-		participantState *participant = session->findParticipant(uriString);
+		participantStatePtr_t participant(session->findParticipant(uriString));
 		if(participant)
 		{
 			if (!stricmp(notificationType.c_str(), "Typing"))
@@ -4029,7 +3709,7 @@ void LLVivoxVoiceClient::muteListChanged()
 		
 		for(; iter != mAudioSession->mParticipantsByURI.end(); iter++)
 		{
-			participantState *p = iter->second;
+			participantStatePtr_t p(iter->second);
 			
 			// Check to see if this participant is on the mute list already
 			if(p->updateMuteState())
@@ -4057,9 +3737,9 @@ LLVivoxVoiceClient::participantState::participantState(const std::string &uri) :
 {
 }
 
-LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParticipant(const std::string &uri)
+LLVivoxVoiceClient::participantStatePtr_t LLVivoxVoiceClient::sessionState::addParticipant(const std::string &uri)
 {
-	participantState *result = NULL;
+    participantStatePtr_t result;
 	bool useAlternateURI = false;
 	
 	// Note: this is mostly the body of LLVivoxVoiceClient::sessionState::findParticipant(), but since we need to know if it
@@ -4087,7 +3767,7 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParti
 	if(!result)
 	{
 		// participant isn't already in one list or the other.
-		result = new participantState(useAlternateURI?mSIPURI:uri);
+		result.reset(new participantState(useAlternateURI?mSIPURI:uri));
 		mParticipantsByURI.insert(participantMap::value_type(result->mURI, result));
 		mParticipantsChanged = true;
 		
@@ -4106,12 +3786,11 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParti
 				result->mAvatarID.generate(uri);
 			}
 		}
-
 		
-		if(result->updateMuteState())
-		{
-		    mMuteDirty = true;
-                }
+        if(result->updateMuteState())
+        {
+	        mMuteDirty = true;
+        }
 		
 		mParticipantsByUUID.insert(participantUUIDMap::value_type(result->mAvatarID, result));
 
@@ -4130,8 +3809,6 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParti
 bool LLVivoxVoiceClient::participantState::updateMuteState()
 {
 	bool result = false;
-	
-
 
 	bool isMuted = LLMuteList::getInstance()->isMuted(mAvatarID, LLMute::flagVoiceChat);
 	if(mOnMuteList != isMuted)
@@ -4148,7 +3825,7 @@ bool LLVivoxVoiceClient::participantState::isAvatar()
 	return mAvatarIDValid;
 }
 
-void LLVivoxVoiceClient::sessionState::removeParticipant(LLVivoxVoiceClient::participantState *participant)
+void LLVivoxVoiceClient::sessionState::removeParticipant(const LLVivoxVoiceClient::participantStatePtr_t &participant)
 {
 	if(participant)
 	{
@@ -4173,9 +3850,8 @@ void LLVivoxVoiceClient::sessionState::removeParticipant(LLVivoxVoiceClient::par
 		{
 			mParticipantsByURI.erase(iter);
 			mParticipantsByUUID.erase(iter2);
-			
-			delete participant;
-			mParticipantsChanged = true;
+
+            mParticipantsChanged = true;
 		}
 	}
 }
@@ -4218,9 +3894,9 @@ bool LLVivoxVoiceClient::isParticipant(const LLUUID &speaker_id)
 }
 
 
-LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::findParticipant(const std::string &uri)
+LLVivoxVoiceClient::participantStatePtr_t LLVivoxVoiceClient::sessionState::findParticipant(const std::string &uri)
 {
-	participantState *result = NULL;
+    participantStatePtr_t result;
 	
 	participantMap::iterator iter = mParticipantsByURI.find(uri);
 
@@ -4242,9 +3918,9 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::findPart
 	return result;
 }
 
-LLVivoxVoiceClient::participantState* LLVivoxVoiceClient::sessionState::findParticipantByID(const LLUUID& id)
+LLVivoxVoiceClient::participantStatePtr_t LLVivoxVoiceClient::sessionState::findParticipantByID(const LLUUID& id)
 {
-	participantState * result = NULL;
+    participantStatePtr_t result;
 	participantUUIDMap::iterator iter = mParticipantsByUUID.find(id);
 
 	if(iter != mParticipantsByUUID.end())
@@ -4255,9 +3931,9 @@ LLVivoxVoiceClient::participantState* LLVivoxVoiceClient::sessionState::findPart
 	return result;
 }
 
-LLVivoxVoiceClient::participantState* LLVivoxVoiceClient::findParticipantByID(const LLUUID& id)
+LLVivoxVoiceClient::participantStatePtr_t LLVivoxVoiceClient::findParticipantByID(const LLUUID& id)
 {
-	participantState * result = NULL;
+    participantStatePtr_t result;
 	
 	if(mAudioSession)
 	{
@@ -4311,7 +3987,6 @@ bool LLVivoxVoiceClient::switchChannel(
 {
 	bool needsSwitch = !mIsInChannel;
 	
-#if 1
     if (mIsInChannel)
     {
         if (mSessionTerminateRequested)
@@ -4354,74 +4029,16 @@ bool LLVivoxVoiceClient::switchChannel(
             }
         }
     }
-#else
-	LL_DEBUGS("Voice") 
-		<< "called in state " << state2string(getState()) 
-		<< " with uri \"" << uri << "\"" 
-		<< (spatial?", spatial is true":", spatial is false")
-		<< LL_ENDL;
-	
-	switch(getState())
-	{
-		case stateJoinSessionFailed:
-		case stateJoinSessionFailedWaiting:
-		case stateNoChannel:
-		case stateRetrievingParcelVoiceInfo:
-			// Always switch to the new URI from these states.
-			needsSwitch = true;
-		break;
 
-		default:
-			if(mSessionTerminateRequested)
-			{
-				// If a terminate has been requested, we need to compare against where the URI we're already headed to.
-				if(mNextAudioSession)
-				{
-					if(mNextAudioSession->mSIPURI != uri)
-						needsSwitch = true;
-				}
-				else
-				{
-					// mNextAudioSession is null -- this probably means we're on our way back to spatial.
-					if(!uri.empty())
-					{
-						// We do want to process a switch in this case.
-						needsSwitch = true;
-					}
-				}
-			}
-			else
-			{
-				// Otherwise, compare against the URI we're in now.
-				if(mAudioSession)
-				{
-					if(mAudioSession->mSIPURI != uri)
-					{
-						needsSwitch = true;
-					}
-				}
-				else
-				{
-					if(!uri.empty())
-					{
-						// mAudioSession is null -- it's not clear what case would cause this.
-						// For now, log it as a warning and see if it ever crops up.
-						LL_WARNS("Voice") << "No current audio session." << LL_ENDL;
-					}
-				}
-			}
-		break;
-	}
-#endif	
-	if(needsSwitch)
+    if(needsSwitch)
 	{
 		if(uri.empty())
 		{
 			// Leave any channel we may be in
 			LL_DEBUGS("Voice") << "leaving channel" << LL_ENDL;
 
-			sessionState *oldSession = mNextAudioSession;
-			mNextAudioSession = NULL;
+            sessionStatePtr_t oldSession = mNextAudioSession;
+			mNextAudioSession.reset();
 
 			// The old session may now need to be deleted.
 			reapSession(oldSession);
@@ -4450,7 +4067,7 @@ bool LLVivoxVoiceClient::switchChannel(
     return needsSwitch;
 }
 
-void LLVivoxVoiceClient::joinSession(sessionState *session)
+void LLVivoxVoiceClient::joinSession(const sessionStatePtr_t &session)
 {
 	mNextAudioSession = session;
 
@@ -4498,10 +4115,10 @@ void LLVivoxVoiceClient::callUser(const LLUUID &uuid)
 	switchChannel(userURI, false, true, true);
 }
 
-LLVivoxVoiceClient::sessionState* LLVivoxVoiceClient::startUserIMSession(const LLUUID &uuid)
+LLVivoxVoiceClient::sessionStatePtr_t LLVivoxVoiceClient::startUserIMSession(const LLUUID &uuid)
 {
 	// Figure out if a session with the user already exists
-	sessionState *session = findSession(uuid);
+    sessionStatePtr_t session(findSession(uuid));
 	if(!session)
 	{
 		// No session with user, need to start one.
@@ -4535,7 +4152,7 @@ LLVivoxVoiceClient::sessionState* LLVivoxVoiceClient::startUserIMSession(const L
 void LLVivoxVoiceClient::endUserIMSession(const LLUUID &uuid)
 {
 	// Figure out if a session with the user exists
-	sessionState *session = findSession(uuid);
+    sessionStatePtr_t session(findSession(uuid));
 	if(session)
 	{
 		// found the session
@@ -4558,7 +4175,7 @@ bool LLVivoxVoiceClient::answerInvite(std::string &sessionHandle)
 {
 	// this is only ever used to answer incoming p2p call invites.
 	
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	if(session)
 	{
 		session->mIsSpatial = false;
@@ -4587,7 +4204,7 @@ bool LLVivoxVoiceClient::isVoiceWorking() const
 BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
 {
 	BOOL result = TRUE; 
-	sessionState *session = findSession(id);
+    sessionStatePtr_t session(findSession(id));
 	
 	if(session != NULL)
 	{
@@ -4600,7 +4217,7 @@ BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
 		// Didn't find a matching session -- check the current audio session for a matching participant
 		if(mAudioSession != NULL)
 		{
-			participantState *participant = findParticipantByID(id);
+            participantStatePtr_t participant(findParticipantByID(id));
 			if(participant != NULL)
 			{
 				result = participant->isAvatar();
@@ -4616,7 +4233,7 @@ BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
 BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 {
 	BOOL result = TRUE; 
-	sessionState *session = findSession(session_id);
+    sessionStatePtr_t session(findSession(session_id));
 	
 	if(session != NULL)
 	{
@@ -4626,12 +4243,12 @@ BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 	return result;
 }
 
-// Returns true if the session can accepte text IM's.
+// Returns true if the session can accept text IM's.
 // Currently this will be false only for PSTN P2P calls.
 BOOL LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
 {
 	bool result = TRUE;
-	sessionState *session = findSession(session_id);
+    sessionStatePtr_t session(findSession(session_id));
 	
 	if(session != NULL)
 	{
@@ -4644,7 +4261,7 @@ BOOL LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
 
 void LLVivoxVoiceClient::declineInvite(std::string &sessionHandle)
 {
-	sessionState *session = findSession(sessionHandle);
+    sessionStatePtr_t session(findSession(sessionHandle));
 	if(session)
 	{
 		sessionMediaDisconnectSendMessage(session);
@@ -4656,8 +4273,8 @@ void LLVivoxVoiceClient::leaveNonSpatialChannel()
     LL_DEBUGS("Voice") << "Request to leave spacial channel." << LL_ENDL;
 	
 	// Make sure we don't rejoin the current session.	
-	sessionState *oldNextSession = mNextAudioSession;
-	mNextAudioSession = NULL;
+    sessionStatePtr_t oldNextSession(mNextAudioSession);
+	mNextAudioSession.reset();
 	
 	// Most likely this will still be the current session at this point, but check it anyway.
 	reapSession(oldNextSession);
@@ -5097,7 +4714,7 @@ void LLVivoxVoiceClient::setMicGain(F32 volume)
 BOOL LLVivoxVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
 	BOOL result = FALSE;
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		// I'm not sure what the semantics of this should be.
@@ -5111,7 +4728,7 @@ BOOL LLVivoxVoiceClient::getVoiceEnabled(const LLUUID& id)
 std::string LLVivoxVoiceClient::getDisplayName(const LLUUID& id)
 {
 	std::string result;
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		result = participant->mDisplayName;
@@ -5126,7 +4743,7 @@ BOOL LLVivoxVoiceClient::getIsSpeaking(const LLUUID& id)
 {
 	BOOL result = FALSE;
 
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		if (participant->mSpeakingTimeout.getElapsedTimeF32() > SPEAKING_TIMEOUT)
@@ -5143,7 +4760,7 @@ BOOL LLVivoxVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
 	BOOL result = FALSE;
 
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		result = participant->mIsModeratorMuted;
@@ -5155,7 +4772,7 @@ BOOL LLVivoxVoiceClient::getIsModeratorMuted(const LLUUID& id)
 F32 LLVivoxVoiceClient::getCurrentPower(const LLUUID& id)
 {		
 	F32 result = 0;
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		result = participant->mPower;
@@ -5170,7 +4787,7 @@ BOOL LLVivoxVoiceClient::getUsingPTT(const LLUUID& id)
 {
 	BOOL result = FALSE;
 
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		// I'm not sure what the semantics of this should be.
@@ -5185,7 +4802,7 @@ BOOL LLVivoxVoiceClient::getOnMuteList(const LLUUID& id)
 {
 	BOOL result = FALSE;
 	
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		result = participant->mOnMuteList;
@@ -5197,11 +4814,11 @@ BOOL LLVivoxVoiceClient::getOnMuteList(const LLUUID& id)
 // External accessors.
 F32 LLVivoxVoiceClient::getUserVolume(const LLUUID& id)
 {
-       // Minimum volume will be returned for users with voice disabled
-       F32 result = LLVoiceClient::VOLUME_MIN;
+    // Minimum volume will be returned for users with voice disabled
+    F32 result = LLVoiceClient::VOLUME_MIN;
 	
-        participantState *participant = findParticipantByID(id);
-        if(participant)
+    participantStatePtr_t participant(findParticipantByID(id));
+    if(participant)
 	{
 		result = participant->mVolume;
 
@@ -5216,7 +4833,7 @@ void LLVivoxVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 {
 	if(mAudioSession)
 	{
-		participantState *participant = findParticipantByID(id);
+        participantStatePtr_t participant(findParticipantByID(id));
 		if (participant && !participant->mIsSelf)
 		{
 			if (!is_approx_equal(volume, LLVoiceClient::VOLUME_DEFAULT))
@@ -5242,7 +4859,7 @@ std::string LLVivoxVoiceClient::getGroupID(const LLUUID& id)
 {
 	std::string result;
 
-	participantState *participant = findParticipantByID(id);
+    participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		result = participant->mGroupID;
@@ -5410,9 +5027,9 @@ LLVivoxVoiceClient::sessionIterator LLVivoxVoiceClient::sessionsEnd(void)
 }
 
 
-LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::findSession(const std::string &handle)
+LLVivoxVoiceClient::sessionStatePtr_t LLVivoxVoiceClient::findSession(const std::string &handle)
 {
-	sessionState *result = NULL;
+    sessionStatePtr_t result;
 	sessionMap::iterator iter = mSessionsByHandle.find(handle);
 	if(iter != mSessionsByHandle.end())
 	{
@@ -5422,12 +5039,12 @@ LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::findSession(const std::str
 	return result;
 }
 
-LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::findSessionBeingCreatedByURI(const std::string &uri)
+LLVivoxVoiceClient::sessionStatePtr_t LLVivoxVoiceClient::findSessionBeingCreatedByURI(const std::string &uri)
 {	
-	sessionState *result = NULL;
+    sessionStatePtr_t result;
 	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 	{
-		sessionState *session = *iter;
+        sessionStatePtr_t session = *iter;
 		if(session->mCreateInProgress && (session->mSIPURI == uri))
 		{
 			result = session;
@@ -5438,13 +5055,13 @@ LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::findSessionBeingCreatedByU
 	return result;
 }
 
-LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::findSession(const LLUUID &participant_id)
+LLVivoxVoiceClient::sessionStatePtr_t LLVivoxVoiceClient::findSession(const LLUUID &participant_id)
 {
-	sessionState *result = NULL;
+    sessionStatePtr_t result;
 	
 	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 	{
-		sessionState *session = *iter;
+        sessionStatePtr_t session = *iter;
 		if((session->mCallerID == participant_id) || (session->mIMSessionID == participant_id))
 		{
 			result = session;
@@ -5455,9 +5072,9 @@ LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::findSession(const LLUUID &
 	return result;
 }
 
-LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::addSession(const std::string &uri, const std::string &handle)
+LLVivoxVoiceClient::sessionStatePtr_t LLVivoxVoiceClient::addSession(const std::string &uri, const std::string &handle)
 {
-	sessionState *result = NULL;
+    sessionStatePtr_t result;
 	
 	if(handle.empty())
 	{
@@ -5465,7 +5082,7 @@ LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::addSession(const std::stri
 		// Check whether there's already a session with this URI
 		for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 		{
-			sessionState *s = *iter;
+            sessionStatePtr_t s(*iter);
 			if((s->mSIPURI == uri) || (s->mAlternateSIPURI == uri))
 			{
 				// TODO: I need to think about this logic... it's possible that this case should raise an internal error.
@@ -5490,7 +5107,7 @@ LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::addSession(const std::stri
 		// No existing session found.
 		
 		LL_DEBUGS("Voice") << "adding new session: handle " << handle << " URI " << uri << LL_ENDL;
-		result = new sessionState();
+        result.reset(new sessionState());
 		result->mSIPURI = uri;
 		result->mHandle = handle;
 
@@ -5540,7 +5157,7 @@ LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::addSession(const std::stri
 	return result;
 }
 
-void LLVivoxVoiceClient::setSessionHandle(sessionState *session, const std::string &handle)
+void LLVivoxVoiceClient::setSessionHandle(const sessionStatePtr_t &session, const std::string &handle)
 {
 	// Have to remove the session from the handle-indexed map before changing the handle, or things will break badly.
 	
@@ -5573,7 +5190,7 @@ void LLVivoxVoiceClient::setSessionHandle(sessionState *session, const std::stri
 	verifySessionState();
 }
 
-void LLVivoxVoiceClient::setSessionURI(sessionState *session, const std::string &uri)
+void LLVivoxVoiceClient::setSessionURI(const sessionStatePtr_t &session, const std::string &uri)
 {
 	// There used to be a map of session URIs to sessions, which made this complex....
 	session->mSIPURI = uri;
@@ -5581,7 +5198,7 @@ void LLVivoxVoiceClient::setSessionURI(sessionState *session, const std::string 
 	verifySessionState();
 }
 
-void LLVivoxVoiceClient::deleteSession(sessionState *session)
+void LLVivoxVoiceClient::deleteSession(const sessionStatePtr_t &session)
 {
 	// Remove the session from the handle map
 	if(!session->mHandle.empty())
@@ -5617,7 +5234,7 @@ void LLVivoxVoiceClient::deleteSession(sessionState *session)
 	}
 
 	// delete the session
-	delete session;
+	//delete session;
 }
 
 void LLVivoxVoiceClient::deleteAllSessions()
@@ -5642,7 +5259,7 @@ void LLVivoxVoiceClient::verifySessionState(void)
 
 	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 	{
-		sessionState *session = *iter;
+        sessionStatePtr_t session(*iter);
 
 		LL_DEBUGS("Voice") << "session " << session << ": handle " << session->mHandle << ", URI " << session->mSIPURI << LL_ENDL;
 		
@@ -5667,7 +5284,7 @@ void LLVivoxVoiceClient::verifySessionState(void)
 	// check that every entry in the handle map points to a valid session in the session set
 	for(sessionMap::iterator iter = mSessionsByHandle.begin(); iter != mSessionsByHandle.end(); iter++)
 	{
-		sessionState *session = iter->second;
+        sessionStatePtr_t session(iter->second);
 		sessionIterator i2 = mSessions.find(session);
 		if(i2 == mSessions.end())
 		{
@@ -5836,9 +5453,9 @@ void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string 
 	// Iterate over all sessions.
 	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 	{
-		sessionState *session = *iter;
+        sessionStatePtr_t session(*iter);
 		// Check for this user as a participant in this session
-		participantState *participant = session->findParticipantByID(id);
+        participantStatePtr_t participant(session->findParticipantByID(id));
 		if(participant)
 		{
 			// Found -- fill in the name
@@ -6309,7 +5926,7 @@ void LLVivoxVoiceClient::accountGetTemplateFontsSendMessage()
 	}
 }
 
-void LLVivoxVoiceClient::sessionSetVoiceFontSendMessage(sessionState *session)
+void LLVivoxVoiceClient::sessionSetVoiceFontSendMessage(const sessionStatePtr_t &session)
 {
 	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
 	LL_DEBUGS("Voice") << "Requesting voice font: " << session->mVoiceFontID << " (" << font_index << "), session handle: " << session->mHandle << LL_ENDL;
