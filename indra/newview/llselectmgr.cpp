@@ -6746,7 +6746,8 @@ LLBBox LLSelectMgr::getBBoxOfSelection() const
 //-----------------------------------------------------------------------------
 BOOL LLSelectMgr::canUndo() const
 {
-	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstEditableObject() != NULL; // HACK: casting away constness - MG
+	// Can edit or can move
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstUndoEnabledObject() != NULL; // HACK: casting away constness - MG;
 }
 
 //-----------------------------------------------------------------------------
@@ -7669,6 +7670,22 @@ LLViewerObject* LLObjectSelection::getFirstMoveableObject(BOOL get_parent)
 		}
 	} func;
 	return getFirstSelectedObject(&func, get_parent);
+}
+
+//-----------------------------------------------------------------------------
+// getFirstUndoEnabledObject()
+//-----------------------------------------------------------------------------
+LLViewerObject* LLObjectSelection::getFirstUndoEnabledObject(BOOL get_parent)
+{
+    struct f : public LLSelectedNodeFunctor
+    {
+        bool apply(LLSelectNode* node)
+        {
+            LLViewerObject* obj = node->getObject();
+            return obj && (obj->permModify() || (obj->permMove() && !obj->isPermanentEnforced()));
+        }
+    } func;
+    return getFirstSelectedObject(&func, get_parent);
 }
 
 //-----------------------------------------------------------------------------
