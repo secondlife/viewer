@@ -833,7 +833,10 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
 #if LL_WINDOWS
         int count = 0;
         while (!mShutdownComplete && 10 > count++)
-        {
+        {   // Rider: This comes out to a max wait time of 10 seconds.  
+            // The situation that brings us here is a call from ::terminate() 
+            // and so the viewer is attempting to go away.  Don't slow it down 
+            // longer than this.
             _sleep(1000);
         }
 #endif
@@ -854,7 +857,6 @@ bool LLVivoxVoiceClient::loginToVivox()
     bool response_ok(false);
     bool account_login(false);
     bool send_login(true);
-
 
     do 
     {
@@ -1323,6 +1325,8 @@ bool LLVivoxVoiceClient::waitForChannel()
         }
 
 #if USE_SESSION_GROUPS			
+        // Rider: This code is completely unchanged from the original state machine
+        // It does not seem to be in active use... but I'd rather not rip it out.
         // create the main session group
         setState(stateCreatingSessionGroup);
         sessionGroupCreateSendMessage();
@@ -1352,7 +1356,6 @@ bool LLVivoxVoiceClient::waitForChannel()
             else if (sessionNeedsRelog(mNextAudioSession))
             {
                 requestRelog();
-                terminateAudioSession(true);
                 break;
             }
             else if (mNextAudioSession)
@@ -1457,7 +1460,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
         mIsInitialized = true;
         timeout.eventAfter(UPDATE_THROTTLE_SECONDS, timeoutEvent);
         LLSD result = llcoro::suspendUntilEventOn(timeout);
-        if (!result.has("timeout")) // logging the timeout event spamms the log
+        if (!result.has("timeout")) // logging the timeout event spams the log
             LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {   
@@ -2381,7 +2384,6 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 {	
 	std::ostringstream stream;
 	
-
 	if(mSpatialCoordsDirty)
 	{
 		LLVector3 l, u, a, vel;
