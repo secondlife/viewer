@@ -1715,6 +1715,30 @@ void LLNotifications::cancelByName(const std::string& name)
 	}
 }
 
+void LLNotifications::cancelByOwner(const LLUUID ownerId)
+{
+	std::vector<LLNotificationPtr> notifs_to_cancel;
+	for (LLNotificationSet::iterator it = mItems.begin(), end_it = mItems.end();
+		 it != end_it;
+		 ++it)
+	{
+		LLNotificationPtr pNotif = *it;
+		if (pNotif && pNotif->getPayload().get("owner_id").asUUID() == ownerId)
+		{
+			notifs_to_cancel.push_back(pNotif);
+		}
+	}
+
+	for (std::vector<LLNotificationPtr>::iterator it = notifs_to_cancel.begin(), end_it = notifs_to_cancel.end();
+		 it != end_it;
+		 ++it)
+	{
+		LLNotificationPtr pNotif = *it;
+		pNotif->cancel();
+		updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
+	}
+}
+
 void LLNotifications::update(const LLNotificationPtr pNotif)
 {
 	LLNotificationSet::iterator it=mItems.find(pNotif);

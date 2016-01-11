@@ -1092,6 +1092,10 @@ void LLScriptChiclet::onMenuItemClicked(const LLSD& user_data)
 	{
 		LLScriptFloaterManager::instance().removeNotification(getSessionId());
 	}
+	else if ("end_owner" == action)
+	{
+		LLScriptFloaterManager::instance().removeAllNotificationsByOwner(getSessionId());
+	}
 }
 
 void LLScriptChiclet::createPopupMenu()
