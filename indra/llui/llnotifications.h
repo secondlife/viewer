@@ -924,6 +924,7 @@ public:
 	void add(const LLNotificationPtr pNotif);
 	void cancel(LLNotificationPtr pNotif);
 	void cancelByName(const std::string& name);
+	void cancelByOwner(const LLUUID ownerId);
 	void update(const LLNotificationPtr pNotif);
 
 	LLNotificationPtr find(LLUUID uuid);
