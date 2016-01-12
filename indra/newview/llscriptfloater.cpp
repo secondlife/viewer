@@ -420,18 +420,6 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 	toggleScriptFloater(notification_id, set_new_message);
 }
 
-void LLScriptFloaterManager::removeAllNotificationsByOwner(const LLUUID& notification_id)
-{
-	LLNotificationPtr notification = LLNotifications::instance().find(notification_id);
-	if (notification != NULL && !notification->isCancelled())
-	{
-		LLSD payload = notification->getPayload();
-		LLUUID owner = payload.get("owner_id").asUUID();
-
-		LLNotifications::instance().cancelByOwner(owner);
-	}
-}
-
 void LLScriptFloaterManager::removeNotification(const LLUUID& notification_id)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(notification_id);
