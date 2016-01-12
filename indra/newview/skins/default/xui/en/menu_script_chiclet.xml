@@ -16,12 +16,4 @@
          function="ScriptChiclet.Action"
          parameter="end" />
     </menu_item_call>
-	<menu_item_call
-	 label="Close by owner"
-	 layout="topleft"
-	 name="CloseByOwner">
-		<menu_item_call.on_click
-		 function="ScriptChiclet.Action"
-		 parameter="end_owner" />
-	</menu_item_call>
 </menu>
