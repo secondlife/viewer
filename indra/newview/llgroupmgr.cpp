@@ -1053,6 +1053,11 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 {
 	LL_DEBUGS() << "LLGroupMgr::processGroupPropertiesReply" << LL_ENDL;
+	if (!msg)
+	{
+		LL_ERRS() << "Can't access the messaging system" << LL_ENDL;
+		return;
+	}
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
