@@ -995,7 +995,7 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
 
 bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 {
-    LL_INFOS("Voice") << "Requesting voice info for Parcel" << LL_ENDL;
+    //_INFOS("Voice") << "Requesting voice info for Parcel" << LL_ENDL;
 
     LLViewerRegion * region = gAgent.getRegion();
     if (region == NULL || !region->capabilitiesReceived())
@@ -1337,7 +1337,6 @@ bool LLVivoxVoiceClient::waitForChannel()
 
         do
         {
-            LL_INFOS("Voice") << "Waiting for channel" << LL_ENDL;
             mIsProcessingChannels = true;
             llcoro::suspend();
 
