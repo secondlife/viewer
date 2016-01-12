@@ -139,8 +139,10 @@ bool LLGiveInventory::isInventoryGiveAcceptable(const LLInventoryItem* item)
 			BOOL copyable = false;
 			if (item->getPermissions().allowCopyBy(gAgentID)) copyable = true;
 
-			if (!copyable || get_is_item_worn(item->getUUID()))
+			if (!copyable && get_is_item_worn(item->getUUID()))
 			{
+				// worn no-copy items can't be transfered,
+				// but it is valid to transfer a copy of a worn item
 				acceptable = false;
 			}
 		}
