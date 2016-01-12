@@ -1623,7 +1623,7 @@ void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
             {
             	LLSD user_llsd = fav_llsd[av_name.getUserName()];
 
-            	if (user_llsd.beginArray()->has("id"))
+            	if ((user_llsd.beginArray()!= user_llsd.endArray()) && user_llsd.beginArray()->has("id"))
             	{
             		for (LLSD::array_iterator iter = user_llsd.beginArray();iter != user_llsd.endArray(); ++iter)
             		{
