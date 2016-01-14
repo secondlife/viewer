@@ -11,7 +11,7 @@
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
  * 
- * This library is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,7
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
@@ -541,21 +541,24 @@ void LLBVHLoader::dumpBVHInfo()
 		LL_DEBUGS("BVH") << joint->mName << LL_ENDL;
 		for (S32 i=0; i<mNumFrames; i++)
 		{
-			Key &prevkey = joint->mKeys[llmax(i-1,0)];
-			Key &key = joint->mKeys[i];
-			if ((i==0) ||
-				(key.mPos[0] != prevkey.mPos[0]) ||
-				(key.mPos[1] != prevkey.mPos[1]) ||
-				(key.mPos[2] != prevkey.mPos[2]) ||
-				(key.mRot[0] != prevkey.mRot[0]) ||
-				(key.mRot[1] != prevkey.mRot[1]) ||
-				(key.mRot[2] != prevkey.mRot[2])
-				)
-			{
-				LL_DEBUGS("BVH") << "FRAME " << i 
-                                 << " POS " << key.mPos[0] << "," << key.mPos[1] << "," << key.mPos[2]
-                                 << " ROT " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
-			}
+            if (i<joint->mKeys.size()) // Check this in case file load failed.
+            {
+                Key &prevkey = joint->mKeys[llmax(i-1,0)];
+                Key &key = joint->mKeys[i];
+                if ((i==0) ||
+                    (key.mPos[0] != prevkey.mPos[0]) ||
+                    (key.mPos[1] != prevkey.mPos[1]) ||
+                    (key.mPos[2] != prevkey.mPos[2]) ||
+                    (key.mRot[0] != prevkey.mRot[0]) ||
+                    (key.mRot[1] != prevkey.mRot[1]) ||
+                    (key.mRot[2] != prevkey.mRot[2])
+                    )
+                {
+                    LL_DEBUGS("BVH") << "FRAME " << i 
+                                     << " POS " << key.mPos[0] << "," << key.mPos[1] << "," << key.mPos[2]
+                                     << " ROT " << key.mRot[0] << "," << key.mRot[1] << "," << key.mRot[2] << LL_ENDL;
+                }
+            }
 		}
 	}
 
@@ -888,8 +891,16 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		tokenizer::iterator float_token_iter = float_tokens.begin();
 		while (float_token_iter != float_tokens.end())
 		{
-            F32 val = boost::lexical_cast<float>(*float_token_iter);
-			floats.push_back(val);
+            try
+            {
+                F32 val = boost::lexical_cast<float>(*float_token_iter);
+                floats.push_back(val);
+            }
+            catch (const boost::bad_lexical_cast&)
+            {
+				strncpy(error_text, line.c_str(), 127);	/*Flawfinder: ignore*/
+				return E_ST_NO_POS;
+            }
             float_token_iter++;
 		}
 		LL_DEBUGS("BVH") << "Got " << floats.size() << " floats " << LL_ENDL;
