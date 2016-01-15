@@ -571,24 +571,49 @@ void LLPanelPermissions::refresh()
 	U32 next_owner_mask_on 		= 0;
 	U32 next_owner_mask_off		= 0;
 
-	BOOL valid_base_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_BASE,
+	BOOL valid_base_perms = FALSE;
+	BOOL valid_group_perms= FALSE;
+	BOOL valid_everyone_perms= FALSE;
+	BOOL valid_next_perms= FALSE;
+
+	if(root_selected)
+	{
+	    valid_base_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_BASE,
 																			&base_mask_on,
 																			&base_mask_off);
-	//BOOL valid_owner_perms =//
-	LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
+	    //BOOL valid_owner_perms =//
+	    LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
 											  &owner_mask_on,
 											  &owner_mask_off);
-	BOOL valid_group_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_GROUP,
+	    valid_group_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_GROUP,
 																			&group_mask_on,
 																			&group_mask_off);
 	
-	BOOL valid_everyone_perms 	= LLSelectMgr::getInstance()->selectGetPerm(PERM_EVERYONE,
+	    valid_everyone_perms 	= LLSelectMgr::getInstance()->selectGetPerm(PERM_EVERYONE,
 																			&everyone_mask_on,
 																			&everyone_mask_off);
 	
-	BOOL valid_next_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_NEXT_OWNER,
+	    valid_next_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_NEXT_OWNER,
 																			&next_owner_mask_on,
 																			&next_owner_mask_off);
+	}
+	else
+	{
+	    if(object_count == 1)
+	    {
+	        LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+	        if (node && node->mValid)
+	        {
+	            valid_base_perms = TRUE;
+
+	            base_mask_on = node->mPermissions->getMaskBase();
+	            owner_mask_on = node->mPermissions->getMaskOwner();
+	            group_mask_on = node->mPermissions->getMaskGroup();
+	            everyone_mask_on = node->mPermissions->getMaskEveryone();
+	            next_owner_mask_on = node->mPermissions->getMaskNextOwner();
+	        }
+	    }
+	}
 
 	
 	if (gSavedSettings.getBOOL("DebugPermissions") )
@@ -609,6 +634,14 @@ void LLPanelPermissions::refresh()
 			
 			getChild<LLUICtrl>("N:")->setValue("N: " + mask_to_string(next_owner_mask_on));
 			getChildView("N:")->setVisible(							TRUE);
+		}
+		else
+		{
+		    getChildView("B:")->setVisible(FALSE);
+		    getChildView("O:")->setVisible(FALSE);
+		    getChildView("G:")->setVisible(FALSE);
+		    getChildView("E:")->setVisible(FALSE);
+		    getChildView("N:")->setVisible(FALSE);
 		}
 
 		U32 flag_mask = 0x0;
