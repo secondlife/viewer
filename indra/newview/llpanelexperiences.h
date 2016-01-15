@@ -58,6 +58,7 @@ public:
 	/*virtual*/ void onClosePanel();
 
     void setExperienceList(const LLSD& experiences);
+    void getExperienceIdsList(std::vector<LLUUID>& result);
 
     LLExperienceItem* getSelectedExperienceItem();
     void removeExperiences( const LLSD& ids );

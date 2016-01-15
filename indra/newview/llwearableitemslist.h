@@ -310,6 +310,7 @@ public:
 		ORDER_RANK_1 = 1,
 		ORDER_RANK_2,
 		ORDER_RANK_3,
+		ORDER_RANK_4,
 		ORDER_RANK_UNKNOWN
 	};
 
@@ -419,7 +420,8 @@ public:
 			MASK_CLOTHING		= 0x01,
 			MASK_BODYPART		= 0x02,
 			MASK_ATTACHMENT		= 0x04,
-			MASK_UNKNOWN		= 0x08,
+			MASK_GESTURE		= 0x08,
+			MASK_UNKNOWN		= 0x16,
 		};
 
 		/* virtual */ LLContextMenu* createMenu();

@@ -98,6 +98,16 @@ void LLPanelExperiences::setExperienceList( const LLSD& experiences )
 	mExperiencesList->sort();
 }
 
+void LLPanelExperiences::getExperienceIdsList(std::vector<LLUUID>& result)
+{
+    std::vector<LLSD> ids;
+    mExperiencesList->getValues(ids);
+    for (LLSD::array_const_iterator it = ids.begin(); it != ids.end(); ++it)
+    {
+        result.push_back(it->asUUID());
+    }
+}
+
 LLPanelExperiences* LLPanelExperiences::create(const std::string& name)
 {
     LLPanelExperiences* panel= new LLPanelExperiences();

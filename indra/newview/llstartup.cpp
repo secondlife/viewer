@@ -3245,12 +3245,15 @@ bool process_login_success_response()
 		gAgentUsername = first_name;
 	}
 
-	if(response.has("last_name") && !gAgentUsername.empty() && (gAgentUsername != "Resident"))
+	if(response.has("last_name") && !gAgentUsername.empty())
 	{
 		std::string last_name = response["last_name"].asString();
-		LLStringUtil::replaceChar(last_name, '"', ' ');
-		LLStringUtil::trim(last_name);
-		gAgentUsername = gAgentUsername + " " + last_name;
+		if (last_name != "Resident")
+		{
+		    LLStringUtil::replaceChar(last_name, '"', ' ');
+		    LLStringUtil::trim(last_name);
+		    gAgentUsername = gAgentUsername + " " + last_name;
+		}
 	}
 
 	if(gDisplayName.empty())

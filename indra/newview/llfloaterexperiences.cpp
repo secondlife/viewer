@@ -303,6 +303,32 @@ void LLFloaterExperiences::checkPurchaseInfo(LLPanelExperiences* panel, const LL
 	LLFloaterExperiences::findInstance()->updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
 }
 
+void LLFloaterExperiences::checkAndOpen(LLPanelExperiences* panel, const LLSD& content) const
+{
+    checkPurchaseInfo(panel, content);
+
+    // determine new item
+    const LLSD& response_ids = content["experience_ids"];
+
+    if (mPrepurchaseIds.size() + 1 == response_ids.size())
+    {
+        // we have a new element
+        for (LLSD::array_const_iterator it = response_ids.beginArray(); it != response_ids.endArray(); ++it)
+        {
+            LLUUID experience_id = it->asUUID();
+            if (std::find(mPrepurchaseIds.begin(), mPrepurchaseIds.end(), experience_id) == mPrepurchaseIds.end())
+            {
+                // new element found, open it
+                LLSD args;
+                args["experience_id"] = experience_id;
+                args["edit_experience"] = true;
+                LLFloaterReg::showInstance("experience_profile", args, true);
+                break;
+            }
+        }
+    }
+}
+
 void LLFloaterExperiences::updateInfo(std::string experiences, std::string tab)
 {
 	LLViewerRegion* region = gAgent.getRegion();
@@ -318,18 +344,28 @@ void LLFloaterExperiences::updateInfo(std::string experiences, std::string tab)
 	}
 }
 
-void LLFloaterExperiences::sendPurchaseRequest() const
+void LLFloaterExperiences::sendPurchaseRequest()
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	std::string url = region->getCapability("AgentExperiences");
 	if(!url.empty())
 	{
 		LLSD content;
+        const std::string tab_owned_name = "Owned_Experiences_Tab";
+
+        // extract ids for experiences that we already have
+        LLTabContainer* tabs = getChild<LLTabContainer>("xp_tabs");
+        LLPanelExperiences* tab_owned = (LLPanelExperiences*)tabs->getPanelByName(tab_owned_name);
+        mPrepurchaseIds.clear();
+        if (tab_owned)
+        {
+            tab_owned->getExperienceIdsList(mPrepurchaseIds);
+        }
 
 		LLExperienceListResponder::NameMap nameMap;
-		nameMap["experience_ids"]="Owned_Experiences_Tab";
+        nameMap["experience_ids"] = tab_owned_name;
 		LLExperienceListResponder* responder = new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap, "ExperienceAcquireFailed");
-		responder->mCallback = boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2);
+        responder->mCallback = boost::bind(&LLFloaterExperiences::checkAndOpen, this, _1, _2);
 		LLHTTPClient::post(url, content, responder);
 	}
 }

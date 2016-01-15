@@ -1869,7 +1869,7 @@ bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids)
 		{
 			++n_clothes;
 		}
-		else if (item->getType() == LLAssetType::AT_BODYPART)
+		else if (item->getType() == LLAssetType::AT_BODYPART || item->getType() == LLAssetType::AT_GESTURE)
 		{
 			return isAgentAvatarValid();
 		}
@@ -3824,6 +3824,10 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove)
 		if (item && item->getType() == LLAssetType::AT_OBJECT)
 		{
 			LL_DEBUGS("Avatar") << "ATT removing attachment " << item->getName() << " id " << item->getUUID() << LL_ENDL;
+		}
+		if (item && item->getType() == LLAssetType::AT_BODYPART)
+		{
+		    continue;
 		}
 		removeCOFItemLinks(linked_item_id, cb);
 		addDoomedTempAttachment(linked_item_id);

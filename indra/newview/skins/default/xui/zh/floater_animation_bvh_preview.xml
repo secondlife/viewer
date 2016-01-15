@@ -141,35 +141,35 @@
 		表情
 	</text>
 	<combo_box name="emote_combo" tool_tip="控制動作演繹時臉部的姿態">
-		<item label="（無）" name="[None]" value=""/>
-		<item label="張口吶喊貌" name="Aaaaah" value="張口吶喊貌"/>
-		<item label="害怕" name="Afraid" value="害怕"/>
-		<item label="生氣" name="Angry" value="生氣"/>
-		<item label="燦爛笑容" name="BigSmile" value="燦爛笑容"/>
-		<item label="無聊" name="Bored" value="無聊"/>
-		<item label="哭泣" name="Cry" value="哭泣"/>
-		<item label="鄙視" name="Disdain" value="鄙視"/>
-		<item label="尷尬" name="Embarrassed" value="尷尬"/>
-		<item label="皺眉" name="Frown" value="皺眉"/>
-		<item label="親吻" name="Kiss" value="親吻"/>
-		<item label="笑" name="Laugh" value="笑"/>
-		<item label="嫌惡貌" name="Plllppt" value="嫌惡貌"/>
-		<item label="作噁" name="Repulsed" value="作噁"/>
-		<item label="傷心" name="Sad" value="傷心"/>
-		<item label="聳聳肩" name="Shrug" value="聳聳肩"/>
-		<item label="微笑" name="Smile" value="微笑"/>
-		<item label="驚喜" name="Surprise" value="驚喜"/>
-		<item label="眨眼" name="Wink" value="眨眼"/>
-		<item label="擔心" name="Worry" value="擔心"/>
+		<item label="（無）" name="[None]"/>
+		<item label="張口吶喊貌" name="Aaaaah"/>
+		<item label="害怕" name="Afraid"/>
+		<item label="生氣" name="Angry"/>
+		<item label="燦爛笑容" name="BigSmile"/>
+		<item label="無聊" name="Bored"/>
+		<item label="哭泣" name="Cry"/>
+		<item label="鄙視" name="Disdain"/>
+		<item label="尷尬" name="Embarrassed"/>
+		<item label="皺眉" name="Frown"/>
+		<item label="親吻" name="Kiss"/>
+		<item label="笑" name="Laugh"/>
+		<item label="嫌惡貌" name="Plllppt"/>
+		<item label="作噁" name="Repulsed"/>
+		<item label="傷心" name="Sad"/>
+		<item label="聳聳肩" name="Shrug"/>
+		<item label="微笑" name="Smile"/>
+		<item label="驚喜" name="Surprise"/>
+		<item label="眨眼" name="Wink"/>
+		<item label="擔心" name="Worry"/>
 	</combo_box>
 	<text name="preview_label">
 		預覽…
 	</text>
 	<combo_box name="preview_base_anim" tool_tip="用這個來測試你的化身從一般動作轉入動作演繹時的情況。">
-		<item label="站立" name="Standing" value="站立"/>
-		<item label="步行中" name="Walking" value="步行中"/>
-		<item label="坐著" name="Sitting" value="坐著"/>
-		<item label="飛行" name="Flying" value="飛行"/>
+		<item label="站立" name="Standing"/>
+		<item label="步行中" name="Walking"/>
+		<item label="坐著" name="Sitting"/>
+		<item label="飛行" name="Flying"/>
 	</combo_box>
 	<spinner label="淡入（秒）" name="ease_in_time" tool_tip="動作攙混植入的時間長度（秒）"/>
 	<spinner label="淡出（秒）" name="ease_out_time" tool_tip="動作攙混淡出的時間長度（秒）"/>

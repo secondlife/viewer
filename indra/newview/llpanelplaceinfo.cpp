@@ -201,7 +201,7 @@ void LLPanelPlaceInfo::setErrorStatus(S32 status, const std::string& reason)
 // virtual
 void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 {
-	if(parcel_data.snapshot_id.notNull())
+	if(mSnapshotCtrl)
 	{
 		mSnapshotCtrl->setImageAssetID(parcel_data.snapshot_id);
 	}
