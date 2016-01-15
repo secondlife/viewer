@@ -128,6 +128,9 @@ static int scale_speaker_volume(float volume)
 	
 }
 
+const int ERROR_VIVOX_OBJECT_NOT_FOUND = 1001;
+const int ERROR_VIVOX_NOT_LOGGED_IN = 1007;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 class LLVivoxVoiceClientMuteListObserver : public LLMuteListObserver
@@ -519,18 +522,36 @@ void LLVivoxVoiceClient::voiceControlCoro()
 {
     mIsCoroutineActive = true;
     LLCoros::set_consuming(true);
-    startAndConnectSession();
-
-    if (mTuningMode)
+    
+    do
     {
-        performMicTuning();
-    }
-    else if (mVoiceEnabled)
-    {
-        waitForChannel();
-    }
+        
+        startAndConnectSession();
 
-    endAndDisconnectSession();
+        if (mTuningMode)
+        {
+            performMicTuning();
+        }
+        else if (mVoiceEnabled)
+        {
+            waitForChannel();
+        }
+    
+        endAndDisconnectSession();
+        
+        // if we hit this and mRelogRequested is true, that indicates
+        // that we attempted to relog into Vivox and were rejected.
+        // Rather than just quit out of voice, we will tear it down (above)
+        // and then reconstruct the voice connecino from scratch.
+        if (mRelogRequested)
+        {
+            while (isGatewayRunning())
+            {
+                llcoro::suspendUntilTimeout(1.0);
+            }
+        }
+    }
+    while (mRelogRequested);
     mIsCoroutineActive = false;
 }
 
@@ -715,7 +736,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
 bool LLVivoxVoiceClient::provisionVoiceAccount()
 {
-
+    LL_INFOS("Voice") << "Provisioning voice account." << LL_ENDL;
     while (!gAgent.getRegion())
     {
         // *TODO* Set up a call back on agent that sends a message to a pump we can use to wake up.
@@ -928,6 +949,7 @@ bool LLVivoxVoiceClient::loginToVivox()
 
     } while (!response_ok || !account_login);
 
+    mRelogRequested = false;
     mIsLoggedIn = true;
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
 
@@ -1181,6 +1203,21 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
                 joined = true;
             else if ((message == "failed") || (message == "removed"))
             {   // we will get a removed message if a voice call is declined.
+                
+                if (message == "failed")
+                {
+                    int reason = result["reason"].asInteger();
+                    LL_WARNS("Voice") << "Add and join failed for reason " << reason << LL_ENDL;
+                    
+                    if ((reason == ERROR_VIVOX_NOT_LOGGED_IN) ||
+                            (reason == ERROR_VIVOX_OBJECT_NOT_FOUND))
+                    {
+                        LL_INFOS("Voice") << "Requesting reprovision and login." << LL_ENDL;
+                        requestRelog();
+                    }
+                    
+                }
+                
                 notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
                 mIsJoiningSession = false;
                 return false;
@@ -1364,7 +1401,8 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 sessionStatePtr_t joinSession = mNextAudioSession;
                 mNextAudioSession.reset();
-                runSession(joinSession);
+                if (!runSession(joinSession))
+                    break;
             }
 
             if (!mNextAudioSession)
@@ -2798,6 +2836,7 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 
                 vivoxevent["handle"] = LLSD::String(sessionHandle);
                 vivoxevent["session"] = LLSD::String("failed");
+                vivoxevent["reason"] = LLSD::Integer(statusCode);
 
                 LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
             }
