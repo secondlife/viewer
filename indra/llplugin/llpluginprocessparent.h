@@ -30,6 +30,7 @@
 #define LL_LLPLUGINPROCESSPARENT_H
 
 #include <queue>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "llapr.h"
 #include "llprocess.h"
@@ -40,8 +41,9 @@
 #include "lliosocket.h"
 #include "llthread.h"
 #include "llsd.h"
+#include "llevents.h"
 
-class LLPluginProcessParentOwner
+class LLPluginProcessParentOwner : public boost::enable_shared_from_this < LLPluginProcessParentOwner > 
 {
 public:
 	virtual ~LLPluginProcessParentOwner();
@@ -55,8 +57,11 @@ public:
 class LLPluginProcessParent : public LLPluginMessagePipeOwner
 {
 	LOG_CLASS(LLPluginProcessParent);
+
+    LLPluginProcessParent(LLPluginProcessParentOwner *owner);
 public:
-	LLPluginProcessParent(LLPluginProcessParentOwner *owner);
+    typedef boost::shared_ptr<LLPluginProcessParent> ptr_t;
+
 	~LLPluginProcessParent();
 		
 	void init(const std::string &launcher_filename, 
@@ -89,7 +94,10 @@ public:
 	void sendMessage(const LLPluginMessage &message);
 	
 	void receiveMessage(const LLPluginMessage &message);
-	
+
+    static ptr_t create(LLPluginProcessParentOwner *owner);
+    void requestShutdown();
+
 	// Inherited from LLPluginMessagePipeOwner
 	/*virtual*/ void receiveMessageRaw(const std::string &message);
 	/*virtual*/ void receiveMessageEarly(const LLPluginMessage &message);
@@ -121,7 +129,10 @@ public:
 	static bool canPollThreadRun() { return (sPollSet || sPollsetNeedsRebuild || sUseReadThread); };
 	static void setUseReadThread(bool use_read_thread);
 	static bool getUseReadThread() { return sUseReadThread; };
+
+    static void shutdown();
 private:
+    typedef std::map<void *, ptr_t> mapInstances_t;
 
 	enum EState
 	{
@@ -133,6 +144,7 @@ private:
 		STATE_HELLO,			// first message from the plugin process has been received
 		STATE_LOADING,			// process has been asked to load the plugin
 		STATE_RUNNING,			// 
+        STATE_GOODBYE,
 		STATE_LAUNCH_FAILURE,	// Failure before plugin loaded
 		STATE_ERROR,			// generic bailout state
 		STATE_CLEANUP,			// clean everything up
@@ -142,6 +154,9 @@ private:
 	};
 	EState mState;
 	void setState(EState state);
+
+    bool wantsPolling() const;
+    void removeFromProcessing();
 
 	bool pluginLockedUp();
 	bool pluginLockedUpOrQuit();
@@ -185,12 +200,15 @@ private:
 	static apr_pollset_t *sPollSet;
 	static bool sPollsetNeedsRebuild;
 	static LLMutex *sInstancesMutex;
-	static std::list<LLPluginProcessParent*> sInstances;
+    static mapInstances_t sInstances;
 	static void dirtyPollSet();
 	static void updatePollset();
 	void servicePoll();
 	static LLThread *sReadThread;
-	
+
+    LLTempBoundListener mPolling;
+    bool pollTick();
+
 	LLMutex mIncomingQueueMutex;
 	std::queue<LLPluginMessage> mIncomingQueue;
 };

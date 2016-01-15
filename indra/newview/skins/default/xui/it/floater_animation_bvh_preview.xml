@@ -141,35 +141,35 @@ La lunghezza massima dell&apos;animazione è [MAX_LENGTH] secondi.
 		Espressione
 	</text>
 	<combo_box name="emote_combo" tool_tip="Definisce ciò che fa il viso durante l&apos;animazione">
-		<item label="(Nulla)" name="[None]" value=""/>
-		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
-		<item label="Spavento" name="Afraid" value="Spavento"/>
-		<item label="Arrabbiato" name="Angry" value="Arrabbiato"/>
-		<item label="Grande sorriso" name="BigSmile" value="Grande sorriso"/>
-		<item label="Annoiato" name="Bored" value="Annoiato"/>
-		<item label="Pianto" name="Cry" value="Pianto"/>
-		<item label="Disdegno" name="Disdain" value="Disdegno"/>
-		<item label="Imbarazzato" name="Embarrassed" value="Imbarazzato"/>
-		<item label="Accigliato" name="Frown" value="Accigliato"/>
-		<item label="Bacio" name="Kiss" value="Bacio"/>
-		<item label="Risata" name="Laugh" value="Risata"/>
-		<item label="Linguaccia" name="Plllppt" value="Linguaccia"/>
-		<item label="Repulsione" name="Repulsed" value="Repulsione"/>
-		<item label="Triste" name="Sad" value="Triste"/>
-		<item label="Scrollata di spalle" name="Shrug" value="Scrollata di spalle"/>
-		<item label="Sorriso" name="Smile" value="Sorriso"/>
-		<item label="Stupore" name="Surprise" value="Stupore"/>
-		<item label="Occhiolino" name="Wink" value="Occhiolino"/>
-		<item label="Preoccupato" name="Worry" value="Preoccupato"/>
+		<item label="(Nulla)" name="[None]"/>
+		<item label="Aaaaah" name="Aaaaah"/>
+		<item label="Spavento" name="Afraid" />
+		<item label="Arrabbiato" name="Angry"/>
+		<item label="Grande sorriso" name="BigSmile"/>
+		<item label="Annoiato" name="Bored"/>
+		<item label="Pianto" name="Cry"/>
+		<item label="Disdegno" name="Disdain"/>
+		<item label="Imbarazzato" name="Embarrassed"/>
+		<item label="Accigliato" name="Frown"/>
+		<item label="Bacio" name="Kiss"/>
+		<item label="Risata" name="Laugh"/>
+		<item label="Linguaccia" name="Plllppt"/>
+		<item label="Repulsione" name="Repulsed"/>
+		<item label="Triste" name="Sad"/>
+		<item label="Scrollata di spalle" name="Shrug"/>
+		<item label="Sorriso" name="Smile"/>
+		<item label="Stupore" name="Surprise"/>
+		<item label="Occhiolino" name="Wink"/>
+		<item label="Preoccupato" name="Worry"/>
 	</combo_box>
 	<text name="preview_label">
 		Anteprima mentre
 	</text>
 	<combo_box name="preview_base_anim" tool_tip="Prova il comportamento dell&apos;animazione mentre l&apos;avatar esegue attività comuni.">
-		<item label="In piedi" name="Standing" value="In piedi"/>
-		<item label="Camminare" name="Walking" value="Camminare"/>
-		<item label="Seduto" name="Sitting" value="Seduto"/>
-		<item label="Volare" name="Flying" value="Volare"/>
+		<item label="In piedi" name="Standing"/>
+		<item label="Camminare" name="Walking"/>
+		<item label="Seduto" name="Sitting"/>
+		<item label="Volare" name="Flying"/>
 	</combo_box>
 	<spinner label="Transizione in ingresso (sec)" name="ease_in_time" tool_tip="Durata (in secondi) della fusione in entrata delle animazioni"/>
 	<spinner label="Transizione in uscita (sec)" name="ease_out_time" tool_tip="Durata (in secondi) della fusione in uscita delle animazioni"/>

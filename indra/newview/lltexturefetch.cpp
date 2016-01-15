@@ -2523,7 +2523,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mFetchDebugger(NULL),
 	  mFetchSource(LLTextureFetch::FROM_ALL),
 	  mOriginFetchSource(LLTextureFetch::FROM_ALL),
-	  mFetcherLocked(FALSE)
+	  mFetcherLocked(FALSE),
+	  mTextureInfoMainThread(false)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));
@@ -3129,6 +3130,7 @@ void LLTextureFetch::shutDownImageDecodeThread()
 // Threads:  Ttf
 void LLTextureFetch::startThread()
 {
+	mTextureInfo.startRecording();
 }
 
 // Threads:  Ttf
@@ -3139,6 +3141,8 @@ void LLTextureFetch::endThread()
 					  << ", ResWaits:  " << mTotalResourceWaitCount
 					  << ", TotalHTTPReq:  " << getTotalNumHTTPRequests()
 					  << LL_ENDL;
+
+	mTextureInfo.stopRecording();
 }
 
 // Threads:  Ttf
@@ -3542,8 +3546,8 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 		if (log_to_viewer_log || log_to_sim)
 		{
 			U64Microseconds timeNow = LLTimer::getTotalTime();
-			mTextureInfo.setRequestSize(id, worker->mFileSize);
-			mTextureInfo.setRequestCompleteTimeAndLog(id, timeNow);
+			mTextureInfoMainThread.setRequestSize(id, worker->mFileSize);
+			mTextureInfoMainThread.setRequestCompleteTimeAndLog(id, timeNow);
 		}
 	}
 	worker->unlockWorkMutex();											// -Mw

@@ -236,7 +236,7 @@
        name="Web Content Floater Debug Test">
         <menu_item_call.on_click
          function="Advanced.WebContentTest"
-         parameter="http://google.com"/>
+         parameter="https://callum-linden.s3.amazonaws.com/ceftests.html"/>
       </menu_item_call>
       <menu
        create_jump_keys="true"

@@ -118,25 +118,32 @@ void LLFloaterTopObjects::setMode(U32 mode)
 // static 
 void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
 {
-	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
-	if(!instance) return;
-	// Make sure dialog is on screen
-	LLFloaterReg::showInstance("top_objects");
-	instance->handleReply(msg, data);
-
-	//HACK: for some reason sometimes top scripts originally comes back
-	//with no results even though they're there
-	if (!instance->mObjectListIDs.size() && !instance->mInitialized)
+    LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
+    if(instance && instance->isInVisibleChain())
+    {
+	    instance->handleReply(msg, data);
+	    //HACK: for some reason sometimes top scripts originally comes back
+	    //with no results even though they're there
+	    if (!instance->mObjectListIDs.size() && !instance->mInitialized)
+	    {
+	        instance->onRefresh();
+	        instance->mInitialized = TRUE;
+	    }
+	}
+	else
 	{
-		instance->onRefresh();
-		instance->mInitialized = TRUE;
+	    LLFloaterRegionInfo* region_info_floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	    if(region_info_floater)
+	    {
+	        region_info_floater->enableTopButtons();
+	    }
 	}
 
 }
 
 void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 {
-	U32 request_flags;
+    U32 request_flags;
 	U32 total_count;
 
 	msg->getU32Fast(_PREHASH_RequestData, _PREHASH_RequestFlags, request_flags);
