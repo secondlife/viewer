@@ -7442,7 +7442,7 @@ void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool
 			args["URL"] = load_url_info["url"].asString();
 			args["MESSAGE"] = load_url_info["message"].asString();;
 			args["OBJECTNAME"] = load_url_info["object_name"].asString();
-			args["NAME"] = owner_name;
+			args["NAME_SLURL"] = LLSLURL(is_group ? "group" : "agent", id, "about").getSLURLString();
 
 			LLNotificationsUtil::add("LoadWebPage", args, load_url_info);
 		}

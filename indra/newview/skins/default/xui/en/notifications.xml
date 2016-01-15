@@ -7520,8 +7520,8 @@ Load web page [URL] ?
 
 [MESSAGE]
 
-From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]
-    <tag>confirm</tag>
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME_SLURL]
+	<tag>confirm</tag>
     <form name="form">
       <button
        index="0"
