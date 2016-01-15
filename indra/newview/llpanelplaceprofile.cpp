@@ -224,6 +224,8 @@ void LLPanelPlaceProfile::resetLocation()
 	mSubdivideText->setValue(loading);
 	mResaleText->setValue(loading);
 	mSaleToText->setValue(loading);
+
+	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(TRUE);
 }
 
 // virtual
@@ -538,6 +540,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	F32 dwell;
 	BOOL for_sale;
 	vpm->getDisplayInfo(&area, &claim_price, &rent_price, &for_sale, &dwell);
+	mForSalePanel->setVisible(for_sale);
 	if (for_sale)
 	{
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
@@ -555,8 +558,6 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		{
 			mSaleToText->setText(getString("anyone"));
 		}
-
-		mForSalePanel->setVisible(for_sale);
 
 		const U8* sign = (U8*)getString("price_text").c_str();
 		const U8* sqm = (U8*)getString("area_text").c_str();
@@ -614,6 +615,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 
 	mYouAreHerePanel->setVisible(is_current_parcel);
 	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);
+	mAccordionCtrl->arrange();
 }
 
 void LLPanelPlaceProfile::updateEstateName(const std::string& name)

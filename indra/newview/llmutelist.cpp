@@ -318,6 +318,11 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 				{
 					LLPipeline::removeMutedAVsLights(avatarp);
 				}
+				//remove agent's notifications as well
+				if (localmute.mType == LLMute::AGENT)
+				{
+					LLNotifications::instance().cancelByOwner(localmute.mID);
+				}
 				return TRUE;
 			}
 		}

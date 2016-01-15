@@ -9,7 +9,6 @@
   left="0"
   width="331"
   height="202"
-  can_resize="true"
   layout="topleft"
   follows="left|top|right|bottom" >
   <!-- background_opaque="false" -->
@@ -45,12 +44,12 @@
       <layout_panel top="0" left="0" height="30" follows="left|top|right|bottom" layout="topleft" name="layout_panel_condensed_view" visible="false" background_opaque="false" background_visible="true" bg_alpha_color="SysWellItemUnselected">
         <panel border="true" top="0" left="5" height="30" bevel_style="none" layout="topleft" follows="left|top|right|bottom" name="panel_condensed_view">
           <layout_stack top="0" left="0" width="325" height="50" orientation="horizontal" follows="left|top|right|bottom" name="horizontal_stack">
-            <layout_panel width="30" height="39" orientation="horizontal" follows="left|top|right|bottom" name="layout_panel_right">
+            <layout_panel width="30" height="39" follows="left|top|right|bottom" name="layout_panel_right">
               <group_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="group_icon" tool_tip="Group" default_icon_name="Generic_Group" visible="true"/>
               <avatar_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="avatar_icon" tool_tip="Avatar" default_icon_name="Generic_Person" visible="false"/>
               <icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="system_notification_icon" tool_tip="Icon" image_name="System_Notification" visible="false"/>
             </layout_panel>
-            <layout_panel width="260" height="50" orientation="horizontal" name="layout_panel_middle">
+            <layout_panel width="260" height="50" name="layout_panel_middle">
               <panel border="false" top="0" width="260" height="38" bevel_style="none" follows="left|top|right" layout="topleft" name="main_info_panel">
                 <panel border="false" top="0" left="0" width="260" height="19" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="notification_title_panel">
                   <text allow_scroll="false" font="SansSerifSmall" top="6" left="0" width="260" height="12" layout="topleft" follows="right|left" text_color="White"
@@ -69,7 +68,7 @@
                 </panel>
               </panel>
             </layout_panel>
-            <layout_panel width="18" height="48" orientation="horizontal" follows="right|top|bottom" name="layout_panel_right">
+            <layout_panel width="18" height="48" follows="right|top|bottom" name="layout_panel_right">
               <panel top="0" left="0" width="17"  height="39" follows="left|top|right|bottom" layout="topleft" name="close_expand_panel">
                 <button top="0" left="0" width="17" height="17" layout="topleft" follows="top" name="close_btn" mouse_opaque="true"
                   tab_stop="false" image_unselected="Icon_Close_Foreground" image_selected="Icon_Close_Press" />
@@ -83,13 +82,13 @@
       <layout_panel top="0" left="0" height="196" follows="left|top|right|bottom" layout="topleft" name="layout_panel_expanded_view" visible="true" background_opaque="false" background_visible="true" bg_alpha_color="SysWellItemUnselected">
         <panel border="true" top="0" left="5" height="196" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="panel_expanded_view">
           <layout_stack top="0" left="0" width="325" height="196" orientation="horizontal" follows="left|top|right|bottom" name="horizontal_stack">
-            <layout_panel width="30" height="170" orientation="horizontal" follows="left|top|bottom" name="layout_panel_right_exp">
+            <layout_panel width="30" height="170" follows="left|top|bottom" name="layout_panel_right_exp">
               <group_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="group_icon_exp" tool_tip="Group" default_icon_name="Generic_Group" visible="true"/>
               <avatar_icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="avatar_icon_exp" tool_tip="Avatar" default_icon_name="Generic_Person" visible="false"/>
               <icon left="5" top="6" width="25" height="25" mouse_opaque="true" name="system_notification_icon_exp" tool_tip="Icon" image_name="System_Notification" visible="false"/>
               <icon left="12" top="144" width="20" height="20" name="attachment_icon_exp" tool_tip="Attachment" image_name="Icon_Attachment_Large" follows="left" mouse_opaque="true" visible="false"/>
             </layout_panel>
-            <layout_panel width="230" height="196" orientation="horizontal" follows="left|top|right|bottom" name="layout_panel_middle_exp">
+            <layout_panel width="230" height="196" follows="left|top|right|bottom" name="layout_panel_middle_exp">
               <panel border="false" top="0" width="230" height="196" bevel_style="none" follows="left|top|right|bottom" layout="topleft" name="main_info_panel_expanded">
               <panel border="false" top="0" left="0" width="230" height="30" bevel_style="none" follows="left|top|right" layout="topleft" name="notification_title_panel_exp" >
                       <text allow_scroll="false" font="SansSerif" top="6" left="0" width="233" height="10" layout="topleft" follows="right|left" text_color="White"
@@ -128,7 +127,7 @@
                    </panel>
               </panel>              
             </layout_panel>             
-            <layout_panel width="18" orientation="horizontal" follows="right|top|bottom" name="layout_panel_left_exp">
+            <layout_panel width="18" follows="right|top|bottom" name="layout_panel_left_exp">
               <panel top="0" left="0" width="17" follows="left|top|right|bottom" layout="topleft" name="close_expand_panel_exp">
                 <button top="0" left="2" width="17" height="17" layout="topleft" follows="top" name="close_expanded_btn" mouse_opaque="true"
                   tab_stop="false" image_unselected="Icon_Close_Foreground" image_selected="Icon_Close_Press" />

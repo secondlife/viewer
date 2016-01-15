@@ -140,6 +140,7 @@ public:
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
+										  BOOL pick_rigged = FALSE,
 										  S32* face_hit = NULL,                 // which face was hit
 										  LLVector4a* intersection = NULL,       // return the intersection point
 										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
@@ -192,7 +193,7 @@ public:
 	
 	static void	setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID& pMaterialID, const LLMaterialPtr pMaterialParams, U32 te);
 
-	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams, bool isInitFromServer);
+	/*virtual*/ S32		setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialParams);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s);
 	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t);
@@ -312,7 +313,7 @@ public:
 	
 
 	//rigged volume update (for raycasting)
-	void updateRiggedVolume();
+	void updateRiggedVolume(bool force_update = false);
 	LLRiggedVolume* getRiggedVolume();
 
 	//returns true if volume should be treated as a rigged volume

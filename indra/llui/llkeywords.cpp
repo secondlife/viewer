@@ -296,7 +296,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
 	}
 
 	color_group = getColorGroup(group);
-	LL_INFOS("SyntaxLSL") << "Group: '" << group << "', using color: '" << color_group << "'" << LL_ENDL;
+	LL_DEBUGS("SyntaxLSL") << "Group: '" << group << "', using color: '" << color_group << "'" << LL_ENDL;
 
 	if (tokens.isMap())
 	{
@@ -331,7 +331,14 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
 				switch (token_type)
 				{
 					case LLKeywordToken::TT_CONSTANT:
-						color_group = getColorGroup(group + "-" + getAttribute("type"));
+						if (getAttribute("type").length() > 0)
+						{
+							color_group = getColorGroup(group + "-" + getAttribute("type"));
+						}
+						else
+						{
+							color_group = getColorGroup(group);
+						}
 						tooltip = "Type: " + getAttribute("type") + ", Value: " + getAttribute("value");
 						break;
 					case LLKeywordToken::TT_EVENT:

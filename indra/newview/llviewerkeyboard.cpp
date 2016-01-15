@@ -423,7 +423,7 @@ void camera_move_backward( EKeystate s )
 void camera_move_forward_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s && gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_FORWARD ) return;
-	if (gAgent.forwardGrabbed() || gAgentCamera.sitCameraEnabled() || gAgent.getRunning())
+	if (gAgent.forwardGrabbed() || gAgentCamera.sitCameraEnabled() || (gAgent.getRunning() && !gAgent.getAlwaysRun()))
 	{
 		agent_push_forward(s);
 	}
@@ -438,7 +438,7 @@ void camera_move_backward_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s && gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_BACKWARD ) return;
 
-	if (gAgent.backwardGrabbed() || gAgentCamera.sitCameraEnabled() || gAgent.getRunning())
+	if (gAgent.backwardGrabbed() || gAgentCamera.sitCameraEnabled() || (gAgent.getRunning() && !gAgent.getAlwaysRun()))
 	{
 		agent_push_backward(s);
 	}

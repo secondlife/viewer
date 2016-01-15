@@ -63,7 +63,7 @@ LLToolSelect::LLToolSelect( LLToolComposite* composite )
 BOOL LLToolSelect::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// do immediate pick query
-	mPick = gViewerWindow->pickImmediate(x, y, TRUE);
+	mPick = gViewerWindow->pickImmediate(x, y, TRUE, FALSE);
 
 	// Pass mousedown to agent
 	LLTool::handleMouseDown(x, y, mask);

@@ -51,10 +51,18 @@ void ExperienceAssociationResponder::fetchAssociatedExperience(LLSD& request, ca
     LLViewerObject* object = gObjectList.findObject(request["object-id"]);
     if (!object)
     {
-        LL_WARNS() << "Failed to find object with ID " << request["object-id"] << " in fetchAssociatedExperience" << LL_ENDL;
-        return;
+        LL_DEBUGS() << "Object with ID " << request["object-id"] << " not found via gObjectList.findObject() in fetchAssociatedExperience" << LL_ENDL;
+        LL_DEBUGS() << "Using gAgent.getRegion() instead of object->getRegion()" << LL_ENDL;
     }
-    LLViewerRegion* region = object->getRegion();
+    LLViewerRegion* region = NULL;
+    if (object)
+    {
+        region = object->getRegion();
+    }
+    else
+    {
+        region = gAgent.getRegion();
+    }
     if (region)
     {
         std::string lookup_url=region->getCapability("GetMetadata"); 
@@ -65,6 +73,10 @@ void ExperienceAssociationResponder::fetchAssociatedExperience(LLSD& request, ca
             request["fields"] = fields;
             LLHTTPClient::post(lookup_url, request, new ExperienceAssociationResponder(callback));
         }
+    }
+    else
+    {
+        LL_WARNS() << "Failed to lookup region in fetchAssociatedExperience. Fetch request not sent." << LL_ENDL;
     }
 }
 

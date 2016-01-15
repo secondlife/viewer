@@ -49,12 +49,14 @@ protected:
     LLPanelExperiences* addTab(const std::string& name, bool select);
 
     bool updatePermissions(const LLSD& permission);
-	void sendPurchaseRequest() const;
+    void sendPurchaseRequest();
 	void checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content)const;
+    void checkAndOpen(LLPanelExperiences* panel, const LLSD& content) const;
 	void updateInfo(std::string experiences, std::string tab);
 
 private:
 
+    std::vector<LLUUID> mPrepurchaseIds;
 };
 
 #endif //LL_LLFLOATEREXPERIENCES_H
