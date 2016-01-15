@@ -838,17 +838,21 @@ namespace tut
 				  "search something https://marketplace.secondlife.com/products/search on marketplace and test the https",
 				  "https://marketplace.secondlife.com/products/search");
 
-		testRegex("match urls with port", url,
-				  "let's specify some port http://secondlife.com:888/status",
-				  "http://secondlife.com:888/status");
+		testRegex("match HTTPS urls with port", url,
+				  "let's specify some port https://secondlife.com:888/status",
+				  "https://secondlife.com:888/status");
+
+		testRegex("don't match HTTP urls with port", url,
+				  "let's specify some port for HTTP http://secondlife.com:888/status",
+				  "");
 
 		testRegex("don't match urls w/o protocol", url,
 				  "looks like an url something www.marketplace.secondlife.com/products but no https prefix",
 				  "");
 
 		testRegex("but with a protocol www is fine", url,
-				  "so let's add a protocol http://www.marketplace.secondlife.com:8888/products",
-				  "http://www.marketplace.secondlife.com:8888/products");
+				  "so let's add a protocol https://www.marketplace.secondlife.com:8888/products",
+				  "https://www.marketplace.secondlife.com:8888/products");
 
 		testRegex("don't match urls w/o protocol", url,
 				  "and even no www something secondlife.com/status",

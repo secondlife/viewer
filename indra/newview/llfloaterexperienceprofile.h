@@ -76,6 +76,7 @@ protected:
 	void setEditGroup(LLUUID group_id);
 
     void changeToView();
+    void changeToEdit();
 
     void experienceForgotten();
     void experienceBlocked();
@@ -99,7 +100,7 @@ protected:
     int mSaveCompleteAction;
     bool mDirty;
     bool mForceClose;
-
+    bool mPostEdit; // edit experience after opening and updating it
 private:
     static bool hasPermission(const LLSD& content, const std::string &name, const LLUUID &test);
     static void experiencePermissionResults(LLUUID exprienceId, LLSD result);

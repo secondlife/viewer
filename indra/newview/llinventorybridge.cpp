@@ -80,6 +80,8 @@
 #include "lllandmarkactions.h"
 #include "llpanellandmarks.h"
 
+#include <boost/shared_ptr.hpp>
+
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
@@ -99,7 +101,7 @@ struct LLMoveInv
 using namespace LLOldEvents;
 
 // Function declarations
-bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
+bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv>);
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
@@ -290,7 +292,11 @@ BOOL LLInvFVBridge::callback_cutToClipboard(const LLSD& notification, const LLSD
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0) // YES
     {
-        return perform_cutToClipboard();
+		const LLInventoryObject* obj = gInventory.getObject(mUUID);
+		LLUUID parent_uuid = obj->getParentUUID();
+		BOOL result = perform_cutToClipboard();
+		gInventory.addChangedMask(LLInventoryObserver::STRUCTURE, parent_uuid);
+		return result;
     }
     return FALSE;
 }
@@ -2675,7 +2681,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	return accept;
 }
 
-void warn_move_inventory(LLViewerObject* object, LLMoveInv* move_inv)
+void warn_move_inventory(LLViewerObject* object, boost::shared_ptr<LLMoveInv> move_inv)
 {
 	const char* dialog = NULL;
 	if (object->flagScripted())
@@ -2686,7 +2692,34 @@ void warn_move_inventory(LLViewerObject* object, LLMoveInv* move_inv)
 	{
 		dialog = "MoveInventoryFromObject";
 	}
-	LLNotificationsUtil::add(dialog, LLSD(), LLSD(), boost::bind(move_task_inventory_callback, _1, _2, move_inv));
+
+    static LLNotificationPtr notification_ptr;
+    static boost::shared_ptr<LLMoveInv> inv_ptr;
+
+    // Notification blocks user from interacting with inventories so everything that comes after first message
+    // is part of this message - don'r show it again
+    // Note: workaround for MAINT-5495 untill proper refactoring and warning system for Drag&Drop can be made.
+    if (notification_ptr == NULL
+        || !notification_ptr->isActive()
+        || LLNotificationsUtil::find(notification_ptr->getID()) == NULL
+        || inv_ptr->mCategoryID != move_inv->mCategoryID
+        || inv_ptr->mObjectID != move_inv->mObjectID)
+    {
+        notification_ptr = LLNotificationsUtil::add(dialog, LLSD(), LLSD(), boost::bind(move_task_inventory_callback, _1, _2, move_inv));
+        inv_ptr = move_inv;
+    }
+    else
+    {
+        // Notification is alive and not responded, operating inv_ptr should be safe so attach new data
+        two_uuids_list_t::iterator move_it;
+        for (move_it = move_inv->mMoveList.begin();
+            move_it != move_inv->mMoveList.end();
+            ++move_it)
+        {
+            inv_ptr->mMoveList.push_back(*move_it);
+        }
+        move_inv.reset();
+    }
 }
 
 // Move/copy all inventory items from the Contents folder of an in-world
@@ -2774,7 +2807,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	if(drop && accept)
 	{
 		it = inventory_objects.begin();
-		LLMoveInv* move_inv = new LLMoveInv;
+        boost::shared_ptr<LLMoveInv> move_inv(new LLMoveInv);
 		move_inv->mObjectID = object_id;
 		move_inv->mCategoryID = category_id;
 		move_inv->mCallback = callback;
@@ -4281,7 +4314,7 @@ LLFontGL::StyleFlags LLMarketplaceFolderBridge::getLabelStyle() const
 
 
 // helper stuff
-bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv* move_inv)
+bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv> move_inv)
 {
 	LLFloaterOpenObject::LLCatAndWear* cat_and_wear = (LLFloaterOpenObject::LLCatAndWear* )move_inv->mUserData;
 	LLViewerObject* object = gObjectList.findObject(move_inv->mObjectID);
@@ -4317,7 +4350,7 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 		move_inv->mCallback(option, move_inv->mUserData);
 	}
 
-	delete move_inv;
+	move_inv.reset(); //since notification will persist
 	return false;
 }
 
@@ -4717,7 +4750,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		if (accept && drop)
 		{
-			LLMoveInv* move_inv = new LLMoveInv;
+            boost::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
 			move_inv->mObjectID = inv_item->getParentUUID();
 			two_uuids_t item_pair(mUUID, inv_item->getUUID());
 			move_inv->mMoveList.push_back(item_pair);

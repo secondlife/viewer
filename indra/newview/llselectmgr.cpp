@@ -1210,7 +1210,7 @@ void LLSelectMgr::setGridMode(EGridMode mode)
 	updateSelectionCenter();
 }
 
-void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale)
+void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale, bool for_snap_guides)
 {
 	mGridObjects.cleanupNodes();
 	
@@ -1235,7 +1235,15 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 	}
 	else if (mGridMode == GRID_MODE_REF_OBJECT && first_grid_object && first_grid_object->mDrawable.notNull())
 	{
-		mGridRotation = first_grid_object->getRenderRotation();
+		LLSelectNode *node = mSelectedObjects->findNode(first_grid_object);
+		if (!for_snap_guides && node)
+		{
+			mGridRotation = node->mSavedRotation;
+		}
+		else
+		{
+			mGridRotation = first_grid_object->getRenderRotation();
+		}
 
 		LLVector4a min_extents(F32_MAX);
 		LLVector4a max_extents(-F32_MAX);
@@ -2127,7 +2135,7 @@ void LLSelectMgr::selectionRemoveMaterial()
 			{
 			        LL_DEBUGS("Materials") << "Removing material from object " << object->getID() << " face " << face << LL_ENDL;
 				LLMaterialMgr::getInstance()->remove(object->getID(),face);
-				object->setTEMaterialParams(face, NULL, FALSE);
+				object->setTEMaterialParams(face, NULL);
 			}
 			return true;
 		}

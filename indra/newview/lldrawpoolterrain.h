@@ -76,6 +76,7 @@ public:
 
 	static S32 sDetailMode;
 	static F32 sDetailScale; // meters per texture
+
 protected:
 	void renderSimple();
 	void renderOwnership();
@@ -84,6 +85,9 @@ protected:
 	void renderFull4TU();
 	void renderFullShader();
 	void drawLoop();
+
+private:
+	void hilightParcelOwners();
 };
 
 #endif // LL_LLDRAWPOOLSIMPLE_H

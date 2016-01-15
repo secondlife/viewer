@@ -54,7 +54,6 @@ LLPanelExperienceLog::LLPanelExperienceLog(  )
 	buildFromFile("panel_experience_log.xml");
 }
 
-
 BOOL LLPanelExperienceLog::postBuild( void )
 {
 	LLExperienceLog* log = LLExperienceLog::getInstance();
@@ -112,7 +111,7 @@ void LLPanelExperienceLog::refresh()
 	int itemsToSkip = mPageSize*mCurrentPage;
 	int items = 0;
 	bool moreItems = false;
-	
+	LLSD events_to_save = events;
 	if (!events.emptyMap())
 	{
 		LLSD::map_const_iterator day = events.endMap();
@@ -120,6 +119,13 @@ void LLPanelExperienceLog::refresh()
 		{
 			--day;
 			const LLSD& dayArray = day->second;
+
+			std::string date = day->first;
+			if(!LLExperienceLog::instance().isNotExpired(date))
+			{
+				events_to_save.erase(day->first);
+				continue;
+			}
 			int size = dayArray.size();
 			if(itemsToSkip > size)
 			{
@@ -164,6 +170,7 @@ void LLPanelExperienceLog::refresh()
 			}
 		} while (day != events.beginMap());
 	}
+	LLExperienceLog::getInstance()->setEventsToSave(events_to_save);
 	if(waiting)
 	{
 		mEventList->deleteAllItems();
@@ -237,12 +244,8 @@ void LLPanelExperienceLog::notifyChanged()
 void LLPanelExperienceLog::logSizeChanged()
 {
 	int value = (int)(getChild<LLSpinCtrl>("logsizespinner")->get());
-	bool dirty = value > 0 && value < LLExperienceLog::instance().getMaxDays();
 	LLExperienceLog::instance().setMaxDays(value);
-	if(dirty)
-	{
-		refresh();
-	}
+	refresh();
 }
 
 void LLPanelExperienceLog::onSelectionChanged()

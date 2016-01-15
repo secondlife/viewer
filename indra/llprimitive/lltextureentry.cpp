@@ -63,7 +63,6 @@ LLTextureEntry::LLTextureEntry()
   : mMediaEntry(NULL)
   , mSelected(false)
   , mMaterialUpdatePending(false)
-  , mInitMatParamsFromServer(false)
 {
 	init(LLUUID::null,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
@@ -72,7 +71,6 @@ LLTextureEntry::LLTextureEntry(const LLUUID& tex_id)
   : mMediaEntry(NULL)
   , mSelected(false)
   , mMaterialUpdatePending(false)
-  , mInitMatParamsFromServer(false)
 {
 	init(tex_id,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
 }
@@ -81,7 +79,6 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
   : mMediaEntry(NULL)
   , mSelected(false)
   , mMaterialUpdatePending(false)
-  , mInitMatParamsFromServer(false)
 {
 	mID = rhs.mID;
 	mScaleS = rhs.mScaleS;
@@ -565,7 +562,6 @@ S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
 		mMaterialUpdatePending = true;
 	}
 	mMaterial = pMaterialParams;
-	this->mInitMatParamsFromServer = TRUE;
 	return TEM_CHANGE_TEXTURE;
 }
 

@@ -55,6 +55,7 @@ protected:
     bool updatePermissions(const LLSD& permission);
 	void sendPurchaseRequest();
 	void checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content)const;
+    void checkAndOpen(LLPanelExperiences* panel, const LLSD& content) const;
 	void updateInfo(std::string experiences, std::string tab);
 
     void retrieveExperienceList(const std::string &url, const LLHandle<LLFloaterExperiences> &hparent, const NameMap_t &tabMapping,
@@ -69,7 +70,7 @@ private:
 
     static void retrieveExperienceListCoro(std::string url, LLHandle<LLFloaterExperiences> hparent, 
         NameMap_t tabMapping, std::string errorNotify, Callback_t cback, invokationFn_t invoker);
-
+    std::vector<LLUUID> mPrepurchaseIds;
 };
 
 #endif //LL_LLFLOATEREXPERIENCES_H

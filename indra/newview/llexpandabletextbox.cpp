@@ -237,6 +237,7 @@ LLExpandableTextBox::LLExpandableTextBox(const Params& p)
 	LLTextBoxEx::Params textbox_params = p.textbox;
 	textbox_params.rect(rc);
 	mTextBox = LLUICtrlFactory::create<LLTextBoxEx>(textbox_params);
+	mTextBox->setContentTrusted(false);
 	mScroll->addChild(mTextBox);
 
 	updateTextBoxRect();
@@ -258,6 +259,11 @@ void LLExpandableTextBox::draw()
 	collapseIfPosChanged();
 
 	LLUICtrl::draw();
+}
+
+void LLExpandableTextBox::setContentTrusted(bool trusted_content)
+{
+    mTextBox->setContentTrusted(trusted_content);
 }
 
 void LLExpandableTextBox::collapseIfPosChanged()

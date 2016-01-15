@@ -331,6 +331,7 @@ private:
 	F32 mTextureBandwidth;												// <none>
 	F32 mMaxBandwidth;													// Mfnq
 	LLTextureInfo mTextureInfo;
+	LLTextureInfo mTextureInfoMainThread;
 
 	// XXX possible delete
 	U32Bits mHTTPTextureBits;												// Mfnq
