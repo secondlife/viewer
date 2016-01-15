@@ -179,7 +179,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool isNodeAJoint(const char* name)
 	{
-		return mJointMap.find(name) != mJointMap.end();
+		return name != NULL && mJointMap.find(name) != mJointMap.end();
 	}
 
 protected:
