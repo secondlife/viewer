@@ -4992,16 +4992,9 @@ void LLViewerObject::restoreHudText()
 {
     if(mText)
     {
-}
-
-void LLViewerObject::initDebugTextHud()
-{
-	mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-	mText->setFont(LLFontGL::getFontSansSerif());
-	mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
-	mText->setMaxLines(-1);
-	mText->setSourceObject(this);
-	mText->setOnHUDAttachment(isHUDAttachment());
+        mText->setColor(mHudTextColor);
+        mText->setString(mHudText);
+    }
 }
 
 void LLViewerObject::setIcon(LLViewerTexture* icon_image)
