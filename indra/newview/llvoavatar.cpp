@@ -8224,7 +8224,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		
 		if ( !mText )
 		{
-			initDebugTextHud();
+			initHudText();
 			mText->setFadeDistance(20.0, 5.0); // limit clutter in large crowds
 		}
 		else
