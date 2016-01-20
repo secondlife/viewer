@@ -821,7 +821,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     do
     {
         result = llcoro::suspendUntilEventOn(voiceConnectPump);
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } 
     while (!result.has("connector"));
 
@@ -1184,7 +1184,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     {
         result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
             if (result.has("handle"))
@@ -1437,7 +1437,11 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
         if (mSessionTerminateRequested)
             terminateAudioSession(true);
 
-        return false;
+        // if a relog has been requested then addAndJoineSession 
+        // failed in a spectacular way and we need to back out.
+        // If this is not the case then we were simply trying to
+        // make a call and the other party rejected it.  
+        return !mRelogRequested;
     }
 
     notifyParticipantObservers();
