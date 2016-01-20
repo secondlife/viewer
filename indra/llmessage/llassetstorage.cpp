@@ -608,36 +608,42 @@ void LLAssetStorage::downloadCompleteCallback(
 		return;
 	}
 
+	LLUUID callback_id;
+	LLAssetType::EType callback_type;
+
 	// Inefficient since we're doing a find through a list that may have thousands of elements.
 	// This is due for refactoring; we will probably change mPendingDownloads into a set.
 	request_list_t::iterator download_iter = std::find(gAssetStorage->mPendingDownloads.begin(), 
 													   gAssetStorage->mPendingDownloads.end(),
 													   req);
-	// If the LLAssetRequest doesn't exist in the downloads queue, then it either has already been deleted
-	// by _cleanupRequests, or it's a transfer.
+
 	if (download_iter != gAssetStorage->mPendingDownloads.end())
 	{
-		req->setUUID(file_id);
-		req->setType(file_type);
+		// either has already been deleted by _cleanupRequests (as result req becomes invalid)
+		// or it's a transfer.
+		callback_id = file_id;
+		callback_type = file_type;
+	}
+	else
+	{
+		// we will be deleting elements from mPendingDownloads which req should be part of, save id and type
+		callback_id = req->getUUID();
+		callback_type = req->getType();
 	}
 
 	if (LL_ERR_NOERR == result)
 	{
 		// we might have gotten a zero-size file
-		LLVFile vfile(gAssetStorage->mVFS, req->getUUID(), req->getType());
+		LLVFile vfile(gAssetStorage->mVFS, callback_id, callback_type);
 		if (vfile.getSize() <= 0)
 		{
-			LL_WARNS() << "downloadCompleteCallback has non-existent or zero-size asset " << req->getUUID() << LL_ENDL;
+			LL_WARNS() << "downloadCompleteCallback has non-existent or zero-size asset " << callback_id << LL_ENDL;
 			
 			result = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
 			vfile.remove();
 		}
 	}
 
-	// we will be deleting elements of mPendingDownloads which req might be part of, save id and type for reference
-	LLUUID callback_id = req->getUUID();
-	LLAssetType::EType callback_type = req->getType();
-	
 	// find and callback ALL pending requests for this UUID
 	// SJB: We process the callbacks in reverse order, I do not know if this is important,
 	//      but I didn't want to mess with it.
