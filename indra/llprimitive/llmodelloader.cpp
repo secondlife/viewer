@@ -134,41 +134,6 @@ LLModelLoader::LLModelLoader(
 , mMaxJointsPerMesh(maxJointsPerMesh)
 , mJointMap(legalJointNamesMap)
 {    
-	//move into joint mapper class
-	//1. joints for joint offset verification
-	mMasterJointList.push_front("mPelvis");
-	mMasterJointList.push_front("mTorso");
-	mMasterJointList.push_front("mChest");
-	mMasterJointList.push_front("mNeck");
-	mMasterJointList.push_front("mHead");
-	mMasterJointList.push_front("mCollarLeft");
-	mMasterJointList.push_front("mShoulderLeft");
-	mMasterJointList.push_front("mElbowLeft");
-	mMasterJointList.push_front("mWristLeft");
-	mMasterJointList.push_front("mCollarRight");
-	mMasterJointList.push_front("mShoulderRight");
-	mMasterJointList.push_front("mElbowRight");
-	mMasterJointList.push_front("mWristRight");
-	mMasterJointList.push_front("mHipRight");
-	mMasterJointList.push_front("mKneeRight");
-	mMasterJointList.push_front("mFootRight");
-	mMasterJointList.push_front("mHipLeft");
-	mMasterJointList.push_front("mKneeLeft");
-	mMasterJointList.push_front("mFootLeft");
-	
-	//2. legacy joint list - used to verify rigs that will not be using joint offsets
-	mMasterLegacyJointList.push_front("mPelvis");
-	mMasterLegacyJointList.push_front("mTorso");
-	mMasterLegacyJointList.push_front("mChest");
-	mMasterLegacyJointList.push_front("mNeck");
-	mMasterLegacyJointList.push_front("mHead");
-	mMasterLegacyJointList.push_front("mHipRight");
-	mMasterLegacyJointList.push_front("mKneeRight");
-	mMasterLegacyJointList.push_front("mFootRight");
-	mMasterLegacyJointList.push_front("mHipLeft");
-	mMasterLegacyJointList.push_front("mKneeLeft");
-	mMasterLegacyJointList.push_front("mFootLeft");
-
 	assert_main_thread();
 	sActiveLoaderList.push_back(this) ;
 }
@@ -467,55 +432,14 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
         return false;
     }
 
-	// Note that this is basically the same code as
-	// isRigSuitableForJointPositionUpload(), but the set of joints is
-	// different.
-	JointNameSet :: const_iterator masterJointIt = mMasterLegacyJointList.begin();	
-	JointNameSet :: const_iterator masterJointEndIt = mMasterLegacyJointList.end();
-	
-	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
-	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
-
-    S32 missing_joint_count = 0;
-	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
-	{
-        if (std::find(modelJointIt,modelJointItEnd,*masterJointIt)==modelJointItEnd)
-        {
-			LL_INFOS() <<" Asset did not contain a joint required for skinned mesh upload: " << *masterJointIt<< LL_ENDL;
-            missing_joint_count++;
-        }
-	}	
-    if (missing_joint_count>0)
-    {
-        LL_WARNS() << "Skinning disabled due to missing joints" << LL_ENDL;
-    }
-	return missing_joint_count==0;
+	return true;
 }
 //-----------------------------------------------------------------------------
 // isRigSuitableForJointPositionUpload()
 //-----------------------------------------------------------------------------
 bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset )
 {
-	JointNameSet :: const_iterator masterJointIt = mMasterJointList.begin();	
-	JointNameSet :: const_iterator masterJointEndIt = mMasterJointList.end();
-	
-	std::vector<std::string> :: const_iterator modelJointIt = jointListFromAsset.begin();	
-	std::vector<std::string> :: const_iterator modelJointItEnd = jointListFromAsset.end();
-	
-    S32 missing_joint_count = 0;
-	for ( ;masterJointIt!=masterJointEndIt;++masterJointIt )
-	{
-        if (std::find(modelJointIt,modelJointItEnd,*masterJointIt)==modelJointItEnd)
-        {
-			LL_INFOS() <<" Asset did not contain a joint required for joint position upload: " << *masterJointIt<< LL_ENDL;
-            missing_joint_count++;
-        }
-	}	
-    if (missing_joint_count>0)
-    {
-        LL_WARNS() << "Joint upload disabled due to missing joints" << LL_ENDL;
-    }
-	return missing_joint_count==0;
+    return true;
 }
 
 

@@ -196,8 +196,6 @@ protected:
 	bool		mNoNormalize;
 	bool		mNoOptimize;
 
-	JointNameSet		mMasterJointList;
-	JointNameSet		mMasterLegacyJointList;
 	JointTransformMap	mJointTransformMap;
 
 	static std::list<LLModelLoader*> sActiveLoaderList;
