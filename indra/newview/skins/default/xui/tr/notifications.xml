@@ -2942,7 +2942,7 @@ Bu bölgede kalmaya devam ederseniz oturumunuz sonlandırılacak.
 
 [MESSAGE]
 
-Kaynak nesne: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, sahibi: [NAME]
+Kaynak nesne: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, sahibi: [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Sayfaya git"/>
 			<button name="Cancel" text="İptal"/>
