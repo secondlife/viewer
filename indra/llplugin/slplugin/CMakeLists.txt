@@ -69,12 +69,6 @@ target_link_libraries(SLPlugin
   ${PLUGIN_API_WINDOWS_LIBRARIES}
 )
 
-add_dependencies(SLPlugin
-  ${LLPLUGIN_LIBRARIES}
-  ${LLMESSAGE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
-)
-
 if (DARWIN)
   # Mac version needs to link against Carbon
   target_link_libraries(SLPlugin ${COCOA_LIBRARY})

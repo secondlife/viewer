@@ -14,6 +14,7 @@ include(PluginAPI)
 include(MediaPluginBase)
 include(OpenGL)
 include(QuickTimePlugin)
+include(Boost)
 
 include_directories(
     ${LLPLUGIN_INCLUDE_DIRS}
@@ -51,12 +52,6 @@ target_link_libraries(media_plugin_quicktime
   ${LLCOMMON_LIBRARIES}
   ${QUICKTIME_LIBRARY}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
-)
-
-add_dependencies(media_plugin_quicktime
-  ${LLPLUGIN_LIBRARIES}
-  ${MEDIA_PLUGIN_BASE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
 )
 
 if (WINDOWS)
