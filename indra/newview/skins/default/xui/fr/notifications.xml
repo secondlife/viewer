@@ -2942,7 +2942,7 @@ Si vous restez dans cette région, vous serez déconnecté(e).
 
 [MESSAGE]
 
-Venant de l&apos;objet : &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propriétaire : [NAME]
+Venant de l&apos;objet : &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propriétaire : [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Charger"/>
 			<button name="Cancel" text="Annuler"/>
