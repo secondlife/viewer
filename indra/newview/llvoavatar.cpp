@@ -8406,12 +8406,13 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 							}
 
                             attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
-                            LL_DEBUGS("ARCdetail") << "Attachment " << attached_object->getAttachmentItemID()
-                                                   << " has total cost: " << attachment_total_cost
-                                                   << " volume cost: " << attachment_volume_cost
-                                                   << " texture cost: " << attachment_texture_cost
-                                                   << " and includes " << volume->numChildren()
-                                                   << " children with " << attachment_children_cost << " cost" << LL_ENDL;
+                            LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
+                                                   << " total: " << attachment_total_cost
+                                                   << ", volume: " << attachment_volume_cost
+                                                   << ", textures: " << attachment_texture_cost
+                                                   << ", " << volume->numChildren()
+                                                   << " children: " << attachment_children_cost
+                                                   << LL_ENDL;
                             cost += attachment_total_cost;
 						}
 					}
