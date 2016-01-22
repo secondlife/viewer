@@ -304,6 +304,11 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &ophandle);
     HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(ophandle));
     
+    if (!op)
+    {
+        LL_WARNS() << "Unable to locate operation by handle. May have expired!" << LL_ENDL;
+        return false;
+    }
 
 	if (handle != op->mCurlHandle || ! op->mCurlActive)
 	{
@@ -332,34 +337,50 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	{
 		op->mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, status);
 	}
-	if (op->mStatus)
-	{
-		int http_status(HTTP_OK);
+    if (op->mStatus)
+    {
+        int http_status(HTTP_OK);
 
-		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
-		if (http_status >= 100 && http_status <= 999)
-		{
-			char * cont_type(NULL);
-			curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
-			if (cont_type)
-			{
-				op->mReplyConType = cont_type;
-			}
-			op->mStatus = HttpStatus(http_status);
-		}
-		else
-		{
-			LL_WARNS(LOG_CORE) << "Invalid HTTP response code ("
-							   << http_status << ") received from server."
-							   << LL_ENDL;
-			op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
-		}
+        if (handle)
+        {
+            curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
+            if (http_status >= 100 && http_status <= 999)
+            {
+                char * cont_type(NULL);
+                curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
+                if (cont_type)
+                {
+                    op->mReplyConType = cont_type;
+                }
+                op->mStatus = HttpStatus(http_status);
+            }
+            else
+            {
+                LL_WARNS(LOG_CORE) << "Invalid HTTP response code ("
+                    << http_status << ") received from server."
+                    << LL_ENDL;
+                op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
+            }
+        }
+        else
+        {
+            LL_WARNS(LOG_CORE) << "Attempt to retrieve status from NULL handle!" << LL_ENDL;
+        }
 	}
 
-	// Detach from multi and recycle handle
-	curl_multi_remove_handle(multi_handle, handle);
-	mHandleCache.freeHandle(op->mCurlHandle);
-	op->mCurlHandle = NULL;
+    if (multi_handle && handle)
+    {
+        // Detach from multi and recycle handle
+        curl_multi_remove_handle(multi_handle, handle);
+        mHandleCache.freeHandle(op->mCurlHandle);
+    }
+    else
+    {
+        LL_WARNS(LOG_CORE) << "Curl multi_handle or handle is NULL on remove! multi:" 
+            << std::hex << multi_handle << " h:" << std::hex << handle << std::dec << LL_ENDL;
+    }
+
+    op->mCurlHandle = NULL;
 
 	// Tracing
 	if (op->mTracing > HTTP_TRACE_OFF)
