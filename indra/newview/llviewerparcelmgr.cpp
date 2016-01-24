@@ -1453,7 +1453,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	BOOL	region_deny_identified_override = false; // Deprecated
 	BOOL	region_deny_transacted_override = false; // Deprecated
 	BOOL	region_deny_age_unverified_override = false;
-    BOOL	changed_parcel = false;
+    BOOL	agent_teleported = false;
 
 	S32		other_clean_time = 0;
 
@@ -1572,7 +1572,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		if (parcel == parcel_mgr.mAgentParcel)
 		{
 			// new agent parcel
-			changed_parcel = true;
 			S32 bitmap_size =	parcel_mgr.mParcelsPerEdge
 								* parcel_mgr.mParcelsPerEdge
 								/ 8;
@@ -1590,6 +1589,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 			if (instance->mTeleportInProgress)
 			{
+				agent_teleported = true;
 				instance->mTeleportInProgress = FALSE;
 				if(instance->mTeleportInProgressPosition.isNull())
 				{
@@ -1755,14 +1755,18 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			if (parcel)
 			{
 				std::string music_url_raw = parcel->getMusicURL();
+				const std::string& stream_url = gAudiop->getInternetStreamURL();
 
 				// Trim off whitespace from front and back
 				std::string music_url = music_url_raw;
 				LLStringUtil::trim(music_url);
 
-				// If there is a new music URL and it's valid, play it.
-				const std::string& stream_url = gAudiop->getInternetStreamURL();
-				if (music_url.size() > 12 && (music_url != stream_url || changed_parcel))
+				static std::string last_url = "";
+
+				// If music url is valid and url is a new or teleport was performed  - play music.
+				// If url is empty or not usable and there is stream playing - stop music
+				// In all other cases maintain previous state
+				if (music_url.size() > 12 && (music_url != last_url || agent_teleported))
 				{
 					if (music_url.substr(0,7) == "http://")
 					{
@@ -1776,12 +1780,13 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 						LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 					}
 				}
-				else if (!stream_url.empty())
+				else if (!stream_url.empty() && (music_url != last_url || music_url.empty()))
 				{
 					LL_INFOS() << "Stopping parcel music (parcel stream URL is empty)" << LL_ENDL;
 					// null value causes fade out
 					LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 				}
+				last_url = music_url;
 			}
 			else
 			{
