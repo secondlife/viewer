@@ -1756,17 +1756,22 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			{
 				std::string music_url_raw = parcel->getMusicURL();
 				const std::string& stream_url = gAudiop->getInternetStreamURL();
+				LLUUID region_id = gAgent.getRegion()->getRegionID();
 
 				// Trim off whitespace from front and back
 				std::string music_url = music_url_raw;
 				LLStringUtil::trim(music_url);
 
 				static std::string last_url = "";
+				static LLUUID last_region_id = LLUUID::null;
 
-				// If music url is valid and url is a new or teleport was performed  - play music.
+				// If music url is valid and url is a new or teleport/region cross was performed  - play music.
 				// If url is empty or not usable and there is stream playing - stop music
 				// In all other cases maintain previous state
-				if (music_url.size() > 12 && (music_url != last_url || agent_teleported))
+				if (music_url.size() > 12
+					&& (music_url != last_url
+						|| agent_teleported
+						|| last_region_id != region_id))
 				{
 					if (music_url.substr(0,7) == "http://")
 					{
@@ -1787,6 +1792,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 					LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 				}
 				last_url = music_url;
+				last_region_id = region_id;
 			}
 			else
 			{
