@@ -65,6 +65,7 @@
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "llsdserialize.h"
+#include "llcallstack.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -205,6 +206,10 @@ bool update_avatar_rez_metrics()
 		return true;
 	
 	gAgentAvatarp->updateAvatarRezMetrics(false);
+
+    LLCallStack cs;
+    LL_INFOS() << "CallStack:\n" << cs << LL_ENDL;
+    
 	return false;
 }
 
