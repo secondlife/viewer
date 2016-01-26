@@ -8149,6 +8149,17 @@
       <key>Value</key>
       <integer>256</integer>
     </map>
+    <key>RegionCheckTextureHeights</key>
+    <map>
+      <key>Comment</key>
+      <string>Don't allow user to set low heights greater than high</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RememberPassword</key>
     <map>
       <key>Comment</key>
