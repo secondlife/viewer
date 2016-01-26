@@ -116,7 +116,7 @@ public:
 	
 	// close any existing text IM session with the specified user
 	virtual void endUserIMSession(const LLUUID &uuid);
-	
+
 	// Returns true if calling back the session URI after the session has closed is possible.
 	// Currently this will be false only for PSTN P2P calls.		
 	// NOTE: this will return true if the session can't be found. 
@@ -256,6 +256,7 @@ protected:
 	
 	friend class LLVivoxVoiceClientMuteListObserver;
 	friend class LLVivoxVoiceClientFriendsObserver;	
+
 	
 	enum streamState
 	{
@@ -302,22 +303,32 @@ protected:
 	
 	struct sessionState
 	{
-	public:
-		sessionState();
+    public:
+        typedef boost::shared_ptr<sessionState> ptr_t;
+        typedef boost::weak_ptr<sessionState> wptr_t;
+
+        typedef boost::function<void(const ptr_t &)> sessionFunc_t;
+
+        static ptr_t createSession();
 		~sessionState();
 		
         participantStatePtr_t addParticipant(const std::string &uri);
-		// Note: after removeParticipant returns, the participant* that was passed to it will have been deleted.
-		// Take care not to use the pointer again after that.
         void removeParticipant(const participantStatePtr_t &participant);
 		void removeAllParticipants();
-		
+
         participantStatePtr_t findParticipant(const std::string &uri);
         participantStatePtr_t findParticipantByID(const LLUUID& id);
-		
+
+        static ptr_t matchSessionByHandle(const std::string &handle);
+        static ptr_t matchCreatingSessionByURI(const std::string &uri);
+        static ptr_t matchSessionByURI(const std::string &uri);
+        static ptr_t matchSessionByParticipant(const LLUUID &participant_id);
+
 		bool isCallBackPossible();
 		bool isTextIMPossible();
 		
+        static void for_each(sessionFunc_t func);
+
 		std::string mHandle;
 		std::string mGroupHandle;
 		std::string mSIPURI;
@@ -354,6 +365,20 @@ protected:
 		participantUUIDMap mParticipantsByUUID;
 
 		LLUUID		mVoiceFontID;
+
+    private:
+        sessionState();
+
+        static std::set<wptr_t> mSession;   // canonical list of outstanding sessions.
+        std::set<wptr_t>::iterator  mMyIterator;    // used for delete
+
+        static void for_eachPredicate(const wptr_t &a, sessionFunc_t func);
+
+        static bool testByHandle(const LLVivoxVoiceClient::sessionState::wptr_t &a, std::string handle);
+        static bool testByCreatingURI(const LLVivoxVoiceClient::sessionState::wptr_t &a, std::string uri);
+        static bool testBySIPOrAlterateURI(const LLVivoxVoiceClient::sessionState::wptr_t &a, std::string uri);
+        static bool testByCallerId(const LLVivoxVoiceClient::sessionState::wptr_t &a, LLUUID participantId);
+
 	};
     typedef boost::shared_ptr<sessionState> sessionStatePtr_t;
 
@@ -362,7 +387,9 @@ protected:
 	///////////////////////////////////////////////////////
 	// Private Member Functions
 	//////////////////////////////////////////////////////
-	
+
+
+
 	//////////////////////////////
 	/// @name TVC/Server management and communication
 	//@{
@@ -479,6 +506,7 @@ protected:
     participantStatePtr_t findParticipantByID(const LLUUID& id);
 	
 
+#if 0
 	////////////////////////////////////////
 	// voice sessions.
     typedef std::set<sessionStatePtr_t> sessionSet;
@@ -486,14 +514,15 @@ protected:
 	typedef sessionSet::iterator sessionIterator;
 	sessionIterator sessionsBegin(void);
 	sessionIterator sessionsEnd(void);
+#endif
 
     sessionStatePtr_t findSession(const std::string &handle);
     sessionStatePtr_t findSessionBeingCreatedByURI(const std::string &uri);
     sessionStatePtr_t findSession(const LLUUID &participant_id);
-    sessionStatePtr_t findSessionByCreateID(const std::string &create_id);
 	
-    sessionStatePtr_t addSession(const std::string &uri, const std::string &handle = LLStringUtil::null);
-    void setSessionHandle(const sessionStatePtr_t &session, const std::string &handle = LLStringUtil::null);
+    sessionStatePtr_t addSession(const std::string &uri, const std::string &handle = std::string());
+    void clearSessionHandle(const sessionStatePtr_t &session);
+    void setSessionHandle(const sessionStatePtr_t &session, const std::string &handle);
     void setSessionURI(const sessionStatePtr_t &session, const std::string &uri);
     void deleteSession(const sessionStatePtr_t &session);
 	void deleteAllSessions(void);
@@ -564,6 +593,8 @@ protected:
 	void lookupName(const LLUUID &id);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
+    static void predAvatarNameResolution(const LLVivoxVoiceClient::sessionStatePtr_t &session, LLUUID id, std::string name);
+
 	boost::signals2::connection mAvatarNameCacheConnection;
 
 	/////////////////////////////
@@ -675,7 +706,9 @@ private:
 	int mLoginRetryCount;
 	
 	sessionMap mSessionsByHandle;				// Active sessions, indexed by session handle.  Sessions which are being initiated may not be in this map.
+#if 0
 	sessionSet mSessions;						// All sessions, not indexed.  This is the canonical session list.
+#endif
 	
 	bool mBuddyListMapPopulated;
 	bool mBlockRulesListReceived;
@@ -720,10 +753,12 @@ private:
 
 	void sendFriendsListUpdates();
 
+#if 0
 	// start a text IM session with the specified user
 	// This will be asynchronous, the session may be established at a future time.
     sessionStatePtr_t startUserIMSession(const LLUUID& uuid);
-	
+#endif
+
 	void enforceTether(void);
 	
 	bool		mSpatialCoordsDirty;
