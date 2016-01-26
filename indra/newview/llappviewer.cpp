@@ -5374,13 +5374,21 @@ void LLAppViewer::idleExperienceCache()
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region) return;
-	
-	std::string lookup_url=region->getCapability("GetExperienceInfo"); 
-	if(!lookup_url.empty() && *lookup_url.rbegin() != '/')
-	{
-		lookup_url += '/';
-	}
-	
+
+    std::string lookup_url;
+    if (region->capabilitiesReceived())
+    {
+        lookup_url = region->getCapability("GetExperienceInfo");
+        if (!lookup_url.empty() && *lookup_url.rbegin() != '/')
+        {
+            lookup_url += '/';
+        }
+    }
+    else
+    {
+        LL_WARNS_ONCE() << "GetExperienceInfo capability is not yet recieved" << LL_ENDL;
+    }
+
 	LLExperienceCache::setLookupURL(lookup_url);
 
 	LLExperienceCache::idle();
