@@ -4,7 +4,7 @@
  * http://stackwalker.codeplex.com/
  *
  *
- * $LicenseInfo:firstyear=2016&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2016&license=bsd$
  *
  * History:
  *  2005-07-27   v1    - First public release on http://www.codeproject.com/

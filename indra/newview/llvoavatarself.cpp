@@ -207,9 +207,6 @@ bool update_avatar_rez_metrics()
 	
 	gAgentAvatarp->updateAvatarRezMetrics(false);
 
-    LLCallStack cs;
-    LL_INFOS() << "CallStack:\n" << cs << LL_ENDL;
-    
 	return false;
 }
 

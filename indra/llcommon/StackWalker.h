@@ -4,7 +4,7 @@
  *
  *
  *
- * $LicenseInfo:firstyear=2016&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2016&license=bsd$
  *
  * LICENSE (http://www.opensource.org/licenses/bsd-license.php)
  *

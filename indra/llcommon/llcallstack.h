@@ -29,10 +29,11 @@ class LLCallStackImpl;
 class LLCallStack
 {
 public:
-    LLCallStack();
+    LLCallStack(S32 skip_count=0);
     std::vector<std::string> m_strings;
 private:
     static LLCallStackImpl *s_impl;
+    S32 m_skipCount;
 };
 
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLCallStack& call_stack);

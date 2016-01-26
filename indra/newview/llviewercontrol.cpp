@@ -120,6 +120,13 @@ static bool handleTerrainDetailChanged(const LLSD& newvalue)
 }
 
 
+static bool handleDebugAvatarJointsChanged(const LLSD& newvalue)
+{
+    std::string new_string = newvalue.asString();
+    LLJoint::setDebugJointNames(new_string);
+    return true;
+}
+
 static bool handleDeferredDebugSettingChanged(const LLSD& newvalue)
 {
     LLNotificationsUtil::add("ChangeDeferredDebugSetting");
@@ -769,6 +776,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
 	gSavedSettings.getControl("IncludeEnhancedSkeleton")->getCommitSignal()->connect(boost::bind(&handleDeferredDebugSettingChanged, _2));
+    gSavedSettings.getControl("DebugAvatarJoints")->getCommitSignal()->connect(boost::bind(&handleDebugAvatarJointsChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL

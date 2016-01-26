@@ -32,6 +32,8 @@
 #include "lljoint.h"
 
 #include "llmath.h"
+#include "llcallstack.h"
+#include <boost/algorithm/string.hpp>
 
 S32 LLJoint::sNumUpdates = 0;
 S32 LLJoint::sNumTouches = 0;
@@ -313,7 +315,11 @@ const LLVector3& LLJoint::getPosition()
 
 bool do_debug_joint(const std::string& name)
 {
-	return false;
+    if (std::find(LLJoint::s_debugJointNames.begin(), LLJoint::s_debugJointNames.end(),name) != LLJoint::s_debugJointNames.end())
+    {
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------
@@ -325,7 +331,9 @@ void LLJoint::setPosition( const LLVector3& pos )
 	{
 		if (do_debug_joint(getName()))
 		{
+            LLCallStack cs;
 			LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
+			LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
 		}
 	}
 	mXform.setPosition(pos);
@@ -425,6 +433,23 @@ void LLJoint::updatePos(const std::string& av_info)
 		pos = m_posBeforeOverrides;
 	}
 	setPosition(pos);
+}
+
+// init static
+LLJoint::debug_joint_name_t LLJoint::s_debugJointNames = debug_joint_name_t();
+
+//--------------------------------------------------------------------
+// setDebugJointNames
+//--------------------------------------------------------------------
+void LLJoint::setDebugJointNames(const debug_joint_name_t& names)
+{
+    s_debugJointNames = names;
+}
+void LLJoint::setDebugJointNames(const std::string& names_string)
+{
+    debug_joint_name_t names;
+    boost::split(names, names_string, boost::is_any_of(" :,"));
+    setDebugJointNames(names);
 }
 
 //--------------------------------------------------------------------
