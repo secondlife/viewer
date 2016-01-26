@@ -366,6 +366,8 @@ protected:
 
 		LLUUID		mVoiceFontID;
 
+        static void VerifySessions();
+
     private:
         sessionState();
 

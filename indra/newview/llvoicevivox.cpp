@@ -822,7 +822,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     do
     {
         result = llcoro::suspendUntilEventOn(voiceConnectPump);
-        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } 
     while (!result.has("connector"));
 
@@ -848,7 +848,7 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
     if (corowait)
     {
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
-        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         retval = result.has("connector");
     }
@@ -892,7 +892,7 @@ bool LLVivoxVoiceClient::loginToVivox()
         send_login = false;
 
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
-        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         if (result.has("login"))
         {
@@ -984,7 +984,7 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
     {
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         if (result.has("logout"))
         {
@@ -1008,7 +1008,7 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
     {
         result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("voice_fonts"))
             break;
     } while (true);
@@ -1189,7 +1189,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     {
         result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
             if (result.has("handle"))
@@ -1296,7 +1296,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
                     {
                         result = llcoro::suspendUntilEventOn(voicePump);
 
-                        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+                        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
                         if (result.has("session"))
                         {
                             if (result.has("handle"))
@@ -1517,7 +1517,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
         timeout.eventAfter(UPDATE_THROTTLE_SECONDS, timeoutEvent);
         LLSD result = llcoro::suspendUntilEventOn(timeout);
         if (!result.has("timeout")) // logging the timeout event spams the log
-            LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {   
             if (result.has("handle"))
@@ -1567,7 +1567,7 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
         do
         {
             command = llcoro::suspendUntilEventOn(voicePump);
-            LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(command) << LL_ENDL;
+            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(command) << LL_ENDL;
         } while (!command.has("recplay"));
 
         if (command["recplay"].asString() == "quit")
@@ -1611,7 +1611,7 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
     do
     {
         result = llcoro::suspendUntilEventOn(voicePump);
-        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } while (!result.has("recplay"));
 
     mCaptureBufferRecorded = true;
@@ -1651,7 +1651,7 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
             notifyVoiceFontObservers();
 
             result = llcoro::suspendUntilEventOn(voicePump);
-            LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         } while (!result.has("recplay"));
 
         if (result["recplay"] == "playback")
@@ -3907,15 +3907,15 @@ void LLVivoxVoiceClient::sessionState::removeParticipant(const LLVivoxVoiceClien
 		
 		if(iter == mParticipantsByURI.end())
 		{
-			LL_ERRS("Voice") << "Internal error: participant " << participant->mURI << " not in URI map" << LL_ENDL;
+			LL_WARNS("Voice") << "Internal error: participant " << participant->mURI << " not in URI map" << LL_ENDL;
 		}
 		else if(iter2 == mParticipantsByUUID.end())
 		{
-			LL_ERRS("Voice") << "Internal error: participant ID " << participant->mAvatarID << " not in UUID map" << LL_ENDL;
+			LL_WARNS("Voice") << "Internal error: participant ID " << participant->mAvatarID << " not in UUID map" << LL_ENDL;
 		}
 		else if(iter->second != iter2->second)
 		{
-			LL_ERRS("Voice") << "Internal error: participant mismatch!" << LL_ENDL;
+			LL_WARNS("Voice") << "Internal error: participant mismatch!" << LL_ENDL;
 		}
 		else
 		{
@@ -3938,9 +3938,26 @@ void LLVivoxVoiceClient::sessionState::removeAllParticipants()
 	
 	if(!mParticipantsByUUID.empty())
 	{
-		LL_ERRS("Voice") << "Internal error: empty URI map, non-empty UUID map" << LL_ENDL;
+		LL_WARNS("Voice") << "Internal error: empty URI map, non-empty UUID map" << LL_ENDL;
 	}
 }
+
+/*static*/
+void LLVivoxVoiceClient::sessionState::VerifySessions()
+{
+    std::set<wptr_t>::iterator it = mSession.begin();
+    while (it != mSession.end())
+    {
+        if ((*it).expired())
+        {
+            LL_WARNS("Voice") << "Expired session found! removing" << LL_ENDL;
+            mSession.erase(it++);
+        }
+        else
+            ++it;
+    }
+}
+
 
 void LLVivoxVoiceClient::getParticipantList(std::set<LLUUID> &participants)
 {
@@ -5362,7 +5379,7 @@ void LLVivoxVoiceClient::setSessionHandle(const sessionStatePtr_t &session, cons
 		{
 			if(iter->second != session)
 			{
-				LL_ERRS("Voice") << "Internal error: session mismatch! Session may have been duplicated." << LL_ENDL;
+				LL_WARNS("Voice") << "Internal error: session mismatch! Session may have been duplicated. Removing version in map." << LL_ENDL;
 			}
 
 			mSessionsByHandle.erase(iter);
@@ -5401,7 +5418,7 @@ void LLVivoxVoiceClient::deleteSession(const sessionStatePtr_t &session)
 		{
 			if(iter->second != session)
 			{
-				LL_ERRS("Voice") << "Internal error: session mismatch" << LL_ENDL;
+				LL_WARNS("Voice") << "Internal error: session mismatch, removing session in map." << LL_ENDL;
 			}
 			mSessionsByHandle.erase(iter);
 		}
@@ -5429,7 +5446,6 @@ void LLVivoxVoiceClient::deleteAllSessions()
 {
 	LL_DEBUGS("Voice") << "called" << LL_ENDL;
 
-    
     while (!mSessionsByHandle.empty())
 	{
         deleteSession(mSessionsByHandle.begin()->second);
@@ -5439,54 +5455,8 @@ void LLVivoxVoiceClient::deleteAllSessions()
 
 void LLVivoxVoiceClient::verifySessionState(void)
 {
-#if 0
-	// This is mostly intended for debugging problems with session state management.
-	LL_DEBUGS("Voice") << "Total session count: " << mSessions.size() << " , session handle map size: " << mSessionsByHandle.size() << LL_ENDL;
-
-	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
-	{
-        sessionStatePtr_t session(*iter);
-
-		LL_DEBUGS("Voice") << "session " << session << ": handle " << session->mHandle << ", URI " << session->mSIPURI << LL_ENDL;
-		
-		if(!session->mHandle.empty())
-		{
-			// every session with a non-empty handle needs to be in the handle map
-			sessionMap::iterator i2 = mSessionsByHandle.find(session->mHandle);
-			if(i2 == mSessionsByHandle.end())
-			{
-				LL_ERRS("Voice") << "internal error (handle " << session->mHandle << " not found in session map)" << LL_ENDL;
-			}
-			else
-			{
-				if(i2->second != session)
-				{
-					LL_ERRS("Voice") << "internal error (handle " << session->mHandle << " in session map points to another session)" << LL_ENDL;
-				}
-			}
-		}
-	}
-#endif
-		
-#if 0
-	// check that every entry in the handle map points to a valid session in the session set
-	for(sessionMap::iterator iter = mSessionsByHandle.begin(); iter != mSessionsByHandle.end(); iter++)
-	{
-        sessionStatePtr_t session(iter->second);
-		sessionIterator i2 = mSessions.find(session);
-		if(i2 == mSessions.end())
-		{
-			LL_ERRS("Voice") << "internal error (session for handle " << session->mHandle << " not found in session map)" << LL_ENDL;
-		}
-		else
-		{
-			if(session->mHandle != (*i2)->mHandle)
-			{
-				LL_ERRS("Voice") << "internal error (session for handle " << session->mHandle << " points to session with different handle " << (*i2)->mHandle << ")" << LL_ENDL;
-			}
-		}
-	}
-#endif
+    LL_DEBUGS("Voice") << "Sessions in handle map=" << mSessionsByHandle.size() << LL_ENDL;
+    sessionState::VerifySessions();
 }
 
 void LLVivoxVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
