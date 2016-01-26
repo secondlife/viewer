@@ -848,7 +848,7 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
     if (corowait)
     {
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         retval = result.has("connector");
     }
@@ -892,7 +892,7 @@ bool LLVivoxVoiceClient::loginToVivox()
         send_login = false;
 
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         if (result.has("login"))
         {
@@ -971,6 +971,9 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
 {
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
 
+    if (!mIsLoggedIn)
+        return;
+
     // Ensure that we'll re-request provisioning before logging in again
     mAccountPassword.clear();
     mVoiceAccountServerURI.clear();
@@ -981,13 +984,14 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
     {
         LLSD result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         if (result.has("logout"))
         {
         }
     }
 
+    mIsLoggedIn = false;
 }
 
 
@@ -1004,7 +1008,7 @@ bool LLVivoxVoiceClient::retrieveVoiceFonts()
     {
         result = llcoro::suspendUntilEventOn(voicePump);
 
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("voice_fonts"))
             break;
     } while (true);
@@ -1262,57 +1266,64 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
     {
         LL_INFOS("Voice") << "Terminating current voice session " << mAudioSession->mHandle << LL_ENDL;
 
-        if (!mAudioSession->mHandle.empty())
+        if (mIsLoggedIn)
         {
+            if (!mAudioSession->mHandle.empty())
+            {
 
 #if RECORD_EVERYTHING
-            // HACK: for testing only
-            // Save looped recording
-            std::string savepath("/tmp/vivoxrecording");
-            {
-                time_t now = time(NULL);
-                const size_t BUF_SIZE = 64;
-                char time_str[BUF_SIZE];	/* Flawfinder: ignore */
+                // HACK: for testing only
+                // Save looped recording
+                std::string savepath("/tmp/vivoxrecording");
+                {
+                    time_t now = time(NULL);
+                    const size_t BUF_SIZE = 64;
+                    char time_str[BUF_SIZE];	/* Flawfinder: ignore */
 
-                strftime(time_str, BUF_SIZE, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
-                savepath += time_str;
-            }
-            recordingLoopSave(savepath);
+                    strftime(time_str, BUF_SIZE, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+                    savepath += time_str;
+                }
+                recordingLoopSave(savepath);
 #endif
 
-            sessionMediaDisconnectSendMessage(mAudioSession);
+                sessionMediaDisconnectSendMessage(mAudioSession);
 
-            if (wait)
-            {
-                LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
-                LLSD result;
-                do
+                if (wait)
                 {
-                     result = llcoro::suspendUntilEventOn(voicePump);
-
-                    LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
-                    if (result.has("session"))
+                    LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
+                    LLSD result;
+                    do
                     {
-                        if (result.has("handle"))
+                        result = llcoro::suspendUntilEventOn(voicePump);
+
+                        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+                        if (result.has("session"))
                         {
-                            if (result["handle"] != mAudioSession->mHandle)
+                            if (result.has("handle"))
                             {
-                                LL_WARNS("Voice") << "Message for session handle \"" << result["handle"] << "\" while waiting for \"" << mAudioSession->mHandle << "\"." << LL_ENDL;
-                                continue;
+                                if (result["handle"] != mAudioSession->mHandle)
+                                {
+                                    LL_WARNS("Voice") << "Message for session handle \"" << result["handle"] << "\" while waiting for \"" << mAudioSession->mHandle << "\"." << LL_ENDL;
+                                    continue;
+                                }
                             }
+
+                            std::string message = result["session"].asString();
+                            if (message == "removed")
+                                break;
                         }
+                    } while (true);
 
-                        std::string message = result["session"].asString();
-                        if (message == "removed")
-                            break;
-                    }
-                } while (true);
-
+                }
+            }
+            else
+            {
+                LL_WARNS("Voice") << "called with no session handle" << LL_ENDL;
             }
         }
         else
         {
-            LL_WARNS("Voice") << "called with no session handle" << LL_ENDL;
+            LL_WARNS("Voice") << "Session " << mAudioSession->mHandle << " already terminated by logout." << LL_ENDL;
         }
 
         sessionStatePtr_t oldSession = mAudioSession;
@@ -1506,7 +1517,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
         timeout.eventAfter(UPDATE_THROTTLE_SECONDS, timeoutEvent);
         LLSD result = llcoro::suspendUntilEventOn(timeout);
         if (!result.has("timeout")) // logging the timeout event spams the log
-            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+            LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {   
             if (result.has("handle"))
@@ -1523,6 +1534,16 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
             if (message == "removed")
             {
                 notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
+                break;
+            }
+        }
+        else if (result.has("login"))
+        {
+            std::string message = result["login"];
+            if (message == "account_logout")
+            {
+                mIsLoggedIn = false;
+                mRelogRequested = true;
                 break;
             }
         }
@@ -1546,7 +1567,7 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
         do
         {
             command = llcoro::suspendUntilEventOn(voicePump);
-            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(command) << LL_ENDL;
+            LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(command) << LL_ENDL;
         } while (!command.has("recplay"));
 
         if (command["recplay"].asString() == "quit")
@@ -1590,7 +1611,7 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
     do
     {
         result = llcoro::suspendUntilEventOn(voicePump);
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } while (!result.has("recplay"));
 
     mCaptureBufferRecorded = true;
@@ -1630,7 +1651,7 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
             notifyVoiceFontObservers();
 
             result = llcoro::suspendUntilEventOn(voicePump);
-            LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+            LL_WARNS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         } while (!result.has("recplay"));
 
         if (result["recplay"] == "playback")
