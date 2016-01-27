@@ -51,22 +51,40 @@ static LLOutfitGallery* gOutfitGallery = NULL;
 
 LLOutfitGallery::LLOutfitGallery()
     : LLOutfitListBase(),
-      mTexturesObserver(NULL)
+      mTexturesObserver(NULL),
+      mScrollPanel(NULL),
+      mGalleryPanel(NULL),
+      galleryCreated(false),
+      mRowCount(0),
+      mItemsAddedCount(0)
 {
-//    mGearMenu = new LLOutfitGalleryGearMenu(this);
 }
 
 BOOL LLOutfitGallery::postBuild()
 {
     BOOL rv = LLOutfitListBase::postBuild();
+    mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
+    mGalleryPanel = getChild<LLPanel>("gallery_panel");
     return rv;
 }
 
 void LLOutfitGallery::onOpen(const LLSD& info)
 {
     LLOutfitListBase::onOpen(info);
-    rebuildGallery();
-    loadPhotos();
+    if (!galleryCreated)
+    {
+        loadPhotos();
+        uuid_vec_t cats;
+        getCurrentCategories(cats);
+        int n = cats.size();
+        buildGalleryPanel(n);
+        mScrollPanel->addChild(mGalleryPanel);
+        for (int i = 0; i < n; i++)
+        {
+            addToGallery(mOutfitMap[cats[i]]);
+        }
+        galleryCreated = true;
+    }
 }
 
 #define LAYOUT_STACK_HEIGHT 180
@@ -79,65 +97,124 @@ void LLOutfitGallery::onOpen(const LLSD& info)
 #define LAYOUT_STACK_WIDTH 166 * ITEMS_IN_ROW//498
 #define GALLERY_WIDTH 163 * ITEMS_IN_ROW//485//290
 
-void LLOutfitGallery::rebuildGallery()
+LLPanel* LLOutfitGallery::addLastRow()
 {
-    LLView::child_list_t child_list(*getChild<LLPanel>("gallery_panel")->getChildList());
-    BOOST_FOREACH(LLView* view, child_list)
-    {
-        LLLayoutStack* lstack = dynamic_cast<LLLayoutStack*>(view);
-        if (lstack != NULL)
-        {
-            LLView::child_list_t panel_list(*lstack->getChildList());
-            BOOST_FOREACH(LLView* panel, panel_list)
-            {
-                //LLLayoutPanel* lpanel = dynamic_cast<LLLayoutPanel*>(panel);
-                //if (!lpanel)
-                //    continue;
-                LLView::child_list_t panel_children(*panel->getChildList());
-                if (panel_children.size() > 0)
-                {
-                    //Assume OutfitGalleryItem is the only one child of layout panel
-                    LLView* view_item = panel_children.back();
-                    LLOutfitGalleryItem* gallery_item = dynamic_cast<LLOutfitGalleryItem*>(view_item);
-                    if (gallery_item != NULL)
-                        panel->removeChild(gallery_item);
-                }
-                lstack->removeChild(panel);
-                //delete panel;
-            }
-            getChild<LLPanel>("gallery_panel")->removeChild(lstack);
-            delete lstack;
-        }
-        else
-        {
-            getChild<LLPanel>("gallery_panel")->removeChild(view);
-        }
-    }
-    uuid_vec_t cats;
-    getCurrentCategories(cats);
-    int n = cats.size();
+    mRowCount++;
+    int row = 0;
+    int vgap = GALLERY_VERTICAL_GAP * row;
+    LLPanel* result = buildLayoutStak(0, row * LAYOUT_STACK_HEIGHT + vgap);
+    mGalleryPanel->addChild(result);
+    return result;
+}
+
+void LLOutfitGallery::moveRowUp(int row)
+{
+    moveRow(row, mRowCount - 1 - row + 1);
+}
+
+void LLOutfitGallery::moveRowDown(int row)
+{
+    moveRow(row, mRowCount - 1 - row - 1);
+}
+
+void LLOutfitGallery::moveRow(int row, int pos)
+{
+    int vgap = GALLERY_VERTICAL_GAP * pos;
+    moveLayoutStak(mStacks[row], 0, pos * LAYOUT_STACK_HEIGHT + vgap);
+}
+
+void LLOutfitGallery::removeLastRow()
+{
+    mRowCount--;
+    mGalleryPanel->removeChild(mLastRowStack);
+    mStacks.pop_back();
+    mLastRowStack = mStacks.back();
+}
+
+LLPanel* LLOutfitGallery::addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item, int pos, int hgap)
+{
+    LLPanel* lpanel = buildLayoutPanel(pos * GALLERY_ITEM_WIDTH + hgap);
+    lpanel->addChild(item);
+    row_stack->addChild(lpanel);
+    mPanels.push_back(lpanel);
+    return lpanel;
+}
+
+void LLOutfitGallery::addToGallery(LLOutfitGalleryItem* item)
+{
+    mItemsAddedCount++;
+    mItemIndexMap[item] = mItemsAddedCount - 1;
+    int n = mItemsAddedCount;
     int row_count = (n % ITEMS_IN_ROW) == 0 ? n / ITEMS_IN_ROW : n / ITEMS_IN_ROW + 1;
-    getChild<LLPanel>("gallery_panel")->reshape(
-        GALLERY_WIDTH, row_count * (LAYOUT_STACK_HEIGHT + GALLERY_VERTICAL_GAP));
-    int vgap = 0;
-    uuid_vec_t::reverse_iterator rit = cats.rbegin();
-    for (int i = row_count - 1; i >= 0; i--)
+    int n_prev = n - 1;
+    int row_count_prev = (n_prev % ITEMS_IN_ROW) == 0 ? n_prev / ITEMS_IN_ROW : n_prev / ITEMS_IN_ROW + 1;
+
+    bool add_row = row_count != row_count_prev;
+    int pos = 0;
+    if (add_row)
     {
-        LLLayoutStack* stack = buildLayoutStak(0, (row_count - 1 - i) * LAYOUT_STACK_HEIGHT + vgap);
-        getChild<LLPanel>("gallery_panel")->addChild(stack);
-        int items_in_cur_row = (n % ITEMS_IN_ROW) == 0 ? ITEMS_IN_ROW : (i == row_count - 1 ? n % ITEMS_IN_ROW : ITEMS_IN_ROW);
-        int hgap = 0;
-        for (int j = 0; j < items_in_cur_row && rit != cats.rend(); j++)
+        for (int i = 0; i < row_count_prev; i++)
         {
-            LLLayoutPanel* lpanel = buildLayoutPanel(j * GALLERY_ITEM_WIDTH + hgap);
-            LLOutfitGalleryItem* item = mOutfitMap[*rit];
-            lpanel->addChild(item);
-            stack->addChild(lpanel);
-            rit++;
-            hgap += GALLERY_HORIZONTAL_GAP;
+            moveRowUp(i);
         }
-        vgap += GALLERY_VERTICAL_GAP;
+        mLastRowStack = addLastRow();
+        mStacks.push_back(mLastRowStack);
     }
+    pos = (n - 1) % ITEMS_IN_ROW;
+    mItems.push_back(item);
+    addToRow(mLastRowStack, item, pos, GALLERY_HORIZONTAL_GAP * pos);
+    reshapeGalleryPanel(row_count);
+}
+
+
+void LLOutfitGallery::removeFromGalleryLast(LLOutfitGalleryItem* item)
+{
+    int n_prev = mItemsAddedCount;
+    int n = mItemsAddedCount - 1;
+    int row_count = (n % ITEMS_IN_ROW) == 0 ? n / ITEMS_IN_ROW : n / ITEMS_IN_ROW + 1;
+    int row_count_prev = (n_prev % ITEMS_IN_ROW) == 0 ? n_prev / ITEMS_IN_ROW : n_prev / ITEMS_IN_ROW + 1;
+    mItemsAddedCount--;
+
+    bool remove_row = row_count != row_count_prev;
+    //int pos = (n_prev - 1) % ITEMS_IN_ROW;
+    removeFromLastRow(mItems[mItemsAddedCount]);
+    mItems.pop_back();
+    if (remove_row)
+    {
+        for (int i = 0; i < row_count_prev - 1; i++)
+        {
+            moveRowDown(i);
+        }
+        removeLastRow();
+    }
+    reshapeGalleryPanel(row_count);
+}
+
+
+void LLOutfitGallery::removeFromGalleryMiddle(LLOutfitGalleryItem* item)
+{
+    int n = mItemIndexMap[item];
+    mItemIndexMap.erase(item);
+    std::vector<LLOutfitGalleryItem*> saved;
+    for (int i = mItemsAddedCount - 1; i > n; i--)
+    {
+        saved.push_back(mItems[i]);
+        removeFromGalleryLast(mItems[i]);
+    }
+    removeFromGalleryLast(mItems[n]);
+    int saved_count = saved.size();
+    for (int i = 0; i < saved_count; i++)
+    {
+        addToGallery(saved.back());
+        saved.pop_back();
+    }
+}
+
+void LLOutfitGallery::removeFromLastRow(LLOutfitGalleryItem* item)
+{
+    mPanels.back()->removeChild(item);
+    mLastRowStack->removeChild(mPanels.back());
+    mPanels.pop_back();
 }
 
 LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name)
@@ -155,11 +232,31 @@ LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name)
     return gitem;
 }
 
-LLLayoutPanel* LLOutfitGallery::buildLayoutPanel(int left)
+void LLOutfitGallery::buildGalleryPanel(int row_count)
 {
-    LLLayoutPanel::Params lpparams;
+    LLPanel::Params params;
+    mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
+    reshapeGalleryPanel(row_count);
+}
+
+void LLOutfitGallery::reshapeGalleryPanel(int row_count)
+{
+    int bottom = 0;
+    int left = 0;
+    int height = row_count * (LAYOUT_STACK_HEIGHT + GALLERY_VERTICAL_GAP);
+    LLRect rect = LLRect(left, bottom + height, left + GALLERY_WIDTH, bottom);
+    mGalleryPanel->setRect(rect);
+    mGalleryPanel->reshape(GALLERY_WIDTH, height);
+    mGalleryPanel->setVisible(true);
+    mGalleryPanel->setFollowsLeft();
+    mGalleryPanel->setFollowsTop();
+}
+
+LLPanel* LLOutfitGallery::buildLayoutPanel(int left)
+{
+    LLPanel::Params lpparams;
     int top = 0;
-    LLLayoutPanel* lpanel = LLUICtrlFactory::create<LLLayoutPanel>(lpparams);
+    LLPanel* lpanel = LLUICtrlFactory::create<LLPanel>(lpparams);
     LLRect rect = LLRect(left, top + GALLERY_ITEM_HEIGHT, left + GALLERY_ITEM_WIDTH + GALLERY_ITEM_HGAP, top);
     lpanel->setRect(rect);
     lpanel->reshape(GALLERY_ITEM_WIDTH + GALLERY_ITEM_HGAP, GALLERY_ITEM_HEIGHT);
@@ -169,19 +266,23 @@ LLLayoutPanel* LLOutfitGallery::buildLayoutPanel(int left)
     return lpanel;
 }
 
-LLLayoutStack* LLOutfitGallery::buildLayoutStak(int left, int top)
+LLPanel* LLOutfitGallery::buildLayoutStak(int left, int bottom)
 {
-    LLLayoutStack::Params sparams;
-    LLLayoutStack* stack = LLUICtrlFactory::create<LLLayoutStack>(sparams);
-    LLRect rect = LLRect(left, top + LAYOUT_STACK_HEIGHT, left + LAYOUT_STACK_WIDTH, top);
+    LLPanel::Params sparams;
+    LLPanel* stack = LLUICtrlFactory::create<LLPanel>(sparams);
+    moveLayoutStak(stack, left, bottom);
+    return stack;
+}
+
+void LLOutfitGallery::moveLayoutStak(LLPanel* stack, int left, int bottom)
+{
+    LLRect rect = LLRect(left, bottom + LAYOUT_STACK_HEIGHT, left + LAYOUT_STACK_WIDTH, bottom);
     stack->setRect(rect);
     stack->reshape(LAYOUT_STACK_WIDTH, LAYOUT_STACK_HEIGHT);
     stack->setVisible(true);
     stack->setFollowsLeft();
     stack->setFollowsTop();
-    return stack;
 }
-
 
 LLOutfitGallery::~LLOutfitGallery()
 {
@@ -240,7 +341,10 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
         _1, _2, _3, cat_id));
     LLWearableItemsList* list = NULL;
     item->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ñhangeOutfitSelection, this, list, cat_id));
-
+    if (galleryCreated)
+    {
+        addToGallery(item);
+    }
 }
 
 void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
@@ -259,7 +363,7 @@ void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
         mOutfitMap.erase(outfits_iter);
 
         // 4. Remove outfit from gallery.
-        rebuildGallery();
+        removeFromGalleryMiddle(item);
 
         // kill removed item
         if (item != NULL)

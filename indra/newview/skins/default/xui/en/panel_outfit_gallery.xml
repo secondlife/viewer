@@ -26,19 +26,6 @@
    name="gallery_scroll_panel"
    opaque="false"
    top_pad="0">
-   <panel
-   background_visible="true"
-   border="true"
-   bevel_style="none"
-	 follows="all"
-   height="560"
-   width="312"
-   layout="topleft"
-   top="0"
-   left="4"
-   top_pad="0"
-   visible="true"
-   name="gallery_panel">
    <!--outfit_gallery_item
     layout="topleft"
     left="10"
@@ -79,7 +66,7 @@
          <outfit_gallery_item layout="topleft" left="10" name="preview_outfit2" height="175" width="150" follows="left|top"/>
        </layout_panel>
      </layout_stack-->
-   </panel>
+    <!--</panel>-->
   </scroll_container>
   <panel
      background_visible="true"

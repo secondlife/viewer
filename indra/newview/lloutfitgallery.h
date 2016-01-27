@@ -78,11 +78,20 @@ protected:
     /*virtual*/ LLOutfitListGearMenuBase* createGearMenu();
 
 private:
-    void rebuildGallery();
     void loadPhotos();
     void uploadPhoto(LLUUID outfit_id);
     bool checkRemovePhoto(LLUUID outfit_id);
     void setUploadedPhoto(LLUUID outfit_id, LLUUID asset_id);
+    void addToGallery(LLOutfitGalleryItem* item);
+    void removeFromGalleryLast(LLOutfitGalleryItem* item);
+    void removeFromGalleryMiddle(LLOutfitGalleryItem* item);
+    LLPanel* addLastRow();
+    void removeLastRow();
+    void moveRowUp(int row);
+    void moveRowDown(int row);
+    void moveRow(int row, int pos);
+    LLPanel* addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item, int pos, int hgap);
+    void removeFromLastRow(LLOutfitGalleryItem* item);
 
     static void onLoadComplete(LLVFS *vfs,
         const LLUUID& asset_uuid,
@@ -90,20 +99,32 @@ private:
         void* user_data, S32 status, LLExtStat ext_status);
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name);
-    LLLayoutPanel* buildLayoutPanel(int left);
-    LLLayoutStack* buildLayoutStak(int left, int top);
-
+    void buildGalleryPanel(int row_count);
+    void reshapeGalleryPanel(int row_count);
+    LLPanel* buildLayoutPanel(int left);
+    LLPanel* buildLayoutStak(int left, int bottom);
+    void moveLayoutStak(LLPanel* stack, int left, int bottom);
     LLView* mView;
-    std::vector<LLLayoutStack*> mLayouts;
-    std::vector<LLLayoutPanel*> mPanels;
+    std::vector<LLPanel*> mStacks;
+    std::vector<LLPanel*> mPanels;
     std::vector<LLOutfitGalleryItem*> mItems;
+    LLScrollContainer* mScrollPanel;
+    LLPanel* mGalleryPanel;
+    LLPanel* mLastRowStack;
+    bool galleryCreated;
+    int mRowCount;
+    int mItemsAddedCount;
 
-    typedef	std::map<LLUUID, LLOutfitGalleryItem*>		outfit_map_t;
-    typedef outfit_map_t::value_type					outfit_map_value_t;
-    outfit_map_t					mOutfitMap;
-    typedef	std::map<LLUUID, LLViewerInventoryItem*>    texture_map_t;
-    typedef texture_map_t::value_type	                texture_map_value_t;
-    texture_map_t                    mTextureMap;
+    typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
+    typedef outfit_map_t::value_type                    outfit_map_value_t;
+    outfit_map_t                                        mOutfitMap;
+    typedef std::map<LLUUID, LLViewerInventoryItem*>    texture_map_t;
+    typedef texture_map_t::value_type                   texture_map_value_t;
+    texture_map_t                                       mTextureMap;
+    typedef std::map<LLOutfitGalleryItem*, int>         item_num_map_t;
+    typedef item_num_map_t::value_type                  item_numb_map_value_t;
+    item_num_map_t                                      mItemIndexMap;
+
 
     LLInventoryCategoriesObserver* 	mTexturesObserver;
 
