@@ -12,7 +12,7 @@
   name="floater_experiences"
   save_rect="true"
   single_instance="true"
-  reuse_instance="false"
+ 
   bg_opaque_color="0 0.5 0 0.3"
   title="EXPERIENCES">
   <tab_container

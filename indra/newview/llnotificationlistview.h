@@ -1,11 +1,10 @@
 /** 
- * @file dummy_volume_catcher.cpp
- * @brief A null implementation of the "VolumeCatcher" class for platforms where it's not implemented yet.
+ * @file llnotificationlistview.h
+ * @brief LLNotificationListView class to support notifications list contained in enclosing floater.
  *
- * @cond
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2015, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,36 +22,28 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- * @endcond
  */
 
-#include "volume_catcher.h"
+#ifndef LL_LLNOTIFICATIONLISTVIEW_H
+#define LL_LLNOTIFICATIONLISTVIEW_H
 
+#include "llflatlistview.h"
+#include "llnotificationlistitem.h"
 
-class VolumeCatcherImpl
+/**
+ * Notification list
+ */
+class LLNotificationListView : public LLFlatListView
 {
+	LOG_CLASS(LLNotificationListView);
+public:
+    struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> {};
+
+    LLNotificationListView(const Params& p);
+    ~LLNotificationListView();
+    friend class LLUICtrlFactory;
+
+    virtual bool addNotification(LLNotificationListItem * item);
 };
 
-/////////////////////////////////////////////////////
-
-VolumeCatcher::VolumeCatcher()
-{
-	pimpl = NULL;
-}
-
-VolumeCatcher::~VolumeCatcher()
-{
-}
-
-void VolumeCatcher::setVolume(F32 volume)
-{
-}
-
-void VolumeCatcher::setPan(F32 pan)
-{
-}
-
-void VolumeCatcher::pump()
-{
-}
-
+#endif

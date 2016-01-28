@@ -350,12 +350,10 @@ void LLPanelGroupRoles::update(LLGroupChange gc)
 
 void LLPanelGroupRoles::activate()
 {
+	if (!gAgent.isInGroup(mGroupID)) return;
+
 	// Start requesting member and role data if needed.
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
-	if (!gdatap || !gdatap->isMemberDataComplete() )
-	{
-		LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-	}
 
 	if (!gdatap || !gdatap->isRoleDataComplete() )
 	{
@@ -364,13 +362,7 @@ void LLPanelGroupRoles::activate()
 
 		LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mGroupID);
 	}
-
-	// Check role-member mapping data.
-	if (!gdatap || !gdatap->isRoleMemberDataComplete() )
-	{
-		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
-	}
-
+	
 	// Need this to get base group member powers
 	if (!gdatap || !gdatap->isGroupPropertiesDataComplete() )
 	{
@@ -1163,7 +1155,37 @@ void LLPanelGroupMembersSubTab::onEjectMembers(void *userdata)
 
 	if ( selfp )
 	{
-		selfp->handleEjectMembers();
+		selfp->confirmEjectMembers();
+	}
+}
+
+void LLPanelGroupMembersSubTab::confirmEjectMembers()
+{
+	std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
+	if (selection.empty()) return;
+
+	S32 selection_count = selection.size();
+	if (selection_count == 1)
+	{
+		LLSD args;
+		std::string fullname;
+		gCacheName->getFullName(mMembersList->getValue(), fullname);
+		args["AVATAR_NAME"] = fullname;
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMemberWarning",
+				 	 	 	 	 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
+	}
+	else
+	{
+		LLSD args;
+		args["COUNT"] = llformat("%d", selection_count);
+		LLSD payload;
+		LLNotificationsUtil::add("EjectGroupMembersWarning",
+				 	 	 	 	 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
 	}
 }
 
@@ -1188,6 +1210,16 @@ void LLPanelGroupMembersSubTab::handleEjectMembers()
 	sendEjectNotifications(mGroupID, selected_members);
 
 	LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID, selected_members);
+}
+
+bool LLPanelGroupMembersSubTab::handleEjectCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option) // Eject button
+	{
+		handleEjectMembers();
+	}
+	return false;
 }
 
 void LLPanelGroupMembersSubTab::sendEjectNotifications(const LLUUID& group_id, const uuid_vec_t& selected_members)
@@ -1327,15 +1359,26 @@ void LLPanelGroupMembersSubTab::handleMemberDoubleClick()
 
 void LLPanelGroupMembersSubTab::activate()
 {
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+
 	LLPanelGroupSubTab::activate();
 	if(!mActivated)
 	{
+		if (!gdatap || !gdatap->isMemberDataComplete())
+		{
+			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
+		}
+
+		if (!gdatap || !gdatap->isRoleMemberDataComplete())
+		{
+			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
+		}
+
 		update(GC_ALL);
 		mActivated = true;
 	}
 	else
 	{
-		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 		// Members can be removed outside of this tab, checking changes
 		if (!gdatap || (gdatap->isMemberDataComplete() && gdatap->mMembers.size() != mMembersList->getItemCount()))
 		{
@@ -1636,7 +1679,13 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 	{
 		// Build a string with info on retrieval progress.
 		std::ostringstream retrieved;
-		if ( !gdatap->isMemberDataComplete() )
+
+		if ( gdatap->isRoleDataComplete() && gdatap->isMemberDataComplete() && !gdatap->mMembers.size() )
+		{
+			// MAINT-5237
+			retrieved << "Member list not available.";
+		}
+		else if ( !gdatap->isMemberDataComplete() )
 		{
 			// Still busy retreiving member list.
 			retrieved << "Retrieving member list (" << gdatap->mMembers.size()
@@ -1783,7 +1832,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		{
 			mMembersList->setEnabled(TRUE);
 		}
-		else
+		else if (gdatap->mMembers.size()) 
 		{
 			mMembersList->setEnabled(FALSE);
 			mMembersList->setCommentText(std::string("No match."));
@@ -1801,7 +1850,47 @@ void LLPanelGroupMembersSubTab::updateMembers()
 void LLPanelGroupMembersSubTab::onBanMember(void* user_data)
 {
 	LLPanelGroupMembersSubTab* self = static_cast<LLPanelGroupMembersSubTab*>(user_data);
-	self->handleBanMember();
+	self->confirmBanMembers();
+}
+
+void LLPanelGroupMembersSubTab::confirmBanMembers()
+{
+	std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
+	if (selection.empty()) return;
+
+	S32 selection_count = selection.size();
+	if (selection_count == 1)
+	{
+		LLSD args;
+		std::string fullname;
+		gCacheName->getFullName(mMembersList->getValue(), fullname);
+		args["AVATAR_NAME"] = fullname;
+		LLSD payload;
+		LLNotificationsUtil::add("BanGroupMemberWarning",
+				 	 	 	 	 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleBanCallback, this, _1, _2));
+	}
+	else
+	{
+		LLSD args;
+		args["COUNT"] = llformat("%d", selection_count);
+		LLSD payload;
+		LLNotificationsUtil::add("BanGroupMembersWarning",
+				 	 	 	 	 args,
+								 payload,
+								 boost::bind(&LLPanelGroupMembersSubTab::handleBanCallback, this, _1, _2));
+	}
+}
+
+bool LLPanelGroupMembersSubTab::handleBanCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option) // Eject button
+	{
+		handleBanMember();
+	}
+	return false;
 }
 
 void LLPanelGroupMembersSubTab::handleBanMember()
@@ -2111,20 +2200,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 			mDeleteRoleButton->setEnabled(FALSE);
 		}
 	}
-
-	if(!mFirstOpen)
-	{
-		if (!gdatap || !gdatap->isMemberDataComplete())
-		{
-			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
-		}
-
-		if (!gdatap || !gdatap->isRoleMemberDataComplete())
-		{
-			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
-		}
-	}
-
+	
 	if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
 	    && gdatap
 	    && gdatap->isMemberDataComplete()

@@ -117,12 +117,20 @@ LLExperienceHandler gExperienceHandler;
 
 LLFloaterExperienceProfile::LLFloaterExperienceProfile(const LLSD& data)
     : LLFloater(data)
-    , mExperienceId(data.asUUID())
     , mSaveCompleteAction(NOTHING)
     , mDirty(false)
     , mForceClose(false)
 {
-
+    if (data.has("experience_id"))
+    {
+        mExperienceId = data["experience_id"].asUUID();
+        mPostEdit = data.has("edit_experience") && data["edit_experience"].asBoolean();
+    }
+    else
+    {
+        mExperienceId = data.asUUID();
+        mPostEdit = false;
+    }
 }
 
 
@@ -329,7 +337,13 @@ BOOL LLFloaterExperienceProfile::postBuild()
 
     LLEventPumps::instance().obtain("experience_permission").listen(mExperienceId.asString()+"-profile", 
         boost::bind(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
-    
+
+    if (mPostEdit && mExperienceId.notNull())
+    {
+        mPostEdit = false;
+        changeToEdit();
+    }
+
     return TRUE;
 }
 
@@ -356,9 +370,7 @@ bool LLFloaterExperienceProfile::experiencePermission( LLHandle<LLFloaterExperie
 
 void LLFloaterExperienceProfile::onClickEdit()
 {
-    LLTabContainer* tabs = getChild<LLTabContainer>("tab_container");
-
-    tabs->selectTabByName("edit_panel_experience_info");
+    changeToEdit();
 }
 
 
@@ -827,6 +839,13 @@ void LLFloaterExperienceProfile::changeToView()
         // Bring up view-modal dialog: Save changes? Yes, No, Cancel
         LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, VIEW));
     }
+}
+
+void LLFloaterExperienceProfile::changeToEdit()
+{
+    LLTabContainer* tabs = getChild<LLTabContainer>("tab_container");
+
+    tabs->selectTabByName("edit_panel_experience_info");
 }
 
 void LLFloaterExperienceProfile::onClickLocation()

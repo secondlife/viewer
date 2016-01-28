@@ -53,6 +53,9 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 	<string
 	 name="AltMiniMapToolTipMsg"
 	 value="[REGION](Double-click to teleport, shift-drag to pan)"/>
+	<string
+	 name="GroupCountWithInfo"
+	 value="You belong to [COUNT] groups, and can join [REMAINING] more.  [secondlife:/// Want more?]"/>
     <tab_container
      bottom="-10"
      follows="all"

@@ -133,6 +133,8 @@ public:
 	// Text may be unicode (utf8 encoded)
 	bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 	
+	void setCookie(std::string uri, std::string name, std::string value, std::string domain, std::string path, bool httponly, bool secure);
+
 	void loadURI(const std::string &uri);
 	
 	// "Loading" means uninitialized or any state prior to fully running (processing commands)
@@ -191,7 +193,7 @@ public:
 	bool	canPaste() const { return mCanPaste; };
 	
 	// These can be called before init(), and they will be queued and sent before the media init message.
-	void	setUserDataPath(const std::string &user_data_path);
+	void	setUserDataPath(const std::string &user_data_path_cache, const std::string &user_data_path_cookies);
 	void	setLanguageCode(const std::string &language_code);
 	void	setPluginsEnabled(const bool enabled);
 	void	setJavascriptEnabled(const bool enabled);
@@ -249,6 +251,13 @@ public:
 	// This is valid during MEDIA_EVENT_CLICK_LINK_HREF and MEDIA_EVENT_GEOMETRY_CHANGE
 	std::string getClickUUID() const { return mClickUUID; };
 
+	// mClickTarget is received from message and governs how link will be opened
+	// use this to enforce your own way of opening links inside plugins
+	void setOverrideClickTarget(const std::string &target);
+	void resetOverrideClickTarget() { mClickEnforceTarget = false; };
+	bool isOverrideClickTarget() const { return mClickEnforceTarget; }
+	std::string getOverrideClickTarget() const { return mOverrideClickTarget; };
+
 	// These are valid during MEDIA_EVENT_DEBUG_MESSAGE
 	std::string getDebugMessageText() const { return mDebugMessageText; };
 	std::string getDebugMessageLevel() const { return mDebugMessageLevel; };
@@ -270,6 +279,10 @@ public:
 	std::string	getHoverText() const { return mHoverText; };
 	std::string	getHoverLink() const { return mHoverLink; };
 	
+	// these are valid during MEDIA_EVENT_LINK_HOVERED 
+	std::string getFileDownloadFilename() const { return mFileDownloadFilename; }
+
+
 	const std::string& getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
 
@@ -365,7 +378,7 @@ protected:
 	int			mPadding;
 	
 	
-	LLPluginProcessParent *mPlugin;
+	LLPluginProcessParent::ptr_t mPlugin;
 	
 	LLRect mDirtyRect;
 	
@@ -404,6 +417,8 @@ protected:
 	std::string		mClickNavType;
 	std::string		mClickTarget;
 	std::string		mClickUUID;
+	bool			mClickEnforceTarget;
+	std::string		mOverrideClickTarget;
 	std::string		mDebugMessageText;
 	std::string		mDebugMessageLevel;
 	S32				mGeometryX;
@@ -415,6 +430,7 @@ protected:
 	std::string		mAuthRealm;
 	std::string		mHoverText;
 	std::string		mHoverLink;
+	std::string     mFileDownloadFilename;
 	
 	/////////////////////////////////////////
 	// media_time class

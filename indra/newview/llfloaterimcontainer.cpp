@@ -261,6 +261,8 @@ BOOL LLFloaterIMContainer::postBuild()
 	
 	mInitialized = true;
 
+	mIsFirstOpen = true;
+
 	// Add callbacks:
 	// We'll take care of view updates on idle
 	gIdleCallbacks.addFunction(idle, this);
@@ -636,14 +638,16 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
 		nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
-		if (nearby_chat == NULL)
+		if ((nearby_chat == NULL) || mIsFirstOpen)
 		{
+			 mIsFirstOpen = false;
 			// If not found, force the creation of the nearby chat conversation panel
 			// *TODO: find a way to move this to XML as a default panel or something like that
 			LLSD name("nearby_chat");
 			LLFloaterReg::toggleInstanceOrBringToFront(name);
             selectConversationPair(LLUUID(NULL), false, false);
 		}
+
 		flashConversationItemWidget(mSelectedSession,false);
 
 		LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(mSelectedSession);
@@ -1216,7 +1220,22 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         {
 			if (selectedIDS.size() > 0)
 			{
-				LLAvatarActions::viewChatHistory(selectedIDS.front());
+				if(conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP)
+				{
+					LLFloaterReg::showInstance("preview_conversation", conversationItem->getUUID(), true);
+				}
+				else if(conversationItem->getType() == LLConversationItem::CONV_SESSION_AD_HOC)
+				{
+					LLConversation* conv = LLConversationLog::instance().findConversation(LLIMModel::getInstance()->findIMSession(conversationItem->getUUID()));
+					if(conv)
+					{
+						LLFloaterReg::showInstance("preview_conversation", conv->getSessionID(), true);
+					}
+				}
+				else
+				{
+					LLAvatarActions::viewChatHistory(selectedIDS.front());
+				}
 			}
         }
         else
@@ -1315,6 +1334,15 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
 			if (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_NEARBY)
 			{
 				return LLLogChat::isNearbyTranscriptExist();
+			}
+			else if (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_AD_HOC)
+			{
+				const LLConversation* conv = LLConversationLog::instance().findConversation(LLIMModel::getInstance()->findIMSession(uuids.front()));
+				if(conv)
+				{
+					return LLLogChat::isAdHocTranscriptExist(conv->getHistoryFileName());
+				}
+				return false;
 			}
 			else
 			{
@@ -1881,22 +1909,26 @@ bool LLFloaterIMContainer::canBanSelectedMember(const LLUUID& participant_uuid)
 		return false;
 	}
 
-	if (!gdatap->mMembers.size())
+	if (gdatap->mPendingBanRequest)
 	{
 		return false;
 	}
 
-	LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find((participant_uuid));
-	if (mi == gdatap->mMembers.end())
+	if (gdatap->isRoleMemberDataComplete())
 	{
-		return false;
-	}
-
-	LLGroupMemberData* member_data = (*mi).second;
-	// Is the member an owner?
-	if ( member_data && member_data->isInRole(gdatap->mOwnerRole) )
-	{
-		return false;
+		if (gdatap->mMembers.size())
+		{			
+			LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find((participant_uuid));
+			if (mi != gdatap->mMembers.end())
+			{
+				LLGroupMemberData* member_data = (*mi).second;
+				// Is the member an owner?
+				if (member_data && member_data->isInRole(gdatap->mOwnerRole))
+				{
+					return false;
+				}
+			}
+		}
 	}
 
 	if(	gAgent.hasPowerInGroup(group_uuid, GP_ROLE_REMOVE_MEMBER) &&
@@ -1924,20 +1956,8 @@ void LLFloaterIMContainer::banSelectedMember(const LLUUID& participant_uuid)
 		LL_WARNS("Groups") << "Unable to get group data for group " << group_uuid << LL_ENDL;
 		return;
 	}
-	std::vector<LLUUID> ids;
-	ids.push_back(participant_uuid);
 
-	LLGroupBanData ban_data;
-	gdatap->createBanEntry(participant_uuid, ban_data);
-	LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, group_uuid, LLGroupMgr::BAN_CREATE, ids);
-	LLGroupMgr::getInstance()->sendGroupMemberEjects(group_uuid, ids);
-	LLGroupMgr::getInstance()->sendGroupMembersRequest(group_uuid);
-	LLSD args;
-	std::string name;
-	gCacheName->getFullName(participant_uuid, name);
-	args["AVATAR_NAME"] = name;
-	args["GROUP_NAME"] = gdatap->mName;
-	LLNotifications::instance().add(LLNotification::Params("EjectAvatarFromGroup").substitutions(args));
+	gdatap->banMemberById(participant_uuid);
 
 }
 

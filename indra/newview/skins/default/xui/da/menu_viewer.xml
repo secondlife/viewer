@@ -37,7 +37,7 @@
 		<menu_item_separator/>
 		<menu_item_call label="Profil for sted" name="Place Profile"/>
 		<menu_item_call label="Om land" name="About Land"/>
-		<menu_item_call label="Region/Estate" name="Region/Estate"/>
+		<menu_item_call label="Region/Estate" name="RegionEstate"/>
 		<menu_item_call label="Køb dette land" name="Buy Land"/>
 		<menu_item_call label="Mit land" name="My Land"/>
 		<menu label="Vis" name="LandShow">

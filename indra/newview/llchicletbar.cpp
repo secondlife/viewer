@@ -31,6 +31,7 @@
 #include "lllayoutstack.h"
 #include "llpaneltopinfobar.h"
 #include "llsyswellwindow.h"
+#include "llfloaternotificationstabbed.h"
 
 namespace
 {
@@ -49,7 +50,7 @@ BOOL LLChicletBar::postBuild()
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
 
-	showWellButton("notification_well", !LLNotificationWellWindow::getInstance()->isWindowEmpty());
+	showWellButton("notification_well", !LLFloaterNotificationsTabbed::getInstance()->isWindowEmpty());
 
 	LLPanelTopInfoBar::instance().setResizeCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
 	LLPanelTopInfoBar::instance().setVisibleCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));

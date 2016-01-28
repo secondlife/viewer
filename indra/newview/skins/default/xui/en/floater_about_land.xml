@@ -2,13 +2,13 @@
 <floater
  positioning="cascading"
  can_tear_off="false"
- height="420"
+ height="396"
  layout="topleft"
  name="floaterland"
  help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
- width="490">
+ width="634">
     <floater.string
       name="maturity_icon_general">
       "Parcel_PG_Dark"
@@ -39,17 +39,18 @@
     </floater.string>
     <tab_container
      follows="all"
-     height="410"
+     halign="left"
+     height="386"
      layout="topleft"
      left="0"
      name="landtab"
-     tab_position="top"
-     tab_height="25"
-     tab_min_width="67"
-     top="10"
-     width="489">
+     tab_position="left"
+     tab_width="140"
+     tab_padding_right="3"
+     top="6"
+     width="633">
         <panel
-         border="false"
+         border="true"
          follows="all"
          label="GENERAL"
          layout="topleft"
@@ -145,7 +146,7 @@
                 Description:
             </text>
             <text_editor
-             follows="left|top|right"
+             follows="left|top"
              height="52"
              layout="topleft"
              left_pad="2"
@@ -281,7 +282,7 @@
              label="Set"
              layout="topleft"
              left_pad="4"
-             right="-10"
+             right="-154"
              name="Set..."
              width="90"
              top_delta="-2"/>
@@ -302,7 +303,7 @@
              label="Deed"
              layout="topleft"
              left_pad="2"
-             right="-10"
+             right="-154"
              name="Deed..."
              tool_tip="You may only deed land if you are an officer in the selected group."
              top_delta="-2"
@@ -365,7 +366,7 @@
              label="Sell Land"
              layout="topleft"
              left_pad="5"
-             right="-10"
+             right="-154"
              name="Sell Land..."
              width="145"
              top_delta="-25"/>
@@ -412,7 +413,7 @@
              label="Cancel Land Sale"
              label_selected="Cancel Land Sale"
              layout="topleft"
-             right="-10"
+             right="-154"
              name="Cancel Land Sale"
              left_pad="5"
              top_pad="7"
@@ -527,7 +528,7 @@
              height="23"
              label="Buy For Group"
              layout="topleft"
-             right="-10"
+             right="-154"
              name="Buy For Group..."
              top_delta="0"
              width="180" />
@@ -547,7 +548,7 @@
              height="23"
              label="Abandon Land"
              layout="topleft"
-             right="-10"
+             right="-154"
              name="Abandon Land..."
              top_pad="-47"
              width="180" />
@@ -645,8 +646,8 @@
              type="string"
              length="1"
              enabled="false"
-             follows="all"
-             height="200"
+             follows="top|left"
+             height="175"
              layout="topleft"
              left="10"
              max_length="65535"
@@ -663,7 +664,7 @@
              halign="right"
              layout="topleft"
              right="-10"
-             top_pad="0"
+             top_pad="25"
              mouse_opaque="false"
              name="covenant_timestamp_text"
              width="460">
@@ -930,7 +931,7 @@
              label_selected="Show"
              layout="topleft"
              name="ShowOwner"
-             right="-140"
+             right="-284"
              width="60"
              top_delta="-6"/>
             <button
@@ -941,7 +942,7 @@
              label="Return"
              layout="topleft"
              name="ReturnOwner..."
-             right="-10"
+             right="-154"
              tool_tip="Return objects to their owners."
              width="119"
              top_delta="0"/>
@@ -978,7 +979,7 @@
              label_selected="Show"
              layout="topleft"
              name="ShowGroup"
-             right="-140"
+             right="-284"
              width="60"
              top_delta="-6"/>
             <button
@@ -989,7 +990,7 @@
              label="Return"
              layout="topleft"
              name="ReturnGroup..."
-             right="-10"
+             right="-154"
              tool_tip="Return objects to their owners."
              width="119"
              top_delta="0"/>
@@ -1026,7 +1027,7 @@
              label_selected="Show"
              layout="topleft"
              name="ShowOther"
-             right="-140"
+             right="-284"
              width="60"
              top_delta="-6"/>
             <button
@@ -1037,7 +1038,7 @@
              label="Return"
              layout="topleft"
              name="ReturnOther..."
-             right="-10"
+             right="-154"
              tool_tip="Return objects to their owners."
              width="119"
              top_delta="0"/>
@@ -1122,13 +1123,13 @@
              left_pad="6"
              name="Return objects..."
              top_delta="0"
-             right="-10"
+             right="-154"
              width="164" />
             <name_list
              column_padding="0"
              draw_heading="true"
-             follows="all"
-             height="180"
+             follows="top|left"
+             height="150"
              layout="topleft"
              left="10"
              name="owner list"
@@ -1321,8 +1322,8 @@ Only large parcels can be listed in search.
           <panel
             bevel_style="none"
             border="true"
-            top="146"
-            bottom="146"
+            top="121"
+            bottom="121"
             follows="left|bottom|right"
             left="20"
             right="-20"/>
@@ -1357,7 +1358,7 @@ Only large parcels can be listed in search.
              enabled="true"
              height="23"
              layout="topleft"
-             left="20"
+             left="164"
              top="194"
              name="land category"
              visible="true"
@@ -1494,7 +1495,7 @@ Only large parcels can be listed in search.
              label_selected="Set"
              layout="topleft"
              name="Set"
-             left="255"
+             left="399"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
              width="50" />
             <button
@@ -1525,6 +1526,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              name="landing type"
              top_pad="0"
+             left="399"
              tool_tip="Teleport Routing -- select how to handle teleports onto your land"
              width="120">
                 <combo_box.item
@@ -1568,7 +1570,7 @@ Only large parcels can be listed in search.
             <combo_box
              height="23"
              layout="topleft"
-             left_pad="0"
+             left_pad="144"
              name="media type"
              tool_tip="Specify if the URL is a movie, web page, or other media"
              width="120"
@@ -1577,7 +1579,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="10"
+             left_pad="-134"
              name="mime_type"
              width="200" />
             <text
@@ -1607,7 +1609,7 @@ Only large parcels can be listed in search.
              height="23"
              label="Set"
              layout="topleft"
-             left_pad="5"
+             left_pad="149"
              name="set_media_url"
              width="70"
              top_delta="0"/>
@@ -1952,7 +1954,7 @@ Only large parcels can be listed in search.
             <combo_box
              height="23"
              layout="topleft"
-             left_pad="22"
+             left_pad="166"
              name="pass_combo"
              top_delta="0"
              width="100">
@@ -2013,7 +2015,7 @@ Only large parcels can be listed in search.
              name="AllowedText"
              top="0"
              width="230">
-                Allowed Residents
+                Allowed Residents ([COUNT])
             </text>
             <name_list
              column_padding="0"
@@ -2050,7 +2052,7 @@ Only large parcels can be listed in search.
             follows="top|right"
             height="170"
             width="240"
-            left_pad="2">
+            left_pad="146">
             <text
              type="string"
              length="1"
@@ -2062,7 +2064,7 @@ Only large parcels can be listed in search.
              name="BanCheck"
              top="0"
              width="200">
-                Banned Residents
+                Banned Residents ([COUNT])
             </text>
             <name_list
              column_padding="0"

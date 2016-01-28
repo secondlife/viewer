@@ -1605,7 +1605,7 @@ bool sort_alpha(const LLViewerInventoryCategory* cat1, const LLViewerInventoryCa
 
 void dump_trace(std::string& message, S32 depth, LLError::ELevel log_level)
 {
-    llinfos << "validate_marketplacelistings : error = "<< log_level << ", depth = " << depth << ", message = " << message <<  llendl;
+    LL_INFOS() << "validate_marketplacelistings : error = "<< log_level << ", depth = " << depth << ", message = " << message <<  LL_ENDL;
 }
 
 // Make all relevant business logic checks on the marketplace listings starting with the folder as argument.
@@ -2473,7 +2473,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		LLSD args;
 		args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
-		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+		LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
         // Note: marketplace listings will be updated in the callback if delete confirmed
 		return;
 	}

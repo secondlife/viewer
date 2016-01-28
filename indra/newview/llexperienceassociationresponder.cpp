@@ -29,6 +29,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llexperienceassociationresponder.h"
 #include "llexperiencecache.h"
+#include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llagent.h"
 
@@ -47,7 +48,21 @@ void ExperienceAssociationResponder::fetchAssociatedExperience( const LLUUID& ob
 
 void ExperienceAssociationResponder::fetchAssociatedExperience(LLSD& request, callback_t callback)
 {
-    LLViewerRegion* region = gAgent.getRegion();
+    LLViewerObject* object = gObjectList.findObject(request["object-id"]);
+    if (!object)
+    {
+        LL_DEBUGS() << "Object with ID " << request["object-id"] << " not found via gObjectList.findObject() in fetchAssociatedExperience" << LL_ENDL;
+        LL_DEBUGS() << "Using gAgent.getRegion() instead of object->getRegion()" << LL_ENDL;
+    }
+    LLViewerRegion* region = NULL;
+    if (object)
+    {
+        region = object->getRegion();
+    }
+    else
+    {
+        region = gAgent.getRegion();
+    }
     if (region)
     {
         std::string lookup_url=region->getCapability("GetMetadata"); 
@@ -58,6 +73,10 @@ void ExperienceAssociationResponder::fetchAssociatedExperience(LLSD& request, ca
             request["fields"] = fields;
             LLHTTPClient::post(lookup_url, request, new ExperienceAssociationResponder(callback));
         }
+    }
+    else
+    {
+        LL_WARNS() << "Failed to lookup region in fetchAssociatedExperience. Fetch request not sent." << LL_ENDL;
     }
 }
 

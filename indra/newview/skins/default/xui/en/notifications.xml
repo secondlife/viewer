@@ -819,6 +819,33 @@ If you no longer wish to have these abilities granted to this role, disable them
       notext="Cancel"
       yestext="Eject"/>
   </notification>
+  
+  <notification
+    icon="alertmodal.tga"
+    name="BanGroupMemberWarning"
+    type="alertmodal">
+     You are about to ban [AVATAR_NAME] from the group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm banning a participant from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Ban"/>
+  </notification>
+  <notification
+    icon="alertmodal.tga"
+    name="BanGroupMembersWarning"
+    type="alertmodal">
+     You are about to ban [COUNT] members from group.
+     <tag>group</tag>
+     <tag>confirm</tag>
+     <usetemplate
+      ignoretext="Confirm banning multiple members from group"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="Ban"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -1565,10 +1592,23 @@ The object may be out of range or may have been deleted.
    icon="alertmodal.tga"
    name="CannotDownloadFile"
    type="alertmodal">
-Unable to download file
-  <tag>fail</tag>
+    Unable to download file
+    <tag>fail</tag>
   </notification>
 
+  <notification
+  name="MediaFileDownloadUnsupported"
+  label=""
+  type="alert">
+    <unique/>
+    <tag>confirm</tag>
+    You have requested a file download, which is not supported within [SECOND_LIFE].
+    <usetemplate
+     ignoretext="Warn about unsupported file downloads"
+     name="okignore"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="CannotWriteFile"
@@ -3892,6 +3932,53 @@ see [[INFO_URL] Information about this update]
      name="okbutton"
      yestext="OK"/>
   </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateDownloadInProgress"
+ type="alertmodal">
+An update is available!
+It's downloading in the background and we will prompt you to restart your viewer to finish installing it as soon as it's ready.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateDownloadComplete"
+ type="alertmodal">
+An update was downloaded. It will be installed during restart.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateCheckError"
+ type="alertmodal">
+An error occured while checking for update.
+Please try again later.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="UpdateViewerUpToDate"
+ type="alertmodal">
+Your viewer is up to date!
+If you can't wait to try out the latest features and fixes, check out the Alternate Viewers page. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -4213,6 +4300,21 @@ You have reached your maximum number of groups. Please leave some group before j
     <usetemplate
      name="okbutton"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="GroupLimitInfo"
+   type="alert">
+The group limit for base accounts is [MAX_BASIC], and for [https://secondlife.com/premium/ premium]
+accounts is [MAX_PREMIUM].
+If you downgraded your account, you will need to get below [MAX_BASIC] group limit before you can join more.
+
+[https://secondlife.com/my/account/membership.php Upgrade today!]
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="Close"/>
   </notification>
 
   <notification
@@ -7025,15 +7127,6 @@ No valid session id.
 	type="notify">
    <tag>fail</tag>
 No valid circuit code.
-  </notification>
-
-  <notification
-	icon="notify.tga"
-	name="NoValidTimestamp"
-   persist="true"
-	type="notify">
-   <tag>fail</tag>
-No valid timestamp.
   </notification>
 
   <notification

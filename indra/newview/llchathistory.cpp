@@ -376,6 +376,10 @@ public:
 			|| mSourceType == CHAT_SOURCE_SYSTEM)
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
+			if(!chat.mFromName.empty() && (mFrom != chat.mFromName))
+			{
+				mFrom += " (" + chat.mFromName + ")";
+			}
 			user_name->setValue(mFrom);
 			updateMinUserNameWidth();
 		}
@@ -522,7 +526,7 @@ protected:
 			showSystemContextMenu(x,y);
 		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_AGENT)
 			showAvatarContextMenu(x,y);
-		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
+		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_OBJECT)
 			showObjectContextMenu(x,y);
 	}
 

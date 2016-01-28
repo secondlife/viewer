@@ -618,7 +618,10 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 	  case LLAssetType::AT_NOTECARD:
 	  {
 		  // Update the UI with the new asset.
-		  LLPreviewNotecard* nc = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", LLSD(item_id));
+	      LLSD floater_key;
+	      floater_key["taskid"] = task_id;
+	      floater_key["itemid"] = item_id;
+	      LLPreviewNotecard* nc = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", floater_key);
 		  if(nc)
 		  {
 			  // *HACK: we have to delete the asset in the VFS so

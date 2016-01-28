@@ -194,6 +194,8 @@ protected:
 	 */
 	virtual S32 recalculateTextDelta(S32 text_delta);
 
+	void setContentTrusted(bool trusted_content);
+
 protected:
 
 	std::string mText;

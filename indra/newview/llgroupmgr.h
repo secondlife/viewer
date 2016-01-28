@@ -149,7 +149,7 @@ public:
 
 	const uuid_vec_t& getRoleMembers() const { return mMemberIDs; }
 	S32 getMembersInRole(uuid_vec_t members, BOOL needs_sort = TRUE);
-	S32 getTotalMembersInRole() { return mMemberIDs.size(); }
+	S32 getTotalMembersInRole() { return mMemberCount ? mMemberCount : mMemberIDs.size(); } //FIXME: Returns 0 for Everyone role when Member list isn't yet loaded, see MAINT-5225
 
 	LLRoleData getRoleData() const { return mRoleData; }
 	void setRoleData(LLRoleData data) { mRoleData = data; }
@@ -269,8 +269,8 @@ public:
 	
 	void createBanEntry(const LLUUID& ban_id, const LLGroupBanData& ban_data = LLGroupBanData());
 	void removeBanEntry(const LLUUID& ban_id);
+	void banMemberById(const LLUUID& participant_uuid);
 	
-
 public:
 	typedef	std::map<LLUUID,LLGroupMemberData*> member_list_t;
 	typedef	std::map<LLUUID,LLGroupRoleData*> role_list_t;
@@ -301,6 +301,9 @@ public:
 	BOOL				mChanged;
 	S32					mMemberCount;
 	S32					mRoleCount;
+
+	bool				mPendingBanRequest;
+	LLUUID				mPendingBanMemberID;
 
 protected:
 	void sendRoleChanges();

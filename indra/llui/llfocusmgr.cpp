@@ -47,9 +47,27 @@ BOOL LLFocusableElement::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 }
 
 // virtual
+BOOL LLFocusableElement::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+{
+	return FALSE;
+}
+
+// virtual
 BOOL LLFocusableElement::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 {
 	return FALSE;
+}
+
+// virtual 
+bool LLFocusableElement::wantsKeyUpKeyDown() const
+{
+    return false;
+}
+
+//virtual 
+bool LLFocusableElement::wantsReturnKey() const
+{
+    return false;
 }
 
 // virtual

@@ -190,8 +190,12 @@ const U8 LL_SCULPT_TYPE_MESH      = 5;
 const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
 	LL_SCULPT_TYPE_CYLINDER | LL_SCULPT_TYPE_MESH;
 
+// for value checks, assign new value after adding new types
+const U8 LL_SCULPT_TYPE_MAX = LL_SCULPT_TYPE_MESH;
+
 const U8 LL_SCULPT_FLAG_INVERT    = 64;
 const U8 LL_SCULPT_FLAG_MIRROR    = 128;
+const U8 LL_SCULPT_FLAG_MASK = LL_SCULPT_FLAG_INVERT | LL_SCULPT_FLAG_MIRROR;
 
 const S32 LL_SCULPT_MESH_MAX_FACES = 8;
 
@@ -968,6 +972,7 @@ protected:
 	~LLVolume(); // use unref
 
 public:
+	typedef std::vector<LLVolumeFace> face_list_t;
 		
 	struct FaceParams
 	{
@@ -1041,6 +1046,10 @@ public:
 																				// conversion if *(LLVolume*) to LLVolume&
 	const LLVolumeFace &getVolumeFace(const S32 f) const {return mVolumeFaces[f];} // DO NOT DELETE VOLUME WHILE USING THIS REFERENCE, OR HOLD A POINTER TO THIS VOLUMEFACE
 	
+	LLVolumeFace &getVolumeFace(const S32 f) {return mVolumeFaces[f];} // DO NOT DELETE VOLUME WHILE USING THIS REFERENCE, OR HOLD A POINTER TO THIS VOLUMEFACE
+
+	face_list_t& getVolumeFaces() { return mVolumeFaces; }
+
 	U32					mFaceMask;			// bit array of which faces exist in this volume
 	LLVector3			mLODScaleBias;		// vector for biasing LOD based on scale
 	
@@ -1080,7 +1089,6 @@ public:
 	
 	
 	BOOL mGenerateSingleFace;
-	typedef std::vector<LLVolumeFace> face_list_t;
 	face_list_t mVolumeFaces;
 
 public:

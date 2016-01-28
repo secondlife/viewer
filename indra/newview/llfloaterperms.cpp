@@ -166,15 +166,59 @@ void LLFloaterPermsDefault::onCommitCopy(const LLSD& user_data)
 	xfer->setEnabled(copyable);
 }
 
-class LLFloaterPermsResponder : public LLHTTPClient::Responder
-{
-public:
-	LLFloaterPermsResponder(): LLHTTPClient::Responder() {}
-private:
-	static	std::string sPreviousReason;
+const int MAX_HTTP_RETRIES = 5;
+LLFloaterPermsRequester* LLFloaterPermsRequester::sPermsRequester = NULL;
 
-	void httpFailure()
+LLFloaterPermsRequester::LLFloaterPermsRequester(const std::string url, const LLSD report, 
+	int maxRetries)
+	: mRetriesCount(0), mMaxRetries(maxRetries), mUrl(url), mReport(report)
+{}
+
+//static 
+void LLFloaterPermsRequester::init(const std::string url, const LLSD report, int maxRetries)
+{
+	if (sPermsRequester == NULL) {
+		sPermsRequester = new LLFloaterPermsRequester(url, report, maxRetries);
+	}
+}
+    
+//static
+void LLFloaterPermsRequester::finalize()
+{
+	if (sPermsRequester != NULL)
 	{
+		delete sPermsRequester;
+		sPermsRequester = NULL;
+	}
+}
+
+//static
+LLFloaterPermsRequester* LLFloaterPermsRequester::instance()
+{
+	return sPermsRequester;
+}
+
+void LLFloaterPermsRequester::start()
+{
+	++mRetriesCount;
+	LLHTTPClient::post(mUrl, mReport, new LLFloaterPermsResponder());
+}
+    
+bool LLFloaterPermsRequester::retry()
+{
+	if (++mRetriesCount < mMaxRetries)
+	{
+		LLHTTPClient::post(mUrl, mReport, new LLFloaterPermsResponder());
+		return true;
+	}
+	return false;
+}
+
+void LLFloaterPermsResponder::httpFailure()
+{
+	if (!LLFloaterPermsRequester::instance() || !LLFloaterPermsRequester::instance()->retry())
+	{
+		LLFloaterPermsRequester::finalize();
 		const std::string& reason = getReason();
 		// Do not display the same error more than once in a row
 		if (reason != sPreviousReason)
@@ -185,27 +229,27 @@ private:
 			LLNotificationsUtil::add("DefaultObjectPermissions", args);
 		}
 	}
+}
 
-	void httpSuccess()
-	{
-		//const LLSD& content = getContent();
-		//dump_sequential_xml("perms_responder_result.xml", content);
+void LLFloaterPermsResponder::httpSuccess()
+{
+	//const LLSD& content = getContent();
+	//dump_sequential_xml("perms_responder_result.xml", content);
 
-		// Since we have had a successful POST call be sure to display the next error message
-		// even if it is the same as a previous one.
-		sPreviousReason = "";
-		LLFloaterPermsDefault::setCapSent(true);
-		LL_INFOS("ObjectPermissionsFloater") << "Default permissions successfully sent to simulator" << LL_ENDL;
-	}
-};
+	// Since we have had a successful POST call be sure to display the next error message
+	// even if it is the same as a previous one.
+	sPreviousReason = "";
+	LL_INFOS("ObjectPermissionsFloater") << "Default permissions successfully sent to simulator" << LL_ENDL;
+}
 
-	std::string	LLFloaterPermsResponder::sPreviousReason;
+std::string	LLFloaterPermsResponder::sPreviousReason;
 
 void LLFloaterPermsDefault::sendInitialPerms()
 {
 	if(!mCapSent)
 	{
 		updateCap();
+		setCapSent(true);
 	}
 }
 
@@ -230,8 +274,8 @@ void LLFloaterPermsDefault::updateCap()
             LLSDSerialize::toPrettyXML(report, sent_perms_log);
             LL_CONT << sent_perms_log.str() << LL_ENDL;
         }
-    
-		LLHTTPClient::post(object_url, report, new LLFloaterPermsResponder());
+        LLFloaterPermsRequester::init(object_url, report, MAX_HTTP_RETRIES);
+        LLFloaterPermsRequester::instance()->start();
 	}
     else
     {

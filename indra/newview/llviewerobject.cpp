@@ -232,6 +232,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mRenderMedia(FALSE),
 	mBestUpdatePrecision(0),
 	mText(),
+	mHudText(""),
+	mHudTextColor(LLColor4::white),
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
 	mLatestRecvPacketID(0),
@@ -1413,12 +1415,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					// Setup object text
 					if (!mText)
 					{
-						mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-						mText->setFont(LLFontGL::getFontSansSerif());
-						mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
-						mText->setMaxLines(-1);
-						mText->setSourceObject(this);
-						mText->setOnHUDAttachment(isHUDAttachment());
+					    initHudText();
 					}
 
 					std::string temp_string;
@@ -1431,6 +1428,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
+
+					mHudText = temp_string;
+					mHudTextColor = LLColor4(coloru);
 
 					setChanged(MOVED | SILHOUETTE);
 				}
@@ -1794,12 +1794,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				// Setup object text
 				if (!mText && (value & 0x4))
 				{
-					mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-					mText->setFont(LLFontGL::getFontSansSerif());
-					mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
-					mText->setMaxLines(-1); // Set to match current agni behavior.
-					mText->setSourceObject(this);
-					mText->setOnHUDAttachment(isHUDAttachment());
+				    initHudText();
 				}
 
 				if (value & 0x4)
@@ -1811,6 +1806,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
 					mText->setString(temp_string);
+
+                    mHudText = temp_string;
+                    mHudTextColor = LLColor4(coloru);
 
 					setChanged(TEXTURE);
 				}
@@ -2840,6 +2838,11 @@ void LLViewerObject::clearInventoryListeners()
 	mInventoryCallbacks.clear();
 }
 
+bool LLViewerObject::hasInventoryListeners()
+{
+	return !mInventoryCallbacks.empty();
+}
+
 void LLViewerObject::requestInventory()
 {
 	if(mInventoryDirty && mInventory && !mInventoryCallbacks.empty())
@@ -2847,15 +2850,20 @@ void LLViewerObject::requestInventory()
 		mInventory->clear(); // will deref and delete entries
 		delete mInventory;
 		mInventory = NULL;
-		mInventoryDirty = FALSE; //since we are going to request it now
 	}
+
 	if(mInventory)
 	{
+		// inventory is either up to date or doesn't has a listener
+		// if it is dirty, leave it this way in case we gain a listener
 		doInventoryCallback();
 	}
-	// throw away duplicate requests
 	else
 	{
+		// since we are going to request it now
+		mInventoryDirty = FALSE;
+
+		// Note: throws away duplicate requests
 		fetchInventoryFromServer();
 	}
 }
@@ -2865,8 +2873,6 @@ void LLViewerObject::fetchInventoryFromServer()
 	if (!mInventoryPending)
 	{
 		delete mInventory;
-		mInventory = NULL;
-		mInventoryDirty = FALSE;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_RequestTaskInventory);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -2885,6 +2891,9 @@ struct LLFilenameAndTask
 {
 	LLUUID mTaskID;
 	std::string mFilename;
+
+	// for sequencing in case of multiple updates
+	S16 mSerial;
 #ifdef _DEBUG
 	static S32 sCount;
 	LLFilenameAndTask()
@@ -2920,9 +2929,17 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		return;
 	}
 
-	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
 	LLFilenameAndTask* ft = new LLFilenameAndTask;
 	ft->mTaskID = task_id;
+	// we can receive multiple task updates simultaneously, make sure we will not rewrite newer with older update
+	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, ft->mSerial);
+
+	if (ft->mSerial < object->mInventorySerialNum)
+	{
+		// viewer did some changes to inventory that were not saved yet.
+		LL_DEBUGS() << "Task inventory serial might be out of sync, server serial: " << ft->mSerial << " client serial: " << object->mInventorySerialNum << LL_ENDL;
+		object->mInventorySerialNum = ft->mSerial;
+	}
 
 	std::string unclean_filename;
 	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, unclean_filename);
@@ -2962,9 +2979,13 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 {
 	LLFilenameAndTask* ft = (LLFilenameAndTask*)user_data;
 	LLViewerObject* object = NULL;
-	if(ft && (0 == error_code) &&
-	   (object = gObjectList.findObject(ft->mTaskID)))
+
+	if (ft
+		&& (0 == error_code)
+		&& (object = gObjectList.findObject(ft->mTaskID))
+		&& ft->mSerial >= object->mInventorySerialNum)
 	{
+		object->mInventorySerialNum = ft->mSerial;
 		if (object->loadTaskInvFile(ft->mFilename))
 		{
 
@@ -2995,7 +3016,7 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 	}
 	else
 	{
-		// This Occurs When to requests were made, and the first one
+		// This Occurs When two requests were made, and the first one
 		// has already handled it.
 		LL_DEBUGS() << "Problem loading task inventory. Return code: "
 				 << error_code << LL_ENDL;
@@ -4075,6 +4096,7 @@ LLViewerObject* LLViewerObject::getRootEdit() const
 BOOL LLViewerObject::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 										  S32 face,
 										  BOOL pick_transparent,
+										  BOOL pick_rigged,
 										  S32* face_hit,
 										  LLVector4a* intersection,
 										  LLVector2* tex_coord,
@@ -4947,18 +4969,32 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 
 	if (!mText)
 	{
-		mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-		mText->setFont(LLFontGL::getFontSansSerif());
-		mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
-		mText->setMaxLines(-1);
-		mText->setSourceObject(this);
-		mText->setOnHUDAttachment(isHUDAttachment());
+	    initHudText();
 	}
 	mText->setColor(LLColor4::white);
 	mText->setString(utf8text);
 	mText->setZCompare(FALSE);
 	mText->setDoFade(FALSE);
 	updateText();
+}
+
+void LLViewerObject::initHudText()
+{
+    mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+    mText->setFont(LLFontGL::getFontSansSerif());
+    mText->setVertAlignment(LLHUDText::ALIGN_VERT_TOP);
+    mText->setMaxLines(-1);
+    mText->setSourceObject(this);
+    mText->setOnHUDAttachment(isHUDAttachment());
+}
+
+void LLViewerObject::restoreHudText()
+{
+    if(mText)
+    {
+        mText->setColor(mHudTextColor);
+        mText->setString(mHudText);
+    }
 }
 
 void LLViewerObject::setIcon(LLViewerTexture* icon_image)
@@ -5007,7 +5043,13 @@ void LLViewerObject::updateText()
 	{
 		if (mText.notNull())
 		{		
-			LLVector3 up_offset(0,0,0);
+		    LLVOAvatar* avatar = getAvatar();
+		    if (avatar)
+		    {
+		        mText->setHidden(avatar->isInMuteList());
+		    }
+
+		    LLVector3 up_offset(0,0,0);
 			up_offset.mV[2] = getScale().mV[VZ]*0.6f;
 			
 			if (mDrawable.notNull())

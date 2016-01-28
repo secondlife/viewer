@@ -89,6 +89,7 @@ public:
 	LLPickInfo(const LLCoordGL& mouse_pos, 
 		MASK keyboard_mask, 
 		BOOL pick_transparent,
+		BOOL pick_rigged,
 		BOOL pick_particle,
 		BOOL pick_surface_info,
 		BOOL pick_unselectable,
@@ -123,6 +124,7 @@ public:
 	LLVector4		mTangent;
 	LLVector3		mBinormal;
 	BOOL			mPickTransparent;
+	BOOL			mPickRigged;
 	BOOL			mPickParticle;
 	BOOL			mPickUnselectable;
 	void		    getSurfaceInfo();
@@ -314,6 +316,7 @@ public:
 	LLView*			getHintHolder() { return mHintHolder.get(); }
 	LLView*			getLoginPanelHolder() { return mLoginPanelHolder.get(); }
 	BOOL			handleKey(KEY key, MASK mask);
+	BOOL			handleKeyUp(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
 
 	// add and remove views from "popup" layer
@@ -367,8 +370,9 @@ public:
 								MASK mask,
 								void (*callback)(const LLPickInfo& pick_info),
 								BOOL pick_transparent = FALSE,
+								BOOL pick_rigged = FALSE,
 								BOOL pick_unselectable = FALSE);
-	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_particle = FALSE);
+	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_rigged = FALSE, BOOL pick_particle = FALSE);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
 										   LLVector4a* intersection);
 
@@ -376,6 +380,7 @@ public:
 									LLViewerObject *this_object = NULL,
 									S32 this_face = -1,
 									BOOL pick_transparent = FALSE,
+									BOOL pick_rigged = FALSE,
 									S32* face_hit = NULL,
 									LLVector4a *intersection = NULL,
 									LLVector2 *uv = NULL,

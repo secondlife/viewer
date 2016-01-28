@@ -1544,17 +1544,20 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 		{
 			std::string dirname = mTexturesDirName + delem + subdirs[i];
 			LL_INFOS() << "Deleting files in directory: " << dirname << LL_ENDL;
-			gDirUtilp->deleteFilesInDir(dirname, mask);
 			if (purge_directories)
 			{
-				LLFile::rmdir(dirname);
+				gDirUtilp->deleteDirAndContents(dirname);
+			}
+			else
+			{
+				gDirUtilp->deleteFilesInDir(dirname, mask);
 			}
 		}
 		if (purge_directories)
 		{
 			gDirUtilp->deleteFilesInDir(mTexturesDirName, mask);
 			LLFile::rmdir(mTexturesDirName);
-		}		
+		}
 	}
 	mHeaderIDMap.clear();
 	mTexturesSizeMap.clear();
