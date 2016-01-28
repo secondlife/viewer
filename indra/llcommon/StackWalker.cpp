@@ -6,6 +6,8 @@
  *
  * $LicenseInfo:firstyear=2016&license=bsd$
  *
+ * Linden notes: Small modifications from the original source at https://stackwalker.codeplex.com/
+ *
  * History:
  *  2005-07-27   v1    - First public release on http://www.codeproject.com/
  *                       http://www.codeproject.com/threads/StackWalker.asp
@@ -1012,8 +1014,9 @@ BOOL StackWalker::LoadModules()
 static StackWalker::PReadProcessMemoryRoutine s_readMemoryFunction = NULL;
 static LPVOID s_readMemoryFunction_UserData = NULL;
 
-BOOL StackWalker::ShowCallstack(HANDLE hThread, const CONTEXT *context, PReadProcessMemoryRoutine readMemoryFunction, LPVOID pUserData)
+BOOL StackWalker::ShowCallstack(bool verbose, HANDLE hThread, const CONTEXT *context, PReadProcessMemoryRoutine readMemoryFunction, LPVOID pUserData)
 {
+  m_verbose = verbose;
   CONTEXT c;
   CallstackEntry csEntry;
   IMAGEHLP_SYMBOL64 *pSym = NULL;

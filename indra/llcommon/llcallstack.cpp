@@ -39,10 +39,10 @@ public:
     ~LLCallStackImpl()
     {
     }
-    void getStack(std::vector<std::string>& stack, S32 skip_count=0)
+    void getStack(std::vector<std::string>& stack, S32 skip_count=0, bool verbose=false)
     {
         m_stack.clear();
-        ShowCallstack();
+        ShowCallstack(verbose);
         // Skip the first few lines because they're just bookkeeping for LLCallStack,
         // plus any additional lines requested to skip.
         S32 first_line = skip_count + 3;
@@ -74,15 +74,16 @@ public:
 
 LLCallStackImpl *LLCallStack::s_impl = NULL;
 
-LLCallStack::LLCallStack(S32 skip_count):
-    m_skipCount(skip_count)
+LLCallStack::LLCallStack(S32 skip_count, bool verbose):
+    m_skipCount(skip_count),
+    m_verbose(verbose)
 {
     if (!s_impl)
     {
         s_impl = new LLCallStackImpl;
     }
     LLTimer t;
-    s_impl->getStack(m_strings, m_skipCount);
+    s_impl->getStack(m_strings, m_skipCount, m_verbose);
 }
 
 std::ostream& operator<<(std::ostream& s, const LLCallStack& call_stack)

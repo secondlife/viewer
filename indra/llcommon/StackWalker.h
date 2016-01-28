@@ -6,6 +6,8 @@
  *
  * $LicenseInfo:firstyear=2016&license=bsd$
  *
+ * Linden notes: Small modifications from the original source at https://stackwalker.codeplex.com/
+ *
  * LICENSE (http://www.opensource.org/licenses/bsd-license.php)
  *
  *   Copyright (c) 2005-2009, Jochen Kalmbach
@@ -113,6 +115,7 @@ public:
   BOOL LoadModules();
 
   BOOL ShowCallstack(
+    bool verbose,
     HANDLE hThread = GetCurrentThread(), 
     const CONTEXT *context = NULL, 
     PReadProcessMemoryRoutine readMemoryFunction = NULL,

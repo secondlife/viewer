@@ -29,8 +29,9 @@ class LLCallStackImpl;
 class LLCallStack
 {
 public:
-    LLCallStack(S32 skip_count=0);
+    LLCallStack(S32 skip_count=0, bool verbose=false);
     std::vector<std::string> m_strings;
+    bool m_verbose;
 private:
     static LLCallStackImpl *s_impl;
     S32 m_skipCount;
