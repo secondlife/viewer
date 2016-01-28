@@ -65,7 +65,7 @@ class LLCallStackImpl
 public:
     LLCallStackImpl() {}
     ~LLCallStackImpl() {}
-    void getStack(std::vector<std::string>& stack, S32 skip_count=0)
+    void getStack(std::vector<std::string>& stack, S32 skip_count=0, bool verbose=false)
     {
         stack.clear();
     }
