@@ -3580,6 +3580,19 @@ Do you really want to bake the current terrain, make it the center for terrain r
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmTextureHeights"
+   type="alertmodal">
+You're about to use low values greater than high ones for Elevation Ranges. Proceed?
+   <tag>confirm</tag>
+   <usetemplate
+    name="yesnocancelbuttons"
+    yestext="Ok"
+    notext="Cancel"
+    canceltext="Don't ask"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="MaxAllowedAgentOnRegion"
    type="alertmodal">
 You can only have [MAX_AGENTS] Allowed Residents.
