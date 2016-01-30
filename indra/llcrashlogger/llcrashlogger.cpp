@@ -429,6 +429,8 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 		{
 			return gSent;
 		}
+
+        LL_WARNS("CRASHREPORT") << "Failed to send crash report to \"" << host << "\"" << LL_ENDL;
 	}
 	return gSent;
 }
