@@ -26,7 +26,6 @@
 
 #include "llcommon.h"
 #include "llcallstack.h"
-#include "llstacktrace.h"
 #include "StackWalker.h"
 
 #if LL_WINDOWS
@@ -94,13 +93,5 @@ std::ostream& operator<<(std::ostream& s, const LLCallStack& call_stack)
     {
         s << *it;
     }
-    std::vector<std::string> og_lines;
-    ll_get_stack_trace(og_lines);
-    s << "\nOLD SCHOOL STACK\n";
-    for (it=og_lines.begin(); it!=og_lines.end(); ++it)
-    {
-        s << *it;
-    }
-    
     return s;
 }
