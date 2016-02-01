@@ -1453,7 +1453,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	BOOL	region_deny_identified_override = false; // Deprecated
 	BOOL	region_deny_transacted_override = false; // Deprecated
 	BOOL	region_deny_age_unverified_override = false;
-    BOOL	agent_teleported = false;
+    BOOL	agent_parcel_update = false; // updating previous(existing) agent parcel
 
 	S32		other_clean_time = 0;
 
@@ -1543,6 +1543,18 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	// Actually extract the data.
 	if (parcel)
 	{
+        if (local_id == parcel_mgr.mAgentParcel->getLocalID())
+        {
+            // Parcels in different regions can have same ids.
+            LLViewerRegion* parcel_region = LLWorld::getInstance()->getRegion(msg->getSender());
+            LLViewerRegion* agent_region = gAgent.getRegion();
+            if (parcel_region && agent_region && parcel_region->getRegionID() == agent_region->getRegionID())
+            {
+                // we got an updated version of agent parcel
+                agent_parcel_update = true;
+            }
+        }
+
 		parcel->init(owner_id,
 			FALSE, FALSE, FALSE,
 			claim_date, claim_price_per_meter, rent_price_per_meter,
@@ -1589,7 +1601,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 			if (instance->mTeleportInProgress)
 			{
-				agent_teleported = true;
 				instance->mTeleportInProgress = FALSE;
 				if(instance->mTeleportInProgressPosition.isNull())
 				{
@@ -1602,16 +1613,10 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				}
 			}
 		}
-		else if (local_id == parcel_mgr.mAgentParcel->getLocalID())
+		else if (agent_parcel_update)
 		{
-			// Parcels in different regions can have same ids.
-			LLViewerRegion* parcel_region = LLWorld::getInstance()->getRegion( msg->getSender() );
-			LLViewerRegion* agent_region = gAgent.getRegion();
-			if (parcel_region && agent_region && parcel_region->getRegionID() == agent_region->getRegionID())
-			{
-				// updated agent parcel
-				parcel_mgr.mAgentParcel->unpackMessage(msg);
-			}
+			// updated agent parcel
+			parcel_mgr.mAgentParcel->unpackMessage(msg);
 		}
 	}
 
@@ -1754,45 +1759,37 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		{
 			if (parcel)
 			{
-				std::string music_url_raw = parcel->getMusicURL();
-				const std::string& stream_url = gAudiop->getInternetStreamURL();
-				LLUUID region_id = gAgent.getRegion()->getRegionID();
+                // Only update stream if parcel changed (recreated) or music is playing (enabled)
+                if (!agent_parcel_update || gSavedSettings.getBOOL("MediaTentativeAutoPlay"))
+                {
+                    std::string music_url_raw = parcel->getMusicURL();
 
-				// Trim off whitespace from front and back
-				std::string music_url = music_url_raw;
-				LLStringUtil::trim(music_url);
+                    // Trim off whitespace from front and back
+                    std::string music_url = music_url_raw;
+                    LLStringUtil::trim(music_url);
 
-				static std::string last_url = "";
-				static LLUUID last_region_id = LLUUID::null;
-
-				// If music url is valid and url is a new or teleport/region cross was performed  - play music.
-				// If url is empty or not usable and there is stream playing - stop music
-				// In all other cases maintain previous state
-				if (music_url.size() > 12
-					&& (music_url != last_url
-						|| agent_teleported
-						|| last_region_id != region_id))
-				{
-					if (music_url.substr(0,7) == "http://")
-					{
-						optionally_start_music(music_url);
-					}
-					else
-					{
-						LL_INFOS() << "Stopping parcel music (invalid audio stream URL)" << LL_ENDL;
-						// clears the URL 
-						// null value causes fade out
-						LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
-					}
-				}
-				else if (!stream_url.empty() && (music_url != last_url || music_url.empty()))
-				{
-					LL_INFOS() << "Stopping parcel music (parcel stream URL is empty)" << LL_ENDL;
-					// null value causes fade out
-					LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
-				}
-				last_url = music_url;
-				last_region_id = region_id;
+                    // If there is a new music URL and it's valid, play it.
+                    if (music_url.size() > 12)
+                    {
+                        if (music_url.substr(0, 7) == "http://")
+                        {
+                            optionally_start_music(music_url);
+                        }
+                        else
+                        {
+                            LL_INFOS() << "Stopping parcel music (invalid audio stream URL)" << LL_ENDL;
+                            // clears the URL
+                            // null value causes fade out
+                            LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
+                        }
+                    }
+                    else if (!gAudiop->getInternetStreamURL().empty())
+                    {
+                        LL_INFOS() << "Stopping parcel music (parcel stream URL is empty)" << LL_ENDL;
+                        // null value causes fade out
+                        LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
+                    }
+                }
 			}
 			else
 			{
