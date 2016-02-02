@@ -104,7 +104,7 @@ static const struct
 		"material manager requests"
 	},
 	{ // AP_AGENT
-		2,		1,		32,		0,		true,
+		2,		1,		32,		0,		false,
 		"Agent",
 		"Agent requests"
 	}
@@ -125,7 +125,7 @@ LLAppCoreHttp::LLAppCoreHttp()
 	  mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
 	  mStopRequested(0.0),
 	  mStopped(false),
-	  mPipelined(true)
+	  mPipelined(false)
 {}
 
 
@@ -359,13 +359,14 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 	static const std::string http_pipelining("HttpPipelining");
 	if (gSavedSettings.controlExists(http_pipelining))
 	{
-		// Default to true (in ctor) if absent.
+		// Default to false (in ctor) if absent.
 		bool pipelined(gSavedSettings.getBOOL(http_pipelining));
 		if (pipelined != mPipelined)
 		{
 			mPipelined = pipelined;
 			pipeline_changed = true;
 		}
+        LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
 	}
 	
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
