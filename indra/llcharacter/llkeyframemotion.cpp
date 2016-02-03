@@ -1380,7 +1380,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		LL_WARNS() << "no joints in animation" << LL_ENDL;
 		return FALSE;
 	}
-	else if (num_motions > LL_CHARACTER_MAX_JOINTS)
+	else if (num_motions > LL_CHARACTER_MAX_ANIMATED_JOINTS)
 	{
 		LL_WARNS() << "too many joints in animation" << LL_ENDL;
 		return FALSE;
@@ -1419,7 +1419,14 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		LLJoint *joint = mCharacter->getJoint( joint_name );
 		if (joint)
 		{
+            S32 joint_num = joint->getJointNum();
 //			LL_INFOS() << "  joint: " << joint_name << LL_ENDL;
+            if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
+            {
+                LL_WARNS() << "Joint will be omitted from animation: joint_num " << joint_num << " is outside of legal range [0-"
+                           << LL_CHARACTER_MAX_ANIMATED_JOINTS << ") for joint " << joint->getName() << LL_ENDL;
+                joint = NULL;
+            }
 		}
 		else
 		{

@@ -55,7 +55,7 @@ LLMotion::LLMotion( const LLUUID &id ) :
 	mDeactivateCallbackUserData(NULL)
 {
 	for (S32 i=0; i<3; ++i)
-		memset(&mJointSignature[i][0], 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
+		memset(&mJointSignature[i][0], 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
 }
 
 //-----------------------------------------------------------------------------
@@ -112,9 +112,10 @@ void LLMotion::addJointState(const LLPointer<LLJointState>& jointState)
 
 	// for now, usage is everything
     S32 joint_num = jointState->getJoint()->getJointNum();
-    if ((joint_num >= (S32)LL_CHARACTER_MAX_JOINTS) || (joint_num < 0))
+    if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
     {
-        LL_WARNS() << "joint_num " << joint_num << " is outside of legal range [0-" << LL_CHARACTER_MAX_JOINTS << ") for joint " << jointState->getJoint()->getName() << LL_ENDL;
+        LL_WARNS() << "joint_num " << joint_num << " is outside of legal range [0-" << LL_CHARACTER_MAX_ANIMATED_JOINTS << ") for joint " << jointState->getJoint()->getName() << LL_ENDL;
+        return;
     }
 	mJointSignature[0][joint_num] = (usage & LLJointState::POS) ? (0xff >> (7 - priority)) : 0;
 	mJointSignature[1][joint_num] = (usage & LLJointState::ROT) ? (0xff >> (7 - priority)) : 0;

@@ -44,7 +44,6 @@ class LLViewerJoint :
 {
 public:
 	LLViewerJoint();
-	LLViewerJoint(S32 joint_num);
 	// *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
 	LLViewerJoint(const std::string &name, LLJoint *parent = NULL);
 	virtual ~LLViewerJoint();

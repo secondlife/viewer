@@ -125,7 +125,6 @@ public:
 
 protected:
 	virtual LLAvatarJoint*	createAvatarJoint() = 0;
-	virtual LLAvatarJoint*	createAvatarJoint(S32 joint_num) = 0;
 	virtual LLAvatarJointMesh*	createAvatarJointMesh() = 0;
     void makeJointAliases(LLAvatarBoneInfo *bone_info);
 

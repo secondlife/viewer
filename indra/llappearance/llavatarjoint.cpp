@@ -58,13 +58,6 @@ LLAvatarJoint::LLAvatarJoint(const std::string &name, LLJoint *parent) :
 	init();
 }
 
-LLAvatarJoint::LLAvatarJoint(S32 joint_num) :
-	LLJoint(joint_num)
-{
-	init();
-}
-
-
 void LLAvatarJoint::init()
 {
 	mValid = FALSE;

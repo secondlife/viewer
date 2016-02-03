@@ -121,20 +121,12 @@ LLJoint::LLJoint() :
 	touch();
 }
 
-LLJoint::LLJoint(S32 joint_num) :
-	mJointNum(joint_num)
-{
-	init();
-	touch();
-}
-
-
 //-----------------------------------------------------------------------------
 // LLJoint()
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLJoint::LLJoint(const std::string &name, LLJoint *parent) :
-	mJointNum(0)
+	mJointNum(-2)
 {
 	init();
 	mUpdateXform = FALSE;
@@ -219,6 +211,18 @@ void LLJoint::touch(U32 flags)
 	}
 }
 
+//-----------------------------------------------------------------------------
+// setJointNum()
+//-----------------------------------------------------------------------------
+void LLJoint::setJointNum(S32 joint_num)
+{
+    mJointNum = joint_num;
+    if (mJointNum + 2 >= LL_CHARACTER_MAX_ANIMATED_JOINTS)
+    {
+        LL_INFOS() << "Does LL_CHARACTER_MAX_ANIMATED_JOINTS need to be increased?" << LL_ENDL;
+        LL_ERRS() << "joint_num " << joint_num << " too large for " << LL_CHARACTER_MAX_ANIMATED_JOINTS << LL_ENDL;
+    }
+}
 //-----------------------------------------------------------------------------
 // getRoot()
 //-----------------------------------------------------------------------------

@@ -52,11 +52,6 @@ LLViewerJoint::LLViewerJoint(const std::string &name, LLJoint *parent) :
 	LLAvatarJoint(name, parent)
 { }
 
-LLViewerJoint::LLViewerJoint(S32 joint_num) :
-	LLAvatarJoint(joint_num)
-{ }
-
-
 //-----------------------------------------------------------------------------
 // ~LLViewerJoint()
 // Class Destructor
