@@ -647,6 +647,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
 			LLVector3 pos_delta = volume_morph->mPos * delta_weight;
 			
 			volume_morph->mVolume->setScale(volume_morph->mVolume->getScale() + scale_delta);
+            // SL-315
 			volume_morph->mVolume->setPosition(volume_morph->mVolume->getPosition() + pos_delta);
 		}
 	}

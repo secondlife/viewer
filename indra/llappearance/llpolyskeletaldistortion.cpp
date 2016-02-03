@@ -225,6 +225,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 LLVector3 newPosition = joint->getPosition();
                 LLVector3 positionDelta = iter->second;				
                 newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
+                // SL-315
                 joint->setPosition(newPosition);
         }
 

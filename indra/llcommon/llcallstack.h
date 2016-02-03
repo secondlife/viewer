@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include <map>
+
 class LLCallStackImpl;
 
 class LLCallStack
@@ -38,3 +40,39 @@ private:
 };
 
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLCallStack& call_stack);
+
+class LLContextStrings
+{
+public:
+    LLContextStrings();
+    static void addContextString(const std::string& str);
+    static void removeContextString(const std::string& str);
+    static void output(std::ostream& os);
+    static LLContextStrings* getThreadLocalInstance();
+private:
+    std::map<std::string,S32> m_contextStrings;
+};
+
+class LLScopedContextString
+{
+public:
+    LLScopedContextString(const std::string& str):
+        m_str(str)
+    {
+        LLContextStrings::addContextString(m_str);
+    }
+    ~LLScopedContextString()
+    {
+        LLContextStrings::removeContextString(m_str);
+    }
+private:
+    std::string m_str;
+};
+
+// This doesn't really have any state, just acts as class to hook the
+// ostream override to.
+struct LLContextStatus
+{
+};
+
+LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLContextStatus& context_status);

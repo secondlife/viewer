@@ -186,7 +186,8 @@ public:
 	// get/set local position
 	const LLVector3& getPosition();
 	void setPosition( const LLVector3& pos );
-	
+
+    // BENTO - history? Not implemented or used.
 	void setDefaultPosition( const LLVector3& pos );
 	
 	// get/set world position

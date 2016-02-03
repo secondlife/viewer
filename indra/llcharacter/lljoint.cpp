@@ -327,12 +327,15 @@ bool do_debug_joint(const std::string& name)
 //--------------------------------------------------------------------
 void LLJoint::setPosition( const LLVector3& pos )
 {
+    LLScopedContextString str("setPosition");
 	if (pos != getPosition())
 	{
 		if (do_debug_joint(getName()))
 		{
             LLCallStack cs;
+			LLContextStatus con_status;
 			LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
+			LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << "====================" << LL_ENDL;
 			LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
 		}
 	}
@@ -424,12 +427,18 @@ void LLJoint::updatePos(const std::string& av_info)
 	LLUUID mesh_id;
 	if (m_attachmentOverrides.findActiveOverride(mesh_id,found_pos))
 	{
-		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner of " << m_attachmentOverrides.count() << " is mesh " << mesh_id << " pos " << found_pos << LL_ENDL;
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner of " << m_attachmentOverrides.count() << " is mesh " << mesh_id << " pos " << found_pos << LL_ENDL;
+        }
 		pos = found_pos;
 	}
 	else
 	{
-		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
+        }
 		pos = m_posBeforeOverrides;
 	}
 	setPosition(pos);

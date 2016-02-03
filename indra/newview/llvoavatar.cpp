@@ -105,6 +105,7 @@
 #include "llsdutil.h"
 #include "llscenemonitor.h"
 #include "llsdserialize.h"
+#include "llcallstack.h"
 
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
@@ -2097,6 +2098,8 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		return;
 	}
 
+    LLScopedContextString str("avatar_idle_update " + getFullname());
+    
 	checkTextureLoading() ;
 	
 	// force immediate pixel area update on avatars using last frames data (before drawable or camera updates)
@@ -3098,6 +3101,7 @@ void LLVOAvatar::idleUpdateBelowWater()
 void LLVOAvatar::slamPosition()
 {
 	gAgent.setPositionAgent(getPositionAgent());
+	// SL-315
 	mRoot->setWorldPosition(getPositionAgent()); // teleport
 	setChanged(TRANSLATED);
 	if (mDrawable.notNull())
@@ -3450,6 +3454,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			mTimeLast = animation_time;
 
 			// put the pelvis at slaved position/mRotation
+			// SL-315
 			mRoot->setWorldPosition( getPositionAgent() ); // first frame
 			mRoot->setWorldRotation( getRotation() );
 		}
@@ -3504,6 +3509,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		if (newPosition != mRoot->getXform()->getWorldPosition())
 		{		
 			mRoot->touch();
+			// SL-315
 			mRoot->setWorldPosition( newPosition ); // regular update				
 		}
 
@@ -3667,6 +3673,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	{
 		LLVector3 pos = mDrawable->getPosition();
 		pos += getHoverOffset() * mDrawable->getRotation();
+		// SL-315
 		mRoot->setPosition(pos);
 		mRoot->setRotation(mDrawable->getRotation());
 	}
@@ -3697,6 +3704,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			LLVector3 pos = mRoot->getWorldPosition();
 			pos.mV[VZ] += off_z;
 			mRoot->touch();
+			// SL-315
 			mRoot->setWorldPosition(pos);
 		}
 	}
@@ -5171,6 +5179,8 @@ bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
 
 void LLVOAvatar::clearAttachmentPosOverrides()
 {
+    LLScopedContextString str("clearAttachmentPosOverrides " + getFullname());
+
 	//Subsequent joints are relative to pelvis
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
 	avatar_joint_list_t::iterator end  = mSkeleton.end();
@@ -5195,7 +5205,9 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
 	{
 		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
 	}
-		
+
+    LLScopedContextString str("addAttachmentPosOverridesForObject " + av->getFullname());
+    
 	// Process all children
 	LLViewerObject::const_child_list_t& children = vo->getChildren();
 	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
@@ -5316,6 +5328,7 @@ void LLVOAvatar::resetJointPositionsOnDetach(const LLUUID& mesh_id)
 		if ( pJoint && pJoint == pJointPelvis)
 		{
 			removePelvisFixup( mesh_id );
+			// SL-315
 			pJoint->setPosition( LLVector3( 0.0f, 0.0f, 0.0f) );
 		}		
 	}	
@@ -6098,6 +6111,7 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 	// objects to be not rendered for new arrivals. See EXT-6835 and EXT-1655.
 	sitDown(TRUE);
 	mRoot->getXform()->setParent(&sit_object->mDrawable->mXform); // LLVOAvatar::sitOnObject
+	// SL-315
 	mRoot->setPosition(getPosition());
 	mRoot->updateWorldMatrixChildren();
 
@@ -6156,6 +6170,7 @@ void LLVOAvatar::getOffObject()
 	sitDown(FALSE);
 
 	mRoot->getXform()->setParent(NULL); // LLVOAvatar::getOffObject
+	// SL-315
 	mRoot->setPosition(cur_position_world);
 	mRoot->setRotation(cur_rotation_world);
 	mRoot->getXform()->update();

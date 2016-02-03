@@ -214,7 +214,10 @@ void LLSkinningUtil::remapSkinInfoJoints(LLVOAvatar *avatar, LLMeshSkinInfo* ski
 
     for (U32 j = 0; j < skin->mJointNames.size(); ++j)
     {
-        LL_DEBUGS("Avatar") << "Starting joint[" << j << "] = " << skin->mJointNames[j] << " j_remap " << j_remap[j] << " ==> " << new_joint_names[j_remap[j]] << LL_ENDL;
+        if (skin->mJointNames[j] != new_joint_names[j_remap[j]])
+        {
+            LL_DEBUGS("Avatar") << "Starting joint[" << j << "] = " << skin->mJointNames[j] << " j_remap " << j_remap[j] << " ==> " << new_joint_names[j_remap[j]] << LL_ENDL;
+        }
     }
 
     skin->mJointNames = new_joint_names;

@@ -289,6 +289,7 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 	}
 
 	// acquire the transform from the mesh object
+    // SL-315
 	setPosition( mMesh->getPosition() );
 	setRotation( mMesh->getRotation() );
 	setScale( mMesh->getScale() );
