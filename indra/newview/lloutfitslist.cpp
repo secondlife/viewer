@@ -227,7 +227,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
         _1, _2, _3, cat_id));
 
     // Setting tab focus callback to monitor currently selected outfit.
-    tab->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ñhangeOutfitSelection, this, list, cat_id));
+    tab->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
 
     // Setting callback to reset items selection inside outfit on accordion collapsing and expanding (EXT-7875)
     tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
@@ -469,7 +469,7 @@ void LLOutfitsList::onListSelectionChange(LLUICtrl* ctrl)
 	LLViewerInventoryItem *item = gInventory.getItem(list->getSelectedUUID());
 	if (!item) return;
 
-	ñhangeOutfitSelection(list, item->getParentUUID());
+	ChangeOutfitSelection(list, item->getParentUUID());
 }
 
 void LLOutfitListBase::performAction(std::string action)
@@ -508,7 +508,7 @@ void LLOutfitsList::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
 			if (!list) continue;
 
 			tab->setFocus(TRUE);
-			ñhangeOutfitSelection(list, outfit_uuid);
+			ChangeOutfitSelection(list, outfit_uuid);
 
 			tab->setDisplayChildren(true);
 		}
@@ -1198,7 +1198,7 @@ void LLOutfitListBase::outfitRightClickCallBack(LLUICtrl* ctrl, S32 x, S32 y, co
     onOutfitRightClick(ctrl, x, y, cat_id);
 }
 
-void LLOutfitListBase::ñhangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
+void LLOutfitListBase::ChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
 {
     onChangeOutfitSelection(list, category_id);
     mSelectedOutfitUUID = category_id;
@@ -1335,6 +1335,9 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     llassert(mMenu);
 }
 
+LLOutfitListGearMenuBase::~LLOutfitListGearMenuBase()
+{}
+
 void LLOutfitListGearMenuBase::updateItemsVisibility()
 {
     onUpdateItemsVisibility();
@@ -1470,6 +1473,9 @@ void LLOutfitListGearMenuBase::onLoadAssets()
 
 LLOutfitListGearMenu::LLOutfitListGearMenu(LLOutfitListBase* olist)
     : LLOutfitListGearMenuBase(olist)
+{}
+
+LLOutfitListGearMenu::~LLOutfitListGearMenu()
 {}
 
 void LLOutfitListGearMenu::onUpdateItemsVisibility()
