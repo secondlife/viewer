@@ -153,11 +153,6 @@ private:
 	boost::signals2::connection	mHistoryMenuConnection;
 	// if true, save location to location history when teleport finishes
 	bool						mSaveToLocationHistory;
-	boost::signals2::connection resizeSignalUpNavBar;
-	boost::signals2::connection resizeSignalDownNavBar;
-	boost::signals2::connection resizeSignalUpFavPan;
-	boost::signals2::connection resizeSignalDownFavPan;
-
 };
 
 #endif
