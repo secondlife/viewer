@@ -544,7 +544,7 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     if (!mMenu) return;
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
-    mMenu->setItemVisible("upload_foto", TRUE);
+    mMenu->setItemVisible("upload_photo", TRUE);
     mMenu->setItemVisible("load_assets", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
@@ -736,9 +736,9 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 
             checkRemovePhoto(outfit_id);
 
-            LLStringUtil::format_map_t foto_string_args;
-            foto_string_args["OUTFIT_NAME"] = outfit_cat->getName();
-            std::string display_name = getString("outfit_foto_string", foto_string_args);
+            LLStringUtil::format_map_t photo_string_args;
+            photo_string_args["OUTFIT_NAME"] = outfit_cat->getName();
+            std::string display_name = getString("outfit_photo_string", photo_string_args);
 
             upload_new_resource(filename, // file
                 display_name,

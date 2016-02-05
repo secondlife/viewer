@@ -40,11 +40,11 @@
          parameter="take_off" />
     </menu_item_call>
     <menu_item_call
-     label="Upload foto"
+     label="Upload Photo (L$10)"
      layout="topleft"
-     name="upload_foto">
+     name="upload_photo">
         <on_click
-         function="Gear.UploadFoto" />
+         function="Gear.UploadPhoto" />
     </menu_item_call>
     <menu_item_call
      label="Load assets"

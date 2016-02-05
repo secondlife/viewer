@@ -10,8 +10,8 @@
    left="0"
    top="0"
    width="312">
-  <string name="outfit_foto_string">
-    Foto of "[OUTFIT_NAME]" outfit
+  <string name="outfit_photo_string">
+    Photo of "[OUTFIT_NAME]" outfit
   </string>
   <scroll_container
    border="true"
