@@ -385,12 +385,15 @@ void LLHUDText::updateVisibility()
 	}
 
 	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
-	F32 obj_dist = dist_vec(mSourceObject->getPosition(), LLViewerCamera::getInstance()->getOrigin());
+
+	F32 obj_dist = dist_vec(mSourceObject->getPositionEdit(), LLViewerCamera::getInstance()->getOrigin());
+
 	if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)) || (obj_dist > MAX_DRAW_DISTANCE))
 	{
 		mVisible = FALSE;
 		return;
 	}
+
 
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;
