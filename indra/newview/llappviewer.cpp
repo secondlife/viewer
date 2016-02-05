@@ -3310,6 +3310,11 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["CHANNEL"] = LLVersionInfo::getChannel();
+    std::string build_config = LLVersionInfo::getBuildConfig();
+    if (build_config != "Release")
+    {
+        info["BUILD_CONFIG"] = build_config;
+    }
 
 	// return a URL to the release notes for this viewer, such as:
 	// http://wiki.secondlife.com/wiki/Release_Notes/Second Life Beta Viewer/2.1.0.123456
@@ -3320,14 +3325,6 @@ LLSD LLAppViewer::getViewerInfo() const
 	url += LLURI::escape(LLVersionInfo::getVersion());
 
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
-
-#if LL_MSVC
-	info["COMPILER"] = "MSVC";
-	info["COMPILER_VERSION"] = _MSC_VER;
-#elif LL_GNUC
-	info["COMPILER"] = "GCC";
-	info["COMPILER_VERSION"] = GCC_VERSION;
-#endif
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
@@ -3362,10 +3359,6 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
-	info["LIBCURL_VERSION"] = LLCurl::getVersionString();
-	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
-	bool want_fullname = true;
-	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
 		LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
@@ -3377,12 +3370,6 @@ LLSD LLAppViewer::getViewerInfo() const
 	{
 		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
 	}
-
-#if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
-#else
-	info["LLCEFLIB_VERSION"] = "Undefined";
-#endif
 
 	S32 packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
 	if (packets_in > 0)
@@ -3455,6 +3442,10 @@ std::string LLAppViewer::getViewerInfoString() const
 
 	// Now build the various pieces
 	support << LLTrans::getString("AboutHeader", args);
+	if (info.has("BUILD_CONFIG"))
+	{
+		support << "\n" << LLTrans::getString("BuildConfig", args);
+	}
 	if (info.has("REGION"))
 	{
 		support << "\n\n" << LLTrans::getString("AboutPosition", args);
