@@ -76,7 +76,7 @@ public:
     void computeDifference(const LLInventoryModel::cat_array_t& vcats, uuid_vec_t& vadded, uuid_vec_t& vremoved);
     // highlights currently worn outfit in list and unhighlights previously worn
     void highlightBaseOutfit();
-    void ñhangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
+    void ChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
 
     virtual void getCurrentCategories(uuid_vec_t& vcur) = 0;
@@ -153,7 +153,8 @@ class LLOutfitListGearMenuBase
 {
 public:
     LLOutfitListGearMenuBase(LLOutfitListBase* olist);
-
+    virtual ~LLOutfitListGearMenuBase();
+    
     void updateItemsVisibility();
 
     LLToggleableMenu* getMenu();
@@ -183,6 +184,7 @@ class LLOutfitListGearMenu : public LLOutfitListGearMenuBase
 {
 public:
     LLOutfitListGearMenu(LLOutfitListBase* olist);
+    virtual ~LLOutfitListGearMenu();
 
 protected:
     /*virtual*/ void onUpdateItemsVisibility();

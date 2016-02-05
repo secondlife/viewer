@@ -104,7 +104,6 @@ private:
     LLPanel* buildLayoutPanel(int left);
     LLPanel* buildLayoutStak(int left, int bottom);
     void moveLayoutStak(LLPanel* stack, int left, int bottom);
-    LLView* mView;
     std::vector<LLPanel*> mStacks;
     std::vector<LLPanel*> mPanels;
     std::vector<LLOutfitGalleryItem*> mItems;

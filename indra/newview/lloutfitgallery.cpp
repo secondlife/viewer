@@ -221,9 +221,6 @@ LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name)
 {
     LLOutfitGalleryItem::Params giparams;
     LLOutfitGalleryItem* gitem = LLUICtrlFactory::create<LLOutfitGalleryItem>(giparams);
-    LLRect girect = LLRect(0, GALLERY_ITEM_HEIGHT - GALLERY_ITEM_HEIGHT,
-        GALLERY_ITEM_WIDTH, 0);
-    //gitem->setRect(girect);
     gitem->reshape(GALLERY_ITEM_WIDTH, GALLERY_ITEM_HEIGHT);
     gitem->setVisible(true);
     gitem->setFollowsLeft();
@@ -340,7 +337,7 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     item->setRightMouseDownCallback(boost::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
         _1, _2, _3, cat_id));
     LLWearableItemsList* list = NULL;
-    item->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ñhangeOutfitSelection, this, list, cat_id));
+    item->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
     if (galleryCreated)
     {
         addToGallery(item);
