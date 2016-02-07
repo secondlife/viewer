@@ -36,7 +36,6 @@ include(LLUI)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(LScript)
 include(Linking)
 include(NDOF)
 include(NVAPI)
@@ -82,8 +81,6 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LSCRIPT_INCLUDE_DIRS}
-    ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
     ${UPDATER_INCLUDE_DIRS}
     ${LIBS_PREBUILT_DIR}/include/collada
@@ -1136,6 +1133,7 @@ set(viewer_HEADER_FILES
     llscreenchannel.h
     llscripteditor.h
     llscriptfloater.h
+    llscriptruntimeperms.h
     llscrollingpanelparam.h
     llscrollingpanelparambase.h
     llsearchcombobox.h
@@ -1938,7 +1936,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLVFS_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LSCRIPT_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
