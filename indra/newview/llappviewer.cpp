@@ -3359,6 +3359,10 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
+
+	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
+	bool want_fullname = true;
+	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
 		LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
@@ -3370,6 +3374,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	{
 		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
 	}
+
+#if !LL_LINUX
+	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+#else
+	info["LLCEFLIB_VERSION"] = "Undefined";
+#endif
 
 	S32 packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
 	if (packets_in > 0)
