@@ -2360,6 +2360,20 @@ static void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::s
 	}
 }
 
+const std::string NOT_ONLINE_MSG("User not online - message will be stored and delivered later.");
+const std::string NOT_ONLINE_INVENTORY("User not online - inventory has been saved.");
+void translate_if_needed(std::string& message)
+{
+	if (message == NOT_ONLINE_MSG)
+	{
+		message = LLTrans::getString("not_online_msg");
+	}
+	else if (message == NOT_ONLINE_INVENTORY)
+	{
+		message = LLTrans::getString("not_online_inventory");
+	}
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	LLUUID from_id;
@@ -2424,6 +2438,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	chat.mFromID = from_id;
 	chat.mFromName = name;
 	chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
+	
+	if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+	{ // Translate server message if required (MAINT-6109)
+		translate_if_needed(message);
+	}
 
 	LLViewerObject *source = gObjectList.findObject(session_id); //Session ID is probably the wrong thing.
 	if (source)
