@@ -3435,7 +3435,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			// base cost is dependent on mesh complexity
 			// note that 3 is the highest LOD as of the time of this coding.
-			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(),3);
+			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
 			if ( size > 0)
 			{
 				if (gMeshRepo.getSkinInfo(volume_params.getSculptID(), this))
