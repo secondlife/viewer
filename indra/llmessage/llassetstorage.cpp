@@ -158,28 +158,49 @@ void LLAssetInfo::setFromNameValue( const LLNameValue& nv )
 }
 
 ///----------------------------------------------------------------------------
+/// LLBaseDownloadRequest
+///----------------------------------------------------------------------------
+
+LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetType::EType type)
+: mUUID(uuid),
+mType(type),
+mDownCallback(NULL),
+mUserData(NULL),
+mHost(),
+mIsTemp(FALSE),
+mIsPriority(FALSE),
+mDataSentInFirstPacket(FALSE),
+mDataIsInVFS(FALSE)
+{
+    // Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
+    //  running a message system loop.
+    mTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
+}
+
+// virtual
+LLBaseDownloadRequest::~LLBaseDownloadRequest()
+{
+}
+
+// virtual
+LLBaseDownloadRequest* LLBaseDownloadRequest::getCopy()
+{
+    return new LLBaseDownloadRequest(*this);
+}
+
+
+///----------------------------------------------------------------------------
 /// LLAssetRequest
 ///----------------------------------------------------------------------------
 
 LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
-:	mUUID(uuid),
-	mType(type),
-	mDownCallback( NULL ),
+:	LLBaseDownloadRequest(uuid, type),
 	mUpCallback( NULL ),
 	mInfoCallback( NULL ),
-	mUserData( NULL ),
-	mHost(),
-	mIsTemp( FALSE ),
 	mIsLocal(FALSE),
 	mIsUserWaiting(FALSE),
-	mTimeout(LL_ASSET_STORAGE_TIMEOUT),
-	mIsPriority(FALSE),
-	mDataSentInFirstPacket(FALSE),
-	mDataIsInVFS( FALSE )
+	mTimeout(LL_ASSET_STORAGE_TIMEOUT)
 {
-	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
-	//  running a message system loop.
-	mTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
 }
 
 // virtual
@@ -217,28 +238,28 @@ LLSD LLAssetRequest::getFullDetails() const
 	return sd;
 }
 
+LLBaseDownloadRequest* LLAssetRequest::getCopy()
+{
+    return new LLAssetRequest(*this);
+}
+
 ///----------------------------------------------------------------------------
 /// LLInvItemRequest
 ///----------------------------------------------------------------------------
 
 LLInvItemRequest::LLInvItemRequest(const LLUUID &uuid, const LLAssetType::EType type)
-:	mUUID(uuid),
-	mType(type),
-	mDownCallback( NULL ),
-	mUserData( NULL ),
-	mHost(),
-	mIsTemp( FALSE ),
-	mIsPriority(FALSE),
-	mDataSentInFirstPacket(FALSE),
-	mDataIsInVFS( FALSE )
+:	LLBaseDownloadRequest(uuid, type)
 {
-	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
-	//  running a message system loop.
-	mTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
 }
 
+// virtual
 LLInvItemRequest::~LLInvItemRequest()
 {
+}
+
+LLBaseDownloadRequest* LLInvItemRequest::getCopy()
+{
+    return new LLInvItemRequest(*this);
 }
 
 ///----------------------------------------------------------------------------
@@ -247,24 +268,19 @@ LLInvItemRequest::~LLInvItemRequest()
 
 LLEstateAssetRequest::LLEstateAssetRequest(const LLUUID &uuid, const LLAssetType::EType atype,
 										   EstateAssetType etype)
-:	mUUID(uuid),
-	mAType(atype),
-	mEstateAssetType(etype),
-	mDownCallback( NULL ),
-	mUserData( NULL ),
-	mHost(),
-	mIsTemp( FALSE ),
-	mIsPriority(FALSE),
-	mDataSentInFirstPacket(FALSE),
-	mDataIsInVFS( FALSE )
+:	LLBaseDownloadRequest(uuid, atype),
+	mEstateAssetType(etype)
 {
-	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
-	//  running a message system loop.
-	mTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
 }
 
+// Virtual
 LLEstateAssetRequest::~LLEstateAssetRequest()
 {
+}
+
+LLBaseDownloadRequest* LLEstateAssetRequest::getCopy()
+{
+    return new LLEstateAssetRequest(*this);
 }
 
 
@@ -565,7 +581,7 @@ void LLAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType at
 			// Set our destination file, and the completion callback.
 			LLTransferTargetParamsVFile tpvf;
 			tpvf.setAsset(uuid, atype);
-			tpvf.setCallback(downloadCompleteCallback, req);
+			tpvf.setCallback(downloadCompleteCallback, *req);
 
 			//LL_INFOS() << "Starting transfer for " << uuid << LL_ENDL;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
@@ -589,7 +605,7 @@ void LLAssetStorage::downloadCompleteCallback(
 	S32 result,
 	const LLUUID& file_id,
 	LLAssetType::EType file_type,
-	void* user_data, LLExtStat ext_status)
+	LLBaseDownloadRequest* user_data, LLExtStat ext_status)
 {
 	LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << file_id << " downloadCompleteCallback" << LL_ENDL;
 
@@ -619,14 +635,12 @@ void LLAssetStorage::downloadCompleteCallback(
 
 	if (download_iter != gAssetStorage->mPendingDownloads.end())
 	{
-		// either has already been deleted by _cleanupRequests (as result req becomes invalid)
-		// or it's a transfer.
 		callback_id = file_id;
 		callback_type = file_type;
 	}
 	else
 	{
-		// we will be deleting elements from mPendingDownloads which req should be part of, save id and type
+		// either has already been deleted by _cleanupRequests or it's a transfer.
 		callback_id = req->getUUID();
 		callback_type = req->getType();
 	}
@@ -737,10 +751,10 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 		if (source_host.isOk())
 		{
 			// stash the callback info so we can find it after we get the response message
-			LLEstateAssetRequest *req = new LLEstateAssetRequest(asset_id, atype, etype);
-			req->mDownCallback = callback;
-			req->mUserData = user_data;
-			req->mIsPriority = is_priority;
+			LLEstateAssetRequest req(asset_id, atype, etype);
+			req.mDownCallback = callback;
+			req.mUserData = user_data;
+			req.mIsPriority = is_priority;
 
 			// send request message to our upstream data provider
 			// Create a new asset transfer.
@@ -774,7 +788,7 @@ void LLAssetStorage::downloadEstateAssetCompleteCallback(
 	S32 result,
 	const LLUUID& file_id,
 	LLAssetType::EType file_type,
-	void* user_data,
+	LLBaseDownloadRequest* user_data,
 	LLExtStat ext_status)
 {
 	LLEstateAssetRequest *req = (LLEstateAssetRequest*)user_data;
@@ -881,10 +895,10 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 		if (source_host.isOk())
 		{
 			// stash the callback info so we can find it after we get the response message
-			LLInvItemRequest *req = new LLInvItemRequest(asset_id, atype);
-			req->mDownCallback = callback;
-			req->mUserData = user_data;
-			req->mIsPriority = is_priority;
+			LLInvItemRequest req(asset_id, atype);
+			req.mDownCallback = callback;
+			req.mUserData = user_data;
+			req.mIsPriority = is_priority;
 
 			// send request message to our upstream data provider
 			// Create a new asset transfer.
@@ -922,7 +936,7 @@ void LLAssetStorage::downloadInvItemCompleteCallback(
 	S32 result,
 	const LLUUID& file_id,
 	LLAssetType::EType file_type,
-	void* user_data,
+	LLBaseDownloadRequest* user_data,
 	LLExtStat ext_status)
 {
 	LLInvItemRequest *req = (LLInvItemRequest*)user_data;
