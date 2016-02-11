@@ -7964,6 +7964,13 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			// show the cloned params inside the wearables as well.
 			gAgentAvatarp->dumpWearableInfo(outfile);
 		}
+		LLSD args;
+		args["PATH"] = fullpath;
+		LLNotificationsUtil::add("AppearanceToXMLSaved", args);
+	}
+	else
+	{
+		LLNotificationsUtil::add("AppearanceToXMLFailed");
 	}
 	// File will close when handle goes out of scope
 }

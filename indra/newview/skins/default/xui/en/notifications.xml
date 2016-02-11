@@ -8274,6 +8274,16 @@ Are you sure you want to close all IMs?
 		name="AttachmentSaved" type="notifytip">
 Attachment has been saved.
   </notification>
+  
+  <notification icon="notify.tga" persist="true"
+		name="AppearanceToXMLSaved" type="notify">
+Appearance has been saved to XML to [PATH]
+  </notification>
+  
+    <notification icon="notifytip.tga"
+		name="AppearanceToXMLFailed" type="notifytip">
+Failed to save appearance to XML.
+  </notification>
 
   <notification
     icon="alertmodal.tga"
