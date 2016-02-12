@@ -46,6 +46,7 @@ class LLAvatarJoint :
 {
 public:
 	LLAvatarJoint();
+	LLAvatarJoint(S32 joint_num);
 	// *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
 	LLAvatarJoint(const std::string &name, LLJoint *parent = NULL);
 	virtual ~LLAvatarJoint();

@@ -52,6 +52,12 @@ LLAvatarJoint::LLAvatarJoint() :
 	init();
 }
 
+LLAvatarJoint::LLAvatarJoint(S32 joint_num) :
+    LLJoint(joint_num)
+{
+    init();
+}
+    
 LLAvatarJoint::LLAvatarJoint(const std::string &name, LLJoint *parent) :
 	LLJoint(name, parent)
 {

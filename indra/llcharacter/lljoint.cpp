@@ -121,6 +121,13 @@ LLJoint::LLJoint() :
 	touch();
 }
 
+LLJoint::LLJoint(S32 joint_num) :
+	mJointNum(joint_num)
+{
+	init();
+	touch();
+}
+
 //-----------------------------------------------------------------------------
 // LLJoint()
 // Class Constructor

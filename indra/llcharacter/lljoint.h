@@ -143,6 +143,21 @@ public:
 
 public:
 	LLJoint();
+
+    // Note: these joint_num constructors are a bad idea because there
+    // are only a couple of places in the code where it is useful to
+    // have a joint num for a joint (for joints that are used in
+    // animations), and including them as part of the constructor then
+    // forces us to maintain an alternate path through the entire
+    // large-ish class hierarchy of joint types. The only reason they
+    // are still here now is to avoid breaking the baking service
+    // (appearanceutility) builds; these constructors are not used in
+    // the viewer.  Once the appearance utility is updated to remove
+    // these joint num references, which it shouldn't ever need, from
+    // its own classes, we can also remove all the joint_num
+    // constructors from LLJoint, LLViewerJoint, LLAvatarJoint, and
+    // createAvatarJoint.
+    LLJoint(S32 joint_num);
     
 	// *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
 	LLJoint( const std::string &name, LLJoint *parent=NULL );

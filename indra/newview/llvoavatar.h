@@ -356,6 +356,7 @@ protected:
 
 protected:
 	/*virtual*/ LLAvatarJoint*	createAvatarJoint(); // Returns LLViewerJoint
+	/*virtual*/ LLAvatarJoint*	createAvatarJoint(S32 joint_num); // Returns LLViewerJoint
 	/*virtual*/ LLAvatarJointMesh*	createAvatarJointMesh(); // Returns LLViewerJointMesh
 public:
 	void				updateHeadOffset();
