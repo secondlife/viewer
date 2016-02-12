@@ -2468,7 +2468,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = message;
 	
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			// add to IM panel, but do not bother the user
 			gIMMgr->addMessage(
@@ -2517,7 +2517,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			buffer = saved + message;
 
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
 			if(accept_im_from_only_friend && !is_friend && !is_linden)
@@ -2982,7 +2982,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = message;
 	
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "message in dnd; session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			// add to IM panel, but do not bother the user
 			gIMMgr->addMessage(
@@ -3009,7 +3009,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = saved + message;
 
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "standard message session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			gIMMgr->addMessage(
 				session_id,

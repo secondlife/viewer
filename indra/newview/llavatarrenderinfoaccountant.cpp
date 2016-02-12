@@ -311,7 +311,7 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
 				}
 				else
 				{
-					LL_INFOS("AvatarRenderInfo") << "Sent render costs for " << num_avs
+					LL_DEBUGS("AvatarRenderInfo") << "Sent render costs for " << num_avs
 												 << " avatars to region " << regionp->getName()
 												 << LL_ENDL;
 
@@ -356,7 +356,7 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
 																 handler);
 			if (LLCORE_HTTP_HANDLE_INVALID != handle)
 			{
-				LL_INFOS("AvatarRenderInfo") << "Requested avatar render info for region "
+				LL_DEBUGS("AvatarRenderInfo") << "Requested avatar render info for region "
 											 << regionp->getName() 
 											 << LL_ENDL;
 			}

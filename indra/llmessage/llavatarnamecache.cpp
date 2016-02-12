@@ -355,7 +355,7 @@ void LLAvatarNameCache::requestNamesViaCapability()
 
 	if (!url.empty())
 	{
-		LL_INFOS("AvNameCache") << "LLAvatarNameCache::requestNamesViaCapability getting " << ids << " ids" << LL_ENDL;
+		LL_DEBUGS("AvNameCache") << " getting " << ids << " ids" << LL_ENDL;
 		LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
 	}
 }

@@ -89,7 +89,7 @@ void LLWaterParamManager::loadAllPresets()
 
 void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 {
-	LL_INFOS("AppInit", "Shaders") << "Loading water presets from " << dir << LL_ENDL;
+	LL_DEBUGS("AppInit", "Shaders") << "Loading water presets from " << dir << LL_ENDL;
 
 	LLDirIterator dir_iter(dir, "*.xml");
 	while (1)
