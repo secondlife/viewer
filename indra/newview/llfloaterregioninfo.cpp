@@ -232,6 +232,11 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel->buildFromFile("panel_region_debug.xml");
 	mTab->addTabPanel(panel);
 
+	if(gDisconnected)
+	{
+		return TRUE;
+	}
+
 	if(!gAgent.getRegion()->getCapability("RegionExperiences").empty())
 	{
 		panel = new LLPanelRegionExperiences;
@@ -255,6 +260,11 @@ LLFloaterRegionInfo::~LLFloaterRegionInfo()
 
 void LLFloaterRegionInfo::onOpen(const LLSD& key)
 {
+	if(gDisconnected)
+	{
+		disableTabCtrls();
+		return;
+	}
 	refreshFromRegion(gAgent.getRegion());
 	requestRegionInfo();
 	requestMeshRezInfo();
@@ -478,7 +488,16 @@ LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
 	return (LLPanelRegionExperiences*)tab->getChild<LLPanel>("Experiences");
 }
 
+void LLFloaterRegionInfo::disableTabCtrls()
+{
+	LLTabContainer* tab = getChild<LLTabContainer>("region_panels");
 
+	tab->getChild<LLPanel>("General")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("panel_env_info")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(FALSE);
+}
 
 void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
 {
@@ -3129,6 +3148,11 @@ bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
 
 void LLPanelEnvironmentInfo::refresh()
 {
+	if(gDisconnected)
+	{
+		return;
+	}
+
 	populateWaterPresetsList();
 	populateSkyPresetsList();
 	populateDayCyclesList();
