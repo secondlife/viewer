@@ -1766,7 +1766,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		this,
 		mJointTransformMap,
 		mJointsFromNode,
-		gSavedSettings.getU32("ImporterModelLimit"));
+		gSavedSettings.getU32("ImporterModelLimit"),
+		gSavedSettings.getBOOL("ImporterPreprocessDAE"));
 
 	if (force_disable_slm)
 	{

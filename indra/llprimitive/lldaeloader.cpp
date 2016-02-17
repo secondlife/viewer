@@ -816,7 +816,8 @@ LLDAELoader::LLDAELoader(
 	void*						opaque_userdata,
 	JointTransformMap&	jointMap,
 	JointSet&				jointsFromNodes,
-	U32					modelLimit)
+	U32					modelLimit,
+	bool					preprocess)
 : LLModelLoader(
 		filename,
 		lod,
@@ -827,7 +828,8 @@ LLDAELoader::LLDAELoader(
 		opaque_userdata,
 		jointMap,
 		jointsFromNodes),
-mGeneratedModelLimit(modelLimit)
+mGeneratedModelLimit(modelLimit),
+mPreprocessDAE(preprocess)
 {
 }
 
@@ -851,9 +853,16 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 {
 	//no suitable slm exists, load from the .dae file
 	DAE dae;
-	
-	std::string fileURI = "from memory"; // set to a null device
-	domCOLLADA* dom = dae.openFromMemory(fileURI, preprocessDAE(filename).c_str());
+	domCOLLADA* dom;
+	if (mPreprocessDAE)
+	{
+		dom = dae.openFromMemory(filename, preprocessDAE(filename).c_str());
+	}
+	else
+	{
+		LL_INFOS() << "Skipping dae preprocessing" << LL_ENDL;
+		dom = dae.open(filename);
+	}
 	
 	if (!dom)
 	{
@@ -881,7 +890,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	
 	daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
 	
-	daeDocument* doc = dae.getDoc(fileURI);
+	daeDocument* doc = dae.getDoc(filename);
 	if (!doc)
 	{
 		LL_WARNS() << "can't find internal doc" << LL_ENDL;

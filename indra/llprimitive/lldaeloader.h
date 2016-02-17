@@ -56,7 +56,8 @@ public:
 		void*											opaque_userdata,
 		JointTransformMap&						jointMap,
 		JointSet&									jointsFromNodes,
-		U32									modelLimit);
+		U32									modelLimit,
+		bool									preprocess);
 	virtual ~LLDAELoader() ;
 
 	virtual bool OpenFile(const std::string& filename);
@@ -104,6 +105,7 @@ protected:
 
 private:
 	U32 mGeneratedModelLimit; // Attempt to limit amount of generated submodels
+	bool mPreprocessDAE;
 
 };
 #endif  // LL_LLDAELLOADER_H
