@@ -851,9 +851,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 {
 	//no suitable slm exists, load from the .dae file
 	DAE dae;
-	
-	std::string fileURI = "from memory"; // set to a null device
-	domCOLLADA* dom = dae.openFromMemory(fileURI, preprocessDAE(filename).c_str());
+	domCOLLADA* dom = dae.openFromMemory(filename, preprocessDAE(filename).c_str());
 	
 	if (!dom)
 	{
@@ -881,7 +879,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 	
 	daeInt count = db->getElementCount(NULL, COLLADA_TYPE_MESH);
 	
-	daeDocument* doc = dae.getDoc(fileURI);
+	daeDocument* doc = dae.getDoc(filename);
 	if (!doc)
 	{
 		LL_WARNS() << "can't find internal doc" << LL_ENDL;
