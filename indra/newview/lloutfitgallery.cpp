@@ -52,11 +52,14 @@ static LLOutfitGallery* gOutfitGallery = NULL;
 LLOutfitGallery::LLOutfitGallery()
     : LLOutfitListBase(),
       mTexturesObserver(NULL),
+      mOutfitsObserver(NULL),
       mScrollPanel(NULL),
       mGalleryPanel(NULL),
       galleryCreated(false),
       mRowCount(0),
-      mItemsAddedCount(0)
+      mItemsAddedCount(0),
+      mPhotoLinkPending(NULL),
+      mOutfitLinkPending(NULL)
 {
 }
 
@@ -342,6 +345,23 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     {
         addToGallery(item);
     }
+
+    LLViewerInventoryCategory* outfit_category = gInventory.getCategory(cat_id);
+    if (!outfit_category)
+        return;
+
+    if (mOutfitsObserver == NULL)
+    {
+        mOutfitsObserver = new LLInventoryCategoriesObserver();
+        gInventory.addObserver(mOutfitsObserver);
+    }
+
+    // Start observing changes in "My Outits" category.
+    mOutfitsObserver->addCategory(cat_id,
+        boost::bind(&LLOutfitGallery::refreshOutfit, this, cat_id));
+
+    outfit_category->fetch();
+    refreshOutfit(cat_id);
 }
 
 void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
@@ -349,6 +369,9 @@ void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
     outfit_map_t::iterator outfits_iter = mOutfitMap.find(cat_id);
     if (outfits_iter != mOutfitMap.end())
     {
+        // 0. Remove category from observer.
+        mOutfitsObserver->removeCategory(cat_id);
+
         //const LLUUID& outfit_id = outfits_iter->first;
         LLOutfitGalleryItem* item = outfits_iter->second;
 
@@ -361,6 +384,8 @@ void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
 
         // 4. Remove outfit from gallery.
         removeFromGalleryMiddle(item);
+
+
 
         // kill removed item
         if (item != NULL)
@@ -573,22 +598,55 @@ void LLOutfitGallery::loadPhotos()
 {
     //Iterate over inventory
     LLUUID textures = gInventory.findCategoryUUIDForType(LLFolderType::EType::FT_TEXTURE);
-    LLViewerInventoryCategory* category = gInventory.getCategory(textures);
-    if (!category)
+    LLViewerInventoryCategory* textures_category = gInventory.getCategory(textures);
+    if (!textures_category)
         return;
-
     if (mTexturesObserver == NULL)
     {
         mTexturesObserver = new LLInventoryCategoriesObserver();
         gInventory.addObserver(mTexturesObserver);
     }
 
-    // Start observing changes in "My Outfits" category.
+    // Start observing changes in "Textures" category.
     mTexturesObserver->addCategory(textures,
         boost::bind(&LLOutfitGallery::refreshTextures, this, textures));
+    
+    textures_category->fetch();
+}
 
-    category->fetch();
-    refreshTextures(textures);
+void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
+{
+    LLViewerInventoryCategory* category = gInventory.getCategory(category_id);
+    {
+        std::string outfit_name = category->getName();
+        bool photo_loaded = false;
+        LL_WARNS() << "Outfit name:" << outfit_name << LL_ENDL;
+        LLInventoryModel::cat_array_t sub_cat_array;
+        LLInventoryModel::item_array_t outfit_item_array;
+        // Collect all sub-categories of a given category.
+        gInventory.collectDescendents(
+            category->getUUID(),
+            sub_cat_array,
+            outfit_item_array,
+            LLInventoryModel::EXCLUDE_TRASH);
+        BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+        {
+            LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
+            if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            {
+                std::string texture_name = linked_item->getName();
+                LL_WARNS() << "Texture name:" << texture_name << LL_ENDL;
+                LLUUID asset_id = linked_item->getAssetUUID();
+                mOutfitMap[category_id]->setImageAssetId(asset_id);
+                photo_loaded = true;
+                break;
+            }
+            if (!photo_loaded)
+            {
+                mOutfitMap[category_id]->setDefaultImage();
+            }
+        }
+    }
 }
 
 void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
@@ -607,85 +665,44 @@ void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
 
     //Find textures which contain outfit UUID string in description
     LLInventoryModel::item_array_t uploaded_item_array;
+    LLViewerInventoryItem* photo_upload_item = NULL;
     BOOST_FOREACH(LLViewerInventoryItem* item, item_array)
     {
         std::string desc = item->getDescription();
+        std::string name = item->getName();
 
-        LLUUID outfit_id(desc);
-
-        //Check whether description contains correct UUID of outfit
-        if (outfit_id.isNull())
-            continue;
-
-        outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);
-        if (outfit_it != mOutfitMap.end() && !outfit_it->first.isNull())
+        if (name == getString("photo_upload_pending_string"))
         {
-            uploaded_item_array.push_back(item);
+            photo_upload_item = item;
+            break;
         }
     }
 
-    uuid_vec_t vadded;
-    uuid_vec_t vremoved;
-
-    // Create added and removed items vectors.
-    computeDifferenceOfTextures(uploaded_item_array, vadded, vremoved);
-
-    BOOST_FOREACH(LLUUID item_id, vadded)
+    if (!mPhotoLinkPending.isNull() && photo_upload_item != NULL)
     {
-        LLViewerInventoryItem* added_item = gInventory.getItem(item_id);
-        LLUUID asset_id = added_item->getAssetUUID();
-        std::string desc = added_item->getDescription();
-        LLUUID outfit_id(desc);
-        mOutfitMap[outfit_id]->setImageAssetId(asset_id);
-        mTextureMap[outfit_id] = added_item;
-    }
-
-    BOOST_FOREACH(LLUUID item_id, vremoved)
-    {
-        LLViewerInventoryItem* rm_item = gInventory.getItem(item_id);
-        std::string desc = rm_item->getDescription();
-        LLUUID outfit_id(desc);
-        mOutfitMap[outfit_id]->setDefaultImage();
-        mTextureMap.erase(outfit_id);
-    }
-
-    /*
-    LLInventoryModel::item_array_t::const_iterator it = item_array.begin();
-    for ( ; it != item_array.end(); it++)
-    {
-        LLViewerInventoryItem* item = (*it);
-        LLUUID asset_id = item->getAssetUUID();
-
-        std::string desc = item->getDescription();
-
-        LLUUID outfit_id(desc);
-
-        //Check whether description contains correct UUID of outfit
-        if (outfit_id.isNull())
-            continue;
-
-        outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);
-        if (outfit_it != mOutfitMap.end() && !outfit_it->first.isNull())
+        LLUUID upload_pending_id = photo_upload_item->getUUID();
+        LLInventoryObject* upload_object = gInventory.getObject(upload_pending_id);
+        if (!upload_object)
         {
-            outfit_it->second->setImageAssetId(asset_id);
-            mTextureMap[outfit_id] = item;
+            LL_WARNS() << "LLOutfitGallery::refreshTextures added_object is null!" << LL_ENDL;
         }
+        else
+        {
+            LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(mOutfitLinkPending);
+            linkPhotoToOutfit(upload_pending_id, mOutfitLinkPending);
 
-        
-        //LLUUID* item_idp = new LLUUID();
+            LLStringUtil::format_map_t photo_string_args;
+            photo_string_args["OUTFIT_NAME"] = outfit_cat->getName();
+            std::string new_name = getString("outfit_photo_string", photo_string_args);
 
-        //gOutfitGallery = this;
-        //const BOOL high_priority = TRUE;
-        //gAssetStorage->getAssetData(asset_id,
-        //    LLAssetType::AT_TEXTURE,
-        //    onLoadComplete,
-        //    (void**)item_idp,
-        //    high_priority);
-        //
-        ////mAssetStatus = PREVIEW_ASSET_LOADING;
-        
+            LLSD updates;
+            updates["name"] = new_name;
+            update_inventory_item(upload_pending_id, updates, NULL);
+
+        }
+        mPhotoLinkPending.setNull();
+        mOutfitLinkPending.setNull();
     }
-    */
 }
 
 void LLOutfitGallery::onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status)
@@ -701,6 +718,11 @@ void LLOutfitGallery::onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid, LLAss
     if (it != gOutfitGallery->mOutfitMap.end() && !it->first.isNull())
     {
     }
+}
+
+void LLGalleryPhotoStoreCallback(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status)
+{
+    LL_WARNS() << "Photo stored as asset. UUID:" << asset_id.asString() << LL_ENDL;
 }
 
 void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
@@ -720,7 +742,7 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
         if (unit->getValid())
         {
             add_successful = true;
-            LLAssetStorage::LLStoreAssetCallback callback = NULL;
+            //LLAssetStorage::LLStoreAssetCallback callback = &LLGalleryPhotoStoreCallback;
             S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
             void *nruserdata = NULL;
             nruserdata = (void *)&outfit_id;
@@ -732,21 +754,28 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
             if (!outfit_cat) return;
 
             checkRemovePhoto(outfit_id);
+            
+            std::string upload_pending_name = getString("photo_upload_pending_string");
 
-            LLStringUtil::format_map_t photo_string_args;
-            photo_string_args["OUTFIT_NAME"] = outfit_cat->getName();
-            std::string display_name = getString("outfit_photo_string", photo_string_args);
-
-            upload_new_resource(filename, // file
-                display_name,
+            LLUUID photo_id = upload_new_resource(filename, // file
+                upload_pending_name,
                 outfit_id.asString(),
                 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
-                display_name, callback, expected_upload_cost, nruserdata);
+                upload_pending_name, &LLGalleryPhotoStoreCallback, expected_upload_cost, nruserdata);
+
+            mPhotoLinkPending = photo_id;
+            mOutfitLinkPending = outfit_id;
         }
     }
+}
+
+void LLOutfitGallery::linkPhotoToOutfit(LLUUID photo_id, LLUUID outfit_id)
+{
+    LLPointer<LLInventoryCallback> cb = new LLUpdateGalleryOnPhotoUpload();
+    link_inventory_object(outfit_id, photo_id, cb);
 }
 
 bool LLOutfitGallery::checkRemovePhoto(LLUUID outfit_id)
@@ -771,7 +800,7 @@ void LLOutfitGallery::computeDifferenceOfTextures(
     uuid_vec_t& vremoved)
 {
     uuid_vec_t vnew;
-    // Creating a vector of newly collected sub-categories UUIDs.
+    // Creating a vector of newly collected texture UUIDs.
     for (LLInventoryModel::item_array_t::const_iterator iter = vtextures.begin();
         iter != vtextures.end();
         iter++)

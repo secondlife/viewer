@@ -42,6 +42,16 @@ class LLOutfitGalleryItem;
 class LLOutfitListGearMenuBase;
 class LLOutfitGalleryGearMenu;
 
+class LLUpdateGalleryOnPhotoUpload : public LLInventoryCallback
+{
+public:
+    LLUpdateGalleryOnPhotoUpload(){}
+    virtual ~LLUpdateGalleryOnPhotoUpload(){}
+    /* virtual */ void fire(const LLUUID& inv_item){}
+private:
+};
+
+
 class LLOutfitGallery : public LLOutfitListBase
 {
 public:
@@ -65,6 +75,7 @@ public:
     /*virtual*/ bool getHasExpandableFolders() { return FALSE; }
 
     void refreshTextures(const LLUUID& category_id);
+    void refreshOutfit(const LLUUID& category_id);
     void computeDifferenceOfTextures(const LLInventoryModel::item_array_t& vtextures, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
 protected:
@@ -80,6 +91,7 @@ protected:
 private:
     void loadPhotos();
     void uploadPhoto(LLUUID outfit_id);
+    void linkPhotoToOutfit(LLUUID outfit_id, LLUUID photo_id);
     bool checkRemovePhoto(LLUUID outfit_id);
     void setUploadedPhoto(LLUUID outfit_id, LLUUID asset_id);
     void addToGallery(LLOutfitGalleryItem* item);
@@ -110,6 +122,8 @@ private:
     LLScrollContainer* mScrollPanel;
     LLPanel* mGalleryPanel;
     LLPanel* mLastRowStack;
+    LLUUID mPhotoLinkPending;
+    LLUUID mOutfitLinkPending;
     bool galleryCreated;
     int mRowCount;
     int mItemsAddedCount;
@@ -126,7 +140,7 @@ private:
 
 
     LLInventoryCategoriesObserver* 	mTexturesObserver;
-
+    LLInventoryCategoriesObserver* 	mOutfitsObserver;
 };
 
 //static LLOutfitGallery* gOutfitGallery;
