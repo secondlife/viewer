@@ -367,6 +367,8 @@ Dimitrio Lewis
 Dirk
 Draconis Neurocam
 	STORM-1259
+Drake Arconis
+	MAINT-6107
 Drew Dri
 	VWR-19683
 Drew Dwi
@@ -769,6 +771,9 @@ Kitty Barnett
     VWR-24217
 	STORM-1804
 	MAINT-5416
+	MAINT-6041
+	MAINT-6142
+	MAINT-6144
 Kolor Fall
 Komiko Okamoto
 Korvel Noh
