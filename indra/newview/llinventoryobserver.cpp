@@ -306,6 +306,12 @@ void LLInventoryFetchItemsObserver::startFetch()
 			continue;
 		}
 
+		if ((*it).isNull())
+		{
+			LL_WARNS("Inventory") << "Skip fetching for a NULL uuid" << LL_ENDL;
+			continue;
+		}
+
 		// It's incomplete, so put it on the incomplete container, and
 		// pack this on the message.
 		mIncomplete.push_back(*it);

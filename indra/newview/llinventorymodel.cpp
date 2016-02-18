@@ -3418,6 +3418,11 @@ void LLInventoryModel::removeCategory(const LLUUID& category_id)
 
 void LLInventoryModel::removeObject(const LLUUID& object_id)
 {
+	if(object_id.isNull())
+	{
+		return;
+	}
+
 	LLInventoryObject* obj = getObject(object_id);
 	if (dynamic_cast<LLViewerInventoryItem*>(obj))
 	{
