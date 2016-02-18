@@ -133,7 +133,8 @@ public:
 	/*virtual*/ const LLUUID& getID() const { return mID; }
 	void setBoostLevel(S32 level);
 	S32  getBoostLevel() { return mBoostLevel; }
-	bool isUITexture();
+	void setTextureListType(S32 tex_type) { mTextureListType = tex_type; }
+	S32 getTextureListType() { return mTextureListType; }
 
 	void addTextureStats(F32 virtual_size, BOOL needs_gltexture = TRUE) const;
 	void resetTextureStats();	
@@ -187,6 +188,8 @@ private:
 	static bool isMemoryForTextureLow() ;
 protected:
 	LLUUID mID;
+	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
+
 	F32 mSelectedTime;				// time texture was last selected
 	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?	
 	mutable S32  mMaxVirtualSizeResetCounter ;
@@ -630,7 +633,7 @@ public:
 	//
 	static void                       findFetchedTextures(const LLUUID& id, std::vector<LLViewerFetchedTexture*> &output);
 	static void                       findTextures(const LLUUID& id, std::vector<LLViewerTexture*> &output);
-	static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id, bool is_ui);
+	static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id, S32 tex_type);
 	static LLViewerMediaTexture*      findMediaTexture(const LLUUID& id) ;
 	
 	static LLViewerMediaTexture*      createMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;
