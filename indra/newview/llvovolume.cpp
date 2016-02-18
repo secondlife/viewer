@@ -2115,6 +2115,8 @@ bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
 	for(mmap_UUID_MAP_t::iterator range_it = range.first; range_it != range.second; ++range_it)
 	{
 		LLMaterialPtr cur_material = getTEMaterialParams(range_it->second.te);
+		if (cur_material.isNull())
+			continue;
 
 		switch(range_it->second.map)
 		{
@@ -3902,7 +3904,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
 	if (mDrawable->isState(LLDrawable::RIGGED))
 	{
-		if ((pick_rigged) || ((getAvatar()->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
+		if ((pick_rigged) || (getAvatar() && (getAvatar()->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
 		{
 			updateRiggedVolume(true);
 			volume = mRiggedVolume;
