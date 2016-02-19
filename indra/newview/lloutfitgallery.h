@@ -122,7 +122,6 @@ private:
     LLScrollContainer* mScrollPanel;
     LLPanel* mGalleryPanel;
     LLPanel* mLastRowStack;
-    LLUUID mPhotoLinkPending;
     LLUUID mOutfitLinkPending;
     bool galleryCreated;
     int mRowCount;

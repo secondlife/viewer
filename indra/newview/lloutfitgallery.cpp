@@ -58,7 +58,6 @@ LLOutfitGallery::LLOutfitGallery()
       galleryCreated(false),
       mRowCount(0),
       mItemsAddedCount(0),
-      mPhotoLinkPending(NULL),
       mOutfitLinkPending(NULL)
 {
 }
@@ -618,9 +617,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
 {
     LLViewerInventoryCategory* category = gInventory.getCategory(category_id);
     {
-        std::string outfit_name = category->getName();
         bool photo_loaded = false;
-        LL_WARNS() << "Outfit name:" << outfit_name << LL_ENDL;
         LLInventoryModel::cat_array_t sub_cat_array;
         LLInventoryModel::item_array_t outfit_item_array;
         // Collect all sub-categories of a given category.
@@ -634,8 +631,6 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
             LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
             if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
             {
-                std::string texture_name = linked_item->getName();
-                LL_WARNS() << "Texture name:" << texture_name << LL_ENDL;
                 LLUUID asset_id = linked_item->getAssetUUID();
                 mOutfitMap[category_id]->setImageAssetId(asset_id);
                 photo_loaded = true;
@@ -663,22 +658,19 @@ void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
         LLInventoryModel::EXCLUDE_TRASH,
         is_texture);
 
-    //Find textures which contain outfit UUID string in description
-    LLInventoryModel::item_array_t uploaded_item_array;
+    //Find texture which contain outfit ID string in name
     LLViewerInventoryItem* photo_upload_item = NULL;
     BOOST_FOREACH(LLViewerInventoryItem* item, item_array)
     {
-        std::string desc = item->getDescription();
         std::string name = item->getName();
-
-        if (name == getString("photo_upload_pending_string"))
+        if (!mOutfitLinkPending.isNull() && name == mOutfitLinkPending.asString())
         {
             photo_upload_item = item;
             break;
         }
     }
 
-    if (!mPhotoLinkPending.isNull() && photo_upload_item != NULL)
+    if (photo_upload_item != NULL)
     {
         LLUUID upload_pending_id = photo_upload_item->getUUID();
         LLInventoryObject* upload_object = gInventory.getObject(upload_pending_id);
@@ -700,7 +692,6 @@ void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
             update_inventory_item(upload_pending_id, updates, NULL);
 
         }
-        mPhotoLinkPending.setNull();
         mOutfitLinkPending.setNull();
     }
 }
@@ -733,7 +724,6 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
         return;
     }
 
-    bool add_successful = false;
     LLFilePicker& picker = LLFilePicker::instance();
     if (picker.getOpenFile(LLFilePicker::FFLOAD_IMAGE))
     {
@@ -741,22 +731,15 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
         LLLocalBitmap* unit = new LLLocalBitmap(filename);
         if (unit->getValid())
         {
-            add_successful = true;
-            //LLAssetStorage::LLStoreAssetCallback callback = &LLGalleryPhotoStoreCallback;
             S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
             void *nruserdata = NULL;
             nruserdata = (void *)&outfit_id;
 
-            LL_WARNS() << "selected_outfit_id: " << outfit_id.asString() << LL_ENDL;
-
-            //LLViewerInventoryItem *outfit = gInventory.getItem(selected_outfit_id);
             LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(outfit_id);
             if (!outfit_cat) return;
 
             checkRemovePhoto(outfit_id);
-            
-            std::string upload_pending_name = getString("photo_upload_pending_string");
-
+            std::string upload_pending_name = outfit_id.asString();
             LLUUID photo_id = upload_new_resource(filename, // file
                 upload_pending_name,
                 outfit_id.asString(),
@@ -765,8 +748,6 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
                 upload_pending_name, &LLGalleryPhotoStoreCallback, expected_upload_cost, nruserdata);
-
-            mPhotoLinkPending = photo_id;
             mOutfitLinkPending = outfit_id;
         }
     }

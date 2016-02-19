@@ -10,9 +10,6 @@
    left="0"
    top="0"
    width="312">
-  <string name="photo_upload_pending_string">
-    Photo upload pending...
-  </string>
   <string name="outfit_photo_string">
     Photo of "[OUTFIT_NAME]" outfit
   </string>
