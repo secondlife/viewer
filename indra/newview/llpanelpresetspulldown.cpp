@@ -89,14 +89,18 @@ void LLPanelPresetsPulldown::populatePanel()
 			row["columns"][0]["column"] = "preset_name";
 			row["columns"][0]["value"] = name;
 
+			bool is_selected_preset = false;
 			if (name == gSavedSettings.getString("PresetGraphicActive"))
 			{
 				row["columns"][1]["column"] = "icon";
 				row["columns"][1]["type"] = "icon";
 				row["columns"][1]["value"] = "Check_Mark";
+
+				is_selected_preset = true;
 			}
 
-			scroll->addElement(row);
+			LLScrollListItem* new_item = scroll->addElement(row);
+			new_item->setSelected(is_selected_preset);
 		}
 	}
 }
