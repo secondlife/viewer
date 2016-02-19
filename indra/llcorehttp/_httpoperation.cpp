@@ -179,6 +179,9 @@ HttpOperation::ptr_t HttpOperation::findByHandle(HttpHandle handle)
 {
     wptr_t weak;
 
+    if (!handle)
+        return ptr_t();
+
     {
         LLCoreInt::HttpScopedLock lock(mOpMutex);
 

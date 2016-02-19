@@ -301,7 +301,14 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 {
     HttpHandle ophandle(NULL);
 
-	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &ophandle);
+    CURLcode ccode(CURLE_OK);
+
+    ccode =	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &ophandle);
+    if (ccode)
+    {
+        LL_WARNS(LOG_CORE) << "libcurl error: " << ccode << " Unable to retrieve operation handle from CURL handle" << LL_ENDL;
+        return false;
+    }
     HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(ophandle));
     
     if (!op)
@@ -343,22 +350,36 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 
         if (handle)
         {
-            curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
-            if (http_status >= 100 && http_status <= 999)
+            ccode = curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
+            if (ccode == CURLE_OK)
             {
-                char * cont_type(NULL);
-                curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
-                if (cont_type)
+                if (http_status >= 100 && http_status <= 999)
                 {
-                    op->mReplyConType = cont_type;
+                    char * cont_type(NULL);
+                    ccode = curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
+                    if (ccode == CURLE_OK)
+                    {
+                        if (cont_type)
+                        {
+                            op->mReplyConType = cont_type;
+                        }
+                    }
+                    else
+                    {
+                        LL_WARNS(LOG_CORE) << "CURL error:" << ccode << " Attempting to get content type." << LL_ENDL;
+                    }
+                    op->mStatus = HttpStatus(http_status);
                 }
-                op->mStatus = HttpStatus(http_status);
+                else
+                {
+                    LL_WARNS(LOG_CORE) << "Invalid HTTP response code ("
+                        << http_status << ") received from server."
+                        << LL_ENDL;
+                    op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
+                }
             }
             else
             {
-                LL_WARNS(LOG_CORE) << "Invalid HTTP response code ("
-                    << http_status << ") received from server."
-                    << LL_ENDL;
                 op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
             }
         }

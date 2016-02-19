@@ -416,7 +416,7 @@ bool HttpPolicy::stageAfterCompletion(const HttpOpRequest::ptr_t &op)
 #if 0
 		if (op->mStatus == HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT))
 		{
-			LL_WARNS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+			LL_WARNS(LOG_CORE) << "HTTP request " << op->getHandle()
 							   << " timed out."
 							   << LL_ENDL;
 		}

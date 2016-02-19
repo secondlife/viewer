@@ -212,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89db4a1aa22599cf377ae49630b7b5b1</string>
+              <string>aaaedcd3b0b52b65181a64daa091fe10</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/Darwin/installer/curl-7.42.1.301717-darwin-301717.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/311279/arch/Darwin/installer/curl-7.47.0.311279-darwin-311279.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -224,9 +224,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de9e0c855ff6ee30c9e027a70bbef032</string>
+              <string>cfe7789e8f76c9781021ab1b9b4ec3c2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/Linux/installer/curl-7.42.1.301717-linux-301717.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/311279/arch/Linux/installer/curl-7.47.0.311279-linux-311279.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -236,16 +236,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>98d15713de8c439b7f54cc14f2df07ac</string>
+              <string>9109ad560200701443f9b41389044c38</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/CYGWIN/installer/curl-7.42.1.301717-windows-301717.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/311279/arch/CYGWIN/installer/curl-7.47.0.311279-windows-311279.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.42.1.301717</string>
+        <string>7.47.0.311279</string>
       </map>
       <key>db</key>
       <map>

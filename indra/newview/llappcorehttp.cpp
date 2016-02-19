@@ -125,7 +125,7 @@ LLAppCoreHttp::LLAppCoreHttp()
 	  mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
 	  mStopRequested(0.0),
 	  mStopped(false),
-	  mPipelined(false)
+	  mPipelined(true)
 {}
 
 
@@ -359,7 +359,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 	static const std::string http_pipelining("HttpPipelining");
 	if (gSavedSettings.controlExists(http_pipelining))
 	{
-		// Default to false (in ctor) if absent.
+		// Default to true (in ctor) if absent.
 		bool pipelined(gSavedSettings.getBOOL(http_pipelining));
 		if (pipelined != mPipelined)
 		{
