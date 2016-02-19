@@ -59,6 +59,32 @@ typedef	void (*LLImageCallback)(BOOL success,
 								BOOL final,
 								void* userdata);
 
+enum ETexListType
+{
+    TEX_LIST_DISCARD = 0,
+    TEX_LIST_UI
+};
+
+struct LLTextureKey
+{
+    LLTextureKey();
+    LLTextureKey(LLUUID id, ETexListType tex_type);
+    LLUUID textureId;
+    ETexListType textureType;
+
+    friend bool operator<(const LLTextureKey& key1, const LLTextureKey& key2)
+    {
+        if (key1.textureId != key2.textureId)
+        {
+            return key1.textureId < key2.textureId;
+        }
+        else
+        {
+            return key1.textureType < key2.textureType;
+        }
+    }
+};
+
 class LLViewerTextureList
 {
 	friend class LLTextureView;
@@ -83,7 +109,9 @@ public:
 	void restoreGL();
 	BOOL isInitialized() const {return mInitialized;}
 
-	LLViewerFetchedTexture *findImage(const LLUUID &image_id);
+	void findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output);
+	LLViewerFetchedTexture *findImage(const LLUUID &image_id, ETexListType tex_type);
+	LLViewerFetchedTexture *findImage(const LLTextureKey &search_key);
 
 	void dirtyImage(LLViewerFetchedTexture *image);
 	
@@ -120,7 +148,7 @@ private:
 	void updateImagesUpdateStats();
 	F32  updateImagesLoadingFastCache(F32 max_time);
 
-	void addImage(LLViewerFetchedTexture *image);
+	void addImage(LLViewerFetchedTexture *image, ETexListType tex_type);
 	void deleteImage(LLViewerFetchedTexture *image);
 
 	void addImageToList(LLViewerFetchedTexture *image);
@@ -184,10 +212,10 @@ public:
 	BOOL mForceResetTextureStats;
     
 private:
-	typedef std::map< LLUUID, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
-	uuid_map_t mUUIDMap;
-	LLUUID mLastUpdateUUID;
-	LLUUID mLastFetchUUID;
+    typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
+    uuid_map_t mUUIDMap;
+    LLTextureKey mLastUpdateKey;
+    LLTextureKey mLastFetchKey;
 	
 	typedef std::set<LLPointer<LLViewerFetchedTexture>, LLViewerFetchedTexture::Compare> image_priority_list_t;	
 	image_priority_list_t mImageList;
