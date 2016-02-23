@@ -134,9 +134,14 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 	presets = mPresetNames;
 }
 
-bool LLPresetsManager::savePreset(const std::string& subdirectory, const std::string& name)
+bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string name)
 {
-    bool saved = false;
+	if (LLTrans::getString(PRESETS_DEFAULT) == name)
+	{
+		name = PRESETS_DEFAULT;
+	}
+
+	bool saved = false;
 	std::vector<std::string> name_list;
 
 	if(PRESETS_GRAPHIC == subdirectory)
@@ -244,8 +249,13 @@ void LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 	}
 }
 
-void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::string& name)
+void LLPresetsManager::loadPreset(const std::string& subdirectory, std::string name)
 {
+	if (LLTrans::getString(PRESETS_DEFAULT) == name)
+	{
+		name = PRESETS_DEFAULT;
+	}
+
 	std::string full_path(getPresetsDir(subdirectory) + gDirUtilp->getDirDelimiter() + LLURI::escape(name) + ".xml");
 
     LL_DEBUGS() << "attempting to load preset '"<<name<<"' from '"<<full_path<<"'" << LL_ENDL;
@@ -270,8 +280,13 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, const std::st
     }
 }
 
-bool LLPresetsManager::deletePreset(const std::string& subdirectory, const std::string& name)
+bool LLPresetsManager::deletePreset(const std::string& subdirectory, std::string name)
 {
+	if (LLTrans::getString(PRESETS_DEFAULT) == name)
+	{
+		name = PRESETS_DEFAULT;
+	}
+
 	bool sts = true;
 
 	if (PRESETS_DEFAULT == name)
