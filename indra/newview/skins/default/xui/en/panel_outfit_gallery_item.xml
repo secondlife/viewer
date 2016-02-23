@@ -51,8 +51,9 @@
       layout="topleft"
       name="outfit_name"
       top="0"
-      width="150">
-      Summer hipster, Pierce
+      width="150"
+      use_ellipses="true">
+      Summer hipster, Pierce Pierce Pierce Pierce
     </text>
     <text
       read_only="true"
