@@ -1550,9 +1550,18 @@ void LLModelPreview::rebuildUploadData()
 					}
 					instance.mLOD[i] = lod_model;
 				}
-				else if (importerDebug)
+				else
 				{
-					LL_INFOS() << "List of models does not include " << instance.mLabel << LL_ENDL;
+					if (i < LLModel::LOD_HIGH && !lodsReady())
+					{
+						// assign a placeholder from previous LOD until lod generation is complete.
+						// Note: we might need to assign it regardless of conditions like named search does, to prevent crashes.
+						instance.mLOD[i] = instance.mLOD[i + 1];
+					}
+					if (importerDebug)
+					{
+						LL_INFOS() << "List of models does not include " << instance.mLabel << LL_ENDL;
+					}
 				}
 			}
 
