@@ -596,7 +596,7 @@ void LLOutfitGalleryGearMenu::onLoadAssets()
 void LLOutfitGallery::loadPhotos()
 {
     //Iterate over inventory
-    LLUUID textures = gInventory.findCategoryUUIDForType(LLFolderType::EType::FT_TEXTURE);
+    LLUUID textures = gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE);
     LLViewerInventoryCategory* textures_category = gInventory.getCategory(textures);
     if (!textures_category)
         return;
