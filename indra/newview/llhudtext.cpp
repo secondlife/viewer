@@ -384,11 +384,21 @@ void LLHUDText::updateVisibility()
 		mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
 	}
 
-	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
+	if (!mTextSegments.size())
+	{
+		mVisible = FALSE;
+		return;
+	}
 
+	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
 	F32 obj_dist = dist_vec(mSourceObject->getPositionEdit(), LLViewerCamera::getInstance()->getOrigin());
 
-	if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)) || (obj_dist > MAX_DRAW_DISTANCE))
+	if(mSourceObject->isAttachment())
+	{
+		LLViewerObject* parent = (LLViewerObject*)mSourceObject->getRoot();
+		obj_dist = dist_vec(parent->getPositionEdit(), LLViewerCamera::getInstance()->getOrigin());
+	}
+	if ((mDoFade && (mLastDistance > mFadeDistance + mFadeRange)) || (obj_dist > MAX_DRAW_DISTANCE))
 	{
 		mVisible = FALSE;
 		return;
