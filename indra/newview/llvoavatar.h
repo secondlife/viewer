@@ -387,7 +387,8 @@ public:
 
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
-	bool		isVisuallyMuted() const;
+	bool		isVisuallyMuted();
+	bool 		isInMuteList();
 	void		forceUpdateVisualMuteSettings();
 
 	enum VisualMuteSettings
@@ -426,6 +427,8 @@ public:
 	mutable bool mVisualComplexityStale;
 	U32          mReportedVisualComplexity; // from other viewers through the simulator
 
+	bool		mCachedInMuteList;
+	F64			mCachedMuteListUpdateTime;
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 

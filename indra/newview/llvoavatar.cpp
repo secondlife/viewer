@@ -717,7 +717,9 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mIsEditingAppearance(FALSE),
 	mUseLocalAppearance(FALSE),
 	mLastUpdateRequestCOFVersion(-1),
-	mLastUpdateReceivedCOFVersion(-1)
+	mLastUpdateReceivedCOFVersion(-1),
+	mCachedMuteListUpdateTime(0),
+	mCachedInMuteList(false)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
@@ -2732,7 +2734,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 	else
 	{
-		is_muted = LLMuteList::getInstance()->isMuted(getID());
+		is_muted = isInMuteList();
 	}
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 	bool is_cloud = getIsCloud();
@@ -3086,7 +3088,7 @@ void LLVOAvatar::slamPosition()
 	mRoot->updateWorldMatrixChildren();
 }
 
-bool LLVOAvatar::isVisuallyMuted() const
+bool LLVOAvatar::isVisuallyMuted()
 {
 	bool muted = false;
 
@@ -3105,7 +3107,7 @@ bool LLVOAvatar::isVisuallyMuted() const
 		{	// Always want to see this AV as an impostor
 			muted = true;
 		}
-        else if (LLMuteList::getInstance()->isMuted(getID()))
+        else if (isInMuteList())
         {
             muted = true;
         }
@@ -3115,6 +3117,25 @@ bool LLVOAvatar::isVisuallyMuted() const
 		}
 	}
 
+	return muted;
+}
+
+bool LLVOAvatar::isInMuteList()
+{
+	bool muted = false;
+	F64 now = LLFrameTimer::getTotalSeconds();
+	if (now < mCachedMuteListUpdateTime)
+	{
+		muted = mCachedInMuteList;
+	}
+	else
+	{
+		muted = LLMuteList::getInstance()->isMuted(getID());
+
+		const F64 SECONDS_BETWEEN_MUTE_UPDATES = 1;
+		mCachedMuteListUpdateTime = now + SECONDS_BETWEEN_MUTE_UPDATES;
+		mCachedInMuteList = muted;
+	}
 	return muted;
 }
 
