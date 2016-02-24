@@ -240,7 +240,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	
 	//  gMuteListp isn't set up at this point, so we defer this until later.
 //	gMuteListp->addObserver(&mutelist_listener);
-	
+
 	
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// HACK: THIS DOES NOT BELONG HERE
@@ -963,6 +963,7 @@ bool LLVivoxVoiceClient::loginToVivox()
 
     // Set the initial state of mic mute, local speaker volume, etc.
     sendLocalAudioUpdates();
+    mIsLoggingIn = false;
 
     return true;
 }
@@ -1373,7 +1374,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             retrieveVoiceFonts();
 
             // Request the set of available voice fonts.
-            refreshVoiceEffectLists(true);
+            refreshVoiceEffectLists(false);
         }
 
 #if USE_SESSION_GROUPS			
@@ -5649,52 +5650,7 @@ void LLVivoxVoiceClient::predAvatarNameResolution(const LLVivoxVoiceClient::sess
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)
 {
-#if 1
     sessionState::for_each(boost::bind(predAvatarNameResolution, _1, id, name));
-#else
-	// Iterate over all sessions.
-	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
-	{
-        sessionStatePtr_t session(*iter);
-		// Check for this user as a participant in this session
-        participantStatePtr_t participant(session->findParticipantByID(id));
-		if(participant)
-		{
-			// Found -- fill in the name
-			participant->mAccountName = name;
-			// and post a "participants updated" message to listeners later.
-			session->mParticipantsChanged = true;
-		}
-		
-		// Check whether this is a p2p session whose caller name just resolved
-		if(session->mCallerID == id)
-		{
-			// this session's "caller ID" just resolved.  Fill in the name.
-			session->mName = name;
-			if(session->mTextInvitePending)
-			{
-				session->mTextInvitePending = false;
-
-				// We don't need to call LLIMMgr::getInstance()->addP2PSession() here.  The first incoming message will create the panel.				
-			}
-			if(session->mVoiceInvitePending)
-			{
-				session->mVoiceInvitePending = false;
-
-				LLIMMgr::getInstance()->inviteToSession(
-										session->mIMSessionID,
-										session->mName,
-										session->mCallerID, 
-										session->mName, 
-										IM_SESSION_P2P_INVITE, 
-										LLIMMgr::INVITATION_TYPE_VOICE,
-										session->mHandle,
-										session->mSIPURI);
-			}
-			
-		}
-	}
-#endif
 }
 
 bool LLVivoxVoiceClient::setVoiceEffect(const LLUUID& id)
@@ -6271,30 +6227,29 @@ void LLVivoxVoiceClient::updateVoiceMorphingMenu()
 }
 void LLVivoxVoiceClient::notifyVoiceFontObservers()
 {
-	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
+    LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
 
-	updateVoiceMorphingMenu();
+    updateVoiceMorphingMenu();
 
-	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
-		 it != mVoiceFontObservers.end();
-		 )
-	{
-		LLVoiceEffectObserver* observer = *it;
-		observer->onVoiceEffectChanged(mVoiceFontListDirty);
-		// In case onVoiceEffectChanged() deleted an entry.
-		it = mVoiceFontObservers.upper_bound(observer);
-	}
-	mVoiceFontListDirty = false;
+    for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
+            it != mVoiceFontObservers.end();)
+    {
+        LLVoiceEffectObserver* observer = *it;
+        observer->onVoiceEffectChanged(mVoiceFontListDirty);
+        // In case onVoiceEffectChanged() deleted an entry.
+        it = mVoiceFontObservers.upper_bound(observer);
+    }
+    mVoiceFontListDirty = false;
 
 	// If new Voice Fonts have been added notify the user.
-	if (mVoiceFontsNew)
-	{
-		if(mVoiceFontsReceived)
-		{
-			LLNotificationsUtil::add("VoiceEffectsNew");
-		}
-		mVoiceFontsNew = false;
-	}
+    if (mVoiceFontsNew)
+    {
+        if (mVoiceFontsReceived)
+        {
+            LLNotificationsUtil::add("VoiceEffectsNew");
+        }
+        mVoiceFontsNew = false;
+    }
 }
 
 void LLVivoxVoiceClient::enablePreviewBuffer(bool enable)
