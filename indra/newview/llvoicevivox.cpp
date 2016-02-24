@@ -1253,7 +1253,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     mSpeakerVolumeDirty = true;
     mSpatialCoordsDirty = true;
 
-    sendPositionalUpdate();
+    sendPositionAndVolumeUpdate();
 
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINED);
 
@@ -1501,8 +1501,8 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
             }
             // Do the calculation that enforces the listener<->speaker tether (and also updates the real camera position)
             enforceTether();
-            sendPositionalUpdate();
         }
+        sendPositionAndVolumeUpdate();
 
         // Do notifications for expiring Voice Fonts.
         if (mVoiceFontExpiryTimer.hasExpired())
@@ -2443,15 +2443,15 @@ void LLVivoxVoiceClient::setHidden(bool hidden)
 {
     mHidden = hidden;
     
-    sendPositionalUpdate();
+    sendPositionAndVolumeUpdate();
     return;
 }
 
-void LLVivoxVoiceClient::sendPositionalUpdate(void)
+void LLVivoxVoiceClient::sendPositionAndVolumeUpdate(void)
 {	
 	std::ostringstream stream;
 	
-	if(mSpatialCoordsDirty)
+	if (mSpatialCoordsDirty && inSpatialChannel())
 	{
 		LLVector3 l, u, a, vel;
 		LLVector3d pos;
