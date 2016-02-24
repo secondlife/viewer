@@ -716,7 +716,8 @@ void LLViewerTexture::setBoostLevel(S32 level)
 	{
 		mBoostLevel = level;
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE && 
-			mBoostLevel != LLViewerTexture::BOOST_SELECTED)
+			mBoostLevel != LLViewerTexture::BOOST_SELECTED && 
+			mBoostLevel != LLViewerTexture::BOOST_ICON)
 		{
 			setNoDelete();		
 		}
