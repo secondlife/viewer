@@ -3354,123 +3354,154 @@ LLSD LLAppearanceMgr::dumpCOF() const
 
 void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
-    LLCoros::instance().launch("LLAppearanceMgr::serverAppearanceUpdateCoro",
-        boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this));
+    if (!mIsServerBakeOutstanding)
+    {
+        LLCoros::instance().launch("LLAppearanceMgr::serverAppearanceUpdateCoro",
+            boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this));
+    }
+    else
+    {
+        LL_WARNS("Avatar") << "Server bake request would overlap outstanding request " <<
+            " requesting new bake when ready." << LL_ENDL;
+        mNewServerBakeRequested = true;
+    }
 }
 
 void LLAppearanceMgr::serverAppearanceUpdateCoro()
 {
-    // If we have already received an update for this or higher cof version, ignore.
-    S32 cofVersion = getCOFVersion();
-    S32 lastRcv = gAgentAvatarp->mLastUpdateReceivedCOFVersion;
-    S32 lastReq = gAgentAvatarp->mLastUpdateRequestCOFVersion;
+    BoolSetter inFlight(mIsServerBakeOutstanding);
 
-    //----------------
-    // move out of coroutine
-    if (!gAgent.getRegion())
+    do
     {
-        LL_WARNS("Avatar") << "Region not set, cannot request server appearance update" << LL_ENDL;
-        return;
-    }
-    if (gAgent.getRegion()->getCentralBakeVersion() == 0)
-    {
-        LL_WARNS("Avatar") << "Region does not support baking" << LL_ENDL;
-    }
+#if 0
+        static int reqcount = 0;
+        int r_count = ++reqcount;
+        LL_WARNS("Avatar") << "START: Server Bake request #" << r_count << "!" << LL_ENDL;
+#endif
 
-    std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");
-    if (url.empty())
-    {
-        LL_WARNS("Agent") << "Could not retrieve region capability \"UpdateAvatarAppearance\"" << LL_ENDL;
-    }
+        // If we have already received an update for this or higher cof version, ignore.
+        S32 cofVersion = getCOFVersion();
+        S32 lastRcv = gAgentAvatarp->mLastUpdateReceivedCOFVersion;
+        S32 lastReq = gAgentAvatarp->mLastUpdateRequestCOFVersion;
 
-    //----------------
-    if (gAgentAvatarp->isEditingAppearance())
-    {
-        LL_WARNS("Avatar") << "Avatar editing appearance, not sending request." << LL_ENDL;
-        // don't send out appearance updates if in appearance editing mode
-        return;
-    }
+        mNewServerBakeRequested = false;
+        //----------------
+        // move out of coroutine
+        if (!gAgent.getRegion())
+        {
+            LL_WARNS("Avatar") << "Region not set, cannot request server appearance update" << LL_ENDL;
+            return;
+        }
+        if (gAgent.getRegion()->getCentralBakeVersion() == 0)
+        {
+            LL_WARNS("Avatar") << "Region does not support baking" << LL_ENDL;
+        }
 
-    LL_DEBUGS("Avatar") << "COF version=" << cofVersion <<
-        " last_rcv=" << lastRcv <<
-        " last_req=" << lastReq << LL_ENDL;
+        std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");
+        if (url.empty())
+        {
+            LL_WARNS("Agent") << "Could not retrieve region capability \"UpdateAvatarAppearance\"" << LL_ENDL;
+        }
 
-    if (cofVersion < lastRcv)
-    {
-        LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
-            << " will not request for " << cofVersion << LL_ENDL;
-        return;
-    }
-    if (lastReq >= cofVersion)
-    {
-        LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
-            << " will not request for " << cofVersion << LL_ENDL;
-        return;
-    }
+        //----------------
+        if (gAgentAvatarp->isEditingAppearance())
+        {
+            LL_WARNS("Avatar") << "Avatar editing appearance, not sending request." << LL_ENDL;
+            // don't send out appearance updates if in appearance editing mode
+            return;
+        }
 
-    // Actually send the request.
-    LL_DEBUGS("Avatar") << "Will send request for cof_version " << cofVersion << LL_ENDL;
+        LL_DEBUGS("Avatar") << "COF version=" << cofVersion <<
+                " last_rcv=" << lastRcv <<
+                " last_req=" << lastReq << LL_ENDL;
 
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter(
+        if (cofVersion < lastRcv)
+        {
+            LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
+                    << " will not request for " << cofVersion << LL_ENDL;
+            return;
+        }
+        if (lastReq >= cofVersion)
+        {
+            LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
+                    << " will not request for " << cofVersion << LL_ENDL;
+            return;
+        }
+
+        // Actually send the request.
+        LL_DEBUGS("Avatar") << "Will send request for cof_version " << cofVersion << LL_ENDL;
+
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter(
         "UpdateAvatarAppearance", gAgent.getAgentPolicy()));
 
-    S32 reqCofVersion = cofVersion;
-    if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
-    {
-        reqCofVersion += 999;
-        LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
-    }
-
-    do 
-    {
-        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
-
-        LLSD postData;
-        if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
+        S32 reqCofVersion = cofVersion;
+        if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
         {
-            postData = dumpCOF();
-        }
-        else
-        {
-            postData["cof_version"] = reqCofVersion;
+            reqCofVersion += 999;
+            LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
         }
 
-        gAgentAvatarp->mLastUpdateRequestCOFVersion = reqCofVersion;
-
-        LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
-
-        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-        if (!status || !result["success"].asBoolean())
+        do
         {
-            std::string message = (result.has("error")) ? result["error"].asString() : status.toString();
-            LL_WARNS("Avatar") << "Appearance Failure. server responded with \"" << message << "\"" << LL_ENDL;
+            LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
 
-            // We may have requested a bake for a stale COF (especially if the inventory 
-            // is still updating.  If that is the case re send the request with the 
-            // corrected COF version.  (This may also be the case if the viewer is running 
-            // on multiple machines.
-            if (result.has("expected"))
+            LLSD postData;
+            if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
             {
-                reqCofVersion = result["expected"].asInteger();
+                postData = dumpCOF();
+            }
+            else
+            {
+                postData["cof_version"] = reqCofVersion;
+            }
 
-                LL_WARNS("Avatar") << "Will Retry with expected COF value of " << reqCofVersion << LL_ENDL;
-                continue;
+            gAgentAvatarp->mLastUpdateRequestCOFVersion = reqCofVersion;
+
+            LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+            LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+            LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+            if (!status || !result["success"].asBoolean())
+            {
+                std::string message = (result.has("error")) ? result["error"].asString() : status.toString();
+                LL_WARNS("Avatar") << "Appearance Failure. server responded with \"" << message << "\"" << LL_ENDL;
+
+                // We may have requested a bake for a stale COF (especially if the inventory 
+                // is still updating.  If that is the case re send the request with the 
+                // corrected COF version.  (This may also be the case if the viewer is running 
+                // on multiple machines.
+                if (result.has("expected"))
+                {
+                    reqCofVersion = result["expected"].asInteger();
+
+                    LL_WARNS("Avatar") << "Will Retry with expected COF value of " << reqCofVersion << LL_ENDL;
+                    continue;
+                }
+
+                break;
+            }
+
+            LL_DEBUGS("Avatar") << "succeeded" << LL_ENDL;
+            if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+            {
+                dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", result);
             }
 
             break;
-        }
+        } while (true);
 
-        LL_DEBUGS("Avatar") << "succeeded" << LL_ENDL;
-        if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+#if 0
+        LL_WARNS("Avatar") << "END: Server Bake request #" << r_count << "!" << LL_ENDL;
+#endif
+
+        // if someone requested a server bake before the previous one was finished
+        // repeate the process.
+        if (mNewServerBakeRequested)
         {
-            dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", result);
+            LL_WARNS("Avatar") << "New bake request received while processing previous one. Re-requesting." << LL_ENDL;
         }
-
-        break;
-    } while (true);
-
+    } while (mNewServerBakeRequested);
 }
 
 /*static*/
@@ -3838,7 +3869,9 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mOutfitLocked(false),
 	mInFlightCounter(0),
 	mInFlightTimer(),
-	mIsInUpdateAppearanceFromCOF(false)
+	mIsInUpdateAppearanceFromCOF(false),
+    mIsServerBakeOutstanding(false),
+    mNewServerBakeRequested(false)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 	// unlock outfit on save operation completed
