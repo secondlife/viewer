@@ -233,23 +233,31 @@ void LLCrashLogger::gatherFiles()
 
 	gatherPlatformSpecificFiles();
 
-    //Construct crash report URL
-    //CNAMES for the VIPs are viewercrashreport.{agni, damballah}.lindenlab.com
-    std::string grid = mDebugLog["GridName"].asString();
-    LLStringUtil::toLower(grid);
-    if(grid == "agni")
-    {
-        mCrashHost = "https://viewercrashreport.agni.lindenlab.com/cgi-bin/viewercrashreceiver.py";
+	//Use the debug log to reconstruct the URL to send the crash report to
+	if(mDebugLog.has("CrashHostUrl"))
+	{
+		// Crash log receiver has been manually configured.
+		mCrashHost = mDebugLog["CrashHostUrl"].asString();
+	}
+	else if(mDebugLog.has("CurrentSimHost"))
+	{
+		mCrashHost = "https://";
+		mCrashHost += mDebugLog["CurrentSimHost"].asString();
+		mCrashHost += ":12043/crash/report";
+	}
+	else if(mDebugLog.has("GridName"))
+	{
+		// This is a 'little' hacky, but its the best simple solution.
+		std::string grid_host = mDebugLog["GridName"].asString();
+		LLStringUtil::toLower(grid_host);
 
-    }
-    else
-    {
-        mCrashHost = "https://viewercrashreport.damballah.lindenlab.com/cgi-bin/viewercrashreceiver.py";
-    }
-
+		mCrashHost = "https://login.";
+		mCrashHost += grid_host;
+		mCrashHost += ".lindenlab.com:12043/crash/report";
+	}
 
 	// Use login servers as the alternate, since they are already load balanced and have a known name
-	mAltCrashHost = mCrashHost;
+	mAltCrashHost = "https://login.agni.lindenlab.com:12043/crash/report";
 
 	mCrashInfo["DebugLog"] = mDebugLog;
 	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"stats.log");
