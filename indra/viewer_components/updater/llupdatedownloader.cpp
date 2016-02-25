@@ -56,7 +56,7 @@ public:
 	bool isDownloading(void);
 	size_t onHeader(void * header, size_t size);
 	size_t onBody(void * header, size_t size);
-	int onProgress(double downloadSize, double bytesDownloaded);
+	int onProgress(curl_off_t downloadSize, curl_off_t bytesDownloaded);
 	void resume(void);
 	void setBandwidthLimit(U64 bytesPerSecond);
 
@@ -174,11 +174,11 @@ namespace {
 	}
 
 
-	int progress_callback(void * downloader,
-						  double dowloadTotal,
-						  double downloadNow,
-						  double uploadTotal,
-						  double uploadNow)
+	int xferinfo_callback(void * downloader,
+						  curl_off_t dowloadTotal,
+						  curl_off_t downloadNow,
+						  curl_off_t uploadTotal,
+						  curl_off_t uploadNow)
 	{
 		return reinterpret_cast<LLUpdateDownloader::Implementation *>(downloader)->
 			onProgress(dowloadTotal, downloadNow);
@@ -386,9 +386,9 @@ size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 }
 
 
-int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double bytesDownloaded)
+int LLUpdateDownloader::Implementation::onProgress(curl_off_t downloadSize, curl_off_t bytesDownloaded)
 {
-	int downloadPercent = static_cast<int>(100. * (bytesDownloaded / downloadSize));
+	int downloadPercent = static_cast<int>(100.0 * ((double) bytesDownloaded / (double) downloadSize));
 	if(downloadPercent > mDownloadPercent) {
 		mDownloadPercent = downloadPercent;
 
@@ -396,8 +396,8 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 		event["pump"] = LLUpdaterService::pumpName();
 		LLSD payload;
 		payload["type"] = LLSD(LLUpdaterService::PROGRESS);
-		payload["download_size"] = downloadSize;
-		payload["bytes_downloaded"] = bytesDownloaded;
+		payload["download_size"] = (LLSD::Integer) downloadSize;
+		payload["bytes_downloaded"] = (LLSD::Integer) bytesDownloaded;
 		event["payload"] = payload;
 		LLEventPumps::instance().obtain("mainlooprepeater").post(event);
 
@@ -480,9 +480,9 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	}
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_HTTPGET, true));
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_URL, url.c_str()));
-	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_PROGRESSFUNCTION, &progress_callback));
-	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_PROGRESSDATA, this));
-	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_NOPROGRESS, false));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_XFERINFOFUNCTION, &xferinfo_callback));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_XFERINFODATA, this));
+	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_NOPROGRESS, 0));
 	// if it's a required update set the bandwidth limit to 0 (unlimited)
 	curl_off_t limit = mDownloadData["required"].asBoolean() ? 0 : mBandwidthLimit;
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_MAX_RECV_SPEED_LARGE, limit));
