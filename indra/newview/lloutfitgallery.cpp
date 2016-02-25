@@ -578,10 +578,6 @@ void LLOutfitGalleryGearMenu::onUploadFoto()
     {
         gallery->uploadPhoto(selected_outfit_id);
     }
-    if (selected_outfit_id.notNull())
-    {
-
-    }
 }
 
 void LLOutfitGalleryGearMenu::onLoadAssets()
