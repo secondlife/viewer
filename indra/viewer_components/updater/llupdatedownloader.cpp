@@ -486,6 +486,9 @@ void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & u
 	// if it's a required update set the bandwidth limit to 0 (unlimited)
 	curl_off_t limit = mDownloadData["required"].asBoolean() ? 0 : mBandwidthLimit;
 	throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_MAX_RECV_SPEED_LARGE, limit));
+    throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_CAINFO, gDirUtilp->getCAFile().c_str()));
+    throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_SSL_VERIFYHOST, 2));
+    throwOnCurlError(curl_easy_setopt(mCurl.get(), CURLOPT_SSL_VERIFYPEER, 1));
 
 	mDownloadPercent = 0;
 }
