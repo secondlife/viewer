@@ -1384,14 +1384,11 @@ void render_sphere_and_line(const LLVector3& begin_pos, const LLVector3& end_pos
 void LLVOAvatar::renderCollisionVolumes()
 {
 	std::ostringstream ostr;
-	for (S32 i = 0; i < mNumCollisionVolumes; i++)
-	{
-		//mCollisionVolumes[i].renderCollision();
-		ostr << mCollisionVolumes[i].getName() << ", ";
-	}
 
 	for (S32 i = 0; i < mNumCollisionVolumes; i++)
 	{
+		ostr << mCollisionVolumes[i].getName() << ", ";
+
         LLAvatarJointCollisionVolume& collision_volume = mCollisionVolumes[i];
 
 		collision_volume.updateWorldMatrix();
