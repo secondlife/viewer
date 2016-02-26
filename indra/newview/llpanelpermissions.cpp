@@ -571,69 +571,60 @@ void LLPanelPermissions::refresh()
 	U32 next_owner_mask_on 		= 0;
 	U32 next_owner_mask_off		= 0;
 
-	BOOL valid_base_perms = FALSE;
-	BOOL valid_group_perms= FALSE;
-	BOOL valid_everyone_perms= FALSE;
-	BOOL valid_next_perms= FALSE;
-
-	if(root_selected)
-	{
-	    valid_base_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_BASE,
+	BOOL valid_base_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_BASE,
 																			&base_mask_on,
 																			&base_mask_off);
-	    //BOOL valid_owner_perms =//
-	    LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
+	//BOOL valid_owner_perms =//
+	LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
 											  &owner_mask_on,
 											  &owner_mask_off);
-	    valid_group_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_GROUP,
+	BOOL valid_group_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_GROUP,
 																			&group_mask_on,
 																			&group_mask_off);
 	
-	    valid_everyone_perms 	= LLSelectMgr::getInstance()->selectGetPerm(PERM_EVERYONE,
+	BOOL valid_everyone_perms 	= LLSelectMgr::getInstance()->selectGetPerm(PERM_EVERYONE,
 																			&everyone_mask_on,
 																			&everyone_mask_off);
 	
-	    valid_next_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_NEXT_OWNER,
+	BOOL valid_next_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_NEXT_OWNER,
 																			&next_owner_mask_on,
 																			&next_owner_mask_off);
-	}
-	else
-	{
-	    if(object_count == 1)
-	    {
-	        LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
-	        if (node && node->mValid)
-	        {
-	            valid_base_perms = TRUE;
 
-	            base_mask_on = node->mPermissions->getMaskBase();
-	            owner_mask_on = node->mPermissions->getMaskOwner();
-	            group_mask_on = node->mPermissions->getMaskGroup();
-	            everyone_mask_on = node->mPermissions->getMaskEveryone();
-	            next_owner_mask_on = node->mPermissions->getMaskNextOwner();
-	        }
-	    }
-	}
 
-	
 	if (gSavedSettings.getBOOL("DebugPermissions") )
 	{
 		if (valid_base_perms)
 		{
 			getChild<LLUICtrl>("B:")->setValue("B: " + mask_to_string(base_mask_on));
-			getChildView("B:")->setVisible(							TRUE);
-			
+			getChildView("B:")->setVisible(TRUE);
 			getChild<LLUICtrl>("O:")->setValue("O: " + mask_to_string(owner_mask_on));
-			getChildView("O:")->setVisible(							TRUE);
-			
+			getChildView("O:")->setVisible(TRUE);
 			getChild<LLUICtrl>("G:")->setValue("G: " + mask_to_string(group_mask_on));
-			getChildView("G:")->setVisible(							TRUE);
-			
+			getChildView("G:")->setVisible(TRUE);
 			getChild<LLUICtrl>("E:")->setValue("E: " + mask_to_string(everyone_mask_on));
-			getChildView("E:")->setVisible(							TRUE);
-			
+			getChildView("E:")->setVisible(TRUE);
 			getChild<LLUICtrl>("N:")->setValue("N: " + mask_to_string(next_owner_mask_on));
-			getChildView("N:")->setVisible(							TRUE);
+			getChildView("N:")->setVisible(TRUE);
+		}
+		else if(!root_selected)
+		{
+			if(object_count == 1)
+			{
+				LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+				if (node && node->mValid)
+				{
+					getChild<LLUICtrl>("B:")->setValue("B: " + mask_to_string( node->mPermissions->getMaskBase()));
+					getChildView("B:")->setVisible(TRUE);
+					getChild<LLUICtrl>("O:")->setValue("O: " + mask_to_string(node->mPermissions->getMaskOwner()));
+					getChildView("O:")->setVisible(TRUE);
+					getChild<LLUICtrl>("G:")->setValue("G: " + mask_to_string(node->mPermissions->getMaskGroup()));
+					getChildView("G:")->setVisible(TRUE);
+					getChild<LLUICtrl>("E:")->setValue("E: " + mask_to_string(node->mPermissions->getMaskEveryone()));
+					getChildView("E:")->setVisible(TRUE);
+					getChild<LLUICtrl>("N:")->setValue("N: " + mask_to_string(node->mPermissions->getMaskNextOwner()));
+					getChildView("N:")->setVisible(TRUE);
+				}
+			}
 		}
 		else
 		{
