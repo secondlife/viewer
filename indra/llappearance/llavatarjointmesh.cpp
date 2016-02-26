@@ -33,22 +33,7 @@
 
 #include "llavatarjointmesh.h"
 #include "llavatarappearance.h"
-//#include "llapr.h"
-//#include "llbox.h"
-//#include "lldrawable.h"
-//#include "lldrawpoolavatar.h"
-//#include "lldrawpoolbump.h"
-//#include "lldynamictexture.h"
-//#include "llface.h"
-//#include "llgldbg.h"
-//#include "llglheaders.h"
 #include "lltexlayer.h"
-//#include "llviewercamera.h"
-//#include "llviewercontrol.h"
-//#include "llviewertexturelist.h"
-//#include "llsky.h"
-//#include "pipeline.h"
-//#include "llviewershadermgr.h"
 #include "llmath.h"
 #include "v4math.h"
 #include "m3math.h"
@@ -95,7 +80,10 @@ LLVector3 totalSkinOffset(LLAvatarJoint *joint)
     LLVector3 totalOffset;
     while (joint)
     {
-        totalOffset += joint->getSkinOffset();
+		if (joint->getSupport() == LLJoint::SUPPORT_BASE)
+		{
+			totalOffset += joint->getSkinOffset();
+		}
 		joint = (LLAvatarJoint*)joint->getParent();
     }
     return totalOffset;
@@ -341,7 +329,6 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
 //-----------------------------------------------------------------------------
 void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
 {
-	S32 joint_count = 0;
 	U32 sj;
 
 	for (sj=0; sj<mNumSkinJoints; sj++)
@@ -358,24 +345,26 @@ void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
 
 		// is the last joint in the array our parent?
 
+        std::vector<LLJointRenderData*>	&jrd = mMesh->mJointRenderData;
+
         // SL-287 - need to update this so the results are the same if
         // additional extended-skeleton joints lie between this joint
         // and the original parent.
         LLJoint *ancestor = getBaseSkeletonAncestor(current_joint);
-		if(mMesh->mJointRenderData.size() && mMesh->mJointRenderData[mMesh->mJointRenderData.size() - 1]->mWorldMatrix == &ancestor->getWorldMatrix())
+		if(jrd.size() && jrd.back()->mWorldMatrix == &ancestor->getWorldMatrix())
 		{
 			// ...then just add ourselves
 			LLAvatarJoint* jointp = js.mJoint;
-			mMesh->mJointRenderData.push_back(new LLJointRenderData(&jointp->getWorldMatrix(), &js));
-			LL_DEBUGS("Avatar") << "add joint " << joint_count++ << " " << js.mJoint->getName() << LL_ENDL;
+			jrd.push_back(new LLJointRenderData(&jointp->getWorldMatrix(), &js));
+			LL_DEBUGS("Avatar") << "add joint[" << (jrd.size()-1) << "] = " << js.mJoint->getName() << LL_ENDL;
 		}
 		// otherwise add our ancestor and ourselves
 		else
 		{
-			mMesh->mJointRenderData.push_back(new LLJointRenderData(&ancestor->getWorldMatrix(), NULL));
-			LL_DEBUGS("Avatar") << "add2 ancestor joint " << joint_count++ << " " << ancestor->getName() << LL_ENDL;
-			mMesh->mJointRenderData.push_back(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
-			LL_DEBUGS("Avatar") << "add2 joint " << joint_count++ << " " << current_joint->getName() << LL_ENDL;
+			jrd.push_back(new LLJointRenderData(&ancestor->getWorldMatrix(), NULL));
+			LL_DEBUGS("Avatar") << "add2 ancestor joint[" << (jrd.size()-1) << "] = " << ancestor->getName() << LL_ENDL;
+			jrd.push_back(new LLJointRenderData(&current_joint->getWorldMatrix(), &js));
+            LL_DEBUGS("Avatar") << "add2 joint[" << (jrd.size()-1) << "] = " << current_joint->getName() << LL_ENDL;
 		}
 	}
 

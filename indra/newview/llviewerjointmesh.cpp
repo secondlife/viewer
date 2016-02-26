@@ -195,6 +195,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); ++joint_num)
 		{
 			gJointMatAligned[joint_num].loadu(gJointMatUnaligned[joint_num]);
+			//gJointMatAligned[joint_num].loadu(*reference_mesh->mJointRenderData[joint_num]->mWorldMatrix);
 		}
 	}
 }
