@@ -673,6 +673,12 @@ void LLFloaterPreference::cancel()
 		LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
 		pPathfindingConsole->onRegionBoundaryCross();
 	}
+
+	if (!mSavedGraphicsPreset.empty())
+	{
+		gSavedSettings.setString("PresetGraphicActive", mSavedGraphicsPreset);
+		LLPresetsManager::getInstance()->triggerChangeSignal();
+	}
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -1970,6 +1976,18 @@ void LLFloaterPreference::onClickSpellChecker()
 void LLFloaterPreference::onClickAdvanced()
 {
 	LLFloaterReg::showInstance("prefs_graphics_advanced");
+
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+		 iter != tabcontainer->getChildList()->end(); ++iter)
+	{
+		LLView* view = *iter;
+		LLPanelPreferenceGraphics* panel = dynamic_cast<LLPanelPreferenceGraphics*>(view);
+		if (panel)
+		{
+			panel->resetDirtyChilds();
+		}
+	}
 }
 
 void LLFloaterPreference::onClickActionChange()
@@ -2074,6 +2092,11 @@ void LLFloaterPreference::changed()
 	// set 'enable' property for 'Delete transcripts...' button
 	updateDeleteTranscriptsButton();
 
+}
+
+void LLFloaterPreference::saveGraphicsPreset(std::string& preset)
+{
+	mSavedGraphicsPreset = preset;
 }
 
 //------------------------------Updater---------------------------------------
@@ -2465,6 +2488,11 @@ void LLPanelPreferenceGraphics::setPresetText()
 
 	if (hasDirtyChilds() && !preset_graphic_active.empty())
 	{
+		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+		if (instance)
+		{
+			instance->saveGraphicsPreset(preset_graphic_active);
+		}
 		gSavedSettings.setString("PresetGraphicActive", "");
 		preset_graphic_active.clear();
 		// This doesn't seem to cause an infinite recursion.  This trigger is needed to cause the pulldown
@@ -2597,6 +2625,15 @@ LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
 void LLFloaterPreferenceGraphicsAdvanced::onOpen(const LLSD& key)
 {
     refresh();
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::onClickCloseBtn(bool app_quitting)
+{
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance)
+	{
+		instance->cancel();
+	}
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
