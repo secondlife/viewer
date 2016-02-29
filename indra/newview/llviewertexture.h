@@ -661,7 +661,7 @@ public:
 	static LLViewerFetchedTexture* getFetchedTextureFromFile(const std::string& filename,									 
 									 FTType f_type = FTT_LOCAL_FILE,
 									 BOOL usemipmap = TRUE,
-									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_UI,
+									 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,

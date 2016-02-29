@@ -61,8 +61,8 @@ typedef	void (*LLImageCallback)(BOOL success,
 
 enum ETexListType
 {
-    TEX_LIST_DISCARD = 0,
-    TEX_LIST_UI
+    TEX_LIST_STANDARD = 0,
+    TEX_LIST_SCALE // images that will be scaled, they should not be mixed up with regular images
 };
 
 struct LLTextureKey

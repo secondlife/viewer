@@ -72,20 +72,18 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMAGES("Process Images");
 
 ETexListType get_element_type(S32 priority)
 {
-    // don't discard flag can be used in some cases, but it usually is not set yet
-    if (priority == LLViewerFetchedTexture::BOOST_ICON
-        || priority == LLViewerFetchedTexture::BOOST_UI)
+    if (priority == LLViewerFetchedTexture::BOOST_ICON)
     {
-        return TEX_LIST_UI;
+        return TEX_LIST_SCALE;
     }
-    return TEX_LIST_DISCARD;
+    return TEX_LIST_STANDARD;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 LLTextureKey::LLTextureKey()
 : textureId(LLUUID::null),
-textureType(TEX_LIST_DISCARD)
+textureType(TEX_LIST_STANDARD)
 {
 }
 
@@ -591,7 +589,7 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 
 void LLViewerTextureList::findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output)
 {
-    LLTextureKey search_key(image_id, TEX_LIST_DISCARD);
+    LLTextureKey search_key(image_id, TEX_LIST_STANDARD);
     uuid_map_t::iterator iter = mUUIDMap.lower_bound(search_key);
     while (iter != mUUIDMap.end() && iter->first.textureId == image_id)
     {
@@ -1597,14 +1595,14 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 	LLUUID image_id;
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, image_id);
 	
-	LLViewerFetchedTexture* image = gTextureList.findImage( image_id, TEX_LIST_DISCARD);
+	LLViewerFetchedTexture* image = gTextureList.findImage( image_id, TEX_LIST_STANDARD);
 	if( image )
 	{
 		LL_WARNS() << "Image not in db" << LL_ENDL;
 		image->setIsMissingAsset();
 	}
 
-    image = gTextureList.findImage(image_id, TEX_LIST_UI);
+    image = gTextureList.findImage(image_id, TEX_LIST_SCALE);
     if (image)
     {
         LL_WARNS() << "Icon not in db" << LL_ENDL;
@@ -1691,17 +1689,18 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	//don't compress UI images
 	imagep->getGLTexture()->setAllowCompression(false);
 
-	//all UI images are non-deletable, except downloadable icons
-	if (imagep->getBoostLevel() != LLGLTexture::BOOST_ICON)
-	{
-		imagep->setNoDelete();
-	}
-
 	LLUIImagePtr new_imagep = new LLUIImage(name, imagep);
 	new_imagep->setScaleStyle(scale_style);
 
-	mUIImages.insert(std::make_pair(name, new_imagep));
-	mUITextureList.push_back(imagep);
+	if (imagep->getBoostLevel() != LLGLTexture::BOOST_ICON &&
+		imagep->getBoostLevel() != LLGLTexture::BOOST_PREVIEW)
+	{
+		// Don't add downloadable content into this list
+		// all UI images are non-deletable and list does not support deletion
+		imagep->setNoDelete();
+		mUIImages.insert(std::make_pair(name, new_imagep));
+		mUITextureList.push_back(imagep);
+	}
 
 	//Note:
 	//Some other textures such as ICON also through this flow to be fetched.
