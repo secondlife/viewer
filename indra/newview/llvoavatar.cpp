@@ -7432,6 +7432,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 	// No backsies zone - if we get here, the message should be valid and usable, will be processed.
+    LL_INFOS("Avatar") << "Processing appearance message version " << this_update_cof_version << LL_ENDL;
 
 	// Note:
 	// RequestAgentUpdateAppearanceResponder::onRequestRequested()

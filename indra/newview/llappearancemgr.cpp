@@ -3371,6 +3371,32 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
 {
     BoolSetter inFlight(mIsServerBakeOutstanding);
 
+    if (!gAgent.getRegion())
+    {
+        LL_WARNS("Avatar") << "Region not set, cannot request server appearance update" << LL_ENDL;
+        return;
+    }
+    if (gAgent.getRegion()->getCentralBakeVersion() == 0)
+    {
+        LL_WARNS("Avatar") << "Region does not support baking" << LL_ENDL;
+        return;
+    }
+
+    std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");
+    if (url.empty())
+    {
+        LL_WARNS("Agent") << "Could not retrieve region capability \"UpdateAvatarAppearance\"" << LL_ENDL;
+        return;
+    }
+
+    //----------------
+    if (gAgentAvatarp->isEditingAppearance())
+    {
+        LL_WARNS("Avatar") << "Avatar editing appearance, not sending request." << LL_ENDL;
+        // don't send out appearance updates if in appearance editing mode
+        return;
+    }
+
     do
     {
 #if 0
@@ -3379,54 +3405,31 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
         LL_WARNS("Avatar") << "START: Server Bake request #" << r_count << "!" << LL_ENDL;
 #endif
 
-        // If we have already received an update for this or higher cof version, ignore.
+        // If we have already received an update for this or higher cof version, 
+        // put a warning in the log but request anyway.
         S32 cofVersion = getCOFVersion();
         S32 lastRcv = gAgentAvatarp->mLastUpdateReceivedCOFVersion;
         S32 lastReq = gAgentAvatarp->mLastUpdateRequestCOFVersion;
 
         mNewServerBakeRequested = false;
-        //----------------
-        // move out of coroutine
-        if (!gAgent.getRegion())
-        {
-            LL_WARNS("Avatar") << "Region not set, cannot request server appearance update" << LL_ENDL;
-            return;
-        }
-        if (gAgent.getRegion()->getCentralBakeVersion() == 0)
-        {
-            LL_WARNS("Avatar") << "Region does not support baking" << LL_ENDL;
-        }
 
-        std::string url = gAgent.getRegion()->getCapability("UpdateAvatarAppearance");
-        if (url.empty())
-        {
-            LL_WARNS("Agent") << "Could not retrieve region capability \"UpdateAvatarAppearance\"" << LL_ENDL;
-        }
+        LL_INFOS("Avatar") << "Requesting COF version " << cofVersion <<
+            " (Last Received:" << lastRcv << ")" <<
+            " (Last Requested:" << lastReq << ")" << LL_ENDL;
 
-        //----------------
-        if (gAgentAvatarp->isEditingAppearance())
-        {
-            LL_WARNS("Avatar") << "Avatar editing appearance, not sending request." << LL_ENDL;
-            // don't send out appearance updates if in appearance editing mode
-            return;
-        }
-
-        LL_DEBUGS("Avatar") << "COF version=" << cofVersion <<
-                " last_rcv=" << lastRcv <<
-                " last_req=" << lastReq << LL_ENDL;
-
-        if (cofVersion < lastRcv)
-        {
-            LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
-                    << " will not request for " << cofVersion << LL_ENDL;
-            return;
-        }
-        if (lastReq >= cofVersion)
-        {
-            LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
-                    << " will not request for " << cofVersion << LL_ENDL;
-            return;
-        }
+       if ((cofVersion != LLViewerInventoryCategory::VERSION_UNKNOWN))
+       {
+            if (cofVersion < lastRcv)
+            {
+                LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
+                    << " but re-requesting for " << cofVersion << LL_ENDL;
+            }
+            if (lastReq >= cofVersion)
+            {
+                LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
+                    << " re-requesting for " << cofVersion << LL_ENDL;
+            }
+       }
 
         // Actually send the request.
         LL_DEBUGS("Avatar") << "Will send request for cof_version " << cofVersion << LL_ENDL;
@@ -3496,7 +3499,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
 #endif
 
         // if someone requested a server bake before the previous one was finished
-        // repeate the process.
+        // repeat the process.
         if (mNewServerBakeRequested)
         {
             LL_WARNS("Avatar") << "New bake request received while processing previous one. Re-requesting." << LL_ENDL;
