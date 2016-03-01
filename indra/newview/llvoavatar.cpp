@@ -671,7 +671,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLAvatarAppearance(&gAgentWearables),
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
-	mAttachmentGeometryBytes(0),
 	mAttachmentSurfaceArea(0.f),
 	mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mTurning(FALSE),
@@ -6523,10 +6522,8 @@ bool LLVOAvatar::isTooComplex() const
 	{
 		// Determine if visually muted or not
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0U);
-		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0U);
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 10.0E6f);
 		too_complex = ((max_render_cost > 0 && mVisualComplexity > max_render_cost)
-			|| (max_attachment_bytes > 0 && mAttachmentGeometryBytes > max_attachment_bytes)
 			|| (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
 			);
 	}
@@ -8304,37 +8301,17 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		}
 		mText->addLine(info_line, info_color, info_style);
 
-		// Attachment byte limit
-		static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
-		info_line = llformat("%.1f KB", mAttachmentGeometryBytes/1024.f);
-		if (max_attachment_bytes != 0) // zero means don't care, so don't bother coloring based on this
-		{
-			green_level = 1.f-llclamp(((F32) mAttachmentGeometryBytes-(F32)max_attachment_bytes)/(F32)max_attachment_bytes, 0.f, 1.f);
-			red_level   = llmin((F32) mAttachmentGeometryBytes/(F32)max_attachment_bytes, 1.f);
-			info_color.set(red_level, green_level, 0.0, 1.0);
-			info_style = (  mAttachmentGeometryBytes > max_attachment_bytes
-						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
-		}
-		else
-		{
-			info_color.set(LLColor4::grey);
-			info_style = LLFontGL::NORMAL;
-		}
-		mText->addLine(info_line, info_color, info_style);
-		
 		updateText(); // corrects position
 	}
 }
 
-void LLVOAvatar::addAttachmentSizes(U32 delta_bytes, F32 delta_area)
+void LLVOAvatar::addAttachmentArea(F32 delta_area)
 {
-    mAttachmentGeometryBytes += delta_bytes;
     mAttachmentSurfaceArea   += delta_area;
 }
 
-void LLVOAvatar::subtractAttachmentSizes(U32 delta_bytes, F32 delta_area)
+void LLVOAvatar::subtractAttachmentArea(F32 delta_area)
 {
-    mAttachmentGeometryBytes = delta_bytes > mAttachmentGeometryBytes ? 0 : mAttachmentGeometryBytes - delta_bytes;
     mAttachmentSurfaceArea   = delta_area > mAttachmentSurfaceArea ? 0.0 : mAttachmentSurfaceArea - delta_area;
 }
 

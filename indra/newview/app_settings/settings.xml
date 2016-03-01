@@ -9972,13 +9972,13 @@
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum bytes of attachments before an avatar is rendered as a simple impostor (0 for no limit).</string>
+    <string>OBSOLETE and UNUSED.</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>10000000</integer>
+    <integer>0</integer>
   </map>
   <key>RenderAvatarMaxNonImpostors</key>
   <map>

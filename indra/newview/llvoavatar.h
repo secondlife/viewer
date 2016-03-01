@@ -259,10 +259,9 @@ public:
 	void			updateVisualComplexity();
 	
 	U32				getVisualComplexity()			{ return mVisualComplexity;				};		// Numbers calculated here by rendering AV
-	S32				getAttachmentGeometryBytes()	{ return mAttachmentGeometryBytes;		};		// number of bytes in attached geometry
 	F32				getAttachmentSurfaceArea()		{ return mAttachmentSurfaceArea;		};		// estimated surface area of attachments
-    void            addAttachmentSizes(U32 delta_bytes, F32 delta_area);
-    void            subtractAttachmentSizes(U32 delta_bytes, F32 delta_area);
+    void            addAttachmentArea(F32 delta_area);
+    void            subtractAttachmentArea(F32 delta_area);
 
 	U32				getReportedVisualComplexity()					{ return mReportedVisualComplexity;				};	// Numbers as reported by the SL server
 	void			setReportedVisualComplexity(U32 value)			{ mReportedVisualComplexity = value;			};
@@ -412,7 +411,6 @@ public:
 	S32			mSpecialRenderMode; // special lighting
         
   private:
-	S32			mAttachmentGeometryBytes; //number of bytes in attached geometry
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
 	bool		shouldAlphaMask();
 
