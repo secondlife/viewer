@@ -7356,6 +7356,7 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
+    static S32 largestCOFSeen(LLViewerInventoryCategory::VERSION_UNKNOWN);
 	LL_DEBUGS("Avatar") << "starts" << LL_ENDL;
 	
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
@@ -7392,6 +7393,14 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = mLastUpdateRequestCOFVersion;
+
+    if (largestCOFSeen > this_update_cof_version)
+    {
+        LL_WARNS("Avatar") << "Already processed appearance for COF version " <<
+            largestCOFSeen << ", discarding appearance with COF " << this_update_cof_version << LL_ENDL;
+        return;
+    }
+    largestCOFSeen = this_update_cof_version;
 
 	if( isSelf() )
 	{

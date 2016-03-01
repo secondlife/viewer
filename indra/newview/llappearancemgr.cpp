@@ -3422,12 +3422,14 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
             if (cofVersion < lastRcv)
             {
                 LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
-                    << " but re-requesting for " << cofVersion << LL_ENDL;
+                    << " ignoring request for " << cofVersion << LL_ENDL;
+                return;
             }
-            if (lastReq >= cofVersion)
+            if (lastReq > cofVersion)
             {
                 LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
-                    << " re-requesting for " << cofVersion << LL_ENDL;
+                    << " ignoring request for " << cofVersion << LL_ENDL;
+                return;
             }
        }
 
