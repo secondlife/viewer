@@ -705,7 +705,13 @@ void LLViewerPartSim::updateSimulation()
 		{
 			BOOL upd = TRUE;
 			LLViewerObject* vobj = mViewerPartSources[i]->mSourceObjectp;
-			if (vobj && (vobj->getPCode() == LL_PCODE_VOLUME))
+
+			if (vobj && vobj->isAvatar() && ((LLVOAvatar*)vobj)->isInMuteList())
+			{
+				upd = FALSE;
+			}
+
+			if (upd && vobj && (vobj->getPCode() == LL_PCODE_VOLUME))
 			{
 				if(vobj->getAvatar() && vobj->getAvatar()->isTooComplex())
 				{
