@@ -137,7 +137,7 @@
       </menu_item_check>
       <menu_item_check
         name="AlwaysRenderFully"
-        label="Always Render Fully">
+        label="Render Fully">
         <menu_item_check.on_check
           function="Avatar.CheckImpostorMode"
           parameter="2" />
