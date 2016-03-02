@@ -1,4 +1,4 @@
-/** 
+﻿/** 
  * @File llvoavatar.cpp
  * @brief Implementation of LLVOAvatar class which is a derivation of LLViewerObject
  *
@@ -8138,7 +8138,7 @@ void LLVOAvatar::updateImpostors()
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead() && avatar->isVisible()
-			&& (avatar->isImpostor() && avatar->needsImpostorUpdate())
+			&& ((avatar->isImpostor() || LLVOAvatar::AV_DO_NOT_RENDER == avatar->getVisualMuteSettings()) && avatar->needsImpostorUpdate())
             )
 		{
             avatar->calcMutedAVColor();
@@ -8487,7 +8487,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 {
     mVisuallyMuteSetting = set;
-    mNeedsImpostorUpdate = true;
+    mNeedsImpostorUpdate = TRUE;
 }
 
 
