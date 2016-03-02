@@ -7394,12 +7394,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = mLastUpdateRequestCOFVersion;
 
-    if (largestSelfCOFSeen > this_update_cof_version)
-    {
-        LL_WARNS("Avatar") << "****BUG WOULD HAVE HAPPENED****" <<
-            largestSelfCOFSeen << " > " << this_update_cof_version << LL_ENDL;
-    }
-
 	if( isSelf() )
 	{
 		LL_DEBUGS("Avatar") << "this_update_cof_version " << this_update_cof_version
