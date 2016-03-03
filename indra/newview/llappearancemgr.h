@@ -34,6 +34,7 @@
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llviewerinventory.h"
+#include "llcorehttputil.h"
 
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
@@ -227,7 +228,7 @@ public:
 
 
 private:
-    void serverAppearanceUpdateCoro();
+    void serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter);
     static void debugAppearanceUpdateCOF(const LLSD& content);
 
 	std::string		mAppearanceServiceURL;
@@ -254,8 +255,6 @@ private:
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
-    bool mIsServerBakeOutstanding;      // A server texture bake has been sent to the server and we are waiting on a response.
-    bool mNewServerBakeRequested;       // A server texture bake has been requested, but there is already one outstanding.
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed
