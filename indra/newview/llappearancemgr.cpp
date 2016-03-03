@@ -3419,19 +3419,24 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
     // Actually send the request.
     LL_DEBUGS("Avatar") << "Will send request for cof_version " << cofVersion << LL_ENDL;
 
-//         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter(
-//             "UpdateAvatarAppearance", gAgent.getAgentPolicy()));
+//  LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter(
+//      "UpdateAvatarAppearance", gAgent.getAgentPolicy()));
 
-    S32 reqCofVersion = cofVersion;
-    if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
-    {
-        reqCofVersion += 999;
-        LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
-    }
-
+    bool bRetry;
     do
     {
+        bRetry = false;
         LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+
+        S32 reqCofVersion = getCOFVersion();  // Treat COF version (gets set by AISAPI as authoritative, 
+                                                // not what the bake request tells us to use).
+        if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+        {
+            reqCofVersion += 999;
+            LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
+        }
+
+        LL_INFOS() << "Requesting bake for COF version " << reqCofVersion << LL_ENDL;
 
         LLSD postData;
         if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
@@ -3461,13 +3466,14 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
             // on multiple machines.
             if (result.has("expected"))
             {
-                reqCofVersion = result["expected"].asInteger();
+                S32 expectedCofVersion = result["expected"].asInteger();
+                bRetry = true;
+                // Wait for a 1/2 second before trying again.  Just to keep from asking too quickly.
+                llcoro::suspendUntilTimeout(0.5);
 
-                LL_WARNS("Avatar") << "Will Retry with expected COF value of " << reqCofVersion << LL_ENDL;
+                LL_WARNS("Avatar") << "Server expected " << expectedCofVersion << " as COF version" << LL_ENDL;
                 continue;
             }
-
-            break;
         }
 
         LL_DEBUGS("Avatar") << "succeeded" << LL_ENDL;
@@ -3476,8 +3482,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
             dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", result);
         }
 
-        break;
-    } while (true);
+    } while (bRetry);
 
 #if 0
     LL_WARNS("Avatar") << "END: Server Bake request #" << r_count << "!" << LL_ENDL;
