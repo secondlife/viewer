@@ -10030,13 +10030,15 @@
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum surface area of attachments before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
+    <string>Maximum surface area of attachments before an avatar is
+    rendered as a simple impostor (to not use this limit, set to zero
+    or set RenderAvatarMaxComplexity to zero).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>10.0E6</real>
+    <real>1000.0</real>
   </map>
   <key>RenderAutoMuteLogging</key>
   <map>

@@ -30,7 +30,7 @@
         based on default graphics setting -->
     <RenderAvatarMaxNonImpostors     value="0"/>
     <RenderAvatarMaxComplexity              value="0"/>
-    <RenderAutoMuteSurfaceAreaLimit  value="10.0E6"/>
+    <RenderAutoMuteSurfaceAreaLimit  value="1500.0"/>
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="2.0"/>
 	<!--NO SHADERS-->

@@ -6522,10 +6522,14 @@ bool LLVOAvatar::isTooComplex() const
 	{
 		// Determine if visually muted or not
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0U);
-		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 10.0E6f);
-		too_complex = ((max_render_cost > 0 && mVisualComplexity > max_render_cost)
-			|| (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
-			);
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
+		// If the user has chosen unlimited max complexity, we also disregard max attachment area
+        // so that unlimited will completely disable the overly complex impostor rendering
+        // yes, this leaves them vulnerable to griefing objects... their choice
+        too_complex = (   max_render_cost > 0
+                       && (   mVisualComplexity > max_render_cost
+                           || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
+                           ));
 	}
 
 	return too_complex;
@@ -8282,10 +8286,10 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		mText->addLine(info_line, info_color, info_style);
 
 		// Attachment Surface Area
-		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 10.0E6f);
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
 		info_line = llformat("%.2f m^2", mAttachmentSurfaceArea);
 
-		if (max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
+		if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
 		{
 			green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
 			red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
