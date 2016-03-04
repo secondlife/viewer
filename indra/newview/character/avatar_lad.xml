@@ -613,9 +613,7 @@
          name="mKneeRight"
          scale=".05 .05 .1" />
 
-        <bone name="mWingsRoot1" scale="1 0 0" offset="0 0 0" />
-        <bone name="mWingsRoot2" scale="1 0 0" offset="0 0 0" />
-        <bone name="mWingsRoot3" scale="1 0 0" offset="0 0 0" />
+        <bone name="mWingsRoot" scale="1 0 0" offset="0 0 0" />
 		<bone name="mWing1Right" scale="0 0 0" offset="0.02 0 0" />
 		<bone name="mWing1Left"  scale="0 0 0" offset="0.02 0 0" />
 
@@ -1053,7 +1051,7 @@
      id="655"
      group="1"
      name="Head Size"
-   label="Head Size"
+     label="Head Size"
      wearable="shape"
      edit_group="shape_head"
      label_min="Small Head"
@@ -1069,6 +1067,11 @@
 
         <bone
          name="mHead"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceRoot"
          scale="1 1 1"
          offset="0 0 0" />
 
@@ -1198,6 +1201,11 @@
          offset="0 0 0" />
 
         <bone
+         name="mFaceLipUpperCenter"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
          name="mFaceLipUpperRight"
          scale="1 1 1"
          offset="0 0 0" />
@@ -1217,6 +1225,11 @@
          scale="1 1 1"
          offset="0 0 0" />
 
+        <bone
+         name="mFaceLipLowerCenter"
+         scale="1 1 1"
+         offset="0 0 0" />
+		 
         <bone
          name="mFaceLipLowerRight"
          scale="1 1 1"
