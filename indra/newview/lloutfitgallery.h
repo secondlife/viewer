@@ -56,7 +56,28 @@ class LLOutfitGallery : public LLOutfitListBase
 {
 public:
     friend class LLOutfitGalleryGearMenu;
-    LLOutfitGallery();
+
+    struct Params
+        : public LLInitParam::Block<Params, LLPanel::Params>
+    {
+        Optional<S32>   row_panel_height;
+        Optional<S32>   row_panel_width_factor;
+        Optional<S32>   gallery_width_factor;
+        Optional<S32>   vertical_gap;
+        Optional<S32>   horizontal_gap;
+        Optional<S32>   item_width;
+        Optional<S32>   item_height;
+        Optional<S32>   item_horizontal_gap;
+        Optional<S32>   items_in_row;
+
+        Params();
+    };
+
+    static const LLOutfitGallery::Params& getDefaultParams();
+
+    LLOutfitGallery(const LLOutfitGallery::Params& params = getDefaultParams());
+
+//    LLOutfitGallery();
     virtual ~LLOutfitGallery();
 
     /*virtual*/ BOOL postBuild();
@@ -93,7 +114,6 @@ private:
     void uploadPhoto(LLUUID outfit_id);
     void linkPhotoToOutfit(LLUUID outfit_id, LLUUID photo_id);
     bool checkRemovePhoto(LLUUID outfit_id);
-    void setUploadedPhoto(LLUUID outfit_id, LLUUID asset_id);
     void addToGallery(LLOutfitGalleryItem* item);
     void removeFromGalleryLast(LLOutfitGalleryItem* item);
     void removeFromGalleryMiddle(LLOutfitGalleryItem* item);
@@ -105,27 +125,44 @@ private:
     LLPanel* addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item, int pos, int hgap);
     void removeFromLastRow(LLOutfitGalleryItem* item);
 
-    static void onLoadComplete(LLVFS *vfs,
-        const LLUUID& asset_uuid,
-        LLAssetType::EType type,
-        void* user_data, S32 status, LLExtStat ext_status);
-
     LLOutfitGalleryItem* buildGalleryItem(std::string name);
     void buildGalleryPanel(int row_count);
     void reshapeGalleryPanel(int row_count);
-    LLPanel* buildLayoutPanel(int left);
-    LLPanel* buildLayoutStak(int left, int bottom);
-    void moveLayoutStak(LLPanel* stack, int left, int bottom);
-    std::vector<LLPanel*> mStacks;
-    std::vector<LLPanel*> mPanels;
+    LLPanel* buildItemPanel(int left);
+    LLPanel* buildRowPanel(int left, int bottom);
+    void moveRowPanel(LLPanel* stack, int left, int bottom);
+    std::vector<LLPanel*> mRowPanels;
+    std::vector<LLPanel*> mItemPanels;
     std::vector<LLOutfitGalleryItem*> mItems;
     LLScrollContainer* mScrollPanel;
     LLPanel* mGalleryPanel;
-    LLPanel* mLastRowStack;
+    LLPanel* mLastRowPanel;
     LLUUID mOutfitLinkPending;
-    bool galleryCreated;
+    bool mGalleryCreated;
     int mRowCount;
     int mItemsAddedCount;
+    /* Params */
+    int mRowPanelHeight;
+    int mVerticalGap;
+    int mHorizontalGap;
+    int mItemWidth;
+    int mItemHeight;
+    int mItemHorizontalGap;
+    int mItemsInRow;
+    int mRowPanelWidth;
+    int mGalleryWidth;
+
+    /*
+    #define LAYOUT_STACK_WIDTH_FACTOR 166
+    #define LAYOUT_STACK_WIDTH LAYOUT_STACK_WIDTH_FACTOR * ITEMS_IN_ROW//498
+    #define GALLERY_WIDTH_FACTOR 163
+    #define GALLERY_WIDTH GALLERY_WIDTH_FACTOR * ITEMS_IN_ROW//485//290
+    */
+
+    /*
+    #define GALLERY_ITEM_HGAP 16 
+    #define ITEMS_IN_ROW 3
+    */
 
     typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
     typedef outfit_map_t::value_type                    outfit_map_value_t;
@@ -155,7 +192,6 @@ protected:
 
 private:
     /*virtual*/ void onUploadFoto();
-    /*virtual*/ void onLoadAssets();
 };
 
 class LLOutfitGalleryItem : public LLPanel

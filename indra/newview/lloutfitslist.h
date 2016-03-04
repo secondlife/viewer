@@ -96,6 +96,8 @@ public:
     virtual bool hasItemSelected() = 0;
     virtual bool canWearSelected() = 0;
 
+    virtual void deselectOutfit(const LLUUID& category_id);
+
     void signalSelectionOutfitUUID(const LLUUID& category_id);
 
     void collapseAllFolders();
@@ -162,7 +164,6 @@ public:
 protected:
     virtual void onUpdateItemsVisibility();
     virtual void onUploadFoto();
-    virtual void onLoadAssets();
     const LLUUID& getSelectedOutfitID();
 
     LLOutfitListBase*		mOutfitList;
@@ -279,7 +280,7 @@ private:
 	/**
 	 * Removes the outfit from selection.
 	 */
-	void deselectOutfit(const LLUUID& category_id);
+	/*virtual*/ void deselectOutfit(const LLUUID& category_id);
 
 	/**
 	 * Try restoring selection for a temporary hidden tab.

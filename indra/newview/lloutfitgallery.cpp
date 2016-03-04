@@ -45,21 +45,48 @@
 #include "llviewermenufile.h"
 #include "llwearableitemslist.h"
 
-
 static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
 static LLOutfitGallery* gOutfitGallery = NULL;
 
-LLOutfitGallery::LLOutfitGallery()
+LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     : LLOutfitListBase(),
       mTexturesObserver(NULL),
       mOutfitsObserver(NULL),
       mScrollPanel(NULL),
       mGalleryPanel(NULL),
-      galleryCreated(false),
+      mGalleryCreated(false),
       mRowCount(0),
       mItemsAddedCount(0),
-      mOutfitLinkPending(NULL)
+      mOutfitLinkPending(NULL),
+      mRowPanelHeight(p.row_panel_height),
+      mVerticalGap(p.vertical_gap),
+      mHorizontalGap(p.horizontal_gap),
+      mItemWidth(p.item_width),
+      mItemHeight(p.item_height),
+      mItemHorizontalGap(p.item_horizontal_gap),
+      mItemsInRow(p.items_in_row)
 {
+    mRowPanelWidth = p.row_panel_width_factor * mItemsInRow;
+    mGalleryWidth = p.gallery_width_factor * mItemsInRow;
+}
+
+LLOutfitGallery::Params::Params()
+    : row_panel_height("row_panel_height", 180),
+      vertical_gap("vertical_gap", 10),
+      horizontal_gap("horizontal_gap", 10),
+      item_width("item_width", 150),
+      item_height("item_height", 175),
+      item_horizontal_gap("item_horizontal_gap", 16),
+      items_in_row("items_in_row", 3),
+      row_panel_width_factor("row_panel_width_factor", 166),
+      gallery_width_factor("gallery_width_factor", 163)
+{
+    addSynonym(row_panel_height, "row_height");
+}
+
+const LLOutfitGallery::Params& LLOutfitGallery::getDefaultParams()
+{
+    return LLUICtrlFactory::getDefaultParams<LLOutfitGallery>();
 }
 
 BOOL LLOutfitGallery::postBuild()
@@ -73,7 +100,7 @@ BOOL LLOutfitGallery::postBuild()
 void LLOutfitGallery::onOpen(const LLSD& info)
 {
     LLOutfitListBase::onOpen(info);
-    if (!galleryCreated)
+    if (!mGalleryCreated)
     {
         loadPhotos();
         uuid_vec_t cats;
@@ -85,26 +112,16 @@ void LLOutfitGallery::onOpen(const LLSD& info)
         {
             addToGallery(mOutfitMap[cats[i]]);
         }
-        galleryCreated = true;
+        mGalleryCreated = true;
     }
 }
-
-#define LAYOUT_STACK_HEIGHT 180
-#define GALLERY_VERTICAL_GAP 10
-#define GALLERY_HORIZONTAL_GAP 10
-#define GALLERY_ITEM_WIDTH 150
-#define GALLERY_ITEM_HEIGHT 175
-#define GALLERY_ITEM_HGAP 16 
-#define ITEMS_IN_ROW 3
-#define LAYOUT_STACK_WIDTH 166 * ITEMS_IN_ROW//498
-#define GALLERY_WIDTH 163 * ITEMS_IN_ROW//485//290
 
 LLPanel* LLOutfitGallery::addLastRow()
 {
     mRowCount++;
     int row = 0;
-    int vgap = GALLERY_VERTICAL_GAP * row;
-    LLPanel* result = buildLayoutStak(0, row * LAYOUT_STACK_HEIGHT + vgap);
+    int vgap = mVerticalGap * row;
+    LLPanel* result = buildRowPanel(0, row * mRowPanelHeight + vgap);
     mGalleryPanel->addChild(result);
     return result;
 }
@@ -121,24 +138,24 @@ void LLOutfitGallery::moveRowDown(int row)
 
 void LLOutfitGallery::moveRow(int row, int pos)
 {
-    int vgap = GALLERY_VERTICAL_GAP * pos;
-    moveLayoutStak(mStacks[row], 0, pos * LAYOUT_STACK_HEIGHT + vgap);
+    int vgap = mVerticalGap * pos;
+    moveRowPanel(mRowPanels[row], 0, pos * mRowPanelHeight + vgap);
 }
 
 void LLOutfitGallery::removeLastRow()
 {
     mRowCount--;
-    mGalleryPanel->removeChild(mLastRowStack);
-    mStacks.pop_back();
-    mLastRowStack = mStacks.back();
+    mGalleryPanel->removeChild(mLastRowPanel);
+    mRowPanels.pop_back();
+    mLastRowPanel = mRowPanels.back();
 }
 
 LLPanel* LLOutfitGallery::addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item, int pos, int hgap)
 {
-    LLPanel* lpanel = buildLayoutPanel(pos * GALLERY_ITEM_WIDTH + hgap);
+    LLPanel* lpanel = buildItemPanel(pos * mItemWidth + hgap);
     lpanel->addChild(item);
     row_stack->addChild(lpanel);
-    mPanels.push_back(lpanel);
+    mItemPanels.push_back(lpanel);
     return lpanel;
 }
 
@@ -147,9 +164,9 @@ void LLOutfitGallery::addToGallery(LLOutfitGalleryItem* item)
     mItemsAddedCount++;
     mItemIndexMap[item] = mItemsAddedCount - 1;
     int n = mItemsAddedCount;
-    int row_count = (n % ITEMS_IN_ROW) == 0 ? n / ITEMS_IN_ROW : n / ITEMS_IN_ROW + 1;
+    int row_count = (n % mItemsInRow) == 0 ? n / mItemsInRow : n / mItemsInRow + 1;
     int n_prev = n - 1;
-    int row_count_prev = (n_prev % ITEMS_IN_ROW) == 0 ? n_prev / ITEMS_IN_ROW : n_prev / ITEMS_IN_ROW + 1;
+    int row_count_prev = (n_prev % mItemsInRow) == 0 ? n_prev / mItemsInRow : n_prev / mItemsInRow + 1;
 
     bool add_row = row_count != row_count_prev;
     int pos = 0;
@@ -159,12 +176,12 @@ void LLOutfitGallery::addToGallery(LLOutfitGalleryItem* item)
         {
             moveRowUp(i);
         }
-        mLastRowStack = addLastRow();
-        mStacks.push_back(mLastRowStack);
+        mLastRowPanel = addLastRow();
+        mRowPanels.push_back(mLastRowPanel);
     }
-    pos = (n - 1) % ITEMS_IN_ROW;
+    pos = (n - 1) % mItemsInRow;
     mItems.push_back(item);
-    addToRow(mLastRowStack, item, pos, GALLERY_HORIZONTAL_GAP * pos);
+    addToRow(mLastRowPanel, item, pos, mHorizontalGap * pos);
     reshapeGalleryPanel(row_count);
 }
 
@@ -173,12 +190,11 @@ void LLOutfitGallery::removeFromGalleryLast(LLOutfitGalleryItem* item)
 {
     int n_prev = mItemsAddedCount;
     int n = mItemsAddedCount - 1;
-    int row_count = (n % ITEMS_IN_ROW) == 0 ? n / ITEMS_IN_ROW : n / ITEMS_IN_ROW + 1;
-    int row_count_prev = (n_prev % ITEMS_IN_ROW) == 0 ? n_prev / ITEMS_IN_ROW : n_prev / ITEMS_IN_ROW + 1;
+    int row_count = (n % mItemsInRow) == 0 ? n / mItemsInRow : n / mItemsInRow + 1;
+    int row_count_prev = (n_prev % mItemsInRow) == 0 ? n_prev / mItemsInRow : n_prev / mItemsInRow + 1;
     mItemsAddedCount--;
 
     bool remove_row = row_count != row_count_prev;
-    //int pos = (n_prev - 1) % ITEMS_IN_ROW;
     removeFromLastRow(mItems[mItemsAddedCount]);
     mItems.pop_back();
     if (remove_row)
@@ -214,16 +230,16 @@ void LLOutfitGallery::removeFromGalleryMiddle(LLOutfitGalleryItem* item)
 
 void LLOutfitGallery::removeFromLastRow(LLOutfitGalleryItem* item)
 {
-    mPanels.back()->removeChild(item);
-    mLastRowStack->removeChild(mPanels.back());
-    mPanels.pop_back();
+    mItemPanels.back()->removeChild(item);
+    mLastRowPanel->removeChild(mItemPanels.back());
+    mItemPanels.pop_back();
 }
 
 LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name)
 {
     LLOutfitGalleryItem::Params giparams;
     LLOutfitGalleryItem* gitem = LLUICtrlFactory::create<LLOutfitGalleryItem>(giparams);
-    gitem->reshape(GALLERY_ITEM_WIDTH, GALLERY_ITEM_HEIGHT);
+    gitem->reshape(mItemWidth, mItemHeight);
     gitem->setVisible(true);
     gitem->setFollowsLeft();
     gitem->setFollowsTop();
@@ -242,42 +258,42 @@ void LLOutfitGallery::reshapeGalleryPanel(int row_count)
 {
     int bottom = 0;
     int left = 0;
-    int height = row_count * (LAYOUT_STACK_HEIGHT + GALLERY_VERTICAL_GAP);
-    LLRect rect = LLRect(left, bottom + height, left + GALLERY_WIDTH, bottom);
+    int height = row_count * (mRowPanelHeight + mVerticalGap);
+    LLRect rect = LLRect(left, bottom + height, left + mGalleryWidth, bottom);
     mGalleryPanel->setRect(rect);
-    mGalleryPanel->reshape(GALLERY_WIDTH, height);
+    mGalleryPanel->reshape(mGalleryWidth, height);
     mGalleryPanel->setVisible(true);
     mGalleryPanel->setFollowsLeft();
     mGalleryPanel->setFollowsTop();
 }
 
-LLPanel* LLOutfitGallery::buildLayoutPanel(int left)
+LLPanel* LLOutfitGallery::buildItemPanel(int left)
 {
     LLPanel::Params lpparams;
     int top = 0;
     LLPanel* lpanel = LLUICtrlFactory::create<LLPanel>(lpparams);
-    LLRect rect = LLRect(left, top + GALLERY_ITEM_HEIGHT, left + GALLERY_ITEM_WIDTH + GALLERY_ITEM_HGAP, top);
+    LLRect rect = LLRect(left, top + mItemHeight, left + mItemWidth + mItemHorizontalGap, top);
     lpanel->setRect(rect);
-    lpanel->reshape(GALLERY_ITEM_WIDTH + GALLERY_ITEM_HGAP, GALLERY_ITEM_HEIGHT);
+    lpanel->reshape(mItemWidth + mItemHorizontalGap, mItemHeight);
     lpanel->setVisible(true);
     lpanel->setFollowsLeft();
     lpanel->setFollowsTop();
     return lpanel;
 }
 
-LLPanel* LLOutfitGallery::buildLayoutStak(int left, int bottom)
+LLPanel* LLOutfitGallery::buildRowPanel(int left, int bottom)
 {
     LLPanel::Params sparams;
     LLPanel* stack = LLUICtrlFactory::create<LLPanel>(sparams);
-    moveLayoutStak(stack, left, bottom);
+    moveRowPanel(stack, left, bottom);
     return stack;
 }
 
-void LLOutfitGallery::moveLayoutStak(LLPanel* stack, int left, int bottom)
+void LLOutfitGallery::moveRowPanel(LLPanel* stack, int left, int bottom)
 {
-    LLRect rect = LLRect(left, bottom + LAYOUT_STACK_HEIGHT, left + LAYOUT_STACK_WIDTH, bottom);
+    LLRect rect = LLRect(left, bottom + mRowPanelHeight, left + mRowPanelWidth, bottom);
     stack->setRect(rect);
-    stack->reshape(LAYOUT_STACK_WIDTH, LAYOUT_STACK_HEIGHT);
+    stack->reshape(mRowPanelWidth, mRowPanelHeight);
     stack->setVisible(true);
     stack->setFollowsLeft();
     stack->setFollowsTop();
@@ -290,6 +306,12 @@ LLOutfitGallery::~LLOutfitGallery()
         gInventory.removeObserver(mTexturesObserver);
     }
     delete mTexturesObserver;
+
+    if (gInventory.containsObserver(mOutfitsObserver))
+    {
+        gInventory.removeObserver(mOutfitsObserver);
+    }
+    delete mOutfitsObserver;
 }
 
 void LLOutfitGallery::setFilterSubString(const std::string& string)
@@ -340,7 +362,7 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
         _1, _2, _3, cat_id));
     LLWearableItemsList* list = NULL;
     item->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
-    if (galleryCreated)
+    if (mGalleryCreated)
     {
         addToGallery(item);
     }
@@ -355,7 +377,7 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
         gInventory.addObserver(mOutfitsObserver);
     }
 
-    // Start observing changes in "My Outits" category.
+    // Start observing changes in "My Outfits" category.
     mOutfitsObserver->addCategory(cat_id,
         boost::bind(&LLOutfitGallery::refreshOutfit, this, cat_id));
 
@@ -376,15 +398,13 @@ void LLOutfitGallery::updateRemovedCategory(LLUUID cat_id)
 
         // An outfit is removed from the list. Do the following:
         // 2. Remove the outfit from selection.
-        //deselectOutfit(outfit_id);
+        deselectOutfit(cat_id);
 
         // 3. Remove category UUID to accordion tab mapping.
         mOutfitMap.erase(outfits_iter);
 
         // 4. Remove outfit from gallery.
         removeFromGalleryMiddle(item);
-
-
 
         // kill removed item
         if (item != NULL)
@@ -479,7 +499,6 @@ BOOL LLOutfitGalleryItem::postBuild()
 void LLOutfitGalleryItem::draw()
 {
     LLPanel::draw();
-
     
     // Draw border
     LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "OutfitGalleryItemSelected" : "OutfitGalleryItemUnselected", LLColor4::white);
@@ -491,12 +510,6 @@ void LLOutfitGalleryItem::draw()
     const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
     if (mTexturep)
     {
-        //if (mTexturep->getComponents() == 4)
-        //{
-        //    gl_rect_2d_checkerboard(interior, alpha);
-        //}
-
-        // Interior
         LLRect interior = border;
         interior.stretch(-1);
 
@@ -516,8 +529,6 @@ void LLOutfitGalleryItem::setOutfitName(std::string name)
 void LLOutfitGalleryItem::setOutfitWorn(bool value)
 {
     mWorn = value;
-    //LLStringUtil::format_map_t string_args;
-    //std::string worn_text = getString("worn_text", string_args);
     LLStringUtil::format_map_t worn_string_args;
     std::string worn_string = getString("worn_string", worn_string_args);
     LLUIColor text_color = LLUIColorTable::instance().getColor(mSelected ? "White" : (mWorn ? "OutfitGalleryItemWorn" : "White"), LLColor4::white);
@@ -547,11 +558,6 @@ void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
 
 void LLOutfitGalleryItem::setDefaultImage()
 {
-    /*
-    LLUUID imageAssetID("e417f443-a199-bac1-86b0-0530e177fb54");
-    mTexturep = LLViewerTextureManager::getFetchedTexture(imageAssetID);
-    mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-    */
     mTexturep = NULL;
 }
 
@@ -577,15 +583,6 @@ void LLOutfitGalleryGearMenu::onUploadFoto()
     if (gallery && selected_outfit_id.notNull())
     {
         gallery->uploadPhoto(selected_outfit_id);
-    }
-}
-
-void LLOutfitGalleryGearMenu::onLoadAssets()
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery != NULL)
-    {
-        gallery->loadPhotos();
     }
 }
 
@@ -692,26 +689,6 @@ void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
     }
 }
 
-void LLOutfitGallery::onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status)
-{
-    LL_WARNS() << "asset_uuid: " << asset_uuid.asString() << LL_ENDL;
-
-    LLUUID* outfit_id = (LLUUID*)user_data;
-        if (!user_data)
-        return;
-    LL_WARNS() << "outfit_id: " << outfit_id->asString() << LL_ENDL;
-
-    outfit_map_t::iterator it = gOutfitGallery->mOutfitMap.find(*outfit_id);
-    if (it != gOutfitGallery->mOutfitMap.end() && !it->first.isNull())
-    {
-    }
-}
-
-void LLGalleryPhotoStoreCallback(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status)
-{
-    LL_WARNS() << "Photo stored as asset. UUID:" << asset_id.asString() << LL_ENDL;
-}
-
 void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 {
     outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);
@@ -736,6 +713,7 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 
             checkRemovePhoto(outfit_id);
             std::string upload_pending_name = outfit_id.asString();
+            LLAssetStorage::LLStoreAssetCallback callback = NULL;
             LLUUID photo_id = upload_new_resource(filename, // file
                 upload_pending_name,
                 outfit_id.asString(),
@@ -743,7 +721,7 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
-                upload_pending_name, &LLGalleryPhotoStoreCallback, expected_upload_cost, nruserdata);
+                upload_pending_name, callback, expected_upload_cost, nruserdata);
             mOutfitLinkPending = outfit_id;
         }
     }
@@ -764,11 +742,6 @@ bool LLOutfitGallery::checkRemovePhoto(LLUUID outfit_id)
         return true;
     }
     return false;
-}
-
-void LLOutfitGallery::setUploadedPhoto(LLUUID outfit_id, LLUUID asset_id)
-{
-
 }
 
 void LLOutfitGallery::computeDifferenceOfTextures(
@@ -793,8 +766,6 @@ void LLOutfitGallery::computeDifferenceOfTextures(
     {
         vcur.push_back((*iter).second->getUUID());
     }
-//    getCurrentCategories(vcur);
 
     LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
-
 }

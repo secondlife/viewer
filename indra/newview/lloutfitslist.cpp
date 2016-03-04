@@ -38,7 +38,6 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
-//#include "lllistcontextmenu.h"
 #include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
@@ -106,25 +105,16 @@ LLOutfitsList::LLOutfitsList()
 	,	mListCommands(NULL)
 	,	mItemSelected(false)
 {
-//	mCategoriesObserver = new LLInventoryCategoriesObserver();
-
-//	mGearMenu = new LLOutfitListGearMenu(this);
 }
 
 LLOutfitsList::~LLOutfitsList()
 {
-//	delete mGearMenu;
 }
 
 BOOL LLOutfitsList::postBuild()
 {
 	mAccordion = getChild<LLAccordionCtrl>("outfits_accordion");
 	mAccordion->setComparator(&OUTFIT_TAB_NAME_COMPARATOR);
-
-	//LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
-
-	//menu_gear_btn->setMouseDownCallback(boost::bind(&LLOutfitListGearMenu::updateItemsVisibility, mGearMenu));
-	//menu_gear_btn->setMenu(mGearMenu->getMenu());
 
     return LLOutfitListBase::postBuild();
 }
@@ -140,44 +130,6 @@ void LLOutfitsList::onOpen(const LLSD& info)
     }
 
     LLOutfitListBase::onOpen(info);
-
- //   if (!mIsInitialized)
-	//{
-	//	// *TODO: I'm not sure is this check necessary but it never match while developing.
-	//	if (!gInventory.isInventoryUsable())
-	//		return;
-
-	//	const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-
-	//	// *TODO: I'm not sure is this check necessary but it never match while developing.
-	//	LLViewerInventoryCategory* category = gInventory.getCategory(outfits);
-	//	if (!category)
-	//		return;
-
-	//	gInventory.addObserver(mCategoriesObserver);
-
-	//	// Start observing changes in "My Outfits" category.
-	//	mCategoriesObserver->addCategory(outfits,
-	//		boost::bind(&LLOutfitsList::refreshList, this, outfits));
-
-	//	const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-
-	//	// Start observing changes in Current Outfit category.
-	//	mCategoriesObserver->addCategory(cof, boost::bind(&LLOutfitsList::onCOFChanged, this));
-
-	//	LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(&LLOutfitsList::highlightBaseOutfit, this));
-	//	LLOutfitObserver::instance().addBOFReplacedCallback(boost::bind(&LLOutfitsList::highlightBaseOutfit, this));
-
-	//	// Fetch "My Outfits" contents and refresh the list to display
-	//	// initially fetched items. If not all items are fetched now
-	//	// the observer will refresh the list as soon as the new items
-	//	// arrive.
-	//	category->fetch();
-	//	refreshList(outfits);
-	//	highlightBaseOutfit();
-
-	//	mIsInitialized = true;
-	//}
 
 	LLAccordionCtrlTab* selected_tab = mAccordion->getSelectedTab();
 	if (!selected_tab) return;
@@ -294,157 +246,6 @@ void LLOutfitsList::updateRemovedCategory(LLUUID cat_id)
     	}
     }
 }
-
-/*
-void LLOutfitsList::refreshList(const LLUUID& category_id)
-{
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-
-	// Collect all sub-categories of a given category.
-	LLIsType is_category(LLAssetType::AT_CATEGORY);
-	gInventory.collectDescendentsIf(
-		category_id,
-		cat_array,
-		item_array,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_category);
-
-	uuid_vec_t vadded;
-	uuid_vec_t vremoved;
-
-	// Create added and removed items vectors.
-	computeDifference(cat_array, vadded, vremoved);
-
-	// Handle added tabs.
-	for (uuid_vec_t::const_iterator iter = vadded.begin();
-		 iter != vadded.end();
-		 ++iter)
-	{
-		const LLUUID cat_id = (*iter);
-        updateAddedCategory(cat_id);
-		//LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-		//if (!cat) continue;
-
-		//std::string name = cat->getName();
-
-		//outfit_accordion_tab_params tab_params(get_accordion_tab_params());
-		//LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
-		//if (!tab) continue;
-		//LLWearableItemsList* wearable_list = LLUICtrlFactory::create<LLWearableItemsList>(tab_params.wearable_list);
-		//wearable_list->setShape(tab->getLocalRect());
-		//tab->addChild(wearable_list);
-
-		//tab->setName(name);
-		//tab->setTitle(name);
-
-		//// *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
-		//tab->setDisplayChildren(false);
-		//mAccordion->addCollapsibleCtrl(tab);
-
-		//// Start observing the new outfit category.
-		//LLWearableItemsList* list  = tab->getChild<LLWearableItemsList>("wearable_items_list");
-		//if (!mCategoriesObserver->addCategory(cat_id, boost::bind(&LLWearableItemsList::updateList, list, cat_id)))
-		//{
-		//	// Remove accordion tab if category could not be added to observer.
-		//	mAccordion->removeCollapsibleCtrl(tab);
-
-		//	// kill removed tab
-		//		tab->die();
-		//	continue;
-		//}
-
-		//// Map the new tab with outfit category UUID.
-		//mOutfitsMap.insert(LLOutfitsList::outfits_map_value_t(cat_id, tab));
-
-		//tab->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onAccordionTabRightClick, this,
-		//	_1, _2, _3, cat_id));
-
-		//// Setting tab focus callback to monitor currently selected outfit.
-		//tab->setFocusReceivedCallback(boost::bind(&LLOutfitsList::changeOutfitSelection, this, list, cat_id));
-
-		//// Setting callback to reset items selection inside outfit on accordion collapsing and expanding (EXT-7875)
-		//tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
-
-		//// force showing list items that don't match current filter(EXT-7158)
-		//list->setForceShowingUnmatchedItems(true);
-
-		//// Setting list commit callback to monitor currently selected wearable item.
-		//list->setCommitCallback(boost::bind(&LLOutfitsList::onSelectionChange, this, _1));
-
-		//// Setting list refresh callback to apply filter on list change.
-		//list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onFilteredWearableItemsListRefresh, this, _1));
-
-		//list->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onWearableItemsListRightClick, this, _1, _2, _3));
-
-		//// Fetch the new outfit contents.
-		//cat->fetch();
-
-		//// Refresh the list of outfit items after fetch().
-		//// Further list updates will be triggered by the category observer.
-		//list->updateList(cat_id);
-
-		//// If filter is currently applied we store the initial tab state and
-		//// open it to show matched items if any.
-		//if (!sFilterSubString.empty())
-		//{
-		//	tab->notifyChildren(LLSD().with("action","store_state"));
-		//	tab->setDisplayChildren(true);
-
-		//	// Setting mForceRefresh flag will make the list refresh its contents
-		//	// even if it is not currently visible. This is required to apply the
-		//	// filter to the newly added list.
-		//	list->setForceRefresh(true);
-
-		//	list->setFilterSubString(sFilterSubString);
-		//}
-	}
-
-	// Handle removed tabs.
-	for (uuid_vec_t::const_iterator iter=vremoved.begin(); iter != vremoved.end(); ++iter)
-	{
-        const LLUUID cat_id = (*iter);
-        updateRemovedCategory(cat_id);
-        //outfits_map_t::iterator outfits_iter = mOutfitsMap.find(cat_id);
-		//if (outfits_iter != mOutfitsMap.end())
-		//{
-		//	const LLUUID& outfit_id = outfits_iter->first;
-		//	LLAccordionCtrlTab* tab = outfits_iter->second;
-
-		//	// An outfit is removed from the list. Do the following:
-		//	// 1. Remove outfit category from observer to stop monitoring its changes.
-		//	mCategoriesObserver->removeCategory(outfit_id);
-
-		//	// 2. Remove the outfit from selection.
-		//	deselectOutfit(outfit_id);
-
-		//	// 3. Remove category UUID to accordion tab mapping.
-		//	mOutfitsMap.erase(outfits_iter);
-
-		//	// 4. Remove outfit tab from accordion.
-		//	mAccordion->removeCollapsibleCtrl(tab);
-
-		//	// kill removed tab
-		//	if (tab != NULL)
-		//	{
-		//		tab->die();
-		//	}
-		//}
-	}
-
-	// Get changed items from inventory model and update outfit tabs
-	// which might have been renamed.
-	const LLInventoryModel::changed_items_t& changed_items = gInventory.getChangedIDs();
-	for (LLInventoryModel::changed_items_t::const_iterator items_iter = changed_items.begin();
-		 items_iter != changed_items.end();
-		 ++items_iter)
-	{
-		updateChangedCategoryName(*items_iter);
-	}
-
-	mAccordion->sort();
-}
-*/
 
 //virtual
 void LLOutfitsList::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
@@ -628,33 +429,6 @@ bool LLOutfitsList::hasItemSelected()
 //////////////////////////////////////////////////////////////////////////
 // Private methods
 //////////////////////////////////////////////////////////////////////////
-/*
-void LLOutfitsList::computeDifference(
-	const LLInventoryModel::cat_array_t& vcats, 
-	uuid_vec_t& vadded, 
-	uuid_vec_t& vremoved)
-{
-	uuid_vec_t vnew;
-	// Creating a vector of newly collected sub-categories UUIDs.
-	for (LLInventoryModel::cat_array_t::const_iterator iter = vcats.begin();
-		iter != vcats.end();
-		iter++)
-	{
-		vnew.push_back((*iter)->getUUID());
-	}
-
-	uuid_vec_t vcur;
-	// Creating a vector of currently displayed sub-categories UUIDs.
-	for (outfits_map_t::const_iterator iter = mOutfitsMap.begin();
-		iter != mOutfitsMap.end();
-		iter++)
-	{
-		vcur.push_back((*iter).first);
-	}
-
-	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
-}
-*/
 
 void LLOutfitsList::updateChangedCategoryName(LLViewerInventoryCategory *cat, std::string name)
 {
@@ -710,12 +484,8 @@ void LLOutfitsList::deselectOutfit(const LLUUID& category_id)
 {
 	// Remove selected lists map entry.
 	mSelectedListsMap.erase(category_id);
-
-	// Reset selection if the outfit is selected.
-	if (category_id == mSelectedOutfitUUID)
-	{
-		signalSelectionOutfitUUID(LLUUID::null);
-	}
+    
+    LLOutfitListBase::deselectOutfit(category_id);
 }
 
 void LLOutfitsList::restoreOutfitSelection(LLAccordionCtrlTab* tab, const LLUUID& category_id)
@@ -1056,12 +826,6 @@ void LLOutfitListBase::onOpen(const LLSD& info)
 
         mIsInitialized = true;
     }
-
-    //LLAccordionCtrlTab* selected_tab = mAccordion->getSelectedTab();
-    //if (!selected_tab) return;
-
-    //// Pass focus to the selected outfit tab.
-    //selected_tab->showAndFocusHeader();
 }
 
 void LLOutfitListBase::refreshList(const LLUUID& category_id)
@@ -1133,13 +897,6 @@ void LLOutfitListBase::computeDifference(
     }
 
     uuid_vec_t vcur;
-    //// Creating a vector of currently displayed sub-categories UUIDs.
-    //for (outfits_map_t::const_iterator iter = mOutfitsMap.begin();
-    //    iter != mOutfitsMap.end();
-    //    iter++)
-    //{
-    //    vcur.push_back((*iter).first);
-    //}
     getCurrentCategories(vcur);
 
     LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
@@ -1224,6 +981,15 @@ void LLOutfitListBase::collapseAllFolders()
 void LLOutfitListBase::expandAllFolders()
 {
     onExpandAllFolders();
+}
+
+void LLOutfitListBase::deselectOutfit(const LLUUID& category_id)
+{
+    // Reset selection if the outfit is selected.
+    if (category_id == mSelectedOutfitUUID)
+    {
+        signalSelectionOutfitUUID(LLUUID::null);
+    }
 }
 
 LLContextMenu* LLOutfitContextMenu::createMenu()
@@ -1325,7 +1091,6 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
 
     registrar.add("Gear.UploadPhoto", boost::bind(&LLOutfitListGearMenuBase::onUploadFoto, this));
-    registrar.add("Gear.LoadAssets", boost::bind(&LLOutfitListGearMenuBase::onLoadAssets, this));
     
     enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
     enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenuBase::onVisible, this, _2));
@@ -1350,8 +1115,6 @@ void LLOutfitListGearMenuBase::onUpdateItemsVisibility()
     bool have_selection = getSelectedOutfitID().notNull();
     mMenu->setItemVisible("sepatator1", have_selection);
     mMenu->setItemVisible("sepatator2", have_selection);
-    //mMenu->setItemVisible("expand", mOutfitList->getHasExpandableFolders());
-    //mMenu->setItemVisible("collapse", mOutfitList->getHasExpandableFolders());
     mMenu->arrangeAndClear(); // update menu height
 }
 
@@ -1462,11 +1225,6 @@ bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
 }
 
 void LLOutfitListGearMenuBase::onUploadFoto()
-{
-
-}
-
-void LLOutfitListGearMenuBase::onLoadAssets()
 {
 
 }
