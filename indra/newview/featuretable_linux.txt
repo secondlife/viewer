@@ -31,7 +31,7 @@ RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarMaxVisible      1   12
+RenderAvatarMaxNonImpostors 1   12
 RenderAvatarVP				1	1
 RenderCubeMap				1	1
 RenderDelayVBUpdate			1	0
@@ -49,7 +49,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
-RenderUseImpostors			1	1
 RenderVBOEnable				1	1
 RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	2.0
@@ -77,7 +76,7 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
-RenderAvatarMaxVisible      1   3
+RenderAvatarMaxNonImpostors 1   3
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
@@ -90,7 +89,6 @@ RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
@@ -108,7 +106,7 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
-RenderAvatarMaxVisible      1   3
+RenderAvatarMaxNonImpostors 1   3
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
@@ -121,7 +119,6 @@ RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
@@ -151,7 +148,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
@@ -181,7 +177,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -211,7 +206,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -241,7 +235,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -271,7 +264,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -301,7 +293,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -405,7 +396,6 @@ RenderAvatarVP				0	0
 RenderObjectBump			0	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
-RenderUseImpostors			0	0
 RenderVBOEnable				1	0
 RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0

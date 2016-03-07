@@ -4,7 +4,7 @@ version 37
 // resetting the graphics preferences of all users to the recommended
 // defaults.  This should be as rare an event as we can manage.
 
-// NOTE: This is mostly identical to featuretable_mac.txt with a few differences
+// NOTE: This is mostly identical to featuretable.txt with a few differences
 // Should be combined into one table
 
 //
@@ -31,8 +31,10 @@ RenderAnisotropic				1	0
 RenderAvatarCloth				1	1
 RenderAvatarLODFactor			1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarMaxVisible          1   12
+RenderAvatarMaxNonImpostors     1   12
+RenderAvatarMaxComplexity              1	60000
 RenderAvatarVP					1	1
+RenderAutoMuteSurfaceAreaLimit     1	1000.0
 RenderCubeMap					1	1
 RenderDelayVBUpdate				1	0
 RenderFarClip					1	256
@@ -49,7 +51,6 @@ RenderTerrainDetail				1	1
 RenderTerrainLODFactor			1	2.0
 RenderTransparentWater			1	1
 RenderTreeLODFactor				1	1.0
-RenderUseImpostors				1	1
 RenderVBOEnable					1	1
 RenderVBOMappingDisable			1	1
 RenderVolumeLODFactor			1	2.0
@@ -66,7 +67,6 @@ RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
-WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
@@ -79,7 +79,8 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
-RenderAvatarMaxVisible      1   3
+RenderAvatarMaxNonImpostors 1   3
+RenderAvatarMaxComplexity          1	30000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
@@ -92,7 +93,6 @@ RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
@@ -110,7 +110,8 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
-RenderAvatarMaxVisible      1   3
+RenderAvatarMaxNonImpostors 1   3
+RenderAvatarMaxComplexity          1	30000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
@@ -123,7 +124,6 @@ RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	0.5
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
@@ -153,7 +153,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
@@ -183,7 +182,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -213,7 +211,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -243,7 +240,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -273,7 +269,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -304,7 +299,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -319,6 +313,9 @@ RenderFSAASamples			1	2
 //
 list Unknown
 RenderVBOEnable				1	0
+RenderShadowDetail			1	0
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
 
 //
 // Class 0 Hardware (just old)
@@ -343,6 +340,7 @@ RenderVBOEnable				1	1
 //
 list Class3
 RenderVBOEnable				1	1
+
 //
 // Class 4 Hardware
 //
@@ -394,11 +392,12 @@ list safe
 RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
 RenderAvatarVP				0	0
-RenderLocalLights			1	0
+RenderAvatarMaxNonImpostors 1	16
+RenderAvatarMaxComplexity          1	60000
 RenderObjectBump			0	0
+RenderLocalLights			1	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
-RenderUseImpostors			0	0
 RenderVBOEnable				1	0
 RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
@@ -523,7 +522,6 @@ Disregard96DefaultDrawDistance	1	0
 
 list NVIDIA_GeForce_8600
 RenderTextureMemoryMultiple			1	1	
-RenderUseImpostors				0	0
 UseOcclusion				0	0
 
 /// tweaked ATI to 96 Draw distance

@@ -475,8 +475,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mImpl->mObjectPartition.push_back(NULL);					//PARTITION_NONE
 	mImpl->mVOCachePartition = getVOCachePartition();
 
-	mRenderInfoRequestTimer.resetWithExpiry(0.f);		// Set timer to be expired
-	setCapabilitiesReceivedCallback(boost::bind(&LLAvatarRenderInfoAccountant::expireRenderInfoReportTimer, _1));
+	setCapabilitiesReceivedCallback(boost::bind(&LLAvatarRenderInfoAccountant::scanNewRegion, _1));
 }
 
 

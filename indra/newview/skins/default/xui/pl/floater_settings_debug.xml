@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="settings_debug" title="USTAWIENIA DEBUGOWANIA">
 	<radio_group name="boolean_combo">
 		<radio_item label="PRAWDA" name="TRUE" />
-		<radio_item label="NIEPRAWDA" name="FALSE" />
+		<radio_item label="FAŁSZ" name="FALSE" />
 	</radio_group>
-	<color_swatch label="Kolor" name="val_color_swatch"/>
-	<spinner label="x" name="val_spinner_1"/>
-	<spinner label="x" name="val_spinner_2"/>
-	<spinner label="x" name="val_spinner_3"/>
-	<spinner label="x" name="val_spinner_4"/>
-	<button label="Ustawienia domyślne" name="default_btn"/>
+	<color_swatch name="val_color_swatch" label="Kolor" />
+	<button label="Domyślnie" name="default_btn" />
 </floater>

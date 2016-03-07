@@ -5048,7 +5048,7 @@ void LLViewerObject::updateText()
 		    {
 		        mText->setHidden(avatar->isInMuteList());
 		    }
-
+               
 		    LLVector3 up_offset(0,0,0);
 			up_offset.mV[2] = getScale().mV[VZ]*0.6f;
 			

@@ -1,28 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Ulubione" name="panel_picks">
-	<string name="no_picks" value="Brak Ulubionych"/>
-	<string name="no_classifieds" value="Brak Reklam"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Miejsca" name="panel_picks">
+	<string name="no_picks" value="Brak Miejsc" />
+	<string name="no_classifieds" value="Brak reklam" />
 	<accordion name="accordion">
-		<accordion_tab name="tab_picks" title="Ulubione"/>
-		<accordion_tab name="tab_classifieds" title="Reklamy"/>
+		<accordion_tab name="tab_picks" title="Miejsca" />
+		<accordion_tab name="tab_classifieds" title="Reklamy" />
 	</accordion>
-	<panel label="bottom_panel" name="edit_panel">
+	<panel name="edit_panel">
 		<layout_stack name="edit_panel_ls">
 			<layout_panel name="gear_menu_btn">
-				<button name="new_btn" tool_tip="Stwórz w obecnym miejscu nową zakładkę w ulubionych lub reklamę"/>
+				<button name="new_btn" tool_tip="Stwórz nowe Miejsce lub reklamę w obecnej lokalizacji" />
 			</layout_panel>
 		</layout_stack>
 	</panel>
 	<panel name="buttons_cucks">
 		<layout_stack name="buttons_cucks_ls">
 			<layout_panel name="info_btn_lp">
-				<button label="Informacja" name="info_btn" tool_tip="Pokaż informację o ulubionych"/>
+				<button name="info_btn" tool_tip="Pokaż informacje o Miejscu" />
 			</layout_panel>
 			<layout_panel name="teleport_btn_lp">
-				<button label="Teleportuj" name="teleport_btn" tool_tip="Teleportuj do odpowiadającego obszaru"/>
+				<button label="Teleportuj" name="teleport_btn" tool_tip="Teleportuj do odpowiadającego obszaru" />
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="Mapa" name="show_on_map_btn" tool_tip="Pokaż odpowiadający obszar na Mapie Świata"/>
+				<button label="Mapa" name="show_on_map_btn" tool_tip="Pokaż obszar na mapie świata" />
 			</layout_panel>
 		</layout_stack>
 	</panel>

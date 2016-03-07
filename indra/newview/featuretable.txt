@@ -1,5 +1,5 @@
 version 33
-// The version number above should be implemented IF AND ONLY IF some
+// The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
 // defaults.  This should be as rare an event as we can manage.
@@ -31,8 +31,10 @@ RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarMaxVisible      1   12
+RenderAvatarMaxNonImpostors 1   16
+RenderAvatarMaxComplexity          1	80000
 RenderAvatarVP				1	1
+RenderAutoMuteSurfaceAreaLimit     1	1000.0
 RenderCubeMap				1	1
 RenderDelayVBUpdate			1	0
 RenderFarClip				1	256
@@ -49,7 +51,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
-RenderUseImpostors			1	1
 RenderVBOEnable				1	1
 RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	2.0
@@ -66,11 +67,9 @@ RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
-WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
-
 
 //
 // Low Graphics Settings (fixed function)
@@ -80,20 +79,20 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
-RenderAvatarMaxVisible      1   3
+RenderAvatarMaxNonImpostors 1   3
+RenderAvatarMaxComplexity          1	35000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
+RenderLocalLights			1	0
 RenderMaxPartCount			1	0
 RenderObjectBump			1	0
-RenderLocalLights			1	0
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
@@ -103,7 +102,6 @@ RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
 
-
 //
 // Low Graphics Settings
 //
@@ -112,20 +110,20 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
-RenderAvatarMaxVisible      1   3
+RenderAvatarMaxNonImpostors 1   3
+RenderAvatarMaxComplexity          1	35000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
+RenderLocalLights			1	0
 RenderMaxPartCount			1	0
 RenderObjectBump			1	0
-RenderLocalLights			1	0
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
@@ -155,7 +153,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
@@ -185,7 +182,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -215,7 +211,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -245,7 +240,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -275,7 +269,6 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -293,19 +286,19 @@ list Ultra
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
+RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
+RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
 RenderObjectBump			1	1
-RenderLocalLights			1	1
 RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
-RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -314,7 +307,6 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
-
 
 //
 // Class Unknown Hardware (unknown)
@@ -407,18 +399,18 @@ list safe
 RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
 RenderAvatarVP				0	0
+RenderAvatarMaxNonImpostors 1	16
+RenderAvatarMaxComplexity          1	60000
 RenderObjectBump			0	0
 RenderLocalLights			1	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
-RenderUseImpostors			0	0
 RenderVBOEnable				1	0
 RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
-		
 
 //
 // CPU based feature masks
@@ -462,37 +454,30 @@ UseOcclusion				0	0
 list Intel_830M
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_845G					
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_855GM				
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_865G			
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_900		
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_915GM	
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_915G					
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_945GM			
 RenderTerrainDetail			1	0

@@ -1,13 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="objectcontents" title="ZAWARTOŚĆ OBIEKTU">
-	<text name="object_name">
-		[DESC]:
-	</text>
 	<text name="border_note">
 		Kopiuj do Szafy i załóż
 	</text>
-	<button label="Dodaj do stroju" label_selected="Dodaj do stroju" name="copy_and_wear_button"/>
-	<button label="Zastąp strój" label_selected="Zastąp strój" name="copy_and_replace_button"/>
-	<button label="Tylko skopiuj do Szafy" label_selected="Tylko skopiuj do Szafy" name="copy_to_inventory_button"/>
-	<button label="Anuluj" label_selected="Anuluj" name="cancel_button"/>
+	<button label="Dodaj do stroju" label_selected="Dodaj do stroju" name="copy_and_wear_button" />
+	<button label="Zastąp strój" label_selected="Zastąp strój" name="copy_and_replace_button" />
+	<button label="Tylko skopiuj do Szafy" label_selected="Tylko skopiuj do Szafy" name="copy_to_inventory_button" />
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_button" />
 </floater>

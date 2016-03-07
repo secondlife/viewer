@@ -472,7 +472,9 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 
 	BOOL impostor = avatarp->isImpostor();
-	if (impostor)
+	if (impostor 
+		&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
+		&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
 	{
 		return;
 	}
@@ -1246,7 +1248,9 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	BOOL impostor = avatarp->isImpostor() && !single_avatar;
 
-	if (impostor && pass != 0)
+	if (( avatarp->isInMuteList() 
+		  || impostor 
+		  || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()) ) && pass != 0)
 	{ //don't draw anything but the impostor for impostored avatars
 		return;
 	}
@@ -1263,7 +1267,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			LLVOAvatar::sNumVisibleAvatars++;
 		}
 
-		if (impostor)
+		if (impostor || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()))
 		{
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && avatarp->mImpostor.isComplete()) 
 			{
@@ -1281,13 +1285,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	llassert(LLPipeline::sImpostorRender || !avatarp->isVisuallyMuted());
-
-	/*if (single_avatar && avatarp->mSpecialRenderMode >= 1) // 1=anim preview, 2=image preview,  3=morph view
-	{
-		gPipeline.enableLightsAvatarEdit(LLColor4(.5f, .5f, .5f, 1.f));
-	}*/
-	
 	if (pass == 1)
 	{
 		// render rigid meshes (eyeballs) first
@@ -1811,7 +1808,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			{
 				//order is important here LLRender::DIFFUSE_MAP should be last, becouse it change 
 				//(gGL).mCurrTextureUnitIndex
-				gGL.getTexUnit(specular_channel)->bind(face->getTexture(LLRender::SPECULAR_MAP));
+				gGL.getTexUnit(specular_channel)->bind(LLPipeline::sImpostorRender ? LLViewerTextureManager::findTexture(IMG_BLACK_SQUARE_MALEVICH) : face->getTexture(LLRender::SPECULAR_MAP));
 				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
 				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP), false, true);
 

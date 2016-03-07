@@ -2763,8 +2763,9 @@ This is usually a temporary failure. Please customize and save the wearable agai
    icon="alertmodal.tga"
    name="YouHaveBeenLoggedOut"
    type="alertmodal">
-Darn. You have been logged out of [SECOND_LIFE]
-            [MESSAGE]
+Darn. You have been logged out of [SECOND_LIFE].
+
+[MESSAGE]
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -3330,6 +3331,29 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
       <ignore name="ignore"
        text="Clothing is taking a long time to download"/>
     </form>
+  </notification>
+
+  <notification
+   icon = "notifytip.tga"
+   name = "RegionAndAgentComplexity"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 visual complexity] is [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+  </notification>
+
+  <notification
+   icon = "notifytip.tga"
+   name = "AgentComplexity"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 visual complexity] is [AGENT_COMPLEXITY].
   </notification>
 
   <notification
@@ -4140,29 +4164,7 @@ Leave Group?
   </notification>
 
   <notification
-   icon="aler.tga"
-   name="GroupDepartError"
-   type="alert">
-Unable to leave group: [reason].
-      <tag>reason</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
-  </notification>
-
-  <notification
    icon="alert.tga"
-   name="GroupDepart"
-   type="alert">
-You have left the group [group_name].
-      <tag>group_name</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="aler.tga"
    name="GroupDepartError"
    type="alert">
 Unable to leave group: [reason].
@@ -8274,6 +8276,20 @@ Are you sure you want to close all IMs?
   <notification icon="notifytip.tga"
 		name="AttachmentSaved" type="notifytip">
 Attachment has been saved.
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+	name="PresetNotSaved"
+    type="notifytip">
+Error saving preset [NAME].
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+	name="PresetNotDeleted"
+    type="notifytip">
+Error deleting preset [NAME].
   </notification>
 
   <notification

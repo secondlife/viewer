@@ -98,6 +98,10 @@ void LLFeatureList::addFeature(const std::string& name, const BOOL available, co
 	}
 
 	LLFeatureInfo fi(name, available, level);
+    LL_DEBUGS_ONCE("RenderInit") << "Feature '" << name << "' "
+                                 << (available ? "" : "not " ) << "available"
+                                 << " at " << level
+                                 << LL_ENDL;
 	mFeatures[name] = fi;
 }
 
@@ -119,6 +123,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
 {
 	if (mFeatures.count(name) && isFeatureAvailable(name))
 	{
+        LL_DEBUGS_ONCE("RenderInit") << "Setting '" << name << "' to recommended value " <<  mFeatures[name].mRecommendedLevel << LL_ENDL;
 		return mFeatures[name].mRecommendedLevel;
 	}
 
@@ -128,7 +133,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
 
 BOOL LLFeatureList::maskList(LLFeatureList &mask)
 {
-	//LL_INFOS() << "Masking with " << mask.mName << LL_ENDL;
+	LL_DEBUGS_ONCE() << "Masking with " << mask.mName << LL_ENDL;
 	//
 	// Lookup the specified feature mask, and overlay it on top of the
 	// current feature mask.
@@ -294,7 +299,7 @@ bool LLFeatureManager::loadFeatureTables()
 	app_path += filename;
 
 	
-	// second table is downloaded with HTTP
+	// second table is downloaded with HTTP - note that this will only be used on the run _after_ it is downloaded
 	std::string http_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, http_filename);
 
 	// use HTTP table if it exists
@@ -378,11 +383,11 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 			file >> name;
 			if (!mMaskList.count(name))
 			{
-			flp = new LLFeatureList(name);
-			mMaskList[name] = flp;
-		}
-		else
-		{
+                flp = new LLFeatureList(name);
+                mMaskList[name] = flp;
+            }
+            else
+            {
 				LL_WARNS("RenderInit") << "Overriding mask " << name << ", this is invalid!" << LL_ENDL;
 				parse_ok = false;
 			}
@@ -391,11 +396,11 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 		{
 			if (flp)
 			{
-			S32 available;
-			F32 recommended;
-			file >> available >> recommended;
-			flp->addFeature(name, available, recommended);
-		}
+                S32 available;
+                F32 recommended;
+                file >> available >> recommended;
+                flp->addFeature(name, available, recommended);
+            }
 			else
 			{
 				LL_WARNS("RenderInit") << "Specified parameter before <list> keyword!" << LL_ENDL;
@@ -604,7 +609,7 @@ void LLFeatureManager::applyRecommendedSettings()
 	// cap the level at 2 (high)
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 
-	LL_INFOS() << "Applying Recommended Features" << LL_ENDL;
+	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
 	setGraphicsLevel(level, false);
 	gSavedSettings.setU32("RenderQualityPerformance", level);
@@ -811,7 +816,7 @@ void LLFeatureManager::applyBaseMasks()
 	if (osInfo.mMajorVer == 10 && osInfo.mMinorVer < 7)
 	{
 		maskFeatures("OSX_10_6_8");
-        }
+	}
 #endif
 
 	// now mask by gpu string

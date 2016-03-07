@@ -1,119 +1,78 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Joystick" title="KONFIGURACJA JOYSTICKA">
-	<check_box label="Aktywuj Joystick:" name="enable_joystick"/>
-	<text left="130" name="joystick_type" width="360"/>
-	<spinner label="Kalibracja Osi X" label_width="130" left="20" name="JoystickAxis1" width="170"/>
-	<spinner label="Kalibracja Osi Y" label_width="130" left="210" name="JoystickAxis2" width="170"/>
-	<spinner label="Kalibracja Osi Z" label_width="100" left="400" name="JoystickAxis0" width="140"/>
-	<spinner label="Kalibracja wznoszenia" label_width="130" left="20" name="JoystickAxis4" width="170"/>
-	<spinner label="Kalibracja wychylania" label_width="130" left="210" name="JoystickAxis5" width="170"/>
-	<spinner label="Kalibracja obrotu" label_width="100" left="400" name="JoystickAxis3" width="140"/>
-	<spinner label="Kalibracja powiększania" label_width="130" name="JoystickAxis6" width="170"/>
-	<check_box label="Bezpośrednie" left="205" name="ZoomDirect"/>
-	<check_box label="Kursor 3D" left="340" name="Cursor3D"/>
-	<check_box label="Automatyczne" left="450" name="AutoLeveling"/>
+	<floater.string name="NoDevice">
+		nie wykryto urządzenia
+	</floater.string>
+	<check_box label="Włącz joystick:" name="enable_joystick" />
+	<spinner label="Kalibruj oś X" name="JoystickAxis1" />
+	<spinner label="Kalibruj oś Y" name="JoystickAxis2" />
+	<spinner label="Kalibruj oś Z" name="JoystickAxis0" />
+	<spinner label="Kalibruj wznoszenie" name="JoystickAxis4" />
+	<spinner label="Kalibruj wychył" name="JoystickAxis5" />
+	<spinner label="Kalibruj obrót" name="JoystickAxis3" />
+	<spinner label="Kalibruj powiększenie" name="JoystickAxis6" />
+	<check_box label="Bezp. powięk." name="ZoomDirect" />
+	<check_box label="Kursor 3D" name="Cursor3D" />
+	<check_box label="Autopoziom" name="AutoLeveling" />
 	<text name="Control Modes:">
 		Kontroluj:
 	</text>
-	<check_box label="Awatara" name="JoystickAvatarEnabled" width="90"/>
-	<check_box label="Budowanie" name="JoystickBuildEnabled" width="90"/>
-	<check_box label="Kamerę podczas latania" left="300" name="JoystickFlycamEnabled" width="90"/>
+	<check_box label="Awatara" name="JoystickAvatarEnabled" />
+	<check_box label="Budow." name="JoystickBuildEnabled" />
+	<check_box label="Kamerę latając" name="JoystickFlycamEnabled" />
+	<stat_view label="Monitor Joysticka" name="axis_view">
+		<stat_bar label="Oś 0" name="axis0" />
+		<stat_bar label="Oś 1" name="axis1" />
+		<stat_bar label="Oś 2" name="axis2" />
+		<stat_bar label="Oś 3" name="axis3" />
+		<stat_bar label="Oś 4" name="axis4" />
+		<stat_bar label="Oś 5" name="axis5" />
+	</stat_view>
 	<text name="XScale">
 		Skala X
 	</text>
-	<spinner name="AvatarAxisScale1"/>
-	<spinner name="BuildAxisScale1"/>
-	<spinner left="300" name="FlycamAxisScale1"/>
 	<text name="YScale">
 		Skala Y
 	</text>
-	<spinner name="AvatarAxisScale2"/>
-	<spinner name="BuildAxisScale2"/>
-	<spinner left="300" name="FlycamAxisScale2"/>
 	<text name="ZScale">
 		Skala Z
 	</text>
-	<spinner name="AvatarAxisScale0"/>
-	<spinner name="BuildAxisScale0"/>
-	<spinner left="300" name="FlycamAxisScale0"/>
 	<text name="PitchScale">
 		Skala wznoszenia
 	</text>
-	<spinner name="AvatarAxisScale4"/>
-	<spinner name="BuildAxisScale4"/>
-	<spinner left="300" name="FlycamAxisScale4"/>
 	<text name="YawScale">
 		Skala odchylania
 	</text>
-	<spinner name="AvatarAxisScale5"/>
-	<spinner name="BuildAxisScale5"/>
-	<spinner left="300" name="FlycamAxisScale5"/>
 	<text name="RollScale">
 		Skala obrotu
 	</text>
-	<spinner name="BuildAxisScale3"/>
-	<spinner left="300" name="FlycamAxisScale3"/>
 	<text name="XDeadZone">
 		Tolerancja osi X
 	</text>
-	<spinner name="AvatarAxisDeadZone1"/>
-	<spinner name="BuildAxisDeadZone1"/>
-	<spinner left="300" name="FlycamAxisDeadZone1"/>
 	<text name="YDeadZone">
 		Tolerancja osi Y
 	</text>
-	<spinner name="AvatarAxisDeadZone2"/>
-	<spinner name="BuildAxisDeadZone2"/>
-	<spinner left="300" name="FlycamAxisDeadZone2"/>
 	<text name="ZDeadZone">
 		Tolerancja osi Z
 	</text>
-	<spinner name="AvatarAxisDeadZone0"/>
-	<spinner name="BuildAxisDeadZone0"/>
-	<spinner left="300" name="FlycamAxisDeadZone0"/>
 	<text name="PitchDeadZone">
 		Tolerancja wznoszenia
 	</text>
-	<spinner name="AvatarAxisDeadZone4"/>
-	<spinner name="BuildAxisDeadZone4"/>
-	<spinner left="300" name="FlycamAxisDeadZone4"/>
 	<text name="YawDeadZone">
 		Tolerancja odchylania
 	</text>
-	<spinner name="AvatarAxisDeadZone5"/>
-	<spinner name="BuildAxisDeadZone5"/>
-	<spinner left="300" name="FlycamAxisDeadZone5"/>
 	<text name="RollDeadZone">
 		Tolerancja obrotu
 	</text>
-	<spinner name="BuildAxisDeadZone3"/>
-	<spinner left="300" name="FlycamAxisDeadZone3"/>
 	<text name="Feathering">
 		Przenikanie
 	</text>
-	<slider label="" name="AvatarFeathering"/>
-	<slider label="" name="BuildFeathering"/>
-	<slider label="" left_delta="81" name="FlycamFeathering"/>
 	<text name="ZoomScale2">
 		Skala powiększania
 	</text>
-	<spinner label="" left="300" name="FlycamAxisScale6"/>
 	<text name="ZoomDeadZone">
 		Tolerancja powiększania
 	</text>
-	<spinner label="" left="300" name="FlycamAxisDeadZone6"/>
-	<button label="Ustawienia domyślne" name="SpaceNavigatorDefaults"/>
-	<button label="OK" label_selected="OK" left="366" name="ok_btn"/>
-	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
-	<stat_view label="Monitor Joysticka" name="axis_view">
-		<stat_bar label="Oś 0" name="axis0"/>
-		<stat_bar label="Oś 1" name="axis1"/>
-		<stat_bar label="Oś 2" name="axis2"/>
-		<stat_bar label="Oś 3" name="axis3"/>
-		<stat_bar label="Oś 4" name="axis4"/>
-		<stat_bar label="Oś 5" name="axis5"/>
-	</stat_view>
-	<string name="NoDevice">
-		brak podłącznego urządzenia
-	</string>
+	<button label="Ustawienia domyślne" name="SpaceNavigatorDefaults" />
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
 </floater>

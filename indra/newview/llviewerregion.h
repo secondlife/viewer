@@ -438,7 +438,8 @@ public:
 	static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
 	static S32  sLastCameraUpdated;
 
-	LLFrameTimer &	getRenderInfoRequestTimer()			{ return mRenderInfoRequestTimer;		};
+	LLFrameTimer &	getRenderInfoRequestTimer()	{ return mRenderInfoRequestTimer; };
+	LLFrameTimer &	getRenderInfoReportTimer()	{ return mRenderInfoReportTimer; };
 
 	struct CompareRegionByLastUpdate
 	{
@@ -547,6 +548,7 @@ private:
 	// the materials capability throttle
 	LLFrameTimer mMaterialsCapThrottleTimer;
 	LLFrameTimer mRenderInfoRequestTimer;
+	LLFrameTimer mRenderInfoReportTimer;
 };
 
 inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const

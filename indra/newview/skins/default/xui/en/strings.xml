@@ -2491,6 +2491,14 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
   <string name="DaysOld">[AGEDAYS] old</string>
   <string name="TodayOld">Joined today</string>
 
+  <!-- Avatar complexity rendering messages, see
+       llavatarrendernotifier -->
+  <string name="av_render_everyone_now">Everyone can see you now.</string>
+  <string name="av_render_not_everyone">You may not be rendered by everyone around you.</string>
+  <string name="av_render_over_half">You may not be rendered by over half of those around you.</string>
+  <string name="av_render_most_of">You may not be rendered by most of those around you.</string>
+  <string name="av_render_anyone">You may not be rendered by anyone around you.</string>
+
   <!-- AgeYearsA = singular,
        AgeYearsB = plural,
        AgeYearsC = plural for non-English languages like Russian
@@ -4122,14 +4130,18 @@ Try enclosing path to the editor with double quotes.
     Loading...
   </string>
 
+  <!-- Presets graphic/camera -->
+  <string name="preset_combo_label">-Empty list-</string>
+  <string name="Default">Default</string>
+  <string name="none_paren_cap">(None)</string>
+  <string name="no_limit">No Limit</string>
+  
   <string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
       The physics shape contains triangles which are too small. Try simplifying the physics model.
   </string>
-
   <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
       The physics shape contains bad confirmation data. Try to correct the physics model.
   </string>
-
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">
       The physics shape does not have correct version. Set the correct version for the physics model.
   </string>

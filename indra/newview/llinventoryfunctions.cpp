@@ -1605,7 +1605,7 @@ bool sort_alpha(const LLViewerInventoryCategory* cat1, const LLViewerInventoryCa
 
 void dump_trace(std::string& message, S32 depth, LLError::ELevel log_level)
 {
-    LL_INFOS() << "validate_marketplacelistings : error = "<< log_level << ", depth = " << depth << ", message = " << message <<  LL_ENDL;
+    LL_INFOS("SLM") << "validate_marketplacelistings : error = "<< log_level << ", depth = " << depth << ", message = " << message <<  LL_ENDL;
 }
 
 // Make all relevant business logic checks on the marketplace listings starting with the folder as argument.
