@@ -1470,6 +1470,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
     while (mVoiceEnabled && !mSessionTerminateRequested && !mTuningMode)
     {
+        sendCaptureAndRenderDevices();
         if (mAudioSession && mAudioSession->mParticipantsChanged)
         {
             mAudioSession->mParticipantsChanged = false;
@@ -1555,6 +1556,24 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
     terminateAudioSession(true);
 
     return true;
+}
+
+void LLVivoxVoiceClient::sendCaptureAndRenderDevices()
+{
+    if (mCaptureDeviceDirty || mRenderDeviceDirty)
+    {
+        std::ostringstream stream;
+
+        buildSetCaptureDevice(stream);
+        buildSetRenderDevice(stream);
+
+        if (!stream.str().empty())
+        {
+            writeString(stream.str());
+        }
+
+        llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
+    }
 }
 
 void LLVivoxVoiceClient::recordingAndPlaybackMode()

@@ -749,7 +749,8 @@ private:
     void setHidden(bool hidden); //virtual
 	void sendPositionAndVolumeUpdate(void);
 	
-	void buildSetCaptureDevice(std::ostringstream &stream);
+    void sendCaptureAndRenderDevices();
+    void buildSetCaptureDevice(std::ostringstream &stream);
 	void buildSetRenderDevice(std::ostringstream &stream);
 	
 
