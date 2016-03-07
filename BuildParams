@@ -70,15 +70,12 @@ additional_packages = ""
 # the viewer_channel_suffix is prefixed by a blank and then appended to the viewer_channel
 # for the package in a setting that overrides the compiled-in value
 ################################################################
-## Removed 2015-07-02 (MAINT-5360) until we fix packaging step in Team City
-## additional_packages = "EDU"
+additional_packages = "EDU"
 
 # The EDU package allows us to create a separate release channel whose expirations
 # are synchronized as much as possible with the academic year
-## Removed 2015-07-02 (MAINT-5360) until we fix packaging step in Team City
-## EDU_sourceid = ""
-## Removed 2015-07-02 (MAINT-5360) until we fix packaging step in Team City
-## EDU_viewer_channel_suffix = "edu"
+EDU_sourceid = ""
+EDU_viewer_channel_suffix = "edu"
 
 # Notifications - to configure email notices, add a setting like this:
 # <username>_<reponame>.email = <email-address>

@@ -144,6 +144,43 @@ if (LL_TESTS)
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
 
+if (DARWIN)
+  # Path inside the app bundle where we'll need to copy libraries
+  set(LL_TEST_DESTINATION_DIR
+    ${CMAKE_SOURCE_DIR}/../build-darwin-i386/sharedlibs/Resources
+  )
+
+  # Create the Contents/Resources directory
+  add_custom_command(
+    TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS
+      -E
+      make_directory
+      ${LL_TEST_DESTINATION_DIR}
+    COMMENT "Creating Resources directory in app bundle."
+  )
+  
+  # Copy the required libraries to the package app
+  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libapr-1.0.dylib ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libapr-1.0.dylib
+  )
+  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libaprutil-1.0.dylib ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libaprutil-1.0.dylib
+  )
+  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexception_handler.dylib ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexception_handler.dylib
+  )
+  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexpat.1.5.2.dylib ${LL_TEST_DESTINATION_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/../build-darwin-i386/packages/lib/release/libexpat.1.5.2.dylib
+  )
+
+endif (DARWIN)
+
   #
   # Example Programs
   #
