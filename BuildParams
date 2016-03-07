@@ -4,7 +4,7 @@
 #  https://wiki.secondlife.com/wiki/Automated_Build_System
 
 
-# Global setting for now...
+# Global setting for now....
 Darwin.symbolfiles = "newview/Release/secondlife-symbols-darwin.tar.bz2"
 CYGWIN.symbolfiles = "newview/Release/secondlife-symbols-windows.tar.bz2"
 Linux.symbolfiles = "newview/secondlife-symbols-linux.tar.bz2"
@@ -19,6 +19,8 @@ build_Linux_Debug = false
 build_Darwin_Debug = false
 build_Debug = false
 
+# enable Doxygen building on Linux for TeamCity (it can be done manually on any platform)
+build_Linux_Doxygen = true
 
 # Update Public Inworld Build Status Indicators (setting should mirror "public_build")
 email_status_this_is_os = true
@@ -77,121 +79,9 @@ additional_packages = "EDU"
 EDU_sourceid = ""
 EDU_viewer_channel_suffix = "edu"
 
-# Notifications - to configure email notices, add a setting like this:
-# <username>_<reponame>.email = <email-address>
+# Notifications - to configure email notices use the TeamCity parameter
+# setting screen for your project or build configuration to set the
+# environment variable 'email' to a space-separated list of email addresses
 
-# ========================================
-# mesh-development
-# ========================================
-mesh-development.viewer_channel = "Project Viewer - Mesh"
-mesh-development.viewer_grid = aditi
-mesh-development.build_debug_release_separately = true
-mesh-development.build_CYGWIN_Debug = false
-mesh-development.build_viewer_update_version_manager = false
-
-# ========================================
-# mesh-development-release-1-candidate
-# ========================================
-mesh-development-release-1-candidate.viewer_channel = "Project Viewer - Mesh"
-mesh-development-release-1-candidate.viewer_grid = agni
-mesh-development-release-1-candidate.build_debug_release_separately = true
-mesh-development-release-1-candidate.build_CYGWIN_Debug = false
-mesh-development-release-1-candidate.build_viewer_update_version_manager = false
-
-# ========================================
-# mesh-development-rc
-# ========================================
-mesh-development-rc.viewer_channel = "Project Viewer - Mesh"
-mesh-development-rc.viewer_grid = agni
-mesh-development-rc.build_debug_release_separately = true
-mesh-development-rc.build_CYGWIN_Debug = false
-mesh-development-rc.build_viewer_update_version_manager = false
-
-# ========================================
-# mesh-asset-deprecation
-# ========================================
-mesh-asset-deprecation.viewer_channel = "Project Viewer - Mesh Asset Deprecation"
-mesh-asset-deprecation.viewer_grid = aditi
-mesh-asset-deprecation.build_debug_release_separately = true
-mesh-asset-deprecation.build_CYGWIN_Debug = false
-mesh-asset-deprecation.build_viewer_update_version_manager = false
-
-# ========================================
-# viewer-mesh
-# ========================================
-
-viewer-mesh.build_viewer = true
-viewer-mesh.build_server = false
-viewer-mesh.build_Linux = true
-viewer-mesh.build_hg_bundle = true
-viewer-mesh.build_viewer_update_version_manager = false
-viewer-mesh.build_Debug = false
-viewer-mesh.build_RelWithDebInfo = false
-viewer-mesh.viewer_channel = "Project Viewer - Mesh"
-viewer-mesh.viewer_grid = aditi
-viewer-mesh.email = shining@lists.lindenlab.com
-
-# =================================================================
-# asset delivery 2010 projects
-# =================================================================
-viewer-asset-delivery.viewer_channel = "Second Life Development"
-viewer-asset-delivery.build_viewer_update_version_manager = false
-viewer-asset-delivery.email = monty@lindenlab.com
-viewer-asset-delivery.build_server = false
-viewer-asset-delivery.build_server_tests = false
-
-viewer-asset-delivery-metrics.viewer_channel = "Second Life Development"
-viewer-asset-delivery-metrics.build_viewer_update_version_manager = false
-viewer-asset-delivery-metrics.email = monty@lindenlab.com
-viewer-asset-delivery-metrics.build_server = false
-viewer-asset-delivery-metrics.build_server_tests = false
-
-# ========================================
-# Simon says
-# ========================================
-simon_viewer-dev-private.public_build = false
-simon_viewer-dev-private.email_status_this_is_os = false
-
-
-# ========================================
-# Vir
-# ========================================
-vir-project-1.viewer_channel = "Second Life Release"
-
-# ========================================
-# Merov
-# ========================================
-merov-viewer-maint-2287.viewer_channel = "Second Life Project Merchant Outbox"
-merov-viewer-maint-2287.login_channel = "Second Life Project Merchant Outbox"
-merov-viewer-maint-2287.build_viewer_update_version_manager = false
-merov-viewer-maint-2287.codeticket_add_context = false
-
-# ========================================
-# THX-1138 / Runway projects
-# ========================================
-viewer-thx1138-runway-shared.viewer_channel = "Project Viewer - THX-1138 Runway"
-viewer-thx1138-runway-shared.viewer_grid = uma
-viewer-thx1138-runway-shared.build_debug_release_separately = true
-viewer-thx1138-runway-shared.build_CYGWIN_Debug = false
-viewer-thx1138-runway-shared.build_viewer_update_version_manager = false
-
-viewer-thx1138.viewer_channel = "Project Viewer - THX-1138"
-viewer-thx1138.viewer_grid = uma
-viewer-thx1138.build_debug_release_separately = true
-viewer-thx1138.build_CYGWIN_Debug = false
-viewer-thx1138.build_viewer_update_version_manager = false
-
-runway-merge.viewer_channel = "Project Viewer - Runway Merge"
-runway-merge.viewer_grid = agni
-runway-merge.build_debug_release_separately = true
-runway-merge.build_CYGWIN_Debug = false
-runway-merge.build_viewer_update_version_manager = false
-
-runway.viewer_channel = "Project Viewer - Runway"
-runway.viewer_grid = agni
-runway.build_debug_release_separately = true
-runway.build_CYGWIN_Debug = false
-runway.build_viewer_update_version_manager = false
-# eof
 
 

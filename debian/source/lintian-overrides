@@ -1,0 +1,8 @@
+# Linden packages install in opt/linden
+secondlife-viewer: dir-or-file-in-opt
+secondlife-viewer: section-is-dh_make-template
+secondlife-viewer: binary-without-manpage
+secondlife-viewer: maintainer-script-empty postrm
+secondlife-viewer: maintainer-script-empty preinst
+secondlife-viewer: maintainer-script-empty prerm
+secondlife-viewer: unstripped-binary-or-object

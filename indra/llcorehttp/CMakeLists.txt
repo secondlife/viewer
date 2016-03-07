@@ -134,9 +134,13 @@ if (LL_TESTS)
       ${BOOST_THREAD_LIBRARY}
       )
 
+  # If http_proxy is in the current environment (e.g. to fetch s3-proxy
+  # autobuild packages), suppress it for this integration test: it screws up
+  # the tests.
   LL_ADD_INTEGRATION_TEST(llcorehttp
                           "${llcorehttp_TEST_SOURCE_FILES}"
                           "${test_libs}"
+                          "-Dhttp_proxy"
                           ${PYTHON_EXECUTABLE}
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )

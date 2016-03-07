@@ -92,7 +92,6 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "lscript_byteformat.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
 
@@ -4135,6 +4134,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 	}
 }
 
+
 void LLAgent::stopCurrentAnimations()
 {
 	// This function stops all current overriding animations on this
@@ -4173,6 +4173,47 @@ void LLAgent::stopCurrentAnimations()
 		if (mRegionp &&
 			gSavedSettings.getBOOL("RevokePermsOnStopAnimation"))
 		{
+            typedef enum e_lscript_runtime_permissions
+            {
+                SCRIPT_PERMISSION_DEBIT,
+                SCRIPT_PERMISSION_TAKE_CONTROLS,
+                SCRIPT_PERMISSION_REMAP_CONTROLS,
+                SCRIPT_PERMISSION_TRIGGER_ANIMATION,
+                SCRIPT_PERMISSION_ATTACH,
+                SCRIPT_PERMISSION_RELEASE_OWNERSHIP,
+                SCRIPT_PERMISSION_CHANGE_LINKS,
+                SCRIPT_PERMISSION_CHANGE_JOINTS,
+                SCRIPT_PERMISSION_CHANGE_PERMISSIONS,
+                SCRIPT_PERMISSION_TRACK_CAMERA,
+                SCRIPT_PERMISSION_CONTROL_CAMERA,
+                SCRIPT_PERMISSION_TELEPORT,
+                SCRIPT_PERMISSION_EXPERIENCE,
+                SCRIPT_PERMISSION_SILENT_ESTATE_MANAGEMENT,
+                SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS,
+                SCRIPT_PERMISSION_RETURN_OBJECTS,
+                SCRIPT_PERMISSION_EOF
+            } LSCRIPTRunTimePermissions;
+
+            const U32 LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_EOF] =
+                {
+                    (0x1 << 1),	//	SCRIPT_PERMISSION_DEBIT,
+                    (0x1 << 2),	//	SCRIPT_PERMISSION_TAKE_CONTROLS,
+                    (0x1 << 3),	//	SCRIPT_PERMISSION_REMAP_CONTROLS,
+                    (0x1 << 4),	//	SCRIPT_PERMISSION_TRIGGER_ANIMATION,
+                    (0x1 << 5),	//	SCRIPT_PERMISSION_ATTACH,
+                    (0x1 << 6),	//	SCRIPT_PERMISSION_RELEASE_OWNERSHIP,
+                    (0x1 << 7),	//	SCRIPT_PERMISSION_CHANGE_LINKS,
+                    (0x1 << 8),	//	SCRIPT_PERMISSION_CHANGE_JOINTS,
+                    (0x1 << 9),	//	SCRIPT_PERMISSION_CHANGE_PERMISSIONS
+                    (0x1 << 10),//	SCRIPT_PERMISSION_TRACK_CAMERA
+                    (0x1 << 11),//	SCRIPT_PERMISSION_CONTROL_CAMERA
+                    (0x1 << 12),//	SCRIPT_PERMISSION_TELEPORT
+                    (0x1 << 13),//	SCRIPT_PERMISSION_EXPERIENCE
+                    (0x1 << 14),//  SCRIPT_PERMISSION_SILENT_ESTATE_MANAGEMENT
+                    (0x1 << 15),//  SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS
+                    (0x1 << 16),//	SCRIPT_PERMISSION_RETURN_OBJECTS
+                };
+
 			U32 permissions = LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TRIGGER_ANIMATION] | LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS];
 			sendRevokePermissions(mRegionp->getRegionID(), permissions);
 			if (gAgentAvatarp->isSitting())
