@@ -439,8 +439,6 @@ bool LLCrashLogger::sendCrashLogs()
     }       
 
     return sendCrashLog(rec["dumpdir"].asString());
-
-    return true;
 }
 
 void LLCrashLogger::updateApplication(const std::string& message)
