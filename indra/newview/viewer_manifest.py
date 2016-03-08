@@ -28,6 +28,7 @@ $/LicenseInfo$
 """
 import sys
 import os.path
+import shutil
 import errno
 import re
 import tarfile
@@ -855,14 +856,17 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # This code constructs a relative path from the
                 # target framework folder back to the location of the symlink.
                 # It needs to be relative so that the symlink still works when
-                # (as is normal) the user moves the app bunlde out of the DMG
+                # (as is normal) the user moves the app bundle out of the DMG
                 # and into the /Applications folder. Note we also call 'raise'
                 # to terminate the process if we get an error since without
                 # this symlink, Second Life web media can't possibly work.
                 # Real Framework folder:
                 #   Second Life.app/Contents/Frameworks/Chromium Embedded Framework.framework/
-                # Location of symlink and why it'ds relavie 
+                # Location of symlink and why it'ds relative 
                 #   Second Life.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                # Real Frameworks folder, with the symlink inside the bundled SLPlugin.app (and why it's relative)
+                #   <top level>.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                #   <top level>.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework ->
                 frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks", "Chromium Embedded Framework.framework")
                 try:
                     symlinkf(frameworkpath, pluginframeworkpath)
@@ -871,10 +875,6 @@ class Darwin_i386_Manifest(ViewerManifest):
                     raise
 
             self.end_prefix("Contents")
-
-        # fix up media_plugin.dylib so it knows where to look for CEF files it needs
-        self.run_command('install_name_tool -change "@executable_path/Chromium Embedded Framework" "@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%(config)s/Second Life.app/Contents/Resources/llplugin/media_plugin_cef.dylib"' %
-                        { 'config' : self.args['configuration'] })
 
         # NOTE: the -S argument to strip causes it to keep enough info for
         # annotated backtraces (i.e. function names in the crash log).  'strip' with no
@@ -1247,12 +1247,33 @@ def symlinkf(src, dst):
         # file, but that strategy doesn't work so well if we don't have
         # permissions to remove it. Check to see if it's already the
         # symlink we want, which is the usual reason for EEXIST.
-        if not (os.path.islink(dst) and os.readlink(dst) == src):
-            # Here either dst isn't a symlink or it's the wrong symlink.
-            # Remove and recreate. Caller will just have to deal with any
-            # exceptions at this stage.
+        elif os.path.islink(dst):
+            if os.readlink(dst) == src:
+                # the requested link already exists
+                pass
+            else:
+                # dst is the wrong symlink; attempt to remove and recreate it
+                os.remove(dst)
+                os.symlink(src, dst)
+        elif os.path.isdir(dst):
+            print "Requested symlink (%s) exists but is a directory; replacing" % dst
+            shutil.rmtree(dst)
+            os.symlink(src, dst)
+        elif os.path.exists(dst):
+            print "Requested symlink (%s) exists but is a file; replacing" % dst
             os.remove(dst)
             os.symlink(src, dst)
+        else:
+            # see if the problem is that the parent directory does not exist
+            # and try to explain what is missing
+            (parent, tail) = os.path.split(dst)
+            while not os.path.exists(parent):
+                (parent, tail) = os.path.split(parent)
+            if tail:
+                raise Exception("Requested symlink (%s) cannot be created because %s does not exist"
+                                % os.path.join(parent, tail))
+            else:
+                raise
 
 if __name__ == "__main__":
     main()
