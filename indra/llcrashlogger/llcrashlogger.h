@@ -51,7 +51,6 @@ public:
     void mergeLogs( LLSD src_sd );
 
 	virtual void gatherPlatformSpecificFiles() {}
-	bool saveCrashBehaviorSetting(S32 crash_behavior);
     bool sendCrashLog(std::string dump_dir);
 	bool sendCrashLogs();
 	LLSD constructPostData();
