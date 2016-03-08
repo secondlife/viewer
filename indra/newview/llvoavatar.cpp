@@ -5521,17 +5521,14 @@ BOOL LLVOAvatar::loadSkeletonNode ()
 			LLJoint *parent_joint = getJoint(info->mJointName);
             if (!parent_joint)
             {
-                // If the intended location for attachment point is unavailable, stick it in a default location.
-                LL_INFOS() << "attachment pt " << info->mName << " using mPelvis as default parent" << LL_ENDL;
-                parent_joint = getJoint("mPelvis");
-            }
-			if (!parent_joint)
-			{
+                // If the intended parent for attachment point is unavailable, avatar_lad.xml is corrupt.
 				LL_WARNS() << "No parent joint by name " << info->mJointName << " found for attachment point " << info->mName << LL_ENDL;
-				delete attachment;
-				continue;
-			}
-
+				LL_ERRS() << "Invalid avatar_lad.xml file" << LL_ENDL;
+                // If we wanted to continue from this case, we could do:
+				//delete attachment;
+                //continue;
+                // but there's no point.
+            }
 			if (info->mHasPosition)
 			{
 				attachment->setOriginalPosition(info->mPosition);

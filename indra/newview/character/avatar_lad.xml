@@ -490,7 +490,7 @@
      group="8"
      pie_slice="7"
      name="Alt Left Ear"
-     joint="mFaceEarLeft"
+     joint="mFaceEar1Left"
      position="0.000 0.000 0.000"
      rotation="0 0 0"
      visible_in_first_person="true"/>
@@ -500,7 +500,7 @@
      group="8"
      pie_slice="8"
      name="Alt Right Ear"
-     joint="mFaceEarRight"
+     joint="mFaceEar1Right"
      position="0.000 0.000 0.000"
      rotation="0 0 0"
      visible_in_first_person="true"/>
