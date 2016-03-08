@@ -46,6 +46,26 @@ typedef void *CursorRef;
 typedef void *NSWindowRef;
 typedef void *GLViewRef;
 
+
+struct NativeKeyEventData {
+    enum EventType {
+        KEYUNKNOWN,
+        KEYUP,
+        KEYDOWN,
+        KEYCHAR
+    };
+    
+    EventType   mKeyEvent;
+    uint32_t    mEventType;
+    uint32_t    mEventModifiers;
+    uint32_t    mEventKeyCode;
+    uint32_t    mEventChars;
+    uint32_t    mEventUnmodChars;
+    bool        mEventRepeat;
+};
+
+typedef const NativeKeyEventData * NSKeyEventRef;
+
 // These are defined in llappviewermacosx.cpp.
 bool initViewer();
 void handleQuit();
@@ -102,8 +122,8 @@ void setupInputWindow(NSWindowRef window, GLViewRef view);
 
 // These are all implemented in llwindowmacosx.cpp.
 // This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)
-bool callKeyUp(unsigned short key, unsigned int mask);
-bool callKeyDown(unsigned short key, unsigned int mask);
+bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask);
+bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask);
 void callResetKeys();
 bool callUnicodeCallback(wchar_t character, unsigned int mask);
 void callRightMouseDown(float *pos, unsigned int mask);

@@ -1592,10 +1592,23 @@ The object may be out of range or may have been deleted.
    icon="alertmodal.tga"
    name="CannotDownloadFile"
    type="alertmodal">
-Unable to download file
-  <tag>fail</tag>
+    Unable to download file
+    <tag>fail</tag>
   </notification>
 
+  <notification
+  name="MediaFileDownloadUnsupported"
+  label=""
+  type="alert">
+    <unique/>
+    <tag>confirm</tag>
+    You have requested a file download, which is not supported within [SECOND_LIFE].
+    <usetemplate
+     ignoretext="Warn about unsupported file downloads"
+     name="okignore"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="CannotWriteFile"

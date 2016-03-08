@@ -76,6 +76,7 @@ protected:
 	void setEditGroup(LLUUID group_id);
 
     void changeToView();
+    void changeToEdit();
 
     void experienceForgotten();
     void experienceBlocked();
@@ -99,6 +100,7 @@ protected:
     int mSaveCompleteAction;
     bool mDirty;
     bool mForceClose;
+    bool mPostEdit; // edit experience after opening and updating it
 };
 
 #endif // LL_LLFLOATEREXPERIENCEPROFILE_H

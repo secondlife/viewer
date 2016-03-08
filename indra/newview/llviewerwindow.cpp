@@ -1137,7 +1137,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 
 				if (prim_media_dnd_enabled)
 				{
-					LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
+					LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/, FALSE );
 
 					LLUUID object_id = pick_info.getObjectID();
 					S32 object_face = pick_info.mObjectFace;
@@ -1381,7 +1381,11 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 	// it's all entered/processed.
 	if (key == KEY_RETURN && mask == MASK_NONE)
 	{
-		return FALSE;
+        // RIDER: although, at times some of the controlls (in particular the CEF viewer
+        // would like to know about the KEYDOWN for an enter key... so ask and pass it along.
+        LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
+        if (keyboard_focus && !keyboard_focus->wantsReturnKey())
+    		return FALSE;
 	}
 
 	return gViewerKeyboard.handleKey(key, mask, repeated);
@@ -1399,9 +1403,8 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 		tool_inspectp->keyUp(key, mask);
 	}
 
-	return FALSE;
+	return gViewerKeyboard.handleKeyUp(key, mask);
 }
-
 
 void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
@@ -2019,6 +2022,7 @@ void LLViewerWindow::initWorldUI()
 		}
 		gHUDView = new LLHUDView(hud_rect);
 		getRootView()->addChild(gHUDView);
+		getRootView()->sendChildToBack(gHUDView);
 	}
 
 	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
@@ -2544,21 +2548,67 @@ void LLViewerWindow::draw()
 //#endif
 }
 
+// Takes a single keyup event, usually when UI is visible
+BOOL LLViewerWindow::handleKeyUp(KEY key, MASK mask)
+{
+    LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
+
+    if (keyboard_focus
+		&& !(mask & (MASK_CONTROL | MASK_ALT))
+		&& !gFocusMgr.getKeystrokesOnly())
+	{
+		// We have keyboard focus, and it's not an accelerator
+        if (keyboard_focus && keyboard_focus->wantsKeyUpKeyDown())
+        {
+            return keyboard_focus->handleKeyUp(key, mask, FALSE);
+        }
+        else if (key < 0x80)
+		{
+			// Not a special key, so likely (we hope) to generate a character.  Let it fall through to character handler first.
+			return (gFocusMgr.getKeyboardFocus() != NULL);
+		}
+	}
+
+	if (keyboard_focus)
+	{
+		if (keyboard_focus->handleKeyUp(key, mask, FALSE))
+		{
+			LL_DEBUGS() << "LLviewerWindow::handleKeyUp - in 'traverse up' - no loops seen... just called keyboard_focus->handleKeyUp an it returned true" << LL_ENDL;
+			LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+			return TRUE;
+		}
+		else {
+			LL_DEBUGS() << "LLviewerWindow::handleKeyUp - in 'traverse up' - no loops seen... just called keyboard_focus->handleKeyUp an it returned FALSE" << LL_ENDL;
+		}
+	}
+
+	// don't pass keys on to world when something in ui has focus
+	return gFocusMgr.childHasKeyboardFocus(mRootView)
+		|| LLMenuGL::getKeyboardMode()
+		|| (gMenuBarView && gMenuBarView->getHighlightedItem() && gMenuBarView->getHighlightedItem()->isActive());
+}
+
 // Takes a single keydown event, usually when UI is visible
 BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 {
 	// hide tooltips on keypress
 	LLToolTipMgr::instance().blockToolTips();
 
-	if (gFocusMgr.getKeyboardFocus() 
+    LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
+
+    if (keyboard_focus
 		&& !(mask & (MASK_CONTROL | MASK_ALT))
 		&& !gFocusMgr.getKeystrokesOnly())
 	{
 		// We have keyboard focus, and it's not an accelerator
-		if (key < 0x80)
+        if (keyboard_focus && keyboard_focus->wantsKeyUpKeyDown())
+        {
+            return keyboard_focus->handleKey(key, mask, FALSE );
+        }
+		else if (key < 0x80)
 		{
 			// Not a special key, so likely (we hope) to generate a character.  Let it fall through to character handler first.
-			return (gFocusMgr.getKeyboardFocus() != NULL);
+            return (keyboard_focus != NULL);
 		}
 	}
 
@@ -2572,7 +2622,6 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
-	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 
 	// give menus a chance to handle modified (Ctrl, Alt) shortcut keys before current focus 
 	// as long as focus isn't locked
@@ -2598,7 +2647,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// give floaters first chance to handle TAB key
 	// so frontmost floater gets focus
 	// if nothing has focus, go to first or last UI element as appropriate
-	if (key == KEY_TAB && (mask & MASK_CONTROL || gFocusMgr.getKeyboardFocus() == NULL))
+    if (key == KEY_TAB && (mask & MASK_CONTROL || keyboard_focus == NULL))
 	{
 		LL_WARNS() << "LLviewerWindow::handleKey give floaters first chance at tab key " << LL_ENDL;
 		if (gMenuHolder) gMenuHolder->hideMenus();
@@ -2936,7 +2985,7 @@ void LLViewerWindow::updateUI()
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
 	{
 		gDebugRaycastFaceHit = -1;
-		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
+		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE, FALSE,
 											  &gDebugRaycastFaceHit,
 											  &gDebugRaycastIntersection,
 											  &gDebugRaycastTexCoord,
@@ -3764,6 +3813,7 @@ void LLViewerWindow::pickAsync( S32 x,
 								MASK mask,
 								void (*callback)(const LLPickInfo& info),
 								BOOL pick_transparent,
+								BOOL pick_rigged,
 								BOOL pick_unselectable)
 {
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
@@ -3774,7 +3824,7 @@ void LLViewerWindow::pickAsync( S32 x,
 		pick_transparent = TRUE;
 	}
 
-	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, FALSE, TRUE, pick_unselectable, callback);
+	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, TRUE, pick_unselectable, callback);
 	schedulePick(pick_info);
 }
 
@@ -3830,7 +3880,7 @@ void LLViewerWindow::returnEmptyPicks()
 }
 
 // Performs the GL object/land pick.
-LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_transparent, BOOL pick_particle)
+LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_particle)
 {
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
 	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
@@ -3842,7 +3892,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 	
 	// shortcut queueing in mPicks and just update mLastPick in place
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
-	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_particle, TRUE, FALSE, NULL);
+	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_rigged, pick_particle, TRUE, FALSE, NULL);
 	mLastPick.fetchResults();
 
 	return mLastPick;
@@ -3878,6 +3928,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 												LLViewerObject *this_object,
 												S32 this_face,
 												BOOL pick_transparent,
+												BOOL pick_rigged,
 												S32* face_hit,
 												LLVector4a *intersection,
 												LLVector2 *uv,
@@ -3948,7 +3999,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	{
 		if (this_object->isHUDAttachment()) // is a HUD object?
 		{
-			if (this_object->lineSegmentIntersect(mh_start, mh_end, this_face, pick_transparent,
+			if (this_object->lineSegmentIntersect(mh_start, mh_end, this_face, pick_transparent, pick_rigged,
 												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
@@ -3956,7 +4007,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 		}
 		else // is a world object
 		{
-			if (this_object->lineSegmentIntersect(mw_start, mw_end, this_face, pick_transparent,
+			if (this_object->lineSegmentIntersect(mw_start, mw_end, this_face, pick_transparent, pick_rigged,
 												  face_hit, intersection, uv, normal, tangent))
 			{
 				found = this_object;
@@ -3970,7 +4021,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 
 		if (!found) // if not found in HUD, look in world:
 		{
-			found = gPipeline.lineSegmentIntersectInWorld(mw_start, mw_end, pick_transparent,
+			found = gPipeline.lineSegmentIntersectInWorld(mw_start, mw_end, pick_transparent, pick_rigged,
 														  face_hit, intersection, uv, normal, tangent);
 			if (found && !pick_transparent)
 			{
@@ -5246,6 +5297,7 @@ LLPickInfo::LLPickInfo()
 	  mBinormal(),
 	  mHUDIcon(NULL),
 	  mPickTransparent(FALSE),
+	  mPickRigged(FALSE),
 	  mPickParticle(FALSE)
 {
 }
@@ -5253,6 +5305,7 @@ LLPickInfo::LLPickInfo()
 LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos, 
 		       MASK keyboard_mask, 
 		       BOOL pick_transparent,
+			   BOOL pick_rigged,
 			   BOOL pick_particle,
 		       BOOL pick_uv_coords,
 			   BOOL pick_unselectable,
@@ -5271,6 +5324,7 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
 	  mBinormal(),
 	  mHUDIcon(NULL),
 	  mPickTransparent(pick_transparent),
+	  mPickRigged(pick_rigged),
 	  mPickParticle(pick_particle),
 	  mPickUnselectable(pick_unselectable)
 {
@@ -5302,7 +5356,7 @@ void LLPickInfo::fetchResults()
 	}
 
 	LLViewerObject* hit_object = gViewerWindow->cursorIntersect(mMousePt.mX, mMousePt.mY, 512.f,
-									NULL, -1, mPickTransparent, &face_hit,
+									NULL, -1, mPickTransparent, mPickRigged, &face_hit,
 									&intersection, &uv, &normal, &tangent, &start, &end);
 	
 	mPickPt = mMousePt;
@@ -5447,7 +5501,7 @@ void LLPickInfo::getSurfaceInfo()
 	if (objectp)
 	{
 		if (gViewerWindow->cursorIntersect(ll_round((F32)mMousePt.mX), ll_round((F32)mMousePt.mY), 1024.f,
-										   objectp, -1, mPickTransparent,
+										   objectp, -1, mPickTransparent, mPickRigged,
 										   &mObjectFace,
 										   &intersection,
 										   &mSTCoords,

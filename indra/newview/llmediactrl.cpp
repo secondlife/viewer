@@ -57,6 +57,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lllineeditor.h"
 #include "llfloaterwebcontent.h"
 #include "llwindowshade.h"
@@ -423,6 +424,23 @@ BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 	if ( ! result )
 		result = LLPanel::handleKeyHere(key, mask);
 		
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+BOOL LLMediaCtrl::handleKeyUpHere(KEY key, MASK mask)
+{
+	BOOL result = FALSE;
+
+	if (mMediaSource)
+	{
+		result = mMediaSource->handleKeyUpHere(key, mask);
+	}
+
+	if (!result)
+		result = LLPanel::handleKeyUpHere(key, mask);
+
 	return result;
 }
 
@@ -989,19 +1007,23 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			std::string uuid = self->getClickUUID();
 			LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << target << "\", uri is " << url << LL_ENDL;
 
-			LLNotification::Params notify_params;
-			notify_params.name = "PopupAttempt";
-			notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", mMediaTextureID);
-			notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
+			LLWeb::loadURL(url, target, std::string());
 
-			if (mTrusted)
-			{
-				LLNotifications::instance().forceResponse(notify_params, 0);
-			}
-			else
-			{
-				LLNotifications::instance().add(notify_params);
-			}
+			// CP: removing this code because we no longer support popups so this breaks the flow.
+			//     replaced with a bare call to LLWeb::LoadURL(...)
+			//LLNotification::Params notify_params;
+			//notify_params.name = "PopupAttempt";
+			//notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", mMediaTextureID);
+			//notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
+
+			//if (mTrusted)
+			//{
+			//	LLNotifications::instance().forceResponse(notify_params, 0);
+			//}
+			//else
+			//{
+			//	LLNotifications::instance().add(notify_params);
+			//}
 			break;
 		};
 
@@ -1069,6 +1091,13 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LINK_HOVERED, hover text is: " << self->getHoverText() << LL_ENDL;
 			mHoverTextChanged = true;
+		};
+		break;
+
+		case MEDIA_EVENT_FILE_DOWNLOAD:
+		{
+			//llinfos << "Media event - file download requested - filename is " << self->getFileDownloadFilename() << llendl;
+			//LLNotificationsUtil::add("MediaFileDownloadUnsupported");
 		};
 		break;
 
@@ -1149,4 +1178,14 @@ void LLMediaCtrl::setTrustedContent(bool trusted)
 void LLMediaCtrl::updateContextMenuParent(LLView* pNewParent)
 {
 	mContextMenu->updateParent(pNewParent);
+}
+
+bool LLMediaCtrl::wantsKeyUpKeyDown() const
+{
+    return true;
+}
+
+bool LLMediaCtrl::wantsReturnKey() const
+{
+    return true;
 }

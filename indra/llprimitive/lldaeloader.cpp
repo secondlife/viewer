@@ -821,7 +821,8 @@ LLDAELoader::LLDAELoader(
 		opaque_userdata,
 		jointMap,
 		jointsFromNodes),
-mGeneratedModelLimit(modelLimit)
+mGeneratedModelLimit(modelLimit),
+mForceIdNaming(false)
 {
 }
 
@@ -944,6 +945,32 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
 	mTransform.condition();	
 
+	mForceIdNaming = false;
+	std::vector<std::string> checkNames;
+	for (daeInt idx = 0; idx < count; ++idx)
+	{
+		domMesh* mesh = NULL;
+		db->getElement((daeElement**)&mesh, idx, NULL, COLLADA_TYPE_MESH);
+
+		if (mesh)
+		{
+			std::string name = getLodlessLabel(mesh, false);
+
+			std::vector<std::string>::iterator it;
+			it = std::find(checkNames.begin(), checkNames.end(), name);
+			if (it != checkNames.end())
+			{
+				LL_WARNS() << "document has duplicate names, using IDs instead" << LL_ENDL;
+				mForceIdNaming = true;
+				break;
+			}
+			else
+			{
+				checkNames.push_back(name);
+			}
+		}
+	}
+	
 	U32 submodel_limit = count > 0 ? mGeneratedModelLimit/count : 0;
 	for (daeInt idx = 0; idx < count; ++idx)
 	{ //build map of domEntities to LLModel
@@ -1578,9 +1605,9 @@ void LLDAELoader::processChildJoints( domNode* pParentNode )
 //-----------------------------------------------------------------------------
 bool LLDAELoader::isNodeAJoint( domNode* pNode )
 {
-	if ( !pNode )
+    if ( !pNode || !pNode->getName() )
 	{
-		LL_INFOS()<<"Created node is NULL"<<LL_ENDL;
+		LL_INFOS()<<"Created node is NULL or invalid"<<LL_ENDL;
 		return false;
 	}
 	
@@ -1944,7 +1971,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 					
 					if (model->mLabel.empty())
 					{
-						label = getLodlessLabel(instance_geo);
+						label = getLodlessLabel(instance_geo, mForceIdNaming);
 
 						llassert(!label.empty());
 
@@ -2159,12 +2186,17 @@ LLImportMaterial LLDAELoader::profileToMaterial(domProfile_COMMON* material, DAE
 	return mat;
 }
 
-// try to get a decent label for this element
 std::string LLDAELoader::getElementLabel(daeElement *element)
+{
+	return getElementLabel(element, mForceIdNaming);
+}
+
+// try to get a decent label for this element
+std::string LLDAELoader::getElementLabel(daeElement *element, bool forceIdNaming)
 {
 	// if we have a name attribute, use it
 	std::string name = element->getAttribute("name");
-	if (name.length())
+	if (name.length() && !forceIdNaming)
 	{
 		return name;
 	}
@@ -2187,7 +2219,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 
 		// if parent has a name or ID, use it
 		std::string name = parent->getAttribute("name");
-		if (!name.length())
+		if (!name.length() || forceIdNaming)
 		{
 			name = std::string(parent->getID());
 		}
@@ -2230,9 +2262,9 @@ size_t LLDAELoader::getSuffixPosition(std::string label)
 }
 
 // static
-std::string LLDAELoader::getLodlessLabel(daeElement *element)
+std::string LLDAELoader::getLodlessLabel(daeElement *element, bool forceIdNaming)
 {
-	std::string label = getElementLabel(element);
+	std::string label = getElementLabel(element, forceIdNaming);
 	size_t ext_pos = getSuffixPosition(label);
 	if (ext_pos != -1)
 	{
@@ -2303,8 +2335,13 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh)
 	return (status == LLModel::NO_ERRORS);
 }
 
-//static 
 LLModel* LLDAELoader::loadModelFromDomMesh(domMesh *mesh)
+{
+	return loadModelFromDomMesh(mesh, mForceIdNaming);
+}
+
+//static 
+LLModel* LLDAELoader::loadModelFromDomMesh(domMesh *mesh, bool forceIdNaming)
 {
 	LLVolumeParams volume_params;
 	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
@@ -2312,7 +2349,7 @@ LLModel* LLDAELoader::loadModelFromDomMesh(domMesh *mesh)
 	createVolumeFacesFromDomMesh(ret, mesh);
     if (ret->mLabel.empty())
     {
-	    ret->mLabel = getElementLabel(mesh);
+		ret->mLabel = getElementLabel(mesh, forceIdNaming);
     }
     return ret;
 }
@@ -2330,7 +2367,7 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 
 	LLModel* ret = new LLModel(volume_params, 0.f);
 
-	std::string model_name = getLodlessLabel(mesh);
+	std::string model_name = getLodlessLabel(mesh, mForceIdNaming);
 	ret->mLabel = model_name + lod_suffix[mLod];
 
 	llassert(!ret->mLabel.empty());

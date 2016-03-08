@@ -2573,6 +2573,112 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		shader->bind();
 	}
 }
+void LLModelPreview::genModelBBox()
+{
+	LLVector3 min, max;
+	min = this->mModelLoader->mExtents[0];
+	max = this->mModelLoader->mExtents[1];
+	std::vector<LLVector3> v_list;
+	v_list.resize(4);
+	std::map<U8, std::vector<LLVector3> > face_list;
+
+	// Face 0
+	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
+	v_list[1] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
+	v_list[2] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
+	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(0, v_list));
+
+	// Face 1
+	v_list[0] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
+	v_list[1] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
+	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
+	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(1, v_list));
+
+	// Face 2
+	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
+	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
+	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
+	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(2, v_list));
+
+	// Face 3
+	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
+	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
+	v_list[2] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
+	v_list[3] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(3, v_list));
+
+	// Face 4
+	v_list[0] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
+	v_list[1] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
+	v_list[2] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
+	v_list[3] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(4, v_list));
+
+	// Face 5
+	v_list[0] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
+	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
+	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
+	v_list[3] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
+	face_list.insert(std::pair<U8, std::vector<LLVector3> >(5, v_list));
+
+	U16 Idx[] = { 0, 1, 2, 3, 0, 2, };
+
+	U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask, 0);
+	buff->allocateBuffer(4, 6, true);
+
+	LLStrider<LLVector3> pos;
+	LLStrider<U16> idx;
+	LLStrider<LLVector3> norm;
+	LLStrider<LLVector2> tc;
+
+	buff->getVertexStrider(pos);
+	buff->getIndexStrider(idx);
+
+	buff->getNormalStrider(norm);
+	buff->getTexCoord0Strider(tc);
+
+	for (U32 i = 0; i < 6; ++i)
+	{
+		idx[i] = Idx[i];
+	}
+
+	LLVolumeParams volume_params;
+	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+	LLModel* mdl = new LLModel(volume_params, 0.f);
+	mdl->mLabel = "BBOX";  // please adopt name from high LOD (mBaseModel) or from original model otherwise it breaks search mechanics which is name based
+
+	mdl->setNumVolumeFaces(6);
+	for (U8 i = 0; i < 6; ++i)
+	{
+		for (U8 j = 0; j < 4; ++j)
+		{
+			pos[j] = face_list[i][j];
+		}
+
+		mdl->setVolumeFaceData(i, pos, norm, tc, idx, buff->getNumVerts(), buff->getNumIndices());
+	}
+
+	if (validate_model(mdl))
+	{
+		LLMatrix4 mat;
+		std::map<std::string, LLImportMaterial> materials;
+		std::vector<LLModelInstance> instance_list;
+		instance_list.push_back(LLModelInstance(mdl, mdl->mLabel, mat, materials));
+
+		for (S32 i = LLModel::LOD_HIGH - 1; i >= 0; i--)
+		{
+			mModel[i].clear();
+			mModel[i].push_back(mdl);
+
+			mScene[i].clear();
+			mScene[i].insert(std::pair<LLMatrix4, std::vector<LLModelInstance> >(mat, instance_list));
+		}
+	}
+}
 
 void LLModelPreview::updateStatusMessages()
 {
@@ -3563,6 +3669,7 @@ BOOL LLModelPreview::render()
 			fmp->enableViewOption("show_skin_weight");
 			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);	
 			mFMP->childEnable("upload_skin");
+			mFMP->childSetValue("show_skin_weight", skin_weight);
 		}
 	}
 	else
@@ -3683,7 +3790,7 @@ BOOL LLModelPreview::render()
 			}
 			else
 			{
-				LL_INFOS(" ") << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
+				LL_INFOS() << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
 				regen = TRUE;
 			}
 		}

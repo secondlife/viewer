@@ -141,35 +141,35 @@
 		Выражение лица
 	</text>
 	<combo_box name="emote_combo" tool_tip="Контролирует выражение лица во время анимации">
-		<item label="(нет)" name="[None]" value=""/>
-		<item label="Ааааах" name="Aaaaah" value="Ааааах"/>
-		<item label="Боится" name="Afraid" value="Боится"/>
-		<item label="Злится" name="Angry" value="Злится"/>
-		<item label="Широко улыбается" name="BigSmile" value="Широко улыбается"/>
-		<item label="Скучает" name="Bored" value="Скучает"/>
-		<item label="Плачет" name="Cry" value="Плачет"/>
-		<item label="Презирает" name="Disdain" value="Презирает"/>
-		<item label="Смущается" name="Embarrassed" value="Смущается"/>
-		<item label="Хмурится" name="Frown" value="Хмурится"/>
-		<item label="Целует" name="Kiss" value="Целует"/>
-		<item label="Смеется" name="Laugh" value="Смеется"/>
-		<item label="Дразнится" name="Plllppt" value="Дразнится"/>
-		<item label="Не соглашается" name="Repulsed" value="Не соглашается"/>
-		<item label="Грустит" name="Sad" value="Грустит"/>
-		<item label="Не понимает" name="Shrug" value="Не понимает"/>
-		<item label="Улыбается" name="Smile" value="Улыбается"/>
-		<item label="Удивляется" name="Surprise" value="Удивляется"/>
-		<item label="Подмигивает" name="Wink" value="Подмигивает"/>
-		<item label="Беспокоится" name="Worry" value="Беспокоится"/>
+		<item label="(нет)" name="[None]"/>
+		<item label="Ааааах" name="Aaaaah"/>
+		<item label="Боится" name="Afraid"/>
+		<item label="Злится" name="Angry"/>
+		<item label="Широко улыбается" name="BigSmile"/>
+		<item label="Скучает" name="Bored"/>
+		<item label="Плачет" name="Cry"/>
+		<item label="Презирает" name="Disdain"/>
+		<item label="Смущается" name="Embarrassed"/>
+		<item label="Хмурится" name="Frown"/>
+		<item label="Целует" name="Kiss"/>
+		<item label="Смеется" name="Laugh"/>
+		<item label="Дразнится" name="Plllppt"/>
+		<item label="Не соглашается" name="Repulsed"/>
+		<item label="Грустит" name="Sad"/>
+		<item label="Не понимает" name="Shrug"/>
+		<item label="Улыбается" name="Smile"/>
+		<item label="Удивляется" name="Surprise"/>
+		<item label="Подмигивает" name="Wink"/>
+		<item label="Беспокоится" name="Worry"/>
 	</combo_box>
 	<text name="preview_label">
 		Просмотр во время
 	</text>
 	<combo_box name="preview_base_anim" tool_tip="Просмотр вашей анимации во время выполнения аватаром действий.">
-		<item label="Стояние" name="Standing" value="Стояние"/>
-		<item label="Ходьба" name="Walking" value="Ходьба"/>
-		<item label="Сидение" name="Sitting" value="Сидение"/>
-		<item label="Полет" name="Flying" value="Полет"/>
+		<item label="Стояние" name="Standing"/>
+		<item label="Ходьба" name="Walking"/>
+		<item label="Сидение" name="Sitting"/>
+		<item label="Полет" name="Flying"/>
 	</combo_box>
 	<spinner label="Вход (сек.)" name="ease_in_time" tool_tip="Количество времени (в секундах) для входа в стартовое положение"/>
 	<spinner label="Выход (сек.)" name="ease_out_time" tool_tip="Количество времени (в секундах) для выхода из анимации"/>

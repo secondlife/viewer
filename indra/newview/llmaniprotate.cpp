@@ -749,17 +749,19 @@ void LLManipRotate::renderActiveRing( F32 radius, F32 width, const LLColor4& fro
 
 void LLManipRotate::renderSnapGuides()
 {
-	LLVector3 grid_origin;
-	LLVector3 grid_scale;
-	LLQuaternion grid_rotation;
-	LLVector3 constraint_axis = getConstraintAxis();
-
-	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
-
-	if (!gSavedSettings.getBOOL("SnapEnabled"))
+	static LLCachedControl<bool> snap_enabled(gSavedSettings, "SnapEnabled", true);
+	if (!snap_enabled)
 	{
 		return;
 	}
+
+	LLVector3 grid_origin;
+	LLVector3 grid_scale;
+	LLQuaternion grid_rotation;
+
+	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale, true);
+
+	LLVector3 constraint_axis = getConstraintAxis();
 
 	LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
 	LLVector3 cam_at_axis;
@@ -1294,7 +1296,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 	else
 	{
 		S32 axis_dir = mManipPart - LL_ROT_X;
-		if ((axis_dir >= 0) && (axis_dir < 3))
+		if ((axis_dir >= LL_NO_PART) && (axis_dir < LL_Z_ARROW))
 		{
 			axis.mV[axis_dir] = 1.f;
 		}

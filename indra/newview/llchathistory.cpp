@@ -526,7 +526,7 @@ protected:
 			showSystemContextMenu(x,y);
 		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_AGENT)
 			showAvatarContextMenu(x,y);
-		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_OBJECT && SYSTEM_FROM != mFrom)
+		if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_OBJECT)
 			showObjectContextMenu(x,y);
 	}
 
