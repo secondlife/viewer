@@ -374,7 +374,7 @@ void LLHUDText::updateVisibility()
 		mVisible = FALSE;
 		return;
 	}
-		
+
 	if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
 	{
 		mPositionAgent = LLViewerCamera::getInstance()->getOrigin() + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis()));
@@ -384,21 +384,17 @@ void LLHUDText::updateVisibility()
 		mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
 	}
 
-	if (!mTextSegments.size())
+	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
+
+	if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
 	{
 		mVisible = FALSE;
 		return;
 	}
 
-	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
-	F32 obj_dist = dist_vec(mSourceObject->getPositionEdit(), LLViewerCamera::getInstance()->getOrigin());
-
-	if(mSourceObject->isAttachment())
-	{
-		LLViewerObject* parent = (LLViewerObject*)mSourceObject->getRoot();
-		obj_dist = dist_vec(parent->getPositionEdit(), LLViewerCamera::getInstance()->getOrigin());
-	}
-	if ((mDoFade && (mLastDistance > mFadeDistance + mFadeRange)) || (obj_dist > MAX_DRAW_DISTANCE))
+	LLVector3 pos_agent_center = gAgent.getPosAgentFromGlobal(mPositionGlobal) - dir_from_camera;
+	F32 last_distance_center = (pos_agent_center - LLViewerCamera::getInstance()->getOrigin()).magVec();
+	if(last_distance_center > MAX_DRAW_DISTANCE)
 	{
 		mVisible = FALSE;
 		return;
