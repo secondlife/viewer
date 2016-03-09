@@ -206,6 +206,13 @@ fi
 # load autobuild provided shell functions and variables
 eval "$("$autobuild" source_environment)"
 
+if [ "$arch" = "Linux" ]
+then
+    ## something about the additional_packages mechanism messes up buildscripts results.py
+    ## since we don't care about those packages on Linux, just zero it out, yes - a HACK
+    export additional_packages=""
+fi
+
 # dump environment variables for debugging
 begin_section "Environment"
 env|sort
