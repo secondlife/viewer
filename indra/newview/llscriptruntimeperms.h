@@ -27,6 +27,8 @@
 #ifndef LL_LLSCRIPTRUNTIME_PERMS_H
 #define LL_LLSCRIPTRUNTIME_PERMS_H
 
+#include <boost/array.hpp>
+
 typedef struct _script_perm {
 	std::string question;
 	U32 permbit;
@@ -37,6 +39,8 @@ typedef struct _script_perm {
 
 const U32 NUM_SCRIPT_PERMISSIONS = 16;
 const S32 SCRIPT_PERMISSION_DEBIT = 0;
+const S32 SCRIPT_PERMISSION_TRIGGER_ANIMATION = 3;
+const S32 SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS = 14;
 
 static const boost::array<script_perm_t, NUM_SCRIPT_PERMISSIONS> SCRIPT_PERMISSIONS = {{
 	_script_perm("ScriptTakeMoney",		(0x1 << 1),  true),
