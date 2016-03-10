@@ -643,9 +643,11 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 //-----------------------------------------------------------------------------
 BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
 {
-	clearSkeleton();
-
-    mSkeleton = avatar_joint_list_t(num,NULL);
+    if (mSkeleton.size() != num)
+    {
+        clearSkeleton();
+        mSkeleton = avatar_joint_list_t(num,NULL);
+    }
 
 	return TRUE;
 }
@@ -1510,16 +1512,19 @@ LLTexLayerSet* LLAvatarAppearance::getAvatarLayerSet(EBakedTextureIndex baked_in
 //-----------------------------------------------------------------------------
 BOOL LLAvatarAppearance::allocateCollisionVolumes( U32 num )
 {
-	delete_and_clear_array(mCollisionVolumes);
-	mNumCollisionVolumes = 0;
+    if (mNumCollisionVolumes !=num)
+    {
+        delete_and_clear_array(mCollisionVolumes);
+        mNumCollisionVolumes = 0;
 
-	mCollisionVolumes = new LLAvatarJointCollisionVolume[num];
-	if (!mCollisionVolumes)
-	{
-		return FALSE;
-	}
-
-	mNumCollisionVolumes = num;
+        mCollisionVolumes = new LLAvatarJointCollisionVolume[num];
+        if (!mCollisionVolumes)
+        {
+            return FALSE;
+        }
+        
+        mNumCollisionVolumes = num;
+    }
 	return TRUE;
 }
 

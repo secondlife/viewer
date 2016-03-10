@@ -1807,6 +1807,27 @@ void LLVOAvatar::buildCharacter()
 void LLVOAvatar::resetSkeleton()
 {
     LL_DEBUGS("Avatar") << avString() << LL_ENDL;
+
+    // Reset params
+	for (LLVisualParam *param = getFirstVisualParam(); 
+		param;
+		param = getNextVisualParam())
+	{
+		if (param->isAnimating())
+		{
+			continue;
+		}
+        param->setLastWeight(param->getDefaultWeight());
+	}
+
+    // Reset all bones and collision volumes to their initial skeleton state.
+	if( !buildSkeleton(sAvatarSkeletonInfo) )
+    {
+        LL_ERRS() << "Error resetting skeleton" << LL_ENDL;
+	}
+
+    // Apply params
+    updateVisualParams();
 }
 
 //-----------------------------------------------------------------------------
