@@ -2521,7 +2521,7 @@ void LLPanelPreferenceGraphics::setPresetText()
 	{
 		if (preset_graphic_active == PRESETS_DEFAULT)
 		{
-			preset_graphic_active = LLTrans::getString("Default");
+			preset_graphic_active = LLTrans::getString(PRESETS_DEFAULT);
 		}
 		preset_text->setText(preset_graphic_active);
 	}

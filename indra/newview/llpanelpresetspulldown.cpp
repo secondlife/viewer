@@ -38,6 +38,7 @@
 #include "llpresetsmanager.h"
 #include "llsliderctrl.h"
 #include "llscrolllistctrl.h"
+#include "lltrans.h"
 
 /* static */ const F32 LLPanelPresetsPulldown::sAutoCloseFadeStartTimeSec = 2.0f;
 /* static */ const F32 LLPanelPresetsPulldown::sAutoCloseTotalTimeSec = 3.0f;
@@ -80,6 +81,12 @@ void LLPanelPresetsPulldown::populatePanel()
 	{
 		scroll->clearRows();
 
+		std::string active_preset = gSavedSettings.getString("PresetGraphicActive");
+		if (active_preset == PRESETS_DEFAULT)
+		{
+			active_preset = LLTrans::getString(PRESETS_DEFAULT);
+		}
+
 		for (std::list<std::string>::const_iterator it = mPresetNames.begin(); it != mPresetNames.end(); ++it)
 		{
 			const std::string& name = *it;
@@ -90,7 +97,7 @@ void LLPanelPresetsPulldown::populatePanel()
 			row["columns"][0]["value"] = name;
 
 			bool is_selected_preset = false;
-			if (name == gSavedSettings.getString("PresetGraphicActive"))
+			if (name == active_preset)
 			{
 				row["columns"][1]["column"] = "icon";
 				row["columns"][1]["type"] = "icon";
