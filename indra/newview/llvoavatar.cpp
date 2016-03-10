@@ -8026,6 +8026,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			}
 		}
 
+        // Bones
 		avatar_joint_list_t::iterator iter = mSkeleton.begin();
 		avatar_joint_list_t::iterator end  = mSkeleton.end();
 		for (; iter != end; ++iter)
@@ -8033,10 +8034,33 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			LLJoint* pJoint = (*iter);
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
-			apr_file_printf( file, "\t\t<joint name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+			apr_file_printf( file, "\t\t<bone name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
 							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
 		}
 
+        // Collision volumes
+        for (S32 i = 0; i < mNumCollisionVolumes; i++)
+        {
+            LLAvatarJointCollisionVolume* pJoint = &mCollisionVolumes[i];
+			const LLVector3& pos = pJoint->getPosition();
+			const LLVector3& scale = pJoint->getScale();
+			apr_file_printf( file, "\t\t<collision_volume name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
+        }
+
+        // Attachment joints
+		for (LLVOAvatar::attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
+			 iter != mAttachmentPoints.end(); ++iter)
+		{
+			LLViewerJointAttachment* pJoint = iter->second;
+			if (!pJoint) continue;
+			const LLVector3& pos = pJoint->getPosition();
+			const LLVector3& scale = pJoint->getScale();
+			apr_file_printf( file, "\t\t<attachment_point name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
+        }
+        
+        // Joint pos overrides
 		for (iter = mSkeleton.begin(); iter != end; ++iter)
 		{
 			LLJoint* pJoint = (*iter);
