@@ -125,12 +125,10 @@ protected:
 	// updates click/double-click action controls depending on values from settings.xml
 	void updateClickActionControls();
 
+public:
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
 	void saveSettings();
-		
-
-public:
 
 	void setCacheLocation(const LLStringExplicit& location);
 

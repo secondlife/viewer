@@ -824,6 +824,13 @@ void LLFloaterPreference::updateShowFavoritesCheckbox(bool val)
 
 void LLFloaterPreference::setHardwareDefaults()
 {
+	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
+	if (!preset_graphic_active.empty())
+	{
+		saveGraphicsPreset(preset_graphic_active);
+		saveSettings(); // save here to be able to return to the previous preset by Cancel
+	}
+
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
 
 	// reset indirects before refresh because we may have changed what they control
@@ -2478,6 +2485,12 @@ void LLPanelPreferenceGraphics::onPresetsListChange()
 {
 	resetDirtyChilds();
 	setPresetText();
+
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance && !gSavedSettings.getString("PresetGraphicActive").empty())
+	{
+		instance->saveSettings(); //make cancel work correctly after changing the preset
+	}
 }
 
 void LLPanelPreferenceGraphics::setPresetText()
@@ -2486,13 +2499,17 @@ void LLPanelPreferenceGraphics::setPresetText()
 
 	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
 
-	if (hasDirtyChilds() && !preset_graphic_active.empty())
+	if (!preset_graphic_active.empty() && preset_graphic_active != preset_text->getText())
 	{
 		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 		if (instance)
 		{
 			instance->saveGraphicsPreset(preset_graphic_active);
 		}
+	}
+
+	if (hasDirtyChilds() && !preset_graphic_active.empty())
+	{
 		gSavedSettings.setString("PresetGraphicActive", "");
 		preset_graphic_active.clear();
 		// This doesn't seem to cause an infinite recursion.  This trigger is needed to cause the pulldown
