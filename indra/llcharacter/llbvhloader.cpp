@@ -976,6 +976,10 @@ void LLBVHLoader::applyTranslations()
 
         //Allow joint position changes as of SL-318
         joint->mIgnorePositions = FALSE;
+        if (joint->mNumChannels == 3)
+        {
+            joint->mIgnorePositions = TRUE;
+        }
 
 		//----------------------------------------------------------------
 		// Set the relativepos flags if necessary
