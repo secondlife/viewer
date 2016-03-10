@@ -341,6 +341,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
         callRightMouseUp(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = false;
     } else {
+        NSPoint mPoint = [theEvent locationInWindow];
+        mMousePos[0] = mPoint.x;
+        mMousePos[1] = mPoint.y;
         callLeftMouseUp(mMousePos, [theEvent modifierFlags]);
     }
 }
