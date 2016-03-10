@@ -338,17 +338,14 @@ bool do_debug_joint(const std::string& name)
 //--------------------------------------------------------------------
 void LLJoint::setPosition( const LLVector3& pos )
 {
-    LLScopedContextString str("setPosition");
-	if (pos != getPosition())
+	if ((pos != getPosition()) && do_debug_joint(getName()))
 	{
-		if (do_debug_joint(getName()))
-		{
-            LLCallStack cs;
-			LLContextStatus con_status;
-			LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
-			LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << "====================" << LL_ENDL;
-			LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
-		}
+        LLScopedContextString str("setPosition");
+        LLCallStack cs;
+        LLContextStatus con_status;
+        LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
+        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << "====================" << LL_ENDL;
+        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
 	}
 	mXform.setPosition(pos);
 	touch(MATRIX_DIRTY | POSITION_DIRTY);
@@ -599,11 +596,17 @@ const LLVector3& LLJoint::getScale()
 //--------------------------------------------------------------------
 void LLJoint::setScale( const LLVector3& scale )
 {
-//	if (mXform.getScale() != scale)
+	if ((mXform.getScale() != scale) && do_debug_joint(getName()))
 	{	
-		mXform.setScale(scale);
-		touch();
+        LLScopedContextString str("setScale");
+        LLCallStack cs;
+        LLContextStatus con_status;
+        LL_DEBUGS("Avatar") << " joint " << getName() << " set scale " << scale << LL_ENDL;
+        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << LL_ENDL;
+        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
 	}
+    mXform.setScale(scale);
+    touch();
 
 }
 
