@@ -179,8 +179,6 @@ private:
     LLInventoryCategoriesObserver* 	mOutfitsObserver;
 };
 
-//static LLOutfitGallery* gOutfitGallery;
-
 class LLOutfitGalleryGearMenu : public LLOutfitListGearMenuBase
 {
 public:

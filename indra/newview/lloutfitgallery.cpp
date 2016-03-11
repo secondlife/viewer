@@ -46,7 +46,6 @@
 #include "llwearableitemslist.h"
 
 static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
-static LLOutfitGallery* gOutfitGallery = NULL;
 
 LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     : LLOutfitListBase(),
