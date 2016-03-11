@@ -57,7 +57,7 @@ public:
 	static void openURLExternal(std::string url);
 
 	/// execute the given secondlife: SLURL
-	static void executeSLURL(std::string url);
+	static bool executeSLURL(std::string url, bool trusted_content = true);
 
 	/// if the Url specifies an SL location, teleport there
 	static void teleportToLocation(std::string url);

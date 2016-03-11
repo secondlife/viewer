@@ -177,7 +177,8 @@ struct LLNotificationTemplate
 		Optional<bool>					persist,
 										log_to_im,
 										show_toast,
-										log_to_chat;
+										log_to_chat,
+										force_urls_external;
 		Optional<std::string>			functor,
 										icon,
 										label,
@@ -201,6 +202,7 @@ struct LLNotificationTemplate
 			log_to_im("log_to_im", false),
 			show_toast("show_toast", true),
 			log_to_chat("log_to_chat", true),
+			force_urls_external("force_urls_external", false),
 			functor("functor"),
 			icon("icon"),
 			label("label"),
@@ -284,11 +286,16 @@ struct LLNotificationTemplate
     // that URL. Obsolete this and eliminate the buttons for affected
     // messages when we allow clickable URLs in the UI
     U32 mURLOption;
-	
-	std::string mURLTarget;
-	//This is a flag that tells if the url needs to open externally dispite 
+
+	//This is a flag that tells if option url needs to open externally dispite 
 	//what the user setting is.
-	
+	std::string mURLTarget;
+
+	// All links clicked inside notification will be opened in external browser
+	// Note: Some notifications block and exit viewer, yet they provide a link
+	// to click, we should be able to open such links in external browser.
+	bool mForceUrlsExternal;
+
 	// does this notification persist across sessions? if so, it will be
 	// serialized to disk on first receipt and read on startup
 	bool mPersist;
