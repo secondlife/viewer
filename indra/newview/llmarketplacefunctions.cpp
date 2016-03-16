@@ -174,8 +174,17 @@ protected:
             log_SLM_infos("Get /merchant", getStatus(), "Merchant is not migrated");
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
         }
-		else
-		{
+        else if (HTTP_INTERNAL_ERROR == getStatus())
+        {
+            // 499 includes timeout and ssl error - marketplace is down or having issues, we do not show it in this request according to MAINT-5938
+            LL_WARNS("SLM") << "SLM Merchant Request failed with status: " << getStatus()
+                                    << ", reason : " << getReason()
+                                    << ", code : " << getContent().get("error_code")
+                                    << ", description : " << getContent().get("error_description") << LL_ENDL;
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+        }
+        else
+        {
             log_SLM_warning("Get /merchant", getStatus(), getReason(), getContent().get("error_code"), getContent().get("error_description"));
             LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
 		}
