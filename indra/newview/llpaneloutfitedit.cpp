@@ -850,7 +850,7 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 		url = url_resolver.resolveURL(LLWearableType::WT_NONE, SEX_FEMALE);
 	}
 
-	LLWeb::loadURLExternal(url);
+	LLWeb::loadURL(url);
 }
 
 LLWearableType::EType LLPanelOutfitEdit::getCOFWearablesSelectionType() const

@@ -938,22 +938,22 @@ void LLHTTPAssetStorage::checkForTimeouts()
 			long curl_result = 0;
 			S32 xfer_result = LL_ERR_NOERR;
 
-			LLHTTPAssetRequest *req = NULL;
-			curl_easy_getinfo(curl_msg->easy_handle, CURLINFO_PRIVATE, &req);
+			LLHTTPAssetRequest *http_req = NULL;
+			curl_easy_getinfo(curl_msg->easy_handle, CURLINFO_PRIVATE, &http_req);
 								
 			// TODO: Throw curl_result at all callbacks.
 			curl_easy_getinfo(curl_msg->easy_handle, CURLINFO_HTTP_CODE, &curl_result);
-			if (RT_UPLOAD == req->mRequestType || RT_LOCALUPLOAD == req->mRequestType)
+			if (RT_UPLOAD == http_req->mRequestType || RT_LOCALUPLOAD == http_req->mRequestType)
 			{
 				if (curl_msg->data.result == CURLE_OK && 
 					(   curl_result == HTTP_OK 
 					 || curl_result == HTTP_CREATED
 					 || curl_result == HTTP_NO_CONTENT))
 				{
-					LL_INFOS() << "Success uploading " << req->getUUID() << " to " << req->mURLBuffer << LL_ENDL;
-					if (RT_LOCALUPLOAD == req->mRequestType)
+					LL_INFOS() << "Success uploading " << http_req->getUUID() << " to " << http_req->mURLBuffer << LL_ENDL;
+					if (RT_LOCALUPLOAD == http_req->mRequestType)
 					{
-						addTempAssetData(req->getUUID(), req->mRequestingAgentID, mHostName);
+						addTempAssetData(http_req->getUUID(), http_req->mRequestingAgentID, mHostName);
 					}
 				}
 				else if (curl_msg->data.result == CURLE_COULDNT_CONNECT ||
@@ -961,18 +961,18 @@ void LLHTTPAssetStorage::checkForTimeouts()
 						curl_result == HTTP_BAD_GATEWAY ||
 						curl_result == HTTP_SERVICE_UNAVAILABLE)
 				{
-					LL_WARNS() << "Re-requesting upload for " << req->getUUID() << ".  Received upload error to " << req->mURLBuffer <<
+					LL_WARNS() << "Re-requesting upload for " << http_req->getUUID() << ".  Received upload error to " << http_req->mURLBuffer <<
 						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 
 					////HACK (probably) I am sick of this getting requeued and driving me mad.
-					//if (req->mIsUserWaiting)
+					//if (http_req->mIsUserWaiting)
 					//{
-					//	deletePendingRequest(RT_UPLOAD, req->getType(), req->getUUID());
+					//	deletePendingRequest(RT_UPLOAD, http_req->getType(), http_req->getUUID());
 					//}
 				}
 				else
 				{
-					LL_WARNS() << "Failure uploading " << req->getUUID() << " to " << req->mURLBuffer <<
+					LL_WARNS() << "Failure uploading " << http_req->getUUID() << " to " << http_req->mURLBuffer <<
 						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 
 					xfer_result = LL_ERR_ASSET_REQUEST_FAILED;
@@ -985,39 +985,39 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				{
 					// shared upload finished callback
 					// in the base class, this is called from processUploadComplete
-					_callUploadCallbacks(req->getUUID(), req->getType(), (xfer_result == 0), LL_EXSTAT_CURL_RESULT | curl_result);
+					_callUploadCallbacks(http_req->getUUID(), http_req->getType(), (xfer_result == 0), LL_EXSTAT_CURL_RESULT | curl_result);
 					// Pending upload flag will get cleared when the request is deleted
 				}
 			}
-			else if (RT_DOWNLOAD == req->mRequestType)
+			else if (RT_DOWNLOAD == http_req->mRequestType)
 			{
 				if (curl_result == HTTP_OK && curl_msg->data.result == CURLE_OK)
 				{
-					if (req->mVFile && req->mVFile->getSize() > 0)
+					if (http_req->mVFile && http_req->mVFile->getSize() > 0)
 					{					
-						LL_INFOS() << "Success downloading " << req->mURLBuffer << ", size " << req->mVFile->getSize() << LL_ENDL;
+						LL_INFOS() << "Success downloading " << http_req->mURLBuffer << ", size " << http_req->mVFile->getSize() << LL_ENDL;
 
-						req->mVFile->rename(req->getUUID(), req->getType());
+						http_req->mVFile->rename(http_req->getUUID(), http_req->getType());
 					}
 					else
 					{
 						// *TODO: if this actually indicates a bad asset on the server
 						// (not certain at this point), then delete it
-						LL_WARNS() << "Found " << req->mURLBuffer << " to be zero size" << LL_ENDL;
+						LL_WARNS() << "Found " << http_req->mURLBuffer << " to be zero size" << LL_ENDL;
 						xfer_result = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
 					}
 				}
 				else
 				{
 					// KLW - TAT See if an avatar owns this texture, and if so request re-upload.
-					LL_WARNS() << "Failure downloading " << req->mURLBuffer << 
+					LL_WARNS() << "Failure downloading " << http_req->mURLBuffer << 
 						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << LL_ENDL;
 
 					xfer_result = (curl_result == HTTP_NOT_FOUND) ? LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE : LL_ERR_ASSET_REQUEST_FAILED;
 
-					if (req->mVFile)
+					if (http_req->mVFile)
 					{
-						req->mVFile->remove();
+						http_req->mVFile->remove();
 					}
 				}
 
@@ -1025,9 +1025,9 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				// this will cleanup all requests for this asset, including ours
 				downloadCompleteCallback(
 					xfer_result,
-					req->getUUID(),
-					req->getType(),
-					(void *)req,
+					http_req->getUUID(),
+					http_req->getType(),
+					http_req,
 					LL_EXSTAT_CURL_RESULT | curl_result);
 				// Pending download flag will get cleared when the request is deleted
 			}
@@ -1038,8 +1038,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 			}
 
 			// Deleting clears the pending upload/download flag if it's set and the request is transferring
-			delete req;
-			req = NULL;
+			delete http_req;
+			http_req = NULL;
 		}
 
 	} while (curl_msg && queue_length > 0);

@@ -567,13 +567,25 @@ void AISUpdate::parseCategory(const LLSD& category_map)
 		parseDescendentCount(category_id, category_map["_embedded"]);
 	}
 
-	LLPointer<LLViewerInventoryCategory> new_cat(new LLViewerInventoryCategory(category_id));
+	LLPointer<LLViewerInventoryCategory> new_cat;
 	LLViewerInventoryCategory *curr_cat = gInventory.getCategory(category_id);
 	if (curr_cat)
 	{
 		// Default to current values where not provided.
-		new_cat->copyViewerCategory(curr_cat);
-	}
+        new_cat = new LLViewerInventoryCategory(curr_cat);
+    }
+    else
+    {
+        if (category_map.has("agent_id"))
+        {
+            new_cat = new LLViewerInventoryCategory(category_map["agent_id"].asUUID());
+        }
+        else
+        {
+            LL_DEBUGS() << "No owner provided, folder might be assigned wrong owner" << LL_ENDL;
+            new_cat = new LLViewerInventoryCategory(LLUUID::null);
+        }
+    }
 	BOOL rv = new_cat->unpackMessage(category_map);
 	// *NOTE: unpackMessage does not unpack version or descendent count.
 	//if (category_map.has("version"))

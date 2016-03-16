@@ -308,6 +308,8 @@ private:
 	// need to save both text and script, so need to decide when done
 	S32					mPendingUploads;
 
+	BOOL                mIsSaving;
+
 	BOOL getIsModifiable() const { return mIsModifiable; } // Evaluated on load assert
 
 	LLCheckBoxCtrl*	mMonoCheckbox;

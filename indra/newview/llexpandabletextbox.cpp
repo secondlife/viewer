@@ -77,7 +77,7 @@ public:
 			return 0;
 		}
 	}
-	/*virtual*/ F32		draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+	/*virtual*/ F32		draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 	{
 		F32 right_x;
 		mStyle->getFont()->renderUTF8(mExpanderLabel, start, 

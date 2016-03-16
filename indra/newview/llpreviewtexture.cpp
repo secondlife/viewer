@@ -89,8 +89,12 @@ LLPreviewTexture::~LLPreviewTexture()
 	{
 		getWindow()->decBusyCount();
 	}
-	mImage->setBoostLevel(mImageOldBoostLevel);
-	mImage = NULL;
+
+	if (mImage.notNull())
+	{
+		mImage->setBoostLevel(mImageOldBoostLevel);
+		mImage = NULL;
+	}
 }
 
 // virtual

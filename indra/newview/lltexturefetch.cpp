@@ -2067,11 +2067,18 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 			
 	if (log_texture_traffic && data_size > 0)
 	{
-		LLViewerTexture* tex = LLViewerTextureManager::findTexture(mID);
-		if (tex)
-		{
-			gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size ;
-		}
+        // one worker per multiple textures
+        std::vector<LLViewerTexture*> textures;
+        LLViewerTextureManager::findTextures(mID, textures);
+        std::vector<LLViewerTexture*>::iterator iter = textures.begin();
+        while (iter != textures.end())
+        {
+            LLViewerTexture* tex = *iter++;
+            if (tex)
+            {
+                gTotalTextureBytesPerBoostLevel[tex->getBoostLevel()] += data_size;
+            }
+        }
 	}
 
 	mFetcher->removeFromHTTPQueue(mID, data_size);
@@ -4327,26 +4334,33 @@ bool LLTextureFetchDebugger::processStartDebug(F32 max_time)
 			fetched_textures.insert(mFetchingHistory[i].mID);
 			in_list = false;
 		}
-		
-		LLViewerFetchedTexture* tex = LLViewerTextureManager::findFetchedTexture(mFetchingHistory[i].mID);
-		if(tex && tex->isJustBound()) //visible
-		{
-			if(!in_list)
-			{
-				mNumVisibleFetchedTextures++;
-			}
-			mNumVisibleFetchingRequests++;
-	
-			mVisibleFetchedData += mFetchingHistory[i].mFetchedSize;
-			mVisibleDecodedData += mFetchingHistory[i].mDecodedSize;
-	
-			if(tex->getDiscardLevel() >= mFetchingHistory[i].mDecodedLevel)
-			{
-				mRenderedData += mFetchingHistory[i].mFetchedSize;
-				mRenderedDecodedData += mFetchingHistory[i].mDecodedSize;
-				mRenderedPixels += tex->getWidth() * tex->getHeight();
-			}
-		}
+
+        std::vector<LLViewerFetchedTexture*> textures;
+        LLViewerTextureManager::findFetchedTextures(mFetchingHistory[i].mID, textures);
+        std::vector<LLViewerFetchedTexture*>::iterator iter = textures.begin();
+        while (iter != textures.end())
+        {
+            LLViewerFetchedTexture* tex = *iter++;
+            // fetched data will be counted for both ui and regular elements
+            if (tex && tex->isJustBound()) //visible
+            {
+                if (!in_list)
+                {
+                    mNumVisibleFetchedTextures++;
+                }
+                mNumVisibleFetchingRequests++;
+
+                mVisibleFetchedData += mFetchingHistory[i].mFetchedSize;
+                mVisibleDecodedData += mFetchingHistory[i].mDecodedSize;
+
+                if (tex->getDiscardLevel() >= mFetchingHistory[i].mDecodedLevel)
+                {
+                    mRenderedData += mFetchingHistory[i].mFetchedSize;
+                    mRenderedDecodedData += mFetchingHistory[i].mDecodedSize;
+                    mRenderedPixels += tex->getWidth() * tex->getHeight();
+                }
+            }
+        }
 	}
 
 	mNumFetchedTextures = fetched_textures.size();
@@ -4446,7 +4460,8 @@ void LLTextureFetchDebugger::addHistoryEntry(LLTextureFetchWorker* worker)
 			mRefetchedAllPixels += worker->mRawImage->getWidth() * worker->mRawImage->getHeight();
 			mRefetchedAllData += worker->mFormattedImage->getDataSize();
 
-			LLViewerFetchedTexture* tex = LLViewerTextureManager::findFetchedTexture(worker->mID);
+			// refetch list only requests/creates normal images, so requesting ui='false'
+			LLViewerFetchedTexture* tex = LLViewerTextureManager::findFetchedTexture(worker->mID, TEX_LIST_DISCARD);
 			if(tex && mRefetchList[tex].begin() != mRefetchList[tex].end())
 			{
 				if(worker->mDecodedDiscard == mFetchingHistory[mRefetchList[tex][0]].mDecodedLevel)
@@ -4673,12 +4688,18 @@ void LLTextureFetchDebugger::debugGLTextureCreation()
 	{
 		if(mFetchingHistory[i].mRawImage.notNull())
 		{
-			LLViewerFetchedTexture* tex = gTextureList.findImage(mFetchingHistory[i].mID) ;
-			if(tex && !tex->isForSculptOnly())
-			{
-				tex->destroyGLTexture() ;
-				mTempTexList.push_back(tex);
-			}
+            std::vector<LLViewerFetchedTexture*> textures;
+            gTextureList.findTexturesByID(mFetchingHistory[i].mID, textures);
+            std::vector<LLViewerFetchedTexture*>::iterator iter = textures.begin();
+            while (iter != textures.end())
+            {
+                LLViewerFetchedTexture* tex = *iter++;
+                if (tex && !tex->isForSculptOnly())
+                {
+                    tex->destroyGLTexture();
+                    mTempTexList.push_back(tex);
+                }
+            }
 		}
 	}
 	
@@ -4733,11 +4754,17 @@ void LLTextureFetchDebugger::clearTextures()
 	S32 size = mFetchingHistory.size();
 	for(S32 i = 0 ; i < size ; i++)
 	{
-		LLViewerFetchedTexture* tex = gTextureList.findImage(mFetchingHistory[i].mID) ;
-		if(tex)
-		{
-			tex->clearFetchedResults() ;
-		}
+        std::vector<LLViewerFetchedTexture*> textures;
+        gTextureList.findTexturesByID(mFetchingHistory[i].mID, textures);
+        std::vector<LLViewerFetchedTexture*>::iterator iter = textures.begin();
+        while (iter != textures.end())
+        {
+            LLViewerFetchedTexture* tex = *iter++;
+            if (tex)
+            {
+                tex->clearFetchedResults();
+            }
+        }
 	}
 }
 
@@ -4753,6 +4780,8 @@ void LLTextureFetchDebugger::makeRefetchList()
 			continue; //the texture fetch pipeline will take care of visible textures.
 		}
 
+		// todo: Will attempt to refetch icons and ui elements as normal images (boost_none)
+		// thus will create unnecessary LLViewerFetchedTexture, consider supporting separate UI textures
 		mRefetchList[tex].push_back(i); 		
 	}
 }

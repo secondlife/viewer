@@ -781,6 +781,12 @@ Kitty Barnett
     VWR-24217
 	STORM-1804
 	MAINT-5416
+	MAINT-6041
+	MAINT-6142
+	MAINT-6144
+	MAINT-6152
+	MAINT-6153
+	MAINT-6154
 Kolor Fall
 Komiko Okamoto
 Korvel Noh
@@ -999,6 +1005,7 @@ NickyD
 	MAINT-873
 Nicky Dasmijn
 	VWR-29228
+	MAINT-1392
 	MAINT-873
 	SUN-72
 	BUG-2432
@@ -1252,6 +1259,7 @@ Sovereign Engineer
     OPEN-195
     OPEN-217
     OPEN-295
+    MAINT-6107
     STORM-2107
 SpacedOut Frye
 	VWR-34

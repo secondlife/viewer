@@ -1660,6 +1660,8 @@ void LLViewerMedia::onTeleportFinished()
 {
 	// On teleport, clear this setting (i.e. set it to true)
 	gSavedSettings.setBOOL("MediaTentativeAutoPlay", true);
+
+	LLViewerMediaImpl::sMimeTypesFailed.clear();
 }
 
 
@@ -1671,6 +1673,7 @@ void LLViewerMedia::setOnlyAudibleMediaTextureID(const LLUUID& texture_id)
 	sForceUpdate = true;
 }
 
+std::vector<std::string> LLViewerMediaImpl::sMimeTypesFailed;
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMediaImpl
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1943,10 +1946,16 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	}
 
 	LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
-	LLSD args;
-	args["MIME_TYPE"] = media_type;
-	LLNotificationsUtil::add("NoPlugin", args);
-
+	if(gAgent.isInitialized())
+	{
+	    if (std::find(sMimeTypesFailed.begin(), sMimeTypesFailed.end(), media_type) == sMimeTypesFailed.end())
+	    {
+	        LLSD args;
+	        args["MIME_TYPE"] = media_type;
+	        LLNotificationsUtil::add("NoPlugin", args);
+	        sMimeTypesFailed.push_back(media_type);
+	    }
+	}
 	return NULL;
 }
 

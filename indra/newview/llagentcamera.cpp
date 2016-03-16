@@ -879,7 +879,7 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
 	}
 
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
+	if (LLToolMgr::getInstance()->inBuildMode() && selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		// just update hud zoom level
 		mHUDTargetZoom /= fraction;
