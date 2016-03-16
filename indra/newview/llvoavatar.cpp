@@ -8142,7 +8142,8 @@ void LLVOAvatar::updateImpostors()
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead() && avatar->isVisible()
-			&& ((avatar->isImpostor() || LLVOAvatar::AV_DO_NOT_RENDER == avatar->getVisualMuteSettings()) && avatar->needsImpostorUpdate())
+			&& (
+                (avatar->isImpostor() || LLVOAvatar::AV_DO_NOT_RENDER == avatar->getVisualMuteSettings()) && avatar->needsImpostorUpdate())
             )
 		{
             avatar->calcMutedAVColor();
@@ -8287,7 +8288,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 		// Attachment Surface Area
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
-		info_line = llformat("%.2f m^2", mAttachmentSurfaceArea);
+		info_line = llformat("%.0f m^2", mAttachmentSurfaceArea);
 
 		if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
 		{
