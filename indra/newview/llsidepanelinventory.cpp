@@ -451,7 +451,7 @@ void LLSidepanelInventory::onShareButtonClicked()
 
 void LLSidepanelInventory::onShopButtonClicked()
 {
-	LLWeb::loadURLExternal(gSavedSettings.getString("MarketplaceURL"));
+	LLWeb::loadURL(gSavedSettings.getString("MarketplaceURL"));
 }
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)

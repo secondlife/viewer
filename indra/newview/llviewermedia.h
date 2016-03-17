@@ -474,6 +474,7 @@ private:
 	std::string mTarget;
 	LLNotificationPtr mNotification;
     bool mCleanBrowser;     // force the creation of a clean browsing target with full options enabled
+    static std::vector<std::string> sMimeTypesFailed;
 
 private:
 	BOOL mIsUpdated ;

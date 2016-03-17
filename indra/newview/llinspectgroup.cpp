@@ -42,16 +42,13 @@
 #include "lltrans.h"
 #include "lluictrl.h"
 
-class LLFetchGroupData;
-
-
 //////////////////////////////////////////////////////////////////////////////
 // LLInspectGroup
 //////////////////////////////////////////////////////////////////////////////
 
 /// Group Inspector, a small information window used when clicking
 /// on group names in the 2D UI
-class LLInspectGroup : public LLInspect
+class LLInspectGroup : public LLInspect, public LLGroupMgrObserver
 {
 	friend class LLFloaterReg;
 	
@@ -65,12 +62,16 @@ public:
 	// (for example, inspector about same group but in different position)
 	/*virtual*/ void onOpen(const LLSD& group_id);
 
+	void setGroupID(const LLUUID& group_id);
+
 	// When closing they should close their gear menu 
 	/*virtual*/ void onClose(bool app_quitting);
 	
 	// Update view based on information from group manager
 	void processGroupData();
-	
+
+	virtual void changed(LLGroupChange gc);
+
 	// Make network requests for all the data to display in this view.
 	// Used on construction and if avatar id changes.
 	void requestUpdate();
@@ -88,53 +89,12 @@ public:
 	
 private:
 	LLUUID				mGroupID;
-	// an in-flight network request for group properties 
-	// is represented by this object
-	LLFetchGroupData*	mPropertiesRequest;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-// LLFetchGroupData
-//////////////////////////////////////////////////////////////////////////////
-
-// This object represents a pending request for avatar properties information
-class LLFetchGroupData : public LLGroupMgrObserver
-{
-public:
-	// If the inspector closes it will delete the pending request object, so the
-	// inspector pointer will be valid for the lifetime of this object
-	LLFetchGroupData(const LLUUID& group_id, LLInspectGroup* inspector)
-	:	LLGroupMgrObserver(group_id),
-		mInspector(inspector)
-	{
-		LLGroupMgr* mgr = LLGroupMgr::getInstance();
-		// register ourselves as an observer
-		mgr->addObserver(this);
-		// send a request
-		mgr->sendGroupPropertiesRequest(group_id);
-	}
-	
-	~LLFetchGroupData()
-	{
-		// remove ourselves as an observer
-		LLGroupMgr::getInstance()->removeObserver(this);
-	}
-	
-	void changed(LLGroupChange gc)
-	{
-		if (gc == GC_PROPERTIES)
-		{
-			mInspector->processGroupData();
-		}
-	}
-	
-	LLInspectGroup* mInspector;
-};
 
 LLInspectGroup::LLInspectGroup(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
-	mGroupID(),			// set in onOpen()
-	mPropertiesRequest(NULL)
+	mGroupID()			// set in onOpen()
 {
 	mCommitCallbackRegistrar.add("InspectGroup.ViewProfile",
 		boost::bind(&LLInspectGroup::onClickViewProfile, this));
@@ -149,10 +109,7 @@ LLInspectGroup::LLInspectGroup(const LLSD& sd)
 
 LLInspectGroup::~LLInspectGroup()
 {
-	// clean up any pending requests so they don't call back into a deleted
-	// view
-	delete mPropertiesRequest;
-	mPropertiesRequest = NULL;
+    LLGroupMgr::getInstance()->removeObserver(this);
 }
 
 
@@ -164,7 +121,7 @@ void LLInspectGroup::onOpen(const LLSD& data)
 	// start fade animation
 	LLInspect::onOpen(data);
 
-	mGroupID = data["group_id"];
+	setGroupID(data["group_id"]);
 
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
@@ -185,7 +142,8 @@ void LLInspectGroup::onOpen(const LLSD& data)
 // virtual
 void LLInspectGroup::onClose(bool app_quitting)
 {
-	// *TODO: If we add a gear menu, close it here
+    LLGroupMgr::getInstance()->removeObserver(this);
+    // *TODO: If we add a gear menu, close it here
 }	
 
 void LLInspectGroup::requestUpdate()
@@ -213,14 +171,30 @@ void LLInspectGroup::requestUpdate()
 	getChild<LLUICtrl>("leave_btn")->setVisible(false);
 	getChild<LLUICtrl>("join_btn")->setVisible(false);
 	
-	// Make a new request for properties
-	delete mPropertiesRequest;
-	mPropertiesRequest = new LLFetchGroupData(mGroupID, this);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+	if (!gdatap || !gdatap->isGroupPropertiesDataComplete() )
+	{
+	    LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mGroupID);
+	}
+	else
+	{
+	    processGroupData();
+	}
 
 	// Name lookup will be faster out of cache, use that
 	gCacheName->getGroup(mGroupID,
 		boost::bind(&LLInspectGroup::nameUpdatedCallback,
 			this, _1, _2, _3));
+}
+
+void LLInspectGroup::setGroupID(const LLUUID& group_id)
+{
+    LLGroupMgr::getInstance()->removeObserver(this);
+
+    mID = group_id;
+    mGroupID = group_id;
+
+    LLGroupMgr::getInstance()->addObserver(this);
 }
 
 void LLInspectGroup::nameUpdatedCallback(
@@ -234,6 +208,14 @@ void LLInspectGroup::nameUpdatedCallback(
 	}
 	
 	// Otherwise possibly a request for an older inspector, ignore it
+}
+
+void LLInspectGroup::changed(LLGroupChange gc)
+{
+    if (gc == GC_PROPERTIES)
+    {
+        processGroupData();
+    }
 }
 
 void LLInspectGroup::processGroupData()
@@ -288,10 +270,6 @@ void LLInspectGroup::processGroupData()
 		bool can_join = !is_member && data->mOpenEnrollment;
 		getChild<LLUICtrl>("join_btn")->setEnabled(can_join);
 	}
-
-	// Delete the request object as it has been satisfied
-	delete mPropertiesRequest;
-	mPropertiesRequest = NULL;
 }
 
 void LLInspectGroup::onClickViewProfile()

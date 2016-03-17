@@ -36,7 +36,7 @@
 #include "llviewerwindow.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"
-
+#include "llagent.h"
 #include "lldockablefloater.h"
 #include "llsyswellwindow.h"
 #include "llfloaterimsession.h"
@@ -265,7 +265,11 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 
 	if(!show_toast && !store_toast)
 	{
-		LLNotificationPtr notification = LLNotifications::instance().find(p.notif_id);
+	    if(gAgent.isDoNotDisturb())
+        {
+	        return;
+        }
+	    LLNotificationPtr notification = LLNotifications::instance().find(p.notif_id);
 
 		if (notification &&
 			(!notification->canLogToIM() || !notification->hasFormElements()))

@@ -1222,6 +1222,14 @@ You can not wear that item because it has not yet loaded. Please try again in a 
   <tag>fail</tag>
   </notification>
 
+    <notification
+   icon="alertmodal.tga"
+   name="MustEnterPasswordToLogIn"
+   type="alertmodal">
+   <tag>fail</tag>
+Please enter your Password to log in.
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="MustHaveAccountToLogIn"
@@ -4137,28 +4145,6 @@ Leave Group?
     <usetemplate
      name="okbutton"
      yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="aler.tga"
-   name="GroupDepartError"
-   type="alert">
-Unable to leave group: [reason].
-      <tag>reason</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="GroupDepart"
-   type="alert">
-You have left the group [group_name].
-      <tag>group_name</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
   </notification>
 
   <notification
