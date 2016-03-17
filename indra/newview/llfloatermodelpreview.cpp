@@ -338,25 +338,25 @@ BOOL LLFloaterModelPreview::postBuild()
 		LLTextBox* text = getChild<LLTextBox>(lod_label_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 
 		text = getChild<LLTextBox>(lod_triangles_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 
 		text = getChild<LLTextBox>(lod_vertices_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 
 		text = getChild<LLTextBox>(lod_status_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 	}
 	std::string current_grid = LLGridManager::getInstance()->getGridId();
@@ -1361,6 +1361,14 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
 	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
 	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
+}
+
+void LLFloaterModelPreview::setPreviewLOD(S32 lod)
+{
+	if (mModelPreview)
+	{
+		mModelPreview->setPreviewLOD(lod);
+	}
 }
 
 
