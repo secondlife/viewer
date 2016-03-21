@@ -42,7 +42,7 @@ LLTransferTargetParamsVFile::LLTransferTargetParamsVFile() :
 	LLTransferTargetParams(LLTTT_VFILE),
 	mAssetType(LLAssetType::AT_NONE),
 	mCompleteCallback(NULL),
-	mUserDatap(NULL),
+	mRequestDatap(NULL),
 	mErrCode(0)
 {
 }
@@ -55,10 +55,14 @@ void LLTransferTargetParamsVFile::setAsset(
 	mAssetType = asset_type;
 }
 
-void LLTransferTargetParamsVFile::setCallback(LLTTVFCompleteCallback cb, void *user_data)
+void LLTransferTargetParamsVFile::setCallback(LLTTVFCompleteCallback cb, LLBaseDownloadRequest& request)
 {
 	mCompleteCallback = cb;
-	mUserDatap = user_data;
+    if (mRequestDatap)
+    {
+        delete mRequestDatap;
+    }
+	mRequestDatap = request.getCopy();
 }
 
 bool LLTransferTargetParamsVFile::unpackParams(LLDataPacker& dp)
@@ -98,6 +102,12 @@ LLTransferTargetVFile::LLTransferTargetVFile(
 
 LLTransferTargetVFile::~LLTransferTargetVFile()
 {
+    if (mParams.mRequestDatap)
+    {
+        // TODO: Consider doing it in LLTransferTargetParamsVFile's destructor
+        delete mParams.mRequestDatap;
+        mParams.mRequestDatap = NULL;
+    }
 }
 
 
@@ -208,12 +218,18 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 		err_code = LL_ERR_ASSET_REQUEST_FAILED;
 		break;
 	}
-	if (mParams.mCompleteCallback)
-	{
-		mParams.mCompleteCallback(err_code,
-								  mParams.getAssetID(),
-								  mParams.getAssetType(),
-								  mParams.mUserDatap,
-								  LL_EXSTAT_NONE);
-	}
+
+    if (mParams.mRequestDatap)
+    {
+        if (mParams.mCompleteCallback)
+        {
+            mParams.mCompleteCallback(err_code,
+                mParams.getAssetID(),
+                mParams.getAssetType(),
+                mParams.mRequestDatap,
+                LL_EXSTAT_NONE);
+        }
+        delete mParams.mRequestDatap;
+        mParams.mRequestDatap = NULL;
+    }
 }

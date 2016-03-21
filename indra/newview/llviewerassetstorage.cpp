@@ -367,7 +367,7 @@ void LLViewerAssetStorage::_queueDataRequest(
 			// Set our destination file, and the completion callback.
 			LLTransferTargetParamsVFile tpvf;
 			tpvf.setAsset(uuid, atype);
-			tpvf.setCallback(downloadCompleteCallback, req);
+			tpvf.setCallback(downloadCompleteCallback, *req);
 
 			LL_DEBUGS("AssetStorage") << "Starting transfer for " << uuid << LL_ENDL;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
