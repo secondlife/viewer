@@ -391,7 +391,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	NSPoint mPoint = [theEvent locationInWindow];
 	mMousePos[0] = mPoint.x;
 	mMousePos[1] = mPoint.y;
-	callMouseMoved(mMousePos, 0);
+	callMouseDragged(mMousePos, 0);
 }
 
 - (void) otherMouseDown:(NSEvent *)theEvent
