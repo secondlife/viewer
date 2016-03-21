@@ -245,7 +245,7 @@ private:
 
 	typedef std::map<LLUUID, std::string> slurls_map_t;
 	slurls_map_t mSLURLs;
-
+	std::set<LLUUID> mMissingSLURLs;
 	bool mIsDirty;
 
 	struct IsNotInFavorites

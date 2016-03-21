@@ -136,6 +136,7 @@ class LLGroupNotificationListItem
     : public LLNotificationListItem, public LLGroupMgrObserver
 {
 public:
+	virtual ~LLGroupNotificationListItem();
     virtual BOOL postBuild();
 
     void setGroupId(const LLUUID& value);
@@ -192,7 +193,6 @@ class LLGroupNoticeNotificationListItem
     : public LLGroupNotificationListItem
 {
 public:
-	~LLGroupNoticeNotificationListItem();
     static std::set<std::string> getTypes();
     virtual BOOL postBuild();
 

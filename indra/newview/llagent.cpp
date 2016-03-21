@@ -3205,12 +3205,19 @@ void LLAgent::initOriginGlobal(const LLVector3d &origin_global)
 }
 
 BOOL LLAgent::leftButtonGrabbed() const	
-{ 
+{
 	const BOOL camera_mouse_look = gAgentCamera.cameraMouselook();
 	return (!camera_mouse_look && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0) 
 		|| (camera_mouse_look && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0)
 		|| (!camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
 		|| (camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
+}
+
+BOOL LLAgent::leftButtonBlocked() const
+{
+    const BOOL camera_mouse_look = gAgentCamera.cameraMouselook();
+    return (!camera_mouse_look && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
+        || (camera_mouse_look && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
 }
 
 BOOL LLAgent::rotateGrabbed() const		
@@ -3670,7 +3677,14 @@ BOOL LLAgent::anyControlGrabbed() const
 
 BOOL LLAgent::isControlGrabbed(S32 control_index) const
 {
-	return mControlsTakenCount[control_index] > 0;
+    if (gAgent.mControlsTakenCount[control_index] > 0)
+        return TRUE;
+    return gAgent.mControlsTakenPassedOnCount[control_index] > 0;
+}
+
+BOOL LLAgent::isControlBlocked(S32 control_index) const
+{
+    return mControlsTakenCount[control_index] > 0;
 }
 
 void LLAgent::forceReleaseControls()
@@ -3849,6 +3863,7 @@ void LLAgent::startTeleportRequest()
     }
 	if (hasPendingTeleportRequest())
 	{
+        mTeleportCanceled.reset();
 		if  (!isMaturityPreferenceSyncedWithServer())
 		{
 			gTeleportDisplay = TRUE;
@@ -3878,6 +3893,7 @@ void LLAgent::startTeleportRequest()
 void LLAgent::handleTeleportFinished()
 {
 	clearTeleportRequest();
+    mTeleportCanceled.reset();
 	if (mIsMaturityRatingChangingDuringTeleport)
 	{
 		// notify user that the maturity preference has been changed
@@ -4021,13 +4037,25 @@ void LLAgent::teleportCancel()
 			msg->addUUIDFast(_PREHASH_AgentID, getID());
 			msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 			sendReliableMessage();
-		}	
+		}
+		mTeleportCanceled = mTeleportRequest;
 	}
 	clearTeleportRequest();
 	gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 	gPipeline.resetVertexBuffers();
 }
 
+void LLAgent::restoreCanceledTeleportRequest()
+{
+    if (mTeleportCanceled != NULL)
+    {
+        gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
+        mTeleportRequest = mTeleportCanceled;
+        mTeleportCanceled.reset();
+        gTeleportDisplay = TRUE;
+        gTeleportDisplayTimer.reset();
+    }
+}
 
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {

@@ -1075,7 +1075,7 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 	else
 	{
 		// add this category
-		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat->getParentUUID());
+		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat->getOwnerID());
 		new_cat->copyViewerCategory(cat);
 		addCategory(new_cat);
 

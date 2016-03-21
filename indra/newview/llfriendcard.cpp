@@ -162,6 +162,7 @@ void LLInitialFriendCardsFetch::done()
 
 // LLFriendCardsManager Constructor / Destructor
 LLFriendCardsManager::LLFriendCardsManager()
+:   mState(INIT)
 {
 	LLAvatarTracker::instance().addObserver(this);
 }
@@ -423,6 +424,7 @@ void LLFriendCardsManager::ensureFriendsFolderExists()
 	LLUUID friends_folder_ID = findFriendFolderUUIDImpl();
 	if (friends_folder_ID.notNull())
 	{
+        mState = LOADING_FRIENDS_FOLDER;
 		fetchAndCheckFolderDescendents(friends_folder_ID,
 				boost::bind(&LLFriendCardsManager::ensureFriendsAllFolderExists, this));
 	}
@@ -452,6 +454,7 @@ void LLFriendCardsManager::ensureFriendsAllFolderExists()
 	LLUUID friends_all_folder_ID = findFriendAllSubfolderUUIDImpl();
 	if (friends_all_folder_ID.notNull())
 	{
+        mState = LOADING_ALL_FOLDER;
 		fetchAndCheckFolderDescendents(friends_all_folder_ID,
 				boost::bind(&LLFriendCardsManager::syncFriendsFolder, this));
 	}
@@ -506,6 +509,9 @@ void LLFriendCardsManager::syncFriendsFolder()
 							  NULL);
 	}
 
+    // All folders created and updated.
+    mState = MANAGER_READY;
+
 	// 2. Add missing Friend Cards for friends
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 	LL_INFOS() << "try to build friends, count: " << all_buddies.size() << LL_ENDL;
@@ -539,6 +545,12 @@ void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 	LL_DEBUGS() << "Processing buddy name: " << name 
 		<< ", id: " << avatarID
 		<< LL_ENDL; 
+
+    if (shouldBeAdded && !isManagerReady())
+    {
+        shouldBeAdded = false;
+        LL_DEBUGS() << "Calling cards manager not ready, state: " << getManagerState() << LL_ENDL;
+    }
 
 	if (shouldBeAdded && findFriendCardInventoryUUIDImpl(avatarID).notNull())
 	{
@@ -583,13 +595,30 @@ void LLFriendCardsManager::onFriendListUpdate(U32 changed_mask)
 	switch(changed_mask) {
 	case LLFriendObserver::ADD:
 		{
-			const std::set<LLUUID>& changed_items = at.getChangedIDs();
-			std::set<LLUUID>::const_iterator id_it = changed_items.begin();
-			std::set<LLUUID>::const_iterator id_end = changed_items.end();
-			for (;id_it != id_end; ++id_it)
-			{
-				LLFriendCardsManager::instance().addFriendCardToInventory(*id_it);
-			}
+            LLFriendCardsManager& cards_manager = LLFriendCardsManager::instance();
+            if (cards_manager.isManagerReady())
+            {
+                // Try to add cards into inventory.
+                // If cards already exist they won't be created.
+                const std::set<LLUUID>& changed_items = at.getChangedIDs();
+                std::set<LLUUID>::const_iterator id_it = changed_items.begin();
+                std::set<LLUUID>::const_iterator id_end = changed_items.end();
+                for (; id_it != id_end; ++id_it)
+                {
+                    cards_manager.addFriendCardToInventory(*id_it);
+                }
+            }
+            else
+            {
+                // User either removed calling cards' folders and manager is loading them
+                // or update came too early, before viewer had chance to load all folders.
+                // Either way don't process 'add' operation - manager will recreate all
+                // cards after fetching folders.
+                LL_INFOS_ONCE() << "Calling cards manager not ready, state: "
+                    << cards_manager.getManagerState()
+                    << ", postponing update."
+                    << LL_ENDL;
+            }
 		}
 		break;
 	case LLFriendObserver::REMOVE:

@@ -432,7 +432,8 @@ private:
 	// Grab
 	//--------------------------------------------------------------------
 public:
-	BOOL 			leftButtonGrabbed() const;
+    BOOL 			leftButtonGrabbed() const;
+    BOOL 			leftButtonBlocked() const;
 	BOOL 			rotateGrabbed() const;
 	BOOL 			forwardGrabbed() const;
 	BOOL 			backwardGrabbed() const;
@@ -449,8 +450,9 @@ public:
 	BOOL			controlFlagsDirty() const;
 	void			enableControlFlagReset();
 	void 			resetControlFlags();
-	BOOL			anyControlGrabbed() const; 		// True iff a script has taken over a control
-	BOOL			isControlGrabbed(S32 control_index) const;
+	BOOL			anyControlGrabbed() const; 		// True if a script has taken over any control
+    BOOL			isControlGrabbed(S32 control_index) const; // True if a script has taken over a control
+    BOOL			isControlBlocked(S32 control_index) const; // Control should be ignored or won't be passed
 	// Send message to simulator to force grabbed controls to be
 	// released, in case of a poorly written script.
 	void			forceReleaseControls();
@@ -616,6 +618,7 @@ public:
 	void 			teleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
 	void			teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
 	void 			teleportCancel();										// May or may not be allowed by server
+    void            restoreCanceledTeleportRequest();
 	bool			getTeleportKeepsLookAt() { return mbTeleportKeepsLookAt; } // Whether look-at reset after teleport
 protected:
 	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
@@ -638,6 +641,7 @@ private:
 	friend class LLTeleportRequestViaLocationLookAt;
 
 	LLTeleportRequestPtr        mTeleportRequest;
+	LLTeleportRequestPtr        mTeleportCanceled;
 	boost::signals2::connection mTeleportFinishedSlot;
 	boost::signals2::connection mTeleportFailedSlot;
 

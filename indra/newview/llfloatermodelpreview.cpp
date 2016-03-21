@@ -610,7 +610,7 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterModelPreview* fp = (LLFloaterModelPreview*) userdata;
 
-	fp->mModelPreview->genLODs();
+    fp->mModelPreview->queryLODs();
 }
 
 void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
@@ -638,7 +638,12 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 //-----------------------------------------------------------------------------
 void LLFloaterModelPreview::draw()
 {
-	LLFloater::draw();
+    LLFloater::draw();
+
+    if (!mModelPreview)
+    {
+        return;
+    }
 
 	mModelPreview->update();
 
@@ -668,7 +673,7 @@ void LLFloaterModelPreview::draw()
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
-	if (mModelPreview)
+    if (mModelPreview->lodsReady())
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
 
@@ -1178,6 +1183,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
+, mLodsQuery()
 , mPelvisZOffset( 0.0f )
 , mLegacyRigValid( false )
 , mRigValidJointUpload( false )
@@ -1544,9 +1550,18 @@ void LLModelPreview::rebuildUploadData()
 					}
 					instance.mLOD[i] = lod_model;
 				}
-				else if (importerDebug)
+				else
 				{
-					LL_INFOS() << "List of models does not include " << instance.mLabel << LL_ENDL;
+					if (i < LLModel::LOD_HIGH && !lodsReady())
+					{
+						// assign a placeholder from previous LOD until lod generation is complete.
+						// Note: we might need to assign it regardless of conditions like named search does, to prevent crashes.
+						instance.mLOD[i] = instance.mLOD[i + 1];
+					}
+					if (importerDebug)
+					{
+						LL_INFOS() << "List of models does not include " << instance.mLabel << LL_ENDL;
+					}
 				}
 			}
 
@@ -1760,7 +1775,8 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		this,
 		mJointTransformMap,
 		mJointsFromNode,
-		gSavedSettings.getU32("ImporterModelLimit"));
+		gSavedSettings.getU32("ImporterModelLimit"),
+		gSavedSettings.getBOOL("ImporterPreprocessDAE"));
 
 	if (force_disable_slm)
 	{
@@ -2573,112 +2589,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 		shader->bind();
 	}
 }
-void LLModelPreview::genModelBBox()
-{
-	LLVector3 min, max;
-	min = this->mModelLoader->mExtents[0];
-	max = this->mModelLoader->mExtents[1];
-	std::vector<LLVector3> v_list;
-	v_list.resize(4);
-	std::map<U8, std::vector<LLVector3> > face_list;
-
-	// Face 0
-	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
-	v_list[1] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
-	v_list[2] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
-	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3> >(0, v_list));
-
-	// Face 1
-	v_list[0] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
-	v_list[1] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
-	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
-	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3> >(1, v_list));
-
-	// Face 2
-	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
-	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
-	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], max.mV[VZ]);
-	v_list[3] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3> >(2, v_list));
-
-	// Face 3
-	v_list[0] = LLVector3(min.mV[VX], max.mV[VY], max.mV[VZ]);
-	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
-	v_list[2] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
-	v_list[3] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3> >(3, v_list));
-
-	// Face 4
-	v_list[0] = LLVector3(min.mV[VX], min.mV[VY], max.mV[VZ]);
-	v_list[1] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
-	v_list[2] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
-	v_list[3] = LLVector3(max.mV[VX], min.mV[VY], max.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3> >(4, v_list));
-
-	// Face 5
-	v_list[0] = LLVector3(min.mV[VX], min.mV[VY], min.mV[VZ]);
-	v_list[1] = LLVector3(min.mV[VX], max.mV[VY], min.mV[VZ]);
-	v_list[2] = LLVector3(max.mV[VX], max.mV[VY], min.mV[VZ]);
-	v_list[3] = LLVector3(max.mV[VX], min.mV[VY], min.mV[VZ]);
-	face_list.insert(std::pair<U8, std::vector<LLVector3> >(5, v_list));
-
-	U16 Idx[] = { 0, 1, 2, 3, 0, 2, };
-
-	U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask, 0);
-	buff->allocateBuffer(4, 6, true);
-
-	LLStrider<LLVector3> pos;
-	LLStrider<U16> idx;
-	LLStrider<LLVector3> norm;
-	LLStrider<LLVector2> tc;
-
-	buff->getVertexStrider(pos);
-	buff->getIndexStrider(idx);
-
-	buff->getNormalStrider(norm);
-	buff->getTexCoord0Strider(tc);
-
-	for (U32 i = 0; i < 6; ++i)
-	{
-		idx[i] = Idx[i];
-	}
-
-	LLVolumeParams volume_params;
-	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-	LLModel* mdl = new LLModel(volume_params, 0.f);
-	mdl->mLabel = "BBOX";  // please adopt name from high LOD (mBaseModel) or from original model otherwise it breaks search mechanics which is name based
-
-	mdl->setNumVolumeFaces(6);
-	for (U8 i = 0; i < 6; ++i)
-	{
-		for (U8 j = 0; j < 4; ++j)
-		{
-			pos[j] = face_list[i][j];
-		}
-
-		mdl->setVolumeFaceData(i, pos, norm, tc, idx, buff->getNumVerts(), buff->getNumIndices());
-	}
-
-	if (validate_model(mdl))
-	{
-		LLMatrix4 mat;
-		std::map<std::string, LLImportMaterial> materials;
-		std::vector<LLModelInstance> instance_list;
-		instance_list.push_back(LLModelInstance(mdl, mdl->mLabel, mat, materials));
-
-		for (S32 i = LLModel::LOD_HIGH - 1; i >= 0; i--)
-		{
-			mModel[i].clear();
-			mModel[i].push_back(mdl);
-
-			mScene[i].clear();
-			mScene[i].insert(std::pair<LLMatrix4, std::vector<LLModelInstance> >(mat, instance_list));
-		}
-	}
-}
 
 void LLModelPreview::updateStatusMessages()
 {
@@ -3422,14 +3332,25 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 void LLModelPreview::update()
 {
     if (mGenLOD)
-	{
-		mGenLOD = false;
-		genLODs();
-		refresh();
-		updateStatusMessages();
-	}
+    {
+        bool subscribe_for_generation = mLodsQuery.empty();
+        mGenLOD = false;
+        mDirty = true;
+        mLodsQuery.clear();
 
-	if (mDirty)
+        for (S32 lod = LLModel::LOD_HIGH; lod >= 0; --lod)
+        {
+            // adding all lods into query for generation
+            mLodsQuery.push_back(lod);
+        }
+
+        if (subscribe_for_generation)
+        {
+            doOnIdleRepeating(lodQueryCallback);
+        }
+    }
+
+    if (mDirty && mLodsQuery.empty())
 	{
 		mDirty = false;
 		mResourceCost = calcResourceCost();
@@ -4348,6 +4269,29 @@ void LLModelPreview::textureLoadedCallback( BOOL success, LLViewerFetchedTexture
 			preview->mModelLoader->mNumOfFetchingTextures-- ;
 		}
 	}
+}
+
+// static
+bool LLModelPreview::lodQueryCallback()
+{
+    // not the best solution, but model preview belongs to floater
+    // so it is an easy way to check that preview still exists.
+    LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+    if (fmp && fmp->mModelPreview)
+    {
+        LLModelPreview* preview = fmp->mModelPreview;
+        if (preview->mLodsQuery.size() > 0)
+        {
+            S32 lod = preview->mLodsQuery.back();
+            preview->mLodsQuery.pop_back();
+            preview->genLODs(lod);
+
+            // return false to continue cycle
+            return false;
+        }
+    }
+    // nothing to process
+    return true;
 }
 
 void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
