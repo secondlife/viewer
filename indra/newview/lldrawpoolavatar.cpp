@@ -1808,7 +1808,25 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			{
 				//order is important here LLRender::DIFFUSE_MAP should be last, becouse it change 
 				//(gGL).mCurrTextureUnitIndex
-				gGL.getTexUnit(specular_channel)->bind(LLPipeline::sImpostorRender ? LLViewerTextureManager::findTexture(IMG_BLACK_SQUARE_MALEVICH) : face->getTexture(LLRender::SPECULAR_MAP));
+                LLViewerTexture* specular = NULL;
+                if (LLPipeline::sImpostorRender)
+                {
+                    std::vector<LLViewerFetchedTexture*> found;
+                    LLViewerTextureManager::findFetchedTextures(IMG_BLACK_SQUARE, found);
+                    if (1 <= found.size())
+                    {
+                        specular = found[0];
+                    }
+                }
+                else
+                {
+                    specular = face->getTexture(LLRender::SPECULAR_MAP);
+                }
+                if (specular)
+                {
+                    gGL.getTexUnit(specular_channel)->bind(specular);
+                }
+                
 				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
 				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP), false, true);
 
