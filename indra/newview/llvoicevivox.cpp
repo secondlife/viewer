@@ -184,6 +184,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 
 	mCurrentParcelLocalID(0),
     mConnectorEstablished(false),
+    mAccountLoggedIn(false),
 	mNumberOfAliases(0),
 	mCommandCookie(0),
 	mLoginRetryCount(0),
@@ -7213,19 +7214,20 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 
 LLVivoxSecurity::LLVivoxSecurity()
 {
-    // this size is an arbitrary choice; Vivox does not care
-    #define VIVOX_TOKEN_BYTES 8
+    // This size is an arbitrary choice; Vivox does not care
+    // Use a multiple of three so that there is no '=' padding in the base64 (purely an esthetic choice)
+    #define VIVOX_TOKEN_BYTES 9
     U8  random_value[VIVOX_TOKEN_BYTES];
 
     for (int b = 0; b < VIVOX_TOKEN_BYTES; b++)
     {
-        random_value[b] = random() & 0xff;
+        random_value[b] = ll_rand() & 0xff;
     }
     mConnectorHandle = LLBase64::encode(random_value, VIVOX_TOKEN_BYTES);
     
     for (int b = 0; b < VIVOX_TOKEN_BYTES; b++)
     {
-        random_value[b] = random() & 0xff;
+        random_value[b] = ll_rand() & 0xff;
     }
     mAccountHandle = LLBase64::encode(random_value, VIVOX_TOKEN_BYTES);
 }
