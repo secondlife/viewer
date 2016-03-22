@@ -78,7 +78,7 @@ def main(command, libpath=[], vars={}):
         # No idea what the right pathname might be! But only crump if this
         # feature is requested.
         if libpath:
-            raise NotImplemented("run_build_test: unknown platform %s" % sys.platform)
+            raise RuntimeError("run_build_test: unknown platform %s" % sys.platform)
         lpvars = []
     for var in lpvars:
         # Split the existing path. Bear in mind that the variable in question
