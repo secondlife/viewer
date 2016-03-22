@@ -92,38 +92,52 @@ public:
 };
 
 
-class LLAssetRequest
+class LLBaseDownloadRequest
 {
 public:
-	LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType at);
-	virtual ~LLAssetRequest();
-	
-	LLUUID getUUID() const					{ return mUUID; }
-	LLAssetType::EType getType() const		{ return mType; }
+    LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetType::EType at);
+    virtual ~LLBaseDownloadRequest();
 
-	void setUUID(const LLUUID& id) { mUUID = id; }
-	void setType(LLAssetType::EType type) { mType = type; }
-	void setTimeout (F64Seconds timeout) { mTimeout = timeout; }
+    LLUUID getUUID() const					{ return mUUID; }
+    LLAssetType::EType getType() const		{ return mType; }
+
+    void setUUID(const LLUUID& id) { mUUID = id; }
+    void setType(LLAssetType::EType type) { mType = type; }
+
+    virtual LLBaseDownloadRequest* getCopy();
 
 protected:
-	LLUUID	mUUID;
-	LLAssetType::EType mType;
+    LLUUID	mUUID;
+    LLAssetType::EType mType;
 
 public:
-	void	(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
+    void(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
+
+    void	*mUserData;
+    LLHost  mHost;
+    BOOL	mIsTemp;
+    F64Seconds		mTime;				// Message system time
+    BOOL    mIsPriority;
+    BOOL	mDataSentInFirstPacket;
+    BOOL	mDataIsInVFS;
+};
+
+class LLAssetRequest : public LLBaseDownloadRequest
+{
+public:
+    LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType at);
+    virtual ~LLAssetRequest();
+
+    void setTimeout(F64Seconds timeout) { mTimeout = timeout; }
+
+    virtual LLBaseDownloadRequest* getCopy();
+
 	void	(*mUpCallback)(const LLUUID&, void *, S32, LLExtStat);
 	void	(*mInfoCallback)(LLAssetInfo *, void *, S32);
 
-	void	*mUserData;
-	LLHost  mHost;
-	BOOL	mIsTemp;
 	BOOL	mIsLocal;
 	BOOL	mIsUserWaiting;		// We don't want to try forever if a user is waiting for a result.
-	F64Seconds		mTime;				// Message system time
 	F64Seconds		mTimeout;			// Amount of time before timing out.
-	BOOL    mIsPriority;
-	BOOL	mDataSentInFirstPacket;
-	BOOL	mDataIsInVFS;
 	LLUUID	mRequestingAgentID;	// Only valid for uploads from an agent
 
 	virtual LLSD getTerseDetails() const;
@@ -141,63 +155,27 @@ struct ll_asset_request_equal : public std::equal_to<T>
 };
 
 
-class LLInvItemRequest
+class LLInvItemRequest : public LLBaseDownloadRequest
 {
 public:
-	LLInvItemRequest(const LLUUID &uuid, const LLAssetType::EType at);
-	virtual ~LLInvItemRequest();
+    LLInvItemRequest(const LLUUID &uuid, const LLAssetType::EType at);
+    virtual ~LLInvItemRequest();
 
-	LLUUID getUUID() const					{ return mUUID; }
-	LLAssetType::EType getType() const		{ return mType; }
-
-	void setUUID(const LLUUID& id) { mUUID = id; }
-	void setType(LLAssetType::EType type) { mType = type; }
-
-protected:
-	LLUUID	mUUID;
-	LLAssetType::EType mType;
-
-public:
-	void	(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
-
-	void	*mUserData;
-	LLHost  mHost;
-	BOOL	mIsTemp;
-	F64Seconds	mTime;				// Message system time
-	BOOL    mIsPriority;
-	BOOL	mDataSentInFirstPacket;
-	BOOL	mDataIsInVFS;
-
+    virtual LLBaseDownloadRequest* getCopy();
 };
 
-class LLEstateAssetRequest
+class LLEstateAssetRequest : public LLBaseDownloadRequest
 {
 public:
-	LLEstateAssetRequest(const LLUUID &uuid, const LLAssetType::EType at, EstateAssetType et);
-	virtual ~LLEstateAssetRequest();
+    LLEstateAssetRequest(const LLUUID &uuid, const LLAssetType::EType at, EstateAssetType et);
+    virtual ~LLEstateAssetRequest();
 
-	LLUUID getUUID() const					{ return mUUID; }
-	LLAssetType::EType getAType() const		{ return mAType; }
+    LLAssetType::EType getAType() const		{ return mType; }
 
-	void setUUID(const LLUUID& id) { mUUID = id; }
-	void setType(LLAssetType::EType type) { mAType = type; }
+    virtual LLBaseDownloadRequest* getCopy();
 
 protected:
-	LLUUID	mUUID;
-	LLAssetType::EType mAType;
 	EstateAssetType mEstateAssetType;
-
-public:
-	void	(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
-
-	void	*mUserData;
-	LLHost  mHost;
-	BOOL	mIsTemp;
-	F64Seconds	mTime;				// Message system time
-	BOOL    mIsPriority;
-	BOOL	mDataSentInFirstPacket;
-	BOOL	mDataIsInVFS;
-
 };
 
 
@@ -369,17 +347,17 @@ public:
 		S32 result,
 		const LLUUID& file_id,
 		LLAssetType::EType file_type,
-		void* user_data, LLExtStat ext_status);
+		LLBaseDownloadRequest* user_data, LLExtStat ext_status);
 	static void downloadEstateAssetCompleteCallback(
 		S32 result,
 		const LLUUID& file_id,
 		LLAssetType::EType file_type,
-		void* user_data, LLExtStat ext_status);
+		LLBaseDownloadRequest* user_data, LLExtStat ext_status);
 	static void downloadInvItemCompleteCallback(
 		S32 result,
 		const LLUUID& file_id,
 		LLAssetType::EType file_type,
-		void* user_data, LLExtStat ext_status);
+		LLBaseDownloadRequest* user_data, LLExtStat ext_status);
 
 	// upload process callbacks
 	static void uploadCompleteCallback(const LLUUID&, void *user_data, S32 result, LLExtStat ext_status);

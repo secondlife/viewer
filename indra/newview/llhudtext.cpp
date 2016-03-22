@@ -53,6 +53,7 @@ const F32 VERTICAL_PADDING = 12.f;
 const F32 BUFFER_SIZE = 2.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
 const F32 HUD_TEXT_MAX_WIDTH_NO_BUBBLE = 1000.f;
+const F32 MAX_DRAW_DISTANCE = 64.f;
 
 std::set<LLPointer<LLHUDText> > LLHUDText::sTextObjects;
 std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleTextObjects;
@@ -373,7 +374,7 @@ void LLHUDText::updateVisibility()
 		mVisible = FALSE;
 		return;
 	}
-		
+
 	if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
 	{
 		mPositionAgent = LLViewerCamera::getInstance()->getOrigin() + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis()));
@@ -390,6 +391,15 @@ void LLHUDText::updateVisibility()
 		mVisible = FALSE;
 		return;
 	}
+
+	LLVector3 pos_agent_center = gAgent.getPosAgentFromGlobal(mPositionGlobal) - dir_from_camera;
+	F32 last_distance_center = (pos_agent_center - LLViewerCamera::getInstance()->getOrigin()).magVec();
+	if(last_distance_center > MAX_DRAW_DISTANCE)
+	{
+		mVisible = FALSE;
+		return;
+	}
+
 
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;

@@ -66,7 +66,7 @@ public:
 	virtual S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
 	virtual S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	virtual void				updateLayout(const class LLTextBase& editor);
-	virtual F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+	virtual F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 	virtual bool				canEdit() const;
 	virtual void				unlinkFromDocument(class LLTextBase* editor);
 	virtual void				linkToDocument(class LLTextBase* editor);
@@ -117,7 +117,7 @@ public:
 	/*virtual*/ bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
 	/*virtual*/ S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
-	/*virtual*/ F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+	/*virtual*/ F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 	/*virtual*/ bool				canEdit() const { return true; }
 	/*virtual*/ const LLColor4&		getColor() const					{ return mStyle->getColor(); }
 	/*virtual*/ LLStyleConstSP		getStyle() const					{ return mStyle; }
@@ -135,7 +135,7 @@ public:
 	/*virtual*/ BOOL				handleToolTip(S32 x, S32 y, MASK mask);
 
 protected:
-	F32					drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRect rect);
+	F32					drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRectf rect);
 
 	virtual		const LLWString&	getWText()	const;
 	virtual		const S32			getLength()	const;
@@ -169,7 +169,7 @@ class LLOnHoverChangeableTextSegment : public LLNormalTextSegment
 {
 public:
 	LLOnHoverChangeableTextSegment( LLStyleConstSP style, LLStyleConstSP normal_style, S32 start, S32 end, LLTextBase& editor );
-	/*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+	/*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 protected:
 	// Style used for text when mouse pointer is over segment
@@ -203,7 +203,7 @@ public:
 	/*virtual*/ bool		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	/*virtual*/ void		updateLayout(const class LLTextBase& editor);
-	/*virtual*/ F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+	/*virtual*/ F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 	/*virtual*/ bool		canEdit() const { return false; }
 	/*virtual*/ void		unlinkFromDocument(class LLTextBase* editor);
 	/*virtual*/ void		linkToDocument(class LLTextBase* editor);
@@ -226,7 +226,7 @@ public:
 	~LLLineBreakTextSegment();
 	bool		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
-	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 
 private:
 	S32			mFontHeight;
@@ -239,7 +239,7 @@ public:
 	~LLImageTextSegment();
 	bool		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
-	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	setToolTip(const std::string& tooltip);

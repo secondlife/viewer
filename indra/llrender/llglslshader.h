@@ -198,7 +198,9 @@ public:
 	bool mTextureStateFetched;
 	std::vector<U32> mTextureMagFilter;
 	std::vector<U32> mTextureMinFilter;
-	
+
+private:
+	void unloadInternal();
 };
 
 //UI shader (declared here so llui_libtest will link properly)

@@ -119,6 +119,7 @@ private:
 	LLSafeHandle<LLObjectSelection> mLeftClickSelection;
 	BOOL				mClickActionBuyEnabled;
 	BOOL				mClickActionPayEnabled;
+	LLFrameTimer mDoubleClickTimer;
 };
 
 #endif
