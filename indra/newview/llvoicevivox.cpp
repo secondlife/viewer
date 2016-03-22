@@ -183,6 +183,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mNextAudioSession(),
 
 	mCurrentParcelLocalID(0),
+    mConnectorEstablished(false),
 	mNumberOfAliases(0),
 	mCommandCookie(0),
 	mLoginRetryCount(0),
@@ -400,6 +401,7 @@ void LLVivoxVoiceClient::connectorCreate()
 		<< "<ClientName>V2 SDK</ClientName>"
 		<< "<AccountManagementServer>" << mVoiceAccountServerURI << "</AccountManagementServer>"
 		<< "<Mode>Normal</Mode>"
+        << "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 		<< "<Logging>"
 		<< "<Folder>" << logpath << "</Folder>"
 		<< "<FileNamePrefix>Connector</FileNamePrefix>"
@@ -416,17 +418,17 @@ void LLVivoxVoiceClient::connectorCreate()
 
 void LLVivoxVoiceClient::connectorShutdown()
 {
-	if(!mConnectorHandle.empty())
+	if(!mConnectorEstablished)
 	{
 		std::ostringstream stream;
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.InitiateShutdown.1\">"
-			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 		<< "</Request>"
 		<< "\n\n\n";
 		
 		mShutdownComplete = false;
-		mConnectorHandle.clear();
+		mConnectorEstablished = false;
 		
 		writeString(stream.str());
 	}
@@ -451,7 +453,7 @@ void LLVivoxVoiceClient::setLoginInfo(
 	mVoiceSIPURIHostName = voice_sip_uri_hostname;
 	mVoiceAccountServerURI = voice_account_server_uri;
 
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{
 		// Already logged in.
 		LL_WARNS("Voice") << "Called while already logged in." << LL_ENDL;
@@ -650,6 +652,15 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
                 params.args.add(shutdown_timeout);
             }
             params.cwd = gDirUtilp->getAppRODataDir();
+
+#           ifdef VIVOX_HANDLE_ARGS
+            params.args.add("-ah");
+            params.args.add(LLVivoxSecurity::getInstance()->accountHandle());
+
+            params.args.add("-ch");
+            params.args.add(LLVivoxSecurity::getInstance()->connectorHandle());
+#           endif // VIVOX_HANDLE_ARGS
+
             sGatewayPtr = LLProcess::create(params);
 
             mDaemonHost = LLHost(gSavedSettings.getString("VivoxVoiceHost").c_str(), gSavedSettings.getU32("VivoxVoicePort"));
@@ -1722,7 +1733,7 @@ bool LLVivoxVoiceClient::performMicTuning()
         std::ostringstream stream;
 
         stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
-            << "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+            << "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
             << "<Value>false</Value>"
             << "</Request>\n\n\n";
 
@@ -1793,8 +1804,8 @@ void LLVivoxVoiceClient::closeSocket(void)
 {
 	mSocket.reset();
 	mConnected = false;
-	mConnectorHandle.clear();
-	mAccountHandle.clear();
+	mConnectorEstablished = false;
+	mAccountLoggedIn = false;
 }
 
 void LLVivoxVoiceClient::loginSendMessage()
@@ -1805,9 +1816,10 @@ void LLVivoxVoiceClient::loginSendMessage()
 
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.Login.1\">"
-		<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+		<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 		<< "<AccountName>" << mAccountName << "</AccountName>"
-		<< "<AccountPassword>" << mAccountPassword << "</AccountPassword>"
+        << "<AccountPassword>" << mAccountPassword << "</AccountPassword>"
+        << "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 		<< "<AudioSessionAnswerMode>VerifyAnswer</AudioSessionAnswerMode>"
 		<< "<EnableBuddiesAndPresence>false</EnableBuddiesAndPresence>"
 		<< "<EnablePresencePersistence>0</EnablePresencePersistence>"
@@ -1830,16 +1842,16 @@ void LLVivoxVoiceClient::logout()
 
 void LLVivoxVoiceClient::logoutSendMessage()
 {
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{
 		std::ostringstream stream;
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.Logout.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+			<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 		<< "</Request>"
 		<< "\n\n\n";
 
-		mAccountHandle.clear();
+		mAccountLoggedIn = false;
 
 		writeString(stream.str());
 	}
@@ -1847,7 +1859,7 @@ void LLVivoxVoiceClient::logoutSendMessage()
 
 void LLVivoxVoiceClient::sessionGroupCreateSendMessage()
 {
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{		
 		std::ostringstream stream;
 
@@ -1855,7 +1867,7 @@ void LLVivoxVoiceClient::sessionGroupCreateSendMessage()
 
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"SessionGroup.Create.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+			<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 			<< "<Type>Normal</Type>"
 		<< "</Request>"
 		<< "\n\n\n";
@@ -1880,7 +1892,7 @@ void LLVivoxVoiceClient::sessionCreateSendMessage(const sessionStatePtr_t &sessi
 	std::ostringstream stream;
 	stream
 	<< "<Request requestId=\"" << session->mSIPURI << "\" action=\"Session.Create.1\">"
-		<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 		<< "<URI>" << session->mSIPURI << "</URI>";
 
 	static const std::string allowed_chars =
@@ -2736,7 +2748,7 @@ void LLVivoxVoiceClient::sendLocalAudioUpdates()
 		LL_DEBUGS("Voice") << "Sending MuteLocalMic command with parameter " << (mMuteMic ? "true" : "false") << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
-			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 			<< "<Value>" << (mMuteMic ? "true" : "false") << "</Value>"
 			<< "</Request>\n\n\n";
 
@@ -2751,7 +2763,7 @@ void LLVivoxVoiceClient::sendLocalAudioUpdates()
 		LL_INFOS("Voice") << "Setting speaker mute to " << muteval << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalSpeaker.1\">"
-			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 			<< "<Value>" << muteval << "</Value>"
 			<< "</Request>\n\n\n";
 
@@ -2764,7 +2776,7 @@ void LLVivoxVoiceClient::sendLocalAudioUpdates()
 		LL_INFOS("Voice") << "Setting speaker volume to " << mSpeakerVolume << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.SetLocalSpeakerVolume.1\">"
-			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 			<< "<Value>" << mSpeakerVolume << "</Value>"
 			<< "</Request>\n\n\n";
 
@@ -2777,7 +2789,7 @@ void LLVivoxVoiceClient::sendLocalAudioUpdates()
 		LL_INFOS("Voice") << "Setting mic volume to " << mMicVolume << LL_ENDL;
 
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.SetLocalMicVolume.1\">"
-			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 			<< "<Value>" << mMicVolume << "</Value>"
 			<< "</Request>\n\n\n";
 	}
@@ -2818,12 +2830,23 @@ void LLVivoxVoiceClient::connectorCreateResponse(int statusCode, std::string &st
 	else
 	{
 		// Connector created, move forward.
-		LL_INFOS("Voice") << "Connector.Create succeeded, Vivox SDK version is " << versionID << LL_ENDL;
-		mVoiceVersion.serverVersion = versionID;
-		mConnectorHandle = connectorHandle;
-		mTerminateDaemon = false;
+        if (connectorHandle == LLVivoxSecurity::getInstance()->connectorHandle())
+        {
+            LL_INFOS("Voice") << "Connector.Create succeeded, Vivox SDK version is " << versionID << " connector handle " << connectorHandle << LL_ENDL;
+            mVoiceVersion.serverVersion = versionID;
+            mConnectorEstablished = true;
+            mTerminateDaemon = false;
 
-        result["connector"] = LLSD::Boolean(true);
+            result["connector"] = LLSD::Boolean(true);
+        }
+        else
+        {
+            LL_WARNS("Voice") << "Connector.Create returned wrong handle "
+                              << "(" << connectorHandle << ")"
+                              << " expected (" << LLVivoxSecurity::getInstance()->connectorHandle() << ")"
+                              << LL_ENDL;
+            result["connector"] = LLSD::Boolean(false);
+        }
 	}
 
     LLEventPumps::instance().post("vivoxClientPump", result);
@@ -2851,7 +2874,7 @@ void LLVivoxVoiceClient::loginResponse(int statusCode, std::string &statusString
 	else
 	{
 		// Login succeeded, move forward.
-		mAccountHandle = accountHandle;
+		mAccountLoggedIn = true;
 		mNumberOfAliases = numberOfAliases;
         result["login"] = LLSD::String("response_ok");
 	}
@@ -6070,7 +6093,7 @@ S32 LLVivoxVoiceClient::getVoiceFontTemplateIndex(const LLUUID& id) const
 
 void LLVivoxVoiceClient::accountGetSessionFontsSendMessage()
 {
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{
 		std::ostringstream stream;
 
@@ -6078,7 +6101,7 @@ void LLVivoxVoiceClient::accountGetSessionFontsSendMessage()
 
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetSessionFonts.1\">"
-		<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 		<< "</Request>"
 		<< "\n\n\n";
 
@@ -6088,7 +6111,7 @@ void LLVivoxVoiceClient::accountGetSessionFontsSendMessage()
 
 void LLVivoxVoiceClient::accountGetTemplateFontsSendMessage()
 {
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{
 		std::ostringstream stream;
 
@@ -6096,7 +6119,7 @@ void LLVivoxVoiceClient::accountGetTemplateFontsSendMessage()
 
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetTemplateFonts.1\">"
-		<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 		<< "</Request>"
 		<< "\n\n\n";
 
@@ -6351,7 +6374,7 @@ bool LLVivoxVoiceClient::isPreviewPlaying()
 }
 
 void LLVivoxVoiceClient::captureBufferRecordStartSendMessage()
-{	if(!mAccountHandle.empty())
+{	if(mAccountLoggedIn)
 	{
 		std::ostringstream stream;
 
@@ -6365,7 +6388,7 @@ void LLVivoxVoiceClient::captureBufferRecordStartSendMessage()
 
 		// Unmute the mic
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
-			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 			<< "<Value>false</Value>"
 		<< "</Request>\n\n\n";
 
@@ -6378,7 +6401,7 @@ void LLVivoxVoiceClient::captureBufferRecordStartSendMessage()
 
 void LLVivoxVoiceClient::captureBufferRecordStopSendMessage()
 {
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{
 		std::ostringstream stream;
 
@@ -6386,14 +6409,14 @@ void LLVivoxVoiceClient::captureBufferRecordStopSendMessage()
 
 		// Mute the mic. Mic mute state was dirtied at recording start, so will be reset when finished previewing.
 		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
-			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<ConnectorHandle>" << LLVivoxSecurity::getInstance()->connectorHandle() << "</ConnectorHandle>"
 			<< "<Value>true</Value>"
 		<< "</Request>\n\n\n";
 
 		// Stop capture
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStop.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+			<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 		<< "</Request>"
 		<< "\n\n\n";
 
@@ -6403,7 +6426,7 @@ void LLVivoxVoiceClient::captureBufferRecordStopSendMessage()
 
 void LLVivoxVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_font_id)
 {
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{
 		// Track how may play requests are sent, so we know how many stop events to
 		// expect before play actually stops.
@@ -6418,7 +6441,7 @@ void LLVivoxVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_f
 
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.PlayAudioBuffer.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+			<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 			<< "<TemplateFontID>" << font_index << "</TemplateFontID>"
 			<< "<FontDelta />"
 		<< "</Request>"
@@ -6430,7 +6453,7 @@ void LLVivoxVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_f
 
 void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
 {
-	if(!mAccountHandle.empty())
+	if(mAccountLoggedIn)
 	{
 		std::ostringstream stream;
 
@@ -6438,7 +6461,7 @@ void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
 
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.RenderAudioStop.1\">"
-			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+			<< "<AccountHandle>" << LLVivoxSecurity::getInstance()->accountHandle() << "</AccountHandle>"
 		<< "</Request>"
 		<< "\n\n\n";
 
@@ -7188,3 +7211,25 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 	}
 }
 
+LLVivoxSecurity::LLVivoxSecurity()
+{
+    // this size is an arbitrary choice; Vivox does not care
+    #define VIVOX_TOKEN_BYTES 8
+    U8  random_value[VIVOX_TOKEN_BYTES];
+
+    for (int b = 0; b < VIVOX_TOKEN_BYTES; b++)
+    {
+        random_value[b] = random() & 0xff;
+    }
+    mConnectorHandle = LLBase64::encode(random_value, VIVOX_TOKEN_BYTES);
+    
+    for (int b = 0; b < VIVOX_TOKEN_BYTES; b++)
+    {
+        random_value[b] = random() & 0xff;
+    }
+    mAccountHandle = LLBase64::encode(random_value, VIVOX_TOKEN_BYTES);
+}
+
+LLVivoxSecurity::~LLVivoxSecurity()
+{
+}

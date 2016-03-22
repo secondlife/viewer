@@ -697,10 +697,10 @@ private:
 	S32 mCurrentParcelLocalID;			// Used to detect parcel boundary crossings
 	std::string mCurrentRegionName;		// Used to detect parcel boundary crossings
 	
-	std::string mConnectorHandle;	// returned by "Create Connector" message
-	std::string mAccountHandle;		// returned by login message		
-	int 		mNumberOfAliases;
-	U32 mCommandCookie;
+    bool mConnectorEstablished; // set by "Create Connector" response
+    bool mAccountLoggedIn;		// set by login message		
+	int  mNumberOfAliases;
+	U32  mCommandCookie;
 
 	std::string mVoiceAccountServerURI;
 	std::string mVoiceSIPURIHostName;
@@ -913,6 +913,7 @@ private:
     LLEventMailDrop mVivoxPump;
 };
 
+
 /** 
  * @class LLVivoxProtocolParser
  * @brief This class helps construct new LLIOPipe specializations
@@ -1024,6 +1025,19 @@ protected:
 
 };
 
+class LLVivoxSecurity :	public LLSingleton<LLVivoxSecurity>
+{
+  public:
+	LLVivoxSecurity();	
+	virtual ~LLVivoxSecurity();
+
+    std::string     connectorHandle() { return mConnectorHandle; };
+    std::string     accountHandle()    { return mAccountHandle;    };
+
+  private:
+    std::string     mConnectorHandle;
+    std::string     mAccountHandle;
+};
 
 #endif //LL_VIVOX_VOICE_CLIENT_H
 
