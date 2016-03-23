@@ -180,7 +180,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
             std::string ctrl_name = *it;
             LLControlVariable* ctrl = gSavedSettings.getControl(ctrl_name).get();
             std::string comment = ctrl->getComment();
-            std::string type = gSavedSettings.typeEnumToString(ctrl->type());
+            std::string type = LLControlGroup::typeEnumToString(ctrl->type());
             LLSD value = ctrl->getValue();
 
             paramsData[ctrl_name]["Comment"] =  comment;
