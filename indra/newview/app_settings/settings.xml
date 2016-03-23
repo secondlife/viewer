@@ -14406,6 +14406,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LogWearableAssetSave</key>
+    <map>
+      <key>Comment</key>
+      <string>Save copy of saved wearables to log dir</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LogTextureDownloadsToViewerLog</key>
     <map>
       <key>Comment</key>
