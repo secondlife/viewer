@@ -4069,11 +4069,9 @@ U32 LLVOAvatar::renderSkinned()
 		BOOL first_pass = TRUE;
 		if (!LLDrawPoolAvatar::sSkipOpaque)
 		{
-			bool visually_muted = isVisuallyMuted();
-
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy || visually_muted)
+				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
 				{
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
@@ -4083,7 +4081,7 @@ U32 LLVOAvatar::renderSkinned()
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy || visually_muted)
+			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
 			{
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
@@ -4093,7 +4091,7 @@ U32 LLVOAvatar::renderSkinned()
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy || visually_muted)
+			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
 			{
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
