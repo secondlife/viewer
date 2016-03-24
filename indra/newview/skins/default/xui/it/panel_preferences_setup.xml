@@ -17,11 +17,11 @@
 	<radio_group name="preferred_browser_behavior">
 		<radio_item label="Usa il mio browser (Chrome, Firefox, IE) per tutti i link" name="internal" tool_tip="Utilizza il browser Web predefinito di sistema per l&apos;aiuto, per i link Web e così via. Sconsigliato durante l&apos;esecuzione a tutto schermo." value="0"/>
 		<radio_item label="Usa il browser incorporato solo per i link di Second Life" name="external" tool_tip="Utilizza il browser Web predefinito di sistema per l&apos;aiuto, per i link Web e così via. Il browser incorporato verrà usato solo per i link LindenLab/SecondLife." value="1"/>
+		<radio_item label="Usa il browser incorporato per tutti i link" name="external_all" tool_tip="Utilizza il browser Web integrato per l&apos;aiuto, per i link Web e così via. Questo browser si apre in una nuova finestra in [APP_NAME]." value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="Abilita plugin" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Accetta cookie" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Abilita Javascript" name="browser_javascript_enabled"/>
-	<check_box initial_value="false" label="Consenti pop-up nel browser media" name="media_popup_enabled"/>
 	<text name="Software updates:">
 		Aggiornamenti software:
 	</text>

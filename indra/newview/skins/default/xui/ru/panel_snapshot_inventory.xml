@@ -7,7 +7,7 @@
 		Сохранение изображения в инвентаре стоит L$[UPLOAD_COST]. Чтобы сохранить его как текстуру, выберите один из квадратных форматов.
 	</text>
 	<combo_box label="Размер" name="texture_size_combo">
-		<combo_box.item label="Текущее окно" name="CurrentWindow"/>
+		<combo_box.item label="Текущее окно (512x512)" name="CurrentWindow"/>
 		<combo_box.item label="Маленький (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Средний (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Большой (512x512)" name="Large(512x512)"/>

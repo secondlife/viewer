@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="perms default" title="VARSAYILAN OLUŞTURMA İZİNLERİ">
-	<panel label="Varsayılan İzinler" name="default permissions"/>
+	<panel label="Varsayılan İzinler" name="default permissions">
+		<text name="label_1">
+			Sonraki sahip:
+		</text>
+		<text name="label_2">
+			Kopyala
+		</text>
+		<text name="label_3">
+			Değiştir
+		</text>
+		<text name="label_4">
+			Aktar
+		</text>
+		<text name="label_5">
+			Grupla paylaş
+		</text>
+		<text name="label_6">
+			Herkese kopyalama izni ver
+		</text>
+		<text name="label_7" tool_tip="Nesneler oluşturulduğunda varsayılan izinleri ayarla">
+			Nesneler
+		</text>
+		<text name="label_8" tool_tip="Karşıya yüklenen öğeler için varsayılan izinleri ayarla">
+			Karşıya Yüklemeler
+		</text>
+		<text name="label_9" tool_tip="Komut dosyaları oluşturulduğunda varsayılan izinleri ayarla">
+			Komut Dosyaları
+		</text>
+		<text name="label_10" tool_tip="Not kartları oluşturulduğunda varsayılan izinleri ayarla">
+			Not kartları
+		</text>
+		<text name="label_11" tool_tip="Mimikler oluşturulduğunda varsayılan izinleri ayarla">
+			Mimikler
+		</text>
+		<text name="label_12" tool_tip="Giysi ya da Vücut Parçaları oluşturulduğunda varsayılan izinleri ayarla">
+			Giyilebilir öğeler
+		</text>
+	</panel>
 	<button label="Tamam" label_selected="Tamam" name="ok"/>
 	<button label="İptal" label_selected="İptal" name="cancel"/>
 </floater>

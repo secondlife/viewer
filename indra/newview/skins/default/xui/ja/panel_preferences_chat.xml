@@ -89,8 +89,19 @@
 		<check_box label="インベントリを送る" name="inventory_offer"/>
 	</panel>
 	<panel name="log_settings">
+		<text name="logging_label">
+			保存：
+		</text>
+		<combo_box name="conversation_log_combo">
+			<item label="ログおよびテキストチャット" name="log_and_transcripts" value="2"/>
+			<item label="ログのみ" name="log_only" value="1"/>
+			<item label="ログまたはテキストチャットなし" name="no_log_or_transcript" value="0"/>
+		</combo_box>
 		<button label="ログを消去..." name="clear_log"/>
 		<button label="テキストチャットを削除..." name="delete_transcripts"/>
+		<text name="log_location_label">
+			場所：
+		</text>
 		<button label="参照..." label_selected="参照" name="log_path_button"/>
 	</panel>
 	<button label="他の言語..." name="ok_btn"/>

@@ -24,6 +24,12 @@
 		<radio_item label="Precedenti al" name="older"/>
 	</radio_group>
 	<spinner label="Ore fa" name="spin_hours_ago"/>
+	<text name="label_hours">
+		Ore
+	</text>
 	<spinner label="Giorni fa" name="spin_days_ago"/>
+	<text name="label_days">
+		Giorni
+	</text>
 	<button label="Chiudi" label_selected="Chiudi" name="Close"/>
 </floater>

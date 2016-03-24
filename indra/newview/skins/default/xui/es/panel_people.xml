@@ -18,6 +18,7 @@
 	<string name="no_groups_msg" value="¿Buscas grupos en que participar? Prueba la [secondlife:///app/search/groups Búsqueda]."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Pulsa dos veces para abrir el mapa, pulsa mayús y arrastra para obtener una panorámica)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Pulsa dos veces para teleportarte, pulsa mayús y arrastra para obtener una panorámica)"/>
+	<string name="GroupCountWithInfo" value="Perteneces a [COUNT] grupos y puedes unirte a [REMAINING] más.  [secondlife:/// ¿Quieres más?]"/>
 	<tab_container name="tabs">
 		<panel label="CERCANA" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">

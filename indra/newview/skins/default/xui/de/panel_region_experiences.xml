@@ -18,7 +18,7 @@ Zulässige Erlebnisse können in diesem Grundbesitz ausgeführt werden.
 Blockierte Erlebnisse können in diesem Grundbesitz nicht ausgeführt werden.
 	</panel.string>
 	<panel.string name="estate_caption">
-		Änderungen wirken sich auf alle Regionen des Grundbesitzes aus.
+		änderungen wirken sich auf alle Regionen des Grundbesitzes aus.
 	</panel.string>
 	<panel.string name="allowed_parcel_text">
 		Nur Erlebnisse mit Landumfang können zulässig sein.

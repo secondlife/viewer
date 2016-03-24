@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="spellcheck_import" title="Sözlüğü İçeri Aktar">
+	<text name="import_dict">
+		Sözlük:
+	</text>
 	<button label="Gözat" label_selected="Gözat" name="dictionary_path_browse"/>
+	<text name="import_name">
+		Ad:
+	</text>
+	<text name="import_lang">
+		Dil:
+	</text>
 	<button label="İçeri Aktar" name="ok_btn"/>
 	<button label="İptal" name="cancel_btn"/>
 </floater>

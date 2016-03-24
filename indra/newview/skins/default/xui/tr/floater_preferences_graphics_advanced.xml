@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="prefs_graphics_advanced" title="GELİŞMİŞ GRAFİK TERCİHLERİ">
+	<text name="GeneralText">
+		Genel
+	</text>
+	<slider label="Çizme mesafesi:" name="DrawDistance"/>
+	<text name="DrawDistanceMeterText2">
+		m
+	</text>
+	<slider label="Maks. parçacık sayısı:" name="MaxParticleCount"/>
+	<slider label="Son işleme kalitesi:" name="RenderPostProcess"/>
+	<text name="PostProcessText">
+		Düşük
+	</text>
+	<text name="AvatarText">
+		Avatar
+	</text>
+	<slider label="Maksimum karmaşıklık:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık yapıdaki bir avatarın hangi noktada jelibon gibi tek renkli olarak çizileceğini kontrol eder"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
+	<slider label="Düşük grafik özellikli olmayan maks. avatar sayısı:" name="IndirectMaxNonImpostors"/>
+	<text name="IndirectMaxNonImpostorsText">
+		0
+	</text>
+	<slider label="Ayrıntı:" name="AvatarMeshDetail"/>
+	<text name="AvatarMeshDetailText">
+		Düşük
+	</text>
+	<slider label="Fizik:" name="AvatarPhysicsDetail"/>
+	<text name="AvatarPhysicsDetailText">
+		Düşük
+	</text>
+	<text name="ShadersText">
+		Donanım
+	</text>
+	<slider label="Doku Belleği (MB):" name="GraphicsCardTextureMemory" tool_tip="Dokular için tahsis edilecek bellek miktarı. Varsayılan değer video kartı belleğidir. Bu değerin küçültülmesi performansı artırabilir, ama ayrıca dokuları bulanıklaştırabilir."/>
+	<slider label="Sis Mesafe Oranı:" name="fog"/>
+	<slider label="Gama:" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(0 = varsayılan parlaklık, düşük = daha parlak)
+	</text>
+	<check_box label="Anisotropik Filtreleme (etkinken daha yavaş)" name="ani"/>
+	<check_box initial_value="true" label="OpenGL Vertex Tampon Nesnelerini Etkinleştir" name="vbo" tool_tip="Modern donanımlarda bunun etkinleştirilmesi performans artışı sağlar.  Ancak, eski donanımlardaki VBO uygulamaları yetersizdir ve etkinleştirildiğinde bilgisayarınız çökebilir."/>
+	<check_box initial_value="true" label="Doku Sıkıştırmasını Etkinleştir (yeniden başlatma gerektirir)" name="texture compression" tool_tip="Video bellekteki dokuları sıkıştırır, renk kalitesinde bazı kayıplar olmasına karşın daha yüksek çözünürlükte dokuların yüklenmesine imkan tanır."/>
+	<text name="antialiasing label">
+		Antialiasing:
+	</text>
+	<combo_box label="Antialiasing" name="fsaa">
+		<combo_box.item label="Devre dışı" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<text name="antialiasing restart">
+		(yeniden başlatma gerektirir)
+	</text>
+	<slider label="Yüzey Ağ Ayrıntısı:" name="TerrainMeshDetail"/>
+	<text name="TerrainMeshDetailText">
+		Düşük
+	</text>
+	<slider label="Ağaçlar:" name="TreeMeshDetail"/>
+	<text name="TreeMeshDetailText">
+		Düşük
+	</text>
+	<slider label="Nesneler:" name="ObjectMeshDetail"/>
+	<text name="ObjectMeshDetailText">
+		Düşük
+	</text>
+	<slider label="Esnek primler:" name="FlexibleMeshDetail"/>
+	<text name="FlexibleMeshDetailText">
+		Düşük
+	</text>
+	<check_box initial_value="true" label="Saydam Su" name="TransparentWater"/>
+	<check_box initial_value="true" label="Tümsek eşleme ve parlaklık" name="BumpShiny"/>
+	<check_box initial_value="true" label="Yerel Işıklar" name="LocalLights"/>
+	<check_box initial_value="true" label="Temel gölgeleyiciler" name="BasicShaders" tool_tip="Bu seçeneğin devre dışı bırakılması bazı grafik kartlarının sürücülerinin kilitlenmesini önleyebilir"/>
+	<slider label="Yüzey Ayrıntısı:" name="TerrainDetail"/>
+	<text name="TerrainDetailText">
+		Düşük
+	</text>
+	<check_box initial_value="true" label="Avatarı Donanım ile kaplama" name="AvatarVertexProgram"/>
+	<check_box initial_value="true" label="Avatar giysisi" name="AvatarCloth"/>
+	<text name="ReflectionsText">
+		Su Yansımaları:
+	</text>
+	<combo_box name="Reflections">
+		<combo_box.item label="Minimal" name="0"/>
+		<combo_box.item label="Yüzey ve ağaçlar" name="1"/>
+		<combo_box.item label="Tüm statik nesneler" name="2"/>
+		<combo_box.item label="Tüm avatarlar ve nesneler" name="3"/>
+		<combo_box.item label="Her şey" name="4"/>
+	</combo_box>
+	<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
+	<slider label="Gökyüzü:" name="SkyMeshDetail"/>
+	<text name="SkyMeshDetailText">
+		Düşük
+	</text>
+	<check_box initial_value="true" label="Gelişmiş Aydınlatma Modeli" name="UseLightShaders"/>
+	<check_box initial_value="true" label="Ortam Emilimi" name="UseSSAO"/>
+	<check_box initial_value="true" label="Alan Derinliği" name="UseDoF"/>
+	<text name="RenderShadowDetailText">
+		Gölgeler:
+	</text>
+	<combo_box name="ShadowDetail">
+		<combo_box.item label="Yok" name="0"/>
+		<combo_box.item label="Güneş/Ay" name="1"/>
+		<combo_box.item label="Güneş/Ay + Projektörler" name="2"/>
+	</combo_box>
+	<button label="Önerilen ayarlara dön" name="Defaults"/>
+	<button label="Tamam" label_selected="Tamam" name="OK"/>
+	<button label="İptal" label_selected="İptal" name="Cancel"/>
+	<check_box label="AvatarMaksKarmaşıklığıİşleme" name="RenderAvatarMaxNonImpostors"/>
+</floater>

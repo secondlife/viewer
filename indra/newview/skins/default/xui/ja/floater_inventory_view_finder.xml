@@ -24,6 +24,12 @@
 		<radio_item label="より古い" name="older"/>
 	</radio_group>
 	<spinner label="経過時間" name="spin_hours_ago"/>
+	<text name="label_hours">
+		時間
+	</text>
 	<spinner label="経過日数" name="spin_days_ago"/>
+	<text name="label_days">
+		日間
+	</text>
 	<button label="閉じる" label_selected="閉じる" name="Close"/>
 </floater>

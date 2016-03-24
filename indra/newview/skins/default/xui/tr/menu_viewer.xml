@@ -178,6 +178,7 @@
 		<menu_item_call label="Hata Bildir" name="Report Bug"/>
 		<menu_item_call label="Toslamalar, İtmeler ve Vurmalar" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="[APP_NAME] Hakkında" name="About Second Life"/>
+		<menu_item_call label="Güncellemeleri Kontrol Et" name="Check for Updates"/>
 	</menu>
 	<menu label="Gelişmiş" name="Advanced">
 		<menu_item_call label="Dokuları Tekrar Kaydet" name="Rebake Texture"/>
@@ -191,7 +192,7 @@
 			<menu_item_call label="Gecikme Ölçer" name="Lag Meter"/>
 			<menu_item_check label="İstatistik Çubuğu" name="Statistics Bar"/>
 			<menu_item_call label="Sahne Yükleme İstatistikleri" name="Scene Load Statistics"/>
-			<menu_item_check label="Avatarlar İçin Çizim Ağırlığını Göster" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Avatarın karmaşıklık bilgisini göster" name="Avatar Draw Info"/>
 		</menu>
 		<menu label="Vurgulama ve Görünürlük" name="Highlighting and Visibility">
 			<menu_item_check label="Yanıp Sönen İşaret" name="Cheesy Beacon"/>
@@ -314,8 +315,6 @@
 			<menu_item_check label="Eklemler" name="Joints"/>
 			<menu_item_check label="Işın Yayını" name="Raycast"/>
 			<menu_item_check label="Rüzgar Vektörleri" name="Wind Vectors"/>
-			<menu_item_check label="İşleme Karmaşıklığı" name="rendercomplexity"/>
-			<menu_item_check label="Aksesuar Bayt Büyüklüğü" name="attachment bytes"/>
 			<menu_item_check label="Şekillendir" name="Sculpt"/>
 			<menu label="Doku Yoğunluğu" name="Texture Density">
 				<menu_item_check label="Yok" name="None"/>
@@ -421,13 +420,11 @@
 			<menu_item_check label="Debug Character Vis" name="Debug Character Vis"/>
 			<menu_item_check label="Çarpışma İskeletini Göster" name="Show Collision Skeleton"/>
 			<menu_item_check label="Aracı Hedefini Göster" name="Display Agent Target"/>
-			--&gt;
 			<menu_item_call label="Aksesuarların Dökümünü Al" name="Dump Attachments"/>
 			<menu_item_call label="Avatar Dokuları İçin Hata Ayıklama" name="Debug Avatar Textures"/>
 			<menu_item_call label="Yerel Dokuların Dökümünü Al" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP Dokuları" name="HTTP Textures"/>
-		<menu_item_check label="HTTP Envanteri" name="HTTP Inventory"/>
 		<menu_item_call label="Görüntüleri Sıkıştır" name="Compress Images"/>
 		<menu_item_call label="Visual Leak Detector&apos;ı Etkinleştir" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Mini Döküm Dosyası Hata Ayıklama Çıktısı" name="Output Debug Minidump"/>

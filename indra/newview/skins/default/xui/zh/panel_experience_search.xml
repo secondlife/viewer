@@ -26,7 +26,7 @@
 		<icons_combo_box label="適度成人" name="maturity">
 			<icons_combo_box.item label="完全成人" name="Adult" value="42"/>
 			<icons_combo_box.item label="適度成人" name="Mature" value="21"/>
-			<icons_combo_box.item label="一般" name="PG" value="13"/>
+			<icons_combo_box.item label="普級" name="PG" value="13"/>
 		</icons_combo_box>
 		<scroll_list name="search_results">
 			<columns label="名稱" name="experience_name"/>

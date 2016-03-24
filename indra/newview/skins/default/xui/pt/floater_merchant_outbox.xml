@@ -12,16 +12,21 @@
 	<string name="OutboxInitializing">
 		Iniciando...
 	</string>
-	<panel label="">
-		<panel>
+	<panel label="" name="panel_1">
+		<panel name="panel_2">
 			<panel name="outbox_inventory_placeholder_panel">
 				<text name="outbox_inventory_placeholder_title">
 					Carregando...
 				</text>
 			</panel>
 		</panel>
-		<panel>
-			<button label="Enviar para Mercado" name="outbox_import_btn" tool_tip="Enviar para a Frente da loja do meu Mercado"/>
+		<panel name="panel_3">
+			<panel name="outbox_generic_drag_target">
+				<text name="text_1">
+					Arraste itens para cá para criar pastas
+				</text>
+			</panel>
+			<button label="Enviar para Mercado" name="outbox_import_btn" tool_tip="Enviar para a frente da minha loja do mercado"/>
 		</panel>
 	</panel>
 </floater>

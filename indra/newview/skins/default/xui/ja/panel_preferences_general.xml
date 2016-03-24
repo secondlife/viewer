@@ -6,12 +6,12 @@
 	<combo_box name="language_combobox">
 		<combo_box.item label="システムデフォルト" name="System Default Language"/>
 		<combo_box.item label="English （英語）" name="English"/>
-		<combo_box.item label="Dansk （デンマーク語） – ベータ" name="Danish"/>
+		<combo_box.item label="Dansk (デンマーク語) - ベータ" name="Danish"/>
 		<combo_box.item label="Deutsch （ドイツ語） – ベータ" name="Deutsch(German)"/>
 		<combo_box.item label="Español （スペイン語） – ベータ" name="Spanish"/>
 		<combo_box.item label="Français （フランス語） – ベータ" name="French"/>
 		<combo_box.item label="Italiano （イタリア語） - ベータ" name="Italian"/>
-		<combo_box.item label="Polski （ポーランド語） - ベータ" name="Polish"/>
+		<combo_box.item label="Polski (ポーランド語) - ベータ" name="Polish"/>
 		<combo_box.item label="Português（ポルトガル語） - ベータ" name="Portugese"/>
 		<combo_box.item label="Русский （ロシア語） - ベータ" name="Russian"/>
 		<combo_box.item label="Türkçe （トルコ語） - ベータ" name="Turkish"/>

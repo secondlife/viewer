@@ -90,14 +90,23 @@
 	<floater.string name="linkset_choose_use">
 		Choisir un usage de groupe de liens...
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			Filtrer par :
+		</text>
+		<text name="linksets_name_label">
+			Nom
+		</text>
+		<text name="linksets_desc_label">
+			Description
+		</text>
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="Filtrer par usage..." name="filter_by_linkset_use_none"/>
 			<combo_box.item label="Marche possible" name="filter_by_linkset_use_walkable"/>
 			<combo_box.item label="Obstacle statique" name="filter_by_linkset_use_static_obstacle"/>
 			<combo_box.item label="Obstacle mobile" name="filter_by_linkset_use_dynamic_obstacle"/>
 			<combo_box.item label="Volume de matériau" name="filter_by_linkset_use_material_volume"/>
-			<combo_box.item label="Volume d&apos;exclusion" name="filter_by_linkset_use_exclusion_volume"/>
+			<combo_box.item label="Volume d’exclusion" name="filter_by_linkset_use_exclusion_volume"/>
 			<combo_box.item label="Fantôme mobile" name="filter_by_linkset_use_dynamic_phantom"/>
 		</combo_box>
 		<button label="Appliquer" name="apply_filters"/>
@@ -122,15 +131,21 @@
 		<button label="Tout sélectionner" name="select_all_objects"/>
 		<button label="Ne rien sélectionner" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			Actions sur les groupes de liens sélectionnés (si un groupe de liens est supprimé du monde, ses attributs risquent d’être perdus) :
+		</text>
 		<check_box label="Afficher la balise" name="show_beacon"/>
 		<button label="Prendre" name="take_objects"/>
 		<button label="Prendre une copie" name="take_copy_objects"/>
-		<button label="M&apos;y téléporter" name="teleport_me_to_object"/>
-		<button label="Renvoyer" name="return_objects"/>
+		<button label="M’y téléporter" name="teleport_me_to_object"/>
+		<button label="Retour" name="return_objects"/>
 		<button label="Supprimer" name="delete_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			Modifier les attributs des groupes de liens sélectionnés et appuyer sur le bouton pour appliquer les modifications
+		</text>
 		<text name="walkability_coefficients_label">
 			Marche possible :
 		</text>

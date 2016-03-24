@@ -89,8 +89,19 @@
 		<check_box label="Envanter teklifi" name="inventory_offer"/>
 	</panel>
 	<panel name="log_settings">
+		<text name="logging_label">
+			Kaydet:
+		</text>
+		<combo_box name="conversation_log_combo">
+			<item label="Günlük ve dökümler" name="log_and_transcripts" value="2"/>
+			<item label="Sadece günlük" name="log_only" value="1"/>
+			<item label="Günlük veya döküm yok" name="no_log_or_transcript" value="0"/>
+		</combo_box>
 		<button label="Günlüğü temizle..." name="clear_log"/>
 		<button label="Dökümleri sil..." name="delete_transcripts"/>
+		<text name="log_location_label">
+			Konum:
+		</text>
 		<button label="Gözat..." label_selected="Gözat" name="log_path_button"/>
 	</panel>
 	<button label="Çeviri..." name="ok_btn"/>

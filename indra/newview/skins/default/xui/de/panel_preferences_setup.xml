@@ -17,17 +17,17 @@
 	<radio_group name="preferred_browser_behavior">
 		<radio_item label="Meinen Browser (Chrome, Firefox, IE) für alle Links verwenden" name="internal" tool_tip="Standard-Browser für Hilfe, Weblinks usw. verwenden. Im Vollbildmodus nicht empfohlen." value="0"/>
 		<radio_item label="Integrierten Browser nur für Linden Lab-/Second Life-Links verwenden" name="external" tool_tip="Verwenden Sie den Standard-Webbrowser Ihres Systems für Hilfe, Weblinks usw. Der integrierte Browser wird nur für Linden Lab-/Second Life-Links verwendet." value="1"/>
+		<radio_item label="Integrierten Browser für alle Links verwenden" name="external_all" tool_tip="Integrierten Browser für Hilfe, Internetlinks, usw. verwenden. Der Browser wird als eigenständiges Fenster in [APP_NAME] geöffnet." value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="Plugins aktivieren" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Cookies annehmen" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Javascript aktivieren" name="browser_javascript_enabled"/>
-	<check_box initial_value="false" label="Medienbrowser-Popups aktivieren" name="media_popup_enabled"/>
 	<text name="Software updates:">
 		Softwareupdates:
 	</text>
 	<combo_box name="updater_service_combobox">
 		<combo_box.item label="Automatisch installieren" name="Install_automatically"/>
-		<combo_box.item label="Updates manuell herunterladen und installieren" name="Install_manual"/>
+		<combo_box.item label="Ich werde Updates manuell herunterladen und installieren" name="Install_manual"/>
 	</combo_box>
 	<check_box label="Bereit, Release-Kandidaten zu verwenden" name="update_willing_to_test"/>
 	<text name="Proxy Settings:">

@@ -13,7 +13,7 @@
 		[MINUTES] мин
 	</floater.string>
 	<floater.string name="Minute">
-		минута
+		мин
 	</floater.string>
 	<floater.string name="Seconds">
 		[SECONDS] с
@@ -446,7 +446,7 @@
 			<spinner label="Часы доступа:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Всегда разрешено" name="AllowedText">
-					Допущенные жители
+					Допущенные жители ([COUNT])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] в списке, [MAX] максимум)"/>
 				<button label="Добавить" name="add_allowed"/>
@@ -454,7 +454,7 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Бан" name="BanCheck">
-					Забаненные жители
+					Забаненные жители ([COUNT])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] в списке, [MAX] максимум)"/>
 				<button label="Добавить" name="add_banned"/>
