@@ -146,13 +146,6 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    if [ "$arch" = "Linux" ]
-    then
-        ## something about the additional_packages mechanism messes up buildscripts results.py
-        ## since we don't care about those packages on Linux, just zero it out, yes - a HACK
-        export additional_packages=""
-    fi
-
     "$autobuild" build --quiet --no-configure -c $variant
     build_ok=$?
 
@@ -212,6 +205,13 @@ fi
 
 # load autobuild provided shell functions and variables
 eval "$("$autobuild" source_environment)"
+
+# something about the additional_packages mechanism messes up buildscripts results.py on Linux
+# since we don't care about those packages on Linux, just zero it out, yes - a HACK
+if [ "$arch" = "Linux" ]
+then
+    export additional_packages=
+fi
 
 # dump environment variables for debugging
 begin_section "Environment"
