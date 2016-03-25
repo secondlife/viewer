@@ -91,7 +91,7 @@ def get_element_by_name(tree,name):
     else:
         return None
 
-def list_tree(tree):
+def list_skel_tree(tree):
     for element in tree.getroot().iter():
         if element.tag == "bone":
             print element.get("name"),"-",element.get("support")
@@ -155,8 +155,8 @@ def validate_child_order(tree, ogtree, fix=False):
 # - corresponding right and left joints should be mirror symmetric.
 # - childless elements should be in short form (<bone /> instead of <bone></bone>)
 # - digits of precision should be consistent (again, except for old joints)
-def validate_tree(tree, ogtree, reftree, fix=False):
-    print "validate_tree"
+def validate_skel_tree(tree, ogtree, reftree, fix=False):
+    print "validate_skel_tree"
     (num_bones,num_cvs) = (0,0)
     unfixable = 0
     defaults = {"connected": "false", 
@@ -227,6 +227,36 @@ def validate_tree(tree, ogtree, reftree, fix=False):
         print "BAD FILE:", unfixable,"errs could not be fixed"
             
 
+# Check contents of avatar_lad file relative to a specified skeleton
+def validate_lad_tree(ladtree,skeltree):
+    print "validate_lad_tree"
+    bone_names = [elt.get("name") for elt in skeltree.iter("bone")]
+    bone_names.append("mScreen")
+    bone_names.append("mRoot")
+    cv_names = [elt.get("name") for elt in skeltree.iter("collision_volume")]
+    #print "bones\n ","\n  ".join(sorted(bone_names))
+    #print "cvs\n ","\n  ".join(sorted(cv_names))
+    for att in ladtree.iter("attachment_point"):
+        att_name = att.get("name")
+        #print "attachment",att_name
+        joint_name = att.get("joint")
+        if not joint_name in bone_names:
+            print "att",att_name,"linked to invalid joint",joint_name
+    for skel_param in ladtree.iter("param_skeleton"):
+        skel_param_id = skel_param.get("id")
+        skel_param_name = skel_param.get("name")
+        #if not skel_param_name and not skel_param_id:
+        #    print "strange skel_param"
+        #    print etree.tostring(skel_param)
+        #    for k,v in skel_param.attrib.iteritems():
+        #        print k,"->",v
+        #print "skel_param",skel_param_name
+        for bone in skel_param.iter("bone"):
+            bone_name = bone.get("name")
+            if not bone_name in bone_names:
+                print "skel param references invalid bone",bone_name
+                print etree.tostring(bone)
+    
 def remove_joint_by_name(tree, name):
     print "remove joint:",name
     elt = get_element_by_name(tree,name)
@@ -242,7 +272,7 @@ def remove_joint_by_name(tree, name):
         print "parent now:",[e.get("name") for e in list(parent)]
         elt = get_element_by_name(tree,name)
     
-def compare_trees(atree,btree):
+def compare_skel_trees(atree,btree):
     diffs = {}
     realdiffs = {}
     a_missing = set()
@@ -297,6 +327,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="process SL animations")
     parser.add_argument("--ogfile", help="specify file containing base bones")
     parser.add_argument("--ref_file", help="specify another file containing replacements for missing fields")
+    parser.add_argument("--lad_file", help="specify avatar_lad file to check")
     parser.add_argument("--aliases", help="specify file containing bone aliases")
     parser.add_argument("--validate", action="store_true", help="check specified input file for validity")
     parser.add_argument("--fix", action="store_true", help="try to correct errors")
@@ -314,30 +345,39 @@ if __name__ == "__main__":
         altree = etree.parse(args.aliases)
         aliases = get_aliases(altree)
 
+    # Parse input files
     ogtree = None
     reftree = None
+    ladtree = None
     if args.ogfile:
         ogtree = etree.parse(args.ogfile)
 
     if args.ref_file:
         reftree = etree.parse(args.ref_file)
 
+    if args.lad_file:
+        ladtree = etree.parse(args.lad_file)
+
     if args.remove:
         for name in args.remove:
             remove_joint_by_name(tree,name)
 
+    # Do processing
     if args.validate and ogtree:
-        validate_tree(tree, ogtree, reftree)
+        validate_skel_tree(tree, ogtree, reftree)
+
+    if args.validate and ladtree:
+        validate_lad_tree(ladtree, tree)
 
     if args.fix and ogtree:
-        validate_tree(tree, ogtree, reftree, True)
+        validate_skel_tree(tree, ogtree, reftree, True)
 
     if args.list and tree:
-        list_tree(tree)
+        list_skel_tree(tree)
 
     if args.compare and tree:
         compare_tree = etree.parse(args.compare)
-        compare_trees(compare_tree,tree)
+        compare_skel_trees(compare_tree,tree)
 
     if args.outfilename:
         f = open(args.outfilename,"w")
