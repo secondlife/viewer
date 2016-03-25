@@ -6993,6 +6993,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>NotifyMoneySpend</key>
+    <map>
+      <key>Comment</key>
+      <string>Pop up notifications when spending L$</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NotifyMoneyReceived</key>
+    <map>
+      <key>Comment</key>
+      <string>Pop up notifications when receiving L$</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>NotifyTipDuration</key>
     <map>
       <key>Comment</key>
