@@ -226,8 +226,8 @@ void LLJoint::setJointNum(S32 joint_num)
     mJointNum = joint_num;
     if (mJointNum + 2 >= LL_CHARACTER_MAX_ANIMATED_JOINTS)
     {
-        LL_INFOS() << "Does LL_CHARACTER_MAX_ANIMATED_JOINTS need to be increased?" << LL_ENDL;
-        LL_ERRS() << "joint_num " << joint_num << " too large for " << LL_CHARACTER_MAX_ANIMATED_JOINTS << LL_ENDL;
+        LL_INFOS() << "LL_CHARACTER_MAX_ANIMATED_JOINTS needs to be increased" << LL_ENDL;
+        LL_ERRS() << "joint_num " << joint_num << " + 2 is too large for " << LL_CHARACTER_MAX_ANIMATED_JOINTS << LL_ENDL;
     }
 }
 //-----------------------------------------------------------------------------
