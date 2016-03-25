@@ -23,7 +23,7 @@
                               <bone aliases="figureHair avatar_mSkull" connected="false" end="0.000 0.000 0.033" group="Extra" name="mSkull" pivot="0.000000 0.000000 0.079000" pos="0.000 0.000 0.079" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
                               <bone aliases="avatar_mEyeRight" connected="false" end="0.100 0.000 0.000" group="Extra" name="mEyeRight" pivot="0.098466 -0.036000 0.079000" pos="0.098 -0.036 0.079" rot="0.000000 0.000000 -0.000000" scale="1.000 1.000 1.000" support="base"/>
                               <bone aliases="avatar_mEyeLeft" connected="false" end="0.100 0.000 0.000" group="Extra" name="mEyeLeft" pivot="0.098461 0.036000 0.079000" pos="0.098 0.036 0.079" rot="0.000000 -0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
-                              <bone connected="false" end="0.020 0.000 0.000" group="Face" name="mFaceRoot" pivot="0.025 0.000 0.045" pos="0.025 0.000 0.045" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
+                              <bone connected="false" end="0.020 0.000 0.000" group="Face" name="mFaceRoot" pivot="0.025006 0.000000 0.045011" pos="0.025006 0.000000 0.045011" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended">
                                  <bone connected="false" end="0.024 0.004 0.018" group="Face" name="mFaceForeheadLeft" pivot="0.061 0.035 0.083" pos="0.061 0.035 0.083" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.024 -0.004 0.018" group="Face" name="mFaceForeheadRight" pivot="0.061 -0.035 0.083" pos="0.061 -0.035 0.083" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.023 0.013 0.000" group="Eyes" name="mFaceEyebrowOuterLeft" pivot="0.064 0.051 0.048" pos="0.064 0.051 0.048" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
@@ -33,10 +33,10 @@
                                  <bone connected="false" end="0.027 0.000 0.000" group="Eyes" name="mFaceEyebrowCenterRight" pivot="0.070 -0.043 0.056" pos="0.070 -0.043 0.056" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.026 0.000 0.000" group="Eyes" name="mFaceEyebrowInnerRight" pivot="0.075 -0.022 0.051" pos="0.075 -0.022 0.051" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.038 0.000 0.000" group="Eyes" name="mFaceEyeLidUpperLeft" pivot="0.062 0.036 0.039" pos="0.062 0.036 0.039" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.100 0.000 0.000" group="Face" name="mFaceEyeAltLeft" pivot="0.073497 0.036018 0.034017" pos="0.073 0.036 0.034" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.100 0.000 0.000" group="Face" name="mFaceEyeAltLeft" pivot="0.073515 0.036027 0.034026" pos="0.070515 0.036027 0.034026" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.036 0.000 0.000" group="Eyes" name="mFaceEyeLidLowerLeft" pivot="0.061 0.036 0.027" pos="0.061 0.036 0.027" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.038 0.000 0.000" group="Eyes" name="mFaceEyeLidUpperRight" pivot="0.062 -0.036 0.039" pos="0.062 -0.036 0.039" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
-                                 <bone connected="false" end="0.100 0.000 0.000" group="Face" name="mFaceEyeAltRight" pivot="0.073502 -0.036018 0.034017" pos="0.074 -0.036 0.034" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
+                                 <bone connected="false" end="0.100 0.000 0.000" group="Face" name="mFaceEyeAltRight" pivot="0.073520 -0.036027 0.034026" pos="0.070520 -0.036027 0.034026" rot="0.000000 0.000000 0.000000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="0.036 0.000 0.000" group="Eyes" name="mFaceEyeLidLowerRight" pivot="0.061 -0.036 0.027" pos="0.061 -0.036 0.027" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
                                  <bone connected="false" end="-0.019 0.018 0.025" group="Ears" name="mFaceEar1Left" pivot="0.000 0.080 0.002" pos="0.000 0.080 0.002" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
                                     <bone connected="true" end="0.000 0.000 0.033" group="Ears" name="mFaceEar2Left" pivot="-0.019 0.018 0.025" pos="-0.019 0.018 0.025" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended"/>
@@ -222,4 +222,3 @@
       </bone>
    </bone>
 </linden_skeleton>
-

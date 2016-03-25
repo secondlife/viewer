@@ -871,7 +871,7 @@
         <bone
          name="mPelvis"
          scale="0 0 0.3" />
-      </param_skeleton>
+        </param_skeleton>
     </param>
 
     <param
@@ -1079,22 +1079,22 @@
          offset="0 0 .004" />
 
 		 <bone
-         name="mFaceCheekUpperInnerLeft"
+         name="mFaceCheekLowerLeft"
          scale="0 0 0"
          offset="0 0 .004" />
 
 		 <bone
-         name="mFaceCheekUpperInnerRight"
+         name="mFaceCheekLowerRight"
          scale="0 0 0"
          offset="0 0 -.004" />
 		 
 		 <bone
-         name="mFaceCheekUpperOuterLeft"
+         name="mFaceCheekUpperLeft"
          scale="0 0 0"
          offset="0 0 .004" />
 
 		 <bone
-         name="mFaceCheekUpperOuterRight"
+         name="mFaceCheekUpperRight"
          scale="0 0 0"
          offset="0 0 -.004" />
 		 
@@ -1261,11 +1261,11 @@
          scale="0 0 0"
          offset="-0.0015 0 0" />
 		 <bone
-         name="mFaceCheekUpperInnerLeft"
+         name="mFaceCheekLowerLeft"
          scale="0 0 0"
          offset="-0.005 0 0" />
 		 <bone
-         name="mFaceCheekUpperInnerRight"
+         name="mFaceCheekLowerRight"
          scale="0 0 0"
          offset="-0.005 0 0" />
 		 
@@ -1485,22 +1485,22 @@
          offset="0 0 0" />
 
         <bone
-         name="mFaceCheekUpperInnerLeft"
+         name="mFaceCheekLowerLeft"
          scale="1 1 1"
          offset="0 0 0" />
 
         <bone
-         name="mFaceCheekUpperOuterLeft"
+         name="mFaceCheekUpperLeft"
          scale="1 1 1"
          offset="0 0 0" />
 
         <bone
-         name="mFaceCheekUpperInnerRight"
+         name="mFaceCheekLowerRight"
          scale="1 1 1"
          offset="0 0 0" />
 
         <bone
-         name="mFaceCheekUpperOuterRight"
+         name="mFaceCheekUpperRight"
          scale="1 1 1"
          offset="0 0 0" />
 
@@ -1859,10 +1859,10 @@
         <bone
          name   = "mFaceNoseRight"
 		 offset = "0 -0.0025 0" />		 
-		<!--bone
+		<bone
          name   = "mFaceNoseBridge"
 		 offset = "0.006 0.0 0.0"
-         scale  = "0.10 0.1 0.0" /-->
+         scale  = "0.10 0.1 0.0" />
 
       </param_skeleton>
     </param>
@@ -1988,10 +1988,10 @@
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.001 0.0" />
 		 
-        <!--bone
+        <bone
          name   = "mFaceNoseBridge"
 		 scale  = "0.0 0.00 0.0"
-		 offset = "0.0 0.007 0.0" /-->
+		 offset = "0.0 0.007 0.0" />
 
       </param_skeleton>
     </param>
@@ -2953,10 +2953,10 @@
      value_max="1.5">
       <param_skeleton>
 
-		 <!--bone
+		 <bone
          name="mFaceNoseBridge"
          scale="0.15 0.01 0.7"
-         offset="0.009 0 -0.006" /-->
+         offset="0.009 0 -0.006" />
 
 		 <bone
          name="mFaceForeheadCenter"
@@ -2974,10 +2974,10 @@
      value_max="1.5">
       <param_skeleton>
 
-		 <!--bone
+		 <bone
          name="mFaceNoseBridge"
          scale="0 0 0.2"
-         offset="0.00 0 0.002" /-->
+         offset="0.00 0 0.002" />
 
 		 <bone
          name="mFaceNoseCenter"
@@ -2995,10 +2995,10 @@
      value_max="1.2">
       <param_skeleton>
 
-		 <!--bone
+		 <bone
          name="mFaceNoseBridge"
          scale="0 0.4 0"
-         offset="0 0 0" /-->
+         offset="0 0 0" />
 
        </param_skeleton>
     </param>
@@ -3012,12 +3012,12 @@
       <param_skeleton>
 
 		 <bone
-         name="mFaceCheekUpperInnerLeft"
+         name="mFaceCheekLowerLeft"
          scale="0 0.1 0"
          offset="0.001 -0.01 0" />
 
 		 <bone
-         name="mFaceCheekUpperInnerRight"
+         name="mFaceCheekLowerRight"
          scale="0 0.1 0"
          offset="0.001 0.01 0" />
 
@@ -3033,12 +3033,12 @@
       <param_skeleton>
 
 		 <bone
-         name="mFaceCheekUpperOuterLeft"
+         name="mFaceCheekUpperLeft"
          scale="0.15 0.1 0.1"
          offset="0.002 0 0.002" />
 
 		 <bone
-         name="mFaceCheekUpperOuterRight"
+         name="mFaceCheekUpperRight"
          scale="0.15 0.1 0.1"
          offset="0.002 0 0.002" />
 
@@ -3054,12 +3054,12 @@
       <param_skeleton>
 
 		 <bone
-         name="mFaceCheekUpperOuterLeft"
+         name="mFaceCheekUpperLeft"
          scale="0 0 0"
          offset="0 0 0.02" />
 
 		 <bone
-         name="mFaceCheekUpperOuterRight"
+         name="mFaceCheekUpperRight"
          scale="0 0 0"
          offset="0 0 0.02" />
 
