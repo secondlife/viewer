@@ -83,7 +83,12 @@ void LLIconCtrl::draw()
 
 // virtual
 // value might be a string or a UUID
-void LLIconCtrl::setValue(const LLSD& value )
+void LLIconCtrl::setValue(const LLSD& value)
+{
+    setValue(value, mPriority);
+}
+
+void LLIconCtrl::setValue(const LLSD& value, S32 priority)
 {
 	LLSD tvalue(value);
 	if (value.isString() && LLUUID::validate(value.asString()))
@@ -94,11 +99,11 @@ void LLIconCtrl::setValue(const LLSD& value )
 	LLUICtrl::setValue(tvalue);
 	if (tvalue.isUUID())
 	{
-		mImagep = LLUI::getUIImageByID(tvalue.asUUID(), mPriority);
+        mImagep = LLUI::getUIImageByID(tvalue.asUUID(), priority);
 	}
 	else
 	{
-		mImagep = LLUI::getUIImage(tvalue.asString(), mPriority);
+        mImagep = LLUI::getUIImage(tvalue.asString(), priority);
 	}
 
 	if(mImagep.notNull() 

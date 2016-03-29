@@ -64,13 +64,19 @@ LLGroupIconCtrl::LLGroupIconCtrl(const LLGroupIconCtrl::Params& p)
 	}
 	else
 	{
-		LLIconCtrl::setValue(mDefaultIconName);
+		//TODO: Consider implementing dedicated setDefault() function instead of passing priority for local file
+		LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
 	}
 }
 
 LLGroupIconCtrl::~LLGroupIconCtrl()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
+}
+
+void LLGroupIconCtrl::setIconId(const LLSD& value)
+{
+    LLIconCtrl::setValue(value);
 }
 
 void LLGroupIconCtrl::setValue(const LLSD& value)
@@ -91,7 +97,7 @@ void LLGroupIconCtrl::setValue(const LLSD& value)
 			// Check if cache already contains image_id for that group
 			if (!updateFromCache())
 			{
-				LLIconCtrl::setValue(mDefaultIconName);
+				LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
 				gm->addObserver(this);
 				gm->sendGroupPropertiesRequest(mGroupId);
 			}
@@ -122,7 +128,7 @@ bool LLGroupIconCtrl::updateFromCache()
 	}
 	else
 	{
-		LLIconCtrl::setValue(mDefaultIconName);
+		LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
 	}
 
 	if (mDrawTooltip && !group_data->mName.empty())
