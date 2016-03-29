@@ -183,11 +183,7 @@ void LLViewerTextureList::doPreloadImages()
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
 	}
-	image = LLViewerTextureManager::getFetchedTextureFromFile("cloud-particle.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_CLOUDS);
-	if (image)
-	{
-		mImagePreloads.insert(image);
-	}
+	
 }
 
 static std::string get_texture_list_name()
