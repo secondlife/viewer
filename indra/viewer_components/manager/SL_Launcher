@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+# $LicenseInfo:firstyear=2016&license=internal$
+# 
+# Copyright (c) 2016, Linden Research, Inc.
+# 
+# The following source code is PROPRIETARY AND CONFIDENTIAL. Use of
+# this source code is governed by the Linden Lab Source Code Disclosure
+# Agreement ("Agreement") previously entered between you and Linden
+# Lab. By accessing, using, copying, modifying or distributing this
+# software, you acknowledge that you have been informed of your
+# obligations under the Agreement and agree to abide by those obligations.
+# 
+# ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+# WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+# COMPLETENESS OR PERFORMANCE.
+# $/LicenseInfo$
+
+import argparse
+import os
+import sys
+import subprocess
+import Tkinter as tk 
+
+viewer_binary = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),"Second Life") 
+
+#to prove we are launching from the script, launch a Tkinter window first
+root = tk.Tk()
+w = tk.Label(root, text=viewer_binary)
+w.pack()
+root.after(10000, lambda: root.destroy()) # Destroy the widget after 10 seconds
+root.mainloop()
+
+parser = argparse.ArgumentParser()
+#parser.add_argument('--f', action='store_const', const=42)
+args = parser.parse_known_args(sys.argv)
+args_list_to_pass = args[1][1:]
+args_list_to_pass.insert(0,viewer_binary)
+#print args_list_to_pass
+
+viewer_process = subprocess.Popen(args_list_to_pass)

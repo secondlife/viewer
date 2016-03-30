@@ -703,6 +703,8 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             if self.prefix(dst="MacOS"):
                 self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
+                #this copies over the python wrapper script, see SL-322
+                self.path2basename("../viewer_components/manager","SL_Launcher")
                 self.end_prefix()
 
             # most everything goes in the Resources directory
@@ -884,12 +886,6 @@ class Darwin_i386_Manifest(ViewerManifest):
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
-
-    def copy_finish(self):
-        # Force executable permissions to be set for scripts
-        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
-        for script in 'Contents/MacOS/update_install.py',:
-            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
         global CHANNEL_VENDOR_BASE
@@ -1090,12 +1086,6 @@ class LinuxManifest(ViewerManifest):
             print "Skipping llcommon.so (assuming llcommon was linked statically)"
 
         self.path("featuretable_linux.txt")
-
-    def copy_finish(self):
-        # Force executable permissions to be set for scripts
-        # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
-        for script in 'secondlife', 'bin/update_install':
-            self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
         installer_name = self.installer_base_name()

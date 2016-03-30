@@ -2051,6 +2051,8 @@ endif (LINUX)
 if (DARWIN)
   # These all get set with PROPERTIES
   set(product "Second Life")
+  # this is the setting for the Python wrapper, see SL-322 and WRAPPER line in Info-SecondLife.plist
+  set(MACOSX_WRAPPER_EXECUTABLE_NAME "SL_Launcher")
   set(MACOSX_BUNDLE_INFO_STRING "Second Life Viewer")
   set(MACOSX_BUNDLE_ICON_FILE "secondlife.icns")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.secondlife.indra.viewer")
