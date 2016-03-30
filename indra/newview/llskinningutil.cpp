@@ -264,7 +264,7 @@ void LLSkinningUtil::remapSkinWeights(LLVector4a* weights, U32 num_vertices, con
 {
     llassert(skin->mJointRemap.size()>0); // Must call remapSkinInfoJoints() first, which this checks for.
     const U32* remap = &skin->mJointRemap[0];
-    const S32 max_joints = skin->mJointNames.size();
+    const S32 max_joints = skin->mJointRemap.size();
     for (U32 j=0; j<num_vertices; j++)
     {
         F32 *w = weights[j].getF32ptr();
