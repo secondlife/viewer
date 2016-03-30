@@ -57,6 +57,7 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mRowCount(0),
       mItemsAddedCount(0),
       mOutfitLinkPending(NULL),
+      mOutfitRenamePending(NULL),
       mRowPanelHeight(p.row_panel_height),
       mVerticalGap(p.vertical_gap),
       mHorizontalGap(p.horizontal_gap),
@@ -621,11 +622,23 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
         BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
         {
             LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-            if (linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
             {
                 LLUUID asset_id = linked_item->getAssetUUID();
                 mOutfitMap[category_id]->setImageAssetId(asset_id);
                 photo_loaded = true;
+                std::string linked_item_name = linked_item->getName();
+                if (!mOutfitRenamePending.isNull() && mOutfitRenamePending.asString() == linked_item_name)
+                {
+                    LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(mOutfitRenamePending);
+                    LLStringUtil::format_map_t photo_string_args;
+                    photo_string_args["OUTFIT_NAME"] = outfit_cat->getName();
+                    std::string new_name = getString("outfit_photo_string", photo_string_args);
+                    LLSD updates;
+                    updates["name"] = new_name;
+                    update_inventory_item(linked_item->getUUID(), updates, NULL);
+                    mOutfitRenamePending.setNull();
+                }
                 break;
             }
             if (!photo_loaded)
@@ -650,7 +663,7 @@ void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
         LLInventoryModel::EXCLUDE_TRASH,
         is_texture);
 
-    //Find texture which contain outfit ID string in name
+    //Find texture which contain pending outfit ID string in name
     LLViewerInventoryItem* photo_upload_item = NULL;
     BOOST_FOREACH(LLViewerInventoryItem* item, item_array)
     {
@@ -664,27 +677,18 @@ void LLOutfitGallery::refreshTextures(const LLUUID& category_id)
 
     if (photo_upload_item != NULL)
     {
-        LLUUID upload_pending_id = photo_upload_item->getUUID();
-        LLInventoryObject* upload_object = gInventory.getObject(upload_pending_id);
+        LLUUID photo_item_id = photo_upload_item->getUUID();
+        LLInventoryObject* upload_object = gInventory.getObject(photo_item_id);
         if (!upload_object)
         {
             LL_WARNS() << "LLOutfitGallery::refreshTextures added_object is null!" << LL_ENDL;
         }
         else
         {
-            LLViewerInventoryCategory *outfit_cat = gInventory.getCategory(mOutfitLinkPending);
-            linkPhotoToOutfit(upload_pending_id, mOutfitLinkPending);
-
-            LLStringUtil::format_map_t photo_string_args;
-            photo_string_args["OUTFIT_NAME"] = outfit_cat->getName();
-            std::string new_name = getString("outfit_photo_string", photo_string_args);
-
-            LLSD updates;
-            updates["name"] = new_name;
-            update_inventory_item(upload_pending_id, updates, NULL);
-
+            linkPhotoToOutfit(photo_item_id, mOutfitLinkPending);
+            mOutfitRenamePending = mOutfitLinkPending;
+            mOutfitLinkPending.setNull();
         }
-        mOutfitLinkPending.setNull();
     }
 }
 
@@ -728,43 +732,31 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 
 void LLOutfitGallery::linkPhotoToOutfit(LLUUID photo_id, LLUUID outfit_id)
 {
-    LLPointer<LLInventoryCallback> cb = new LLUpdateGalleryOnPhotoUpload();
+    LLPointer<LLInventoryCallback> cb = new LLUpdateGalleryOnPhotoLinked(this);
     link_inventory_object(outfit_id, photo_id, cb);
 }
 
 bool LLOutfitGallery::checkRemovePhoto(LLUUID outfit_id)
 {
-    //remove existing photo of outfit from inventory
-    texture_map_t::iterator texture_it = mTextureMap.find(outfit_id);
-    if (texture_it != mTextureMap.end()) {
-        gInventory.removeItem(texture_it->second->getUUID());
-        return true;
+    //remove existing photo link from outfit folder
+    LLInventoryModel::cat_array_t sub_cat_array;
+    LLInventoryModel::item_array_t outfit_item_array;
+    gInventory.collectDescendents(
+        outfit_id,
+        sub_cat_array,
+        outfit_item_array,
+        LLInventoryModel::EXCLUDE_TRASH);
+    BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+    {
+        LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
+        if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+        {
+            gInventory.removeItem(outfit_item->getUUID());
+        }
     }
-    return false;
+    return true;
 }
 
-void LLOutfitGallery::computeDifferenceOfTextures(
-    const LLInventoryModel::item_array_t& vtextures,
-    uuid_vec_t& vadded,
-    uuid_vec_t& vremoved)
+void LLUpdateGalleryOnPhotoLinked::fire(const LLUUID& inv_item_id)
 {
-    uuid_vec_t vnew;
-    // Creating a vector of newly collected texture UUIDs.
-    for (LLInventoryModel::item_array_t::const_iterator iter = vtextures.begin();
-        iter != vtextures.end();
-        iter++)
-    {
-        vnew.push_back((*iter)->getUUID());
-    }
-
-    uuid_vec_t vcur;
-    // Creating a vector of currently uploaded texture UUIDs.
-    for (texture_map_t::const_iterator iter = mTextureMap.begin();
-        iter != mTextureMap.end();
-        iter++)
-    {
-        vcur.push_back((*iter).second->getUUID());
-    }
-
-    LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }

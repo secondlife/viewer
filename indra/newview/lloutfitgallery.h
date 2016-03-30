@@ -38,24 +38,26 @@
 #include <vector>
 
 class LLVFS;
+class LLOutfitGallery;
 class LLOutfitGalleryItem;
 class LLOutfitListGearMenuBase;
 class LLOutfitGalleryGearMenu;
 
-class LLUpdateGalleryOnPhotoUpload : public LLInventoryCallback
+class LLUpdateGalleryOnPhotoLinked : public LLInventoryCallback
 {
 public:
-    LLUpdateGalleryOnPhotoUpload(){}
-    virtual ~LLUpdateGalleryOnPhotoUpload(){}
-    /* virtual */ void fire(const LLUUID& inv_item){}
+    LLUpdateGalleryOnPhotoLinked(LLOutfitGallery* gallery) : mGallery(gallery) {}
+    virtual ~LLUpdateGalleryOnPhotoLinked(){}
+    /* virtual */ void fire(const LLUUID& inv_item_id);
 private:
+    LLOutfitGallery* mGallery;
 };
-
 
 class LLOutfitGallery : public LLOutfitListBase
 {
 public:
     friend class LLOutfitGalleryGearMenu;
+    friend class LLUpdateGalleryOnPhotoLinked;
 
     struct Params
         : public LLInitParam::Block<Params, LLPanel::Params>
@@ -76,8 +78,6 @@ public:
     static const LLOutfitGallery::Params& getDefaultParams();
 
     LLOutfitGallery(const LLOutfitGallery::Params& params = getDefaultParams());
-
-//    LLOutfitGallery();
     virtual ~LLOutfitGallery();
 
     /*virtual*/ BOOL postBuild();
@@ -97,7 +97,6 @@ public:
 
     void refreshTextures(const LLUUID& category_id);
     void refreshOutfit(const LLUUID& category_id);
-    void computeDifferenceOfTextures(const LLInventoryModel::item_array_t& vtextures, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
@@ -138,6 +137,7 @@ private:
     LLPanel* mGalleryPanel;
     LLPanel* mLastRowPanel;
     LLUUID mOutfitLinkPending;
+    LLUUID mOutfitRenamePending;
     bool mGalleryCreated;
     int mRowCount;
     int mItemsAddedCount;
@@ -151,18 +151,6 @@ private:
     int mItemsInRow;
     int mRowPanelWidth;
     int mGalleryWidth;
-
-    /*
-    #define LAYOUT_STACK_WIDTH_FACTOR 166
-    #define LAYOUT_STACK_WIDTH LAYOUT_STACK_WIDTH_FACTOR * ITEMS_IN_ROW//498
-    #define GALLERY_WIDTH_FACTOR 163
-    #define GALLERY_WIDTH GALLERY_WIDTH_FACTOR * ITEMS_IN_ROW//485//290
-    */
-
-    /*
-    #define GALLERY_ITEM_HGAP 16 
-    #define ITEMS_IN_ROW 3
-    */
 
     typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
     typedef outfit_map_t::value_type                    outfit_map_value_t;
