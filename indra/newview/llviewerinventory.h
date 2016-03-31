@@ -38,6 +38,7 @@ class LLInventoryPanel;
 class LLFolderView;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
+class LLInventoryCallback;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
