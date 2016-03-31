@@ -4845,6 +4845,17 @@
       <key>Value</key>
       <integer>7</integer>
     </map>
+    <key>InventoryTrashMaxCapacity</key>
+    <map>
+        <key>Comment</key>
+        <string>Maximum capacity of the Trash folder. User will ve offered to clean it up when exceeded.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>5000</integer>
+    </map>
     <key>MarketplaceListingsSortOrder</key>
     <map>
       <key>Comment</key>

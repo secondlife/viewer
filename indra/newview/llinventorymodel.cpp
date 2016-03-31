@@ -771,6 +771,22 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	}
 }
 
+U32 LLInventoryModel::getDescendentsCountRecursive(const LLUUID& id, U32 max_item_limit)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	gInventory.collectDescendents(id, cats, items, LLInventoryModel::INCLUDE_TRASH);
+
+	U32 items_found = items.size() + cats.size();
+
+	for (U32 i = 0; i < cats.size() && items_found <= max_item_limit; ++i)
+	{
+		items_found += getDescendentsCountRecursive(cats[i]->getUUID(), max_item_limit - items_found);
+	}
+
+	return items_found;
+}
+
 void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
 {
 	const LLInventoryObject *obj = getObject(object_id);
@@ -3333,6 +3349,7 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 //----------------------------------------------------------------------------
 
 // Trash: LLFolderType::FT_TRASH, "ConfirmEmptyTrash"
+// Trash: LLFolderType::FT_TRASH, "TrashIsFull" when trash exceeds maximum capacity
 // Lost&Found: LLFolderType::FT_LOST_AND_FOUND, "ConfirmEmptyLostAndFound"
 
 bool LLInventoryModel::callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLFolderType::EType preferred_type)
@@ -3414,6 +3431,8 @@ void LLInventoryModel::removeCategory(const LLUUID& category_id)
 			changeCategoryParent(cat, trash_id, TRUE);
 		}
 	}
+
+	checkTrashOverflow();
 }
 
 void LLInventoryModel::removeObject(const LLUUID& object_id)
@@ -3441,6 +3460,16 @@ void LLInventoryModel::removeObject(const LLUUID& object_id)
 	else
 	{
 		LL_WARNS("Inventory") << "object ID " << object_id << " not found" << LL_ENDL;
+	}
+}
+
+void  LLInventoryModel::checkTrashOverflow()
+{
+	static const U32 trash_max_capacity = gSavedSettings.getU32("InventoryTrashMaxCapacity");
+	const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	if (getDescendentsCountRecursive(trash_id, trash_max_capacity) >= trash_max_capacity)
+	{
+		gInventory.emptyFolderType("TrashIsFull", LLFolderType::FT_TRASH);
 	}
 }
 
