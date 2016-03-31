@@ -46,11 +46,10 @@ class LLOutfitGalleryGearMenu;
 class LLUpdateGalleryOnPhotoLinked : public LLInventoryCallback
 {
 public:
-    LLUpdateGalleryOnPhotoLinked(LLOutfitGallery* gallery) : mGallery(gallery) {}
+    LLUpdateGalleryOnPhotoLinked(){}
     virtual ~LLUpdateGalleryOnPhotoLinked(){}
     /* virtual */ void fire(const LLUUID& inv_item_id);
 private:
-    LLOutfitGallery* mGallery;
 };
 
 class LLOutfitGallery : public LLOutfitListBase

@@ -732,7 +732,7 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 
 void LLOutfitGallery::linkPhotoToOutfit(LLUUID photo_id, LLUUID outfit_id)
 {
-    LLPointer<LLInventoryCallback> cb = new LLUpdateGalleryOnPhotoLinked(this);
+    LLPointer<LLInventoryCallback> cb = new LLUpdateGalleryOnPhotoLinked();
     link_inventory_object(outfit_id, photo_id, cb);
 }
 
