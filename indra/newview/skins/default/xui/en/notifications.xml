@@ -5992,6 +5992,18 @@ Are you sure you want to permanently delete the contents of your Trash?
 
   <notification
    icon="alertmodal.tga"
+   name="TrashIsFull"
+   type="alertmodal">
+Your trash is overflowing. This may cause problems logging in.
+      <tag>confirm</tag>
+        <usetemplate
+         name="okcancelbuttons"
+         notext="I will empty trash later"
+         yestext="Empty trash now"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
 Are you sure you want to delete your travel, web, and search history?
