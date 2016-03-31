@@ -1360,7 +1360,7 @@
      id="655"
      group="1"
      name="Head Size"
-   label="Head Size"
+     label="Head Size"
      wearable="shape"
      edit_group="shape_head"
      label_min="Small Head"
@@ -1369,6 +1369,36 @@
      value_min="-.25"
      value_max=".10">
       <param_skeleton>
+
+        <bone
+         name = "mFaceTeethLower"
+         scale = "1 1 1"
+         offset = "0 0 0" />
+ 
+        <bone
+         name = "mFaceTeethUpper"
+         scale = "1 1 1"
+         offset = "0 0 0" />
+ 
+        <bone
+         name = "mFaceEyecornerInnerLeft"
+         scale = "1 1 1"
+         offset = "0 0 0" />
+ 
+        <bone
+         name = "mFaceEyecornerInnerRight"
+         scale = "1 1 1"
+         offset = "0 0 0" />
+ 
+        <bone
+         name = "mFaceNoseBridge"
+         scale = "1 1 1"
+         offset = "0 0 0" />
+ 
+        <bone
+         name = "mFaceNoseBase"
+         scale = "1 1 1"
+         offset = "0 0 0" />
         <bone
          name="mSkull"
          scale="1 1 1"
@@ -1383,7 +1413,7 @@
          name="mFaceRoot"
          scale="1 1 1"
          offset="0 0 0" />
-		 
+ 
         <bone
          name="mEyeLeft"
          scale="1 1 1"
@@ -1393,8 +1423,8 @@
          name="mEyeRight"
          scale="1 1 1"
          offset="0 0 0" />
-		 
-	    <bone
+ 
+        <bone
          name="mFaceEyeAltLeft"
          scale="1 1 1"
          offset="0 0 0" />
@@ -1403,7 +1433,7 @@
          name="mFaceEyeAltRight"
          scale="1 1 1"
          offset="0 0 0" />
-		 
+ 
         <bone
          name="mFaceForeheadLeft"
          scale="1 1 1"
@@ -13177,7 +13207,7 @@ render_pass="bump">
      edit_group="shape_head"
      edit_group_order="1"
      name="Head Size"
-   label="Head Size"
+     label="Head Size"
      label_min="Small Head"
      label_max="Big Head"
      show_simple="true"
