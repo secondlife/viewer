@@ -623,9 +623,7 @@ public:
 	static void processRemoveInventoryObjects(LLMessageSystem* msg, void**);
 	static void processSaveAssetIntoInventory(LLMessageSystem* msg, void**);
 	static void processBulkUpdateInventory(LLMessageSystem* msg, void**);
-	static void processInventoryDescendents(LLMessageSystem* msg, void**);
 	static void processMoveInventoryItem(LLMessageSystem* msg, void**);
-	static void processFetchInventoryReply(LLMessageSystem* msg, void**);
 protected:
 	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting, U32 mask = 0x0);
 

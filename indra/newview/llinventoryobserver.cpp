@@ -241,33 +241,11 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 			gInventory.requestPost(true, url, body[i], handler, (i ? "Library Item" : "Inventory Item"));
 			continue;
 		}
+        else
+        {
+            LL_WARNS("INVENTORY") << "Failed to get capability." << LL_ENDL;
+        }
 
-		LLMessageSystem* msg = gMessageSystem;
-		BOOL start_new_message = TRUE;
-		for (S32 j=0; j<body[i]["items"].size(); j++)
-		{
-			LLSD item_entry = body[i]["items"][j];
-			if (start_new_message)
-			{
-				start_new_message = FALSE;
-				msg->newMessageFast(_PREHASH_FetchInventory);
-				msg->nextBlockFast(_PREHASH_AgentData);
-				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			}
-			msg->nextBlockFast(_PREHASH_InventoryData);
-			msg->addUUIDFast(_PREHASH_OwnerID, item_entry["owner_id"].asUUID());
-			msg->addUUIDFast(_PREHASH_ItemID, item_entry["item_id"].asUUID());
-			if (msg->isSendFull(NULL))
-			{
-				start_new_message = TRUE;
-				gAgent.sendReliableMessage();
-			}
-		}
-		if (!start_new_message)
-		{
-			gAgent.sendReliableMessage();
-		}
 	}
 }
 
