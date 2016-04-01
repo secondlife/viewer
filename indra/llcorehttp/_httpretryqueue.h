@@ -49,15 +49,15 @@ namespace LLCore
 
 struct HttpOpRetryCompare
 {
-	bool operator()(const HttpOpRequest * lhs, const HttpOpRequest * rhs)
+	bool operator()(const HttpOpRequest::ptr_t &lhs, const HttpOpRequest::ptr_t &rhs)
 		{
 			return lhs->mPolicyRetryAt < rhs->mPolicyRetryAt;
 		}
 };
 
 	
-typedef std::priority_queue<HttpOpRequest *,
-							std::deque<HttpOpRequest *>,
+typedef std::priority_queue<HttpOpRequest::ptr_t,
+							std::deque<HttpOpRequest::ptr_t>,
 							LLCore::HttpOpRetryCompare> HttpRetryQueueBase;
 
 class HttpRetryQueue : public HttpRetryQueueBase

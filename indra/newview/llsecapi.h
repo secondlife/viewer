@@ -489,7 +489,4 @@ void registerSecHandler(const std::string& handler_type,
 extern LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 
-int secapiSSLCertVerifyCallback(X509_STORE_CTX *ctx, void *param);
-
-
 #endif // LL_SECAPI_H

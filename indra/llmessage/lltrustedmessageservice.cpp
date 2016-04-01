@@ -30,6 +30,7 @@
 #include "llhost.h"
 #include "llmessageconfig.h"
 #include "message.h"
+#include "llhttpconstants.h"
 
 
 bool LLTrustedMessageService::validate(const std::string& name, LLSD& context)

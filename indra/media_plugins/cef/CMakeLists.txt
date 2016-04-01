@@ -2,6 +2,7 @@
 
 project(media_plugin_cef)
 
+include(Boost)
 include(00-Common)
 include(LLCommon)
 include(LLImage)
@@ -52,8 +53,8 @@ set(media_plugin_cef_HEADER_FILES
 set (media_plugin_cef_LINK_LIBRARIES
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
   ${CEF_PLUGIN_LIBRARIES}
+  ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES})
 
 
@@ -84,11 +85,9 @@ add_library(media_plugin_cef
     ${media_plugin_cef_SOURCE_FILES}
 )
 
-add_dependencies(media_plugin_cef
-  ${LLPLUGIN_LIBRARIES}
-  ${MEDIA_PLUGIN_BASE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
-)
+#add_dependencies(media_plugin_cef
+#  ${MEDIA_PLUGIN_BASE_LIBRARIES}
+#)
 
 target_link_libraries(media_plugin_cef
   ${media_plugin_cef_LINK_LIBRARIES}

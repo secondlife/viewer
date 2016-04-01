@@ -234,13 +234,13 @@ void RetryPolicyTestObject::test<6>()
 
 	std::string str1("0");
 	seconds_to_wait = F32_MAX;
-	success = getSecondsUntilRetryAfter(str1, seconds_to_wait);
+    success = LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(str1, seconds_to_wait);
 	ensure("parse 1", success);
 	ensure_equals("parse 1", seconds_to_wait, 0.0);
 
 	std::string str2("999.9");
 	seconds_to_wait = F32_MAX;
-	success = getSecondsUntilRetryAfter(str2, seconds_to_wait);
+    success = LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(str2, seconds_to_wait);
 	ensure("parse 2", success);
 	ensure_approximately_equals("parse 2", seconds_to_wait, 999.9F, 8);
 
@@ -248,7 +248,7 @@ void RetryPolicyTestObject::test<6>()
 	time(&nowseconds);
 	std::string str3 = LLDate((F64)(nowseconds+44)).asRFC1123();
 	seconds_to_wait = F32_MAX;
-	success = getSecondsUntilRetryAfter(str3, seconds_to_wait);
+    success = LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(str3, seconds_to_wait);
 	std::cerr << " str3 [" << str3 << "]" << std::endl;
 	ensure("parse 3", success);
 	ensure_approximately_equals_range("parse 3", seconds_to_wait, 44.0F, 2.0F);
@@ -285,10 +285,10 @@ void RetryPolicyTestObject::test<7>()
 	ensure_approximately_equals_range("header 2", seconds_to_wait, 7.0F, 2.0F);
 
 	LLCore::HttpResponse *response;
-	LLCore::HttpHeaders *headers;
+	LLCore::HttpHeaders::ptr_t headers;
 
 	response = new LLCore::HttpResponse();
-	headers = new LLCore::HttpHeaders();
+	headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
 	response->setStatus(503);
 	response->setHeaders(headers);
 	headers->append(HTTP_IN_HEADER_RETRY_AFTER, std::string("600"));
@@ -299,7 +299,7 @@ void RetryPolicyTestObject::test<7>()
 	response->release();
 
 	response = new LLCore::HttpResponse();
-	headers = new LLCore::HttpHeaders();
+	headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
 	response->setStatus(503);
 	response->setHeaders(headers);
 	time(&nowseconds);

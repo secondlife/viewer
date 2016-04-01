@@ -39,23 +39,17 @@ namespace LLCore
 
 
 HttpReplyQueue::HttpReplyQueue()
-	: RefCounted(true)
 {
 }
 
 
 HttpReplyQueue::~HttpReplyQueue()
 {
-	while (! mQueue.empty())
-	{
-		HttpOperation * op = mQueue.back();
-		mQueue.pop_back();
-		op->release();
-	}
+    mQueue.clear();
 }
 
 
-void HttpReplyQueue::addOp(HttpOperation * op)
+void HttpReplyQueue::addOp(const HttpReplyQueue::opPtr_t &op)
 {
 	{
 		HttpScopedLock lock(mQueueMutex);
@@ -66,15 +60,15 @@ void HttpReplyQueue::addOp(HttpOperation * op)
 }
 
 
-HttpOperation * HttpReplyQueue::fetchOp()
+HttpReplyQueue::opPtr_t HttpReplyQueue::fetchOp()
 {
-	HttpOperation * result(NULL);
+	HttpOperation::ptr_t result;
 
 	{
 		HttpScopedLock lock(mQueueMutex);
 
 		if (mQueue.empty())
-			return NULL;
+            return opPtr_t();
 
 		result = mQueue.front();
 		mQueue.erase(mQueue.begin());
@@ -98,9 +92,6 @@ void HttpReplyQueue::fetchAll(OpContainer & ops)
 			mQueue.swap(ops);
 		}
 	}
-
-	// Caller also acquires the reference counts on each op.
-	return;
 }
 
 

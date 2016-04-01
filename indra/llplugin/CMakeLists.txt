@@ -11,6 +11,7 @@ include(LLMessage)
 include(LLRender)
 include(LLXML)
 include(LLWindow)
+include(Boost)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}

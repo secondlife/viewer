@@ -51,7 +51,6 @@ Compilation
                    WINVER=0x0501                 "                   "
                    _WIN32_WINNT=0x0501           "                   "
                    LL_OS_DRAGDROP_ENABLED=1      "                   "
-                   CARES_STATICLIB               "                   "
                    LIB_NDOF=1                    "                   "
 
     ----------------------------------------------------------------------------
@@ -109,7 +108,6 @@ Compilation
                                          DEBUG_INFO=1
                    LL_DARWIN=1                   "                   "
                    LL_OS_DRAGDROP_ENABLED=1      "                   "
-                   CARES_STATICLIB               "                   "
                    LIB_NDOF=1                    "                   "
 
     ----------------------------------------------------------------------------

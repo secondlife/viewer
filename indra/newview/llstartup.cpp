@@ -47,7 +47,6 @@
 #include "llaudioengine_openal.h"
 #endif
 
-#include "llares.h"
 #include "llavatarnamecache.h"
 #include "llexperiencecache.h"
 #include "lllandmark.h"
@@ -57,7 +56,6 @@
 #include "llerrorcontrol.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
-#include "llhttpsender.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
@@ -114,7 +112,6 @@
 #include "llgroupmgr.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llhttpclient.h"
 #include "llimagebmp.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
@@ -295,20 +292,6 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 // local classes
 //
 
-namespace
-{
-	class LLNullHTTPSender : public LLHTTPSender
-	{
-		virtual void send(const LLHost& host, 
-						  const std::string& message, const LLSD& body, 
-						  LLHTTPClient::ResponderPtr response) const
-		{
-			LL_WARNS("AppInit") << " attemped to send " << message << " to " << host
-					<< " with null sender" << LL_ENDL;
-		}
-	};
-}
-
 void update_texture_fetch()
 {
 	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
@@ -461,13 +444,6 @@ bool idle_startup()
 		// Load the throttle settings
 		gViewerThrottle.load();
 
-		if (ll_init_ares() == NULL || !gAres->isInitialized())
-		{
-			std::string diagnostic = "Could not start address resolution system";
-			LL_WARNS("AppInit") << diagnostic << LL_ENDL;
-			LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().with("DIAGNOSTIC", diagnostic));
-		}
-		
 		//
 		// Initialize messaging system
 		//
@@ -511,8 +487,6 @@ bool idle_startup()
 			  {
 			    port = gSavedSettings.getU32("ConnectionPort");
 			  }
-
-			LLHTTPSender::setDefaultSender(new LLNullHTTPSender());
 
 			// TODO parameterize 
 			const F32 circuit_heartbeat_interval = 5;
@@ -755,12 +729,9 @@ bool idle_startup()
 		if (gLoginMenuBarView == NULL)
 		{
 			LL_DEBUGS("AppInit") << "initializing menu bar" << LL_ENDL;
-			display_startup();
 			initialize_edit_menu();
 			initialize_spellcheck_menu();
-			display_startup();
 			init_menus();
-			display_startup();
 		}
 
 		if (show_connect_box)
@@ -772,23 +743,17 @@ bool idle_startup()
 			if (gUserCredential.isNull())                                                                          
 			{                                                  
 				LL_DEBUGS("AppInit") << "loading credentials from gLoginHandler" << LL_ENDL;
-				display_startup();
 				gUserCredential = gLoginHandler.initializeLoginInfo();                 
-				display_startup();
 			}     
 			// Make sure the process dialog doesn't hide things
-			display_startup();
 			gViewerWindow->setShowProgress(FALSE);
-			display_startup();
 			// Show the login dialog
 			login_show();
-			display_startup();
 			// connect dialog is already shown, so fill in the names
 			if (gUserCredential.notNull())
 			{
 				LLPanelLogin::setFields( gUserCredential, gRememberPassword);
 			}
-			display_startup();
 			LLPanelLogin::giveFocus();
 
 			// MAINT-3231 Show first run dialog only for Desura viewer
@@ -814,22 +779,15 @@ bool idle_startup()
 			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		}
 
-		display_startup();
 		gViewerWindow->setNormalControlsVisible( FALSE );	
-		display_startup();
 		gLoginMenuBarView->setVisible( TRUE );
-		display_startup();
 		gLoginMenuBarView->setEnabled( TRUE );
-		display_startup();
 		show_debug_menus();
-		display_startup();
 
 		// Hide the splash screen
 		LLSplashScreen::hide();
-		display_startup();
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
-		display_startup();
 
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
@@ -837,9 +795,9 @@ bool idle_startup()
 		MSG msg;
 		while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
 		{ }
-		display_startup();
 #endif
-		timeout.reset();
+        display_startup();
+        timeout.reset();
 		return FALSE;
 	}
 
@@ -2778,8 +2736,6 @@ void reset_login()
 	gAgent.cleanup();
 	LLWorld::getInstance()->destroyClass();
 
-	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-
 	if ( gViewerWindow )
 	{	// Hide menus and normal buttons
 		gViewerWindow->setNormalControlsVisible( FALSE );
@@ -2789,6 +2745,7 @@ void reset_login()
 
 	// Hide any other stuff
 	LLFloaterReg::hideVisibleInstances();
+    LLStartUp::setStartupState( STATE_BROWSER_INIT );
 }
 
 //---------------------------------------------------------------------------
@@ -2838,9 +2795,11 @@ void LLStartUp::initNameCache()
 
 
 void LLStartUp::initExperiences()
-{
-	LLAppViewer::instance()->loadExperienceCache();
-	LLExperienceCache::initClass();
+{   
+    // Should trigger loading the cache.
+    LLExperienceCache::instance().setCapabilityQuery(
+        boost::bind(&LLAgent::getRegionCapability, &gAgent, _1));
+
 	LLExperienceLog::instance().initialize();
 }
 

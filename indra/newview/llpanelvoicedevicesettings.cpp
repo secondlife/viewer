@@ -51,7 +51,7 @@ LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 	mCtrlOutputDevices = NULL;
 	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-	mDevicesUpdated = FALSE;
+	mDevicesUpdated = FALSE;  //obsolete
 	mUseTuningMode = true;
 
 	// grab "live" mic volume level
@@ -80,6 +80,10 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 	mLocalizedDeviceNames[DEFAULT_DEVICE]				= getString("default_text");
 	mLocalizedDeviceNames["No Device"]					= getString("name_no_device");
 	mLocalizedDeviceNames["Default System Device"]		= getString("name_default_system_device");
+
+	mCtrlOutputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onOutputDevicesClicked, this));
+	mCtrlInputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onInputDevicesClicked, this));
+	
 	
 	return TRUE;
 }
@@ -226,9 +230,8 @@ void LLPanelVoiceDeviceSettings::refresh()
 			mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, ADD_BOTTOM);
 			mCtrlOutputDevices->setValue(mOutputDevice);
 		}
-		mDevicesUpdated = FALSE;
 	}
-	else if (!mDevicesUpdated)
+	else if (LLVoiceClient::getInstance()->deviceSettingsUpdated())
 	{
 		LLVoiceDeviceList::const_iterator iter;
 		
@@ -272,7 +275,6 @@ void LLPanelVoiceDeviceSettings::refresh()
 				mOutputDevice = DEFAULT_DEVICE;
 			}
 		}
-		mDevicesUpdated = TRUE;
 	}	
 }
 
@@ -281,7 +283,6 @@ void LLPanelVoiceDeviceSettings::initialize()
 	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	mMicVolume = gSavedSettings.getF32("AudioLevelMic");
-	mDevicesUpdated = FALSE;
 
 	// ask for new device enumeration
 	LLVoiceClient::getInstance()->refreshDeviceLists();
@@ -314,8 +315,8 @@ void LLPanelVoiceDeviceSettings::onCommitInputDevice()
 {
 	if(LLVoiceClient::getInstance())
 	{
-		LLVoiceClient::getInstance()->setCaptureDevice(
-			mCtrlInputDevices->getValue().asString());
+		mInputDevice = mCtrlInputDevices->getValue().asString();
+		LLVoiceClient::getInstance()->setRenderDevice(mInputDevice);
 	}
 }
 
@@ -323,7 +324,18 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 {
 	if(LLVoiceClient::getInstance())
 	{
-		LLVoiceClient::getInstance()->setRenderDevice(
-			mCtrlInputDevices->getValue().asString());
+		
+		mOutputDevice = mCtrlOutputDevices->getValue().asString(); 
+		LLVoiceClient::getInstance()->setRenderDevice(mOutputDevice);
 	}
+}
+
+void LLPanelVoiceDeviceSettings::onOutputDevicesClicked()
+{
+	LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
+}
+
+void LLPanelVoiceDeviceSettings::onInputDevicesClicked()
+{
+	LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
 }

@@ -34,6 +34,9 @@
 #include "lllogchat.h"
 #include "llvoicechannel.h"
 
+#include "llcoros.h"
+#include "lleventcoro.h"
+
 class LLAvatarName;
 class LLFriendObserver;
 class LLCallDialogManager;	
@@ -292,6 +295,7 @@ private:
 	 * Add message to a list of message associated with session specified by session_id
 	 */
 	bool addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
+
 };
 
 class LLIMSessionObserver

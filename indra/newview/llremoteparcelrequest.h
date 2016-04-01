@@ -29,28 +29,13 @@
 #ifndef LL_LLREMOTEPARCELREQUEST_H
 #define LL_LLREMOTEPARCELREQUEST_H
 
-#include "llhttpclient.h"
 #include "llhandle.h"
 #include "llsingleton.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 
 class LLMessageSystem;
 class LLRemoteParcelInfoObserver;
-
-class LLRemoteParcelRequestResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLRemoteParcelRequestResponder);
-public:
-	LLRemoteParcelRequestResponder(LLHandle<LLRemoteParcelInfoObserver> observer_handle);
-
-private:
-	//If we get back a normal response, handle it here
-	/*virtual*/ void httpSuccess();
-
-	//If we get back an error (not found, etc...), handle it here
-	/*virtual*/ void httpFailure();
-
-	LLHandle<LLRemoteParcelInfoObserver> mObserverHandle;
-};
 
 struct LLParcelData
 {
@@ -99,9 +84,14 @@ public:
 
 	static void processParcelInfoReply(LLMessageSystem* msg, void**);
 
+    bool requestRegionParcelInfo(const std::string &url, const LLUUID &regionId, 
+        const LLVector3 &regionPos, const LLVector3d& globalPos, LLHandle<LLRemoteParcelInfoObserver> observerHandle);
+
 private:
 	typedef std::multimap<LLUUID, LLHandle<LLRemoteParcelInfoObserver> > observer_multimap_t;
 	observer_multimap_t mObservers;
+
+    void regionParcelInfoCoro(std::string url, LLUUID regionId, LLVector3 posRegion, LLVector3d posGlobal, LLHandle<LLRemoteParcelInfoObserver> observerHandle);
 };
 
 #endif // LL_LLREMOTEPARCELREQUEST_H

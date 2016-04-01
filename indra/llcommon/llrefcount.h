@@ -144,14 +144,9 @@ private:
 };
 
 /**
- * intrusive pointer support
- * this allows you to use boost::intrusive_ptr with any LLRefCount-derived type
- */
-/**
  * intrusive pointer support for LLThreadSafeRefCount
  * this allows you to use boost::intrusive_ptr with any LLThreadSafeRefCount-derived type
  */
-
 inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p) 
 {
 	p->ref();
@@ -162,6 +157,10 @@ inline void intrusive_ptr_release(LLThreadSafeRefCount* p)
 	p->unref(); 
 }
 
+/**
+ * intrusive pointer support
+ * this allows you to use boost::intrusive_ptr with any LLRefCount-derived type
+ */
 inline void intrusive_ptr_add_ref(LLRefCount* p) 
 {
 	p->ref();

@@ -53,9 +53,10 @@ namespace LLCore
 class HttpOpSetGet : public HttpOperation
 {
 public:
+    typedef boost::shared_ptr<HttpOpSetGet> ptr_t;
+
 	HttpOpSetGet();
 
-protected:
 	virtual ~HttpOpSetGet();							// Use release()
 
 private:

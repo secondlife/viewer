@@ -26,10 +26,10 @@
 #include "linden_common.h"
 #include <stdexcept>
 #include <boost/format.hpp>
-#include "llhttpclient.h"
 #include "llsd.h"
 #include "llupdatechecker.h"
 #include "lluri.h"
+#include "llcorehttputil.h"
 #if LL_DARWIN
 #include <CoreServices/CoreServices.h>
 #endif
@@ -53,14 +53,11 @@ public:
 
 // LLUpdateChecker
 //-----------------------------------------------------------------------------
-
-
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client):
 	mImplementation(new LLUpdateChecker::Implementation(client))
 {
 	; // No op.
 }
-
 
 void LLUpdateChecker::checkVersion(std::string const & urlBase, 
 								   std::string const & channel,
@@ -74,11 +71,8 @@ void LLUpdateChecker::checkVersion(std::string const & urlBase,
 }
 
 
-
 // LLUpdateChecker::Implementation
 //-----------------------------------------------------------------------------
-
-
 const char * LLUpdateChecker::Implementation::sProtocolVersion = "v1.1";
 
 
@@ -121,8 +115,10 @@ void LLUpdateChecker::Implementation::checkVersion(std::string const & urlBase,
 
 		std::string checkUrl = buildUrl(urlBase, channel, version, platform, platform_version, uniqueid, willing_to_test);
 		LL_INFOS("UpdaterService") << "checking for updates at " << checkUrl << LL_ENDL;
-	
-		mHttpClient.get(checkUrl, this);
+
+        LLCoros::instance().launch("LLUpdateChecker::Implementation::checkVersionCoro",
+            boost::bind(&Implementation::checkVersionCoro, this, checkUrl));
+
 	}
 	else
 	{
@@ -130,47 +126,46 @@ void LLUpdateChecker::Implementation::checkVersion(std::string const & urlBase,
 	}
 }
 
-void LLUpdateChecker::Implementation::httpCompleted()
+void LLUpdateChecker::Implementation::checkVersionCoro(std::string url)
 {
-	mInProgress = false;	
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("checkVersionCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-	S32 status = getStatus();
-	const LLSD& content = getContent();
-	const std::string& reason = getReason();
-	if(status != 200)
-	{
-		std::string server_error;
-		if ( content.has("error_code") )
-		{
-			server_error += content["error_code"].asString();
-		}
-		if ( content.has("error_text") )
-		{
-			server_error += server_error.empty() ? "" : ": ";
-			server_error += content["error_text"].asString();
-		}
+    LL_INFOS("checkVersionCoro") << "Getting update information from " << url << LL_ENDL;
 
-		LL_WARNS("UpdaterService") << "response error " << status
-								   << " " << reason
-								   << " (" << server_error << ")"
-								   << LL_ENDL;
-		mClient.error(reason);
-	}
-	else
-	{
-		mClient.response(content);
-	}
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    mInProgress = false;
+
+    if (status != LLCore::HttpStatus(HTTP_OK))
+    {
+        std::string server_error;
+        if (result.has("error_code"))
+        {
+            server_error += result["error_code"].asString();
+        }
+        if (result.has("error_text"))
+        {
+            server_error += server_error.empty() ? "" : ": ";
+            server_error += result["error_text"].asString();
+        }
+
+        LL_WARNS("UpdaterService") << "response error " << status.getStatus()
+            << " " << status.toString()
+            << " (" << server_error << ")"
+            << LL_ENDL;
+        mClient.error(status.toString());
+        return;
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+    mClient.response(result);
 }
-
-
-void LLUpdateChecker::Implementation::httpFailure()
-{
-	const std::string& reason = getReason();
-	mInProgress = false;
-	LL_WARNS("UpdaterService") << "update check failed; " << reason << LL_ENDL;
-	mClient.error(reason);
-}
-
 
 std::string LLUpdateChecker::Implementation::buildUrl(std::string const & urlBase, 
 													  std::string const & channel,

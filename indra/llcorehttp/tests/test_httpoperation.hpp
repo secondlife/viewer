@@ -76,12 +76,12 @@ namespace tut
 		mMemTotal = GetMemTotal();
 
 		// create a new ref counted object with an implicit reference
-		HttpOpNull * op = new HttpOpNull();
-		ensure(op->getRefCount() == 1);
+		HttpOperation::ptr_t op (new HttpOpNull());
+		ensure(op.use_count() == 1);
 		ensure(mMemTotal < GetMemTotal());
 		
 		// release the implicit reference, causing the object to be released
-		op->release();
+        op.reset();
 
 		// make sure we didn't leak any memory
 		ensure(mMemTotal == GetMemTotal());
@@ -96,26 +96,24 @@ namespace tut
 		mMemTotal = GetMemTotal();
 
 		// Get some handlers
-		TestHandler * h1 = new TestHandler();
+		LLCore::HttpHandler::ptr_t h1 (new TestHandler());
 		
 		// create a new ref counted object with an implicit reference
-		HttpOpNull * op = new HttpOpNull();
+		HttpOperation::ptr_t op (new HttpOpNull());
 
 		// Add the handlers
-		op->setReplyPath(NULL, h1);
+		op->setReplyPath(LLCore::HttpOperation::HttpReplyQueuePtr_t(), h1);
 
 		// Check ref count
-		ensure(op->getRefCount() == 1);
+		ensure(op.unique() == 1);
 
 		// release the reference, releasing the operation but
 		// not the handlers.
-		op->release();
-		op = NULL;
+        op.reset();
 		ensure(mMemTotal != GetMemTotal());
 		
 		// release the handlers
-		delete h1;
-		h1 = NULL;
+        h1.reset();
 
 		ensure(mMemTotal == GetMemTotal());
 	}

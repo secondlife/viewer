@@ -710,7 +710,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 
 		// Tie the lifespan of this child process to the lifespan of our APR
 		// pool: on destruction of the pool, forcibly kill the process. Tell
-		// APR to try SIGTERM and wait 3 seconds. If that didn't work, use
+		// APR to try SIGTERM and suspend 3 seconds. If that didn't work, use
 		// SIGKILL.
 		apr_pool_note_subprocess(gAPRPoolp, &mProcess, APR_KILL_AFTER_TIMEOUT);
 |*==========================================================================*/
@@ -989,9 +989,9 @@ void LLProcess::handle_status(int reason, int status)
 //	wi->rv = apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT);
 	// It's just wrong to call apr_proc_wait() here. The only way APR knows to
 	// call us with APR_OC_REASON_DEATH is that it's already reaped this child
-	// process, so calling wait() will only produce "huh?" from the OS. We
+	// process, so calling suspend() will only produce "huh?" from the OS. We
 	// must rely on the status param passed in, which unfortunately comes
-	// straight from the OS wait() call, which means we have to decode it by
+	// straight from the OS suspend() call, which means we have to decode it by
 	// hand.
 	mStatus = interpret_status(status);
 	LL_INFOS("LLProcess") << getStatusString() << LL_ENDL;

@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llmeshrepository.cpp
  * @brief Mesh repository implementation.
  *
@@ -36,7 +36,6 @@
 #include "llappviewer.h"
 #include "llbufferstream.h"
 #include "llcallbacklist.h"
-#include "llcurl.h"
 #include "lldatapacker.h"
 #include "lldeadmantimer.h"
 #include "llfloatermodelpreview.h"
@@ -73,6 +72,10 @@
 #include "llfasttimer.h"
 #include "llcorehttputil.h"
 #include "lltrans.h"
+#include "llstatusbar.h"
+#include "llinventorypanel.h"
+#include "lluploaddialog.h"
+#include "llfloaterreg.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -389,6 +392,19 @@ U32 LLMeshRepository::sMaxLockHoldoffs = 0;
 	
 LLDeadmanTimer LLMeshRepository::sQuiescentTimer(15.0, false);	// true -> gather cpu metrics
 
+namespace {
+    // The NoOpDeletor is used when passing certain objects (generally the LLMeshUploadThread) 
+    // in a smart pointer below for passage into the LLCore::Http libararies.  
+    // When the smart pointer is destroyed,  no action will be taken since we 
+    // do not in these cases want the object to be destroyed at the end of the call.
+    // 
+    // *NOTE$: Yes! It is "Deletor" 
+    // http://english.stackexchange.com/questions/4733/what-s-the-rule-for-adding-er-vs-or-when-nouning-a-verb
+    // "delete" derives from Latin "deletus"
+
+    void NoOpDeletor(LLCore::HttpHandler *)
+    { /*NoOp*/ }
+}
 
 static S32 dump_num = 0;
 std::string make_dump_name(std::string prefix, S32 num)
@@ -412,6 +428,17 @@ const char * const LOG_MESH = "Mesh";
 static unsigned int metrics_teleport_start_count = 0;
 boost::signals2::connection metrics_teleport_started_signal;
 static void teleport_started();
+
+void on_new_single_inventory_upload_complete(
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inventory_type,
+    const std::string inventory_type_string,
+    const LLUUID& item_folder_id,
+    const std::string& item_name,
+    const std::string& item_description,
+    const LLSD& server_response,
+    S32 upload_price);
+
 
 //get the number of bytes resident in memory for given volume
 U32 get_volume_memory_size(const LLVolume* volume)
@@ -524,9 +551,12 @@ S32 LLMeshRepoThread::sRequestWaterLevel = 0;
 //     LLMeshPhysicsShapeHandler
 //   LLMeshUploadThread
 
-class LLMeshHandlerBase : public LLCore::HttpHandler
+class LLMeshHandlerBase : public LLCore::HttpHandler,
+    public boost::enable_shared_from_this<LLMeshHandlerBase>
 {
 public:
+    typedef boost::shared_ptr<LLMeshHandlerBase> ptr_t;
+
 	LOG_CLASS(LLMeshHandlerBase);
 	LLMeshHandlerBase(U32 offset, U32 requested_bytes)
 		: LLCore::HttpHandler(),
@@ -774,9 +804,9 @@ void log_upload_error(LLCore::HttpStatus status, const LLSD& content,
 LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo"),
   mHttpRequest(NULL),
-  mHttpOptions(NULL),
-  mHttpLargeOptions(NULL),
-  mHttpHeaders(NULL),
+  mHttpOptions(),
+  mHttpLargeOptions(),
+  mHttpHeaders(),
   mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
   mHttpLegacyPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
   mHttpLargePolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
@@ -789,13 +819,13 @@ LLMeshRepoThread::LLMeshRepoThread()
 	mHeaderMutex = new LLMutex(NULL);
 	mSignal = new LLCondition(NULL);
 	mHttpRequest = new LLCore::HttpRequest;
-	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpOptions->setTransferTimeout(SMALL_MESH_XFER_TIMEOUT);
 	mHttpOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
-	mHttpLargeOptions = new LLCore::HttpOptions;
+	mHttpLargeOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpLargeOptions->setTransferTimeout(LARGE_MESH_XFER_TIMEOUT);
 	mHttpLargeOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
-	mHttpHeaders = new LLCore::HttpHeaders;
+	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHttpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_VND_LL_MESH);
 	mHttpPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_MESH2);
 	mHttpLegacyPolicyClass = app_core_http.getPolicy(LLAppCoreHttp::AP_MESH1);
@@ -810,29 +840,10 @@ LLMeshRepoThread::~LLMeshRepoThread()
 					   << ", Max Lock Holdoffs:  " << LLMeshRepository::sMaxLockHoldoffs
 					   << LL_ENDL;
 
-	for (http_request_set::iterator iter(mHttpRequestSet.begin());
-		 iter != mHttpRequestSet.end();
-		 ++iter)
-	{
-		delete *iter;
-	}
 	mHttpRequestSet.clear();
-	if (mHttpHeaders)
-	{
-		mHttpHeaders->release();
-		mHttpHeaders = NULL;
-	}
-	if (mHttpOptions)
-	{
-		mHttpOptions->release();
-		mHttpOptions = NULL;
-	}
-	if (mHttpLargeOptions)
-	{
-		mHttpLargeOptions->release();
-		mHttpLargeOptions = NULL;
-	}
-	delete mHttpRequest;
+    mHttpHeaders.reset();
+
+    delete mHttpRequest;
 	mHttpRequest = NULL;
 	delete mMutex;
 	mMutex = NULL;
@@ -1160,7 +1171,7 @@ void LLMeshRepoThread::constructUrl(LLUUID mesh_id, std::string * url, int * ver
 // Thread:  repo
 LLCore::HttpHandle LLMeshRepoThread::getByteRange(const std::string & url, int cap_version,
 												  size_t offset, size_t len,
-												  LLCore::HttpHandler * handler)
+												  const LLCore::HttpHandler::ptr_t &handler)
 {
 	// Also used in lltexturefetch.cpp
 	static LLCachedControl<bool> disable_range_req(gSavedSettings, "HttpRangeRequestsDisable", false);
@@ -1274,7 +1285,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 
 			if (!http_url.empty())
 			{
-				LLMeshSkinInfoHandler * handler = new LLMeshSkinInfoHandler(mesh_id, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshSkinInfoHandler(mesh_id, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1282,7 +1293,6 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					ret = false;
 				}
 				else
@@ -1368,7 +1378,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			
 			if (!http_url.empty())
 			{
-				LLMeshDecompositionHandler * handler = new LLMeshDecompositionHandler(mesh_id, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshDecompositionHandler(mesh_id, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1376,7 +1386,6 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					ret = false;
 				}
 				else
@@ -1461,7 +1470,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 			
 			if (!http_url.empty())
 			{
-				LLMeshPhysicsShapeHandler * handler = new LLMeshPhysicsShapeHandler(mesh_id, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshPhysicsShapeHandler(mesh_id, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1469,7 +1478,6 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					ret = false;
 				}
 				else
@@ -1560,7 +1568,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 		//within the first 4KB
 		//NOTE -- this will break of headers ever exceed 4KB		
 
-		LLMeshHeaderHandler * handler = new LLMeshHeaderHandler(mesh_params, 0, MESH_HEADER_SIZE);
+        LLMeshHandlerBase::ptr_t handler(new LLMeshHeaderHandler(mesh_params, 0, MESH_HEADER_SIZE));
 		LLCore::HttpHandle handle = getByteRange(http_url, cap_version, 0, MESH_HEADER_SIZE, handler);
 		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
@@ -1568,7 +1576,6 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
 							   << ".  Reason:  " << mHttpStatus.toString()
 							   << " (" << mHttpStatus.toTerseString() << ")"
 							   << LL_ENDL;
-			delete handler;
 			retval = false;
 		}
 		else
@@ -1644,7 +1651,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 			
 			if (!http_url.empty())
 			{
-				LLMeshLODHandler * handler = new LLMeshLODHandler(mesh_params, lod, offset, size);
+                LLMeshHandlerBase::ptr_t handler(new LLMeshLODHandler(mesh_params, lod, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, cap_version, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
@@ -1652,7 +1659,6 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 									   << ".  Reason:  " << mHttpStatus.toString()
 									   << " (" << mHttpStatus.toTerseString() << ")"
 									   << LL_ENDL;
-					delete handler;
 					retval = false;
 				}
 				else
@@ -1918,11 +1924,11 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mMeshUploadTimeOut = gSavedSettings.getS32("MeshUploadTimeOut");
 
 	mHttpRequest = new LLCore::HttpRequest;
-	mHttpOptions = new LLCore::HttpOptions;
+	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpOptions->setTransferTimeout(mMeshUploadTimeOut);
 	mHttpOptions->setUseRetryAfter(gSavedSettings.getBOOL("MeshUseHttpRetryAfter"));
 	mHttpOptions->setRetries(UPLOAD_RETRY_LIMIT);
-	mHttpHeaders = new LLCore::HttpHeaders;
+	mHttpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
 	mHttpPolicyClass = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_UPLOADS);
 	mHttpPriority = 0;
@@ -1930,16 +1936,6 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 
 LLMeshUploadThread::~LLMeshUploadThread()
 {
-	if (mHttpHeaders)
-	{
-		mHttpHeaders->release();
-		mHttpHeaders = NULL;
-	}
-	if (mHttpOptions)
-	{
-		mHttpOptions->release();
-		mHttpOptions = NULL;
-	}
 	delete mHttpRequest;
 	mHttpRequest = NULL;
 }
@@ -2465,7 +2461,7 @@ void LLMeshUploadThread::doWholeModelUpload()
 																		body,
 																		mHttpOptions,
 																		mHttpHeaders,
-																		this);
+                                                                        LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
 		if (LLCORE_HTTP_HANDLE_INVALID == handle)
 		{
 			mHttpStatus = mHttpRequest->getStatus();
@@ -2516,7 +2512,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 																	mModelData,
 																	mHttpOptions,
 																	mHttpHeaders,
-																	this);
+                                                                    LLCore::HttpHandler::ptr_t(this, &NoOpDeletor));
 	if (LLCORE_HTTP_HANDLE_INVALID == handle)
 	{
 		mHttpStatus = mHttpRequest->getStatus();
@@ -2957,8 +2953,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
 
 	// Release handler
 common_exit:
-	gMeshRepo.mThread->mHttpRequestSet.erase(this);
-	delete this;		// Must be last statement
+	gMeshRepo.mThread->mHttpRequestSet.erase(this->shared_from_this());
 }
 
 
@@ -4723,3 +4718,122 @@ void teleport_started()
 	LLMeshRepository::metricsStart();
 }
 
+
+void on_new_single_inventory_upload_complete(
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inventory_type,
+    const std::string inventory_type_string,
+    const LLUUID& item_folder_id,
+    const std::string& item_name,
+    const std::string& item_description,
+    const LLSD& server_response,
+    S32 upload_price)
+{
+    bool success = false;
+
+    if (upload_price > 0)
+    {
+        // this upload costed us L$, update our balance
+        // and display something saying that it cost L$
+        LLStatusBar::sendMoneyBalanceRequest();
+
+        LLSD args;
+        args["AMOUNT"] = llformat("%d", upload_price);
+        LLNotificationsUtil::add("UploadPayment", args);
+    }
+
+    if (item_folder_id.notNull())
+    {
+        U32 everyone_perms = PERM_NONE;
+        U32 group_perms = PERM_NONE;
+        U32 next_owner_perms = PERM_ALL;
+        if (server_response.has("new_next_owner_mask"))
+        {
+            // The server provided creation perms so use them.
+            // Do not assume we got the perms we asked for in
+            // since the server may not have granted them all.
+            everyone_perms = server_response["new_everyone_mask"].asInteger();
+            group_perms = server_response["new_group_mask"].asInteger();
+            next_owner_perms = server_response["new_next_owner_mask"].asInteger();
+        }
+        else
+        {
+            // The server doesn't provide creation perms
+            // so use old assumption-based perms.
+            if (inventory_type_string != "snapshot")
+            {
+                next_owner_perms = PERM_MOVE | PERM_TRANSFER;
+            }
+        }
+
+        LLPermissions new_perms;
+        new_perms.init(
+            gAgent.getID(),
+            gAgent.getID(),
+            LLUUID::null,
+            LLUUID::null);
+
+        new_perms.initMasks(
+            PERM_ALL,
+            PERM_ALL,
+            everyone_perms,
+            group_perms,
+            next_owner_perms);
+
+        U32 inventory_item_flags = 0;
+        if (server_response.has("inventory_flags"))
+        {
+            inventory_item_flags = (U32)server_response["inventory_flags"].asInteger();
+            if (inventory_item_flags != 0)
+            {
+                LL_INFOS() << "inventory_item_flags " << inventory_item_flags << LL_ENDL;
+            }
+        }
+        S32 creation_date_now = time_corrected();
+        LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
+            server_response["new_inventory_item"].asUUID(),
+            item_folder_id,
+            new_perms,
+            server_response["new_asset"].asUUID(),
+            asset_type,
+            inventory_type,
+            item_name,
+            item_description,
+            LLSaleInfo::DEFAULT,
+            inventory_item_flags,
+            creation_date_now);
+
+        gInventory.updateItem(item);
+        gInventory.notifyObservers();
+        success = true;
+
+        // Show the preview panel for textures and sounds to let
+        // user know that the image (or snapshot) arrived intact.
+        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel();
+        if (panel)
+        {
+            LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+
+            panel->setSelection(
+                server_response["new_inventory_item"].asUUID(),
+                TAKE_FOCUS_NO);
+
+            // restore keyboard focus
+            gFocusMgr.setKeyboardFocus(focus);
+        }
+    }
+    else
+    {
+        LL_WARNS() << "Can't find a folder to put it in" << LL_ENDL;
+    }
+
+    // remove the "Uploading..." message
+    LLUploadDialog::modalUploadFinished();
+
+    // Let the Snapshot floater know we have finished uploading a snapshot to inventory.
+    LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+    if (asset_type == LLAssetType::AT_TEXTURE && floater_snapshot)
+    {
+        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+    }
+}

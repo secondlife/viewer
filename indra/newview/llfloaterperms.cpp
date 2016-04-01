@@ -37,6 +37,9 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llvoavatar.h"
+#include "llcorehttputil.h"
+#include "lleventfilter.h"
+#include "lleventcoro.h"
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
@@ -167,82 +170,7 @@ void LLFloaterPermsDefault::onCommitCopy(const LLSD& user_data)
 }
 
 const int MAX_HTTP_RETRIES = 5;
-LLFloaterPermsRequester* LLFloaterPermsRequester::sPermsRequester = NULL;
-
-LLFloaterPermsRequester::LLFloaterPermsRequester(const std::string url, const LLSD report, 
-	int maxRetries)
-	: mRetriesCount(0), mMaxRetries(maxRetries), mUrl(url), mReport(report)
-{}
-
-//static 
-void LLFloaterPermsRequester::init(const std::string url, const LLSD report, int maxRetries)
-{
-	if (sPermsRequester == NULL) {
-		sPermsRequester = new LLFloaterPermsRequester(url, report, maxRetries);
-	}
-}
-    
-//static
-void LLFloaterPermsRequester::finalize()
-{
-	if (sPermsRequester != NULL)
-	{
-		delete sPermsRequester;
-		sPermsRequester = NULL;
-	}
-}
-
-//static
-LLFloaterPermsRequester* LLFloaterPermsRequester::instance()
-{
-	return sPermsRequester;
-}
-
-void LLFloaterPermsRequester::start()
-{
-	++mRetriesCount;
-	LLHTTPClient::post(mUrl, mReport, new LLFloaterPermsResponder());
-}
-    
-bool LLFloaterPermsRequester::retry()
-{
-	if (++mRetriesCount < mMaxRetries)
-	{
-		LLHTTPClient::post(mUrl, mReport, new LLFloaterPermsResponder());
-		return true;
-	}
-	return false;
-}
-
-void LLFloaterPermsResponder::httpFailure()
-{
-	if (!LLFloaterPermsRequester::instance() || !LLFloaterPermsRequester::instance()->retry())
-	{
-		LLFloaterPermsRequester::finalize();
-		const std::string& reason = getReason();
-		// Do not display the same error more than once in a row
-		if (reason != sPreviousReason)
-		{
-			sPreviousReason = reason;
-			LLSD args;
-			args["REASON"] = reason;
-			LLNotificationsUtil::add("DefaultObjectPermissions", args);
-		}
-	}
-}
-
-void LLFloaterPermsResponder::httpSuccess()
-{
-	//const LLSD& content = getContent();
-	//dump_sequential_xml("perms_responder_result.xml", content);
-
-	// Since we have had a successful POST call be sure to display the next error message
-	// even if it is the same as a previous one.
-	sPreviousReason = "";
-	LL_INFOS("ObjectPermissionsFloater") << "Default permissions successfully sent to simulator" << LL_ENDL;
-}
-
-std::string	LLFloaterPermsResponder::sPreviousReason;
+const float RETRY_TIMEOUT = 5.0;
 
 void LLFloaterPermsDefault::sendInitialPerms()
 {
@@ -259,28 +187,76 @@ void LLFloaterPermsDefault::updateCap()
 
 	if(!object_url.empty())
 	{
-		LLSD report = LLSD::emptyMap();
-		report["default_object_perm_masks"]["Group"] =
-			(LLSD::Integer)LLFloaterPerms::getGroupPerms(sCategoryNames[CAT_OBJECTS]);
-		report["default_object_perm_masks"]["Everyone"] =
-			(LLSD::Integer)LLFloaterPerms::getEveryonePerms(sCategoryNames[CAT_OBJECTS]);
-		report["default_object_perm_masks"]["NextOwner"] =
-			(LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
-
-        {
-            LL_DEBUGS("ObjectPermissionsFloater") << "Sending default permissions to '"
-                                                  << object_url << "'\n";
-            std::ostringstream sent_perms_log;
-            LLSDSerialize::toPrettyXML(report, sent_perms_log);
-            LL_CONT << sent_perms_log.str() << LL_ENDL;
-        }
-        LLFloaterPermsRequester::init(object_url, report, MAX_HTTP_RETRIES);
-        LLFloaterPermsRequester::instance()->start();
+        LLCoros::instance().launch("LLFloaterPermsDefault::updateCapCoro",
+            boost::bind(&LLFloaterPermsDefault::updateCapCoro, object_url));
 	}
     else
     {
         LL_DEBUGS("ObjectPermissionsFloater") << "AgentPreferences cap not available." << LL_ENDL;
     }
+}
+
+/*static*/
+void LLFloaterPermsDefault::updateCapCoro(std::string url)
+{
+    int retryCount = 0;
+    std::string previousReason;
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD postData = LLSD::emptyMap();
+    postData["default_object_perm_masks"]["Group"] =
+        (LLSD::Integer)LLFloaterPerms::getGroupPerms(sCategoryNames[CAT_OBJECTS]);
+    postData["default_object_perm_masks"]["Everyone"] =
+        (LLSD::Integer)LLFloaterPerms::getEveryonePerms(sCategoryNames[CAT_OBJECTS]);
+    postData["default_object_perm_masks"]["NextOwner"] =
+        (LLSD::Integer)LLFloaterPerms::getNextOwnerPerms(sCategoryNames[CAT_OBJECTS]);
+
+    {
+        LL_DEBUGS("ObjectPermissionsFloater") << "Sending default permissions to '"
+            << url << "'\n";
+        std::ostringstream sent_perms_log;
+        LLSDSerialize::toPrettyXML(postData, sent_perms_log);
+        LL_CONT << sent_perms_log.str() << LL_ENDL;
+    }
+
+    while (true)
+    {
+        ++retryCount;
+        LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (!status)
+        {
+            const std::string& reason = status.toString();
+            // Do not display the same error more than once in a row
+            if (reason != previousReason)
+            {
+                previousReason = reason;
+                LLSD args;
+                args["REASON"] = reason;
+                LLNotificationsUtil::add("DefaultObjectPermissions", args);
+            }
+
+            llcoro::suspendUntilTimeout(RETRY_TIMEOUT);
+            if (retryCount < MAX_HTTP_RETRIES)
+                continue;
+
+            LL_WARNS("ObjectPermissionsFloater") << "Unable to send default permissions.  Giving up for now." << LL_ENDL;
+            return;
+        }
+        break;
+    }
+
+    // Since we have had a successful POST call be sure to display the next error message
+    // even if it is the same as a previous one.
+    previousReason.clear();
+    LLFloaterPermsDefault::setCapSent(true);
+    LL_INFOS("ObjectPermissionsFloater") << "Default permissions successfully sent to simulator" << LL_ENDL;
 }
 
 void LLFloaterPermsDefault::setCapSent(bool cap_sent)

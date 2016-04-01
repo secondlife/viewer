@@ -61,7 +61,6 @@ void LLNotificationManager::init()
 	mChannels.push_back(new LLOfferHandler());
 	mChannels.push_back(new LLHintHandler());
 	mChannels.push_back(new LLBrowserNotification());
-	mChannels.push_back(new LLOutboxNotification());
 	mChannels.push_back(new LLIMHandler());
   
 	mChatHandler = boost::shared_ptr<LLFloaterIMNearbyChatHandler>(new LLFloaterIMNearbyChatHandler());
@@ -70,7 +69,7 @@ void LLNotificationManager::init()
 //--------------------------------------------------------------------------
 void LLNotificationManager::onChat(const LLChat& msg, const LLSD &args)
 {
-	if(mChatHandler)
-		mChatHandler->processChat(msg, args);
-		}
+    if(mChatHandler)
+        mChatHandler->processChat(msg, args);
+}
 

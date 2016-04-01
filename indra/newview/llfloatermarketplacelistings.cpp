@@ -572,7 +572,7 @@ void LLFloaterMarketplaceListings::updateView()
         std::string title;
         std::string tooltip;
     
-        const LLSD& subs = getMarketplaceStringSubstitutions();
+        const LLSD& subs = LLMarketplaceData::getMarketplaceStringSubstitutions();
 
         // Update the top message or flip to the tabs and folders view
         // *TODO : check those messages and create better appropriate ones in strings.xml
