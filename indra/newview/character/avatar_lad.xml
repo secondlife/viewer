@@ -771,8 +771,8 @@
 		<bone name="mTail5" scale="0.05 0.1 0.1" />
 		<bone name="mTail6" scale="0.05 0    0" />
 
-		<bone name="mWing1Right" offset="-0.01 -0.01 0" />
-		<bone name="mWing1Left"  offset="-0.01  0.01 0" />
+		<bone name="mWing1Right" scale="0.0 0.0 0.0" offset="-0.01 -0.01 0" />
+		<bone name="mWing1Left"  scale="0.0 0.0 0.0" offset="-0.01  0.01 0" />
 
       </param_skeleton>
     </param>
@@ -813,7 +813,7 @@
          name="mChest"
          scale="0.02 0.08 0" />
 
-		<bone name="mWing1Right" offset="0 -0.02 0" />
+		<bone name="mWing1Right" scale="0.0 0.0 0.0" offset="0 -0.02 0" />
 		<bone name="mWing1Left"  offset="0 0.02 0" />
 
       </param_skeleton>
@@ -823,7 +823,7 @@
      id="37"
      group="0"
      name="Hip Width"
-   label="Hip Width"
+     label="Hip Width"
      wearable="shape"
      edit_group="shape_legs"
      edit_group_order="3"
