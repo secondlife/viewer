@@ -396,7 +396,7 @@ void LLViewerInventoryItem::updateServer(BOOL is_new) const
         updates.erase("shadow_id");
         updates["hash_id"] = getTransactionID();
     }
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, NULL, _1);
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
     AISAPI::UpdateItem(getUUID(), updates, cr);
 }
 
@@ -641,7 +641,7 @@ void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 	}
 
     LLSD new_llsd = asLLSD();
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, NULL, _1);
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
     AISAPI::UpdateCategory(getUUID(), new_llsd, cr);
 }
 
@@ -879,7 +879,7 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
         
         
     LLSD new_llsd = new_cat->asLLSD();
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, NULL, _1);
+    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>) NULL, _1);
     AISAPI::UpdateCategory(folder_id, new_llsd, cr);
 
 	setPreferredType(new_folder_type);
