@@ -31,7 +31,6 @@
 #include "llsliderctrl.h"
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
-#include "llhttpclient.h"
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"

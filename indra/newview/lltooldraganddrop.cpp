@@ -821,21 +821,6 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 	if (!handled)
 	{
-        // *TODO: Suppress the "outbox" case once "marketplace" is used everywhere for everyone
-		// Disallow drag and drop to 3D from the outbox
-		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-		if (outbox_id.notNull())
-		{
-			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
-			{
-				if (gInventory.isObjectDescendentOf(mCargoIDs[item_index], outbox_id))
-				{
-					*acceptance = ACCEPT_NO;
-					mToolTipMsg = LLTrans::getString("TooltipOutboxDragToWorld");
-					return;
-				}
-			}
-		}
 		// Disallow drag and drop to 3D from the marketplace
         const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 		if (marketplacelistings_id.notNull())

@@ -32,7 +32,6 @@
 #include "llevents.h"
 #include "llexperiencecache.h"
 #include "llfloaterregioninfo.h"
-#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llpanelexperiencelog.h"
 #include "llpanelexperiencepicker.h"
@@ -43,59 +42,6 @@
 
 
 #define SHOW_RECENT_TAB (0)
-
-class LLExperienceListResponder : public LLHTTPClient::Responder
-{
-public:
-    typedef std::map<std::string, std::string> NameMap;
-	typedef boost::function<void(LLPanelExperiences*, const LLSD&)> Callback;
-	LLExperienceListResponder(const LLHandle<LLFloaterExperiences>& parent, NameMap& nameMap, const std::string& errorMessage="ErrorMessage"):mParent(parent),mErrorMessage(errorMessage)
-	{
-		mNameMap.swap(nameMap);
-	}
-
-	Callback mCallback;
-    LLHandle<LLFloaterExperiences> mParent;
-    NameMap mNameMap;
-	const std::string mErrorMessage;
-    /*virtual*/ void httpSuccess()
-    {
-        if(mParent.isDead())
-            return;
-
-        LLFloaterExperiences* parent=mParent.get();
-        LLTabContainer* tabs = parent->getChild<LLTabContainer>("xp_tabs");
- 
-        NameMap::iterator it = mNameMap.begin();
-        while(it != mNameMap.end())
-        {
-            if(getContent().has(it->first))
-            {
-                LLPanelExperiences* tab = (LLPanelExperiences*)tabs->getPanelByName(it->second);
-                if(tab)
-                {
-                    const LLSD& ids = getContent()[it->first];
-                    tab->setExperienceList(ids);
-					if(!mCallback.empty())
-					{
-						mCallback(tab, getContent());
-					}
-                }
-            }
-            ++it;
-        }
-    }
-
-	/*virtual*/ void httpFailure()
-	{
-		LLSD subs;
-		subs["ERROR_MESSAGE"] = getReason();
-		LLNotificationsUtil::add(mErrorMessage, subs);
-	}
-};
-
-
-
 LLFloaterExperiences::LLFloaterExperiences(const LLSD& data)
 	:LLFloater(data)
 {
@@ -198,26 +144,20 @@ void LLFloaterExperiences::refreshContents()
 
     if (region)
     {
-        LLExperienceListResponder::NameMap nameMap;
-        std::string lookup_url=region->getCapability("GetExperiences"); 
-        if(!lookup_url.empty())
-        {
-            nameMap["experiences"]="Allowed_Experiences_Tab";
-            nameMap["blocked"]="Blocked_Experiences_Tab";
-            LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
-        }
+        NameMap_t tabMap;
+        LLHandle<LLFloaterExperiences> handle = getDerivedHandle<LLFloaterExperiences>();
+
+        tabMap["experiences"]="Allowed_Experiences_Tab";
+        tabMap["blocked"]="Blocked_Experiences_Tab";
+        tabMap["experience_ids"]="Owned_Experiences_Tab";
+
+        retrieveExperienceList(region->getCapability("GetExperiences"), handle, tabMap);
 
         updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
         updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
 
-		lookup_url = region->getCapability("AgentExperiences"); 
-		if(!lookup_url.empty())
-		{
-			nameMap["experience_ids"]="Owned_Experiences_Tab";
-			LLExperienceListResponder* responder = new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap, "ExperienceAcquireFailed");
-			responder->mCallback = boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2);
-			LLHTTPClient::get(lookup_url, responder);
-		}
+        retrieveExperienceList(region->getCapability("AgentExperiences"), handle, tabMap, 
+            "ExperienceAcquireFailed", boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2));
     }
 }
 
@@ -329,29 +269,31 @@ void LLFloaterExperiences::checkAndOpen(LLPanelExperiences* panel, const LLSD& c
     }
 }
 
-void LLFloaterExperiences::updateInfo(std::string experiences, std::string tab)
+void LLFloaterExperiences::updateInfo(std::string experienceCap, std::string tab)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		LLExperienceListResponder::NameMap nameMap;
-		std::string lookup_url = region->getCapability(experiences);
-		if(!lookup_url.empty())
-		{
-			nameMap["experience_ids"]=tab;
-			LLHTTPClient::get(lookup_url, new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap));
-		}
-	}
+        NameMap_t tabMap;
+        LLHandle<LLFloaterExperiences> handle = getDerivedHandle<LLFloaterExperiences>();
+
+        tabMap["experience_ids"] = tab;
+
+        retrieveExperienceList(region->getCapability(experienceCap), handle, tabMap);
+    }
 }
 
-void LLFloaterExperiences::sendPurchaseRequest()
+void LLFloaterExperiences::sendPurchaseRequest() 
 {
-	LLViewerRegion* region = gAgent.getRegion();
-	std::string url = region->getCapability("AgentExperiences");
-	if(!url.empty())
-	{
-		LLSD content;
+    LLViewerRegion* region = gAgent.getRegion();
+
+    if (region)
+    {
+        NameMap_t tabMap;
         const std::string tab_owned_name = "Owned_Experiences_Tab";
+        LLHandle<LLFloaterExperiences> handle = getDerivedHandle<LLFloaterExperiences>();
+
+        tabMap["experience_ids"] = tab_owned_name;
 
         // extract ids for experiences that we already have
         LLTabContainer* tabs = getChild<LLTabContainer>("xp_tabs");
@@ -362,15 +304,114 @@ void LLFloaterExperiences::sendPurchaseRequest()
             tab_owned->getExperienceIdsList(mPrepurchaseIds);
         }
 
-		LLExperienceListResponder::NameMap nameMap;
-        nameMap["experience_ids"] = tab_owned_name;
-		LLExperienceListResponder* responder = new LLExperienceListResponder(getDerivedHandle<LLFloaterExperiences>(), nameMap, "ExperienceAcquireFailed");
-        responder->mCallback = boost::bind(&LLFloaterExperiences::checkAndOpen, this, _1, _2);
-		LLHTTPClient::post(url, content, responder);
-	}
+        requestNewExperience(region->getCapability("AgentExperiences"), handle, tabMap, "ExperienceAcquireFailed",
+            boost::bind(&LLFloaterExperiences::checkAndOpen, this, _1, _2));
+    }
 }
 
 LLFloaterExperiences* LLFloaterExperiences::findInstance()
 {
 	return LLFloaterReg::findTypedInstance<LLFloaterExperiences>("experiences");
+}
+
+
+void LLFloaterExperiences::retrieveExperienceList(const std::string &url,
+    const LLHandle<LLFloaterExperiences> &hparent, const NameMap_t &tabMapping,
+    const std::string &errorNotify, Callback_t cback)
+
+{
+    invokationFn_t getFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> httpOptions
+        // _5 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _4, _5);
+
+    LLCoros::instance().launch("LLFloaterExperiences::retrieveExperienceList",
+        boost::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
+        url, hparent, tabMapping, errorNotify, cback, getFn));
+
+}
+
+void LLFloaterExperiences::requestNewExperience(const std::string &url,
+    const LLHandle<LLFloaterExperiences> &hparent, const NameMap_t &tabMapping,
+    const std::string &errorNotify, Callback_t cback)
+{
+    invokationFn_t postFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> httpOptions
+        // _5 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndSuspend), _1, _2, _3, LLSD(), _4, _5);
+
+    LLCoros::instance().launch("LLFloaterExperiences::requestNewExperience",
+        boost::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
+        url, hparent, tabMapping, errorNotify, cback, postFn));
+
+}
+
+
+void LLFloaterExperiences::retrieveExperienceListCoro(std::string url, 
+    LLHandle<LLFloaterExperiences> hparent, NameMap_t tabMapping, 
+    std::string errorNotify, Callback_t cback, invokationFn_t invoker)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("retrieveExperienceListCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+
+    if (url.empty())
+    {
+        LL_WARNS() << "retrieveExperienceListCoro called with empty capability!" << LL_ENDL;
+        return;
+    }
+
+    LLSD result = invoker(httpAdapter, httpRequest, url, httpOptions, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LLSD subs;
+        subs["ERROR_MESSAGE"] = status.getType();
+        LLNotificationsUtil::add(errorNotify, subs);
+
+        return;
+    }
+
+    if (hparent.isDead())
+        return;
+
+    LLFloaterExperiences* parent = hparent.get();
+    LLTabContainer* tabs = parent->getChild<LLTabContainer>("xp_tabs");
+
+    for (NameMap_t::iterator it = tabMapping.begin(); it != tabMapping.end(); ++it)
+    {
+        if (result.has(it->first))
+        {
+            LLPanelExperiences* tab = (LLPanelExperiences*)tabs->getPanelByName(it->second);
+            if (tab)
+            {
+                const LLSD& ids = result[it->first];
+                tab->setExperienceList(ids);
+                if (!cback.empty())
+                {
+                    cback(tab, result);
+                }
+            }
+        }
+    }
+
 }

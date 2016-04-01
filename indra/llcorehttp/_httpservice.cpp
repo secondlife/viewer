@@ -53,15 +53,16 @@ namespace LLCore
 
 const HttpService::OptionDescriptor HttpService::sOptionDesc[] =
 { //    isLong     isDynamic  isGlobal    isClass
-	{	true,		true,		true,		true	},		// PO_CONNECTION_LIMIT
-	{	true,		true,		false,		true	},		// PO_PER_HOST_CONNECTION_LIMIT
-	{	false,		false,		true,		false	},		// PO_CA_PATH
-	{	false,		false,		true,		false	},		// PO_CA_FILE
-	{	false,		true,		true,		false	},		// PO_HTTP_PROXY
-	{	true,		true,		true,		false	},		// PO_LLPROXY
-	{	true,		true,		true,		false	},		// PO_TRACE
-	{	true,		true,		false,		true	},		// PO_ENABLE_PIPELINING
-	{	true,		true,		false,		true	}		// PO_THROTTLE_RATE
+	{	true,		true,		true,		true,		false	},		// PO_CONNECTION_LIMIT
+	{	true,		true,		false,		true,		false	},		// PO_PER_HOST_CONNECTION_LIMIT
+	{	false,		false,		true,		false,		false	},		// PO_CA_PATH
+	{	false,		false,		true,		false,		false	},		// PO_CA_FILE
+	{	false,		true,		true,		false,		false	},		// PO_HTTP_PROXY
+	{	true,		true,		true,		false,		false	},		// PO_LLPROXY
+	{	true,		true,		true,		false,		false	},		// PO_TRACE
+	{	true,		true,		false,		true,		false	},		// PO_ENABLE_PIPELINING
+	{	true,		true,		false,		true,		false	},		// PO_THROTTLE_RATE
+	{   false,		false,		true,		false,		true	}		// PO_SSL_VERIFY_CALLBACK
 };
 HttpService * HttpService::sInstance(NULL);
 volatile HttpService::EState HttpService::sState(NOT_INITIALIZED);
@@ -262,14 +263,13 @@ void HttpService::shutdown()
 	// Cancel requests already on the request queue
 	HttpRequestQueue::OpContainer ops;
 	mRequestQueue->fetchAll(false, ops);
-	while (! ops.empty())
-	{
-		HttpOperation * op(ops.front());
-		ops.erase(ops.begin());
 
-		op->cancel();
-		op->release();
-	}
+    for (HttpRequestQueue::OpContainer::iterator it = ops.begin();
+        it != ops.end(); ++it)
+    {
+        (*it)->cancel();
+    }
+    ops.clear();
 
 	// Shutdown transport canceling requests, freeing resources
 	mTransport->shutdown();
@@ -323,7 +323,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 	mRequestQueue->fetchAll(wait_for_req, ops);
 	while (! ops.empty())
 	{
-		HttpOperation * op(ops.front());
+		HttpOperation::ptr_t op(ops.front());
 		ops.erase(ops.begin());
 
 		// Process operation
@@ -337,7 +337,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 			if (op->mTracing > HTTP_TRACE_OFF)
 			{
 				LL_INFOS(LOG_CORE) << "TRACE, FromRequestQueue, Handle:  "
-								   << static_cast<HttpHandle>(op)
+								   << op->getHandle()
 								   << LL_ENDL;
 			}
 
@@ -346,7 +346,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 		}
 				
 		// Done with operation
-		op->release();
+        op.reset();
 	}
 
 	// Queue emptied, allow polling loop to sleep
@@ -412,6 +412,34 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 
 	return status;
 }
+
+HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
+	HttpRequest::policyCallback_t * ret_value)
+{
+	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+
+	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
+		|| opt >= HttpRequest::PO_LAST													// ditto
+		|| (sOptionDesc[opt].mIsLong)													// datatype is string
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && pclass > mLastPolicy)			// pclass in valid range
+		|| (pclass == HttpRequest::GLOBAL_POLICY_ID && !sOptionDesc[opt].mIsGlobal)	// global setting permitted
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && !sOptionDesc[opt].mIsClass))	// class setting permitted
+		// can always get, no dynamic check
+	{
+		return status;
+	}
+
+	// Only global has callback values
+	if (pclass == HttpRequest::GLOBAL_POLICY_ID)
+	{
+		HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+
+		status = opts.get(opt, ret_value);
+	}
+
+	return status;
+}
+
 
 
 HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
@@ -489,6 +517,37 @@ HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 
 	return status;
 }
-	
+
+HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
+	HttpRequest::policyCallback_t value, HttpRequest::policyCallback_t * ret_value)
+{
+	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+
+	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
+		|| opt >= HttpRequest::PO_LAST													// ditto
+		|| (sOptionDesc[opt].mIsLong)													// datatype is string
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && pclass > mLastPolicy)			// pclass in valid range
+		|| (pclass == HttpRequest::GLOBAL_POLICY_ID && !sOptionDesc[opt].mIsGlobal)	// global setting permitted
+		|| (pclass != HttpRequest::GLOBAL_POLICY_ID && !sOptionDesc[opt].mIsClass)		// class setting permitted
+		|| (RUNNING == sState && !sOptionDesc[opt].mIsDynamic))						// dynamic setting permitted
+	{
+		return status;
+	}
+
+	// Callbacks values are always global (at this time).
+	if (pclass == HttpRequest::GLOBAL_POLICY_ID)
+	{
+		HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+
+		status = opts.set(opt, value);
+		if (status && ret_value)
+		{
+			status = opts.get(opt, ret_value);
+		}
+	}
+
+	return status;
+}
+
 
 }  // end namespace LLCore

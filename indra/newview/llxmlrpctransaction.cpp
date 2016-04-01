@@ -34,7 +34,12 @@
 #include "llxmlrpctransaction.h"
 #include "llxmlrpclistener.h"
 
-#include "llcurl.h"
+#include "httpcommon.h"
+#include "llhttpconstants.h"
+#include "httprequest.h"
+#include "httpoptions.h"
+#include "httpheaders.h"
+#include "bufferarray.h"
 #include "llviewercontrol.h"
 
 // Have to include these last to avoid queue redefinition!
@@ -42,6 +47,13 @@
 
 #include "llappviewer.h"
 #include "lltrans.h"
+
+#include "boost/move/unique_ptr.hpp"
+
+namespace boost
+{
+	using ::boost::movelib::unique_ptr; // move unique_ptr into the boost namespace.
+}
 
 // Static instance of LLXMLRPCListener declared here so that every time we
 // bring in this code, we instantiate a listener. If we put the static
@@ -155,55 +167,158 @@ XMLRPC_VALUE LLXMLRPCValue::getValue() const
 }
 
 
+class LLXMLRPCTransaction::Handler : public LLCore::HttpHandler
+{
+public: 
+	Handler(LLCore::HttpRequest::ptr_t &request, LLXMLRPCTransaction::Impl *impl);
+	virtual ~Handler();
+
+	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
+	typedef boost::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
+
+private:
+
+	LLXMLRPCTransaction::Impl *mImpl;
+	LLCore::HttpRequest::ptr_t mRequest;
+};
+
 class LLXMLRPCTransaction::Impl
 {
 public:
 	typedef LLXMLRPCTransaction::EStatus	EStatus;
 
-	LLCurlEasyRequest* mCurlRequest;
+	LLCore::HttpRequest::ptr_t	mHttpRequest;
 
-	EStatus		mStatus;
-	CURLcode	mCurlCode;
-	std::string	mStatusMessage;
-	std::string	mStatusURI;
-	LLCurl::TransferInfo mTransferInfo;
-	
+
+	EStatus				mStatus;
+	CURLcode			mCurlCode;
+	std::string			mStatusMessage;
+	std::string			mStatusURI;
+	LLCore::HttpResponse::TransferStats::ptr_t	mTransferStats;
+	Handler::ptr_t		mHandler;
+	LLCore::HttpHandle	mPostH;
+
 	std::string			mURI;
-	char*				mRequestText;
-	int					mRequestTextSize;
-	
+
 	std::string			mProxyAddress;
 
 	std::string			mResponseText;
 	XMLRPC_REQUEST		mResponse;
 	std::string         mCertStore;
 	LLPointer<LLCertificate> mErrorCert;
-	
+
 	Impl(const std::string& uri, XMLRPC_REQUEST request, bool useGzip);
 	Impl(const std::string& uri,
-		 const std::string& method, LLXMLRPCValue params, bool useGzip);
+		const std::string& method, LLXMLRPCValue params, bool useGzip);
 	~Impl();
-	
+
 	bool process();
-	
-	void setStatus(EStatus code,
-				   const std::string& message = "", const std::string& uri = "");
-	void setCurlStatus(CURLcode);
+
+	void setStatus(EStatus code, const std::string& message = "", const std::string& uri = "");
+	void setHttpStatus(const LLCore::HttpStatus &status);
 
 private:
 	void init(XMLRPC_REQUEST request, bool useGzip);
-	static int _sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param);
-	static CURLcode _sslCtxFunction(CURL * curl, void *sslctx, void *param);
-	static size_t curlDownloadCallback(
-		char* data, size_t size, size_t nmemb, void* user_data);
 };
+
+LLXMLRPCTransaction::Handler::Handler(LLCore::HttpRequest::ptr_t &request, 
+		LLXMLRPCTransaction::Impl *impl) :
+	mImpl(impl),
+	mRequest(request)
+{
+}
+
+LLXMLRPCTransaction::Handler::~Handler()
+{
+}
+
+void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle, 
+	LLCore::HttpResponse * response)
+{
+	LLCore::HttpStatus status = response->getStatus();
+
+	if (!status)
+	{
+		if ((status.toULong() != CURLE_SSL_PEER_CERTIFICATE) &&
+			(status.toULong() != CURLE_SSL_CACERT))
+		{
+			// if we have a curl error that's not already been handled
+			// (a non cert error), then generate the error message as
+			// appropriate
+			mImpl->setHttpStatus(status);
+			LLCertificate *errordata = static_cast<LLCertificate *>(status.getErrorData());
+
+			if (errordata)
+			{
+				mImpl->mErrorCert = LLPointer<LLCertificate>(errordata);
+				status.setErrorData(NULL);
+				errordata->unref();
+			}
+
+			LL_WARNS() << "LLXMLRPCTransaction error "
+				<< status.toHex() << ": " << status.toString() << LL_ENDL;
+			LL_WARNS() << "LLXMLRPCTransaction request URI: "
+				<< mImpl->mURI << LL_ENDL;
+		}
+
+		return;
+	}
+
+	mImpl->setStatus(LLXMLRPCTransaction::StatusComplete);
+	mImpl->mTransferStats = response->getTransferStats();
+
+	// the contents of a buffer array are potentially noncontiguous, so we
+	// will need to copy them into an contiguous block of memory for XMLRPC.
+	LLCore::BufferArray *body = response->getBody();
+	char * bodydata = new char[body->size()];
+
+	body->read(0, bodydata, body->size());
+
+	mImpl->mResponse = XMLRPC_REQUEST_FromXML(bodydata, body->size(), 0);
+
+	delete[] bodydata;
+
+	bool		hasError = false;
+	bool		hasFault = false;
+	int			faultCode = 0;
+	std::string	faultString;
+
+	LLXMLRPCValue error(XMLRPC_RequestGetError(mImpl->mResponse));
+	if (error.isValid())
+	{
+		hasError = true;
+		faultCode = error["faultCode"].asInt();
+		faultString = error["faultString"].asString();
+	}
+	else if (XMLRPC_ResponseIsFault(mImpl->mResponse))
+	{
+		hasFault = true;
+		faultCode = XMLRPC_GetResponseFaultCode(mImpl->mResponse);
+		faultString = XMLRPC_GetResponseFaultString(mImpl->mResponse);
+	}
+
+	if (hasError || hasFault)
+	{
+		mImpl->setStatus(LLXMLRPCTransaction::StatusXMLRPCError);
+
+		LL_WARNS() << "LLXMLRPCTransaction XMLRPC "
+			<< (hasError ? "error " : "fault ")
+			<< faultCode << ": "
+			<< faultString << LL_ENDL;
+		LL_WARNS() << "LLXMLRPCTransaction request URI: "
+			<< mImpl->mURI << LL_ENDL;
+	}
+
+}
+
+//=========================================================================
 
 LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 		XMLRPC_REQUEST request, bool useGzip)
-	: mCurlRequest(0),
+	: mHttpRequest(),
 	  mStatus(LLXMLRPCTransaction::StatusNotStarted),
 	  mURI(uri),
-	  mRequestText(0), 
 	  mResponse(0)
 {
 	init(request, useGzip);
@@ -212,10 +327,9 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 
 LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 		const std::string& method, LLXMLRPCValue params, bool useGzip)
-	: mCurlRequest(0),
+	: mHttpRequest(),
 	  mStatus(LLXMLRPCTransaction::StatusNotStarted),
 	  mURI(uri),
-	  mRequestText(0), 
 	  mResponse(0)
 {
 	XMLRPC_REQUEST request = XMLRPC_RequestNew();
@@ -231,127 +345,53 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
     XMLRPC_RequestFree(request, 1);
 }
 
-// _sslCertVerifyCallback
-// callback called when a cert verification is requested.
-// calls SECAPI to validate the context
-int LLXMLRPCTransaction::Impl::_sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
-{
-	LLXMLRPCTransaction::Impl *transaction = (LLXMLRPCTransaction::Impl *)param;
-	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore(transaction->mCertStore);
-	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
-	LLSD validation_params = LLSD::emptyMap();
-	LLURI uri(transaction->mURI);
-	validation_params[CERT_HOSTNAME] = uri.hostName();
-	try
-	{
-		// don't validate hostname.  Let libcurl do it instead.  That way, it'll handle redirects
-		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
-	}
-	catch (LLCertValidationTrustException& cert_exception)
-	{
-		// this exception is is handled differently than the general cert
-		// exceptions, as we allow the user to actually add the certificate
-		// for trust.
-		// therefore we pass back a different error code
-		// NOTE: We're currently 'wired' to pass around CURL error codes.  This is
-		// somewhat clumsy, as we may run into errors that do not map directly to curl
-		// error codes.  Should be refactored with login refactoring, perhaps.
-		transaction->mCurlCode = CURLE_SSL_CACERT;
-		// set the status directly.  set curl status generates error messages and we want
-		// to use the fixed ones from the exceptions
-		transaction->setStatus(StatusCURLError, cert_exception.getMessage(), std::string());
-		// We should probably have a more generic way of passing information
-		// back to the error handlers.
-		transaction->mErrorCert = cert_exception.getCert();
-		return 0;		
-	}
-	catch (LLCertException& cert_exception)
-	{
-		transaction->mCurlCode = CURLE_SSL_PEER_CERTIFICATE;
-		// set the status directly.  set curl status generates error messages and we want
-		// to use the fixed ones from the exceptions
-		transaction->setStatus(StatusCURLError, cert_exception.getMessage(), std::string());
-		transaction->mErrorCert = cert_exception.getCert();
-		return 0;
-	}
-	catch (...)
-	{
-		// any other odd error, we just handle as a connect error.
-		transaction->mCurlCode = CURLE_SSL_CONNECT_ERROR;
-		transaction->setCurlStatus(CURLE_SSL_CONNECT_ERROR);
-		return 0;
-	}
-	return 1;
-}
-
-// _sslCtxFunction
-// Callback function called when an SSL Context is created via CURL
-// used to configure the context for custom cert validate(<, <#const & xs#>, <#T * #>, <#long #>)tion
-// based on SECAPI
-
-CURLcode LLXMLRPCTransaction::Impl::_sslCtxFunction(CURL * curl, void *sslctx, void *param)
-{
-	SSL_CTX * ctx = (SSL_CTX *) sslctx;
-	// disable any default verification for server certs
-	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
-	// set the verification callback.
-	SSL_CTX_set_cert_verify_callback(ctx, _sslCertVerifyCallback, param);
-	// the calls are void
-	return CURLE_OK;
-	
-}
-
 void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 {
-	if (!mCurlRequest)
-	{
-		mCurlRequest = new LLCurlEasyRequest();
-	}
-	if(!mCurlRequest->isValid())
-	{
-		LL_WARNS() << "mCurlRequest is invalid." << LL_ENDL ;
+	LLCore::HttpOptions::ptr_t httpOpts;
+	LLCore::HttpHeaders::ptr_t httpHeaders;
 
-		delete mCurlRequest ;
-		mCurlRequest = NULL ;
-		return ;
+
+	if (!mHttpRequest)
+	{
+		mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest);
 	}
 
-	mErrorCert = NULL;
+	// LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
+	httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions()); 
 
-//	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // useful for debugging
-	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
-	mCurlRequest->setWriteCallback(&curlDownloadCallback, (void*)this);
-	BOOL vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
+	httpOpts->setTimeout(40L);
+
+	bool vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
 	mCertStore = gSavedSettings.getString("CertStore");
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, vefifySSLCert);
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, vefifySSLCert ? 2 : 0);
-	// Be a little impatient about establishing connections.
-	mCurlRequest->setopt(CURLOPT_CONNECTTIMEOUT, 40L);
-	mCurlRequest->setSSLCtxCallback(_sslCtxFunction, (void *)this);
 
-	/* Setting the DNS cache timeout to -1 disables it completely.
-	   This might help with bug #503 */
-	mCurlRequest->setopt(CURLOPT_DNS_CACHE_TIMEOUT, -1);
+	httpOpts->setSSLVerifyPeer( vefifySSLCert );
+	httpOpts->setSSLVerifyHost( vefifySSLCert ? 2 : 0);
 
-    mCurlRequest->slist_append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
+	// LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
+	httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
 
-	if (useGzip)
-	{
-		mCurlRequest->setoptString(CURLOPT_ENCODING, "");
-	}
+	httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
+
+	///* Setting the DNS cache timeout to -1 disables it completely.
+	//This might help with bug #503 */
+	//httpOpts->setDNSCacheTimeout(-1);
+
+	LLCore::BufferArray::ptr_t body = LLCore::BufferArray::ptr_t(new LLCore::BufferArray());
+
+	// TODO: See if there is a way to serialize to a preallocated buffer I'm 
+	// not fond of the copy here.
+	int	requestSize(0);
+	char * requestText = XMLRPC_REQUEST_ToXML(request, &requestSize);
+
+	body->append(requestText, requestSize);
 	
-	mRequestText = XMLRPC_REQUEST_ToXML(request, &mRequestTextSize);
-	if (mRequestText)
-	{
-		mCurlRequest->setoptString(CURLOPT_POSTFIELDS, mRequestText);
-		mCurlRequest->setopt(CURLOPT_POSTFIELDSIZE, mRequestTextSize);
-	}
-	else
-	{
-		setStatus(StatusOtherError);
-	}
+	XMLRPC_Free(requestText);
 
-	mCurlRequest->sendRequest(mURI);
+	mHandler = LLXMLRPCTransaction::Handler::ptr_t(new Handler( mHttpRequest, this ));
+
+	mPostH = mHttpRequest->requestPost(LLCore::HttpRequest::DEFAULT_POLICY_ID, 0, 
+		mURI, body.get(), httpOpts, httpHeaders, mHandler);
+
 }
 
 
@@ -361,28 +401,17 @@ LLXMLRPCTransaction::Impl::~Impl()
 	{
 		XMLRPC_RequestFree(mResponse, 1);
 	}
-	
-	if (mRequestText)
-	{
-		XMLRPC_Free(mRequestText);
-	}
-	
-	delete mCurlRequest;
-	mCurlRequest = NULL ;
 }
 
 bool LLXMLRPCTransaction::Impl::process()
 {
-	if(!mCurlRequest || !mCurlRequest->isValid())
+	if (!mPostH || !mHttpRequest)
 	{
-		LL_WARNS() << "transaction failed." << LL_ENDL ;
-
-		delete mCurlRequest ;
-		mCurlRequest = NULL ;
-		return true ; //failed, quit.
+		LL_WARNS() << "transaction failed." << LL_ENDL;
+		return true; //failed, quit.
 	}
 
-	switch(mStatus)
+	switch (mStatus)
 	{
 		case LLXMLRPCTransaction::StatusComplete:
 		case LLXMLRPCTransaction::StatusCURLError:
@@ -391,93 +420,25 @@ bool LLXMLRPCTransaction::Impl::process()
 		{
 			return true;
 		}
-		
+
 		case LLXMLRPCTransaction::StatusNotStarted:
 		{
 			setStatus(LLXMLRPCTransaction::StatusStarted);
 			break;
 		}
-		
+
 		default:
-		{
-			// continue onward
-		}
+			break;
 	}
-		
-	if(!mCurlRequest->wait())
+
+	LLCore::HttpStatus status = mHttpRequest->update(0);
+
+	status = mHttpRequest->getStatus();
+	if (!status) 
 	{
-		return false ;
+		return false;
 	}
 
-	while(1)
-	{
-		CURLcode result;
-		bool newmsg = mCurlRequest->getResult(&result, &mTransferInfo);
-		if (newmsg)
-		{
-			if (result != CURLE_OK)
-			{
-				if ((result != CURLE_SSL_PEER_CERTIFICATE) &&
-					(result != CURLE_SSL_CACERT))
-				{
-					// if we have a curl error that's not already been handled
-					// (a non cert error), then generate the error message as
-					// appropriate
-					setCurlStatus(result);
-				
-					LL_WARNS() << "LLXMLRPCTransaction CURL error "
-					<< mCurlCode << ": " << mCurlRequest->getErrorString() << LL_ENDL;
-					LL_WARNS() << "LLXMLRPCTransaction request URI: "
-					<< mURI << LL_ENDL;
-				}
-					
-				return true;
-			}
-			
-			setStatus(LLXMLRPCTransaction::StatusComplete);
-
-			mResponse = XMLRPC_REQUEST_FromXML(
-					mResponseText.data(), mResponseText.size(), NULL);
-
-			bool		hasError = false;
-			bool		hasFault = false;
-			int			faultCode = 0;
-			std::string	faultString;
-
-			LLXMLRPCValue error(XMLRPC_RequestGetError(mResponse));
-			if (error.isValid())
-			{
-				hasError = true;
-				faultCode = error["faultCode"].asInt();
-				faultString = error["faultString"].asString();
-			}
-			else if (XMLRPC_ResponseIsFault(mResponse))
-			{
-				hasFault = true;
-				faultCode = XMLRPC_GetResponseFaultCode(mResponse);
-				faultString = XMLRPC_GetResponseFaultString(mResponse);
-			}
-
-			if (hasError || hasFault)
-			{
-				setStatus(LLXMLRPCTransaction::StatusXMLRPCError);
-				
-				LL_WARNS() << "LLXMLRPCTransaction XMLRPC "
-						<< (hasError ? "error " : "fault ")
-						<< faultCode << ": "
-						<< faultString << LL_ENDL;
-				LL_WARNS() << "LLXMLRPCTransaction request URI: "
-						<< mURI << LL_ENDL;
-			}
-			
-			return true;
-		}
-		else
-		{
-			break; // done
-		}
-	}
-	
 	return false;
 }
 
@@ -516,64 +477,51 @@ void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 	}
 }
 
-void LLXMLRPCTransaction::Impl::setCurlStatus(CURLcode code)
+void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 {
+	CURLcode code = static_cast<CURLcode>(status.toULong());
 	std::string message;
 	std::string uri = "http://secondlife.com/community/support.php";
-	
+	LLURI failuri(mURI);
+
+
 	switch (code)
 	{
-		case CURLE_COULDNT_RESOLVE_HOST:
-			message =
-				"DNS could not resolve the host name.\n"
-				"Please verify that you can connect to the www.secondlife.com\n"
-				"web site.  If you can, but continue to receive this error,\n"
-				"please go to the support section and report this problem.";
-			break;
-			
-		case CURLE_SSL_PEER_CERTIFICATE:
-			message =
-				"The login server couldn't verify itself via SSL.\n"
-				"If you continue to receive this error, please go\n"
-				"to the Support section of the SecondLife.com web site\n"
-				"and report the problem.";
-			break;
-			
-		case CURLE_SSL_CACERT:
-		case CURLE_SSL_CONNECT_ERROR:
-			message =
-				"Often this means that your computer\'s clock is set incorrectly.\n"
-				"Please go to Control Panels and make sure the time and date\n"
-				"are set correctly.\n"
-				"Also check that your network and firewall are set up correctly.\n"
-				"If you continue to receive this error, please go\n"
-				"to the Support section of the SecondLife.com web site\n"
-				"and report the problem.";
-			break;
-			
-		default:
-				break;
+	case CURLE_COULDNT_RESOLVE_HOST:
+		message =
+			std::string("DNS could not resolve the host name(") + failuri.hostName() + ").\n"
+			"Please verify that you can connect to the www.secondlife.com\n"
+			"web site.  If you can, but continue to receive this error,\n"
+			"please go to the support section and report this problem.";
+		break;
+
+	case CURLE_SSL_PEER_CERTIFICATE:
+		message =
+			"The login server couldn't verify itself via SSL.\n"
+			"If you continue to receive this error, please go\n"
+			"to the Support section of the SecondLife.com web site\n"
+			"and report the problem.";
+		break;
+
+	case CURLE_SSL_CACERT:
+	case CURLE_SSL_CONNECT_ERROR:
+		message =
+			"Often this means that your computer\'s clock is set incorrectly.\n"
+			"Please go to Control Panels and make sure the time and date\n"
+			"are set correctly.\n"
+			"Also check that your network and firewall are set up correctly.\n"
+			"If you continue to receive this error, please go\n"
+			"to the Support section of the SecondLife.com web site\n"
+			"and report the problem.";
+		break;
+
+	default:
+		break;
 	}
-	
+
 	mCurlCode = code;
 	setStatus(StatusCURLError, message, uri);
-}
 
-size_t LLXMLRPCTransaction::Impl::curlDownloadCallback(
-		char* data, size_t size, size_t nmemb, void* user_data)
-{
-	Impl& impl(*(Impl*)user_data);
-	
-	size_t n = size * nmemb;
-
-	impl.mResponseText.append(data, n);
-	
-	if (impl.mStatus == LLXMLRPCTransaction::StatusStarted)
-	{
-		impl.setStatus(LLXMLRPCTransaction::StatusDownloading);
-	}
-	
-	return n;
 }
 
 
@@ -645,11 +593,11 @@ F64 LLXMLRPCTransaction::transferRate()
 		return 0.0L;
 	}
 	
-	double rate_bits_per_sec = impl.mTransferInfo.mSpeedDownload * 8.0;
+	double rate_bits_per_sec = impl.mTransferStats->mSpeedDownload * 8.0;
 	
 	LL_INFOS("AppInit") << "Buffer size:   " << impl.mResponseText.size() << " B" << LL_ENDL;
-	LL_DEBUGS("AppInit") << "Transfer size: " << impl.mTransferInfo.mSizeDownload << " B" << LL_ENDL;
-	LL_DEBUGS("AppInit") << "Transfer time: " << impl.mTransferInfo.mTotalTime << " s" << LL_ENDL;
+	LL_DEBUGS("AppInit") << "Transfer size: " << impl.mTransferStats->mSizeDownload << " B" << LL_ENDL;
+	LL_DEBUGS("AppInit") << "Transfer time: " << impl.mTransferStats->mTotalTime << " s" << LL_ENDL;
 	LL_INFOS("AppInit") << "Transfer rate: " << rate_bits_per_sec / 1000.0 << " Kb/s" << LL_ENDL;
 
 	return rate_bits_per_sec;

@@ -23,12 +23,24 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#if LL_WINDOWS
+#define SAFE_SSL 1
+#elif LL_DARWIN
+#define SAFE_SSL 1
+#else
+#define SAFE_SSL 1
+#endif
 
+#include "linden_common.h"		// Modifies curl/curl.h interfaces
 #include "httpcommon.h"
-
+#include "llmutex.h"
+#include "llthread.h"
 #include <curl/curl.h>
 #include <string>
 #include <sstream>
+#if SAFE_SSL
+#include <openssl/crypto.h>
+#endif
 
 
 namespace LLCore
@@ -42,7 +54,7 @@ HttpStatus::operator unsigned long() const
 {
 	static const int shift(sizeof(unsigned long) * 4);
 
-	unsigned long result(((unsigned long) mType) << shift | (unsigned long) (int) mStatus);
+	unsigned long result(((unsigned long)mDetails->mType) << shift | (unsigned long)(int)mDetails->mStatus);
 	return result;
 }
 
@@ -131,30 +143,34 @@ std::string HttpStatus::toString() const
 	{
 		return std::string("");
 	}
-	switch (mType)
+	switch (getType())
 	{
 	case EXT_CURL_EASY:
-		return std::string(curl_easy_strerror(CURLcode(mStatus)));
+		return std::string(curl_easy_strerror(CURLcode(getStatus())));
 
 	case EXT_CURL_MULTI:
-		return std::string(curl_multi_strerror(CURLMcode(mStatus)));
+		return std::string(curl_multi_strerror(CURLMcode(getStatus())));
 
 	case LLCORE:
-		if (mStatus >= 0 && mStatus < llcore_errors_count)
+		if (getStatus() >= 0 && getStatus() < llcore_errors_count)
 		{
-			return std::string(llcore_errors[mStatus]);
+			return std::string(llcore_errors[getStatus()]);
 		}
 		break;
 
 	default:
 		if (isHttpStatus())
 		{
+			// special handling for status 499 "Linden Catchall"
+			if ((getType() == 499) && (!getMessage().empty()))
+				return getMessage();
+
 			// Binary search for the error code and string
 			int bottom(0), top(http_errors_count);
 			while (true)
 			{
 				int at((bottom + top) / 2);
-				if (mType == http_errors[at].mCode)
+				if (getType() == http_errors[at].mCode)
 				{
 					return std::string(http_errors[at].mText);
 				}
@@ -162,7 +178,7 @@ std::string HttpStatus::toString() const
 				{
 					break;
 				}
-				else if (mType < http_errors[at].mCode)
+				else if (getType() < http_errors[at].mCode)
 				{
 					top = at;
 				}
@@ -182,9 +198,9 @@ std::string HttpStatus::toTerseString() const
 {
 	std::ostringstream result;
 
-	unsigned int error_value((unsigned short) mStatus);
+	unsigned int error_value((unsigned short)getStatus());
 	
-	switch (mType)
+	switch (getType())
 	{
 	case EXT_CURL_EASY:
 		result << "Easy_";
@@ -202,7 +218,7 @@ std::string HttpStatus::toTerseString() const
 		if (isHttpStatus())
 		{
 			result << "Http_";
-			error_value = mType;
+			error_value = getType();
 		}
 		else
 		{
@@ -244,7 +260,7 @@ bool HttpStatus::isRetryable() const
 	// Disable the '*this == inv_status' test and look for 'Core_9'
 	// failures in log files.
 
-	return ((isHttpStatus() && mType >= 499 && mType <= 599) ||	// Include special 499 in retryables
+	return ((isHttpStatus() && getType() >= 499 && getType() <= 599) ||	// Include special 499 in retryables
 			*this == cant_connect ||	// Connection reset/endpoint problems
 			*this == cant_res_proxy ||	// DNS problems
 			*this == cant_res_host ||	// DNS problems
@@ -259,5 +275,168 @@ bool HttpStatus::isRetryable() const
 			*this == inv_cont_range);	// Short data read disagrees with content-range
 }
 
-} // end namespace LLCore
+namespace LLHttp
+{
+namespace
+{
+typedef boost::shared_ptr<LLMutex> LLMutex_ptr;
+std::vector<LLMutex_ptr> sSSLMutex;
 
+CURL *getCurlTemplateHandle()
+{
+    static CURL *curlpTemplateHandle = NULL;
+
+    if (curlpTemplateHandle == NULL)
+    {	// Late creation of the template curl handle
+        curlpTemplateHandle = curl_easy_init();
+        if (curlpTemplateHandle == NULL)
+        {
+            LL_WARNS() << "curl error calling curl_easy_init()" << LL_ENDL;
+        }
+        else
+        {
+            CURLcode result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            check_curl_code(result, CURLOPT_IPRESOLVE);
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_NOSIGNAL, 1);
+            check_curl_code(result, CURLOPT_NOSIGNAL);
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_NOPROGRESS, 1);
+            check_curl_code(result, CURLOPT_NOPROGRESS);
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_ENCODING, "");
+            check_curl_code(result, CURLOPT_ENCODING);
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_AUTOREFERER, 1);
+            check_curl_code(result, CURLOPT_AUTOREFERER);
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_FOLLOWLOCATION, 1);
+            check_curl_code(result, CURLOPT_FOLLOWLOCATION);
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_SSL_VERIFYPEER, 1);
+            check_curl_code(result, CURLOPT_SSL_VERIFYPEER);
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_SSL_VERIFYHOST, 0);
+            check_curl_code(result, CURLOPT_SSL_VERIFYHOST);
+
+            // The Linksys WRT54G V5 router has an issue with frequent
+            // DNS lookups from LAN machines.  If they happen too often,
+            // like for every HTTP request, the router gets annoyed after
+            // about 700 or so requests and starts issuing TCP RSTs to
+            // new connections.  Reuse the DNS lookups for even a few
+            // seconds and no RSTs.
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_DNS_CACHE_TIMEOUT, 15);
+            check_curl_code(result, CURLOPT_DNS_CACHE_TIMEOUT);
+        }
+    }
+
+    return curlpTemplateHandle;
+}
+    
+LLMutex *getCurlMutex()
+{
+    static LLMutex* sHandleMutexp = NULL;
+
+    if (!sHandleMutexp)
+    {
+        sHandleMutexp = new LLMutex(NULL);
+    }
+
+    return sHandleMutexp;
+}
+
+void deallocateEasyCurl(CURL *curlp)
+{
+    LLMutexLock lock(getCurlMutex());
+
+    curl_easy_cleanup(curlp);
+}
+
+
+#if SAFE_SSL
+//static
+void ssl_locking_callback(int mode, int type, const char *file, int line)
+{
+    if (type >= sSSLMutex.size())
+    {
+        LL_WARNS() << "Attempt to get unknown MUTEX in SSL Lock." << LL_ENDL;
+    }
+
+    if (mode & CRYPTO_LOCK)
+    {
+        sSSLMutex[type]->lock();
+    }
+    else
+    {
+        sSSLMutex[type]->unlock();
+    }
+}
+
+//static
+unsigned long ssl_thread_id(void)
+{
+    return LLThread::currentID();
+}
+#endif
+
+
+}
+
+void initialize()
+{
+    // Do not change this "unless you are familiar with and mean to control 
+    // internal operations of libcurl"
+    // - http://curl.haxx.se/libcurl/c/curl_global_init.html
+    CURLcode code = curl_global_init(CURL_GLOBAL_ALL);
+
+    check_curl_code(code, CURL_GLOBAL_ALL);
+
+#if SAFE_SSL
+    S32 mutex_count = CRYPTO_num_locks();
+    for (S32 i = 0; i < mutex_count; i++)
+    {
+        sSSLMutex.push_back(LLMutex_ptr(new LLMutex(NULL)));
+    }
+    CRYPTO_set_id_callback(&ssl_thread_id);
+    CRYPTO_set_locking_callback(&ssl_locking_callback);
+#endif
+
+}
+
+
+void cleanup()
+{
+#if SAFE_SSL
+    CRYPTO_set_id_callback(NULL);
+    CRYPTO_set_locking_callback(NULL);
+    sSSLMutex.clear();
+#endif
+
+    curl_global_cleanup();
+}
+
+
+CURL_ptr createEasyHandle()
+{
+    LLMutexLock lock(getCurlMutex());
+
+    CURL* handle = curl_easy_duphandle(getCurlTemplateHandle());
+
+    return CURL_ptr(handle, &deallocateEasyCurl);
+}
+
+std::string getCURLVersion()
+{
+    return std::string(curl_version());
+}
+
+void check_curl_code(CURLcode code, int curl_setopt_option)
+{
+    if (CURLE_OK != code)
+    {
+        // Comment from old llcurl code which may no longer apply:
+        //
+        // linux appears to throw a curl error once per session for a bad initialization
+        // at a pretty random time (when enabling cookies).
+        LL_WARNS() << "libcurl error detected:  " << curl_easy_strerror(code)
+            << ", curl_easy_setopt option:  " << curl_setopt_option
+            << LL_ENDL;
+    }
+
+}
+
+}
+} // end namespace LLCore

@@ -48,6 +48,9 @@ public:
 
 protected:
 	LLFlatListView* mExperiencesList;
+
+private:
+    static void groupExperiencesResults(LLHandle<LLPanelGroupExperiences>, const LLSD &);
 };
 
 #endif

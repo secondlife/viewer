@@ -27,7 +27,6 @@
 
 #ifndef LL_LLASSETSTORAGE_H
 #define LL_LLASSETSTORAGE_H
-
 #include <string>
 
 #include "lluuid.h"

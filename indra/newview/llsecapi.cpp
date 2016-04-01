@@ -32,7 +32,6 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <map>
-#include "llhttpclient.h"
 
 
 
@@ -97,46 +96,6 @@ void registerSecHandler(const std::string& handler_type,
 std::ostream& operator <<(std::ostream& s, const LLCredential& cred)
 {
 	return s << (std::string)cred;
-}
-
-	
-// secapiSSLCertVerifyCallback
-// basic callback called when a cert verification is requested.
-// calls SECAPI to validate the context
-// not initialized in the above initialization function, due to unit tests
-// see llappviewer
-
-int secapiSSLCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
-{
-	LLURLRequest *req = (LLURLRequest *)param;
-	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
-	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
-	LLSD validation_params = LLSD::emptyMap();
-	LLURI uri(req->getURL());
-	validation_params[CERT_HOSTNAME] = uri.hostName();
-	try
-	{
-		// we rely on libcurl to validate the hostname, as libcurl does more extensive validation
-		// leaving our hostname validation call mechanism for future additions with respect to
-		// OS native (Mac keyring, windows CAPI) validation.
-		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
-	}
-	catch (LLCertValidationTrustException& cert_exception)
-	{
-		LL_WARNS("AppInit") << "Cert not trusted: " << cert_exception.getMessage() << LL_ENDL;
-		return 0;		
-	}
-	catch (LLCertException& cert_exception)
-	{
-		LL_WARNS("AppInit") << "cert error " << cert_exception.getMessage() << LL_ENDL;
-		return 0;
-	}
-	catch (...)
-	{
-		LL_WARNS("AppInit") << "cert error " << LL_ENDL;
-		return 0;
-	}
-	return 1;
 }
 
 LLSD LLCredential::getLoginParams()

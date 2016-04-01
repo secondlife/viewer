@@ -31,6 +31,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llsingleton.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 class fetchKeywordsFileResponder;
 
@@ -40,7 +42,7 @@ class LLSyntaxIdLSL : public LLSingleton<LLSyntaxIdLSL>
 	friend class fetchKeywordsFileResponder;
 	
 private:
-	std::list<std::string> mInflightFetches;
+    std::set<std::string> mInflightFetches;
 	typedef boost::signals2::signal<void()> syntax_id_changed_signal_t;
 	syntax_id_changed_signal_t mSyntaxIDChangedSignal;
 	boost::signals2::connection mRegionChangedCallback;
@@ -49,13 +51,15 @@ private:
 	bool	isSupportedVersion(const LLSD& content);
 	void	handleRegionChanged();
 	void	handleCapsReceived(const LLUUID& region_uuid);
-	void	handleFileFetched(const std::string& filepath);
 	void	setKeywordsXml(const LLSD& content) { mKeywordsXml = content; };
 	void	buildFullFileSpec();
 	void	fetchKeywordsFile(const std::string& filespec);
 	void	loadDefaultKeywordsIntoLLSD();
 	void	loadKeywordsIntoLLSD();
-	
+
+    void    fetchKeywordsFileCoro(std::string url, std::string fileSpec);
+    void    cacheFile(const std::string &fileSpec, const LLSD& content_ref);
+
 	std::string		mCapabilityURL;
 	std::string		mFullFileSpec;
 	ELLPath			mFilePath;

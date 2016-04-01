@@ -31,7 +31,7 @@
 #include <string>
 
 #include "httpcommon.h"
-
+#include "httpheaders.h"
 #include "_refcounted.h"
 
 
@@ -69,6 +69,18 @@ protected:
 	void operator=(const HttpResponse &);				// Not defined
 	
 public:
+	/// Statistics for the HTTP 
+	struct TransferStats
+	{
+		typedef boost::shared_ptr<TransferStats> ptr_t;
+
+		TransferStats() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
+		F64 mSizeDownload;
+		F64 mTotalTime;
+		F64 mSpeedDownload;
+	};
+
+
 	/// Returns the final status of the requested operation.
 	///
 	HttpStatus getStatus() const
@@ -92,6 +104,10 @@ public:
 			return mBufferArray;
 		}
 
+	/// Safely get the size of the body buffer.  If the body buffer is missing
+	/// return 0 as the size.
+	size_t getBodySize() const;
+
 	/// Set the response data in the instance.  Will drop the reference
 	/// count to any existing data and increment the count of that passed
 	/// in.  It is legal to set the data to NULL.
@@ -104,13 +120,13 @@ public:
 	///
 	/// Caller can hold onto the headers by incrementing the reference
 	/// count of the returned object.
-	HttpHeaders * getHeaders() const
-		{
+	HttpHeaders::ptr_t getHeaders() const
+	{
 			return mHeaders;
-		}
+	}
 
 	/// Behaves like @see setResponse() but for header data.
-	void setHeaders(HttpHeaders * headers);
+	void setHeaders(HttpHeaders::ptr_t &headers);
 
 	/// If a 'Range:' header was used, these methods are involved
 	/// in setting and returning data about the actual response.
@@ -168,6 +184,27 @@ public:
 			m503Retries = retries_503;
 		}
 
+	void setTransferStats(TransferStats::ptr_t &stats) 
+		{
+			mStats = stats;
+		}
+
+	TransferStats::ptr_t getTransferStats()
+		{
+			return mStats;
+		}
+
+    void setRequestURL(const std::string &url)
+        {
+            mRequestUrl = url;
+        }
+
+    const std::string &getRequestURL() const
+        {
+            return mRequestUrl;
+        }
+
+
 protected:
 	// Response data here
 	HttpStatus			mStatus;
@@ -175,10 +212,13 @@ protected:
 	unsigned int		mReplyLength;
 	unsigned int		mReplyFullLength;
 	BufferArray *		mBufferArray;
-	HttpHeaders *		mHeaders;
+	HttpHeaders::ptr_t	mHeaders;
 	std::string			mContentType;
 	unsigned int		mRetries;
 	unsigned int		m503Retries;
+    std::string         mRequestUrl;
+
+	TransferStats::ptr_t	mStats;
 };
 
 

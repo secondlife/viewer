@@ -34,6 +34,7 @@
 #include "llsd.h"
 #include "llcontrol.h"
 #include "llcrashlock.h"
+#include "_mutex.h"
 
 // Crash reporter behavior
 const S32 CRASH_BEHAVIOR_ASK = 0;
@@ -66,6 +67,11 @@ public:
 	bool readMinidump(std::string minidump_path);
 
 protected:
+    static void init_curl();
+    static void term_curl();
+    static unsigned long ssl_thread_id_callback(void);
+    static void ssl_locking_callback(int mode, int type, const char * file, int line);
+
 	S32 mCrashBehavior;
 	BOOL mCrashInPreviousExec;
 	std::map<std::string, std::string> mFileMap;
@@ -78,6 +84,10 @@ protected:
 	LLSD mDebugLog;
 	bool mSentCrashLogs;
     LLCrashLock mKeyMaster;
+
+    static int ssl_mutex_count;
+    static LLCoreInt::HttpMutex ** ssl_mutex_list;
+
 };
 
 #endif //LLCRASHLOGGER_H

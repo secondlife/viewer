@@ -237,7 +237,7 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 		if (!url.empty())
 		{
 			body[i]["agent_id"]	= gAgent.getID();
-			LLInventoryModel::FetchItemHttpHandler * handler(new LLInventoryModel::FetchItemHttpHandler(body[i]));
+            LLCore::HttpHandler::ptr_t handler(new LLInventoryModel::FetchItemHttpHandler(body[i]));
 			gInventory.requestPost(true, url, body[i], handler, (i ? "Library Item" : "Inventory Item"));
 			continue;
 		}

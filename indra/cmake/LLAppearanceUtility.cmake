@@ -1,5 +1,6 @@
 # -*- cmake -*-
 include(Prebuilt)
+include(Boost)
 
 # Linux proprietary build only
 if (INSTALL_PROPRIETARY)
@@ -9,4 +10,5 @@ if (INSTALL_PROPRIETARY)
         set(LLAPPEARANCEUTILITY_BIN_DIR ${CMAKE_BINARY_DIR}/llappearanceutility)
     endif (LINUX)
 endif (INSTALL_PROPRIETARY)
+
 

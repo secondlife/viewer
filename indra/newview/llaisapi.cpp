@@ -40,317 +40,381 @@
 /// Classes for AISv3 support.
 ///----------------------------------------------------------------------------
 
-// AISCommand - base class for retry-able HTTP requests using the AISv3 cap.
-AISCommand::AISCommand(LLPointer<LLInventoryCallback> callback):
-	mCommandFunc(NULL),
-	mCallback(callback)
+//=========================================================================
+const std::string AISAPI::INVENTORY_CAP_NAME("InventoryAPIv3");
+const std::string AISAPI::LIBRARY_CAP_NAME("LibraryAPIv3");
+
+//-------------------------------------------------------------------------
+/*static*/
+bool AISAPI::isAvailable()
 {
-	mRetryPolicy = new LLAdaptiveRetryPolicy(1.0, 32.0, 2.0, 10);
+    if (gAgent.getRegion())
+    {
+        return gAgent.getRegion()->isCapabilityAvailable(INVENTORY_CAP_NAME);
+    }
+    return false;
 }
 
-bool AISCommand::run_command()
+/*static*/
+void AISAPI::getCapNames(LLSD& capNames)
 {
-	if (NULL == mCommandFunc)
-	{
-		// This may happen if a command failed to initiate itself.
-		LL_WARNS("Inventory") << "AIS command attempted with null command function" << LL_ENDL;
-		return false;
-	}
-	else
-	{
-		mCommandFunc();
-		return true;
-	}
+    capNames.append(INVENTORY_CAP_NAME);
+    capNames.append(LIBRARY_CAP_NAME);
 }
 
-void AISCommand::setCommandFunc(command_func_type command_func)
+/*static*/
+std::string AISAPI::getInvCap()
 {
-	mCommandFunc = command_func;
-}
-	
-// virtual
-bool AISCommand::getResponseUUID(const LLSD& content, LLUUID& id)
-{
-	return false;
-}
-	
-/* virtual */
-void AISCommand::httpSuccess()
-{
-	// Command func holds a reference to self, need to release it
-	// after a success or final failure.
-	setCommandFunc(no_op);
-		
-	const LLSD& content = getContent();
-	if (!content.isMap())
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
-	mRetryPolicy->onSuccess();
-		
-	gInventory.onAISUpdateReceived("AISCommand", content);
-
-	if (mCallback)
-	{
-		LLUUID id; // will default to null if parse fails.
-		getResponseUUID(content,id);
-		mCallback->fire(id);
-	}
+    if (gAgent.getRegion())
+    {
+        return gAgent.getRegion()->getCapability(INVENTORY_CAP_NAME);
+    }
+    return std::string();
 }
 
-/*virtual*/
-void AISCommand::httpFailure()
+/*static*/
+std::string AISAPI::getLibCap()
 {
-	LL_WARNS("Inventory") << dumpResponse() << LL_ENDL;
-	S32 status = getStatus();
-	const LLSD& headers = getResponseHeaders();
-	mRetryPolicy->onFailure(status, headers);
-	F32 seconds_to_wait;
-	if (mRetryPolicy->shouldRetry(seconds_to_wait))
-	{
-		doAfterInterval(boost::bind(&AISCommand::run_command,this),seconds_to_wait);
-	}
-	else
-	{
-		// Command func holds a reference to self, need to release it
-		// after a success or final failure.
-		// *TODO: Notify user?  This seems bad.
-		setCommandFunc(no_op);
-	}
+    if (gAgent.getRegion())
+    {
+        return gAgent.getRegion()->getCapability(LIBRARY_CAP_NAME);
+    }
+    return std::string();
 }
 
-//static
-bool AISCommand::isAPIAvailable()
+/*static*/ 
+void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, completion_t callback)
 {
-	if (gAgent.getRegion())
-	{
-		return gAgent.getRegion()->isCapabilityAvailable("InventoryAPIv3");
-	}
-	return false;
+    std::string cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    LLUUID tid;
+    tid.generate();
+
+    std::string url = cap + std::string("/category/") + parentId.asString() + "?tid=" + tid.asString();
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+    // I may be suffering from golden hammer here, but the first part of this bind 
+    // is actually a static cast for &HttpCoroutineAdapter::postAndSuspend so that 
+    // the compiler can identify the correct signature to select.
+    // 
+    // Reads as follows:
+    // LLSD     - method returning LLSD
+    // (LLCoreHttpUtil::HttpCoroutineAdapter::*) - pointer to member function of HttpCoroutineAdapter
+    // (LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) - signature of method
+    //  
+    invokationFn_t postFn = boost::bind(
+        // Humans ignore next line.  It is just a cast.
+        static_cast<LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndSuspend), _1, _2, _3, _4, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, postFn, url, parentId, newInventory, callback, COPYINVENTORY));
+    EnqueueAISCommand("CreateInventory", proc);
 }
 
-//static
-bool AISCommand::getInvCap(std::string& cap)
+/*static*/ 
+void AISAPI::SlamFolder(const LLUUID& folderId, const LLSD& newInventory, completion_t callback)
 {
-	if (gAgent.getRegion())
-	{
-		cap = gAgent.getRegion()->getCapability("InventoryAPIv3");
-	}
-	if (!cap.empty())
-	{
-		return true;
-	}
-	return false;
+    std::string cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    LLUUID tid;
+    tid.generate();
+
+    std::string url = cap + std::string("/category/") + folderId.asString() + "/links?tid=" + tid.asString();
+
+    // see comment above in CreateInventoryCommand
+    invokationFn_t putFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, _4, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, putFn, url, folderId, newInventory, callback, SLAMFOLDER));
+
+    EnqueueAISCommand("SlamFolder", proc);
 }
 
-//static
-bool AISCommand::getLibCap(std::string& cap)
+void AISAPI::RemoveCategory(const LLUUID &categoryId, completion_t callback)
 {
-	if (gAgent.getRegion())
-	{
-		cap = gAgent.getRegion()->getCapability("LibraryAPIv3");
-	}
-	if (!cap.empty())
-	{
-		return true;
-	}
-	return false;
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    std::string url = cap + std::string("/category/") + categoryId.asString();
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+    invokationFn_t delFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, delFn, url, categoryId, LLSD(), callback, REMOVECATEGORY));
+
+    EnqueueAISCommand("RemoveCategory", proc);
 }
 
-//static
-void AISCommand::getCapabilityNames(LLSD& capabilityNames)
+/*static*/ 
+void AISAPI::RemoveItem(const LLUUID &itemId, completion_t callback)
 {
-	capabilityNames.append("InventoryAPIv3");
-	capabilityNames.append("LibraryAPIv3");
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    std::string url = cap + std::string("/item/") + itemId.asString();
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+    invokationFn_t delFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, delFn, url, itemId, LLSD(), callback, REMOVEITEM));
+
+    EnqueueAISCommand("RemoveItem", proc);
 }
 
-RemoveItemCommand::RemoveItemCommand(const LLUUID& item_id,
-									 LLPointer<LLInventoryCallback> callback):
-	AISCommand(callback)
+void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/item/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	LLSD headers;
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
-	setCommandFunc(cmd);
+    std::string cap;
+
+    cap = getLibCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Library cap not found!" << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS("Inventory") << "Copying library category: " << sourceId << " => " << destId << LL_ENDL;
+
+    LLUUID tid;
+    tid.generate();
+
+    std::string url = cap + std::string("/category/") + sourceId.asString() + "?tid=" + tid.asString();
+    if (!copySubfolders)
+    {
+        url += ",depth=0";
+    }
+    LL_INFOS() << url << LL_ENDL;
+
+    std::string destination = destId.asString();
+
+    invokationFn_t copyFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const std::string, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::copyAndSuspend), _1, _2, _3, destination, _5, _6);
+         
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, copyFn, url, destId, LLSD(), callback, COPYLIBRARYCATEGORY));
+
+    EnqueueAISCommand("CopyLibraryCategory", proc);
 }
 
-RemoveCategoryCommand::RemoveCategoryCommand(const LLUUID& item_id,
-											 LLPointer<LLInventoryCallback> callback):
-	AISCommand(callback)
+/*static*/ 
+void AISAPI::PurgeDescendents(const LLUUID &categoryId, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/category/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLHTTPClient::ResponderPtr responder = this;
-	LLSD headers;
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
-	setCommandFunc(cmd);
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+
+    std::string url = cap + std::string("/category/") + categoryId.asString() + "/children";
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+    invokationFn_t delFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, delFn, url, categoryId, LLSD(), callback, PURGEDESCENDENTS));
+
+    EnqueueAISCommand("PurgeDescendents", proc);
 }
 
-PurgeDescendentsCommand::PurgeDescendentsCommand(const LLUUID& item_id,
-												 LLPointer<LLInventoryCallback> callback):
-	AISCommand(callback)
+
+/*static*/
+void AISAPI::UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/category/") + item_id.asString() + "/children";
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLCurl::ResponderPtr responder = this;
-	LLSD headers;
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::del, url, responder, headers, timeout);
-	setCommandFunc(cmd);
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    std::string url = cap + std::string("/category/") + categoryId.asString();
+
+    invokationFn_t patchFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndSuspend), _1, _2, _3, _4, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, patchFn, url, categoryId, updates, callback, UPDATECATEGORY));
+
+    EnqueueAISCommand("UpdateCategory", proc);
 }
 
-UpdateItemCommand::UpdateItemCommand(const LLUUID& item_id,
-									 const LLSD& updates,
-									 LLPointer<LLInventoryCallback> callback):
-	mUpdates(updates),
-	AISCommand(callback)
+/*static*/
+void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/item/") + item_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LL_DEBUGS("Inventory") << "request: " << ll_pretty_print_sd(mUpdates) << LL_ENDL;
-	LLCurl::ResponderPtr responder = this;
-	LLSD headers;
-	headers["Content-Type"] = "application/llsd+xml";
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::patch, url, mUpdates, responder, headers, timeout);
-	setCommandFunc(cmd);
+
+    std::string cap;
+
+    cap = getInvCap();
+    if (cap.empty())
+    {
+        LL_WARNS("Inventory") << "Inventory cap not found!" << LL_ENDL;
+        return;
+    }
+    std::string url = cap + std::string("/item/") + itemId.asString();
+
+    invokationFn_t patchFn = boost::bind(
+        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
+        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
+        //----
+        // _1 -> httpAdapter
+        // _2 -> httpRequest
+        // _3 -> url
+        // _4 -> body 
+        // _5 -> httpOptions
+        // _6 -> httpHeaders
+        (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndSuspend), _1, _2, _3, _4, _5, _6);
+
+    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+        _1, patchFn, url, itemId, updates, callback, UPDATEITEM));
+
+    EnqueueAISCommand("UpdateItem", proc);
 }
 
-UpdateCategoryCommand::UpdateCategoryCommand(const LLUUID& cat_id,
-											 const LLSD& updates,
-											 LLPointer<LLInventoryCallback> callback):
-	mUpdates(updates),
-	AISCommand(callback)
+/*static*/
+void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	std::string url = cap + std::string("/category/") + cat_id.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLCurl::ResponderPtr responder = this;
-	LLSD headers;
-	headers["Content-Type"] = "application/llsd+xml";
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::patch, url, mUpdates, responder, headers, timeout);
-	setCommandFunc(cmd);
+    std::string procFullName = "AIS(" + procName + ")";
+    LLCoprocedureManager::instance().enqueueCoprocedure("AIS", procFullName, proc);
+
 }
 
-CreateInventoryCommand::CreateInventoryCommand(const LLUUID& parent_id,
-							 				   const LLSD& new_inventory,
-							 				   LLPointer<LLInventoryCallback> callback):
-	mNewInventory(new_inventory),
-	AISCommand(callback)
+/*static*/
+void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter, 
+        invokationFn_t invoke, std::string url, 
+        LLUUID targetId, LLSD body, completion_t callback, COMMAND_TYPE type)
 {
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	LLUUID tid;
-	tid.generate();
-	std::string url = cap + std::string("/category/") + parent_id.asString() + "?tid=" + tid.asString();
-	LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
-	LLCurl::ResponderPtr responder = this;
-	LLSD headers;
-	headers["Content-Type"] = "application/llsd+xml";
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::post, url, mNewInventory, responder, headers, timeout);
-	setCommandFunc(cmd);
+    LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions);
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
+    LLCore::HttpHeaders::ptr_t httpHeaders;
+
+    httpOptions->setTimeout(LLCoreHttpUtil::HTTP_REQUEST_EXPIRY_SECS);
+
+    LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
+
+    LLSD result = invoke(httpAdapter, httpRequest, url, body, httpOptions, httpHeaders);
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status || !result.isMap())
+    {
+        if (!result.isMap())
+        {
+            status = LLCore::HttpStatus(HTTP_INTERNAL_ERROR, "Malformed response contents");
+        }
+        LL_WARNS("Inventory") << "Inventory error: " << status.toString() << LL_ENDL;
+        LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
+    }
+
+    gInventory.onAISUpdateReceived("AISCommand", result);
+
+    if (callback && !callback.empty())
+    {   
+        LLUUID id(LLUUID::null);
+
+        if (result.has("category_id") && (type == COPYLIBRARYCATEGORY))
+	    {
+		    id = result["category_id"];
+	    }
+
+        callback(id);
+    }
+
 }
 
-SlamFolderCommand::SlamFolderCommand(const LLUUID& folder_id, const LLSD& contents, LLPointer<LLInventoryCallback> callback):
-	mContents(contents),
-	AISCommand(callback)
-{
-	std::string cap;
-	if (!getInvCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	LLUUID tid;
-	tid.generate();
-	std::string url = cap + std::string("/category/") + folder_id.asString() + "/links?tid=" + tid.asString();
-	LL_INFOS() << url << LL_ENDL;
-	LLCurl::ResponderPtr responder = this;
-	LLSD headers;
-	headers["Content-Type"] = "application/llsd+xml";
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::put, url, mContents, responder, headers, timeout);
-	setCommandFunc(cmd);
-}
-
-CopyLibraryCategoryCommand::CopyLibraryCategoryCommand(const LLUUID& source_id,
-													   const LLUUID& dest_id,
-													   LLPointer<LLInventoryCallback> callback,
-													   bool copy_subfolders):
-	AISCommand(callback)
-{
-	std::string cap;
-	if (!getLibCap(cap))
-	{
-		LL_WARNS() << "No cap found" << LL_ENDL;
-		return;
-	}
-	LL_DEBUGS("Inventory") << "Copying library category: " << source_id << " => " << dest_id << LL_ENDL;
-	LLUUID tid;
-	tid.generate();
-	std::string url = cap + std::string("/category/") + source_id.asString() + "?tid=" + tid.asString();
-	if (!copy_subfolders)
-	{
-		url += ",depth=0";
-	}
-	LL_INFOS() << url << LL_ENDL;
-	LLCurl::ResponderPtr responder = this;
-	LLSD headers;
-	F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	command_func_type cmd = boost::bind(&LLHTTPClient::copy, url, dest_id.asString(), responder, headers, timeout);
-	setCommandFunc(cmd);
-}
-
-bool CopyLibraryCategoryCommand::getResponseUUID(const LLSD& content, LLUUID& id)
-{
-	if (content.has("category_id"))
-	{
-		id = content["category_id"];
-		return true;
-	}
-	return false;
-}
-
+//-------------------------------------------------------------------------
 AISUpdate::AISUpdate(const LLSD& update)
 {
 	parseUpdate(update);

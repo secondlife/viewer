@@ -4,6 +4,7 @@ project(linux_crash_logger)
 
 include(00-Common)
 include(GLH)
+include(LLCoreHttp)
 include(LLCommon)
 include(LLCrashLogger)
 include(LLMath)
@@ -13,8 +14,10 @@ include(LLXML)
 include(Linking)
 include(UI)
 include(FreeType)
+include(Boost)
 
 include_directories(
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCRASHLOGGER_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
@@ -53,6 +56,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
 add_executable(linux-crash-logger ${linux_crash_logger_SOURCE_FILES})
 
+# llcommon uses `clock_gettime' which is provided by librt on linux.
+set(LIBRT_LIBRARY rt)
+
+
 target_link_libraries(linux-crash-logger
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLVFS_LIBRARIES}
@@ -60,10 +67,14 @@ target_link_libraries(linux-crash-logger
     ${LLMESSAGE_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
     ${UI_LIBRARIES}
     ${DB_LIBRARIES}
     ${FREETYPE_LIBRARIES}
+    ${LIBRT_LIBRARY}
     )
 
 add_custom_target(linux-crash-logger-target ALL

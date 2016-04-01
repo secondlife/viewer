@@ -56,12 +56,12 @@ namespace LLCore
 
 #if LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 
-typedef std::deque<HttpOpRequest *> HttpReadyQueueBase;
+typedef std::deque<HttpOpRequest::ptr_t> HttpReadyQueueBase;
 
 #else
 
-typedef std::priority_queue<HttpOpRequest *,
-							std::deque<HttpOpRequest *>,
+typedef std::priority_queue<HttpOpRequest::ptr_t,
+							std::deque<HttpOpRequest::ptr_t>,
 							LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
 
 #endif // LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY

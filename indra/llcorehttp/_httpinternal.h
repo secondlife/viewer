@@ -104,8 +104,9 @@ namespace LLCore
 {
 
 // Maxium number of policy classes that can be defined.
-// *TODO:  Currently limited to the default class + 1, extend.
-const int HTTP_POLICY_CLASS_LIMIT = 8;
+// *TODO:  Currently limited to the default class + 1, extend. 
+// (TSN: should this be more dynamically sized.  Is there a reason to hard limit the number of policies?)
+const int HTTP_POLICY_CLASS_LIMIT = 32;
 
 // Debug/informational tracing.  Used both
 // as a global option and in per-request traces.

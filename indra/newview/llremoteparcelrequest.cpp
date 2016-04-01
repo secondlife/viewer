@@ -31,55 +31,16 @@
 #include "message.h"
 
 #include "llpanel.h"
-#include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llurlentry.h"
 #include "llviewerregion.h"
 #include "llview.h"
-
+#include "llsdutil.h"
+#include "llsdutil_math.h"
+#include "llregionhandle.h"
 #include "llagent.h"
 #include "llremoteparcelrequest.h"
-
-
-LLRemoteParcelRequestResponder::LLRemoteParcelRequestResponder(LLHandle<LLRemoteParcelInfoObserver> observer_handle)
-	 : mObserverHandle(observer_handle)
-{}
-
-//If we get back a normal response, handle it here
-//virtual
-void LLRemoteParcelRequestResponder::httpSuccess()
-{
-	const LLSD& content = getContent();
-	if (!content.isMap() || !content.has("parcel_id"))
-	{
-		failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-		return;
-	}
-	LLUUID parcel_id = getContent()["parcel_id"];
-
-	// Panel inspecting the information may be closed and destroyed
-	// before this response is received.
-	LLRemoteParcelInfoObserver* observer = mObserverHandle.get();
-	if (observer)
-	{
-		observer->setParcelID(parcel_id);
-	}
-}
-
-//If we get back an error (not found, etc...), handle it here
-//virtual
-void LLRemoteParcelRequestResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-
-	// Panel inspecting the information may be closed and destroyed
-	// before this response is received.
-	LLRemoteParcelInfoObserver* observer = mObserverHandle.get();
-	if (observer)
-	{
-		observer->setErrorStatus(getStatus(), getReason());
-	}
-}
+#include "llcorehttputil.h"
 
 void LLRemoteParcelInfoProcessor::addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
 {
@@ -199,4 +160,65 @@ void LLRemoteParcelInfoProcessor::sendParcelInfoRequest(const LLUUID& parcel_id)
 	msg->nextBlock("Data");
 	msg->addUUID("ParcelID", parcel_id);
 	gAgent.sendReliableMessage();
+}
+
+bool LLRemoteParcelInfoProcessor::requestRegionParcelInfo(const std::string &url, 
+    const LLUUID &regionId, const LLVector3 &regionPos, const LLVector3d&globalPos,
+    LLHandle<LLRemoteParcelInfoObserver> observerHandle)
+{
+
+    if (!url.empty())
+    {
+        LLCoros::instance().launch("LLRemoteParcelInfoProcessor::regionParcelInfoCoro",
+            boost::bind(&LLRemoteParcelInfoProcessor::regionParcelInfoCoro, this, url,
+            regionId, regionPos, globalPos, observerHandle));
+        return true;
+    }
+
+    return false;
+}
+
+void LLRemoteParcelInfoProcessor::regionParcelInfoCoro(std::string url, 
+    LLUUID regionId, LLVector3 posRegion, LLVector3d posGlobal, 
+    LLHandle<LLRemoteParcelInfoObserver> observerHandle)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("RemoteParcelRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD bodyData;
+
+    bodyData["location"] = ll_sd_from_vector3(posRegion);
+    if (!regionId.isNull())
+    {
+        bodyData["region_id"] = regionId;
+    }
+    if (!posGlobal.isExactlyZero())
+    {
+        U64 regionHandle = to_region_handle(posGlobal);
+        bodyData["region_handle"] = ll_sd_from_U64(regionHandle);
+    }
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, bodyData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LLRemoteParcelInfoObserver* observer = observerHandle.get();
+    // Panel inspecting the information may be closed and destroyed
+    // before this response is received.
+    if (!observer)
+        return;
+
+    if (!status)
+    {
+        observer->setErrorStatus(status.getStatus(), status.getMessage());
+    }
+    else 
+    {
+        LLUUID parcel_id = result["parcel_id"];
+        observer->setParcelID(parcel_id);
+    }
+
 }

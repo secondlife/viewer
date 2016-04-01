@@ -29,7 +29,6 @@
 
 
 #include "httpcommon.h"
-
 #include "_refcounted.h"
 
 
@@ -56,59 +55,110 @@ namespace LLCore
 /// Allocation:  Refcounted, heap only.  Caller of the constructor
 /// is given a refcount.
 ///
-class HttpOptions : public LLCoreInt::RefCounted
+class HttpOptions : private boost::noncopyable
 {
 public:
 	HttpOptions();
 
+	typedef boost::shared_ptr<HttpOptions> ptr_t;
+
+    virtual ~HttpOptions();						// Use release()
+
 protected:
-	virtual ~HttpOptions();						// Use release()
 	
 	HttpOptions(const HttpOptions &);			// Not defined
 	void operator=(const HttpOptions &);		// Not defined
 
 public:
+
 	// Default:   false
 	void				setWantHeaders(bool wanted);
 	bool				getWantHeaders() const
-		{
-			return mWantHeaders;
-		}
+	{
+		return mWantHeaders;
+	}
 
 	// Default:  0
 	void				setTrace(int long);
 	int					getTrace() const
-		{
-			return mTracing;
-		}
+	{
+		return mTracing;
+	}
 
 	// Default:  30
 	void				setTimeout(unsigned int timeout);
 	unsigned int		getTimeout() const
-		{
-			return mTimeout;
-		}
+	{
+		return mTimeout;
+	}
 
 	// Default:  0
 	void				setTransferTimeout(unsigned int timeout);
 	unsigned int		getTransferTimeout() const
-		{
-			return mTransferTimeout;
-		}
+	{
+		return mTransferTimeout;
+	}
 
+    /// Sets the number of retries on an LLCore::HTTPRequest before the 
+    /// request fails.
 	// Default:  8
 	void				setRetries(unsigned int retries);
 	unsigned int		getRetries() const
-		{
-			return mRetries;
-		}
+	{
+		return mRetries;
+	}
 
 	// Default:  true
 	void				setUseRetryAfter(bool use_retry);
 	bool				getUseRetryAfter() const
-		{
-			return mUseRetryAfter;
-		}
+	{
+		return mUseRetryAfter;
+	}
+
+    /// Instructs the LLCore::HTTPRequest to follow redirects 
+	/// Default: false
+	void				setFollowRedirects(bool follow_redirect);
+	bool				getFollowRedirects() const
+	{
+		return mFollowRedirects;
+	}
+
+    /// Instructs the LLCore::HTTPRequest to verify that the exchanged security
+    /// certificate is authentic. 
+    /// Default: false
+    void				setSSLVerifyPeer(bool verify);
+	bool				getSSLVerifyPeer() const
+	{
+		return mVerifyPeer;
+	}
+
+    /// Instructs the LLCore::HTTPRequest to verify that the name in the 
+    /// security certificate matches the name of the host contacted.
+    /// Default: false
+    void				setSSLVerifyHost(bool verify);
+	bool	        	getSSLVerifyHost() const
+	{
+		return mVerifyHost;
+	}
+
+    /// Sets the time for DNS name caching in seconds.  Setting this value
+    /// to 0 will disable name caching.  Setting this value to -1 causes the 
+    /// name cache to never time out.
+    /// Default: -1
+	void				setDNSCacheTimeout(int timeout);
+	int					getDNSCacheTimeout() const
+	{
+		return mDNSCacheTimeout;
+	}
+
+    /// Retrieve only the headers and status from the request. Setting this 
+    /// to true implies setWantHeaders(true) as well.
+    /// Default: false
+    void                setHeadersOnly(bool nobody);
+    bool                getHeadersOnly() const
+    {
+        return mNoBody;
+    }
 	
 protected:
 	bool				mWantHeaders;
@@ -117,6 +167,11 @@ protected:
 	unsigned int		mTransferTimeout;
 	unsigned int		mRetries;
 	bool				mUseRetryAfter;
+	bool				mFollowRedirects;
+	bool				mVerifyPeer;
+	bool        		mVerifyHost;
+	int					mDNSCacheTimeout;
+    bool                mNoBody;
 }; // end class HttpOptions
 
 

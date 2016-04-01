@@ -132,6 +132,7 @@ protected:
 
 	static void onDonePreview(LLMultiGesture* gesture, void* data);
 
+    static void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId);
 private:
 	// LLPreview contains mDescEditor
 	LLLineEditor*	mTriggerEditor;

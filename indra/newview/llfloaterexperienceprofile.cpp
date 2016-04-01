@@ -36,7 +36,6 @@
 #include "llexpandabletextbox.h"
 #include "llexperiencecache.h"
 #include "llfloaterreg.h"
-#include "llhttpclient.h"
 #include "lllayoutstack.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
@@ -99,7 +98,7 @@ public:
         if(params.size() != 2 || params[1].asString() != "profile")
             return false;
 
-        LLExperienceCache::get(params[0].asUUID(), boost::bind(&LLExperienceHandler::experienceCallback, this, _1));
+        LLExperienceCache::instance().get(params[0].asUUID(), boost::bind(&LLExperienceHandler::experienceCallback, this, _1));
         return true;
     }
 
@@ -139,175 +138,20 @@ LLFloaterExperienceProfile::~LLFloaterExperienceProfile()
 
 }
 
-template<class T> 
-class HandleResponder : public LLHTTPClient::Responder
-{
-public:
-    HandleResponder(const LLHandle<T>& parent):mParent(parent){}
-    LLHandle<T> mParent;
-
-    virtual void httpFailure()
-    {
-        LL_WARNS() << "HandleResponder failed with code: " << getStatus() << ", reason: " << getReason() << LL_ENDL;
-    }
-};
-
-class ExperienceUpdateResponder : public HandleResponder<LLFloaterExperienceProfile>
-{
-public:
-    ExperienceUpdateResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder<LLFloaterExperienceProfile>(parent)
-    {
-    }
-
-    virtual void httpSuccess()
-    {
-        LLFloaterExperienceProfile* parent=mParent.get();
-        if(parent)
-        {
-            parent->onSaveComplete(getContent());
-        }
-    }
-};
-
-
-
-class ExperiencePreferencesResponder : public LLHTTPClient::Responder
-{
-public:
-    ExperiencePreferencesResponder(const LLUUID& single = LLUUID::null):mId(single)
-    {
-    }
-
-    bool sendSingle(const LLSD& content, const LLSD& permission, const char* name)
-    {
-        if(!content.has(name))
-            return false;
-
-        LLEventPump& pump = LLEventPumps::instance().obtain("experience_permission");
-        const LLSD& list = content[name];
-        LLSD::array_const_iterator it = list.beginArray();
-        while(it != list.endArray())
-        {
-            if(it->asUUID() == mId)
-            {
-                LLSD message;
-                message[it->asString()] = permission;
-                message["experience"] = mId;
-                pump.post(message);
-                return true;
-            }
-            ++it;
-        }
-        return false;
-    }
-
-    bool hasPermission(const LLSD& content, const char* name)
-    {
-        if(!content.has(name))
-            return false;
-
-        const LLSD& list = content[name];
-        LLSD::array_const_iterator it = list.beginArray();
-        while(it != list.endArray())
-        {
-            if(it->asUUID() == mId)
-            {
-                return true;
-            }
-            ++it;
-        }
-        return false;
-    }
-
-    const char* getPermission(const LLSD& content)
-    {
-        if(hasPermission(content, "experiences"))
-        {
-            return "Allow";
-        }
-        else if(hasPermission(content, "blocked"))
-        {
-            return "Block";
-        }
-        return "Forget";
-    }
-
-
-    virtual void httpSuccess()
-    {
-        if(mId.notNull())
-        {
-            post(getPermission(getContent()));
-            return;
-        }
-        LLEventPumps::instance().obtain("experience_permission").post(getContent());
-    }
-
-    void post( const char* perm )
-    {
-        LLSD experience;
-        LLSD message;
-        experience["permission"]=perm;
-        message["experience"] = mId;
-        message[mId.asString()] = experience;
-        LLEventPumps::instance().obtain("experience_permission").post(message);
-    }
-
-private:
-    LLUUID mId;
-};
-
-
-class IsAdminResponder : public HandleResponder<LLFloaterExperienceProfile>
-{
-public:
-    IsAdminResponder(const LLHandle<LLFloaterExperienceProfile>& parent):HandleResponder<LLFloaterExperienceProfile>(parent)
-    {
-    }
-    
-    virtual void httpSuccess()
-    {
-        LLFloaterExperienceProfile* parent = mParent.get();
-        if(!parent)
-            return;
-
-        bool enabled = true;
-        LLViewerRegion* region = gAgent.getRegion();
-        if (!region)
-        {
-            enabled = false;
-        }
-        else
-        {
-            std::string url=region->getCapability("UpdateExperience"); 
-            if(url.empty())
-                enabled = false;
-        }
-        if(enabled && getContent()["status"].asBoolean())
-        {
-            parent->getChild<LLLayoutPanel>(PNL_TOP)->setVisible(TRUE);
-            parent->getChild<LLButton>(BTN_EDIT)->setVisible(TRUE);
-        }
-    }
-};
-
 BOOL LLFloaterExperienceProfile::postBuild()
 {
 
     if (mExperienceId.notNull())
     {
-        LLExperienceCache::fetch(mExperienceId, true);
-        LLExperienceCache::get(mExperienceId, boost::bind(&LLFloaterExperienceProfile::experienceCallback, 
+        LLExperienceCache::instance().fetch(mExperienceId, true);
+        LLExperienceCache::instance().get(mExperienceId, boost::bind(&LLFloaterExperienceProfile::experienceCallback,
             getDerivedHandle<LLFloaterExperienceProfile>(), _1)); 
         
         LLViewerRegion* region = gAgent.getRegion();
         if (region)
         {
-            std::string lookup_url=region->getCapability("IsExperienceAdmin"); 
-            if(!lookup_url.empty())
-            {
-                LLHTTPClient::get(lookup_url+"?experience_id="+mExperienceId.asString(), new IsAdminResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
-            }
+            LLExperienceCache::instance().getExperienceAdmin(mExperienceId, boost::bind(
+                &LLFloaterExperienceProfile::experienceIsAdmin, getDerivedHandle<LLFloaterExperienceProfile>(), _1));
         }
     }
 
@@ -384,23 +228,13 @@ void LLFloaterExperienceProfile::onClickSave()
     doSave(NOTHING);
 }
 
-
 void LLFloaterExperienceProfile::onClickPermission(const char* perm)
 {
     LLViewerRegion* region = gAgent.getRegion();
     if (!region)
         return;
-   
-    std::string lookup_url=region->getCapability("ExperiencePreferences"); 
-    if(lookup_url.empty())
-        return;
-    LLSD permission;
-    LLSD data;
-    permission["permission"]=perm;
-
-    data[mExperienceId.asString()]=permission;
-    LLHTTPClient::put(lookup_url, data, new ExperiencePreferencesResponder(mExperienceId));
-   
+    LLExperienceCache::instance().setExperiencePermission(mExperienceId, perm, boost::bind(
+        &LLFloaterExperienceProfile::experiencePermissionResults, mExperienceId, _1));
 }
 
 
@@ -410,11 +244,8 @@ void LLFloaterExperienceProfile::onClickForget()
     if (!region)
         return;
 
-    std::string lookup_url=region->getCapability("ExperiencePreferences"); 
-    if(lookup_url.empty())
-        return;
-
-    LLHTTPClient::del(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(mExperienceId));
+    LLExperienceCache::instance().forgetExperiencePermission(mExperienceId, boost::bind(
+        &LLFloaterExperienceProfile::experiencePermissionResults, mExperienceId, _1));
 }
 
 bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* child, LLComboBox* combo )
@@ -561,11 +392,8 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
         LLViewerRegion* region = gAgent.getRegion();
         if (region)
         {
-            std::string lookup_url=region->getCapability("ExperiencePreferences"); 
-            if(!lookup_url.empty())
-            {
-                LLHTTPClient::get(lookup_url+"?"+mExperienceId.asString(), new ExperiencePreferencesResponder(mExperienceId));
-            }
+            LLExperienceCache::instance().getExperiencePermission(mExperienceId, boost::bind(
+                &LLFloaterExperienceProfile::experiencePermissionResults, mExperienceId, _1));
         }
     }
             
@@ -745,15 +573,9 @@ void LLFloaterExperienceProfile::doSave( int success_action )
     if (!region)
         return;
 
-    std::string url=region->getCapability("UpdateExperience"); 
-    if(url.empty())
-        return;
-
-	mPackage.erase(LLExperienceCache::QUOTA);
-	mPackage.erase(LLExperienceCache::EXPIRES);
-	mPackage.erase(LLExperienceCache::AGENT_ID);
-    
-    LLHTTPClient::post(url, mPackage, new ExperienceUpdateResponder(getDerivedHandle<LLFloaterExperienceProfile>()));
+    LLExperienceCache::instance().updateExperience(mPackage, boost::bind(
+            &LLFloaterExperienceProfile::experienceUpdateResult, 
+            getDerivedHandle<LLFloaterExperienceProfile>(), _1));
 }
 
 void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
@@ -811,8 +633,8 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
     }
  
     refreshExperience(*it);
-    LLExperienceCache::insert(*it);
-    LLExperienceCache::fetch(id, true);
+    LLExperienceCache::instance().insert(*it);
+    LLExperienceCache::instance().fetch(id, true);
 
     if(mSaveCompleteAction==VIEW)
     {
@@ -1020,4 +842,77 @@ void LLFloaterExperienceProfile::setEditGroup( LLUUID group_id )
 void LLFloaterExperienceProfile::onReportExperience()
 {
 	LLFloaterReporter::showFromExperience(mExperienceId);
+}
+
+/*static*/
+bool LLFloaterExperienceProfile::hasPermission(const LLSD& content, const std::string &name, const LLUUID &test)
+{
+    if (!content.has(name))
+        return false;
+
+    const LLSD& list = content[name];
+    LLSD::array_const_iterator it = list.beginArray();
+    while (it != list.endArray())
+    {
+        if (it->asUUID() == test)
+        {
+            return true;
+        }
+        ++it;
+    }
+    return false;
+}
+
+/*static*/
+void LLFloaterExperienceProfile::experiencePermissionResults(LLUUID exprienceId, LLSD result)
+{
+    std::string permission("Forget");
+    if (hasPermission(result, "experiences", exprienceId))
+        permission = "Allow";
+    else if (hasPermission(result, "blocked", exprienceId))
+        permission = "Block";
+
+    LLSD experience;
+    LLSD message;
+    experience["permission"] = permission;
+    message["experience"] = exprienceId;
+    message[exprienceId.asString()] = experience;
+
+    LLEventPumps::instance().obtain("experience_permission").post(message);
+}
+
+/*static*/
+void LLFloaterExperienceProfile::experienceIsAdmin(LLHandle<LLFloaterExperienceProfile> handle, const LLSD &result)
+{
+    LLFloaterExperienceProfile* parent = handle.get();
+    if (!parent)
+        return;
+
+    bool enabled = true;
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+    {
+        enabled = false;
+    }
+    else
+    {
+        std::string url = region->getCapability("UpdateExperience");
+        if (url.empty())
+            enabled = false;
+    }
+    if (enabled && result["status"].asBoolean())
+    {
+        parent->getChild<LLLayoutPanel>(PNL_TOP)->setVisible(TRUE);
+        parent->getChild<LLButton>(BTN_EDIT)->setVisible(TRUE);
+    }
+}
+
+/*static*/
+void LLFloaterExperienceProfile::experienceUpdateResult(LLHandle<LLFloaterExperienceProfile> handle, const LLSD &result)
+{
+    LLFloaterExperienceProfile* parent = handle.get();
+    if (parent)
+    {
+        parent->onSaveComplete(result);
+    }
 }
