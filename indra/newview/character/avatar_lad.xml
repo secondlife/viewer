@@ -1885,10 +1885,12 @@
          scale  = "0.10 0.3 0.0" />
         <bone
          name   = "mFaceNoseLeft"
-		 offset = "0 0.0025 0"/>		 
+		 offset = "0 0.0025 0"
+         scale  = "0.0 0.0 0.0" />
         <bone
          name   = "mFaceNoseRight"
-		 offset = "0 -0.0025 0" />		 
+		 offset = "0 -0.0025 0"
+         scale  = "0.0 0.0 0.0" />
 		<bone
          name   = "mFaceNoseBridge"
 		 offset = "0.006 0.0 0.0"
@@ -1906,10 +1908,12 @@
        <param_skeleton>
         <bone
          name   = "mFaceNoseLeft"
-		 offset = "0 0.005 0"/>		 
+		 offset = "0 0.005 0"
+         scale  = "0.0 0.0 0.0" />
         <bone
          name   = "mFaceNoseRight"
-		 offset = "0 -0.005 0" />		 
+		 offset = "0 -0.005 0"
+         scale  = "0.0 0.0 0.0" />
       </param_skeleton>
     </param>
 	
@@ -2715,10 +2719,12 @@
 	    <!-- Place Holder. Can't do this unless we get rotation offset -->
         <bone
          name   = "mFaceEar1Left"
-		 offset = "0.0  -0.0   0.0" />
+		 offset = "0.0  -0.0   0.0"
+         scale  = "0.0 0.0 0.0" />
         <bone
          name   = "mFaceEar1Right"
-		 offset = "0.0  0.0   0.0" />
+		 offset = "0.0  0.0   0.0"
+         scale  = "0.0 0.0 0.0" />
        </param_skeleton>
      </param>
 	 
@@ -2731,10 +2737,12 @@
       <param_skeleton>
         <bone
          name   = "mFaceEar2Left"
-		 offset = "-0.0149  0.001   0.016" />
+		 offset = "-0.0149  0.001   0.016"
+         scale  = "0.0 0.0 0.0" />
         <bone
          name   = "mFaceEar2Right"
-		 offset = "-0.0149  -0.001   0.016" />
+		 offset = "-0.0149  -0.001   0.016"
+         scale  = "0.0 0.0 0.0" />
        </param_skeleton>
     </param>
 	
@@ -2747,27 +2755,33 @@
       <param_skeleton>
         <bone
          name   = "mFaceJaw"
-		 offset = "0.0  0.00   -0.02" />
+		 offset = "0.0  0.00   -0.02"
+         scale  = "0.0 0.0 0.0" />
 
         <bone
          name   = "mFaceLipLowerLeft"
-		 offset = "0.0  0.00   0.02" />
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
 
         <bone
          name   = "mFaceLipLowerRight"
-		 offset = "0.0  0.00   0.02" />
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
 
         <bone
          name   = "mFaceLipLowerCenter"
-		 offset = "0.0  0.00   0.02" />
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
 
         <bone
          name   = "mFaceTongueBase"
-		 offset = "0.0  0.00   0.02"/>
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
 		 
         <bone
          name   = "mFaceTeethLower"
-		 offset = "0 0 0.02" />
+		 offset = "0 0 0.02"
+         scale  = "0.0 0.0 0.0" />
 		 
 		 
        </param_skeleton>
@@ -2782,7 +2796,8 @@
       <param_skeleton>
         <bone
          name   = "mFaceJaw"
-		 offset = "0.0085  0.00  0" />
+		 offset = "0.0085  0.00  0"
+         scale  = "0.0 0.0 0.0" />
        </param_skeleton>
     </param>
 	
