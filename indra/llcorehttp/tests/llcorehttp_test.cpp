@@ -160,7 +160,7 @@ void stop_thread(LLCore::HttpRequest * req)
 {
 	if (req)
 	{
-		req->requestStopThread(NULL);
+		req->requestStopThread(LLCore::HttpHandler::ptr_t());
 	
 		int count = 0;
 		int limit = 10;

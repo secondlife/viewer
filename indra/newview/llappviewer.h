@@ -122,9 +122,6 @@ public:
     void loadNameCache();
     void saveNameCache();
 
-	void loadExperienceCache();
-	void saveExperienceCache();
-
 	void removeMarkerFiles();
 	
 	void removeDumpDir();
@@ -233,7 +230,6 @@ private:
     void idle(); 
     void idleShutdown();
 	// update avatar SLID and display name caches
-	void idleExperienceCache();
 	void idleNameCache();
     void idleNetwork();
 

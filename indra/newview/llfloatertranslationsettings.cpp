@@ -42,41 +42,6 @@
 #include "llnotificationsutil.h"
 #include "llradiogroup.h"
 
-class EnteredKeyVerifier : public LLTranslate::KeyVerificationReceiver
-{
-public:
-	EnteredKeyVerifier(LLTranslate::EService service, bool alert)
-	:	LLTranslate::KeyVerificationReceiver(service)
-	,	mAlert(alert)
-	{
-	}
-
-private:
-	/*virtual*/ void setVerificationStatus(bool ok)
-	{
-		LLFloaterTranslationSettings* floater =
-			LLFloaterReg::getTypedInstance<LLFloaterTranslationSettings>("prefs_translation");
-
-		if (!floater)
-		{
-			LL_WARNS() << "Cannot find translation settings floater" << LL_ENDL;
-			return;
-		}
-
-		switch (getService())
-		{
-		case LLTranslate::SERVICE_BING:
-			floater->setBingVerified(ok, mAlert);
-			break;
-		case LLTranslate::SERVICE_GOOGLE:
-			floater->setGoogleVerified(ok, mAlert);
-			break;
-		}
-	}
-
-	bool mAlert;
-};
-
 LLFloaterTranslationSettings::LLFloaterTranslationSettings(const LLSD& key)
 :	LLFloater(key)
 ,	mMachineTranslationCB(NULL)
@@ -231,11 +196,34 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
 	mOKBtn->setEnabled(!on || service_verified);
 }
 
+/*static*/
+void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, bool alert)
+{
+    LLFloaterTranslationSettings* floater =
+        LLFloaterReg::getTypedInstance<LLFloaterTranslationSettings>("prefs_translation");
+
+    if (!floater)
+    {
+        LL_WARNS() << "Cannot find translation settings floater" << LL_ENDL;
+        return;
+    }
+
+    switch (service)
+    {
+    case LLTranslate::SERVICE_BING:
+        floater->setBingVerified(ok, alert);
+        break;
+    case LLTranslate::SERVICE_GOOGLE:
+        floater->setGoogleVerified(ok, alert);
+        break;
+    }
+}
+
+
 void LLFloaterTranslationSettings::verifyKey(int service, const std::string& key, bool alert)
 {
-	LLTranslate::KeyVerificationReceiverPtr receiver =
-		new EnteredKeyVerifier((LLTranslate::EService) service, alert);
-	LLTranslate::verifyKey(receiver, key);
+    LLTranslate::verifyKey(static_cast<LLTranslate::EService>(service), key,
+        boost::bind(&LLFloaterTranslationSettings::setVerificationStatus, _1, _2, alert));
 }
 
 void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)

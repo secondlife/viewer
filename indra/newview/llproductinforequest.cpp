@@ -32,31 +32,10 @@
 #include "llagent.h"  // for gAgent
 #include "lltrans.h"
 #include "llviewerregion.h"
+#include "llcorehttputil.h"
 
-class LLProductInfoRequestResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLProductInfoRequestResponder);
-private:
-	//If we get back a normal response, handle it here
-	/* virtual */ void httpSuccess()
-	{
-		const LLSD& content = getContent();
-		if (!content.isArray())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		LLProductInfoRequestManager::instance().setSkuDescriptions(getContent());
-	}
-
-	//If we get back an error (not found, etc...), handle it here
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-	}
-};
-
-LLProductInfoRequestManager::LLProductInfoRequestManager() : mSkuDescriptions()
+LLProductInfoRequestManager::LLProductInfoRequestManager(): 
+    mSkuDescriptions()
 {
 }
 
@@ -65,13 +44,9 @@ void LLProductInfoRequestManager::initSingleton()
 	std::string url = gAgent.getRegion()->getCapability("ProductInfoRequest");
 	if (!url.empty())
 	{
-		LLHTTPClient::get(url, new LLProductInfoRequestResponder());
+        LLCoros::instance().launch("LLProductInfoRequestManager::getLandDescriptionsCoro",
+            boost::bind(&LLProductInfoRequestManager::getLandDescriptionsCoro, this, url));
 	}
-}
-
-void LLProductInfoRequestManager::setSkuDescriptions(const LLSD& content)
-{
-	mSkuDescriptions = content;
 }
 
 std::string LLProductInfoRequestManager::getDescriptionForSku(const std::string& sku)
@@ -89,4 +64,32 @@ std::string LLProductInfoRequestManager::getDescriptionForSku(const std::string&
 		}
 	}
 	return LLTrans::getString("land_type_unknown");
+}
+
+void LLProductInfoRequestManager::getLandDescriptionsCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        return;
+    }
+
+    if (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT) &&
+        result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT].isArray())
+    {
+        mSkuDescriptions = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT];
+    }
+    else
+    {
+        LL_WARNS() << "Land SKU description response is malformed" << LL_ENDL;
+    }
 }

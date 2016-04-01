@@ -87,60 +87,6 @@
         <key>version</key>
         <string>1.4.5.297252</string>
       </map>
-      <key>ares</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright 1998 by the Massachusetts Institute of Technology.</string>
-        <key>description</key>
-        <string>C-ares, an asynchronous resolver library.</string>
-        <key>license</key>
-        <string>c-ares</string>
-        <key>license_file</key>
-        <string>LICENSES/c-ares.txt</string>
-        <key>name</key>
-        <string>ares</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>637b4996f703f3e5bf835d847fc4cb81</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/Darwin/installer/ares-1.10.0.295506-darwin-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7771d3653a0daf22d35bf96055d02d9a</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/Linux/installer/ares-1.10.0.295506-linux-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>f044de05e704d3f3fb6934adf42447c2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/CYGWIN/installer/ares-1.10.0.295506-windows-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.10.0.295506</string>
-      </map>
       <key>boost</key>
       <map>
         <key>copyright</key>
@@ -266,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d1c5125650a339a5209f429c70f4d395</string>
+              <string>ad0061db7188a1b9a974eb0512eeeb8d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/Darwin/installer/curl-7.38.0.297172-darwin-297172.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/Darwin/installer/curl-7.47.0.312763-darwin-312763.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -278,9 +224,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ee6c089ee193e551040d610befc5d1c1</string>
+              <string>f49d4ed203b03852a3f6b01b18319f7a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/Linux/installer/curl-7.38.0.297172-linux-297172.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/Linux/installer/curl-7.47.0.312763-linux-312763.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -290,16 +236,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fdeca7cbc074a88d2701d74a31d21bd8</string>
+              <string>5e0d4f4a5a5bbcba610aafbb91c30b2b</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/CYGWIN/installer/curl-7.38.0.297172-windows-297172.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/CYGWIN/installer/curl-7.47.0.312763-windows-312763.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.38.0.297172</string>
+        <string>7.47.0.312763</string>
       </map>
       <key>db</key>
       <map>
@@ -696,9 +644,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f577144536fd7c9d26d9f989acf17857</string>
+              <string>44c596c659d32a86972ac9c6f206cb68</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297692/arch/Linux/installer/glh_linear-0.0.0-common-297692.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-glh-linear/rev/303446/arch/Linux/installer/glh_linear-0.0.0-common-303446.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -1506,9 +1454,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce1261a54d877ab5530ae6a9134a77a3</string>
+              <string>faa1e5b7cf70c143caabe190fa5588ce</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/294906/arch/Linux/installer/llappearance_utility-0.0.1-linux-294906.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/304432/arch/Linux/installer/llappearance_utility-0.0.1-linux-304432.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2068,9 +2016,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>68a8fab5ad3a180487598d3a3e0d57b1</string>
+              <string>3dd9bf4185bf2df413d890ca9eeab76c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Darwin/installer/slvoice-4.6.0017.21209.298329-darwin-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Darwin/installer/slvoice-4.6.0017.22050.302004-darwin-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2080,9 +2028,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>48ed7ddcf93fa3c751d677f5eb5f9367</string>
+              <string>06c3a9b1005249f0c94a8b9f3775f3d3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Linux/installer/slvoice-3.2.0002.10426.298329-linux-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Linux/installer/slvoice-3.2.0002.10426.302004-linux-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2092,16 +2040,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>399afab7047e6fa62e7b2fb1768059ea</string>
+              <string>47a3316dae47cc4e7c1ea7b74ba8dd1e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/CYGWIN/installer/slvoice-4.6.0017.21209.298329-windows-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/CYGWIN/installer/slvoice-4.6.0017.22050.302004-windows-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.6.0017.21209.2988329</string>
+        <string>3.2.0002.10426.302004</string>
       </map>
       <key>tut</key>
       <map>

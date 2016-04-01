@@ -28,27 +28,29 @@
 #ifndef LL_LLPRODUCTINFOREQUEST_H
 #define LL_LLPRODUCTINFOREQUEST_H
 
-#include "llhttpclient.h"
 #include "llmemory.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
-/* 
- This is a singleton to manage a cache of information about land types.
- The land system provides a capability to get information about the
- set of possible land sku, name, and description information.
- We use description in the UI, but the sku is provided in the various
- messages; this tool provides translation between the systems.
+/** 
+ * This is a singleton to manage a cache of information about land types.
+ * The land system provides a capability to get information about the
+ * set of possible land sku, name, and description information.
+ * We use description in the UI, but the sku is provided in the various
+ * messages; this tool provides translation between the systems.
  */
-
 class LLProductInfoRequestManager : public LLSingleton<LLProductInfoRequestManager>
 {
 public:
 	LLProductInfoRequestManager();
-	void setSkuDescriptions(const LLSD& content);
 	std::string getDescriptionForSku(const std::string& sku);
+
 private:
 	friend class LLSingleton<LLProductInfoRequestManager>;	
 	/* virtual */ void initSingleton();
-	LLSD mSkuDescriptions;
+
+    void getLandDescriptionsCoro(std::string url);
+    LLSD mSkuDescriptions;
 };
 
 #endif // LL_LLPRODUCTINFOREQUEST_H

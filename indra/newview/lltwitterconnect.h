@@ -30,6 +30,8 @@
 
 #include "llsingleton.h"
 #include "llimage.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 
 class LLEventPump;
 
@@ -94,6 +96,14 @@ private:
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
 	static boost::scoped_ptr<LLEventPump> sInfoWatcher;
 	static boost::scoped_ptr<LLEventPump> sContentWatcher;
+
+    bool testShareStatus(LLSD &result);
+    void twitterConnectCoro(std::string requestToken, std::string oauthVerifier);
+    void twitterDisconnectCoro();
+    void twitterConnectedCoro(bool autoConnect);
+    void twitterInfoCoro();
+    void twitterShareCoro(std::string route, LLSD share);
+    void twitterShareImageCoro(LLPointer<LLImageFormatted> image, std::string status);
 };
 
 #endif // LL_LLTWITTERCONNECT_H

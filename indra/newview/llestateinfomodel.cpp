@@ -29,7 +29,6 @@
 #include "llestateinfomodel.h"
 
 // libs
-#include "llhttpclient.h"
 #include "llregionflags.h"
 #include "message.h"
 
@@ -37,6 +36,8 @@
 #include "llagent.h"
 #include "llfloaterregioninfo.h" // for invoice id
 #include "llviewerregion.h"
+
+#include "llcorehttputil.h"
 
 LLEstateInfoModel::LLEstateInfoModel()
 :	mID(0)
@@ -110,24 +111,6 @@ void LLEstateInfoModel::notifyCommit()
 
 //== PRIVATE STUFF ============================================================
 
-class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLEstateChangeInfoResponder);
-protected:
-	// if we get a normal response, handle it here
-	virtual void httpSuccesss()
-	{
-		LL_INFOS() << "Committed estate info" << LL_ENDL;
-		LLEstateInfoModel::instance().notifyCommit();
-	}
-
-	// if we get an error response
-	virtual void httpFailure()
-	{
-		LL_WARNS() << "Failed to commit estate info " << dumpResponse() << LL_ENDL;
-	}
-};
-
 // tries to send estate info using a cap; returns true if it succeeded
 bool LLEstateInfoModel::commitEstateInfoCaps()
 {
@@ -139,27 +122,51 @@ bool LLEstateInfoModel::commitEstateInfoCaps()
 		return false;
 	}
 
-	LLSD body;
-	body["estate_name"          ] = getName();
-	body["sun_hour"             ] = getSunHour();
+    LLCoros::instance().launch("LLEstateInfoModel::commitEstateInfoCapsCoro",
+        boost::bind(&LLEstateInfoModel::commitEstateInfoCapsCoro, this, url));
 
-	body["is_sun_fixed"         ] = getUseFixedSun();
-	body["is_externally_visible"] = getIsExternallyVisible();
-	body["allow_direct_teleport"] = getAllowDirectTeleport();
-	body["deny_anonymous"       ] = getDenyAnonymous();
-	body["deny_age_unverified"  ] = getDenyAgeUnverified();
-	body["allow_voice_chat"     ] = getAllowVoiceChat();
-
-	body["invoice"              ] = LLFloaterRegionInfo::getLastInvoice();
-
-	LL_DEBUGS("Windlight Sync") << "Sending estate caps: "
-		<< "is_sun_fixed = " << getUseFixedSun()
-		<< ", sun_hour = " << getSunHour() << LL_ENDL;
-	LL_DEBUGS() << body << LL_ENDL;
-
-	// we use a responder so that we can re-get the data after committing to the database
-	LLHTTPClient::post(url, body, new LLEstateChangeInfoResponder);
     return true;
+}
+
+void LLEstateInfoModel::commitEstateInfoCapsCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EstateChangeInfo", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD body;
+    body["estate_name"] = getName();
+    body["sun_hour"] = getSunHour();
+
+    body["is_sun_fixed"] = getUseFixedSun();
+    body["is_externally_visible"] = getIsExternallyVisible();
+    body["allow_direct_teleport"] = getAllowDirectTeleport();
+    body["deny_anonymous"] = getDenyAnonymous();
+    body["deny_age_unverified"] = getDenyAgeUnverified();
+    body["allow_voice_chat"] = getAllowVoiceChat();
+
+    body["invoice"] = LLFloaterRegionInfo::getLastInvoice();
+
+    LL_DEBUGS("Windlight Sync") << "Sending estate caps: "
+        << "is_sun_fixed = " << getUseFixedSun()
+        << ", sun_hour = " << getSunHour() << LL_ENDL;
+    LL_DEBUGS() << body << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status)
+    {
+        LL_INFOS() << "Committed estate info" << LL_ENDL;
+        LLEstateInfoModel::instance().notifyCommit();
+    }
+    else
+    {
+        LL_WARNS() << "Failed to commit estate info " << LL_ENDL;
+    }
 }
 
 /* This is the old way of doing things, is deprecated, and should be

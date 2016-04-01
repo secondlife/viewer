@@ -41,8 +41,6 @@
 	#include <arpa/inet.h>
 #endif
 
-LLHost LLHost::invalid(INVALID_PORT,INVALID_HOST_IP_ADDRESS);
-
 LLHost::LLHost(const std::string& ip_and_port)
 {
 	std::string::size_type colon_index = ip_and_port.find(":");

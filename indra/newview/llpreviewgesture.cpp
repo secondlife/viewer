@@ -31,7 +31,6 @@
 #include "llanimstatelabels.h"
 #include "llanimationstates.h"
 #include "llappviewer.h"			// gVFS
-#include "llassetuploadresponders.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldatapacker.h"
@@ -52,6 +51,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llviewerassetupload.h"
 
 std::string NONE_LABEL;
 std::string SHIFT_LABEL;
@@ -1015,6 +1015,27 @@ struct LLSaveInfo
 };
 
 
+void LLPreviewGesture::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
+{
+    // If this gesture is active, then we need to update the in-memory
+    // active map with the new pointer.				
+    if (LLGestureMgr::instance().isGestureActive(itemId))
+    {
+        //*TODO: This is crashing for some reason.  Fix it.
+        // Active gesture edited from menu.
+        LLGestureMgr::instance().replaceGesture(itemId, newAssetId);
+        gInventory.notifyObservers();
+    }
+
+    //gesture will have a new asset_id
+    LLPreviewGesture* previewp = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", LLSD(itemId));
+    if (previewp)
+    {
+        previewp->onUpdateSucceeded();
+    }
+}
+
+
 void LLPreviewGesture::saveIfNeeded()
 {
 	if (!gAssetStorage)
@@ -1028,116 +1049,127 @@ void LLPreviewGesture::saveIfNeeded()
 		return;
 	}
 
-	// Copy the UI into a gesture
-	LLMultiGesture* gesture = createGesture();
+    // Copy the UI into a gesture
+    LLMultiGesture* gesture = createGesture();
 
-	// Serialize the gesture
-	S32 max_size = gesture->getMaxSerialSize();
-	char* buffer = new char[max_size];
+    // Serialize the gesture
+    S32 maxSize = gesture->getMaxSerialSize();
+    char* buffer = new char[maxSize];
 
-	LLDataPackerAsciiBuffer dp(buffer, max_size);
+    LLDataPackerAsciiBuffer dp(buffer, maxSize);
 
-	BOOL ok = gesture->serialize(dp);
+    bool ok = gesture->serialize(dp);
 
-	if (dp.getCurrentSize() > 1000)
-	{
-		LLNotificationsUtil::add("GestureSaveFailedTooManySteps");
+    if (dp.getCurrentSize() > 1000)
+    {
+        LLNotificationsUtil::add("GestureSaveFailedTooManySteps");
 
-		delete gesture;
-		gesture = NULL;
-	}
-	else if (!ok)
-	{
-		LLNotificationsUtil::add("GestureSaveFailedTryAgain");
-		delete gesture;
-		gesture = NULL;
-	}
-	else
-	{
-		LLPreview::onCommit();
+        delete gesture;
+        gesture = NULL;
+        return;
+    }
+    else if (!ok)
+    {
+        LLNotificationsUtil::add("GestureSaveFailedTryAgain");
+        delete gesture;
+        gesture = NULL;
+        return;
+    }
 
-		// Every save gets a new UUID.  Yup.
-		LLTransactionID tid;
-		LLAssetID asset_id;
-		tid.generate();
-		asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+    LLAssetID assetId;
+    LLPreview::onCommit();
+    bool delayedUpload(false);
 
-		LLVFile file(gVFS, asset_id, LLAssetType::AT_GESTURE, LLVFile::APPEND);
+    LLViewerInventoryItem* item = (LLViewerInventoryItem*) getItem();
+    if (item)
+    {
+        const LLViewerRegion* region = gAgent.getRegion();
+        if (!region)
+        {
+            LL_WARNS() << "Not connected to a region, cannot save notecard." << LL_ENDL;
+            return;
+        }
+        std::string agent_url = region->getCapability("UpdateGestureAgentInventory");
+        std::string task_url = region->getCapability("UpdateGestureTaskInventory");
 
-		S32 size = dp.getCurrentSize();
-		file.setMaxSize(size);
-		file.write((U8*)buffer, size);
+        if (!agent_url.empty() && !task_url.empty())
+        {
+            std::string url;
+            LLResourceUploadInfo::ptr_t uploadInfo;
 
-		BOOL delayedUpload = FALSE;
+            if (mObjectUUID.isNull() && !agent_url.empty())
+            {
+                //need to disable the preview floater so item
+                //isn't re-saved before new asset arrives
+                //fake out refresh.
+                item->setComplete(false);
+                refresh();
+                item->setComplete(true);
 
-		// Upload that asset to the database
-		LLViewerInventoryItem* item = (LLViewerInventoryItem*) getItem();
-		if (item)
-		{
-			std::string agent_url = gAgent.getRegion()->getCapability("UpdateGestureAgentInventory");
-			std::string task_url = gAgent.getRegion()->getCapability("UpdateGestureTaskInventory");
-			if (mObjectUUID.isNull() && !agent_url.empty())
-			{
-				//need to disable the preview floater so item
-				//isn't re-saved before new asset arrives
-				//fake out refresh.
-				item->setComplete(FALSE);
-				refresh();				
-				item->setComplete(TRUE);
+                uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_GESTURE, buffer,
+                    boost::bind(&LLPreviewGesture::finishInventoryUpload, _1, _2)));
+                url = agent_url;
+            }
+            else if (!mObjectUUID.isNull() && !task_url.empty())
+            {
+                uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, NULL));
+                url = task_url;
+            }
 
-				// Saving into agent inventory
-				LLSD body;
-				body["item_id"] = mItemUUID;
-				LLHTTPClient::post(agent_url, body,
-					new LLUpdateAgentInventoryResponder(body, asset_id, LLAssetType::AT_GESTURE));
-				delayedUpload = TRUE;
-			}
-			else if (!mObjectUUID.isNull() && !task_url.empty())
-			{
-				// Saving into task inventory
-				LLSD body;
-				body["task_id"] = mObjectUUID;
-				body["item_id"] = mItemUUID;
-				LLHTTPClient::post(task_url, body,
-					new LLUpdateTaskInventoryResponder(body, asset_id, LLAssetType::AT_GESTURE));
-			}
-			else if (gAssetStorage)
-			{
-				LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
-				LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);
-				gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, FALSE);
-			}
-		}
+            if (!url.empty() && uploadInfo)
+            {
+                delayedUpload = true;
 
-		// If this gesture is active, then we need to update the in-memory
-		// active map with the new pointer.
-		if (!delayedUpload && LLGestureMgr::instance().isGestureActive(mItemUUID))
-		{
-			// gesture manager now owns the pointer
-			LLGestureMgr::instance().replaceGesture(mItemUUID, gesture, asset_id);
+                LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+            }
 
-			// replaceGesture may deactivate other gestures so let the
-			// inventory know.
-			gInventory.notifyObservers();
-		}
-		else
-		{
-			// we're done with this gesture
-			delete gesture;
-			gesture = NULL;
-		}
+        }
+        else if (gAssetStorage)
+        {
+            // Every save gets a new UUID.  Yup.
+            LLTransactionID tid;
+            tid.generate();
+            assetId = tid.makeAssetID(gAgent.getSecureSessionID());
 
-		mDirty = FALSE;
-		// refresh will be called when callback
-		// if triggered when delayedUpload
-		if(!delayedUpload)
-		{
-			refresh();
-		}
-	}
+            LLVFile file(gVFS, assetId, LLAssetType::AT_GESTURE, LLVFile::APPEND);
 
-	delete [] buffer;
-	buffer = NULL;
+            S32 size = dp.getCurrentSize();
+            file.setMaxSize(size);
+            file.write((U8*)buffer, size);
+
+            LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
+            LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);
+            gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, FALSE);
+        }
+
+    }
+
+    // If this gesture is active, then we need to update the in-memory
+    // active map with the new pointer.
+    if (!delayedUpload && LLGestureMgr::instance().isGestureActive(mItemUUID))
+    {
+        // gesture manager now owns the pointer
+        LLGestureMgr::instance().replaceGesture(mItemUUID, gesture, assetId);
+
+        // replaceGesture may deactivate other gestures so let the
+        // inventory know.
+        gInventory.notifyObservers();
+    }
+    else
+    {
+        // we're done with this gesture
+        delete gesture;
+        gesture = NULL;
+    }
+
+    mDirty = false;
+    // refresh will be called when callback
+    // if triggered when delayedUpload
+    if(!delayedUpload)
+    {
+        refresh();
+    }
+
 }
 
 

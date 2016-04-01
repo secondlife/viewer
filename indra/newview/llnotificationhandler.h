@@ -277,22 +277,6 @@ protected:
 	virtual void initChannel() {};
 };
 	
-/**
- * Handler for outbox notifications
- */
-class LLOutboxNotification : public LLSystemNotificationHandler
-{
-public:
-	LLOutboxNotification();
-	virtual ~LLOutboxNotification() {};
-	virtual void onChange(LLNotificationPtr p) { }
-	virtual void onDelete(LLNotificationPtr p);
-	virtual bool processNotification(const LLNotificationPtr& p);
-
-protected:
-	virtual void initChannel() {};
-};
-	
 class LLHandlerUtil
 {
 public:

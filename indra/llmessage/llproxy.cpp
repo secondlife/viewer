@@ -30,9 +30,8 @@
 
 #include <string>
 #include <curl/curl.h>
-
+#include "httpcommon.h"
 #include "llapr.h"
-#include "llcurl.h"
 #include "llhost.h"
 
 // Static class variable instances
@@ -408,16 +407,6 @@ void LLProxy::cleanupClass()
 	deleteSingleton();
 }
 
-void LLProxy::applyProxySettings(LLCurlEasyRequest* handle)
-{
-	applyProxySettings(handle->getEasy());
-}
-
-void LLProxy::applyProxySettings(LLCurl::Easy* handle)
-{
-	applyProxySettings(handle->getCurlHandle());
-}
-
 /**
  * @brief Apply proxy settings to a CuRL request if an HTTP proxy is enabled.
  *
@@ -439,21 +428,21 @@ void LLProxy::applyProxySettings(CURL* handle)
 		// Now test again to verify that the proxy wasn't disabled between the first check and the lock.
 		if (mHTTPProxyEnabled)
 		{
-			LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()));
-			LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()));
+            LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()), CURLOPT_PROXY);
+            LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()), CURLOPT_PROXYPORT);
 
 			if (mProxyType == LLPROXY_SOCKS)
 			{
-				LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
+                LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5), CURLOPT_PROXYTYPE);
 				if (mAuthMethodSelected == METHOD_PASSWORD)
 				{
 					std::string auth_string = mSocksUsername + ":" + mSocksPassword;
-					LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()));
+                    LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()), CURLOPT_PROXYUSERPWD);
 				}
 			}
 			else
 			{
-				LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
+                LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP), CURLOPT_PROXYTYPE);
 			}
 		}
 	}

@@ -31,6 +31,10 @@
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 
+#include <openssl/x509_vfy.h>
+#include <openssl/ssl.h>
+#include "llsecapi.h"
+#include <curl/curl.h>
 
 // Here is where we begin to get our connection usage under control.
 // This establishes llcorehttp policy classes that, among other
@@ -93,6 +97,16 @@ static const struct
 		4,		1,		4,		0,		false,
 		"",
 		"inventory"
+	},
+	{ // AP_MATERIALS
+		2,		1,		8,		0,		false,
+		"RenderMaterials",
+		"material manager requests"
+	},
+	{ // AP_AGENT
+		2,		1,		32,		0,		false,
+		"Agent",
+		"Agent requests"
 	}
 };
 
@@ -124,6 +138,9 @@ LLAppCoreHttp::~LLAppCoreHttp()
 
 void LLAppCoreHttp::init()
 {
+
+    LLCore::LLHttp::initialize();
+
 	LLCore::HttpStatus status = LLCore::HttpRequest::createService();
 	if (! status)
 	{
@@ -149,6 +166,15 @@ void LLAppCoreHttp::init()
 	{
 		LL_WARNS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
 						 << LL_ENDL;
+	}
+
+	// Set up SSL Verification call back.
+	status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_SSL_VERIFY_CALLBACK,
+														LLCore::HttpRequest::GLOBAL_POLICY_ID,
+														sslVerify, NULL);
+	if (!status)
+	{
+		LL_WARNS("Init") << "Failed to set SSL Verification.  Reason:  " << status.toString() << LL_ENDL;
 	}
 
 	// Tracing levels for library & libcurl (note that 2 & 3 are beyond spammy):
@@ -182,6 +208,8 @@ void LLAppCoreHttp::init()
 		}
 
 		mHttpClasses[app_policy].mPolicy = LLCore::HttpRequest::createPolicyClass();
+		// We have run out of available HTTP policies. Adjust HTTP_POLICY_CLASS_LIMIT in _httpinternal.h
+		llassert(mHttpClasses[app_policy].mPolicy != LLCore::HttpRequest::INVALID_POLICY_ID);
 		if (! mHttpClasses[app_policy].mPolicy)
 		{
 			// Use default policy (but don't accidentally modify default)
@@ -250,12 +278,25 @@ void setting_changed()
 	LLAppViewer::instance()->getAppCoreHttp().refreshSettings(false);
 }
 
+namespace
+{
+    // The NoOpDeletor is used when wrapping LLAppCoreHttp in a smart pointer below for
+    // passage into the LLCore::Http libararies.  When the smart pointer is destroyed, 
+    // no action will be taken since we do not in this case want the entire LLAppCoreHttp object
+    // to be destroyed at the end of the call.
+    // 
+    // *NOTE$: Yes! It is "Deletor" 
+    // http://english.stackexchange.com/questions/4733/what-s-the-rule-for-adding-er-vs-or-when-nouning-a-verb
+    // "delete" derives from Latin "deletus"
+    void NoOpDeletor(LLCore::HttpHandler *)
+    { /*NoOp*/ }
+}
 
 void LLAppCoreHttp::requestStop()
 {
 	llassert_always(mRequest);
 
-	mStopHandle = mRequest->requestStopThread(this);
+	mStopHandle = mRequest->requestStopThread(LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 	if (LLCORE_HTTP_HANDLE_INVALID != mStopHandle)
 	{
 		mStopRequested = LLTimer::getTotalSeconds();
@@ -325,6 +366,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			mPipelined = pipelined;
 			pipeline_changed = true;
 		}
+        LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
 	}
 	
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
@@ -368,7 +410,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 				handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
 												   mHttpClasses[app_policy].mPolicy,
 												   new_depth,
-												   NULL);
+                                                   LLCore::HttpHandler::ptr_t());
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					status = mRequest->getStatus();
@@ -418,7 +460,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
 											   mHttpClasses[app_policy].mPolicy,
 											   (mHttpClasses[app_policy].mPipelined ? 2 * setting : setting),
-											   NULL);
+                                               LLCore::HttpHandler::ptr_t());
 			if (LLCORE_HTTP_HANDLE_INVALID == handle)
 			{
 				status = mRequest->getStatus();
@@ -431,7 +473,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 				handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_PER_HOST_CONNECTION_LIMIT,
 												   mHttpClasses[app_policy].mPolicy,
 												   setting,
-												   NULL);
+                                                   LLCore::HttpHandler::ptr_t());
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
 				{
 					status = mRequest->getStatus();
@@ -456,6 +498,62 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 		}
 	}
 }
+
+LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url, 
+	const LLCore::HttpHandler::ptr_t &handler, void *appdata)
+{
+	X509_STORE_CTX *ctx = static_cast<X509_STORE_CTX *>(appdata);
+	LLCore::HttpStatus result;
+	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
+	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
+	LLSD validation_params = LLSD::emptyMap();
+	LLURI uri(url);
+
+	validation_params[CERT_HOSTNAME] = uri.hostName();
+
+	// *TODO: In the case of an exception while validating the cert, we need a way
+	// to pass the offending(?) cert back out. *Rider*
+
+	try
+	{
+		// don't validate hostname.  Let libcurl do it instead.  That way, it'll handle redirects
+		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
+	}
+	catch (LLCertValidationTrustException &cert_exception)
+	{
+		// this exception is is handled differently than the general cert
+		// exceptions, as we allow the user to actually add the certificate
+		// for trust.
+		// therefore we pass back a different error code
+		// NOTE: We're currently 'wired' to pass around CURL error codes.  This is
+		// somewhat clumsy, as we may run into errors that do not map directly to curl
+		// error codes.  Should be refactored with login refactoring, perhaps.
+		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_CACERT);
+		result.setMessage(cert_exception.getMessage());
+		LLPointer<LLCertificate> cert = cert_exception.getCert();
+		cert->ref(); // adding an extra ref here
+		result.setErrorData(cert.get());
+		// We should probably have a more generic way of passing information
+		// back to the error handlers.
+	}
+	catch (LLCertException &cert_exception)
+	{
+		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_PEER_CERTIFICATE);
+		result.setMessage(cert_exception.getMessage());
+		LLPointer<LLCertificate> cert = cert_exception.getCert();
+		cert->ref(); // adding an extra ref here
+		result.setErrorData(cert.get());
+	}
+	catch (...)
+	{
+		// any other odd error, we just handle as a connect error.
+		result = LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_SSL_CONNECT_ERROR);
+	}
+
+	return result;
+}
+
+
 
 
 void LLAppCoreHttp::onCompleted(LLCore::HttpHandle, LLCore::HttpResponse *)

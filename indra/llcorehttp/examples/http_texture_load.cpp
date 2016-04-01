@@ -83,7 +83,7 @@ public:
 	WorkingSet();
 	~WorkingSet();
 
-	bool reload(LLCore::HttpRequest *, LLCore::HttpOptions *);
+	bool reload(LLCore::HttpRequest *, LLCore::HttpOptions::ptr_t &);
 	
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
@@ -121,7 +121,7 @@ public:
 	int							mRetriesHttp503;
 	int							mSuccesses;
 	long						mByteCount;
-	LLCore::HttpHeaders *		mHeaders;
+	LLCore::HttpHeaders::ptr_t	mHeaders;
 };
 
 
@@ -304,7 +304,7 @@ int main(int argc, char** argv)
 	LLCore::HttpRequest * hr = new LLCore::HttpRequest();
 
 	// Get request options
-	LLCore::HttpOptions * opt = new LLCore::HttpOptions();
+	LLCore::HttpOptions::ptr_t opt = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
 	opt->setRetries(12);
 	opt->setUseRetryAfter(true);
 	
@@ -361,10 +361,9 @@ int main(int argc, char** argv)
 			  << std::endl;
 
 	// Clean up
-	hr->requestStopThread(NULL);
+	hr->requestStopThread(LLCore::HttpHandler::ptr_t());
 	ms_sleep(1000);
-	opt->release();
-	opt = NULL;
+    opt.reset();
 	delete hr;
 	LLCore::HttpRequest::destroyService();
 	term_curl();
@@ -427,22 +426,22 @@ WorkingSet::WorkingSet()
 {
 	mAssets.reserve(30000);
 
-	mHeaders = new LLCore::HttpHeaders;
+	mHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
 	mHeaders->append("Accept", "image/x-j2c");
 }
 
 
 WorkingSet::~WorkingSet()
 {
-	if (mHeaders)
-	{
-		mHeaders->release();
-		mHeaders = NULL;
-	}
 }
 
+namespace
+{
+    void NoOpDeletor(LLCore::HttpHandler *)
+    { /*NoOp*/ }
+}
 
-bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions * opt)
+bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions::ptr_t & opt)
 {
 	if (mRequestLowWater <= mHandles.size())
 	{
@@ -470,11 +469,11 @@ bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions * opt)
 		LLCore::HttpHandle handle;
 		if (offset || length)
 		{
-			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, this);
+			handle = hr->requestGetByteRange(0, 0, buffer, offset, length, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 		}
 		else
 		{
-			handle = hr->requestGet(0, 0, buffer, opt, mHeaders, this);
+            handle = hr->requestGet(0, 0, buffer, opt, mHeaders, LLCore::HttpHandler::ptr_t(this, NoOpDeletor));
 		}
 		if (! handle)
 		{

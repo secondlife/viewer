@@ -28,8 +28,8 @@
 #define	_LLCORE_HTTP_HEADERS_H_
 
 
+#include "httpcommon.h"
 #include <string>
-
 #include "_refcounted.h"
 
 
@@ -74,7 +74,7 @@ namespace LLCore
 /// constructor is given a refcount.
 ///
 
-class HttpHeaders : public LLCoreInt::RefCounted
+class HttpHeaders: private boost::noncopyable
 {
 public:
 	typedef std::pair<std::string, std::string> header_t;
@@ -85,15 +85,17 @@ public:
 	typedef container_t::const_reverse_iterator const_reverse_iterator;
 	typedef container_t::value_type value_type;
 	typedef container_t::size_type size_type;
+    typedef boost::shared_ptr<HttpHeaders> ptr_t;
 
 public:
 	/// @post In addition to the instance, caller has a refcount
 	/// to the instance.  A call to @see release() will destroy
 	/// the instance.
 	HttpHeaders();
+    virtual ~HttpHeaders();						// Use release()
 
+	//typedef LLCoreInt::IntrusivePtr<HttpHeaders> ptr_t;
 protected:
-	virtual ~HttpHeaders();						// Use release()
 
 	HttpHeaders(const HttpHeaders &);			// Not defined
 	void operator=(const HttpHeaders &);		// Not defined
@@ -145,8 +147,16 @@ public:
 	//					a pointer to a std::string in the container.
 	//					Pointer is valid only for the lifetime of
 	//					the container or until container is modifed.
-	//
-	const std::string * find(const char * name) const;
+	const std::string * find(const std::string &name) const;
+	const std::string * find(const char * name) const
+	{
+		return find(std::string(name));
+	}
+
+    // Remove the header from the list if found.
+    // 
+    void remove(const std::string &name);
+    void remove(const char *name);
 
 	// Count of headers currently in the list.
 	size_type size() const

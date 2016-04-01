@@ -61,6 +61,8 @@ private:
 	void onBtnGoogleVerify();
 	void onBtnOK();
 
+    static void setVerificationStatus(int service, bool alert, bool ok);
+
 	LLCheckBoxCtrl* mMachineTranslationCB;
 	LLComboBox* mLanguageCombo;
 	LLLineEditor* mBingAPIKeyEditor;

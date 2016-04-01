@@ -116,21 +116,19 @@ void HttpPolicy::shutdown()
 		HttpRetryQueue & retryq(state.mRetryQueue);
 		while (! retryq.empty())
 		{
-			HttpOpRequest * op(retryq.top());
+			HttpOpRequest::ptr_t op(retryq.top());
 			retryq.pop();
 		
 			op->cancel();
-			op->release();
 		}
 
 		HttpReadyQueue & readyq(state.mReadyQueue);
 		while (! readyq.empty())
 		{
-			HttpOpRequest * op(readyq.top());
+			HttpOpRequest::ptr_t op(readyq.top());
 			readyq.pop();
 		
 			op->cancel();
-			op->release();
 		}
 	}
 }
@@ -141,7 +139,7 @@ void HttpPolicy::start()
 }
 
 
-void HttpPolicy::addOp(HttpOpRequest * op)
+void HttpPolicy::addOp(const HttpOpRequest::ptr_t &op)
 {
 	const int policy_class(op->mReqPolicy);
 	
@@ -151,7 +149,7 @@ void HttpPolicy::addOp(HttpOpRequest * op)
 }
 
 
-void HttpPolicy::retryOp(HttpOpRequest * op)
+void HttpPolicy::retryOp(const HttpOpRequest::ptr_t &op)
 {
 	static const HttpTime retry_deltas[] =
 		{
@@ -180,7 +178,7 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	{
 		++op->mPolicy503Retries;
 	}
-	LL_DEBUGS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+	LL_DEBUGS(LOG_CORE) << "HTTP request " << op->getHandle()
 						<< " retry " << op->mPolicyRetries
 						<< " scheduled in " << (delta / HttpTime(1000))
 						<< " mS (" << (external_delta ? "external" : "internal")
@@ -189,10 +187,10 @@ void HttpPolicy::retryOp(HttpOpRequest * op)
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS(LOG_CORE) << "TRACE, ToRetryQueue, Handle:  "
-						   << static_cast<HttpHandle>(op)
-						   << ", Delta:  " << (delta / HttpTime(1000))
-						   << ", Retries:  " << op->mPolicyRetries
-						   << LL_ENDL;
+                            << op->getHandle()
+						    << ", Delta:  " << (delta / HttpTime(1000))
+						    << ", Retries:  " << op->mPolicyRetries
+						    << LL_ENDL;
 	}
 	mClasses[policy_class]->mRetryQueue.push(op);
 }
@@ -264,14 +262,14 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 			// First see if we have any retries...
 			while (needed > 0 && ! retryq.empty())
 			{
-				HttpOpRequest * op(retryq.top());
+				HttpOpRequest::ptr_t op(retryq.top());
 				if (op->mPolicyRetryAt > now)
 					break;
 			
 				retryq.pop();
 				
 				op->stageFromReady(mService);
-				op->release();
+                op.reset();
 
 				++state.mRequestCount;
 				--needed;
@@ -296,11 +294,11 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 			// Now go on to the new requests...
 			while (needed > 0 && ! readyq.empty())
 			{
-				HttpOpRequest * op(readyq.top());
+				HttpOpRequest::ptr_t op(readyq.top());
 				readyq.pop();
 
 				op->stageFromReady(mService);
-				op->release();
+				op.reset();
 					
 				++state.mRequestCount;
 				--needed;
@@ -351,9 +349,9 @@ bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t prior
 		{
 			HttpReadyQueue::container_type::iterator cur(iter++);
 
-			if (static_cast<HttpHandle>(*cur) == handle)
+			if ((*cur)->getHandle() == handle)
 			{
-				HttpOpRequest * op(*cur);
+				HttpOpRequest::ptr_t op(*cur);
 				c.erase(cur);									// All iterators are now invalidated
 				op->mReqPriority = priority;
 				state.mReadyQueue.push(op);						// Re-insert using adapter class
@@ -378,12 +376,11 @@ bool HttpPolicy::cancel(HttpHandle handle)
 		{
 			HttpRetryQueue::container_type::iterator cur(iter++);
 
-			if (static_cast<HttpHandle>(*cur) == handle)
+			if ((*cur)->getHandle() == handle)
 			{
-				HttpOpRequest * op(*cur);
+				HttpOpRequest::ptr_t op(*cur);
 				c1.erase(cur);									// All iterators are now invalidated
 				op->cancel();
-				op->release();
 				return true;
 			}
 		}
@@ -394,12 +391,11 @@ bool HttpPolicy::cancel(HttpHandle handle)
 		{
 			HttpReadyQueue::container_type::iterator cur(iter++);
 
-			if (static_cast<HttpHandle>(*cur) == handle)
+			if ((*cur)->getHandle() == handle)
 			{
-				HttpOpRequest * op(*cur);
+				HttpOpRequest::ptr_t op(*cur);
 				c2.erase(cur);									// All iterators are now invalidated
 				op->cancel();
-				op->release();
 				return true;
 			}
 		}
@@ -409,7 +405,7 @@ bool HttpPolicy::cancel(HttpHandle handle)
 }
 
 
-bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
+bool HttpPolicy::stageAfterCompletion(const HttpOpRequest::ptr_t &op)
 {
 	// Retry or finalize
 	if (! op->mStatus)
@@ -420,7 +416,7 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 #if 0
 		if (op->mStatus == HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT))
 		{
-			LL_WARNS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+			LL_WARNS(LOG_CORE) << "HTTP request " << op->getHandle()
 							   << " timed out."
 							   << LL_ENDL;
 		}
@@ -438,7 +434,7 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	// This op is done, finalize it delivering it to the reply queue...
 	if (! op->mStatus)
 	{
-		LL_WARNS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+		LL_WARNS(LOG_CORE) << "HTTP request " << op->getHandle()
 						   << " failed after " << op->mPolicyRetries
 						   << " retries.  Reason:  " << op->mStatus.toString()
 						   << " (" << op->mStatus.toTerseString() << ")"
@@ -446,13 +442,12 @@ bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
 	}
 	else if (op->mPolicyRetries)
 	{
-		LL_DEBUGS(LOG_CORE) << "HTTP request " << static_cast<HttpHandle>(op)
+        LL_DEBUGS(LOG_CORE) << "HTTP request " << op->getHandle()
 							<< " succeeded on retry " << op->mPolicyRetries << "."
 							<< LL_ENDL;
 	}
 
 	op->stageFromActive(mService);
-	op->release();
 	return false;						// not active
 }
 

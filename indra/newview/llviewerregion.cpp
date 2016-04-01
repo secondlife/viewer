@@ -34,7 +34,6 @@
 #include "llavatarnamecache.h"		// name lookup cap url
 #include "llfloaterreg.h"
 #include "llmath.h"
-#include "llhttpclient.h"
 #include "llregionflags.h"
 #include "llregionhandle.h"
 #include "llsurface.h"
@@ -47,8 +46,6 @@
 #include "llagentcamera.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "llcallingcard.h"
-#include "llcaphttpsender.h"
-#include "llcapabilitylistener.h"
 #include "llcommandhandler.h"
 #include "lldir.h"
 #include "lleventpoll.h"
@@ -78,6 +75,9 @@
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
+#include "llcorehttputil.h"
 
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
@@ -92,7 +92,6 @@
 // We want to allow for seed cap retry, but its not useful after that 60 seconds.
 // Give it 3 chances, each at 18 seconds to give ourselves a few seconds to connect anyways if we give up.
 const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN = 3;
-const F32 CAP_REQUEST_TIMEOUT = 18;
 // Even though we gave up on login, keep trying for caps after we are logged in:
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
@@ -105,31 +104,62 @@ typedef std::map<std::string, std::string> CapabilityMap;
 
 static void log_capabilities(const CapabilityMap &capmap);
 
-class LLViewerRegionImpl {
+// support for secondlife:///app/region/{REGION} SLapps
+// N.B. this is defined to work exactly like the classic secondlife://{REGION}
+// However, the later syntax cannot support spaces in the region name because
+// spaces (and %20 chars) are illegal in the hostname of an http URL. Some
+// browsers let you get away with this, but some do not (such as Qt's Webkit).
+// Hence we introduced the newer secondlife:///app/region alternative.
+class LLRegionHandler : public LLCommandHandler
+{
 public:
-	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host)
-		:	mHost(host),
-			mCompositionp(NULL),
-			mEventPoll(NULL),
-			mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
-			mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
-			mSeedCapAttempts(0),
-			mHttpResponderID(0),
-		mLastCameraUpdate(0),
-		mLastCameraOrigin(),
-		mVOCachePartition(NULL),
-		mLandp(NULL),
-		    // I'd prefer to set the LLCapabilityListener name to match the region
-		    // name -- it's disappointing that's not available at construction time.
-		    // We could instead store an LLCapabilityListener*, making
-		    // setRegionNameAndZone() replace the instance. Would that pose
-		    // consistency problems? Can we even request a capability before calling
-		    // setRegionNameAndZone()?
-		    // For testability -- the new Michael Feathers paradigm --
-		    // LLCapabilityListener binds all the globals it expects to need at
-		    // construction time.
-		    mCapabilityListener(host.getString(), gMessageSystem, *region,
-		                        gAgent.getID(), gAgent.getSessionID())
+    // requests will be throttled from a non-trusted browser
+    LLRegionHandler() : LLCommandHandler("region", UNTRUSTED_THROTTLE) {}
+       
+    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+    {
+        // make sure that we at least have a region name
+        int num_params = params.size();
+        if (num_params < 1)
+        {
+            return false;
+        }
+           
+        // build a secondlife://{PLACE} SLurl from this SLapp
+        std::string url = "secondlife://";
+        for (int i = 0; i < num_params; i++)
+        {
+            if (i > 0)
+            {
+                url += "/";
+            }
+            url += params[i].asString();
+        }
+           
+        // Process the SLapp as if it was a secondlife://{PLACE} SLurl
+        LLURLDispatcher::dispatch(url, "clicked", web, true);
+        return true;
+    }
+       
+};
+LLRegionHandler gRegionHandler;
+
+
+class LLViewerRegionImpl 
+{
+public:
+	LLViewerRegionImpl(LLViewerRegion * region, LLHost const & host):   
+        mHost(host),
+        mCompositionp(NULL),
+        mEventPoll(NULL),
+        mSeedCapMaxAttempts(MAX_CAP_REQUEST_ATTEMPTS),
+        mSeedCapMaxAttemptsBeforeLogin(MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN),
+        mSeedCapAttempts(0),
+        mHttpResponderID(0),
+        mLastCameraUpdate(0),
+        mLastCameraOrigin(),
+        mVOCachePartition(NULL),
+        mLandp(NULL)
 	{}
 
 	void buildCapabilityNames(LLSD& capabilityNames);
@@ -181,220 +211,292 @@ public:
 
 	S32 mHttpResponderID;
 
-	/// Post an event to this LLCapabilityListener to invoke a capability message on
-	/// this LLViewerRegion's server
-	/// (https://wiki.lindenlab.com/wiki/Viewer:Messaging/Messaging_Notes#Capabilities)
-	LLCapabilityListener mCapabilityListener;
-
 	//spatial partitions for objects in this region
 	std::vector<LLViewerOctreePartition*> mObjectPartition;
 
-	LLVector3 mLastCameraOrigin;
-	U32       mLastCameraUpdate;
+	LLVector3   mLastCameraOrigin;
+	U32         mLastCameraUpdate;
+
+    void        requestBaseCapabilitiesCoro(U64 regionHandle);
+    void        requestBaseCapabilitiesCompleteCoro(U64 regionHandle);
+    void        requestSimulatorFeatureCoro(std::string url, U64 regionHandle);
 };
 
-// support for secondlife:///app/region/{REGION} SLapps
-// N.B. this is defined to work exactly like the classic secondlife://{REGION}
-// However, the later syntax cannot support spaces in the region name because
-// spaces (and %20 chars) are illegal in the hostname of an http URL. Some
-// browsers let you get away with this, but some do not (such as Qt's Webkit).
-// Hence we introduced the newer secondlife:///app/region alternative.
-class LLRegionHandler : public LLCommandHandler
+void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 {
-public:
-	// requests will be throttled from a non-trusted browser
-	LLRegionHandler() : LLCommandHandler("region", UNTRUSTED_THROTTLE) {}
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t 
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("BaseCapabilitiesRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		// make sure that we at least have a region name
-		int num_params = params.size();
-		if (num_params < 1)
-		{
-			return false;
-		}
+    LLSD result;
+    LLViewerRegion *regionp = NULL;
 
-		// build a secondlife://{PLACE} SLurl from this SLapp
-		std::string url = "secondlife://";
-		for (int i = 0; i < num_params; i++)
-		{
-			if (i > 0)
-			{
-				url += "/";
-			}
-			url += params[i].asString();
-		}
+    // This loop is used for retrying a capabilities request.
+    do
+    {
+        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        if (!regionp) //region was removed
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities for region that no longer exists!" << LL_ENDL;
+            return; // this error condition is not recoverable.
+        }
 
-		// Process the SLapp as if it was a secondlife://{PLACE} SLurl
-		LLURLDispatcher::dispatch(url, "clicked", web, true);
-		return true;
-	}
-};
-LLRegionHandler gRegionHandler;
+        std::string url = regionp->getCapability("Seed");
+        if (url.empty())
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Failed to get seed capabilities, and can not determine url!" << LL_ENDL;
+            return; // this error condition is not recoverable.
+        }
 
-class BaseCapabilitiesComplete : public LLHTTPClient::Responder
+        // After a few attempts, continue login.  But keep trying to get the caps:
+        if (mSeedCapAttempts >= mSeedCapMaxAttemptsBeforeLogin &&
+            STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
+        {
+            LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
+        }
+
+        if (mSeedCapAttempts > mSeedCapMaxAttempts)
+        {
+            // *TODO: Give a user pop-up about this error?
+            LL_WARNS("AppInit", "Capabilities") << "Failed to get seed capabilities from '" << url << "' after " << mSeedCapAttempts << " attempts.  Giving up!" << LL_ENDL;
+            return;  // this error condition is not recoverable.
+        }
+
+        S32 id = ++mHttpResponderID;
+        ++mSeedCapAttempts;
+
+        LLSD capabilityNames = LLSD::emptyArray();
+        buildCapabilityNames(capabilityNames);
+
+        LL_INFOS("AppInit", "Capabilities") << "Requesting seed from " << url 
+            << " (attempt #" << mSeedCapAttempts << ")" << LL_ENDL;
+
+        regionp = NULL;
+        result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
+
+        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        if (!regionp) //region was removed
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Received capabilities for region that no longer exists!" << LL_ENDL;
+            return; // this error condition is not recoverable.
+        }
+
+        if (id != mHttpResponderID) // region is no longer referring to this request
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Received results for a stale capabilities request!" << LL_ENDL;
+            // setup for retry.
+            continue;
+        }
+
+        LLSD httpResults = result["http_result"];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        if (!status)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "HttpStatus error " << LL_ENDL;
+            // setup for retry.
+            continue;
+        }
+
+        // remove the http_result from the llsd
+        result.erase("http_result");
+
+        LLSD::map_const_iterator iter;
+        for (iter = result.beginMap(); iter != result.endMap(); ++iter)
+        {
+            regionp->setCapability(iter->first, iter->second);
+
+            LL_DEBUGS("AppInit", "Capabilities")
+                << "Capability '" << iter->first << "' is '" << iter->second << "'" << LL_ENDL;
+        }
+
+#if 0
+        log_capabilities(mCapabilities);
+#endif
+
+        regionp->setCapabilitiesReceived(true);
+
+        if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
+        {
+            LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
+        }
+
+        break;
+    } 
+    while (true);
+
+    if (regionp && regionp->isCapabilityAvailable("ServerReleaseNotes") &&
+            regionp->getReleaseNotesRequested())
+    {   // *HACK: we're waiting for the ServerReleaseNotes
+        regionp->showReleaseNotes();
+    }
+
+}
+
+
+void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
 {
-	LOG_CLASS(BaseCapabilitiesComplete);
-public:
-	BaseCapabilitiesComplete(U64 region_handle, S32 id)
-		: mRegionHandle(region_handle), mID(id)
-	{ }
-	virtual ~BaseCapabilitiesComplete()
-	{ }
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("BaseCapabilitiesRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-	static BaseCapabilitiesComplete* build( U64 region_handle, S32 id )
-	{
-		return new BaseCapabilitiesComplete(region_handle, id);
-	}
+    LLSD result;
+    LLViewerRegion *regionp = NULL;
 
-private:
-	/* virtual */void httpFailure()
-	{
-		LL_WARNS("AppInit", "Capabilities") << dumpResponse() << LL_ENDL;
-		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if (regionp)
-		{
-			regionp->failedSeedCapability();
-		}
-	}
+    // This loop is used for retrying a capabilities request.
+    do
+    {
+        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        if (!regionp) //region was removed
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities for region that no longer exists!" << LL_ENDL;
+            break; // this error condition is not recoverable.
+        }
 
-	/* virtual */ void httpSuccess()
-	{
-		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if(!regionp) //region was removed
-		{
-			LL_WARNS("AppInit", "Capabilities") << "Received results for region that no longer exists!" << LL_ENDL;
-			return ;
-		}
-		if( mID != regionp->getHttpResponderID() ) // region is no longer referring to this responder
-		{
-			LL_WARNS("AppInit", "Capabilities") << "Received results for a stale http responder!" << LL_ENDL;
-			regionp->failedSeedCapability();
-			return ;
-		}
+        std::string url = regionp->getCapabilityDebug("Seed");
+        if (url.empty())
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Failed to get seed capabilities, and can not determine url!" << LL_ENDL;
+            break; // this error condition is not recoverable.
+        }
 
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		LLSD::map_const_iterator iter;
-		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
-		{
-			regionp->setCapability(iter->first, iter->second);
+        LLSD capabilityNames = LLSD::emptyArray();
+        buildCapabilityNames(capabilityNames);
 
-			LL_DEBUGS("AppInit", "Capabilities")
-				<< "Capability '" << iter->first << "' is '" << iter->second << "'" << LL_ENDL;
+        LL_INFOS("AppInit", "Capabilities") << "Requesting second Seed from " << url << LL_ENDL;
 
-			/* HACK we're waiting for the ServerReleaseNotes */
-			if (iter->first == "ServerReleaseNotes" && regionp->getReleaseNotesRequested())
-			{
-				regionp->showReleaseNotes();
-			}
-		}
+        regionp = NULL;
+        result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
 
-		regionp->setCapabilitiesReceived(true);
+        LLSD httpResults = result["http_result"];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        if (!status)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "HttpStatus error " << LL_ENDL;
+            break;  // no retry
+        }
 
-		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
-		{
-			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
-		}
-	}
+        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        if (!regionp) //region was removed
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Received capabilities for region that no longer exists!" << LL_ENDL;
+            break; // this error condition is not recoverable.
+        }
 
-private:
-	U64 mRegionHandle;
-	S32 mID;
-};
+        // remove the http_result from the llsd
+        result.erase("http_result");
 
-class BaseCapabilitiesCompleteTracker :  public LLHTTPClient::Responder
-{
-	LOG_CLASS(BaseCapabilitiesCompleteTracker);
-public:
-	BaseCapabilitiesCompleteTracker( U64 region_handle)
-	: mRegionHandle(region_handle)
-	{ }
-	
-	virtual ~BaseCapabilitiesCompleteTracker()
-	{ }
+        LLSD::map_const_iterator iter;
+        for (iter = result.beginMap(); iter != result.endMap(); ++iter)
+        {
+            regionp->setCapabilityDebug(iter->first, iter->second);
+            //LL_INFOS()<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<LL_ENDL;
+        }
 
-	static BaseCapabilitiesCompleteTracker* build( U64 region_handle )
-	{
-		return new BaseCapabilitiesCompleteTracker( region_handle );
-	}
+#if 0
+        log_capabilities(mCapabilities);
+#endif
 
-private:
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if( !regionp ) 
-		{
-			LL_WARNS("AppInit", "Capabilities") << "Received results for region that no longer exists!" << LL_ENDL;
-			return ;
-		}
-
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		LLSD::map_const_iterator iter;
-		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
-		{
-			regionp->setCapabilityDebug(iter->first, iter->second);	
-			//LL_INFOS()<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<LL_ENDL;
-		}
-		
-		if ( regionp->getRegionImpl()->mCapabilities.size() != regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() )
-		{
-			LL_WARNS("AppInit", "Capabilities") 
-				<< "Sim sent duplicate base caps that differ in size from what we initially received - most likely content. "
-				<< "mCapabilities == " << regionp->getRegionImpl()->mCapabilities.size()
-				<< " mSecondCapabilitiesTracker == " << regionp->getRegionImpl()->mSecondCapabilitiesTracker.size()
-				<< LL_ENDL;
+        if (mCapabilities.size() != mSecondCapabilitiesTracker.size())
+        {
+            LL_WARNS("AppInit", "Capabilities")
+                << "Sim sent duplicate base caps that differ in size from what we initially received - most likely content. "
+                << "mCapabilities == " << mCapabilities.size()
+                << " mSecondCapabilitiesTracker == " << mSecondCapabilitiesTracker.size()
+                << LL_ENDL;
 #ifdef DEBUG_CAPS_GRANTS
-			LL_WARNS("AppInit", "Capabilities")
-				<< "Initial Base capabilities: " << LL_ENDL;
+            LL_WARNS("AppInit", "Capabilities")
+                << "Initial Base capabilities: " << LL_ENDL;
 
-			log_capabilities(regionp->getRegionImpl()->mCapabilities);
+            log_capabilities(mCapabilities);
 
-			LL_WARNS("AppInit", "Capabilities")
-							<< "Latest base capabilities: " << LL_ENDL;
+            LL_WARNS("AppInit", "Capabilities")
+                << "Latest base capabilities: " << LL_ENDL;
 
-			log_capabilities(regionp->getRegionImpl()->mSecondCapabilitiesTracker);
+            log_capabilities(mSecondCapabilitiesTracker);
 
 #endif
 
-			if (regionp->getRegionImpl()->mSecondCapabilitiesTracker.size() > regionp->getRegionImpl()->mCapabilities.size() )
-			{
-				// *HACK Since we were granted more base capabilities in this grant request than the initial, replace
-				// the old with the new. This shouldn't happen i.e. we should always get the same capabilities from a
-				// sim. The simulator fix from SH-3895 should prevent it from happening, at least in the case of the
-				// inventory api capability grants.
+            if (mSecondCapabilitiesTracker.size() > mCapabilities.size())
+            {
+                // *HACK Since we were granted more base capabilities in this grant request than the initial, replace
+                // the old with the new. This shouldn't happen i.e. we should always get the same capabilities from a
+                // sim. The simulator fix from SH-3895 should prevent it from happening, at least in the case of the
+                // inventory api capability grants.
 
-				// Need to clear a std::map before copying into it because old keys take precedence.
-				regionp->getRegionImplNC()->mCapabilities.clear();
-				regionp->getRegionImplNC()->mCapabilities = regionp->getRegionImpl()->mSecondCapabilitiesTracker;
-			}
-		}
-		else
-		{
-			LL_DEBUGS("CrossingCaps") << "Sim sent multiple base cap grants with matching sizes." << LL_ENDL;
-		}
-		regionp->getRegionImplNC()->mSecondCapabilitiesTracker.clear();
-	}
+                // Need to clear a std::map before copying into it because old keys take precedence.
+                mCapabilities.clear();
+                mCapabilities = mSecondCapabilitiesTracker;
+            }
+        }
+        else
+        {
+            LL_DEBUGS("CrossingCaps") << "Sim sent multiple base cap grants with matching sizes." << LL_ENDL;
+        }
+        mSecondCapabilitiesTracker.clear();
+    } 
+    while (false);
 
 
-private:
-	U64 mRegionHandle;
-};
+}
 
+void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 regionHandle)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("BaseCapabilitiesRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLViewerRegion *regionp = NULL;
+    S32 attemptNumber = 0;
+    // This loop is used for retrying a capabilities request.
+    do
+    {
+        ++attemptNumber;
+
+        if (attemptNumber > MAX_CAP_REQUEST_ATTEMPTS)
+        {
+            LL_WARNS("AppInit", "SimulatorFeatures") << "Retries count exceeded attempting to get Simulator feature from " 
+                << url << LL_ENDL;
+            break;
+        }
+
+        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        if (!regionp) //region was removed
+        {
+            LL_WARNS("AppInit", "SimulatorFeatures") << "Attempting to request Sim Feature for region that no longer exists!" << LL_ENDL;
+            break; // this error condition is not recoverable.
+        }
+
+        regionp = NULL;
+        LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+        LLSD httpResults = result["http_result"];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        if (!status)
+        {
+            LL_WARNS("AppInit", "SimulatorFeatures") << "HttpStatus error retrying" << LL_ENDL;
+            continue;  
+        }
+
+        // remove the http_result from the llsd
+        result.erase("http_result");
+
+        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        if (!regionp) //region was removed
+        {
+            LL_WARNS("AppInit", "SimulatorFeatures") << "Attempting to set Sim Feature for region that no longer exists!" << LL_ENDL;
+            break; // this error condition is not recoverable.
+        }
+
+        regionp->setSimulatorFeatures(result);
+
+        break;
+    }
+    while (true);
+
+}
 
 LLViewerRegion::LLViewerRegion(const U64 &handle,
 							   const LLHost &host,
@@ -515,19 +617,15 @@ LLViewerRegion::~LLViewerRegion()
 	delete mParcelOverlay;
 	delete mImpl->mLandp;
 	delete mImpl->mEventPoll;
+#if 0
 	LLHTTPSender::clearSender(mImpl->mHost);
-	
+#endif	
 	std::for_each(mImpl->mObjectPartition.begin(), mImpl->mObjectPartition.end(), DeletePointer());
 
 	saveObjectCache();
 
 	delete mImpl;
 	mImpl = NULL;
-}
-
-LLEventPump& LLViewerRegion::getCapAPI() const
-{
-	return mImpl->mCapabilityListener.getCapAPI();
 }
 
 /*virtual*/ 
@@ -2730,7 +2828,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("FetchInventory2");
 	capabilityNames.append("FetchInventoryDescendents2");
 	capabilityNames.append("IncrementCOFVersion");
-	AISCommand::getCapabilityNames(capabilityNames);
+	AISAPI::getCapNames(capabilityNames);
 
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetExperiences");
@@ -2810,15 +2908,14 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	if (getCapability("Seed") == url)
     {	
 		setCapabilityDebug("Seed", url);
-		LL_DEBUGS("CrossingCaps") <<  "Received duplicate seed capability, posting to seed " <<
+		LL_WARNS("CrossingCaps") <<  "Received duplicate seed capability, posting to seed " <<
 				url	<< LL_ENDL;
 
 		//Instead of just returning we build up a second set of seed caps and compare them 
 		//to the "original" seed cap received and determine why there is problem!
-		LLSD capabilityNames = LLSD::emptyArray();
-		mImpl->buildCapabilityNames( capabilityNames );
-		LLHTTPClient::post( url, capabilityNames, BaseCapabilitiesCompleteTracker::build(getHandle() ),
-							LLSD(), CAP_REQUEST_TIMEOUT );
+        std::string coroname =
+            LLCoros::instance().launch("LLEnvironmentRequest::requestBaseCapabilitiesCompleteCoro",
+            boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro, mImpl, getHandle()));
 		return;
     }
 	
@@ -2828,109 +2925,17 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	mImpl->mCapabilities.clear();
 	setCapability("Seed", url);
 
-	LLSD capabilityNames = LLSD::emptyArray();
-	mImpl->buildCapabilityNames(capabilityNames);
+    std::string coroname =
+        LLCoros::instance().launch("LLViewerRegionImpl::requestBaseCapabilitiesCoro",
+        boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCoro, mImpl, getHandle()));
 
-	LL_INFOS() << "posting to seed " << url << LL_ENDL;
-
-	S32 id = ++mImpl->mHttpResponderID;
-	LLHTTPClient::post(url, capabilityNames, 
-						BaseCapabilitiesComplete::build(getHandle(), id),
-						LLSD(), CAP_REQUEST_TIMEOUT);
+    LL_INFOS("AppInit", "Capabilities") << "Launching " << coroname << " requesting seed capabilities from " << url << LL_ENDL;
 }
 
 S32 LLViewerRegion::getNumSeedCapRetries()
 {
 	return mImpl->mSeedCapAttempts;
 }
-
-void LLViewerRegion::failedSeedCapability()
-{
-	// Should we retry asking for caps?
-	mImpl->mSeedCapAttempts++;
-	std::string url = getCapability("Seed");
-	if ( url.empty() )
-	{
-		LL_WARNS("AppInit", "Capabilities") << "Failed to get seed capabilities, and can not determine url for retries!" << LL_ENDL;
-		return;
-	}
-	// After a few attempts, continue login.  We will keep trying once in-world:
-	if ( mImpl->mSeedCapAttempts >= mImpl->mSeedCapMaxAttemptsBeforeLogin &&
-		 STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState() )
-	{
-		LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
-	}
-
-	if ( mImpl->mSeedCapAttempts < mImpl->mSeedCapMaxAttempts)
-	{
-		LLSD capabilityNames = LLSD::emptyArray();
-		mImpl->buildCapabilityNames(capabilityNames);
-
-		LL_INFOS() << "posting to seed " << url << " (retry " 
-				<< mImpl->mSeedCapAttempts << ")" << LL_ENDL;
-
-		S32 id = ++mImpl->mHttpResponderID;
-		LLHTTPClient::post(url, capabilityNames, 
-						BaseCapabilitiesComplete::build(getHandle(), id),
-						LLSD(), CAP_REQUEST_TIMEOUT);
-	}
-	else
-	{
-		// *TODO: Give a user pop-up about this error?
-		LL_WARNS("AppInit", "Capabilities") << "Failed to get seed capabilities from '" << url << "' after " << mImpl->mSeedCapAttempts << " attempts.  Giving up!" << LL_ENDL;
-	}
-}
-
-class SimulatorFeaturesReceived : public LLHTTPClient::Responder
-{
-	LOG_CLASS(SimulatorFeaturesReceived);
-public:
-	SimulatorFeaturesReceived(const std::string& retry_url, U64 region_handle, 
-							  S32 attempt = 0, S32 max_attempts = MAX_CAP_REQUEST_ATTEMPTS)
-		: mRetryURL(retry_url), mRegionHandle(region_handle), mAttempt(attempt), mMaxAttempts(max_attempts)
-	{ }
-
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS("AppInit", "SimulatorFeatures") << dumpResponse() << LL_ENDL;
-		retry();
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(mRegionHandle);
-		if(!regionp) //region is removed or responder is not created.
-		{
-			LL_WARNS("AppInit", "SimulatorFeatures") 
-				<< "Received results for region that no longer exists!" << LL_ENDL;
-			return ;
-		}
-
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		regionp->setSimulatorFeatures(content);
-	}
-
-	void retry()
-	{
-		if (mAttempt < mMaxAttempts)
-		{
-			mAttempt++;
-			LL_WARNS("AppInit", "SimulatorFeatures") << "Re-trying '" << mRetryURL << "'.  Retry #" << mAttempt << LL_ENDL;
-			LLHTTPClient::get(mRetryURL, new SimulatorFeaturesReceived(*this), LLSD(), CAP_REQUEST_TIMEOUT);
-		}
-	}
-
-	std::string mRetryURL;
-	U64 mRegionHandle;
-	S32 mAttempt;
-	S32 mMaxAttempts;
-};
-
 
 void LLViewerRegion::setCapability(const std::string& name, const std::string& url)
 {
@@ -2942,12 +2947,16 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	}
 	else if(name == "UntrustedSimulatorMessage")
 	{
-		LLHTTPSender::setSender(mImpl->mHost, new LLCapHTTPSender(url));
+        mImpl->mHost.setUntrustedSimulatorCap(url);
 	}
 	else if (name == "SimulatorFeatures")
 	{
 		// kick off a request for simulator features
-		LLHTTPClient::get(url, new SimulatorFeaturesReceived(url, getHandle()), LLSD(), CAP_REQUEST_TIMEOUT);
+        std::string coroname =
+            LLCoros::instance().launch("LLViewerRegionImpl::requestSimulatorFeatureCoro",
+            boost::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, mImpl, url, getHandle()));
+
+        LL_INFOS("AppInit", "SimulatorFeatures") << "Launching " << coroname << " requesting simulator features from " << url << LL_ENDL;
 	}
 	else
 	{
@@ -2970,8 +2979,19 @@ void LLViewerRegion::setCapabilityDebug(const std::string& name, const std::stri
 			mHttpUrl = url ;
 		}
 	}
-
 }
+
+std::string LLViewerRegion::getCapabilityDebug(const std::string& name) const
+{
+    CapabilityMap::const_iterator iter = mImpl->mSecondCapabilitiesTracker.find(name);
+    if (iter == mImpl->mSecondCapabilitiesTracker.end())
+    {
+        return "";
+    }
+
+    return iter->second;
+}
+
 
 bool LLViewerRegion::isSpecialCapabilityName(const std::string &name)
 {
@@ -3025,7 +3045,7 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 	{
 		mCapabilitiesReceivedSignal(getRegionID());
 
-		LLFloaterPermsDefault::sendInitialPerms();
+		//LLFloaterPermsDefault::sendInitialPerms();
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();

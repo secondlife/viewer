@@ -55,13 +55,13 @@ namespace LLCore
 
 
 HttpRequest::HttpRequest()
-	: mReplyQueue(NULL),
+	: mReplyQueue(),
 	  mRequestQueue(NULL)
 {
 	mRequestQueue = HttpRequestQueue::instanceOf();
 	mRequestQueue->addRef();
 
-	mReplyQueue = new HttpReplyQueue();
+	mReplyQueue.reset( new HttpReplyQueue() );
 }
 
 
@@ -73,11 +73,7 @@ HttpRequest::~HttpRequest()
 		mRequestQueue = NULL;
 	}
 
-	if (mReplyQueue)
-	{
-		mReplyQueue->release();
-		mReplyQueue = NULL;
-	}
+    mReplyQueue.reset();
 }
 
 
@@ -117,60 +113,59 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 	return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
 }
 
+HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass, policyCallback_t value, policyCallback_t * ret_value)
+{
+	if (HttpService::RUNNING == HttpService::instanceOf()->getState())
+	{
+		return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+	}
+
+	return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
+}
 
 HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
-										long value, HttpHandler * handler)
+										long value, HttpHandler::ptr_t handler)
 {
 	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpSetGet * op = new HttpOpSetGet();
+    HttpOpSetGet::ptr_t op(new HttpOpSetGet());
 	if (! (status = op->setupSet(opt, pclass, value)))
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	op->setReplyPath(mReplyQueue, handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-	
-	return handle;
+	return op->getHandle();
 }
 
 
 HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
-										const std::string & value, HttpHandler * handler)
+										const std::string & value, HttpHandler::ptr_t handler)
 {
 	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpSetGet * op = new HttpOpSetGet();
+	HttpOpSetGet::ptr_t op (new HttpOpSetGet());
 	if (! (status = op->setupSet(opt, pclass, value)))
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	op->setReplyPath(mReplyQueue, handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-	
-	return handle;
+	return op->getHandle();
 }
 
 
@@ -188,32 +183,27 @@ HttpStatus HttpRequest::getStatus() const
 HttpHandle HttpRequest::requestGet(policy_t policy_id,
 								   priority_t priority,
 								   const std::string & url,
-								   HttpOptions * options,
-								   HttpHeaders * headers,
-								   HttpHandler * user_handler)
+                                   const HttpOptions::ptr_t & options,
+								   const HttpHeaders::ptr_t & headers,
+								   HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest::ptr_t op(new HttpOpRequest());
 	if (! (status = op->setupGet(policy_id, priority, url, options, headers)))
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-	
-	return handle;
+    return op->getHandle();
 }
 
 
@@ -222,32 +212,27 @@ HttpHandle HttpRequest::requestGetByteRange(policy_t policy_id,
 											const std::string & url,
 											size_t offset,
 											size_t len,
-											HttpOptions * options,
-											HttpHeaders * headers,
-											HttpHandler * user_handler)
+                                            const HttpOptions::ptr_t & options,
+											const HttpHeaders::ptr_t & headers,
+											HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest::ptr_t op(new HttpOpRequest());
 	if (! (status = op->setupGetByteRange(policy_id, priority, url, offset, len, options, headers)))
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-	
-	return handle;
+	return op->getHandle();
 }
 
 
@@ -255,32 +240,27 @@ HttpHandle HttpRequest::requestPost(policy_t policy_id,
 									priority_t priority,
 									const std::string & url,
 									BufferArray * body,
-									HttpOptions * options,
-									HttpHeaders * headers,
-									HttpHandler * user_handler)
+                                    const HttpOptions::ptr_t & options,
+									const HttpHeaders::ptr_t & headers,
+									HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest::ptr_t op(new HttpOpRequest());
 	if (! (status = op->setupPost(policy_id, priority, url, body, options, headers)))
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-	
-	return handle;
+	return op->getHandle();
 }
 
 
@@ -288,59 +268,156 @@ HttpHandle HttpRequest::requestPut(policy_t policy_id,
 								   priority_t priority,
 								   const std::string & url,
 								   BufferArray * body,
-								   HttpOptions * options,
-								   HttpHeaders * headers,
-								   HttpHandler * user_handler)
+                                   const HttpOptions::ptr_t & options,
+								   const HttpHeaders::ptr_t & headers,
+								   HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpRequest * op = new HttpOpRequest();
+	HttpOpRequest::ptr_t op (new HttpOpRequest());
 	if (! (status = op->setupPut(policy_id, priority, url, body, options, headers)))
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	op->setReplyPath(mReplyQueue, user_handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 	
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-	
-	return handle;
+    return op->getHandle();
+}
+
+HttpHandle HttpRequest::requestDelete(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t & headers,
+    HttpHandler::ptr_t user_handler)
+{
+    HttpStatus status;
+
+    HttpOpRequest::ptr_t op(new HttpOpRequest());
+    if (!(status = op->setupDelete(policy_id, priority, url, options, headers)))
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+
+    mLastReqStatus = status;
+    return op->getHandle();
+}
+
+HttpHandle HttpRequest::requestPatch(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    BufferArray * body,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t & headers,
+    HttpHandler::ptr_t user_handler)
+{
+    HttpStatus status;
+
+    HttpOpRequest::ptr_t op (new HttpOpRequest());
+    if (!(status = op->setupPatch(policy_id, priority, url, body, options, headers)))
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+
+    mLastReqStatus = status;
+    return op->getHandle();
+}
+
+HttpHandle HttpRequest::requestCopy(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t & headers,
+    HttpHandler::ptr_t user_handler)
+{
+    HttpStatus status;
+
+    HttpOpRequest::ptr_t op(new HttpOpRequest());
+    if (!(status = op->setupCopy(policy_id, priority, url, options, headers)))
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+
+    mLastReqStatus = status;
+    return op->getHandle();
+
+}
+
+HttpHandle HttpRequest::requestMove(policy_t policy_id,
+    priority_t priority,
+    const std::string & url,
+    const HttpOptions::ptr_t & options,
+    const HttpHeaders::ptr_t & headers,
+    HttpHandler::ptr_t user_handler)
+{
+    HttpStatus status;
+
+    HttpOpRequest::ptr_t op (new HttpOpRequest());
+    if (!(status = op->setupMove(policy_id, priority, url, options, headers)))
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+    op->setReplyPath(mReplyQueue, user_handler);
+    if (!(status = mRequestQueue->addOp(op)))			// transfers refcount
+    {
+        mLastReqStatus = status;
+        return LLCORE_HTTP_HANDLE_INVALID;
+    }
+
+    mLastReqStatus = status;
+    return op->getHandle();
 }
 
 
-HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
+HttpHandle HttpRequest::requestNoOp(HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
-	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpNull * op = new HttpOpNull();
+	HttpOperation::ptr_t op (new HttpOpNull());
 	op->setReplyPath(mReplyQueue, user_handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
-	
-	return handle;
+	return op->getHandle();
 }
 
 
 HttpStatus HttpRequest::update(long usecs)
 {
-	HttpOperation * op(NULL);
+	HttpOperation::ptr_t op;
 	
 	if (usecs)
 	{
@@ -351,7 +428,7 @@ HttpStatus HttpRequest::update(long usecs)
 			op->visitNotifier(this);
 		
 			// We're done with the operation
-			op->release();
+            op.reset();
 		}
 	}
 	else
@@ -366,13 +443,13 @@ HttpStatus HttpRequest::update(long usecs)
 				 ++iter)
 			{
 				// Swap op pointer for NULL;
-				op = *iter; *iter = NULL;	
+                op.reset();
+                op.swap(*iter);
 			
 				// Process operation
 				op->visitNotifier(this);
 		
 				// We're done with the operation
-				op->release();
 			}
 		}
 	}
@@ -387,46 +464,38 @@ HttpStatus HttpRequest::update(long usecs)
 // Request Management Methods
 // ====================================
 
-HttpHandle HttpRequest::requestCancel(HttpHandle request, HttpHandler * user_handler)
+HttpHandle HttpRequest::requestCancel(HttpHandle request, HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
-	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpCancel * op = new HttpOpCancel(request);
+	HttpOperation::ptr_t op(new HttpOpCancel(request));
 	op->setReplyPath(mReplyQueue, user_handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return ret_handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 
 	mLastReqStatus = status;
-	ret_handle = static_cast<HttpHandle>(op);
-	
-	return ret_handle;
+	return op->getHandle();
 }
 
 
 HttpHandle HttpRequest::requestSetPriority(HttpHandle request, priority_t priority,
-										   HttpHandler * handler)
+										   HttpHandler::ptr_t handler)
 {
 	HttpStatus status;
-	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpSetPriority * op = new HttpOpSetPriority(request, priority);
+	HttpOperation::ptr_t op (new HttpOpSetPriority(request, priority));
 	op->setReplyPath(mReplyQueue, handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
-		return ret_handle;
+        return LLCORE_HTTP_HANDLE_INVALID;
 	}
 
 	mLastReqStatus = status;
-	ret_handle = static_cast<HttpHandle>(op);
-	
-	return ret_handle;
+	return op->getHandle();
 }
 
 
@@ -475,22 +544,21 @@ HttpStatus HttpRequest::startThread()
 }
 
 
-HttpHandle HttpRequest::requestStopThread(HttpHandler * user_handler)
+HttpHandle HttpRequest::requestStopThread(HttpHandler::ptr_t user_handler)
 {
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpStop * op = new HttpOpStop();
+	HttpOperation::ptr_t op(new HttpOpStop());
 	op->setReplyPath(mReplyQueue, user_handler);
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
 		return handle;
 	}
 
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
+	handle = op->getHandle();
 
 	return handle;
 }
@@ -501,17 +569,16 @@ HttpHandle HttpRequest::requestSpin(int mode)
 	HttpStatus status;
 	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
 
-	HttpOpSpin * op = new HttpOpSpin(mode);
-	op->setReplyPath(mReplyQueue, NULL);
+	HttpOperation::ptr_t op(new HttpOpSpin(mode));
+    op->setReplyPath(mReplyQueue, HttpHandler::ptr_t());
 	if (! (status = mRequestQueue->addOp(op)))			// transfers refcount
 	{
-		op->release();
 		mLastReqStatus = status;
 		return handle;
 	}
 
 	mLastReqStatus = status;
-	handle = static_cast<HttpHandle>(op);
+	handle = op->getHandle();
 
 	return handle;
 }

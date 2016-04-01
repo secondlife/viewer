@@ -34,71 +34,41 @@
 #include "llthread.h"
 #include <queue>
 
+#include "llviewerassetupload.h"
+
 class LLTransactionID;
 
 
 void init_menu_file();
 
+
 LLUUID upload_new_resource(
-	const std::string& src_filename, 
-	std::string name,
-	std::string desc, 
-	S32 compression_info,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms,
-	const std::string& display_name,
-	LLAssetStorage::LLStoreAssetCallback callback,
-	S32 expected_upload_cost,
-	void *userdata);
+    const std::string& src_filename,
+    std::string name,
+    std::string desc,
+    S32 compression_info,
+    LLFolderType::EType destination_folder_type,
+    LLInventoryType::EType inv_type,
+    U32 next_owner_perms,
+    U32 group_perms,
+    U32 everyone_perms,
+    const std::string& display_name,
+    LLAssetStorage::LLStoreAssetCallback callback,
+    S32 expected_upload_cost,
+    void *userdata);
 
 void upload_new_resource(
-	const LLTransactionID &tid, 
-	LLAssetType::EType type,
-	std::string name,
-	std::string desc, 
-	S32 compression_info,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms,
-	const std::string& display_name,
-	LLAssetStorage::LLStoreAssetCallback callback,
-	S32 expected_upload_cost,
-	void *userdata);
+    LLResourceUploadInfo::ptr_t &uploadInfo,
+    LLAssetStorage::LLStoreAssetCallback callback = NULL,
+    void *userdata = NULL);
 
 
-LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid);
-void increase_new_upload_stats(LLAssetType::EType asset_type);
 void assign_defaults_and_show_upload_message(
 	LLAssetType::EType asset_type,
 	LLInventoryType::EType& inventory_type,
 	std::string& name,
 	const std::string& display_name,
 	std::string& description);
-
-LLSD generate_new_resource_upload_capability_body(
-	LLAssetType::EType asset_type,
-	const std::string& name,
-	const std::string& desc,
-	LLFolderType::EType destination_folder_type,
-	LLInventoryType::EType inv_type,
-	U32 next_owner_perms,
-	U32 group_perms,
-	U32 everyone_perms);
-
-void on_new_single_inventory_upload_complete(
-	LLAssetType::EType asset_type,
-	LLInventoryType::EType inventory_type,
-	const std::string inventory_type_string,
-	const LLUUID& item_folder_id,
-	const std::string& item_name,
-	const std::string& item_description,
-	const LLSD& server_response,
-	S32 upload_price);
 
 class LLFilePickerThread : public LLThread
 { //multi-threaded file picker (runs system specific file picker in background and calls "notify" from main thread)
