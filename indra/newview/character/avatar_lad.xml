@@ -613,6 +613,22 @@
          name="mKneeRight"
          scale=".05 .05 .1" />
 
+        <bone
+         name="mHindLimb1Left"
+         scale=".05 .05 0" />
+
+        <bone
+         name="mHindLimb1Right"
+         scale=".05 .05 0" />
+
+        <bone
+         name="mHindLimb2Left"
+         scale=".05 .05 .1" />
+
+        <bone
+         name="mHindLimb2Right"
+         scale=".05 .05 .1" />
+
         <bone name="mWingsRoot" scale="1 0 0" offset="0 0 0" />
 		<bone name="mWing1Right" scale="0 0 0" offset="0.02 0 0" />
 		<bone name="mWing1Left"  scale="0 0 0" offset="0.02 0 0" />
@@ -690,6 +706,22 @@
         <bone
          name="mKneeRight"
          scale="0 0 0.1" />
+
+        <bone
+         name="mHindLimb1Left"
+         scale="0 0 0.1" />
+
+        <bone
+         name="mHindLimb1Right"
+         scale="0 0 0.1" />
+
+        <bone
+         name="mHindLimb2Left"
+         scale="0 0 0.1" />
+
+        <bone
+         name="mHindLimb2Right"
+         scale="0 0 0.1" />
       </param_skeleton>
     </param>
 
@@ -764,6 +796,22 @@
          name="mKneeRight"
          scale="0.12 0.12 0" />
 
+        <bone
+         name="mHindLimb1Left"
+         scale="0.13 0.13 0" />
+
+        <bone
+         name="mHindLimb1Right"
+         scale="0.13 0.13 0" />
+
+        <bone
+         name="mHindLimb2Left"
+         scale="0.12 0.12 0" />
+
+        <bone
+         name="mHindLimb2Right"
+         scale="0.12 0.12 0" />
+
 		<bone name="mTail1" scale="0.05 0.1 0.1" />
 		<bone name="mTail2" scale="0.05 0.1 0.1" />
 		<bone name="mTail3" scale="0.05 0.1 0.1" />
@@ -813,8 +861,15 @@
          name="mChest"
          scale="0.02 0.08 0" />
 
-		<bone name="mWing1Right" scale="0.0 0.0 0.0" offset="0 -0.02 0" />
-		<bone name="mWing1Left"  offset="0 0.02 0" />
+		<bone
+         name="mWing1Right"
+         scale="0.0 0.0 0.0"
+         offset="0 -0.02 0" />
+
+		<bone 
+         name="mWing1Left"
+         scale="0.0 0.0 0.0"
+         offset="0 0.02 0" />
 
       </param_skeleton>
     </param>
@@ -845,6 +900,16 @@
 
         <bone
          name="mHipRight"
+         scale="0 0 0"
+         offset="0 -.004 0" />
+
+        <bone
+         name="mHindLimb1Left"
+         scale="0 0 0"
+         offset="0 .004 0" />
+
+        <bone
+         name="mHindLimb1Right"
          scale="0 0 0"
          offset="0 -.004 0" />
 
@@ -909,6 +974,22 @@
 
         <bone
          name="mKneeLeft"
+         scale="0 0 -.05" />
+
+        <bone
+         name="mHindLimb1Left"
+         scale="0 0 -.1" />
+
+        <bone
+         name="mHindLimb1Right"
+         scale="0 0 -.1" />
+
+        <bone
+         name="mHindLimb2Right"
+         scale="0 0 -.05" />
+
+        <bone
+         name="mHindLimb2Left"
          scale="0 0 -.05" />
       </param_skeleton>
     </param>
@@ -1798,6 +1879,22 @@
 
         <bone
          name="mKneeLeft"
+         scale="0 0 .2" />
+
+        <bone
+         name="mHindLimb1Left"
+         scale="0 0 .2" />
+
+        <bone
+         name="mHindLimb1Right"
+         scale="0 0 .2" />
+
+        <bone
+         name="mHindLimb2Right"
+         scale="0 0 .2" />
+
+        <bone
+         name="mHindLimb2Left"
          scale="0 0 .2" />
       </param_skeleton>
     </param>
