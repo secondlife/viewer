@@ -1275,32 +1275,28 @@
 
 		<bone
          name="mFaceRoot"
-         scale="0 0 0"
-         offset=".016 0 0" />
+         scale="0.2 0 0"
+         offset="0 0 0" />
 
 		<bone
          name="mFaceNoseCenter"
          scale="0 0 0"
-         offset=".0195 0 0" />
+         offset=".01 0 0" />
 
 		<bone
          name="mFaceNoseRight"
          scale="0 0 0"
-         offset="0 0 0" />
+         offset=".005 0 0" />
 
 		<bone
          name="mFaceNoseLeft"
          scale="0 0 0"
-         offset="0 0 0" />
+         offset=".005 0 0" />
 
 		<bone
-         name="mFaceEar1Left"
+         name="mFaceNoseBase"
          scale="0 0 0"
-         offset="-0.016 0 0" />
-		<bone
-         name="mFaceEar1Right"
-         scale="0 0 0"
-         offset="-0.016 0 0" />
+         offset=".005 0 0" />
 		 
 		 <bone
          name="mFaceLipUpperCenter"
@@ -1310,7 +1306,7 @@
 		 <bone
          name="mFaceLipLowerCenter"
          scale="0 0 0"
-         offset="-0.0015 0 0" />
+         offset="0.01 0 0" />
 
 		 <bone
          name="mFaceLipUpperLeft"
@@ -1325,30 +1321,42 @@
 		 <bone
          name="mFaceLipLowerLeft"
          scale="0 0 0"
-         offset="-0.0015 0 0" />
+         offset="0.01 0 0" />
 		 
 		 <bone
          name="mFaceLipLowerRight"
          scale="0 0 0"
-         offset="-0.0015 0 0" />
+         offset="0.01 0 0" />
 		 
 		 <bone
          name="mFaceLipCornerRight"
          scale="0 0 0"
-         offset="-0.0015 0 0" />
+         offset="0.005 0 0" />
 		 
 		 <bone
          name="mFaceLipCornerLeft"
          scale="0 0 0"
-         offset="-0.0015 0 0" />
-		 <bone
+         offset="0.005 0 0" />
+		 
+<bone
          name="mFaceCheekLowerLeft"
          scale="0 0 0"
-         offset="-0.005 0 0" />
-		 <bone
+         offset="0.007 0 0" />
+		 
+<bone
          name="mFaceCheekLowerRight"
          scale="0 0 0"
-         offset="-0.005 0 0" />
+         offset="-0.007 0 0" />
+
+		 <bone
+         name="mFaceTeethUpper"
+         scale="0 0 0"
+         offset="0.01 0 0" />
+
+		 <bone
+         name="mFaceTeethLower"
+         scale="0 0 0"
+         offset="0.007 0 0" />
 		 
       </param_skeleton>
     </param>
@@ -2074,6 +2082,11 @@
          scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 0.009 0.0" />
         
+        <bone
+         name   = "mFaceNoseBase"
+         scale  = "0.0 0.00 0.0" 
+		 offset = "0.0 0.007 0.0" />
+        
 		<bone
          name   = "mFaceNoseLeft"
 		 scale  = "0.0 0.00 0.0"
@@ -2484,6 +2497,11 @@
          name   = "mFaceTeethLower"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0 0 -0.006" />
+		 
+        <bone
+         name   = "mFaceNoseBase"
+		 scale  = "0.0 0.00 0.0"
+		 offset = "0 0 -0.001" />
 
       </param_skeleton>
     </param>
@@ -2592,24 +2610,24 @@
      id="30764"
      group="0"
      name="Lip_Cleft_Deep"
-     value_min="-.5"
+     value_min="-1"
      value_max="1.2">
       <param_skeleton>
 		 		 
 	    <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0 0 0"
-		 offset = "0 0 -0.002" />
+		 offset = "0 0 0.002" />
 		 
         <bone
          name   = "mFaceLipUpperCenter"
 		 scale  = "0 0 0"
-		 offset = "0 0 0.004" />
+		 offset = "0 0 -0.001" />
 
         <bone
          name   = "mFaceLipUpperRight"
 		 scale  = "0 0 0"
-		 offset = "0 0 -0.002" />
+		 offset = "0 0 0.002" />
 
       </param_skeleton>
 	 </param>
@@ -2647,6 +2665,11 @@
          scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 -0.003 0.0" />
 
+        <bone
+         name   = "mFaceNoseBase"
+         scale  = "0.0 0.00 0.0" 
+		 offset = "0.0 -0.004 0.0" />
+        
 		<bone
          name   = "mFaceNoseLeft"
 		 scale  = "0.0 0.00 0.0"
@@ -2724,6 +2747,11 @@
          scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 0.003 0.0" />
 
+        <bone
+         name   = "mFaceNoseBase"
+         scale  = "0.0 0.00 0.0" 
+		 offset = "0.0 0.004 0.0" />
+        
 		<bone
          name   = "mFaceNoseLeft"
 		 scale  = "0.0 0.00 0.0"
@@ -2875,12 +2903,6 @@
 		 offset = "0.0  0.00   0.02"
          scale  = "0.0 0.0 0.0" />
 		 
-        <bone
-         name   = "mFaceTeethLower"
-		 offset = "0 0 0.02"
-         scale  = "0.0 0.0 0.0" />
-		 
-		 
        </param_skeleton>
     </param>
 	
@@ -2895,6 +2917,12 @@
          name   = "mFaceJaw"
 		 offset = "0.0085  0.00  0"
          scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceTeethLower"
+	 offset = "0.008 0 0"
+	 scale  = "0.0 0.0 0.0" />
+		 
        </param_skeleton>
     </param>
 	
@@ -2902,7 +2930,7 @@
      id="30024"
      group="0"
      name="Wide_Eyes"
-     value_min="-1.5"
+     value_min="-2"
      value_max="2">
       <param_skeleton>
 
@@ -2943,6 +2971,25 @@
 
 		 <bone
          name="mFaceEyebrowOuterRight"
+         scale="0 0 0"
+         offset="0 0 .004" />
+       </param_skeleton>		 
+    </param>
+	
+    <param
+     id="30880"
+     group="0"
+     name="Eyelid_Inner_Corner_Up"
+     value_min="-1.3"
+     value_max="1.2">
+      <param_skeleton>
+		 <bone
+         name="mFaceEyecornerInnerLeft"
+         scale="0 0 0"
+         offset="0 0 .004" />
+
+		 <bone
+         name="mFaceEyecornerInnerRight"
          scale="0 0 0"
          offset="0 0 .004" />
        </param_skeleton>		 
@@ -3119,7 +3166,7 @@
 		 <bone
          name="mFaceNoseBridge"
          scale="0 0 0.2"
-         offset="0.00 0 0.002" />
+         offset="0.0025 0 -0.001" />
 
 		 <bone
          name="mFaceNoseCenter"
@@ -3144,6 +3191,25 @@
 
        </param_skeleton>
     </param>
+	
+    <param
+     id="30759"
+     group="0"
+     name="Low_Septum_Nose"
+     value_min="-1"
+     value_max="1.5"
+     value_default="0.5">
+      <param_skeleton>
+
+		 <bone
+         name="mFaceNoseBase"
+         scale="0 0 0"
+         offset="0 0 -0.004" />
+
+       </param_skeleton>
+
+    </param>
+	
 	
     <param
      id="30010"
@@ -3186,6 +3252,28 @@
 
        </param_skeleton>
     </param>
+	
+    <param
+     id="30021"
+     group="0"
+     name="Upper_Eyelid_Fold"
+     value_min="-0.2"
+     value_max="1.3">
+      <param_skeleton>
+
+		 <bone
+         name="mFaceEyeLidUpperLeft"
+         scale="0 0 0"
+         offset="0 0 -.006" />
+
+		 <bone
+         name="mFaceEyeLidUpperRight"
+         scale="0 0 0"
+         offset="0 0 -.006" />
+
+       </param_skeleton>
+    </param>
+	
 	
     <param
      id="30014"
@@ -4201,21 +4289,12 @@
     </param>
 
     <param
-     id="759"
+     id="20759"
      group="0"
      name="Low_Septum_Nose"
-     label="Nostril Division"
-     wearable="shape"
-     edit_group="shape_nose"
-     edit_group_order="3.5"
-     label_min="High"
-     label_max="Low"
      value_min="-1"
      value_max="1.5"
-     value_default="0.5"
-     camera_elevation=".1"
-     camera_distance=".3"
-     camera_angle="-20">
+     value_default="0.5">
       <param_morph />
     </param>
 
@@ -4426,19 +4505,11 @@
     </param>
 	
     <param
-     id="21"
+     id="20021"
      group="0"
      name="Upper_Eyelid_Fold"
-     label="Upper Eyelid Fold"
-     wearable="shape"
-     edit_group="shape_eyes"
-     edit_group_order="5"
-     label_min="Uncreased"
-     label_max="Creased"
      value_min="-0.2"
-     value_max="1.3"
-     camera_elevation=".1"
-     camera_distance=".35">
+     value_max="1.3">
       <param_morph />
     </param>
 
@@ -4701,19 +4772,15 @@
     </param>
 
     <param
-       id="880"
+       id="20880"
        group="0"
        name="Eyelid_Inner_Corner_Up"
        label="Inner Eye Corner"
        wearable="shape"
-       edit_group="shape_eyes"
-       edit_group_order="4.2"
        label_min="Corner Down"
        label_max="Corner Up"
        value_min="-1.3"
-       value_max="1.2"
-       camera_elevation=".1"
-       camera_distance=".30">
+       value_max="1.2">
       <param_morph />
     </param>
  
@@ -5296,23 +5363,6 @@
 
     <param
      shared="1"
-     id="21"
-     group="0"
-     name="Upper_Eyelid_Fold"
-     label="Upper Eyelid Fold"
-     wearable="shape"
-     edit_group="shape_eyes"
-     label_min="Uncreased"
-     label_max="Creased"
-     value_min="-0.2"
-     value_max="1.3"
-     camera_elevation=".1"
-     camera_distance=".35">
-      <param_morph />
-    </param>
-
-    <param
-     shared="1"
      id="186"
      group="1"
      name="Egg_Head"
@@ -5375,23 +5425,6 @@
      camera_elevation=".1"
      camera_distance=".30"
      camera_angle="-20">
-      <param_morph />
-    </param>
-
-    <param
-     shared="1"
-     id="880"
-     group="0"
-     name="Eyelid_Inner_Corner_Up"
-     label="Inner Eye Corner"
-     wearable="shape"
-     edit_group="shape_eyes"
-     label_min="Corner Down"
-     label_max="Corner Up"
-     value_min="-1.3"
-     value_max="1.2"
-     camera_elevation=".1"
-     camera_distance=".3">
       <param_morph />
     </param>
 
@@ -11634,6 +11667,50 @@ render_pass="bump">
     </param>
 	
     <param
+       id="880"
+       group="0"
+       name="Eyelid_Inner_Corner_Up"
+       label="Inner Eye Corner"
+       wearable="shape"
+       edit_group="shape_eyes"
+       edit_group_order="4.2"
+       label_min="Corner Down"
+       label_max="Corner Up"
+       value_min="-1.3"
+       value_max="1.2"
+       camera_elevation=".1"
+       camera_distance=".30">
+      <param_driver>
+        <driven
+         id="20880" />
+		<driven
+		 id="30880" />
+      </param_driver>
+    </param>
+	
+    <param
+     id="21"
+     group="0"
+     name="Upper_Eyelid_Fold"
+     label="Upper Eyelid Fold"
+     wearable="shape"
+     edit_group="shape_eyes"
+     edit_group_order="5"
+     label_min="Uncreased"
+     label_max="Creased"
+     value_min="-0.2"
+     value_max="1.3"
+     camera_elevation=".1"
+     camera_distance=".35">
+      <param_driver>
+        <driven
+         id="20021" />
+		<driven
+		 id="30021" />
+      </param_driver>
+    </param>
+
+    <param
      id="765"
      group="0"
      name="Puffy_Lower_Lids"
@@ -11746,6 +11823,31 @@ render_pass="bump">
 		 id="30027" />
       </param_driver>
     </param>
+	
+    <param
+     id="759"
+     group="0"
+     name="Low_Septum_Nose"
+     label="Nostril Division"
+     wearable="shape"
+     edit_group="shape_nose"
+     edit_group_order="3.5"
+     label_min="High"
+     label_max="Low"
+     value_min="-1"
+     value_max="1.5"
+     value_default="0.5"
+     camera_elevation=".1"
+     camera_distance=".3"
+     camera_angle="-20">
+      <param_driver>
+        <driven
+         id="20759" />
+		<driven
+		 id="30759" />
+      </param_driver>
+    </param>
+	
 
     <param
      id="10"
