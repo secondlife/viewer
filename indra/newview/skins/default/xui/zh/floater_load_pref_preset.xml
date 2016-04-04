@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Load Pref Preset" title="載入偏好預設">
+	<string name="title_graphic">
+		載入顯像預設
+	</string>
+	<string name="title_camera">
+		載入攝影機預設
+	</string>
+	<text name="Preset">
+		選擇一個預設
+	</text>
+	<button label="確定" name="ok"/>
+	<button label="取消" name="cancel"/>
+</floater>

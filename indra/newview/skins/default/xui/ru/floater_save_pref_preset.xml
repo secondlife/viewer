@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Save Pref Preset" title="СОХРАНИТЬ ПРЕСЕТ">
+	<string name="title_graphic">
+		Сохранить пресет графики
+	</string>
+	<string name="title_camera">
+		Сохранить пресет камеры
+	</string>
+	<text name="Preset">
+		Введите имя пресета или выберите существующий пресет.
+	</text>
+	<button label="Сохранить" name="save"/>
+	<button label="Отмена" name="cancel"/>
+</floater>

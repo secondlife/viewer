@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="perms default" title="PERMISSIONS DE CRÉATION PAR DÉFAUT">
-	<panel label="Permissions par défaut" name="default permissions"/>
+	<panel label="Permissions par défaut" name="default permissions">
+		<text name="label_1">
+			Prochain propr. :
+		</text>
+		<text name="label_2">
+			Copier
+		</text>
+		<text name="label_3">
+			Modifier
+		</text>
+		<text name="label_4">
+			Transférer
+		</text>
+		<text name="label_5">
+			Partager avec le groupe
+		</text>
+		<text name="label_6">
+			Autoriser tout le monde à copier
+		</text>
+		<text name="label_7" tool_tip="Définir les droits par défaut pour la création d’objets">
+			Objets
+		</text>
+		<text name="label_8" tool_tip="Définir les droits par défaut pour les articles chargés">
+			Chargements
+		</text>
+		<text name="label_9" tool_tip="Définir les droits par défaut pour la création de scripts">
+			Scripts
+		</text>
+		<text name="label_10" tool_tip="Définir les droits par défaut pour la création de notes">
+			Notes
+		</text>
+		<text name="label_11" tool_tip="Définir les droits par défaut pour la création de gestes">
+			Gestes
+		</text>
+		<text name="label_12" tool_tip="Définir les droits par défaut pour la création d’habits ou de parties de corps">
+			Articles à porter
+		</text>
+	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Annuler" label_selected="Annuler" name="cancel"/>
 </floater>

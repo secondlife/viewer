@@ -15,7 +15,7 @@
 			<button label="報告" name="btn_report_xp"/>
 		</layout_panel>
 		<layout_panel name="button_panel">
-			<check_box label="すべてのイベントを通知   日数" name="notify_all"/>
+			<check_box label="すべてのイベント   日数を通知" name="notify_all"/>
 			<button label="クリア" name="btn_clear"/>
 			<button label="&lt;" name="btn_prev"/>
 			<button label="&gt;" name="btn_next"/>

@@ -1,10 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
 		[ITEM_COUNT] 個のアイテムを取得中です... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
 		[ITEM_COUNT] 個のアイテム　[FILTER]
+	</panel.string>
+	<panel.string name="ItemcountUnknown">
+		[ITEM_COUNT] 個の取得アイテム　[FILTER]
 	</panel.string>
 	<text name="ItemcountText">
 		アイテム：
@@ -16,7 +19,7 @@
 	</tab_container>
 	<layout_stack name="bottom_panel">
 		<layout_panel name="options_gear_btn_panel">
-			<button name="options_gear_btn" tool_tip="オプションを表示します"/>
+			<menu_button name="options_gear_btn" tool_tip="オプションを表示します"/>
 		</layout_panel>
 		<layout_panel name="add_btn_panel">
 			<button name="add_btn" tool_tip="新しいアイテムを追加します"/>

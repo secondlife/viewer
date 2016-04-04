@@ -18,7 +18,7 @@ Las experiencias permitidas tienen permiso de ejecución en este estado.
 Las experiencias bloqueadas no pueden ejecutarse en este estado.
 	</panel.string>
 	<panel.string name="estate_caption">
-		En esta pestaña, los cambios en la configuración afectarán a todas las regiones del estado.
+		Las opciones de configuración que cambies en esta pestaña afectarán a todas las regiones del estado.
 	</panel.string>
 	<panel.string name="allowed_parcel_text">
 		Solo se permiten las experiencias activas en el terreno.
@@ -28,6 +28,6 @@ Las experiencias permitidas tienen permiso de ejecución en esta parcela si no l
 	<panel.string name="blocked_parcel_text">
 		Puede bloquearse cualquier experiencia de los residentes.
       
-Las experiencias bloqueadas no pueden ejecutarse en esta parcela.
+Puede que las experiencias bloqueadas no se ejecuten en esta parcela.
 	</panel.string>
 </panel>

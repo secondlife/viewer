@@ -14,7 +14,7 @@
 					<text name="LocationTextText">
 						algún lugar
 					</text>
-					<button label="Teleportarte" name="teleport_btn"/>
+					<button label="Teleporte" name="teleport_btn"/>
 					<button label="Mapa" name="map_btn"/>
 				</layout_panel>
 				<layout_panel name="marketplace panel">

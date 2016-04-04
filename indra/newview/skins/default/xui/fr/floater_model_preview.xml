@@ -55,6 +55,9 @@
 	<string name="mesh_status_invalid_material_list">
 		Les options du niveau de détail ne sont pas une sous-ensemble d&apos;un modèle de référence.
 	</string>
+	<string name="phys_status_vertex_limit_exceeded">
+		Certaines enveloppes physiques dépassent les limites de sommets.
+	</string>
 	<string name="layer_all">
 		Tout
 	</string>
@@ -93,52 +96,52 @@
 				<text initial_value="Sommets" name="vertices" value="Sommets"/>
 				<text initial_value="Élevé" name="high_label" value="Élevé"/>
 				<combo_box name="lod_source_high">
-					<item name="Load from file" value="Depuis un fichier"/>
-					<item name="Generate" value="Génération"/>
+					<item label="Depuis un fichier" name="Load from file" value="Depuis un fichier"/>
+					<item label="Génération" name="Generate" value="Génération"/>
 				</combo_box>
 				<button label="Parcourir..." name="lod_browse_high"/>
 				<combo_box name="lod_mode_high">
-					<item name="Triangle Limit" value="Triangles max"/>
-					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+					<item label="Triangles max" name="Triangle Limit" value="Triangles max"/>
+					<item label="Seuil d’erreur" name="Error Threshold" value="Seuil d&apos;erreur"/>
 				</combo_box>
 				<text initial_value="0" name="high_triangles" value="0"/>
 				<text initial_value="0" name="high_vertices" value="0"/>
 				<text initial_value="Moyen" name="medium_label" value="Moyen"/>
 				<combo_box name="lod_source_medium">
-					<item name="Load from file" value="Depuis un fichier"/>
-					<item name="Generate" value="Génération"/>
-					<item name="Use LoD above" value="Niveau de détail du dessus"/>
+					<item label="Depuis un fichier" name="Load from file" value="Depuis un fichier"/>
+					<item label="Génération" name="Generate" value="Génération"/>
+					<item label="Niveau de détail du dessus" name="Use LoD above" value="Niveau de détail du dessus"/>
 				</combo_box>
 				<button label="Parcourir..." name="lod_browse_medium"/>
 				<combo_box name="lod_mode_medium">
-					<item name="Triangle Limit" value="Triangles max"/>
-					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+					<item label="Triangles max" name="Triangle Limit" value="Triangles max"/>
+					<item label="Seuil d’erreur" name="Error Threshold" value="Seuil d&apos;erreur"/>
 				</combo_box>
 				<text initial_value="0" name="medium_triangles" value="0"/>
 				<text initial_value="0" name="medium_vertices" value="0"/>
 				<text initial_value="Faible" name="low_label" value="Faible"/>
 				<combo_box name="lod_source_low">
-					<item name="Load from file" value="Depuis un fichier"/>
-					<item name="Generate" value="Génération"/>
-					<item name="Use LoD above" value="Niveau de détail du dessus"/>
+					<item label="Depuis un fichier" name="Load from file" value="Depuis un fichier"/>
+					<item label="Génération" name="Generate" value="Génération"/>
+					<item label="Niveau de détail du dessus" name="Use LoD above" value="Niveau de détail du dessus"/>
 				</combo_box>
 				<button label="Parcourir..." name="lod_browse_low"/>
 				<combo_box name="lod_mode_low">
-					<item name="Triangle Limit" value="Triangles max"/>
-					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+					<item label="Triangles max" name="Triangle Limit" value="Triangles max"/>
+					<item label="Seuil d’erreur" name="Error Threshold" value="Seuil d&apos;erreur"/>
 				</combo_box>
 				<text initial_value="0" name="low_triangles" value="0"/>
 				<text initial_value="0" name="low_vertices" value="0"/>
 				<text initial_value="Le plus faible" name="lowest_label" value="Le plus faible"/>
 				<combo_box name="lod_source_lowest">
-					<item name="Load from file" value="Depuis un fichier"/>
-					<item name="Generate" value="Génération"/>
-					<item name="Use LoD above" value="Niveau de détail du dessus"/>
+					<item label="Depuis un fichier" name="Load from file" value="Depuis un fichier"/>
+					<item label="Génération" name="Generate" value="Génération"/>
+					<item label="Niveau de détail du dessus" name="Use LoD above" value="Niveau de détail du dessus"/>
 				</combo_box>
 				<button label="Parcourir..." name="lod_browse_lowest"/>
 				<combo_box name="lod_mode_lowest">
-					<item name="Triangle Limit" value="Triangles max"/>
-					<item name="Error Threshold" value="Seuil d&apos;erreur"/>
+					<item label="Triangles max" name="Triangle Limit" value="Triangles max"/>
+					<item label="Seuil d’erreur" name="Error Threshold" value="Seuil d&apos;erreur"/>
 				</combo_box>
 				<text initial_value="0" name="lowest_triangles" value="0"/>
 				<text initial_value="0" name="lowest_vertices" value="0"/>

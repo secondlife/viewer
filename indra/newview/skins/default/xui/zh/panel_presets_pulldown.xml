@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="presets_pulldown">
+	<text name="Graphic Presets">
+		顯像預設
+	</text>
+	<button label="開啟顯像偏好設定" name="open_prefs_btn" tool_tip="打開顯像偏好設定"/>
+</panel>

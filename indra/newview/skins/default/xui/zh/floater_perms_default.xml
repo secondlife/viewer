@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="perms default" title="預設的創建權限">
-	<panel label="預設的權限" name="default permissions"/>
+	<panel label="預設的權限" name="default permissions">
+		<text name="label_1">
+			下一個所有人：
+		</text>
+		<text name="label_2">
+			複製
+		</text>
+		<text name="label_3">
+			修改
+		</text>
+		<text name="label_4">
+			轉移
+		</text>
+		<text name="label_5">
+			與群組分享
+		</text>
+		<text name="label_6">
+			允許任何人覆製
+		</text>
+		<text name="label_7" tool_tip="設定預設權限決定何時建立物件">
+			物件
+		</text>
+		<text name="label_8" tool_tip="設定已上傳物項的預設權限">
+			上傳內容
+		</text>
+		<text name="label_9" tool_tip="設定預設權限決定何時建立腳本">
+			腳本
+		</text>
+		<text name="label_10" tool_tip="設定預設權限決定何時建立記事卡">
+			記事卡
+		</text>
+		<text name="label_11" tool_tip="設定預設權限決定何時建立姿勢">
+			姿勢
+		</text>
+		<text name="label_12" tool_tip="設定預設權限決定何時建立服裝或身體部位">
+			可穿裝扮
+		</text>
+	</panel>
 	<button label="確定" label_selected="確定" name="ok"/>
 	<button label="取消" label_selected="取消" name="cancel"/>
 </floater>

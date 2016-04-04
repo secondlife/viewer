@@ -63,7 +63,7 @@
 					<text name="edit_ContentRating">
 						Calificación:
 					</text>
-					<icons_combo_box label="Moderado" name="edit_ContentRatingText" tool_tip="Al aumentar el nivel de calificación de una experiencia se restablecen los permisos de todos los residentes que han permitido la experiencia.">
+					<icons_combo_box label="Moderado" name="edit_ContentRatingText" tool_tip="Al aumentar la calificación de contenido de una experiencia se restablecen los permisos de todos los residentes que han permitido la experiencia.">
 						<icons_combo_box.item label="Adulto" name="Adult" value="42"/>
 						<icons_combo_box.item label="Moderado" name="Mature" value="21"/>
 						<icons_combo_box.item label="General" name="PG" value="13"/>
@@ -75,7 +75,7 @@
 					<button label="Borrar lugar" name="clear_btn"/>
 					<check_box label="Habilitar experiencia" name="edit_enable_btn" tool_tip=""/>
 					<check_box label="Ocultar en la búsqueda" name="edit_private_btn"/>
-					<text name="changes" value="Los cambios de una experiencia pueden tardar varios minutos en mostrarse en todas las regiones.+"/>
+					<text name="changes" value="Los cambios de una experiencia pueden tardar varios minutos en mostrarse en todas las regiones."/>
 					<button label="Anterior" name="cancel_btn"/>
 					<button label="Guardar" name="save_btn"/>
 				</panel>

@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="perms default" title="PERMISOS DE CREACIÓN PREDETERMINADOS">
-	<panel label="Permisos predeterminados" name="default permissions"/>
+	<panel label="Permisos predeterminados" name="default permissions">
+		<text name="label_1">
+			Próximo propietario:
+		</text>
+		<text name="label_2">
+			Copiar
+		</text>
+		<text name="label_3">
+			Modificarlo
+		</text>
+		<text name="label_4">
+			Transferencias
+		</text>
+		<text name="label_5">
+			Compartir con el grupo
+		</text>
+		<text name="label_6">
+			Permitir copiar a cualquiera
+		</text>
+		<text name="label_7" tool_tip="Definir los permisos predeterminados para la creación de objetos">
+			Objetos
+		</text>
+		<text name="label_8" tool_tip="Definir los permisos predeterminados para los elementos subidos">
+			Subidas
+		</text>
+		<text name="label_9" tool_tip="Definir los permisos predeterminados para la creación de scripts">
+			Scripts
+		</text>
+		<text name="label_10" tool_tip="Definir los permisos predeterminados para la creación de notas">
+			Notas
+		</text>
+		<text name="label_11" tool_tip="Definir los permisos predeterminados para la creación de gestos">
+			Gestos
+		</text>
+		<text name="label_12" tool_tip="Definir los permisos predeterminados para la creación de ropa o partes del cuerpo">
+			Artículos de vestir
+		</text>
+	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Cancelar" label_selected="Cancelar" name="cancel"/>
 </floater>

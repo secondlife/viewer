@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="perms default" title="СТАНДАРТНЫЕ РАЗРЕШЕНИЯ НА СОЗДАНИЕ">
-	<panel label="Стандартные разрешения" name="default permissions"/>
+	<panel label="Стандартные разрешения" name="default permissions">
+		<text name="label_1">
+			Следующий владелец:
+		</text>
+		<text name="label_2">
+			Копировать
+		</text>
+		<text name="label_3">
+			Изменять
+		</text>
+		<text name="label_4">
+			Передать
+		</text>
+		<text name="label_5">
+			Поделиться с группой
+		</text>
+		<text name="label_6">
+			Разрешить всем копировать
+		</text>
+		<text name="label_7" tool_tip="Задайте стандартные разрешения для создания объектов">
+			Объекты
+		</text>
+		<text name="label_8" tool_tip="Задайте стандартные разрешения для передаваемых вещей">
+			Переданное
+		</text>
+		<text name="label_9" tool_tip="Задайте стандартные разрешения для создания скриптов">
+			Скрипты
+		</text>
+		<text name="label_10" tool_tip="Задайте стандартные разрешения для создания заметок">
+			Заметки
+		</text>
+		<text name="label_11" tool_tip="Задайте стандартные разрешения для создания жестов">
+			Жесты
+		</text>
+		<text name="label_12" tool_tip="Задайте стандартные разрешения для создания одежды или частей тела">
+			Носимые вещи
+		</text>
+	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Отмена" label_selected="Отмена" name="cancel"/>
 </floater>

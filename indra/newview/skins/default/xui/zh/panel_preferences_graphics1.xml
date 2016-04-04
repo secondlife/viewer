@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="顯像" name="Display panel">
+	<text name="preset_text">
+		（無）
+	</text>
 	<text name="QualitySpeed">
 		品質與速度：
-	</text>
-	<text name="FasterText">
-		最快
-	</text>
-	<text name="BetterText">
-		最佳
 	</text>
 	<text name="ShadersPrefText">
 		低
@@ -21,94 +18,17 @@
 	<text name="ShadersPrefText4">
 		超高
 	</text>
-	<panel label="自訂圖形" name="CustomGraphics Panel">
-		<text name="ShadersText">
-			著色器：
-		</text>
-		<check_box initial_value="true" label="清澈透明的水" name="TransparentWater"/>
-		<check_box initial_value="true" label="凹凸映射與光澤效果" name="BumpShiny"/>
-		<check_box initial_value="true" label="本地光線" name="LocalLights"/>
-		<check_box initial_value="true" label="基本著色" name="BasicShaders" tool_tip="關閉此一選項可能避免部分顯示卡驅動程式損毀當機"/>
-		<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="進階照明模型" name="UseLightShaders"/>
-		<check_box initial_value="true" label="環境光遮蔽" name="UseSSAO"/>
-		<check_box initial_value="true" label="景深" name="UseDoF"/>
-		<text name="shadows_label">
-			陰影：
-		</text>
-		<combo_box name="ShadowDetail">
-			<combo_box.item label="無" name="0"/>
-			<combo_box.item label="日 / 月" name="1"/>
-			<combo_box.item label="日 / 月 + 投影物" name="2"/>
-		</combo_box>
-		<text name="reflection_label">
-			水文反射：
-		</text>
-		<combo_box name="Reflections">
-			<combo_box.item label="最小" name="0"/>
-			<combo_box.item label="地形與樹木" name="1"/>
-			<combo_box.item label="全部靜態物件" name="2"/>
-			<combo_box.item label="全部化身與物件" name="3"/>
-			<combo_box.item label="一切" name="4"/>
-		</combo_box>
-		<slider label="化身物理：" name="AvatarPhysicsDetail"/>
-		<text name="AvatarPhysicsDetailText">
-			低
-		</text>
-		<slider label="描繪距離：" name="DrawDistance"/>
-		<text name="DrawDistanceMeterText2">
-			公尺
-		</text>
-		<slider label="最大粒子效果數量：" name="MaxParticleCount"/>
-		<slider label="非假冒化身上限：" name="MaxNumberAvatarDrawn"/>
-		<slider label="後處理品質：" name="RenderPostProcess"/>
-		<text name="MeshDetailText">
-			網面細節：
-		</text>
-		<slider label="物件：" name="ObjectMeshDetail"/>
-		<slider label="彈性幾何元件：" name="FlexibleMeshDetail"/>
-		<slider label="樹木：" name="TreeMeshDetail"/>
-		<slider label="化身：" name="AvatarMeshDetail"/>
-		<slider label="地形：" name="TerrainMeshDetail"/>
-		<slider label="天空：" name="SkyMeshDetail"/>
-		<text name="PostProcessText">
-			低
-		</text>
-		<text name="ObjectMeshDetailText">
-			低
-		</text>
-		<text name="FlexibleMeshDetailText">
-			低
-		</text>
-		<text name="TreeMeshDetailText">
-			低
-		</text>
-		<text name="AvatarMeshDetailText">
-			低
-		</text>
-		<text name="TerrainMeshDetailText">
-			低
-		</text>
-		<text name="SkyMeshDetailText">
-			低
-		</text>
-		<text name="AvatarRenderingText">
-			化身呈像：
-		</text>
-		<check_box initial_value="true" label="化身假冒者" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="硬體換膚" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="化身衣服" name="AvatarCloth"/>
-		<text name="TerrainDetailText">
-			地形細節：
-		</text>
-		<radio_group name="TerrainDetailRadio">
-			<radio_item label="低" name="0"/>
-			<radio_item label="高" name="2"/>
-		</radio_group>
-		--&gt;
-	</panel>
-	<button label="套用" label_selected="套用" name="Apply"/>
-	<button label="重設" name="Defaults"/>
-	<button label="進階" name="Advanced"/>
-	<button label="硬體" label_selected="硬體" name="GraphicsHardwareButton"/>
+	<text name="FasterText">
+		最快
+	</text>
+	<text name="BetterText">
+		最佳
+	</text>
+	<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="進階照明模型" name="UseLightShaders"/>
+	<button label="將設定存為預設值 …" name="PrefSaveButton"/>
+	<button label="載入預設..." name="PrefLoadButton"/>
+	<button label="刪除自訂配置…" name="PrefDeleteButton"/>
+	<button label="重設為我們建議的設定" name="Defaults"/>
+	<button label="進階設定…" name="AdvancedSettings"/>
 </panel>

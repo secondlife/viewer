@@ -180,6 +180,7 @@
 		<menu_item_call label="バグを報告する" name="Report Bug"/>
 		<menu_item_call label="衝突・プッシュ・打撃" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
+		<menu_item_call label="アップデートを確認" name="Check for Updates"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
 		<menu_item_call label="テクスチャのリベークをする" name="Rebake Texture"/>
@@ -193,7 +194,7 @@
 			<menu_item_call label="ラグ計測器" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>
 			<menu_item_call label="シーン ロード統計情報" name="Scene Load Statistics"/>
-			<menu_item_check label="アバターの描画ウェイトを表示" name="Avatar Rendering Cost"/>
+			<menu_item_check label="アバターの複雑さ情報を表示" name="Avatar Draw Info"/>
 		</menu>
 		<menu label="ハイライトと目に見えるもの" name="Highlighting and Visibility">
 			<menu_item_check label="チージービーコン" name="Cheesy Beacon"/>
@@ -316,8 +317,6 @@
 			<menu_item_check label="ジョイント" name="Joints"/>
 			<menu_item_check label="レイキャスト" name="Raycast"/>
 			<menu_item_check label="風のベクトル" name="Wind Vectors"/>
-			<menu_item_check label="描画の詳細度" name="rendercomplexity"/>
-			<menu_item_check label="添付アイテムのバイト数" name="attachment bytes"/>
 			<menu_item_check label="スカルプト" name="Sculpt"/>
 			<menu label="テクスチャの密度" name="Texture Density">
 				<menu_item_check label="なし" name="None"/>
@@ -423,13 +422,11 @@
 			<menu_item_check label="キャラクター Vis のデバッグ" name="Debug Character Vis"/>
 			<menu_item_check label="骨組みの衝突判定を表示する" name="Show Collision Skeleton"/>
 			<menu_item_check label="エージェントのターゲットを表示する" name="Display Agent Target"/>
-			--&gt;
 			<menu_item_call label="アタッチメントをダンプ" name="Dump Attachments"/>
 			<menu_item_call label="アバターテクスチャをデバッグ" name="Debug Avatar Textures"/>
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
-		<menu_item_check label="HTTP インベントリ" name="HTTP Inventory"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_call label="Visual Leak Detector を有効にする" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>

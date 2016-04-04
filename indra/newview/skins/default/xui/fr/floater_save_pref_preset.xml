@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Save Pref Preset" title="ENREGISTRER LE PRÉRÉGLAGE PRÉF.">
+	<string name="title_graphic">
+		Enregistrer le préréglage de graphique
+	</string>
+	<string name="title_camera">
+		Enregistrer le préréglage de caméra
+	</string>
+	<text name="Preset">
+		Tapez un nom pour le préréglage ou choisissez un préréglage existant.
+	</text>
+	<button label="Enregistrer" name="save"/>
+	<button label="Annuler" name="cancel"/>
+</floater>

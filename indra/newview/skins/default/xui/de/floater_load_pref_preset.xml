@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Load Pref Preset" title="BEVORZ. VOREINST. LADEN">
+	<string name="title_graphic">
+		Grafikvoreinstellung laden
+	</string>
+	<string name="title_camera">
+		Kameravoreinstellung laden
+	</string>
+	<text name="Preset">
+		Voreinstellung auswählen
+	</text>
+	<button label="OK" name="ok"/>
+	<button label="Abbrechen" name="cancel"/>
+</floater>

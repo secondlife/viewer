@@ -13,6 +13,12 @@
 	</scroll_list>
 	<button label="Добавить..." name="autoreplace_add_entry"/>
 	<button label="Удалить" name="autoreplace_delete_entry"/>
+	<text name="autoreplace_keyword_txt">
+		Ключевое слово:
+	</text>
+	<text name="autoreplace_replacement_txt">
+		Замена:
+	</text>
 	<button label="Сохранить запись" name="autoreplace_save_entry" tool_tip="Сохранить эту запись."/>
 	<button label="Сохранить изменения" name="autoreplace_save_changes" tool_tip="Сохранить все изменения."/>
 	<button label="Отмена" name="autoreplace_cancel" tool_tip="Отменить все изменения."/>

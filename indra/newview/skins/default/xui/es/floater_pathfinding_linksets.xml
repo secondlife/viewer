@@ -90,7 +90,16 @@
 	<floater.string name="linkset_choose_use">
 		Elegir la utilización del linkset...
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			Filtrar por:
+		</text>
+		<text name="linksets_name_label">
+			Nombre
+		</text>
+		<text name="linksets_desc_label">
+			Descripción
+		</text>
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="Filtrar por utilización de linkset..." name="filter_by_linkset_use_none"/>
 			<combo_box.item label="Objeto transitable" name="filter_by_linkset_use_walkable"/>
@@ -122,7 +131,10 @@
 		<button label="Seleccionar todo" name="select_all_objects"/>
 		<button label="No seleccionar ninguno" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			Acciones aplicadas a los linksets seleccionados (si se elimina un linkset de Second Life, podrían perderse sus atributos):
+		</text>
 		<check_box label="Mostrar baliza" name="show_beacon"/>
 		<button label="Tomar" name="take_objects"/>
 		<button label="Tomar una copia" name="take_copy_objects"/>
@@ -130,7 +142,10 @@
 		<button label="Devolver" name="return_objects"/>
 		<button label="Eliminar" name="delete_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			Modifica los atributos de los linksets seleccionados y pulsa el botón para aplicar los cambios
+		</text>
 		<text name="walkability_coefficients_label">
 			Transitabilidad:
 		</text>

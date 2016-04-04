@@ -27,7 +27,7 @@
 	<floater.string name="character_owner_group">
 		[group]
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_chars_main">
 		<scroll_list name="objects_scroll_list">
 			<scroll_list.columns label="名稱" name="name"/>
 			<scroll_list.columns label="描述" name="description"/>
@@ -42,7 +42,7 @@
 		<button label="全選" name="select_all_objects"/>
 		<button label="全都不選" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
 			所選角色所採動作：
 		</text>
