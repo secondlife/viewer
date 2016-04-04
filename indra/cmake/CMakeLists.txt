@@ -13,7 +13,7 @@ set(cmake_SOURCE_FILES
     BerkeleyDB.cmake
     Boost.cmake
     BuildVersion.cmake
-    CARes.cmake
+    CEFPlugin.cmake
     CEFPlugin.cmake
     CMakeCopyIfDifferent.cmake
     ConfigurePkgConfig.cmake
@@ -28,7 +28,6 @@ set(cmake_SOURCE_FILES
     FindAPR.cmake
     FindAutobuild.cmake
     FindBerkeleyDB.cmake
-    FindCARes.cmake
     FindFMODEX.cmake
     FindGLH.cmake
     FindGoogleBreakpad.cmake
@@ -59,7 +58,6 @@ set(cmake_SOURCE_FILES
     JsonCpp.cmake
     LLAddBuildTest.cmake
     LLAppearance.cmake
-    LLAppearanceUtility.cmake
     LLAudio.cmake
     LLCharacter.cmake
     LLCommon.cmake

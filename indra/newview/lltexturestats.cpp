@@ -30,8 +30,8 @@
 #include "llagent.h"
 #include "lltexturefetch.h" 
 #include "lltexturestats.h"
-#include "lltexturestatsuploader.h"
 #include "llviewerregion.h"
+#include "llcorehttputil.h"
 
 void send_texture_stats_to_sim(const LLSD &texture_stats)
 {
@@ -49,6 +49,16 @@ void send_texture_stats_to_sim(const LLSD &texture_stats)
 
 	std::string texture_cap_url = gAgent.getRegion()->getCapability("TextureStats");
 	LL_INFOS() << "uploading texture stats data to simulator" << LL_ENDL;
-	LLTextureStatsUploader::uploadStatsToSimulator(texture_cap_url, texture_stats);
+
+    if (texture_cap_url != "")
+    {
+        LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(texture_cap_url, texture_stats,
+            "Texture statistics posted to sim.", "Error posting texture statistics to sim");
+    }
+    else
+    {
+        LL_INFOS() << "Not sending texture stats: " << texture_stats
+            << " as there is no cap url." << LL_ENDL;
+    }
 }
 

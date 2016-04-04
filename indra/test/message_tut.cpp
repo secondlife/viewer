@@ -28,7 +28,7 @@
 #include <tut/tut.hpp>
 #include "linden_common.h"
 #include "lltut.h"
-
+#include "llhttpconstants.h"
 #include "llapr.h"
 #include "llmessageconfig.h"
 #include "llsdserialize.h"

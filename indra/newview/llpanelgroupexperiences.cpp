@@ -31,44 +31,15 @@
 #include "lluictrlfactory.h"
 #include "roles_constants.h"
 
-#include "llhttpclient.h"
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llflatlistview.h"
 #include "llpanelexperiences.h"
 #include "llsd.h"
-
+#include "llexperiencecache.h"
 
 static LLPanelInjector<LLPanelGroupExperiences> t_panel_group_experiences("panel_group_experiences");
 
-
-class LLGroupExperienceResponder : public LLHTTPClient::Responder
-{
-public:
-	LLHandle<LLPanelGroupExperiences> mHandle;
-
-	LLGroupExperienceResponder(LLHandle<LLPanelGroupExperiences> handle) : mHandle(handle) { }
-
-protected:
-	/*virtual*/ void httpSuccess()
-	{
-		if (mHandle.isDead())
-		{
-			return;
-		}
-
-		LLPanelGroupExperiences* panel = mHandle.get();
-		if (panel)
-		{
-			panel->setExperienceList(getContent().get("experience_ids"));
-		}
-	}
-
-	/*virtual*/ void httpFailure()
-	{
-		LL_WARNS() << "experience responder failed [status:" << getStatus() << "]: " << getContent() << LL_ENDL;
-	}
-};
 
 LLPanelGroupExperiences::LLPanelGroupExperiences()
 :	LLPanelGroupTab(), mExperiencesList(NULL)
@@ -101,14 +72,8 @@ void LLPanelGroupExperiences::activate()
 		return;
 	}
 
-	// search for experiences owned by the current group
-	std::string url = (gAgent.getRegion()) ? gAgent.getRegion()->getCapability("GroupExperiences") : LLStringUtil::null;
-	if (!url.empty())
-	{
-		url += "?" + getGroupID().asString();
-		
-		LLHTTPClient::get(url, new LLGroupExperienceResponder(getDerivedHandle<LLPanelGroupExperiences>()));
-	}
+    LLExperienceCache::instance().getGroupExperiences(getGroupID(),
+        boost::bind(&LLPanelGroupExperiences::groupExperiencesResults, getDerivedHandle<LLPanelGroupExperiences>(), _1));
 }
 
 void LLPanelGroupExperiences::setGroupID(const LLUUID& id)
@@ -140,4 +105,20 @@ void LLPanelGroupExperiences::setExperienceList(const LLSD& experiences)
         item->init(public_key);
         mExperiencesList->addItem(item, public_key);
     }
+}
+
+/*static*/
+void LLPanelGroupExperiences::groupExperiencesResults(LLHandle<LLPanelGroupExperiences> handle, const LLSD &experiences)
+{
+    if (handle.isDead())
+    {
+        return;
+    }
+
+    LLPanelGroupExperiences* panel = handle.get();
+    if (panel)
+    {
+        panel->setExperienceList(experiences);
+    }
+
 }

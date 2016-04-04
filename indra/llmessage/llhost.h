@@ -40,9 +40,8 @@ class LLHost {
 protected:
 	U32			mPort;
 	U32         mIP;
+    std::string mUntrustedSimCap;
 public:
-	
-	static LLHost invalid;
 
 	// CREATORS
 	LLHost()
@@ -89,12 +88,16 @@ public:
 	// READERS
 	U32		getAddress() const							{ return mIP; }
 	U32		getPort() const								{ return mPort; }
-	BOOL	isOk() const								{ return (mIP != INVALID_HOST_IP_ADDRESS) && (mPort != INVALID_PORT); }
+	bool	isOk() const								{ return (mIP != INVALID_HOST_IP_ADDRESS) && (mPort != INVALID_PORT); }
+    bool    isInvalid()                                 { return (mIP == INVALID_HOST_IP_ADDRESS) || (mPort == INVALID_PORT); }
 	size_t	hash() const								{ return (mIP << 16) | (mPort & 0xffff); }
 	std::string getString() const;
 	std::string getIPString() const;
 	std::string getHostName() const;
 	std::string getIPandPort() const;
+
+    std::string getUntrustedSimulatorCap() const        { return mUntrustedSimCap; }
+    void setUntrustedSimulatorCap(const std::string &capurl) { mUntrustedSimCap = capurl; }
 
 	friend std::ostream& operator<< (std::ostream& os, const LLHost &hh);
 

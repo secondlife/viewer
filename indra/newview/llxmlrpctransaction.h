@@ -81,7 +81,7 @@ private:
 
 
 class LLXMLRPCTransaction
-	// an asynchronous request and respones via XML-RPC
+	// an asynchronous request and responses via XML-RPC
 {
 public:
 	LLXMLRPCTransaction(const std::string& uri,
@@ -127,7 +127,9 @@ public:
 		// only valid if StsatusComplete, otherwise 0.0
 		
 private:
+	class Handler;
 	class Impl;
+
 	Impl& impl;
 };
 

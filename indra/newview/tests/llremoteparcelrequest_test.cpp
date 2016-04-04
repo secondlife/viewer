@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "../test/lltut.h"
+#if 0
 
 #include "../llremoteparcelrequest.h"
 
@@ -134,3 +135,4 @@ namespace tut
 		processor.processParcelInfoReply(gMessageSystem, NULL);
 	}
 }
+#endif

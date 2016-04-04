@@ -61,6 +61,8 @@ private:
 	void operator=(const HttpRequestQueue &);			// Not defined
 
 public:
+    typedef boost::shared_ptr<HttpOperation> opPtr_t;
+
 	static void init();
 	static void term();
 	
@@ -71,7 +73,7 @@ public:
 		}
 	
 public:
-	typedef std::vector<HttpOperation *> OpContainer;
+    typedef std::vector<opPtr_t> OpContainer;
 
 	/// Insert an object at the back of the request queue.
 	///
@@ -83,7 +85,7 @@ public:
 	///					an explicit release() call.
 	///
 	/// Threading:  callable by any thread.
-	HttpStatus addOp(HttpOperation * op);
+    HttpStatus addOp(const opPtr_t &op);
 
 	/// Return the operation on the front of the queue.  If
 	/// the queue is empty and @wait is false, call returns
@@ -95,7 +97,7 @@ public:
 	/// Caller acquires reference count any returned operation
 	///
 	/// Threading:  callable by any thread.
-	HttpOperation * fetchOp(bool wait);
+    opPtr_t fetchOp(bool wait);
 
 	/// Return all queued requests to caller.  The @ops argument
 	/// should be empty when called and will be swap()'d with

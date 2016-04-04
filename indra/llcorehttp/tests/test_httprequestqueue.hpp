@@ -113,16 +113,16 @@ void HttpRequestqueueTestObjectType::test<3>()
 
 	HttpRequestQueue * rq = HttpRequestQueue::instanceOf();
 
-	HttpOperation * op = new HttpOpNull();
+	HttpOperation::ptr_t op(new HttpOpNull());
 
 	rq->addOp(op);		// transfer my refcount
 
 	op = rq->fetchOp(true);		// Potentially hangs the test on failure
-	ensure("One goes in, one comes out", NULL != op);
-	op->release();
+	ensure("One goes in, one comes out", static_cast<bool>(op));
+    op.reset();
 
 	op = rq->fetchOp(false);
-	ensure("Better not be two of them", NULL == op);
+	ensure("Better not be two of them", !op);
 	
 	// release the singleton, hold on to the object
 	HttpRequestQueue::term();
@@ -144,13 +144,13 @@ void HttpRequestqueueTestObjectType::test<4>()
 
 	HttpRequestQueue * rq = HttpRequestQueue::instanceOf();
 
-	HttpOperation * op = new HttpOpNull();
+	HttpOperation::ptr_t op (new HttpOpNull());
 	rq->addOp(op);		// transfer my refcount
 
-	op = new HttpOpNull();
+	op.reset(new HttpOpNull());
 	rq->addOp(op);		// transfer my refcount
 
-	op = new HttpOpNull();
+	op.reset(new HttpOpNull());
 	rq->addOp(op);		// transfer my refcount
 	
 	{
@@ -159,8 +159,9 @@ void HttpRequestqueueTestObjectType::test<4>()
 		ensure("Three go in, three come out", 3 == ops.size());
 
 		op = rq->fetchOp(false);
-		ensure("Better not be any more of them", NULL == op);
-	
+		ensure("Better not be any more of them", !op);
+        op.reset();
+
 		// release the singleton, hold on to the object
 		HttpRequestQueue::term();
 	
@@ -168,12 +169,13 @@ void HttpRequestqueueTestObjectType::test<4>()
 		ensure(mMemTotal < GetMemTotal());
 
 		// Release them
-		while (! ops.empty())
-		{
-			HttpOperation * op = ops.front();
-			ops.erase(ops.begin());
-			op->release();
-		}
+        ops.clear();
+// 		while (! ops.empty())
+// 		{
+// 			HttpOperation * op = ops.front();
+// 			ops.erase(ops.begin());
+// 			op->release();
+// 		}
 	}
 
 	// Should be clean

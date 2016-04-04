@@ -31,69 +31,10 @@
 #include "llsyntaxid.h"
 #include "llagent.h"
 #include "llappviewer.h"
-#include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llviewerregion.h"
+#include "llcorehttputil.h"
 
-//-----------------------------------------------------------------------------
-// fetchKeywordsFileResponder
-//-----------------------------------------------------------------------------
-class fetchKeywordsFileResponder : public LLHTTPClient::Responder
-{
-public:
-	fetchKeywordsFileResponder(const std::string& filespec)
-	: mFileSpec(filespec)
-	{
-		LL_DEBUGS("SyntaxLSL") << "Instantiating with file saving to: '" << filespec << "'" << LL_ENDL;
-	}
-
-	/* virtual */ void httpFailure()
-	{
-		LL_WARNS("SyntaxLSL") << "failed to fetch syntax file [status:" << getStatus() << "]: " << getContent() << LL_ENDL;
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		// Continue only if a valid LLSD object was returned.
-		const LLSD& content = getContent();
-		if (content.isMap())
-		{
-			if (LLSyntaxIdLSL::getInstance()->isSupportedVersion(content))
-			{
-				LLSyntaxIdLSL::getInstance()->setKeywordsXml(content);
-
-				cacheFile(content);
-				LLSyntaxIdLSL::getInstance()->handleFileFetched(mFileSpec);
-			}
-			else
-			{
-				LL_WARNS("SyntaxLSL") << "Unknown or unsupported version of syntax file." << LL_ENDL;
-			}
-		}
-		else
-		{
-			LL_WARNS("SyntaxLSL") << "Syntax file '" << mFileSpec << "' contains invalid LLSD." << LL_ENDL;
-		}
-	}
-
-	void cacheFile(const LLSD& content_ref)
-	{
-		std::stringstream str;
-		LLSDSerialize::toXML(content_ref, str);
-		const std::string xml = str.str();
-
-		// save the str to disk, usually to the cache.
-		llofstream file(mFileSpec.c_str(), std::ios_base::out);
-		file.write(xml.c_str(), str.str().size());
-		file.close();
-
-		LL_DEBUGS("SyntaxLSL") << "Syntax file received, saving as: '" << mFileSpec << "'" << LL_ENDL;
-	}
-	
-private:
-	std::string mFileSpec;
-};
-	
 //-----------------------------------------------------------------------------
 // LLSyntaxIdLSL
 //-----------------------------------------------------------------------------
@@ -166,13 +107,72 @@ bool LLSyntaxIdLSL::syntaxIdChanged()
 //-----------------------------------------------------------------------------
 void LLSyntaxIdLSL::fetchKeywordsFile(const std::string& filespec)
 {
-	mInflightFetches.push_back(filespec);
-	LLHTTPClient::get(mCapabilityURL,
-					  new fetchKeywordsFileResponder(filespec),
-					  LLSD(), 30.f);
+    LLCoros::instance().launch("LLSyntaxIdLSL::fetchKeywordsFileCoro",
+        boost::bind(&LLSyntaxIdLSL::fetchKeywordsFileCoro, this, mCapabilityURL, filespec));
 	LL_DEBUGS("SyntaxLSL") << "LSLSyntaxId capability URL is: " << mCapabilityURL << ". Filename to use is: '" << filespec << "'." << LL_ENDL;
 }
 
+//-----------------------------------------------------------------------------
+// fetchKeywordsFileCoro
+//-----------------------------------------------------------------------------
+void LLSyntaxIdLSL::fetchKeywordsFileCoro(std::string url, std::string fileSpec)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    std::pair<std::set<std::string>::iterator, bool> insrt = mInflightFetches.insert(fileSpec);
+    if (!insrt.second)
+    {
+        LL_WARNS("SyntaxLSL") << "Already downloading keyword file called \"" << fileSpec << "\"." << LL_ENDL;
+        return;
+    }
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    mInflightFetches.erase(fileSpec);
+
+    if (!status)
+    {
+        LL_WARNS("SyntaxLSL") << "Failed to fetch syntax file \"" << fileSpec << "\"" << LL_ENDL;
+        return;
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+
+    if (isSupportedVersion(result))
+    {
+        setKeywordsXml(result);
+        cacheFile(fileSpec, result);
+        loadKeywordsIntoLLSD();
+    }
+    else
+    {
+        LL_WARNS("SyntaxLSL") << "Unknown or unsupported version of syntax file." << LL_ENDL;
+    }
+
+}
+
+//-----------------------------------------------------------------------------
+// cacheFile
+//-----------------------------------------------------------------------------
+void LLSyntaxIdLSL::cacheFile(const std::string &fileSpec, const LLSD& content_ref)
+{
+    std::stringstream str;
+    LLSDSerialize::toXML(content_ref, str);
+    const std::string xml = str.str();
+
+    // save the str to disk, usually to the cache.
+    llofstream file(fileSpec.c_str(), std::ios_base::out);
+    file.write(xml.c_str(), str.str().size());
+    file.close();
+
+    LL_DEBUGS("SyntaxLSL") << "Syntax file received, saving as: '" << fileSpec << "'" << LL_ENDL;
+}
 
 //-----------------------------------------------------------------------------
 // initialize
@@ -260,8 +260,8 @@ void LLSyntaxIdLSL::loadDefaultKeywordsIntoLLSD()
 // loadKeywordsFileIntoLLSD
 //-----------------------------------------------------------------------------
 /**
- * @brief	Load xml serialised LLSD
- * @desc	Opens the specified filespec and attempts to deserialise the
+ * @brief	Load xml serialized LLSD
+ * @desc	Opens the specified filespec and attempts to deserializes the
  *			contained data to the specified LLSD object. indicate success/failure with
  *			sLoaded/sLoadFailed members.
  */
@@ -276,7 +276,7 @@ void LLSyntaxIdLSL::loadKeywordsIntoLLSD()
 		{
 			if (isSupportedVersion(content))
 			{
-				LL_DEBUGS("SyntaxLSL") << "Deserialised: " << mFullFileSpec << LL_ENDL;
+				LL_DEBUGS("SyntaxLSL") << "Deserialized: " << mFullFileSpec << LL_ENDL;
 			}
 			else
 			{
@@ -315,12 +315,6 @@ void LLSyntaxIdLSL::handleCapsReceived(const LLUUID& region_uuid)
 	{
 		syntaxIdChanged();
 	}
-}
-
-void LLSyntaxIdLSL::handleFileFetched(const std::string& filepath)
-{
-	mInflightFetches.remove(filepath);
-	loadKeywordsIntoLLSD();
 }
 
 boost::signals2::connection LLSyntaxIdLSL::addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb)

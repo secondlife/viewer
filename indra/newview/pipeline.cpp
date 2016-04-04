@@ -105,7 +105,6 @@
 #include "llspatialpartition.h"
 #include "llmutelist.h"
 #include "lltoolpie.h"
-#include "llcurl.h"
 #include "llnotifications.h"
 #include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"

@@ -32,6 +32,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 // Forward Declarations
 class LLMessageSystem;
@@ -365,6 +367,7 @@ public:
 		BAN_UPDATE		= 4
 	};
 
+
 public:
 	LLGroupMgr();
 	~LLGroupMgr();
@@ -399,15 +402,13 @@ public:
 	static void sendGroupMemberEjects(const LLUUID& group_id,
 									  uuid_vec_t& member_ids);
 	
-	static void sendGroupBanRequest(EBanRequestType request_type, 
+	void sendGroupBanRequest(EBanRequestType request_type, 
 									const LLUUID& group_id,	
 									U32 ban_action = BAN_NO_ACTION,
-									const uuid_vec_t ban_list = uuid_vec_t());
+									const uuid_vec_t &ban_list = uuid_vec_t());
 
-	static void processGroupBanRequest(const LLSD& content);
 
 	void sendCapGroupMembersRequest(const LLUUID& group_id);
-	static void processCapGroupMembersRequest(const LLSD& content);
 
 	void cancelGroupRoleChanges(const LLUUID& group_id);
 
@@ -430,6 +431,14 @@ public:
 	void clearGroupData(const LLUUID& group_id);
 
 private:
+    void groupMembersRequestCoro(std::string url, LLUUID groupId);
+    void processCapGroupMembersRequest(const LLSD& content);
+
+    void getGroupBanRequestCoro(std::string url, LLUUID groupId);
+    void postGroupBanRequestCoro(std::string url, LLUUID groupId, U32 action, uuid_vec_t banList, bool update);
+
+    static void processGroupBanRequest(const LLSD& content);
+
 	void notifyObservers(LLGroupChange gc);
 	void notifyObserver(const LLUUID& group_id, LLGroupChange gc);
 	void addGroup(LLGroupMgrGroupData* group_datap);
@@ -445,7 +454,7 @@ private:
 	typedef std::map<LLUUID,observer_set_t> observer_map_t;
 	observer_map_t mParticularObservers;
 
-	S32 mLastGroupMembersRequestFrame;
+    bool mMemberRequestInFlight;
 };
 
 

@@ -56,13 +56,8 @@ public:
 	///					be canceled.
 	HttpOpCancel(HttpHandle handle);
 
-protected:
 	virtual ~HttpOpCancel();							// Use release()
 	
-private:
-	HttpOpCancel(const HttpOpCancel &);					// Not defined
-	void operator=(const HttpOpCancel &);				// Not defined
-
 public:
 	virtual void stageFromRequest(HttpService *);
 			

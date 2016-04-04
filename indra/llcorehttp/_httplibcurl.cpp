@@ -71,11 +71,10 @@ void HttpLibcurl::shutdown()
 {
 	while (! mActiveOps.empty())
 	{
-		HttpOpRequest * op(* mActiveOps.begin());
+		HttpOpRequest::ptr_t op(* mActiveOps.begin());
 		mActiveOps.erase(mActiveOps.begin());
 
 		cancelRequest(op);
-		op->release();
 	}
 
 	if (mMultiHandles)
@@ -204,7 +203,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 
 
 // Caller has provided us with a ref count on op.
-void HttpLibcurl::addOp(HttpOpRequest * op)
+void HttpLibcurl::addOp(const HttpOpRequest::ptr_t &op)
 {
 	llassert_always(op->mReqPolicy < mPolicyCount);
 	llassert_always(mMultiHandles[op->mReqPolicy] != NULL);
@@ -235,21 +234,21 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 		HttpPolicy & policy(mService->getPolicy());
 		
 		LL_INFOS(LOG_CORE) << "TRACE, ToActiveQueue, Handle:  "
-						   << static_cast<HttpHandle>(op)
-						   << ", Actives:  " << mActiveOps.size()
-						   << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
-						   << LL_ENDL;
+                            << op->getHandle()
+						    << ", Actives:  " << mActiveOps.size()
+						    << ", Readies:  " << policy.getReadyCount(op->mReqPolicy)
+						    << LL_ENDL;
 	}
 }
 
 
 // Implements the transport part of any cancel operation.
 // See if the handle is an active operation and if so,
-// use the more complicated transport-based cancelation
+// use the more complicated transport-based cancellation
 // method to kill the request.
 bool HttpLibcurl::cancel(HttpHandle handle)
 {
-	HttpOpRequest * op(static_cast<HttpOpRequest *>(handle));
+    HttpOpRequest::ptr_t op = HttpOpRequest::fromHandle<HttpOpRequest>(handle);
 	active_set_t::iterator it(mActiveOps.find(op));
 	if (mActiveOps.end() == it)
 	{
@@ -262,7 +261,6 @@ bool HttpLibcurl::cancel(HttpHandle handle)
 	// Drop references
 	mActiveOps.erase(it);
 	--mActiveHandles[op->mReqPolicy];
-	op->release();
 
 	return true;
 }
@@ -273,7 +271,7 @@ bool HttpLibcurl::cancel(HttpHandle handle)
 // remove the op from the active list and release the op *after*
 // calling this method.  It must be called first to deliver the
 // op to the reply queue with refcount intact.
-void HttpLibcurl::cancelRequest(HttpOpRequest * op)
+void HttpLibcurl::cancelRequest(const HttpOpRequest::ptr_t &op)
 {
 	// Deactivate request
 	op->mCurlActive = false;
@@ -287,7 +285,7 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS(LOG_CORE) << "TRACE, RequestCanceled, Handle:  "
-						   << static_cast<HttpHandle>(op)
+						   << op->getHandle()
 						   << ", Status:  " << op->mStatus.toTerseString()
 						   << LL_ENDL;
 	}
@@ -301,8 +299,23 @@ void HttpLibcurl::cancelRequest(HttpOpRequest * op)
 // Keep them synchronized as necessary.
 bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
 {
-	HttpOpRequest * op(NULL);
-	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
+    HttpHandle ophandle(NULL);
+
+    CURLcode ccode(CURLE_OK);
+
+    ccode =	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &ophandle);
+    if (ccode)
+    {
+        LL_WARNS(LOG_CORE) << "libcurl error: " << ccode << " Unable to retrieve operation handle from CURL handle" << LL_ENDL;
+        return false;
+    }
+    HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(ophandle));
+    
+    if (!op)
+    {
+        LL_WARNS() << "Unable to locate operation by handle. May have expired!" << LL_ENDL;
+        return false;
+    }
 
 	if (handle != op->mCurlHandle || ! op->mCurlActive)
 	{
@@ -331,42 +344,72 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	{
 		op->mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, status);
 	}
-	if (op->mStatus)
-	{
-		int http_status(HTTP_OK);
+    if (op->mStatus)
+    {
+        int http_status(HTTP_OK);
 
-		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
-		if (http_status >= 100 && http_status <= 999)
-		{
-			char * cont_type(NULL);
-			curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
-			if (cont_type)
-			{
-				op->mReplyConType = cont_type;
-			}
-			op->mStatus = HttpStatus(http_status);
-		}
-		else
-		{
-			LL_WARNS(LOG_CORE) << "Invalid HTTP response code ("
-							   << http_status << ") received from server."
-							   << LL_ENDL;
-			op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
-		}
+        if (handle)
+        {
+            ccode = curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
+            if (ccode == CURLE_OK)
+            {
+                if (http_status >= 100 && http_status <= 999)
+                {
+                    char * cont_type(NULL);
+                    ccode = curl_easy_getinfo(handle, CURLINFO_CONTENT_TYPE, &cont_type);
+                    if (ccode == CURLE_OK)
+                    {
+                        if (cont_type)
+                        {
+                            op->mReplyConType = cont_type;
+                        }
+                    }
+                    else
+                    {
+                        LL_WARNS(LOG_CORE) << "CURL error:" << ccode << " Attempting to get content type." << LL_ENDL;
+                    }
+                    op->mStatus = HttpStatus(http_status);
+                }
+                else
+                {
+                    LL_WARNS(LOG_CORE) << "Invalid HTTP response code ("
+                        << http_status << ") received from server."
+                        << LL_ENDL;
+                    op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
+                }
+            }
+            else
+            {
+                op->mStatus = HttpStatus(HttpStatus::LLCORE, HE_INVALID_HTTP_STATUS);
+            }
+        }
+        else
+        {
+            LL_WARNS(LOG_CORE) << "Attempt to retrieve status from NULL handle!" << LL_ENDL;
+        }
 	}
 
-	// Detach from multi and recycle handle
-	curl_multi_remove_handle(multi_handle, handle);
-	mHandleCache.freeHandle(op->mCurlHandle);
-	op->mCurlHandle = NULL;
+    if (multi_handle && handle)
+    {
+        // Detach from multi and recycle handle
+        curl_multi_remove_handle(multi_handle, handle);
+        mHandleCache.freeHandle(op->mCurlHandle);
+    }
+    else
+    {
+        LL_WARNS(LOG_CORE) << "Curl multi_handle or handle is NULL on remove! multi:" 
+            << std::hex << multi_handle << " h:" << std::hex << handle << std::dec << LL_ENDL;
+    }
+
+    op->mCurlHandle = NULL;
 
 	// Tracing
 	if (op->mTracing > HTTP_TRACE_OFF)
 	{
 		LL_INFOS(LOG_CORE) << "TRACE, RequestComplete, Handle:  "
-						   << static_cast<HttpHandle>(op)
-						   << ", Status:  " << op->mStatus.toTerseString()
-						   << LL_ENDL;
+                            << op->getHandle()
+						    << ", Status:  " << op->mStatus.toTerseString()
+						    << LL_ENDL;
 	}
 
 	// Dispatch to next stage
@@ -554,7 +597,7 @@ void HttpLibcurl::HandleCache::freeHandle(CURL * handle)
 // ---------------------------------------
 
 
-struct curl_slist * append_headers_to_slist(const HttpHeaders * headers, struct curl_slist * slist)
+struct curl_slist * append_headers_to_slist(const HttpHeaders::ptr_t &headers, struct curl_slist * slist)
 {
 	const HttpHeaders::const_iterator end(headers->end());
 	for (HttpHeaders::const_iterator it(headers->begin()); end != it; ++it)

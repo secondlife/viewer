@@ -40,14 +40,14 @@
 //---------------------------------------------------------------------------
 
 LLPathfindingCharacterList::LLPathfindingCharacterList()
-	: LLPathfindingObjectList()
+    : LLPathfindingObjectList()
 {
 }
 
 LLPathfindingCharacterList::LLPathfindingCharacterList(const LLSD& pCharacterListData)
-	: LLPathfindingObjectList()
+    : LLPathfindingObjectList()
 {
-	parseCharacterListData(pCharacterListData);
+    parseCharacterListData(pCharacterListData);
 }
 
 LLPathfindingCharacterList::~LLPathfindingCharacterList()
@@ -56,14 +56,16 @@ LLPathfindingCharacterList::~LLPathfindingCharacterList()
 
 void LLPathfindingCharacterList::parseCharacterListData(const LLSD& pCharacterListData)
 {
-	LLPathfindingObjectMap &objectMap = getObjectMap();
+    LLPathfindingObjectMap &objectMap = getObjectMap();
 
-	for (LLSD::map_const_iterator characterDataIter = pCharacterListData.beginMap();
-		characterDataIter != pCharacterListData.endMap(); ++characterDataIter)
-	{
-		const std::string& uuid(characterDataIter->first);
-		const LLSD& characterData = characterDataIter->second;
-		LLPathfindingObjectPtr character(new LLPathfindingCharacter(uuid, characterData));
-		objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, character));
-	}
+    for (LLSD::map_const_iterator characterDataIter = pCharacterListData.beginMap();
+        characterDataIter != pCharacterListData.endMap(); ++characterDataIter)
+    {
+        if (characterDataIter->second.isUndefined())
+            continue;
+        const std::string& uuid(characterDataIter->first);
+        const LLSD& characterData = characterDataIter->second;
+        LLPathfindingObjectPtr character(new LLPathfindingCharacter(uuid, characterData));
+        objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, character));
+    }
 }

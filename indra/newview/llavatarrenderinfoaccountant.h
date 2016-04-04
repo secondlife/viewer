@@ -29,6 +29,9 @@
 #if ! defined(LL_llavatarrenderinfoaccountant_H)
 #define LL_llavatarrenderinfoaccountant_H
 
+#include "httpcommon.h"
+#include "llcoros.h"
+
 class LLViewerRegion;
 
 // Class to gather avatar rendering information 
@@ -56,10 +59,8 @@ class LLAvatarRenderInfoAccountant : public LLSingleton<LLAvatarRenderInfoAccoun
 	// further limited by per region Request and Report timers
 	LLFrameTimer mRenderInfoScanTimer; 
 
-	// 
-	LLCore::HttpRequest* mHttpRequest;
-	LLCore::HttpHeaders* mHttpHeaders;
-	LLCore::HttpOptions* mHttpOptions;
+    static void avatarRenderInfoGetCoro(std::string url, U64 regionHandle);
+    static void avatarRenderInfoReportCoro(std::string url, U64 regionHandle);
 };
 
 #endif /* ! defined(LL_llavatarrenderinfoaccountant_H) */

@@ -5,7 +5,6 @@ project(llcorehttp)
 include(00-Common)
 include(GoogleMock)
 include(CURL)
-include(CARes)
 include(OpenSSL)
 include(ZLIB)
 include(LLCoreHttp)
@@ -26,6 +25,7 @@ set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
     bufferstream.cpp
     httpcommon.cpp
+    llhttpconstants.cpp
     httpheaders.cpp
     httpoptions.cpp
     httprequest.cpp
@@ -51,6 +51,7 @@ set(llcorehttp_HEADER_FILES
     bufferarray.h
     bufferstream.h
     httpcommon.h
+    llhttpconstants.h
     httphandler.h
     httpheaders.h
     httpoptions.h
@@ -89,7 +90,6 @@ add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
 target_link_libraries(
   llcorehttp
   ${CURL_LIBRARIES}
-  ${CARES_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}
   ${BOOST_THREAD_LIBRARY}
@@ -127,7 +127,6 @@ if (LL_TESTS)
       ${LLCOMMON_LIBRARIES}
       ${GOOGLEMOCK_LIBRARIES}
       ${CURL_LIBRARIES}
-      ${CARES_LIBRARIES}
       ${OPENSSL_LIBRARIES}
       ${CRYPTO_LIBRARIES}
       ${BOOST_SYSTEM_LIBRARY}
@@ -196,7 +195,6 @@ endif (DARWIN)
       ${LLCOMMON_LIBRARIES}
       ${GOOGLEMOCK_LIBRARIES}
       ${CURL_LIBRARIES}
-      ${CARES_LIBRARIES}
       ${OPENSSL_LIBRARIES}
       ${CRYPTO_LIBRARIES}
       ${BOOST_SYSTEM_LIBRARY}

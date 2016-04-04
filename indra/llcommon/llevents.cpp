@@ -132,6 +132,17 @@ LLEventPump& LLEventPumps::obtain(const std::string& name)
     return *newInstance;
 }
 
+bool LLEventPumps::post(const std::string&name, const LLSD&message)
+{
+    PumpMap::iterator found = mPumpMap.find(name);
+
+    if (found == mPumpMap.end())
+        return false;
+
+    return (*found).second->post(message);
+}
+
+
 void LLEventPumps::flush()
 {
     // Flush every known LLEventPump instance. Leave it up to each instance to
@@ -495,6 +506,43 @@ bool LLEventStream::post(const LLSD& event)
     // LLEventPump.
     return (*signal)(event);
 }
+
+/*****************************************************************************
+ *   LLEventMailDrop
+ *****************************************************************************/
+bool LLEventMailDrop::post(const LLSD& event)
+{
+    bool posted = false;
+    
+    if (!mSignal->empty())
+        posted = LLEventStream::post(event);
+    
+    if (!posted)
+    {   // if the event was not handled we will save it for later so that it can 
+        // be posted to any future listeners when they attach.
+        mEventHistory.push_back(event);
+    }
+    
+    return posted;
+}
+
+LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
+                                    const LLEventListener& listener,
+                                    const NameList& after,
+                                    const NameList& before)
+{
+    if (!mEventHistory.empty())
+    {
+        if (listener(mEventHistory.front()))
+        {
+            mEventHistory.pop_front();
+        }
+    }
+
+    return LLEventStream::listen_impl(name, listener, after, before);
+
+}
+
 
 /*****************************************************************************
 *   LLEventQueue

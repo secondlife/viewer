@@ -3719,6 +3719,10 @@ BOOL LLModelPreview::render()
 		if (regen)
 		{
 			genBuffers(mPreviewLOD, skin_weight);
+			{
+				LL_INFOS() << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
+				regen = TRUE;
+			}
 		}
 
 		if (!skin_weight)
@@ -4486,6 +4490,15 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 	std::string upload_status = result["mesh_upload_status"].asString();
 	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
 	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
+
+    if (!mHasUploadPerm) 
+    {
+        LL_WARNS() << "Upload permission set to false because upload_status=\"" << upload_status << "\"" << LL_ENDL;
+    }
+    else if (mHasUploadPerm && mUploadModelUrl.empty())
+    {
+        LL_WARNS() << "Upload permission set to true but uploadModelUrl is empty!" << LL_ENDL;
+    }
 
 	// isModelUploadAllowed() includes mHasUploadPerm
 	mUploadBtn->setEnabled(isModelUploadAllowed());

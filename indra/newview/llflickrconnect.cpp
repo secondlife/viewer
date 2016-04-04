@@ -32,7 +32,6 @@
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llcommandhandler.h"
-#include "llhttpclient.h"
 #include "llnotificationsutil.h"
 #include "llurlaction.h"
 #include "llimagepng.h"
@@ -43,6 +42,7 @@
 
 #include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
+#include "llcorehttputil.h"
 
 boost::scoped_ptr<LLEventPump> LLFlickrConnect::sStateWatcher(new LLEventStream("FlickrConnectState"));
 boost::scoped_ptr<LLEventPump> LLFlickrConnect::sInfoWatcher(new LLEventStream("FlickrConnectInfo"));
@@ -67,228 +67,322 @@ void toast_user_for_flickr_success()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLFlickrConnectResponder : public LLHTTPClient::Responder
+void LLFlickrConnect::flickrConnectCoro(std::string requestToken, std::string oauthVerifier)
 {
-	LOG_CLASS(LLFlickrConnectResponder);
-public:
-	
-    LLFlickrConnectResponder()
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    LLSD body;
+    if (!requestToken.empty())
+        body["request_token"] = requestToken;
+    if (!oauthVerifier.empty())
+        body["oauth_verifier"] = oauthVerifier;
+
+    setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_IN_PROGRESS);
+
+    LLSD result = httpAdapter->putAndSuspend(httpRequest, getFlickrConnectURL("/connection"), body, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
     {
-        LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_IN_PROGRESS);
+        if ( status == LLCore::HttpStatus(HTTP_FOUND) )
+        {
+            std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+            if (location.empty())
+            {
+                LL_WARNS("FlickrConnect") << "Missing Location header " << LL_ENDL;
+            }
+            else
+            {
+                openFlickrWeb(location);
+            }
+        }
+        else
+        {
+            LL_WARNS("FlickrConnect") << "Connection failed " << status.toString() << LL_ENDL;
+            setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
+            log_flickr_connect_error("Connect", status.getStatus(), status.toString(),
+                result.get("error_code"), result.get("error_description"));
+        }
     }
-    
-	/* virtual */ void httpSuccess()
-	{
-		LL_DEBUGS("FlickrConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
-        LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		if ( HTTP_FOUND == getStatus() )
-		{
-			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-			if (location.empty())
-			{
-				LL_WARNS("FlickrConnect") << "Missing Location header " << dumpResponse()
-                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
-			}
-			else
-			{
-                LLFlickrConnect::instance().openFlickrWeb(location);
-			}
-		}
-		else
-		{
-			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
-            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
-			const LLSD& content = getContent();
-			log_flickr_connect_error("Connect", getStatus(), getReason(),
-                                      content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
+    else
+    {
+        LL_DEBUGS("FlickrConnect") << "Connect successful. " << LL_ENDL;
+        setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLFlickrShareResponder : public LLHTTPClient::Responder
+bool LLFlickrConnect::testShareStatus(LLSD &result)
 {
-	LOG_CLASS(LLFlickrShareResponder);
-public:
-    
-	LLFlickrShareResponder()
-	{
-		LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_POSTING);
-	}
-	
-	/* virtual */ void httpSuccess()
-	{
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status)
+        return true;
+
+    if (status == LLCore::HttpStatus(HTTP_FOUND))
+    {
+        std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+        if (location.empty())
+        {
+            LL_WARNS("FlickrConnect") << "Missing Location header " << LL_ENDL;
+        }
+        else
+        {
+            openFlickrWeb(location);
+        }
+    }
+    if (status == LLCore::HttpStatus(HTTP_NOT_FOUND))
+    {
+        LL_DEBUGS("FlickrConnect") << "Not connected. " << LL_ENDL;
+        connectToFlickr();
+    }
+    else
+    {
+        LL_WARNS("FlickrConnect") << "HTTP Status error " << status.toString() << LL_ENDL;
+        setConnectionState(LLFlickrConnect::FLICKR_POST_FAILED);
+        log_flickr_connect_error("Share", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    return false;
+}
+
+void LLFlickrConnect::flickrShareCoro(LLSD share)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getFlickrConnectURL("/share/photo", true), share, httpOpts);
+
+    if (testShareStatus(result))
+    {
         toast_user_for_flickr_success();
-		LL_DEBUGS("FlickrConnect") << "Post successful. " << dumpResponse() << LL_ENDL;
-        LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_POSTED);
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		if ( HTTP_FOUND == getStatus() )
-		{
-			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-			if (location.empty())
-			{
-				LL_WARNS("FlickrConnect") << "Missing Location header " << dumpResponse()
-                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
-			}
-			else
-			{
-                LLFlickrConnect::instance().openFlickrWeb(location);
-			}
-		}
-		else if ( HTTP_NOT_FOUND == getStatus() )
-		{
-			LLFlickrConnect::instance().connectToFlickr();
-		}
-		else
-		{
-			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
-            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_POST_FAILED);
-			const LLSD& content = getContent();
-			log_flickr_connect_error("Share", getStatus(), getReason(),
-                                      content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
-
-///////////////////////////////////////////////////////////////////////////////
-//
-class LLFlickrDisconnectResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLFlickrDisconnectResponder);
-public:
- 
-	LLFlickrDisconnectResponder()
-	{
-		LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_DISCONNECTING);
-	}
-
-	void setUserDisconnected()
-	{
-		// Clear data
-		LLFlickrConnect::instance().clearInfo();
-
-		//Notify state change
-		LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_NOT_CONNECTED);
-	}
-
-	/* virtual */ void httpSuccess()
-	{
-		LL_DEBUGS("FlickrConnect") << "Disconnect successful. " << dumpResponse() << LL_ENDL;
-		setUserDisconnected();
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		//User not found so already disconnected
-		if ( HTTP_NOT_FOUND == getStatus() )
-		{
-			LL_DEBUGS("FlickrConnect") << "Already disconnected. " << dumpResponse() << LL_ENDL;
-			setUserDisconnected();
-		}
-		else
-		{
-			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
-			LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_DISCONNECT_FAILED);
-			const LLSD& content = getContent();
-			log_flickr_connect_error("Disconnect", getStatus(), getReason(),
-                                      content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
-
-///////////////////////////////////////////////////////////////////////////////
-//
-class LLFlickrConnectedResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLFlickrConnectedResponder);
-public:
-    
-	LLFlickrConnectedResponder(bool auto_connect) : mAutoConnect(auto_connect)
-    {
-		LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_IN_PROGRESS);
+        LL_DEBUGS("FlickrConnect") << "Post successful. " << LL_ENDL;
+        setConnectionState(LLFlickrConnect::FLICKR_POSTED);
     }
-    
-	/* virtual */ void httpSuccess()
-	{
-		LL_DEBUGS("FlickrConnect") << "Connect successful. " << dumpResponse() << LL_ENDL;
-        LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		// show the facebook login page if not connected yet
-		if ( HTTP_NOT_FOUND == getStatus() )
-		{
-			LL_DEBUGS("FlickrConnect") << "Not connected. " << dumpResponse() << LL_ENDL;
-			if (mAutoConnect)
-			{
-                LLFlickrConnect::instance().connectToFlickr();
-			}
-			else
-			{
-                LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_NOT_CONNECTED);
-			}
-		}
-		else
-		{
-			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
-            LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
-			const LLSD& content = getContent();
-			log_flickr_connect_error("Connected", getStatus(), getReason(),
-                                      content.get("error_code"), content.get("error_description"));
-		}
-	}
-    
-private:
-	bool mAutoConnect;
-};
+
+}
+
+void LLFlickrConnect::flickrShareImageCoro(LLPointer<LLImageFormatted> image, std::string title, std::string description, std::string tags, int safetyLevel)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    std::string imageFormat;
+    if (dynamic_cast<LLImagePNG*>(image.get()))
+    {
+        imageFormat = "png";
+    }
+    else if (dynamic_cast<LLImageJPEG*>(image.get()))
+    {
+        imageFormat = "jpg";
+    }
+    else
+    {
+        LL_WARNS() << "Image to upload is not a PNG or JPEG" << LL_ENDL;
+        return;
+    }
+
+    // All this code is mostly copied from LLWebProfile::post()
+    const std::string boundary = "----------------------------0123abcdefab";
+
+    std::string contentType = "multipart/form-data; boundary=" + boundary;
+    httpHeaders->append("Content-Type", contentType.c_str());
+
+    LLCore::BufferArray::ptr_t raw = LLCore::BufferArray::ptr_t(new LLCore::BufferArray()); // 
+    LLCore::BufferArrayStream body(raw.get());
+
+    // *NOTE: The order seems to matter.
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"title\"\r\n\r\n"
+        << title << "\r\n";
+
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"description\"\r\n\r\n"
+        << description << "\r\n";
+
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"tags\"\r\n\r\n"
+        << tags << "\r\n";
+
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"safety_level\"\r\n\r\n"
+        << safetyLevel << "\r\n";
+
+    body << "--" << boundary << "\r\n"
+        << "Content-Disposition: form-data; name=\"image\"; filename=\"Untitled." << imageFormat << "\"\r\n"
+        << "Content-Type: image/" << imageFormat << "\r\n\r\n";
+
+    // Insert the image data.
+    // *FIX: Treating this as a string will probably screw it up ...
+    U8* image_data = image->getData();
+    for (S32 i = 0; i < image->getDataSize(); ++i)
+    {
+        body << image_data[i];
+    }
+
+    body << "\r\n--" << boundary << "--\r\n";
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, getFlickrConnectURL("/share/photo", true), raw, httpOpts, httpHeaders);
+
+    if (testShareStatus(result))
+    {
+        toast_user_for_flickr_success();
+        LL_DEBUGS("FlickrConnect") << "Post successful. " << LL_ENDL;
+        setConnectionState(LLFlickrConnect::FLICKR_POSTED);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-class LLFlickrInfoResponder : public LLHTTPClient::Responder
+void LLFlickrConnect::flickrDisconnectCoro()
 {
-	LOG_CLASS(LLFlickrInfoResponder);
-public:
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
-	/* virtual */ void httpSuccess()
-	{
-		LL_INFOS("FlickrConnect") << "Flickr: Info received" << LL_ENDL;
-		LL_DEBUGS("FlickrConnect") << "Getting Flickr info successful. " << dumpResponse() << LL_ENDL;
-        LLFlickrConnect::instance().storeInfo(getContent());
-	}
-    
-	/* virtual */ void httpFailure()
-	{
-		if ( HTTP_FOUND == getStatus() )
-		{
-			const std::string& location = getResponseHeader(HTTP_IN_HEADER_LOCATION);
-			if (location.empty())
-			{
-				LL_WARNS("FlickrConnect") << "Missing Location header " << dumpResponse()
-                << "[headers:" << getResponseHeaders() << "]" << LL_ENDL;
-			}
-			else
-			{
-                LLFlickrConnect::instance().openFlickrWeb(location);
-			}
-		}
-		else
-		{
-			LL_WARNS("FlickrConnect") << dumpResponse() << LL_ENDL;
-			const LLSD& content = getContent();
-			log_flickr_connect_error("Info", getStatus(), getReason(),
-                                      content.get("error_code"), content.get("error_description"));
-		}
-	}
-};
+    setConnectionState(LLFlickrConnect::FLICKR_DISCONNECTING);
+    httpOpts->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->deleteAndSuspend(httpRequest, getFlickrConnectURL("/connection"), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status && (status != LLCore::HttpStatus(HTTP_NOT_FOUND)))
+    {
+        LL_WARNS("FlickrConnect") << "Disconnect failed!" << LL_ENDL;
+        setConnectionState(LLFlickrConnect::FLICKR_DISCONNECT_FAILED);
+
+        log_flickr_connect_error("Disconnect", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    else
+    {
+        LL_DEBUGS("FlickrConnect") << "Disconnect successful. " << LL_ENDL;
+        clearInfo();
+        setConnectionState(LLFlickrConnect::FLICKR_NOT_CONNECTED);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+void LLFlickrConnect::flickrConnectedCoro(bool autoConnect)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_IN_PROGRESS);
+
+    httpOpts->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getFlickrConnectURL("/connection", true), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        if (status == LLCore::HttpStatus(HTTP_NOT_FOUND))
+        {
+            LL_DEBUGS("FlickrConnect") << "Not connected. " << LL_ENDL;
+            if (autoConnect)
+            {
+                connectToFlickr();
+            }
+            else
+            {
+                setConnectionState(LLFlickrConnect::FLICKR_NOT_CONNECTED);
+            }
+        }
+        else
+        {
+            LL_WARNS("FlickrConnect") << "Failed to test connection:" << status.toTerseString() << LL_ENDL;
+
+            setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
+            log_flickr_connect_error("Connected", status.getStatus(), status.toString(),
+                result.get("error_code"), result.get("error_description"));
+        }
+    }
+    else
+    {
+        LL_DEBUGS("FlickrConnect") << "Connect successful. " << LL_ENDL;
+        setConnectionState(LLFlickrConnect::FLICKR_CONNECTED);
+    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+void LLFlickrConnect::flickrInfoCoro()
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FlickrConnect", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setWantHeaders(true);
+    httpOpts->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, getFlickrConnectURL("/info", true), httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (status == LLCore::HttpStatus(HTTP_FOUND))
+    {
+        std::string location = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS][HTTP_IN_HEADER_LOCATION];
+        if (location.empty())
+        {
+            LL_WARNS("FlickrConnect") << "Missing Location header " << LL_ENDL;
+        }
+        else
+        {
+            openFlickrWeb(location);
+        }
+    }
+    else if (!status)
+    {
+        LL_WARNS("FlickrConnect") << "Flickr Info failed: " << status.toString() << LL_ENDL;
+        log_flickr_connect_error("Info", status.getStatus(), status.toString(),
+            result.get("error_code"), result.get("error_description"));
+    }
+    else
+    {
+        LL_INFOS("FlickrConnect") << "Flickr: Info received" << LL_ENDL;
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        storeInfo(result);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -341,36 +435,28 @@ std::string LLFlickrConnect::getFlickrConnectURL(const std::string& route, bool 
 
 void LLFlickrConnect::connectToFlickr(const std::string& request_token, const std::string& oauth_verifier)
 {
-	LLSD body;
-	if (!request_token.empty())
-		body["request_token"] = request_token;
-	if (!oauth_verifier.empty())
-		body["oauth_verifier"] = oauth_verifier;
-    
-	LLHTTPClient::put(getFlickrConnectURL("/connection"), body, new LLFlickrConnectResponder());
+    LLCoros::instance().launch("LLFlickrConnect::flickrConnectCoro",
+        boost::bind(&LLFlickrConnect::flickrConnectCoro, this, request_token, oauth_verifier));
 }
 
 void LLFlickrConnect::disconnectFromFlickr()
 {
-	LLHTTPClient::del(getFlickrConnectURL("/connection"), new LLFlickrDisconnectResponder());
+    LLCoros::instance().launch("LLFlickrConnect::flickrDisconnectCoro",
+        boost::bind(&LLFlickrConnect::flickrDisconnectCoro, this));
 }
 
 void LLFlickrConnect::checkConnectionToFlickr(bool auto_connect)
 {
-	const bool follow_redirects = false;
-	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-	LLHTTPClient::get(getFlickrConnectURL("/connection", true), new LLFlickrConnectedResponder(auto_connect),
-						LLSD(), timeout, follow_redirects);
+    LLCoros::instance().launch("LLFlickrConnect::flickrConnectedCoro",
+        boost::bind(&LLFlickrConnect::flickrConnectedCoro, this, auto_connect));
 }
 
 void LLFlickrConnect::loadFlickrInfo()
 {
 	if(mRefreshInfo)
 	{
-		const bool follow_redirects = false;
-		const F32 timeout = HTTP_REQUEST_EXPIRY_SECS;
-		LLHTTPClient::get(getFlickrConnectURL("/info", true), new LLFlickrInfoResponder(),
-			LLSD(), timeout, follow_redirects);
+        LLCoros::instance().launch("LLFlickrConnect::flickrInfoCoro",
+            boost::bind(&LLFlickrConnect::flickrInfoCoro, this));
 	}
 }
 
@@ -382,74 +468,20 @@ void LLFlickrConnect::uploadPhoto(const std::string& image_url, const std::strin
 	body["description"] = description;
 	body["tags"] = tags;
 	body["safety_level"] = safety_level;
-	
-    // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::post(getFlickrConnectURL("/share/photo", true), body, new LLFlickrShareResponder());
+
+    setConnectionState(LLFlickrConnect::FLICKR_POSTING);
+
+    LLCoros::instance().launch("LLFlickrConnect::flickrShareCoro",
+        boost::bind(&LLFlickrConnect::flickrShareCoro, this, body));
 }
 
 void LLFlickrConnect::uploadPhoto(LLPointer<LLImageFormatted> image, const std::string& title, const std::string& description, const std::string& tags, int safety_level)
 {
-	std::string imageFormat;
-	if (dynamic_cast<LLImagePNG*>(image.get()))
-	{
-		imageFormat = "png";
-	}
-	else if (dynamic_cast<LLImageJPEG*>(image.get()))
-	{
-		imageFormat = "jpg";
-	}
-	else
-	{
-		LL_WARNS() << "Image to upload is not a PNG or JPEG" << LL_ENDL;
-		return;
-	}
-	
-	// All this code is mostly copied from LLWebProfile::post()
-	const std::string boundary = "----------------------------0123abcdefab";
+    setConnectionState(LLFlickrConnect::FLICKR_POSTING);
 
-	LLSD headers;
-	headers["Content-Type"] = "multipart/form-data; boundary=" + boundary;
-
-	std::ostringstream body;
-
-	// *NOTE: The order seems to matter.
-	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"title\"\r\n\r\n"
-			<< title << "\r\n";
-
-	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"description\"\r\n\r\n"
-			<< description << "\r\n";
-
-	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"tags\"\r\n\r\n"
-			<< tags << "\r\n";
-
-	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"safety_level\"\r\n\r\n"
-			<< safety_level << "\r\n";
-
-	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"image\"; filename=\"Untitled." << imageFormat << "\"\r\n"
-			<< "Content-Type: image/" << imageFormat << "\r\n\r\n";
-
-	// Insert the image data.
-	// *FIX: Treating this as a string will probably screw it up ...
-	U8* image_data = image->getData();
-	for (S32 i = 0; i < image->getDataSize(); ++i)
-	{
-		body << image_data[i];
-	}
-
-	body <<	"\r\n--" << boundary << "--\r\n";
-
-	// postRaw() takes ownership of the buffer and releases it later.
-	size_t size = body.str().size();
-	U8 *data = new U8[size];
-	memcpy(data, body.str().data(), size);
-	
-    // Note: we can use that route for different publish action. We should be able to use the same responder.
-	LLHTTPClient::postRaw(getFlickrConnectURL("/share/photo", true), data, size, new LLFlickrShareResponder(), headers);
+    LLCoros::instance().launch("LLFlickrConnect::flickrShareImageCoro",
+        boost::bind(&LLFlickrConnect::flickrShareImageCoro, this, image, 
+        title, description, tags, safety_level));
 }
 
 void LLFlickrConnect::storeInfo(const LLSD& info)

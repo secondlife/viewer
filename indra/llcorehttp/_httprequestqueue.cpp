@@ -47,12 +47,7 @@ HttpRequestQueue::HttpRequestQueue()
 
 HttpRequestQueue::~HttpRequestQueue()
 {
-	while (! mQueue.empty())
-	{
-		HttpOperation * op = mQueue.back();
-		mQueue.pop_back();
-		op->release();
-	}
+    mQueue.clear();
 }
 
 
@@ -73,7 +68,7 @@ void HttpRequestQueue::term()
 }
 
 
-HttpStatus HttpRequestQueue::addOp(HttpOperation * op)
+HttpStatus HttpRequestQueue::addOp(const HttpRequestQueue::opPtr_t &op)
 {
 	bool wake(false);
 	{
@@ -95,9 +90,9 @@ HttpStatus HttpRequestQueue::addOp(HttpOperation * op)
 }
 
 
-HttpOperation * HttpRequestQueue::fetchOp(bool wait)
+HttpRequestQueue::opPtr_t HttpRequestQueue::fetchOp(bool wait)
 {
-	HttpOperation * result(NULL);
+	HttpOperation::ptr_t result;
 
 	{
 		HttpScopedLock lock(mQueueMutex);
@@ -105,7 +100,7 @@ HttpOperation * HttpRequestQueue::fetchOp(bool wait)
 		while (mQueue.empty())
 		{
 			if (! wait || mQueueStopped)
-				return NULL;
+                return HttpOperation::ptr_t();
 			mQueueCV.wait(lock);
 		}
 

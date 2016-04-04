@@ -60,6 +60,8 @@ private:
 	void operator=(const HttpPolicy &);			// Not defined
 
 public:
+    typedef boost::shared_ptr<HttpOpRequest> opReqPtr_t;
+
 	/// Threading:  called by init thread.
 	HttpRequest::policy_t createPolicyClass();
 	
@@ -96,7 +98,7 @@ public:
 	/// from queue.
 	///
 	/// Threading:  called by worker thread
-	void addOp(HttpOpRequest *);
+    void addOp(const opReqPtr_t &);
 
 	/// Similar to addOp, used when a caller wants to retry a
 	/// request that has failed.  It's placed on a special retry
@@ -106,7 +108,7 @@ public:
 	/// order.
 	///
 	/// Threading:  called by worker thread
-	void retryOp(HttpOpRequest *);
+    void retryOp(const opReqPtr_t &);
 
 	/// Attempt to change the priority of an earlier request.
 	/// Request that Shadows HttpService's method
@@ -130,7 +132,7 @@ public:
 	///					sent on to the reply queue.
 	///
 	/// Threading:  called by worker thread
-	bool stageAfterCompletion(HttpOpRequest * op);
+    bool stageAfterCompletion(const opReqPtr_t &op);
 	
 	/// Get a reference to global policy options.  Caller is expected
 	/// to do context checks like no setting once running.  These

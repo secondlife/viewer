@@ -22,9 +22,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fe724581a16ff7bf3f2e261b8c4ee80e</string>
+              <string>459cdc8d7c19a8025f98f61db95622ff</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/sdl_3p-update-sdl/rev/301425/arch/Linux/installer/SDL-1.2.15-linux-301425.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/sdl_3p-update-sdl/rev/297546/arch/Linux/installer/SDL-1.2.15-linux-297546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -86,60 +86,6 @@
         </map>
         <key>version</key>
         <string>1.4.5.297252</string>
-      </map>
-      <key>ares</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright 1998 by the Massachusetts Institute of Technology.</string>
-        <key>description</key>
-        <string>C-ares, an asynchronous resolver library.</string>
-        <key>license</key>
-        <string>c-ares</string>
-        <key>license_file</key>
-        <string>LICENSES/c-ares.txt</string>
-        <key>name</key>
-        <string>ares</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>637b4996f703f3e5bf835d847fc4cb81</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/Darwin/installer/ares-1.10.0.295506-darwin-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7771d3653a0daf22d35bf96055d02d9a</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/Linux/installer/ares-1.10.0.295506-linux-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>f044de05e704d3f3fb6934adf42447c2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/ares_3p-update-ares/rev/295506/arch/CYGWIN/installer/ares-1.10.0.295506-windows-295506.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.10.0.295506</string>
       </map>
       <key>boost</key>
       <map>
@@ -212,9 +158,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>40bd4dd220749a7f0fc8e4d62e61b4a2</string>
+              <string>66849777a83cb69cec3c06b07da7cd3d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/301371/arch/Darwin/installer/colladadom-2.3.301371-darwin-301371.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Darwin/installer/colladadom-2.3.297450-darwin-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -224,9 +170,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ff636034665555e4b3d918d86ef9566</string>
+              <string>d627c2a679f3afb8d3e090d42f53cd2e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/301371/arch/Linux/installer/colladadom-2.3.301371-linux-301371.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Linux/installer/colladadom-2.3.297450-linux-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -236,16 +182,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>24e1fac1fd6feef7915c958687fd7c56</string>
+              <string>220897a1893a188aa9d31efb48909878</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/301371/arch/CYGWIN/installer/colladadom-2.3.301371-windows-301371.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/CYGWIN/installer/colladadom-2.3.297450-windows-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.301371</string>
+        <string>2.3.297450</string>
       </map>
       <key>curl</key>
       <map>
@@ -266,9 +212,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89db4a1aa22599cf377ae49630b7b5b1</string>
+              <string>ad0061db7188a1b9a974eb0512eeeb8d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/Darwin/installer/curl-7.42.1.301717-darwin-301717.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/Darwin/installer/curl-7.47.0.312763-darwin-312763.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -278,9 +224,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de9e0c855ff6ee30c9e027a70bbef032</string>
+              <string>f49d4ed203b03852a3f6b01b18319f7a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/Linux/installer/curl-7.42.1.301717-linux-301717.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/Linux/installer/curl-7.47.0.312763-linux-312763.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -290,16 +236,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>98d15713de8c439b7f54cc14f2df07ac</string>
+              <string>5e0d4f4a5a5bbcba610aafbb91c30b2b</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/301717/arch/CYGWIN/installer/curl-7.42.1.301717-windows-301717.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-curl/rev/312763/arch/CYGWIN/installer/curl-7.47.0.312763-windows-312763.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.42.1.301717</string>
+        <string>7.47.0.312763</string>
       </map>
       <key>db</key>
       <map>
@@ -696,9 +644,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f577144536fd7c9d26d9f989acf17857</string>
+              <string>44c596c659d32a86972ac9c6f206cb68</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-update-glh-linear/rev/297692/arch/Linux/installer/glh_linear-0.0.0-common-297692.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-glh-linear/rev/303446/arch/Linux/installer/glh_linear-0.0.0-common-303446.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -850,9 +798,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e294e6ca721e271b4bae8046cfbc3c9b</string>
+              <string>0bf69fbc829d964820b798a0494278c9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298127/arch/Linux/installer/google_breakpad-1413.298127-linux-298127.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/Linux/installer/google_breakpad-1413.298033-linux-298033.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1056,9 +1004,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0d586709c1a2e4cf433390bbdd2498ed</string>
+              <string>5c5b4820999ae9e398801d6a46f45897</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/301432/arch/Darwin/installer/havok_source-2012.1-darwin-301432.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297312/arch/Darwin/installer/havok_source-2012.1-darwin-297312.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1068,9 +1016,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>02c85c2c63c8d002b31382f866ca143b</string>
+              <string>6b0f41ddddfa60d8424d8a2e0bc2077d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/301432/arch/Linux/installer/havok_source-2012.1-linux-301432.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/296959/arch/Linux/installer/havok_source-2012.1-linux-296959.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1080,9 +1028,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ac8a27020182510fd404177e4a97b70f</string>
+              <string>ab30ae74a665950d73ea559f019ff358</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/301432/arch/CYGWIN/installer/havok_source-2012.1-windows-301432.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297566/arch/CYGWIN/installer/havok_source-2012.1-windows-297566.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1164,9 +1112,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8084ced172704ff09b364f7af82a2d6f</string>
+              <string>b25a4f480e07c670ffef00c3da578f87</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297580/arch/Darwin/installer/jsoncpp-0.5.0.297580-darwin-297580.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297281/arch/Darwin/installer/jsoncpp-0.5.0.297281-darwin-297281.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1176,9 +1124,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>910bf12e4b4635170e462b739887cda9</string>
+              <string>5b3b5dbf0c82c1046482a74ce9e11c38</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297580/arch/Linux/installer/jsoncpp-0.5.0.297580-linux-297580.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297281/arch/Linux/installer/jsoncpp-0.5.0.297281-linux-297281.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1368,9 +1316,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0d134c36fcd87d00d91c99291906dde9</string>
+              <string>14cb5c8686a472e9e60179e46cd196f7</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/301387/arch/Darwin/installer/libpng-1.6.8.301387-darwin-301387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/Darwin/installer/libpng-1.6.8.297708-darwin-297708.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1380,9 +1328,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>744e22c5fcaaf3483a60e29f217daa9c</string>
+              <string>6dec32fc2527f8cafd616f9271ff3478</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/301387/arch/Linux/installer/libpng-1.6.8.301387-linux-301387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297051/arch/Linux/installer/libpng-1.6.8.297051-linux-297051.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1392,16 +1340,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>391158e9b5d92a8b69aeb7478144d2de</string>
+              <string>09eb65e66e0230ab01e57e643647a4f1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/301387/arch/CYGWIN/installer/libpng-1.6.8.301387-windows-301387.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/CYGWIN/installer/libpng-1.6.8.297708-windows-297708.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.6.8.301387</string>
+        <string>1.6.8.297708</string>
       </map>
       <key>libuuid</key>
       <map>
@@ -1506,9 +1454,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce1261a54d877ab5530ae6a9134a77a3</string>
+              <string>faa1e5b7cf70c143caabe190fa5588ce</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/294906/arch/Linux/installer/llappearance_utility-0.0.1-linux-294906.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/304432/arch/Linux/installer/llappearance_utility-0.0.1-linux-304432.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1800,9 +1748,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>65f58cc0b17ebd29fe2b8bccc6bcbf64</string>
+              <string>b1245d467d5914a266efa16afeb55406</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/301464/arch/Linux/installer/open_libndofdev-0.3-linux-301464.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/297553/arch/Linux/installer/open_libndofdev-0.3-linux-297553.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2068,9 +2016,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>68a8fab5ad3a180487598d3a3e0d57b1</string>
+              <string>3dd9bf4185bf2df413d890ca9eeab76c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Darwin/installer/slvoice-4.6.0017.21209.298329-darwin-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Darwin/installer/slvoice-4.6.0017.22050.302004-darwin-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2080,9 +2028,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>48ed7ddcf93fa3c751d677f5eb5f9367</string>
+              <string>06c3a9b1005249f0c94a8b9f3775f3d3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Linux/installer/slvoice-3.2.0002.10426.298329-linux-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Linux/installer/slvoice-3.2.0002.10426.302004-linux-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2092,16 +2040,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>399afab7047e6fa62e7b2fb1768059ea</string>
+              <string>47a3316dae47cc4e7c1ea7b74ba8dd1e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/CYGWIN/installer/slvoice-4.6.0017.21209.298329-windows-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/CYGWIN/installer/slvoice-4.6.0017.22050.302004-windows-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.6.0017.21209.2988329</string>
+        <string>3.2.0002.10426.302004</string>
       </map>
       <key>tut</key>
       <map>
@@ -2318,12 +2266,11 @@
           <map>
             <key>RelWithDebInfo</key>
             <map>
+              <key>build</key>
+              <map>
+              </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -2360,12 +2307,11 @@
             </map>
             <key>Release</key>
             <map>
+              <key>build</key>
+              <map>
+              </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
                 <key>command</key>
                 <string>cmake</string>
                 <key>options</key>
@@ -2400,25 +2346,6 @@
               <key>name</key>
               <string>ReleaseOS</string>
             </map>
-            <key>Doxygen</key>
-            <map>
-              <key>build</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>doxygen/Doxyfile</string>
-                </array>
-                <key>command</key>
-                <string>doxygen</string>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>command</key>
-                <string>cmake</string>
-              </map>
-              <key>name</key>
-              <string>Doxygen</string>
-            </map>
           </map>
           <key>name</key>
           <string>common</string>
@@ -2429,28 +2356,6 @@
           <string>build-darwin-i386</string>
           <key>configurations</key>
           <map>
-            <key>Doxygen</key>
-            <map>
-              <key>build</key>
-              <map>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>options</key>
-                <array>
-                  <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
-                  <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Doxygen</string>
-            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -2469,6 +2374,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2523,6 +2432,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2567,26 +2480,6 @@
           <string>build-linux-i686</string>
           <key>configurations</key>
           <map>
-            <key>Doxygen</key>
-            <map>
-              <key>build</key>
-              <map>
-              </map>
-              <key>configure</key>
-              <map>
-                <key>arguments</key>
-                <array>
-                  <string>../indra</string>
-                </array>
-                <key>options</key>
-                <array>
-                  <string>-G</string>
-                  <string>'Unix Makefiles'</string>
-                </array>
-              </map>
-              <key>name</key>
-              <string>Doxygen</string>
-            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -2600,6 +2493,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2646,6 +2543,10 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -2745,11 +2646,16 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>"RelWithDebInfo|Win32"</string>
+                  <string>/p:Configuration=RelWithDebInfo</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2826,11 +2732,16 @@
                   <string>SecondLife.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>"Release|Win32"</string>
+                  <string>/p:Configuration=Release</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:minimal</string>
+                  <string>/toolsversion:4.0</string>
+                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
                 </array>
               </map>
               <key>configure</key>
