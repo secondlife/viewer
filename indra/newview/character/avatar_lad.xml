@@ -594,7 +594,23 @@
          scale="0 0 .05" />
 
         <bone
+         name="mSpine3"
+         scale="0 0 .05" />
+
+        <bone
+         name="mSpine4"
+         scale="0 0 .05" />
+
+        <bone
          name="mPelvis"
+         scale="0 0 0" />
+
+        <bone
+         name="mSpine1"
+         scale="0 0 0" />
+
+        <bone
+         name="mSpine2"
          scale="0 0 0" />
 
         <bone
@@ -688,7 +704,23 @@
          scale="0 0 0.05" />
 
         <bone
+         name="mSpine3"
+         scale="0 0 0.05" />
+
+        <bone
+         name="mSpine4"
+         scale="0 0 0.05" />
+
+        <bone
          name="mPelvis"
+         scale="0 0 0" />
+
+        <bone
+         name="mSpine1"
+         scale="0 0 0" />
+
+        <bone
+         name="mSpine2"
          scale="0 0 0" />
 
         <bone
@@ -777,9 +809,25 @@
          scale="0.1 0.1 0" />
 
         <bone
+         name="mSpine3"
+         scale="0.1 0.1 0" />
+
+        <bone
+         name="mSpine4"
+         scale="0.1 0.1 0" />
+
+        <bone
          name="mPelvis"
          scale="0.1 0.1 0" />
 
+        <bone
+         name="mSpine1"
+         scale="0.1 0.1 0" />
+
+        <bone
+         name="mSpine2"
+         scale="0.1 0.1 0" />
+		 
         <bone
          name="mHipLeft"
          scale="0.13 0.13 0" />
@@ -894,6 +942,14 @@
          scale="0 0.1 0" />
 
         <bone
+         name="mSpine1"
+         scale="0 0.1 0" />
+
+        <bone
+         name="mSpine2"
+         scale="0 0.1 0" />
+
+        <bone
          name="mHipLeft"
          scale="0 0 0"
          offset="0 .004 0" />
@@ -936,6 +992,14 @@
         <bone
          name="mPelvis"
          scale="0 0 0.3" />
+
+        <bone
+         name="mSpine1"
+         scale="0 0 0.3" />
+
+        <bone
+         name="mSpine2"
+         scale="0 0 0.3" />
         </param_skeleton>
     </param>
 
@@ -957,7 +1021,23 @@
          scale="0 0 .3" />
 
         <bone
+         name="mSpine3"
+         scale="0 0 .3" />
+
+        <bone
+         name="mSpine4"
+         scale="0 0 .3" />
+
+        <bone
          name="mPelvis"
+         scale="0 0 .1" />
+
+        <bone
+         name="mSpine1"
+         scale="0 0 .1" />
+
+        <bone
+         name="mSpine2"
          scale="0 0 .1" />
 
         <bone
