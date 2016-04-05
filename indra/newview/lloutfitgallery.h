@@ -33,6 +33,7 @@
 #include "lllayoutstack.h"
 #include "lloutfitslist.h"
 #include "llpanelappearancetab.h"
+#include "lltexturectrl.h"
 #include "llviewertexture.h"
 
 #include <vector>
@@ -81,6 +82,8 @@ public:
 
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
+    
+    void onSelectPhoto(LLUUID selected_outfit_id);
 
     /*virtual*/ void setFilterSubString(const std::string& string);
 
@@ -97,6 +100,7 @@ public:
     void refreshTextures(const LLUUID& category_id);
     void refreshOutfit(const LLUUID& category_id);
 
+    void onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LLUUID id);
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
     /*virtual*/ void onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid);
@@ -110,6 +114,8 @@ protected:
 private:
     void loadPhotos();
     void uploadPhoto(LLUUID outfit_id);
+    LLUUID getPhotoAssetId(const LLUUID& outfit_id);
+    LLUUID getDefaultPhoto();
     void linkPhotoToOutfit(LLUUID outfit_id, LLUUID photo_id);
     bool checkRemovePhoto(LLUUID outfit_id);
     void addToGallery(LLOutfitGalleryItem* item);
@@ -124,6 +130,9 @@ private:
     void removeFromLastRow(LLOutfitGalleryItem* item);
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name);
+
+    void onTextureSelectionChanged(LLInventoryItem* itemp);
+
     void buildGalleryPanel(int row_count);
     void reshapeGalleryPanel(int row_count);
     LLPanel* buildItemPanel(int left);
@@ -151,12 +160,11 @@ private:
     int mRowPanelWidth;
     int mGalleryWidth;
 
+    LLHandle<LLFloater> mFloaterHandle;
+
     typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
     typedef outfit_map_t::value_type                    outfit_map_value_t;
     outfit_map_t                                        mOutfitMap;
-    typedef std::map<LLUUID, LLViewerInventoryItem*>    texture_map_t;
-    typedef texture_map_t::value_type                   texture_map_value_t;
-    texture_map_t                                       mTextureMap;
     typedef std::map<LLOutfitGalleryItem*, int>         item_num_map_t;
     typedef item_num_map_t::value_type                  item_numb_map_value_t;
     item_num_map_t                                      mItemIndexMap;
@@ -174,9 +182,9 @@ public:
 
 protected:
     /*virtual*/ void onUpdateItemsVisibility();
-
 private:
     /*virtual*/ void onUploadFoto();
+    /*virtual*/ void onSelectPhoto();
 };
 
 class LLOutfitGalleryItem : public LLPanel
@@ -194,11 +202,13 @@ public:
 
     void setDefaultImage();
     void setImageAssetId(LLUUID asset_id);
+    LLUUID getImageAssetId();
     void setOutfitName(std::string name);
     void setOutfitWorn(bool value);
     void setSelected(bool value);
 private:
     LLPointer<LLViewerTexture> mTexturep;
+    LLUUID mImageAssetId;
     LLTextBox* mOutfitNameText;
     LLTextBox* mOutfitWornText;
     LLPanel* mTextBgPanel;

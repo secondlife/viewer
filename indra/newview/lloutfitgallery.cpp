@@ -42,6 +42,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "lllocalbitmaps.h"
+#include "lltexturectrl.h"
 #include "llviewermenufile.h"
 #include "llwearableitemslist.h"
 
@@ -552,13 +553,20 @@ BOOL LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
 {
+    mImageAssetId = image_asset_id;
     mTexturep = LLViewerTextureManager::getFetchedTexture(image_asset_id);
     mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+}
+
+LLUUID LLOutfitGalleryItem::getImageAssetId()
+{
+    return mImageAssetId;
 }
 
 void LLOutfitGalleryItem::setDefaultImage()
 {
     mTexturep = NULL;
+    mImageAssetId.setNull();
 }
 
 LLOutfitGalleryGearMenu::LLOutfitGalleryGearMenu(LLOutfitListBase* olist)
@@ -572,7 +580,7 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
     mMenu->setItemVisible("upload_photo", TRUE);
-    mMenu->setItemVisible("load_assets", TRUE);
+    mMenu->setItemVisible("select_photo", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -584,6 +592,20 @@ void LLOutfitGalleryGearMenu::onUploadFoto()
     {
         gallery->uploadPhoto(selected_outfit_id);
     }
+}
+
+void LLOutfitGalleryGearMenu::onSelectPhoto()
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    LLUUID selected_outfit_id = getSelectedOutfitID();
+    if (gallery && !selected_outfit_id.isNull())
+    {
+        gallery->onSelectPhoto(selected_outfit_id);
+    }
+}
+
+void LLOutfitGallery::onTextureSelectionChanged(LLInventoryItem* itemp)
+{
 }
 
 void LLOutfitGallery::loadPhotos()
@@ -759,4 +781,88 @@ bool LLOutfitGallery::checkRemovePhoto(LLUUID outfit_id)
 
 void LLUpdateGalleryOnPhotoLinked::fire(const LLUUID& inv_item_id)
 {
+}
+
+LLUUID LLOutfitGallery::getPhotoAssetId(const LLUUID& outfit_id)
+{
+    outfit_map_t::iterator outfit_it = mOutfitMap.find(outfit_id);
+    if (outfit_it != mOutfitMap.end())
+    {
+        return outfit_it->second->getImageAssetId();
+    }
+    return LLUUID();
+}
+
+LLUUID LLOutfitGallery::getDefaultPhoto()
+{
+    return LLUUID();
+}
+
+void LLOutfitGallery::onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LLUUID id)
+{
+    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
+
+    if (floaterp && op == LLTextureCtrl::TEXTURE_SELECT)
+    {
+        LLUUID image_item_id;
+        if (id.notNull())
+        {
+            image_item_id = id;
+        }
+        else
+        {
+            image_item_id = floaterp->findItemID(floaterp->getAssetID(), FALSE);
+        }
+        checkRemovePhoto(getSelectedOutfitUUID());
+        linkPhotoToOutfit(image_item_id, getSelectedOutfitUUID());
+    }
+}
+
+void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
+{
+    if (selected_outfit_id.notNull())
+    {
+
+        // show hourglass cursor when loading inventory window
+        // because inventory construction is slooow
+        getWindow()->setCursor(UI_CURSOR_WAIT);
+        LLFloater* floaterp = mFloaterHandle.get();
+
+        // Show the dialog
+        if (floaterp)
+        {
+            floaterp->openFloater();
+        }
+        else
+        {
+            floaterp = new LLFloaterTexturePicker(
+                this,
+                getPhotoAssetId(selected_outfit_id),
+                getPhotoAssetId(selected_outfit_id),
+                getPhotoAssetId(selected_outfit_id),
+                FALSE,
+                TRUE,
+                "SELECT PHOTO",
+                PERM_NONE,
+                PERM_NONE,
+                PERM_NONE,
+                FALSE,
+                NULL);
+
+            mFloaterHandle = floaterp->getHandle();
+
+            LLFloaterTexturePicker* texture_floaterp = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
+            if (texture_floaterp)
+            {
+                texture_floaterp->setTextureSelectedCallback(boost::bind(&LLOutfitGallery::onTextureSelectionChanged, this, _1));
+            }
+            if (texture_floaterp)
+            {
+                texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLOutfitGallery::onTexturePickerCommit, this, _1, _2));
+            }
+
+            floaterp->openFloater();
+        }
+        floaterp->setFocus(TRUE);
+    }
 }

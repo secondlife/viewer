@@ -1091,7 +1091,8 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
 
     registrar.add("Gear.UploadPhoto", boost::bind(&LLOutfitListGearMenuBase::onUploadFoto, this));
-    
+    registrar.add("Gear.SelectPhoto", boost::bind(&LLOutfitListGearMenuBase::onSelectPhoto, this));
+
     enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
     enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenuBase::onVisible, this, _2));
 
@@ -1229,6 +1230,11 @@ void LLOutfitListGearMenuBase::onUploadFoto()
 
 }
 
+void LLOutfitListGearMenuBase::onSelectPhoto()
+{
+
+}
+
 LLOutfitListGearMenu::LLOutfitListGearMenu(LLOutfitListBase* olist)
     : LLOutfitListGearMenuBase(olist)
 {}
@@ -1242,7 +1248,7 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("expand", TRUE);
     mMenu->setItemVisible("collapse", TRUE);
     mMenu->setItemVisible("upload_photo", FALSE);
-    mMenu->setItemVisible("load_assets", TRUE);
+    mMenu->setItemVisible("select_photo", FALSE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 

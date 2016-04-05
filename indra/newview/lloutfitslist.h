@@ -164,6 +164,8 @@ public:
 protected:
     virtual void onUpdateItemsVisibility();
     virtual void onUploadFoto();
+    virtual void onSelectPhoto();
+
     const LLUUID& getSelectedOutfitID();
 
     LLOutfitListBase*		mOutfitList;
