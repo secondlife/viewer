@@ -1080,30 +1080,28 @@ void LLPanelPermissions::setAllSaleInfo()
 
 	LLSaleInfo new_sale_info(sale_type, price);
 	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(new_sale_info);
+	
+	U8 old_click_action = 0;
+	LLSelectMgr::getInstance()->selectionGetClickAction(&old_click_action);
 
-    bool selection_set_for_sale = new_sale_info.isForSale();
-    bool selection_was_for_sale = old_sale_info.isForSale();
-    if (selection_was_for_sale != selection_set_for_sale)
-    {
-        // sale state changed, switch click-actions
-        // but don't touch user changed actions
-        U8 old_action = selection_set_for_sale ? CLICK_ACTION_TOUCH : CLICK_ACTION_BUY;
-        U8 new_action = selection_set_for_sale ? CLICK_ACTION_BUY : CLICK_ACTION_TOUCH;
-        struct f : public LLSelectedObjectFunctor
-        {
-            U8 mActionOld, mActionNew;
-            f(const U8& t_old, const U8& t_new) : mActionOld(t_old), mActionNew(t_new) {}
-            virtual bool apply(LLViewerObject* object)
-            {
-                if (object->getClickAction() == mActionOld)
-                {
-                    object->setClickAction(mActionNew);
-                }
-                return true;
-            }
-        } func(old_action, new_action);
-        LLSelectMgr::getInstance()->getSelection()->applyToObjects(&func);
-    }
+	if (old_sale_info.isForSale()
+		&& !new_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_BUY)
+	{
+		// If turned off for-sale, make sure click-action buy is turned
+		// off as well
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_TOUCH);
+	}
+	else if (new_sale_info.isForSale()
+		&& !old_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_TOUCH)
+	{
+		// If just turning on for-sale, preemptively turn on one-click buy
+		// unless user have a different click action set
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_BUY);
+	}
 }
 
 struct LLSelectionPayable : public LLSelectedObjectFunctor
