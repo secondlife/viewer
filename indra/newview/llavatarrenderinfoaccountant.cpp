@@ -103,89 +103,68 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
 
     if (result.has(KEY_AGENTS))
     {
-        const LLSD & avatar_render_info = result[KEY_AGENTS];
-        if (avatar_render_info.isMap())
+        const LLSD & agents = result[KEY_AGENTS];
+        if (agents.isMap())
         {
-            if (   avatar_render_info.has(KEY_REPORTING_COMPLEXITY_LIMIT)
-                && avatar_render_info.has(KEY_OVER_COMPLEXITY_LIMIT))
+            for (LLSD::map_const_iterator agent_iter = agents.beginMap();
+                 agent_iter != agents.endMap();
+                 agent_iter++
+                 )
             {
-                U32 reporting = avatar_render_info[KEY_REPORTING_COMPLEXITY_LIMIT].asInteger();
-                U32 overlimit = avatar_render_info[KEY_OVER_COMPLEXITY_LIMIT].asInteger();
-
-                LL_DEBUGS("AvatarRenderInfo") << "complexity limit: "<<reporting<<" reporting, "<<overlimit<<" over limit"<<LL_ENDL;
-
-                LLAvatarRenderNotifier::getInstance()->updateNotificationRegion(reporting, overlimit);
-            }
-                        
-            if (avatar_render_info.has(KEY_AGENTS))
-            {
-                const LLSD & agents = avatar_render_info[KEY_AGENTS];
-                if (agents.isMap())
+                LLUUID target_agent_id = LLUUID(agent_iter->first);
+                LLViewerObject* avatarp = gObjectList.findObject(target_agent_id);
+                if (avatarp && avatarp->isAvatar())
                 {
-                    for (LLSD::map_const_iterator agent_iter = agents.beginMap();
-                         agent_iter != agents.endMap();
-                         agent_iter++
-                         )
+                    const LLSD & agent_info_map = agent_iter->second;
+                    if (agent_info_map.isMap())
                     {
-                        LLUUID target_agent_id = LLUUID(agent_iter->first);
-                        LLViewerObject* avatarp = gObjectList.findObject(target_agent_id);
-                        if (avatarp && avatarp->isAvatar())
-                        {
-                            const LLSD & agent_info_map = agent_iter->second;
-                            if (agent_info_map.isMap())
-                            {
-                                LL_DEBUGS("AvatarRenderInfo") << " Agent " << target_agent_id 
-                                                              << ": " << agent_info_map << LL_ENDL;
+                        LL_DEBUGS("AvatarRenderInfo") << " Agent " << target_agent_id 
+                                                      << ": " << agent_info_map << LL_ENDL;
 
-                                if (agent_info_map.has(KEY_WEIGHT))
-                                {
-                                    ((LLVOAvatar *) avatarp)->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
-                                }
-                            }
-                            else
-                            {
-                                LL_WARNS("AvatarRenderInfo") << "agent entry invalid"
-                                                             << " agent " << target_agent_id
-                                                             << " map " << agent_info_map
-                                                             << LL_ENDL;
-                            }
-                        }
-                        else
+                        if (agent_info_map.has(KEY_WEIGHT))
                         {
-                            LL_DEBUGS("AvatarRenderInfo") << "Unknown agent " << target_agent_id << LL_ENDL;
+                            ((LLVOAvatar *) avatarp)->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
                         }
-                    } // for agent_iter
+                    }
+                    else
+                    {
+                        LL_WARNS("AvatarRenderInfo") << "agent entry invalid"
+                                                     << " agent " << target_agent_id
+                                                     << " map " << agent_info_map
+                                                     << LL_ENDL;
+                    }
                 }
                 else
                 {
-                    LL_WARNS("AvatarRenderInfo") << "malformed get response agents avatar_render_info is not map" << LL_ENDL;
+                    LL_DEBUGS("AvatarRenderInfo") << "Unknown agent " << target_agent_id << LL_ENDL;
                 }
-            }	// has "agents"
-            else if (avatar_render_info.has(KEY_ERROR))
-            {
-                const LLSD & error = avatar_render_info[KEY_ERROR];
-                LL_WARNS("AvatarRenderInfo") << "Avatar render info GET error: "
-                                             << error[KEY_IDENTIFIER]
-                                             << ": " << error[KEY_MESSAGE] 
-                                             << LL_ENDL;
-            }
-            else
-            {
-                LL_WARNS("AvatarRenderInfo") << "no agent key in get response" << LL_ENDL;
-            }
+            } // for agent_iter
         }
         else
         {
-            LL_WARNS("AvatarRenderInfo") << "malformed get response is not map" << LL_ENDL;
+            LL_WARNS("AvatarRenderInfo") << "malformed get response '" << KEY_AGENTS << "' is not map" << LL_ENDL;
         }
     }	// has "agents"
-    else if (result.has(KEY_ERROR))
+    else
     {
-        const LLSD & error = result[KEY_ERROR];
-        LL_WARNS() << "Avatar render info GET error: "
-            << error[KEY_IDENTIFIER]
-            << ": " << error[KEY_MESSAGE] 
-            << " from region " << regionp->getName()
+        LL_INFOS("AvatarRenderInfo") << "no '"<< KEY_AGENTS << "' key in get response" << LL_ENDL;
+    }
+
+    if (   result.has(KEY_REPORTING_COMPLEXITY_LIMIT)
+        && result.has(KEY_OVER_COMPLEXITY_LIMIT))
+    {
+        U32 reporting = result[KEY_REPORTING_COMPLEXITY_LIMIT].asInteger();
+        U32 overlimit = result[KEY_OVER_COMPLEXITY_LIMIT].asInteger();
+
+        LL_DEBUGS("AvatarRenderInfo") << "complexity limit: "<<reporting<<" reporting, "<<overlimit<<" over limit"<<LL_ENDL;
+
+        LLAvatarRenderNotifier::getInstance()->updateNotificationRegion(reporting, overlimit);
+    }
+    else
+    {
+        LL_WARNS("AvatarRenderInfo")
+            << "response is missing either '" << KEY_REPORTING_COMPLEXITY_LIMIT
+            << "' or '" << KEY_OVER_COMPLEXITY_LIMIT << "'"
             << LL_ENDL;
     }
 
