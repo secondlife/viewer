@@ -2160,23 +2160,6 @@ void LLLiveLSLEditor::draw()
 		{
 			runningCheckbox->setLabel(getString("script_running"));
 			runningCheckbox->setEnabled(!mIsSaving);
-
-			if(object->permAnyOwner())
-			{
-				runningCheckbox->setLabel(getString("script_running"));
-				runningCheckbox->setEnabled(!mIsSaving);
-			}
-			else
-			{
-				runningCheckbox->setLabel(getString("public_objects_can_not_run"));
-				runningCheckbox->setEnabled(FALSE);
-				// *FIX: Set it to false so that the ui is correct for
-				// a box that is released to public. It could be
-				// incorrect after a release/claim cycle, but will be
-				// correct after clicking on it.
-				runningCheckbox->set(FALSE);
-				mMonoCheckbox->set(FALSE);
-			}
 		}
 		else
 		{
