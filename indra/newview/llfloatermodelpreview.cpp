@@ -3317,14 +3317,17 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 					LLVector3 pos(vf.mPositions[i].getF32ptr());
 
 					const LLModel::weight_list& weight_list = base_mdl->getJointInfluences(pos);
+                    llassert(weight_list.size()>0 && weight_list.size() <= 4); // LLModel::loadModel() should guarantee this
 
 					LLVector4 w(0,0,0,0);
 					
 					for (U32 i = 0; i < weight_list.size(); ++i)
 					{
-						F32 wght = llmin(weight_list[i].mWeight, 0.999999f);
+						F32 wght = llclamp(weight_list[i].mWeight, 0.001f, 0.999f);
 						F32 joint = (F32) weight_list[i].mJointIdx;
 						w.mV[i] = joint + wght;
+                        llassert(w.mV[i]-(S32)w.mV[i]>0.0f); // because weights are non-zero, and range of wt values
+                                                             //should not cause floating point precision issues.
 					}
 
 					*(weights_strider++) = w;
