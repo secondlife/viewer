@@ -29,7 +29,8 @@
 #define LL_LLFLOATERPERMPREFS_H
 
 #include "llfloater.h"
-#include "llhttpclient.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 class LLFloaterPerms : public LLFloater
 {
@@ -81,6 +82,8 @@ private:
 	void refresh();
 
 	static const std::string sCategoryNames[CAT_LAST]; 
+    static void updateCapCoro(std::string url);
+
 
 	// cached values only for implementing cancel.
 	bool mShareWithGroup[CAT_LAST];
@@ -88,38 +91,6 @@ private:
 	bool mNextOwnerCopy[CAT_LAST];
 	bool mNextOwnerModify[CAT_LAST];
 	bool mNextOwnerTransfer[CAT_LAST];
-};
-
-class LLFloaterPermsRequester
-{
-public:
-	LLFloaterPermsRequester(const std::string url, const LLSD report, int maxRetries);
-
-	static void init(const std::string url, const LLSD report, int maxRetries);
-	static void finalize();
-	static LLFloaterPermsRequester* instance();
-
-	void start();
-	bool retry();
-
-private:
-	int mRetriesCount;
-	int mMaxRetries;
-	const std::string mUrl;
-	const LLSD mReport;
-public:
-	static LLFloaterPermsRequester* sPermsRequester;
-};
-
-class LLFloaterPermsResponder : public LLHTTPClient::Responder
-{
-public:
-	LLFloaterPermsResponder() : LLHTTPClient::Responder() {}
-private:
-	static	std::string sPreviousReason;
-
-	void httpFailure();
-	void httpSuccess();
 };
 
 #endif

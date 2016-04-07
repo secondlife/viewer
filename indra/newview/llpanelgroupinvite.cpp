@@ -501,25 +501,22 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 		}
 		else
 		{
-			//looks like user try to invite offline friend
+			//looks like user try to invite offline avatar (or the avatar from the other region)
 			//for offline avatar_id gObjectList.findObject() will return null
 			//so we need to do this additional search in avatar tracker, see EXT-4732
-			if (LLAvatarTracker::instance().isBuddy(agent_id))
+			LLAvatarName av_name;
+			if (!LLAvatarNameCache::get(agent_id, &av_name))
 			{
-				LLAvatarName av_name;
-				if (!LLAvatarNameCache::get(agent_id, &av_name))
-				{
-					// actually it should happen, just in case
-					//LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(&LLPanelGroupInvite::addUserCallback, this, _1, _2));
-					// for this special case!
-					//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
-					// removed id will be added in callback
-					agent_ids.erase(agent_ids.begin() + i);
-				}
-				else
-				{
-					names.push_back(av_name.getAccountName());
-				}
+				// actually it should happen, just in case
+				//LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(&LLPanelGroupInvite::addUserCallback, this, _1, _2));
+				// for this special case!
+				//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
+				// removed id will be added in callback
+				agent_ids.erase(agent_ids.begin() + i);
+			}
+			else
+			{
+				names.push_back(av_name.getAccountName());
 			}
 		}
 	}

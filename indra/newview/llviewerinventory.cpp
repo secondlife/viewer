@@ -79,6 +79,16 @@ static const char * const LOG_INV("Inventory");
 static const char * const LOG_LOCAL("InventoryLocalize");
 static const char * const LOG_NOTECARD("copy_inventory_from_notecard");
 
+#if 1
+// *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
+// temp code in transition
+void doInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
+{
+    if (cb.notNull())
+        cb->fire(id);
+}
+#endif
+
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names and their localized values.
 ///----------------------------------------------------------------------------
@@ -417,7 +427,7 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 			body["items"][0]["owner_id"]	= mPermissions.getOwner();
 			body["items"][0]["item_id"]		= mUUID;
 
-			LLInventoryModel::FetchItemHttpHandler * handler(new LLInventoryModel::FetchItemHttpHandler(body));
+            LLCore::HttpHandler::ptr_t handler(new LLInventoryModel::FetchItemHttpHandler(body));
 			gInventory.requestPost(true, url, body, handler, "Inventory Item");
 		}
 		else
@@ -1280,16 +1290,14 @@ void link_inventory_array(const LLUUID& category,
 #endif
 	}
 
-	bool ais_ran = false;
-	if (AISCommand::isAPIAvailable())
+    if (AISAPI::isAvailable())
 	{
 		LLSD new_inventory = LLSD::emptyMap();
 		new_inventory["links"] = links;
-		LLPointer<AISCommand> cmd_ptr = new CreateInventoryCommand(category, new_inventory, cb);
-		ais_ran = cmd_ptr->run_command();
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+        AISAPI::CreateInventory(category, new_inventory, cr);
 	}
-
-	if (!ais_ran)
+    else
 	{
 		LLMessageSystem* msg = gMessageSystem;
 		for (LLSD::array_iterator iter = links.beginArray(); iter != links.endArray(); ++iter )
@@ -1346,8 +1354,7 @@ void update_inventory_item(
 	LLPointer<LLInventoryCallback> cb)
 {
 	const LLUUID& item_id = update_item->getUUID();
-	bool ais_ran = false;
-	if (AISCommand::isAPIAvailable())
+    if (AISAPI::isAvailable())
 	{
 		LLSD updates = update_item->asLLSD();
 		// Replace asset_id and/or shadow_id with transaction_id (hash_id)
@@ -1361,10 +1368,10 @@ void update_inventory_item(
 			updates.erase("shadow_id");
 			updates["hash_id"] = update_item->getTransactionID();
 		}
-		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
-		ais_ran = cmd_ptr->run_command();
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+        AISAPI::UpdateItem(item_id, updates, cr);
 	}
-	if (!ais_ran)
+    else
 	{
 		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
 		LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << (update_item ? update_item->getName() : "(NOT FOUND)") << LL_ENDL;
@@ -1400,13 +1407,12 @@ void update_inventory_item(
 	const LLSD& updates,
 	LLPointer<LLInventoryCallback> cb)
 {
-	bool ais_ran = false;
-	if (AISCommand::isAPIAvailable())
+    if (AISAPI::isAvailable())
 	{
-		LLPointer<AISCommand> cmd_ptr = new UpdateItemCommand(item_id, updates, cb);
-		ais_ran = cmd_ptr->run_command();
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+        AISAPI::UpdateItem(item_id, updates, cr);
 	}
-	if (!ais_ran)
+    else
 	{
 		LLPointer<LLViewerInventoryItem> obj = gInventory.getItem(item_id);
 		LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << (obj ? obj->getName() : "(NOT FOUND)") << LL_ENDL;
@@ -1456,11 +1462,11 @@ void update_inventory_category(
 		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(obj);
 		new_cat->fromLLSD(updates);
 		// FIXME - restore this once the back-end work has been done.
-		if (AISCommand::isAPIAvailable())
+        if (AISAPI::isAvailable())
 		{
 			LLSD new_llsd = new_cat->asLLSD();
-			LLPointer<AISCommand> cmd_ptr = new UpdateCategoryCommand(cat_id, new_llsd, cb);
-			cmd_ptr->run_command();
+            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+            AISAPI::UpdateCategory(cat_id, new_llsd, cr);
 		}
 		else // no cap
 		{
@@ -1522,10 +1528,10 @@ void remove_inventory_item(
 	{
 		const LLUUID item_id(obj->getUUID());
 		LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << obj->getName() << LL_ENDL;
-		if (AISCommand::isAPIAvailable())
+        if (AISAPI::isAvailable())
 		{
-			LLPointer<AISCommand> cmd_ptr = new RemoveItemCommand(item_id, cb);
-			cmd_ptr->run_command();
+            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+            AISAPI::RemoveItem(item_id, cr);
 
 			if (immediate_delete)
 			{
@@ -1598,10 +1604,10 @@ void remove_inventory_category(
 			LLNotificationsUtil::add("CannotRemoveProtectedCategories");
 			return;
 		}
-		if (AISCommand::isAPIAvailable())
+        if (AISAPI::isAvailable())
 		{
-			LLPointer<AISCommand> cmd_ptr = new RemoveCategoryCommand(cat_id, cb);
-			cmd_ptr->run_command();
+            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+            AISAPI::RemoveCategory(cat_id, cr);
 		}
 		else // no cap
 		{
@@ -1701,10 +1707,10 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		}
 		else
 		{
-			if (AISCommand::isAPIAvailable())
+            if (AISAPI::isAvailable())
 			{
-				LLPointer<AISCommand> cmd_ptr = new PurgeDescendentsCommand(id, cb);
-				cmd_ptr->run_command();
+                AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+                AISAPI::PurgeDescendents(id, cr);
 			}
 			else // no cap
 			{
@@ -1780,27 +1786,20 @@ void copy_inventory_from_notecard(const LLUUID& destination_id,
         return;
     }
 
-	// check capability to prevent a crash while LL_ERRS in LLCapabilityListener::capListener. See EXT-8459.
-	std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
-	if (url.empty())
-	{
-        LL_WARNS(LOG_NOTECARD) << "There is no 'CopyInventoryFromNotecard' capability"
-							   << " for region: " << viewer_region->getName()
-							   << LL_ENDL;
-		return;
-	}
-
-    LLSD request, body;
+    LLSD body;
     body["notecard-id"] = notecard_inv_id;
     body["object-id"] = object_id;
     body["item-id"] = src->getUUID();
 	body["folder-id"] = destination_id;
     body["callback-id"] = (LLSD::Integer)callback_id;
 
-    request["message"] = "CopyInventoryFromNotecard";
-    request["payload"] = body;
-
-    viewer_region->getCapAPI().post(request);
+    /// *TODO: RIDER: This posts the request under the agents policy.  
+    /// When I convert the inventory over this call should be moved under that 
+    /// policy as well.
+    if (!gAgent.requestPostCapability("CopyInventoryFromNotecard", body))
+    {
+        LL_WARNS() << "SIM does not have the capability to copy from notecard." << LL_ENDL;
+    }
 }
 
 void create_new_item(const std::string& name,
@@ -1858,12 +1857,13 @@ void slam_inventory_folder(const LLUUID& folder_id,
 						   const LLSD& contents,
 						   LLPointer<LLInventoryCallback> cb)
 {
-	if (AISCommand::isAPIAvailable())
+    if (AISAPI::isAvailable())
 	{
 		LL_DEBUGS(LOG_INV) << "using AISv3 to slam folder, id " << folder_id
 						   << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
-		LLPointer<AISCommand> cmd_ptr = new SlamFolderCommand(folder_id, contents, cb);
-		cmd_ptr->run_command();
+
+        AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+        AISAPI::SlamFolder(folder_id, contents, cr);
 	}
 	else // no cap
 	{

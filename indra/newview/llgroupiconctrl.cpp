@@ -37,7 +37,10 @@ LLGroupIconCtrl::Params::Params()
 :	group_id("group_id"),
 	draw_tooltip("draw_tooltip", true),
 	default_icon_name("default_icon_name")
-{}
+{
+    changeDefault(min_width, 32);
+    changeDefault(min_height, 32);
+}
 
 
 LLGroupIconCtrl::LLGroupIconCtrl(const LLGroupIconCtrl::Params& p)
@@ -47,6 +50,12 @@ LLGroupIconCtrl::LLGroupIconCtrl(const LLGroupIconCtrl::Params& p)
 	mDefaultIconName(p.default_icon_name)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
+
+    // don't request larger image then necessary to save gl memory,
+    // but ensure that quality is sufficient
+    LLRect rect = p.rect;
+    mMaxHeight = llmax((S32)p.min_height, rect.getHeight());
+    mMaxWidth = llmax((S32)p.min_width, rect.getWidth());
 
 	if (p.group_id.isProvided())
 	{

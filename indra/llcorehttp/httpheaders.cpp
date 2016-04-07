@@ -34,7 +34,6 @@ namespace LLCore
 
 
 HttpHeaders::HttpHeaders()
-	: RefCounted(true)
 {}
 
 
@@ -105,7 +104,7 @@ void HttpHeaders::appendNormal(const char * header, size_t size)
 
 // Find from end to simulate a tradition of using single-valued
 // std::map for this in the past.
-const std::string * HttpHeaders::find(const char * name) const
+const std::string * HttpHeaders::find(const std::string &name) const
 {
 	const_reverse_iterator iend(rend());
 	for (const_reverse_iterator iter(rbegin()); iend != iter; ++iter)
@@ -116,6 +115,24 @@ const std::string * HttpHeaders::find(const char * name) const
 		}
 	}
 	return NULL;
+}
+
+void HttpHeaders::remove(const char *name)
+{
+    remove(std::string(name));
+}
+
+void HttpHeaders::remove(const std::string &name)
+{
+    iterator iend(end());
+    for (iterator iter(begin()); iend != iter; ++iter)
+    {
+        if ((*iter).first == name)
+        {
+            mHeaders.erase(iter);
+            return;
+        }
+    }
 }
 
 

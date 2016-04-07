@@ -59,17 +59,17 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 /*****************************************************************************/
 
+#define BOOST_RESULT_OF_USE_TR1 1
 // On some platforms, Boost.Coroutine must #define magic symbols before
 // #including platform-API headers. Naturally, that's ineffective unless the
 // Boost.Coroutine #include is the *first* #include of the platform header.
 // That means that client code must generally #include Boost.Coroutine headers
 // before anything else.
 #include <boost/dcoroutine/coroutine.hpp>
-// Normally, lleventcoro.h obviates future.hpp. We only include this because
-// we implement a "by hand" test of future functionality.
-#include <boost/dcoroutine/future.hpp>
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
+#include <boost/utility.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "linden_common.h"
 
@@ -82,8 +82,11 @@
 #include "llevents.h"
 #include "tests/wrapllerrs.h"
 #include "stringize.h"
+#include "llcoros.h"
 #include "lleventcoro.h"
 #include "../test/debug.h"
+
+using namespace llcoro;
 
 /*****************************************************************************
 *   from the banana.cpp example program borrowed for test<1>()
@@ -121,13 +124,10 @@ typedef coroutine<std::string::iterator(void)> match_coroutine_type;
 /*****************************************************************************
 *   Test helpers
 *****************************************************************************/
-// I suspect this will be typical of coroutines used in Linden software
-typedef boost::dcoroutines::coroutine<void()> coroutine_type;
-
 /// Simulate an event API whose response is immediate: sent on receipt of the
 /// initial request, rather than after some delay. This is the case that
-/// distinguishes postAndWait() from calling post(), then calling
-/// waitForEventOn().
+/// distinguishes postAndSuspend() from calling post(), then calling
+/// suspendUntilEventOn().
 class ImmediateAPI
 {
 public:
@@ -162,306 +162,7 @@ private:
 *****************************************************************************/
 namespace tut
 {
-    struct coroutine_data
-    {
-        // Define coroutine bodies as methods here so they can use ensure*()
-
-        void explicit_wait(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                // ... do whatever preliminary stuff must happen ...
-
-                // declare the future
-                boost::dcoroutines::future<LLSD> future(self);
-                // tell the future what to wait for
-                LLTempBoundListener connection(
-                    LLEventPumps::instance().obtain("source").listen("coro", voidlistener(boost::dcoroutines::make_callback(future))));
-                ensure("Not yet", ! future);
-                // attempting to dereference ("resolve") the future causes the calling
-                // coroutine to wait for it
-                debug("about to wait");
-                result = *future;
-                ensure("Got it", future);
-            }
-            END
-        }
-
-        void waitForEventOn1(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                result = waitForEventOn(self, "source");
-            }
-            END
-        }
-
-        void waitForEventOn2(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLEventWithID pair = waitForEventOn(self, "reply", "error");
-                result = pair.first;
-                which  = pair.second;
-                debug(STRINGIZE("result = " << result << ", which = " << which));
-            }
-            END
-        }
-
-        void postAndWait1(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                result = postAndWait(self,
-                                     LLSDMap("value", 17),       // request event
-                                     immediateAPI.getPump(),     // requestPump
-                                     "reply1",                   // replyPump
-                                     "reply");                   // request["reply"] = name
-            }
-            END
-        }
-
-        void postAndWait2(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLEventWithID pair = ::postAndWait2(self,
-                                                    LLSDMap("value", 18),
-                                                    immediateAPI.getPump(),
-                                                    "reply2",
-                                                    "error2",
-                                                    "reply",
-                                                    "error");
-                result = pair.first;
-                which  = pair.second;
-                debug(STRINGIZE("result = " << result << ", which = " << which));
-            }
-            END
-        }
-
-        void postAndWait2_1(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLEventWithID pair = ::postAndWait2(self,
-                                                    LLSDMap("value", 18)("fail", LLSD()),
-                                                    immediateAPI.getPump(),
-                                                    "reply2",
-                                                    "error2",
-                                                    "reply",
-                                                    "error");
-                result = pair.first;
-                which  = pair.second;
-                debug(STRINGIZE("result = " << result << ", which = " << which));
-            }
-            END
-        }
-
-        void coroPump(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPump waiter;
-                replyName = waiter.getName();
-                result = waiter.wait(self);
-            }
-            END
-        }
-
-        void coroPumpPost(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPump waiter;
-                result = waiter.postAndWait(self, LLSDMap("value", 17),
-                                            immediateAPI.getPump(), "reply");
-            }
-            END
-        }
-
-        void coroPumps(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                replyName = waiter.getName0();
-                errorName = waiter.getName1();
-                LLEventWithID pair(waiter.wait(self));
-                result = pair.first;
-                which  = pair.second;
-            }
-            END
-        }
-
-        void coroPumpsNoEx(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                replyName = waiter.getName0();
-                errorName = waiter.getName1();
-                result = waiter.waitWithException(self);
-            }
-            END
-        }
-
-        void coroPumpsEx(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                replyName = waiter.getName0();
-                errorName = waiter.getName1();
-                try
-                {
-                    result = waiter.waitWithException(self);
-                    debug("no exception");
-                }
-                catch (const LLErrorEvent& e)
-                {
-                    debug(STRINGIZE("exception " << e.what()));
-                    errordata = e.getData();
-                }
-            }
-            END
-        }
-
-        void coroPumpsNoLog(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                replyName = waiter.getName0();
-                errorName = waiter.getName1();
-                result = waiter.waitWithLog(self);
-            }
-            END
-        }
-
-        void coroPumpsLog(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                replyName = waiter.getName0();
-                errorName = waiter.getName1();
-                WrapLLErrs capture;
-                try
-                {
-                    result = waiter.waitWithLog(self);
-                    debug("no exception");
-                }
-                catch (const WrapLLErrs::FatalException& e)
-                {
-                    debug(STRINGIZE("exception " << e.what()));
-                    threw = e.what();
-                }
-            }
-            END
-        }
-
-        void coroPumpsPost(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                LLEventWithID pair(waiter.postAndWait(self, LLSDMap("value", 23),
-                                                      immediateAPI.getPump(), "reply", "error"));
-                result = pair.first;
-                which  = pair.second;
-            }
-            END
-        }
-
-        void coroPumpsPost_1(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                LLEventWithID pair(
-                    waiter.postAndWait(self, LLSDMap("value", 23)("fail", LLSD()),
-                                       immediateAPI.getPump(), "reply", "error"));
-                result = pair.first;
-                which  = pair.second;
-            }
-            END
-        }
-
-        void coroPumpsPostNoEx(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                result = waiter.postAndWaitWithException(self, LLSDMap("value", 8),
-                                                         immediateAPI.getPump(), "reply", "error");
-            }
-            END
-        }
-
-        void coroPumpsPostEx(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                try
-                {
-                    result = waiter.postAndWaitWithException(self,
-                        LLSDMap("value", 9)("fail", LLSD()),
-                        immediateAPI.getPump(), "reply", "error");
-                    debug("no exception");
-                }
-                catch (const LLErrorEvent& e)
-                {
-                    debug(STRINGIZE("exception " << e.what()));
-                    errordata = e.getData();
-                }
-            }
-            END
-        }
-
-        void coroPumpsPostNoLog(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                result = waiter.postAndWaitWithLog(self, LLSDMap("value", 30),
-                                                   immediateAPI.getPump(), "reply", "error");
-            }
-            END
-        }
-
-        void coroPumpsPostLog(coroutine_type::self& self)
-        {
-            BEGIN
-            {
-                LLCoroEventPumps waiter;
-                WrapLLErrs capture;
-                try
-                {
-                    result = waiter.postAndWaitWithLog(self,
-                        LLSDMap("value", 31)("fail", LLSD()),
-                        immediateAPI.getPump(), "reply", "error");
-                    debug("no exception");
-                }
-                catch (const WrapLLErrs::FatalException& e)
-                {
-                    debug(STRINGIZE("exception " << e.what()));
-                    threw = e.what();
-                }
-            }
-            END
-        }
-
-        void ensure_done(coroutine_type& coro)
-        {
-            ensure("coroutine complete", ! coro);
-        }
-
-        ImmediateAPI immediateAPI;
-        std::string replyName, errorName, threw;
-        LLSD result, errordata;
-        int which;
-    };
+    struct coroutine_data {};
     typedef test_group<coroutine_data> coroutine_group;
     typedef coroutine_group::object object;
     coroutine_group coroutinegrp("coroutine");
@@ -511,54 +212,122 @@ namespace tut
         ensure("done", ! matcher);
     }
 
+    // use static data so we can intersperse coroutine functions with the
+    // tests that engage them
+    ImmediateAPI immediateAPI;
+    std::string replyName, errorName, threw, stringdata;
+    LLSD result, errordata;
+    int which;
+
+    // reinit vars at the start of each test
+    void clear()
+    {
+        replyName.clear();
+        errorName.clear();
+        threw.clear();
+        stringdata.clear();
+        result = LLSD();
+        errordata = LLSD();
+        which = 0;
+    }
+
+    void explicit_wait(boost::shared_ptr<LLCoros::Future<std::string>::callback_t>& cbp)
+    {
+        BEGIN
+        {
+            // The point of this test is to verify / illustrate suspending a
+            // coroutine for something other than an LLEventPump. In other
+            // words, this shows how to adapt to any async operation that
+            // provides a callback-style notification (and prove that it
+            // works).
+
+            LLCoros::Future<std::string> future;
+            // get the callback from that future
+            LLCoros::Future<std::string>::callback_t callback(future.make_callback());
+
+            // Perhaps we would send a request to a remote server and arrange
+            // for 'callback' to be called on response. Of course that might
+            // involve an adapter object from the actual callback signature to
+            // the signature of 'callback' -- in this case, void(std::string).
+            // For test purposes, instead of handing 'callback' (or the
+            // adapter) off to some I/O subsystem, we'll just pass it back to
+            // our caller.
+            cbp.reset(new LLCoros::Future<std::string>::callback_t(callback));
+
+            ensure("Not yet", ! future);
+            // calling get() on the future causes us to suspend
+            debug("about to suspend");
+            stringdata = future.get();
+            ensure("Got it", bool(future));
+        }
+        END
+    }
+
     template<> template<>
     void object::test<2>()
     {
+        clear();
         set_test_name("explicit_wait");
         DEBUG;
 
         // Construct the coroutine instance that will run explicit_wait.
-        // Pass the ctor a callable that accepts the coroutine_type::self
-        // param passed by the library.
-        coroutine_type coro(boost::bind(&coroutine_data::explicit_wait, this, _1));
-        // Start the coroutine
-        coro(std::nothrow);
-        // When the coroutine waits for the event pump, it returns here.
-        debug("about to send");
-        // Satisfy the wait.
-        LLEventPumps::instance().obtain("source").post("received");
-        // Now wait for the coroutine to complete.
-        ensure_done(coro);
+        boost::shared_ptr<LLCoros::Future<std::string>::callback_t> respond;
+        LLCoros::instance().launch("test<2>",
+                                   boost::bind(explicit_wait, boost::ref(respond)));
+        // When the coroutine waits for the future, it returns here.
+        debug("about to respond");
+        // Now we're the I/O subsystem delivering a result. This immediately
+        // transfers control back to the coroutine.
+        (*respond)("received");
         // ensure the coroutine ran and woke up again with the intended result
-        ensure_equals(result.asString(), "received");
+        ensure_equals(stringdata, "received");
+    }
+
+    void waitForEventOn1()
+    {
+        BEGIN
+        {
+            result = suspendUntilEventOn("source");
+        }
+        END
     }
 
     template<> template<>
     void object::test<3>()
     {
+        clear();
         set_test_name("waitForEventOn1");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::waitForEventOn1, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<3>", waitForEventOn1);
         debug("about to send");
         LLEventPumps::instance().obtain("source").post("received");
         debug("back from send");
-        ensure_done(coro);
         ensure_equals(result.asString(), "received");
+    }
+
+    void waitForEventOn2()
+    {
+        BEGIN
+        {
+            LLEventWithID pair = suspendUntilEventOn("reply", "error");
+            result = pair.first;
+            which  = pair.second;
+            debug(STRINGIZE("result = " << result << ", which = " << which));
+        }
+        END
     }
 
     template<> template<>
     void object::test<4>()
     {
+        clear();
         set_test_name("waitForEventOn2 reply");
         {
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::waitForEventOn2, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<4>", waitForEventOn2);
         debug("about to send");
         LLEventPumps::instance().obtain("reply").post("received");
         debug("back from send");
-        ensure_done(coro);
         }
         ensure_equals(result.asString(), "received");
         ensure_equals("which pump", which, 0);
@@ -567,43 +336,65 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
+        clear();
         set_test_name("waitForEventOn2 error");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::waitForEventOn2, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<5>", waitForEventOn2);
         debug("about to send");
         LLEventPumps::instance().obtain("error").post("badness");
         debug("back from send");
-        ensure_done(coro);
         ensure_equals(result.asString(), "badness");
         ensure_equals("which pump", which, 1);
+    }
+
+    void coroPump()
+    {
+        BEGIN
+        {
+            LLCoroEventPump waiter;
+            replyName = waiter.getName();
+            result = waiter.suspend();
+        }
+        END
     }
 
     template<> template<>
     void object::test<6>()
     {
+        clear();
         set_test_name("coroPump");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPump, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<6>", coroPump);
         debug("about to send");
         LLEventPumps::instance().obtain(replyName).post("received");
         debug("back from send");
-        ensure_done(coro);
         ensure_equals(result.asString(), "received");
+    }
+
+    void coroPumps()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            replyName = waiter.getName0();
+            errorName = waiter.getName1();
+            LLEventWithID pair(waiter.suspend());
+            result = pair.first;
+            which  = pair.second;
+        }
+        END
     }
 
     template<> template<>
     void object::test<7>()
     {
+        clear();
         set_test_name("coroPumps reply");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumps, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<7>", coroPumps);
         debug("about to send");
         LLEventPumps::instance().obtain(replyName).post("received");
         debug("back from send");
-        ensure_done(coro);
         ensure_equals(result.asString(), "received");
         ensure_equals("which pump", which, 0);
     }
@@ -611,188 +402,389 @@ namespace tut
     template<> template<>
     void object::test<8>()
     {
+        clear();
         set_test_name("coroPumps error");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumps, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<8>", coroPumps);
         debug("about to send");
         LLEventPumps::instance().obtain(errorName).post("badness");
         debug("back from send");
-        ensure_done(coro);
         ensure_equals(result.asString(), "badness");
         ensure_equals("which pump", which, 1);
+    }
+
+    void coroPumpsNoEx()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            replyName = waiter.getName0();
+            errorName = waiter.getName1();
+            result = waiter.suspendWithException();
+        }
+        END
     }
 
     template<> template<>
     void object::test<9>()
     {
+        clear();
         set_test_name("coroPumpsNoEx");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsNoEx, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<9>", coroPumpsNoEx);
         debug("about to send");
         LLEventPumps::instance().obtain(replyName).post("received");
         debug("back from send");
-        ensure_done(coro);
         ensure_equals(result.asString(), "received");
+    }
+
+    void coroPumpsEx()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            replyName = waiter.getName0();
+            errorName = waiter.getName1();
+            try
+            {
+                result = waiter.suspendWithException();
+                debug("no exception");
+            }
+            catch (const LLErrorEvent& e)
+            {
+                debug(STRINGIZE("exception " << e.what()));
+                errordata = e.getData();
+            }
+        }
+        END
     }
 
     template<> template<>
     void object::test<10>()
     {
+        clear();
         set_test_name("coroPumpsEx");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsEx, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<10>", coroPumpsEx);
         debug("about to send");
         LLEventPumps::instance().obtain(errorName).post("badness");
         debug("back from send");
-        ensure_done(coro);
         ensure("no result", result.isUndefined());
         ensure_equals("got error", errordata.asString(), "badness");
+    }
+
+    void coroPumpsNoLog()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            replyName = waiter.getName0();
+            errorName = waiter.getName1();
+            result = waiter.suspendWithLog();
+        }
+        END
     }
 
     template<> template<>
     void object::test<11>()
     {
+        clear();
         set_test_name("coroPumpsNoLog");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsNoLog, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<11>", coroPumpsNoLog);
         debug("about to send");
         LLEventPumps::instance().obtain(replyName).post("received");
         debug("back from send");
-        ensure_done(coro);
         ensure_equals(result.asString(), "received");
+    }
+
+    void coroPumpsLog()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            replyName = waiter.getName0();
+            errorName = waiter.getName1();
+            WrapLLErrs capture;
+            try
+            {
+                result = waiter.suspendWithLog();
+                debug("no exception");
+            }
+            catch (const WrapLLErrs::FatalException& e)
+            {
+                debug(STRINGIZE("exception " << e.what()));
+                threw = e.what();
+            }
+        }
+        END
     }
 
     template<> template<>
     void object::test<12>()
     {
+        clear();
         set_test_name("coroPumpsLog");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsLog, this, _1));
-        coro(std::nothrow);
+        LLCoros::instance().launch("test<12>", coroPumpsLog);
         debug("about to send");
         LLEventPumps::instance().obtain(errorName).post("badness");
         debug("back from send");
-        ensure_done(coro);
         ensure("no result", result.isUndefined());
         ensure_contains("got error", threw, "badness");
+    }
+
+    void postAndWait1()
+    {
+        BEGIN
+        {
+            result = postAndSuspend(LLSDMap("value", 17),       // request event
+                                 immediateAPI.getPump(),     // requestPump
+                                 "reply1",                   // replyPump
+                                 "reply");                   // request["reply"] = name
+        }
+        END
     }
 
     template<> template<>
     void object::test<13>()
     {
+        clear();
         set_test_name("postAndWait1");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::postAndWait1, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<13>", postAndWait1);
         ensure_equals(result.asInteger(), 18);
+    }
+
+    void postAndWait2()
+    {
+        BEGIN
+        {
+            LLEventWithID pair = ::postAndSuspend2(LLSDMap("value", 18),
+                                                immediateAPI.getPump(),
+                                                "reply2",
+                                                "error2",
+                                                "reply",
+                                                "error");
+            result = pair.first;
+            which  = pair.second;
+            debug(STRINGIZE("result = " << result << ", which = " << which));
+        }
+        END
     }
 
     template<> template<>
     void object::test<14>()
     {
+        clear();
         set_test_name("postAndWait2");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::postAndWait2, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<14>", postAndWait2);
         ensure_equals(result.asInteger(), 19);
         ensure_equals(which, 0);
+    }
+
+    void postAndWait2_1()
+    {
+        BEGIN
+        {
+            LLEventWithID pair = ::postAndSuspend2(LLSDMap("value", 18)("fail", LLSD()),
+                                                immediateAPI.getPump(),
+                                                "reply2",
+                                                "error2",
+                                                "reply",
+                                                "error");
+            result = pair.first;
+            which  = pair.second;
+            debug(STRINGIZE("result = " << result << ", which = " << which));
+        }
+        END
     }
 
     template<> template<>
     void object::test<15>()
     {
+        clear();
         set_test_name("postAndWait2_1");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::postAndWait2_1, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<15>", postAndWait2_1);
         ensure_equals(result.asInteger(), 19);
         ensure_equals(which, 1);
+    }
+
+    void coroPumpPost()
+    {
+        BEGIN
+        {
+            LLCoroEventPump waiter;
+            result = waiter.postAndSuspend(LLSDMap("value", 17),
+                                        immediateAPI.getPump(), "reply");
+        }
+        END
     }
 
     template<> template<>
     void object::test<16>()
     {
+        clear();
         set_test_name("coroPumpPost");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpPost, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<16>", coroPumpPost);
         ensure_equals(result.asInteger(), 18);
+    }
+
+    void coroPumpsPost()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            LLEventWithID pair(waiter.postAndSuspend(LLSDMap("value", 23),
+                                                  immediateAPI.getPump(), "reply", "error"));
+            result = pair.first;
+            which  = pair.second;
+        }
+        END
     }
 
     template<> template<>
     void object::test<17>()
     {
+        clear();
         set_test_name("coroPumpsPost reply");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsPost, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<17>", coroPumpsPost);
         ensure_equals(result.asInteger(), 24);
         ensure_equals("which pump", which, 0);
+    }
+
+    void coroPumpsPost_1()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            LLEventWithID pair(
+                waiter.postAndSuspend(LLSDMap("value", 23)("fail", LLSD()),
+                                   immediateAPI.getPump(), "reply", "error"));
+            result = pair.first;
+            which  = pair.second;
+        }
+        END
     }
 
     template<> template<>
     void object::test<18>()
     {
+        clear();
         set_test_name("coroPumpsPost error");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsPost_1, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<18>", coroPumpsPost_1);
         ensure_equals(result.asInteger(), 24);
         ensure_equals("which pump", which, 1);
+    }
+
+    void coroPumpsPostNoEx()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            result = waiter.postAndSuspendWithException(LLSDMap("value", 8),
+                                                     immediateAPI.getPump(), "reply", "error");
+        }
+        END
     }
 
     template<> template<>
     void object::test<19>()
     {
+        clear();
         set_test_name("coroPumpsPostNoEx");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsPostNoEx, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<19>", coroPumpsPostNoEx);
         ensure_equals(result.asInteger(), 9);
+    }
+
+    void coroPumpsPostEx()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            try
+            {
+                result = waiter.postAndSuspendWithException(
+                    LLSDMap("value", 9)("fail", LLSD()),
+                    immediateAPI.getPump(), "reply", "error");
+                debug("no exception");
+            }
+            catch (const LLErrorEvent& e)
+            {
+                debug(STRINGIZE("exception " << e.what()));
+                errordata = e.getData();
+            }
+        }
+        END
     }
 
     template<> template<>
     void object::test<20>()
     {
+        clear();
         set_test_name("coroPumpsPostEx");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsPostEx, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<20>", coroPumpsPostEx);
         ensure("no result", result.isUndefined());
         ensure_equals("got error", errordata.asInteger(), 10);
+    }
+
+    void coroPumpsPostNoLog()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            result = waiter.postAndSuspendWithLog(LLSDMap("value", 30),
+                                               immediateAPI.getPump(), "reply", "error");
+        }
+        END
     }
 
     template<> template<>
     void object::test<21>()
     {
+        clear();
         set_test_name("coroPumpsPostNoLog");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsPostNoLog, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<21>", coroPumpsPostNoLog);
         ensure_equals(result.asInteger(), 31);
+    }
+
+    void coroPumpsPostLog()
+    {
+        BEGIN
+        {
+            LLCoroEventPumps waiter;
+            WrapLLErrs capture;
+            try
+            {
+                result = waiter.postAndSuspendWithLog(
+                    LLSDMap("value", 31)("fail", LLSD()),
+                    immediateAPI.getPump(), "reply", "error");
+                debug("no exception");
+            }
+            catch (const WrapLLErrs::FatalException& e)
+            {
+                debug(STRINGIZE("exception " << e.what()));
+                threw = e.what();
+            }
+        }
+        END
     }
 
     template<> template<>
     void object::test<22>()
     {
+        clear();
         set_test_name("coroPumpsPostLog");
         DEBUG;
-        coroutine_type coro(boost::bind(&coroutine_data::coroPumpsPostLog, this, _1));
-        coro(std::nothrow);
-        ensure_done(coro);
+        LLCoros::instance().launch("test<22>", coroPumpsPostLog);
         ensure("no result", result.isUndefined());
         ensure_contains("got error", threw, "32");
     }

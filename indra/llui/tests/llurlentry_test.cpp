@@ -37,17 +37,17 @@
 #include <boost/regex.hpp>
 
 
-namespace LLExperienceCache
-{
-    const LLSD& get( const LLUUID& key)
-    {
-		static LLSD boo;
-        return boo;
-    }
-
-    void get( const LLUUID& key, callback_slot_t slot ){}
-
-}
+// namespace LLExperienceCache
+// {
+//     const LLSD& get( const LLUUID& key)
+//     {
+// 		static LLSD boo;
+//         return boo;
+//     }
+// 
+//     void get( const LLUUID& key, callback_slot_t slot ){}
+// 
+// }
 
 typedef std::map<std::string, LLControlGroup*> settings_map_t;
 settings_map_t LLUI::sSettingGroups;
@@ -232,6 +232,14 @@ namespace tut
 		testRegex("http url with newlines", url,
 				  "XX\nhttp://www.secondlife.com/\nXX",
 				  "http://www.secondlife.com/");
+
+		testRegex("http url without tld shouldn't be decorated (1)", url,
+				  "http://test",
+				  "");
+
+		testRegex("http url without tld shouldn't be decorated (2)", url,
+				  "http://test .com",
+				  "");
 	}
 
 	template<> template<>

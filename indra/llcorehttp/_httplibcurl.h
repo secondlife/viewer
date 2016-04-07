@@ -65,6 +65,8 @@ private:
 	void operator=(const HttpLibcurl &);		// Not defined
 
 public:
+    typedef boost::shared_ptr<HttpOpRequest> opReqPtr_t;
+
 	/// Give cycles to libcurl to run active requests.  Completed
 	/// operations (successful or failed) will be retried or handed
 	/// over to the reply queue as final responses.
@@ -80,7 +82,7 @@ public:
 	/// request.  (No additional references will be added.)
 	///
 	/// Threading:  called by worker thread.
-	void addOp(HttpOpRequest * op);
+    void addOp(const opReqPtr_t & op);
 
 	/// One-time call to set the number of policy classes to be
 	/// serviced and to create the resources for each.  Value
@@ -148,10 +150,10 @@ protected:
 
 	/// Invoked to cancel an active request, mainly during shutdown
 	/// and destroy.
-	void cancelRequest(HttpOpRequest * op);
+    void cancelRequest(const opReqPtr_t &op);
 	
 protected:
-	typedef std::set<HttpOpRequest *> active_set_t;
+    typedef std::set<opReqPtr_t> active_set_t;
 
 	/// Simple request handle cache for libcurl.
 	///

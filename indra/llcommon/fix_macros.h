@@ -16,10 +16,6 @@
 // these macros all over again.
 
 // who injects MACROS with such generic names?! Grr.
-#ifdef equivalent
-#undef equivalent
-#endif 
-
 #ifdef check
 #undef check
 #endif

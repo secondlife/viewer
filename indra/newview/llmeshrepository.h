@@ -38,6 +38,7 @@
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "llthread.h"
 
 #define LLCONVEXDECOMPINTER_STATIC 1
 
@@ -274,15 +275,15 @@ public:
 	// llcorehttp library interface objects.
 	LLCore::HttpStatus					mHttpStatus;
 	LLCore::HttpRequest *				mHttpRequest;
-	LLCore::HttpOptions *				mHttpOptions;
-	LLCore::HttpOptions *				mHttpLargeOptions;
-	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpOptions::ptr_t			mHttpOptions;
+	LLCore::HttpOptions::ptr_t			mHttpLargeOptions;
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
 	LLCore::HttpRequest::policy_t		mHttpLegacyPolicyClass;
 	LLCore::HttpRequest::policy_t		mHttpLargePolicyClass;
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 
-	typedef std::set<LLCore::HttpHandler *> http_request_set;
+	typedef std::set<LLCore::HttpHandler::ptr_t> http_request_set;
 	http_request_set					mHttpRequestSet;			// Outstanding HTTP requests
 
 	std::string mGetMeshCapability;
@@ -350,7 +351,7 @@ private:
 	// Threads:  Repo thread only
 	LLCore::HttpHandle getByteRange(const std::string & url, int cap_version,
 									size_t offset, size_t len, 
-									LLCore::HttpHandler * handler);
+									const LLCore::HttpHandler::ptr_t &handler);
 };
 
 
@@ -447,8 +448,8 @@ private:
 	// llcorehttp library interface objects.
 	LLCore::HttpStatus					mHttpStatus;
 	LLCore::HttpRequest *				mHttpRequest;
-	LLCore::HttpOptions *				mHttpOptions;
-	LLCore::HttpHeaders *				mHttpHeaders;
+	LLCore::HttpOptions::ptr_t			mHttpOptions;
+	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 };

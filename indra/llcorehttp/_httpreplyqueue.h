@@ -58,21 +58,19 @@ class HttpOperation;
 /// will be coded anyway so it shouldn't be too much of a
 /// burden.
 
-class HttpReplyQueue : public LLCoreInt::RefCounted
+class HttpReplyQueue : private boost::noncopyable
 {
+
 public:
-	/// Caller acquires a Refcount on construction
+    typedef boost::shared_ptr<HttpOperation>    opPtr_t;
+    typedef boost::shared_ptr<HttpReplyQueue>   ptr_t;
+
 	HttpReplyQueue();
-
-protected:
-	virtual ~HttpReplyQueue();							// Use release()
-
-private:
-	HttpReplyQueue(const HttpReplyQueue &);				// Not defined
-	void operator=(const HttpReplyQueue &);				// Not defined
+    virtual ~HttpReplyQueue();		
 
 public:
-	typedef std::vector<HttpOperation *> OpContainer;
+
+    typedef std::vector< opPtr_t > OpContainer;
 
 	/// Insert an object at the back of the reply queue.
 	///
@@ -80,7 +78,7 @@ public:
 	/// through the queue.
 	///
 	/// Threading:  callable by any thread.
-	void addOp(HttpOperation * op);
+    void addOp(const opPtr_t &op);
 
 	/// Fetch an operation from the head of the queue.  Returns
 	/// NULL if none exists.
@@ -88,7 +86,7 @@ public:
 	/// Caller acquires reference count on returned operation.
 	///
 	/// Threading:  callable by any thread.
-	HttpOperation * fetchOp();
+    opPtr_t fetchOp();
 
 	/// Caller acquires reference count on each returned operation
 	///
@@ -96,6 +94,7 @@ public:
 	void fetchAll(OpContainer & ops);
 	
 protected:
+
 	OpContainer							mQueue;
 	LLCoreInt::HttpMutex				mQueueMutex;
 	LLCoreInt::HttpConditionVariable	mQueueCV;

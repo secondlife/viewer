@@ -37,7 +37,6 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
 #include "llfolderview.h"
-#include "llhttpclient.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -452,7 +451,7 @@ void LLSidepanelInventory::onShareButtonClicked()
 
 void LLSidepanelInventory::onShopButtonClicked()
 {
-	LLWeb::loadURLExternal(gSavedSettings.getString("MarketplaceURL"));
+	LLWeb::loadURL(gSavedSettings.getString("MarketplaceURL"));
 }
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)

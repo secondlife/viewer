@@ -32,6 +32,8 @@
 #include "llsingleton.h"
 #include "llstring.h"
 #include <map>
+#include "llcoros.h"
+#include "lleventcoro.h"
 
 typedef enum EGPUClass
 {
@@ -164,6 +166,7 @@ protected:
 
 	void initBaseMask();
 
+    void fetchFeatureTableCoro(std::string name);
 
 	std::map<std::string, LLFeatureList *> mMaskList;
 	std::set<std::string> mSkippedFeatures;

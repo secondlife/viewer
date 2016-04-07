@@ -28,7 +28,6 @@
 
 #include "llagent.h"
 #include "llfloaterreg.h"
-#include "llhttpclient.h"
 #include "llimview.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -37,7 +36,7 @@
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llvoicechannel.h"
-
+#include "llcorehttputil.h"
 
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
 LLVoiceChannel::voice_channel_map_uri_t LLVoiceChannel::sVoiceChannelURIMap;
@@ -51,71 +50,6 @@ BOOL LLVoiceChannel::sSuspended = FALSE;
 // Constants
 //
 const U32 DEFAULT_RETRIES_COUNT = 3;
-
-
-class LLVoiceCallCapResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLVoiceCallCapResponder);
-public:
-	LLVoiceCallCapResponder(const LLUUID& session_id) : mSessionID(session_id) {};
-
-protected:
-	// called with bad status codes
-	virtual void httpFailure();
-	virtual void httpSuccess();
-
-private:
-	LLUUID mSessionID;
-};
-
-
-void LLVoiceCallCapResponder::httpFailure()
-{
-	LL_WARNS("Voice") << dumpResponse() << LL_ENDL;
-	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
-	if ( channelp )
-	{
-		if ( HTTP_FORBIDDEN == getStatus() )
-		{
-			//403 == no ability
-			LLNotificationsUtil::add(
-				"VoiceNotAllowed",
-				channelp->getNotifyArgs());
-		}
-		else
-		{
-			LLNotificationsUtil::add(
-				"VoiceCallGenericError",
-				channelp->getNotifyArgs());
-		}
-		channelp->deactivate();
-	}
-}
-
-void LLVoiceCallCapResponder::httpSuccess()
-{
-	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
-	if (channelp)
-	{
-		//*TODO: DEBUG SPAM
-		const LLSD& content = getContent();
-		if (!content.isMap())
-		{
-			failureResult(HTTP_INTERNAL_ERROR, "Malformed response contents", content);
-			return;
-		}
-		LLSD::map_const_iterator iter;
-		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
-		{
-			LL_DEBUGS("Voice") << "LLVoiceCallCapResponder::result got " 
-				<< iter->first << LL_ENDL;
-		}
-
-		channelp->setChannelInfo(
-			content["voice_credentials"]["channel_uri"].asString(),
-			content["voice_credentials"]["channel_credentials"].asString());
-	}
-}
 
 //
 // LLVoiceChannel
@@ -545,12 +479,9 @@ void LLVoiceChannelGroup::getChannelInfo()
 	if (region)
 	{
 		std::string url = region->getCapability("ChatSessionRequest");
-		LLSD data;
-		data["method"] = "call";
-		data["session-id"] = mSessionID;
-		LLHTTPClient::post(url,
-						   data,
-						   new LLVoiceCallCapResponder(mSessionID));
+
+        LLCoros::instance().launch("LLVoiceChannelGroup::voiceCallCapCoro",
+            boost::bind(&LLVoiceChannelGroup::voiceCallCapCoro, this, url));
 	}
 }
 
@@ -672,6 +603,66 @@ void LLVoiceChannelGroup::setState(EState state)
 		LLVoiceChannel::setState(state);
 	}
 }
+
+void LLVoiceChannelGroup::voiceCallCapCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceCallCapCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD postData;
+    postData["method"] = "call";
+    postData["session-id"] = mSessionID;
+
+    LL_INFOS("Voice", "voiceCallCapCoro") << "Generic POST for " << url << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
+    if (!channelp)
+    {
+        LL_WARNS("Voice") << "Unable to retrieve channel with Id = " << mSessionID << LL_ENDL;
+        return;
+    }
+
+    if (!status)
+    {
+        if (status == LLCore::HttpStatus(HTTP_FORBIDDEN))
+        {
+            //403 == no ability
+            LLNotificationsUtil::add(
+                "VoiceNotAllowed",
+                channelp->getNotifyArgs());
+        }
+        else
+        {
+            LLNotificationsUtil::add(
+                "VoiceCallGenericError",
+                channelp->getNotifyArgs());
+        }
+        channelp->deactivate();
+        return;
+    }
+
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+
+    LLSD::map_const_iterator iter;
+    for (iter = result.beginMap(); iter != result.endMap(); ++iter)
+    {
+        LL_DEBUGS("Voice") << "LLVoiceCallCapResponder::result got "
+            << iter->first << LL_ENDL;
+    }
+
+    channelp->setChannelInfo(
+        result["voice_credentials"]["channel_uri"].asString(),
+        result["voice_credentials"]["channel_credentials"].asString());
+
+}
+
 
 //
 // LLVoiceChannelProximal

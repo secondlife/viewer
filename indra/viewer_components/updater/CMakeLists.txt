@@ -6,15 +6,18 @@ include(00-Common)
 if(LL_TESTS)
   include(LLAddBuildTest)
 endif(LL_TESTS)
+include(Boost)
 include(CMakeCopyIfDifferent)
 include(CURL)
 include(LLCommon)
+include(LLCoreHttp)
 include(LLMessage)
 include(LLPlugin)
 include(LLVFS)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
+    ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLPLUGIN_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
@@ -60,25 +63,36 @@ add_library(llupdaterservice
 target_link_libraries(llupdaterservice
     ${LLCOMMON_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLPLUGIN_LIBRARIES}
     ${LLVFS_LIBRARIES}
     )
 
 if(LL_TESTS)
+if (NOT LINUX)
   SET(llupdater_service_TEST_SOURCE_FILES
       llupdaterservice.cpp
       )
 
-# *NOTE:Mani - I was trying to use the preprocessor seam to mock out
-#              llifstream (and other) llcommon classes. I didn't work
-#              because of the windows declspec(dllimport)attribute.
-#set_source_files_properties(
-#    llupdaterservice.cpp
-#    PROPERTIES
-#      LL_TEST_ADDITIONAL_CFLAGS "-Dllifstream=llus_mock_llifstream"
-#    )
+set(test_libs
+    ${LLCOMMON_LIBRARIES}
+    ${BOOST_COROUTINE_LIBRARY} 
+    ${BOOST_CONTEXT_LIBRARY} 
+    ${BOOST_THREAD_LIBRARY} 
+    ${BOOST_SYSTEM_LIBRARY})
 
-  LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}")
+set_source_files_properties(
+    llupdaterservice.cpp
+    PROPERTIES
+      LL_TEST_ADDITIONAL_LIBRARIES ${test_libs}
+# *NOTE:Mani - I was trying to use the preprocessor seam to mock out
+#              llifstream (and other) llcommon classes. It didn't work
+#              because of the windows declspec(dllimport)attribute.
+#     LL_TEST_ADDITIONAL_CFLAGS "-Dllifstream=llus_mock_llifstream"
+    )
+
+  LL_ADD_PROJECT_UNIT_TESTS(llupdaterservice "${llupdater_service_TEST_SOURCE_FILES}" ${test_libs})
+endif (NOT LINUX)
 endif(LL_TESTS)
 
 set(UPDATER_INCLUDE_DIRS 

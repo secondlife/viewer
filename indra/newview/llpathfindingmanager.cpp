@@ -39,7 +39,6 @@
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
-#include "llhttpclient.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
 #include "llpathfindingcharacterlist.h"
@@ -55,6 +54,8 @@
 #include "lluuid.h"
 #include "llviewerregion.h"
 #include "llweb.h"
+#include "llcorehttputil.h"
+#include "llworld.h"
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH        "RetrieveNavMeshSrc"
 
@@ -98,82 +99,6 @@ public:
 LLHTTPRegistration<LLAgentStateChangeNode> gHTTPRegistrationAgentStateChangeNode(SIM_MESSAGE_AGENT_STATE_UPDATE);
 
 //---------------------------------------------------------------------------
-// NavMeshStatusResponder
-//---------------------------------------------------------------------------
-
-class NavMeshStatusResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(NavMeshStatusResponder);
-public:
-	NavMeshStatusResponder(LLViewerRegion *pRegion, bool pIsGetStatusOnly);
-	virtual ~NavMeshStatusResponder();
-
-protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-
-private:
-	LLViewerRegion *mRegion;
-	LLUUID         mRegionUUID;
-	bool           mIsGetStatusOnly;
-};
-
-//---------------------------------------------------------------------------
-// NavMeshResponder
-//---------------------------------------------------------------------------
-
-class NavMeshResponder : public LLHTTPClient::Responder
-{
-    LOG_CLASS(NavMeshResponder);
-public:
-	NavMeshResponder(U32 pNavMeshVersion, LLPathfindingNavMeshPtr pNavMeshPtr);
-	virtual ~NavMeshResponder();
-
-protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-
-private:
-	U32                     mNavMeshVersion;
-	LLPathfindingNavMeshPtr mNavMeshPtr;
-};
-
-//---------------------------------------------------------------------------
-// AgentStateResponder
-//---------------------------------------------------------------------------
-
-class AgentStateResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(AgentStateResponder);
-public:
-	AgentStateResponder();
-	virtual ~AgentStateResponder();
-
-protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-};
-
-
-//---------------------------------------------------------------------------
-// NavMeshRebakeResponder
-//---------------------------------------------------------------------------
-class NavMeshRebakeResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(NavMeshRebakeResponder);
-public:
-	NavMeshRebakeResponder(LLPathfindingManager::rebake_navmesh_callback_t pRebakeNavMeshCallback);
-	virtual ~NavMeshRebakeResponder();
-
-protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-
-private:
-	LLPathfindingManager::rebake_navmesh_callback_t mRebakeNavMeshCallback;
-};
-
-//---------------------------------------------------------------------------
 // LinksetsResponder
 //---------------------------------------------------------------------------
 
@@ -187,6 +112,8 @@ public:
 	void handleObjectLinksetsError();
 	void handleTerrainLinksetsResult(const LLSD &pContent);
 	void handleTerrainLinksetsError();
+
+    typedef boost::shared_ptr<LinksetsResponder> ptr_t;
 
 protected:
 
@@ -212,64 +139,6 @@ private:
 };
 
 typedef boost::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
-
-//---------------------------------------------------------------------------
-// ObjectLinksetsResponder
-//---------------------------------------------------------------------------
-
-class ObjectLinksetsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(ObjectLinksetsResponder);
-public:
-	ObjectLinksetsResponder(LinksetsResponderPtr pLinksetsResponsderPtr);
-	virtual ~ObjectLinksetsResponder();
-
-protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-
-private:
-	LinksetsResponderPtr mLinksetsResponsderPtr;
-};
-
-//---------------------------------------------------------------------------
-// TerrainLinksetsResponder
-//---------------------------------------------------------------------------
-
-class TerrainLinksetsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(TerrainLinksetsResponder);
-public:
-	TerrainLinksetsResponder(LinksetsResponderPtr pLinksetsResponsderPtr);
-	virtual ~TerrainLinksetsResponder();
-
-protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-
-private:
-	LinksetsResponderPtr mLinksetsResponsderPtr;
-};
-
-//---------------------------------------------------------------------------
-// CharactersResponder
-//---------------------------------------------------------------------------
-
-class CharactersResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(TerrainLinksetsResponder);
-public:
-	CharactersResponder(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::object_request_callback_t pCharactersCallback);
-	virtual ~CharactersResponder();
-
-protected:
-	virtual void httpSuccess();
-	virtual void httpFailure();
-
-private:
-	LLPathfindingManager::request_id_t              mRequestId;
-	LLPathfindingManager::object_request_callback_t mCharactersCallback;
-};
 
 //---------------------------------------------------------------------------
 // LLPathfindingManager
@@ -350,11 +219,13 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion, b
 	}
 	else
 	{
-		std::string navMeshStatusURL = getNavMeshStatusURLForRegion(pRegion);
-		llassert(!navMeshStatusURL.empty());
-		navMeshPtr->handleNavMeshCheckVersion();
-		LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(pRegion, pIsGetStatusOnly);
-		LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
+        std::string navMeshStatusURL = getNavMeshStatusURLForRegion(pRegion);
+        llassert(!navMeshStatusURL.empty());
+        navMeshPtr->handleNavMeshCheckVersion();
+
+        U64 regionHandle = pRegion->getHandle();
+        std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navMeshStatusRequestCoro",
+            boost::bind(&LLPathfindingManager::navMeshStatusRequestCoro, this, navMeshStatusURL, regionHandle, pIsGetStatusOnly));
 	}
 }
 
@@ -385,15 +256,15 @@ void LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, object_re
 			pLinksetsCallback(pRequestId, kRequestStarted, emptyLinksetListPtr);
 
 			bool doRequestTerrain = isAllowViewTerrainProperties();
-			LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, true, doRequestTerrain));
+			LinksetsResponder::ptr_t linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, true, doRequestTerrain));
 
-			LLHTTPClient::ResponderPtr objectLinksetsResponder = new ObjectLinksetsResponder(linksetsResponderPtr);
-			LLHTTPClient::get(objectLinksetsURL, objectLinksetsResponder);
+            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetObjectsCoro",
+                boost::bind(&LLPathfindingManager::linksetObjectsCoro, this, objectLinksetsURL, linksetsResponderPtr, LLSD()));
 
-			if (doRequestTerrain)
+            if (doRequestTerrain)
 			{
-				LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(linksetsResponderPtr);
-				LLHTTPClient::get(terrainLinksetsURL, terrainLinksetsResponder);
+                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetTerrainCoro",
+                    boost::bind(&LLPathfindingManager::linksetTerrainCoro, this, terrainLinksetsURL, linksetsResponderPtr, LLSD()));
 			}
 		}
 	}
@@ -432,18 +303,18 @@ void LLPathfindingManager::requestSetLinksets(request_id_t pRequestId, const LLP
 		{
 			pLinksetsCallback(pRequestId, kRequestStarted, emptyLinksetListPtr);
 
-			LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, !objectPostData.isUndefined(), !terrainPostData.isUndefined()));
+			LinksetsResponder::ptr_t linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, !objectPostData.isUndefined(), !terrainPostData.isUndefined()));
 
 			if (!objectPostData.isUndefined())
 			{
-				LLHTTPClient::ResponderPtr objectLinksetsResponder = new ObjectLinksetsResponder(linksetsResponderPtr);
-				LLHTTPClient::put(objectLinksetsURL, objectPostData, objectLinksetsResponder);
+                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetObjectsCoro",
+                    boost::bind(&LLPathfindingManager::linksetObjectsCoro, this, objectLinksetsURL, linksetsResponderPtr, objectPostData));
 			}
 
 			if (!terrainPostData.isUndefined())
 			{
-				LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(linksetsResponderPtr);
-				LLHTTPClient::put(terrainLinksetsURL, terrainPostData, terrainLinksetsResponder);
+                std::string coroname = LLCoros::instance().launch("LLPathfindingManager::linksetTerrainCoro",
+                    boost::bind(&LLPathfindingManager::linksetTerrainCoro, this, terrainLinksetsURL, linksetsResponderPtr, terrainPostData));
 			}
 		}
 	}
@@ -475,8 +346,8 @@ void LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, object_
 		{
 			pCharactersCallback(pRequestId, kRequestStarted, emptyCharacterListPtr);
 
-			LLHTTPClient::ResponderPtr charactersResponder = new CharactersResponder(pRequestId, pCharactersCallback);
-			LLHTTPClient::get(charactersURL, charactersResponder);
+            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::charactersCoro",
+                boost::bind(&LLPathfindingManager::charactersCoro, this, charactersURL, pRequestId, pCharactersCallback));
 		}
 	}
 }
@@ -508,8 +379,9 @@ void LLPathfindingManager::requestGetAgentState()
 		{
 			std::string agentStateURL = getAgentStateURLForRegion(currentRegion);
 			llassert(!agentStateURL.empty());
-			LLHTTPClient::ResponderPtr responder = new AgentStateResponder();
-			LLHTTPClient::get(agentStateURL, responder);
+
+            std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navAgentStateRequestCoro",
+                boost::bind(&LLPathfindingManager::navAgentStateRequestCoro, this, agentStateURL));
 		}
 	}
 }
@@ -530,35 +402,9 @@ void LLPathfindingManager::requestRebakeNavMesh(rebake_navmesh_callback_t pRebak
 	{
 		std::string navMeshStatusURL = getNavMeshStatusURLForCurrentRegion();
 		llassert(!navMeshStatusURL.empty());
-		LLSD postData;			
-		postData["command"] = "rebuild";
-		LLHTTPClient::ResponderPtr responder = new NavMeshRebakeResponder(pRebakeNavMeshCallback);
-		LLHTTPClient::post(navMeshStatusURL, postData, responder);
-	}
-}
 
-void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus)
-{
-	if ((pRegion == NULL) || !pRegion->isAlive())
-	{
-		navMeshPtr->handleNavMeshNotEnabled();
-	}
-	else
-	{
-		std::string navMeshURL = getRetrieveNavMeshURLForRegion(pRegion);
-
-		if (navMeshURL.empty())
-		{
-			navMeshPtr->handleNavMeshNotEnabled();
-		}
-		else
-		{
-			navMeshPtr->handleNavMeshStart(pNavMeshStatus);
-			LLHTTPClient::ResponderPtr responder = new NavMeshResponder(pNavMeshStatus.getVersion(), navMeshPtr);
-
-			LLSD postData;
-			LLHTTPClient::post(navMeshURL, postData, responder);
-		}
+        std::string coroname = LLCoros::instance().launch("LLPathfindingManager::navMeshRebakeCoro",
+                boost::bind(&LLPathfindingManager::navMeshRebakeCoro, this, navMeshStatusURL, pRebakeNavMeshCallback));
 	}
 }
 
@@ -602,29 +448,250 @@ void LLPathfindingManager::handleDeferredGetCharactersForRegion(const LLUUID &pR
 	}
 }
 
-void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly)
+void LLPathfindingManager::navMeshStatusRequestCoro(std::string url, U64 regionHandle, bool isGetStatusOnly)
 {
-	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pNavMeshStatus.getRegionUUID());
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("NavMeshStatusRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-	if (!pNavMeshStatus.isValid())
-	{
-		navMeshPtr->handleNavMeshError();
-	}
-	else
-	{
-		if (navMeshPtr->hasNavMeshVersion(pNavMeshStatus))
-		{
-			navMeshPtr->handleRefresh(pNavMeshStatus);
-		}
-		else if (pIsGetStatusOnly)
-		{
-			navMeshPtr->handleNavMeshNewVersion(pNavMeshStatus);
-		}
-		else
-		{
-			sendRequestGetNavMeshForRegion(navMeshPtr, pRegion, pNavMeshStatus);
-		}
-	}
+    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    if (!region)
+    {
+        LL_WARNS("PathfindingManager") << "Attempting to retrieve navmesh status for region that has gone away." << LL_ENDL;
+        return;
+    }
+    LLUUID regionUUID = region->getRegionID();
+
+    region = NULL;
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    region = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LLPathfindingNavMeshStatus navMeshStatus(regionUUID);
+    if (!status)
+    {
+        LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() << 
+            ". Building using empty status." << LL_ENDL;
+    }
+    else
+    {
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        navMeshStatus = LLPathfindingNavMeshStatus(regionUUID, result);
+    }
+
+    LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(regionUUID);
+
+    if (!navMeshStatus.isValid())
+    {
+        navMeshPtr->handleNavMeshError();
+        return;
+    }
+    else if (navMeshPtr->hasNavMeshVersion(navMeshStatus))
+    {
+        navMeshPtr->handleRefresh(navMeshStatus);
+        return;
+    }
+    else if (isGetStatusOnly)
+    {
+        navMeshPtr->handleNavMeshNewVersion(navMeshStatus);
+        return;
+    }
+
+    if ((!region) || !region->isAlive())
+    {
+        LL_WARNS("PathfindingManager") << "About to update navmesh status for region that has gone away." << LL_ENDL;
+        navMeshPtr->handleNavMeshNotEnabled();
+        return;
+    }
+
+    std::string navMeshURL = getRetrieveNavMeshURLForRegion(region);
+
+    if (navMeshURL.empty())
+    {
+        navMeshPtr->handleNavMeshNotEnabled();
+        return;
+    }
+
+    navMeshPtr->handleNavMeshStart(navMeshStatus);
+
+    LLSD postData;
+    result = httpAdapter->postAndSuspend(httpRequest, navMeshURL, postData);
+
+    U32 navMeshVersion = navMeshStatus.getVersion();
+
+    if (!status)
+    {
+        LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+            ". reporting error." << LL_ENDL;
+        navMeshPtr->handleNavMeshError(navMeshVersion);
+    }
+    else
+    {
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        navMeshPtr->handleNavMeshResult(result, navMeshVersion);
+
+    }
+
+}
+
+void LLPathfindingManager::navAgentStateRequestCoro(std::string url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("NavAgentStateRequest", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    bool canRebake = false;
+    if (!status)
+    {
+        LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+            ". Building using empty status." << LL_ENDL;
+    }
+    else
+    {
+        llassert(result.has(AGENT_STATE_CAN_REBAKE_REGION_FIELD));
+        llassert(result.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).isBoolean());
+        canRebake = result.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).asBoolean();
+    }
+
+    handleAgentState(canRebake);
+}
+
+void LLPathfindingManager::navMeshRebakeCoro(std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("NavMeshRebake", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+
+    LLSD postData = LLSD::emptyMap();
+    postData["command"] = "rebuild";
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    bool success = true;
+    if (!status)
+    {
+        LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+            ". Rebake failed." << LL_ENDL;
+        success = false;
+    }
+       
+    rebakeNavMeshCallback(success);
+}
+
+// If called with putData undefined this coroutine will issue a get.  If there 
+// is data in putData it will be PUT to the URL.
+void LLPathfindingManager::linksetObjectsCoro(std::string url, LinksetsResponder::ptr_t linksetsResponsderPtr, LLSD putData) const
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("LinksetObjects", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result;
+
+    if (putData.isUndefined())
+    {
+        result = httpAdapter->getAndSuspend(httpRequest, url);
+    }
+    else 
+    {
+        result = httpAdapter->putAndSuspend(httpRequest, url, putData);
+    }
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+            ". linksetObjects failed." << LL_ENDL;
+        linksetsResponsderPtr->handleObjectLinksetsError();
+    }
+    else
+    {
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        linksetsResponsderPtr->handleObjectLinksetsResult(result);
+    }
+}
+
+// If called with putData undefined this coroutine will issue a GET.  If there 
+// is data in putData it will be PUT to the URL.
+void LLPathfindingManager::linksetTerrainCoro(std::string url, LinksetsResponder::ptr_t linksetsResponsderPtr, LLSD putData) const
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("LinksetTerrain", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result;
+
+    if (putData.isUndefined())
+    {
+        result = httpAdapter->getAndSuspend(httpRequest, url);
+    }
+    else 
+    {
+        result = httpAdapter->putAndSuspend(httpRequest, url, putData);
+    }
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+            ". linksetTerrain failed." << LL_ENDL;
+        linksetsResponsderPtr->handleTerrainLinksetsError();
+    }
+    else
+    {
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        linksetsResponsderPtr->handleTerrainLinksetsResult(result);
+    }
+
+}
+
+void LLPathfindingManager::charactersCoro(std::string url, request_id_t requestId, object_request_callback_t callback) const
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("LinksetTerrain", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("PathfindingManager") << "HTTP status, " << status.toTerseString() <<
+            ". characters failed." << LL_ENDL;
+
+        LLPathfindingObjectListPtr characterListPtr = LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
+        callback(requestId, LLPathfindingManager::kRequestError, characterListPtr);
+    }
+    else
+    {
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        LLPathfindingObjectListPtr characterListPtr = LLPathfindingObjectListPtr(new LLPathfindingCharacterList(result));
+        callback(requestId, LLPathfindingManager::kRequestCompleted, characterListPtr);
+    }
 }
 
 void LLPathfindingManager::handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus)
@@ -765,121 +832,8 @@ void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, c
 }
 
 //---------------------------------------------------------------------------
-// NavMeshStatusResponder
-//---------------------------------------------------------------------------
-
-NavMeshStatusResponder::NavMeshStatusResponder(LLViewerRegion *pRegion, bool pIsGetStatusOnly)
-	: LLHTTPClient::Responder(),
-	mRegion(pRegion),
-	mRegionUUID(),
-	mIsGetStatusOnly(pIsGetStatusOnly)
-{
-	if (mRegion != NULL)
-	{
-		mRegionUUID = mRegion->getRegionID();
-	}
-}
-
-NavMeshStatusResponder::~NavMeshStatusResponder()
-{
-}
-
-void NavMeshStatusResponder::httpSuccess()
-{
-	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID, getContent());
-	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
-}
-
-void NavMeshStatusResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID);
-	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion, mIsGetStatusOnly);
-}
-
-//---------------------------------------------------------------------------
-// NavMeshResponder
-//---------------------------------------------------------------------------
-
-NavMeshResponder::NavMeshResponder(U32 pNavMeshVersion, LLPathfindingNavMeshPtr pNavMeshPtr)
-	: LLHTTPClient::Responder(),
-	mNavMeshVersion(pNavMeshVersion),
-	mNavMeshPtr(pNavMeshPtr)
-{
-}
-
-NavMeshResponder::~NavMeshResponder()
-{
-}
-
-void NavMeshResponder::httpSuccess()
-{
-	mNavMeshPtr->handleNavMeshResult(getContent(), mNavMeshVersion);
-}
-
-void NavMeshResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-	mNavMeshPtr->handleNavMeshError(mNavMeshVersion);
-}
-
-//---------------------------------------------------------------------------
-// AgentStateResponder
-//---------------------------------------------------------------------------
-
-AgentStateResponder::AgentStateResponder()
-: LLHTTPClient::Responder()
-{
-}
-
-AgentStateResponder::~AgentStateResponder()
-{
-}
-
-void AgentStateResponder::httpSuccess()
-{
-	const LLSD& pContent = getContent();
-	llassert(pContent.has(AGENT_STATE_CAN_REBAKE_REGION_FIELD));
-	llassert(pContent.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).isBoolean());
-	BOOL canRebakeRegion = pContent.get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).asBoolean();
-	LLPathfindingManager::getInstance()->handleAgentState(canRebakeRegion);
-}
-
-void AgentStateResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-	LLPathfindingManager::getInstance()->handleAgentState(FALSE);
-}
-
-
-//---------------------------------------------------------------------------
-// navmesh rebake responder
-//---------------------------------------------------------------------------
-NavMeshRebakeResponder::NavMeshRebakeResponder(LLPathfindingManager::rebake_navmesh_callback_t pRebakeNavMeshCallback)
-	: LLHTTPClient::Responder(),
-	mRebakeNavMeshCallback(pRebakeNavMeshCallback)
-{
-}
-
-NavMeshRebakeResponder::~NavMeshRebakeResponder()
-{
-}
-
-void NavMeshRebakeResponder::httpSuccess()
-{
-	mRebakeNavMeshCallback(true);
-}
-
-void NavMeshRebakeResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-	mRebakeNavMeshCallback(false);
-}
-
-//---------------------------------------------------------------------------
 // LinksetsResponder
 //---------------------------------------------------------------------------
-
 LinksetsResponder::LinksetsResponder(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::object_request_callback_t pLinksetsCallback, bool pIsObjectRequested, bool pIsTerrainRequested)
 	: mRequestId(pRequestId),
 	mLinksetsCallback(pLinksetsCallback),
@@ -956,83 +910,4 @@ void LinksetsResponder::sendCallback()
 	}
 
 	mLinksetsCallback(mRequestId, requestStatus, mObjectLinksetListPtr);
-}
-
-//---------------------------------------------------------------------------
-// ObjectLinksetsResponder
-//---------------------------------------------------------------------------
-
-ObjectLinksetsResponder::ObjectLinksetsResponder(LinksetsResponderPtr pLinksetsResponsderPtr)
-	: LLHTTPClient::Responder(),
-	mLinksetsResponsderPtr(pLinksetsResponsderPtr)
-{
-}
-
-ObjectLinksetsResponder::~ObjectLinksetsResponder()
-{
-}
-
-void ObjectLinksetsResponder::httpSuccess()
-{
-	mLinksetsResponsderPtr->handleObjectLinksetsResult(getContent());
-}
-
-void ObjectLinksetsResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-	mLinksetsResponsderPtr->handleObjectLinksetsError();
-}
-
-//---------------------------------------------------------------------------
-// TerrainLinksetsResponder
-//---------------------------------------------------------------------------
-
-TerrainLinksetsResponder::TerrainLinksetsResponder(LinksetsResponderPtr pLinksetsResponsderPtr)
-	: LLHTTPClient::Responder(),
-	mLinksetsResponsderPtr(pLinksetsResponsderPtr)
-{
-}
-
-TerrainLinksetsResponder::~TerrainLinksetsResponder()
-{
-}
-
-void TerrainLinksetsResponder::httpSuccess()
-{
-	mLinksetsResponsderPtr->handleTerrainLinksetsResult(getContent());
-}
-
-void TerrainLinksetsResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-	mLinksetsResponsderPtr->handleTerrainLinksetsError();
-}
-
-//---------------------------------------------------------------------------
-// CharactersResponder
-//---------------------------------------------------------------------------
-
-CharactersResponder::CharactersResponder(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::object_request_callback_t pCharactersCallback)
-	: LLHTTPClient::Responder(),
-	mRequestId(pRequestId),
-	mCharactersCallback(pCharactersCallback)
-{
-}
-
-CharactersResponder::~CharactersResponder()
-{
-}
-
-void CharactersResponder::httpSuccess()
-{
-	LLPathfindingObjectListPtr characterListPtr = LLPathfindingObjectListPtr(new LLPathfindingCharacterList(getContent()));
-	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestCompleted, characterListPtr);
-}
-
-void CharactersResponder::httpFailure()
-{
-	LL_WARNS() << dumpResponse() << LL_ENDL;
-
-	LLPathfindingObjectListPtr characterListPtr =  LLPathfindingObjectListPtr(new LLPathfindingCharacterList());
-	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestError, characterListPtr);
 }

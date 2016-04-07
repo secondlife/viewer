@@ -35,6 +35,7 @@ INCLUDE(GoogleMock)
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     llcommon
+    llcorehttp
     )
   IF(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!
@@ -49,6 +50,9 @@ INCLUDE(GoogleMock)
     ${GOOGLEMOCK_INCLUDE_DIRS}
     )
   SET(alltest_LIBRARIES
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
@@ -191,6 +195,9 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   SET(libraries
     ${library_dependencies}
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     )

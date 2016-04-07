@@ -28,7 +28,7 @@
 #define LL_LLWLHANDLERS_H
 
 #include "llviewerprecompiledheaders.h"
-#include "llhttpclient.h"
+#include "llcoros.h"
 
 class LLEnvironmentRequest
 {
@@ -40,21 +40,10 @@ public:
 private:
 	static void onRegionCapsReceived(const LLUUID& region_id);
 	static bool doRequest();
-};
 
-class LLEnvironmentRequestResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLEnvironmentRequestResponder);
-private:
-	/* virtual */ void httpSuccess();
-	/* virtual */ void httpFailure();
+    static void environmentRequestCoro(std::string url);
 
-private:
-	friend class LLEnvironmentRequest;
-
-	LLEnvironmentRequestResponder();
-	static int sCount;
-	int mID;
+    static S32 sLastRequest;
 };
 
 class LLEnvironmentApply
@@ -67,35 +56,8 @@ public:
 private:
 	static clock_t sLastUpdate;
 	static clock_t UPDATE_WAIT_SECONDS;
-};
 
-class LLEnvironmentApplyResponder: public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLEnvironmentApplyResponder);
-private:
-	/*
-	 * Expecting reply from sim in form of:
-	 * {
-	 *   regionID : uuid,
-	 *   messageID: uuid,
-	 *   success : true
-	 * }
-	 * or
-	 * {
-	 *   regionID : uuid,
-	 *   success : false,
-	 *   fail_reason : string
-	 * }
-	 */
-	/* virtual */ void httpSuccess();
-
-	// non-2xx errors only
-	/* virtual */ void httpFailure();
-
-private:
-	friend class LLEnvironmentApply;
-	
-	LLEnvironmentApplyResponder() {}
+    static void environmentApplyCoro(std::string url, LLSD content);
 };
 
 #endif // LL_LLWLHANDLERS_H

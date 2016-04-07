@@ -212,12 +212,12 @@ public:
 			}
 		}
 	}
-	/*virtual*/ F32				draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+	/*virtual*/ F32				draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 	{
-		LLRect image_rect = draw_rect;
+		LLRectf image_rect = draw_rect;
 		image_rect.mRight = image_rect.mLeft + mImage->getWidth();
 		image_rect.mTop = image_rect.mBottom + mImage->getHeight();
-		mImage->draw(image_rect);
+		mImage->draw(LLRect(image_rect.mLeft, image_rect.mTop, image_rect.mRight, image_rect.mBottom));
 
 		LLColor4 color;
 		if (mEditor.getReadOnly())

@@ -41,7 +41,6 @@
 #include "llchicletbar.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llfloaterreg.h"
-#include "llhttpclient.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterimcontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
@@ -62,6 +61,7 @@
 #include "llviewerchat.h"
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
+#include "llcorehttputil.h"
 
 const F32 ME_TYPING_TIMEOUT = 4.0f;
 const F32 OTHER_TYPING_TIMEOUT = 9.0f;
@@ -1178,26 +1178,6 @@ BOOL LLFloaterIMSession::isInviteAllowed() const
 			 || mIsP2PChat);
 }
 
-class LLSessionInviteResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSessionInviteResponder);
-public:
-	LLSessionInviteResponder(const LLUUID& session_id)
-	{
-		mSessionID = session_id;
-	}
-
-protected:
-	void httpFailure()
-	{
-		LL_WARNS() << "Error inviting all agents to session " << dumpResponse() << LL_ENDL;
-		//throw something back to the viewer here?
-	}
-
-private:
-	LLUUID mSessionID;
-};
-
 BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
@@ -1221,7 +1201,9 @@ BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 			}
 			data["method"] = "invite";
 			data["session-id"] = mSessionID;
-			LLHTTPClient::post(url,	data,new LLSessionInviteResponder(mSessionID));
+
+            LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data,
+                "Session invite sent", "Session invite failed");
 		}
 		else
 		{

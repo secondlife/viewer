@@ -590,25 +590,49 @@ void LLPanelPermissions::refresh()
 																			&next_owner_mask_on,
 																			&next_owner_mask_off);
 
-	
+
 	if (gSavedSettings.getBOOL("DebugPermissions") )
 	{
 		if (valid_base_perms)
 		{
 			getChild<LLUICtrl>("B:")->setValue("B: " + mask_to_string(base_mask_on));
-			getChildView("B:")->setVisible(							TRUE);
-			
+			getChildView("B:")->setVisible(TRUE);
 			getChild<LLUICtrl>("O:")->setValue("O: " + mask_to_string(owner_mask_on));
-			getChildView("O:")->setVisible(							TRUE);
-			
+			getChildView("O:")->setVisible(TRUE);
 			getChild<LLUICtrl>("G:")->setValue("G: " + mask_to_string(group_mask_on));
-			getChildView("G:")->setVisible(							TRUE);
-			
+			getChildView("G:")->setVisible(TRUE);
 			getChild<LLUICtrl>("E:")->setValue("E: " + mask_to_string(everyone_mask_on));
-			getChildView("E:")->setVisible(							TRUE);
-			
+			getChildView("E:")->setVisible(TRUE);
 			getChild<LLUICtrl>("N:")->setValue("N: " + mask_to_string(next_owner_mask_on));
-			getChildView("N:")->setVisible(							TRUE);
+			getChildView("N:")->setVisible(TRUE);
+		}
+		else if(!root_selected)
+		{
+			if(object_count == 1)
+			{
+				LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+				if (node && node->mValid)
+				{
+					getChild<LLUICtrl>("B:")->setValue("B: " + mask_to_string( node->mPermissions->getMaskBase()));
+					getChildView("B:")->setVisible(TRUE);
+					getChild<LLUICtrl>("O:")->setValue("O: " + mask_to_string(node->mPermissions->getMaskOwner()));
+					getChildView("O:")->setVisible(TRUE);
+					getChild<LLUICtrl>("G:")->setValue("G: " + mask_to_string(node->mPermissions->getMaskGroup()));
+					getChildView("G:")->setVisible(TRUE);
+					getChild<LLUICtrl>("E:")->setValue("E: " + mask_to_string(node->mPermissions->getMaskEveryone()));
+					getChildView("E:")->setVisible(TRUE);
+					getChild<LLUICtrl>("N:")->setValue("N: " + mask_to_string(node->mPermissions->getMaskNextOwner()));
+					getChildView("N:")->setVisible(TRUE);
+				}
+			}
+		}
+		else
+		{
+		    getChildView("B:")->setVisible(FALSE);
+		    getChildView("O:")->setVisible(FALSE);
+		    getChildView("G:")->setVisible(FALSE);
+		    getChildView("E:")->setVisible(FALSE);
+		    getChildView("N:")->setVisible(FALSE);
 		}
 
 		U32 flag_mask = 0x0;

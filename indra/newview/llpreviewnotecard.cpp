@@ -31,7 +31,6 @@
 #include "llinventory.h"
 
 #include "llagent.h"
-#include "llassetuploadresponders.h"
 #include "lldraghandle.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
@@ -56,6 +55,7 @@
 #include "llappviewer.h"		// app_abort_quit()
 #include "lllineeditor.h"
 #include "lluictrlfactory.h"
+#include "llviewerassetupload.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLPreviewNotecard
@@ -232,7 +232,7 @@ void LLPreviewNotecard::loadAsset()
 			}
 			else
 			{
-				LLHost source_sim = LLHost::invalid;
+				LLHost source_sim = LLHost();
 				LLSD* user_data = new LLSD();
 				if (mObjectUUID.notNull())
 				{
@@ -407,6 +407,35 @@ struct LLSaveNotecardInfo
 	}
 };
 
+void LLPreviewNotecard::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId)
+{
+    // Update the UI with the new asset.
+    LLPreviewNotecard* nc = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", LLSD(itemId));
+    if (nc)
+    {
+        // *HACK: we have to delete the asset in the VFS so
+        // that the viewer will redownload it. This is only
+        // really necessary if the asset had to be modified by
+        // the uploader, so this can be optimized away in some
+        // cases. A better design is to have a new uuid if the
+        // script actually changed the asset.
+        if (nc->hasEmbeddedInventory())
+        {
+            gVFS->removeFile(newAssetId, LLAssetType::AT_NOTECARD);
+        }
+        if (newItemId.isNull())
+        {
+            nc->setAssetId(newAssetId);
+            nc->refreshFromInventory();
+        }
+        else
+        {
+            nc->refreshFromInventory(newItemId);
+        }
+    }
+}
+
+
 bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 {
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
@@ -419,14 +448,6 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 
 	if(!editor->isPristine())
 	{
-		// We need to update the asset information
-		LLTransactionID tid;
-		LLAssetID asset_id;
-		tid.generate();
-		asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-
-		LLVFile file(gVFS, asset_id, LLAssetType::AT_NOTECARD, LLVFile::APPEND);
-
 		std::string buffer;
 		if (!editor->exportBuffer(buffer))
 		{
@@ -435,52 +456,64 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 
 		editor->makePristine();
 
-		S32 size = buffer.length() + 1;
-		file.setMaxSize(size);
-		file.write((U8*)buffer.c_str(), size);
-
 		const LLInventoryItem* item = getItem();
 		// save it out to database
-		if (item)
-		{			
-			const LLViewerRegion* region = gAgent.getRegion();
-			if (!region)
-			{
-				LL_WARNS() << "Not connected to a region, cannot save notecard." << LL_ENDL;
-				return false;
-			}
-			std::string agent_url = region->getCapability("UpdateNotecardAgentInventory");
-			std::string task_url = region->getCapability("UpdateNotecardTaskInventory");
+        if (item)
+        {
+            const LLViewerRegion* region = gAgent.getRegion();
+            if (!region)
+            {
+                LL_WARNS() << "Not connected to a region, cannot save notecard." << LL_ENDL;
+                return false;
+            }
+            std::string agent_url = region->getCapability("UpdateNotecardAgentInventory");
+            std::string task_url = region->getCapability("UpdateNotecardTaskInventory");
 
-			if (mObjectUUID.isNull() && !agent_url.empty())
-			{
-				// Saving into agent inventory
-				mAssetStatus = PREVIEW_ASSET_LOADING;
-				setEnabled(FALSE);
-				LLSD body;
-				body["item_id"] = mItemUUID;
-				LL_INFOS() << "Saving notecard " << mItemUUID
-					<< " into agent inventory via " << agent_url << LL_ENDL;
-				LLHTTPClient::post(agent_url, body,
-					new LLUpdateAgentInventoryResponder(body, asset_id, LLAssetType::AT_NOTECARD));
-			}
-			else if (!mObjectUUID.isNull() && !task_url.empty())
-			{
-				// Saving into task inventory
-				mAssetStatus = PREVIEW_ASSET_LOADING;
-				setEnabled(FALSE);
-				LLSD body;
-				body["task_id"] = mObjectUUID;
-				body["item_id"] = mItemUUID;
-				LL_INFOS() << "Saving notecard " << mItemUUID << " into task "
-					<< mObjectUUID << " via " << task_url << LL_ENDL;
-				LLHTTPClient::post(task_url, body,
-					new LLUpdateTaskInventoryResponder(body, asset_id, LLAssetType::AT_NOTECARD));
-			}
+            if (!agent_url.empty() && !task_url.empty())
+            {
+                std::string url;
+                LLResourceUploadInfo::ptr_t uploadInfo;
+
+                if (mObjectUUID.isNull() && !agent_url.empty())
+                {
+                    uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
+                        boost::bind(&LLPreviewNotecard::finishInventoryUpload, _1, _2, _3)));
+                    url = agent_url;
+                }
+                else if (!mObjectUUID.isNull() && !task_url.empty())
+                {
+                    uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
+                        boost::bind(&LLPreviewNotecard::finishInventoryUpload, _1, _3, LLUUID::null)));
+                    url = task_url;
+                }
+
+                if (!url.empty() && uploadInfo)
+                {
+                    mAssetStatus = PREVIEW_ASSET_LOADING;
+                    setEnabled(false);
+
+                    LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+                }
+
+            }
 			else if (gAssetStorage)
 			{
+                // We need to update the asset information
+                LLTransactionID tid;
+                LLAssetID asset_id;
+                tid.generate();
+                asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+
+                LLVFile file(gVFS, asset_id, LLAssetType::AT_NOTECARD, LLVFile::APPEND);
+
+
 				LLSaveNotecardInfo* info = new LLSaveNotecardInfo(this, mItemUUID, mObjectUUID,
 																tid, copyitem);
+
+                S32 size = buffer.length() + 1;
+                file.setMaxSize(size);
+                file.write((U8*)buffer.c_str(), size);
+
 				gAssetStorage->storeAssetData(tid, LLAssetType::AT_NOTECARD,
 												&onSaveComplete,
 												(void*)info,

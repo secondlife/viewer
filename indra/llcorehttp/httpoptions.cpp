@@ -25,7 +25,7 @@
  */
 
 #include "httpoptions.h"
-
+#include "lldefs.h"
 #include "_httpinternal.h"
 
 
@@ -33,14 +33,18 @@ namespace LLCore
 {
 
 
-HttpOptions::HttpOptions()
-	: RefCounted(true),
-	  mWantHeaders(false),
-	  mTracing(HTTP_TRACE_OFF),
-	  mTimeout(HTTP_REQUEST_TIMEOUT_DEFAULT),
-	  mTransferTimeout(HTTP_REQUEST_XFER_TIMEOUT_DEFAULT),
-	  mRetries(HTTP_RETRY_COUNT_DEFAULT),
-	  mUseRetryAfter(HTTP_USE_RETRY_AFTER_DEFAULT)
+HttpOptions::HttpOptions() :
+    mWantHeaders(false),
+    mTracing(HTTP_TRACE_OFF),
+    mTimeout(HTTP_REQUEST_TIMEOUT_DEFAULT),
+    mTransferTimeout(HTTP_REQUEST_XFER_TIMEOUT_DEFAULT),
+    mRetries(HTTP_RETRY_COUNT_DEFAULT),
+    mUseRetryAfter(HTTP_USE_RETRY_AFTER_DEFAULT),
+    mFollowRedirects(true),
+    mVerifyPeer(false),
+    mVerifyHost(false),
+    mDNSCacheTimeout(-1L),
+    mNoBody(false)
 {}
 
 
@@ -82,5 +86,31 @@ void HttpOptions::setUseRetryAfter(bool use_retry)
 	mUseRetryAfter = use_retry;
 }
 
+void HttpOptions::setFollowRedirects(bool follow_redirect)
+{
+	mFollowRedirects = follow_redirect;
+}
+
+void HttpOptions::setSSLVerifyPeer(bool verify)
+{
+	mVerifyPeer = verify;
+}
+
+void HttpOptions::setSSLVerifyHost(bool verify)
+{
+	mVerifyHost = verify;
+}
+
+void HttpOptions::setDNSCacheTimeout(int timeout)
+{
+	mDNSCacheTimeout = timeout;
+}
+
+void HttpOptions::setHeadersOnly(bool nobody)
+{
+    mNoBody = nobody;
+    if (mNoBody)
+        setWantHeaders(true);
+}
 
 }   // end namespace LLCore

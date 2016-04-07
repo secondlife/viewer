@@ -39,7 +39,7 @@ typedef void (*LLTTVFCompleteCallback)(
 	S32 status,
 	const LLUUID& file_id,
 	LLAssetType::EType file_type,
-	void* user_data, LLExtStat ext_status );
+	LLBaseDownloadRequest* user_data, LLExtStat ext_status );
 
 class LLTransferTargetParamsVFile : public LLTransferTargetParams
 {
@@ -47,7 +47,7 @@ public:
 	LLTransferTargetParamsVFile();
 
 	void setAsset(const LLUUID& asset_id, LLAssetType::EType asset_type);
-	void setCallback(LLTTVFCompleteCallback cb, void* user_data);
+	void setCallback(LLTTVFCompleteCallback cb, LLBaseDownloadRequest& request);
 
 	LLUUID getAssetID() const						{ return mAssetID; }
 	LLAssetType::EType getAssetType() const			{ return mAssetType; }
@@ -60,7 +60,7 @@ protected:
 	LLAssetType::EType	mAssetType;
 
 	LLTTVFCompleteCallback	mCompleteCallback;
-	void*					mUserDatap;
+	LLBaseDownloadRequest*	mRequestDatap;
 	S32						mErrCode;
 };
 
