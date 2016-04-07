@@ -22,7 +22,36 @@ import sys
 import subprocess
 import Tkinter as tk 
 
-viewer_binary = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),"Second Life") 
+parser = argparse.ArgumentParser()
+#parser.add_argument('--f', action='store_const', const=42)
+args = parser.parse_known_args(sys.argv)
+args_list_to_pass = args[1][1:]
+args_list_to_pass.insert(0,viewer_binary)
+#print "COYOT: arrrrrghs to pass", args_list_to_pass
+
+cwd = os.path.dirname(os.path.realpath(__file__))
+
+executable_name = ""
+if sys.platform.startswith('darwin'):
+   executable_name = "Second Life"
+elif sys.platform.startswith("win") or sys.platform.startswith("cyg"):
+   if os.path.isfile(os.path.join(cwd,"SecondLifeViewer.exe")):
+      executable_name = "SecondLifeViewer.exe"
+   elif os.path.isfile(os.path.join(cwd,"SecondLifeTest.exe")):
+      executable_name = "SecondLifeTest.exe"
+   else:
+      #unsupported by prototypeS
+      sys.exit("Can't find Windows viewer binary")
+elif sys.platform.startswith("linux"):
+   executable_name = "secondlife"
+else:
+   #SL doesn't run on VMS or punch cards
+   sys.exit("Unsupported platform")
+
+#print "COYOT: executable name ", executable_name
+#print "COYOT: path ", os.path.dirname(os.path.abspath(sys.argv[0]))
+
+viewer_binary = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),executable_name) 
 
 #to prove we are launching from the script, launch a Tkinter window first
 root = tk.Tk()
@@ -30,12 +59,5 @@ w = tk.Label(root, text=viewer_binary)
 w.pack()
 root.after(10000, lambda: root.destroy()) # Destroy the widget after 10 seconds
 root.mainloop()
-
-parser = argparse.ArgumentParser()
-#parser.add_argument('--f', action='store_const', const=42)
-args = parser.parse_known_args(sys.argv)
-args_list_to_pass = args[1][1:]
-args_list_to_pass.insert(0,viewer_binary)
-#print args_list_to_pass
 
 viewer_process = subprocess.Popen(args_list_to_pass)

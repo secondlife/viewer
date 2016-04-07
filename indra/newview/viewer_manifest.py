@@ -338,6 +338,8 @@ class Windows_i686_Manifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+            # include the compiled launcher script so that it gets included in the file_list
+            self.path(src='%s/SL_Launcher.exe' % self.args['configuration'], dst="SL_Launcher.exe")
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -611,7 +613,7 @@ class Windows_i686_Manifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
         
         version_vars = """
-        !define INSTEXE  "%(final_exe)s"
+        !define INSTEXE "SL_Launcher.exe"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
