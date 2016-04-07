@@ -219,12 +219,6 @@ La inicialización del mercado ha fallado por un error del sistema o de la red. 
 		Hemos retirado tu lista de artículos porque la carpeta de versión está vacía. Para volver a publicar tus artículos, añade artículos a la carpeta de versión.
 		<usetemplate ignoretext="Mostrar una alerta cuando una lista de artículos se retire porque la carpeta de versión está vacía" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Hubo un problema al subir el script compilado por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Hubo un problema al escribir los datos de la animación. Por favor, inténtalo más tarde.
 	</notification>
@@ -598,15 +592,9 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 (**Cuidado** No podrás deshacer esta operación).
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Al guardar un script, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		No se ha podido guardar el script porque no se pudo encontrar el objeto que incluye.
 El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&apos;)..
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Al guardar un script compilado, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde..
 	</notification>
 	<notification name="StartRegionEmpty">
 		No está definida tu región inicial.

@@ -219,12 +219,6 @@
 		Публикация вашего списка прекращена, так как папка версии пуста. Добавьте предметы в папку версии, чтобы опубликовать список снова.
 		<usetemplate ignoretext="Оповещать о неудавшейся публикации списка из-за того, что папка версии пуста" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Ошибка при передаче текста скрипта по следующей причине: [REASON]. Повторите попытку позже.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Ошибка при передаче скомпилированного скрипта по следующей причине: [REASON]. Повторите попытку позже.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Ошибка при записи данных анимации. Повторите попытку позже.
 	</notification>
@@ -603,15 +597,9 @@
 (**Предупреждение** Эту операцию нельзя отменить.)
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Ошибка при сохранении скрипта по следующей причине: [REASON].  Попробуйте сохранить скрипт через некоторое время.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Не удалось сохранить скрипт: не найден объект, в котором он находится.
 Возможно, объект находится вне допустимого диапазона или удален.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Ошибка при сохранении скомпилированного скрипта по следующей причине: [REASON].  Попробуйте сохранить скрипт через некоторое время.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Ваш стартовый регион не определен.

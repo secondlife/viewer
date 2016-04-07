@@ -85,12 +85,6 @@ Check at Internet forbindelsen fungerer korrekt.
 		Gem ændringer til nuværende tøj/krops del?
 		<usetemplate canceltext="Annullér" name="yesnocancelbuttons" notext="Gem ikke" yestext="Gem"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Der var problemer med upload af teksten til et script af følgende årsager: [REASON]. Prøv igen senere.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Der var problemer med at uploade den kompileret script af følgende årsager: [REASON]. Prøv igen senere.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Der var et problem med skrivning af animations data. Prøv igen senere.
 	</notification>

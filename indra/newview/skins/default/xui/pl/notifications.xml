@@ -72,12 +72,6 @@ Foldery nie zostały wysłane na Marketplace z powodu błędu sieci lub systemu.
 
 Inicjalizacja Marketplace nieudana z powodu błędu sieci lub systemu. Spróbuj później.
 	</notification>
-	<notification name="CompileQueueSaveText">
-		W trakcie ładowania tekstu dla skryptu pojawił się problem z następującego powodu: [REASON]. Spróbuj ponownie za kilka minut.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		W trakcie ładowania skompilowanego skryptu pojawił się problem z następującego powodu: [REASON]. Spróbuj ponownie za kilka minut.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Problem w zapisywaniu danych animacji. Spróbuj ponownie za kilka minut.
 	</notification>
@@ -442,15 +436,9 @@ Czy chcesz załadować ostatnią wersję zapisaną na serwerze?
 (*UWAGA* Ta operacja jest nieodwracalna.)
 		<usetemplate name="okcancelbuttons" notext="Anuluj" />
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Nie można zapisać skryptu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Nie można zapisać skryptu ponieważ obiekt w którym się zawiera nie został znaleziony.
 Obiekt może znajdować się zbyt daleko albo został usunięty.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Nie można zapisać skompilowanego skryptu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Twoje miejsce startu nie zostało określone.

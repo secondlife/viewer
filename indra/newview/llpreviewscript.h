@@ -204,10 +204,6 @@ protected:
 	virtual void loadAsset();
 	/*virtual*/ void saveIfNeeded(bool sync = true);
 
-	void uploadAssetLegacy(const std::string& filename,
-							const LLUUID& item_id,
-							const LLTransactionID& tid);
-
 	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
@@ -215,9 +211,7 @@ protected:
 	static void onLoadComplete(LLVFS *vfs, const LLUUID& uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
-	static void onSaveComplete(const LLUUID& uuid, void* user_data, S32 status, LLExtStat ext_status);
-	static void onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status);
-	
+
 protected:
 	static void* createScriptEdPanel(void* userdata);
 
@@ -268,10 +262,6 @@ private:
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
 	/*virtual*/ void saveIfNeeded(bool sync = true);
-	void uploadAssetLegacy(const std::string& filename,
-						   LLViewerObject* object,
-						   const LLTransactionID& tid,
-						   BOOL is_running);
 	BOOL monoChecked() const;
 
 
@@ -282,8 +272,6 @@ private:
 	static void onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
-	static void onSaveTextComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status);
-	static void onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status);
 	static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
 	static void onReset(void* userdata);
 
