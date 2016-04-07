@@ -545,6 +545,26 @@
      rotation="0 0 0"
      visible_in_first_person="true"/>
 
+    <attachment_point
+     id="54"
+     group="8"
+     pie_slice="13"
+     name="Left Hind Foot"
+     joint="mHindLimb4Left"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
+    <attachment_point
+     id="55"
+     group="8"
+     pie_slice="14"
+     name="Right Hind Foot"
+     joint="mHindLimb4Right"
+     position="0.000 0.000 0.000"
+     rotation="0 0 0"
+     visible_in_first_person="true"/>
+
     <!-- END BENTO -->
 
     <param
