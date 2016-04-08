@@ -22,13 +22,6 @@ import sys
 import subprocess
 import Tkinter as tk 
 
-parser = argparse.ArgumentParser()
-#parser.add_argument('--f', action='store_const', const=42)
-args = parser.parse_known_args(sys.argv)
-args_list_to_pass = args[1][1:]
-args_list_to_pass.insert(0,viewer_binary)
-#print "COYOT: arrrrrghs to pass", args_list_to_pass
-
 cwd = os.path.dirname(os.path.realpath(__file__))
 
 executable_name = ""
@@ -52,6 +45,13 @@ else:
 #print "COYOT: path ", os.path.dirname(os.path.abspath(sys.argv[0]))
 
 viewer_binary = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),executable_name) 
+
+parser = argparse.ArgumentParser()
+#parser.add_argument('--f', action='store_const', const=42)
+args = parser.parse_known_args(sys.argv)
+args_list_to_pass = args[1][1:]
+args_list_to_pass.insert(0,viewer_binary)
+#print "COYOT: arrrrrghs to pass", args_list_to_pass
 
 #to prove we are launching from the script, launch a Tkinter window first
 root = tk.Tk()
