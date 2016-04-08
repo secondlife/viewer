@@ -1034,7 +1034,7 @@ all necessary level shifting, type conversion, rounding and truncation. */
 				val = (kdu_int32)(sp->fval*scale16);
 				val = (val+128)>>8; // May be faster than true rounding
 				val += 128;
-				if (val & (((0xffffffffU)<<8))
+				if (val & ((0xffffffffU)<<8))
 				{
 					val = (val < 0 ? 0 : 255);
 				}
