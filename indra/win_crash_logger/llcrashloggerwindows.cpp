@@ -171,22 +171,6 @@ bool handle_button_click(WORD button_id)
 		return false;
 	}
 
-	// See if "do this next time" is checked and save state
-	S32 crash_behavior = CRASH_BEHAVIOR_ASK;
-	LRESULT result = SendDlgItemMessage(gHwndReport, IDC_CHECK_AUTO, BM_GETCHECK, 0, 0);
-	if (result == BST_CHECKED)
-	{
-		if (button_id == IDOK)
-		{
-			crash_behavior = CRASH_BEHAVIOR_ALWAYS_SEND;
-		}
-		else if (button_id == IDCANCEL)
-		{
-			crash_behavior = CRASH_BEHAVIOR_NEVER_SEND;
-		}
-		((LLCrashLoggerWindows*)LLCrashLogger::instance())->saveCrashBehaviorSetting(crash_behavior);
-	}
-	
 	// We're done with this dialog.
 	gFirstDialog = FALSE;
 
