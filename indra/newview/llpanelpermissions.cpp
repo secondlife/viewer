@@ -1080,28 +1080,25 @@ void LLPanelPermissions::setAllSaleInfo()
 
 	LLSaleInfo new_sale_info(sale_type, price);
 	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(new_sale_info);
-	
-	U8 old_click_action = 0;
-	LLSelectMgr::getInstance()->selectionGetClickAction(&old_click_action);
 
-	if (old_sale_info.isForSale()
-		&& !new_sale_info.isForSale()
-		&& old_click_action == CLICK_ACTION_BUY)
-	{
-		// If turned off for-sale, make sure click-action buy is turned
-		// off as well
-		LLSelectMgr::getInstance()->
-			selectionSetClickAction(CLICK_ACTION_TOUCH);
-	}
-	else if (new_sale_info.isForSale()
-		&& !old_sale_info.isForSale()
-		&& old_click_action == CLICK_ACTION_TOUCH)
-	{
-		// If just turning on for-sale, preemptively turn on one-click buy
-		// unless user have a different click action set
-		LLSelectMgr::getInstance()->
-			selectionSetClickAction(CLICK_ACTION_BUY);
-	}
+    struct f : public LLSelectedObjectFunctor
+    {
+        virtual bool apply(LLViewerObject* object)
+        {
+            return object->getClickAction() == CLICK_ACTION_BUY
+                || object->getClickAction() == CLICK_ACTION_TOUCH;
+        }
+    } check_actions;
+
+    // Selection should only contain objects that are of target
+    // action already or of action we are aiming to remove.
+    bool default_actions = LLSelectMgr::getInstance()->getSelection()->applyToObjects(&check_actions);
+
+    if (default_actions && old_sale_info.isForSale() != new_sale_info.isForSale())
+    {
+        U8 new_click_action = new_sale_info.isForSale() ? CLICK_ACTION_BUY : CLICK_ACTION_TOUCH;
+        LLSelectMgr::getInstance()->selectionSetClickAction(new_click_action);
+    }
 }
 
 struct LLSelectionPayable : public LLSelectedObjectFunctor
