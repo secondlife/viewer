@@ -3042,6 +3042,40 @@
 		 
        </param_skeleton>
     </param>
+    <param
+     id="40185"
+     group="0"
+     name="Deep_Chin"
+     value_min="-1"
+     value_max="1">
+      <param_skeleton>
+        <bone
+         name   = "mFaceJaw"
+		 offset = "0.0  0.00   -0.02"
+         scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceLipLowerLeft"
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceLipLowerRight"
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceLipLowerCenter"
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceTongueBase"
+		 offset = "0.0  0.00   0.02"
+         scale  = "0.0 0.0 0.0" />
+		 
+       </param_skeleton>
+    </param>
 	
     <param
      id="30760"
@@ -3122,6 +3156,21 @@
 	
     <param
      id="30007"
+     group="0"
+     name="Weak_Chin"
+     value_min="-.5"
+     value_max=".5">
+      <param_skeleton>
+        <bone
+         name   = "mFaceChin"
+		 offset = "-0.025  0.00  0.005"
+         scale  = "0.0 0.0 0.0" />
+		 
+       </param_skeleton>
+	</param>
+	
+    <param
+     id="40007"
      group="0"
      name="Weak_Chin"
      value_min="-.5"
@@ -3278,6 +3327,32 @@
     </param>
 	
     <param
+     id="41629"
+     group="0"
+     name="Forehead Angle"
+     value_min="0"
+     value_max="1">
+      <param_skeleton>
+
+		 <bone
+         name="mFaceForeheadLeft"
+         scale="0 0 0.08"
+         offset="0.02 0 0" />
+
+		 <bone
+         name="mFaceForeheadCenter"
+         scale="0.01 0 0.08"
+         offset="0.002 0 0" />
+
+		 <bone
+         name="mFaceForeheadRight"
+         scale="0 0 0.08"
+         offset="0.02 0 0" />
+
+       </param_skeleton>		 
+    </param>
+	
+    <param
      id="30647"
      group="0"
      name="Squash_Stretch_Head"
@@ -3354,10 +3429,132 @@
 
 	  </param_skeleton>		
     </param>
-	
+    <param
+     id="40647"
+     group="0"
+     name="Squash_Stretch_Head"
+     value_min="-0.5"
+     value_max="1"
+     value_default="0">
+      <param_skeleton>
+
+		 <bone
+         name="mFaceRoot"
+         scale="0 -0.07 0.07"
+         offset="0 0 -0.005" />
+		 
+		 <bone
+		  name="mFaceEyeLidLowerRight"
+		  scale="0 0 0"
+		  offset="0 -0.0033 0.0025" />
+		 
+		 <bone
+		  name="mFaceEyeLidUpperRight"
+		  scale="0 0 0"
+		  offset="0 -0.0033 0.002" />
+		 
+		 <bone
+		  name="mFaceEyecornerInnerRight"
+		  scale="0 0 0"
+		  offset="0 -0.0017 0.0025" />
+		  
+		 <bone
+		  name="mFaceEyebrowOuterRight"
+		  scale="0 0 0"
+		  offset="0 -0.0055 0.0014" />
+		  
+		 <bone
+		  name="mFaceEyebrowCenterRight"
+		  scale="0 0 0"
+		  offset="0 -0.00377 0.00061" />
+		  
+		 <bone
+		  name="mFaceEyebrowInnerRight"
+		  scale="0 0 0"
+		  offset="0 -0.00225 0.001" />
+		  
+		 
+		 <bone
+		  name="mFaceEyeLidLowerLeft"
+		  scale="0 0 0"
+		  offset="0 0.0033 0.0025" />
+		 
+		 <bone
+		  name="mFaceEyeLidUpperLeft"
+		  scale="0 0 0"
+		  offset="0 0.0033 0.002" />
+		 
+		 <bone
+		  name="mFaceEyecornerInnerLeft"
+		  scale="0 0 0"
+		  offset="0 0.0017 0.0025" />
+		  
+		 <bone
+		  name="mFaceEyebrowOuterLeft"
+		  scale="0 0 0"
+		  offset="0 0.0055 0.0014" />
+		  
+		 <bone
+		  name="mFaceEyebrowCenterLeft"
+		  scale="0 0 0"
+		  offset="0 0.00377 0.00061" />
+		  
+		 <bone
+		  name="mFaceEyebrowInnerLeft"
+		  scale="0 0 0"
+		  offset="0 0.00225 0.001" />
+
+	  </param_skeleton>		
+    </param>	
 
     <param
      id="32629"
+     group="0"
+     name="Forehead Angle"
+     value_min="0"
+     value_max="1">
+      <param_skeleton>
+
+		 <bone
+         name="mFaceForeheadLeft"
+         scale="0 0 0.2"
+         offset="-0.01 0 -0.01" />
+
+		 <bone
+         name="mFaceForeheadCenter"
+         scale="0 0 0"
+         offset="-0.001 0 0.001" />
+
+		 <bone
+         name="mFaceForeheadRight"
+         scale="0 0 0.2"
+         offset="-0.01 0 -0.01" />
+		 
+		 <bone
+         name="mFaceEyebrowInnerRight"
+         scale="0 0 0"
+         offset="0 0 0.002" />
+		 
+		 <bone
+         name="mFaceEyebrowInnerLeft"
+         scale="0 0 0"
+         offset="0 0 0.002" />
+		 
+		 <bone
+         name="mFaceEyebrowCenterRight"
+         scale="0 0 0"
+         offset="0 0 0.003" />
+		 
+		 <bone
+         name="mFaceEyebrowCenterLeft"
+         scale="0 0 0"
+         offset="0 0 0.003" />
+
+       </param_skeleton>		 
+    </param>
+
+    <param
+     id="42629"
      group="0"
      name="Forehead Angle"
      value_min="0"
@@ -3548,6 +3745,31 @@
 	
     <param
      id="30017"
+     group="0"
+     name="Square_Jaw"
+     value_min="-0.5"
+     value_max="1">
+      <param_skeleton>
+
+		 <bone
+         name="mFaceJaw"
+         scale="0.0 0.5 0.0"
+         offset="0.0 0.0 0.0" />
+		 
+		 <bone
+         name="mFaceLipLowerRight"
+         scale="0.0 0.0 0.0"
+         offset="0.0 0.0038 0.0" />
+
+		 <bone
+         name="mFaceLipLowerLeft"
+         scale="0.0 0.0 0.0"
+         offset="0.0 -0.0038 0.0" />
+
+       </param_skeleton>
+	</param>
+    <param
+     id="40017"
      group="0"
      name="Square_Jaw"
      value_min="-0.5"
@@ -13654,22 +13876,22 @@ render_pass="bump">
 		 max1="-1.3"
 		 max2="-1.3"
 		 min2="1"
-         id="30017" />
+         id="40017" />
 		 
 		<driven
-		 id="30185" />
+		 id="40185" />
 		 
 		<driven
-		 id="31629" />
+		 id="41629" />
 
 		<driven
-		 id="32629" />
+		 id="42629" />
 		 
 		<driven
-		 id="30007" />
+		 id="40007" />
 		 
 		<driven
-		 id="30647" />
+		 id="40647" />
 
       </param_driver>
     </param>

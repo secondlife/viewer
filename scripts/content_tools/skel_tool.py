@@ -256,6 +256,22 @@ def validate_lad_tree(ladtree,skeltree):
             if not bone_name in bone_names:
                 print "skel param references invalid bone",bone_name
                 print etree.tostring(bone)
+    drivers = {}
+    for driven_param in ladtree.iter("driven"):
+        driver = driven_param.getparent().getparent()
+        driven_id = driven_param.get("id")
+        driver_id = driver.get("id")
+        if not driven_id in drivers:
+            drivers[driven_id] = set()
+            drivers[driven_id].add(driver_id)
+    for driven_id in drivers:
+        dset = drivers[driven_id]
+        if len(dset) != 1:
+            print "driven_id",driven_id,"has multiple drivers",dset
+        else:
+            if args.verbose:
+                print "driven_id",driven_id,"has one driver",dset
+        
     
 def remove_joint_by_name(tree, name):
     print "remove joint:",name
@@ -325,6 +341,7 @@ def compare_skel_trees(atree,btree):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="process SL animations")
+    parser.add_argument("--verbose", action="store_true",help="verbose flag")
     parser.add_argument("--ogfile", help="specify file containing base bones")
     parser.add_argument("--ref_file", help="specify another file containing replacements for missing fields")
     parser.add_argument("--lad_file", help="specify avatar_lad file to check")
