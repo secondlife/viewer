@@ -510,6 +510,7 @@ if __name__ == "__main__":
     parser.add_argument("--summary", help="print summary of the output animation", action="store_true")
     parser.add_argument("--skel", help="name of the avatar_skeleton file")
     parser.add_argument("--lad", help="name of the avatar_lad file")
+    parser.add_argument("--set_version", nargs=2, type=int, help="set version and sub-version to specified values")
     parser.add_argument("infilename", help="name of a .anim file to input")
     parser.add_argument("outfilename", nargs="?", help="name of a .anim file to output")
     args = parser.parse_args()
@@ -560,6 +561,9 @@ if __name__ == "__main__":
                     anim.add_pos([joint], pos_array)
                 else:
                     print "no elt or no pos data for",joint
+        if args.set_version:
+            anim.version = args.set_version[0]
+            anim.sub_version = args.set_version[1]
         if args.dump:
             anim.dump(args.dump)
         if args.summary:
