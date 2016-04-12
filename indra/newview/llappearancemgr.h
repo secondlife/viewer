@@ -255,6 +255,8 @@ private:
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
+    bool mOutstandingAppearanceBakeRequest; // A bake request is outstanding.  Do not overlap.
+    bool mRerequestAppearanceBake;
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed
