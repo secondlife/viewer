@@ -67,7 +67,7 @@ const std::string LL_IM_FROM("from");
 const std::string LL_IM_FROM_ID("from_id");
 const std::string LL_TRANSCRIPT_FILE_EXTENSION("txt");
 
-const static std::string IM_SEPARATOR(": ");
+const static std::string IM_SEPARATOR("| ");
 const static std::string NEW_LINE("\n");
 const static std::string NEW_LINE_SPACE_PREFIX("\n ");
 const static std::string TWO_SPACES("  ");
@@ -94,7 +94,8 @@ const static boost::regex TIMESTAMP("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\
  *  Regular expression suitable to match names like
  *  "You", "Second Life", "Igor ProductEngine", "Object", "Mega House"
  */
-const static boost::regex NAME_AND_TEXT("([^:]+[:]{1})?(\\s*)(.*)");
+const static boost::regex OLD_NAME_AND_TEXT("([^:]+[:]{1})?(\\s*)(.*)");
+const static boost::regex NAME_AND_TEXT("([^\\|]+[\\|]{1})?(\\s*)(.*)");
 
 /**
  * These are recognizers for matching the names of ad-hoc conferences when generating the log file name
@@ -107,7 +108,8 @@ const static boost::regex INBOUND_CONFERENCE("^[a-zA-Z]{1,31} [a-zA-Z]{1,31} Con
 const static boost::regex OUTBOUND_CONFERENCE("^Ad-hoc Conference hash[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
 
 //is used to parse complex object names like "Xstreet SL Terminal v2.2.5 st"
-const static std::string NAME_TEXT_DIVIDER(": ");
+const static std::string OLD_NAME_TEXT_DIVIDER(": ");
+const static std::string NAME_TEXT_DIVIDER("| ");
 
 // is used for timestamps adjusting
 const static char* DATE_FORMAT("%Y/%m/%d %H:%M");
@@ -903,13 +905,24 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//matching a name and a text
 	std::string stuff = matches[IDX_STUFF];
 	boost::match_results<std::string::const_iterator> name_and_text;
-	if (!boost::regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
-	
-	bool has_name = name_and_text[IDX_NAME].matched;
+	bool old_name = false;
+	bool has_name = false;
+	if (boost::regex_match(stuff, name_and_text, NAME_AND_TEXT))
+	{
+		has_name = name_and_text[IDX_NAME].matched;
+	}
+
+	if(!has_name)
+	{
+		if (!boost::regex_match(stuff, name_and_text, OLD_NAME_AND_TEXT)) return false;
+		old_name = true;
+		has_name = name_and_text[IDX_NAME].matched;
+	}
 	std::string name = name_and_text[IDX_NAME];
 
 	//we don't need a name/text separator
-	if (has_name && name.length() && name[name.length()-1] == ':')
+	char delim = old_name? ':' : '|';
+	if (has_name && name.length() && name[name.length()-1] == delim)
 	{
 		name.erase(name.length()-1, 1);
 	}
@@ -924,11 +937,17 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//possibly a case of complex object names consisting of 3+ words
 	if (!has_name)
 	{
-		U32 divider_pos = stuff.find(NAME_TEXT_DIVIDER);
-		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - NAME_TEXT_DIVIDER.length()))
+		std::string divider = NAME_TEXT_DIVIDER;
+		U32 divider_pos = stuff.find(divider);
+		if(divider_pos == std::string::npos)
+		{
+			divider = OLD_NAME_TEXT_DIVIDER;
+			divider_pos = stuff.find(divider);
+		}
+		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - divider.length()))
 		{
 			im[LL_IM_FROM] = stuff.substr(0, divider_pos);
-			im[LL_IM_TEXT] = stuff.substr(divider_pos + NAME_TEXT_DIVIDER.length());
+			im[LL_IM_TEXT] = stuff.substr(divider_pos + divider.length());
 			return true;
 		}
 	}
@@ -956,7 +975,6 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 		im[LL_IM_FROM] = name;
 	}
 	
-
 	im[LL_IM_TEXT] = name_and_text[IDX_TEXT];
 	return true;  //parsed name and message text, maybe have a timestamp too
 }
