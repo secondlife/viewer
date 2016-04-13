@@ -36,7 +36,8 @@
 static std::map<std::string, U32> DefaultPoolSizes = 
     boost::assign::map_list_of
         (std::string("Upload"),  1)
-        (std::string("AIS"),    25);
+        (std::string("AIS"),     1);    
+        // *TODO: Rider for the moment keep AIS calls serialized otherwise the COF will tend to get out of sync.
 
 #define DEFAULT_POOL_SIZE 5
 

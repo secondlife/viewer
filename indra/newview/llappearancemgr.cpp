@@ -3359,9 +3359,14 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
     if (!mOutstandingAppearanceBakeRequest)
     {
+#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
         mRerequestAppearanceBake = false;
         LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
         LLCoprocedureManager::instance().enqueueCoprocedure("AIS", "LLAppearanceMgr::serverAppearanceUpdateCoro", proc);
+#else
+        LLCoros::instance().launch("", boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this));
+
+#endif
     }
     else
     {
@@ -3369,8 +3374,17 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
     }
 }
 
+#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
 void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter)
+#else
+void LLAppearanceMgr::serverAppearanceUpdateCoro()
+#endif
 {
+#ifndef APPEARANCEBAKE_AS_IN_AIS_QUEUE
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
+        new LLCoreHttpUtil::HttpCoroutineAdapter("serverAppearanceUpdateCoro", LLCore::HttpRequest::DEFAULT_POLICY_ID));
+#endif
+
     mRerequestAppearanceBake = false;
     if (!gAgent.getRegion())
     {
