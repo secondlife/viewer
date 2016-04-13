@@ -219,12 +219,6 @@
 		因為版本資料夾是空的，我們已經把你的刊登物下架。 你若希望重新刊登，必須先新增物項到該版本資料夾。
 		<usetemplate ignoretext="版本資料夾如果成空、導致刊登物下架，告知我" name="okignore" yestext="確定"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		上傳腳本文字時出問題，原因：[REASON]。 請稍候再試一次。
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		上傳已編譯腳本時出問題，原因：[REASON]。 請稍候再試一次。
-	</notification>
 	<notification name="WriteAnimationFail">
 		寫入動作資料時出錯。  請稍候再試一次。
 	</notification>
@@ -603,15 +597,9 @@
 （*警告* 這動作無法還原。）
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		儲存腳本時出問題，原因：[REASON]。  請稍後再嘗試儲存腳本。
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		無法儲存腳本，找不到它所屬的物件。
 該物件可能超出範圍或已被刪除。
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		儲存編譯腳本時出問題，原因：[REASON]。  請稍後再嘗試儲存腳本。
 	</notification>
 	<notification name="StartRegionEmpty">
 		你的起始地區尚未定義。

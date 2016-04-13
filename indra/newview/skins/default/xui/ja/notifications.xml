@@ -218,16 +218,6 @@
 		バージョンフォルダが空のため、リストを削除しました。もう一度リストを表示するには、バージョンフォルダにアイテムを追加する必要があります。
 		<usetemplate ignoretext="バージョンフォルダが空のためにリストが表示されないと警告が表示されます" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		次の理由で、スクリプト用テキストのアップロード時に問題が起こりました。
-[REASON]
-後でもう一度お試しください。
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		次の理由で、コンパイルしたスクリプトのアップロード時に問題が起こりました。
-[REASON]
-後でもう一度お試しください。
-	</notification>
 	<notification name="WriteAnimationFail">
 		アニメーションデータの書き込みに問題があります。後でもう一度お試しください。
 	</notification>
@@ -625,15 +615,9 @@ L$ が不足しているのでこのグループに参加することができ�
 （**警告**：この操作後元に戻すことはできません）
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		次の理由で、スクリプトの保存に問題が起こりました。 [REASON]。  後でもう一度試してください。
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		スクリプトの保存に失敗しました。スクリプトが入ったオブジェクトが見つかりません。
 オブジェクトは範囲外か、または削除されているかもしれません。
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		次の理由で、コンパイルしたスクリプトの保存時に問題が起こりました。 [REASON]。  後でもう一度試してください。
 	</notification>
 	<notification name="StartRegionEmpty">
 		ログイン位置が指定されていません。

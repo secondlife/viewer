@@ -219,12 +219,6 @@ Marktplatzinitialisierung aufgrund eines System- oder Netzwerkfehlers fehlgeschl
 		Wir haben Ihre Auflistung entfernt, da der Versionsordner leer ist. Um diese Auflistung erneut zu listen, müssen Sie Artikel zum Versionsordner hinzufügen.
 		<usetemplate ignoretext="Benachrichtigen, wenn Auflistung aufgrund eines leeren Versionsordners nicht aufgelistet wird" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Der Text für ein Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Eine kompiliertes Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Fehler beim Schreiben von Animationsdaten.  Bitte versuchen Sie es erneut.
 	</notification>
@@ -610,15 +604,9 @@ Möchten Sie die letzte gespeicherte Version vom Server laden?
 (**Warnung** Dieser Vorgang kann nicht rückgängig gemacht werden.)
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Ein Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Skript konnte nicht gespeichert werden, weil das zugehörige Objekt nicht gefunden wurde.
 Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Ein kompiliertes Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Ihre Startregion ist nicht definiert.

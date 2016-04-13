@@ -219,12 +219,6 @@ Bu öğeyi Pazaryeri üzerinde düzenlemek için [[URL] buraya tıklayın].
 		Sürüm klasörü boş olduğu için ilanınızı yayından kaldırdık. İlanı yeniden yayınlamak için sürüm klasörüne daha fazla birim eklemeniz gerekir.
 		<usetemplate ignoretext="Bir ilan, sürüm klasörü boş olduğu için listeden kaldırılınca uyar" name="okignore" yestext="Tamam"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Aşağıdaki nedenden dolayı, bir komut dosyası için metin karşıya yüklenirken bir sorun oluştu: [REASON]. Lütfen daha sonra tekrar deneyin.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Aşağıdaki nedenden dolayı, derlenen komut dosyası karşıya yüklenirken bir sorun oluştu: [REASON]. Lütfen daha sonra tekrar deneyin.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Animasyon verileri yazılırken bir sorun oluştu.  Lütfen daha sonra tekrar deneyin.
 	</notification>
@@ -603,15 +597,9 @@ Sunucunun son kaydedilmiş sürümünü yüklemek ister misiniz?
 (**Uyarı** Bu işlem geri alınamaz.)
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Aşağıdaki nedenden dolayı, komut dosyası kaydedilirken bir sorun oluştu: [REASON].  Lütfen komut dosyasını kaydetmeyi daha sonra tekrar deneyin.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		İçinde olduğu nesne bulunamadığından komut dosyası kaydedilemiyor.
 Nesne aralık dışında ya da silinmiş olabilir.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Aşağıdaki nedenden dolayı, derlenen komut dosyası kaydedilirken bir sorun oluştu: [REASON].  Lütfen komut dosyasını kaydetmeyi daha sonra tekrar deneyin.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Başlangıç Bölgeniz tanımlanmamış.

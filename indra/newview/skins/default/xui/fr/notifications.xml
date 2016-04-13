@@ -219,12 +219,6 @@ L&apos;initialisation de la Place du marché a échoué en raison d&apos;une err
 		Nous avons supprimé votre annonce car le dossier de version est vide. Vous devez ajouter des articles au dossier de version si vous voulez republier votre annonce.
 		<usetemplate ignoretext="Alerte quand une annonce est supprimée car le dossier de version est vide" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Une erreur est survenue lors du chargement du texte pour un script, suite au problème suivant : [REASON]. Veuillez réessayer ultérieurement.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Une erreur est survenue lors du chargement du script compilé, suite au problème suivant : [REASON]. Veuillez réessayer ultérieurement.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Une erreur est survenue lors de l&apos;écriture des données d&apos;animation. Veuillez réessayer ultérieurement.
 	</notification>
@@ -602,15 +596,9 @@ Souhaitez-vous charger la dernière version enregistrée sur le serveur ?
 (**Attention** Cette opération est irréversible.)
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Une erreur est survenue lors de l&apos;enregistrement du script, suite au problème suivant : [REASON]. Essayez d&apos;enregistrer votre script ultérieurement.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Impossible d&apos;enregistrer le script car l&apos;objet qui le contient est introuvable.
 L&apos;objet est peut-être inaccessible ou a peut-être été supprimé.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Une erreur est survenue lors de l&apos;enregistrement du script compilé, suite au problème suivant : [REASON]. Essayez d&apos;enregistrer votre script ultérieurement.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Vous n&apos;avez pas défini de région de départ.

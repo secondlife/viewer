@@ -218,12 +218,6 @@ Ocorreu uma falha na inicialização do Marketplace devido a um erro do sistema 
 		Removemos sua listagem porque a pasta de versões está vazia. Você precisa adicionar itens à pasta de versões para que a listagem seja exibida novamente.
 		<usetemplate ignoretext="Alertar quando uma listagem não for listada porque a pasta de versões está vazia" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Houve um problema com o carregamento do texto para um script devido à seguinte razão: [REASON]. Por favor, tente novamente mais tarde.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Houve um problema durante o carregamento do script compilado devido à seguinte razão: [REASON]. Por favor, tente novamente mais tarde.
-	</notification>
 	<notification name="WriteAnimationFail">
 		Falha nos dados de inscrição de animação. Por favor, tente mais tarde.
 	</notification>
@@ -597,15 +591,9 @@ Gostaria de carregar a última versão salva?
 (**Aviso** Esta operação não pode ser desfeita).
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Houve um problema em salvar um script devido à seguinte razão: [REASON].  Tente salvar novamente o script mais tarde.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Não foi possível salvar o script pois o objeto em que ele está não pôde ser encontrado.
 O objeto pode estar fora de alcance ou ter sido deletado.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Houve um problema em salvar uma compilação de script devido a seguinte razão: [REASON].  Por favor, tente salvar novamente o script mais tarde.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Sua região de partida não está definida.

@@ -219,12 +219,6 @@ L&apos;inizializzazione con il Marketplace non ha avuto successo a causa di un e
 		L&apos;annuncio è stato rimosso perché la cartella della versione è vuota. Aggiungi elementi alla cartella della versione prima di pubblicare nuovamente l&apos;annuncio.
 		<usetemplate ignoretext="Avverti quando un annuncio non è elencato perché la cartella della versione è vuota" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		C&apos;è stato un problema importando il testo di uno script per la seguente ragione: [REASON]. Riprova più tardi.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		C&apos;è stato un problema importando lo script compilato per la seguente ragione: [REASON]. Riprova più tardi.
-	</notification>
 	<notification name="WriteAnimationFail">
 		C&apos;è stato un problema di scrittura dati dell&apos;animazione.  Riprova più tardi.
 	</notification>
@@ -600,15 +594,9 @@ Vuoi ripristinare l&apos;ultima versione salvata sul server?
 (**Attenzione** Questa operazione non è reversibile)
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		C&apos;è stato un problema salvando lo script a causa del seguente motivo : [REASON].  Riprova a salvare lo script più tardi.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Non è stato possibile salvare lo script perchè l&apos;oggetto che lo contiene non è stato trovato.
 L&apos;oggetto potrebbe essere troppo lontano oppure essere stato cancellato.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		C&apos;è stato un problema salvando lo script compilato a causa del seguente motivo: [REASON].  Riprova a salvare lo script più tardi.
 	</notification>
 	<notification name="StartRegionEmpty">
 		La tua Regione di inizio non è stata definita.
