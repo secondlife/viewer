@@ -2,7 +2,9 @@
 
 """\
 
-This module contains tools for manipulating the .anim files supported for Second Life animation upload. Note that this format is unrelated to any non-Second Life formats of the same name.
+This module contains tools for manipulating the .anim files supported
+for Second Life animation upload. Note that this format is unrelated
+to any non-Second Life formats of the same name.
 
 $LicenseInfo:firstyear=2016&license=viewerlgpl$
 Second Life Viewer Source Code
@@ -508,8 +510,8 @@ if __name__ == "__main__":
     parser.add_argument("--delete_joints", help="specify joints to be deleted", nargs="+")
     parser.add_argument("--joints", help="specify joints to be added or modified", nargs="+")
     parser.add_argument("--summary", help="print summary of the output animation", action="store_true")
-    parser.add_argument("--skel", help="name of the avatar_skeleton file")
-    parser.add_argument("--lad", help="name of the avatar_lad file")
+    parser.add_argument("--skel", help="name of the avatar_skeleton file", default="avatar_skeleton.xml")
+    parser.add_argument("--lad", help="name of the avatar_lad file", default="avatar_lad.xml")
     parser.add_argument("--set_version", nargs=2, type=int, help="set version and sub-version to specified values")
     parser.add_argument("infilename", help="name of a .anim file to input")
     parser.add_argument("outfilename", nargs="?", help="name of a .anim file to output")
@@ -529,8 +531,14 @@ if __name__ == "__main__":
         joints = []
         if args.skel:
             skel_tree = etree.parse(args.skel)
+            if skel_tree is None:
+                print "failed to parse",args.skel
+                exit(1)
         if args.lad:
             lad_tree = etree.parse(args.lad)
+            if lad_tree is None:
+                print "failed to parse",args.lad
+                exit(1)
         if args.joints:
             joints = resolve_joints(args.joints, skel_tree, lad_tree)
             if args.verbose:
