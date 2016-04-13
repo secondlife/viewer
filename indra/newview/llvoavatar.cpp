@@ -1440,7 +1440,7 @@ void LLVOAvatar::renderBones()
     static LLVector3 EXTENDED_COLOR_OCCLUDED(0.0f, 1.0f, 0.0f);
     static LLVector3 EXTENDED_COLOR_VISIBLE(0.5f, 0.5f, 0.5f);
     
-    static F32 SPHERE_SCALEF = 0.003f;
+    static F32 SPHERE_SCALEF = 0.001f;
 
 	for (; iter != end; ++iter)
 	{
