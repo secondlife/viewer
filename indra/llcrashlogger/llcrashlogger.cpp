@@ -69,12 +69,15 @@ protected:
 
 void LLCrashLoggerHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
+    LL_DEBUGS("CRASHREPORT") << "Request to " << response->getRequestURL() << "succeeded" << LL_ENDL;
     gBreak = true;
     gSent = true;
 }
 
 void LLCrashLoggerHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
 {
+    LL_WARNS("CRASHREPORT") << "Request to " << response->getRequestURL()
+                            << " failed: " << status.toString() << LL_ENDL;
     gBreak = true;
 }
 
@@ -230,8 +233,8 @@ void LLCrashLogger::gatherFiles()
                 LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
 		}
 
-		LL_INFOS() << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
-		LL_INFOS() << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
+		LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
+		LL_INFOS("CRASHREPORT") << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
 	}
 	else
 	{
@@ -267,25 +270,27 @@ void LLCrashLogger::gatherFiles()
 	for(std::map<std::string, std::string>::iterator itr = mFileMap.begin(); itr != mFileMap.end(); ++itr)
 	{
 		std::ifstream f((*itr).second.c_str());
-		if(!f.is_open())
-		{
-			LL_INFOS("CRASHREPORT") << "Can't find file " << (*itr).second << LL_ENDL;
-			continue;
-		}
-		std::stringstream s;
-		s << f.rdbuf();
+		if(f.is_open())
+        {
+            std::stringstream s;
+            s << f.rdbuf();
 
-		std::string crash_info = s.str();
-		if(itr->first == "SecondLifeLog")
-		{
-			if(!mCrashInfo["DebugLog"].has("StartupState"))
-			{
-				mCrashInfo["DebugLog"]["StartupState"] = getStartupStateFromLog(crash_info);
-			}
-			trimSLLog(crash_info);
-		}
+            std::string crash_info = s.str();
+            if(itr->first == "SecondLifeLog")
+            {
+                if(!mCrashInfo["DebugLog"].has("StartupState"))
+                {
+                    mCrashInfo["DebugLog"]["StartupState"] = getStartupStateFromLog(crash_info);
+                }
+                trimSLLog(crash_info);
+            }
 
-		mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
+            mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
+        }
+        else
+        {
+            LL_WARNS("CRASHREPORT") << "Can't find file " << (*itr).second << LL_ENDL;
+        }
 	}
 	
 	std::string minidump_path;
@@ -375,6 +380,7 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 	{
 		updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
 
+        LL_INFOS("CRASHREPORT") << "POST crash data to " << host << LL_ENDL;
         LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(httpRequest.get(), LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
             host, data, httpOpts, LLCore::HttpHeaders::ptr_t(), LLCore::HttpHandler::ptr_t(new LLCrashLoggerHandler));
 
@@ -411,6 +417,8 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
                                                            "SecondLifeCrashReport");
     std::string report_file = dump_path + ".log";
 
+    LL_DEBUGS("CRASHREPORT") << "sending " << report_file << LL_ENDL;
+
 	gatherFiles();
     
 	LLSD post_data;
@@ -425,11 +433,11 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
     
 	bool sent = false;
     
-	//*TODO: Translate
-    updateApplication("DEBUG: crash host in send logs "+mCrashHost);
-	if(mCrashHost != "")
-	{   
-        std::string msg = "Using derived crash server... ";
+    if(mCrashHost != "")
+	{
+        LL_WARNS("CRASHREPORT") << "Sending crash data to server from CrashHostUrl '" << mCrashHost << "'" << LL_ENDL;
+        
+        std::string msg = "Using override crash server... ";
         msg = msg+mCrashHost.c_str();
         updateApplication(msg.c_str());
         
@@ -469,11 +477,13 @@ bool LLCrashLogger::sendCrashLogs()
 
 void LLCrashLogger::updateApplication(const std::string& message)
 {
-	if (!message.empty()) LL_INFOS() << message << LL_ENDL;
+	if (!message.empty()) LL_INFOS("CRASHREPORT") << message << LL_ENDL;
 }
 
 bool LLCrashLogger::init()
 {
+    LL_DEBUGS("CRASHREPORT") << LL_ENDL;
+    
     LLCore::LLHttp::initialize();
 
 	// We assume that all the logs we're looking for reside on the current drive
@@ -497,7 +507,7 @@ bool LLCrashLogger::init()
 	// Set the log file to crashreport.log
 	LLError::logToFile(log_file);  //NOTE:  Until this line, LL_INFOS LL_WARNS, etc are blown to the ether. 
 
-    LL_INFOS() << "Crash reporter file rotation complete." << LL_ENDL;
+    LL_INFOS("CRASHREPORT") << "Crash reporter file rotation complete." << LL_ENDL;
 
     mCrashSettings.declareS32("CrashSubmitBehavior", CRASH_BEHAVIOR_ALWAYS_SEND,
 							  "Controls behavior when viewer crashes "
@@ -505,9 +515,6 @@ bool LLCrashLogger::init()
 							  "1 = always send crash report, "
 							  "2 = never send crash report)");
     
-	// LL_INFOS() << "Loading crash behavior setting" << LL_ENDL;
-	// mCrashBehavior = loadCrashBehaviorSetting();
-       
     init_curl();
     LLCore::HttpRequest::createService();
     LLCore::HttpRequest::startThread();
