@@ -3364,7 +3364,8 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
         LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
         LLCoprocedureManager::instance().enqueueCoprocedure("AIS", "LLAppearanceMgr::serverAppearanceUpdateCoro", proc);
 #else
-        LLCoros::instance().launch("", boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this));
+        LLCoros::instance().launch("serverAppearanceUpdateCoro", 
+            boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this));
 
 #endif
     }
