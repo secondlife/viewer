@@ -103,7 +103,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 		p.image_color_disabled(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 	}
 	// for the scriptdialog buttons we use fixed button size. This  is a limit!
-	if (!mIsScriptDialog && font->getWidth(form_element["text"].asString()) > BUTTON_WIDTH)
+	if (!mIsScriptDialog && font->getWidth(form_element["text"].asString()) > (BUTTON_WIDTH-2*HPAD))
 	{
 		p.rect.width = 1;
 		p.auto_resize = true;
@@ -160,7 +160,11 @@ void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair
 		}
 		LLButton* btn = it->second;
 		LLRect btn_rect(btn->getRect());
-		if (left + btn_rect.getWidth() > max_width)// whether there is still some place for button+h_pad in the mControlPanel
+		if (buttons.size() == 1) // for the one-button forms, center that button
+		{
+			left = (max_width - btn_rect.getWidth()) / 2;
+		}
+		else if (left + btn_rect.getWidth() > max_width)// whether there is still some place for button+h_pad in the mControlPanel
 		{
 			// looks like we need to add button to the next row
 			left = 0;
