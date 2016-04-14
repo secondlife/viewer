@@ -65,7 +65,12 @@
 #pragma warning (disable:4702)
 #endif
 
-#if 1
+namespace 
+{
+    const S32   BAKE_RETRY_MAX_COUNT = 5;
+    const F32   BAKE_RETRY_TIMEOUT = 2.0F;
+}
+
 // *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
 // temp code in transition
 void doAppearanceCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
@@ -73,8 +78,6 @@ void doAppearanceCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
     if (cb.notNull())
         cb->fire(id);
 }
-#endif
-
 
 std::string self_av_string()
 {
@@ -3354,12 +3357,36 @@ LLSD LLAppearanceMgr::dumpCOF() const
 
 void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
-    LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
-    LLCoprocedureManager::instance().enqueueCoprocedure("AIS", "LLAppearanceMgr::serverAppearanceUpdateCoro", proc);
+    if (!mOutstandingAppearanceBakeRequest)
+    {
+#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
+        mRerequestAppearanceBake = false;
+        LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
+        LLCoprocedureManager::instance().enqueueCoprocedure("AIS", "LLAppearanceMgr::serverAppearanceUpdateCoro", proc);
+#else
+        LLCoros::instance().launch("serverAppearanceUpdateCoro", 
+            boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this));
+
+#endif
+    }
+    else
+    {
+        mRerequestAppearanceBake = true;
+    }
 }
 
+#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
 void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter)
+#else
+void LLAppearanceMgr::serverAppearanceUpdateCoro()
+#endif
 {
+#ifndef APPEARANCEBAKE_AS_IN_AIS_QUEUE
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
+        new LLCoreHttpUtil::HttpCoroutineAdapter("serverAppearanceUpdateCoro", LLCore::HttpRequest::DEFAULT_POLICY_ID));
+#endif
+
+    mRerequestAppearanceBake = false;
     if (!gAgent.getRegion())
     {
         LL_WARNS("Avatar") << "Region not set, cannot request server appearance update" << LL_ENDL;
@@ -3386,57 +3413,57 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         return;
     }
 
-#if 0
-    static int reqcount = 0;
-    int r_count = ++reqcount;
-    LL_WARNS("Avatar") << "START: Server Bake request #" << r_count << "!" << LL_ENDL;
-#endif
-
-    // If we have already received an update for this or higher cof version, 
-    // put a warning in the log but request anyway.
-    S32 cofVersion = getCOFVersion();
-    S32 lastRcv = gAgentAvatarp->mLastUpdateReceivedCOFVersion;
-    S32 lastReq = gAgentAvatarp->mLastUpdateRequestCOFVersion;
-
-    LL_INFOS("Avatar") << "Requesting COF version " << cofVersion <<
-        " (Last Received:" << lastRcv << ")" <<
-        " (Last Requested:" << lastReq << ")" << LL_ENDL;
-
-    if ((cofVersion != LLViewerInventoryCategory::VERSION_UNKNOWN))
-    {
-        if (cofVersion < lastRcv)
-        {
-            LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
-                << " but requesting for " << cofVersion << LL_ENDL;
-        }
-        if (lastReq > cofVersion)
-        {
-            LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
-                << " but requesting for " << cofVersion << LL_ENDL;
-        }
-    }
-
-    // Actually send the request.
-    LL_DEBUGS("Avatar") << "Will send request for cof_version " << cofVersion << LL_ENDL;
-
-//  LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter(
-//      "UpdateAvatarAppearance", gAgent.getAgentPolicy()));
-
+    llcoro::suspend();
+    S32 retryCount(0);
     bool bRetry;
     do
     {
+        BoolSetter outstanding(mOutstandingAppearanceBakeRequest);
+        
+        // If we have already received an update for this or higher cof version, 
+        // put a warning in the log and cancel the request.
+        S32 cofVersion = getCOFVersion();
+        S32 lastRcv = gAgentAvatarp->mLastUpdateReceivedCOFVersion;
+        S32 lastReq = gAgentAvatarp->mLastUpdateRequestCOFVersion;
+
+        LL_INFOS("Avatar") << "Requesting COF version " << cofVersion <<
+            " (Last Received:" << lastRcv << ")" <<
+            " (Last Requested:" << lastReq << ")" << LL_ENDL;
+
+        if (cofVersion == LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            LL_WARNS("AVatar") << "COF version is unknown... not requesting until COF version is known." << LL_ENDL;
+            return;
+        }
+        else
+        {
+            if (cofVersion < lastRcv)
+            {
+                LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
+                    << " but requesting for " << cofVersion << LL_ENDL;
+                return;
+            }
+            if (lastReq > cofVersion)
+            {
+                LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
+                    << " but requesting for " << cofVersion << LL_ENDL;
+                return;
+            }
+        }
+
+        // Actually send the request.
+        LL_DEBUGS("Avatar") << "Will send request for cof_version " << cofVersion << LL_ENDL;
+
         bRetry = false;
         LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest());
 
-        S32 reqCofVersion = getCOFVersion();  // Treat COF version (gets set by AISAPI as authoritative, 
-                                                // not what the bake request tells us to use).
         if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
         {
-            reqCofVersion += 999;
+            cofVersion += 999;
             LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
         }
 
-        LL_INFOS() << "Requesting bake for COF version " << reqCofVersion << LL_ENDL;
+        LL_INFOS() << "Requesting bake for COF version " << cofVersion << LL_ENDL;
 
         LLSD postData;
         if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
@@ -3445,10 +3472,10 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         }
         else
         {
-            postData["cof_version"] = reqCofVersion;
+            postData["cof_version"] = cofVersion;
         }
 
-        gAgentAvatarp->mLastUpdateRequestCOFVersion = reqCofVersion;
+        gAgentAvatarp->mLastUpdateRequestCOFVersion = cofVersion;
 
         LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
@@ -3466,13 +3493,29 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
             // on multiple machines.
             if (result.has("expected"))
             {
+
                 S32 expectedCofVersion = result["expected"].asInteger();
+                LL_WARNS("Avatar") << "Server expected " << expectedCofVersion << " as COF version" << LL_ENDL;
+
                 bRetry = true;
                 // Wait for a 1/2 second before trying again.  Just to keep from asking too quickly.
-                llcoro::suspendUntilTimeout(0.5);
+                if (++retryCount > BAKE_RETRY_MAX_COUNT)
+                {
+                    LL_WARNS("Avatar") << "Bake retry count exceeded!" << LL_ENDL;
+                    break;
+                }
+                F32 timeout = pow(BAKE_RETRY_TIMEOUT, static_cast<float>(retryCount)) - 1.0;
 
-                LL_WARNS("Avatar") << "Server expected " << expectedCofVersion << " as COF version" << LL_ENDL;
+                LL_WARNS("Avatar") << "Bake retry #" << retryCount << " in " << timeout << " seconds." << LL_ENDL;
+
+                llcoro::suspendUntilTimeout(timeout); 
+                bRetry = true;
                 continue;
+            }
+            else
+            {
+                LL_WARNS("Avatar") << "No retry attempted." << LL_ENDL;
+                break;
             }
         }
 
@@ -3484,10 +3527,11 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
 
     } while (bRetry);
 
-#if 0
-    LL_WARNS("Avatar") << "END: Server Bake request #" << r_count << "!" << LL_ENDL;
-#endif
-
+    if (mRerequestAppearanceBake)
+    {   // A bake request came in while this one was still outstanding.  
+        // Requeue ourself for a later request.
+        requestServerAppearanceUpdate();
+    }
 }
 
 /*static*/
@@ -3855,7 +3899,9 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mOutfitLocked(false),
 	mInFlightCounter(0),
 	mInFlightTimer(),
-	mIsInUpdateAppearanceFromCOF(false)
+	mIsInUpdateAppearanceFromCOF(false),
+    mOutstandingAppearanceBakeRequest(false),
+    mRerequestAppearanceBake(false)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 	// unlock outfit on save operation completed
