@@ -556,6 +556,7 @@ void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
     mImageAssetId = image_asset_id;
     mTexturep = LLViewerTextureManager::getFetchedTexture(image_asset_id);
     mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+    getChildView("preview_outfit")->setVisible(FALSE);
 }
 
 LLUUID LLOutfitGalleryItem::getImageAssetId()
@@ -567,6 +568,7 @@ void LLOutfitGalleryItem::setDefaultImage()
 {
     mTexturep = NULL;
     mImageAssetId.setNull();
+    getChildView("preview_outfit")->setVisible(TRUE);
 }
 
 LLOutfitGalleryGearMenu::LLOutfitGalleryGearMenu(LLOutfitListBase* olist)
