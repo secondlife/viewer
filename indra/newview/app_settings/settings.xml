@@ -14490,7 +14490,7 @@
         <key>Type</key>
             <string>U32</string>
         <key>Value</key>
-            <integer>25</integer>
+            <integer>1</integer>
         </map>
     <key>PoolSizeUpload</key>
         <map>

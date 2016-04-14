@@ -228,7 +228,12 @@ public:
 
 
 private:
+#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
     void serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter);
+#else
+    void serverAppearanceUpdateCoro();
+#endif
+
     static void debugAppearanceUpdateCOF(const LLSD& content);
 
 	std::string		mAppearanceServiceURL;
@@ -255,6 +260,8 @@ private:
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
 	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
+    bool mOutstandingAppearanceBakeRequest; // A bake request is outstanding.  Do not overlap.
+    bool mRerequestAppearanceBake;
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed
