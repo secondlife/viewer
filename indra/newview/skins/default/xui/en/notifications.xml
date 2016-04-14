@@ -6908,6 +6908,19 @@ This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="PathfindingDirtyRebake"
+   persist="true"
+   type="notify">
+   <unique/>
+   The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking on the “Rebake region” button.
+   <usetemplate
+     name="okbutton"
+     yestext="Rebake region"
+   />
+  </notification>
+
+  <notification
      icon="notify.tga"
      name="DynamicPathfindingDisabled"
      persist="true"
