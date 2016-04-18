@@ -38,10 +38,7 @@
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] [BUILD_DATE] [BUILD_TIME] ([CHANNEL])[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
-	<string name="AboutCompiler">
-		コンパイラー [COMPILER] [COMPILER_VERSION] バージョン
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="AboutPosition">
 		あなたの現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
@@ -63,7 +60,6 @@ OS バージョン：[OS_VERSION]
 	<string name="AboutLibs">
 		OpenGL バージョン：[OPENGL_VERSION]
 
-libcurl バージョン：[LIBCURL_VERSION]
 J2C デコーダバージョン：[J2C_VERSION]
 オーディオドライババージョン：[AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF バージョン： [LLCEFLIB_VERSION]

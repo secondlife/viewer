@@ -21,9 +21,6 @@
 	<string name="StartupRequireDriverUpdate">
 		Nie można zainicjować grafiki. Zaktualizuj sterowniki!
 	</string>
-	<string name="AboutCompiler">
-		Zbudowane za pomocą [COMPILER] w wersji [COMPILER_VERSION]
-	</string>
 	<string name="AboutPosition">
 Położenie [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] w [REGION] zlokalizowanym w &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
@@ -44,10 +41,9 @@ Karta graficzna (Graphics Card): [GRAPHICS_CARD]
 	<string name="AboutLibs">
 Wersja OpenGL: [OPENGL_VERSION]
 
-Wersja libcurl: [LIBCURL_VERSION]
 Wersja dekodera J2C: [J2C_VERSION]
 Wersja sterownika dźwięku (Audio Driver): [AUDIO_DRIVER_VERSION]
-Wersja Qt Webkit: [QT_WEBKIT_VERSION]
+Wersja LLCEFLib/CEF: [LLCEFLIB_VERSION]
 Wersja serwera głosu (Voice Server): [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">

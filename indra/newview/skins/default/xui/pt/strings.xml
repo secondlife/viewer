@@ -29,11 +29,8 @@
 		Falha na inicialização dos gráficos. Atualize seu driver gráfico!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Notas da versão]]
-	</string>
-	<string name="AboutCompiler">
-		Construído com [COMPILER] versão [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Você está em [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] em [REGION] localizado em &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -55,7 +52,6 @@ Placa gráfica: [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		Versão do OpenGL: [OPENGL_VERSION]
 
-Versão do libcurl: [LIBCURL_VERSION]
 Versão do J2C Decoder: [J2C_VERSION]
 Versão do driver de áudio: [AUDIO_DRIVER_VERSION]
 Versão de LLCEFLib/CEF: [LLCEFLIB_VERSION]

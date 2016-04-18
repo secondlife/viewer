@@ -35,11 +35,8 @@
 		Inizializzazione grafica non riuscita. Aggiorna il driver della scheda grafica!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
-	<string name="AboutCompiler">
-		Generato con [COMPILER] versione [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Tu sei a [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] che si trova a &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -61,7 +58,6 @@ Scheda grafica: [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		Versione OpenGL: [OPENGL_VERSION]
 
-Versione libcurl: [LIBCURL_VERSION]
 Versione J2C Decoder: [J2C_VERSION]
 Versione Driver audio: [AUDIO_DRIVER_VERSION]
 Versione LLCEFLib/CEF: [LLCEFLIB_VERSION]

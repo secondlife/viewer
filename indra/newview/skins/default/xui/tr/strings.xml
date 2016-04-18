@@ -38,11 +38,8 @@
 		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Sürüm Notları]]
-	</string>
-	<string name="AboutCompiler">
-		[COMPILER] [COMPILER_VERSION] sürümü ile oluşturuldu
 	</string>
 	<string name="AboutPosition">
 		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] konumundasınız
@@ -64,7 +61,6 @@ Grafik Kartı: [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		OpenGL Sürümü: [OPENGL_VERSION]
 
-libcurl Sürümü: [LIBCURL_VERSION]
 J2C Kod Çözücü Sürümü: [J2C_VERSION]
 Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF Sürümü: [LLCEFLIB_VERSION]

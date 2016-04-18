@@ -38,11 +38,8 @@
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
-	</string>
-	<string name="AboutCompiler">
-		Compilé avec [COMPILER] version [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Vous êtes à [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] dans [REGION], se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -64,7 +61,6 @@ Carte graphique : [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		Version OpenGL : [OPENGL_VERSION]
 
-Version libcurl : [LIBCURL_VERSION]
 Version J2C Decoder : [J2C_VERSION]
 Version Audio Driver : [AUDIO_DRIVER_VERSION]
 Version LLCEFLib/CEF : [LLCEFLIB_VERSION]
