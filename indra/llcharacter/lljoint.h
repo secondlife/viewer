@@ -62,8 +62,10 @@ public:
 	void add(const LLUUID& mesh_id, const LLVector3& pos);
 	bool remove(const LLUUID& mesh_id);
 	void clear();
-private:
+
 	typedef std::map<LLUUID,LLVector3> map_type;
+    const map_type& getMap() const { return m_map; }
+private:
 	map_type m_map;
 };
 
@@ -111,6 +113,8 @@ protected:
 
 	LLUUID				mId;
 
+    LLVector3       mDefaultPosition;
+    
 public:
 	U32				mDirtyFlags;
 	BOOL			mUpdateXform;
@@ -207,9 +211,10 @@ public:
 	const LLVector3& getPosition();
 	void setPosition( const LLVector3& pos );
 
-    // BENTO - history? Not implemented or used.
+    // Tracks the default position defined by the skeleton
 	void setDefaultPosition( const LLVector3& pos );
-	
+	const LLVector3& getDefaultPosition() const;
+
 	// get/set world position
 	LLVector3 getWorldPosition();
 	LLVector3 getLastWorldPosition();
@@ -253,6 +258,7 @@ public:
 	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
 	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
 	void clearAttachmentPosOverrides();
+    void showAttachmentPosOverrides(const std::string& av_info) const;
 
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }

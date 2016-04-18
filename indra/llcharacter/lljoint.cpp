@@ -351,6 +351,15 @@ void LLJoint::setPosition( const LLVector3& pos )
 	touch(MATRIX_DIRTY | POSITION_DIRTY);
 }
 
+void LLJoint::setDefaultPosition( const LLVector3& pos )
+{
+    mDefaultPosition = pos;
+}
+
+const LLVector3& LLJoint::getDefaultPosition() const
+{
+    return mDefaultPosition;
+}
 void showJointPosOverrides( const LLJoint& joint, const std::string& note, const std::string& av_info )
 {
         std::ostringstream os;
@@ -423,6 +432,49 @@ void LLJoint::clearAttachmentPosOverrides()
 		m_attachmentOverrides.clear();
 		setPosition(m_posBeforeOverrides);
 		setId( LLUUID::null );
+	}
+}
+
+//--------------------------------------------------------------------
+// showAttachmentPosOverrides()
+//--------------------------------------------------------------------
+void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
+{
+    LLVector3 active_override;
+    bool has_active_override;
+    LLUUID mesh_id;
+    has_active_override = m_attachmentOverrides.findActiveOverride(mesh_id,active_override);
+    U32 count = m_attachmentOverrides.count();
+    if (count==1)
+    {
+		LLPosOverrideMap::map_type::const_iterator it = m_attachmentOverrides.getMap().begin();
+        std::string highlight = (has_active_override && (it->second == active_override)) ? "*" : "";
+        LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
+                            << " has single attachment pos override " << highlight << "" << it->second << " default " << mDefaultPosition << LL_ENDL;
+    }
+    else if (count>1)
+    {
+        LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " has " << count << " attachment pos overrides" << LL_ENDL;
+		std::set<LLVector3> distinct_offsets;
+        LLPosOverrideMap::map_type::const_iterator it = m_attachmentOverrides.getMap().begin();
+        for (; it != m_attachmentOverrides.getMap().end(); ++it)
+        {
+            distinct_offsets.insert(it->second);
+        }
+        if (distinct_offsets.size()>1)
+        {
+            LL_DEBUGS("Avatar") << "CONFLICTS, " << distinct_offsets.size() << " different values" << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("Avatar") << "no conflicts" << LL_ENDL;
+        }
+        std::set<LLVector3>::iterator dit = distinct_offsets.begin();
+        for ( ; dit != distinct_offsets.end(); ++dit)
+        {
+            std::string highlight = (has_active_override && *dit == active_override) ? "*" : "";
+            LL_DEBUGS("Avatar") << "  POS " << highlight << "" << (*dit) << " default " << mDefaultPosition << LL_ENDL;
+        }
 	}
 }
 
