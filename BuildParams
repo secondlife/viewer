@@ -62,7 +62,7 @@ viewer_channel = "Second Life Test"
 # the default sourceid should always be a null string:
 sourceid = ""
 # the additional_packages variable is a blank separated list of package prefixes:
-additional_packages = ""
+# additional_packages = ""
 # to set the special values for a package, create variables using each prefix:
 #   additional_packages = "Foo Bar"
 #   Foo_sourceid = "bingo"
@@ -73,6 +73,7 @@ additional_packages = ""
 # for the package in a setting that overrides the compiled-in value
 ################################################################
 additional_packages = "EDU"
+Linux.additional_packages = ""
 
 # The EDU package allows us to create a separate release channel whose expirations
 # are synchronized as much as possible with the academic year
