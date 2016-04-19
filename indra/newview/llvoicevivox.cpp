@@ -1223,15 +1223,14 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     LLSD timeoutResult;
     timeoutResult["session"] = LLSD::String("timeout");
 
-    LLEventTimeout voicePumpTimeout(voicePump);
-
-
     // It appears that I need to wait for BOTH the SessionGroup.AddSession response and the SessionStateChangeEvent with state 4
     // before continuing from this state.  They can happen in either order, and if I don't wait for both, things can get stuck.
     // For now, the SessionGroup.AddSession response handler sets mSessionHandle and the SessionStateChangeEvent handler transitions to stateSessionJoined.
     // This is a cheap way to make sure both have happened before proceeding.
     do
     {
+        LLEventTimeout voicePumpTimeout(voicePump);
+
         voicePumpTimeout.eventAfter(SESSION_JOIN_TIMEOUT, timeoutResult);
         result = llcoro::suspendUntilEventOn(voicePumpTimeout);
 
