@@ -7,7 +7,6 @@ if (LINUX)
 endif (LINUX)
 
 if (WINDOWS OR DARWIN)
-    add_subdirectory(quicktime)
     add_subdirectory(cef)
 endif (WINDOWS OR DARWIN)
 
