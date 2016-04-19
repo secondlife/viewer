@@ -1161,6 +1161,8 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     // The old session may now need to be deleted.
     reapSession(oldSession);
 
+    LL_INFOS("Voice") << "Done reap test." << LL_ENDL;
+
     if (!mAudioSession->mHandle.empty())
     {
         // Connect to a session by session handle
@@ -1175,6 +1177,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
 
     notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_JOINING);
 
+    LL_INFOS("Voice") << "suspend after notify STATUS_JOINING." << LL_ENDL;
     llcoro::suspend();
 
     LLSD result;
@@ -1195,6 +1198,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
 
     if (!mVoiceEnabled && mIsInitialized)
     {
+        LL_INFOS("Voice") << "Voice no longer enabled. Exiting." << LL_ENDL;
         mIsJoiningSession = false;
         // User bailed out during connect -- jump straight to teardown.
         terminateAudioSession(true);
@@ -1203,6 +1207,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     }
     else if (mSessionTerminateRequested)
     {
+        LL_INFOS("Voice") << "Terminate requested" << LL_ENDL;
         if (mAudioSession && !mAudioSession->mHandle.empty())
         {
             // Only allow direct exits from this state in p2p calls (for cancelling an invite).
@@ -1229,12 +1234,13 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     // This is a cheap way to make sure both have happened before proceeding.
     do
     {
+        LL_INFOS("Voice") << "Top of add join loop." << LL_ENDL;
         LLEventTimeout voicePumpTimeout(voicePump);
 
         voicePumpTimeout.eventAfter(SESSION_JOIN_TIMEOUT, timeoutResult);
         result = llcoro::suspendUntilEventOn(voicePumpTimeout);
 
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
             if (result.has("handle"))
@@ -1274,6 +1280,9 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
             }
         }
     } while (!added || !joined);
+
+
+    LL_INFOS("Voice") << "Left voice loop." << LL_ENDL;
 
     mIsJoiningSession = false;
 
