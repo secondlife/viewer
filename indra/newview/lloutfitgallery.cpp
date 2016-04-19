@@ -65,10 +65,12 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mItemWidth(p.item_width),
       mItemHeight(p.item_height),
       mItemHorizontalGap(p.item_horizontal_gap),
-      mItemsInRow(p.items_in_row)
+      mItemsInRow(p.items_in_row),
+      mRowPanWidthFactor(p.row_panel_width_factor),
+      mGalleryWidthFactor(p.gallery_width_factor)
 {
-    mRowPanelWidth = p.row_panel_width_factor * mItemsInRow;
-    mGalleryWidth = p.gallery_width_factor * mItemsInRow;
+    mRowPanelWidth = mRowPanWidthFactor * mItemsInRow;
+    mGalleryWidth = mGalleryWidthFactor * mItemsInRow;
 }
 
 LLOutfitGallery::Params::Params()
@@ -114,6 +116,44 @@ void LLOutfitGallery::onOpen(const LLSD& info)
             addToGallery(mOutfitMap[cats[i]]);
         }
         mGalleryCreated = true;
+    }
+}
+
+void LLOutfitGallery::draw()
+{
+    LLPanel::draw();
+    updateRowsIfNeeded();
+}
+
+void LLOutfitGallery::updateRowsIfNeeded()
+{
+    if(((getRect().getWidth() - mRowPanelWidth) > mItemWidth) && mRowCount > 1)
+    {
+        reArrangeRows(1);
+    }
+    else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > 3)
+    {
+        reArrangeRows(-1);
+    }
+}
+
+void LLOutfitGallery::reArrangeRows(S32 row_diff)
+{
+ 
+    std::vector<LLOutfitGalleryItem*> buf_items = mItems;
+    for (std::vector<LLOutfitGalleryItem*>::const_reverse_iterator it = buf_items.rbegin(); it != buf_items.rend(); ++it)
+    {
+        removeFromGalleryLast(*it);
+    }
+    
+    mItemsInRow+= row_diff;
+    
+    mRowPanelWidth = mRowPanWidthFactor * mItemsInRow;
+    mGalleryWidth = mGalleryWidthFactor * mItemsInRow;
+
+    for (std::vector<LLOutfitGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
+    {
+        addToGallery(*it);
     }
 }
 

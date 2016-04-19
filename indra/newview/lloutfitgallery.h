@@ -82,6 +82,7 @@ public:
 
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
+    /*virtual*/ void draw();	
     
     void onSelectPhoto(LLUUID selected_outfit_id);
 
@@ -128,6 +129,8 @@ private:
     void moveRow(int row, int pos);
     LLPanel* addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item, int pos, int hgap);
     void removeFromLastRow(LLOutfitGalleryItem* item);
+    void reArrangeRows(S32 row_diff);
+    void updateRowsIfNeeded();
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name);
 
@@ -159,6 +162,8 @@ private:
     int mItemsInRow;
     int mRowPanelWidth;
     int mGalleryWidth;
+    int mRowPanWidthFactor;
+    int mGalleryWidthFactor;
 
     LLHandle<LLFloater> mFloaterHandle;
 
