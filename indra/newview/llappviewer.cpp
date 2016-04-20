@@ -3613,9 +3613,9 @@ void getFileList()
 
 void LLAppViewer::handleViewerCrash()
 {
-	LL_INFOS() << "Handle viewer crash entry." << LL_ENDL;
+	LL_INFOS("CRASHREPORT") << "Handle viewer crash entry." << LL_ENDL;
 
-	LL_INFOS() << "Last render pool type: " << LLPipeline::sCurRenderPoolType << LL_ENDL ;
+	LL_INFOS("CRASHREPORT") << "Last render pool type: " << LLPipeline::sCurRenderPoolType << LL_ENDL ;
 
 	LLMemory::logMemoryInfo(true) ;
 
@@ -3723,30 +3723,36 @@ void LLAppViewer::handleViewerCrash()
 #endif 
 
 	char *minidump_file = pApp->getMiniDumpFilename();
-
+    LL_DEBUGS("CRASHREPORT") << "minidump file name " << minidump_file << LL_ENDL;
 	if(minidump_file && minidump_file[0] != 0)
 	{
 		gDebugInfo["Dynamic"]["MinidumpPath"] = minidump_file;
 	}
-#ifdef LL_WINDOWS
 	else
 	{
+#ifdef LL_WINDOWS
 		getFileList();
+#else
+        LL_WARNS("CRASHREPORT") << "no minidump file?" << LL_ENDL;
+#endif        
 	}
-#endif
     gDebugInfo["Dynamic"]["CrashType"]="crash";
 	
 	if (gMessageSystem && gDirUtilp)
 	{
 		std::string filename;
 		filename = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "stats.log");
+        LL_DEBUGS("CRASHREPORT") << "recording stats " << filename << LL_ENDL;
 		llofstream file(filename.c_str(), std::ios_base::binary);
 		if(file.good())
 		{
-			LL_INFOS() << "Handle viewer crash generating stats log." << LL_ENDL;
 			gMessageSystem->summarizeLogs(file);
 			file.close();
 		}
+        else
+        {
+            LL_WARNS("CRASHREPORT") << "problem recording stats" << LL_ENDL;
+        }        
 	}
 
 	if (gMessageSystem)

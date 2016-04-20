@@ -162,6 +162,10 @@ bool LLCrashLogger::readFromXML(LLSD& dest, const std::string& filename )
         log_file.close();
         return true;
     }
+    else
+    {
+        LL_WARNS("CRASHREPORT") << "Failed to open " << db_file_name << LL_ENDL;
+    }
     return false;
 }
 
@@ -194,6 +198,11 @@ bool LLCrashLogger::readMinidump(std::string minidump_path)
 		
 		mCrashInfo["Minidump"] = data;
 	}
+    else
+    {
+        LL_WARNS("CRASHREPORT") << "failed to open minidump "<<minidump_path<<LL_ENDL;
+    }
+    
 	return (length>0?true:false);
 }
 
@@ -270,27 +279,36 @@ void LLCrashLogger::gatherFiles()
 
 	for(std::map<std::string, std::string>::iterator itr = mFileMap.begin(); itr != mFileMap.end(); ++itr)
 	{
-		std::ifstream f((*itr).second.c_str());
-		if(f.is_open())
+        std::string file = (*itr).second;
+        if (!file.empty())
         {
-            std::stringstream s;
-            s << f.rdbuf();
-
-            std::string crash_info = s.str();
-            if(itr->first == "SecondLifeLog")
+            LL_DEBUGS("CRASHREPORT") << "trying to read " << itr->first << ": " << file << LL_ENDL;
+            std::ifstream f(file.c_str());
+            if(f.is_open())
             {
-                if(!mCrashInfo["DebugLog"].has("StartupState"))
-                {
-                    mCrashInfo["DebugLog"]["StartupState"] = getStartupStateFromLog(crash_info);
-                }
-                trimSLLog(crash_info);
-            }
+                std::stringstream s;
+                s << f.rdbuf();
 
-            mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
+                std::string crash_info = s.str();
+                if(itr->first == "SecondLifeLog")
+                {
+                    if(!mCrashInfo["DebugLog"].has("StartupState"))
+                    {
+                        mCrashInfo["DebugLog"]["StartupState"] = getStartupStateFromLog(crash_info);
+                    }
+                    trimSLLog(crash_info);
+                }
+
+                mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
+            }
+            else
+            {
+                LL_WARNS("CRASHREPORT") << "Failed to open file " << file << LL_ENDL;
+            }
         }
         else
         {
-            LL_WARNS("CRASHREPORT") << "Can't find file " << (*itr).second << LL_ENDL;
+            LL_DEBUGS("CRASHREPORT") << "empty file in list for " << itr->first << LL_ENDL;
         }
 	}
 	
@@ -301,20 +319,21 @@ void LLCrashLogger::gatherFiles()
 	if (has_minidump)
 	{
 		minidump_path = mDebugLog["MinidumpPath"].asString();
-	}
-
-	if (has_minidump)
-	{
 		has_minidump = readMinidump(minidump_path);
 	}
+    else
+    {
+        LL_WARNS("CRASHREPORT") << "DebugLog does not have MinidumpPath" << LL_ENDL;
+    }
 
     if (!has_minidump)  //Viewer was probably so hosed it couldn't write remaining data.  Try brute force.
     {
-       //Look for a filename at least 30 characters long in the dump dir which contains the characters MDMP as the first 4 characters in the file.
+        //Look for a filename at least 30 characters long in the dump dir which contains the characters MDMP as the first 4 characters in the file.
         typedef std::vector<std::string> vec;
         std::string pathname = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
+        LL_WARNS("CRASHREPORT") << "Searching for minidump in " << pathname << LL_ENDL;
         vec file_vec = gDirUtilp->getFilesInDir(pathname);
-        for(vec::const_iterator iter=file_vec.begin(); iter!=file_vec.end(); ++iter)
+        for(vec::const_iterator iter=file_vec.begin(); !has_minidump && iter!=file_vec.end(); ++iter)
         {
             if ( ( iter->length() > 30 ) && (iter->rfind(".dmp") == (iter->length()-4) ) )
             {
@@ -330,14 +349,26 @@ void LLCrashLogger::gatherFiles()
                         minidump_path = *iter;
                         has_minidump = readMinidump(fullname);
 						mDebugLog["MinidumpPath"] = fullname;
-						if (has_minidump) 
-						{
-							break;
-						}
+                    }
+                    else
+                    {
+                        LL_DEBUGS("CRASHREPORT") << "MDMP not found in " << fullname << LL_ENDL;
                     }
                 }
+                else
+                {
+                    LL_DEBUGS("CRASHREPORT") << "failed to open " << fullname << LL_ENDL;
+                }
             }
+            else
+            {
+                LL_DEBUGS("CRASHREPORT") << "Name does not match minidump name pattern " << *iter << LL_ENDL;
+            }            
         }
+    }
+    else
+    {
+        LL_WARNS("CRASHREPORT") << "readMinidump returned no minidump" << LL_ENDL;
     }
 }
 
@@ -458,22 +489,63 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 
 bool LLCrashLogger::sendCrashLogs()
 {
-    
+    LLSD locks = mKeyMaster.getProcessList();
+    LLSD newlocks = LLSD::emptyArray();
+
 	LLSD opts = getOptionData(PRIORITY_COMMAND_LINE);
     LLSD rec;
 
-	if ( opts.has("dumpdir") )
+	if ( opts.has("pid") && opts.has("dumpdir") && opts.has("procname") )
     {
         rec["pid"]=opts["pid"];
         rec["dumpdir"]=opts["dumpdir"];
         rec["procname"]=opts["procname"];
     }
-    else
+	
+    if (locks.isArray())
     {
-        return false;
-    }       
+        for (LLSD::array_iterator lock=locks.beginArray();
+             lock !=locks.endArray();
+             ++lock)
+        {
+            if ( (*lock).has("pid") && (*lock).has("dumpdir") && (*lock).has("procname") )
+            {
+                if ( mKeyMaster.isProcessAlive( (*lock)["pid"].asInteger(), (*lock)["procname"].asString() ) )
+                {
+                    newlocks.append(*lock);
+                }
+                else
+                {
+					//TODO:  This is a hack but I didn't want to include boost in another file or retest everything related to lldir 
+                    if (LLCrashLock::fileExists((*lock)["dumpdir"].asString()))
+                    {
+                        //the viewer cleans up the log directory on clean shutdown
+                        //but is ignorant of the locking table. 
+                        if (!sendCrashLog((*lock)["dumpdir"].asString()))
+                        {
+                            newlocks.append(*lock);    //Failed to send log so don't delete it.
+                        }
+                        else
+                        {
+                            mKeyMaster.cleanupProcess((*lock)["dumpdir"].asString());
+                        }
+                    }
+				}
+            }
+            else
+            {
+                LL_INFOS() << "Discarding corrupted entry from lock table." << LL_ENDL;
+            }
+        }
+    }
 
-    return sendCrashLog(rec["dumpdir"].asString());
+    if (rec)
+    {
+        newlocks.append(rec);
+    }
+    
+    mKeyMaster.putProcessList(newlocks);
+    return true;
 }
 
 void LLCrashLogger::updateApplication(const std::string& message)
@@ -509,6 +581,26 @@ bool LLCrashLogger::init()
 	LLError::logToFile(log_file);  //NOTE:  Until this line, LL_INFOS LL_WARNS, etc are blown to the ether. 
 
     LL_INFOS("CRASHREPORT") << "Crash reporter file rotation complete." << LL_ENDL;
+
+    // Handle locking
+    bool locked = mKeyMaster.requestMaster();  //Request master locking file.  wait time is defaulted to 300S
+    
+    while (!locked && mKeyMaster.isWaiting())
+    {
+		LL_INFOS("CRASHREPORT") << "Waiting for lock." << LL_ENDL;
+#if LL_WINDOWS
+		Sleep(1000);
+#else
+        sleep(1);
+#endif 
+        locked = mKeyMaster.checkMaster();
+    }
+    
+    if (!locked)
+    {
+        LL_WARNS("CRASHREPORT") << "Unable to get master lock.  Another crash reporter may be hung." << LL_ENDL;
+        return false;
+    }
 
     mCrashSettings.declareS32("CrashSubmitBehavior", CRASH_BEHAVIOR_ALWAYS_SEND,
 							  "Controls behavior when viewer crashes "
