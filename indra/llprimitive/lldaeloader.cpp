@@ -1189,7 +1189,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 				S32 childCount = children.getCount();
 
 				//Process any children that are joints
-				//Not all children are joints, some code be ambient lights, cameras, geometry etc..
+				//Not all children are joints, some could be ambient lights, cameras, geometry etc..
 				for (S32 i = 0; i < childCount; ++i)
 				{
 					domNode* pNode = daeSafeCast<domNode>(children[i]);
@@ -1229,6 +1229,8 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                         domNode* pJoint = daeSafeCast<domNode>( resolver.getElement() );
                         if ( pJoint )
                         {
+                            // FIXME this has a lot of overlap with processJointNode(), would be nice to refactor.
+
                             //Pull out the translate id and store it in the jointTranslations map
                             daeSIDResolver jointResolverA( pJoint, "./translate" );
                             domTranslate* pTranslateA = daeSafeCast<domTranslate>( jointResolverA.getElement() );

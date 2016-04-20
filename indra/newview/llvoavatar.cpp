@@ -5299,9 +5299,13 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
 	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
 	{
 		const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
-		if ( bindCnt > 0 )
+        const int jointCnt = pSkinData->mJointNames.size();
+        if ((bindCnt > 0) && (bindCnt != jointCnt))
+        {
+            LL_WARNS_ONCE() << "invalid mesh, bindCnt " << bindCnt << "!= jointCnt " << jointCnt << ", joint overrides will be ignored." << LL_ENDL;
+        }
+		if ((bindCnt > 0) && (bindCnt == jointCnt))
 		{					
-			const int jointCnt = pSkinData->mJointNames.size();
 			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 			const LLUUID& mesh_id = pSkinData->mMeshID;
 			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
