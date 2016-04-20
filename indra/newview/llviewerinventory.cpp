@@ -389,12 +389,18 @@ void LLViewerInventoryItem::updateServer(BOOL is_new) const
     if (updates.has("asset_id"))
     {
         updates.erase("asset_id");
-        updates["hash_id"] = getTransactionID();
+        if(getTransactionID().notNull())
+        {
+            updates["hash_id"] = getTransactionID();
+        }
     }
     if (updates.has("shadow_id"))
     {
         updates.erase("shadow_id");
-        updates["hash_id"] = getTransactionID();
+        if(getTransactionID().notNull())
+        {
+            updates["hash_id"] = getTransactionID();
+        }
     }
     AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
     AISAPI::UpdateItem(getUUID(), updates, cr);
