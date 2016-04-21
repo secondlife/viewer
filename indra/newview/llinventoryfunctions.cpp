@@ -287,7 +287,11 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
                 LL_INFOS("SLM") << "Unlist and clear version folder as the version folder is not at the right place anymore!!" << LL_ENDL;
                 LLMarketplaceData::instance().setVersionFolder(listing_uuid, LLUUID::null,1);
             }
-            else if (version_folder_uuid.notNull() && LLMarketplaceData::instance().getActivationState(version_folder_uuid) && (count_descendants_items(version_folder_uuid) == 0) && !LLMarketplaceData::instance().isUpdating(version_folder_uuid,version_depth))
+            else if (version_folder_uuid.notNull()
+                     && gInventory.isCategoryComplete(version_folder_uuid)
+                     && LLMarketplaceData::instance().getActivationState(version_folder_uuid)
+                     && (count_descendants_items(version_folder_uuid) == 0)
+                     && !LLMarketplaceData::instance().isUpdating(version_folder_uuid,version_depth))
             {
                 LL_INFOS("SLM") << "Unlist as the version folder is empty of any item!!" << LL_ENDL;
                 LLNotificationsUtil::add("AlertMerchantVersionFolderEmpty");
