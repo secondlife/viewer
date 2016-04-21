@@ -4767,12 +4767,17 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			drawablep->clearState(LLDrawable::HAS_ALPHA);
 
 			bool rigged = vobj->isAttachment() && 
-						vobj->isMesh() && 
-						gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
+                          vobj->isMesh() && 
+						  gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
 
 			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
 
 			bool is_rigged = false;
+
+            if (rigged && pAvatarVO)
+            {
+                pAvatarVO->addAttachmentPosOverridesForObject(vobj);
+            }
 
 			//for each face
 			for (S32 i = 0; i < drawablep->getNumFaces(); i++)
@@ -4790,8 +4795,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//sum up face verts and indices
 				drawablep->updateFaceSize(i);
 			
-			
-
 				if (rigged) 
 				{
 					if (!facep->isState(LLFace::RIGGED))
@@ -4805,13 +4808,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					//get drawpool of avatar with rigged face
 					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);				
 					
-					// FIXME should this be inside the face loop?
-					// doesn't seem to depend on any per-face state.
-					if ( pAvatarVO )
-					{
-						pAvatarVO->addAttachmentPosOverridesForObject(vobj);
-					}
-
 					if (pool)
 					{
 						const LLTextureEntry* te = facep->getTextureEntry();
