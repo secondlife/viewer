@@ -2282,9 +2282,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ab550a0dc7fe1501a8b091f98c37d485</string>
+              <string>c881da9b3158f41f6cccf9faed34145a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-nvapi/rev/314210/arch/CYGWIN/installer/nvapi-361.314210-windows-314210.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-nvapi/rev/314384/arch/CYGWIN/installer/nvapi-352.314384-windows-314384.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2294,16 +2294,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fc9ae4e9e08f943fb61576d886f56a1e</string>
+              <string>b1917f48eeb6ddcb2ee5b668cae47e32</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-nvapi/rev/314210/arch/CYGWIN/installer/nvapi-361.314210-windows64-314210.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-nvapi/rev/314384/arch/CYGWIN/installer/nvapi-352.314384-windows64-314384.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>361.314210</string>
+        <string>352.314384</string>
       </map>
       <key>ogg_vorbis</key>
       <map>
