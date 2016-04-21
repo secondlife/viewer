@@ -6321,17 +6321,6 @@
       <key>Value</key>
       <integer>512</integer>
     </map>
-    <key>MemProfiling</key>
-    <map>
-      <key>Comment</key>
-      <string>You want to use tcmalloc's memory profiling options.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>MenuAccessKeyTime</key>
     <map>
       <key>Comment</key>
