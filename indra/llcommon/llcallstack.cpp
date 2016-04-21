@@ -104,11 +104,15 @@ bool LLCallStack::contains(const std::string& str)
 
 std::ostream& operator<<(std::ostream& s, const LLCallStack& call_stack)
 {
+#ifndef LL_RELEASE_FOR_DOWNLOAD
     std::vector<std::string>::const_iterator it;
     for (it=call_stack.m_strings.begin(); it!=call_stack.m_strings.end(); ++it)
     {
         s << *it;
     }
+#else
+    s << "UNAVAILABLE IN RELEASE";
+#endif
     return s;
 }
 
