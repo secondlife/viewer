@@ -410,6 +410,7 @@ extern BOOL gPrintMessagesThisFrame;
 
 extern LLUUID gSunTextureID;
 extern LLUUID gMoonTextureID;
+extern LLUUID gBlackSquareID;
 
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;

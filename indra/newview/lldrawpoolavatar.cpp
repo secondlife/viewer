@@ -50,6 +50,7 @@
 #include "llrendersphere.h"
 #include "llviewerpartsim.h"
 #include "llviewercontrol.h" // for gSavedSettings
+#include "llviewertexturelist.h"
 
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
@@ -63,6 +64,7 @@ BOOL	LLDrawPoolAvatar::sSkipTransparent = FALSE;
 S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
 F32 LLDrawPoolAvatar::sMinimumAlpha = 0.2f;
 
+LLUUID gBlackSquareID;
 
 static bool is_deferred_render = false;
 static bool is_post_deferred_render = false;
@@ -1811,12 +1813,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 LLViewerTexture* specular = NULL;
                 if (LLPipeline::sImpostorRender)
                 {
-                    std::vector<LLViewerFetchedTexture*> found;
-                    LLViewerTextureManager::findFetchedTextures(IMG_BLACK_SQUARE, found);
-                    if (1 <= found.size())
-                    {
-                        specular = found[0];
-                    }
+                    specular = LLViewerTextureManager::findFetchedTexture(gBlackSquareID, TEX_LIST_DISCARD);
+                    llassert(NULL != specular);
                 }
                 else
                 {
