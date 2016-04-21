@@ -5375,7 +5375,7 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
 					{   									
 						pJoint->setId( currentId );
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-                        if (!jointPos.isNull())
+                        //if (!jointPos.isNull())
                         {
                             //Set the joint position
                             pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
