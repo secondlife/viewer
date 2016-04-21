@@ -68,4 +68,3 @@ const LLUUID TERRAIN_ROCK_DETAIL		("53a2f406-4895-1d13-d541-d2e3b86bc19c"); // V
 
 const LLUUID DEFAULT_WATER_NORMAL		("822ded49-9a6c-f61c-cb89-6df54f42cdf4"); // VIEWER
 
-const LLUUID IMG_BLACK_SQUARE	        ("3b39cc01-c2d1-e194-1181-e4404978b20c"); // On dataserver
