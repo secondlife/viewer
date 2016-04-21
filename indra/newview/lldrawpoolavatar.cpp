@@ -1282,7 +1282,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 					avatarp->mImpostor.bindTexture(1, specular_channel);
 				}
 			}
-			avatarp->renderImpostor(LLColor4U(255,255,255,255), sDiffuseChannel);
+			avatarp->renderImpostor(avatarp->getMutedAVColor(), sDiffuseChannel);
 		}
 		return;
 	}
