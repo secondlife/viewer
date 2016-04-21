@@ -55,13 +55,13 @@ struct NativeKeyEventData {
         KEYCHAR
     };
     
-    EventType   mKeyEvent;
-    uint32_t    mEventType;
-    uint32_t    mEventModifiers;
-    uint32_t    mEventKeyCode;
-    uint32_t    mEventChars;
-    uint32_t    mEventUnmodChars;
-    bool        mEventRepeat;
+    EventType   mKeyEvent = KEYUNKNOWN;
+    uint32_t    mEventType = 0;
+    uint32_t    mEventModifiers = 0;
+    uint32_t    mEventKeyCode = 0;
+    uint32_t    mEventChars = 0;
+    uint32_t    mEventUnmodChars = 0;
+    bool        mEventRepeat = false;
 };
 
 typedef const NativeKeyEventData * NSKeyEventRef;
