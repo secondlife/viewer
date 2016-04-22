@@ -161,8 +161,8 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
 
 void LLOutfitGallery::updateGalleryWidth()
 {
-    mRowPanelWidth = mRowPanWidthFactor * mItemsInRow;
-    mGalleryWidth = mGalleryWidthFactor * mItemsInRow;
+    mRowPanelWidth = mRowPanWidthFactor * mItemsInRow - mItemHorizontalGap;
+    mGalleryWidth = mGalleryWidthFactor * mItemsInRow - mItemHorizontalGap;
 }
 
 LLPanel* LLOutfitGallery::addLastRow()
