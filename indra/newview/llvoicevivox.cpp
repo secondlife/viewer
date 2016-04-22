@@ -903,8 +903,6 @@ bool LLVivoxVoiceClient::loginToVivox()
     LLSD timeoutResult;
     timeoutResult["login"] = LLSD::String("timeout");
 
-    LLEventTimeout voicePumpTimeout(voicePump);
-
     int loginRetryCount(0);
 
     bool response_ok(false);
@@ -920,8 +918,7 @@ bool LLVivoxVoiceClient::loginToVivox()
 
         send_login = false;
 
-        voicePumpTimeout.eventAfter(LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
-        LLSD result = llcoro::suspendUntilEventOn(voicePump);
+        LLSD result = llcoro::suspendUntilEventOnWithTimeout(voicePump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
         LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
         if (result.has("login"))
@@ -1018,10 +1015,7 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
         LLSD timeoutResult;
         timeoutResult["logout"] = LLSD::String("timeout");
 
-        LLEventTimeout voicePumpTimeout(voicePump);
-
-        voicePumpTimeout.eventAfter(LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
-        LLSD result = llcoro::suspendUntilEventOn(voicePumpTimeout);
+        LLSD result = llcoro::suspendUntilEventOnWithTimeout(voicePump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
 
         LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
 
@@ -1231,12 +1225,9 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     // This is a cheap way to make sure both have happened before proceeding.
     do
     {
-        LLEventTimeout voicePumpTimeout(voicePump);
+        result = llcoro::suspendUntilEventOnWithTimeout(voicePump, SESSION_JOIN_TIMEOUT, timeoutResult);
 
-        voicePumpTimeout.eventAfter(SESSION_JOIN_TIMEOUT, timeoutResult);
-        result = llcoro::suspendUntilEventOn(voicePumpTimeout);
-
-        LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
+        LL_INFOS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
             if (result.has("handle"))
@@ -1249,6 +1240,9 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
             }
 
             std::string message = result["session"].asString();
+//            if (message == "joined")
+//                message = "removed";
+
             if ((message == "added") || (message == "created"))
                 added = true;
             else if (message == "joined")
@@ -1510,7 +1504,6 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
     timeoutEvent["timeout"] = LLSD::Boolean(true);
 
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
-    LLEventTimeout timeout(voicePump);
     mIsInChannel = true;
     mMuteMicDirty = true;
 
@@ -1562,8 +1555,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
         sendLocalAudioUpdates();
 
         mIsInitialized = true;
-        timeout.eventAfter(UPDATE_THROTTLE_SECONDS, timeoutEvent);
-        LLSD result = llcoro::suspendUntilEventOn(timeout);
+        LLSD result = llcoro::suspendUntilEventOnWithTimeout(voicePump, UPDATE_THROTTLE_SECONDS, timeoutEvent);
         if (!result.has("timeout")) // logging the timeout event spams the log
             LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         if (result.has("session"))
@@ -1667,8 +1659,6 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
     LL_INFOS("Voice") << "Recording voice buffer" << LL_ENDL;
 
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
-    LLEventTimeout timeout(voicePump);
-    timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, timeoutResult);
     LLSD result;
 
     captureBufferRecordStartSendMessage();
@@ -1676,7 +1666,7 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
 
     do
     {
-        result = llcoro::suspendUntilEventOn(voicePump);
+        result = llcoro::suspendUntilEventOnWithTimeout(voicePump, CAPTURE_BUFFER_MAX_TIME, timeoutResult);
         LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
     } while (!result.has("recplay"));
 
@@ -1700,12 +1690,10 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
     LL_INFOS("Voice") << "Playing voice buffer" << LL_ENDL;
 
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
-    LLEventTimeout timeout(voicePump);
     LLSD result;
 
     do
     {
-        timeout.eventAfter(CAPTURE_BUFFER_MAX_TIME, timeoutResult);
         captureBufferPlayStartSendMessage(mPreviewVoiceFont);
 
         // Store the voice font being previewed, so that we know to restart if it changes.
@@ -1716,7 +1704,7 @@ int LLVivoxVoiceClient::voicePlaybackBuffer()
             // Update UI, should really use a separate callback.
             notifyVoiceFontObservers();
 
-            result = llcoro::suspendUntilEventOn(timeout);
+            result = llcoro::suspendUntilEventOnWithTimeout(voicePump, CAPTURE_BUFFER_MAX_TIME, timeoutResult);
             LL_DEBUGS("Voice") << "event=" << ll_pretty_print_sd(result) << LL_ENDL;
         } while (!result.has("recplay"));
 
