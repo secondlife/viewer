@@ -91,6 +91,7 @@ public:
 	static U32 getCPUClockCount32()
 	{
 		U32 ret_val;
+#if !defined(_M_AMD64)
 		__asm
 		{
 			_emit   0x0f
@@ -100,6 +101,11 @@ public:
 				or eax, edx
 				mov dword ptr [ret_val], eax
 		}
+#else
+		unsigned __int64 val = __rdtsc();
+		val = val >> 8;
+		ret_val = static_cast<U32>(val);
+#endif
 		return ret_val;
 	}
 
@@ -107,6 +113,7 @@ public:
 	static U64 getCPUClockCount64()
 	{
 		U64 ret_val;
+#if !defined(_M_AMD64)
 		__asm
 		{
 			_emit   0x0f
@@ -116,6 +123,9 @@ public:
 				mov dword ptr [ret_val+4], edx
 				mov dword ptr [ret_val], eax
 		}
+#else
+		ret_val = static_cast<U64>( __rdtsc() );
+#endif
 		return ret_val;
 	}
 
