@@ -49,6 +49,9 @@ public:
 
     /// Post an event to all listeners
     virtual bool post(const LLSD& event) = 0;
+
+private:
+    LLTempBoundListener mSource;
 };
 
 /**
