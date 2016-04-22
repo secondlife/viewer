@@ -147,6 +147,8 @@ LLSD suspendUntilEventOn(const LLEventPumpOrPumpName& pump)
     return postAndSuspend(LLSD(), LLEventPumpOrPumpName(), pump);
 }
 
+LLSD suspendUntilEventOnWithTimeout(const LLEventPumpOrPumpName& pump, F32 timeoutin, const LLSD &timeoutResult);
+
 } // namespace llcoro
 
 /// return type for two-pump variant of suspendUntilEventOn()

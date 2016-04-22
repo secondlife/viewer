@@ -49,6 +49,9 @@ public:
 
     /// Post an event to all listeners
     virtual bool post(const LLSD& event) = 0;
+
+private:
+    LLTempBoundListener mSource;
 };
 
 /**
@@ -181,7 +184,7 @@ protected:
 private:
     bool tick(const LLSD&);
 
-    LLBoundListener mMainloop;
+    LLTempBoundListener mMainloop;
     Action mAction;
 };
 
