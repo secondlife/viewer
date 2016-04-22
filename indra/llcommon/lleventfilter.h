@@ -181,7 +181,7 @@ protected:
 private:
     bool tick(const LLSD&);
 
-    LLBoundListener mMainloop;
+    LLTempBoundListener mMainloop;
     Action mAction;
 };
 
