@@ -1239,30 +1239,6 @@
             <key>name</key>
             <string>linux64</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>5655fb00c37f58cca640a53a9dbc82a7</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-gtk-atk-pango-glib/rev/314220/arch/CYGWIN/installer/gtk_atk_pango_glib-0.1-windows-314220.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>5bf8f67b02d89606374d550ca0353083</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-gtk-atk-pango-glib/rev/314220/arch/CYGWIN/installer/gtk_atk_pango_glib-0.1-windows64-314220.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
         </map>
         <key>version</key>
         <string>0.1</string>
