@@ -1240,8 +1240,6 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
             }
 
             std::string message = result["session"].asString();
-//            if (message == "joined")
-//                message = "removed";
 
             if ((message == "added") || (message == "created"))
                 added = true;
