@@ -226,7 +226,8 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 LLVector3 positionDelta = iter->second;				
                 newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
                 // SL-315
-                joint->setPosition(newPosition);
+                // BENTO - allow attachment positions to override requests from the params.
+                joint->setPosition(newPosition, true);
         }
 
         if (mLastWeight != mCurWeight && !mIsAnimating)

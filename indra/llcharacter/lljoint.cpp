@@ -336,8 +336,22 @@ bool do_debug_joint(const std::string& name)
 //--------------------------------------------------------------------
 // setPosition()
 //--------------------------------------------------------------------
-void LLJoint::setPosition( const LLVector3& pos )
+void LLJoint::setPosition( const LLVector3& requested_pos, bool apply_attachment_overrides )
 {
+    LLVector3 pos(requested_pos);
+
+    LLVector3 active_override;
+    LLUUID mesh_id;
+    if (apply_attachment_overrides && m_attachmentOverrides.findActiveOverride(mesh_id,active_override))
+    {  
+        if (pos != active_override && do_debug_joint(getName()))
+        {
+            LLScopedContextString str("setPosition");
+            LL_DEBUGS("Avatar") << " joint " << getName() << " requested_pos " << requested_pos
+                                << " overriden by attachment " << active_override << LL_ENDL;
+        }
+        pos = active_override;
+    }
 	if ((pos != getPosition()) && do_debug_joint(getName()))
 	{
         LLScopedContextString str("setPosition");

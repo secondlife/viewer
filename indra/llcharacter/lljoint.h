@@ -209,7 +209,7 @@ public:
 
 	// get/set local position
 	const LLVector3& getPosition();
-	void setPosition( const LLVector3& pos );
+	void setPosition( const LLVector3& pos, bool apply_attachment_overrides = false );
 
     // Tracks the default position defined by the skeleton
 	void setDefaultPosition( const LLVector3& pos );
