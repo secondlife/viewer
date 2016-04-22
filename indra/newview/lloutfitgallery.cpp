@@ -69,8 +69,7 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mRowPanWidthFactor(p.row_panel_width_factor),
       mGalleryWidthFactor(p.gallery_width_factor)
 {
-    mRowPanelWidth = mRowPanWidthFactor * mItemsInRow;
-    mGalleryWidth = mGalleryWidthFactor * mItemsInRow;
+    updateGalleryWidth();
 }
 
 LLOutfitGallery::Params::Params()
@@ -115,6 +114,7 @@ void LLOutfitGallery::onOpen(const LLSD& info)
         {
             addToGallery(mOutfitMap[cats[i]]);
         }
+        reArrangeRows();
         mGalleryCreated = true;
     }
 }
@@ -122,7 +122,10 @@ void LLOutfitGallery::onOpen(const LLSD& info)
 void LLOutfitGallery::draw()
 {
     LLPanel::draw();
-    updateRowsIfNeeded();
+    if (mGalleryCreated)
+    {
+        updateRowsIfNeeded();
+    }
 }
 
 void LLOutfitGallery::updateRowsIfNeeded()
@@ -147,14 +150,19 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     }
     
     mItemsInRow+= row_diff;
+    updateGalleryWidth();
+    std::sort(buf_items.begin(), buf_items.end(), LLOutfitGalleryItem::compareGalleryItem());
     
-    mRowPanelWidth = mRowPanWidthFactor * mItemsInRow;
-    mGalleryWidth = mGalleryWidthFactor * mItemsInRow;
-
     for (std::vector<LLOutfitGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {
         addToGallery(*it);
     }
+}
+
+void LLOutfitGallery::updateGalleryWidth()
+{
+    mRowPanelWidth = mRowPanWidthFactor * mItemsInRow;
+    mGalleryWidth = mGalleryWidthFactor * mItemsInRow;
 }
 
 LLPanel* LLOutfitGallery::addLastRow()
@@ -515,7 +523,9 @@ LLOutfitGalleryItem::LLOutfitGalleryItem(const Params& p)
     : LLPanel(p),
     mTexturep(NULL),
     mSelected(false),
-    mWorn(false)
+    mWorn(false),
+    mDefaultImage(true),
+    mOutfitName("")
 {
     buildFromFile("panel_outfit_gallery_item.xml");
 }
@@ -565,6 +575,7 @@ void LLOutfitGalleryItem::draw()
 void LLOutfitGalleryItem::setOutfitName(std::string name)
 {
     mOutfitNameText->setText(name);
+    mOutfitName = name;
 }
 
 void LLOutfitGalleryItem::setOutfitWorn(bool value)
@@ -597,6 +608,7 @@ void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
     mTexturep = LLViewerTextureManager::getFetchedTexture(image_asset_id);
     mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
     getChildView("preview_outfit")->setVisible(FALSE);
+    mDefaultImage = false;
 }
 
 LLUUID LLOutfitGalleryItem::getImageAssetId()
@@ -609,6 +621,7 @@ void LLOutfitGalleryItem::setDefaultImage()
     mTexturep = NULL;
     mImageAssetId.setNull();
     getChildView("preview_outfit")->setVisible(TRUE);
+    mDefaultImage = true;
 }
 
 LLOutfitGalleryGearMenu::LLOutfitGalleryGearMenu(LLOutfitListBase* olist)
@@ -710,6 +723,11 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 mOutfitMap[category_id]->setDefaultImage();
             }
         }
+    }
+    
+    if (mGalleryCreated)
+    {
+        reArrangeRows();
     }
 }
 

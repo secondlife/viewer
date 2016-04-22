@@ -129,8 +129,9 @@ private:
     void moveRow(int row, int pos);
     LLPanel* addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item, int pos, int hgap);
     void removeFromLastRow(LLOutfitGalleryItem* item);
-    void reArrangeRows(S32 row_diff);
+    void reArrangeRows(S32 row_diff = 0);
     void updateRowsIfNeeded();
+    void updateGalleryWidth();
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name);
 
@@ -211,6 +212,25 @@ public:
     void setOutfitName(std::string name);
     void setOutfitWorn(bool value);
     void setSelected(bool value);
+    
+    std::string getItemName() {return mOutfitName;}
+    bool mIsDefaultImage() {return mDefaultImage;}
+    
+    struct compareGalleryItem
+    {
+        bool operator()(LLOutfitGalleryItem* a, LLOutfitGalleryItem* b)
+        {
+            if((a->mIsDefaultImage() && b->mIsDefaultImage()) || (!a->mIsDefaultImage() && !b->mIsDefaultImage()))
+            {
+                return a->getItemName().compare(b->getItemName()) < 0;
+            }
+            else
+            {
+                return b->mIsDefaultImage();
+            }
+        }
+    };
+    
 private:
     LLPointer<LLViewerTexture> mTexturep;
     LLUUID mImageAssetId;
@@ -220,6 +240,8 @@ private:
     LLPanel* mFotoBgPanel;
     bool     mSelected;
     bool     mWorn;
+    bool     mDefaultImage;
+    std::string mOutfitName;
 };
 
 #endif  // LL_LLOUTFITGALLERYCTRL_H
