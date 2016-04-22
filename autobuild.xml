@@ -1528,7 +1528,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e760be34addeb0cd6e2ec43394834bac</string>
+              <string>01a7cc9d0e56238a9abedd7a41ccd0a3</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
@@ -1554,7 +1554,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4a9dbeb437d0e1546b93d16073ff1442</string>
+              <string>e760be34addeb0cd6e2ec43394834bac</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions/rev/313564/arch/CYGWIN/installer/llphysicsextensions_source-1.0.313564-windows-313564.tar.bz2</string>
             </map>
