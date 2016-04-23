@@ -5375,7 +5375,12 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
 					{   									
 						pJoint->setId( currentId );
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-                        //if (!jointPos.isNull())
+                        if ((jointPos-pJoint->getDefaultPosition()).isNull())
+                        {
+                            LL_DEBUGS("Avatar") << "Attachment pos override ignored for " << pJoint->getName()
+                                                << ", pos " << jointPos << " is same as default pos" << LL_ENDL;
+                        }
+                        else
                         {
                             //Set the joint position
                             pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
