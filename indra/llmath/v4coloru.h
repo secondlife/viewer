@@ -563,19 +563,9 @@ void LLColor4U::setVecScaleClamp(const LLColor3& color)
 
 inline U32 LLColor4U::asRGBA() const
 {
-	U32 nRet( 0 );
-
 	// Little endian: values are swapped in memory. The original code access the array like a U32, so we need to swap here
 
-	nRet |= mV[ 3 ];
-	nRet <<= 8;
-	nRet |= mV[ 2 ];
-	nRet <<= 8;
-	nRet |= mV[ 1 ];
-	nRet <<= 8;
-	nRet |= mV[ 0 ];
-
-	return nRet;
+	return (mV[3] << 24) | (mV[2] << 16) | (mV[1] << 8) | mV[0];
 }
 
 inline void LLColor4U::fromRGBA( U32 aVal )
