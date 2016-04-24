@@ -81,10 +81,6 @@ if (WINDOWS)
   # Nicky: x64 implies SSE2
   if( NOT LL_64BIT_BUILD )
     add_definitions( /arch:SSE2 )
-  else()
-   # Otherwise disable 4267 ('var' : conversion from 'size_t' to 'type', possible loss of data) 
-   # This warning alas is all over the place and fixing it will touch a lot of code.
-   add_definitions("/wd4267 /DLL_64BIT_BUILD" ) 
   endif()
      
   # Are we using the crummy Visual Studio KDU build workaround?
