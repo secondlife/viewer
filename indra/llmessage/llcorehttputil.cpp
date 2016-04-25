@@ -41,13 +41,40 @@
 
 #include "message.h" // for getting the port
 
-using namespace LLCore;
 
+using namespace LLCore;
 
 namespace LLCoreHttpUtil
 {
 
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
+
+namespace 
+{
+    const std::string   HTTP_LOGBODY_KEY("HTTPLogBodyOnError");
+
+    BoolSettingQuery_t  mBoolSettingGet;
+    BoolSettingUpdate_t mBoolSettingPut;
+
+    inline bool getBoolSetting(const std::string &keyname)
+    {
+        if (!mBoolSettingGet || mBoolSettingGet.empty())
+            return(false);
+        return mBoolSettingGet(HTTP_LOGBODY_KEY);
+    }
+
+}
+
+void setPropertyMethods(BoolSettingQuery_t queryfn, BoolSettingUpdate_t updatefn)
+{
+    mBoolSettingGet = queryfn;
+    mBoolSettingPut = updatefn;
+
+    if (mBoolSettingPut && !mBoolSettingPut.empty())
+    {
+        mBoolSettingPut(HTTP_LOGBODY_KEY, false, "Log the entire HTTP body in the case of an HTTP error.");
+    }
+}
 
 
 void logMessageSuccess(std::string logAuth, std::string url, std::string message)
@@ -293,10 +320,11 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         bas >> std::noskipws;
         bodyData.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
         httpStatus["error_body"] = LLSD(bodyData);
-#if 1
-        // commenting out, but keeping since this can be useful for debugging
-        LL_WARNS() << "Returned body=" << std::endl << httpStatus["error_body"].asString() << LL_ENDL;
-#endif
+        if (getBoolSetting(HTTP_LOGBODY_KEY))
+        {
+            // commenting out, but keeping since this can be useful for debugging
+            LL_WARNS() << "Returned body=" << std::endl << httpStatus["error_body"].asString() << LL_ENDL;
+        }
     }
 
     mReplyPump.post(result);

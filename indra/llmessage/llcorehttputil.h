@@ -57,7 +57,14 @@
 ///
 namespace LLCoreHttpUtil
 {
-    extern const F32 HTTP_REQUEST_EXPIRY_SECS;
+/// Allow access to to the property settings methods.
+typedef boost::function<bool(const std::string &)> BoolSettingQuery_t;
+typedef boost::function<void(const std::string &, bool, const std::string &)> BoolSettingUpdate_t;
+
+void setPropertyMethods(BoolSettingQuery_t queryfn, BoolSettingUpdate_t updatefn);
+
+
+extern const F32 HTTP_REQUEST_EXPIRY_SECS;
 
 /// Attempt to convert a response object's contents to LLSD.
 /// It is expected that the response body will be of non-zero
