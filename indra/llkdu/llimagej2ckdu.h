@@ -37,15 +37,8 @@
 #include "kdu_messaging.h"
 #include "kdu_params.h"
 
-// don't *really* want to rebuild KDU so turn off specific warnings for this header
-#if LL_DARWIN
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include "kdu_compressed.h"
-#pragma clang diagnostic pop
-#else
-#include "kdu_compressed.h"
-#endif
+#define kdu_xxxx "kdu_compressed.h"
+#include "include_kdu_xxxx.h"
 
 #include "kdu_sample_processing.h"
 
@@ -80,9 +73,9 @@ private:
 
 	// Encode variable
 	LLKDUMemSource *mInputp;
-	kdu_codestream *mCodeStreamp;
-	kdu_coords *mTPosp; // tile position
-	kdu_dims *mTileIndicesp;
+	kdu_core::kdu_codestream *mCodeStreamp;
+	kdu_core::kdu_coords *mTPosp; // tile position
+	kdu_core::kdu_dims *mTileIndicesp;
 	int mBlocksSize;
 	int mPrecinctsSize;
 	int mLevels;
