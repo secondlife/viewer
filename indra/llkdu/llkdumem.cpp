@@ -28,6 +28,9 @@
 #include "llkdumem.h"
 #include "llerror.h"
 
+using namespace kdu_core;
+using kd_supp_image_local::image_line_buf;
+
 #if defined(LL_WINDOWS)
 # pragma warning(disable: 4702) // unreachable code
 #endif

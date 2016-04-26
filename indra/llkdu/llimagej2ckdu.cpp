@@ -32,12 +32,16 @@
 #include "llmath.h"
 #include "llkdumem.h"
 
-#include "kdu_block_coding.h"
+#define kdu_xxxx "kdu_block_coding.h"
+#include "include_kdu_xxxx.h"
+
+// Avoid ubiquitous necessity of kdu_core:: qualification
+using namespace kdu_core;
 
 class kdc_flow_control {
 	
 public:
-	kdc_flow_control(kdu_image_in_base *img_in, kdu_codestream codestream);
+	kdc_flow_control(kdu_supp::kdu_image_in_base *img_in, kdu_codestream codestream);
 	~kdc_flow_control();
 	bool advance_components();
 	void process_components();
@@ -46,7 +50,7 @@ private:
 	
 	struct kdc_component_flow_control {
 	public:
-		kdu_image_in_base *reader;
+		kdu_supp::kdu_image_in_base *reader;
 		int vert_subsampling;
 		int ratio_counter;  /*  Initialized to 0, decremented by `count_delta';
                                 when < 0, a new line must be processed, after
@@ -108,7 +112,8 @@ const char* fallbackEngineInfoLLImageJ2CImpl()
 class LLKDUDecodeState
 {
 public:
-	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap);
+	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap,
+					 kdu_codestream* codestreamp);
 	~LLKDUDecodeState();
 	BOOL processTileDecode(F32 decode_time, BOOL limit_time = TRUE);
 
@@ -495,7 +500,7 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					kdu_coords offset = tile_dims.pos - dims.pos;
 					int row_gap = channels*dims.size.x; // inter-row separation
 					kdu_byte *buf = buffer + offset.y*row_gap + offset.x*channels;
-					mDecodeState = new LLKDUDecodeState(tile, buf, row_gap);
+					mDecodeState = new LLKDUDecodeState(tile, buf, row_gap, mCodeStreamp);
 				}
 				// Do the actual processing
 				F32 remaining_time = decode_time - decode_timer.getElapsedTimeF32();
@@ -1143,7 +1148,8 @@ all necessary level shifting, type conversion, rounding and truncation. */
 	}
 }
 
-LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap)
+LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap,
+								   kdu_codestream* codestreamp)
 {
 	S32 c;
 
@@ -1189,7 +1195,7 @@ LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap)
 			mEngines[c] = kdu_synthesis(res,&mAllocator,use_shorts);
 		}
 	}
-	mAllocator.finalize(); // Actually creates buffering resources
+	mAllocator.finalize(*codestreamp); // Actually creates buffering resources
 	for (c = 0; c < mNumComponents; c++)
 	{
 		mLines[c].create(); // Grabs resources from the allocator.
@@ -1247,7 +1253,7 @@ separation between consecutive rows in the real buffer. */
 
 // kdc_flow_control 
 
-kdc_flow_control::kdc_flow_control (kdu_image_in_base *img_in, kdu_codestream codestream)
+kdc_flow_control::kdc_flow_control (kdu_supp::kdu_image_in_base *img_in, kdu_codestream codestream)
 {
 	int n;
 	
