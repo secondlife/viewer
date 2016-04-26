@@ -244,8 +244,8 @@ LLSD llcoro::suspendUntilEventOnWithTimeout(const LLEventPumpOrPumpName& suspend
     LLEventTimeout timeoutPump;
     LLEventPump &suspendPump = suspendPumpOrName.getPump();
 
-    LLTempBoundListener timeoutListener = timeoutPump.listen(suspendPump.getName(), 
-            boost::bind(&LLEventPump::post, &suspendPump, _1));
+    LLTempBoundListener timeoutListener(timeoutPump.listen(suspendPump.getName(), 
+            boost::bind(&LLEventPump::post, &suspendPump, _1)));
 
     timeoutPump.eventAfter(timeoutin, timeoutResult);
     return llcoro::suspendUntilEventOn(suspendPump);
