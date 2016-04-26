@@ -25,6 +25,12 @@
  */
 
 #include "linden_common.h"
+
+// based on this KDU support group posting:
+// https://groups.yahoo.com/neo/groups/kakadu_jpeg2000/conversations/messages/6691
+// Defining this values seems to fix the linker error that appeared with the 7.8 release
+#define CORESYS_IMPORTS
+
 #include "llimagej2ckdu.h"
 
 #include "lltimer.h"
