@@ -616,6 +616,12 @@ public:
  * a queue. Subsequent attaching listeners will receive stored events from the queue 
  * until a listener indicates that the event has been handled.  In order to receive 
  * multiple events from a mail drop the listener must disconnect and reconnect.
+ * 
+ * @NOTE: When using an LLEventMailDrop (or LLEventQueue) with a LLEventTimeout or
+ * LLEventFilter attaching the filter downstream using Timeout's constructor will
+ * cause the MailDrop to discharge any of it's stored events. The timeout should 
+ * instead be connected upstream using its listen() method.  
+ * See llcoro::suspendUntilEventOnWithTimeout() for an example.
  */
 class LL_COMMON_API LLEventMailDrop : public LLEventStream
 {
