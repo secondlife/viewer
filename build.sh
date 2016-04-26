@@ -101,7 +101,7 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    "$autobuild" configure --quiet -c $variant -- \
+    "$autobuild" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
@@ -146,7 +146,7 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    "$autobuild" build --quiet --no-configure -c $variant
+    "$autobuild" build --no-configure -c $variant
     build_ok=$?
 
     # Run build extensions
