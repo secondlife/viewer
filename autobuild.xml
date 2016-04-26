@@ -1556,7 +1556,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3d5e9754ce51f1f5432d442e6eaa33d7</string>
+              <string>3c2e7b7c76024ceb231c43fdce21b475</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/p64_3p-kdu/rev/314311/arch/Darwin/installer/kdu-7.8.314311-darwin64-314311.tar.bz2</string>
             </map>
@@ -1580,7 +1580,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>03b102141fdf0d9cbee2f810eff30a25</string>
+              <string>c5383c48398d4383729f1d215b82d505</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/p64_3p-kdu/rev/314311/arch/CYGWIN/installer/kdu-7.8.314311-windows-314311.tar.bz2</string>
             </map>
@@ -1592,7 +1592,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4afe2af1b819dd7cc3ea0b6f4145f303</string>
+              <string>3b2d4acf9deec3ec99ce5b67eb30d003</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/p64_3p-kdu/rev/314311/arch/CYGWIN/installer/kdu-7.8.314311-windows64-314311.tar.bz2</string>
             </map>
