@@ -147,7 +147,10 @@ LLSD suspendUntilEventOn(const LLEventPumpOrPumpName& pump)
     return postAndSuspend(LLSD(), LLEventPumpOrPumpName(), pump);
 }
 
-LLSD suspendUntilEventOnWithTimeout(const LLEventPumpOrPumpName& pump, F32 timeoutin, const LLSD &timeoutResult);
+/// Suspend the coroutine until an event is fired on the identified pump
+/// or the timeout duration has elapsed.  If the timeout duration 
+/// elapses the specified LLSD is returned.
+LLSD suspendUntilEventOnWithTimeout(const LLEventPumpOrPumpName& suspendPumpOrName, F32 timeoutin, const LLSD &timeoutResult);
 
 } // namespace llcoro
 

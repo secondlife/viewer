@@ -900,8 +900,7 @@ bool LLVivoxVoiceClient::loginToVivox()
 {
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
 
-    LLSD timeoutResult;
-    timeoutResult["login"] = LLSD::String("timeout");
+    LLSD timeoutResult(LLSDMap("login", "timeout"));
 
     int loginRetryCount(0);
 
@@ -1012,8 +1011,7 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
     if (wait)
     {
         LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
-        LLSD timeoutResult;
-        timeoutResult["logout"] = LLSD::String("timeout");
+        LLSD timeoutResult(LLSDMap("lougout", "timeout"));
 
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(voicePump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
 
@@ -1216,8 +1214,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     bool added(true);
     bool joined(false);
 
-    LLSD timeoutResult;
-    timeoutResult["session"] = LLSD::String("timeout");
+    LLSD timeoutResult(LLSDMap("session", "timeout"));
 
     // It appears that I need to wait for BOTH the SessionGroup.AddSession response and the SessionStateChangeEvent with state 4
     // before continuing from this state.  They can happen in either order, and if I don't wait for both, things can get stuck.
@@ -1500,8 +1497,7 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
     notifyParticipantObservers();
     notifyVoiceFontObservers();
 
-    LLSD timeoutEvent = LLSD::emptyMap();
-    timeoutEvent["timeout"] = LLSD::Boolean(true);
+    LLSD timeoutEvent(LLSDMap("timeout", LLSD::Boolean(true)));
 
     LLEventPump &voicePump = LLEventPumps::instance().obtain("vivoxClientPump");
     mIsInChannel = true;
@@ -1653,8 +1649,7 @@ void LLVivoxVoiceClient::recordingAndPlaybackMode()
 
 int LLVivoxVoiceClient::voiceRecordBuffer()
 {
-    LLSD timeoutResult; 
-    timeoutResult["recplay"] = LLSD::String("stop");
+    LLSD timeoutResult(LLSDMap("recplay", "stop")); 
 
     LL_INFOS("Voice") << "Recording voice buffer" << LL_ENDL;
 
@@ -1684,8 +1679,7 @@ int LLVivoxVoiceClient::voiceRecordBuffer()
 
 int LLVivoxVoiceClient::voicePlaybackBuffer()
 {
-    LLSD timeoutResult;
-    timeoutResult["recplay"] = LLSD::String("stop");
+    LLSD timeoutResult(LLSDMap("recplay", "stop"));
 
     LL_INFOS("Voice") << "Playing voice buffer" << LL_ENDL;
 
@@ -2924,11 +2918,9 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 			session->mErrorStatusString = statusString;
 			if(session == mAudioSession)
 			{
-                LLSD vivoxevent = LLSD::emptyMap();
-
-                vivoxevent["handle"] = LLSD::String(sessionHandle);
-                vivoxevent["session"] = LLSD::String("failed");
-                vivoxevent["reason"] = LLSD::Integer(statusCode);
+                LLSD vivoxevent(LLSDMap("handle", LLSD::String(sessionHandle))
+                        ("session", "failed")
+                        ("reason", LLSD::Integer(statusCode)));
 
                 LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
             }
@@ -2945,10 +2937,8 @@ void LLVivoxVoiceClient::sessionCreateResponse(std::string &requestId, int statu
 		{
 			setSessionHandle(session, sessionHandle);
 		}
-        LLSD vivoxevent = LLSD::emptyMap();
-
-        vivoxevent["handle"] = LLSD::String(sessionHandle);
-        vivoxevent["session"] = LLSD::String("created");
+        LLSD vivoxevent(LLSDMap("handle", LLSD::String(sessionHandle))
+                ("session", "created"));
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
 	}
@@ -2972,10 +2962,8 @@ void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, 
 			session->mErrorStatusString = statusString;
 			if(session == mAudioSession)
 			{
-                LLSD vivoxevent = LLSD::emptyMap();
-
-                vivoxevent["handle"] = LLSD::String(sessionHandle);
-                vivoxevent["session"] = LLSD::String("failed");
+                LLSD vivoxevent(LLSDMap("handle", LLSD::String(sessionHandle))
+                    ("session", "failed"));
 
                 LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
 			}
@@ -2993,10 +2981,8 @@ void LLVivoxVoiceClient::sessionGroupAddSessionResponse(std::string &requestId, 
 			setSessionHandle(session, sessionHandle);
 		}
 
-        LLSD vivoxevent = LLSD::emptyMap();
-
-        vivoxevent["handle"] = LLSD::String(sessionHandle);
-        vivoxevent["session"] = LLSD::String("added");
+        LLSD vivoxevent(LLSDMap("handle", LLSD::String(sessionHandle))
+            ("session", "added"));
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
 
@@ -3041,9 +3027,7 @@ void LLVivoxVoiceClient::logoutResponse(int statusCode, std::string &statusStrin
 		LL_WARNS("Voice") << "Account.Logout response failure: " << statusString << LL_ENDL;
 		// Should this ever fail?  do we care if it does?
 	}
-    LLSD vivoxevent = LLSD::emptyMap();
-
-    vivoxevent["logout"] = LLSD::Boolean(true);
+    LLSD vivoxevent(LLSDMap("logout", LLSD::Boolean(true)));
 
     LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
 }
@@ -3058,9 +3042,7 @@ void LLVivoxVoiceClient::connectorShutdownResponse(int statusCode, std::string &
 	
 	mConnected = false;
 	
-    LLSD vivoxevent = LLSD::emptyMap();
-
-    vivoxevent["connector"] = LLSD::Boolean(false);
+    LLSD vivoxevent(LLSDMap("connector", LLSD::Boolean(false)));
 
     LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
 }
@@ -3168,10 +3150,8 @@ void LLVivoxVoiceClient::joinedAudioSession(const sessionStatePtr_t &session)
 	// This is the session we're joining.
 	if(mIsJoiningSession)
 	{
-        LLSD vivoxevent = LLSD::emptyMap();
-
-        vivoxevent["handle"] = LLSD::String(session->mHandle);
-        vivoxevent["session"] = LLSD::String("joined");
+        LLSD vivoxevent(LLSDMap("handle", LLSD::String(session->mHandle))
+                ("session", "joined"));
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
 
@@ -3314,10 +3294,8 @@ void LLVivoxVoiceClient::leftAudioSession(const sessionStatePtr_t &session)
 {
     if (mAudioSession == session)
     {
-        LLSD vivoxevent = LLSD::emptyMap();
-
-        vivoxevent["handle"] = LLSD::String(session->mHandle);
-        vivoxevent["session"] = LLSD::String("removed");
+        LLSD vivoxevent(LLSDMap("handle", LLSD::String(session->mHandle))
+            ("session", "removed"));
 
         LLEventPumps::instance().post("vivoxClientPump", vivoxevent);
     }
@@ -6172,9 +6150,7 @@ void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const st
     {
         // *TODO: We seem to get multiple events of this type.  Should figure a way to advance only after
         // receiving the last one.
-        LLSD result = LLSD::emptyMap();
-
-        result["voice_fonts"] = LLSD::Boolean(true);
+        LLSD result(LLSDMap("voice_fonts", LLSD::Boolean(true)));
 
         LLEventPumps::instance().post("vivoxClientPump", result);
     }
@@ -6347,8 +6323,7 @@ void LLVivoxVoiceClient::recordPreviewBuffer()
 
 	mCaptureBufferRecording = true;
 
-    LLSD result;
-    result["recplay"] = "record";
+    LLSD result(LLSDMap("recplay", "record"));
     LLEventPumps::instance().post("vivoxClientPump", result);
 }
 
@@ -6371,8 +6346,7 @@ void LLVivoxVoiceClient::playPreviewBuffer(const LLUUID& effect_id)
 	mPreviewVoiceFont = effect_id;
 	mCaptureBufferPlaying = true;
 
-    LLSD result;
-    result["recplay"] = "playback";
+    LLSD result(LLSDMap("recplay", "playback"));
     LLEventPumps::instance().post("vivoxClientPump", result);
 }
 
@@ -6381,8 +6355,7 @@ void LLVivoxVoiceClient::stopPreviewBuffer()
 	mCaptureBufferRecording = false;
 	mCaptureBufferPlaying = false;
 
-    LLSD result;
-    result["recplay"] = "quit";
+    LLSD result(LLSDMap("recplay", "quit"));
     LLEventPumps::instance().post("vivoxClientPump", result);
 }
 
