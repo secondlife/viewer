@@ -228,7 +228,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
             
 
 # Check contents of avatar_lad file relative to a specified skeleton
-def validate_lad_tree(ladtree,skeltree):
+def validate_lad_tree(ladtree,skeltree,orig_ladtree):
     print "validate_lad_tree"
     bone_names = [elt.get("name") for elt in skeltree.iter("bone")]
     bone_names.append("mScreen")
@@ -271,7 +271,21 @@ def validate_lad_tree(ladtree,skeltree):
         else:
             if args.verbose:
                 print "driven_id",driven_id,"has one driver",dset
-        
+
+    if orig_ladtree:
+        # make sure expected message format is unchanged
+        orig_message_params_by_id = dict((int(param.get("id")),param) for param in orig_ladtree.iter("param") if param.get("group") in ["0","3"])
+        orig_message_ids = sorted(orig_message_params_by_id.keys())
+        #print "orig_message_ids",orig_message_ids
+        message_params_by_id = dict((int(param.get("id")),param) for param in ladtree.iter("param") if param.get("group") in ["0","3"])
+        message_ids = sorted(message_params_by_id.keys())
+        #print "message_ids",message_ids
+        if (set(message_ids) != set(orig_message_ids)):
+            print "mismatch in message ids!"
+            print "added",set(message_ids) - set(orig_message_ids)
+            print "removed",set(orig_message_ids) - set(message_ids)
+        else:
+            print "message ids OK"
     
 def remove_joint_by_name(tree, name):
     print "remove joint:",name
@@ -345,6 +359,7 @@ if __name__ == "__main__":
     parser.add_argument("--ogfile", help="specify file containing base bones")
     parser.add_argument("--ref_file", help="specify another file containing replacements for missing fields")
     parser.add_argument("--lad_file", help="specify avatar_lad file to check")
+    parser.add_argument("--orig_lad_file", help="specify avatar_lad file to compare to")
     parser.add_argument("--aliases", help="specify file containing bone aliases")
     parser.add_argument("--validate", action="store_true", help="check specified input file for validity")
     parser.add_argument("--fix", action="store_true", help="try to correct errors")
@@ -366,6 +381,8 @@ if __name__ == "__main__":
     ogtree = None
     reftree = None
     ladtree = None
+    orig_ladtree = None
+
     if args.ogfile:
         ogtree = etree.parse(args.ogfile)
 
@@ -374,6 +391,9 @@ if __name__ == "__main__":
 
     if args.lad_file:
         ladtree = etree.parse(args.lad_file)
+
+    if args.orig_lad_file:
+        orig_ladtree = etree.parse(args.orig_lad_file)
 
     if args.remove:
         for name in args.remove:
@@ -384,7 +404,7 @@ if __name__ == "__main__":
         validate_skel_tree(tree, ogtree, reftree)
 
     if args.validate and ladtree:
-        validate_lad_tree(ladtree, tree)
+        validate_lad_tree(ladtree, tree, orig_ladtree)
 
     if args.fix and ogtree:
         validate_skel_tree(tree, ogtree, reftree, True)
