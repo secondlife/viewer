@@ -5317,9 +5317,9 @@ void LLVOAvatar::clearAttachmentPosOverrides()
 
 bool above_joint_pos_threshold(const LLVector3& diff)
 {
-    return !diff.isNull();
-    //const F32 max_joint_pos_offset = 0.0001f; // 0.1 mm
-    //return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
+    //return !diff.isNull();
+    const F32 max_joint_pos_offset = 0.0001f; // 0.1 mm
+    return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
 }
 
 //-----------------------------------------------------------------------------
