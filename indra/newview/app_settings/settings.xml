@@ -10035,7 +10035,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>20</integer>
+    <integer>10</integer>
   </map>
   <key>RenderAvatarMaxComplexity</key>
   <map>
