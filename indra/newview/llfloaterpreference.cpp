@@ -131,7 +131,7 @@ static const U32 MAX_INDIRECT_ARC_LIMIT = INDIRECT_MAX_ARC_OFF-1; // one short o
 
 /// These are the effective range of values for RenderAvatarMaxComplexity
 static const F32 MIN_ARC_LIMIT =  20000.0f;
-static const F32 MAX_ARC_LIMIT = 300000.0f;
+static const F32 MAX_ARC_LIMIT = 350000.0f;
 static const F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
 static const F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
 static const F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);

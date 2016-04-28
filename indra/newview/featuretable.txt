@@ -400,7 +400,7 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
 RenderAvatarVP				0	0
 RenderAvatarMaxNonImpostors 1	16
-RenderAvatarMaxComplexity          1	60000
+RenderAvatarMaxComplexity          1	80000
 RenderObjectBump			0	0
 RenderLocalLights			1	0
 RenderMaxPartCount			1	1024

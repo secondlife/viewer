@@ -80,7 +80,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   3
-RenderAvatarMaxComplexity          1	30000
+RenderAvatarMaxComplexity          1	35000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
@@ -111,7 +111,7 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   3
-RenderAvatarMaxComplexity          1	30000
+RenderAvatarMaxComplexity          1	35000
 RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
@@ -393,7 +393,7 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
 RenderAvatarVP				0	0
 RenderAvatarMaxNonImpostors 1	16
-RenderAvatarMaxComplexity          1	60000
+RenderAvatarMaxComplexity          1	80000
 RenderObjectBump			0	0
 RenderLocalLights			1	0
 RenderMaxPartCount			1	1024

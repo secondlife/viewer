@@ -28,7 +28,7 @@
 	<RenderTreeLODFactor value="0.5"/>
 	<!--Avater Impostors and Visual Muting Limits-->
     <RenderAvatarMaxNonImpostors     value="18"/>
-    <RenderAvatarMaxComplexity              value="100000"/>
+    <RenderAvatarMaxComplexity              value="150000"/>
     <RenderAutoMuteSurfaceAreaLimit  value="1000.0"/>
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="1.125"/>
