@@ -354,7 +354,7 @@ def compare_skel_trees(atree,btree):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="process SL animations")
+    parser = argparse.ArgumentParser(description="process SL avatar_skeleton/avatar_lad files")
     parser.add_argument("--verbose", action="store_true",help="verbose flag")
     parser.add_argument("--ogfile", help="specify file containing base bones")
     parser.add_argument("--ref_file", help="specify another file containing replacements for missing fields")
