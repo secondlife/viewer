@@ -3311,7 +3311,7 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
 
   <notification
    icon = "notifytip.tga"
-   name = "RegionAndAgentComplexity"
+   name = "AgentComplexityWithVisibility"
    type = "notifytip"
    log_to_chat = "false">
    <unique combine = "cancel_old">

@@ -115,17 +115,18 @@ void LLAvatarRenderNotifier::displayNotification(bool show_over_limit)
 	std::string notification_name;
     if (mShowOverLimitAgents)
     {
+        notification_name = "AgentComplexityWithVisibility";
+        args["OVERLIMIT_MSG"] = overLimitMessage();
+
+        // remember what the situation was so that we only notify when it has changed
         mAgentsCount = mLatestAgentsCount;
         mOverLimitAgents = mLatestOverLimitAgents;
         mOverLimitPct = mLatestOverLimitPct;
-
-        std::string notification_message = overLimitMessage();
-        notification_name = "RegionAndAgentComplexity";
-        args["OVERLIMIT_MSG"] = notification_message;
 	}
 	else
 	{
-		notification_name = "AgentComplexity";
+        // no change in visibility, just update complexity
+        notification_name = "AgentComplexity";
 	}
 
 	if (mNotificationPtr != NULL && mNotificationPtr->getName() != notification_name)
