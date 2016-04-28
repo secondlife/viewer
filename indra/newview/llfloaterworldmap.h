@@ -94,7 +94,7 @@ public:
 	// A z_attenuation of 0.0f collapses the distance into the X-Y plane
 	F32				getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
 
-	void			clearLocationSelection(BOOL clear_ui = FALSE);
+	void			clearLocationSelection(BOOL clear_ui = FALSE, BOOL dest_reached = FALSE);
 	void			clearAvatarSelection(BOOL clear_ui = FALSE);
 	void			clearLandmarkSelection(BOOL clear_ui = FALSE);
 
