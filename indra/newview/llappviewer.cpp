@@ -203,6 +203,7 @@
 #include "llcommandlineparser.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
+#include "llfloateroutfitsnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llfloaterinventory.h"
 
@@ -1471,6 +1472,8 @@ bool LLAppViewer::mainLoop()
 					display();
 					pingMainloopTimeout("Main:Snapshot");
 					LLFloaterSnapshot::update(); // take snapshots
+                    //TODO: Make one call by moving LLFloaterOutfitSnapshot::update() to LLFloaterSnapshotBase class
+                    LLFloaterOutfitSnapshot::update();
 					gGLActive = FALSE;
 				}
 			}

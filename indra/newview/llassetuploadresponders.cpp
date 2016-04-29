@@ -178,9 +178,14 @@ void on_new_single_inventory_upload_complete(
 
 	// Let the Snapshot floater know we have finished uploading a snapshot to inventory.
 	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
-	if (asset_type == LLAssetType::AT_TEXTURE && floater_snapshot)
-	{
-		floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+    if (asset_type == LLAssetType::AT_TEXTURE && floater_snapshot && floater_snapshot->isShown())
+    {
+        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+    }
+    LLFloater* floater_outfit_snapshot = LLFloaterReg::findInstance("outfit_snapshot");
+    if (asset_type == LLAssetType::AT_TEXTURE && floater_outfit_snapshot && floater_outfit_snapshot->isShown())
+    {
+        floater_outfit_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
 	}
 }
 

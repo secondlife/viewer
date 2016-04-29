@@ -86,8 +86,8 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mNeedsFlash(TRUE),
 	mSnapshotQuality(gSavedSettings.getS32("SnapshotQuality")),
 	mDataSize(0),
-	mSnapshotType(SNAPSHOT_POSTCARD),
-	mSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat"))),
+    mSnapshotType(LLPanelSnapshot::ESnapshotType::SNAPSHOT_POSTCARD),
+    mSnapshotFormat(LLFloaterSnapshotBase::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat"))),
 	mSnapshotUpToDate(FALSE),
 	mCameraPos(LLViewerCamera::getInstance()->getOrigin()),
 	mCameraRot(LLViewerCamera::getInstance()->getQuaternion()),
@@ -737,7 +737,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 previewp->getWidth(),
                 previewp->getHeight(),
                 previewp->mKeepAspectRatio,//gSavedSettings.getBOOL("KeepAspectForSnapshot"),
-                previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_TEXTURE,
+                previewp->getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE,
                 previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
                 FALSE,
                 previewp->mSnapshotBufferType,
@@ -813,7 +813,7 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
         mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
         LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
         gGL.getTexUnit(0)->bind(curr_preview_image);
-        curr_preview_image->setFilteringOption(getSnapshotType() == SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
+        curr_preview_image->setFilteringOption(getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
         curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 
@@ -827,7 +827,7 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
 S32 LLSnapshotLivePreview::getEncodedImageWidth() const
 {
     S32 width = getWidth();
-    if (getSnapshotType() == SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE)
     {
         width = LLImageRaw::biasedDimToPowerOfTwo(width,MAX_TEXTURE_SIZE);
     }
@@ -836,7 +836,7 @@ S32 LLSnapshotLivePreview::getEncodedImageWidth() const
 S32 LLSnapshotLivePreview::getEncodedImageHeight() const
 {
     S32 height = getHeight();
-    if (getSnapshotType() == SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE)
     {
         height = LLImageRaw::biasedDimToPowerOfTwo(height,MAX_TEXTURE_SIZE);
     }
@@ -854,7 +854,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
             mPreviewImage->getHeight(),
             mPreviewImage->getComponents());
         
-		if (getSnapshotType() == SNAPSHOT_TEXTURE)
+        if (getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE)
 		{
             // We don't store the intermediate formatted image in mFormattedImage in the J2C case 
 			LL_DEBUGS() << "Encoding new image of format J2C" << LL_ENDL;
@@ -903,13 +903,13 @@ void LLSnapshotLivePreview::estimateDataSize()
     // Compression ratio
     F32 ratio = 1.0;
     
-    if (getSnapshotType() == SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
     {
         ratio = 8.0;    // This is what we shoot for when compressing to J2C
     }
     else
     {
-        LLFloaterSnapshot::ESnapshotFormat format = getSnapshotFormat();
+        LLFloaterSnapshotBase::ESnapshotFormat format = getSnapshotFormat();
         switch (format)
         {
             case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
@@ -947,7 +947,7 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
         }
         
         // Create the new formatted image of the appropriate format.
-        LLFloaterSnapshot::ESnapshotFormat format = getSnapshotFormat();
+        LLFloaterSnapshotBase::ESnapshotFormat format = getSnapshotFormat();
         LL_DEBUGS() << "Encoding new image of format " << format << LL_ENDL;
             
         switch (format)
@@ -978,7 +978,7 @@ void LLSnapshotLivePreview::setSize(S32 w, S32 h)
 	setHeight(h);
 }
 
-void LLSnapshotLivePreview::setSnapshotFormat(LLFloaterSnapshot::ESnapshotFormat format)
+void LLSnapshotLivePreview::setSnapshotFormat(LLFloaterSnapshotBase::ESnapshotFormat format)
 {
     if (mSnapshotFormat != format)
     {
@@ -993,7 +993,7 @@ void LLSnapshotLivePreview::getSize(S32& w, S32& h) const
 	h = getHeight();
 }
 
-void LLSnapshotLivePreview::saveTexture()
+void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 {
 	LL_DEBUGS() << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << LL_ENDL;
 	// gen a new uuid for this asset
@@ -1035,13 +1035,17 @@ void LLSnapshotLivePreview::saveTexture()
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 		void *userdata = NULL;
+        std::string res_name = outfit_snapshot ? name : "Snapshot : " + pos_string;
+        std::string res_desc = outfit_snapshot ? "" : "Taken by " + who_took_it + " at " + pos_string;
+        LLFolderType::EType folder_type = outfit_snapshot ? LLFolderType::FT_NONE : LLFolderType::FT_SNAPSHOT_CATEGORY;
+        LLInventoryType::EType inv_type = outfit_snapshot ? LLInventoryType::IT_NONE : LLInventoryType::IT_SNAPSHOT;
 		upload_new_resource(tid,	// tid
 			LLAssetType::AT_TEXTURE,
-			"Snapshot : " + pos_string,
-			"Taken by " + who_took_it + " at " + pos_string,
+            res_name,
+			res_desc,
 			0,
-			LLFolderType::FT_SNAPSHOT_CATEGORY,
-			LLInventoryType::IT_SNAPSHOT,
+            folder_type,
+            inv_type,
 			PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
 			LLFloaterPerms::getGroupPerms("Uploads"), // that is more permissive than other uploads
 			LLFloaterPerms::getEveryonePerms("Uploads"),

@@ -488,7 +488,7 @@ void LLFacebookPhotoPanel::onVisibilityChange(BOOL visible)
             mQuality = MAX_QUALITY;
 
             previewp->setContainer(this);
-			previewp->setSnapshotType(previewp->SNAPSHOT_WEB);
+            previewp->setSnapshotType(LLPanelSnapshot::SNAPSHOT_WEB);
 			previewp->setSnapshotFormat(LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
 			previewp->setSnapshotQuality(mQuality, false);
             previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image

@@ -556,7 +556,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			gViewerWindow->playSnapshotAnimAndSound();
 			LLPointer<LLImageFormatted> formatted;
-			LLFloaterSnapshot::ESnapshotFormat fmt = (LLFloaterSnapshot::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+            LLFloaterSnapshotBase::ESnapshotFormat fmt = (LLFloaterSnapshotBase::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
 			switch (fmt)
 			{
 			case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:

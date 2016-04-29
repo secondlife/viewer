@@ -165,6 +165,7 @@ protected:
     virtual void onUpdateItemsVisibility();
     virtual void onUploadFoto();
     virtual void onSelectPhoto();
+    virtual void onTakeSnapshot();
 
     const LLUUID& getSelectedOutfitID();
 

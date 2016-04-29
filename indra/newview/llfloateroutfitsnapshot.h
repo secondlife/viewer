@@ -1,10 +1,10 @@
 /** 
- * @file llfloatersnapshot.h
- * @brief Snapshot preview window, allowing saving, e-mailing, etc.
+ * @file llfloateroutfitsnapshot.h
+ * @brief Snapshot preview window for saving as an outfit thumbnail in visual outfit gallery
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2016, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,44 +24,18 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSNAPSHOT_H
-#define LL_LLFLOATERSNAPSHOT_H
+#ifndef LL_LLFLOATEROUTFITSNAPSHOT_H
+#define LL_LLFLOATEROUTFITSNAPSHOT_H
 
 #include "llfloater.h"
+#include "llfloatersnapshot.h"
+#include "lloutfitgallery.h"
 
 class LLSpinCtrl;
 
-class LLFloaterSnapshotBase : public LLFloater
+class LLFloaterOutfitSnapshot : public LLFloaterSnapshotBase
 {
-    LOG_CLASS(LLFloaterSnapshotBase);
-
-public:
-    typedef enum e_snapshot_format
-    {
-        SNAPSHOT_FORMAT_PNG,
-        SNAPSHOT_FORMAT_JPEG,
-        SNAPSHOT_FORMAT_BMP
-    } ESnapshotFormat;
-
-    LLFloaterSnapshotBase(const LLSD& key);
-    virtual ~LLFloaterSnapshotBase();
-
-    ///*virtual*/ S32 notify(const LLSD& info);
-
-    //static LLFloaterSnapshotBase* getInstance();
-    //static LLFloaterSnapshotBase* findInstance();
-    //static void saveTexture();
-    //static BOOL saveLocal();
-    //static void postSave();
-
-protected:
-    class ImplBase;
-    //ImplBase& impl;
-};
-
-class LLFloaterSnapshot : public LLFloaterSnapshotBase
-{
-	LOG_CLASS(LLFloaterSnapshot);
+	LOG_CLASS(LLFloaterOutfitSnapshot);
 
 public:
 	//typedef enum e_snapshot_format
@@ -71,8 +45,8 @@ public:
 	//	SNAPSHOT_FORMAT_BMP
 	//} ESnapshotFormat;
 
-	LLFloaterSnapshot(const LLSD& key);
-	virtual ~LLFloaterSnapshot();
+	LLFloaterOutfitSnapshot(const LLSD& key);
+	virtual ~LLFloaterOutfitSnapshot();
     
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
@@ -83,8 +57,8 @@ public:
 	static void update();
 
 	// TODO: create a snapshot model instead
-	static LLFloaterSnapshot* getInstance();
-	static LLFloaterSnapshot* findInstance();
+	static LLFloaterOutfitSnapshot* getInstance();
+	static LLFloaterOutfitSnapshot* findInstance();
 	static void saveTexture();
 	static BOOL saveLocal();
 	static void postSave();
@@ -95,6 +69,9 @@ public:
 
 	static const LLRect& getThumbnailPlaceholderRect() { return sThumbnailPlaceholder->getRect(); }
 
+    void setOutfitID(LLUUID id) { mOutfitID = id; }
+    LLUUID getOutfitID() { return mOutfitID; }
+    void setGallery(LLOutfitGallery* gallery) { mOutfitGallery = gallery; }
 private:
 	static LLUICtrl* sThumbnailPlaceholder;
 	LLUICtrl *mRefreshBtn, *mRefreshLabel;
@@ -102,16 +79,12 @@ private:
 
 	class Impl;
 	Impl& impl;
+
+    LLUUID mOutfitID;
+    LLOutfitGallery* mOutfitGallery;
 };
 
-class LLFloaterSnapshotBase::ImplBase
-{
-public:
-    ImplBase();
-    ~ImplBase();
-};
-
-class LLSnapshotFloaterView : public LLFloaterView
+class LLOutfitSnapshotFloaterView : public LLFloaterView
 {
 public:
 	struct Params 
@@ -120,11 +93,11 @@ public:
 	};
 
 protected:
-	LLSnapshotFloaterView (const Params& p);
+	LLOutfitSnapshotFloaterView (const Params& p);
 	friend class LLUICtrlFactory;
 
 public:
-	virtual ~LLSnapshotFloaterView();
+	virtual ~LLOutfitSnapshotFloaterView();
 
 	/*virtual*/	BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 	/*virtual*/	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
@@ -132,6 +105,6 @@ public:
 	/*virtual*/	BOOL handleHover(S32 x, S32 y, MASK mask);
 };
 
-extern LLSnapshotFloaterView* gSnapshotFloaterView;
+extern LLOutfitSnapshotFloaterView* gOutfitSnapshotFloaterView;
 
-#endif // LL_LLFLOATERSNAPSHOT_H
+#endif // LL_LLFLOATEROUTFITSNAPSHOT_H

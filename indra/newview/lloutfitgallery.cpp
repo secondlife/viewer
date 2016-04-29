@@ -39,6 +39,8 @@
 #include "llerror.h"
 #include "llfilepicker.h"
 #include "llfloaterperms.h"
+#include "llfloaterreg.h"
+#include "llfloateroutfitsnapshot.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "lllocalbitmaps.h"
@@ -636,6 +638,7 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("collapse", FALSE);
     mMenu->setItemVisible("upload_photo", TRUE);
     mMenu->setItemVisible("select_photo", TRUE);
+    mMenu->setItemVisible("take_snapshot", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -656,6 +659,16 @@ void LLOutfitGalleryGearMenu::onSelectPhoto()
     if (gallery && !selected_outfit_id.isNull())
     {
         gallery->onSelectPhoto(selected_outfit_id);
+    }
+}
+
+void LLOutfitGalleryGearMenu::onTakeSnapshot()
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    LLUUID selected_outfit_id = getSelectedOutfitID();
+    if (gallery && !selected_outfit_id.isNull())
+    {
+        gallery->onTakeSnapshot(selected_outfit_id);
     }
 }
 
@@ -715,6 +728,16 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                     updates["name"] = new_name;
                     update_inventory_item(linked_item->getUUID(), updates, NULL);
                     mOutfitRenamePending.setNull();
+                    LLFloater* inv_floater = LLFloaterReg::getInstance("inventory");
+                    if (inv_floater)
+                    {
+                        inv_floater->closeFloater();
+                    }
+                    LLFloater* appearance_floater = LLFloaterReg::getInstance("appearance");
+                    if (appearance_floater)
+                    {
+                        appearance_floater->setFocus(TRUE);
+                    }
                 }
                 break;
             }
@@ -798,10 +821,11 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 
             checkRemovePhoto(outfit_id);
             std::string upload_pending_name = outfit_id.asString();
+            std::string upload_pending_desc = "";
             LLAssetStorage::LLStoreAssetCallback callback = NULL;
             LLUUID photo_id = upload_new_resource(filename, // file
                 upload_pending_name,
-                outfit_id.asString(),
+                upload_pending_desc,
                 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
@@ -924,5 +948,30 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
             floaterp->openFloater();
         }
         floaterp->setFocus(TRUE);
+    }
+}
+
+void LLOutfitGallery::onTakeSnapshot(LLUUID selected_outfit_id)
+{
+    LLFloaterReg::toggleInstanceOrBringToFront("outfit_snapshot");
+    LLFloaterOutfitSnapshot::getInstance()->setOutfitID(selected_outfit_id);
+    LLFloaterOutfitSnapshot::getInstance()->setGallery(this);
+}
+
+void LLOutfitGallery::onBeforeOutfitSnapshotSave()
+{
+    LLUUID selected_outfit_id = getSelectedOutfitUUID();
+    if (!selected_outfit_id.isNull())
+    {
+        checkRemovePhoto(selected_outfit_id);
+    }
+}
+
+void LLOutfitGallery::onAfterOutfitSnapshotSave()
+{
+    LLUUID selected_outfit_id = getSelectedOutfitUUID();
+    if (!selected_outfit_id.isNull())
+    {
+        mOutfitLinkPending = selected_outfit_id;
     }
 }

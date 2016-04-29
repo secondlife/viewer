@@ -85,6 +85,8 @@ public:
     /*virtual*/ void draw();	
     
     void onSelectPhoto(LLUUID selected_outfit_id);
+    void onTakeSnapshot(LLUUID selected_outfit_id);
+
 
     /*virtual*/ void setFilterSubString(const std::string& string);
 
@@ -102,6 +104,8 @@ public:
     void refreshOutfit(const LLUUID& category_id);
 
     void onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LLUUID id);
+    void onBeforeOutfitSnapshotSave();
+    void onAfterOutfitSnapshotSave();
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);
     /*virtual*/ void onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid);
@@ -191,6 +195,7 @@ protected:
 private:
     /*virtual*/ void onUploadFoto();
     /*virtual*/ void onSelectPhoto();
+    /*virtual*/ void onTakeSnapshot();
 };
 
 class LLOutfitGalleryItem : public LLPanel

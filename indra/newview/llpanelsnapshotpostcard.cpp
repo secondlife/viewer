@@ -38,6 +38,7 @@
 #include "llfloatersnapshot.h" // FIXME: replace with a snapshot storage model
 #include "llpanelsnapshot.h"
 #include "llpostcard.h"
+#include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerwindow.h"
 
@@ -63,8 +64,9 @@ private:
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "postcard_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "postcard_size_combo"; }
 	/*virtual*/ std::string getImageSizePanelName() const	{ return "postcard_image_size_lp"; }
-	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG; }
-	/*virtual*/ void updateControls(const LLSD& info);
+    /*virtual*/ LLFloaterSnapshotBase::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshotBase::SNAPSHOT_FORMAT_JPEG; }
+    /*virtual*/ LLPanelSnapshot::ESnapshotType getSnapshotType();
+    /*virtual*/ void updateControls(const LLSD& info);
 
 	bool missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response);
 	void sendPostcard();
@@ -241,4 +243,9 @@ void LLPanelSnapshotPostcard::onSend()
 
 	// Send postcard.
 	sendPostcard();
+}
+
+LLPanelSnapshot::ESnapshotType LLPanelSnapshotPostcard::getSnapshotType()
+{
+    return LLPanelSnapshot::SNAPSHOT_POSTCARD;
 }

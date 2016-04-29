@@ -76,11 +76,11 @@ void LLPanelSnapshot::onOpen(const LLSD& key)
 	// e.g. attempt to send a large BMP image by email.
 	if (old_format != new_format)
 	{
-		LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
+        getParentByType<LLFloater>()->notify(LLSD().with("image-format-change", true));
 	}
 }
 
-LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
+LLFloaterSnapshotBase::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
 {
 	return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
 }
@@ -171,7 +171,7 @@ void LLPanelSnapshot::goBack()
 void LLPanelSnapshot::cancel()
 {
 	goBack();
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("set-ready", true));
+    getParentByType<LLFloater>()->notify(LLSD().with("set-ready", true));
 }
 
 void LLPanelSnapshot::onCustomResolutionCommit()
@@ -179,6 +179,7 @@ void LLPanelSnapshot::onCustomResolutionCommit()
 	LLSD info;
 	LLSpinCtrl *widthSpinner = getChild<LLSpinCtrl>(getWidthSpinnerName());
 	LLSpinCtrl *heightSpinner = getChild<LLSpinCtrl>(getHeightSpinnerName());
+    //TODO: Refactoring - move this code into some virtual method of LLPanelSnapshotInventory
 	if (getName() == "panel_snapshot_inventory")
 	{
 		S32 width = widthSpinner->getValue().asInteger();
@@ -197,17 +198,22 @@ void LLPanelSnapshot::onCustomResolutionCommit()
 		info["w"] = widthSpinner->getValue().asInteger();
 		info["h"] = heightSpinner->getValue().asInteger();
 	}
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("custom-res-change", info));
+    getParentByType<LLFloater>()->notify(LLSD().with("custom-res-change", info));
 }
 
 void LLPanelSnapshot::onResolutionComboCommit(LLUICtrl* ctrl)
 {
 	LLSD info;
 	info["combo-res-change"]["control-name"] = ctrl->getName();
-	LLFloaterSnapshot::getInstance()->notify(info);
+    getParentByType<LLFloater>()->notify(info);
 }
 
 void LLPanelSnapshot::onKeepAspectRatioCommit(LLUICtrl* ctrl)
 {
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("keep-aspect-change", ctrl->getValue().asBoolean()));
+    getParentByType<LLFloater>()->notify(LLSD().with("keep-aspect-change", ctrl->getValue().asBoolean()));
+}
+
+LLPanelSnapshot::ESnapshotType LLPanelSnapshot::getSnapshotType()
+{
+    return ESnapshotType::SNAPSHOT_WEB;
 }
