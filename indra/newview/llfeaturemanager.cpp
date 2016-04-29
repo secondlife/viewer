@@ -180,16 +180,14 @@ BOOL LLFeatureList::maskList(LLFeatureList &mask)
 void LLFeatureList::dump()
 {
 	LL_DEBUGS("RenderInit") << "Feature list: " << mName << LL_ENDL;
-	LL_DEBUGS("RenderInit") << "--------------" << LL_ENDL;
 
 	LLFeatureInfo fi;
 	feature_map_t::iterator feature_it;
 	for (feature_it = mFeatures.begin(); feature_it != mFeatures.end(); ++feature_it)
 	{
 		fi = feature_it->second;
-		LL_DEBUGS("RenderInit") << fi.mName << "\t\t" << fi.mAvailable << ":" << fi.mRecommendedLevel << LL_ENDL;
+		LL_DEBUGS("RenderInit") << "With " << mName << " feature " << fi.mName << " " << fi.mAvailable << ":" << fi.mRecommendedLevel << LL_ENDL;
 	}
-	LL_DEBUGS("RenderInit") << LL_ENDL;
 }
 
 static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_of
@@ -279,26 +277,11 @@ bool LLFeatureManager::loadFeatureTables()
 
 	std::string filename;
 	std::string http_filename; 
-#if LL_WINDOWS
-	std::string os_string = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
-	if (os_string.find("Microsoft Windows XP") == 0)
-	{
-		filename = llformat(FEATURE_TABLE_FILENAME, "_xp");
-		http_filename = llformat(FEATURE_TABLE_VER_FILENAME, "_xp", LLVersionInfo::getVersion().c_str());
-	}
-	else
-	{
-		filename = llformat(FEATURE_TABLE_FILENAME, "");
-		http_filename = llformat(FEATURE_TABLE_VER_FILENAME, "", LLVersionInfo::getVersion().c_str());
-	}
-#else
 	filename = FEATURE_TABLE_FILENAME;
 	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
-#endif
 
 	app_path += filename;
 
-	
 	// second table is downloaded with HTTP - note that this will only be used on the run _after_ it is downloaded
 	std::string http_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, http_filename);
 
