@@ -47,8 +47,8 @@ def mesh_lock_offsets(tree, joints):
             continue
         if joint_node.get("type") != "JOINT":
             continue
-        if joint_node.get("name") in joints:
-            for matrix_node in joint_node.iter():
+        if joint_node.get("name") in joints or "bone" in joints:
+            for matrix_node in list(joint_node):
                 if "matrix" in matrix_node.tag:
                     floats = [float(x) for x in matrix_node.text.split()]
                     if len(floats) == 16:

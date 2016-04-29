@@ -206,7 +206,8 @@ public:
     bool					jointIsRiggedTo(const std::string& joint_name);
     bool					jointIsRiggedTo(const std::string& joint_name, const LLViewerObject *vo);
 	void					clearAttachmentPosOverrides();
-    void                    showAttachmentPosOverrides() const;
+    void                    showAttachmentPosOverrides(bool verbose = false) const;
+    void                    getAttachmentOverrideNames(std::set<std::string>& names) const;
 	
 	/*virtual*/ const LLUUID&	getID() const;
 	/*virtual*/ void			addDebugText(const std::string& text);

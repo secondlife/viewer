@@ -489,10 +489,18 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	bool upload_skinweights = childGetValue("upload_skin").asBoolean();
 	bool upload_joint_positions = childGetValue("upload_joints").asBoolean();
 
+    if (upload_joint_positions)
+    {
+        // Diagnostic message showing list of joints for which joint offsets are defined.
+        // FIXME - given time, would be much better to put this in the UI, in updateStatusMessages().
+		mModelPreview->getPreviewAvatar()->showAttachmentPosOverrides();
+    }
+
 	mUploadModelUrl.clear();
 
 	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
-			childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions, mUploadModelUrl, false,
+                          childGetValue("upload_textures").asBoolean(), upload_skinweights, upload_joint_positions,
+                          mUploadModelUrl, false,
 						  getWholeModelFeeObserverHandle());
 
 	toggleCalculateButton(false);

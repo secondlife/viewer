@@ -382,6 +382,13 @@ void showJointPosOverrides( const LLJoint& joint, const std::string& note, const
         LL_DEBUGS("Avatar") << av_info << " joint " << joint.getName() << " " << note << " " << os.str() << LL_ENDL;
 }
 
+bool above_joint_pos_threshold(const LLVector3& diff)
+{
+	//return !diff.isNull();
+	const F32 max_joint_pos_offset = 0.0001f; // 0.1 mm
+	return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
+}
+
 //--------------------------------------------------------------------
 // addAttachmentPosOverride()
 //--------------------------------------------------------------------
@@ -391,6 +398,15 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
 	{
 		return;
 	}
+    if (!above_joint_pos_threshold(pos-getDefaultPosition()))
+    {
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "Attachment pos override ignored for " << getName()
+                                << ", pos " << pos << " is same as default pos" << LL_ENDL;
+        }
+		return;
+    }
 	if (!m_attachmentOverrides.count())
 	{
 		if (do_debug_joint(getName()))
