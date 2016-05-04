@@ -4092,7 +4092,22 @@
        </param_skeleton>
     </param>
 	
+	<param
+     id="30879"
+     group="1"
+     sex="male"
+     name="Male_Package"
+     value_min="-.5"
+     value_max="2">
+      <param_skeleton>
 	
+		 <bone
+         name   = "mGroin"
+		 offset = "0.0 0.0 0.0"
+         scale  = ".5 .25 .1" />
+	
+	   </param_skeleton>
+    </param>
 	
   </skeleton>
 
@@ -7685,21 +7700,12 @@
     </param>
 
     <param
-     id="879"
-     group="0"
+     id="20879"
+     group="1"
      sex="male"
      name="Male_Package"
-     label="Package"
-     wearable="shape"
-     edit_group="shape_legs"
-     edit_group_order="4.6"
-     label_min="Coin Purse"
-     label_max="Duffle Bag"
-     value_default="0"
      value_min="-.5"
-     value_max="2"
-     camera_angle="60"
-     camera_distance=".6">
+     value_max="2">
       <param_morph />
     </param>
 
@@ -14730,6 +14736,31 @@ render_pass="bump">
          max2="1"
          min2="1" />
       </param_driver>
+    </param>
+
+    <param
+     id="879"
+     group="0"
+     sex="male"
+     name="Male_Package"
+     label="Package"
+     wearable="shape"
+     edit_group="shape_legs"
+     edit_group_order="4.6"
+     label_min="Coin Purse"
+     label_max="Duffle Bag"
+     value_default="0"
+     value_min="-.5"
+     value_max="2"
+     camera_angle="60"
+     camera_distance=".6">
+      <param_driver>
+        <driven
+         id="20879" />
+		 
+		<driven
+         id="30879" />
+	   </param_driver>
     </param>
 
     <param
