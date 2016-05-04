@@ -11062,6 +11062,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>FriendsListHideUsernames</key>
+    <map>
+        <key>Comment</key>
+            <string>Show both Display name and Username in Friend list</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
+    <key>NearbyListHideUsernames</key>
+    <map>
+        <key>Comment</key>
+            <string>Show both Display name and Username in Nearby list</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map> 
     <key>NearbyListShowMap</key>
     <map>
       <key>Comment</key>

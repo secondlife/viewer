@@ -106,6 +106,7 @@ public:
 	void setShowPermissions(bool show) { mShowPermissions = show; };
 	void showLastInteractionTime(bool show);
 	void setAvatarIconVisible(bool visible);
+	void setShowCompleteName(bool show) { mShowCompleteName = show;};
 	
 	const LLUUID& getAvatarId() const;
 	std::string getAvatarName() const;
@@ -218,6 +219,9 @@ private:
 	/// true when the mouse pointer is hovering over this item
 	bool mHovered;
 	
+	bool mShowCompleteName;
+	std::string mGreyOutUsername;
+
 	void fetchAvatarName();
 	boost::signals2::connection mAvatarNameCacheConnection;
 
