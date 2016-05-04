@@ -6528,7 +6528,51 @@
      group="1"
      name="Muscular_Torso"
      label="Torso Muscles"
-   show_simple="true"
+   sex="male"
+     show_simple="true"
+     wearable="shape"
+     edit_group="shape_torso"
+     label_min="Regular"
+     label_max="Muscular"
+     value_min="0"
+     value_max="1.4"
+     camera_elevation=".3"
+     camera_distance="1.2">
+      <param_morph>
+        <volume_morph
+          name="L_CLAVICLE"
+          scale="0.02 0.0 0.005"
+          pos="0.0 0 0.005"/>
+        <volume_morph
+          name="L_UPPER_ARM"
+          scale="0.015 0.0 0.005"
+          pos="0.015 0 0"/>
+        <volume_morph
+          name="L_LOWER_ARM"
+          scale="0.005 0.0 0.005"
+          pos="0.005 0 0"/>
+        <volume_morph
+          name="R_CLAVICLE"
+          scale="0.02 0.0 0.005"
+          pos="0.0 0 0.005"/>
+        <volume_morph
+          name="R_UPPER_ARM"
+          scale="0.015 0.0 0.005"
+          pos="0.015 0 0"/>
+        <volume_morph
+          name="R_LOWER_ARM"
+          scale="0.005 0.0 0.005"
+          pos="0.005 0 0"/>
+      </param_morph>
+    </param>
+
+    <param
+        id="107"
+        group="1"
+        name="Muscular_Torso"
+        label="Torso Muscles"
+        sex="female"
+        show_simple="true"
      wearable="shape"
      edit_group="shape_torso"
      label_min="Regular"
@@ -14135,7 +14179,7 @@ render_pass="bump">
          min2=".5" />
 
         <driven
-         id="106"
+         id="107"
          min1=".5"
          max1="1"
          max2="1"
