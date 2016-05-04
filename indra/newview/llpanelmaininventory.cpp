@@ -1152,6 +1152,15 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	}
 }
 
+void LLPanelMainInventory::onVisibilityChange( BOOL new_visibility )
+{
+	if(!new_visibility)
+	{
+		mMenuAdd->setVisible(FALSE);
+		getActivePanel()->getRootFolder()->finishRenamingItem();
+	}
+}
+
 bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
 {
 	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
