@@ -43,6 +43,7 @@ class LLOutfitGallery;
 class LLOutfitGalleryItem;
 class LLOutfitListGearMenuBase;
 class LLOutfitGalleryGearMenu;
+class LLOutfitGalleryContextMenu;
 
 class LLUpdateGalleryOnPhotoLinked : public LLInventoryCallback
 {
@@ -57,6 +58,7 @@ class LLOutfitGallery : public LLOutfitListBase
 {
 public:
     friend class LLOutfitGalleryGearMenu;
+    friend class LLOutfitGalleryContextMenu;
     friend class LLUpdateGalleryOnPhotoLinked;
 
     struct Params
@@ -169,6 +171,8 @@ private:
     int mGalleryWidth;
     int mRowPanWidthFactor;
     int mGalleryWidthFactor;
+    
+    LLListContextMenu* mOutfitGalleryMenu;
 
     LLHandle<LLFloater> mFloaterHandle;
 
@@ -183,6 +187,28 @@ private:
     LLInventoryCategoriesObserver* 	mTexturesObserver;
     LLInventoryCategoriesObserver* 	mOutfitsObserver;
 };
+class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
+{
+public:
+    
+    friend class LLOutfitGallery;
+    LLOutfitGalleryContextMenu(LLOutfitListBase* outfit_list)
+    : LLOutfitContextMenu(outfit_list),
+    mOutfitList(outfit_list){}
+protected:
+    /* virtual */ LLContextMenu* createMenu();
+    bool onEnable(LLSD::String param);
+    bool onVisible(LLSD::String param);
+    void onUploadPhoto(const LLUUID& outfit_cat_id);
+    void onSelectPhoto(const LLUUID& outfit_cat_id);
+    void onTakeSnapshot(const LLUUID& outfit_cat_id);
+    void onCreate(const LLSD& data);
+    void onRemoveOutfit(const LLUUID& outfit_cat_id);
+    void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response, const LLUUID& outfit_cat_id);
+private:
+    LLOutfitListBase*	mOutfitList;
+};
+
 
 class LLOutfitGalleryGearMenu : public LLOutfitListGearMenuBase
 {
@@ -210,6 +236,7 @@ public:
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void draw();
     /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
     void setDefaultImage();
     void setImageAssetId(LLUUID asset_id);

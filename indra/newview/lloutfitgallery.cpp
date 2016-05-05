@@ -44,6 +44,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "lllocalbitmaps.h"
+#include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "llviewermenufile.h"
 #include "llwearableitemslist.h"
@@ -98,6 +99,7 @@ BOOL LLOutfitGallery::postBuild()
     BOOL rv = LLOutfitListBase::postBuild();
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
     mGalleryPanel = getChild<LLPanel>("gallery_panel");
+    mOutfitGalleryMenu = new LLOutfitGalleryContextMenu(this);
     return rv;
 }
 
@@ -352,6 +354,8 @@ void LLOutfitGallery::moveRowPanel(LLPanel* stack, int left, int bottom)
 
 LLOutfitGallery::~LLOutfitGallery()
 {
+    delete mOutfitGalleryMenu;
+    
     if (gInventory.containsObserver(mTexturesObserver))
     {
         gInventory.removeObserver(mTexturesObserver);
@@ -486,7 +490,7 @@ void LLOutfitGallery::onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLU
     {
         uuid_vec_t selected_uuids;
         selected_uuids.push_back(cat_id);
-        mOutfitMenu->show(ctrl, selected_uuids, x, y);
+        mOutfitGalleryMenu->show(ctrl, selected_uuids, x, y);
     }
 }
 
@@ -604,6 +608,12 @@ BOOL LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
     return LLUICtrl::handleMouseDown(x, y, mask);
 }
 
+BOOL LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+    setFocus(TRUE);
+    return LLUICtrl::handleRightMouseDown(x, y, mask);
+}
+
 void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
 {
     mImageAssetId = image_asset_id;
@@ -624,6 +634,97 @@ void LLOutfitGalleryItem::setDefaultImage()
     mImageAssetId.setNull();
     getChildView("preview_outfit")->setVisible(TRUE);
     mDefaultImage = true;
+}
+
+LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
+{
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+    LLUUID selected_id = mUUIDs.front();
+    
+    registrar.add("Outfit.WearReplace",
+                  boost::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+    registrar.add("Outfit.WearAdd",
+                  boost::bind(&LLAppearanceMgr::addCategoryToCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+    registrar.add("Outfit.TakeOff",
+                  boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
+    registrar.add("Outfit.Edit", boost::bind(editOutfit));
+    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
+    registrar.add("Outfit.Delete", boost::bind(&LLOutfitGalleryContextMenu::onRemoveOutfit, this, selected_id));
+    registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
+    registrar.add("Outfit.UploadPhoto", boost::bind(&LLOutfitGalleryContextMenu::onUploadPhoto, this, selected_id));
+    registrar.add("Outfit.SelectPhoto", boost::bind(&LLOutfitGalleryContextMenu::onSelectPhoto, this, selected_id));
+    registrar.add("Outfit.TakeSnapshot", boost::bind(&LLOutfitGalleryContextMenu::onTakeSnapshot, this, selected_id));
+    
+    enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
+    enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
+    
+    return createFromFile("menu_gallery_outfit_tab.xml");
+}
+
+void LLOutfitGalleryContextMenu::onUploadPhoto(const LLUUID& outfit_cat_id)
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    if (gallery && outfit_cat_id.notNull())
+    {
+        gallery->uploadPhoto(outfit_cat_id);
+    }
+}
+
+void LLOutfitGalleryContextMenu::onSelectPhoto(const LLUUID& outfit_cat_id)
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    if (gallery && outfit_cat_id.notNull())
+    {
+        gallery->onSelectPhoto(outfit_cat_id);
+    }
+}
+
+void LLOutfitGalleryContextMenu::onTakeSnapshot(const LLUUID& outfit_cat_id)
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    if (gallery && outfit_cat_id.notNull())
+    {
+        gallery->onTakeSnapshot(outfit_cat_id);
+    }
+}
+
+void LLOutfitGalleryContextMenu::onRemoveOutfit(const LLUUID& outfit_cat_id)
+{
+    LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLOutfitGalleryContextMenu::onOutfitsRemovalConfirmation, this, _1, _2, outfit_cat_id));
+}
+
+void LLOutfitGalleryContextMenu::onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response, const LLUUID& outfit_cat_id)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option != 0) return; // canceled
+    
+    if (outfit_cat_id.notNull())
+    {
+        gInventory.removeCategory(outfit_cat_id);
+    }
+}
+
+void LLOutfitGalleryContextMenu::onCreate(const LLSD& data)
+{
+    LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
+    if (type == LLWearableType::WT_NONE)
+    {
+        LL_WARNS() << "Invalid wearable type" << LL_ENDL;
+        return;
+    }
+    
+    LLAgentWearables::createWearable(type, true);
+}
+
+bool LLOutfitGalleryContextMenu::onEnable(LLSD::String param)
+{
+    return LLOutfitContextMenu::onEnable(param);
+}
+
+bool LLOutfitGalleryContextMenu::onVisible(LLSD::String param)
+{
+    return LLOutfitContextMenu::onVisible(param);
 }
 
 LLOutfitGalleryGearMenu::LLOutfitGalleryGearMenu(LLOutfitListBase* olist)
