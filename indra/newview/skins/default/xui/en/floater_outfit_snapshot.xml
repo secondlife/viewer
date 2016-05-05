@@ -156,23 +156,6 @@
          width="100">
             Capture:
         </text>
-        <combo_box
-         follows="left|top|right"
-         height="23"
-         label="Image Layers"
-         layout="topleft"
-         left="30"
-         name="layer_types"
-         right="-2">
-            <combo_box.item
-             label="Colors"
-             name="Colors"
-             value="colors" />
-            <combo_box.item
-             label="Depth"
-             name="Depth"
-             value="depth" />
-        </combo_box>
         <check_box
          label="Interface"
          layout="topleft"
@@ -243,43 +226,6 @@
          top_pad="7"
          />
     </panel>
- <!--
-	<panel_container
-     follows="left|top"
-     height="230"
-     layout="topleft"
-     left="0"
-     name="panel_container"
-     default_panel_name="panel_snapshot_options"
-     top_pad="10"
-     width="215">
-      <panel
-       class="llpanelsnapshotoptions"
-       filename="panel_snapshot_options.xml"
-       follows="all"
-       layout="topleft"
-       left="0"
-       name="panel_snapshot_options"
-       top="0" />
-      <panel
-       class="llpanelsnapshotprofile"
-       follows="all"
-       layout="topleft"
-       name="panel_snapshot_profile"
-       filename="panel_snapshot_profile.xml" />
-      <panel
-       class="llpanelsnapshotpostcard"
-       follows="all"
-       layout="topleft"
-       name="panel_snapshot_postcard"
-       filename="panel_snapshot_postcard.xml" />
-      -->
-  <!--panel
-       class="llpaneloutfitsnapshotinventory"
-       follows="all"
-       layout="topleft"
-       name="panel_outfit_snapshot_inventory"
-       filename="panel_snapshot_inventory.xml"-->
       <panel
         class="llpaneloutfitsnapshotinventory"
         follows="left|top"
@@ -291,15 +237,6 @@
         top_pad="10"
         width="215"
       />
-      <!--
-      <panel
-       class="llpanelsnapshotlocal"
-       follows="all"
-       layout="topleft"
-       name="panel_snapshot_local"
-       filename="panel_snapshot_local.xml" />
-      </panel_container>
--->
 	<view_border 
          bevel_style="in"
          follows="left|top" 

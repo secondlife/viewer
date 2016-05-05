@@ -59,53 +59,7 @@
          label="Large (512x512)"
          name="Large(512x512)"
          value="[i512,i512]" />
-        <combo_box.item
-         label="Current Window(512x512)"
-         name="CurrentWindow"
-         value="[i0,i0]" />
-        <combo_box.item
-         label="Custom"
-         name="Custom"
-         value="[i-1,i-1]" />
     </combo_box>
-    <spinner
-     allow_text_entry="false"
-     decimal_digits="0"
-     follows="left|top"
-     height="20"
-     increment="32"
-     label="Width x Height"
-     label_width="90"
-     layout="topleft"
-     left="10"
-     max_val="6016"
-     min_val="32"
-     name="inventory_snapshot_width"
-     top_pad="7"
-     width="144" />
-    <spinner
-     allow_text_entry="false"
-     decimal_digits="0"
-     follows="left|top"
-     height="20"
-     increment="32"
-     label=""
-     label_width="0"
-     layout="topleft"
-     left_pad="0"
-     max_val="6016"
-     min_val="32"
-     name="inventory_snapshot_height"
-     top_delta="0"
-     width="54" />
-    <check_box
-     top_pad="12"
-     follows="left|top"
-     label="Constrain proportions"
-     layout="topleft"
-     left="10"
-     name="inventory_keep_aspect_check"
-     visible="false" />
     <text
      follows="top|left"
      font="SansSerif"
@@ -118,7 +72,7 @@
      width="200"
      type="string"
      word_wrap="true">
-        Saving an image to your inventory costs L$[UPLOAD_COST]. To save your image as a texture select one of the square formats.
+        Uploading an image to your inventory costs L$[UPLOAD_COST].
     </text>
     <button
      follows="right|bottom"
@@ -130,12 +84,12 @@
      top="337"
      width="97">
       <button.commit_callback
-       function="Inventory.Cancel" />
+       function="Inventory.SaveOutfitCancel" />
     </button>
     <button
      follows="left|bottom"
      height="23"
-     label="Save"
+     label="UPLOAD L$10"
      layout="topleft"
      left="10"
      name="save_btn"

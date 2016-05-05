@@ -38,12 +38,6 @@ class LLFloaterOutfitSnapshot : public LLFloaterSnapshotBase
 	LOG_CLASS(LLFloaterOutfitSnapshot);
 
 public:
-	//typedef enum e_snapshot_format
-	//{
-	//	SNAPSHOT_FORMAT_PNG,
-	//	SNAPSHOT_FORMAT_JPEG,
-	//	SNAPSHOT_FORMAT_BMP
-	//} ESnapshotFormat;
 
 	LLFloaterOutfitSnapshot(const LLSD& key);
 	virtual ~LLFloaterOutfitSnapshot();

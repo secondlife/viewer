@@ -54,10 +54,18 @@ S32 power_of_two(S32 sz, S32 upper)
 BOOL LLPanelSnapshot::postBuild()
 {
 	getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onResolutionComboCommit, this, _1));
-	getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
-	getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
-	getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onKeepAspectRatioCommit, this, _1));
-
+    if (!getWidthSpinnerName().empty())
+    {
+        getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
+    }
+    if (!getHeightSpinnerName().empty())
+    {
+        getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
+    }
+    if (!getAspectRatioCBName().empty())
+    {
+        getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onKeepAspectRatioCommit, this, _1));
+    }
 	updateControls(LLSD());
 	return TRUE;
 }
@@ -92,27 +100,32 @@ void LLPanelSnapshot::enableControls(BOOL enable)
 
 LLSpinCtrl* LLPanelSnapshot::getWidthSpinner()
 {
+    llassert(!getWidthSpinnerName().empty());
 	return getChild<LLSpinCtrl>(getWidthSpinnerName());
 }
 
 LLSpinCtrl* LLPanelSnapshot::getHeightSpinner()
 {
+    llassert(!getHeightSpinnerName().empty());
 	return getChild<LLSpinCtrl>(getHeightSpinnerName());
 }
 
 S32 LLPanelSnapshot::getTypedPreviewWidth() const
 {
+    llassert(!getWidthSpinnerName().empty());
 	return getChild<LLUICtrl>(getWidthSpinnerName())->getValue().asInteger();
 }
 
 S32 LLPanelSnapshot::getTypedPreviewHeight() const
 {
-	return getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
+    llassert(!getHeightSpinnerName().empty());
+    return getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
 }
 
 void LLPanelSnapshot::enableAspectRatioCheckbox(BOOL enable)
 {
-	getChild<LLUICtrl>(getAspectRatioCBName())->setEnabled(enable);
+    llassert(!getAspectRatioCBName().empty());
+    getChild<LLUICtrl>(getAspectRatioCBName())->setEnabled(enable);
 }
 
 LLSideTrayPanelContainer* LLPanelSnapshot::getParentContainer()
@@ -177,9 +190,11 @@ void LLPanelSnapshot::cancel()
 void LLPanelSnapshot::onCustomResolutionCommit()
 {
 	LLSD info;
-	LLSpinCtrl *widthSpinner = getChild<LLSpinCtrl>(getWidthSpinnerName());
-	LLSpinCtrl *heightSpinner = getChild<LLSpinCtrl>(getHeightSpinnerName());
-    //TODO: Refactoring - move this code into some virtual method of LLPanelSnapshotInventory
+    std::string widthSpinnerName = getWidthSpinnerName();
+    std::string heightSpinnerName = getHeightSpinnerName();
+    llassert(!widthSpinnerName.empty() && !heightSpinnerName.empty());
+    LLSpinCtrl *widthSpinner = getChild<LLSpinCtrl>(widthSpinnerName);
+    LLSpinCtrl *heightSpinner = getChild<LLSpinCtrl>(heightSpinnerName);
 	if (getName() == "panel_snapshot_inventory")
 	{
 		S32 width = widthSpinner->getValue().asInteger();

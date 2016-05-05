@@ -47,19 +47,6 @@ class LLPanelSnapshotInventoryBase
 
 public:
     LLPanelSnapshotInventoryBase();
-//
-//    /*virtual*/ BOOL postBuild();
-//    /*virtual*/ void onOpen(const LLSD& key);
-//
-//    void onResolutionCommit(LLUICtrl* ctrl);
-//
-//private:
-//    /*virtual*/ std::string getWidthSpinnerName() const		{ return "inventory_snapshot_width"; }
-//    /*virtual*/ std::string getHeightSpinnerName() const	{ return "inventory_snapshot_height"; }
-//    /*virtual*/ std::string getAspectRatioCBName() const	{ return "inventory_keep_aspect_check"; }
-//    /*virtual*/ std::string getImageSizeComboName() const	{ return "texture_size_combo"; }
-//    /*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
-//    /*virtual*/ void updateControls(const LLSD& info);
 
 protected:
     virtual void onSend() = 0;
@@ -99,18 +86,17 @@ public:
     LLPanelOutfitSnapshotInventory();
     	/*virtual*/ BOOL postBuild();
     	/*virtual*/ void onOpen(const LLSD& key);
-    
-    	void onResolutionCommit(LLUICtrl* ctrl);
-    
-    private:
-    	/*virtual*/ std::string getWidthSpinnerName() const		{ return "inventory_snapshot_width"; }
-    	/*virtual*/ std::string getHeightSpinnerName() const	{ return "inventory_snapshot_height"; }
-    	/*virtual*/ std::string getAspectRatioCBName() const	{ return "inventory_keep_aspect_check"; }
-    	/*virtual*/ std::string getImageSizeComboName() const	{ return "texture_size_combo"; }
-    	/*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
-    	/*virtual*/ void updateControls(const LLSD& info);
+        
+private:
+    /*virtual*/ std::string getWidthSpinnerName() const		{ return ""; }
+    /*virtual*/ std::string getHeightSpinnerName() const	{ return ""; }
+    /*virtual*/ std::string getAspectRatioCBName() const	{ return ""; }
+    /*virtual*/ std::string getImageSizeComboName() const	{ return "texture_size_combo"; }
+    /*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
+    /*virtual*/ void updateControls(const LLSD& info);
 
     /*virtual*/ void onSend();
+    /*virtual*/ void cancel();
 };
 
 static LLPanelInjector<LLPanelSnapshotInventory> panel_class1("llpanelsnapshotinventory");
@@ -172,16 +158,12 @@ void LLPanelSnapshotInventory::onSend()
 LLPanelOutfitSnapshotInventory::LLPanelOutfitSnapshotInventory()
 {
     mCommitCallbackRegistrar.add("Inventory.SaveOutfitPhoto", boost::bind(&LLPanelOutfitSnapshotInventory::onSend, this));
-    mCommitCallbackRegistrar.add("Inventory.Cancel", boost::bind(&LLPanelOutfitSnapshotInventory::cancel, this));
+    mCommitCallbackRegistrar.add("Inventory.SaveOutfitCancel", boost::bind(&LLPanelOutfitSnapshotInventory::cancel, this));
 }
 
 // virtual
 BOOL LLPanelOutfitSnapshotInventory::postBuild()
 {
-    getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(FALSE);
-    getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
-
-    getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelOutfitSnapshotInventory::onResolutionCommit, this, _1));
     return LLPanelSnapshot::postBuild();
 }
 
@@ -199,15 +181,13 @@ void LLPanelOutfitSnapshotInventory::updateControls(const LLSD& info)
     getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
 }
 
-void LLPanelOutfitSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
-{
-    BOOL current_window_selected = (getChild<LLComboBox>(getImageSizeComboName())->getCurrentIndex() == 3);
-    getChild<LLSpinCtrl>(getWidthSpinnerName())->setVisible(!current_window_selected);
-    getChild<LLSpinCtrl>(getHeightSpinnerName())->setVisible(!current_window_selected);
-}
-
 void LLPanelOutfitSnapshotInventory::onSend()
 {
     LLFloaterOutfitSnapshot::saveTexture();
     LLFloaterOutfitSnapshot::postSave();
+}
+
+void LLPanelOutfitSnapshotInventory::cancel()
+{
+    getParentByType<LLFloater>()->closeFloater();
 }
