@@ -49,6 +49,9 @@ public:
 
     /// Post an event to all listeners
     virtual bool post(const LLSD& event) = 0;
+
+private:
+    LLTempBoundListener mSource;
 };
 
 /**
@@ -181,11 +184,23 @@ protected:
 private:
     bool tick(const LLSD&);
 
-    LLBoundListener mMainloop;
+    LLTempBoundListener mMainloop;
     Action mAction;
 };
 
-/// Production implementation of LLEventTimoutBase
+/**
+ * Production implementation of LLEventTimoutBase.
+ * 
+ * @NOTE: Caution should be taken when using the LLEventTimeout(LLEventPump &) 
+ * constructor to ensure that the upstream event pump is not an LLEventMaildrop
+ * or any other kind of store and forward pump which may have events outstanding.
+ * Using this constructor will cause the upstream event pump to fire any pending
+ * events and could result in the invocation of a virtual method before the timeout
+ * has been fully constructed. The timeout should instead be connected upstream
+ * from the event pump and attached using the listen method.
+ * See llcoro::suspendUntilEventOnWithTimeout() for an example.
+ */
+ 
 class LL_COMMON_API LLEventTimeout: public LLEventTimeoutBase
 {
 public:

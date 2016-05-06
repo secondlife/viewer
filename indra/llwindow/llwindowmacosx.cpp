@@ -343,6 +343,18 @@ void callMouseMoved(float *pos, MASK mask)
 	//gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, 0);
 }
 
+void callMouseDragged(float *pos, MASK mask)
+{
+    LLCoordGL		outCoords;
+    outCoords.mX = ll_round(pos[0]);
+    outCoords.mY = ll_round(pos[1]);
+    float deltas[2];
+    gWindowImplementation->getMouseDeltas(deltas);
+    outCoords.mX += deltas[0];
+    outCoords.mY += deltas[1];
+    gWindowImplementation->getCallbacks()->handleMouseDragged(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+}
+
 void callScrollMoved(float delta)
 {
 	gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, delta);
@@ -1445,8 +1457,15 @@ void LLWindowMacOSX::updateCursor()
 		mNextCursor = UI_CURSOR_WORKING;
 	}
 	
-	if(mCurrentCursor == mNextCursor)
-		return;
+    if(mCurrentCursor == mNextCursor)
+    {
+        if(mCursorHidden && mHideCursorPermanent && isCGCursorVisible())
+        {
+            hideNSCursor();            
+            adjustCursorDecouple();
+        }
+        return;
+    }
 
 	// RN: replace multi-drag cursors with single versions
 	if (mNextCursor == UI_CURSOR_ARROWDRAGMULTI)

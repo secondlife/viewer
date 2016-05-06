@@ -2081,7 +2081,7 @@ BOOL LLManipScale::canAffectSelection()
 			{
 				LLViewerObject *root_object = (objectp == NULL) ? NULL : objectp->getRootEdit();
 				return objectp->permModify() && objectp->permMove() && !objectp->isPermanentEnforced() &&
-					((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+					(root_object == NULL || (!root_object->isPermanentEnforced() && !root_object->isSeat())) &&
 					!objectp->isSeat();
 			}
 		} func;

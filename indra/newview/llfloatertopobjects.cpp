@@ -183,10 +183,15 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 			msg->getU32("DataExtended", "TimeStamp", time_stamp, block);
 			msg->getF32("DataExtended", "MonoScore", mono_score, block);
 			msg->getS32("DataExtended", "PublicURLs", public_urls, block);
-			if (msg->getSize("DataExtended", "ParcelName") > 0)
+
+			std::string parcel_name;
+			F32 script_size = 0.f;
+			msg->getString("DataExtended", "ParcelName", parcel_name, block);
+			msg->getF32("DataExtended", "Size", script_size, block);
+			if (parcel_name.size() > 0 || script_size > 0)
 			{
-				msg->getString("DataExtended", "ParcelName", parcel_buf, block);
-				msg->getF32("DataExtended", "Size", script_memory, block);
+				parcel_buf = parcel_name;
+				script_memory = script_size;
 			}
 		}
 

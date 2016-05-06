@@ -2493,7 +2493,7 @@ Nastąpi wylogowanie jeżeli zostaniesz w tym regionie.
 
 [MESSAGE]
 
-Od obiektu: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, właściciel właściciel: [NAME]?
+Od obiektu: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, właściciel właściciel: [NAME_SLURL]?
 		<form name="form">
 			<button name="Gotopage" text="Załaduj"/>
 			<button name="Cancel" text="Anuluj"/>

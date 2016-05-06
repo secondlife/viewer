@@ -1491,6 +1491,7 @@ void LLTextureCache::readHeaderCache()
 						new_entries.push_back(entry);
 					}
 				}
+                mFreeList.clear(); // recreating list, no longer valid.
 				llassert_always(new_entries.size() <= sCacheMaxEntries);
 				mHeaderEntriesInfo.mEntries = new_entries.size();
 				writeEntriesHeader();

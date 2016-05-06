@@ -2942,7 +2942,7 @@ http://secondlife.com/download.
 
 [MESSAGE]
 
-Из объекта: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, владелец: [NAME]
+Из объекта: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, владелец: [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Перейти на страницу"/>
 			<button name="Cancel" text="Отмена"/>

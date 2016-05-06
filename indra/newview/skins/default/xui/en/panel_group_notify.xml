@@ -27,7 +27,7 @@
      name="header"
      top="0"
      width="305">
-        <icon
+        <group_icon
          follows="all"
          height="20"
          layout="topleft"

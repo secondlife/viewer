@@ -30,7 +30,7 @@
 
 #include "lluictrlfactory.h"
 #include "roles_constants.h"
-
+#include "llappviewer.h"
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llflatlistview.h"
@@ -67,7 +67,7 @@ BOOL LLPanelGroupExperiences::postBuild()
 
 void LLPanelGroupExperiences::activate()
 {
-	if (getGroupID() == LLUUID::null)
+	if ((getGroupID() == LLUUID::null) || gDisconnected)
 	{
 		return;
 	}
