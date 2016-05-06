@@ -66,15 +66,10 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 
 bool LLCrashLoggerMac::mainLoop()
 {
+
     if (mCrashBehavior == CRASH_BEHAVIOR_ALWAYS_SEND)
 	{
 		gSendReport = true;
-	}
-	
-	if(gRememberChoice)
-	{
-		if(gSendReport) saveCrashBehaviorSetting(CRASH_BEHAVIOR_ALWAYS_SEND);
-		else saveCrashBehaviorSetting(CRASH_BEHAVIOR_NEVER_SEND);
 	}
 	
 	if(gSendReport)
@@ -82,6 +77,8 @@ bool LLCrashLoggerMac::mainLoop()
 		setUserText(gUserNotes);
 		sendCrashLogs();
 	}	
+
+	LL_INFOS() << "Sending of logs complete" << LL_ENDL;
 		
 	return true;
 }
