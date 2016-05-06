@@ -564,7 +564,8 @@ namespace action_give_inventory
 	static LLInventoryPanel* get_active_inventory_panel()
 	{
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (!active_panel)
+		LLFloater* floater_appearance = LLFloaterReg::findInstance("appearance");
+		if (!active_panel || (floater_appearance && floater_appearance->hasFocus()))
 		{
 			active_panel = get_outfit_editor_inventory_panel();
 		}

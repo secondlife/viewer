@@ -36,6 +36,8 @@
 #include "llsecapi.h"
 #include <curl/curl.h>
 
+#include "llcorehttputil.h"
+
 // Here is where we begin to get our connection usage under control.
 // This establishes llcorehttp policy classes that, among other
 // things, limit the maximum number of connections to outside
@@ -138,6 +140,9 @@ LLAppCoreHttp::~LLAppCoreHttp()
 
 void LLAppCoreHttp::init()
 {
+    LLCoreHttpUtil::setPropertyMethods(
+        boost::bind(&LLControlGroup::getBOOL, boost::ref(gSavedSettings), _1),
+        boost::bind(&LLControlGroup::declareBOOL, boost::ref(gSavedSettings), _1, _2, _3, LLControlVariable::PERSIST_NONDFT));
 
     LLCore::LLHttp::initialize();
 

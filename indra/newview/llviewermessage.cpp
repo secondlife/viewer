@@ -2362,6 +2362,20 @@ static void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::s
 	}
 }
 
+const std::string NOT_ONLINE_MSG("User not online - message will be stored and delivered later.");
+const std::string NOT_ONLINE_INVENTORY("User not online - inventory has been saved.");
+void translate_if_needed(std::string& message)
+{
+	if (message == NOT_ONLINE_MSG)
+	{
+		message = LLTrans::getString("not_online_msg");
+	}
+	else if (message == NOT_ONLINE_INVENTORY)
+	{
+		message = LLTrans::getString("not_online_inventory");
+	}
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	LLUUID from_id;
@@ -2426,6 +2440,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	chat.mFromID = from_id;
 	chat.mFromName = name;
 	chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
+	
+	if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+	{ // Translate server message if required (MAINT-6109)
+		translate_if_needed(message);
+	}
 
 	LLViewerObject *source = gObjectList.findObject(session_id); //Session ID is probably the wrong thing.
 	if (source)
@@ -5598,6 +5617,10 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	bool you_paid_someone = (source_id == gAgentID);
 	if (you_paid_someone)
 	{
+		if(!gSavedSettings.getBOOL("NotifyMoneySpend"))
+		{
+			return;
+		}
 		args["NAME"] = dest_slurl;
 		is_name_group = is_dest_group;
 		name_id = dest_id;
@@ -5635,6 +5658,10 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 	else {
 		// ...someone paid you
+		if(!gSavedSettings.getBOOL("NotifyMoneyReceived"))
+		{
+			return;
+		}
 		args["NAME"] = source_slurl;
 		is_name_group = is_source_group;
 		name_id = source_id;
@@ -7419,7 +7446,7 @@ void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool
 			args["URL"] = load_url_info["url"].asString();
 			args["MESSAGE"] = load_url_info["message"].asString();;
 			args["OBJECTNAME"] = load_url_info["object_name"].asString();
-			args["NAME"] = owner_name;
+			args["NAME_SLURL"] = LLSLURL(is_group ? "group" : "agent", id, "about").getSLURLString();
 
 			LLNotificationsUtil::add("LoadWebPage", args, load_url_info);
 		}

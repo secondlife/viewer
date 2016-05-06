@@ -2950,7 +2950,7 @@ Si permaneces en esta región serás desconectado.
 
 [MESSAGE]
 
-Del objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propietario: [NAME]
+Del objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propietario: [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Cargar"/>
 			<button name="Cancel" text="Cancelar"/>

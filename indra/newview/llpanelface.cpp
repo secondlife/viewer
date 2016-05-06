@@ -2214,7 +2214,7 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 				LLTextureEntry *te = object->getTE(te_index);
 				if (te)
 				{
-					LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_DISCARD) : NULL;
+					LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_STANDARD) : NULL;
 					if(!tex)
 					{
 						tex = LLViewerFetchedTexture::sDefaultImagep;
