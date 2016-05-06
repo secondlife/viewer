@@ -1808,16 +1808,24 @@ void LLVOAvatar::resetSkeleton()
 {
     LL_DEBUGS("Avatar") << avString() << LL_ENDL;
 
-    // Reset params
+    // Stop all animations
+
+    // Clear all attachment pos overrides
+
+    // Preserve state of tweakable params
+    
+    // Reset all params to default state, without propagating changes downstream.
 	for (LLVisualParam *param = getFirstVisualParam(); 
 		param;
 		param = getNextVisualParam())
 	{
+#if 0
 		if (param->isAnimating())
 		{
 			continue;
 		}
         param->setLastWeight(param->getDefaultWeight());
+#endif
 	}
 
     // Reset all bones and collision volumes to their initial skeleton state.
@@ -1826,8 +1834,15 @@ void LLVOAvatar::resetSkeleton()
         LL_ERRS() << "Error resetting skeleton" << LL_ENDL;
 	}
 
+    // Reset tweakable params to preserved state
     // Apply params
+#if 0
     updateVisualParams();
+#endif
+
+    // Restore attachment pos overrides
+
+    // Restart animations
 }
 
 //-----------------------------------------------------------------------------
