@@ -229,6 +229,28 @@ LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requ
     return value;
 }
 
+LLSD llcoro::suspendUntilEventOnWithTimeout(const LLEventPumpOrPumpName& suspendPumpOrName, 
+        F32 timeoutin, const LLSD &timeoutResult)
+{
+    /**
+     * The timeout pump is attached upstream of of the waiting pump and will 
+     * pass the timeout event through it.  We CAN NOT attach downstream since
+     * doing so will cause the suspendPump to fire any waiting events immediately 
+     * and they will be lost.  This becomes especially problematic with the 
+     * LLEventTimeout(pump) constructor which will also attempt to fire those
+     * events using the virtual listen_impl method in the not yet fully constructed
+     * timeoutPump.
+     */
+    LLEventTimeout timeoutPump;
+    LLEventPump &suspendPump = suspendPumpOrName.getPump();
+
+    LLTempBoundListener timeoutListener(timeoutPump.listen(suspendPump.getName(), 
+            boost::bind(&LLEventPump::post, &suspendPump, _1)));
+
+    timeoutPump.eventAfter(timeoutin, timeoutResult);
+    return llcoro::suspendUntilEventOn(suspendPump);
+}
+
 namespace
 {
 

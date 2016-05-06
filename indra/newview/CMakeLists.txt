@@ -186,7 +186,6 @@ set(viewer_SOURCE_FILES
     lleventpoll.cpp
     llexpandabletextbox.cpp
     llexperiencelog.cpp
-    llexperiencelog.cpp
     llexternaleditor.cpp
     llface.cpp
     llfacebookconnect.cpp
@@ -2170,6 +2169,10 @@ if (PACKAGE)
         VERBATIM)
 
   add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}")
+  if (WINDOWS OR LINUX)
+    add_dependencies(generate_breakpad_symbols "${VIEWER_COPY_MANIFEST}")
+  endif (WINDOWS OR LINUX)
   add_dependencies(llpackage generate_breakpad_symbols)
   endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
 endif (PACKAGE)

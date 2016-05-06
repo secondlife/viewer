@@ -1716,7 +1716,20 @@ void LLTextEditor::unindentLineBeforeCloseBrace()
 		LLWString text = getWText();
 		if( ' ' == text[ mCursorPos - 1 ] )
 		{
-			removeCharOrTab();
+			S32 line = getLineNumFromDocIndex(mCursorPos, false);
+			S32 line_start = getLineStart(line);
+
+			// Jump over spaces in the current line
+			while ((' ' == text[line_start]) && (line_start < mCursorPos))
+			{
+				line_start++;
+			}
+
+			// Make sure there is nothing but ' ' before the Brace we are unindenting
+			if (line_start == mCursorPos)
+			{
+				removeCharOrTab();
+			}
 		}
 	}
 }
@@ -1800,7 +1813,7 @@ BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 	// Handle most keys only if the text editor is writeable.
 	if( !mReadOnly )
 	{
-		if( '}' == uni_char )
+		if( mAutoIndent && '}' == uni_char )
 		{
 			unindentLineBeforeCloseBrace();
 		}

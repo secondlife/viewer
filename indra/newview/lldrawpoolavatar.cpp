@@ -1813,7 +1813,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 LLViewerTexture* specular = NULL;
                 if (LLPipeline::sImpostorRender)
                 {
-                    specular = LLViewerTextureManager::findFetchedTexture(gBlackSquareID, TEX_LIST_DISCARD);
+                    specular = LLViewerTextureManager::findFetchedTexture(gBlackSquareID, TEX_LIST_STANDARD);
                     llassert(NULL != specular);
                 }
                 else

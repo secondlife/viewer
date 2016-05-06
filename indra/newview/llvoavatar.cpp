@@ -1989,7 +1989,7 @@ LLViewerFetchedTexture *LLVOAvatar::getBakedTextureImage(const U8 te, const LLUU
 		uuid == IMG_INVISIBLE)
 	{
 		// Should already exist, don't need to find it on sim or baked-texture host.
-		result = gTextureList.findImage(uuid, TEX_LIST_DISCARD);
+		result = gTextureList.findImage(uuid, TEX_LIST_STANDARD);
 	}
 	if (!result)
 	{
@@ -4261,7 +4261,7 @@ bool LLVOAvatar::allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const
 {
 	for (std::set<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_DISCARD);
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 		if (imagep && imagep->getDiscardLevel()!=0)
 		{
 			return false;
@@ -4333,7 +4333,7 @@ S32Bytes LLVOAvatar::totalTextureMemForUUIDS(std::set<LLUUID>& ids)
 	S32Bytes result(0);
 	for (std::set<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
-		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_DISCARD);
+		LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 		if (imagep)
 		{
 			result += imagep->getTextureMemory();
@@ -4421,7 +4421,7 @@ void LLVOAvatar::releaseOldTextures()
 	{
 		if (new_texture_ids.find(*it) == new_texture_ids.end())
 		{
-			LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_DISCARD);
+			LLViewerFetchedTexture *imagep = gTextureList.findImage(*it, TEX_LIST_STANDARD);
 			if (imagep)
 			{
 				current_texture_mem += imagep->getTextureMemory();
@@ -7935,6 +7935,13 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			// show the cloned params inside the wearables as well.
 			gAgentAvatarp->dumpWearableInfo(outfile);
 		}
+		LLSD args;
+		args["PATH"] = fullpath;
+		LLNotificationsUtil::add("AppearanceToXMLSaved", args);
+	}
+	else
+	{
+		LLNotificationsUtil::add("AppearanceToXMLFailed");
 	}
 	// File will close when handle goes out of scope
 }

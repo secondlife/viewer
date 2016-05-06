@@ -4450,7 +4450,7 @@ void LLTextureFetchDebugger::addHistoryEntry(LLTextureFetchWorker* worker)
 			mRefetchedAllData += worker->mFormattedImage->getDataSize();
 
 			// refetch list only requests/creates normal images, so requesting ui='false'
-			LLViewerFetchedTexture* tex = LLViewerTextureManager::findFetchedTexture(worker->mID, TEX_LIST_DISCARD);
+			LLViewerFetchedTexture* tex = LLViewerTextureManager::findFetchedTexture(worker->mID, TEX_LIST_STANDARD);
 			if(tex && mRefetchList[tex].begin() != mRefetchList[tex].end())
 			{
 				if(worker->mDecodedDiscard == mFetchingHistory[mRefetchList[tex][0]].mDecodedLevel)

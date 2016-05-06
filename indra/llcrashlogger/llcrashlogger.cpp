@@ -48,7 +48,6 @@
 
 #include <curl/curl.h>
 #include <openssl/crypto.h>
-#include <boost/regex.hpp>
 
 BOOL gBreak = false;
 BOOL gSent = false;
@@ -191,6 +190,7 @@ bool LLCrashLogger::readMinidump(std::string minidump_path)
 	{
 		minidump_stream.seekg(0, std::ios::end);
 		length = (size_t)minidump_stream.tellg();
+        LL_WARNS("CRASHREPORT") << "minidump length "<< length <<LL_ENDL;
 		minidump_stream.seekg(0, std::ios::beg);
 		
 		LLSD::Binary data;

@@ -21,12 +21,12 @@
         Tell me:
     </text>
     <check_box
-     control_name="NotifyMoneyChange"
+     control_name="NotifyMoneySpend"
      height="16"
-     label="When I spend or get L$"
+     label="When I spend L$"
      layout="topleft"
      left_delta="50"
-     name="notify_money_change_checkbox"
+     name="notify_money_spend_checkbox"
      top_pad="4"
      width="300" />
     <check_box
@@ -34,10 +34,18 @@
      height="16"
      label="When my friends log in or out"
      layout="topleft"
-     left_delta="0"
-     name="friends_online_notify_checkbox"
-     top_pad="4"
-     width="300" />
+     left_delta="150"
+     name="friends_online_notify_checkbox"     
+     width="300" />	
+    <check_box
+     control_name="NotifyMoneyReceived"
+     height="16"
+     label="When I get L$"
+     layout="topleft"
+     left_delta="-150"
+     top_pad="4"	
+     name="notify_money_received_checkbox"     
+     width="300" />   
     <text
      type="string"
      length="1"
