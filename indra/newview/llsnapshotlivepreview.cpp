@@ -86,7 +86,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mNeedsFlash(TRUE),
 	mSnapshotQuality(gSavedSettings.getS32("SnapshotQuality")),
 	mDataSize(0),
-    mSnapshotType(LLPanelSnapshot::ESnapshotType::SNAPSHOT_POSTCARD),
+    mSnapshotType(LLPanelSnapshot::SNAPSHOT_POSTCARD),
     mSnapshotFormat(LLFloaterSnapshotBase::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat"))),
 	mSnapshotUpToDate(FALSE),
 	mCameraPos(LLViewerCamera::getInstance()->getOrigin()),
@@ -813,7 +813,7 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
         mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
         LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
         gGL.getTexUnit(0)->bind(curr_preview_image);
-        curr_preview_image->setFilteringOption(getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
+        curr_preview_image->setFilteringOption(getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
         curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 
@@ -827,7 +827,7 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
 S32 LLSnapshotLivePreview::getEncodedImageWidth() const
 {
     S32 width = getWidth();
-    if (getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
     {
         width = LLImageRaw::biasedDimToPowerOfTwo(width,MAX_TEXTURE_SIZE);
     }
@@ -836,7 +836,7 @@ S32 LLSnapshotLivePreview::getEncodedImageWidth() const
 S32 LLSnapshotLivePreview::getEncodedImageHeight() const
 {
     S32 height = getHeight();
-    if (getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
     {
         height = LLImageRaw::biasedDimToPowerOfTwo(height,MAX_TEXTURE_SIZE);
     }
@@ -854,7 +854,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
             mPreviewImage->getHeight(),
             mPreviewImage->getComponents());
         
-        if (getSnapshotType() == LLPanelSnapshot::ESnapshotType::SNAPSHOT_TEXTURE)
+        if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
 		{
             // We don't store the intermediate formatted image in mFormattedImage in the J2C case 
 			LL_DEBUGS() << "Encoding new image of format J2C" << LL_ENDL;

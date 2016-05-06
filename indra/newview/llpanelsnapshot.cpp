@@ -230,5 +230,5 @@ void LLPanelSnapshot::onKeepAspectRatioCommit(LLUICtrl* ctrl)
 
 LLPanelSnapshot::ESnapshotType LLPanelSnapshot::getSnapshotType()
 {
-    return ESnapshotType::SNAPSHOT_WEB;
+    return LLPanelSnapshot::SNAPSHOT_WEB;
 }
