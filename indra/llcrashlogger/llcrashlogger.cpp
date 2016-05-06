@@ -56,6 +56,9 @@ BOOL gSent = false;
 int LLCrashLogger::ssl_mutex_count = 0;
 LLCoreInt::HttpMutex ** LLCrashLogger::ssl_mutex_list = NULL;
 
+#define CRASH_UPLOAD_RETRIES 3 /* seconds */
+#define CRASH_UPLOAD_TIMEOUT 180 /* seconds */
+
 class LLCrashLoggerHandler : public LLHttpSDHandler
 {
     LOG_CLASS(LLCrashLoggerHandler);
@@ -459,12 +462,12 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 	//*TODO: Translate
 	if(mCrashHost != "")
 	{
-		sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), 3, 5);
+		sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
 	}
     
 	if(!sent)
 	{
-		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to alternate server"), 3, 5);
+		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to alternate server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
 	}
     
 	mSentCrashLogs = sent;
