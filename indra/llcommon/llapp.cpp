@@ -929,7 +929,7 @@ bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_
 
 	strncpy(path, minidump_desc.path(), remaining);
 	
-	LL_INFOS() << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
+	LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
 	LLApp::runErrorHandler();
 	
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -975,7 +975,7 @@ bool unix_post_minidump_callback(const char *dump_dir,
 		strncpy(path, ".dmp", remaining);
 	}
 	
-	LL_INFOS() << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
+	LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
 	LLApp::runErrorHandler();
 	
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -1019,7 +1019,7 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 		strncpy(path, ".dmp", remaining);
 	}
 
-	LL_INFOS() << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
+	LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
    // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
 	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
    // *TODO: Translate the signals/exceptions into cross-platform stuff
