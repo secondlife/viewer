@@ -795,6 +795,15 @@ void LLMarketplaceData::getMerchantStatusCoro()
             log_SLM_infos("Get /merchant", httpCode, std::string("Merchant is not migrated"));
             setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
         }
+        else if (httpCode == HTTP_INTERNAL_ERROR)
+        {
+            // 499 includes timeout and ssl error - marketplace is down or having issues, we do not show it in this request according to MAINT-5938
+            LL_WARNS("SLM") << "SLM Merchant Request failed with status: " << httpCode
+                                    << ", reason : " << status.toString()
+                                    << ", code : " << result["error_code"].asString()
+                                    << ", description : " << result["error_description"].asString() << LL_ENDL;
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+        }
         else
         {
             std::string err_code = result["error_code"].asString();

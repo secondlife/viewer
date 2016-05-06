@@ -1332,6 +1332,11 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 		}
 		else
 		{
+			LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
+			if (floater_inventory)
+			{
+				floater_inventory->setFocus(TRUE);
+			}
 			active_panel->setSelection(obj_id, TAKE_FOCUS_YES);
 		}
 	}

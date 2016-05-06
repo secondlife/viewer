@@ -25,13 +25,69 @@
  */
 
 #import "llopenglview-objc.h"
-#include "llwindowmacosx-objc.h"
+#import "llwindowmacosx-objc.h"
 #import "llappdelegate-objc.h"
 
+#pragma mark local functions
 
+NativeKeyEventData extractKeyDataFromKeyEvent(NSEvent* theEvent)
+{
+    NativeKeyEventData eventData;
+    eventData.mKeyEvent = NativeKeyEventData::KEYUNKNOWN;
+    eventData.mEventType = [theEvent type];
+    eventData.mEventModifiers = [theEvent modifierFlags];
+    eventData.mEventKeyCode = [theEvent keyCode];
+    NSString *strEventChars = [theEvent characters];
+    eventData.mEventChars = (strEventChars.length) ? [strEventChars characterAtIndex:0] : 0;
+    NSString *strEventUChars = [theEvent charactersIgnoringModifiers];
+    eventData.mEventUnmodChars = (strEventUChars.length) ? [strEventUChars characterAtIndex:0] : 0;
+    eventData.mEventRepeat = [theEvent isARepeat];
+    return eventData;
+}
 
+NativeKeyEventData extractKeyDataFromModifierEvent(NSEvent* theEvent)
+{
+    NativeKeyEventData eventData;
+    eventData.mKeyEvent = NativeKeyEventData::KEYUNKNOWN;
+    eventData.mEventType = [theEvent type];
+    eventData.mEventModifiers = [theEvent modifierFlags];
+    eventData.mEventKeyCode = [theEvent keyCode];
+    return eventData;
+}
 
-//---------------------------
+attributedStringInfo getSegments(NSAttributedString *str)
+{
+    attributedStringInfo segments;
+    segment_lengths seg_lengths;
+    segment_standouts seg_standouts;
+    NSRange effectiveRange;
+    NSRange limitRange = NSMakeRange(0, [str length]);
+    
+    while (limitRange.length > 0) {
+        NSNumber *attr = [str attribute:NSUnderlineStyleAttributeName atIndex:limitRange.location longestEffectiveRange:&effectiveRange inRange:limitRange];
+        limitRange = NSMakeRange(NSMaxRange(effectiveRange), NSMaxRange(limitRange) - NSMaxRange(effectiveRange));
+        
+        if (effectiveRange.length <= 0)
+        {
+            effectiveRange.length = 1;
+        }
+        
+        if ([attr integerValue] == 2)
+        {
+            seg_lengths.push_back(effectiveRange.length);
+            seg_standouts.push_back(true);
+        } else
+        {
+            seg_lengths.push_back(effectiveRange.length);
+            seg_standouts.push_back(false);
+        }
+    }
+    segments.seg_lengths = seg_lengths;
+    segments.seg_standouts = seg_standouts;
+    return segments;
+}
+
+#pragma mark class implementations
 
 @implementation NSScreen (PointConversion)
 
@@ -62,53 +118,6 @@
 }
 
 @end
-
-void extractKeyDataFromEvent (NSEvent *theEvent, NativeKeyEventData * eventData)
-{
-    eventData->mKeyEvent = NativeKeyEventData::KEYUNKNOWN;
-    eventData->mEventType = [theEvent type];
-    eventData->mEventModifiers = [theEvent modifierFlags];
-    eventData->mEventKeyCode = [theEvent keyCode];
-    NSString *strEventChars = [theEvent characters];
-    eventData->mEventChars = (strEventChars.length) ? [strEventChars characterAtIndex:0] : 0;
-    NSString *strEventUChars = [theEvent charactersIgnoringModifiers];
-    eventData->mEventUnmodChars = (strEventUChars.length) ? [strEventUChars characterAtIndex:0] : 0;
-    eventData->mEventRepeat = [theEvent isARepeat];
-
-}
-
-
-attributedStringInfo getSegments(NSAttributedString *str)
-{
-	attributedStringInfo segments;
-	segment_lengths seg_lengths;
-	segment_standouts seg_standouts;
-	NSRange effectiveRange;
-	NSRange limitRange = NSMakeRange(0, [str length]);
-    
-	while (limitRange.length > 0) {
-		NSNumber *attr = [str attribute:NSUnderlineStyleAttributeName atIndex:limitRange.location longestEffectiveRange:&effectiveRange inRange:limitRange];
-		limitRange = NSMakeRange(NSMaxRange(effectiveRange), NSMaxRange(limitRange) - NSMaxRange(effectiveRange));
-		
-		if (effectiveRange.length <= 0)
-		{
-			effectiveRange.length = 1;
-		}
-		
-		if ([attr integerValue] == 2)
-		{
-			seg_lengths.push_back(effectiveRange.length);
-			seg_standouts.push_back(true);
-		} else
-		{
-			seg_lengths.push_back(effectiveRange.length);
-			seg_standouts.push_back(false);
-		}
-	}
-	segments.seg_lengths = seg_lengths;
-	segments.seg_standouts = seg_standouts;
-	return segments;
-}
 
 @implementation LLOpenGLView
 
@@ -341,6 +350,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
         callRightMouseUp(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = false;
     } else {
+        NSPoint mPoint = [theEvent locationInWindow];
+        mMousePos[0] = mPoint.x;
+        mMousePos[1] = mPoint.y;
         callLeftMouseUp(mMousePos, [theEvent modifierFlags]);
     }
 }
@@ -388,7 +400,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	NSPoint mPoint = [theEvent locationInWindow];
 	mMousePos[0] = mPoint.x;
 	mMousePos[1] = mPoint.y;
-	callMouseMoved(mMousePos, 0);
+	callMouseDragged(mMousePos, 0);
 }
 
 - (void) otherMouseDown:(NSEvent *)theEvent
@@ -423,18 +435,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) keyUp:(NSEvent *)theEvent
 {
-    NativeKeyEventData eventData;
- 
-    extractKeyDataFromEvent( theEvent, &eventData );
+    NativeKeyEventData eventData = extractKeyDataFromKeyEvent(theEvent);
     eventData.mKeyEvent = NativeKeyEventData::KEYUP;
 	callKeyUp(&eventData, [theEvent keyCode], [theEvent modifierFlags]);
 }
 
 - (void) keyDown:(NSEvent *)theEvent
 {
-    NativeKeyEventData eventData;
-    
-    extractKeyDataFromEvent( theEvent, &eventData );
+    NativeKeyEventData eventData = extractKeyDataFromKeyEvent(theEvent);
     eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
    
     uint keycode = [theEvent keyCode];
@@ -472,9 +480,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)flagsChanged:(NSEvent *)theEvent
 {
-    NativeKeyEventData eventData;
-    
-    extractKeyDataFromEvent( theEvent, &eventData );
+    NativeKeyEventData eventData = extractKeyDataFromModifierEvent(theEvent);
  
 	mModifiers = [theEvent modifierFlags];
 	callModifier([theEvent modifierFlags]);
