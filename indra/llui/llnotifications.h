@@ -553,7 +553,8 @@ public:
 	std::string getLabel() const;
 	std::string getURL() const;
 	S32 getURLOption() const;
-    S32 getURLOpenExternally() const;
+	S32 getURLOpenExternally() const; //for url responce option
+	bool getForceUrlsExternal() const;
 	bool canLogToChat() const;
 	bool canLogToIM() const;
 	bool canShowToast() const;

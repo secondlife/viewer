@@ -2932,7 +2932,7 @@ SHA1 指紋：[MD5_DIGEST]
 
 [MESSAGE]
 
-來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人：[NAME]）
+來源物件：&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;（所有人：[NAME_SLURL]）
 		<form name="form">
 			<button name="Gotopage" text="前往頁面"/>
 			<button name="Cancel" text="取消"/>

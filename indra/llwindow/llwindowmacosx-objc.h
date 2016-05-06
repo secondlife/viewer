@@ -55,13 +55,13 @@ struct NativeKeyEventData {
         KEYCHAR
     };
     
-    EventType   mKeyEvent;
-    uint32_t    mEventType;
-    uint32_t    mEventModifiers;
-    uint32_t    mEventKeyCode;
-    uint32_t    mEventChars;
-    uint32_t    mEventUnmodChars;
-    bool        mEventRepeat;
+    EventType   mKeyEvent = KEYUNKNOWN;
+    uint32_t    mEventType = 0;
+    uint32_t    mEventModifiers = 0;
+    uint32_t    mEventKeyCode = 0;
+    uint32_t    mEventChars = 0;
+    uint32_t    mEventUnmodChars = 0;
+    bool        mEventRepeat = false;
 };
 
 typedef const NativeKeyEventData * NSKeyEventRef;
@@ -92,6 +92,7 @@ void setCrossCursor();
 void setNotAllowedCursor();
 void hideNSCursor();
 void showNSCursor();
+bool isCGCursorVisible();
 void hideNSCursorTillMove(bool hide);
 void requestUserAttention();
 long showAlert(std::string title, std::string text, int type);
@@ -133,6 +134,7 @@ void callLeftMouseUp(float *pos, unsigned int mask);
 void callDoubleClick(float *pos, unsigned int mask);
 void callResize(unsigned int width, unsigned int height);
 void callMouseMoved(float *pos, unsigned int mask);
+void callMouseDragged(float *pos, unsigned int mask);
 void callScrollMoved(float delta);
 void callMouseExit();
 void callWindowFocus();

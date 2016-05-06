@@ -83,12 +83,13 @@ void LLUrlAction::openURLExternal(std::string url)
 	}
 }
 
-void LLUrlAction::executeSLURL(std::string url)
+bool LLUrlAction::executeSLURL(std::string url, bool trusted_content)
 {
 	if (sExecuteSLURLCallback)
 	{
-		sExecuteSLURLCallback(url ,true);
+		return sExecuteSLURLCallback(url, trusted_content);
 	}
+	return false;
 }
 
 void LLUrlAction::clickAction(std::string url, bool trusted_content)

@@ -657,19 +657,25 @@ void LLVoiceClient::keyDown(KEY key, MASK mask)
 		return;
 	}
 	
-	if(!mPTTIsMiddleMouse && LLAgent::isActionAllowed("speak"))
+	if (!mPTTIsMiddleMouse && LLAgent::isActionAllowed("speak") && (key == mPTTKey))
 	{
-		bool down = (mPTTKey != KEY_NONE) && gKeyboard->getKeyDown(mPTTKey);
-		if (down) { inputUserControlState(down); }
+		bool down = gKeyboard->getKeyDown(mPTTKey);
+		if (down)
+		{
+			inputUserControlState(down);
+		}
 	}
 	
 }
 void LLVoiceClient::keyUp(KEY key, MASK mask)
 {
-	if(!mPTTIsMiddleMouse)
+	if (!mPTTIsMiddleMouse && (key == mPTTKey))
 	{
-		bool down = (mPTTKey != KEY_NONE) && gKeyboard->getKeyDown(mPTTKey);
-		if (down) { inputUserControlState(down); }
+		bool down = gKeyboard->getKeyDown(mPTTKey);
+		if (!down)
+		{
+			inputUserControlState(down);
+		}
 	}
 }
 void LLVoiceClient::middleMouseState(bool down)

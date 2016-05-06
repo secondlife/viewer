@@ -1132,7 +1132,7 @@ all necessary level shifting, type conversion, rounding and truncation. */
 					val = sp->ival;
 					val <<= upshift;
 					val += 128;
-					if (val & ((0xffffffffu)<<8))
+					if (val & ((0xffffffffU)<<8))
 					{
 						val = (val < 0 ? 0 : 256 - (1<<upshift));
 					}

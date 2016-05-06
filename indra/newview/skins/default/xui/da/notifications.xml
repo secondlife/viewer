@@ -1432,7 +1432,7 @@ Hvis du ikke forlader regionen, vil du blive logget af.
 
 [MESSAGE]
 
-Fra objekt: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, ejer: [NAME]?
+Fra objekt: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, ejer: [NAME_SLURL]?
 		<form name="form">
 			<button name="Gotopage" text="Gå til side"/>
 			<button name="Cancel" text="Afbryd"/>

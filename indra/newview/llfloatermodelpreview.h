@@ -95,6 +95,7 @@ public:
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
+	void setPreviewLOD(S32 lod);
 	
 	void onBrowseLOD(S32 lod);
 	
