@@ -184,7 +184,8 @@ std::string LLMIMETypes::implType(const std::string& mime_type)
 	mime_info_map_t::const_iterator it = sMap.find(mime_type);
 	if (it != sMap.end())
 	{
-		return it->second.mImpl;
+		return "media_plugin_libvlc";
+		//return it->second.mImpl;
 	}
 	else
 	{

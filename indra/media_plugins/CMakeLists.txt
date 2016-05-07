@@ -12,6 +12,7 @@ endif (WINDOWS OR DARWIN)
 
 if (WINDOWS)
     add_subdirectory(winmmshim)
+    add_subdirectory(libvlc)
 endif (WINDOWS)
 
 ### add_subdirectory(example)

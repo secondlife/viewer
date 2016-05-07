@@ -436,6 +436,11 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("media_plugin_cef.dll")
             self.end_prefix()
 
+        # Media plugins - LibVLC
+        if self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
+            self.path("media_plugin_libvlc.dll")
+            self.end_prefix()
+
         # winmm.dll shim
         if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
             self.path("winmm.dll")
