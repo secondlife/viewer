@@ -1811,6 +1811,7 @@ void LLVOAvatar::resetSkeleton()
     // Stop all animations
 
     // Clear all attachment pos overrides
+    clearAttachmentPosOverrides();
 
     // Preserve state of tweakable params
     
@@ -1841,6 +1842,7 @@ void LLVOAvatar::resetSkeleton()
 #endif
 
     // Restore attachment pos overrides
+    rebuildAttachmentPosOverrides();
 
     // Restart animations
 }
@@ -5328,8 +5330,43 @@ void LLVOAvatar::clearAttachmentPosOverrides()
 			pJoint->clearAttachmentPosOverrides();
 		}
 	}
+
+    // Attachment points
+	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin();
+		 iter != mAttachmentPoints.end();
+		 ++iter)
+	{
+		LLViewerJointAttachment *attachment_pt = (*iter).second;
+        if (attachment_pt)
+        {
+            attachment_pt->clearAttachmentPosOverrides();
+        }
+    }
 }
 
+//-----------------------------------------------------------------------------
+// rebuildAttachmentPosOverrides
+//-----------------------------------------------------------------------------
+void LLVOAvatar::rebuildAttachmentPosOverrides()
+{
+    LLScopedContextString str("rebuildAttachmentPosOverrides " + getFullname());
+
+    // Attachment points
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+		 iter != mAttachmentPoints.end();
+		 ++iter)
+	{
+		LLViewerJointAttachment *attachment_pt = (*iter).second;
+        if (attachment_pt)
+        {
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment_pt->mAttachedObjects.begin();
+				 at_it != attachment_pt->mAttachedObjects.end(); ++at_it)
+            {
+                addAttachmentPosOverridesForObject(*at_it);
+            }
+        }
+    }
+}
 //-----------------------------------------------------------------------------
 // addAttachmentPosOverridesForObject
 //-----------------------------------------------------------------------------

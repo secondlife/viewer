@@ -27,6 +27,7 @@ $/LicenseInfo$
 """
 
 import argparse
+import random
 
 # Need to pip install numpy and pycollada
 import numpy as np
@@ -59,12 +60,35 @@ def mesh_lock_offsets(tree, joints):
                         print joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats
         
 
+def mesh_random_offsets(tree, joints):
+    print "mesh_random_offsets",tree,joints
+    for joint_node in tree.iter():
+        if "node" not in joint_node.tag:
+            continue
+        if joint_node.get("type") != "JOINT":
+            continue
+        if not joint_node.get("name"):
+            continue
+        if joint_node.get("name") in joints or "bone" in joints:
+            for matrix_node in list(joint_node):
+                if "matrix" in matrix_node.tag:
+                    floats = [float(x) for x in matrix_node.text.split()]
+                    print "randomizing",floats
+                    if len(floats) == 16:
+                        floats[3] += random.uniform(-1.0,1.0)
+                        floats[7] += random.uniform(-1.0,1.0)
+                        floats[11] += random.uniform(-1.0,1.0)
+                        matrix_node.text = " ".join([str(f) for f in floats])
+                        print joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats
+        
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="process SL animations")
     parser.add_argument("--verbose", action="store_true",help="verbose flag")
     parser.add_argument("infilename", help="name of a collada (dae) file to input")
     parser.add_argument("outfilename", nargs="?", help="name of a collada (dae) file to output", default = None)
     parser.add_argument("--lock_offsets", nargs="+", help="tweak position of listed joints to lock their offsets")
+    parser.add_argument("--random_offsets", nargs="+", help="random offset position for listed joints")
     parser.add_argument("--summary", action="store_true", help="print summary info about input file")
     args = parser.parse_args()
 
@@ -83,6 +107,10 @@ if __name__ == "__main__":
     if args.lock_offsets:
         print "locking offsets for",args.lock_offsets
         mesh_lock_offsets(tree, args.lock_offsets)
+
+    if args.random_offsets:
+        print "adding random offsets for",args.random_offsets
+        mesh_random_offsets(tree, args.random_offsets)
 
     if args.outfilename:
         print "writing",args.outfilename
