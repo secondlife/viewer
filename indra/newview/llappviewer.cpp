@@ -124,6 +124,7 @@
 #include "llcoros.h"
 #if !LL_LINUX
 #include "cef/llceflib.h"
+#include "vlc/libvlc_version.h"
 #endif
 
 // Third party library includes
@@ -3346,8 +3347,18 @@ LLSD LLAppViewer::getViewerInfo() const
 
 #if !LL_LINUX
 	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+
+	std::ostringstream s;
+	s << "LibVLC ";
+	s << LIBVLC_VERSION_MAJOR;
+	s << ".";
+	s << LIBVLC_VERSION_MINOR;
+	s << ".";
+	s << LIBVLC_VERSION_REVISION;
+	info["LIBVLC_VERSION"] = s.str();
 #else
 	info["LLCEFLIB_VERSION"] = "Undefined";
+	info["LIBVLC_VERSION"] = "Undefined";
 #endif
 
 	S32 packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
