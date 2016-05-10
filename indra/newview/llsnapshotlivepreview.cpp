@@ -1039,7 +1039,7 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
         LLInventoryType::EType inv_type = outfit_snapshot ? LLInventoryType::IT_NONE : LLInventoryType::IT_SNAPSHOT;
 
         LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
-            tid, LLAssetType::AT_TEXTURE, name, desc, 0,
+            tid, LLAssetType::AT_TEXTURE, res_name, res_desc, 0,
             folder_type, inv_type,
             PERM_ALL, LLFloaterPerms::getGroupPerms("Uploads"), LLFloaterPerms::getEveryonePerms("Uploads"),
             expected_upload_cost));
