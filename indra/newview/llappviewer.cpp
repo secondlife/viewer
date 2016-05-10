@@ -3346,18 +3346,18 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 
 #if !LL_LINUX
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+	std::ostringstream ver_codec;
+	ver_codec << LIBVLC_VERSION_MAJOR;
+	ver_codec << ".";
+	ver_codec << LIBVLC_VERSION_MINOR;
+	ver_codec << ".";
+	ver_codec << LIBVLC_VERSION_REVISION;
+	info["LIBVLC_VERSION"] = ver_codec.str();
 
-	std::ostringstream s;
-	s << "LibVLC ";
-	s << LIBVLC_VERSION_MAJOR;
-	s << ".";
-	s << LIBVLC_VERSION_MINOR;
-	s << ".";
-	s << LIBVLC_VERSION_REVISION;
-	info["LIBVLC_VERSION"] = s.str();
+	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
 #else
 	info["LLCEFLIB_VERSION"] = "Undefined";
+
 	info["LIBVLC_VERSION"] = "Undefined";
 #endif
 

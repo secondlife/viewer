@@ -50,27 +50,27 @@ class MediaPluginLibVLC :
 
     private:
         bool init();
-        void update( F64 milliseconds );
 
+		void initVLC();
+		void playMedia();
+		void resetVLC();
 
 		static void* lock(void* data, void** p_pixels);
-		void initVLC();
-		void playMedia(const std::string url);
-		void resetVLC();
+		static void display(void* data, void* id);
 
 		libvlc_instance_t* gLibVLC;
 		libvlc_media_t* gLibVLCMedia;
 		libvlc_media_player_t* gLibVLCMediaPlayer;
 
-
-		//float mCurVideoPosition;
-
 		struct gVLCContext
 		{
 			unsigned char* texture_pixels;
 			libvlc_media_player_t* mp;
+			MediaPluginLibVLC* parent;
 		};
 		struct gVLCContext gVLCCallbackContext;
+
+		std::string mURL;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,8 +78,8 @@ class MediaPluginLibVLC :
 MediaPluginLibVLC::MediaPluginLibVLC( LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data ) :
     MediaPluginBase( host_send_func, host_user_data )
 {
-	mTextureWidth = 64;
-	mTextureHeight = 64;
+	mTextureWidth = 0;
+	mTextureHeight = 0;
     mWidth = 0;
     mHeight = 0;
     mDepth = 4;
@@ -89,7 +89,7 @@ MediaPluginLibVLC::MediaPluginLibVLC( LLPluginInstance::sendMessageFunction host
 	gLibVLCMedia = 0;
 	gLibVLCMediaPlayer = 0;
 
-	//mCurVideoPosition = 0;
+	mURL = std::string();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,6 +111,15 @@ void* MediaPluginLibVLC::lock(void* data, void** p_pixels)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void MediaPluginLibVLC::display(void* data, void* id)
+{
+	struct gVLCContext* context = (gVLCContext*)data;
+
+	context->parent->setDirty(0, 0, context->parent->mWidth, context->parent->mHeight);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 void MediaPluginLibVLC::initVLC()
 {
 	char const* vlc_argv[] =
@@ -123,7 +132,8 @@ void MediaPluginLibVLC::initVLC()
 
 	if (!gLibVLC)
 	{
-		// TODO: do we need to do anything herE?
+		// for the moment, if this fails, the plugin will fail and 
+		// the media sub-system will tell the viewer something went wrong.
 	}
 }
 
@@ -138,9 +148,12 @@ void MediaPluginLibVLC::resetVLC()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginLibVLC::playMedia(const std::string url)
+void MediaPluginLibVLC::playMedia()
 {
-	std::string tmp_url = std::string("https://callum-linden.s3.amazonaws.com/sample_media/jb.mp4");
+	if (mURL.length() == 0)
+	{
+		return;
+	}
 
 	if (gLibVLCMediaPlayer)
 	{
@@ -148,7 +161,7 @@ void MediaPluginLibVLC::playMedia(const std::string url)
 		libvlc_media_player_release(gLibVLCMediaPlayer);
 	}
 
-	gLibVLCMedia = libvlc_media_new_location(gLibVLC, tmp_url.c_str());
+	gLibVLCMedia = libvlc_media_new_location(gLibVLC, mURL.c_str());
 	if (!gLibVLCMedia)
 	{
 		printf("libvlc_media_new_location failed\n");
@@ -170,21 +183,20 @@ void MediaPluginLibVLC::playMedia(const std::string url)
 
 	libvlc_media_release(gLibVLCMedia);
 
+
+	gVLCCallbackContext.parent = this;
 	gVLCCallbackContext.texture_pixels = mPixels;
 	gVLCCallbackContext.mp = gLibVLCMediaPlayer;
 
-	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, NULL, NULL, &gVLCCallbackContext);
+	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, NULL, display, &gVLCCallbackContext);
 	libvlc_video_set_format(gLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * 4);
 	libvlc_media_player_play(gLibVLCMediaPlayer);
-
-	//libvlc_media_player_set_position(gLibVLCMediaPlayer, mCurVideoPosition);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 void MediaPluginLibVLC::receiveMessage( const char* message_string )
 {
-//  std::cerr << "MediaPluginWebKit::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
     LLPluginMessage message_in;
 
     if(message_in.parse(message_string) >= 0)
@@ -217,8 +229,6 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
             }
             else if(message_name == "idle")
             {
-				// TODO move to VLC callback when VLC wants to draw a frame
-				setDirty(0, 0, mWidth, mHeight);
             }
             else if(message_name == "cleanup")
             {
@@ -243,14 +253,10 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
                 {
                     if(mPixels == iter->second.mAddress)
                     {
-						/// only do thisis URLs are the same if ( )
-						//mCurVideoPosition = libvlc_media_player_get_position(gLibVLCMediaPlayer);
-
 						libvlc_media_player_stop(gLibVLCMediaPlayer);
 						libvlc_media_player_release(gLibVLCMediaPlayer);
 						gLibVLCMediaPlayer = 0;
 
-                        // This is the currently active pixel buffer.  Make sure we stop drawing to it.
                         mPixels = NULL;
                         mTextureSegmentName.clear();
                     }
@@ -258,7 +264,7 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
                 }
                 else
                 {
-//                  std::cerr << "MediaPluginWebKit::receiveMessage: unknown shared memory region!" << std::endl;
+					//std::cerr << "MediaPluginWebKit::receiveMessage: unknown shared memory region!" << std::endl;
                 }
 
                 // Send the response so it can be cleaned up.
@@ -268,14 +274,13 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
             }
             else
             {
-//              std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
+				//std::cerr << "MediaPluginWebKit::receiveMessage: unknown base message: " << message_name << std::endl;
             }
         }
         else if(message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA)
         {
             if(message_name == "init")
             {
-                // Plugin gets to decide the texture parameters to use.
                 mDepth = 4;
                 LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
                 message.setValueS32("default_width", 1024);
@@ -307,7 +312,7 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
                         mTextureWidth = texture_width;
                         mTextureHeight = texture_height;
 
-						playMedia("");
+						playMedia();
 					};
                 };
 
@@ -321,24 +326,10 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
             }
             else if(message_name == "load_uri")
             {
-            }
-            else if(message_name == "mouse_event")
-            {
-                std::string event = message_in.getValue("event");
-                if(event == "down")
-                {
-                }
-                else if(event == "up")
-                {
-                }
-                else if(event == "double_click")
-                {
-                }
+				mURL = message_in.getValue("uri");
+				playMedia();
             }
         }
-        else
-        {
-        };
     }
 }
 
