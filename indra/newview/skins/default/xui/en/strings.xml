@@ -2681,6 +2681,21 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
 	<string name="ATTACH_NECK">Neck</string>
 	<string name="ATTACH_AVATAR_CENTER">Avatar Center</string>
+    <string name="ATTACH_LHAND_RING1">Left Ring Finger</string>
+    <string name="ATTACH_RHAND_RING1">Right Ring Finger</string>
+    <string name="ATTACH_TAIL_BASE">Tail Base</string>
+    <string name="ATTACH_TAIL_TIP">Tail Tip</string>
+    <string name="ATTACH_LWING">Left Wing</string>
+    <string name="ATTACH_RWING">Right Wing</string>
+    <string name="ATTACH_FACE_JAW">Jaw</string>
+    <string name="ATTACH_FACE_LEAR">Alt Left Ear</string>
+    <string name="ATTACH_FACE_REAR">Alt Right Ear</string>
+    <string name="ATTACH_FACE_LEYE">Alt Left Eye</string>
+    <string name="ATTACH_FACE_REYE">Alt Right Eye</string>
+    <string name="ATTACH_FACE_TONGUE">Tongue</string>
+    <string name="ATTACH_GROIN">Groin</string>
+    <string name="ATTACH_HIND_LFOOT">Left Hind Foot</string>
+    <string name="ATTACH_HIND_RFOOT">Right Hind Foot</string>
 
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
