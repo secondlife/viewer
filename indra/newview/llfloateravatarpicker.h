@@ -28,6 +28,8 @@
 #define LLFLOATERAVATARPICKER_H
 
 #include "llfloater.h"
+#include "lleventcoro.h"
+#include "llcoros.h"
 
 #include <vector>
 
@@ -84,6 +86,7 @@ private:
 	void populateFriend();
 	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
 
+    static void findCoro(std::string url, LLUUID mQueryID, std::string mName);
 	void find();
 	void setAllowMultiple(BOOL allow_multiple);
 	LLScrollListCtrl* getActiveList();

@@ -122,8 +122,6 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLTextEditor::reshape(width, height, called_from_parent);
-
-	hideOrShowExpandTextAsNeeded();
 }
 
 void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text,const LLStyle::Params& input_params)
@@ -298,6 +296,12 @@ void LLExpandableTextBox::updateTextBoxRect()
 
 	mTextBox->reshape(rc.getWidth(), rc.getHeight());
 	mTextBox->setRect(rc);
+	// *HACK
+	// hideExpandText brakes text styles (replaces hyper-links with plain text), see ticket EXT-3290
+	// Also text segments are not removed properly. Same issue at expandTextBox().
+	// So set text again to make text box re-apply styles and clear segments.
+	// *TODO Find a solution that does not involve text segment.
+	mTextBox->setText(mText);
 }
 
 S32 LLExpandableTextBox::recalculateTextDelta(S32 text_delta)
@@ -403,8 +407,6 @@ void LLExpandableTextBox::collapseTextBox()
 	setRect(mCollapsedRect);
 
 	updateTextBoxRect();
-
-	gViewerWindow->removePopup(this);
 }
 
 void LLExpandableTextBox::onFocusLost()
@@ -423,11 +425,17 @@ void LLExpandableTextBox::onTopLost()
 
 void LLExpandableTextBox::updateTextShape()
 {
-	// I guess this should be done on every reshape(),
-	// but adding this code to reshape() currently triggers bug VWR-26455,
-	// which makes the text virtually unreadable.
 	llassert(!mExpanded);
 	updateTextBoxRect();
+}
+
+void LLExpandableTextBox::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+    mExpanded = false;
+    LLUICtrl::reshape(width, height, called_from_parent);
+    updateTextBoxRect();
+
+    gViewerWindow->removePopup(this);
 }
 
 void LLExpandableTextBox::setValue(const LLSD& value)

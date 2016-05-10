@@ -146,7 +146,7 @@ void LLPanelExperienceLog::refresh()
 				}
 				const LLSD event = dayArray[i];
 				LLUUID id = event[LLExperienceCache::EXPERIENCE_ID].asUUID();
-				const LLSD& experience = LLExperienceCache::get(id);
+                const LLSD& experience = LLExperienceCache::instance().get(id);
 				if(experience.isUndefined()){
 					waiting = true;
 					waiting_id = id;
@@ -175,7 +175,7 @@ void LLPanelExperienceLog::refresh()
 	{
 		mEventList->deleteAllItems();
 		mEventList->setCommentText(getString("loading"));
-		LLExperienceCache::get(waiting_id, boost::bind(&LLPanelExperienceLog::refresh, this));
+        LLExperienceCache::instance().get(waiting_id, boost::bind(&LLPanelExperienceLog::refresh, this));
 	}
 	else
 	{

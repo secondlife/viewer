@@ -1032,25 +1032,20 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
-		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-		void *userdata = NULL;
         std::string res_name = outfit_snapshot ? name : "Snapshot : " + pos_string;
         std::string res_desc = outfit_snapshot ? "" : "Taken by " + who_took_it + " at " + pos_string;
         LLFolderType::EType folder_type = outfit_snapshot ? LLFolderType::FT_NONE : LLFolderType::FT_SNAPSHOT_CATEGORY;
         LLInventoryType::EType inv_type = outfit_snapshot ? LLInventoryType::IT_NONE : LLInventoryType::IT_SNAPSHOT;
-		upload_new_resource(tid,	// tid
-			LLAssetType::AT_TEXTURE,
-            res_name,
-			res_desc,
-			0,
-            folder_type,
-            inv_type,
-			PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
-			LLFloaterPerms::getGroupPerms("Uploads"), // that is more permissive than other uploads
-			LLFloaterPerms::getEveryonePerms("Uploads"),
-			"Snapshot : " + pos_string,
-			callback, expected_upload_cost, userdata);
+
+        LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
+            tid, LLAssetType::AT_TEXTURE, name, desc, 0,
+            folder_type, inv_type,
+            PERM_ALL, LLFloaterPerms::getGroupPerms("Uploads"), LLFloaterPerms::getEveryonePerms("Uploads"),
+            expected_upload_cost));
+
+        upload_new_resource(assetUploadInfo);
+
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else

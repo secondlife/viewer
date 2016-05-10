@@ -164,7 +164,29 @@ public:
 		/// Pipelined:       no
 		AP_INVENTORY,
 		AP_REPORTING = AP_INVENTORY,	// Piggy-back on inventory
-		
+
+		/// Material resource requests and puts.  
+		///
+		/// Destination:     simhost:12043
+		/// Protocol:        https:
+		/// Transfer size:   KB
+		/// Long poll:       no
+		/// Concurrency:     low
+		/// Request rate:    low
+		/// Pipelined:       no
+		AP_MATERIALS,
+
+		/// Appearance resource requests and puts.  
+		///
+		/// Destination:     simhost:12043
+		/// Protocol:        https:
+		/// Transfer size:   KB
+		/// Long poll:       no
+		/// Concurrency:     mid
+		/// Request rate:    low
+		/// Pipelined:       yes
+		AP_AGENT,
+
 		AP_COUNT						// Must be last
 	};
 	
@@ -233,7 +255,9 @@ private:
 	bool						mStopped;
 	HttpClass					mHttpClasses[AP_COUNT];
 	bool						mPipelined;				// Global setting
-	boost::signals2::connection mPipelinedSignal;		// Signal for 'HttpPipelining' setting
+	boost::signals2::connection	mPipelinedSignal;		// Signal for 'HttpPipelining' setting
+
+	static LLCore::HttpStatus	sslVerify(const std::string &uri, const LLCore::HttpHandler::ptr_t &handler, void *appdata);
 };
 
 

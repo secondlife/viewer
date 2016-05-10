@@ -122,6 +122,8 @@ private:
 	void setFromAvatarID(const LLUUID& avatar_id);
 	void onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name);
 
+    static void finishedARPost(const LLSD &);
+
 private:
 	EReportType		mReportType;
 	LLUUID 			mObjectID;

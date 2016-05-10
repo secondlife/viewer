@@ -35,31 +35,257 @@
 #include "llui.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
-
+#include "llcoros.h"
 #include "reader.h"
+#include "llcorehttputil.h"
 
+
+/**
+* Handler of an HTTP machine translation service.
+*
+* Derived classes know the service URL
+* and how to parse the translation result.
+*/
+class LLTranslationAPIHandler
+{
+public:
+    typedef std::pair<std::string, std::string> LanguagePair_t;
+
+    /**
+    * Get URL for translation of the given string.
+    *
+    * Sending HTTP GET request to the URL will initiate translation.
+    *
+    * @param[out] url        Place holder for the result.
+    * @param      from_lang  Source language. Leave empty for auto-detection.
+    * @param      to_lang    Target language.
+    * @param      text       Text to translate.
+    */
+    virtual std::string getTranslateURL(
+        const std::string &from_lang,
+        const std::string &to_lang,
+        const std::string &text) const = 0;
+
+    /**
+    * Get URL to verify the given API key.
+    *
+    * Sending request to the URL verifies the key.
+    * Positive HTTP response (code 200) means that the key is valid.
+    *
+    * @param[out] url  Place holder for the URL.
+    * @param[in]  key  Key to verify.
+    */
+    virtual std::string getKeyVerificationURL(
+        const std::string &key) const = 0;
+
+    /**
+    * Parse translation response.
+    *
+    * @param[in,out] status        HTTP status. May be modified while parsing.
+    * @param         body          Response text.
+    * @param[out]    translation   Translated text.
+    * @param[out]    detected_lang Detected source language. May be empty.
+    * @param[out]    err_msg       Error message (in case of error).
+    */
+    virtual bool parseResponse(
+        int& status,
+        const std::string& body,
+        std::string& translation,
+        std::string& detected_lang,
+        std::string& err_msg) const = 0;
+
+    /**
+    * @return if the handler is configured to function properly
+    */
+    virtual bool isConfigured() const = 0;
+
+    virtual void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc) = 0;
+    virtual void translateMessage(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure);
+
+
+    virtual ~LLTranslationAPIHandler() {}
+
+    void verifyKeyCoro(LLTranslate::EService service, std::string key, LLTranslate::KeyVerificationResult_fn fnc);
+    void translateMessageCoro(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure);
+};
+
+void LLTranslationAPIHandler::translateMessage(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure)
+{
+    LLCoros::instance().launch("Translation", boost::bind(&LLTranslationAPIHandler::translateMessageCoro,
+        this, fromTo, msg, success, failure));
+
+}
+
+
+void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, std::string key, LLTranslate::KeyVerificationResult_fn fnc)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+
+    std::string user_agent = llformat("%s %d.%d.%d (%d)",
+        LLVersionInfo::getChannel().c_str(),
+        LLVersionInfo::getMajor(),
+        LLVersionInfo::getMinor(),
+        LLVersionInfo::getPatch(),
+        LLVersionInfo::getBuild());
+
+    httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
+    httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+
+    httpOpts->setFollowRedirects(true);
+
+    std::string url = this->getKeyVerificationURL(key);
+    if (url.empty())
+    {
+        LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
+        return;
+    }
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    bool bOk = true;
+    if (!status)
+        bOk = false;
+
+    if (!fnc.empty())
+        fnc(service, bOk);
+}
+
+void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::string msg,
+    LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+
+    std::string user_agent = llformat("%s %d.%d.%d (%d)",
+        LLVersionInfo::getChannel().c_str(),
+        LLVersionInfo::getMajor(),
+        LLVersionInfo::getMinor(),
+        LLVersionInfo::getPatch(),
+        LLVersionInfo::getBuild());
+
+    httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
+    httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+
+    std::string url = this->getTranslateURL(fromTo.first, fromTo.second, msg);
+    if (url.empty())
+    {
+        LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
+        return;
+    }
+
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    std::string translation, err_msg;
+    std::string detected_lang(fromTo.second);
+
+    int parseResult = status.getType();
+    const LLSD::Binary &rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+    std::string body(rawBody.begin(), rawBody.end());
+
+    if (this->parseResponse(parseResult, body, translation, detected_lang, err_msg))
+    {
+        // Fix up the response
+        LLStringUtil::replaceString(translation, "&lt;", "<");
+        LLStringUtil::replaceString(translation, "&gt;", ">");
+        LLStringUtil::replaceString(translation, "&quot;", "\"");
+        LLStringUtil::replaceString(translation, "&#39;", "'");
+        LLStringUtil::replaceString(translation, "&amp;", "&");
+        LLStringUtil::replaceString(translation, "&apos;", "'");
+
+        if (!success.empty())
+            success(translation, detected_lang);
+    }
+    else
+    {
+        if (err_msg.empty())
+        {
+            err_msg = LLTrans::getString("TranslationResponseParseError");
+        }
+
+        LL_WARNS() << "Translation request failed: " << err_msg << LL_ENDL;
+        if (!failure.empty())
+            failure(status, err_msg);
+    }
+
+
+}
+
+//=========================================================================
+/// Google Translate v2 API handler.
+class LLGoogleTranslationHandler : public LLTranslationAPIHandler
+{
+    LOG_CLASS(LLGoogleTranslationHandler);
+
+public:
+    /*virtual*/ std::string getTranslateURL(
+        const std::string &from_lang,
+        const std::string &to_lang,
+        const std::string &text) const;
+    /*virtual*/ std::string getKeyVerificationURL(
+        const std::string &key) const;
+    /*virtual*/ bool parseResponse(
+        int& status,
+        const std::string& body,
+        std::string& translation,
+        std::string& detected_lang,
+        std::string& err_msg) const;
+    /*virtual*/ bool isConfigured() const;
+
+    /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
+
+private:
+    static void parseErrorResponse(
+        const Json::Value& root,
+        int& status,
+        std::string& err_msg);
+    static bool parseTranslation(
+        const Json::Value& root,
+        std::string& translation,
+        std::string& detected_lang);
+    static std::string getAPIKey();
+
+};
+
+//-------------------------------------------------------------------------
 // virtual
-void LLGoogleTranslationHandler::getTranslateURL(
-	std::string &url,
+std::string LLGoogleTranslationHandler::getTranslateURL(
 	const std::string &from_lang,
 	const std::string &to_lang,
 	const std::string &text) const
 {
-	url = std::string("https://www.googleapis.com/language/translate/v2?key=")
+	std::string url = std::string("https://www.googleapis.com/language/translate/v2?key=")
 		+ getAPIKey() + "&q=" + LLURI::escape(text) + "&target=" + to_lang;
 	if (!from_lang.empty())
 	{
 		url += "&source=" + from_lang;
 	}
+    return url;
 }
 
 // virtual
-void LLGoogleTranslationHandler::getKeyVerificationURL(
-	std::string& url,
+std::string LLGoogleTranslationHandler::getKeyVerificationURL(
 	const std::string& key) const
 {
-	url = std::string("https://www.googleapis.com/language/translate/v2/languages?key=")
+	std::string url = std::string("https://www.googleapis.com/language/translate/v2/languages?key=")
 		+ key + "&target=en";
+    return url;
 }
 
 // virtual
@@ -154,28 +380,66 @@ std::string LLGoogleTranslationHandler::getAPIKey()
 	return gSavedSettings.getString("GoogleTranslateAPIKey");
 }
 
+/*virtual*/ 
+void LLGoogleTranslationHandler::verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc)
+{
+    LLCoros::instance().launch("Google /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro,
+        this, LLTranslate::SERVICE_GOOGLE, key, fnc));
+}
+
+
+//=========================================================================
+/// Microsoft Translator v2 API handler.
+class LLBingTranslationHandler : public LLTranslationAPIHandler
+{
+    LOG_CLASS(LLBingTranslationHandler);
+
+public:
+    /*virtual*/ std::string getTranslateURL(
+        const std::string &from_lang,
+        const std::string &to_lang,
+        const std::string &text) const;
+    /*virtual*/ std::string getKeyVerificationURL(
+        const std::string &key) const;
+    /*virtual*/ bool parseResponse(
+        int& status,
+        const std::string& body,
+        std::string& translation,
+        std::string& detected_lang,
+        std::string& err_msg) const;
+    /*virtual*/ bool isConfigured() const;
+
+    /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
+private:
+    static std::string getAPIKey();
+    static std::string getAPILanguageCode(const std::string& lang);
+
+};
+
+//-------------------------------------------------------------------------
 // virtual
-void LLBingTranslationHandler::getTranslateURL(
-	std::string &url,
+std::string LLBingTranslationHandler::getTranslateURL(
 	const std::string &from_lang,
 	const std::string &to_lang,
 	const std::string &text) const
 {
-	url = std::string("http://api.microsofttranslator.com/v2/Http.svc/Translate?appId=")
+	std::string url = std::string("http://api.microsofttranslator.com/v2/Http.svc/Translate?appId=")
 		+ getAPIKey() + "&text=" + LLURI::escape(text) + "&to=" + getAPILanguageCode(to_lang);
 	if (!from_lang.empty())
 	{
 		url += "&from=" + getAPILanguageCode(from_lang);
 	}
+    return url;
 }
 
+
 // virtual
-void LLBingTranslationHandler::getKeyVerificationURL(
-	std::string& url,
+std::string LLBingTranslationHandler::getKeyVerificationURL(
 	const std::string& key) const
 {
-	url = std::string("http://api.microsofttranslator.com/v2/Http.svc/GetLanguagesForTranslate?appId=")
+	std::string url = std::string("http://api.microsofttranslator.com/v2/Http.svc/GetLanguagesForTranslate?appId=")
 		+ key;
+    return url;
 }
 
 // virtual
@@ -242,96 +506,31 @@ std::string LLBingTranslationHandler::getAPILanguageCode(const std::string& lang
 	return lang == "zh" ? "zh-CHT" : lang; // treat Chinese as Traditional Chinese
 }
 
-LLTranslate::TranslationReceiver::TranslationReceiver(const std::string& from_lang, const std::string& to_lang)
-:	mFromLang(from_lang)
-,	mToLang(to_lang)
-,	mHandler(LLTranslate::getPreferredHandler())
+/*virtual*/
+void LLBingTranslationHandler::verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc)
 {
+    LLCoros::instance().launch("Bing /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro, 
+        this, LLTranslate::SERVICE_BING, key, fnc));
 }
 
-// virtual
-void LLTranslate::TranslationReceiver::completedRaw(
-	const LLChannelDescriptors& channels,
-	const LLIOPipe::buffer_ptr_t& buffer)
+//=========================================================================
+/*static*/
+void LLTranslate::translateMessage(const std::string &from_lang, const std::string &to_lang,
+    const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure)
 {
-	LLBufferStream istr(channels, buffer.get());
-	std::stringstream strstrm;
-	strstrm << istr.rdbuf();
+    LLTranslationAPIHandler& handler = getPreferredHandler();
 
-	const std::string body = strstrm.str();
-	std::string translation, detected_lang, err_msg;
-	int status = getStatus();
-	LL_DEBUGS("Translate") << "HTTP status: " << status << " " << getReason() << LL_ENDL;
-	LL_DEBUGS("Translate") << "Response body: " << body << LL_ENDL;
-	if (mHandler.parseResponse(status, body, translation, detected_lang, err_msg))
-	{
-		// Fix up the response
-		LLStringUtil::replaceString(translation, "&lt;", "<");
-		LLStringUtil::replaceString(translation, "&gt;",">");
-		LLStringUtil::replaceString(translation, "&quot;","\"");
-		LLStringUtil::replaceString(translation, "&#39;","'");
-		LLStringUtil::replaceString(translation, "&amp;","&");
-		LLStringUtil::replaceString(translation, "&apos;","'");
-
-		handleResponse(translation, detected_lang);
-	}
-	else
-	{
-		if (err_msg.empty())
-		{
-			err_msg = LLTrans::getString("TranslationResponseParseError");
-		}
-
-		LL_WARNS() << "Translation request failed: " << err_msg << LL_ENDL;
-		handleFailure(status, err_msg);
-	}
+    handler.translateMessage(LLTranslationAPIHandler::LanguagePair_t(from_lang, to_lang), mesg, success, failure);
 }
 
-LLTranslate::KeyVerificationReceiver::KeyVerificationReceiver(EService service)
-:	mService(service)
+/*static*/
+void LLTranslate::verifyKey(EService service, const std::string &key, KeyVerificationResult_fn fnc)
 {
+    LLTranslationAPIHandler& handler = getHandler(service);
+
+    handler.verifyKey(key, fnc);
 }
 
-LLTranslate::EService LLTranslate::KeyVerificationReceiver::getService() const
-{
-	return mService;
-}
-
-// virtual
-void LLTranslate::KeyVerificationReceiver::completedRaw(
-	const LLChannelDescriptors& channels,
-	const LLIOPipe::buffer_ptr_t& buffer)
-{
-	bool ok = (getStatus() == HTTP_OK);
-	setVerificationStatus(ok);
-}
-
-//static
-void LLTranslate::translateMessage(
-	TranslationReceiverPtr &receiver,
-	const std::string &from_lang,
-	const std::string &to_lang,
-	const std::string &mesg)
-{
-	std::string url;
-	receiver->mHandler.getTranslateURL(url, from_lang, to_lang, mesg);
-
-	LL_DEBUGS("Translate") << "Sending translation request: " << url << LL_ENDL;
-	sendRequest(url, receiver);
-}
-
-// static
-void LLTranslate::verifyKey(
-	KeyVerificationReceiverPtr& receiver,
-	const std::string& key)
-{
-	std::string url;
-	const LLTranslationAPIHandler& handler = getHandler(receiver->getService());
-	handler.getKeyVerificationURL(url, key);
-
-	LL_DEBUGS("Translate") << "Sending key verification request: " << url << LL_ENDL;
-	sendRequest(url, receiver);
-}
 
 //static
 std::string LLTranslate::getTranslateLanguage()
@@ -352,7 +551,7 @@ bool LLTranslate::isTranslationConfigured()
 }
 
 // static
-const LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
+LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 {
 	EService service = SERVICE_BING;
 
@@ -366,7 +565,7 @@ const LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 }
 
 // static
-const LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
+LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
 {
 	static LLGoogleTranslationHandler google;
 	static LLBingTranslationHandler bing;
@@ -377,26 +576,4 @@ const LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
 	}
 
 	return bing;
-}
-
-// static
-void LLTranslate::sendRequest(const std::string& url, LLHTTPClient::ResponderPtr responder)
-{
-	static const float REQUEST_TIMEOUT = 5;
-	static LLSD sHeader;
-
-	if (!sHeader.size())
-	{
-	    std::string user_agent = llformat("%s %d.%d.%d (%d)",
-			LLVersionInfo::getChannel().c_str(),
-			LLVersionInfo::getMajor(),
-			LLVersionInfo::getMinor(),
-			LLVersionInfo::getPatch(),
-			LLVersionInfo::getBuild());
-
-		sHeader.insert(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
-		sHeader.insert(HTTP_OUT_HEADER_USER_AGENT, user_agent);
-	}
-
-	LLHTTPClient::get(url, responder, sHeader, REQUEST_TIMEOUT);
 }

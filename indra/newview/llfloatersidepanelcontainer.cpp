@@ -69,7 +69,11 @@ void LLFloaterSidePanelContainer::closeFloater(bool app_quitting)
 			LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
 			if ( panel_appearance )
 			{
-				panel_appearance->getWearable()->onClose();
+				LLPanelEditWearable *edit_wearable_ptr = panel_appearance->getWearable();
+				if (edit_wearable_ptr)
+				{
+					edit_wearable_ptr->onClose();
+				}
 				panel_appearance->showOutfitsInventoryPanel();
 			}
 		}

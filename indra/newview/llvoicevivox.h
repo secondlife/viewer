@@ -37,6 +37,9 @@ class LLVivoxProtocolParser;
 #include "llframetimer.h"
 #include "llviewerregion.h"
 #include "llcallingcard.h"   // for LLFriendObserver
+#include "lleventcoro.h"
+#include "llcoros.h"
+#include <queue>
 
 #ifdef LL_USESYSTEMLIBS
 # include "expat.h"
@@ -46,7 +49,6 @@ class LLVivoxProtocolParser;
 #include "llvoiceclient.h"
 
 class LLAvatarName;
-class LLVivoxVoiceAccountProvisionResponder;
 class LLVivoxVoiceClientMuteListObserver;
 
 
@@ -91,6 +93,7 @@ public:
 	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
 	// i.e. when the daemon is running and connected, and the device lists are populated.
 	virtual bool deviceSettingsAvailable();
+	virtual bool deviceSettingsUpdated();  //return if the list has been updated and never fetched,  only to be called from the voicepanel.
 	
 	// Requery the vivox daemon for the current list of input/output devices.
 	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
@@ -109,11 +112,11 @@ public:
 	virtual bool isParticipant(const LLUUID& speaker_id);
 
 	// Send a text message to the specified user, initiating the session if necessary.
-	virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message);
+	// virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
 	
 	// close any existing text IM session with the specified user
 	virtual void endUserIMSession(const LLUUID &uuid);
-	
+
 	// Returns true if calling back the session URI after the session has closed is possible.
 	// Currently this will be false only for PSTN P2P calls.		
 	// NOTE: this will return true if the session can't be found. 
@@ -135,7 +138,7 @@ public:
 	virtual void setNonSpatialChannel(const std::string &uri,
 									  const std::string &credentials);
 	
-	virtual void setSpatialChannel(const std::string &uri,
+	virtual bool setSpatialChannel(const std::string &uri,
 								   const std::string &credentials);
 	
 	virtual void leaveNonSpatialChannel();
@@ -251,9 +254,9 @@ protected:
 	//////////////////////
 	// Vivox Specific definitions	
 	
-	friend class LLVivoxVoiceAccountProvisionResponder;
 	friend class LLVivoxVoiceClientMuteListObserver;
 	friend class LLVivoxVoiceClientFriendsObserver;	
+
 	
 	enum streamState
 	{
@@ -261,7 +264,10 @@ protected:
 		streamStateIdle = 1,
 		streamStateConnected = 2,
 		streamStateRinging = 3,
+		streamStateConnecting = 6,  // same as Vivox session_media_connecting enum
+		streamStateDisconnecting = 7,  //Same as Vivox session_media_disconnecting enum
 	};	
+
 	struct participantState
 	{
 	public:
@@ -289,28 +295,40 @@ protected:
 		bool mAvatarIDValid;
 		bool mIsSelf;
 	};
-	
-	typedef std::map<const std::string, participantState*> participantMap;
-	typedef std::map<const LLUUID, participantState*> participantUUIDMap;
+    typedef boost::shared_ptr<participantState> participantStatePtr_t;
+    typedef boost::weak_ptr<participantState> participantStateWptr_t;
+
+    typedef std::map<const std::string, participantStatePtr_t> participantMap;
+    typedef std::map<const LLUUID, participantStatePtr_t> participantUUIDMap;
 	
 	struct sessionState
 	{
-	public:
-		sessionState();
+    public:
+        typedef boost::shared_ptr<sessionState> ptr_t;
+        typedef boost::weak_ptr<sessionState> wptr_t;
+
+        typedef boost::function<void(const ptr_t &)> sessionFunc_t;
+
+        static ptr_t createSession();
 		~sessionState();
 		
-		participantState *addParticipant(const std::string &uri);
-		// Note: after removeParticipant returns, the participant* that was passed to it will have been deleted.
-		// Take care not to use the pointer again after that.
-		void removeParticipant(participantState *participant);
+        participantStatePtr_t addParticipant(const std::string &uri);
+        void removeParticipant(const participantStatePtr_t &participant);
 		void removeAllParticipants();
-		
-		participantState *findParticipant(const std::string &uri);
-		participantState *findParticipantByID(const LLUUID& id);
-		
+
+        participantStatePtr_t findParticipant(const std::string &uri);
+        participantStatePtr_t findParticipantByID(const LLUUID& id);
+
+        static ptr_t matchSessionByHandle(const std::string &handle);
+        static ptr_t matchCreatingSessionByURI(const std::string &uri);
+        static ptr_t matchSessionByURI(const std::string &uri);
+        static ptr_t matchSessionByParticipant(const LLUUID &participant_id);
+
 		bool isCallBackPossible();
 		bool isTextIMPossible();
 		
+        static void for_each(sessionFunc_t func);
+
 		std::string mHandle;
 		std::string mGroupHandle;
 		std::string mSIPURI;
@@ -325,7 +343,6 @@ protected:
 		LLUUID		mCallerID;
 		int			mErrorStatusCode;
 		int			mMediaStreamState;
-		int			mTextStreamState;
 		bool		mCreateInProgress;	// True if a Session.Create has been sent for this session and no response has been received yet.
 		bool		mMediaConnectInProgress;	// True if a Session.MediaConnect has been sent for this session and no response has been received yet.
 		bool		mVoiceInvitePending;	// True if a voice invite is pending for this session (usually waiting on a name lookup)
@@ -348,72 +365,33 @@ protected:
 		participantUUIDMap mParticipantsByUUID;
 
 		LLUUID		mVoiceFontID;
-	};
 
-	// internal state for a simple state machine.  This is used to deal with the asynchronous nature of some of the messages.
-	// Note: if you change this list, please make corresponding changes to LLVivoxVoiceClient::state2string().
-	enum state
-	{
-		stateDisableCleanup,
-		stateDisabled,				// Voice is turned off.
-		stateStart,					// Class is initialized, socket is created
-		stateDaemonLaunched,		// Daemon has been launched
-		stateConnecting,			// connect() call has been issued
-		stateConnected,				// connection to the daemon has been made, send some initial setup commands.
-		stateIdle,					// socket is connected, ready for messaging
-		stateMicTuningStart,
-		stateMicTuningRunning,		
-		stateMicTuningStop,
-		stateCaptureBufferPaused,
-		stateCaptureBufferRecStart,
-		stateCaptureBufferRecording,
-		stateCaptureBufferPlayStart,
-		stateCaptureBufferPlaying,
-		stateConnectorStart,		// connector needs to be started
-		stateConnectorStarting,		// waiting for connector handle
-		stateConnectorStarted,		// connector handle received
-		stateLoginRetry,			// need to retry login (failed due to changing password)
-		stateLoginRetryWait,		// waiting for retry timer
-		stateNeedsLogin,			// send login request
-		stateLoggingIn,				// waiting for account handle
-		stateLoggedIn,				// account handle received
-		stateVoiceFontsWait,		// Awaiting the list of voice fonts
-		stateVoiceFontsReceived,	// List of voice fonts received
-		stateCreatingSessionGroup,	// Creating the main session group
-		stateNoChannel,				// Need to join a channel
-		stateRetrievingParcelVoiceInfo,    // waiting for parcel voice info request to return with spatial credentials
-		stateJoiningSession,		// waiting for session handle
-		stateSessionJoined,			// session handle received
-		stateRunning,				// in session, steady state
-		stateLeavingSession,		// waiting for terminate session response
-		stateSessionTerminated,		// waiting for terminate session response
-		
-		stateLoggingOut,			// waiting for logout response
-		stateLoggedOut,				// logout response received
-		stateConnectorStopping,		// waiting for connector stop
-		stateConnectorStopped,		// connector stop received
-		
-		// We go to this state if the login fails because the account needs to be provisioned.
-		
-		// error states.  No way to recover from these yet.
-		stateConnectorFailed,
-		stateConnectorFailedWaiting,
-		stateLoginFailed,
-		stateLoginFailedWaiting,
-		stateJoinSessionFailed,
-		stateJoinSessionFailedWaiting,
-		
-		stateJail					// Go here when all else has failed.  Nothing will be retried, we're done.
+        static void VerifySessions();
+
+    private:
+        sessionState();
+
+        static std::set<wptr_t> mSession;   // canonical list of outstanding sessions.
+        std::set<wptr_t>::iterator  mMyIterator;    // used for delete
+
+        static void for_eachPredicate(const wptr_t &a, sessionFunc_t func);
+
+        static bool testByHandle(const LLVivoxVoiceClient::sessionState::wptr_t &a, std::string handle);
+        static bool testByCreatingURI(const LLVivoxVoiceClient::sessionState::wptr_t &a, std::string uri);
+        static bool testBySIPOrAlterateURI(const LLVivoxVoiceClient::sessionState::wptr_t &a, std::string uri);
+        static bool testByCallerId(const LLVivoxVoiceClient::sessionState::wptr_t &a, LLUUID participantId);
+
 	};
-	
-	typedef std::map<std::string, sessionState*> sessionMap;
-	
-	
+    typedef boost::shared_ptr<sessionState> sessionStatePtr_t;
+
+    typedef std::map<std::string, sessionStatePtr_t> sessionMap;
 	
 	///////////////////////////////////////////////////////
 	// Private Member Functions
 	//////////////////////////////////////////////////////
-	
+
+
+
 	//////////////////////////////
 	/// @name TVC/Server management and communication
 	//@{
@@ -430,8 +408,8 @@ protected:
 	void connectorShutdown();	
 	void closeSocket(void);	
 	
-	void requestVoiceAccountProvision(S32 retries = 3);
-	void login(
+//	void requestVoiceAccountProvision(S32 retries = 3);
+	void setLoginInfo(
 			   const std::string& account_name,
 			   const std::string& password,
 			   const std::string& voice_sip_uri_hostname,
@@ -457,14 +435,15 @@ protected:
 	void clearCaptureDevices();
 	void addCaptureDevice(const std::string& name);
 	void clearRenderDevices();
+	void setDevicesListUpdated(bool state);
 	void addRenderDevice(const std::string& name);	
 	void buildSetAudioDevices(std::ostringstream &stream);
 	
 	void getCaptureDevicesSendMessage();
 	void getRenderDevicesSendMessage();
 	
-	// local audio updates
-	void buildLocalAudioUpdates(std::ostringstream &stream);		
+	// local audio updates, mic mute, speaker mute, mic volume and speaker volumes
+	void sendLocalAudioUpdates();
 
 
 	/////////////////////////////
@@ -480,7 +459,6 @@ protected:
 	void accountLoginStateChangeEvent(std::string &accountHandle, int statusCode, std::string &statusString, int state);
 	void mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType);
 	void mediaStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, int statusCode, std::string &statusString, int state, bool incoming);
-	void textStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, bool enabled, int state, bool incoming);
 	void sessionAddedEvent(std::string &uriString, std::string &alias, std::string &sessionHandle, std::string &sessionGroupHandle, bool isChannel, bool incoming, std::string &nameString, std::string &applicationString);
 	void sessionGroupAddedEvent(std::string &sessionGroupHandle);
 	void sessionRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle);
@@ -497,7 +475,7 @@ protected:
 	// Sending updates of current state
 	void updatePosition(void);
 	void setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot);
-	void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot);
+	void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
 	bool channelFromRegion(LLViewerRegion *region, std::string &name);
 
 	void setEarLocation(S32 loc);
@@ -527,39 +505,41 @@ protected:
 	void filePlaybackSetPaused(bool paused);
 	void filePlaybackSetMode(bool vox = false, float speed = 1.0f);
 	
-	participantState *findParticipantByID(const LLUUID& id);
+    participantStatePtr_t findParticipantByID(const LLUUID& id);
 	
 
+#if 0
 	////////////////////////////////////////
 	// voice sessions.
-	typedef std::set<sessionState*> sessionSet;
+    typedef std::set<sessionStatePtr_t> sessionSet;
 			
 	typedef sessionSet::iterator sessionIterator;
 	sessionIterator sessionsBegin(void);
 	sessionIterator sessionsEnd(void);
+#endif
 
-	sessionState *findSession(const std::string &handle);
-	sessionState *findSessionBeingCreatedByURI(const std::string &uri);
-	sessionState *findSession(const LLUUID &participant_id);
-	sessionState *findSessionByCreateID(const std::string &create_id);
+    sessionStatePtr_t findSession(const std::string &handle);
+    sessionStatePtr_t findSessionBeingCreatedByURI(const std::string &uri);
+    sessionStatePtr_t findSession(const LLUUID &participant_id);
 	
-	sessionState *addSession(const std::string &uri, const std::string &handle = LLStringUtil::null);
-	void setSessionHandle(sessionState *session, const std::string &handle = LLStringUtil::null);
-	void setSessionURI(sessionState *session, const std::string &uri);
-	void deleteSession(sessionState *session);
+    sessionStatePtr_t addSession(const std::string &uri, const std::string &handle = std::string());
+    void clearSessionHandle(const sessionStatePtr_t &session);
+    void setSessionHandle(const sessionStatePtr_t &session, const std::string &handle);
+    void setSessionURI(const sessionStatePtr_t &session, const std::string &uri);
+    void deleteSession(const sessionStatePtr_t &session);
 	void deleteAllSessions(void);
 
 	void verifySessionState(void);
 
-	void joinedAudioSession(sessionState *session);
-	void leftAudioSession(sessionState *session);
+    void joinedAudioSession(const sessionStatePtr_t &session);
+    void leftAudioSession(const sessionStatePtr_t &session);
 
 	// This is called in several places where the session _may_ need to be deleted.
 	// It contains logic for whether to delete the session or keep it around.
-	void reapSession(sessionState *session);
+    void reapSession(const sessionStatePtr_t &session);
 	
 	// Returns true if the session seems to indicate we've moved to a region on a different voice server
-	bool sessionNeedsRelog(sessionState *session);
+    bool sessionNeedsRelog(const sessionStatePtr_t &session);
 	
 	
 	//////////////////////////////////////
@@ -589,14 +569,14 @@ protected:
 	void accountListAutoAcceptRulesSendMessage();
 	
 	void sessionGroupCreateSendMessage();
-	void sessionCreateSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
-	void sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
-	void sessionMediaConnectSendMessage(sessionState *session);		// just joins the audio session
-	void sessionTextConnectSendMessage(sessionState *session);		// just joins the text session
-	void sessionTerminateSendMessage(sessionState *session);
-	void sessionGroupTerminateSendMessage(sessionState *session);
-	void sessionMediaDisconnectSendMessage(sessionState *session);
-	void sessionTextDisconnectSendMessage(sessionState *session);
+    void sessionCreateSendMessage(const sessionStatePtr_t &session, bool startAudio = true, bool startText = false);
+    void sessionGroupAddSessionSendMessage(const sessionStatePtr_t &session, bool startAudio = true, bool startText = false);
+    void sessionMediaConnectSendMessage(const sessionStatePtr_t &session);		// just joins the audio session
+    void sessionTextConnectSendMessage(const sessionStatePtr_t &session);		// just joins the text session
+    void sessionTerminateSendMessage(const sessionStatePtr_t &session);
+    void sessionGroupTerminateSendMessage(const sessionStatePtr_t &session);
+    void sessionMediaDisconnectSendMessage(const sessionStatePtr_t &session);
+	// void sessionTextDisconnectSendMessage(sessionState *session);
 
 	
 	
@@ -609,15 +589,14 @@ protected:
 	// Does the actual work to get out of the audio session
 	void leaveAudioSession();
 	
-	// notifies the voice client that we've received parcel voice info
-	bool parcelVoiceInfoReceived(state requesting_state);
-	
 	friend class LLVivoxVoiceClientCapResponder;
 	
 	
 	void lookupName(const LLUUID &id);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
+    static void predAvatarNameResolution(const LLVivoxVoiceClient::sessionStatePtr_t &session, LLUUID id, std::string name);
+
 	boost::signals2::connection mAvatarNameCacheConnection;
 
 	/////////////////////////////
@@ -635,12 +614,41 @@ protected:
 	void accountGetTemplateFontsResponse(int statusCode, const std::string &statusString); 
 
 private:
+    
 	LLVoiceVersionInfo mVoiceVersion;
 
-	/// Clean up objects created during a voice session.
+    // Coroutine support methods
+    //---
+    void voiceControlCoro();
+
+    bool startAndConnectSession();
+    bool endAndDisconnectSession();
+
+    bool startAndLaunchDaemon();
+    bool provisionVoiceAccount();
+    bool establishVoiceConnection();
+    bool breakVoiceConnection(bool wait);
+    bool loginToVivox();
+    void logoutOfVivox(bool wait);
+    bool retrieveVoiceFonts();
+
+    bool requestParcelVoiceInfo();
+
+    bool addAndJoinSession(const sessionStatePtr_t &nextSession);
+    bool terminateAudioSession(bool wait);
+
+    bool waitForChannel();
+    bool runSession(const sessionStatePtr_t &session);
+
+    void recordingAndPlaybackMode();
+    int voiceRecordBuffer();
+    int voicePlaybackBuffer();
+
+    bool performMicTuning();
+    //---
+    /// Clean up objects created during a voice session.
 	void cleanUp();
 
-	state mState;
 	bool mSessionTerminateRequested;
 	bool mRelogRequested;
 	// Number of times (in a row) "stateJoiningSession" case for spatial channel is reached in stateMachine().
@@ -648,11 +656,6 @@ private:
 	// Introduced while fixing EXT-4313.
 	int mSpatialJoiningNum;
 	
-	void setState(state inState);
-	state getState(void)  { return mState; };
-	std::string state2string(state inState);
-	
-	void stateMachine();
 	static void idle(void *user_data);
 	
 	LLHost mDaemonHost;
@@ -676,7 +679,8 @@ private:
 	bool mTuningMicVolumeDirty;
 	int mTuningSpeakerVolume;
 	bool mTuningSpeakerVolumeDirty;
-	state mTuningExitState;					// state to return to when we leave tuning mode.
+	bool mDevicesListUpdated;			// set to true when the device list has been updated
+										// and false when the panelvoicedevicesettings has queried for an update status.
 	
 	std::string mSpatialSessionURI;
 	std::string mSpatialSessionCredentials;
@@ -685,21 +689,18 @@ private:
 	
 	std::string mChannelName;			// Name of the channel to be looked up 
 	bool mAreaVoiceDisabled;
-	sessionState *mAudioSession;		// Session state for the current audio session
+    sessionStatePtr_t mAudioSession;		// Session state for the current audio session
 	bool mAudioSessionChanged;			// set to true when the above pointer gets changed, so observers can be notified.
 
-	sessionState *mNextAudioSession;	// Session state for the audio session we're trying to join
+    sessionStatePtr_t mNextAudioSession;	// Session state for the audio session we're trying to join
 
-//		std::string mSessionURI;			// URI of the session we're in.
-//		std::string mSessionHandle;		// returned by ?
-	
 	S32 mCurrentParcelLocalID;			// Used to detect parcel boundary crossings
 	std::string mCurrentRegionName;		// Used to detect parcel boundary crossings
 	
-	std::string mConnectorHandle;	// returned by "Create Connector" message
-	std::string mAccountHandle;		// returned by login message		
-	int 		mNumberOfAliases;
-	U32 mCommandCookie;
+    bool mConnectorEstablished; // set by "Create Connector" response
+    bool mAccountLoggedIn;		// set by login message		
+	int  mNumberOfAliases;
+	U32  mCommandCookie;
 
 	std::string mVoiceAccountServerURI;
 	std::string mVoiceSIPURIHostName;
@@ -707,7 +708,9 @@ private:
 	int mLoginRetryCount;
 	
 	sessionMap mSessionsByHandle;				// Active sessions, indexed by session handle.  Sessions which are being initiated may not be in this map.
+#if 0
 	sessionSet mSessions;						// All sessions, not indexed.  This is the canonical session list.
+#endif
 	
 	bool mBuddyListMapPopulated;
 	bool mBlockRulesListReceived;
@@ -725,14 +728,9 @@ private:
 	bool mIsInitialized;
 	bool mShutdownComplete;
 	
-	
 	bool checkParcelChanged(bool update = false);
-	// This should be called when the code detects we have changed parcels.
-	// It initiates the call to the server that gets the parcel channel.
-	bool requestParcelVoiceInfo();
-	
-	void switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
-	void joinSession(sessionState *session);
+	bool switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
+    void joinSession(const sessionStatePtr_t &session);
 	
 	std::string nameFromAvatar(LLVOAvatar *avatar);
 	std::string nameFromID(const LLUUID &id);
@@ -749,19 +747,21 @@ private:
 	std::string getAudioSessionHandle();
 			
     void setHidden(bool hidden); //virtual
-	void sendPositionalUpdate(void);
+	void sendPositionAndVolumeUpdate(void);
 	
-	void buildSetCaptureDevice(std::ostringstream &stream);
+    void sendCaptureAndRenderDevices();
+    void buildSetCaptureDevice(std::ostringstream &stream);
 	void buildSetRenderDevice(std::ostringstream &stream);
 	
 
 	void sendFriendsListUpdates();
 
+#if 0
 	// start a text IM session with the specified user
 	// This will be asynchronous, the session may be established at a future time.
-	sessionState* startUserIMSession(const LLUUID& uuid);
-	void sendQueuedTextMessages(sessionState *session);
-	
+    sessionStatePtr_t startUserIMSession(const LLUUID& uuid);
+#endif
+
 	void enforceTether(void);
 	
 	bool		mSpatialCoordsDirty;
@@ -773,7 +773,7 @@ private:
 
 	LLVector3d	mAvatarPosition;
 	LLVector3	mAvatarVelocity;
-	LLMatrix3	mAvatarRot;
+	LLQuaternion mAvatarRot;
 	
 	bool		mMuteMic;
 	bool		mMuteMicDirty;
@@ -803,8 +803,6 @@ private:
 	std::string mWriteString;
 	size_t		mWriteOffset;
 	
-	LLTimer		mUpdateTimer;
-	
 	BOOL		mLipSyncEnabled;
 
 	typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
@@ -833,7 +831,7 @@ private:
 
 	void accountGetSessionFontsSendMessage();
 	void accountGetTemplateFontsSendMessage();
-	void sessionSetVoiceFontSendMessage(sessionState *session);
+    void sessionSetVoiceFontSendMessage(const sessionStatePtr_t &session);
 
 	void updateVoiceMorphingMenu();
 	void notifyVoiceFontObservers();
@@ -899,11 +897,22 @@ private:
 	bool mCaptureBufferRecorded;	// A voice sample is captured in the buffer ready to play.
 	bool mCaptureBufferPlaying;		// A voice sample is being played.
 
-	LLTimer	mCaptureTimer;
-	LLUUID mPreviewVoiceFont;
-	LLUUID mPreviewVoiceFontLast;
-	S32 mPlayRequestCount;
+	LLTimer mCaptureTimer;
+	LLUUID  mPreviewVoiceFont;
+	LLUUID  mPreviewVoiceFontLast;
+	S32     mPlayRequestCount;
+    bool    mIsInTuningMode;
+    bool    mIsInChannel;
+    bool    mIsJoiningSession;
+    bool    mIsWaitingForFonts;
+    bool    mIsLoggingIn;
+    bool    mIsLoggedIn;
+    bool    mIsProcessingChannels;
+    bool    mIsCoroutineActive;
+
+    LLEventMailDrop mVivoxPump;
 };
+
 
 /** 
  * @class LLVivoxProtocolParser
@@ -1013,8 +1022,22 @@ protected:
 	void			EndTag(const char *tag);
 	void			CharData(const char *buffer, int length);
 	LLDate			expiryTimeStampToLLDate(const std::string& vivox_ts);
+
 };
 
+class LLVivoxSecurity :	public LLSingleton<LLVivoxSecurity>
+{
+  public:
+	LLVivoxSecurity();	
+	virtual ~LLVivoxSecurity();
+
+    std::string     connectorHandle() { return mConnectorHandle; };
+    std::string     accountHandle()    { return mAccountHandle;    };
+
+  private:
+    std::string     mConnectorHandle;
+    std::string     mAccountHandle;
+};
 
 #endif //LL_VIVOX_VOICE_CLIENT_H
 

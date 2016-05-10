@@ -72,20 +72,14 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMAGES("Process Images");
 
 ETexListType get_element_type(S32 priority)
 {
-    // don't discard flag can be used in some cases, but it usually is not set yet
-    if (priority == LLViewerFetchedTexture::BOOST_ICON
-        || priority == LLViewerFetchedTexture::BOOST_UI)
-    {
-        return TEX_LIST_UI;
-    }
-    return TEX_LIST_DISCARD;
+    return (priority == LLViewerFetchedTexture::BOOST_ICON) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 LLTextureKey::LLTextureKey()
 : textureId(LLUUID::null),
-textureType(TEX_LIST_DISCARD)
+textureType(TEX_LIST_STANDARD)
 {
 }
 
@@ -259,7 +253,7 @@ void LLViewerTextureList::shutdown()
 		if (!image->hasGLTexture() ||
 			!image->getUseDiscard() ||
 			image->needsAux() ||
-			image->getTargetHost() != LLHost::invalid ||
+			!image->getTargetHost().isInvalid() ||
 			!image->getUrl().empty()
 			)
 		{
@@ -450,10 +444,16 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 
 		if (boost_priority != 0)
 		{
-			if (boost_priority == LLViewerFetchedTexture::BOOST_UI
-				|| boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+			if (boost_priority == LLViewerFetchedTexture::BOOST_UI)
 			{
 				imagep->dontDiscard();
+			}
+			if (boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+			{
+				// Agent and group Icons are downloadable content, nothing manages
+				// icon deletion yet, so they should not persist
+				imagep->dontDiscard();
+				imagep->forceActive();
 			}
 			imagep->setBoostLevel(boost_priority);
 		}
@@ -554,10 +554,16 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 
 	if (boost_priority != 0)
 	{
-		if (boost_priority == LLViewerFetchedTexture::BOOST_UI
-			|| boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+		if (boost_priority == LLViewerFetchedTexture::BOOST_UI)
 		{
 			imagep->dontDiscard();
+		}
+		if (boost_priority == LLViewerFetchedTexture::BOOST_ICON)
+		{
+			// Agent and group Icons are downloadable content, nothing manages
+			// icon deletion yet, so they should not persist.
+			imagep->dontDiscard();
+			imagep->forceActive();
 		}
 		imagep->setBoostLevel(boost_priority);
 	}
@@ -579,7 +585,7 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 
 void LLViewerTextureList::findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output)
 {
-    LLTextureKey search_key(image_id, TEX_LIST_DISCARD);
+    LLTextureKey search_key(image_id, TEX_LIST_STANDARD);
     uuid_map_t::iterator iter = mUUIDMap.lower_bound(search_key);
     while (iter != mUUIDMap.end() && iter->first.textureId == image_id)
     {
@@ -1585,14 +1591,14 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 	LLUUID image_id;
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, image_id);
 	
-	LLViewerFetchedTexture* image = gTextureList.findImage( image_id, TEX_LIST_DISCARD);
+	LLViewerFetchedTexture* image = gTextureList.findImage( image_id, TEX_LIST_STANDARD);
 	if( image )
 	{
 		LL_WARNS() << "Image not in db" << LL_ENDL;
 		image->setIsMissingAsset();
 	}
 
-    image = gTextureList.findImage(image_id, TEX_LIST_UI);
+    image = gTextureList.findImage(image_id, TEX_LIST_SCALE);
     if (image)
     {
         LL_WARNS() << "Icon not in db" << LL_ENDL;

@@ -2956,7 +2956,7 @@ Wenn Sie in dieser Region bleiben, werden Sie abgemeldet.
 
 [MESSAGE]
 
-Von Objekt: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, Eigentümer: [NAME]
+Von Objekt: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, Eigentümer: [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Zur Seite"/>
 			<button name="Cancel" text="Abbrechen"/>

@@ -2947,7 +2947,7 @@ Se rimani qui verrai scollegato da Second Life.
 
 [MESSAGE]
 
-Dall&apos;oggetto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, proprietario: [NAME]
+Dall&apos;oggetto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, proprietario: [NAME_SLURL]
 		<form name="form">
 			<button name="Gotopage" text="Caricare"/>
 			<button name="Cancel" text="Annulla"/>

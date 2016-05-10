@@ -338,25 +338,25 @@ BOOL LLFloaterModelPreview::postBuild()
 		LLTextBox* text = getChild<LLTextBox>(lod_label_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 
 		text = getChild<LLTextBox>(lod_triangles_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 
 		text = getChild<LLTextBox>(lod_vertices_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 
 		text = getChild<LLTextBox>(lod_status_name[i]);
 		if (text)
 		{
-			text->setMouseDownCallback(boost::bind(&LLModelPreview::setPreviewLOD, mModelPreview, i));
+			text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
 		}
 	}
 	std::string current_grid = LLGridManager::getInstance()->getGridId();
@@ -1361,6 +1361,14 @@ void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, 
 	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
 	childSetTextArg("import_dimensions", "[Y]", llformat("%.3f", y));
 	childSetTextArg("import_dimensions", "[Z]", llformat("%.3f", z));
+}
+
+void LLFloaterModelPreview::setPreviewLOD(S32 lod)
+{
+	if (mModelPreview)
+	{
+		mModelPreview->setPreviewLOD(lod);
+	}
 }
 
 
@@ -4490,6 +4498,15 @@ void LLFloaterModelPreview::onPermissionsReceived(const LLSD& result)
 	std::string upload_status = result["mesh_upload_status"].asString();
 	// BAP HACK: handle "" for case that  MeshUploadFlag cap is broken.
 	mHasUploadPerm = (("" == upload_status) || ("valid" == upload_status));
+
+    if (!mHasUploadPerm) 
+    {
+        LL_WARNS() << "Upload permission set to false because upload_status=\"" << upload_status << "\"" << LL_ENDL;
+    }
+    else if (mHasUploadPerm && mUploadModelUrl.empty())
+    {
+        LL_WARNS() << "Upload permission set to true but uploadModelUrl is empty!" << LL_ENDL;
+    }
 
 	// isModelUploadAllowed() includes mHasUploadPerm
 	mUploadBtn->setEnabled(isModelUploadAllowed());

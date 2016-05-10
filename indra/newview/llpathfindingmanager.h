@@ -37,10 +37,14 @@
 #include "llpathfindingobjectlist.h"
 #include "llpathfindingnavmesh.h"
 #include "llsingleton.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 
 class LLPathfindingNavMeshStatus;
 class LLUUID;
 class LLViewerRegion;
+
+class LinksetsResponder;
 
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
@@ -92,16 +96,22 @@ public:
 protected:
 
 private:
-	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
 
-	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
+	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
 
 	void handleDeferredGetAgentStateForRegion(const LLUUID &pRegionUUID);
 	void handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID, bool pIsGetStatusOnly);
 	void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
 	void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
-	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
+    void navMeshStatusRequestCoro(std::string url, U64 regionHandle, bool isGetStatusOnly);
+    void navAgentStateRequestCoro(std::string url);
+    void navMeshRebakeCoro(std::string url, rebake_navmesh_callback_t rebakeNavMeshCallback);
+    void linksetObjectsCoro(std::string url, boost::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
+    void linksetTerrainCoro(std::string url, boost::shared_ptr<LinksetsResponder> linksetsResponsderPtr, LLSD putData) const;
+    void charactersCoro(std::string url, request_id_t requestId, object_request_callback_t callback) const;
+
+	//void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	void handleAgentState(BOOL pCanRebakeRegion);

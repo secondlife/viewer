@@ -83,10 +83,6 @@ static void exceptionTerminateHandler()
 
 bool initViewer()
 {
-#if LL_SOLARIS && defined(__sparc)
-	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
-#endif
-
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
 	{
@@ -301,6 +297,7 @@ void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
     std::string appname = gDirUtilp->getExecutableFilename();
     std::string str[] = { "-pid", pid_str.str(), "-dumpdir", logdir, "-procname", appname.c_str() };
     std::vector< std::string > args( str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );
+    LL_WARNS() << "about to launch mac-crash-logger" << pid_str << " " << logdir << " " << appname << LL_ENDL;
     launchApplication(&command_str, &args);
 }
 

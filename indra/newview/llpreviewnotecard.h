@@ -95,6 +95,8 @@ protected:
 	bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 	bool handleConfirmDeleteDialog(const LLSD& notification, const LLSD& response);
 
+    static void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId);
+
 protected:
 	LLViewerTextEditor* mEditor;
 	LLButton* mSaveBtn;

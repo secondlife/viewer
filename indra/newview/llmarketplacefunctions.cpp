@@ -30,7 +30,6 @@
 
 #include "llagent.h"
 #include "llbufferstream.h"
-#include "llhttpclient.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
@@ -42,609 +41,133 @@
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 #include "llviewerregion.h"
-
 #include "reader.h" // JSON
 #include "writer.h" // JSON
+#include "lleventcoro.h"
+#include "llcoros.h"
+#include "llcorehttputil.h"
 
+#include "llsdutil.h"
 //
 // Helpers
 //
 
-static std::string getMarketplaceDomain()
-{
-	std::string domain = "secondlife.com";
-	
-	if (!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		const std::string& grid_id = LLGridManager::getInstance()->getGridId();
-		const std::string& grid_id_lower = utf8str_tolower(grid_id);
-		
-		if (grid_id_lower == "damballah")
-		{
-			domain = "secondlife-staging.com";
-		}
-		else
-		{
-			domain = llformat("%s.lindenlab.com", grid_id_lower.c_str());
-		}
-	}
-	
-	return domain;
-}
+namespace {
 
-static std::string getMarketplaceURL(const std::string& urlStringName)
-{
-	LLStringUtil::format_map_t domain_arg;
-	domain_arg["[MARKETPLACE_DOMAIN_NAME]"] = getMarketplaceDomain();
-	
-	std::string marketplace_url = LLTrans::getString(urlStringName, domain_arg);
-	
-	return marketplace_url;
-}
+    static std::string getMarketplaceDomain()
+    {
+        std::string domain = "secondlife.com";
 
-LLSD getMarketplaceStringSubstitutions()
-{
-	std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
-	std::string marketplace_url_create = getMarketplaceURL("MarketplaceURL_CreateStore");
-	std::string marketplace_url_dashboard = getMarketplaceURL("MarketplaceURL_Dashboard");
-	std::string marketplace_url_imports = getMarketplaceURL("MarketplaceURL_Imports");
-	std::string marketplace_url_info = getMarketplaceURL("MarketplaceURL_LearnMore");
-	
-	LLSD marketplace_sub_map;
-
-	marketplace_sub_map["[MARKETPLACE_URL]"] = marketplace_url;
-	marketplace_sub_map["[MARKETPLACE_CREATE_STORE_URL]"] = marketplace_url_create;
-	marketplace_sub_map["[MARKETPLACE_LEARN_MORE_URL]"] = marketplace_url_info;
-	marketplace_sub_map["[MARKETPLACE_DASHBOARD_URL]"] = marketplace_url_dashboard;
-	marketplace_sub_map["[MARKETPLACE_IMPORTS_URL]"] = marketplace_url_imports;
-	
-	return marketplace_sub_map;
-}
-
-// Get the version folder: if there is only one subfolder, we will use it as a version folder
-LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
-{
-    LLUUID version_id = LLUUID::null;
-	LLInventoryModel::cat_array_t* categories;
-	LLInventoryModel::item_array_t* items;
-	gInventory.getDirectDescendentsOf(folder_id, categories, items);
-    if (categories->size() == 1)
-    {
-        version_id = categories->begin()->get()->getUUID();
-    }
-    else
-    {
-        LLNotificationsUtil::add("AlertMerchantListingActivateRequired");
-    }
-    return version_id;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// SLM Responders
-void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const std::string& description)
-{
-    LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << description << LL_ENDL;
-    if ((status == 422) && (description == "[\"You must have an English description to list the product\", \"You must choose a category for your product before it can be listed\", \"Listing could not change state.\", \"Price can't be blank\"]"))
-    {
-        // Unprocessable Entity : Special case that error as it is a frequent answer when trying to list an incomplete listing
-        LLNotificationsUtil::add("MerchantUnprocessableEntity");
-    }
-    else
-    {
-        // Prompt the user with the warning (so they know why things are failing)
-        LLSD subs;
-        subs["[ERROR_REASON]"] = reason;
-        // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
-        subs["[ERROR_DESCRIPTION]"] = (description.length() <= 512 ? description : "");
-        LLNotificationsUtil::add("MerchantTransactionFailed", subs);
-    }
-}
-void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
-{
-    if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
-    {
-        LL_INFOS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", body or description : " << body << LL_ENDL;
-    }
-}
-void log_SLM_infos(const std::string& request, const std::string& url, const std::string& body)
-{
-    if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
-    {
-		LL_INFOS("SLM") << "SLM API : Sending " << request << ". url : " << url << ", body : " << body << LL_ENDL;
-    }
-}
-
-class LLSLMGetMerchantResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSLMGetMerchantResponder);
-public:
-	
-    LLSLMGetMerchantResponder() {}
-
-protected:
-    virtual void httpFailure()
-    {
-        if (HTTP_NOT_FOUND == getStatus())
+        if (!LLGridManager::getInstance()->isInProductionGrid())
         {
-            log_SLM_infos("Get /merchant", getStatus(), "User is not a merchant");
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
-        }
-        else if (HTTP_SERVICE_UNAVAILABLE == getStatus())
-        {
-            log_SLM_infos("Get /merchant", getStatus(), "Merchant is not migrated");
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
-        }
-		else
-		{
-            log_SLM_warning("Get /merchant", getStatus(), getReason(), getContent().get("error_code"), getContent().get("error_description"));
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
-		}
-    }
-    
-    virtual void httpSuccess()
-    {
-        log_SLM_infos("Get /merchant", getStatus(), "User is a merchant");
-        LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
-    }
-    
-};
+            const std::string& grid_id = LLGridManager::getInstance()->getGridId();
+            const std::string& grid_id_lower = utf8str_tolower(grid_id);
 
-class LLSLMGetListingsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSLMGetListingsResponder);
-public:
-	
-    LLSLMGetListingsResponder(const LLUUID& folder_id)
-    {
-        mExpectedFolderId = folder_id;
-    }
-    
-    virtual void completedRaw(const LLChannelDescriptors& channels,
-                              const LLIOPipe::buffer_ptr_t& buffer)
-    {
-        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
-        
-        LLBufferStream istr(channels, buffer.get());
-        std::stringstream strstrm;
-        strstrm << istr.rdbuf();
-        const std::string body = strstrm.str();
-
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Get /listings", getStatus(), getReason(), "", body);
-            LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(body,root))
-        {
-            log_SLM_warning("Get /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
-            LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-        }
-        
-        log_SLM_infos("Get /listings", getStatus(), body);
-        
-        // Extract the info from the Json string
-        Json::ValueIterator it = root["listings"].begin();
-        
-        while (it != root["listings"].end())
-        {
-            Json::Value listing = *it;
-            
-            int listing_id = listing["id"].asInt();
-            bool is_listed = listing["is_listed"].asBool();
-            std::string edit_url = listing["edit_url"].asString();
-            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
-            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-            int count = listing["inventory_info"]["count_on_hand"].asInt();
-            
-            LLUUID folder_id(folder_uuid_string);
-            LLUUID version_id(version_uuid_string);
-            if (folder_id.notNull())
+            if (grid_id_lower == "damballah")
             {
-                LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
-            }
-            it++;
-        }
-        
-        // Update all folders under the root
-        LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_DONE);
-        update_marketplace_category(mExpectedFolderId, false);
-        gInventory.notifyObservers();        
-    }
-private:
-    LLUUID mExpectedFolderId;
-};
-
-class LLSLMCreateListingsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSLMCreateListingsResponder);
-public:
-	
-    LLSLMCreateListingsResponder(const LLUUID& folder_id)
-    {
-        mExpectedFolderId = folder_id;
-    }
-    
-    virtual void completedRaw(const LLChannelDescriptors& channels,
-                              const LLIOPipe::buffer_ptr_t& buffer)
-    {
-        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
-        
-        LLBufferStream istr(channels, buffer.get());
-        std::stringstream strstrm;
-        strstrm << istr.rdbuf();
-        const std::string body = strstrm.str();
-        
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Post /listings", getStatus(), getReason(), "", body);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-        
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(body,root))
-        {
-            log_SLM_warning("Post /listings", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-        }
-
-        log_SLM_infos("Post /listings", getStatus(), body);
-
-        // Extract the info from the Json string
-        Json::ValueIterator it = root["listings"].begin();
-        
-        while (it != root["listings"].end())
-        {
-            Json::Value listing = *it;
-            
-            int listing_id = listing["id"].asInt();
-            bool is_listed = listing["is_listed"].asBool();
-            std::string edit_url = listing["edit_url"].asString();
-            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
-            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-            int count = listing["inventory_info"]["count_on_hand"].asInt();
-            
-            LLUUID folder_id(folder_uuid_string);
-            LLUUID version_id(version_uuid_string);
-            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
-            update_marketplace_category(folder_id, false);
-            gInventory.notifyObservers();
-            it++;
-        }
-    }
-private:
-    LLUUID mExpectedFolderId;
-};
-
-class LLSLMGetListingResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSLMGetListingResponder);
-public:
-	
-    LLSLMGetListingResponder(const LLUUID& folder_id)
-    {
-        mExpectedFolderId = folder_id;
-    }
-    
-    virtual void completedRaw(const LLChannelDescriptors& channels,
-                              const LLIOPipe::buffer_ptr_t& buffer)
-    {
-        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
-
-        LLBufferStream istr(channels, buffer.get());
-        std::stringstream strstrm;
-        strstrm << istr.rdbuf();
-        const std::string body = strstrm.str();
-        
-		if (!isGoodStatus())
-		{
-            if (getStatus() == 404)
-            {
-                // That listing does not exist -> delete its record from the local SLM data store
-                LLMarketplaceData::instance().deleteListing(mExpectedFolderId, false);
+                domain = "secondlife-staging.com";
             }
             else
             {
-                log_SLM_warning("Get /listing", getStatus(), getReason(), "", body);
+                domain = llformat("%s.lindenlab.com", grid_id_lower.c_str());
             }
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-        
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(body,root))
-        {
-            log_SLM_warning("Get /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
         }
-        
-        log_SLM_infos("Get /listing", getStatus(), body);
-        
-        // Extract the info from the Json string
-        Json::ValueIterator it = root["listings"].begin();
-        
-        while (it != root["listings"].end())
-        {
-            Json::Value listing = *it;
-            
-            int listing_id = listing["id"].asInt();
-            bool is_listed = listing["is_listed"].asBool();
-            std::string edit_url = listing["edit_url"].asString();
-            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
-            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-            int count = listing["inventory_info"]["count_on_hand"].asInt();
-            
-            LLUUID folder_id(folder_uuid_string);
-            LLUUID version_id(version_uuid_string);
-            
-            // Update that listing
-            LLMarketplaceData::instance().setListingID(folder_id, listing_id, false);
-            LLMarketplaceData::instance().setVersionFolderID(folder_id, version_id, false);
-            LLMarketplaceData::instance().setActivationState(folder_id, is_listed, false);
-            LLMarketplaceData::instance().setListingURL(folder_id, edit_url, false);
-            LLMarketplaceData::instance().setCountOnHand(folder_id,count,false);
-            update_marketplace_category(folder_id, false);
-            gInventory.notifyObservers();
-            
-            it++;
-        }
+
+        return domain;
     }
-private:
-    LLUUID mExpectedFolderId;
-};
 
-class LLSLMUpdateListingsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSLMUpdateListingsResponder);
-public:
-	
-    LLSLMUpdateListingsResponder(const LLUUID& folder_id, bool expected_listed_state, const LLUUID& expected_version_id)
+    static std::string getMarketplaceURL(const std::string& urlStringName)
     {
-        mExpectedFolderId = folder_id;
-        mExpectedListedState = expected_listed_state;
-        mExpectedVersionUUID = expected_version_id;
+        LLStringUtil::format_map_t domain_arg;
+        domain_arg["[MARKETPLACE_DOMAIN_NAME]"] = getMarketplaceDomain();
+
+        std::string marketplace_url = LLTrans::getString(urlStringName, domain_arg);
+
+        return marketplace_url;
     }
-    
-    virtual void completedRaw(const LLChannelDescriptors& channels,
-                              const LLIOPipe::buffer_ptr_t& buffer)
+
+    // Get the version folder: if there is only one subfolder, we will use it as a version folder
+    LLUUID getVersionFolderIfUnique(const LLUUID& folder_id)
     {
-        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
-
-        LLBufferStream istr(channels, buffer.get());
-        std::stringstream strstrm;
-        strstrm << istr.rdbuf();
-        const std::string body = strstrm.str();
-        
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Put /listing", getStatus(), getReason(), "", body);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-        
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(body,root))
+        LLUUID version_id = LLUUID::null;
+        LLInventoryModel::cat_array_t* categories;
+        LLInventoryModel::item_array_t* items;
+        gInventory.getDirectDescendentsOf(folder_id, categories, items);
+        if (categories->size() == 1)
         {
-            log_SLM_warning("Put /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
+            version_id = categories->begin()->get()->getUUID();
         }
-        
-        log_SLM_infos("Put /listing", getStatus(), body);
-
-        // Extract the info from the Json string
-        Json::ValueIterator it = root["listings"].begin();
-        
-        while (it != root["listings"].end())
+        else
         {
-            Json::Value listing = *it;
-            
-            int listing_id = listing["id"].asInt();
-            bool is_listed = listing["is_listed"].asBool();
-            std::string edit_url = listing["edit_url"].asString();
-            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
-            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-            int count = listing["inventory_info"]["count_on_hand"].asInt();
-            
-            LLUUID folder_id(folder_uuid_string);
-            LLUUID version_id(version_uuid_string);
-            
-            // Update that listing
-            LLMarketplaceData::instance().setListingID(folder_id, listing_id, false);
-            LLMarketplaceData::instance().setVersionFolderID(folder_id, version_id, false);
-            LLMarketplaceData::instance().setActivationState(folder_id, is_listed, false);
-            LLMarketplaceData::instance().setListingURL(folder_id, edit_url, false);
-            LLMarketplaceData::instance().setCountOnHand(folder_id,count,false);
-            update_marketplace_category(folder_id, false);
-            gInventory.notifyObservers();
-            
-            // Show a notification alert if what we got is not what we expected
-            // (this actually doesn't result in an error status from the SLM API protocol)
-            if ((mExpectedListedState != is_listed) || (mExpectedVersionUUID != version_id))
+            LLNotificationsUtil::add("AlertMerchantListingActivateRequired");
+        }
+        return version_id;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // SLM Reporters
+    void log_SLM_warning(const std::string& request, U32 status, const std::string& reason, const std::string& code, const LLSD& result)
+    {
+
+        LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << ll_pretty_print_sd(result) << LL_ENDL;
+        if ((status == 422) && (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT) && 
+            result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT].isArray() &&
+            result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT].size() > 4))
+        {
+            // Unprocessable Entity : Special case that error as it is a frequent answer when trying to list an incomplete listing
+            LLNotificationsUtil::add("MerchantUnprocessableEntity");
+        }
+        else
+        {
+            // Prompt the user with the warning (so they know why things are failing)
+            LLSD subs;
+            subs["[ERROR_REASON]"] = reason;
+            // We do show long descriptions in the alert (unlikely to be readable). The description string will be in the log though.
+            std::string description;
+            if (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT))
             {
-                LLSD subs;
-                subs["[URL]"] = edit_url;
-                LLNotificationsUtil::add("AlertMerchantListingNotUpdated", subs);
+                LLSD content = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT];
+                if (content.isArray())
+                {
+                    for (LLSD::array_iterator it = content.beginArray(); it != content.endArray(); ++it)
+                    {
+                        if (!description.empty())
+                            description += "\n";
+                        description += (*it).asString();
+                    }
+                }
+                else
+                {
+                    description = content.asString();
+                }
             }
-            
-            it++;
-        }
-    }
-private:
-    LLUUID mExpectedFolderId;
-    bool mExpectedListedState;
-    LLUUID mExpectedVersionUUID;
-};
-
-class LLSLMAssociateListingsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSLMAssociateListingsResponder);
-public:
-	
-    LLSLMAssociateListingsResponder(const LLUUID& folder_id, const LLUUID& source_folder_id)
-    {
-        mExpectedFolderId = folder_id;
-        mSourceFolderId = source_folder_id;
-    }
-    
-    virtual void completedRaw(const LLChannelDescriptors& channels,
-                              const LLIOPipe::buffer_ptr_t& buffer)
-    {
-        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
-        LLMarketplaceData::instance().setUpdating(mSourceFolderId,false);
-        
-        LLBufferStream istr(channels, buffer.get());
-        std::stringstream strstrm;
-        strstrm << istr.rdbuf();
-        const std::string body = strstrm.str();
-        
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Put /associate_inventory", getStatus(), getReason(), "", body);
-            update_marketplace_category(mExpectedFolderId, false);
-            update_marketplace_category(mSourceFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-        
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(body,root))
-        {
-            log_SLM_warning("Put /associate_inventory", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
-            update_marketplace_category(mExpectedFolderId, false);
-            update_marketplace_category(mSourceFolderId, false);
-            gInventory.notifyObservers();
-            return;
-        }
-        
-        log_SLM_infos("Put /associate_inventory", getStatus(), body);
-        
-        // Extract the info from the Json string
-        Json::ValueIterator it = root["listings"].begin();
-        
-        while (it != root["listings"].end())
-        {
-            Json::Value listing = *it;
-            
-            int listing_id = listing["id"].asInt();
-            bool is_listed = listing["is_listed"].asBool();
-            std::string edit_url = listing["edit_url"].asString();
-            std::string folder_uuid_string = listing["inventory_info"]["listing_folder_id"].asString();
-            std::string version_uuid_string = listing["inventory_info"]["version_folder_id"].asString();
-            int count = listing["inventory_info"]["count_on_hand"].asInt();
-           
-            LLUUID folder_id(folder_uuid_string);
-            LLUUID version_id(version_uuid_string);
-            
-            // Check that the listing ID is not already associated to some other record
-            LLUUID old_listing = LLMarketplaceData::instance().getListingFolder(listing_id);
-            if (old_listing.notNull())
+            else
             {
-                // If it is already used, unlist the old record (we can't have 2 listings with the same listing ID)
-                LLMarketplaceData::instance().deleteListing(old_listing);
+                description = result.asString();
             }
-            
-            // Add the new association
-            LLMarketplaceData::instance().addListing(folder_id,listing_id,version_id,is_listed,edit_url,count);
-            update_marketplace_category(folder_id, false);
-            gInventory.notifyObservers();
-            
-            // The stock count needs to be updated with the new local count now
-            LLMarketplaceData::instance().updateCountOnHand(folder_id,1);
-
-            it++;
+            subs["[ERROR_DESCRIPTION]"] = description;
+            LLNotificationsUtil::add("MerchantTransactionFailed", subs);
         }
-        
-        // Always update the source folder so its widget updates
-        update_marketplace_category(mSourceFolderId, false);
-    }
-private:
-    LLUUID mExpectedFolderId;   // This is the folder now associated with the id.
-    LLUUID mSourceFolderId;     // This is the folder initially associated with the id. Can be LLUUI::null
-};
 
-class LLSLMDeleteListingsResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLSLMDeleteListingsResponder);
-public:
-	
-    LLSLMDeleteListingsResponder(const LLUUID& folder_id)
+    }
+
+    void log_SLM_infos(const std::string& request, U32 status, const std::string& body)
     {
-        mExpectedFolderId = folder_id;
+        if (gSavedSettings.getBOOL("MarketplaceListingsLogging"))
+        {
+            LL_INFOS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", body or description : " << body << LL_ENDL;
+        }
     }
-    
-    virtual void completedRaw(const LLChannelDescriptors& channels,
-                              const LLIOPipe::buffer_ptr_t& buffer)
+
+    void log_SLM_infos(const std::string& request, U32 status, const LLSD& body)
     {
-        LLMarketplaceData::instance().setUpdating(mExpectedFolderId,false);
-        
-        LLBufferStream istr(channels, buffer.get());
-        std::stringstream strstrm;
-        strstrm << istr.rdbuf();
-        const std::string body = strstrm.str();
-        
-		if (!isGoodStatus())
-		{
-            log_SLM_warning("Delete /listing", getStatus(), getReason(), "", body);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-		}
-        
-        Json::Value root;
-        Json::Reader reader;
-        if (!reader.parse(body,root))
-        {
-            log_SLM_warning("Delete /listing", getStatus(), "Json parsing failed", reader.getFormatedErrorMessages(), body);
-            update_marketplace_category(mExpectedFolderId, false);
-            gInventory.notifyObservers();
-            return;
-        }
-        
-        log_SLM_infos("Delete /listing", getStatus(), body);
-        
-        // Extract the info from the Json string
-        Json::ValueIterator it = root["listings"].begin();
-        
-        while (it != root["listings"].end())
-        {
-            Json::Value listing = *it;
-            
-            int listing_id = listing["id"].asInt();
-            LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
-            LLMarketplaceData::instance().deleteListing(folder_id);
-            
-            it++;
-        }
+        log_SLM_infos(request, status, std::string(ll_pretty_print_sd(body)));
     }
-private:
-    LLUUID mExpectedFolderId;
-};
 
-// SLM Responders End
-///////////////////////////////////////////////////////////////////////////////
+}
 
+
+#if 1
 namespace LLMarketplaceImport
 {
 	// Basic interface for this namespace
@@ -669,105 +192,133 @@ namespace LLMarketplaceImport
 	static S32 sImportResultStatus = 0;
 	static LLSD sImportResults = LLSD::emptyMap();
 
-	static LLTimer slmGetTimer;
-	static LLTimer slmPostTimer;
-
 	// Responders
-	
-	class LLImportPostResponder : public LLHTTPClient::Responder
-	{
-		LOG_CLASS(LLImportPostResponder);
-	public:
-		LLImportPostResponder() : LLCurl::Responder() {}
 
-	protected:
-		/* virtual */ void httpCompleted()
-		{
-			slmPostTimer.stop();
+    void marketplacePostCoro(std::string url)
+    {
+        LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("marketplacePostCoro", httpPolicy));
+        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+        LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
-			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-			{
-				LL_INFOS() << " SLM [timer:" << slmPostTimer.getElapsedTimeF32() << "] "
-						   << dumpResponse() << LL_ENDL;
-			}
+        httpOpts->setWantHeaders(true);
+        httpOpts->setFollowRedirects(true);
 
-			S32 status = getStatus();
-			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
-				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
-				// MAINT-2301 : we determined we can safely ignore that error in that context
-				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
-			{
-				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-				{
-					LL_INFOS() << " SLM POST : Ignoring time out status and treating it as success" << LL_ENDL;
-				}
-				status = MarketplaceErrorCodes::IMPORT_DONE;
-			}
-			
-			if (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
-			{
-				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-				{
-					LL_INFOS() << " SLM POST : Clearing marketplace cookie due to client or server error" << LL_ENDL;
-				}
-				sMarketplaceCookie.clear();
-			}
+        httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
+        httpHeaders->append(HTTP_OUT_HEADER_CONNECTION, "Keep-Alive");
+        httpHeaders->append(HTTP_OUT_HEADER_COOKIE, sMarketplaceCookie);
+        httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_XML);
+        httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
 
-			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
-			sImportPostPending = false;
-			sImportResultStatus = status;
-			sImportId = getContent();
-		}
-	};
-	
-	class LLImportGetResponder : public LLHTTPClient::Responder
-	{
-		LOG_CLASS(LLImportGetResponder);
-	public:
-		LLImportGetResponder() : LLCurl::Responder() {}
-		
-	protected:
-		/* virtual */ void httpCompleted()
-		{
-			const std::string& set_cookie_string = getResponseHeader(HTTP_IN_HEADER_SET_COOKIE);
-			
-			if (!set_cookie_string.empty())
-			{
-				sMarketplaceCookie = set_cookie_string;
-			}
+        LLSD result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts, httpHeaders);
 
-			slmGetTimer.stop();
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-			{
-				LL_INFOS() << " SLM [timer:" << slmGetTimer.getElapsedTimeF32() << "] "
-						   << dumpResponse() << LL_ENDL;
-			}
-			
-            // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
-            // ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initally empty
-			S32 status = getStatus();
-			if ((status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
-                (status != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
-                (status != MarketplaceErrorCodes::IMPORT_NOT_FOUND))
-			{
-				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-				{
-					LL_INFOS() << " SLM GET clearing marketplace cookie due to client or server error" << LL_ENDL;
-				}
-				sMarketplaceCookie.clear();
-			}
-            else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (status >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST))
+        S32 httpCode = status.getType();
+        if ((httpCode == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
+            (httpCode == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+            // MAINT-2301 : we determined we can safely ignore that error in that context
+            (httpCode == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
+        {
+            if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
             {
-                LL_INFOS() << " SLM GET : Got error status = " << status << ", but marketplace cookie not cleared." << LL_ENDL;
+                LL_INFOS() << " SLM POST : Ignoring time out status and treating it as success" << LL_ENDL;
             }
+            httpCode = MarketplaceErrorCodes::IMPORT_DONE;
+        }
 
-			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
-			sImportGetPending = false;
-			sImportResultStatus = status;
-			sImportResults = getContent();
-		}
-	};
+        if (httpCode >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST)
+        {
+            if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+            {
+                LL_INFOS() << " SLM POST clearing marketplace cookie due to client or server error" << LL_ENDL;
+            }
+            sMarketplaceCookie.clear();
+        }
+
+        sImportInProgress = (httpCode == MarketplaceErrorCodes::IMPORT_DONE);
+        sImportPostPending = false;
+        sImportResultStatus = httpCode;
+
+        {
+            std::stringstream str;
+            LLSDSerialize::toPrettyXML(result, str);
+
+            LL_INFOS() << "Full results:\n" << str.str() << "\n" << LL_ENDL;
+        }
+
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        sImportId = result;
+
+    }
+
+    void marketplaceGetCoro(std::string url, bool buildHeaders)
+    {
+        LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("marketplaceGetCoro", httpPolicy));
+        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        LLCore::HttpHeaders::ptr_t httpHeaders; 
+        LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+        httpOpts->setWantHeaders(true);
+        httpOpts->setFollowRedirects(!sMarketplaceCookie.empty());
+
+        if (buildHeaders)
+        {
+            httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders);
+
+            httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
+            httpHeaders->append(HTTP_OUT_HEADER_COOKIE, sMarketplaceCookie);
+            httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+            httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
+        }
+        else
+        {
+            httpHeaders = LLViewerMedia::getHttpHeaders();
+        }
+
+        LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts, httpHeaders);
+
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        LLSD resultHeaders = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+
+        if (sMarketplaceCookie.empty() && resultHeaders.has(HTTP_IN_HEADER_SET_COOKIE))
+        {
+            sMarketplaceCookie = resultHeaders[HTTP_IN_HEADER_SET_COOKIE].asString();
+        }
+
+        // MAINT-2452 : Do not clear the cookie on IMPORT_DONE_WITH_ERRORS : Happens when trying to import objects with wrong permissions
+        // ACME-1221 : Do not clear the cookie on IMPORT_NOT_FOUND : Happens for newly created Merchant accounts that are initially empty
+        S32 httpCode = status.getType();
+        if ((httpCode >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST) &&
+            (httpCode != MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS) &&
+            (httpCode != MarketplaceErrorCodes::IMPORT_NOT_FOUND))
+        {
+            if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+            {
+                LL_INFOS() << " SLM GET clearing marketplace cookie due to client or server error" << LL_ENDL;
+            }
+            sMarketplaceCookie.clear();
+        }
+        else if (gSavedSettings.getBOOL("InventoryOutboxLogging") && (httpCode >= MarketplaceErrorCodes::IMPORT_BAD_REQUEST))
+        {
+            LL_INFOS() << " SLM GET : Got error status = " << httpCode << ", but marketplace cookie not cleared." << LL_ENDL;
+        }
+
+        sImportInProgress = (httpCode == MarketplaceErrorCodes::IMPORT_PROCESSING);
+        sImportGetPending = false;
+        sImportResultStatus = httpCode;
+
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+        sImportResults = result;
+
+
+    }
 
 	// Basic API
 
@@ -818,20 +369,10 @@ namespace LLMarketplaceImport
 		sImportGetPending = true;
 		
 		std::string url = getInventoryImportURL();
-		
-		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-		{
-            LL_INFOS() << " SLM GET: establishMarketplaceSessionCookie, LLHTTPClient::get, url = " << url << LL_ENDL;
-            LLSD headers = LLViewerMedia::getHeaders();
-            std::stringstream str;
-            LLSDSerialize::toPrettyXML(headers, str);
-            LL_INFOS() << " SLM GET: headers " << LL_ENDL;
-            LL_INFOS() << str.str() << LL_ENDL;
-		}
 
-		slmGetTimer.start();
-		LLHTTPClient::get(url, new LLImportGetResponder(), LLViewerMedia::getHeaders());
-		
+        LLCoros::instance().launch("marketplaceGetCoro",
+            boost::bind(&marketplaceGetCoro, url, false));
+
 		return true;
 	}
 	
@@ -848,26 +389,9 @@ namespace LLMarketplaceImport
 
 		url += sImportId.asString();
 
-		// Make the headers for the post
-		LLSD headers = LLSD::emptyMap();
-		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
-		headers[HTTP_OUT_HEADER_COOKIE] = sMarketplaceCookie;
-		// *TODO: Why are we setting Content-Type for a GET request?
-		headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_LLSD_XML;
-		headers[HTTP_OUT_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
-		
-		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-		{
-            LL_INFOS() << " SLM GET: pollStatus, LLHTTPClient::get, url = " << url << LL_ENDL;
-            std::stringstream str;
-            LLSDSerialize::toPrettyXML(headers, str);
-            LL_INFOS() << " SLM GET: headers " << LL_ENDL;
-            LL_INFOS() << str.str() << LL_ENDL;
-		}
-
-		slmGetTimer.start();
-		LLHTTPClient::get(url, new LLImportGetResponder(), headers);
-		
+        LLCoros::instance().launch("marketplaceGetCoro",
+            boost::bind(&marketplaceGetCoro, url, true));
+        
 		return true;
 	}
 	
@@ -886,35 +410,17 @@ namespace LLMarketplaceImport
 
 		std::string url = getInventoryImportURL();
 		
-		// Make the headers for the post
-		LLSD headers = LLSD::emptyMap();
-		headers[HTTP_OUT_HEADER_ACCEPT] = "*/*";
-		headers[HTTP_OUT_HEADER_CONNECTION] = "Keep-Alive";
-		headers[HTTP_OUT_HEADER_COOKIE] = sMarketplaceCookie;
-		headers[HTTP_OUT_HEADER_CONTENT_TYPE] = HTTP_CONTENT_XML;
-		headers[HTTP_OUT_HEADER_USER_AGENT] = LLViewerMedia::getCurrentUserAgent();
-		
-		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
-		{
-            LL_INFOS() << " SLM POST: triggerImport, LLHTTPClient::post, url = " << url << LL_ENDL;
-            std::stringstream str;
-            LLSDSerialize::toPrettyXML(headers, str);
-            LL_INFOS() << " SLM POST: headers " << LL_ENDL;
-            LL_INFOS() << str.str() << LL_ENDL;
-		}
+        LLCoros::instance().launch("marketplacePostCoro",
+            boost::bind(&marketplacePostCoro, url));
 
-		slmPostTimer.start();
-        LLHTTPClient::post(url, LLSD(), new LLImportPostResponder(), headers);
-		
 		return true;
 	}
 }
-
+#endif
 
 //
 // Interface class
 //
-
 static const F32 MARKET_IMPORTER_UPDATE_FREQUENCY = 1.0f;
 
 //static
@@ -1212,6 +718,26 @@ LLMarketplaceData::~LLMarketplaceData()
 	gInventory.removeObserver(mInventoryObserver);
 }
 
+
+LLSD LLMarketplaceData::getMarketplaceStringSubstitutions()
+{
+    std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
+    std::string marketplace_url_create = getMarketplaceURL("MarketplaceURL_CreateStore");
+    std::string marketplace_url_dashboard = getMarketplaceURL("MarketplaceURL_Dashboard");
+    std::string marketplace_url_imports = getMarketplaceURL("MarketplaceURL_Imports");
+    std::string marketplace_url_info = getMarketplaceURL("MarketplaceURL_LearnMore");
+
+    LLSD marketplace_sub_map;
+
+    marketplace_sub_map["[MARKETPLACE_URL]"] = marketplace_url;
+    marketplace_sub_map["[MARKETPLACE_CREATE_STORE_URL]"] = marketplace_url_create;
+    marketplace_sub_map["[MARKETPLACE_LEARN_MORE_URL]"] = marketplace_url_info;
+    marketplace_sub_map["[MARKETPLACE_DASHBOARD_URL]"] = marketplace_url_dashboard;
+    marketplace_sub_map["[MARKETPLACE_IMPORTS_URL]"] = marketplace_url_imports;
+
+    return marketplace_sub_map;
+}
+
 void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
 {
 	if (mStatusUpdatedSignal == NULL)
@@ -1227,15 +753,69 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
     }
     else
     {
-        // Initiate SLM connection and set responder
-        std::string url = getSLMConnectURL("/merchant");
-        if (url != "")
-        {
-            mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
-            log_SLM_infos("LLHTTPClient::get", url, "");
-            LLHTTPClient::get(url, new LLSLMGetMerchantResponder(), LLSD());
-        }
+        mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
+
+        LLCoros::instance().launch("getMerchantStatus",
+            boost::bind(&LLMarketplaceData::getMerchantStatusCoro, this));
     }
+}
+
+void LLMarketplaceData::getMerchantStatusCoro()
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+    httpOpts->setFollowRedirects(true);
+
+    std::string url = getSLMConnectURL("/merchant");
+    if (url.empty())
+    {
+        LL_INFOS("Marketplace") << "No marketplace capability on Sim" << LL_ENDL;
+    }
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    { 
+        S32 httpCode = status.getType();
+
+        if (httpCode == HTTP_NOT_FOUND)
+        {
+            log_SLM_infos("Get /merchant", httpCode, std::string("User is not a merchant"));
+            setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT);
+        }
+        else if (httpCode == HTTP_SERVICE_UNAVAILABLE)
+        {
+            log_SLM_infos("Get /merchant", httpCode, std::string("Merchant is not migrated"));
+            setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
+        }
+        else if (httpCode == HTTP_INTERNAL_ERROR)
+        {
+            // 499 includes timeout and ssl error - marketplace is down or having issues, we do not show it in this request according to MAINT-5938
+            LL_WARNS("SLM") << "SLM Merchant Request failed with status: " << httpCode
+                                    << ", reason : " << status.toString()
+                                    << ", code : " << result["error_code"].asString()
+                                    << ", description : " << result["error_description"].asString() << LL_ENDL;
+            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+        }
+        else
+        {
+            std::string err_code = result["error_code"].asString();
+            //std::string err_description = result["error_description"].asString();
+            log_SLM_warning("Get /merchant", httpCode, status.toString(), err_code, result["error_description"]);
+            setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_CONNECTION_FAILURE);
+        }
+        return;
+    }
+
+    log_SLM_infos("Get /merchant", status.getType(), std::string("User is a merchant"));
+    setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_MERCHANT);
 }
 
 void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)
@@ -1250,151 +830,434 @@ void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot
 // Get/Post/Put requests to the SLM Server using the SLM API
 void LLMarketplaceData::getSLMListings()
 {
-	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "application/json";
-    
-	// Send request
-    std::string url = getSLMConnectURL("/listings");
-    log_SLM_infos("LLHTTPClient::get", url, "");
-	const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-    setUpdating(marketplacelistings_id,true);
-	LLHTTPClient::get(url, new LLSLMGetListingsResponder(marketplacelistings_id), headers);
+    const LLUUID marketplaceFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    setUpdating(marketplaceFolderId, true);
+
+    LLCoros::instance().launch("getSLMListings",
+        boost::bind(&LLMarketplaceData::getSLMListingsCoro, this, marketplaceFolderId));
 }
 
-void LLMarketplaceData::getSLMListing(S32 listing_id)
+void LLMarketplaceData::getSLMListingsCoro(LLUUID folderId)
 {
-	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "application/json";
-    
-	// Send request
-    std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    log_SLM_infos("LLHTTPClient::get", url, "");
-    LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
-    setUpdating(folder_id,true);
-	LLHTTPClient::get(url, new LLSLMGetListingResponder(folder_id), headers);
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+    httpHeaders->append("Accept", "application/json");
+    httpHeaders->append("Content-Type", "application/json");
+
+    std::string url = getSLMConnectURL("/listings");
+
+    LLSD result = httpAdapter->getJsonAndSuspend(httpRequest, url, httpHeaders);
+
+    setUpdating(folderId, false);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        log_SLM_warning("Get /listings", status.getType(), status.toString(), "", result);
+        setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_FAILED);
+        update_marketplace_category(folderId, false);
+        gInventory.notifyObservers();
+        return;
+    }
+
+    log_SLM_infos("Get /listings", static_cast<U32>(status.getType()), result);
+
+    // Extract the info from the results
+    for (LLSD::array_iterator it = result["listings"].beginArray();
+            it != result["listings"].endArray(); ++it)
+    { 
+        LLSD listing = *it;
+
+        int listingId = listing["id"].asInteger();
+        bool isListed = listing["is_listed"].asBoolean();
+        std::string editUrl = listing["edit_url"].asString();
+        LLUUID folderUuid = listing["inventory_info"]["listing_folder_id"].asUUID();
+        LLUUID versionUuid = listing["inventory_info"]["version_folder_id"].asUUID();
+        int count = listing["inventory_info"]["count_on_hand"].asInteger();
+
+        if (folderUuid.notNull())
+        {
+            addListing(folderUuid, listingId, versionUuid, isListed, editUrl, count);
+        }
+    }
+
+    // Update all folders under the root
+    setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_DONE);
+    update_marketplace_category(folderId, false);
+    gInventory.notifyObservers();
+}
+
+void LLMarketplaceData::getSLMListing(S32 listingId)
+{
+    LLUUID folderId = getListingFolder(listingId);
+    setUpdating(folderId, true);
+
+    LLCoros::instance().launch("getSingleListingCoro",
+        boost::bind(&LLMarketplaceData::getSingleListingCoro, this, listingId, folderId));
+}
+
+void LLMarketplaceData::getSingleListingCoro(S32 listingId, LLUUID folderId)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+    httpHeaders->append("Accept", "application/json");
+    httpHeaders->append("Content-Type", "application/json");
+
+    std::string url = getSLMConnectURL("/listing/") + llformat("%d", listingId);
+
+    LLSD result = httpAdapter->getJsonAndSuspend(httpRequest, url, httpHeaders);
+
+    setUpdating(folderId, false);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        if (status.getType() == HTTP_NOT_FOUND)
+        {
+            // That listing does not exist -> delete its record from the local SLM data store
+            deleteListing(folderId, false);
+        }
+        else
+        {
+            log_SLM_warning("Get /listing", status.getType(), status.toString(), "", result);
+        }
+
+        update_marketplace_category(folderId, false);
+        gInventory.notifyObservers();
+        return;
+    }
+
+    log_SLM_infos("Get /listings", static_cast<U32>(status.getType()), result);
+
+
+    // Extract the info from the results
+    for (LLSD::array_iterator it = result["listings"].beginArray();
+        it != result["listings"].endArray(); ++it)
+    {
+        LLSD listing = *it;
+
+        int resListingId = listing["id"].asInteger();
+        bool isListed = listing["is_listed"].asBoolean();
+        std::string editUrl = listing["edit_url"].asString();
+        LLUUID folderUuid = listing["inventory_info"]["listing_folder_id"].asUUID();
+        LLUUID versionUuid = listing["inventory_info"]["version_folder_id"].asUUID();
+        int count = listing["inventory_info"]["count_on_hand"].asInteger();
+
+        // Update that listing
+        setListingID(folderUuid, resListingId, false);
+        setVersionFolderID(folderUuid, versionUuid, false);
+        setActivationState(folderUuid, isListed, false);
+        setListingURL(folderUuid, editUrl, false);
+        setCountOnHand(folderUuid, count, false);
+        update_marketplace_category(folderUuid, false);
+        gInventory.notifyObservers();
+    }
 }
 
 void LLMarketplaceData::createSLMListing(const LLUUID& folder_id, const LLUUID& version_id, S32 count)
 {
-	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "application/json";
-    
-    // Build the json message
-    Json::Value root;
-    Json::FastWriter writer;
-    
-    LLViewerInventoryCategory* category = gInventory.getCategory(folder_id);
-    root["listing"]["name"] = category->getName();
-    root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-    root["listing"]["inventory_info"]["count_on_hand"] = count;
-    
-    std::string json_str = writer.write(root);
-    
-	// postRaw() takes ownership of the buffer and releases it later.
-	size_t size = json_str.size();
-	U8 *data = new U8[size];
-	memcpy(data, (U8*)(json_str.c_str()), size);
-    
-	// Send request
+    setUpdating(folder_id, true);
+    LLCoros::instance().launch("createSLMListingCoro",
+        boost::bind(&LLMarketplaceData::createSLMListingCoro, this, folder_id, version_id, count));
+}
+
+void LLMarketplaceData::createSLMListingCoro(LLUUID folderId, LLUUID versionId, S32 count)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+    httpHeaders->append("Accept", "application/json");
+    httpHeaders->append("Content-Type", "application/json");
+
+    LLViewerInventoryCategory* category = gInventory.getCategory(folderId);
+    LLSD invInfo;
+    invInfo["listing_folder_id"] = folderId;
+    invInfo["version_folder_id"] = versionId;
+    invInfo["count_on_hand"] = count;
+    LLSD listing;
+    listing["name"] = category->getName();
+    listing["inventory_info"] = invInfo;
+    LLSD postData;
+    postData["listing"] = listing;
+
     std::string url = getSLMConnectURL("/listings");
-    log_SLM_infos("LLHTTPClient::postRaw", url, json_str);
-    setUpdating(folder_id,true);
-	LLHTTPClient::postRaw(url, data, size, new LLSLMCreateListingsResponder(folder_id), headers);
+
+    LLSD result = httpAdapter->postJsonAndSuspend(httpRequest, url, postData, httpHeaders);
+
+    setUpdating(folderId, false);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        log_SLM_warning("Post /listings", status.getType(), status.toString(), "", result);
+        update_marketplace_category(folderId, false);
+        gInventory.notifyObservers();
+        return;
+    }
+    
+    log_SLM_infos("Post /listings", status.getType(), result);
+
+    // Extract the info from the results
+    for (LLSD::array_iterator it = result["listings"].beginArray();
+        it != result["listings"].endArray(); ++it)
+    {
+        LLSD listing = *it;
+
+        int listingId = listing["id"].asInteger();
+        bool isListed = listing["is_listed"].asBoolean();
+        std::string editUrl = listing["edit_url"].asString();
+        LLUUID folderUuid = listing["inventory_info"]["listing_folder_id"].asUUID();
+        LLUUID versionUuid = listing["inventory_info"]["version_folder_id"].asUUID();
+        int count = listing["inventory_info"]["count_on_hand"].asInteger();
+
+        addListing(folderUuid, listingId, versionUuid, isListed, editUrl, count);
+        update_marketplace_category(folderUuid, false);
+        gInventory.notifyObservers();
+    }
+
 }
 
 void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed, S32 count)
 {
-	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "application/json";
+    setUpdating(folder_id, true);
+    LLCoros::instance().launch("updateSLMListingCoro",
+        boost::bind(&LLMarketplaceData::updateSLMListingCoro, this, folder_id, listing_id, version_id, is_listed, count));
+}
 
-    Json::Value root;
-    Json::FastWriter writer;
+void LLMarketplaceData::updateSLMListingCoro(LLUUID folderId, S32 listingId, LLUUID versionId, bool isListed, S32 count)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
-    // Note : auto unlist if the count is 0 (out of stock)
-    if (is_listed && (count == 0))
+    httpHeaders->append("Accept", "application/json");
+    httpHeaders->append("Content-Type", "application/json");
+    
+    LLSD invInfo;
+    invInfo["listing_folder_id"] = folderId;
+    invInfo["version_folder_id"] = versionId;
+    invInfo["count_on_hand"] = count;
+    LLSD listing;
+    listing["inventory_info"] = invInfo;
+    listing["id"] = listingId;
+    listing["is_listed"] = isListed;
+    LLSD postData;
+    postData["listing"] = listing;
+
+    std::string url = getSLMConnectURL("/listing/") + llformat("%d", listingId);
+    LLSD result = httpAdapter->putJsonAndSuspend(httpRequest, url, postData, httpHeaders);
+
+    setUpdating(folderId, false);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
     {
-        is_listed = false;
-        LLNotificationsUtil::add("AlertMerchantStockFolderEmpty");
+        log_SLM_warning("Put /listing", status.getType(), status.toString(), "", result);
+        update_marketplace_category(folderId, false);
+        gInventory.notifyObservers();
+        return;
     }
-    
-    // Note : we're assuming that sending unchanged info won't break anything server side...
-    root["listing"]["id"] = listing_id;
-    root["listing"]["is_listed"] = is_listed;
-    root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-    root["listing"]["inventory_info"]["count_on_hand"] = count;
-    
-    std::string json_str = writer.write(root);
-    
-	// postRaw() takes ownership of the buffer and releases it later.
-	size_t size = json_str.size();
-	U8 *data = new U8[size];
-	memcpy(data, (U8*)(json_str.c_str()), size);
-    
-	// Send request
-    std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
-    setUpdating(folder_id,true);
-	LLHTTPClient::putRaw(url, data, size, new LLSLMUpdateListingsResponder(folder_id, is_listed, version_id), headers);
+
+    log_SLM_infos("Put /listing", status.getType(), result);
+
+    // Extract the info from the Json string
+    for (LLSD::array_iterator it = result["listings"].beginArray();
+        it != result["listings"].endArray(); ++it)
+    {
+        LLSD listing = *it;
+
+        int listing_id = listing["id"].asInteger();
+        bool is_listed = listing["is_listed"].asBoolean();
+        std::string edit_url = listing["edit_url"].asString();
+        LLUUID folderUuid = listing["inventory_info"]["listing_folder_id"].asUUID();
+        LLUUID versionUuid = listing["inventory_info"]["version_folder_id"].asUUID();
+        int onHand = listing["inventory_info"]["count_on_hand"].asInteger();
+
+        // Update that listing
+        setListingID(folderUuid, listing_id, false);
+        setVersionFolderID(folderUuid, versionUuid, false);
+        setActivationState(folderUuid, is_listed, false);
+        setListingURL(folderUuid, edit_url, false);
+        setCountOnHand(folderUuid, onHand, false);
+        update_marketplace_category(folderUuid, false);
+        gInventory.notifyObservers();
+
+        // Show a notification alert if what we got is not what we expected
+        // (this actually doesn't result in an error status from the SLM API protocol)
+        if ((isListed != is_listed) || (versionId != versionUuid))
+        {
+            LLSD subs;
+            subs["[URL]"] = edit_url;
+            LLNotificationsUtil::add("AlertMerchantListingNotUpdated", subs);
+        }
+    }
+
 }
 
 void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, const LLUUID& source_folder_id)
 {
-	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "application/json";
-    
-    Json::Value root;
-    Json::FastWriter writer;
-    
-    // Note : we're assuming that sending unchanged info won't break anything server side...
-    root["listing"]["id"] = listing_id;
-    root["listing"]["inventory_info"]["listing_folder_id"] = folder_id.asString();
-    root["listing"]["inventory_info"]["version_folder_id"] = version_id.asString();
-    
-    std::string json_str = writer.write(root);
-    
-	// postRaw() takes ownership of the buffer and releases it later.
-	size_t size = json_str.size();
-	U8 *data = new U8[size];
-	memcpy(data, (U8*)(json_str.c_str()), size);
-    
-	// Send request
-    std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d",listing_id);
-    log_SLM_infos("LLHTTPClient::putRaw", url, json_str);
-    setUpdating(folder_id,true);
-    setUpdating(source_folder_id,true);
-	LLHTTPClient::putRaw(url, data, size, new LLSLMAssociateListingsResponder(folder_id,source_folder_id), headers);
+    setUpdating(folder_id, true);
+    setUpdating(source_folder_id, true);
+    LLCoros::instance().launch("associateSLMListingCoro",
+        boost::bind(&LLMarketplaceData::associateSLMListingCoro, this, folder_id, listing_id, version_id, source_folder_id));
 }
 
-void LLMarketplaceData::deleteSLMListing(S32 listing_id)
+void LLMarketplaceData::associateSLMListingCoro(LLUUID folderId, S32 listingId, LLUUID versionId, LLUUID sourceFolderId)
 {
-	LLSD headers = LLSD::emptyMap();
-	headers["Accept"] = "application/json";
-	headers["Content-Type"] = "application/json";
-        
-	// Send request
-    std::string url = getSLMConnectURL("/listing/") + llformat("%d",listing_id);
-    log_SLM_infos("LLHTTPClient::del", url, "");
-    LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
-    setUpdating(folder_id,true);
-	LLHTTPClient::del(url, new LLSLMDeleteListingsResponder(folder_id), headers);
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+    httpHeaders->append("Accept", "application/json");
+    httpHeaders->append("Content-Type", "application/json");
+
+    LLSD invInfo;
+    invInfo["listing_folder_id"] = folderId;
+    invInfo["version_folder_id"] = versionId;
+    LLSD listing;
+    listing["id"] = listingId;
+    listing["inventory_info"] = invInfo;
+    LLSD postData;
+    postData["listing"] = listing;
+
+    // Send request
+    std::string url = getSLMConnectURL("/associate_inventory/") + llformat("%d", listingId);
+
+    LLSD result = httpAdapter->putJsonAndSuspend(httpRequest, url, postData, httpHeaders);
+
+    setUpdating(folderId, false);
+    setUpdating(sourceFolderId, false);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        log_SLM_warning("Put /associate_inventory", status.getType(), status.toString(), "", result);
+        update_marketplace_category(folderId, false);
+        update_marketplace_category(sourceFolderId, false);
+        gInventory.notifyObservers();
+        return;
+    }
+
+    log_SLM_infos("Put /associate_inventory", status.getType(), result);
+
+    for (LLSD::array_iterator it = result["listings"].beginArray();
+            it != result["listings"].endArray(); ++it)
+    {
+        LLSD listing = *it;
+
+        int listing_id = listing["id"].asInteger();
+        bool is_listed = listing["is_listed"].asBoolean();
+        std::string edit_url = listing["edit_url"].asString();
+        LLUUID folder_uuid = listing["inventory_info"]["listing_folder_id"].asUUID();
+        LLUUID version_uuid = listing["inventory_info"]["version_folder_id"].asUUID();
+        int count = listing["inventory_info"]["count_on_hand"].asInteger();
+
+        // Check that the listing ID is not already associated to some other record
+        LLUUID old_listing = LLMarketplaceData::instance().getListingFolder(listing_id);
+        if (old_listing.notNull())
+        {
+            // If it is already used, unlist the old record (we can't have 2 listings with the same listing ID)
+            deleteListing(old_listing);
+        }
+
+        // Add the new association
+        addListing(folder_uuid, listing_id, version_uuid, is_listed, edit_url, count);
+        update_marketplace_category(folder_uuid, false);
+        gInventory.notifyObservers();
+
+        // The stock count needs to be updated with the new local count now
+        updateCountOnHand(folder_uuid, 1);
+    }
+
+    // Always update the source folder so its widget updates
+    update_marketplace_category(sourceFolderId, false);
+}
+
+void LLMarketplaceData::deleteSLMListing(S32 listingId)
+{
+    LLCoros::instance().launch("deleteSLMListingCoro",
+        boost::bind(&LLMarketplaceData::deleteSLMListingCoro, this, listingId));
+}
+
+void LLMarketplaceData::deleteSLMListingCoro(S32 listingId)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
+
+    httpHeaders->append("Accept", "application/json");
+    httpHeaders->append("Content-Type", "application/json");
+
+    std::string url = getSLMConnectURL("/listing/") + llformat("%d", listingId);
+    LLUUID folderId = getListingFolder(listingId);
+
+    setUpdating(folderId, true);
+
+    LLSD result = httpAdapter->deleteJsonAndSuspend(httpRequest, url, httpHeaders);
+
+    setUpdating(folderId, false);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        log_SLM_warning("Delete /listing", status.getType(), status.toString(), "", result);
+        update_marketplace_category(folderId, false);
+        gInventory.notifyObservers();
+        return;
+    }
+
+    log_SLM_infos("Delete /listing", status.getType(), result);
+
+    for (LLSD::array_iterator it = result["listings"].beginArray(); 
+            it != result["listings"].endArray(); ++it)
+    {
+        LLSD listing = *it;
+
+        int listing_id = listing["id"].asInteger();
+        LLUUID folder_id = LLMarketplaceData::instance().getListingFolder(listing_id);
+        deleteListing(folder_id);
+    }
+
 }
 
 std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
 {
-    std::string url("");
+    std::string url;
     LLViewerRegion *regionp = gAgent.getRegion();
     if (regionp)
     {
         // Get DirectDelivery cap
         url = regionp->getCapability("DirectDelivery");
-        if (url != "")
+        if (!url.empty())
         {
             url += route;
         }
@@ -1982,6 +1845,4 @@ bool LLMarketplaceData::setListingURL(const LLUUID& folder_id, const std::string
     (it->second).mEditURL = edit_url;
     return true;
 }
-
-
 

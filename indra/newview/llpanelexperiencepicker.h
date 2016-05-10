@@ -74,8 +74,9 @@ private:
 	void getSelectedExperienceIds( const LLScrollListCtrl* results, uuid_vec_t &experience_ids );
 	void setAllowMultiple(bool allow_multiple);
 
-
 	void find();
+    static void findResults(LLHandle<LLPanelExperiencePicker> hparent, LLUUID queryId, LLSD foundResult);
+
 	bool isSelectButtonEnabled();
 	void processResponse( const LLUUID& query_id, const LLSD& content );
 
