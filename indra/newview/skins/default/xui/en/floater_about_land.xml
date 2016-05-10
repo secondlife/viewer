@@ -570,8 +570,7 @@
          left="0"
          top="0"
          help_topic="land_covenant_tab"
-         name="land_covenant_panel"
-         word_wrap="true">
+         name="land_covenant_panel">
             <panel.string
              name="can_resell"
              word_wrap="true">
@@ -1076,7 +1075,7 @@
              name="Autoreturn"
              top_pad="0"
              width="412"
-             wrap="true">
+             word_wrap="true">
                 Auto return other Residents&apos; objects (minutes, 0 for off):
             </text>
             <line_editor
@@ -1461,7 +1460,7 @@ Only large parcels can be listed in search.
              top="150"
              name="allow_label5"
              width="205"
-             wrap="true">
+             word_wrap="true">
               Avatars on other parcels can see and chat with avatars on this parcel
             </text>
             <check_box

@@ -233,6 +233,11 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel->buildFromFile("panel_region_debug.xml");
 	mTab->addTabPanel(panel);
 
+	if(gDisconnected)
+	{
+		return TRUE;
+	}
+
 	if(!gAgent.getRegion()->getCapability("RegionExperiences").empty())
 	{
 		panel = new LLPanelRegionExperiences;
@@ -256,6 +261,11 @@ LLFloaterRegionInfo::~LLFloaterRegionInfo()
 
 void LLFloaterRegionInfo::onOpen(const LLSD& key)
 {
+	if(gDisconnected)
+	{
+		disableTabCtrls();
+		return;
+	}
 	refreshFromRegion(gAgent.getRegion());
 	requestRegionInfo();
 	requestMeshRezInfo();
@@ -479,7 +489,16 @@ LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
 	return (LLPanelRegionExperiences*)tab->getChild<LLPanel>("Experiences");
 }
 
+void LLFloaterRegionInfo::disableTabCtrls()
+{
+	LLTabContainer* tab = getChild<LLTabContainer>("region_panels");
 
+	tab->getChild<LLPanel>("General")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("panel_env_info")->setCtrlsEnabled(FALSE);
+	tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(FALSE);
+}
 
 void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
 {
@@ -1160,6 +1179,22 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 	return TRUE;
 }
 
+BOOL LLPanelRegionTerrainInfo::validateTextureHeights()
+{
+	for (S32 i = 0; i < CORNER_COUNT; ++i)
+	{
+		std::string low = llformat("height_start_spin_%d", i);
+		std::string high = llformat("height_range_spin_%d", i);
+
+		if (getChild<LLUICtrl>(low)->getValue().asReal() > getChild<LLUICtrl>(high)->getValue().asReal())
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionTerrainInfo
 /////////////////////////////////////////////////////////////////////////////
@@ -1191,6 +1226,9 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	childSetAction("download_raw_btn", onClickDownloadRaw, this);
 	childSetAction("upload_raw_btn", onClickUploadRaw, this);
 	childSetAction("bake_terrain_btn", onClickBakeTerrain, this);
+
+	mAskedTextureHeights = false;
+	mConfirmedTextureHeights = false;
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -1274,6 +1312,21 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 		return FALSE;
 	}
 
+	// Check if terrain Elevation Ranges are correct
+	if (gSavedSettings.getBOOL("RegionCheckTextureHeights") && !validateTextureHeights())
+	{
+		if (!mAskedTextureHeights)
+		{
+			LLNotificationsUtil::add("ConfirmTextureHeights", LLSD(), LLSD(), boost::bind(&LLPanelRegionTerrainInfo::callbackTextureHeights, this, _1, _2));
+			mAskedTextureHeights = true;
+			return FALSE;
+		}
+		else if (!mConfirmedTextureHeights)
+		{
+			return FALSE;
+		}
+	}
+
 	LLTextureCtrl* texture_ctrl;
 	std::string id_str;
 	LLMessageSystem* msg = gMessageSystem;
@@ -1312,6 +1365,29 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	sendEstateOwnerMessage(msg, "texturecommit", invoice, strings);
 
 	return TRUE;
+}
+
+bool LLPanelRegionTerrainInfo::callbackTextureHeights(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0) // ok
+	{
+		mConfirmedTextureHeights = true;
+	}
+	else if (option == 1) // cancel
+	{
+		mConfirmedTextureHeights = false;
+	}
+	else if (option == 2) // don't ask
+	{
+		gSavedSettings.setBOOL("RegionCheckTextureHeights", FALSE);
+		mConfirmedTextureHeights = true;
+	}
+
+	onBtnSet();
+
+	mAskedTextureHeights = false;
+	return false;
 }
 
 // static
@@ -3018,6 +3094,11 @@ bool LLPanelEnvironmentInfo::refreshFromRegion(LLViewerRegion* region)
 
 void LLPanelEnvironmentInfo::refresh()
 {
+	if(gDisconnected)
+	{
+		return;
+	}
+
 	populateWaterPresetsList();
 	populateSkyPresetsList();
 	populateDayCyclesList();

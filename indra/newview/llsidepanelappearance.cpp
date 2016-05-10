@@ -198,7 +198,7 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 
 		if (is_outfit_edit_visible || is_wearable_edit_visible)
 		{
-			const LLViewerWearable *wearable_ptr = mEditWearable->getWearable();
+			const LLViewerWearable *wearable_ptr = mEditWearable ? mEditWearable->getWearable() : NULL;
 			if (!wearable_ptr)
 			{
 				LL_WARNS() << "Visibility change to invalid wearable" << LL_ENDL;

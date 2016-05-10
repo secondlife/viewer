@@ -380,10 +380,6 @@ void LLToast::setVisible(BOOL show)
 		{
 			mTimer->start();
 		}
-		if (!getVisible())
-		{
-			LLModalDialog::setFrontmost(FALSE);
-		}
 	}
 	else
 	{
