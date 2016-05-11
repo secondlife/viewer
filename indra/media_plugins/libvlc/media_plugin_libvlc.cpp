@@ -289,7 +289,7 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
 				message.setValueU32("internalformat", GL_RGB);
                 message.setValueU32("format", GL_BGRA_EXT);
                 message.setValueU32("type", GL_UNSIGNED_BYTE);
-                message.setValueBoolean("coords_opengl", false);
+                message.setValueBoolean("coords_opengl", true);
                 sendMessage(message);
             }
             else if(message_name == "size_change")

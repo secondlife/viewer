@@ -25,10 +25,10 @@
     <layout_panel
       auto_resize="false"
       default_tab_group="1"
-      height="22"
+      height="44"
       layout="topleft"
       left="0"
-      min_height="20"
+      min_height="40"
       name="nav_controls"
       top="400"
       width="770">
@@ -152,6 +152,90 @@
         <button.commit_callback
           function="WebContent.PopExternal" />
       </button>
+
+      <button
+        image_overlay="Video_URL_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="MPEG4 Video Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="1"
+        name="VLC Plugin Test"
+        top="22"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestVideo"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/ss.mp4"/>
+      </button>
+
+      <button
+        image_overlay="Video_URL_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="MKV Video Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="27"
+        name="VLC Plugin Test"
+        top="22"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestVideo"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/jellyfish.mkv"/>
+      </button>
+
+      <button
+        image_overlay="Video_URL_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="WebM Video Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="51"
+        name="VLC Plugin Test"
+        top="22"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestVideo"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/kubo.webm"/>
+      </button>
+
+      <button
+        image_overlay="Video_URL_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="MP3 audio Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="75"
+        name="VLC Plugin Test"
+        top="22"
+        width="22">
+        function="WebContent.TestVideo"
+        parameter="https://callum-linden.s3.amazonaws.com/alegria.mp3"/>
+      </button>
+
     </layout_panel>
     <layout_panel
       height="40"

@@ -185,7 +185,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="image/*">
@@ -207,7 +207,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -449,7 +449,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/mp4">
@@ -460,10 +460,21 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
-	<mimetype menu="1" name="video/quicktime">
+  <mimetype name="application/octet-stream">
+    <label name="video/octet-stream">
+      Movie
+    </label>
+    <widgettype>
+      movie
+    </widgettype>
+    <impl>
+      media_plugin_libvlc
+    </impl>
+  </mimetype>
+  <mimetype menu="1" name="video/quicktime">
 		<label name="video/quicktime_label">
 			Movie (QuickTime)
 		</label>
@@ -471,7 +482,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
@@ -482,7 +493,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">

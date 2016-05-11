@@ -92,6 +92,7 @@ protected:
 	void onClickStop();
 	void onEnterAddress();
 	void onPopExternal();
+	void onTestVideo(std::string url);
 
 	static void preCreate(Params& p);
 	void open_media(const Params& );

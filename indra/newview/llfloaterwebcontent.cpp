@@ -81,7 +81,8 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 	mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Stop", boost::bind( &LLFloaterWebContent::onClickStop, this ));
 	mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
-	mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind( &LLFloaterWebContent::onPopExternal, this ));
+	mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind(&LLFloaterWebContent::onPopExternal, this));
+	mCommitCallbackRegistrar.add( "WebContent.TestVideo", boost::bind(&LLFloaterWebContent::onTestVideo, this, _2));
 }
 
 BOOL LLFloaterWebContent::postBuild()
@@ -229,7 +230,7 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
 		{
 			LL_DEBUGS() << "    " << (*iter)->getKey()["target"] << LL_ENDL;
-		}
+		}	
 
 		if(instances.size() >= (size_t)browser_window_limit)
 		{
@@ -243,9 +244,9 @@ void LLFloaterWebContent::open_media(const Params& p)
 {
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
 	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
-	mWebBrowser->setHomePageUrl(p.url, HTTP_CONTENT_TEXT_HTML);
+	mWebBrowser->setHomePageUrl(p.url);
 	mWebBrowser->setTarget(p.target);
-	mWebBrowser->navigateTo(p.url, HTTP_CONTENT_TEXT_HTML, p.clean_browser);
+	mWebBrowser->navigateTo(p.url);
 	
 	set_current_url(p.url);
 
@@ -499,7 +500,7 @@ void LLFloaterWebContent::onEnterAddress()
     LLStringUtil::trim(url);
 	if ( url.length() > 0 )
 	{
-		mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		mWebBrowser->navigateTo(url);
 	};
 }
 
@@ -508,9 +509,18 @@ void LLFloaterWebContent::onPopExternal()
 	// make sure there is at least something there.
 	// (perhaps this test should be for minimum length of a URL)
 	std::string url = mAddressCombo->getValue().asString();
-    LLStringUtil::trim(url);
-	if ( url.length() > 0 )
+	LLStringUtil::trim(url);
+	if (url.length() > 0)
 	{
-		LLWeb::loadURLExternal( url );
+		LLWeb::loadURLExternal(url);
+	};
+}
+
+void LLFloaterWebContent::onTestVideo(std::string url)
+{
+	LLStringUtil::trim(url);
+	if (url.length() > 0)
+	{
+		mWebBrowser->navigateTo(url);
 	};
 }
