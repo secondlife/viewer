@@ -134,55 +134,57 @@ LLPolySkeletalDistortion::~LLPolySkeletalDistortion()
 
 BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 {
-        llassert(mInfo == NULL);
-        if (info->mID < 0)
-                return FALSE;
-        mInfo = info;
-        mID = info->mID;
-        setWeight(getDefaultWeight());
+    //llassert(mInfo == NULL);
+    if (info->mID < 0)
+    {
+        return FALSE;
+    }
+    mInfo = info;
+    mID = info->mID;
+    setWeight(getDefaultWeight());
 
-        LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
-        for (iter = getInfo()->mBoneInfoList.begin(); iter != getInfo()->mBoneInfoList.end(); iter++)
+    LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
+    for (iter = getInfo()->mBoneInfoList.begin(); iter != getInfo()->mBoneInfoList.end(); iter++)
+    {
+        LLPolySkeletalBoneInfo *bone_info = &(*iter);
+        LLJoint* joint = mAvatar->getJoint(bone_info->mBoneName);
+        if (!joint)
         {
-                LLPolySkeletalBoneInfo *bone_info = &(*iter);
-                LLJoint* joint = mAvatar->getJoint(bone_info->mBoneName);
-                if (!joint)
-                {
-                        LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
-                        continue;
-                }
-
-                if (mJointScales.find(joint) != mJointScales.end())
-                {
-                        LL_WARNS() << "Scale deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
-                }
-
-                // store it
-                mJointScales[joint] = bone_info->mScaleDeformation;
-
-                // apply to children that need to inherit it
-                for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
-                     iter != joint->mChildren.end(); ++iter)
-                {
-                        LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);
-                        if (child_joint->inheritScale())
-                        {
-                                LLVector3 childDeformation = LLVector3(child_joint->getScale());
-                                childDeformation.scaleVec(bone_info->mScaleDeformation);
-                                mJointScales[child_joint] = childDeformation;
-                        }
-                }
-
-                if (bone_info->mHasPositionDeformation)
-                {
-                        if (mJointOffsets.find(joint) != mJointOffsets.end())
-                        {
-                                LL_WARNS() << "Offset deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
-                        }
-                        mJointOffsets[joint] = bone_info->mPositionDeformation;
-                }
+            LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
+            continue;
         }
-        return TRUE;
+
+        //if (mJointScales.find(joint) != mJointScales.end())
+        //{
+        //    LL_WARNS() << "Scale deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
+        //}
+
+        // store it
+        mJointScales[joint] = bone_info->mScaleDeformation;
+
+        // apply to children that need to inherit it
+        for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
+             iter != joint->mChildren.end(); ++iter)
+        {
+            LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);
+            if (child_joint->inheritScale())
+            {
+                LLVector3 childDeformation = LLVector3(child_joint->getScale());
+                childDeformation.scaleVec(bone_info->mScaleDeformation);
+                mJointScales[child_joint] = childDeformation;
+            }
+        }
+
+        if (bone_info->mHasPositionDeformation)
+        {
+            //if (mJointOffsets.find(joint) != mJointOffsets.end())
+            //{
+            //    LL_WARNS() << "Offset deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
+            //}
+            mJointOffsets[joint] = bone_info->mPositionDeformation;
+        }
+    }
+    return TRUE;
 }
 
 /*virtual*/ LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const

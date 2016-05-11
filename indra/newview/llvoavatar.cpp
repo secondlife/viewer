@@ -1802,22 +1802,56 @@ void LLVOAvatar::buildCharacter()
 }
 
 //-----------------------------------------------------------------------------
-// resetSkeleton()
+// resetVisualParams()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetVisualParams()
 {
-#if 0
-	for (LLVisualParam *param = getFirstVisualParam(); 
-		param;
-		param = getNextVisualParam())
+	// SKELETAL DISTORTIONS
 	{
-		if (param->isAnimating())
+		LLAvatarXmlInfo::skeletal_distortion_info_list_t::iterator iter;
+		for (iter = sAvatarXmlInfo->mSkeletalDistortionInfoList.begin();
+			 iter != sAvatarXmlInfo->mSkeletalDistortionInfoList.end(); 
+			 ++iter)
 		{
-			continue;
+			LLPolySkeletalDistortionInfo *info = (LLPolySkeletalDistortionInfo*)*iter;
+			LLPolySkeletalDistortion *param = dynamic_cast<LLPolySkeletalDistortion*>(getVisualParam(info->getID()));
+            *param = LLPolySkeletalDistortion(this);
+            llassert(param);
+			if (!param->setInfo(info))
+			{
+				llassert(false);
+			}			
 		}
-        param->setLastWeight(param->getDefaultWeight());
+	}
+#if 0
+	// avatar_lad.xml : <driver_parameters>
+	for (LLAvatarXmlInfo::driver_info_list_t::iterator iter = sAvatarXmlInfo->mDriverInfoList.begin();
+		 iter != sAvatarXmlInfo->mDriverInfoList.end(); 
+		 ++iter)
+	{
+		LLDriverParamInfo *info = *iter;
+		LLDriverParam* driver_param = new LLDriverParam( this );
+		if (driver_param->setInfo(info))
+		{
+			addVisualParam( driver_param );
+			driver_param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
+			LLVisualParam*(LLAvatarAppearance::*avatar_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
+			if( !driver_param->linkDrivenParams(boost::bind(avatar_function,(LLAvatarAppearance*)this,_1 ), false))
+			{
+				LL_WARNS() << "could not link driven params for avatar " << getID().asString() << " param id: " << driver_param->getID() << LL_ENDL;
+				continue;
+			}
+		}
+		else
+		{
+			delete driver_param;
+			LL_WARNS() << "avatar file: driver_param->parseData() failed" << LL_ENDL;
+			return FALSE;
+		}
 	}
 #endif
+
+
 }
 
 //-----------------------------------------------------------------------------
