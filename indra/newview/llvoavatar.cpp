@@ -1859,7 +1859,7 @@ void LLVOAvatar::resetVisualParams()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetSkeleton()
 {
-    LL_DEBUGS("Avatar") << avString() << LL_ENDL;
+    LL_DEBUGS("Avatar") << avString() << " reset starts" << LL_ENDL;
     if (!mLastProcessedAppearance)
     {
         LL_WARNS() << "Can't reset avatar; no appearance message has been received yet." << LL_ENDL;
@@ -1883,15 +1883,34 @@ void LLVOAvatar::resetSkeleton()
     bool ignore_hud_joints = true;
     initAttachmentPoints(ignore_hud_joints);
 
+    // Fix up collision volumes
+    for (LLVisualParam *param = getFirstVisualParam(); 
+         param;
+         param = getNextVisualParam())
+    {
+        LLPolyMorphTarget *poly_morph = dynamic_cast<LLPolyMorphTarget*>(param);
+        if (poly_morph)
+        {
+            // This is a kludgy way to correct for the fact that the
+            // collision volumes have been reset out from under the
+            // poly morph sliders.
+            F32 delta_weight = poly_morph->getLastWeight() - poly_morph->getDefaultWeight();
+            poly_morph->applyVolumeChanges(delta_weight);
+        }
+    }
+
     // Reset tweakable params to preserved state
     // Apply params
     applyParsedAppearanceMessage(*mLastProcessedAppearance);
+
     updateVisualParams();
 
     // Restore attachment pos overrides
     rebuildAttachmentPosOverrides();
 
     // Restart animations
+
+    LL_DEBUGS("Avatar") << avString() << " reset ends" << LL_ENDL;
 }
 
 //-----------------------------------------------------------------------------
