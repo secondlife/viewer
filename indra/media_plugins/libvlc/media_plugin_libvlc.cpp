@@ -56,6 +56,7 @@ class MediaPluginLibVLC :
 		void resetVLC();
 
 		static void* lock(void* data, void** p_pixels);
+		static void unlock(void* data, void* id, void* const* raw_pixels);
 		static void display(void* data, void* id);
 
 		libvlc_instance_t* gLibVLC;
@@ -107,6 +108,14 @@ void* MediaPluginLibVLC::lock(void* data, void** p_pixels)
 	*p_pixels = context->texture_pixels;
 
 	return NULL;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginLibVLC::unlock(void* data, void* id, void* const* raw_pixels)
+{
+	// nothing to do here for the moment.
+	// we can modify the raw_pixels here if we want to.
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +197,7 @@ void MediaPluginLibVLC::playMedia()
 	gVLCCallbackContext.texture_pixels = mPixels;
 	gVLCCallbackContext.mp = gLibVLCMediaPlayer;
 
-	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, NULL, display, &gVLCCallbackContext);
+	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, unlock, display, &gVLCCallbackContext);
 	libvlc_video_set_format(gLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * 4);
 	libvlc_media_player_play(gLibVLCMediaPlayer);
 }
@@ -281,7 +290,6 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
         {
             if(message_name == "init")
             {
-                mDepth = 4;
                 LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
                 message.setValueS32("default_width", 1024);
                 message.setValueS32("default_height", 1024);
@@ -289,7 +297,7 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
 				message.setValueU32("internalformat", GL_RGB);
                 message.setValueU32("format", GL_BGRA_EXT);
                 message.setValueU32("type", GL_UNSIGNED_BYTE);
-                message.setValueBoolean("coords_opengl", true);
+                message.setValueBoolean("coords_opengl", false);
                 sendMessage(message);
             }
             else if(message_name == "size_change")
