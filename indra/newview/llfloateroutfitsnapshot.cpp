@@ -57,6 +57,9 @@ LLOutfitSnapshotFloaterView* gOutfitSnapshotFloaterView = NULL;
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
+const S32 OUTFIT_SNAPSHOT_WIDTH = 256;
+const S32 OUTFIT_SNAPSHOT_HEIGHT = 256;
+
 static LLDefaultChildRegistry::Register<LLOutfitSnapshotFloaterView> r("snapshot_outfit_floater_view");
 
 
@@ -96,22 +99,17 @@ public:
 	//static void onClickAdvanceSnap(LLUICtrl *ctrl, void* data);
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
-	static void applyKeepAspectCheck(LLFloaterOutfitSnapshot* view, BOOL checked);
-	static void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
+	static void updateResolution(void* data);
 	static void onCommitFreezeFrame(LLUICtrl* ctrl, void* data);
 	static void onCommitLayerTypes(LLUICtrl* ctrl, void*data);
-	static void onImageQualityChange(LLFloaterOutfitSnapshot* view, S32 quality_val);
-	static void onImageFormatChange(LLFloaterOutfitSnapshot* view);
 	static void onSnapshotUploadFinished(bool status);
 	static void onSendingPostcardFinished(bool status);
-	static BOOL checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value);
 
 	static LLPanelSnapshot* getActivePanel(LLFloaterOutfitSnapshot* floater, bool ok_if_not_found = true);
     static LLPanelSnapshot::ESnapshotType getActiveSnapshotType(LLFloaterOutfitSnapshot* floater);
 	static LLFloaterOutfitSnapshot::ESnapshotFormat getImageFormat(LLFloaterOutfitSnapshot* floater);
 
 	static LLSnapshotLivePreview* getPreviewView(LLFloaterOutfitSnapshot *floater);
-	static void setResolution(LLFloaterOutfitSnapshot* floater, const std::string& comboname);
 	static void updateControls(LLFloaterOutfitSnapshot* floater);
 	static void updateLayout(LLFloaterOutfitSnapshot* floater);
 	static void setStatus(EStatus status, bool ok = true, const std::string& msg = LLStringUtil::null);
@@ -173,14 +171,6 @@ LLSnapshotLivePreview* LLFloaterOutfitSnapshot::Impl::getPreviewView(LLFloaterOu
 LLViewerWindow::ESnapshotType LLFloaterOutfitSnapshot::Impl::getLayerType(LLFloaterOutfitSnapshot* floater)
 {
     return LLViewerWindow::SNAPSHOT_TYPE_COLOR;
-}
-
-// static
-void LLFloaterOutfitSnapshot::Impl::setResolution(LLFloaterOutfitSnapshot* floater, const std::string& comboname)
-{
-	LLComboBox* combo = floater->getChild<LLComboBox>(comboname);
-		combo->setVisible(TRUE);
-	updateResolution(combo, floater, FALSE); // to sync spinners with combo
 }
 
 //static 
@@ -319,7 +309,7 @@ void LLFloaterOutfitSnapshot::Impl::updateControls(LLFloaterOutfitSnapshot* floa
 	floater->getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
 	floater->getChild<LLUICtrl>("file_size_label")->setColor(LLUIColorTable::instance().getColor( "LabelTextColor" ));
 
-    setResolution(floater, "texture_size_combo");
+	updateResolution(floater);
 
 	if (previewp)
 	{
@@ -471,11 +461,6 @@ void LLFloaterOutfitSnapshot::Impl::onClickHUDCheck(LLUICtrl *ctrl, void* data)
 }
 
 // static
-void LLFloaterOutfitSnapshot::Impl::applyKeepAspectCheck(LLFloaterOutfitSnapshot* view, BOOL checked)
-{
-}
-
-// static
 void LLFloaterOutfitSnapshot::Impl::onCommitFreezeFrame(LLUICtrl* ctrl, void* data)
 {
 	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
@@ -545,27 +530,21 @@ void LLFloaterOutfitSnapshot::Impl::setFinished(LLFloaterOutfitSnapshot* floater
 
 // Apply a new resolution selected from the given combobox.
 // static
-void LLFloaterOutfitSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update)
+void LLFloaterOutfitSnapshot::Impl::updateResolution(void* data)
 {
-	LLComboBox* combobox = (LLComboBox*)ctrl;
 	LLFloaterOutfitSnapshot *view = (LLFloaterOutfitSnapshot *)data;
 		
-	if (!view || !combobox)
+	if (!view)
 	{
-		llassert(view && combobox);
+		llassert(view);
 		return;
 	}
-
-	std::string sdstring = combobox->getSelectedValue();
-	LLSD sdres;
-	std::stringstream sstream(sdstring);
-	LLSDSerialize::fromNotation(sdres, sstream, sdstring.size());
 		
-	S32 width = sdres[0];
-	S32 height = sdres[1];
+	S32 width = OUTFIT_SNAPSHOT_WIDTH;
+	S32 height = OUTFIT_SNAPSHOT_HEIGHT;
 	
 	LLSnapshotLivePreview* previewp = getPreviewView(view);
-	if (previewp && combobox->getCurrentIndex() >= 0)
+	if (previewp)
 	{
 		S32 original_width = 0 , original_height = 0 ;
 		previewp->getSize(original_width, original_height) ;
@@ -591,11 +570,6 @@ void LLFloaterOutfitSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data,
 			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
             previewp->updateSnapshot(TRUE);
-			if(do_update)
-			{
-				LL_DEBUGS() << "Will update controls" << LL_ENDL;
-				updateControls(view);
-			}
 		}
 	}
 }
@@ -616,74 +590,6 @@ void LLFloaterOutfitSnapshot::Impl::onCommitLayerTypes(LLUICtrl* ctrl, void*data
 		}
 		checkAutoSnapshot(previewp, TRUE);
 	}
-}
-
-// static
-void LLFloaterOutfitSnapshot::Impl::onImageQualityChange(LLFloaterOutfitSnapshot* view, S32 quality_val)
-{
-	LLSnapshotLivePreview* previewp = getPreviewView(view);
-	if (previewp)
-	{
-		previewp->setSnapshotQuality(quality_val);
-	}
-}
-
-// static
-void LLFloaterOutfitSnapshot::Impl::onImageFormatChange(LLFloaterOutfitSnapshot* view)
-{
-	if (view)
-	{
-		gSavedSettings.setS32("SnapshotFormat", getImageFormat(view));
-		LL_DEBUGS() << "image format changed, updating snapshot" << LL_ENDL;
-		getPreviewView(view)->updateSnapshot(TRUE);
-		updateControls(view);
-	}
-}
-
-// Update supplied width and height according to the constrain proportions flag; limit them by max_val.
-//static
-BOOL LLFloaterOutfitSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value)
-{
-	S32 w = width ;
-	S32 h = height ;
-
-	if(previewp && previewp->mKeepAspectRatio)
-	{
-		if(gViewerWindow->getWindowWidthRaw() < 1 || gViewerWindow->getWindowHeightRaw() < 1)
-		{
-			return FALSE ;
-		}
-
-		//aspect ratio of the current window
-		F32 aspect_ratio = (F32)gViewerWindow->getWindowWidthRaw() / gViewerWindow->getWindowHeightRaw() ;
-
-		//change another value proportionally
-		if(isWidthChanged)
-		{
-			height = ll_round(width / aspect_ratio) ;
-		}
-		else
-		{
-			width = ll_round(height * aspect_ratio) ;
-		}
-
-		//bound w/h by the max_value
-		if(width > max_value || height > max_value)
-		{
-			if(width > height)
-			{
-				width = max_value ;
-				height = (S32)(width / aspect_ratio) ;
-			}
-			else
-			{
-				height = max_value ;
-				width = (S32)(height * aspect_ratio) ;
-			}
-		}
-	}
-
-	return (w != width || h != height) ;
 }
 
 // static
@@ -784,19 +690,12 @@ BOOL LLFloaterOutfitSnapshot::postBuild()
 	gFloaterView->removeChild(this);
 	gSnapshotFloaterView->addChild(this);
 
-	// Pre-select "Current Window" resolution.
-	getChild<LLComboBox>("profile_size_combo")->selectNthItem(0);
-	getChild<LLComboBox>("postcard_size_combo")->selectNthItem(0);
-	getChild<LLComboBox>("texture_size_combo")->selectNthItem(0);
-	getChild<LLComboBox>("local_size_combo")->selectNthItem(8);
-	getChild<LLComboBox>("local_format_combo")->selectNthItem(0);
-
 	impl.mPreviewHandle = previewp->getHandle();
     previewp->setContainer(this);
 	impl.updateControls(this);
 	impl.updateLayout(this);
 	
-
+	previewp->mKeepAspectRatio = FALSE;
 	previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
 
 	return TRUE;
@@ -899,39 +798,6 @@ void LLFloaterOutfitSnapshot::onClose(bool app_quitting)
 // virtual
 S32 LLFloaterOutfitSnapshot::notify(const LLSD& info)
 {
-	// A child panel wants to change snapshot resolution.
-	if (info.has("combo-res-change"))
-	{
-		std::string combo_name = info["combo-res-change"]["control-name"].asString();
-		impl.updateResolution(getChild<LLUICtrl>(combo_name), this);
-		return 1;
-	}
-    /*
-	if (info.has("custom-res-change"))
-	{
-		LLSD res = info["custom-res-change"];
-		impl.applyCustomResolution(this, res["w"].asInteger(), res["h"].asInteger());
-		return 1;
-	}
-
-	if (info.has("keep-aspect-change"))
-	{
-		impl.applyKeepAspectCheck(this, info["keep-aspect-change"].asBoolean());
-		return 1;
-	}
-    */
-	if (info.has("image-quality-change"))
-	{
-		impl.onImageQualityChange(this, info["image-quality-change"].asInteger());
-		return 1;
-	}
-
-	if (info.has("image-format-change"))
-	{
-		impl.onImageFormatChange(this);
-		return 1;
-	}
-
 	if (info.has("set-ready"))
 	{
 		impl.setStatus(Impl::STATUS_READY);
@@ -1047,27 +913,6 @@ void LLFloaterOutfitSnapshot::saveTexture()
 }
 
 // static
-BOOL LLFloaterOutfitSnapshot::saveLocal()
-{
-	LL_DEBUGS() << "saveLocal" << LL_ENDL;
-	// FIXME: duplicated code
-	LLFloaterOutfitSnapshot* instance = findInstance();
-	if (!instance)
-	{
-		llassert(instance != NULL);
-		return FALSE;
-	}
-	LLSnapshotLivePreview* previewp = Impl::getPreviewView(instance);
-	if (!previewp)
-	{
-		llassert(previewp != NULL);
-		return FALSE;
-	}
-
-	return previewp->saveLocal();
-}
-
-// static
 void LLFloaterOutfitSnapshot::postSave()
 {
 	LLFloaterOutfitSnapshot* instance = findInstance();
@@ -1138,18 +983,6 @@ const LLVector3d& LLFloaterOutfitSnapshot::getPosTakenGlobal()
 	}
 
 	return previewp->getPosTakenGlobal();
-}
-
-// static
-void LLFloaterOutfitSnapshot::setAgentEmail(const std::string& email)
-{
-	LLFloaterOutfitSnapshot* instance = findInstance();
-	if (instance)
-	{
-		LLSideTrayPanelContainer* panel_container = instance->getChild<LLSideTrayPanelContainer>("panel_container");
-		LLPanel* postcard_panel = panel_container->getPanelByName("panel_snapshot_postcard");
-		postcard_panel->notify(LLSD().with("agent-email", email));
-	}
 }
 
 ///----------------------------------------------------------------------------

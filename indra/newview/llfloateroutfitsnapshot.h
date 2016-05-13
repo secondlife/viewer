@@ -54,12 +54,10 @@ public:
 	static LLFloaterOutfitSnapshot* getInstance();
 	static LLFloaterOutfitSnapshot* findInstance();
 	static void saveTexture();
-	static BOOL saveLocal();
 	static void postSave();
 	static void postPanelSwitch();
 	static LLPointer<LLImageFormatted> getImageData();
 	static const LLVector3d& getPosTakenGlobal();
-	static void setAgentEmail(const std::string& email);
 
 	static const LLRect& getThumbnailPlaceholderRect() { return sThumbnailPlaceholder->getRect(); }
 

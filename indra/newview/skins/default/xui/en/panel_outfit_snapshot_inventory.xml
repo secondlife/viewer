@@ -38,28 +38,6 @@
      right="-5"
      top_pad="5"
      />
-    <combo_box
-     follows="top|left|right"
-     height="20"
-     label="Resolution"
-     layout="topleft"
-     left_delta="0"
-     name="texture_size_combo"
-     right="-5"
-     top_pad="5">
-        <combo_box.item
-         label="Small (128x128)"
-         name="Small(128x128)"
-         value="[i128,i128]" />
-        <combo_box.item
-         label="Medium (256x256)"
-         name="Medium(256x256)"
-         value="[i256,i256]" />
-        <combo_box.item
-         label="Large (512x512)"
-         name="Large(512x512)"
-         value="[i512,i512]" />
-    </combo_box>
     <text
      follows="top|left"
      font="SansSerif"
