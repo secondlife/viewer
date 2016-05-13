@@ -3544,6 +3544,19 @@ Teleport all Residents in this region home?
 
   <notification
    icon="alertmodal.tga"
+   name="ChangeObjectBonusFactor"
+   type="alertmodal">
+    Lowering the object bonus after builds have been established in a region may cause objects to be returned or deleted. Are you sure you want to change object bonus?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm changing object bonus factor"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="EstateObjectReturn"
    type="alertmodal">
 Are you sure you want to return objects owned by [USER_NAME]?
