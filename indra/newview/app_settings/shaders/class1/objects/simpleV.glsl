@@ -27,6 +27,13 @@ uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
+uniform bool invert_tex_y = false;
+const mat4 invTexM = mat4(
+  1, 0, 0, 0,
+  0,-1, 0, 0,
+  0, 0, 1, 0,
+  0, 0, 0, 1
+); 
 
 ATTRIBUTE vec3 position;
 void passTextureIndex();
@@ -51,7 +58,10 @@ void main()
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0, 0, 1)).xy;
 	
-	
+	if(invert_tex_y) 
+	{
+		vary_texcoord0 = vec2(invTexM * vec4(vary_texcoord0,0,1)).xy;
+	}
 	
 	vec3 norm = normalize(normal_matrix * normal);
 
