@@ -2135,6 +2135,34 @@
         <key>version</key>
         <string>0.8.0.1</string>
       </map>
+      <key>vlc-bin</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
+        <key>license</key>
+        <string>GPL2</string>
+        <key>license_file</key>
+        <string>LICENSES/vlc.txt</string>
+        <key>name</key>
+        <string>vlc-bin</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3bdbb86adc2119a0b7bb17a54372dcd2</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/315283/arch/CYGWIN/installer/vlc_bin-2.2.3.315283-windows-315283.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2.2.3.315283</string>
+      </map>
       <key>xmlrpc-epi</key>
       <map>
         <key>copyright</key>
