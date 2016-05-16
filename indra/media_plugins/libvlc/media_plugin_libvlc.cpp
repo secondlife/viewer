@@ -198,7 +198,7 @@ void MediaPluginLibVLC::playMedia()
 	gVLCCallbackContext.mp = gLibVLCMediaPlayer;
 
 	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, unlock, display, &gVLCCallbackContext);
-	libvlc_video_set_format(gLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * 4);
+	libvlc_video_set_format(gLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * mDepth);
 	libvlc_media_player_play(gLibVLCMediaPlayer);
 }
 
@@ -338,6 +338,45 @@ void MediaPluginLibVLC::receiveMessage( const char* message_string )
 				playMedia();
             }
         }
+		else 
+		if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME)
+		{
+			if (message_name == "stop")
+			{
+				if (gLibVLCMediaPlayer)
+				{
+					libvlc_media_player_stop(gLibVLCMediaPlayer);
+				}
+			}
+			else if (message_name == "start")
+			{
+				if (gLibVLCMediaPlayer)
+				{
+					libvlc_media_player_play(gLibVLCMediaPlayer);
+				}
+			}
+			else if (message_name == "pause")
+			{
+				if (gLibVLCMediaPlayer)
+				{
+					libvlc_media_player_pause(gLibVLCMediaPlayer);
+				}
+			}
+			else if (message_name == "seek")
+			{
+			}
+			else if (message_name == "set_loop")
+			{
+			}
+			else if (message_name == "set_volume")
+			{
+				if (gLibVLCMediaPlayer)
+				{
+					F64 volume = message_in.getValueReal("volume");
+					libvlc_audio_set_volume(gLibVLCMediaPlayer, (int)(volume * 100));
+				}
+			}
+		}
     }
 }
 
