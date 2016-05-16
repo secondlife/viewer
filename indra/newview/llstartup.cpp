@@ -3312,6 +3312,13 @@ bool process_login_success_response()
 		{
 			time_t now = time(NULL);
 			gUTCOffset = (server_utc_time - now);
+
+			// Print server timestamp
+			LLSD substitution;
+			substitution["datetime"] = (S32)server_utc_time;
+			std::string timeStr = "[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second, datetime, slt]";
+			LLStringUtil::format(timeStr, substitution);
+			LL_INFOS("AppInit") << "Server SLT timestamp: " << timeStr << ". Server-viewer time offset before correction: " << gUTCOffset << "s" << LL_ENDL;
 		}
 	}
 
