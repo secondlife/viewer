@@ -182,7 +182,7 @@ void LLViewerTextureList::doPreloadImages()
 
 static std::string get_texture_list_name()
 {
-	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "texture_list_" + gSavedSettings.getString("LoginLocation") + ".xml");
+	return gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + ".xml");
 }
 
 void LLViewerTextureList::doPrefetchImages()
@@ -287,7 +287,7 @@ void LLViewerTextureList::shutdown()
 			break;
 	}
 	
-	if (count > 0 && !gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "").empty())
+	if (count > 0 && !gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "").empty())
 	{
 		std::string filename = get_texture_list_name();
 		llofstream file;
