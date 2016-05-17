@@ -1307,16 +1307,10 @@ set(viewer_HEADER_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-# the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
-# the summary.json file is created for the benefit of the TeamCity builds, where
-#   it is used to provide descriptive information to the build results page
-add_custom_target(generate_viewer_version ALL
-                  COMMAND printf '${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}' > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-                  COMMENT Generating viewer_version.txt for manifest processing
-                  )
-
 #Channel added for VMP programmatic access.  MAINT-6413/SL-321
-file(WRITE ${CMAKE_BINARY_DIR}/summary.json '{"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}","Channel","${VIEWER_CHANNEL}"}')
+set(SUMMARY_VERSION "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
+set(SUMMARY_CHANNEL "${VIEWER_CHANNEL}")
+configure_file(summary.json.in ${CMAKE_BINARY_DIR}/summary.json @ONLY)
 
 set_source_files_properties(
    llversioninfo.cpp tests/llversioninfo_test.cpp 
@@ -1324,6 +1318,14 @@ set_source_files_properties(
    DEPENDS generate_viewer_version  # dummy dependency to force recompile every time
    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
    )
+
+# the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
+# the summary.json file is created for the benefit of the TeamCity builds, where
+#   it is used to provide descriptive information to the build results page
+add_custom_target(generate_viewer_version ALL
+                  COMMAND printf '${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}' > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+                  COMMENT Generating viewer_version.txt for manifest processing
+                  )
 
 if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)

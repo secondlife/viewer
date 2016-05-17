@@ -1,0 +1,5 @@
+{
+"Type":"viewer",
+"Version":"@SUMMARY_VERSION@",
+"Channel":"@SUMMARY_CHANNEL@"
+}
