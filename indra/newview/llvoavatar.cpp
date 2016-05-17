@@ -1806,7 +1806,7 @@ void LLVOAvatar::buildCharacter()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::resetVisualParams()
 {
-	// SKELETAL DISTORTIONS
+	// Skeletal params
 	{
 		LLAvatarXmlInfo::skeletal_distortion_info_list_t::iterator iter;
 		for (iter = sAvatarXmlInfo->mSkeletalDistortionInfoList.begin();
@@ -1823,35 +1823,23 @@ void LLVOAvatar::resetVisualParams()
 			}			
 		}
 	}
-#if 0
-	// avatar_lad.xml : <driver_parameters>
+
+	// Driver parameters
 	for (LLAvatarXmlInfo::driver_info_list_t::iterator iter = sAvatarXmlInfo->mDriverInfoList.begin();
 		 iter != sAvatarXmlInfo->mDriverInfoList.end(); 
 		 ++iter)
 	{
 		LLDriverParamInfo *info = *iter;
-		LLDriverParam* driver_param = new LLDriverParam( this );
-		if (driver_param->setInfo(info))
-		{
-			addVisualParam( driver_param );
-			driver_param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
-			LLVisualParam*(LLAvatarAppearance::*avatar_function)(S32)const = &LLAvatarAppearance::getVisualParam; 
-			if( !driver_param->linkDrivenParams(boost::bind(avatar_function,(LLAvatarAppearance*)this,_1 ), false))
-			{
-				LL_WARNS() << "could not link driven params for avatar " << getID().asString() << " param id: " << driver_param->getID() << LL_ENDL;
-				continue;
-			}
-		}
-		else
-		{
-			delete driver_param;
-			LL_WARNS() << "avatar file: driver_param->parseData() failed" << LL_ENDL;
-			return FALSE;
-		}
+        LLDriverParam *param = dynamic_cast<LLDriverParam*>(getVisualParam(info->getID()));
+        LLDriverParam::entry_list_t driven_list = param->getDrivenList();
+        *param = LLDriverParam(this);
+        llassert(param);
+        if (!param->setInfo(info))
+        {
+            llassert(false);
+        }			
+        param->setDrivenList(driven_list);
 	}
-#endif
-
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1871,7 +1859,7 @@ void LLVOAvatar::resetSkeleton()
     // Clear all attachment pos overrides
     clearAttachmentPosOverrides();
 
-    // Reset all params to default state, without propagating changes downstream.
+    // Reset some params to default state, without propagating changes downstream.
     resetVisualParams();
 
     // Reset all bones and collision volumes to their initial skeleton state.
@@ -1900,8 +1888,8 @@ void LLVOAvatar::resetSkeleton()
     }
 
     // Reset tweakable params to preserved state
-    // Apply params
-    applyParsedAppearanceMessage(*mLastProcessedAppearance);
+    bool slam_params = true;
+    applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
 
     updateVisualParams();
 
@@ -7837,10 +7825,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	mLastUpdateReceivedCOFVersion = this_update_cof_version;
     mLastProcessedAppearance = contents;
 
-    applyParsedAppearanceMessage(*contents);
+    bool slam_params = false;
+    applyParsedAppearanceMessage(*contents, slam_params);
 }
 
-void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& contents)
+void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params)
 {
 	S32 num_params = contents.mParamWeights.size();
 	ESex old_sex = getSex();
@@ -7900,7 +7889,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 				params_changed = TRUE;
 				params_changed_count++;
 
-				if(is_first_appearance_message)
+				if(is_first_appearance_message || slam_params)
 				{
 					//LL_DEBUGS("Avatar") << "param slam " << i << " " << newWeight << LL_ENDL;
 					param->setWeight(newWeight);

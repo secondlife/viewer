@@ -3204,7 +3204,7 @@
      id="30024"
      group="1"
      name="Wide_Eyes"
-     value_min="-2"
+     value_min="-1.5"
      value_max="2">
       <param_skeleton>
 
