@@ -735,11 +735,12 @@ LLOutfitGalleryGearMenu::LLOutfitGalleryGearMenu(LLOutfitListBase* olist)
 void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
+    bool have_selection = getSelectedOutfitID().notNull();
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
-    mMenu->setItemVisible("upload_photo", TRUE);
-    mMenu->setItemVisible("select_photo", TRUE);
-    mMenu->setItemVisible("take_snapshot", TRUE);
+    mMenu->setItemVisible("upload_photo", have_selection);
+    mMenu->setItemVisible("select_photo", have_selection);
+    mMenu->setItemVisible("take_snapshot", have_selection);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
