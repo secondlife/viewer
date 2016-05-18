@@ -139,7 +139,6 @@ protected:
 
 
 	LL_ALIGN_16(LLVector4a	mDefaultVec); // temp holder
-	typedef std::vector<LLDrivenEntry> entry_list_t;
 	entry_list_t mDriven;
 	LLViewerVisualParam* mCurrentDistortionParam;
 	// Backlink only; don't make this an LLPointer.

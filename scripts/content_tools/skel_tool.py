@@ -261,9 +261,15 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
         driver = driven_param.getparent().getparent()
         driven_id = driven_param.get("id")
         driver_id = driver.get("id")
+        actual_param = next(param for param in ladtree.iter("param") if param.get("id")==driven_id)
         if not driven_id in drivers:
             drivers[driven_id] = set()
             drivers[driven_id].add(driver_id)
+            if (actual_param.get("value_min") != driver.get("value_min") or \
+                actual_param.get("value_max") != driver.get("value_max")):
+                if args.verbose:
+                    print "MISMATCH min max:",driver.get("id"),"drives",driven_param.get("id"),"min",driver.get("value_min"),actual_param.get("value_min"),"max",driver.get("value_max"),actual_param.get("value_max")
+
     for driven_id in drivers:
         dset = drivers[driven_id]
         if len(dset) != 1:
@@ -271,7 +277,6 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
         else:
             if args.verbose:
                 print "driven_id",driven_id,"has one driver",dset
-
     if orig_ladtree:
         # make sure expected message format is unchanged
         orig_message_params_by_id = dict((int(param.get("id")),param) for param in orig_ladtree.iter("param") if param.get("group") in ["0","3"])
