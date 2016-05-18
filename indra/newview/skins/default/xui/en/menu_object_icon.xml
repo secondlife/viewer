@@ -23,8 +23,19 @@
         <menu_item_call.on_click
          function="ObjectIcon.Action"
          parameter="block" />
-        <menu_item_call.on_enable
-         function="ObjectIcon.Enable"
+        <menu_item_call.on_visible
+         function="ObjectIcon.Visible"
+         parameter="not_blocked" />
+    </menu_item_call>
+    <menu_item_call
+     label="Unblock"
+     layout="topleft"
+     name="Unblock">
+        <menu_item_call.on_click
+         function="ObjectIcon.Action"
+         parameter="unblock" />
+        <menu_item_call.on_visible
+         function="ObjectIcon.Visible"
          parameter="is_blocked" />
     </menu_item_call>
     <menu_item_separator

@@ -325,6 +325,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mTextBox->setContentTrusted(is_content_trusted);
     mTextBox->setValue(mNotification->getMessage());
 	mTextBox->setIsFriendCallback(LLAvatarActions::isFriend);
+    mTextBox->setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
 
     // add buttons for a script notification
     if (mIsTip)
