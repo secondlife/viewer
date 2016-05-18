@@ -1854,20 +1854,30 @@ void LLVOAvatar::resetSkeleton()
         return;
     }
 
-    // Stop all animations
-
     // Clear all attachment pos overrides
     clearAttachmentPosOverrides();
 
-    // Reset some params to default state, without propagating changes downstream.
-    resetVisualParams();
-
-    // Reset all bones and collision volumes to their initial skeleton state.
+    // Note that we call buildSkeleton twice in this function. The first time is
+    // just to get the right scale for the collision volumes, because
+    // this will be used in setting the mJointScales for the
+    // LLPolySkeletalDistortions of which the CVs are children.
 	if( !buildSkeleton(sAvatarSkeletonInfo) )
     {
         LL_ERRS() << "Error resetting skeleton" << LL_ENDL;
 	}
-    // Reset attachment points
+
+    // Reset some params to default state, without propagating changes downstream.
+    resetVisualParams();
+
+    // Now we have to reset the skeleton again, because its state
+    // got clobbered by the resetVisualParams() calls
+    // above.
+	if( !buildSkeleton(sAvatarSkeletonInfo) )
+    {
+        LL_ERRS() << "Error resetting skeleton" << LL_ENDL;
+	}
+
+    // Reset attachment points (buildSkeleton only does bones and CVs)
     bool ignore_hud_joints = true;
     initAttachmentPoints(ignore_hud_joints);
 
@@ -1897,6 +1907,7 @@ void LLVOAvatar::resetSkeleton()
     rebuildAttachmentPosOverrides();
 
     // Restart animations
+    resetAnimations();
 
     LL_DEBUGS("Avatar") << avString() << " reset ends" << LL_ENDL;
 }

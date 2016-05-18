@@ -34,6 +34,7 @@
 #include "llpolymorph.h"
 #include "llwearable.h"
 #include "llfasttimer.h"
+#include "llcallstack.h"
 
 #include "llpolyskeletaldistortion.h"
 
@@ -134,7 +135,6 @@ LLPolySkeletalDistortion::~LLPolySkeletalDistortion()
 
 BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 {
-    //llassert(mInfo == NULL);
     if (info->mID < 0)
     {
         return FALSE;
@@ -154,6 +154,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
             continue;
         }
 
+        // BENTO remove?
         //if (mJointScales.find(joint) != mJointScales.end())
         //{
         //    LL_WARNS() << "Scale deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
@@ -177,6 +178,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 
         if (bone_info->mHasPositionDeformation)
         {
+            // BENTO remove?
             //if (mJointOffsets.find(joint) != mJointOffsets.end())
             //{
             //    LL_WARNS() << "Offset deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
@@ -213,9 +215,16 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 joint = iter->first;
                 LLVector3 newScale = joint->getScale();
                 LLVector3 scaleDelta = iter->second;
-                newScale = newScale + (effective_weight * scaleDelta) - (mLastWeight * scaleDelta);				                
+                LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
+                newScale = newScale + offset;
 				//An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
 				// needed? // joint->storeScaleForReset( newScale );				
+
+                // BENTO debugging stuff can be pulled.
+                std::stringstream ostr;
+                ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
+                LLScopedContextString str(ostr.str());
+
 				joint->setScale(newScale);
         }
 
