@@ -491,10 +491,21 @@ def get_elt_pos(elt):
         return (0.0, 0.0, 0.0)
 
 def resolve_joints(names, skel_tree, lad_tree):
+    print "resolve joints, no_hud is",args.no_hud
     if skel_tree and lad_tree:
-        matches = [element.get("name") for element in skel_tree.getroot().iter() if (element.get("name") in names) or (element.tag in names)]
-        matches.extend([element.get("name") for element in lad_tree.getroot().iter() if (element.get("name") in names) or (element.tag in names)])
-        return matches
+        all_elts = [elt for elt in skel_tree.getroot().iter()]
+        all_elts.extend([elt for elt in lad_tree.getroot().iter()])
+        matches = []
+        for elt in all_elts:
+            if elt.get("name") is None:
+                continue
+            print elt.get("name"),"hud",elt.get("hud")
+            if args.no_hud and elt.get("hud"):
+                print "skipping hud joint", elt.get("name")
+                continue
+            if elt.get("name") in names or elt.tag in names:
+                matches.append(elt.get("name"))
+        return list(set(matches))
     else:
         return names
 
@@ -513,6 +524,7 @@ if __name__ == "__main__":
     parser.add_argument("--skel", help="name of the avatar_skeleton file", default="avatar_skeleton.xml")
     parser.add_argument("--lad", help="name of the avatar_lad file", default="avatar_lad.xml")
     parser.add_argument("--set_version", nargs=2, type=int, help="set version and sub-version to specified values")
+    parser.add_argument("--no_hud", help="omit hud joints from list of attachments", action="store_true")
     parser.add_argument("infilename", help="name of a .anim file to input")
     parser.add_argument("outfilename", nargs="?", help="name of a .anim file to output")
     args = parser.parse_args()
