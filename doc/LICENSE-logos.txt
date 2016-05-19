@@ -11,7 +11,7 @@ summary, see http://creativecommons.org/licenses/by-sa/3.0/.
 Notwithstanding the foregoing, all of Linden Lab's trademarks, including
 but not limited to the Second Life brand name and Second Life Eye-in-Hand
 logo, are subject to our trademark policy at
-http://secondlife.com/corporate/trademark/.
+http://secondlife.com/corporate/brand/trademark/.
 
 If you distribute any copies or adaptations of the Second Life viewer
 artwork or any other works in these files, you must include this Notice

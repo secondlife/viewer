@@ -7,6 +7,7 @@
 		<combo_box.item label="Klein (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Mittel (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Groß (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Aktuelles Fenster (512x512)" name="CurrentWindow"/>
 		<combo_box.item label="Benutzerdefiniert" name="Custom"/>
 	</combo_box>
 	<spinner label="Breite x Höhe" name="inventory_snapshot_width"/>

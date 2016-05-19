@@ -6,6 +6,9 @@
 	<panel.string name="ItemcountCompleted">
 		[ITEM_COUNT] itens [FILTER]
 	</panel.string>
+	<panel.string name="ItemcountUnknown">
+		Recuperados [ITEM_COUNT] itens [FILTER]
+	</panel.string>
 	<text name="ItemcountText">
 		Itens:
 	</text>
@@ -16,7 +19,7 @@
 	</tab_container>
 	<layout_stack name="bottom_panel">
 		<layout_panel name="options_gear_btn_panel">
-			<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
+			<menu_button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
 		</layout_panel>
 		<layout_panel name="add_btn_panel">
 			<button name="add_btn" tool_tip="Adicionar novo item"/>

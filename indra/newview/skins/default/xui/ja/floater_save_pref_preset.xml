@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Save Pref Preset" title="優先プリセットを保存">
+	<string name="title_graphic">
+		グラフィックプリセットを保存
+	</string>
+	<string name="title_camera">
+		カメラプリセットを保存
+	</string>
+	<text name="Preset">
+		プリセットの名前を入力するか、既存のプリセットを選択します。
+	</text>
+	<button label="保存" name="save"/>
+	<button label="取り消し" name="cancel"/>
+</floater>

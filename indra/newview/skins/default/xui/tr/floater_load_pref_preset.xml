@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Load Pref Preset" title="TERCİHLİ ÖN AYARI YÜKLE">
+	<string name="title_graphic">
+		Grafik Ön Ayarını Yükle
+	</string>
+	<string name="title_camera">
+		Kamera Ön Ayarını Yükle
+	</string>
+	<text name="Preset">
+		Bir ön ayar seçin
+	</text>
+	<button label="Tamam" name="ok"/>
+	<button label="İptal" name="cancel"/>
+</floater>

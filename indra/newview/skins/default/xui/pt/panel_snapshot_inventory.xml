@@ -7,7 +7,7 @@
 		Salvar uma imagem em seu inventário custa L$[UPLOAD_COST]. Para salvar sua imagem como uma textura, selecione um dos formatos quadrados.
 	</text>
 	<combo_box label="Resolução" name="texture_size_combo">
-		<combo_box.item label="Janela atual" name="CurrentWindow"/>
+		<combo_box.item label="Janela ativa (512x512)" name="CurrentWindow"/>
 		<combo_box.item label="Pequeno (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Médio (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>

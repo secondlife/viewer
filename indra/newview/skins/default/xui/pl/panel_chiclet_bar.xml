@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="chiclet_bar">
+	<layout_stack name="toolbar_stack">
+		<layout_panel name="notification_well_panel">
+			<chiclet_notification name="notification_well">
+				<button name="Unread" tool_tip="Powiadomienia" />
+			</chiclet_notification>
+		</layout_panel>
+	</layout_stack>
+</panel>

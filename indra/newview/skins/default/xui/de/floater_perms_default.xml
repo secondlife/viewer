@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="perms default" title="STANDARD-ERSTELLUNGSBERECHTIGUNGEN">
-	<panel label="Standardberechtigungen" name="default permissions"/>
+	<panel label="Standardberechtigungen" name="default permissions">
+		<text name="label_1">
+			Nächster Eigentümer:
+		</text>
+		<text name="label_2">
+			Kopie
+		</text>
+		<text name="label_3">
+			ändern
+		</text>
+		<text name="label_4">
+			übertragen
+		</text>
+		<text name="label_5">
+			Mit Gruppe teilen
+		</text>
+		<text name="label_6">
+			Kopieren allen erlauben
+		</text>
+		<text name="label_7" tool_tip="Standardberechtigungen für die Erstellung von Objekten festlegen">
+			Objekte
+		</text>
+		<text name="label_8" tool_tip="Standardberechtigungen für hochgeladene Artikel festlegen">
+			Uploads
+		</text>
+		<text name="label_9" tool_tip="Standardberechtigungen für die Erstellung von Skripts festlegen">
+			Skripts
+		</text>
+		<text name="label_10" tool_tip="Standardberechtigungen für die Erstellung von Notizkarten festlegen">
+			Notizkarten
+		</text>
+		<text name="label_11" tool_tip="Standardberechtigungen für die Erstellung von Gesten festlegen">
+			Gesten
+		</text>
+		<text name="label_12" tool_tip="Standardberechtigungen für die Erstellung von Kleidungsstücken und Körperteilen festlegen">
+			Tragbare Objekte
+		</text>
+	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel"/>
 </floater>

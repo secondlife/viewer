@@ -1,18 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Give Money" title="">
-	<string name="payee_group">Zapłać grupie</string>
-	<string name="payee_resident">Zapłać Rezydentowi</string>
-	<text name="paying_text">Płacisz:</text>
-	<text name="payee_name">Przetestuj nazwę, która jest bardzo długa aby sprawdzić skracanie.</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Give Money">
+	<string name="payee_group">
+		Zapłać grupie
+	</string>
+	<string name="payee_resident">
+		Zapłać Rezydentowi
+	</string>
+	<text name="paying_text">
+		Płacisz:
+	</text>
 	<panel label="Szukaj" name="PatternsPanel">
-		<button label="Płać 1L$" label_selected="Płać 1L$" name="fastpay 1"/>
-		<button label="Płać 5L$" label_selected="Płać 5L$" name="fastpay 5"/>
-		<button label="Płać 10L$" label_selected="Płać 10L$" name="fastpay 10"/>
-		<button label="Płać 20L$" label_selected="Płać 20L$" name="fastpay 20"/>
+		<button label="Płać 1L$" label_selected="Płać 1L$" name="fastpay 1" />
+		<button label="Płać 5L$" label_selected="Płać 5L$" name="fastpay 5" />
+		<button label="Płać 10L$" label_selected="Płać 10L$" name="fastpay 10" />
+		<button label="Płać 20L$" label_selected="Płać 20L$" name="fastpay 20" />
 	</panel>
 	<panel label="Szukaj" name="InputPanel">
-		<text name="amount text">Inna kwota:</text>
-		<button label="Zapłać" label_selected="Zapłać" name="pay btn"/>
-		<button label="Anuluj" label_selected="Anuluj" name="cancel btn"/>
+		<text name="amount text">
+			Inna kwota:
+		</text>
+		<button label="Zapłać" label_selected="Zapłać" name="pay btn" />
+		<button label="Anuluj" label_selected="Anuluj" name="cancel btn" />
 	</panel>
 </floater>

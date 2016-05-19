@@ -397,7 +397,7 @@ void LLAvatarNameCache::requestNamesViaCapability()
 
     if (!url.empty())
     {
-        LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::requestNamesViaCapability requested " << ids << " ids" << LL_ENDL;
+        LL_DEBUGS("AvNameCache") << "requested " << ids << " ids" << LL_ENDL;
 
         std::string coroname = 
             LLCoros::instance().launch("LLAvatarNameCache::requestAvatarNameCache_",

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Zaproszenie do Grupy" name="invite_panel">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Zaproś do grupy" name="invite_panel">
 	<panel.string name="confirm_invite_owner_str">
 		Jesteś pewny/a, że chcesz wybrać nowych właścieli grupy? Ta decyzja jest ostateczna!
 	</panel.string>
@@ -7,20 +7,23 @@
 		(ładowanie...)
 	</panel.string>
 	<panel.string name="already_in_group">
-		Niektórzy Rezydenci, których wybrałeś już należą do grupy i nie otrzymali zaproszenia.
+		Niektórzy Rezydenci, których wybrałeś/aś już należą do grupy i nie otrzymali zaproszenia.
+	</panel.string>
+	<panel.string name="invite_selection_too_large">
+		Zaproszenia nie zostały wysłane: wybrano zbyt wielu Rezydentów. Limit to 100 zaproszeń na jedno żądanie.
 	</panel.string>
 	<text name="help_text">
 		Możesz zaprosić kilku Rezydentów do swojej grupy. Wybierz &apos;Otwórz Katalog Osobisty&apos; aby rozpocząć.
 	</text>
-	<button label="Otwórz Katalog Osobisty" name="add_button" tool_tip=""/>
-	<name_list name="invitee_list" tool_tip="Przytrzymaj klawisz Ctrl i kliknij imię Rezydenta aby wybrać kilka osób."/>
-	<button label="Usuń z Listy" name="remove_button" tool_tip="Usuwa wybranych powyżej Rezydentów z listy zaproszeń."/>
+	<button label="Otwórz Katalog Osobisty" name="add_button" />
+	<name_list name="invitee_list" tool_tip="Przytrzymaj klawisz Ctrl i kliknij imię Rezydenta aby wybrać kilka osób." />
+	<button label="Usuń z listy" name="remove_button" tool_tip="Usuwa wybranych powyżej Rezydentów z listy zaproszeń." />
 	<text name="role_text">
-		Wybierz rolę dla nowego członka:
+		Wybierz funkcję dla nowej osoby:
 	</text>
-	<combo_box name="role_name" tool_tip="Wybierz z listy Role, które możesz przypisać członkom"/>
-	<button label="Wyślij Zaproszenia" name="ok_button"/>
-	<button label="Anuluj" name="cancel_button"/>
+	<combo_box name="role_name" tool_tip="Wybierz rolę z listy funkcji, które możesz przypisać osobom w grupie" />
+	<button label="Wyślij zaproszenia" name="invite_button" />
+	<button label="Anuluj" name="cancel_button" />
 	<string name="GroupInvitation">
 		Zaproszenie do grupy
 	</string>

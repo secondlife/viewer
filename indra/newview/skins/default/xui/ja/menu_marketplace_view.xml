@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_marketplace_sort">
+	<menu_item_check label="名前による並べ替え" name="sort_by_name"/>
+	<menu_item_check label="新しい順に並べ替え" name="sort_by_recent"/>
 	<menu_item_check label="在庫高順に並べ替え (低から高へ)" name="sort_by_stock_amount"/>
 	<menu_item_check label="リストフォルダのみ表示" name="show_only_listing_folders"/>
 </toggleable_menu>

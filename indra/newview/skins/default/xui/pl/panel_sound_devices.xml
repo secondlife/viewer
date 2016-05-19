@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Ustawienia urządzenia" name="device_settings_panel">
+	<panel.string name="default_text">
+		Domyślne
+	</panel.string>
+	<string name="name_no_device">
+		Brak
+	</string>
+	<string name="name_default_system_device">
+		Domyślne systemowe
+	</string>
+	<text name="Input">
+		Wejście
+	</text>
+	<text name="Output">
+		Wyjście
+	</text>
+	<text name="My volume label">
+		Moja głośność:
+	</text>
+	<slider_bar name="mic_volume_slider" tool_tip="Zmień głośność używając tego suwaka" />
+	<text name="wait_text">
+		Proszę czekać
+	</text>
+</panel>

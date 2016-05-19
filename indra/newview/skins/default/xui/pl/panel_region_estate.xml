@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Majątek" name="Estate">
 	<text name="estate_help_text">
-		Zmiany w tej zakładce będą odczuwalne w całym Regionie.
+		Zmiany na tej zakładce będą odczuwalne we wszystkich regionach.
 	</text>
 	<text name="estate_text">
 		Majątek:
@@ -15,59 +15,35 @@
 	<text name="estate_owner">
 		(brak danych)
 	</text>
-	<check_box label="Używaj czasu światowego" name="use_global_time_check"/>
-	<button label="?" name="use_global_time_help"/>
-	<check_box label="Stałe Słońce" name="fixed_sun_check"/>
-	<button label="?" name="fixed_sun_help"/>
-	<slider label="Pora doby" name="sun_hour_slider"/>
-	<check_box label="Dostęp publiczny" name="externally_visible_check"/>
-	<button label="?" name="externally_visible_help"/>
+	<check_box label="Dostęp publiczny" name="externally_visible_check" />
+	<check_box label="Rozmowy głosowe" name="voice_chat_check" />
+	<check_box label="Teleportacja bezpośrednia" name="allow_direct_teleport" />
+	<button label="Zastosuj" name="apply_btn" />
 	<text name="Only Allow">
-		Ogranicz dostęp dla kont zweryfikowanych przez:
+		Dostęp tylko dla Rezydentów:
 	</text>
-	<check_box label="Rezydenci z danymi o koncie" name="limit_payment" tool_tip="Zbanuj niezidentyfikowanych Rezydentów"/>
-	<check_box label="Rezydenci, którzy dokonali weryfikacji wieku" name="limit_age_verified" tool_tip="Zbanuj Rezydentów, którzy nie zweryfikowali swojego wieku. Odwiedź stronę [SUPPORT_SITE] po więcej informacji."/>
-	<check_box label="Rozmowy dozwolone" name="voice_chat_check"/>
-	<button label="?" name="voice_chat_help"/>
-	<check_box label="Teleportacja dozwolona" name="allow_direct_teleport"/>
-	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="abuse_email_text">
-		Wysyłaj (email) reporty o nadużyciach do:
-	</text>
-	<line_editor name="abuse_email_address"/>
-	<string name="email_unsupported">
-		Opcja niedostępna
-	</string>
-	<button label="?" name="abuse_email_address_help"/>
-	<button label="Zastosuj" name="apply_btn"/>
-	<button label="Wyrzuć Rezydenta z Majątku..." name="kick_user_from_estate_btn"/>
-	<button label="Wyślij wiadomość do Majątku..." name="message_estate_btn"/>
+	<check_box label="Zarejestrowanych w systemie płatniczym" name="limit_payment" tool_tip="Zbanuj Rezydentów niezarejestrowanych w systemie płatniczym Linden Lab. Odwiedź [SUPPORT_SITE], aby uzyskać więcej informacji." />
+	<check_box label="Którzy mają 18+ lat" name="limit_age_verified" tool_tip="Zbanuj Rezydetów, którzy mają mniej niż 18 lat. Odwiedź [SUPPORT_SITE], aby uzyskać więcej informacji." />
 	<text name="estate_manager_label">
 		Zarządcy Majątku:
 	</text>
-	<button label="?" name="estate_manager_help"/>
-	<name_list name="estate_manager_name_list"/>
-	<button label="Usuń..." name="remove_estate_manager_btn"/>
-	<button label="Dodaj..." name="add_estate_manager_btn"/>
 	<text name="allow_resident_label">
 		Dozwoleni Rezydenci:
 	</text>
-	<button label="?" name="allow_resident_help"/>
-	<name_list name="allowed_avatar_name_list"/>
-	<button label="Usuń..." name="remove_allowed_avatar_btn"/>
-	<button label="Dodaj..." name="add_allowed_avatar_btn"/>
+	<button label="Dodaj..." name="add_estate_manager_btn" />
+	<button label="Usuń..." name="remove_estate_manager_btn" />
+	<button label="Dodaj..." name="add_allowed_avatar_btn" />
+	<button label="Usuń..." name="remove_allowed_avatar_btn" />
 	<text name="allow_group_label">
 		Dozwolone grupy:
 	</text>
-	<button label="?" name="allow_group_help"/>
-	<name_list name="allowed_group_name_list"/>
-	<button label="Usuń..." name="remove_allowed_group_btn"/>
-	<button label="Dodaj..." name="add_allowed_group_btn"/>
 	<text name="ban_resident_label">
 		Zablokowani Rezydenci (bany):
 	</text>
-	<button label="?" name="ban_resident_help"/>
-	<name_list name="banned_avatar_name_list"/>
-	<button label="Usuń..." name="remove_banned_avatar_btn"/>
-	<button label="Dodaj..." name="add_banned_avatar_btn"/>
+	<button label="Dodaj..." name="add_allowed_group_btn" />
+	<button label="Usuń..." name="remove_allowed_group_btn" />
+	<button label="Dodaj..." name="add_banned_avatar_btn" />
+	<button label="Usuń..." name="remove_banned_avatar_btn" />
+	<button label="Wyślij wiadomość do Majątku..." name="message_estate_btn" />
+	<button label="Wyrzuć Rezydenta z Majątku..." name="kick_user_from_estate_btn" />
 </panel>

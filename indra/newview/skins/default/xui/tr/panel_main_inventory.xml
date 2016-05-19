@@ -6,6 +6,9 @@
 	<panel.string name="ItemcountCompleted">
 		[ITEM_COUNT] Öge [FILTER]
 	</panel.string>
+	<panel.string name="ItemcountUnknown">
+		Alınan [ITEM_COUNT] Öğe [FILTER]
+	</panel.string>
 	<text name="ItemcountText">
 		Ögeler:
 	</text>

@@ -24,6 +24,7 @@
        left="0"
        width="430" /> 
       <text
+       name="label_1"
        type="string"
        length="1"
        follows="left|top"
@@ -36,6 +37,7 @@
          Next owner:
       </text>
       <text
+       name="label_2"
        type="string"
        length="1"
        follows="left|top"
@@ -48,6 +50,7 @@
           Copy
       </text>
       <text
+       name="label_3"
        type="string"
        length="1"
        follows="left|top"
@@ -60,6 +63,7 @@
           Modify
       </text>
       <text
+       name="label_4"
        type="string"
        length="1"
        follows="left|top"
@@ -72,6 +76,7 @@
           Transfer
       </text>    
       <text
+       name="label_5"
        type="string"
        length="1"
        follows="left|top"
@@ -85,6 +90,7 @@
           Share with group
       </text>
       <text
+       name="label_6"
        type="string"
        length="1"
        follows="left|top"
@@ -98,6 +104,7 @@
           Allow anyone to copy
       </text>
       <text
+       name="label_7"
        type="string"
        length="1"
        follows="left|top"
@@ -162,6 +169,7 @@
        top_delta="0"
        width="100" />
       <text
+       name="label_8"
        type="string"
        length="1"
        follows="left|top"
@@ -225,6 +233,7 @@
        top_delta="0"
        width="100" />
       <text
+       name="label_9"
        type="string"
        length="1"
        follows="left|top"
@@ -288,6 +297,7 @@
        top_delta="0"
        width="100" />
       <text
+       name="label_10"
        type="string"
        length="1"
        follows="left|top"
@@ -351,6 +361,7 @@
        top_delta="0"
        width="100" />
       <text
+       name="label_11"
        type="string"
        length="1"
        follows="left|top"
@@ -414,6 +425,7 @@
        top_delta="0"
        width="100" />
       <text
+       name="label_12"
        type="string"
        length="1"
        follows="left|top"

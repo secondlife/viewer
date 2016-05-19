@@ -172,3 +172,8 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
 }
 
     
+const std::string &LLVersionInfo::getBuildConfig()
+{
+    static const std::string build_configuration(LLBUILD_CONFIG); // set in indra/cmake/BuildVersion.cmake
+    return build_configuration;
+}

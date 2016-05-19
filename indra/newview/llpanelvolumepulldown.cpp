@@ -40,8 +40,8 @@
 #include "llfloaterpreference.h"
 #include "llsliderctrl.h"
 
-/* static */ const F32 LLPanelVolumePulldown::sAutoCloseFadeStartTimeSec = 4.0f;
-/* static */ const F32 LLPanelVolumePulldown::sAutoCloseTotalTimeSec = 5.0f;
+/* static */ const F32 LLPanelVolumePulldown::sAutoCloseFadeStartTimeSec = 2.0f;
+/* static */ const F32 LLPanelVolumePulldown::sAutoCloseTotalTimeSec = 3.0f;
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelVolumePulldown

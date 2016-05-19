@@ -6,8 +6,6 @@
 	<RenderAvatarLODFactor value="0.5"/>
 	<!--Default for now-->
 	<RenderAvatarPhysicsLODFactor value="0.0"/>
-	<!--Default for now-->
-	<RenderAvatarMaxVisible value="3"/>
 	<!--NO SHADERS-->
 	<RenderAvatarVP value="FALSE"/>
 	<!--Short Range-->
@@ -28,8 +26,10 @@
 	<RenderTerrainLODFactor value="1.0"/>
 	<!--Default for now-->
 	<RenderTreeLODFactor value="0.5"/>
-	<!--Try Impostors-->
-	<RenderUseImpostors value="TRUE"/>
+	<!--Avater Impostors and Visual Muting Limits-->
+    <RenderAvatarMaxNonImpostors     value="12"/>
+    <RenderAvatarMaxComplexity              value="80000"/>
+    <RenderAutoMuteSurfaceAreaLimit  value="750.0"/>
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="1.125"/>
 	<!--NO SHADERS-->

@@ -27,7 +27,7 @@
 	<floater.string name="character_owner_group">
 		[Groupe]
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_chars_main">
 		<scroll_list name="objects_scroll_list">
 			<scroll_list.columns label="Nom" name="name"/>
 			<scroll_list.columns label="Description" name="description"/>
@@ -42,7 +42,7 @@
 		<button label="Tout sélectionner" name="select_all_objects"/>
 		<button label="Ne rien sélectionner" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
 			Actions sur les personnages sélectionnés :
 		</text>
@@ -50,8 +50,8 @@
 		<check_box label="Afficher la capsule physique" name="show_physics_capsule"/>
 		<button label="Prendre" name="take_objects"/>
 		<button label="Prendre une copie" name="take_copy_objects"/>
-		<button label="M&apos;y téléporter" name="teleport_me_to_object" tool_tip="Activé uniquement lorsqu&apos;un personnage est sélectionné."/>
-		<button label="Renvoyer" name="return_objects"/>
+		<button label="M’y téléporter" name="teleport_me_to_object" tool_tip="Activé uniquement lorsqu’un personnage est sélectionné."/>
+		<button label="Retour" name="return_objects"/>
 		<button label="Supprimer" name="delete_objects"/>
 	</panel>
 </floater>

@@ -164,6 +164,10 @@ Bir sistem veya ağ hatası nedeniyle Pazaryeri başlatılamadı.  Daha sonra te
         &quot;[ERROR_CODE]&quot;
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="MerchantForceValidateListing">
+		İlanınızı oluşturmak için, ilan içeriklerinizin hiyerarşisini düzelttik.
+		<usetemplate ignoretext="Bir ilan oluşturmanın içeriğin hiyerarşisini değiştireceği konusunda beni uyar" name="okignore" yestext="Tamam"/>
+	</notification>
 	<notification name="ConfirmMerchantActiveChange">
 		Bu eylem, bu ilanın etkin içeriğini değiştirecek. Devam etmek istiyor musunuz?
 		<usetemplate ignoretext="Pazaryerindeki etkin bir ilanı değiştirmek istediğimde doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
@@ -211,11 +215,9 @@ Bu öğeyi Pazaryeri üzerinde düzenlemek için [[URL] buraya tıklayın].
 		Stok boş olduğu için ilanınızı yayından kaldırdık. İlanı yeniden yayınlamak için stok klasörüne daha fazla birim eklemeniz gerekir.
 		<usetemplate ignoretext="Bir ilan, stok klasörü boş olduğu için listeden kaldırılınca uyar" name="okignore" yestext="Tamam"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Aşağıdaki nedenden dolayı, bir komut dosyası için metin karşıya yüklenirken bir sorun oluştu: [REASON]. Lütfen daha sonra tekrar deneyin.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Aşağıdaki nedenden dolayı, derlenen komut dosyası karşıya yüklenirken bir sorun oluştu: [REASON]. Lütfen daha sonra tekrar deneyin.
+	<notification name="AlertMerchantVersionFolderEmpty">
+		Sürüm klasörü boş olduğu için ilanınızı yayından kaldırdık. İlanı yeniden yayınlamak için sürüm klasörüne daha fazla birim eklemeniz gerekir.
+		<usetemplate ignoretext="Bir ilan, sürüm klasörü boş olduğu için listeden kaldırılınca uyar" name="okignore" yestext="Tamam"/>
 	</notification>
 	<notification name="WriteAnimationFail">
 		Animasyon verileri yazılırken bir sorun oluştu.  Lütfen daha sonra tekrar deneyin.
@@ -320,6 +322,14 @@ Bu yeteneklerin artık bu rolde bulunmasını istemiyorsanız, onları hemen dev
 		Gruptan [COUNT] üyeyi çıkarmak üzeresiniz.
 		<usetemplate ignoretext="Gruptan birden çok üyenin çıkarılmasını doğrulayın" name="okcancelignore" notext="İptal" yestext="Çıkar"/>
 	</notification>
+	<notification name="BanGroupMemberWarning">
+		[AVATAR_NAME] adlı üyeyi grubun yasaklı listesine eklemek üzeresiniz.
+		<usetemplate ignoretext="Bir katılımcının grubun yasaklı listesine eklenmesini doğrulayın" name="okcancelignore" notext="İptal" yestext="Yasakla"/>
+	</notification>
+	<notification name="BanGroupMembersWarning">
+		[COUNT] üyeyi grubun yasaklı listesine eklemek üzeresiniz.
+		<usetemplate ignoretext="Gruptan birden çok üyenin yasaklanmasını doğrulayın" name="okcancelignore" notext="İptal" yestext="Yasakla"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Aksesuarınızı çıkarmak üzeresiniz.
     Devam etmek istediğinize emin misiniz?
@@ -404,7 +414,7 @@ Nesneler: [N]
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		Listelenen tüm nesneleri kendi sahiplerinin envanterlerine iade etmek istediğinize emin misiniz?
+		Listedeki tüm nesneleri kendi sahiplerinin envanterlerine iade etmek istediğinize emin misiniz? Bu, bölgedeki TÜM komut dosyalı nesneleri iade edecektir.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
@@ -587,15 +597,9 @@ Sunucunun son kaydedilmiş sürümünü yüklemek ister misiniz?
 (**Uyarı** Bu işlem geri alınamaz.)
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Aşağıdaki nedenden dolayı, komut dosyası kaydedilirken bir sorun oluştu: [REASON].  Lütfen komut dosyasını kaydetmeyi daha sonra tekrar deneyin.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		İçinde olduğu nesne bulunamadığından komut dosyası kaydedilemiyor.
 Nesne aralık dışında ya da silinmiş olabilir.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Aşağıdaki nedenden dolayı, derlenen komut dosyası kaydedilirken bir sorun oluştu: [REASON].  Lütfen komut dosyasını kaydetmeyi daha sonra tekrar deneyin.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Başlangıç Bölgeniz tanımlanmamış.
@@ -608,6 +612,10 @@ Nesne aralık dışında ya da silinmiş olabilir.
 	</notification>
 	<notification name="CannotDownloadFile">
 		Dosya karşıdan yüklenemiyor.
+	</notification>
+	<notification label="" name="MediaFileDownloadUnsupported">
+		[SECOND_LIFE] içinde desteklenmeyen bir dosya indirmeyi talep ettiniz.
+		<usetemplate ignoretext="Desteklenmeyen dosya indirme işlemleri hakkında uyar" name="okignore" yestext="Tamam"/>
 	</notification>
 	<notification name="CannotWriteFile">
 		[[FILE]] dosyası yazılamıyor.
@@ -1109,7 +1117,8 @@ Bu genellikle geçici bir arızadır. Lütfen giyilebilir öğeyi birkaç dakika
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Üzgünüz. [SECOND_LIFE] oturumunuz kapandı.
-            [MESSAGE]
+
+[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Çık" yestext="Anlık İleti ve Sohbeti Görüntüle"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1356,6 +1365,13 @@ Yeni bir ana konum ayarlamak isteyebilirsiniz.
 		<form name="form">
 			<ignore name="ignore" text="Giysilerin karşıdan yüklenmesi uzun zaman alıyor"/>
 		</form>
+	</notification>
+	<notification name="RegionAndAgentComplexity">
+		[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 Görsel karmaşıklık] seviyeniz: [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+	</notification>
+	<notification name="AgentComplexity">
+		[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 Görsel karmaşıklık] seviyeniz: [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] yüklemesi tamamlandı.
@@ -1636,6 +1652,25 @@ Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
 bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="UpdateDownloadInProgress">
+		Bir güncelleme mevcut.
+Şu anda arkaplanda indiriliyor ve hazır olduğunda yüklemeyi bitirmek için görüntüleyicinizi yeniden başlatmanız için sizi uyaracağız.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="UpdateDownloadComplete">
+		Bir güncelleme indirildi. Yeniden başlatma sırasında yüklenecek.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="UpdateCheckError">
+		Güncelleme kontrolü yapılırken bir hata oluştu.
+Lütfen daha sonra tekrar deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="UpdateViewerUpToDate">
+		Görüntüleyiciniz güncel.
+En yeni özellikleri ve düzeltmeleri görmek için sabırsızlanıyorsanız Alternatif Görüntüleyici sayfasına göz atın. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		Bu nesnenin devredilmesi grubun şunu yapmasına sebep olacak:
 * Nesneye ödenen L$&apos;nı almasına
@@ -1739,6 +1774,14 @@ Gruptan ayrılmak istiyor musunuz?
 	<notification name="JoinedTooManyGroups">
 		Maksimum grup sayısına eriştiniz. Lütfen yeni bir gruba katılmadan ya da yeni bir grup oluşturmadan önce grupların bazılarından ayrılın.
 		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="GroupLimitInfo">
+		Temel hesaplar için grup limiti [MAX_BASIC], [https://secondlife.com/premium/ özel] hesaplar 
+içinse [MAX_PREMIUM] olarak belirlenmiştir.
+Hesabınızı indirgediyseniz, daha fazla gruba katılmak için önce grup sayınızı [MAX_BASIC] grubun altına düşürmelisiniz.
+
+[https://secondlife.com/my/account/membership.php Şimdi yükselt!]
+		<usetemplate name="okbutton" yestext="Kapat"/>
 	</notification>
 	<notification name="KickUser">
 		Bu Sakin hangi iletiyle çıkarılsın?
@@ -1939,7 +1982,7 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Gayrimenkul seç" name="EstateTrustedExperienceRemove">
-		Yalnızca bu gayrimenkul için mi anahtar listesine çıkarılsın, yoksa [ALL_ESTATES] için mi?
+		Yalnızca bu gayrimenkul için mi anahtar listesinden çıkarılsın, yoksa [ALL_ESTATES] için mi?
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Çıkarmayı Onayla" name="EstateKickUser">
@@ -2248,6 +2291,10 @@ Envanter öğesi/öğeleri taşınsın mı?
 		[TARGET] hedefine [AMOUNT]L$ ödemek istediğinizi doğrulayın.
 		<usetemplate ignoretext="Ödeme yapılmadan önce doğrulama iste (200L$ üzerinde tutarlar için)" name="okcancelignore" notext="İptal" yestext="Öde"/>
 	</notification>
+	<notification name="PayObjectFailed">
+		Ödeme başarısız: nesne bulunamadı.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Bu nesne içinde kopyalama izniniz olan bir öğe yok.
 	</notification>
@@ -2279,10 +2326,9 @@ Bu eylemi geri alamazsınız.
 		[QUESTION]
 		<usetemplate ignoretext="Öğeleri silmeden önce doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
-	<notification name="HelpReportAbuseEmailLL">
-		[http://secondlife.com/corporate/tos.php Hizmet Sözleşmesi] ve [http://secondlife.com/corporate/cs.php Topluluk Standartları] ihlallerini bildirmek için bu aracı kullanın.
-
-Bildirilen tüm kötüye kullanımlar incelenir ve çözüme ulaştırılır.
+	<notification name="ConfirmUnlink">
+		Bu, geniş bir bağlantı kümeleri seçimi. Bağlantıyı kaldırırsanız tekrar bağlayamayabilirsiniz. Tedbiren, envanterinizdeki bağlantı kümelerinin bir kopyasını almayı isteyebilirsiniz.
+		<usetemplate ignoretext="Bir bağlantı kümesinin bağının kaldırılmasını onayla" name="okcancelignore" notext="İptal" yestext="Bağlantıyı Kopar"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Lütfen bu kötüye kullanım bildirimi için bir kategori seçin.
@@ -3211,6 +3257,12 @@ Güvenliğiniz için birkaç saniye engellenecek.
 	<notification name="AttachmentSaved">
 		Aksesuar kaydedildi.
 	</notification>
+	<notification name="PresetNotSaved">
+		[NAME] ön ayarı kaydedilirken hata oluştu.
+	</notification>
+	<notification name="PresetNotDeleted">
+		[NAME] ön ayarı silinirken hata oluştu.
+	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Bu öğe için yardım başlığı bulunamıyor.
 	</notification>
@@ -3243,9 +3295,8 @@ Yeterli yer olduğunda düğme gösterilecek.
 		Paylaşılacak sakinleri seç.
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] karşıya yüklenemedi: [MESSAGE] [IDENTIFIER] 
-
-Ayrıntılar için günlük dosyasına bakın.
+		[LABEL] karşıya yüklenemedi: [MESSAGE] [IDENTIFIER]
+[DETAILS]Ayrıntılar için bkz. SecondLife.log
 	</notification>
 	<notification name="MeshUploadPermError">
 		Karşıya örgü yükleme izinleri talep edilirken hata oluştu.

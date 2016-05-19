@@ -72,7 +72,7 @@
 		<action description="Modérer les chats" longdescription="Contrôlez l&apos;accès et la participation aux chats de groupe écrits et vocaux." name="moderate group chat" value="37"/>
 	</action_set>
 	<action_set description="Ces pouvoirs incluent la possibilité de modifier les expériences appartenant à ce groupe." name="experience_tools_experience">
-		<action description="Administrateur des expériences" longdescription="Les membres dotés d&apos;un rôle avec ce pouvoir peuvent modifier les métadonnées pour cette expérience." name="experience admin" value="49"/>
-		<action description="Contributeur aux expériences" longdescription="Les membres dotés d&apos;un rôle avec ce pouvoir peuvent contribuer des scripts pour une expérience." name="experience contributor" value="50"/>
+		<action description="Administrateur des expériences" longdescription="Les membres dotés d’un rôle avec ce pouvoir peuvent modifier les métadonnées pour cette expérience." name="experience admin" value="49"/>
+		<action description="Contributeur aux expériences" longdescription="Les membres dotés d’un rôle avec ce pouvoir peuvent contribuer des scripts pour une expérience." name="experience contributor" value="50"/>
 	</action_set>
 </role_actions>

@@ -55,6 +55,9 @@
 	<string name="mesh_status_invalid_material_list">
 		Ayrıntı seviyesi malzemeleri, referans modelin bir alt kümesi değil.
 	</string>
+	<string name="phys_status_vertex_limit_exceeded">
+		Bazı fiziksel gövdeler vertex limitlerini aşıyor.
+	</string>
 	<string name="layer_all">
 		Tümü
 	</string>
@@ -93,52 +96,52 @@
 				<text initial_value="Köşeler" name="vertices" value="Köşeler"/>
 				<text initial_value="Yüksek" name="high_label" value="Yüksek"/>
 				<combo_box name="lod_source_high">
-					<item name="Load from file" value="Dosyadan yükle"/>
-					<item name="Generate" value="Oluştur"/>
+					<item label="Dosyadan yükle" name="Load from file" value="Dosyadan yükle"/>
+					<item label="Oluştur" name="Generate" value="Oluştur"/>
 				</combo_box>
 				<button label="Gözat..." name="lod_browse_high"/>
 				<combo_box name="lod_mode_high">
-					<item name="Triangle Limit" value="Üçgen Limiti"/>
-					<item name="Error Threshold" value="Hata Eşiği"/>
+					<item label="Üçgen Limiti" name="Triangle Limit" value="Üçgen Limiti"/>
+					<item label="Hata Eşiği" name="Error Threshold" value="Hata Eşiği"/>
 				</combo_box>
 				<text initial_value="0" name="high_triangles" value="0"/>
 				<text initial_value="0" name="high_vertices" value="0"/>
 				<text initial_value="Orta" name="medium_label" value="Orta"/>
 				<combo_box name="lod_source_medium">
-					<item name="Load from file" value="Dosyadan yükle"/>
-					<item name="Generate" value="Oluştur"/>
-					<item name="Use LoD above" value="Yukarıdaki ayrıntı seviyesini kullan"/>
+					<item label="Dosyadan yükle" name="Load from file" value="Dosyadan yükle"/>
+					<item label="Oluştur" name="Generate" value="Oluştur"/>
+					<item label="Yukarıdaki ayrıntı seviyesini kullan" name="Use LoD above" value="Yukarıdaki ayrıntı seviyesini kullan"/>
 				</combo_box>
 				<button label="Gözat..." name="lod_browse_medium"/>
 				<combo_box name="lod_mode_medium">
-					<item name="Triangle Limit" value="Üçgen Limiti"/>
-					<item name="Error Threshold" value="Hata Eşiği"/>
+					<item label="Üçgen Limiti" name="Triangle Limit" value="Üçgen Limiti"/>
+					<item label="Hata Eşiği" name="Error Threshold" value="Hata Eşiği"/>
 				</combo_box>
 				<text initial_value="0" name="medium_triangles" value="0"/>
 				<text initial_value="0" name="medium_vertices" value="0"/>
 				<text initial_value="Düşük" name="low_label" value="Düşük"/>
 				<combo_box name="lod_source_low">
-					<item name="Load from file" value="Dosyadan yükle"/>
-					<item name="Generate" value="Oluştur"/>
-					<item name="Use LoD above" value="Yukarıdaki ayrıntı seviyesini kullan"/>
+					<item label="Dosyadan yükle" name="Load from file" value="Dosyadan yükle"/>
+					<item label="Oluştur" name="Generate" value="Oluştur"/>
+					<item label="Yukarıdaki ayrıntı seviyesini kullan" name="Use LoD above" value="Yukarıdaki ayrıntı seviyesini kullan"/>
 				</combo_box>
 				<button label="Gözat..." name="lod_browse_low"/>
 				<combo_box name="lod_mode_low">
-					<item name="Triangle Limit" value="Üçgen Limiti"/>
-					<item name="Error Threshold" value="Hata Eşiği"/>
+					<item label="Üçgen Limiti" name="Triangle Limit" value="Üçgen Limiti"/>
+					<item label="Hata Eşiği" name="Error Threshold" value="Hata Eşiği"/>
 				</combo_box>
 				<text initial_value="0" name="low_triangles" value="0"/>
 				<text initial_value="0" name="low_vertices" value="0"/>
 				<text initial_value="En Düşük" name="lowest_label" value="En Düşük"/>
 				<combo_box name="lod_source_lowest">
-					<item name="Load from file" value="Dosyadan yükle"/>
-					<item name="Generate" value="Oluştur"/>
-					<item name="Use LoD above" value="Yukarıdaki ayrıntı seviyesini kullan"/>
+					<item label="Dosyadan yükle" name="Load from file" value="Dosyadan yükle"/>
+					<item label="Oluştur" name="Generate" value="Oluştur"/>
+					<item label="Yukarıdaki ayrıntı seviyesini kullan" name="Use LoD above" value="Yukarıdaki ayrıntı seviyesini kullan"/>
 				</combo_box>
 				<button label="Gözat..." name="lod_browse_lowest"/>
 				<combo_box name="lod_mode_lowest">
-					<item name="Triangle Limit" value="Üçgen Limiti"/>
-					<item name="Error Threshold" value="Hata Eşiği"/>
+					<item label="Üçgen Limiti" name="Triangle Limit" value="Üçgen Limiti"/>
+					<item label="Hata Eşiği" name="Error Threshold" value="Hata Eşiği"/>
 				</combo_box>
 				<text initial_value="0" name="lowest_triangles" value="0"/>
 				<text initial_value="0" name="lowest_vertices" value="0"/>

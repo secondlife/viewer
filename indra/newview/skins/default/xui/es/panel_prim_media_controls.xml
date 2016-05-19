@@ -45,11 +45,8 @@
 		<layout_panel name="media_address">
 			<line_editor name="media_address_url" tool_tip="URL de los media"/>
 			<layout_stack name="media_address_url_icons">
-				<layout_panel>
+				<layout_panel name="media_address_url_icons_wl">
 					<icon name="media_whitelist_flag" tool_tip="Lista Blanca activada"/>
-				</layout_panel>
-				<layout_panel>
-					<icon name="media_secure_lock_flag" tool_tip="Navegación segura"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

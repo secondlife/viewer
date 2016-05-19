@@ -27,7 +27,7 @@
 	<floater.string name="character_owner_group">
 		[grupo]
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_chars_main">
 		<scroll_list name="objects_scroll_list">
 			<scroll_list.columns label="Nome" name="name"/>
 			<scroll_list.columns label="Descrição" name="description"/>
@@ -42,12 +42,12 @@
 		<button label="Selecionar tudo" name="select_all_objects"/>
 		<button label="Selecionar nenhum" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
 			Ações nos personagens selecionados:
 		</text>
 		<check_box label="Exibir baliza" name="show_beacon"/>
-		<check_box label="Exibir cápsula da física" name="show_physics_capsule"/>
+		<check_box label="Exibir cápsula física" name="show_physics_capsule"/>
 		<button label="Pegar" name="take_objects"/>
 		<button label="Pegar uma cópia" name="take_copy_objects"/>
 		<button label="Teletransportar-me até ele" name="teleport_me_to_object" tool_tip="Habilitado apenas quando um personagem é selecionado."/>

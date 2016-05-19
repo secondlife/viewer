@@ -13,6 +13,12 @@
 	</scroll_list>
 	<button label="Ekle..." name="autoreplace_add_entry"/>
 	<button label="Kaldır" name="autoreplace_delete_entry"/>
+	<text name="autoreplace_keyword_txt">
+		Anahtar kelime:
+	</text>
+	<text name="autoreplace_replacement_txt">
+		Değiştirme:
+	</text>
 	<button label="Girişi Kaydet" name="autoreplace_save_entry" tool_tip="Bu girişi kaydet."/>
 	<button label="Değişiklikleri Kaydet" name="autoreplace_save_changes" tool_tip="Tüm değişiklikleri kaydet."/>
 	<button label="İptal" name="autoreplace_cancel" tool_tip="Tüm değişiklikleri iptal et."/>
