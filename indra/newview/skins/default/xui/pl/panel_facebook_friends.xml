@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_facebook_friends">
+	<string name="facebook_friends_empty" value="Żaden z Twoich znajomych na Facebooku nie jest w tej chwili rezydentem w Second Life. Poproś swoich facebookowych przyjaciół, aby dołączyli do Second Life!" />
+	<string name="facebook_friends_no_connected" value="Brak połączenia z Facebookiem. Przejdź na kartę Status, aby włączyć tą funkcjonalność." />
+	<accordion name="friends_accordion">
+		<accordion_tab name="tab_second_life_friends" title="Znajomi z Second Life" />
+		<accordion_tab name="tab_suggested_friends" title="Dodaj te osoby do znajomych w Second Life" />
+	</accordion>
+	<text name="facebook_friends_status">
+		Brak połączenia z Facebookiem.
+	</text>
+</panel>

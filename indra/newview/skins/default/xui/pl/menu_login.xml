@@ -1,24 +1,39 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu_bar name="Login Menu">
 	<menu label="Ja" name="File">
-		<menu_item_call label="Ustawienia" name="Preferences..."/>
-		<menu_item_call label="Wyłącz [APP_NAME]" name="Quit"/>
+		<menu_item_call label="Preferencje..." name="Preferences..." />
+		<menu_item_call label="Wyłącz [APP_NAME]" name="Quit" />
 	</menu>
 	<menu label="Pomoc" name="Help">
-		<menu_item_call label="[SECOND_LIFE]: Pomoc" name="Second Life Help"/>
-		<menu_item_call label="O [APP_NAME]" name="About Second Life"/>
+		<menu_item_call label="Samouczek..." name="How To" />
+		<menu_item_call label="Szybki start" name="Quickstart" />
+		<menu_item_call label="Baza wiedzy" name="Knowledge Base" />
+		<menu_item_call label="Wiki informacyjna" name="Wiki" />
+		<menu_item_call label="Forum społecznościowe" name="Community Forums" />
+		<menu_item_call label="Portal wsparcia" name="Support portal" />
+		<menu_item_call label="Newsy [SECOND_LIFE]" name="Second Life News" />
+		<menu_item_call label="Blogi [SECOND_LIFE]" name="Second Life Blogs" />
+		<menu_item_call label="Zgłoś błędy" name="Report Bug" />
+		<menu_item_call label="Informacje o [APP_NAME]" name="About Second Life" />
 	</menu>
-	<menu_item_check label="Pokaż ustawienia debugowania" name="Show Debug Menu"/>
-	<menu label="Debug" name="Debug">
-		<menu_item_call label="Ustawienia debugowania" name="Debug Settings"/>
-		<menu_item_call label="Ustawienia UI/kolor" name="UI/Color Settings"/>
-		<menu label="UI Testy" name="UI Tests"/>
-		<menu_item_call label="Ustaw rozmiar interfejsu..." name="Set Window Size..."/>
-		<menu_item_call label="Wyświetl TOS" name="TOS"/>
-		<menu_item_call label="Wyświetl wiadomość krytyczną" name="Critical"/>
-		<menu_item_call label="Test przeglądarki mediów" name="Web Browser Test"/>
-		<menu_item_call label="Test zawartości strony" name="Web Content Floater Test"/>
-		<menu_item_check label="Pokaż siatkę" name="Show Grid Picker"/>
-		<menu_item_call label="Pokaż konsolę Zawiadomień" name="Show Notifications Console"/>
+	<menu_item_check label="Pokaż menu debugowania" name="Show Debug Menu" />
+	<menu label="Debugowanie" name="Debug">
+		<menu_item_call label="Pokaż ustawienia debugowania" name="Debug Settings" />
+		<menu_item_call label="Ustawienia kolorów/interfejsu" name="UI/Color Settings" />
+		<menu_item_call label="Narzędzie podglądu XUI" name="UI Preview Tool" />
+		<menu label="Testy interfejsu" name="UI Tests" />
+		<menu_item_call label="Ustaw rozmiar okna..." name="Set Window Size..." />
+		<menu_item_call label="Pokaż warunki użytkowania" name="TOS" />
+		<menu_item_call label="Pokaż wiadomość krytyczną" name="Critical" />
+		<menu_item_call label="Test debugowania okienka sieciowego" name="Web Content Floater Debug Test" />
+		<menu label="Ustaw poziom logowania" name="Set Logging Level">
+			<menu_item_check name="Debug" label="Debugowanie" />
+			<menu_item_check name="Info" label="Informacje" />
+			<menu_item_check name="Warning" label="Ostrzeżenia" />
+			<menu_item_check name="Error" label="Błędy" />
+			<menu_item_check name="None" label="Brak" />
+		</menu>
+		<menu_item_check label="Pokaż wybór siatki" name="Show Grid Picker" />
+		<menu_item_call label="Pokaż konsolę powiadomień" name="Show Notifications Console" />
 	</menu>
 </menu_bar>

@@ -39,7 +39,12 @@
          enabled="true"
          label="English"
          name="English"
-         value="en" />        
+         value="en" />
+        <combo_box.item
+         enabled="true"
+         label="Dansk (Danish) - Beta"
+         name="Danish"
+         value="da" />
         <combo_box.item
          enabled="true"
          label="Deutsch (German) - Beta"
@@ -59,7 +64,12 @@
          enabled="true"
          label="Italiano (Italian) - Beta"
          name="Italian"
-         value="it" />        
+         value="it" />
+        <combo_box.item
+         enabled="true"
+         label="Polski (Polish) - Beta"
+         name="Polish"
+         value="pl" />
         <combo_box.item
          enabled="true"
          label="Português (Portuguese) - Beta"

@@ -57,11 +57,8 @@
 		<layout_panel name="media_address">
 			<line_editor name="media_address_url" tool_tip="Ortam URL&apos;si"/>
 			<layout_stack name="media_address_url_icons">
-				<layout_panel>
+				<layout_panel name="media_address_url_icons_wl">
 					<icon name="media_whitelist_flag" tool_tip="Beyaz Liste etkin"/>
-				</layout_panel>
-				<layout_panel>
-					<icon name="media_secure_lock_flag" tool_tip="Güvenli Tarama"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

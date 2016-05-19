@@ -184,6 +184,7 @@
    mouse_opaque="false"
    name="divisor3"/>
   <text
+   name="autoreplace_keyword_txt"
    type="string"
    follows="left|top"
    height="16"
@@ -204,6 +205,7 @@
    width="150"
    />
   <text
+   name="autoreplace_replacement_txt"
    type="string"
    follows="left|top"
    height="16"

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="spellcheck_import" title="匯入字典">
+	<text name="import_dict">
+		字典：
+	</text>
 	<button label="瀏覽" label_selected="瀏覽" name="dictionary_path_browse"/>
+	<text name="import_name">
+		名稱：
+	</text>
+	<text name="import_lang">
+		語言：
+	</text>
 	<button label="匯入" name="ok_btn"/>
 	<button label="取消" name="cancel_btn"/>
 </floater>

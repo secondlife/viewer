@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="presets_pulldown">
+	<text name="Graphic Presets">
+		Пресеты графики
+	</text>
+	<button label="Открыть параметры графики" name="open_prefs_btn" tool_tip="Открыть настройки графики"/>
+</panel>

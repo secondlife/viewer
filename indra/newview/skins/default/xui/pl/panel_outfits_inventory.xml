@@ -1,22 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Rzeczy" name="Outfits">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="Outfits" label="Rzeczy">
 	<panel.string name="wear_outfit_tooltip">
 		Załóż zaznaczony strój
 	</panel.string>
 	<panel.string name="wear_items_tooltip">
-		Załóż wybrane obiekty
+		Załóż zaznaczone obiekty
 	</panel.string>
 	<tab_container name="appearance_tabs">
-		<panel label="MOJE UBRANIA" name="outfitslist_tab"/>
-		<panel label="ZAŁOŻONE" name="cof_tab"/>
+		<panel name="outfitslist_tab" label="MOJE STROJE" />
+		<panel label="ZAŁOŻONE" name="cof_tab" />
 	</tab_container>
 	<panel name="bottom_panel">
-		<layout_stack name="bottom_panel_ls">
+		<layout_stack name="bottom_panel_ls">	
 			<layout_panel name="save_btn_lp">
-				<button label="Zapisz jako" name="save_btn"/>
+				<button label="Zapisz jako" name="save_btn" />
 			</layout_panel>
 			<layout_panel name="wear_btn_lp">
-				<button label="Załóż" name="wear_btn"/>
+				<button label="Załóż" name="wear_btn" />
 			</layout_panel>
 		</layout_stack>
 	</panel>

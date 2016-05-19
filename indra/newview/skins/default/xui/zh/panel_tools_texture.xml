@@ -21,11 +21,11 @@
 		<combo_box.item label="材料" name="Materials"/>
 		<combo_box.item label="媒體" name="Media"/>
 	</combo_box>
-	<combo_box name="combobox mattype">
-		<combo_box.item label="材質（漫反射圖）" name="Texture (diffuse)"/>
-		<combo_box.item label="凹凸度（正交）" name="Bumpiness (normal)"/>
-		<combo_box.item label="閃亮度（鏡反光）" name="Shininess (specular)"/>
-	</combo_box>
+	<radio_group name="radio_material_type">
+		<radio_item label="材質（漫反射圖）" name="Texture (diffuse)" value="0"/>
+		<radio_item label="凹凸度（正交）" name="Bumpiness (normal)" value="1"/>
+		<radio_item label="閃亮度（鏡反光）" name="Shininess (specular)" value="2"/>
+	</radio_group>
 	<texture_picker label="材質" name="texture control" tool_tip="點按以挑選圖片"/>
 	<text name="label alphamode">
 		半透明模式

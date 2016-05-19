@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     
     if (!(options.has("pid") && options.has("dumpdir")))
     {
-        llwarns << "Insufficient parameters to crash report." << llendl;
+        LL_WARNS() << "Insufficient parameters to crash report." << LL_ENDL;
     }
 
 	if (! app.init())

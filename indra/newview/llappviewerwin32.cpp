@@ -40,7 +40,7 @@
 
 #include <fcntl.h>		//_O_APPEND
 #include <io.h>			//_open_osfhandle()
-#include <errorrep.h>	// for AddERExcludedApplicationA()
+#include <WERAPI.H>		// for WerAddExcludedApplication()
 #include <process.h>	// _spawnl()
 #include <tchar.h>		// For TCHAR support
 
@@ -405,34 +405,15 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 void LLAppViewerWin32::disableWinErrorReporting()
 {
-	const char win_xp_string[] = "Microsoft Windows XP";
-	BOOL is_win_xp = ( getOSInfo().getOSString().substr(0, strlen(win_xp_string) ) == win_xp_string );		/* Flawfinder: ignore*/
-	if( is_win_xp )
+	std::string executable_name = gDirUtilp->getExecutableFilename();
+
+	if( S_OK == WerAddExcludedApplication( utf8str_to_utf16str(executable_name).c_str(), FALSE ) )
 	{
-		// Note: we need to use run-time dynamic linking, because load-time dynamic linking will fail
-		// on systems that don't have the library installed (all non-Windows XP systems)
-		HINSTANCE fault_rep_dll_handle = LoadLibrary(L"faultrep.dll");		/* Flawfinder: ignore */
-		if( fault_rep_dll_handle )
-		{
-			pfn_ADDEREXCLUDEDAPPLICATIONA pAddERExcludedApplicationA  = (pfn_ADDEREXCLUDEDAPPLICATIONA) GetProcAddress(fault_rep_dll_handle, "AddERExcludedApplicationA");
-			if( pAddERExcludedApplicationA )
-			{
-
-				// Strip the path off the name
-				const char* executable_name = gDirUtilp->getExecutableFilename().c_str();
-
-				if( 0 == pAddERExcludedApplicationA( executable_name ) )
-				{
-					U32 error_code = GetLastError();
-					LL_INFOS() << "AddERExcludedApplication() failed with error code " << error_code << LL_ENDL;
-				}
-				else
-				{
-					LL_INFOS() << "AddERExcludedApplication() success for " << executable_name << LL_ENDL;
-				}
-			}
-			FreeLibrary( fault_rep_dll_handle );
-		}
+		LL_INFOS() << "WerAddExcludedApplication() succeeded for " << executable_name << LL_ENDL;
+	}
+	else
+	{
+		LL_INFOS() << "WerAddExcludedApplication() failed for " << executable_name << LL_ENDL;
 	}
 }
 
@@ -513,7 +494,7 @@ bool LLAppViewerWin32::init()
 {
 	// Platform specific initialization.
 	
-	// Turn off Windows XP Error Reporting
+	// Turn off Windows Error Reporting
 	// (Don't send our data to Microsoft--at least until we are Logo approved and have a way
 	// of getting the data back from them.)
 	//

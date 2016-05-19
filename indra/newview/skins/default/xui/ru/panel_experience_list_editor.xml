@@ -19,7 +19,7 @@
 		Список приключений
 	</text>
 	<scroll_list name="experience_list">
-		<columns label="Название" name="experience_name"/>
+		<columns label="Имя" name="experience_name"/>
 	</scroll_list>
 	<button label="Добавить..." name="btn_add"/>
 	<button label="Удалить" name="btn_remove"/>

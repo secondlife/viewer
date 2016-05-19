@@ -12,7 +12,7 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Light&quot;
 	</floater.string>
-	<text name="edit_title" value="Profil de l&apos;expérience"/>
+	<text name="edit_title" value="Profil de l’expérience"/>
 	<tab_container name="tab_container">
 		<panel name="panel_experience_info">
 			<scroll_container name="xp_scroll">
@@ -63,7 +63,7 @@
 					<text name="edit_ContentRating">
 						Catégorie :
 					</text>
-					<icons_combo_box label="Modéré" name="edit_ContentRatingText" tool_tip="Si vous augmentez la catégorie de contenu pour une expérience, les permissions seront réinitialisées pour tous les résidents ayant autorisé l&apos;expérience.">
+					<icons_combo_box label="Modéré" name="edit_ContentRatingText" tool_tip="Si vous augmentez la catégorie de contenu pour une expérience, les permissions seront réinitialisées pour tous les résidents ayant autorisé l’expérience.">
 						<icons_combo_box.item label="Adulte" name="Adult" value="42"/>
 						<icons_combo_box.item label="Modéré" name="Mature" value="21"/>
 						<icons_combo_box.item label="Général" name="PG" value="13"/>
@@ -71,11 +71,11 @@
 					<text name="edit_Location">
 						Endroit :
 					</text>
-					<button label="Définir sur l&apos;emplacement actuel" name="location_btn"/>
-					<button label="Effacer l&apos;emplacement" name="clear_btn"/>
-					<check_box label="Activer l&apos;expérience" name="edit_enable_btn" tool_tip=""/>
+					<button label="Définir sur l’emplacement actuel" name="location_btn"/>
+					<button label="Effacer l’emplacement" name="clear_btn"/>
+					<check_box label="Activer l’expérience" name="edit_enable_btn" tool_tip=""/>
 					<check_box label="Cacher dans les résultats de recherche" name="edit_private_btn"/>
-					<text name="changes" value="Il peut falloir plusieurs minutes pour que l&apos;expérience soit visible dans toutes les régions."/>
+					<text name="changes" value="Il peut falloir plusieurs minutes pour que l’expérience soit visible dans toutes les régions."/>
 					<button label="Retour" name="cancel_btn"/>
 					<button label="Enregistrer" name="save_btn"/>
 				</panel>

@@ -24,6 +24,12 @@
 		<radio_item label="Старше, чем" name="older"/>
 	</radio_group>
 	<spinner label="Часов назад" name="spin_hours_ago"/>
+	<text name="label_hours">
+		Часы
+	</text>
 	<spinner label="Дней назад" name="spin_days_ago"/>
+	<text name="label_days">
+		Дни
+	</text>
 	<button label="Закрыть" label_selected="Закрыть" name="Close"/>
 </floater>

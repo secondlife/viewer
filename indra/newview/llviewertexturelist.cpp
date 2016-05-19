@@ -873,7 +873,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			LLPointer<LLViewerFetchedTexture> imagep = iter->second;
 			++iter; // safe to increment now
 
-			if(imagep->isInDebug())
+			if(imagep->isInDebug() || imagep->isUnremovable())
 			{
 				update_counter--;
 				continue; //is in debug, ignore.

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Delete Pref Preset" title="TERCİHLİ ÖN AYARI SİL">
+	<string name="title_graphic">
+		Grafik Ön Ayarını Sil
+	</string>
+	<string name="title_camera">
+		Kamera Ön Ayarını Sil
+	</string>
+	<text name="Preset">
+		Bir ön ayar seçin
+	</text>
+	<button label="Sil" name="delete"/>
+	<button label="İptal" name="cancel"/>
+</floater>

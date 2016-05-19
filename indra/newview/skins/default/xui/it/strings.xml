@@ -35,11 +35,8 @@
 		Inizializzazione grafica non riuscita. Aggiorna il driver della scheda grafica!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
-	<string name="AboutCompiler">
-		Generato con [COMPILER] versione [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Tu sei a [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] che si trova a &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -61,11 +58,10 @@ Scheda grafica: [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		Versione OpenGL: [OPENGL_VERSION]
 
-Versione libcurl: [LIBCURL_VERSION]
 Versione J2C Decoder: [J2C_VERSION]
 Versione Driver audio: [AUDIO_DRIVER_VERSION]
-Versione Qt Webkit: [QT_WEBKIT_VERSION]
-Versione Server voice: [VOICE_VERSION]
+Versione LLCEFLib/CEF: [LLCEFLIB_VERSION]
+Versione server voce: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Pacchetti perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -174,6 +170,12 @@ Versione Server voice: [VOICE_VERSION]
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		Griglia principale di Second Life (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Griglia per beta test di Second Life (Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download.
@@ -450,6 +452,9 @@ Prova ad accedere nuovamente tra un minuto.
 		Non puoi indossare una cartella che contiene più di [AMOUNT] elementi. Per modificare questo limite, accedi ad Avanzate &gt; Mostra impostazioni di debug &gt; WearFolderLimit.
 	</string>
 	<string name="TooltipPrice" value="L$ [AMOUNT]:"/>
+	<string name="TooltipSLIcon">
+		Questo link porta a una pagina nel dominio ufficiale SecondLife.com o LindenLab.com.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		Non puoi rezzare articoli dalla cartella degli annunci di Marketplace
 	</string>
@@ -469,7 +474,7 @@ Prova ad accedere nuovamente tra un minuto.
 		Il numero di articoli in magazzino è maggiore di [AMOUNT].
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		Puoi trascinare articoli o cartelle solo nella scheda TUTTI. Seleziona la scheda e sposta nuovamente gli articoli o le cartelle.
+		Puoi trascinare elementi o cartelle solo nelle schede TUTTI o NON ASSOCIATO. Seleziona una di quelle schede e sposta nuovamente gli elementi o le cartelle.
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		Almeno uno di questi oggetti non può essere venduto o trasferito
@@ -553,6 +558,9 @@ Prova ad accedere nuovamente tra un minuto.
 		Clicca per avviare il comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL attuale: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Fai clic per comporre un&apos;email
+	</string>
 	<string name="SLurlLabelTeleport">
 		Teleportati a
 	</string>
@@ -1072,7 +1080,7 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="AgentNameSubst">
 		(Tu)
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Omette gli avvisi durante la gestione degli elenchi di accesso alle proprietà immobiliari
 	</string>
@@ -1845,6 +1853,21 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="TodayOld">
 		Iscritto oggi
 	</string>
+	<string name="av_render_everyone_now">
+		Ora ti possono vedere tutti.
+	</string>
+	<string name="av_render_not_everyone">
+		Alcune persone vicine a te potrebbero non eseguire il tuo rendering.
+	</string>
+	<string name="av_render_over_half">
+		La maggioranza delle persone vicine a te potrebbe non eseguire il tuo rendering.
+	</string>
+	<string name="av_render_most_of">
+		La gran parte delle persone vicine a te potrebbe non eseguire il tuo rendering.
+	</string>
+	<string name="av_render_anyone">
+		Tutte le persone vicine a te potrebbero non eseguire il tuo rendering.
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] anno
 	</string>
@@ -1962,6 +1985,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="CompileQueueUnknownFailure">
 		Errore di dowload sconosciuto
 	</string>
+	<string name="CompileNoExperiencePerm">
+		Saltato lo script [SCRIPT] con l&apos;esperienza [EXPERIENCE].
+	</string>
 	<string name="CompileQueueTitle">
 		Avanzamento ricompilazione
 	</string>
@@ -2006,9 +2032,6 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="GroupsNone">
 		nessuno
-	</string>
-	<string name="CompileNoExperiencePerm">
-		Saltato lo script [SCRIPT] con l&apos;esperienza [EXPERIENCE].
 	</string>
 	<string name="Group" value="(gruppo)"/>
 	<string name="Unknown">
@@ -5293,18 +5316,6 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="UserDictionary">
 		[User]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Non verranno registrate più le conversazioni. Per riprendere a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Nessuna conversazione in registro. Dopo che hai contattato qualcuno o se qualcuno ti contatta, una voce del registro verrà mostrata qui.
-	</string>
-	<string name="loading_chat_logs">
-		Caricamento in corso...
-	</string>
 	<string name="experience_tools_experience">
 		Esperienza
 	</string>
@@ -5360,7 +5371,7 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 		ti teletrasporta
 	</string>
 	<string name="ExperiencePermission12">
-		accettazione automaticamente delle autorizzazioni per le esperienze
+		accettazione automatica delle autorizzazioni per le esperienze
 	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		ha eseguito un&apos;operazione sconosciuta: [Permission]
@@ -5385,5 +5396,38 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Autorizzazione
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Non verranno registrate più le conversazioni. Per riprendere a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Nessuna conversazione in registro. Dopo che hai contattato qualcuno o se qualcuno ti contatta, una voce del registro verrà mostrata qui.
+	</string>
+	<string name="loading_chat_logs">
+		Caricamento in corso...
+	</string>
+	<string name="preset_combo_label">
+		-Lista vuota-
+	</string>
+	<string name="Default">
+		Predefinita
+	</string>
+	<string name="none_paren_cap">
+		(Nulla)
+	</string>
+	<string name="no_limit">
+		Senza limite
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		La forma della fisica contiene triangoli troppo piccoli. Prova a semplificare il modello della fisica.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		La forma della fisica contiene dati di conferma errati. Prova a correggere il modello della fisica.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		La versione della forma fisica non è corretta. Imposta la versione corretta per il modello della fisica.
 	</string>
 </strings>

@@ -1,22 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="beacons" title="EMITERY">
 	<panel name="beacons_panel">
 		<text name="label_show">
-			Pokaż emitery:
+			Pokaż:
 		</text>
-		<check_box label="Emitery" name="beacons"/>
-		<check_box label="Podkreśl emitery" name="highlights"/>
-		<text name="beacon_width_label" tool_tip="Zasięg emiterów">
+		<check_box label="Emitery" name="beacons" />
+		<check_box label="Podświetlenia" name="highlights" />
+		<text tool_tip="Zasięg emiterów" name="beacon_width_label">
 			Szer.
 		</text>
 		<text name="label_objects">
 			Dla tych obiektów:
 		</text>
-		<check_box label="Obiekty fizyczne" name="physical"/>
-		<check_box label="Obiekty skryptowane" name="scripted"/>
-		<check_box label="Obiekty dotykalne" name="touch_only"/>
-		<check_box label="Źródła dźwięku" name="sounds"/>
-		<check_box label="Źródła cząsteczek" name="particles"/>
-		<check_box label="Źródła mediów" name="moapbeacon"/>
+		<check_box label="Fizycznych" name="physical" />
+		<check_box label="Skryptowanych" name="scripted" />
+		<check_box label="Dotykalnych" name="touch_only" />
+		<check_box label="Źródeł dźwięku" name="sounds" />
+		<check_box label="Źródeł cząsteczek" name="particles" />
+		<check_box label="Źródeł mediów" name="moapbeacon" />
 	</panel>
 </floater>

@@ -13,6 +13,12 @@
 	</scroll_list>
 	<button label="添加..." name="autoreplace_add_entry"/>
 	<button label="移除" name="autoreplace_delete_entry"/>
+	<text name="autoreplace_keyword_txt">
+		關鍵字：
+	</text>
+	<text name="autoreplace_replacement_txt">
+		取代文字：
+	</text>
 	<button label="儲存項目" name="autoreplace_save_entry" tool_tip="儲存此項目。"/>
 	<button label="儲存變更" name="autoreplace_save_changes" tool_tip="儲存所有變更。"/>
 	<button label="取消" name="autoreplace_cancel" tool_tip="放棄所有變更。"/>

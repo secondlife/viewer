@@ -66,6 +66,9 @@ public:
 	/// return the channel name, e.g. "Second Life"
 	static const std::string &getChannel();
 	
+    /// return the CMake build type
+    static const std::string &getBuildConfig();
+
 	/// reset the channel name used by the viewer.
 	static void resetChannel(const std::string& channel);
 

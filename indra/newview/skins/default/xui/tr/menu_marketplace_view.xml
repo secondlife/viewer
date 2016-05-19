@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_marketplace_sort">
+	<menu_item_check label="Ada göre sırala" name="sort_by_name"/>
+	<menu_item_check label="En son yapılana göre sırala" name="sort_by_recent"/>
 	<menu_item_check label="Stok miktarına göre sırala (düşükten yükseğe)" name="sort_by_stock_amount"/>
 	<menu_item_check label="Sadece ilan klasörlerini göster" name="show_only_listing_folders"/>
 </toggleable_menu>

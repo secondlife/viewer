@@ -10,13 +10,13 @@
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
 	<floater.string name="Minutes">
-		[MINUTES] dakika
+		[MINUTES] dak.
 	</floater.string>
 	<floater.string name="Minute">
-		dakika
+		dak.
 	</floater.string>
 	<floater.string name="Seconds">
-		[SECONDS] saniye
+		[SECONDS] sn.
 	</floater.string>
 	<floater.string name="Remaining">
 		kaldı
@@ -446,7 +446,7 @@ Sadece büyük parseller aramada görünür.
 			<spinner label="Erişim saatleri:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Her Zaman İzin Ver" name="AllowedText">
-					İzin Verilen Sakinler
+					İzin Verilen Sakinler ([COUNT])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listeli, [MAX] maksimum)"/>
 				<button label="Ekle" name="add_allowed"/>
@@ -454,7 +454,7 @@ Sadece büyük parseller aramada görünür.
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Yasakla" name="BanCheck">
-					Yasaklı Sakinler
+					Yasaklı Sakinler ([COUNT])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] listeli, [MAX] maksimum)"/>
 				<button label="Ekle" name="add_banned"/>

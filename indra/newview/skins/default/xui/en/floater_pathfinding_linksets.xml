@@ -46,6 +46,7 @@
   <floater.string name="linkset_is_restricted_non_volume_state">[restricted,concave]</floater.string>
   <floater.string name="linkset_choose_use">Choose linkset use...</floater.string>
   <panel
+      name="pathfinding_linksets_main"
       border="false"
       bevel_style="none"
       follows="left|top|right|bottom"
@@ -53,6 +54,7 @@
       height="226"
       width="1059">
     <text
+        name="linksets_filter_label"
         height="13"
         word_wrap="false"
         use_ellipses="false"
@@ -67,6 +69,7 @@
       Filter by:
     </text>
     <text
+        name="linksets_name_label"
         height="13"
         word_wrap="false"
         use_ellipses="false"
@@ -91,6 +94,7 @@
         name="filter_by_name"
         width="161" />
     <text
+        name="linksets_desc_label"
         height="13"
         word_wrap="false"
         use_ellipses="false"
@@ -279,6 +283,7 @@
       left="18"
       width="1039"/>
   <panel
+      name="pathfinding_linksets_actions"
       border="false"
       bevel_style="none"
       follows="left|right|bottom"
@@ -287,6 +292,7 @@
       height="67"
       width="1010">
     <text
+        name="linksets_actions_label"
         height="13"
         word_wrap="false"
         use_ellipses="false"
@@ -366,6 +372,7 @@
       left="18"
       width="1039"/>
   <panel
+      name="pathfinding_linksets_attributes"
       border="false"
       bevel_style="none"
       follows="left|right|bottom"
@@ -374,6 +381,7 @@
       height="75"
       width="1010">
     <text
+        name="linksets_attributes_label"
         height="13"
         word_wrap="false"
         use_ellipses="false"

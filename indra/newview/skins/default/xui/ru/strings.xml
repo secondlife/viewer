@@ -38,11 +38,8 @@
 		Ошибка инициализации графики. Обновите графический драйвер!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
-	<string name="AboutCompiler">
-		Использован компилятор [COMPILER], версия [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Вы в точке [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -64,10 +61,9 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	<string name="AboutLibs">
 		Версия OpenGL: [OPENGL_VERSION]
 
-Версия libcurl: [LIBCURL_VERSION]
 Версия декодера J2C: [J2C_VERSION]
 Версия драйвера звука: [AUDIO_DRIVER_VERSION]
-Версия Qt Webkit: [QT_WEBKIT_VERSION]
+Версия LLCEFLib/CEF: [LLCEFLIB_VERSION]
 Версия голосового сервера: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -177,6 +173,12 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		Основная сетка Second Life (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Сетка Second Life для бета-тестирования (Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download
@@ -453,6 +455,9 @@ support@secondlife.com.
 		Нельзя носить папку, содержащую более [AMOUNT] вещей.  Это ограничение можно изменить в меню «Дополнительно &gt; Настройки отладки &gt; WearFolderLimit.
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipSLIcon">
+		Эта ссылка ведет на страницу официального домена SecondLife.com или LindenLab.com.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		Нельзя выложить предметы из папки списков товаров торгового центра
 	</string>
@@ -472,7 +477,7 @@ support@secondlife.com.
 		Количество предметов не может превышать [AMOUNT].
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		Можно перетаскивать предметы или папки только на вкладку «ВСЕ». Выберите эту вкладку и переместите предметы или папки снова.
+		Можно перетаскивать предметы или папки только на вкладку «ВСЕ» или «НЕСВЯЗАННЫЕ». Выберите одну из этих вкладок и переместите предметы или папки снова.
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		Часть этих объектов нельзя продать или передать
@@ -556,6 +561,9 @@ support@secondlife.com.
 		Щелкните, чтобы выполнить команду secondlife://
 	</string>
 	<string name="CurrentURL" value="Текущий URL-адрес: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Щелкните, чтобы написать письмо
+	</string>
 	<string name="SLurlLabelTeleport">
 		Телепортироваться в
 	</string>
@@ -1078,7 +1086,7 @@ support@secondlife.com.
 	<string name="AgentNameSubst">
 		(Вы)
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Отключить извещения при управлении списками доступа к землевладениям
 	</string>
@@ -1857,6 +1865,21 @@ support@secondlife.com.
 	<string name="TodayOld">
 		Сегодня
 	</string>
+	<string name="av_render_everyone_now">
+		Теперь все могут видеть вас.
+	</string>
+	<string name="av_render_not_everyone">
+		Все окружающие участники не могут отрисовать вас.
+	</string>
+	<string name="av_render_over_half">
+		Более половины окружающих участников не могут отрисовать вас.
+	</string>
+	<string name="av_render_most_of">
+		Большинство окружающих участников не может отрисовать вас.
+	</string>
+	<string name="av_render_anyone">
+		Никто из окружающих участников не может отрисовать вас.
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] год
 	</string>
@@ -1974,6 +1997,9 @@ support@secondlife.com.
 	<string name="CompileQueueUnknownFailure">
 		Неизвестный сбой загрузки
 	</string>
+	<string name="CompileNoExperiencePerm">
+		Пропуск скрипта [SCRIPT] с приключением [EXPERIENCE].
+	</string>
 	<string name="CompileQueueTitle">
 		Ход повторной компиляции
 	</string>
@@ -2018,9 +2044,6 @@ support@secondlife.com.
 	</string>
 	<string name="GroupsNone">
 		нет
-	</string>
-	<string name="CompileNoExperiencePerm">
-		Пропуск скрипта [SCRIPT] с приключением [EXPERIENCE].
 	</string>
 	<string name="Group" value="(группа)"/>
 	<string name="Unknown">
@@ -5392,18 +5415,6 @@ support@secondlife.com.
 	<string name="UserDictionary">
 		[Пользователь]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Разговоры не записываются. Чтобы начать запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Разговоры больше не будут записываться. Чтобы восстановить запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Нет зарегистрированных разговоров. Если вы обратитесь к кому-то или наоборот, в журнале появится новая запись.
-	</string>
-	<string name="loading_chat_logs">
-		Загрузка...
-	</string>
 	<string name="experience_tools_experience">
 		Приключение
 	</string>
@@ -5459,7 +5470,7 @@ support@secondlife.com.
 		телепортировать вас
 	</string>
 	<string name="ExperiencePermission12">
-		автоматически принимать разрешения приключения
+		автоматически принимать разрешения для приключения
 	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		выполнил неизвестную операцию: [Permission]
@@ -5484,5 +5495,38 @@ support@secondlife.com.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Разрешение
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Разговоры не записываются. Чтобы начать запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Разговоры больше не будут записываться. Чтобы восстановить запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Нет зарегистрированных разговоров. Если вы обратитесь к кому-то или наоборот, в журнале появится новая запись.
+	</string>
+	<string name="loading_chat_logs">
+		Загрузка...
+	</string>
+	<string name="preset_combo_label">
+		-Пустой список-
+	</string>
+	<string name="Default">
+		По умолчанию
+	</string>
+	<string name="none_paren_cap">
+		(нет)
+	</string>
+	<string name="no_limit">
+		Без ограничений
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		Физическая форма содержит слишком маленькие треугольники. Попробуйте упростить физическую модель.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		Физическая форма содержит неправильные данные подтверждения. Попробуйте исправить физическую модель.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		У физической формы нет правильной версии. Задайте правильную версию для физической модели.
 	</string>
 </strings>

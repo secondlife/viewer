@@ -3,6 +3,7 @@
 	<tab_container name="about_tab">
 		<panel label="Info" name="support_panel">
 			<button label="In Zwischenablage kopieren" name="copy_btn"/>
+			<button label="Nach Updates suchen" name="update_btn"/>
 		</panel>
 		<panel label="Danksagung" name="credits_panel">
 			<text name="linden_intro">Second Life wird präsentiert von den Lindens 

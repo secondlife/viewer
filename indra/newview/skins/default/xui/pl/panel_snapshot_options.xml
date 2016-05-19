@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_snapshot_options">
+	<button label="Zapisz na dysku twardym" name="save_to_computer_btn" />
+	<button label="Zapisz do Szafy ([AMOUNT]L$)" name="save_to_inventory_btn" />
+	<button label="Wyślij na mój Kanał" name="save_to_profile_btn" />
+	<button label="Załaduj na Facebook" name="send_to_facebook_btn" />
+	<button label="Załaduj na Twitter" name="send_to_twitter_btn" />
+	<button label="Załaduj na Flickr" name="send_to_flickr_btn" />
+	<button label="Wyślij przez e-mail" name="save_to_email_btn" />
+</panel>

@@ -1317,16 +1317,18 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
 				// For now, we use the URL for the OpenID POST request since it will have the same authority
 				// as the domain field.
 				// (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
-				url = std::string(sOpenIDURL.mURI) + "://" + std::string(sOpenIDURL.mAuthority);
+				// MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
+				// down.
+                std::string cefUrl(std::string(sOpenIDURL.mURI) + "://" + std::string(sOpenIDURL.mAuthority));
 
-				media_instance->getMediaPlugin()->setCookie(url, cookie_name, cookie_value, cookie_host, cookie_path, httponly, secure);
+				media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host, cookie_path, httponly, secure);
 			}
 		}
 	}
 
-	// NOTE: this is the original OpenID cookie code, so of which is no longer needed now that we
-	// are using CEF - it's very intertwined with other code so, for the moment, I'm going to
-	// leave it alone and make a task to come back to it once we're sure the CEF cookie code is robust.
+    // Note: Rider: MAINT-6392 - Some viewer code requires access to the my.sl.com openid cookie for such 
+    // actions as posting snapshots to the feed.  This is handled through HTTPCore rather than CEF and so 
+    // we must learn to SHARE the cookies.
 
 	// Do a web profile get so we can store the cookie 
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");

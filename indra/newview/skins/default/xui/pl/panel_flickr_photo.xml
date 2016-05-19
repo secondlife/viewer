@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_flickr_photo">
+	<combo_box name="resolution_combobox" tool_tip="Rozdzielczość obrazka">
+		<combo_box.item label="Obecne okno" name="CurrentWindow" />
+	</combo_box>
+	<combo_box name="filters_combobox" tool_tip="Filtry obrazka">
+		<combo_box.item label="Bez filtru" name="NoFilter" />
+	</combo_box>
+	<text name="working_lbl">
+		Odświeżanie...
+	</text>
+	<button label="Odśwież" name="new_snapshot_btn" tool_tip="Kliknij, aby odświeżyć" />
+	<button label="Podgląd" name="big_preview_btn" tool_tip="Kliknij, aby przełączyć podgląd" />
+	<text name="title_label">
+		Tytuł:
+	</text>
+	<text name="description_label">
+		Opis:
+	</text>
+	<check_box label="Dołącz lokalizację z SL na końcu opisu" name="add_location_cb" />
+	<text name="tags_label">
+		Tagi:
+	</text>
+	<text name="tags_help_label">
+		Rozdziel tagi spacjami
+Użyj "" dla tagów wielosłownych
+	</text>
+	<combo_box name="rating_combobox" tool_tip="Klasyfikacja treści Flickr">
+		<combo_box.item label="Flickr: Treść bezpieczna" name="SafeRating" />
+		<combo_box.item label="Flickr: Treść umiarkowana" name="ModerateRating" />
+		<combo_box.item label="Flickr: Treść ograniczona" name="RestrictedRating" />
+	</combo_box>
+	<button label="Wyślij" name="post_photo_btn" />
+	<button label="Anuluj" name="cancel_photo_btn" />
+</panel>

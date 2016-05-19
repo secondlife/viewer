@@ -64,7 +64,7 @@
 		<menu_item_call label="Istantanea" name="Take Snapshot"/>
 		<menu_item_call label="Profilo del luogo" name="Place Profile"/>
 		<menu_item_call label="Informazioni sul terreno" name="About Land"/>
-		<menu_item_call label="Regione/proprietà immobiliare" name="RegionEstate"/>
+		<menu_item_call label="Regione / proprietà immobiliare" name="RegionEstate"/>
 		<menu_item_call label="Terreni posseduti..." name="My Land"/>
 		<menu_item_call label="Acquista questo terreno" name="Buy Land"/>
 		<menu label="Mostra" name="LandShow">
@@ -180,6 +180,7 @@
 		<menu_item_call label="Segnala bug" name="Report Bug"/>
 		<menu_item_call label="Urti, spinte e contatti" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
+		<menu_item_call label="Cerca aggiornamenti" name="Check for Updates"/>
 	</menu>
 	<menu label="Avanzate" name="Advanced">
 		<menu_item_call label="Ridisegna le texture" name="Rebake Texture"/>
@@ -193,7 +194,7 @@
 			<menu_item_call label="Misuratore lag" name="Lag Meter"/>
 			<menu_item_check label="Barra statistiche" name="Statistics Bar"/>
 			<menu_item_call label="Statistiche caricamento scena" name="Scene Load Statistics"/>
-			<menu_item_check label="Mostra peso visualizzazione per avatar" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Mostra informazioni sulla complessità dell&apos;avatar" name="Avatar Draw Info"/>
 		</menu>
 		<menu label="Evidenziazione e visibilità" name="Highlighting and Visibility">
 			<menu_item_check label="Effetto marcatore lampeggiante" name="Cheesy Beacon"/>
@@ -298,8 +299,6 @@
 			<menu_item_check label="Particelle" name="Particles"/>
 			<menu_item_check label="Giunti" name="Joints"/>
 			<menu_item_check label="Vettori vento" name="Wind Vectors"/>
-			<menu_item_check label="Complessità rendering" name="rendercomplexity"/>
-			<menu_item_check label="Byte collegamento" name="attachment bytes"/>
 			<menu_item_check label="Scolpisci" name="Sculpt"/>
 			<menu label="Densità texture" name="Texture Density">
 				<menu_item_check label="Nessuna" name="None"/>
@@ -373,7 +372,6 @@
 			<menu_item_call label="Debug texture dell&apos;avatar" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="Texture HTTP" name="HTTP Textures"/>
-		<menu_item_check label="Inventario HTTP" name="HTTP Inventory"/>
 		<menu_item_call label="Attiva Visual Leak Detector" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Finestra Console al prossimo lancio" name="Console Window"/>
 		<menu label="Imposta livello di registrazione" name="Set Logging Level">

@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_classified_info">
+	<panel.string name="type_pg">
+		Zawartość General
+	</panel.string>
 	<panel.string name="l$_price">
-		L$[PRICE]
+		[PRICE]L$
 	</panel.string>
 	<panel.string name="click_through_text_fmt">
-		[TELEPORT] teleport, [MAP] map, [PROFILE] profile
-	</panel.string>
-	<panel.string name="date_fmt">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+		[TELEPORT] teleport, [MAP] mapa, [PROFILE] profil
 	</panel.string>
 	<panel.string name="auto_renew_on">
 		Aktywne
@@ -15,32 +15,27 @@
 	<panel.string name="auto_renew_off">
 		Wyłączone
 	</panel.string>
-	<text name="title" value="Reklama"/>
+	<text name="title" value="Reklama" />
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text_editor name="classified_name" value="[name]"/>
-			<text name="classified_location_label" value="Miejsce:"/>
-			<text_editor name="classified_location" value="[loading...]"/>
-			<text name="content_type_label" value="Rodzaj Zawartości:"/>
-			<text_editor name="content_type" value="[content type]"/>
-			<text name="category_label" value="Kategoria:"/>
-			<text_editor name="category" value="[category]"/>
-			<text name="creation_date_label" value="Data stworzenia:"/>
-			<text_editor name="creation_date" tool_tip="Data stworzenia" value="[date]"/>
-			<text name="price_for_listing_label" value="Cena za wyświetlenie:"/>
-			<text_editor name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." value="[price]"/>
+			<text name="classified_location_label" value="Miejsce:" />
+			<text name="content_type_label" value="Zawartość:" />
+			<text name="category_label" value="Kategoria:" />
+			<text name="creation_date_label" value="Data utworzenia:" />
+			<text_editor name="creation_date" tool_tip="Data utworzenia" />
+			<text name="price_for_listing_label" value="Koszt listowania:" />
+			<text_editor name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." />
 			<layout_stack name="descr_stack">
 				<layout_panel name="clickthrough_layout_panel">
-					<text name="click_through_label" value="Kliknięcia:"/>
-					<text_editor name="click_through_text" tool_tip="Kliknij według daty" value="[clicks]"/>
+					<text name="click_through_label" value="Kliknięcia:" />
+					<text_editor name="click_through_text" tool_tip="Współczynnik klikalności" />
 				</layout_panel>
 				<layout_panel name="price_layout_panel">
-					<text name="auto_renew_label" value="Automatyczne przedłużenie:"/>
-					<text name="auto_renew" value="Aktywne"/>
+					<text name="auto_renew_label" value="Autoprzedłużanie:" />
+					<text name="auto_renew" value="Aktywne" />
 				</layout_panel>
 				<layout_panel name="descr_layout_panel">
-					<text name="classified_desc_label" value="Opis:"/>
-					<text_editor name="classified_desc" value="[description]"/>
+					<text name="classified_desc_label" value="Opis:" />
 				</layout_panel>
 			</layout_stack>
 		</panel>
@@ -48,13 +43,13 @@
 	<panel name="buttons">
 		<layout_stack name="layout_stack1">
 			<layout_panel name="layout_panel1">
-				<button label="Teleportuj" name="teleport_btn"/>
+				<button label="Teleportuj" name="teleport_btn" />
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="Mapa" name="show_on_map_btn"/>
+				<button label="Mapa" name="show_on_map_btn" />
 			</layout_panel>
 			<layout_panel name="edit_btn_lp">
-				<button label="Edytuj" name="edit_btn"/>
+				<button label="Edytuj" name="edit_btn" />
 			</layout_panel>
 		</layout_stack>
 	</panel>

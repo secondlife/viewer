@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="アイテムのプロフィール">
 	<panel.string name="loading_experience">
-		（ローディング）
+		(ローディング)
 	</panel.string>
 	<panel.string name="unknown">
 		（不明）

@@ -66,7 +66,7 @@
 		<action description="Enviar aviso" longdescription="Membros que exercem cargos com esta função podem enviar avisos na seção Avisos." name="notices send" value="42"/>
 		<action description="Receber novos avisos e ver os anteriores" longdescription="Membros que exercem cargos com esta função podem receber e ler avisos antigos na seção Avisos." name="notices receive" value="43"/>
 	</action_set>
-	<action_set description="Estas funções incluem o poder de modificar as experiências desse grupo." name="experience_tools_experience">
+	<action_set description="Estas habilidades incluem o poder de modificar as experiências desse grupo." name="experience_tools_experience">
 		<action description="Administrador de experiência" longdescription="Os membros em uma função com essa permissão podem editar os metadados de uma experiência." name="experience admin" value="49"/>
 		<action description="Colaborador de experiência" longdescription="Os membros em uma função com essa permissão podem contribuir com scripts para uma experiência." name="experience contributor" value="50"/>
 	</action_set>

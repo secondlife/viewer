@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="experince_list_editor">
 	<panel.string name="loading">
-		wird geladen...
+		Laden...
 	</panel.string>
 	<panel.string name="panel_allowed">
 		Zulässige Erlebnisse:

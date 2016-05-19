@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="gesture_preview">
 	<floater.string name="step_anim">
-		Animacja
+		Animacja:
 	</floater.string>
 	<floater.string name="step_sound">
 		Dźwięk:
@@ -10,13 +10,10 @@
 		Czat:
 	</floater.string>
 	<floater.string name="step_wait">
-		Wstrzymaj:
-	</floater.string>
-	<floater.string name="stop_txt">
-		Stop
+		Czekaj:
 	</floater.string>
 	<floater.string name="preview_txt">
-		Pokaż
+		Podgląd
 	</floater.string>
 	<floater.string name="none_text">
 		-- Brak --
@@ -28,46 +25,42 @@
 		Opis:
 	</text>
 	<text name="trigger_label">
-		Włączanie:
+		Włącznik:
 	</text>
-	<text name="replace_text" tool_tip="Zmień włączającą frazę na inną. Na przykład zmiana &apos;witam&apos; na &apos;cześć&apos; zmieni czat &apos;Chciałem powiedzieć witam&apos; na &apos;Chciałem powiedzieć cześć&apos; i pokaże animację!">
+	<text name="replace_text" tool_tip="Zmień włączającą frazę na inną. Na przykład zmiana &apos;witam&apos; na &apos;cześć&apos; zmieni czat &apos;Chciałem powiedzieć witam&apos; na &apos;Chciałem powiedzieć cześć&apos; i pokaże animację/gest!">
 		Zamień na:
 	</text>
-	<line_editor name="replace_editor" tool_tip="Zmień włączającą frazę na inną. Na przykład zmiana &apos;witam&apos; na &apos;cześć&apos; zmieni czat &apos;Chciałem powiedzieć witam&apos; na &apos;Chciałem powiedzieć cześć&apos; i pokaże animację!"/>
+	<line_editor name="replace_editor" tool_tip="Zmień włączającą frazę na inną. Na przykład zmiana &apos;witam&apos; na &apos;cześć&apos; zmieni czat &apos;Chciałem powiedzieć witam&apos; na &apos;Chciałem powiedzieć cześć&apos; i pokaże animację/gest!" />
 	<text name="key_label">
 		Skrót:
 	</text>
-	<combo_box label="Brak" name="modifier_combo"/>
-	<combo_box label="Brak" name="key_combo"/>
+	<combo_box label="Brak" name="modifier_combo" />
+	<combo_box label="Brak" name="key_combo" />
 	<text name="library_label">
 		Zbiór:
 	</text>
 	<scroll_list name="library_list">
-		<scroll_list.rows name="action_animation" value="Animacja"/>
-		<scroll_list.rows name="action_sound" value="Dźwięk"/>
-		<scroll_list.rows name="action_chat" value="Czat"/>
-		<scroll_list.rows name="action_wait" value="Wstrzymaj"/>
+		<scroll_list.rows name="action_animation" value="Animacja" />
+		<scroll_list.rows name="action_sound" value="Dźwięk" />
+		<scroll_list.rows name="action_chat" value="Czat" />
+		<scroll_list.rows name="action_wait" value="Czekaj" />
 	</scroll_list>
-	<button label="Dodaj &gt;&gt;" name="add_btn"/>
+	<button label="Dodaj &gt;&gt;" name="add_btn" />
 	<text name="steps_label">
 		Etapy:
 	</text>
-	<button label="W górę" name="up_btn"/>
-	<button label="W dół" name="down_btn"/>
-	<button label="Usuń" name="delete_btn"/>
+	<button label="W górę" name="up_btn" />
+	<button label="W dół" name="down_btn" />
+	<button label="Usuń" name="delete_btn" />
 	<text name="options_text">
 		(opcje)
 	</text>
-	<radio_group name="animation_trigger_type">
-		<radio_item label="Start" name="start"/>
-		<radio_item label="Stop" name="stop"/>
-	</radio_group>
-	<check_box label="do końca animacji" name="wait_anim_check"/>
-	<check_box label="czas w sekundach:" name="wait_time_check"/>
+	<check_box label="do końca animacji" name="wait_anim_check" />
+	<check_box label="czas w sekundach:" name="wait_time_check" />
 	<text name="help_label">
-		Wszystkie etapy nastąpią razem, chyba, że dodasz pauzy.
+		Wszystkie etapy nastąpią razem chyba, że dodasz pauzy.
 	</text>
-	<check_box label="Aktywna" name="active_check" tool_tip="Aktywne gesturki można włączać używając przypisanej frazy w czacie albo używając przypisanego klawisza skrótowego. W przypaku konfliktu przypisań gesty zazwyczaj nie będą działać."/>
-	<button label="Pokaż" name="preview_btn"/>
-	<button label="Zapisz" name="save_btn"/>
+	<check_box label="Aktywny" name="active_check" tool_tip="Aktywne gesty można włączać używając przypisanej frazy w czacie albo używając przypisanego klawisza skrótowego. W przypaku konfliktu przypisań gesty zazwyczaj nie będą działać." />
+	<button label="Podgląd" name="preview_btn" />
+	<button label="Zapisz" name="save_btn" />
 </floater>

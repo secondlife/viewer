@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="prefs_graphics_advanced" title="詳細グラフィックス設定">
+	<text name="GeneralText">
+		全般
+	</text>
+	<slider label="描画距離：" name="DrawDistance"/>
+	<text name="DrawDistanceMeterText2">
+		m
+	</text>
+	<slider label="最大パーティクル数：" name="MaxParticleCount"/>
+	<slider label="ポストプロセス品質：" name="RenderPostProcess"/>
+	<text name="PostProcessText">
+		低
+	</text>
+	<text name="AvatarText">
+		アバター
+	</text>
+	<slider label="最大の複雑さ：" name="IndirectMaxComplexity" tool_tip="どの時点で複雑な表示のアバターをベタ色の人形として表示するかを管理します"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
+	<slider label="簡略化せずに描画する最大数：" name="IndirectMaxNonImpostors"/>
+	<text name="IndirectMaxNonImpostorsText">
+		0
+	</text>
+	<slider label="詳細：" name="AvatarMeshDetail"/>
+	<text name="AvatarMeshDetailText">
+		低
+	</text>
+	<slider label="物理演算：" name="AvatarPhysicsDetail"/>
+	<text name="AvatarPhysicsDetailText">
+		低
+	</text>
+	<text name="ShadersText">
+		ハードウェア
+	</text>
+	<slider label="テクスチャメモリ (MB)：" name="GraphicsCardTextureMemory" tool_tip="テクスチャに割り当てられたメモリの量。ビデオカードのメモリに既定。数値を下げるとパフォーマンスが向上しますが、テクスチャの精度が落ちることがあります。"/>
+	<slider label="フォグの距離比率：" name="fog"/>
+	<slider label="ガンマ：" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(0 でデフォルト、低いほど明るい)
+	</text>
+	<check_box label="異方的フィルタリング (有効にすると速度が低下)" name="ani"/>
+	<check_box initial_value="true" label="OpenGL Vertex Buffer Objects を有効化" name="vbo" tool_tip="最新のハードウェアでこのオプションを有効にするとパフォーマンスが向上します。ただし、古いハードウェアでは VBO の実装が貧弱なため、このオプションを有効にするとクラッシュする場合があります。"/>
+	<check_box initial_value="true" label="テクスチャ圧縮の有効化 (再起動後に反映)" name="texture compression" tool_tip="ビデオメモリでテクスチャを圧縮すると、一部のカラー品質を犠牲にして、高解像度のテクスチャをロードできます。"/>
+	<text name="antialiasing label">
+		アンチエイリアシング：
+	</text>
+	<combo_box label="アンチエイリアシング" name="fsaa">
+		<combo_box.item label="無効" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<text name="antialiasing restart">
+		(再起動後に反映)
+	</text>
+	<slider label="地形のメッシュの詳細：" name="TerrainMeshDetail"/>
+	<text name="TerrainMeshDetailText">
+		低
+	</text>
+	<slider label="木：" name="TreeMeshDetail"/>
+	<text name="TreeMeshDetailText">
+		低
+	</text>
+	<slider label="オブジェクト：" name="ObjectMeshDetail"/>
+	<text name="ObjectMeshDetailText">
+		低
+	</text>
+	<slider label="フレキシプリム：" name="FlexibleMeshDetail"/>
+	<text name="FlexibleMeshDetailText">
+		低
+	</text>
+	<check_box initial_value="true" label="透明な水" name="TransparentWater"/>
+	<check_box initial_value="true" label="バンプマッピングと光沢" name="BumpShiny"/>
+	<check_box initial_value="true" label="近くの光" name="LocalLights"/>
+	<check_box initial_value="true" label="基本シェーダー" name="BasicShaders" tool_tip="このオプションを無効にすると、グラフィックカードのドライバの種類によっては、クラッシュするのを防ぎます。"/>
+	<slider label="地形詳細：" name="TerrainDetail"/>
+	<text name="TerrainDetailText">
+		低
+	</text>
+	<check_box initial_value="true" label="アバターハードウェアスキﾆﾝｸﾞ" name="AvatarVertexProgram"/>
+	<check_box initial_value="true" label="アバターの布" name="AvatarCloth"/>
+	<text name="ReflectionsText">
+		水の反射：
+	</text>
+	<combo_box name="Reflections">
+		<combo_box.item label="最小" name="0"/>
+		<combo_box.item label="地形と樹木" name="1"/>
+		<combo_box.item label="すべての静止オブジェクト" name="2"/>
+		<combo_box.item label="すべてのアバターとオブジェクト" name="3"/>
+		<combo_box.item label="すべて" name="4"/>
+	</combo_box>
+	<check_box initial_value="true" label="周囲 (大気) シェーダー" name="WindLightUseAtmosShaders"/>
+	<slider label="空：" name="SkyMeshDetail"/>
+	<text name="SkyMeshDetailText">
+		低
+	</text>
+	<check_box initial_value="true" label="高度なライティングモデル" name="UseLightShaders"/>
+	<check_box initial_value="true" label="アンビエントオクルージョン" name="UseSSAO"/>
+	<check_box initial_value="true" label="フィールドの遠近感" name="UseDoF"/>
+	<text name="RenderShadowDetailText">
+		影：
+	</text>
+	<combo_box name="ShadowDetail">
+		<combo_box.item label="なし" name="0"/>
+		<combo_box.item label="太陽/月" name="1"/>
+		<combo_box.item label="太陽/月・プロジェクタ" name="2"/>
+	</combo_box>
+	<button label="推奨設定にリセット" name="Defaults"/>
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+</floater>

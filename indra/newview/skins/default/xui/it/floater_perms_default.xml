@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="perms default" title="DIRITTI DI CREAZIONE PREDEFINITI">
-	<panel label="Diritti predefiniti" name="default permissions"/>
+	<panel label="Diritti predefiniti" name="default permissions">
+		<text name="label_1">
+			Proprietario successivo:
+		</text>
+		<text name="label_2">
+			Copia
+		</text>
+		<text name="label_3">
+			Modifica
+		</text>
+		<text name="label_4">
+			Trasferisci
+		</text>
+		<text name="label_5">
+			Condividi con il gruppo
+		</text>
+		<text name="label_6">
+			Consenti a chiunque di copiare
+		</text>
+		<text name="label_7" tool_tip="Imposta autorizzazioni predefinite per la creazione degli oggetti">
+			Oggetti
+		</text>
+		<text name="label_8" tool_tip="Imposta autorizzazioni predefinite per gli elementi caricati">
+			Caricamenti
+		</text>
+		<text name="label_9" tool_tip="Imposta autorizzazioni predefinite per la creazione degli script">
+			Script
+		</text>
+		<text name="label_10" tool_tip="Imposta autorizzazioni predefinite per la creazione dei biglietti">
+			Biglietti
+		</text>
+		<text name="label_11" tool_tip="Imposta autorizzazioni predefinite per la creazione delle gesture">
+			Gesture
+		</text>
+		<text name="label_12" tool_tip="Imposta autorizzazioni predefinite per la creazione di vestiti o parti del corpo">
+			Indossabili
+		</text>
+	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Annulla" label_selected="Annulla" name="cancel"/>
 </floater>

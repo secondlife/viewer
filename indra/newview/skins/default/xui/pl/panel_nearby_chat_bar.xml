@@ -1,11 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="nearby_chat">
-	<string name="min_width">
-		192
-	</string>
-	<string name="max_width">
-		320
-	</string>
-	<line_editor label="Kliknij tutaj aby rozmawiać." name="chat_box" tool_tip="Naciśnij Enter aby mówić, Ctrl + Enter aby krzyknąć"/>
-	<button name="show_nearby_chat" tool_tip="Pokazuje/ukrywa pobliski czat"/>
+	<line_editor label="Kliknij tutaj aby rozmawiać." name="chat_box" tool_tip="Naciśnij Enter aby mówić, Ctrl+Enter aby krzyknąć" />
+	<button name="show_nearby_chat" tool_tip="Pokazuje/ukrywa czat lokalny" />
 </panel>
