@@ -60,6 +60,8 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 
+#include "llavatarpropertiesprocessor.h"
+
 #if LL_MSVC
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
@@ -68,7 +70,7 @@
 namespace 
 {
     const S32   BAKE_RETRY_MAX_COUNT = 5;
-    const F32   BAKE_RETRY_TIMEOUT = 2.0F;
+    const F32   BAKE_RETRY_TIMEOUT = 4.0F;
 }
 
 // *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
@@ -3493,9 +3495,14 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
             // on multiple machines.
             if (result.has("expected"))
             {
-
                 S32 expectedCofVersion = result["expected"].asInteger();
                 LL_WARNS("Avatar") << "Server expected " << expectedCofVersion << " as COF version" << LL_ENDL;
+
+                // Force an update texture request for ourself.  The message will return
+                // through the UDP and be handled in LLVOAvatar::processAvatarAppearance
+                // this should ensure that we receive a new canonical COF from the sim
+                // host. Hopefully it will return before the timeout.
+                LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(gAgent.getID());
 
                 bRetry = true;
                 // Wait for a 1/2 second before trying again.  Just to keep from asking too quickly.
