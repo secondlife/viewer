@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="prefs_graphics_advanced" title="ДОПОЛНИТЕЛЬНЫЕ НАСТРОЙКИ ГРАФИКИ">
+	<text name="GeneralText">
+		Общие
+	</text>
+	<slider label="Дальность отрисовки:" name="DrawDistance"/>
+	<text name="DrawDistanceMeterText2">
+		м
+	</text>
+	<slider label="Макс. количество частиц:" name="MaxParticleCount"/>
+	<slider label="Качество постобработки:" name="RenderPostProcess"/>
+	<text name="PostProcessText">
+		Низкое
+	</text>
+	<text name="AvatarText">
+		Аватар
+	</text>
+	<slider label="Максимальная сложность:" name="IndirectMaxComplexity" tool_tip="Указывает расстояние, начиная с которого визуально сложный аватар рисуется как мармеладный мишка"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
+	<slider label="Макс. кол-во объемных:" name="IndirectMaxNonImpostors"/>
+	<text name="IndirectMaxNonImpostorsText">
+		0
+	</text>
+	<slider label="Детализация:" name="AvatarMeshDetail"/>
+	<text name="AvatarMeshDetailText">
+		Низкая
+	</text>
+	<slider label="Физика:" name="AvatarPhysicsDetail"/>
+	<text name="AvatarPhysicsDetailText">
+		Низкая
+	</text>
+	<text name="ShadersText">
+		Аппаратура
+	</text>
+	<slider label="Память для текстур (МБ):" name="GraphicsCardTextureMemory" tool_tip="Объем памяти, отводимый для текстур. По умолчанию – объем памяти видеокарты. Уменьшение поможет увеличить производительность, но текстуры могут стать размытыми."/>
+	<slider label="Дистанция тумана:" name="fog"/>
+	<slider label="Гамма:" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(чем меньше, тем ярче, 0 – яркость по умолчанию)
+	</text>
+	<check_box label="Анизотропная фильтрация (медленнее, если включено)" name="ani"/>
+	<check_box initial_value="true" label="Включить объекты вершинных буферов OpenGL" name="vbo" tool_tip="Включение этого параметра на современном оборудовании даст увеличение производительности.  Однако на старом оборудовании это может привести к сбою приложения."/>
+	<check_box initial_value="true" label="Разрешить сжатие текстур (требует перезагрузки)" name="texture compression" tool_tip="Сжатие текстур в видеопамяти, что позволяет загружать текстуры большего размера за счет некоторого падения качества цвета."/>
+	<text name="antialiasing label">
+		Сглаживание:
+	</text>
+	<combo_box label="Сглаживание" name="fsaa">
+		<combo_box.item label="Выключено" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<text name="antialiasing restart">
+		(требуется перезапуск)
+	</text>
+	<slider label="Детализация меша:" name="TerrainMeshDetail"/>
+	<text name="TerrainMeshDetailText">
+		Низкая
+	</text>
+	<slider label="Деревья:" name="TreeMeshDetail"/>
+	<text name="TreeMeshDetailText">
+		Низкая
+	</text>
+	<slider label="Объекты:" name="ObjectMeshDetail"/>
+	<text name="ObjectMeshDetailText">
+		Низкая
+	</text>
+	<slider label="Гибкие примитивы:" name="FlexibleMeshDetail"/>
+	<text name="FlexibleMeshDetailText">
+		Низкая
+	</text>
+	<check_box initial_value="true" label="Прозрачность воды" name="TransparentWater"/>
+	<check_box initial_value="true" label="Рельефность и сияние" name="BumpShiny"/>
+	<check_box initial_value="true" label="Локальный свет" name="LocalLights"/>
+	<check_box initial_value="true" label="Базовые шейдеры" name="BasicShaders" tool_tip="Отключение этого параметра может предотвратить зависание некоторых видеокарт"/>
+	<slider label="Ландшафт:" name="TerrainDetail"/>
+	<text name="TerrainDetailText">
+		Низкая
+	</text>
+	<check_box initial_value="true" label="Аппаратная отрисовка аватаров" name="AvatarVertexProgram"/>
+	<check_box initial_value="true" label="Одежда аватара" name="AvatarCloth"/>
+	<text name="ReflectionsText">
+		Вода отражает:
+	</text>
+	<combo_box name="Reflections">
+		<combo_box.item label="Минимум" name="0"/>
+		<combo_box.item label="Ландшафт и деревья" name="1"/>
+		<combo_box.item label="Все статичные объекты" name="2"/>
+		<combo_box.item label="Все аватары и объекты" name="3"/>
+		<combo_box.item label="Все" name="4"/>
+	</combo_box>
+	<check_box initial_value="true" label="Атмосферные шейдеры" name="WindLightUseAtmosShaders"/>
+	<slider label="Небо:" name="SkyMeshDetail"/>
+	<text name="SkyMeshDetailText">
+		Низкая
+	</text>
+	<check_box initial_value="true" label="Расширенная модель освещения" name="UseLightShaders"/>
+	<check_box initial_value="true" label="Объемный свет" name="UseSSAO"/>
+	<check_box initial_value="true" label="Глубина поля" name="UseDoF"/>
+	<text name="RenderShadowDetailText">
+		Тени:
+	</text>
+	<combo_box name="ShadowDetail">
+		<combo_box.item label="Нет" name="0"/>
+		<combo_box.item label="Солнце/луна" name="1"/>
+		<combo_box.item label="Солнце/луна + осветители" name="2"/>
+	</combo_box>
+	<button label="Вернуть рекомендуемые настройки" name="Defaults"/>
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+</floater>

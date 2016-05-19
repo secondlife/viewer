@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_marketplace_sort">
+	<menu_item_check label="Ordenar alfabéticamente" name="sort_by_name"/>
+	<menu_item_check label="Ordenar por más reciente" name="sort_by_recent"/>
 	<menu_item_check label="Ordenar por cantidad en stock (de baja a alta)" name="sort_by_stock_amount"/>
 	<menu_item_check label="Mostrar solamente las carpetas de artículos" name="show_only_listing_folders"/>
 </toggleable_menu>

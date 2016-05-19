@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_snapshot_profile">
+	<text name="title">
+		Profil
+	</text>
+	<combo_box label="Rozdzielczość" name="profile_size_combo">
+		<combo_box.item label="Obecne okno" name="CurrentWindow" />
+		<combo_box.item label="Własna" name="Custom" />
+	</combo_box>
+	<spinner label="Szer. x Wys." name="profile_snapshot_width" />
+	<check_box label="Zachowaj proporcje" name="profile_keep_aspect_check" />
+	<text name="caption_label">
+		Tytuł:
+	</text>
+	<check_box label="Dołącz lokalizację" name="add_location_cb" />
+	<button label="Anuluj" name="cancel_btn" />
+	<button label="Gotowe" name="post_btn" />
+</panel>

@@ -37,6 +37,7 @@
   <floater.string name="pathing_path_invalid">A path between the chosen points cannot be found.</floater.string>
   <floater.string name="pathing_error">An error occurred during path generation.</floater.string>
   <panel
+      name="pathfinding_console_main"
       border="false"
       bevel_style="none"
       follows="left|top"
@@ -46,6 +47,7 @@
       height="61"
       width="214">
     <text
+        name="viewer_status_label"
         height="13"
         word_wrap="true"
         use_ellipses="false"
@@ -74,6 +76,7 @@
     </text>
   </panel>
   <panel
+      name="pathfinding_console_simulator"
       border="false"
       bevel_style="none"
       follows="left|top"
@@ -82,6 +85,7 @@
       height="66"
       width="214">
     <text
+        name="simulator_status_label"
         height="13"
         word_wrap="true"
         use_ellipses="false"

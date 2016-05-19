@@ -180,6 +180,7 @@
 		<menu_item_call label="Fehler melden" name="Report Bug"/>
 		<menu_item_call label="Rempler, Stöße &amp; Schläge" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="INFO ÜBER [APP_NAME]" name="About Second Life"/>
+		<menu_item_call label="Nach Updates suchen" name="Check for Updates"/>
 	</menu>
 	<menu label="Erweitert" name="Advanced">
 		<menu_item_call label="Textur neu laden" name="Rebake Texture"/>
@@ -193,7 +194,7 @@
 			<menu_item_call label="Lag-Anzeige" name="Lag Meter"/>
 			<menu_item_check label="Statistikleiste" name="Statistics Bar"/>
 			<menu_item_call label="Statistiken zum Laden von Szenen" name="Scene Load Statistics"/>
-			<menu_item_check label="Zuggewicht für Avatare anzeigen" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Informationen zur Avatarkomplexität anzeigen" name="Avatar Draw Info"/>
 		</menu>
 		<menu label="Hervorhebung und Sichtbarkeit" name="Highlighting and Visibility">
 			<menu_item_check label="Pulsierender Strahl" name="Cheesy Beacon"/>
@@ -316,8 +317,6 @@
 			<menu_item_check label="Gelenke" name="Joints"/>
 			<menu_item_check label="Raycast" name="Raycast"/>
 			<menu_item_check label="Windvektoren" name="Wind Vectors"/>
-			<menu_item_check label="Komplexität beim Rendern" name="rendercomplexity"/>
-			<menu_item_check label="Byte in Anhängen" name="attachment bytes"/>
 			<menu_item_check label="Formen" name="Sculpt"/>
 			<menu label="Texturdichte" name="Texture Density">
 				<menu_item_check label="Keine" name="None"/>
@@ -417,13 +416,11 @@
 			<menu_item_check label="Fehler für sichtbare Agenten beseitigen" name="Debug Character Vis"/>
 			<menu_item_check label="Gelenkpunkte anzeigen" name="Show Collision Skeleton"/>
 			<menu_item_check label="Agent-Ziel anzeigen" name="Display Agent Target"/>
-			--&gt;
 			<menu_item_call label="Anhänge ausgeben" name="Dump Attachments"/>
 			<menu_item_call label="Fehler in Avatar-Texturen beseitigen" name="Debug Avatar Textures"/>
 			<menu_item_call label="Lokale Texturen ausgeben" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP-Texturen" name="HTTP Textures"/>
-		<menu_item_check label="HTTP-Inventar" name="HTTP Inventory"/>
 		<menu_item_call label="Bilder komprimieren" name="Compress Images"/>
 		<menu_item_call label="Visual Leak Detector aktivieren" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Ausgabe Fehlerbeseitigung ausgeben" name="Output Debug Minidump"/>

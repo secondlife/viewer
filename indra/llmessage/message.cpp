@@ -1301,7 +1301,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 
 
 	mPacketsOut++;
-	mBytesOut += buffer_length;
+	mTotalBytesOut += buffer_length;
 	
 	mSendReliable = FALSE;
 	mReliablePacketParams.clear();

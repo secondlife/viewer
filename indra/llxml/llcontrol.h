@@ -70,6 +70,7 @@ class LLVector3d;
 class LLColor4;
 class LLColor3;
 
+// if this is changed, also modify mTypeString in llcontrol.h
 typedef enum e_control_type
 {
 	TYPE_U32 = 0,
@@ -190,11 +191,11 @@ class LLControlGroup : public LLInstanceTracker<LLControlGroup, std::string>
 protected:
 	typedef std::map<std::string, LLControlVariablePtr > ctrl_name_table_t;
 	ctrl_name_table_t mNameTable;
-	std::string mTypeString[TYPE_COUNT];
+	static const std::string mTypeString[TYPE_COUNT];
 
 public:
-	eControlType typeStringToEnum(const std::string& typestr);
-	std::string typeEnumToString(eControlType typeenum);	
+	static eControlType typeStringToEnum(const std::string& typestr);
+	static std::string typeEnumToString(eControlType typeenum);	
 
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();

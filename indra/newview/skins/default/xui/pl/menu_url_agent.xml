@@ -1,6 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Url Popup">
-	<menu_item_call label="Pokaż profil Rezydenta" name="show_agent"/>
-	<menu_item_call label="Kopiuj nazwę do schowka" name="url_copy_label"/>
-	<menu_item_call label="Kopiuj SLurl do schowka" name="url_copy"/>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu name="Url Popup">  
+	<menu_item_call label="Pokaż profil" name="show_agent" />
+	<menu_item_call label="Wyślij wiadomość IM..." name="send_im" />
+	<menu_item_call label="Dodaj do znajomych..." name="add_friend" />
+	<menu_item_call label="Usuń ze znajomych..." name="remove_friend" />
+	<menu_item_call label="Kopiuj nazwę do schowka" name="url_copy_label" />
+	<menu_item_call label="Kopiuj SLurl do schowka" name="url_copy" />
 </context_menu>

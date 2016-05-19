@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_opaque="true"
+ background_visible="true"
+ bg_opaque_image="Volume_Background"
+ bg_alpha_image="Volume_Background"
+ border_visible="false"
+ border="false"
+ chrome="true"
+ follows="bottom"
+ height="155"
+ layout="topleft"
+ name="presets_pulldown"
+ width="225">
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="12"
+    layout="topleft"
+    top="4"
+    left_delta="5"
+    font.style="BOLD"
+    name="Graphic Presets"
+    width="120">
+      Graphic Presets
+  </text>
+  <scroll_list
+    follows="left|top"
+    layout="topleft"
+    column_padding="0"
+    height="100"
+    width="215"
+    draw_heading="false"
+    draw_stripes="false"
+    bg_stripe_color="0.25 0.25 0.25 0.25"
+    top_delta="15"
+    left_delta="0"
+    name="preset_list">
+    <scroll_list.columns
+      name="icon"
+      width="16" />
+    <scroll_list.columns
+      relative_width="1"
+      name="preset_name" />
+      <scroll_list.commit_callback
+      function="Presets.RowClick" />
+  </scroll_list>
+  <view_border
+    bevel_style="none"
+    follows="top|left"
+    height="0"
+    layout="topleft"
+    left="5"
+    name="horiz_separator"
+    top_delta="105"
+    width="215" />
+  <button
+    name="open_prefs_btn"
+    label="Open Graphics Preferences"
+    tool_tip = "Bring up graphics prefs"
+    top_delta="5"
+    left="15"
+    height="20"
+    width="200">
+    <button.commit_callback
+      function="Presets.GoGraphicsPrefs" />
+  </button>
+</panel>

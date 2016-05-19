@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="prefs_graphics_advanced" title="PREFERÊNCIAS AVANÇADAS DE GRÁFICOS">
+	<text name="GeneralText">
+		Geral
+	</text>
+	<slider label="Calcular distância:" name="DrawDistance"/>
+	<text name="DrawDistanceMeterText2">
+		m
+	</text>
+	<slider label="Máxima quantidade de partículas:" name="MaxParticleCount"/>
+	<slider label="Qualidade pós-processamento:" name="RenderPostProcess"/>
+	<text name="PostProcessText">
+		Baixo
+	</text>
+	<text name="AvatarText">
+		Avatar
+	</text>
+	<slider label="Complexidade máxima:" name="IndirectMaxComplexity" tool_tip="Controla o ponto no qual um avatar visualmente complexo é desenhado como avatar de cor sólida"/>
+	<text name="IndirectMaxComplexityText">
+		0
+	</text>
+	<slider label="Máx. de avatares legítimos:" name="IndirectMaxNonImpostors"/>
+	<text name="IndirectMaxNonImpostorsText">
+		0
+	</text>
+	<slider label="Detalhe:" name="AvatarMeshDetail"/>
+	<text name="AvatarMeshDetailText">
+		Baixo
+	</text>
+	<slider label="Físico:" name="AvatarPhysicsDetail"/>
+	<text name="AvatarPhysicsDetailText">
+		Baixo
+	</text>
+	<text name="ShadersText">
+		Hardware
+	</text>
+	<slider label="Memória da textura (MB):" name="GraphicsCardTextureMemory" tool_tip="Quantidade de memória que deve ser alocada para texturas. O padrão é definido pela memória da placa de vídeo. Reduzir este valor pode melhorar o desempenho, mas pode deixar as texturas fora de foco."/>
+	<slider label="Raio de distância da neblina:" name="fog"/>
+	<slider label="Gama:" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(0 = brilho padrão, menor = mais brilho)
+	</text>
+	<check_box label="Filtro anisotrópico (mais lento quando ativado)" name="ani"/>
+	<check_box initial_value="true" label="Ativar Vertex Buffer Objects de OpenGL" name="vbo" tool_tip="Ativar isso em hardware moderno melhora o desempenho.  Entretanto, hardwares mais antigos normalmente implantam mal os VBOs. A ativação dessa configuração pode travar sua máquina."/>
+	<check_box initial_value="true" label="Habilitar compressão da textura (requer reinício)" name="texture compression" tool_tip="Comprime as texturas na memória de vídeo, permitindo o carregamento de texturas de maior resolução em detrimento da qualidade da cor."/>
+	<text name="antialiasing label">
+		Antialiasing:
+	</text>
+	<combo_box label="Antialiasing" name="fsaa">
+		<combo_box.item label="Desativado" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<text name="antialiasing restart">
+		(reinicie para ativar)
+	</text>
+	<slider label="Detalhe de mesh de terreno:" name="TerrainMeshDetail"/>
+	<text name="TerrainMeshDetailText">
+		Baixo
+	</text>
+	<slider label="Árvores:" name="TreeMeshDetail"/>
+	<text name="TreeMeshDetailText">
+		Baixo
+	</text>
+	<slider label="Objetos:" name="ObjectMeshDetail"/>
+	<text name="ObjectMeshDetailText">
+		Baixo
+	</text>
+	<slider label="Prims flexíveis:" name="FlexibleMeshDetail"/>
+	<text name="FlexibleMeshDetailText">
+		Baixo
+	</text>
+	<check_box initial_value="true" label="Água transparente" name="TransparentWater"/>
+	<check_box initial_value="true" label="Mapeamento de relevo e brilho" name="BumpShiny"/>
+	<check_box initial_value="true" label="Luzes locais" name="LocalLights"/>
+	<check_box initial_value="true" label="Sombreamento simples" name="BasicShaders" tool_tip="Desativar essa opção pode evitar o travamento de alguns drivers de placas gráficas"/>
+	<slider label="Detalhes do terreno:" name="TerrainDetail"/>
+	<text name="TerrainDetailText">
+		Baixo
+	</text>
+	<check_box initial_value="true" label="Economia de hardware do avatar" name="AvatarVertexProgram"/>
+	<check_box initial_value="true" label="Vestimenta do avatar" name="AvatarCloth"/>
+	<text name="ReflectionsText">
+		Reflexos na água:
+	</text>
+	<combo_box name="Reflections">
+		<combo_box.item label="Mínimo" name="0"/>
+		<combo_box.item label="Terreno e árvores" name="1"/>
+		<combo_box.item label="Todos os objetos estáticos" name="2"/>
+		<combo_box.item label="Todos os avatares e objetos" name="3"/>
+		<combo_box.item label="Tudo" name="4"/>
+	</combo_box>
+	<check_box initial_value="true" label="Tonalidades atmosféricas" name="WindLightUseAtmosShaders"/>
+	<slider label="Céu:" name="SkyMeshDetail"/>
+	<text name="SkyMeshDetailText">
+		Baixo
+	</text>
+	<check_box initial_value="true" label="Modelo avançado de luzes" name="UseLightShaders"/>
+	<check_box initial_value="true" label="Oclusão de ambiente" name="UseSSAO"/>
+	<check_box initial_value="true" label="Profundidade do campo" name="UseDoF"/>
+	<text name="RenderShadowDetailText">
+		Sombras:
+	</text>
+	<combo_box name="ShadowDetail">
+		<combo_box.item label="Nenhum" name="0"/>
+		<combo_box.item label="Sol/lua" name="1"/>
+		<combo_box.item label="Sol/lua + projetores" name="2"/>
+	</combo_box>
+	<button label="Redefinir para configurações recomendadas" name="Defaults"/>
+	<button label="OK" label_selected="OK" name="OK"/>
+	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+</floater>

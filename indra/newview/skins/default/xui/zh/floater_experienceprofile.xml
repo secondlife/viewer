@@ -66,7 +66,7 @@
 					<icons_combo_box label="適度成人" name="edit_ContentRatingText" tool_tip="提升體驗的內容分級將會重設所有已允許該體驗的居民的權限。">
 						<icons_combo_box.item label="完全成人" name="Adult" value="42"/>
 						<icons_combo_box.item label="適度成人" name="Mature" value="21"/>
-						<icons_combo_box.item label="一般" name="PG" value="13"/>
+						<icons_combo_box.item label="普級" name="PG" value="13"/>
 					</icons_combo_box>
 					<text name="edit_Location">
 						位置：

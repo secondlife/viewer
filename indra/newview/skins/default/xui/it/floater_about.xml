@@ -3,6 +3,7 @@
 	<tab_container name="about_tab">
 		<panel label="Informazioni" name="support_panel">
 			<button label="Copia negli appunti" name="copy_btn"/>
+			<button label="Cerca aggiornamenti" name="update_btn"/>
 		</panel>
 		<panel label="Ringraziamenti" name="credits_panel">
 			<text name="linden_intro">Second Life vi è offerto dai Linden, 

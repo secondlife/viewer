@@ -90,7 +90,16 @@
 	<floater.string name="linkset_choose_use">
 		リンクセットの用途を選択...
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			フィルター：
+		</text>
+		<text name="linksets_name_label">
+			名前
+		</text>
+		<text name="linksets_desc_label">
+			説明
+		</text>
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="リンクセットの用途でフィルター..." name="filter_by_linkset_use_none"/>
 			<combo_box.item label="歩行可能" name="filter_by_linkset_use_walkable"/>
@@ -103,8 +112,8 @@
 		<button label="適用" name="apply_filters"/>
 		<button label="クリア" name="clear_filters"/>
 		<scroll_list name="objects_scroll_list">
-			<scroll_list.columns label="名前（ルートプリム）" name="name"/>
-			<scroll_list.columns label="説明（ルートプリム）" name="description"/>
+			<scroll_list.columns label="名前 (ルートプリム)" name="name"/>
+			<scroll_list.columns label="説明 (ルートプリム)" name="description"/>
 			<scroll_list.columns label="所有者" name="owner"/>
 			<scroll_list.columns label="スクリプト" name="scripted"/>
 			<scroll_list.columns label="負荷" name="land_impact"/>
@@ -116,13 +125,16 @@
 			<scroll_list.columns label="D %" name="d_percent"/>
 		</scroll_list>
 		<text name="messaging_status">
-			リンクセット:
+			リンクセット：
 		</text>
 		<button label="リスト更新" name="refresh_objects_list"/>
 		<button label="すべて選択" name="select_all_objects"/>
 		<button label="何も選択しない" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			選択したリンクセットに対するアクション (リンクセットがワールドから削除されると、その属性が失われる場合があります)：
+		</text>
 		<check_box label="ビーコンを表示" name="show_beacon"/>
 		<button label="取る" name="take_objects"/>
 		<button label="コピーを取る" name="take_copy_objects"/>
@@ -130,9 +142,12 @@
 		<button label="返却" name="return_objects"/>
 		<button label="削除" name="delete_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			選択したリンクセットの属性を編集し、ボタンを押して変更を適用します
+		</text>
 		<text name="walkability_coefficients_label">
-			歩行可能性:
+			歩行可能性：
 		</text>
 		<text name="edit_a_label">
 			A

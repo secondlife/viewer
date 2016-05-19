@@ -9,7 +9,7 @@
 				</layout_panel>
 				<layout_panel name="location panel">
 					<text name="Location">
-						Luogo:
+						Posizione:
 					</text>
 					<text name="LocationTextText">
 						in qualche posto

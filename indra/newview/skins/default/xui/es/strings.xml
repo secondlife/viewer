@@ -29,11 +29,8 @@
 		Error de inicialización de gráficos. Actualiza tu controlador de gráficos.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
-	<string name="AboutCompiler">
-		Compilado con [COMPILER], versión [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Estás en la posición [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1], de [REGION], alojada en &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -55,10 +52,9 @@ Tarjeta gráfica: [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		Versión de OpenGL: [OPENGL_VERSION]
 
-Versión de libcurl: [LIBCURL_VERSION]
 Versión de J2C Decoder: [J2C_VERSION]
 Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
-Versión de Qt Webkit: [QT_WEBKIT_VERSION]
+Versión de LLCEFLib/CEF: [LLCEFLIB_VERSION]
 Versión del servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -168,6 +164,12 @@ Versión del servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		Grid principal de Second Life (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Grid de prueba beta de Second Life (Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download.
@@ -444,6 +446,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		No puedes tener una carpeta de prendas que contenga más de [AMOUNT] elementos.  Puedes cambiar este límite en Avanzado &gt; Mostrar las configuraciones del depurador &gt; WearFolderLimit.
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$:"/>
+	<string name="TooltipSLIcon">
+		Esto crea un vínculo a una página del dominio oficial SecondLife.com o LindenLab.com.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		No se pueden mostrar artículos desde la carpeta Artículos del mercado
 	</string>
@@ -463,7 +468,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		La cantidad de artículos en stock excede de [AMOUNT].
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		Solo se pueden soltar artículos o carpetas en la pestaña TODOS. Selecciona esta pestaña y mueve otra vez los artículos o carpetas.
+		Solo se pueden soltar artículos o carpetas en las pestañas TODOS o SIN ASOCIAR. Selecciona una de estas pestañas y mueve otra vez los artículos o carpetas.
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		Uno o varios de estos objetos no se pueden vender o transferir
@@ -547,6 +552,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		Pulsa para ejecutar el comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL actual: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Haz clic para redactar un correo electrónico
+	</string>
 	<string name="SLurlLabelTeleport">
 		Teleportarse a
 	</string>
@@ -1063,7 +1071,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="AgentNameSubst">
 		(Tú)
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas al gestionar las listas de acceso a un estado
 	</string>
@@ -1836,6 +1844,21 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="TodayOld">
 		Registrado hoy
 	</string>
+	<string name="av_render_everyone_now">
+		Ahora todos pueden verte.
+	</string>
+	<string name="av_render_not_everyone">
+		Es posible que no todos los que están próximos puedan renderizarte.
+	</string>
+	<string name="av_render_over_half">
+		Es posible que más de la mitad de los que están próximos no puedan renderizarte.
+	</string>
+	<string name="av_render_most_of">
+		Es posible que la mayoría de los que están próximos no puedan renderizarte.
+	</string>
+	<string name="av_render_anyone">
+		Es posible que ninguno de los que están próximos pueda renderizarte.
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] año
 	</string>
@@ -1953,6 +1976,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="CompileQueueUnknownFailure">
 		Fallo desconocido en la descarga
 	</string>
+	<string name="CompileNoExperiencePerm">
+		Omitiendo el script [SCRIPT] con la experiencia [EXPERIENCE].
+	</string>
 	<string name="CompileQueueTitle">
 		Recompilando
 	</string>
@@ -1997,9 +2023,6 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="GroupsNone">
 		ninguno
-	</string>
-	<string name="CompileNoExperiencePerm">
-		Omitiendo el script [SCRIPT] con la experiencia [EXPERIENCE].
 	</string>
 	<string name="Group" value="(grupo)"/>
 	<string name="Unknown">
@@ -5290,18 +5313,6 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="UserDictionary">
 		[Usuario]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		No se están registrando las conversaciones. Para empezar a grabar un registro, elige &quot;Guardar: Solo registro&quot; o &quot;Guardar: Registro y transcripciones&quot; en Preferencias &gt; Chat.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		No se registrarán más conversaciones. Para reanudar la grabación de un registro, elige &quot;Guardar: Solo registro&quot; o &quot;Guardar: Registro y transcripciones&quot; en Preferencias &gt; Chat.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		No hay conversaciones grabadas. Después de contactar con una persona, o de que alguien contacte contigo, aquí se mostrará una entrada de registro.
-	</string>
-	<string name="loading_chat_logs">
-		Cargando...
-	</string>
 	<string name="experience_tools_experience">
 		Experiencia
 	</string>
@@ -5360,7 +5371,7 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 		aceptar automáticamente permisos de experiencias
 	</string>
 	<string name="ExperiencePermissionShortUnknown">
-		ha realizado una operación desconocida: [Permission]
+		realizar una operación desconocida: [Permission]
 	</string>
 	<string name="ExperiencePermissionShort1">
 		Ponerte al mando
@@ -5378,9 +5389,42 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 		Controlar la cámara
 	</string>
 	<string name="ExperiencePermissionShort11">
-		Teleportarte
+		Teleporte
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Otorgar permisos
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		No se están registrando las conversaciones. Para empezar a grabar un registro, elige &quot;Guardar: Solo registro&quot; o &quot;Guardar: Registro y transcripciones&quot; en Preferencias &gt; Chat.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		No se registrarán más conversaciones. Para reanudar la grabación de un registro, elige &quot;Guardar: Solo registro&quot; o &quot;Guardar: Registro y transcripciones&quot; en Preferencias &gt; Chat.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		No hay conversaciones grabadas. Después de contactar con una persona, o de que alguien contacte contigo, aquí se mostrará una entrada de registro.
+	</string>
+	<string name="loading_chat_logs">
+		Cargando...
+	</string>
+	<string name="preset_combo_label">
+		-Lista vacía-
+	</string>
+	<string name="Default">
+		Predeterminado
+	</string>
+	<string name="none_paren_cap">
+		(ninguno)
+	</string>
+	<string name="no_limit">
+		Sin límite
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		La forma física contiene triángulos demasiado pequeños. Intenta simplificar el modelo físico.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		La forma física contiene datos de confirmación erróneos. Intenta corregir el modelo físico.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		La versión de la forma física no es correcta. Configura la versión correcta del modelo físico.
 	</string>
 </strings>

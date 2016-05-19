@@ -66,6 +66,16 @@
 	<floater.string name="pathing_error">
 		Fehler bei der Pfaderstellung aufgetreten.
 	</floater.string>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
+			Viewer-Status
+		</text>
+	</panel>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
+			Simulator-Status
+		</text>
+	</panel>
 	<tab_container name="view_test_tab_container">
 		<panel label="Anzeigen" name="view_panel">
 			<text name="show_label">

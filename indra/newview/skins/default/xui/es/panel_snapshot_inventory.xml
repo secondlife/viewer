@@ -7,7 +7,7 @@
 		Guardar una imagen en el inventario cuesta [UPLOAD_COST] L$. Para guardar una imagen como una textura, selecciona uno de los formatos cuadrados.
 	</text>
 	<combo_box label="Resolución" name="texture_size_combo">
-		<combo_box.item label="Ventana actual" name="CurrentWindow"/>
+		<combo_box.item label="Ventana actual (512 × 512)" name="CurrentWindow"/>
 		<combo_box.item label="Pequeña (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Mediana (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>

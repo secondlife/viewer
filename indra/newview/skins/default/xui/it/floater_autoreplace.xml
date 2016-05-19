@@ -13,6 +13,12 @@
 	</scroll_list>
 	<button label="Aggiungi..." name="autoreplace_add_entry"/>
 	<button label="Rimuovi" name="autoreplace_delete_entry"/>
+	<text name="autoreplace_keyword_txt">
+		Parola chiave:
+	</text>
+	<text name="autoreplace_replacement_txt">
+		Sostituzione:
+	</text>
 	<button label="Salva elemento" name="autoreplace_save_entry" tool_tip="Salva questo elemento."/>
 	<button label="Salva modifiche" name="autoreplace_save_changes" tool_tip="Salva tutte le modifiche."/>
 	<button label="Annulla" name="autoreplace_cancel" tool_tip="Annulla tutte le modifiche."/>

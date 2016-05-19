@@ -164,6 +164,10 @@ L&apos;initialisation de la Place du marché a échoué en raison d&apos;une err
         &apos;[ERROR_CODE]&apos;
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="MerchantForceValidateListing">
+		Pour créer votre annonce, nous avons corrigé la hiérarchie de votre contenu d’annonces.
+		<usetemplate ignoretext="M’avertir que la création d’une annonce corrige la hiérarchie du contenu" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmMerchantActiveChange">
 		Cette action va modifier le contenu actif de cette annonce. Voulez-vous continuer ?
 		<usetemplate ignoretext="Confirmer avant que je ne modifie une annonce active sur la Place du marché" name="okcancelignore" notext="Annuler" yestext="OK"/>
@@ -211,11 +215,9 @@ L&apos;initialisation de la Place du marché a échoué en raison d&apos;une err
 		Nous avons retiré votre annonce car le stock est vide. Vous devez ajouter plus d&apos;unités au dossier de stock pour publier à nouveau l&apos;annonce.
 		<usetemplate ignoretext="Alerter lorsqu&apos;une annonce n&apos;est pas publiée parce que le dossier de stock est vide" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Une erreur est survenue lors du chargement du texte pour un script, suite au problème suivant : [REASON]. Veuillez réessayer ultérieurement.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Une erreur est survenue lors du chargement du script compilé, suite au problème suivant : [REASON]. Veuillez réessayer ultérieurement.
+	<notification name="AlertMerchantVersionFolderEmpty">
+		Nous avons supprimé votre annonce car le dossier de version est vide. Vous devez ajouter des articles au dossier de version si vous voulez republier votre annonce.
+		<usetemplate ignoretext="Alerte quand une annonce est supprimée car le dossier de version est vide" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="WriteAnimationFail">
 		Une erreur est survenue lors de l&apos;écriture des données d&apos;animation. Veuillez réessayer ultérieurement.
@@ -319,6 +321,14 @@ Si vous ne voulez plus que ce rôle dispose de ces pouvoirs, désactivez-les imm
 		Vous allez expulser [COUNT] membres du groupe.
 		<usetemplate ignoretext="Confirmer l&apos;expulsion de plusieurs membres du groupe" name="okcancelignore" notext="Annuler" yestext="Expulser"/>
 	</notification>
+	<notification name="BanGroupMemberWarning">
+		Vous allez bannir [AVATAR_NAME] du groupe.
+		<usetemplate ignoretext="Confirmer le bannissement d’un membre du groupe" name="okcancelignore" notext="Annuler" yestext="Bannir"/>
+	</notification>
+	<notification name="BanGroupMembersWarning">
+		Vous allez bannir [COUNT] membres du groupe.
+		<usetemplate ignoretext="Confirmer le bannissement de plusieurs membres du groupe" name="okcancelignore" notext="Annuler" yestext="Bannir"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Vous êtes sur le point d&apos;abandonner l&apos;élément joint.
 Voulez-vous vraiment continuer ?
@@ -403,7 +413,7 @@ Objets : [N]
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		Êtes-vous certain de vouloir renvoyer tous les objets de la liste dans l&apos;inventaire de leur propriétaire ?
+		Êtes-vous certain de vouloir renvoyer tous les objets de la liste dans l’inventaire de leur propriétaire ? Cela renverra TOUS les objets scriptés dans la région !
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
@@ -586,15 +596,9 @@ Souhaitez-vous charger la dernière version enregistrée sur le serveur ?
 (**Attention** Cette opération est irréversible.)
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Une erreur est survenue lors de l&apos;enregistrement du script, suite au problème suivant : [REASON]. Essayez d&apos;enregistrer votre script ultérieurement.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Impossible d&apos;enregistrer le script car l&apos;objet qui le contient est introuvable.
 L&apos;objet est peut-être inaccessible ou a peut-être été supprimé.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Une erreur est survenue lors de l&apos;enregistrement du script compilé, suite au problème suivant : [REASON]. Essayez d&apos;enregistrer votre script ultérieurement.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Vous n&apos;avez pas défini de région de départ.
@@ -607,6 +611,10 @@ L&apos;objet est peut-être inaccessible ou a peut-être été supprimé.
 	</notification>
 	<notification name="CannotDownloadFile">
 		Impossible de télécharger le fichier
+	</notification>
+	<notification label="" name="MediaFileDownloadUnsupported">
+		Vous avez demandé un téléchargement de fichier, qui n’est pas pris en charge dans [SECOND_LIFE].
+		<usetemplate ignoretext="M’avertir des téléchargements de fichiers non pris en charge" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="CannotWriteFile">
 		Impossible d&apos;écrire le fichier [[FILE]]
@@ -1109,8 +1117,9 @@ Fusionner le terrain ?
 Cette erreur est généralement temporaire. Veuillez modifier et sauvegarder l&apos;élément endossable à nouveau d&apos;ici quelques minutes.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Zut. Vous avez été déconnecté(e) de [SECOND_LIFE]
-            [MESSAGE]
+		Zut. Vous avez été déconnecté(e) de [SECOND_LIFE].
+
+[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Quitter" yestext="Afficher IM et chat"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1351,6 +1360,13 @@ Vous pouvez utiliser [SECOND_LIFE] normalement, les autres résidents vous voien
 		<form name="form">
 			<ignore name="ignore" text="Vos habits prennent du temps à télécharger"/>
 		</form>
+	</notification>
+	<notification name="RegionAndAgentComplexity">
+		Votre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexité visuelle] est [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+	</notification>
+	<notification name="AgentComplexity">
+		Votre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complexité visuelle] est [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		L&apos;installation de [APP_NAME] est terminée.
@@ -1633,6 +1649,25 @@ Le client expérimental a été remplacé par un nouveau client [NEW_CHANNEL] ;
 consultez [Informations au sujet de cette mise à jour [INFO_URL]]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UpdateDownloadInProgress">
+		Une mise à jour est disponible.
+Elle est en cours de téléchargement en arrière-plan et nous vous inviterons à redémarrer votre client pour terminer son installation dès qu’elle est prête.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateDownloadComplete">
+		Une mise à jour a été téléchargée. Elle sera installée au redémarrage.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateCheckError">
+		Une erreur est survenue lors de la recherche de mises à jour.
+Veuillez réessayer ultérieurement.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateViewerUpToDate">
+		Votre client est à jour.
+Si vous êtes impatients de découvrir les dernières fonctionnalités et corrections, consultez la page Autres clients. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		Si vous cédez cet objet, le groupe :
 * recevra les L$ versés pour l&apos;objet ;
@@ -1736,6 +1771,14 @@ Quitter le groupe ?
 	<notification name="JoinedTooManyGroups">
 		Vous avez atteint le nombre de groupes maximum. Vous devez en quitter un avant d&apos;en rejoindre ou d&apos;en créer un nouveau.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupLimitInfo">
+		Le nombre de groupes maximum est [MAX_BASIC] pour les comptes basiques et
+[MAX_PREMIUM] pour les comptes [https://secondlife.com/premium/ premium].
+Si vous avez rétrogradé votre compte, vous devez réduire votre nombre de groupes pour passer sous le nombre de groupes maximum ([MAX_BASIC]) avant de pouvoir en rejoindre d’autres.
+
+[https://secondlife.com/my/account/membership.php Mettez à niveau dès aujourd’hui !]
+		<usetemplate name="okbutton" yestext="Fermer"/>
 	</notification>
 	<notification name="KickUser">
 		Éjecter ce résident avec quel message ?
@@ -2248,6 +2291,10 @@ Déplacer les objets de l&apos;inventaire ?
 		Confirmez que vous voulez payer [AMOUNT] L$ à [TARGET].
 		<usetemplate ignoretext="Confirmez avant de payer (sommes supérieures à 200 L$)" name="okcancelignore" notext="Annuler" yestext="Payer"/>
 	</notification>
+	<notification name="PayObjectFailed">
+		Échec de paiement : objet introuvable.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Vous n&apos;êtes autorisé à copier aucun élément dans cet objet.
 	</notification>
@@ -2279,10 +2326,9 @@ Vous ne pouvez pas l&apos;annuler.
 		[QUESTION]
 		<usetemplate ignoretext="Confirmer avant de supprimer des articles" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="HelpReportAbuseEmailLL">
-		Utilisez cet outil pour signaler des infractions aux [http://secondlife.com/corporate/tos.php Conditions d’utilisation] et aux [http://secondlife.com/corporate/cs.php Règles communautaires].
-
-Lorsqu&apos;elles sont signalées, toutes les infractions font l&apos;objet d&apos;une enquête et sont résolues.
+	<notification name="ConfirmUnlink">
+		C’est une vaste sélection avec des groupes de liens. Si vous annulez les liens, vous risquez de ne pas pouvoir les rétablir. Vous devriez peut-être faire des copies des groupes de liens dans votre inventaire par mesure de précaution.
+		<usetemplate ignoretext="Confirmer l’annulation des liens d’un groupe de liens" name="okcancelignore" notext="Annuler" yestext="Annuler le lien"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Veuillez choisir une catégorie pour ce rapport d&apos;infraction.
@@ -2969,67 +3015,67 @@ Acceptez-vous ?
 		</form>
 	</notification>
 	<notification name="ExperienceAcquireFailed">
-		Impossible d&apos;acquérir une nouvelle expérience :
+		Impossible d’acquérir une nouvelle expérience :
     [ERROR_MESSAGE]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NotInGroupExperienceProfileMessage">
-		Une modification du groupe de l&apos;expérience a été ignorée, car le propriétaire n&apos;est pas membre du groupe sélectionné.
+		Une modification du groupe de l’expérience a été ignorée, car le propriétaire n’est pas membre du groupe sélectionné.
 	</notification>
 	<notification name="UneditableExperienceProfileMessage">
-		Le champ non modifiable « [field] » a été ignoré lors de la mise à jour du profil de l&apos;expérience.
+		Le champ non modifiable « [field] » a été ignoré lors de la mise à jour du profil de l’expérience.
 	</notification>
 	<notification name="RestrictedToOwnerExperienceProfileMessage">
-		Modifications du champ « [field] » ignorées, car il ne peut être défini que par le propriétaire de l&apos;expérience.
+		Modifications du champ « [field] » ignorées, car il ne peut être défini que par le propriétaire de l’expérience.
 	</notification>
 	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
 		Vous ne pouvez pas définir une catégorie de contenu plus élevée pour une expérience que pour son propriétaire.
 	</notification>
 	<notification name="RestrictedTermExperienceProfileMessage">
-		Les termes suivants ont empêché la mise à jour du nom et/ou de la description du profil de l&apos;expérience : [extra_info]
+		Les termes suivants ont empêché la mise à jour du nom et/ou de la description du profil de l’expérience : [extra_info]
 	</notification>
 	<notification name="TeleportedHomeExperienceRemoved">
-		Vous avez été téléporté(e) hors de la région [region_name], car vous avez supprimé l&apos;expérience secondlife:///app/experience/[public_id]/profile et n&apos;êtes plus autorisé(e) dans cette région.
+		Vous avez été téléporté(e) hors de la région [region_name], car vous avez supprimé l’expérience secondlife:///app/experience/[public_id]/profile et n’êtes plus autorisé(e) dans cette région.
 		<form name="form">
-			<ignore name="ignore" text="Éjecté(e) de la région pour cause de suppression d&apos;une expérience"/>
+			<ignore name="ignore" text="Éjecté(e) de la région pour cause de suppression d’une expérience"/>
 		</form>
 	</notification>
 	<notification name="TrustedExperienceEntry">
-		Vous avez été autorisé(e) à pénétrer dans la région [region_name] en participant à l&apos;expérience avec clé secondlife:///app/experience/[public_id]/profile. Si vous supprimez cette expérience, vous risquez d&apos;être éjecté(e) de cette région.
+		Vous avez été autorisé(e) à pénétrer dans la région [region_name] en participant à l’expérience avec clé secondlife:///app/experience/[public_id]/profile. Si vous supprimez cette expérience, vous risquez d’être éjecté(e) de cette région.
 		<form name="form">
 			<ignore name="ignore" text="Autorisé(e) dans une région par une expérience"/>
 		</form>
 	</notification>
 	<notification name="TrustedExperiencesAvailable">
-		Vous n&apos;avez pas accès à cette destination. Vous pouvez être autorisé(e) à pénétrer dans la région en acceptant une expérience ci-dessous :
+		Vous n’avez pas accès à cette destination. Vous pouvez être autorisé(e) à pénétrer dans la région en acceptant une expérience ci-dessous :
 
 [EXPERIENCE_LIST]
 
-Il est possible que d&apos;autres expériences avec clé soient disponibles.
+Il est possible que d’autres expériences avec clé soient disponibles.
 	</notification>
 	<notification name="ExperienceEvent">
-		Un objet a été autorisé à [EventType] par l&apos;expérience secondlife:///app/experience/[public_id]/profile.
+		Un objet a été autorisé à [EventType] par l’expérience secondlife:///app/experience/[public_id]/profile.
     Propriétaire : secondlife:///app/agent/[OwnerID]/inspect
-    Nom de l&apos;objet : [ObjectName]
+    Nom de l’objet : [ObjectName]
     Nom de la parcelle : [ParcelName]
 	</notification>
 	<notification name="ExperienceEventAttachment">
-		Une pièce jointe a été autorisée à [EventType] par l&apos;expérience secondlife:///app/experience/[public_id]/profile.
+		Une pièce jointe a été autorisée à [EventType] par l’expérience secondlife:///app/experience/[public_id]/profile.
     Propriétaire : secondlife:///app/agent/[OwnerID]/inspect
 	</notification>
 	<notification name="ScriptQuestionExperience">
-		« &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt; », un objet appartenant à « [NAME] », demande votre participation à l&apos;expérience [GRID_WIDE] :
+		« &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt; », un objet appartenant à « [NAME] », demande votre participation à l’expérience [GRID_WIDE] :
 
 [EXPERIENCE]
 
-Une fois l&apos;autorisation accordée, vous ne verrez plus ce message pour cette expérience, sauf si elle est révoquée dans le profil de l&apos;expérience.
+Une fois l’autorisation accordée, vous ne verrez plus ce message pour cette expérience, sauf si elle est révoquée dans le profil de l’expérience.
 
-Les scripts associés à cette expérience pourront effectuer les actions suivantes dans les régions dans lesquelles l&apos;expérience est active : 
+Les scripts associés à cette expérience pourront effectuer les actions suivantes dans les régions dans lesquelles l’expérience est active : 
 
 [QUESTIONS]Acceptez-vous ?
 		<form name="form">
-			<button name="BlockExperience" text="Bloquer l&apos;expérience"/>
-			<button name="Mute" text="Ignorer l&apos;objet"/>
+			<button name="BlockExperience" text="Bloquer l’expérience"/>
+			<button name="Mute" text="Ignorer l’objet"/>
 			<button name="Yes" text="Oui"/>
 			<button name="No" text="Non"/>
 		</form>
@@ -3211,6 +3257,12 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	<notification name="AttachmentSaved">
 		L&apos;élément joint a été sauvegardé.
 	</notification>
+	<notification name="PresetNotSaved">
+		Erreur d’enregistrement du préréglage [NAME].
+	</notification>
+	<notification name="PresetNotDeleted">
+		Erreur de suppression du préréglage [NAME].
+	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Impossible de trouver l&apos;aide.
 	</notification>
@@ -3243,9 +3295,8 @@ Le bouton sera affiché quand il y aura suffisamment de place.
 		Sélectionnez les résidents avec lesquels partager l&apos;élément.
 	</notification>
 	<notification name="MeshUploadError">
-		Échec de chargement de [LABEL] : [MESSAGE] [IDENTIFIER] 
-
-Voir le fichier journal pour plus de détails.
+		Échec de chargement de [LABEL] : [MESSAGE] [IDENTIFIER]
+[DETAILS]Consultez SecondLife.log pour de plus amples détails
 	</notification>
 	<notification name="MeshUploadPermError">
 		Erreur lors de la demande des autorisations de chargement de maillage.

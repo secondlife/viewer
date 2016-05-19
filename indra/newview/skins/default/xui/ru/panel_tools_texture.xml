@@ -21,11 +21,11 @@
 		<combo_box.item label="Материалы" name="Materials"/>
 		<combo_box.item label="Медиа" name="Media"/>
 	</combo_box>
-	<combo_box name="combobox mattype">
-		<combo_box.item label="Текстура (рассеянная)" name="Texture (diffuse)"/>
-		<combo_box.item label="Шероховатость (обычная)" name="Bumpiness (normal)"/>
-		<combo_box.item label="Блеск (зеркальный)" name="Shininess (specular)"/>
-	</combo_box>
+	<radio_group name="radio_material_type">
+		<radio_item label="Текстура (рассеянная)" name="Texture (diffuse)" value="0"/>
+		<radio_item label="Шероховатость (обычная)" name="Bumpiness (normal)" value="1"/>
+		<radio_item label="Блеск (зеркальный)" name="Shininess (specular)" value="2"/>
+	</radio_group>
 	<texture_picker label="Текстура" name="texture control" tool_tip="Щелкните для выбора изображения"/>
 	<text name="label alphamode">
 		Альфа-режим

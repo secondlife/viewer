@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Email Popup">
+	<menu_item_call label="Написать письмо во внешней программе" name="email_open_external"/>
+	<menu_item_call label="Копировать письмо в буфер обмена" name="email_copy"/>
+</context_menu>

@@ -26,7 +26,7 @@
 		<icons_combo_box label="Moderat" name="maturity">
 			<icons_combo_box.item label="Adult" name="Adult" value="42"/>
 			<icons_combo_box.item label="Moderat" name="Mature" value="21"/>
-			<icons_combo_box.item label="Allgemein" name="PG" value="13"/>
+			<icons_combo_box.item label="Generell" name="PG" value="13"/>
 		</icons_combo_box>
 		<scroll_list name="search_results">
 			<columns label="Name" name="experience_name"/>

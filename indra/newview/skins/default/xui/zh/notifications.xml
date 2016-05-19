@@ -164,6 +164,10 @@
         &apos;[ERROR_CODE]&apos;
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="MerchantForceValidateListing">
+		為能建立你的刊登內容，我們修正了你刊登內容的層級架構。
+		<usetemplate ignoretext="如果建立新的刊登時會修動內容物的層級架構，給我提醒" name="okignore" yestext="確定"/>
+	</notification>
 	<notification name="ConfirmMerchantActiveChange">
 		這個動作會改變此刊登的內容。 你確定要繼續嗎？
 		<usetemplate ignoretext="在我變更 Marketplace 的一項刊登內容之前，先跟我確認" name="okcancelignore" notext="取消" yestext="確定"/>
@@ -211,11 +215,9 @@
 		因為存量爲零，我們已經把你的刊登物下架。 你若希望重新刊登，必須先增加存量。
 		<usetemplate ignoretext="限量資料夾如果成空、導致刊登物下架，告知我" name="okignore" yestext="確定"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		上傳腳本文字時出問題，原因：[REASON]。 請稍候再試一次。
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		上傳已編譯腳本時出問題，原因：[REASON]。 請稍候再試一次。
+	<notification name="AlertMerchantVersionFolderEmpty">
+		因為版本資料夾是空的，我們已經把你的刊登物下架。 你若希望重新刊登，必須先新增物項到該版本資料夾。
+		<usetemplate ignoretext="版本資料夾如果成空、導致刊登物下架，告知我" name="okignore" yestext="確定"/>
 	</notification>
 	<notification name="WriteAnimationFail">
 		寫入動作資料時出錯。  請稍候再試一次。
@@ -320,6 +322,14 @@
 		你即將把 [COUNT] 個人踢出群組。
 		<usetemplate ignoretext="確定將多人踢出群組" name="okcancelignore" notext="取消" yestext="踢出"/>
 	</notification>
+	<notification name="BanGroupMemberWarning">
+		你即將禁止[AVATAR_NAME]留在群組。
+		<usetemplate ignoretext="確定禁止某人留在群組" name="okcancelignore" notext="取消" yestext="禁止"/>
+	</notification>
+	<notification name="BanGroupMembersWarning">
+		你即將禁止[COUNT]個人留在群組。
+		<usetemplate ignoretext="確定要禁止多名成員續留此群組" name="okcancelignore" notext="取消" yestext="禁止"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		你即將卸除你的附件。
     你確定你要繼續？
@@ -404,7 +414,7 @@
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		你確定要將所列的所有物件送返其所有人的收納區？
+		你確定要將所列的所有物件送返其所有人的收納區？ 這將送回這個地區全部的腳本物件！
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
@@ -587,15 +597,9 @@
 （*警告* 這動作無法還原。）
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		儲存腳本時出問題，原因：[REASON]。  請稍後再嘗試儲存腳本。
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		無法儲存腳本，找不到它所屬的物件。
 該物件可能超出範圍或已被刪除。
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		儲存編譯腳本時出問題，原因：[REASON]。  請稍後再嘗試儲存腳本。
 	</notification>
 	<notification name="StartRegionEmpty">
 		你的起始地區尚未定義。
@@ -608,6 +612,10 @@
 	</notification>
 	<notification name="CannotDownloadFile">
 		無法下載檔案
+	</notification>
+	<notification label="" name="MediaFileDownloadUnsupported">
+		你要求下載檔案，在 [SECOND_LIFE] 裡未支援這動作。
+		<usetemplate ignoretext="如果下載的檔案不受支援，給我提醒" name="okignore" yestext="確定"/>
 	</notification>
 	<notification name="CannotWriteFile">
 		無法寫入檔案 [[FILE]]
@@ -1108,8 +1116,9 @@
 這異常狀況通常只是暫時的。 請稍待幾分鐘後，再自訂並儲存可穿裝扮。
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		糟糕！ 你已被登出 [SECOND_LIFE]
-            [MESSAGE]
+		糟糕！ 你已被登出 [SECOND_LIFE]。
+
+[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="結束退出" yestext="察看 IM 和聊天內容"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1349,6 +1358,13 @@
 		<form name="form">
 			<ignore name="ignore" text="服裝花太多時間下載"/>
 		</form>
+	</notification>
+	<notification name="RegionAndAgentComplexity">
+		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 視覺複雜度]是[AGENT_COMPLEXITY]。
+[OVERLIMIT_MSG]
+	</notification>
+	<notification name="AgentComplexity">
+		你的[https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 視覺複雜度]是[AGENT_COMPLEXITY]。
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] 安裝完成。
@@ -1626,6 +1642,25 @@ SHA1 指紋：[MD5_DIGEST]
 參見[[INFO_URL] 介紹此更新版的資訊]
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="UpdateDownloadInProgress">
+		有更新版本！
+正在背景下載中，一完成下載我們會通知你重啟瀏覽器以便安裝。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="UpdateDownloadComplete">
+		一個更新版本已經下載完畢。 重啟時將會安裝。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="UpdateCheckError">
+		查詢是否有更新時出錯。
+請稍候再試一次。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="UpdateViewerUpToDate">
+		你的瀏覽器已是最新版！
+如果你急欲試用最新的功能和修補，請光臨「替代瀏覽器」網頁：http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		讓渡此物件將可讓這個群組：
 * 收取付給此物件的 L$
@@ -1729,6 +1764,13 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="JoinedTooManyGroups">
 		你已達可同時加入的群組數上限。 請先離開某些群組再加入或新建新群組。
 		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="GroupLimitInfo">
+		基本帳戶的群組限制是[MAX_BASIC]，[https://secondlife.com/premium/ 付費]帳戶則是[MAX_PREMIUM]。
+如果你把帳戶降級，你必須先低於[MAX_BASIC]的群組限制，才可再加入更多群組。
+
+[https://secondlife.com/my/account/membership.php 現在就升級！]
+		<usetemplate name="okbutton" yestext="關閉"/>
 	</notification>
 	<notification name="KickUser">
 		踢出這個居民並留給他什麼訊息？
@@ -1930,7 +1972,7 @@ SHA1 指紋：[MD5_DIGEST]
 		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
 	</notification>
 	<notification label="選擇領地" name="EstateTrustedExperienceRemove">
-		僅針對這個領地或針對 [ALL_ESTATES] 將它從金鑰清單中移除？
+		僅針對這個領地，還是針對 [ALL_ESTATES] 將它從金鑰清單中移除？
 		<usetemplate canceltext="取消" name="yesnocancelbuttons" notext="全部領地" yestext="這個領地"/>
 	</notification>
 	<notification label="確認踢出" name="EstateKickUser">
@@ -2239,6 +2281,10 @@ SHA1 指紋：[MD5_DIGEST]
 		確認你真要支付 L$[AMOUNT] 給 [TARGET]。
 		<usetemplate ignoretext="付款前跟我確認（超過 L$200 的總額）" name="okcancelignore" notext="取消" yestext="支付"/>
 	</notification>
+	<notification name="PayObjectFailed">
+		付款失敗：找不到物件。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		這物件中沒有任何准許你複製的物項。
 	</notification>
@@ -2270,10 +2316,9 @@ SHA1 指紋：[MD5_DIGEST]
 		[QUESTION]
 		<usetemplate ignoretext="刪除物品前確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
-	<notification name="HelpReportAbuseEmailLL">
-		使用這個工具舉報任何違反[http://secondlife.com/corporate/tos.php 服務條款]和[http://secondlife.com/corporate/cs.php 社群準則]的情事。
-
-所有舉報的違規事件都有人調查，加以解決。
+	<notification name="ConfirmUnlink">
+		這是一組包含聯結集的巨大選取項。 一旦你取消它的聯結，很可能不能再重新聯結。 為防萬一，建議你把聯結集複製到收納區。
+		<usetemplate ignoretext="取消聯結集聯結時，跟我確認" name="okcancelignore" notext="取消" yestext="取消聯結"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		請選擇適合這次違規舉報的類別。
@@ -3201,6 +3246,12 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="AttachmentSaved">
 		附件已儲存。
 	</notification>
+	<notification name="PresetNotSaved">
+		儲存預設名稱[NAME]時出錯。
+	</notification>
+	<notification name="PresetNotDeleted">
+		刪除預設名稱[NAME]時出錯。
+	</notification>
 	<notification name="UnableToFindHelpTopic">
 		找不到這個元件的幫助主題。
 	</notification>
@@ -3233,9 +3284,8 @@ SHA1 指紋：[MD5_DIGEST]
 		選取要分享的居民。
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] 上傳失敗：[MESSAGE] [IDENTIFIER] 
-
-詳見記錄檔。
+		[LABEL] 上傳失敗：[MESSAGE] [IDENTIFIER]
+[DETAILS]詳情見 SecondLife.log
 	</notification>
 	<notification name="MeshUploadPermError">
 		請求網面上傳權限時出錯。

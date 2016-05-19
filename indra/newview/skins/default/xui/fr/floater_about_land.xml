@@ -10,13 +10,13 @@
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
 	<floater.string name="Minutes">
-		[MINUTES] minutes
+		[MINUTES] min
 	</floater.string>
 	<floater.string name="Minute">
-		minute
+		lmin
 	</floater.string>
 	<floater.string name="Seconds">
-		[SECONDS] secondes
+		[SECONDS] s
 	</floater.string>
 	<floater.string name="Remaining">
 		restantes
@@ -456,7 +456,7 @@ musique :
 			<spinner label="Durée en heures :" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Toujours autoriser" name="AllowedText">
-					Résidents autorisés
+					Résidents autorisés ([COUNT])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] dans la liste, [MAX] max.)"/>
 				<button label="Ajouter" name="add_allowed"/>
@@ -464,7 +464,7 @@ musique :
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Bannir" name="BanCheck">
-					Résidents bannis
+					Résidents bannis ([COUNT])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] dans la liste, [MAX] max.)"/>
 				<button label="Ajouter" name="add_banned"/>

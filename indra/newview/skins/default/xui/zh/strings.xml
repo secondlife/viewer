@@ -38,11 +38,8 @@
 		顯像初始化失敗。 請更新你的顯像卡驅動程式！
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
-	<string name="AboutCompiler">
-		以 [COMPILER_VERSION] 版本 [COMPILER] 建置
 	</string>
 	<string name="AboutPosition">
 		你的方位是 [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1]，地區名：[REGION]，主機：&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -64,10 +61,9 @@
 	<string name="AboutLibs">
 		OpenGL 版本：[OPENGL_VERSION]
 
-libcurl 版本： [LIBCURL_VERSION]
 J2C 解碼器版本： [J2C_VERSION]
 音效驅動程式版本： [AUDIO_DRIVER_VERSION]
-Qt Webkit 版本： [QT_WEBKIT_VERSION]
+LLCEFLib/CEF版本：[LLCEFLIB_VERSION]
 語音伺服器版本： [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -177,6 +173,12 @@ Qt Webkit 版本： [QT_WEBKIT_VERSION]
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		第二人生主要網格(Agni)
+	</string>
+	<string name="AditiGridLabel">
+		第二人生Beta版測試網格(Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download
@@ -448,6 +450,9 @@ http://secondlife.com/viewer-access-faq
 		你不能對含超過 [AMOUNT] 個物項的資料夾作穿戴動作。  欲變更此上限，可到「進階」&gt;「顯示除錯設定」&gt;「WearFolderLimit」。
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]："/>
+	<string name="TooltipSLIcon">
+		這將連結到位於SecondLife.com或LindenLab.com官方網域的一個網頁。
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		你不能從 Marketplace 的刊登資料夾產生物件。
 	</string>
@@ -467,7 +472,7 @@ http://secondlife.com/viewer-access-faq
 		限量物件數目超過 [AMOUNT]。
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		你只能把物項或資料夾拖放到「所有」(ALL)頁籤 請選取該頁籤，再移動你的物項或資料夾。
+		你只能把物項或資料夾拖放到所有(ALL)或已取消聯結(UNASSOCIATED)頁籤。 請選取其中一個頁籤，再移動你的物項或資料夾。
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		至少一個物件無法出售或轉移
@@ -551,6 +556,9 @@ http://secondlife.com/viewer-access-faq
 		點按以執行 secondlife:// 指令
 	</string>
 	<string name="CurrentURL" value="目前網址：[CurrentURL]"/>
+	<string name="TooltipEmail">
+		點按一下可編寫電郵
+	</string>
 	<string name="SLurlLabelTeleport">
 		瞬間傳送到
 	</string>
@@ -1073,7 +1081,7 @@ http://secondlife.com/viewer-access-faq
 	<string name="AgentNameSubst">
 		（你）
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		管理領出入許可名單時，不顯示警示
 	</string>
@@ -1852,6 +1860,21 @@ http://secondlife.com/viewer-access-faq
 	<string name="TodayOld">
 		今日剛加入
 	</string>
+	<string name="av_render_everyone_now">
+		現在每個人都能看見你了。
+	</string>
+	<string name="av_render_not_everyone">
+		你恐怕不能呈像給你周遭的所有人。
+	</string>
+	<string name="av_render_over_half">
+		你恐怕不能呈像給你周遭一半以上的人。
+	</string>
+	<string name="av_render_most_of">
+		你恐怕不能呈像給你周遭大部分的人。
+	</string>
+	<string name="av_render_anyone">
+		你恐怕不能呈像給你周遭的任何人。
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] 年
 	</string>
@@ -1969,6 +1992,9 @@ http://secondlife.com/viewer-access-faq
 	<string name="CompileQueueUnknownFailure">
 		下載失敗，原因不明
 	</string>
+	<string name="CompileNoExperiencePerm">
+		略過體驗 [EXPERIENCE] 的腳本 [SCRIPT]。
+	</string>
 	<string name="CompileQueueTitle">
 		重新編譯進度
 	</string>
@@ -2013,9 +2039,6 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="GroupsNone">
 		無
-	</string>
-	<string name="CompileNoExperiencePerm">
-		略過體驗 [EXPERIENCE] 的腳本 [SCRIPT]。
 	</string>
 	<string name="Group" value="（群組）"/>
 	<string name="Unknown">
@@ -5384,18 +5407,6 @@ http://secondlife.com/viewer-access-faq
 	<string name="UserDictionary">
 		[User]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		交談未留記錄。 若想開始留記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		將不再為交談留記錄。 若想恢復留存記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		目前沒有交談記錄。 在你聯絡某人或某人聯絡你之後，這裡將留存記錄。
-	</string>
-	<string name="loading_chat_logs">
-		載入中…
-	</string>
 	<string name="experience_tools_experience">
 		體驗
 	</string>
@@ -5476,5 +5487,38 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="ExperiencePermissionShort12">
 		權限
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		交談未留記錄。 若想開始留記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		將不再為交談留記錄。 若想恢復留存記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		目前沒有交談記錄。 在你聯絡某人或某人聯絡你之後，這裡將留存記錄。
+	</string>
+	<string name="loading_chat_logs">
+		載入中…
+	</string>
+	<string name="preset_combo_label">
+		-空白清單-
+	</string>
+	<string name="Default">
+		預設
+	</string>
+	<string name="none_paren_cap">
+		（無）
+	</string>
+	<string name="no_limit">
+		無上限
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		該物理形狀包含太小的三角形。 請試著簡化該物理模型。
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		該物理形狀包含壞的確認資料。 請試著修正該物理模型。
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		物理形狀的版本不正確。 請設成正確的物理模型版本。
 	</string>
 </strings>

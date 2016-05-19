@@ -3,6 +3,7 @@
 	<tab_container name="about_tab">
 		<panel label="Данные" name="support_panel">
 			<button label="Копировать в буфер обмена" name="copy_btn"/>
+			<button label="Проверить наличие обновлений" name="update_btn"/>
 		</panel>
 		<panel label="Создатели" name="credits_panel">
 			<text name="linden_intro">Игра Second Life разработана лабораторией Lindens, 

@@ -90,7 +90,16 @@
 	<floater.string name="linkset_choose_use">
 		Escolher uso do linkset...
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			Filtrar por:
+		</text>
+		<text name="linksets_name_label">
+			Nome
+		</text>
+		<text name="linksets_desc_label">
+			Descrição
+		</text>
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="Filtrar por uso do linkset..." name="filter_by_linkset_use_none"/>
 			<combo_box.item label="Caminhável" name="filter_by_linkset_use_walkable"/>
@@ -122,7 +131,10 @@
 		<button label="Selecionar tudo" name="select_all_objects"/>
 		<button label="Selecionar nenhum" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			Ações em linksets selecionados (se um linkset for removido de um mundo, seus atributos podem ser perdidos):
+		</text>
 		<check_box label="Exibir baliza" name="show_beacon"/>
 		<button label="Pegar" name="take_objects"/>
 		<button label="Pegar uma cópia" name="take_copy_objects"/>
@@ -130,7 +142,10 @@
 		<button label="Devolver" name="return_objects"/>
 		<button label="Excluir" name="delete_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			Edite os atributos de linksets selecionados e pressione o botão para aplicar as alterações
+		</text>
 		<text name="walkability_coefficients_label">
 			Possibilidade de caminhar:
 		</text>

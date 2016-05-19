@@ -36,30 +36,31 @@ class LLViewerRegion;
 
 // Class to gather avatar rendering information 
 // that is sent to or fetched from regions.
-class LLAvatarRenderInfoAccountant
+class LLAvatarRenderInfoAccountant : public LLSingleton<LLAvatarRenderInfoAccountant>
 {
-public:
+  private:
+	LOG_CLASS(LLAvatarRenderInfoAccountant);
 
-	static void sendRenderInfoToRegion(LLViewerRegion * regionp);
-	static void getRenderInfoFromRegion(LLViewerRegion * regionp);
+  public:
+	LLAvatarRenderInfoAccountant();
+	~LLAvatarRenderInfoAccountant();
 
-	static void expireRenderInfoReportTimer(const LLUUID& region_id);
+	void sendRenderInfoToRegion(LLViewerRegion * regionp);
+	void getRenderInfoFromRegion(LLViewerRegion * regionp);
 
-    static void idle();
+	void idle(); // called once per frame 
 
-	static bool logRenderInfo();
+	void resetRenderInfoScanTimer();
+	
+	static void scanNewRegion(const LLUUID& region_id);
 
-private:
-	LLAvatarRenderInfoAccountant() {};
-	~LLAvatarRenderInfoAccountant()	{};
-
-	// Send data updates about once per minute, only need per-frame resolution
-	static LLFrameTimer sRenderInfoReportTimer;
+  private:
+	// frequency of region scans,
+	// further limited by per region Request and Report timers
+	LLFrameTimer mRenderInfoScanTimer; 
 
     static void avatarRenderInfoGetCoro(std::string url, U64 regionHandle);
     static void avatarRenderInfoReportCoro(std::string url, U64 regionHandle);
-
-
 };
 
 #endif /* ! defined(LL_llavatarrenderinfoaccountant_H) */

@@ -66,6 +66,16 @@
 	<floater.string name="pathing_error">
 		Yol oluşturma sırasında bir hata meydana geldi.
 	</floater.string>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
+			Görüntüleyici durumu
+		</text>
+	</panel>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
+			Simülatör durumu
+		</text>
+	</panel>
 	<tab_container name="view_test_tab_container">
 		<panel label="Görünüm" name="view_panel">
 			<text name="show_label">

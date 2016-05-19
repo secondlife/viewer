@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_marketplace_sort">
+	<menu_item_check label="Сортировать по имени" name="sort_by_name"/>
+	<menu_item_check label="Сортировать по времени" name="sort_by_recent"/>
 	<menu_item_check label="Сортировать по объему запасов (от малых к большим)" name="sort_by_stock_amount"/>
 	<menu_item_check label="Показывать только папки списков" name="show_only_listing_folders"/>
 </toggleable_menu>

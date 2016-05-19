@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<dummy_clothing_list_item name="dummy_clothing_item">
+	<add_btn name="btn_add" tool_tip="Dodaj więcej przedmiotów tego typu" />
+</dummy_clothing_list_item>

@@ -164,6 +164,10 @@ L&apos;inizializzazione con il Marketplace non ha avuto successo a causa di un e
         &apos;[ERROR_CODE]&apos;
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="MerchantForceValidateListing">
+		Per creare l&apos;annuncio, abbiamo corretto la gerarchia dei contenuti dell&apos;annuncio.
+		<usetemplate ignoretext="Avvisami se la gerarchia del contenuto viene corretta per creare un annuncio" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmMerchantActiveChange">
 		Questa azione cambierà il contenuto attivo di questo annuncio. Vuoi continuare?
 		<usetemplate ignoretext="Conferma prima di modificare un annuncio attivo su Marketplace" name="okcancelignore" notext="Annulla" yestext="OK"/>
@@ -211,11 +215,9 @@ L&apos;inizializzazione con il Marketplace non ha avuto successo a causa di un e
 		L&apos;annuncio è stato rimosso perché il magazzino è esaurito. Aggiungi altre unità alla cartella di magazzino prima di pubblicare nuovamente l&apos;annuncio.
 		<usetemplate ignoretext="Avverti quando un annuncio viene rimosso perché la cartella di magazzino è vuota" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		C&apos;è stato un problema importando il testo di uno script per la seguente ragione: [REASON]. Riprova più tardi.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		C&apos;è stato un problema importando lo script compilato per la seguente ragione: [REASON]. Riprova più tardi.
+	<notification name="AlertMerchantVersionFolderEmpty">
+		L&apos;annuncio è stato rimosso perché la cartella della versione è vuota. Aggiungi elementi alla cartella della versione prima di pubblicare nuovamente l&apos;annuncio.
+		<usetemplate ignoretext="Avverti quando un annuncio non è elencato perché la cartella della versione è vuota" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="WriteAnimationFail">
 		C&apos;è stato un problema di scrittura dati dell&apos;animazione.  Riprova più tardi.
@@ -320,6 +322,14 @@ Se non desideri che queste abilità siano assegnate a questo ruolo, disattivale 
 		Stai per espellere [COUNT] membri dal gruppo.
 		<usetemplate ignoretext="Conferma l&apos;espulsione di vari partecipanti dal gruppo" name="okcancelignore" notext="Annulla" yestext="Espelli"/>
 	</notification>
+	<notification name="BanGroupMemberWarning">
+		Stai per espellere [AVATAR_NAME] dal gruppo.
+		<usetemplate ignoretext="Conferma di voler espellere un partecipante dal gruppo" name="okcancelignore" notext="Annulla" yestext="Espelli"/>
+	</notification>
+	<notification name="BanGroupMembersWarning">
+		Stai per espellere [COUNT] membri dal gruppo.
+		<usetemplate ignoretext="Conferma l&apos;espulsione di vari partecipanti dal gruppo" name="okcancelignore" notext="Annulla" yestext="Espelli"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Stai per abbandonare il tuo accessorio.
     Vuoi continuare?
@@ -404,7 +414,7 @@ Oggetti: [N]
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		Confermi di volere restituire tutti gli oggetti elencati nell&apos;inventario dei loro proprietari?
+		Restituisci tutti gli oggetti elencati all&apos;inventario del proprietario? Verranno restituiti TUTTI gli oggetti scriptati nella regione.
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
@@ -584,15 +594,9 @@ Vuoi ripristinare l&apos;ultima versione salvata sul server?
 (**Attenzione** Questa operazione non è reversibile)
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		C&apos;è stato un problema salvando lo script a causa del seguente motivo : [REASON].  Riprova a salvare lo script più tardi.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Non è stato possibile salvare lo script perchè l&apos;oggetto che lo contiene non è stato trovato.
 L&apos;oggetto potrebbe essere troppo lontano oppure essere stato cancellato.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		C&apos;è stato un problema salvando lo script compilato a causa del seguente motivo: [REASON].  Riprova a salvare lo script più tardi.
 	</notification>
 	<notification name="StartRegionEmpty">
 		La tua Regione di inizio non è stata definita.
@@ -605,6 +609,10 @@ L&apos;oggetto potrebbe essere troppo lontano oppure essere stato cancellato.
 	</notification>
 	<notification name="CannotDownloadFile">
 		Non è stato possibile scaricare il file
+	</notification>
+	<notification label="" name="MediaFileDownloadUnsupported">
+		Hai richiesto il download di un file, cosa che non è supportata in [SECOND_LIFE].
+		<usetemplate ignoretext="Avvisa in caso di download di file non supportati" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="CannotWriteFile">
 		Non è stato possibile scrivere il file [[FILE]]
@@ -1107,8 +1115,9 @@ Unisci il terreno?
 In genere si tratta di un problema temporaneo. Attendi alcuni minuti per modificare e salvare nuovamente gli elementi indossabili.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Sei stato scollegato da [SECOND_LIFE].
-            [MESSAGE]
+		Accidenti. Sei stato scollegato da [SECOND_LIFE].
+
+[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Esci" yestext="Vedi IM &amp; Chat"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1356,6 +1365,13 @@ Puoi comunque usare [SECOND_LIFE] normalmente e gli altri residenti ti vedranno 
 		<form name="form">
 			<ignore name="ignore" text="Lo scaricamento sta richiedendo parecchio tempo"/>
 		</form>
+	</notification>
+	<notification name="RegionAndAgentComplexity">
+		La tua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complessità visiva] è [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+	</notification>
+	<notification name="AgentComplexity">
+		La tua [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complessità visiva] è [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		L&apos;installazione di [APP_NAME] è terminata.
@@ -1637,6 +1653,25 @@ Questo viewer sperimentale è stato sostituito con un viewer [NEW_CHANNEL];
 vedi [[INFO_URL] Informazioni su questo aggiornamento]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UpdateDownloadInProgress">
+		È disponibile un aggiornamento.
+È in fase di download. Al termine ti verrà chiesto di riavviare il computer per completare l&apos;installazione.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateDownloadComplete">
+		È stato scaricato un aggiornamento. Verrà installato durante il riavvio.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateCheckError">
+		Si è verificato un errore durante la ricerca dell&apos;aggiornamento.
+Riprova più tardi.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateViewerUpToDate">
+		Il Viewer è aggiornato.
+Per provare le funzioni e modifiche più recenti, visita la pagina Alternate Viewers. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		La cessione di questo oggetto farà in modo che il gruppo:
 * Riceva i L$ pagati all&apos;oggetto
@@ -1741,6 +1776,14 @@ Vuoi cancellare quell&apos;elemento?
 	<notification name="JoinedTooManyGroups">
 		Hai raggiunto il numero massimo di gruppi. Per favore abbandona almeno un gruppo prima di aderire o crearne uno nuovo.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupLimitInfo">
+		Il numero massimo di gruppi per gli account Basic è [MAX_BASIC] e
+per gli account [https://secondlife.com/premium/ Premium] è [MAX_PREMIUM].
+Se hai ridotto il livello del tuo account, dovrai essere iscritto a meno di [MAX_BASIC] gruppi prima di poter iscriverti a un nuovo gruppo.
+
+[https://secondlife.com/my/account/membership.php Passa a un livello superiore oggi stesso!]
+		<usetemplate name="okbutton" yestext="Chiudi"/>
 	</notification>
 	<notification name="KickUser">
 		Espelli questo residente con quale messaggio?
@@ -1943,7 +1986,7 @@ Cambierà migliaia di regioni e produrrà seri problemi ai vari server.
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
 	</notification>
 	<notification label="Seleziona proprietà immobiliare" name="EstateTrustedExperienceRemove">
-		Rimuovi dall&apos;elenco di elementi chiave per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		Rimuovi dall&apos;elenco di elementi chiave solo per questa proprietà immobiliare oppure per [ALL_ESTATES]?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà immobiliari" yestext="Questa proprietà immobiliare"/>
 	</notification>
 	<notification label="Conferma espulsione" name="EstateKickUser">
@@ -2254,6 +2297,10 @@ Trasferisci gli elementi nell&apos;inventario?
 		Conferma che desideri pagare [AMOUNT] L$ a [TARGET].
 		<usetemplate ignoretext="Conferma prima di pagare (somme superiori a 200 L$)" name="okcancelignore" notext="Annulla" yestext="Paga"/>
 	</notification>
+	<notification name="PayObjectFailed">
+		Pagamento non riuscito: oggetto non trovato.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Non ci sono elementi in questo oggetto che tu possa copiare.
 	</notification>
@@ -2285,10 +2332,9 @@ Questa azione non può essere ripristinata
 		[QUESTION]
 		<usetemplate ignoretext="Conferma prima di cancellare gli elementi" name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
-	<notification name="HelpReportAbuseEmailLL">
-		Usa questo strumento per segnalare violazioni a [http://secondlife.com/corporate/tos.php Terms of Service] e [http://secondlife.com/corporate/cs.php Community Standards].
-
-Ogni abuso segnalato verrà esaminato e risolto.
+	<notification name="ConfirmUnlink">
+		Questa è una selezione di grandi dimensioni con set collegati. Se viene scollegata, potrebbe non essere possibile ricollegarla. Come precauzione ti consigliamo di salvare copie dei set collegati nel tuo inventario.
+		<usetemplate ignoretext="Conferma per scollegare un set collegato" name="okcancelignore" notext="Annulla" yestext="Scollega"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Scegli una categoria per questa segnalazione di abuso.
@@ -3010,10 +3056,10 @@ OK?
 
 [EXPERIENCE_LIST]
 
-Potrebbero essere disponibili altre esperienze chiave.
+Possono essere disponibili altre esperienze chiave.
 	</notification>
 	<notification name="ExperienceEvent">
-		L&apos;esperienza secondlife:///app/experience/[public_id]/profile ha consentito un oggetto la seguente azione: [EventType].
+		L&apos;esperienza secondlife:///app/experience/[public_id]/profile ha consentito a un oggetto la seguente azione: [EventType].
     Proprietario: secondlife:///app/agent/[OwnerID]/inspect
     Nome oggetto: [ObjectName]
     Nome lotto: [ParcelName]
@@ -3216,6 +3262,12 @@ Per sicurezza, verranno bloccati per alcuni secondi.
 	<notification name="AttachmentSaved">
 		L&apos;elemento da collegare è stato salvato.
 	</notification>
+	<notification name="PresetNotSaved">
+		Errore durante il salvataggio del valore predefinito [NAME].
+	</notification>
+	<notification name="PresetNotDeleted">
+		Errore durante l&apos;eliminazione del valore predefinito [NAME].
+	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Impossibile trovare l&apos;argomento nell&apos;aiuto per questo elemento.
 	</notification>
@@ -3248,9 +3300,8 @@ Il pulsante verrà visualizzato quando lo spazio sarà sufficiente.
 		Scegli i residenti con i quali condividere.
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] non è stato caricato: [MESSAGE] [IDENTIFIER] 
-
-Per informazioni dettagliate, vedi il file del registro.
+		[LABEL] non è stato caricato: [MESSAGE] [IDENTIFIER]
+[DETAILS]Consulta SecondLife.log per informazioni dettagliate
 	</notification>
 	<notification name="MeshUploadPermError">
 		Errore durante la richiesta di autorizzazione al caricamento del reticolo.

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_experience_info">
-	<text name="title" value="Profil de l&apos;expérience"/>
+	<text name="title" value="Profil de l’expérience"/>
 	<scroll_container name="xp_scroll">
 		<panel name="scrolling_panel">
 			<layout_stack>
 				<layout_panel>
-					<text name="experience_title" value="Kyle&apos;s Superhero RPG"/>
+					<text name="experience_title" value="Kyle’s Superhero RPG"/>
 				</layout_panel>
 				<layout_panel name="location panel">
 					<text name="Location">
@@ -14,7 +14,7 @@
 					<text name="LocationTextText">
 						quelque part
 					</text>
-					<button label="Téléporter" name="teleport_btn"/>
+					<button label="Téléportation" name="teleport_btn"/>
 					<button label="Carte" name="map_btn"/>
 				</layout_panel>
 				<layout_panel name="marketplace panel">

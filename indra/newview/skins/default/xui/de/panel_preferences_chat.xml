@@ -89,8 +89,19 @@
 		<check_box label="Inventarangebot" name="inventory_offer"/>
 	</panel>
 	<panel name="log_settings">
+		<text name="logging_label">
+			Speichern:
+		</text>
+		<combo_box name="conversation_log_combo">
+			<item label="Protokoll und Transkripte" name="log_and_transcripts" value="2"/>
+			<item label="Nur Protokoll" name="log_only" value="1"/>
+			<item label="Weder Protokoll noch Transkripte" name="no_log_or_transcript" value="0"/>
+		</combo_box>
 		<button label="Protokoll löschen..." name="clear_log"/>
 		<button label="Transkripte löschen..." name="delete_transcripts"/>
+		<text name="log_location_label">
+			Standort:
+		</text>
 		<button label="Durchsuchen..." label_selected="Durchblättern" name="log_path_button"/>
 	</panel>
 	<button label="Übersetzen..." name="ok_btn"/>

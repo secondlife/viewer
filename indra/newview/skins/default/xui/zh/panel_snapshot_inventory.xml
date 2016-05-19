@@ -7,7 +7,7 @@
 		將圖像儲存到收納區的費用為 L$[UPLOAD_COST]。 若要將圖像存為材質，請選擇一個正方格式。
 	</text>
 	<combo_box label="解析度" name="texture_size_combo">
-		<combo_box.item label="目前視窗" name="CurrentWindow"/>
+		<combo_box.item label="目前視窗(512x512)" name="CurrentWindow"/>
 		<combo_box.item label="小（128x128）" name="Small(128x128)"/>
 		<combo_box.item label="中（256x256）" name="Medium(256x256)"/>
 		<combo_box.item label="大（512x512）" name="Large(512x512)"/>

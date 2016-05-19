@@ -3,6 +3,7 @@
 	<tab_container name="about_tab">
 		<panel label="Info" name="support_panel">
 			<button label="Copiar" name="copy_btn"/>
+			<button label="Verificar atualizações" name="update_btn"/>
 		</panel>
 		<panel label="Créditos" name="credits_panel">
 			<text name="linden_intro">O Second Life é trazido a você pela Lindens, 

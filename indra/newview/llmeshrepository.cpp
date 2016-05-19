@@ -3122,7 +3122,10 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
 
 LLMeshSkinInfoHandler::~LLMeshSkinInfoHandler()
 {
-	llassert(mProcessed);
+	if (!mProcessed)
+    {
+        LL_WARNS(LOG_MESH) << "deleting unprocessed request handler (may be ok on exit)" << LL_ENDL;
+    }
 }
 
 void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
@@ -3166,7 +3169,10 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
 
 LLMeshDecompositionHandler::~LLMeshDecompositionHandler()
 {
-	llassert(mProcessed);
+	if (!mProcessed)
+    {
+        LL_WARNS(LOG_MESH) << "deleting unprocessed request handler (may be ok on exit)" << LL_ENDL;
+    }
 }
 
 void LLMeshDecompositionHandler::processFailure(LLCore::HttpStatus status)
@@ -3209,7 +3215,10 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
 
 LLMeshPhysicsShapeHandler::~LLMeshPhysicsShapeHandler()
 {
-	llassert(mProcessed);
+	if (!mProcessed)
+    {
+        LL_WARNS(LOG_MESH) << "deleting unprocessed request handler (may be ok on exit)" << LL_ENDL;
+    }
 }
 
 void LLMeshPhysicsShapeHandler::processFailure(LLCore::HttpStatus status)

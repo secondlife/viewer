@@ -29,11 +29,8 @@
 		Falha na inicialização dos gráficos. Atualize seu driver gráfico!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Notas da versão]]
-	</string>
-	<string name="AboutCompiler">
-		Construído com [COMPILER] versão [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Você está em [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] em [REGION] localizado em &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -53,12 +50,11 @@ Placa gráfica: [GRAPHICS_CARD]
 		Versão do driver de vídeo Windows: [GRAPHICS_CARD_VENDOR]
 	</string>
 	<string name="AboutLibs">
-		Versão OpenGL: [OPENGL_VERSION]
+		Versão do OpenGL: [OPENGL_VERSION]
 
-Versão libcurl: [LIBCURL_VERSION]
-Versão J2C Decoder: [J2C_VERSION]
+Versão do J2C Decoder: [J2C_VERSION]
 Versão do driver de áudio: [AUDIO_DRIVER_VERSION]
-Versão Qt Webkit: [QT_WEBKIT_VERSION]
+Versão de LLCEFLib/CEF: [LLCEFLIB_VERSION]
 Versão do servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -168,6 +164,12 @@ Versão do servidor de voz: [VOICE_VERSION]
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		Grade principal do Second Life (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Grade de teste beta do Second Life (Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download
@@ -405,6 +407,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 		Você não pode usar uma pasta que contenha mais de [AMOUNT] itens.  Você pode mudar esse limite em Avançado &gt; Mostrar configurações de depuração &gt; WearFolderLimit.
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]"/>
+	<string name="TooltipSLIcon">
+		Isso contém um link para uma página no domínio oficial do SecondLife.com ou LindenLab.com.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		Não é possível fazer rez de itens da pasta Listagens do Marketplace
 	</string>
@@ -424,7 +429,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 		O número de itens de estoque excede [AMOUNT].
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		Você pode soltar somente itens ou pastas na aba TUDO. Selecione essa aba e mova seus itens ou pastas novamente.
+		Você pode soltar somente itens ou pastas na aba TUDO ou NÃO ASSOCIADOS. Selecione uma dessas abas e mova seus itens ou pastas novamente.
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		Um ou mais objetos não podem ser vendidos ou transferidos
@@ -508,6 +513,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 		Clique para ativar no secondlife:// comando
 	</string>
 	<string name="CurrentURL" value="URL atual: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Clique para escrever um email
+	</string>
 	<string name="SLurlLabelTeleport">
 		Teletransportar para
 	</string>
@@ -1027,7 +1035,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="AgentNameSubst">
 		(Você)
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Suprimir alertas ao gerenciar listas de acesso ao terreno
 	</string>
@@ -1800,6 +1808,21 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="TodayOld">
 		Cadastrado hoje
 	</string>
+	<string name="av_render_everyone_now">
+		Agora, todos podem te ver.
+	</string>
+	<string name="av_render_not_everyone">
+		Sua renderização pode não acontecer para todos ao seu redor.
+	</string>
+	<string name="av_render_over_half">
+		Sua renderização pode não acontecer para metade das pessoas ao seu redor.
+	</string>
+	<string name="av_render_most_of">
+		Sua renderização pode não acontecer para a maioria das pessoas ao seu redor.
+	</string>
+	<string name="av_render_anyone">
+		Sua renderização pode não acontecer para ninguém ao seu redor.
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] ano
 	</string>
@@ -1917,6 +1940,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="CompileQueueUnknownFailure">
 		Falha desconhecida para download
 	</string>
+	<string name="CompileNoExperiencePerm">
+		Pulando script [SCRIPT] com experiência [EXPERIENCE]
+	</string>
 	<string name="CompileQueueTitle">
 		Progresso do recompilamento
 	</string>
@@ -1961,9 +1987,6 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	</string>
 	<string name="GroupsNone">
 		nenhum
-	</string>
-	<string name="CompileNoExperiencePerm">
-		Pulando script [SCRIPT] com experiência [EXPERIENCE]
 	</string>
 	<string name="Group" value="(grupo)"/>
 	<string name="Unknown">
@@ -5250,18 +5273,6 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="UserDictionary">
 		[Usuário]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		As conversas não estão sendo registradas. Para começar a manter um registro, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Nenhuma conversa será registrada. Para recomeçar a gravação de registros, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Não há conversas registradas. Depois que você entrar em contato com alguém, ou alguém entrar em contato com você, um registro será exibido aqui.
-	</string>
-	<string name="loading_chat_logs">
-		Carregando...
-	</string>
 	<string name="experience_tools_experience">
 		Experiência
 	</string>
@@ -5281,16 +5292,16 @@ Tente colocar o caminho do editor entre aspas.
 		PERMITIDO
 	</string>
 	<string name="Blocked_Experiences_Tab">
-		BLOQUEADA
+		BLOQUEADO
 	</string>
 	<string name="Contrib_Experiences_Tab">
 		COLABORADOR
 	</string>
 	<string name="Admin_Experiences_Tab">
-		ADMIN
+		ADMINISTRADOR
 	</string>
 	<string name="Recent_Experiences_Tab">
-		RECENTES
+		RECENTE
 	</string>
 	<string name="Owned_Experiences_Tab">
 		PRÓPRIAS
@@ -5302,7 +5313,7 @@ Tente colocar o caminho do editor entre aspas.
 		assumir seus controles
 	</string>
 	<string name="ExperiencePermission3">
-		botão animações no seu avatar
+		acionar animações no seu avatar
 	</string>
 	<string name="ExperiencePermission4">
 		anexar ao avatar
@@ -5326,7 +5337,7 @@ Tente colocar o caminho do editor entre aspas.
 		Assumir o controle
 	</string>
 	<string name="ExperiencePermissionShort3">
-		Botão animações
+		Acionar animações
 	</string>
 	<string name="ExperiencePermissionShort4">
 		Anexar
@@ -5335,12 +5346,45 @@ Tente colocar o caminho do editor entre aspas.
 		Rastrear câmera
 	</string>
 	<string name="ExperiencePermissionShort10">
-		Câmera de controle
+		Controlar câmera
 	</string>
 	<string name="ExperiencePermissionShort11">
 		Teletransportar
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Autorização
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		As conversas não estão sendo registradas. Para começar a manter um registro, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Nenhuma conversa será registrada. Para recomeçar a gravação de registros, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Não há conversas registradas. Depois que você entrar em contato com alguém, ou alguém entrar em contato com você, um registro será exibido aqui.
+	</string>
+	<string name="loading_chat_logs">
+		Carregando...
+	</string>
+	<string name="preset_combo_label">
+		-Lista vazia-
+	</string>
+	<string name="Default">
+		Padrão
+	</string>
+	<string name="none_paren_cap">
+		(nenhum)
+	</string>
+	<string name="no_limit">
+		Sem limite
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		A forma física contém triângulos muito pequenos. Tente simplificar o modelo físico.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		A forma física contém dados de confirmação ruins. Tente consertar o modelo físico.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		A forma física não tem a versão correta. Defina a versão correta para o modelo físico.
 	</string>
 </strings>

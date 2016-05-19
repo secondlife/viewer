@@ -33,7 +33,7 @@
 						</layout_panel>
 						<layout_panel>
 							<text name="Owner">
-								Sahip:
+								Sahibi:
 							</text>
 						</layout_panel>
 						<layout_panel name="group_panel">

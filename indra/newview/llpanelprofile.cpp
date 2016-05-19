@@ -168,7 +168,7 @@ public:
 		{
 			if (params.size() > 2)
 			{
-				const std::string object_name = params[2].asString();
+				const std::string object_name = LLURI::unescape(params[2].asString());
 				LLMute mute(avatar_id, object_name, LLMute::OBJECT);
 				LLMuteList::getInstance()->add(mute);
 				LLPanelBlockedList::showPanelAndSelect(mute.mID);

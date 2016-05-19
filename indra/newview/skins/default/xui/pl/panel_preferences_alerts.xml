@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Informacje" name="popups" title="Popups">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Alerty" name="popups">
 	<text name="tell_me_label">
 		Powiadom mnie:
 	</text>
-	<check_box label="Kiedy wydaję lub otrzymuję L$" name="notify_money_change_checkbox"/>
-	<check_box label="Kiedy moi znajomi zalogowują się i wylogowują" name="friends_online_notify_checkbox"/>
+	<check_box label="Gdy wydaję lub dostaję L$" name="notify_money_change_checkbox" />
+	<check_box label="Gdy znajomi się logują/wylogowywują" name="friends_online_notify_checkbox" />
 	<text name="show_label">
 		Zawsze pokazuj:
 	</text>
 	<text name="dont_show_label">
-		Nie pokazuj:
+		Nigdy nie pokazuj:
 	</text>
 </panel>

@@ -3727,10 +3727,6 @@ BOOL LLModelPreview::render()
 		if (regen)
 		{
 			genBuffers(mPreviewLOD, skin_weight);
-			{
-				LL_INFOS() << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
-				regen = TRUE;
-			}
 		}
 
 		if (!skin_weight)

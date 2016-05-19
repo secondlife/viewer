@@ -89,8 +89,19 @@
 		<check_box label="Предложение инвентаря" name="inventory_offer"/>
 	</panel>
 	<panel name="log_settings">
+		<text name="logging_label">
+			Сохранять:
+		</text>
+		<combo_box name="conversation_log_combo">
+			<item label="Журнал и записи" name="log_and_transcripts" value="2"/>
+			<item label="Только журнал" name="log_only" value="1"/>
+			<item label="Ни журнал, ни записи" name="no_log_or_transcript" value="0"/>
+		</combo_box>
 		<button label="Очистить журнал..." name="clear_log"/>
 		<button label="Удалить записи..." name="delete_transcripts"/>
+		<text name="log_location_label">
+			Место:
+		</text>
 		<button label="Обзор..." label_selected="Обзор" name="log_path_button"/>
 	</panel>
 	<button label="Перевод..." name="ok_btn"/>

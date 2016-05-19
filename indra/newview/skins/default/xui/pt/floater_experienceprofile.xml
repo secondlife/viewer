@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater title="EXPERIENCE PROFILE">
 	<floater.string name="empty_slurl">
-		(none)
+		(nenhum)
 	</floater.string>
 	<floater.string name="maturity_icon_general">
 		&quot;Parcel_PG_Light&quot;
@@ -46,9 +46,9 @@
 							<button label="Ignorar" name="forget_btn"/>
 							<button label="Bloquear" name="block_btn"/>
 							<text name="privileged">
-								Essa experiência está disponível para todos os residentes.
+								Essa experiência está habilitada para todos os residentes.
 							</text>
-							<button label="Denunciar abuso" name="report_btn"/>
+							<button label="Relatar abuso" name="report_btn"/>
 						</layout_panel>
 					</layout_stack>
 				</panel>
@@ -63,7 +63,7 @@
 					<text name="edit_ContentRating">
 						Classificação:
 					</text>
-					<icons_combo_box label="Moderado" name="edit_ContentRatingText" tool_tip="Aumentar a classificação de maturidade sobre uma experiência redefinirá a permissão para todos os residentes que permitiram a experiência.">
+					<icons_combo_box label="Moderado" name="edit_ContentRatingText" tool_tip="Aumentar a classificação de maturidade de uma experiência redefinirá a permissão para todos os residentes que permitiram a experiência.">
 						<icons_combo_box.item label="Adulto" name="Adult" value="42"/>
 						<icons_combo_box.item label="Moderado" name="Mature" value="21"/>
 						<icons_combo_box.item label="Geral" name="PG" value="13"/>
@@ -75,7 +75,7 @@
 					<button label="Limpar localização" name="clear_btn"/>
 					<check_box label="Ativar experiência" name="edit_enable_btn" tool_tip=""/>
 					<check_box label="Ocultar nos resultados de pesquisa" name="edit_private_btn"/>
-					<text name="changes" value="As alterações de experiência podem levar vários minutos para ser visualizadas em todas as regiões."/>
+					<text name="changes" value="As alterações de experiência podem levar vários minutos para serem visualizadas em todas as regiões."/>
 					<button label="Retornar" name="cancel_btn"/>
 					<button label="Salvar" name="save_btn"/>
 				</panel>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Anim Preview">
+	<text name="name_label">
+		Nazwa:
+	</text>
+	<text name="description_label">
+		Opis:
+	</text>
+	<button label="Załaduj ([AMOUNT]L$)" name="ok_btn" />
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
+</floater>
