@@ -164,6 +164,10 @@ Marktplatzinitialisierung aufgrund eines System- oder Netzwerkfehlers fehlgeschl
         „[ERROR_CODE]“
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="MerchantForceValidateListing">
+		Um Ihre Auflistung zu erstellen, haben wir die Hierarchie des Auflistungsinhalts korrigiert.
+		<usetemplate ignoretext="Warnung anzeigen, wenn beim Erstellen einer Auflistung die Hierarchie des Inhalts korrigiert wird" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmMerchantActiveChange">
 		Diese Aktion ändert den aktiven Inhalt dieser Auflistung. Möchten Sie fortfahren?
 		<usetemplate ignoretext="Vor Ändern einer aktiven Auflistung im Marktplatz bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
@@ -211,11 +215,9 @@ Marktplatzinitialisierung aufgrund eines System- oder Netzwerkfehlers fehlgeschl
 		Wir haben Ihre Auflistung entfernt, da der Bestandsordner leer ist. Um diese Auflistung wieder zu listen, müssen Sie weitere Einheiten zum Bestandsordner hinzufügen.
 		<usetemplate ignoretext="Benachrichtigen, wenn Auflistung aufgrund eines leeren Bestandsordners nicht aufgelistet wird" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Der Text für ein Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Eine kompiliertes Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
+	<notification name="AlertMerchantVersionFolderEmpty">
+		Wir haben Ihre Auflistung entfernt, da der Versionsordner leer ist. Um diese Auflistung erneut zu listen, müssen Sie Artikel zum Versionsordner hinzufügen.
+		<usetemplate ignoretext="Benachrichtigen, wenn Auflistung aufgrund eines leeren Versionsordners nicht aufgelistet wird" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="WriteAnimationFail">
 		Fehler beim Schreiben von Animationsdaten.  Bitte versuchen Sie es erneut.
@@ -326,6 +328,14 @@ Wenn diese Rolle nicht mehr diese Fähigkeiten haben soll, deaktivieren Sie sie 
 		Sie sind dabei, [COUNT] Mitglieder aus der Gruppe hinauszuwerfen.
 		<usetemplate ignoretext="Hinauswerfen mehrerer Gruppenmitglieder bestätigen" name="okcancelignore" notext="Abbrechen" yestext="Hinauswerfen"/>
 	</notification>
+	<notification name="BanGroupMemberWarning">
+		Sie sind dabei, [AVATAR_NAME] aus der Gruppe zu verbannen.
+		<usetemplate ignoretext="Verbannen eines Gruppenmitglieds bestätigen" name="okcancelignore" notext="Abbrechen" yestext="Verbannen"/>
+	</notification>
+	<notification name="BanGroupMembersWarning">
+		Sie sind dabei, [COUNT] Mitglieder aus der Gruppe zu verbannen.
+		<usetemplate ignoretext="Verbannen mehrerer Gruppenmitglieder bestätigen" name="okcancelignore" notext="Abbrechen" yestext="Verbannen"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Sie möchten Ihren Anhang wirklich fallen lassen?
 Möchten Sie fortfahren?
@@ -411,7 +421,7 @@ Objekte: [N]
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		Möchten Sie alle aufgeführten Objekte ihren Eigentümern zurückgeben?
+		Möchten Sie alle aufgeführten Objekte ihren Eigentümern zurückgeben? Dadurch werden ALLE Skriptobjekte in der Region zurückgegeben.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
@@ -594,15 +604,9 @@ Möchten Sie die letzte gespeicherte Version vom Server laden?
 (**Warnung** Dieser Vorgang kann nicht rückgängig gemacht werden.)
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Ein Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Skript konnte nicht gespeichert werden, weil das zugehörige Objekt nicht gefunden wurde.
 Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Ein kompiliertes Skript konnte aus folgendem Grund nicht gespeichert werden: [REASON].  Speichern Sie das Skript bitte später.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Ihre Startregion ist nicht definiert.
@@ -615,6 +619,10 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 	</notification>
 	<notification name="CannotDownloadFile">
 		Dateidownload nicht möglich
+	</notification>
+	<notification label="" name="MediaFileDownloadUnsupported">
+		Sie haben einen Datei-Download angefordert, der in [SECOND_LIFE] nicht unterstützt wird.
+		<usetemplate ignoretext="Warnung anzeigen, wenn ein Datei-Download nicht unterstützt wird" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="CannotWriteFile">
 		Datei [[FILE]] kann nicht geschrieben werden
@@ -1122,7 +1130,8 @@ Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Es tut uns leid! Sie wurden von [SECOND_LIFE] abgemeldet.
-            [MESSAGE]
+
+[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="IM &amp; Chat anzeigen"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1370,6 +1379,13 @@ Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt 
 		<form name="form">
 			<ignore name="ignore" text="Das Herunterladen der Kleidung dauert lange"/>
 		</form>
+	</notification>
+	<notification name="RegionAndAgentComplexity">
+		Ihre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 visuelle Komplexität] ist [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+	</notification>
+	<notification name="AgentComplexity">
+		Ihre [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 visuelle Komplexität] ist [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		Installation von [APP_NAME] vollständig abgeschlossen.
@@ -1648,6 +1664,25 @@ Dieser experimentelle Viewer wurde durch einen [NEW_CHANNEL] Viewer ersetzt;
 weitere Infos zu diesem Update finden Sie [[INFO_URL] hier].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UpdateDownloadInProgress">
+		Ein Update ist verfügbar.
+Es wird im Hintergrund heruntergeladen. Wenn der Download fertig ist, werden Sie aufgefordert, den Viewer neu zu starten, damit die Installation abgeschlossen werden kann.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateDownloadComplete">
+		Ein Update wurde heruntergeladen. Es wird beim Neustart installiert.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateCheckError">
+		Beim Suchen nach einem Update ist ein Fehler aufgetreten.
+Versuchen Sie es später erneut.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateViewerUpToDate">
+		Ihr Viewer ist auf dem neuesten Stand.
+Wenn Sie die neuesten Features und Fixes ausprobieren möchten, gehen Sie zur Seite „Alternate Viewers“. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		Bei Übertragung dieses Objekts erhält die Gruppe:
 * An das Objekt bezahlte L$
@@ -1751,6 +1786,14 @@ Diese Gruppe verlassen?
 	<notification name="JoinedTooManyGroups">
 		Sie haben die maximale Anzahl an Gruppen erreicht. Bitte verlassen Sie eine Gruppe bevor Sie einer neuen beitreten oder eine neue Gruppe bilden.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupLimitInfo">
+		Die Gruppenbegrenzung für Basiskonten ist [MAX_BASIC]; für 
+[https://secondlife.com/premium/ Premium-]Konten ist sie [MAX_PREMIUM].
+Wenn Sie ein Downgrade Ihres Kontos durchgeführt haben, müssen Sie das Gruppenlimit unter [MAX_BASIC] bringen, bevor sich weitere Personen registrieren können.
+
+[https://secondlife.com/my/account/membership.php Noch heute upgraden!]
+		<usetemplate name="okbutton" yestext="Schließen"/>
 	</notification>
 	<notification name="KickUser">
 		Beim Hinauswerfen dieses Benutzers welche Meldung anzeigen?
@@ -2264,6 +2307,10 @@ Inventarobjekt(e) verschieben?
 		Bestätigen Sie, dass Sie L$ [AMOUNT] an [TARGET] zahlen möchten.
 		<usetemplate ignoretext="Vor den Bezahlen bestätigen (Summen über L$ 200)" name="okcancelignore" notext="Abbrechen" yestext="Bezahlen"/>
 	</notification>
+	<notification name="PayObjectFailed">
+		Zahlung fehlgeschlagen: Objekt nicht gefunden.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		Sie haben keine Berechtigung zum Kopieren von Elementen in diesem Objekt.
 	</notification>
@@ -2295,10 +2342,9 @@ Diese Aktion kann nicht rückgängig gemacht werden.
 		[QUESTION]
 		<usetemplate ignoretext="Vor dem Löschen von Objekten bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
-	<notification name="HelpReportAbuseEmailLL">
-		Mit dieser Funktion können Sie Verstöße gegen die [http://secondlife.com/corporate/tos.php Servicebedingungen (EN)] und [http://secondlife.com/corporate/cs.php Community-Standards] melden.
-
-Alle gemeldeten Verstöße werden bearbeitet.
+	<notification name="ConfirmUnlink">
+		Dies ist eine große Auswahl mit Linksets. Wenn Sie die Verknüpfung auflösen, kann sie möglicherweise nicht erneut hergestellt werden. Als Vorsichtsmaßnahme empfiehlt es sich, Kopien von Linksets in Ihr Inventar aufzunehmen.
+		<usetemplate ignoretext="Auflösen der Verknüpfung eines Linksets bestätigen" name="okcancelignore" notext="Abbrechen" yestext="Verknüpfung auflösen"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Wählen Sie eine Missbrauchskategorie aus.
@@ -2988,13 +3034,13 @@ Ist das OK?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="NotInGroupExperienceProfileMessage">
-		Eine Änderung der Erlebnisgruppe wurde ignoriert, weil der Eigentümer nicht Mitglied der ausgewählten Gruppe ist.
+		Eine änderung der Erlebnisgruppe wurde ignoriert, weil der Eigentümer nicht Mitglied der ausgewählten Gruppe ist.
 	</notification>
 	<notification name="UneditableExperienceProfileMessage">
 		Das nicht bearbeitbare Feld „[field]“ wurde beim Aktualisieren des Erlebnisprofils ignoriert.
 	</notification>
 	<notification name="RestrictedToOwnerExperienceProfileMessage">
-		Änderungen des Felds „[field]“ ignoriert; Feld kann nur vom Eigentümer des Erlebnisses eingestellt werden.
+		änderungen des Felds „[field]“ ignoriert; Feld kann nur vom Eigentümer des Erlebnisses eingestellt werden.
 	</notification>
 	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
 		Sie können die Inhaltseinstufung eines Erlebnisses nicht auf eine höhere Stufe setzen als die des Eigentümers.
@@ -3226,6 +3272,12 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	<notification name="AttachmentSaved">
 		Der Anhang wurde gespeichert.
 	</notification>
+	<notification name="PresetNotSaved">
+		Fehler beim Speichern der Voreinstellung [NAME].
+	</notification>
+	<notification name="PresetNotDeleted">
+		Fehler beim Löschen der Voreinstellung [NAME].
+	</notification>
 	<notification name="UnableToFindHelpTopic">
 		Hilfethema für dieses Element wurde nicht gefunden.
 	</notification>
@@ -3258,9 +3310,8 @@ Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 		Wählen Sie Einwohner aus, für die Sie das Objekt freigeben möchten.
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] konnte nicht hochgeladen werden: [MESSAGE] [IDENTIFIER] 
-
-Details finden Sie in der Protokolldatei.
+		[LABEL] konnte nicht hochgeladen werden: [MESSAGE] [IDENTIFIER]
+[DETAILS]Details finden Sie in SecondLife.log.
 	</notification>
 	<notification name="MeshUploadPermError">
 		Fehler beim Anfordern der Berechtigungen zum Hochladen des Netzes

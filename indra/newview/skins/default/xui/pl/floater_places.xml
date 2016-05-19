@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater name="floater_places" title="MIEJSCA">
+	<panel name="main_panel" label="Miejsca" />
+</floater>

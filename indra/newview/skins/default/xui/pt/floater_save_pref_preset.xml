@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Save Pref Preset" title="SALVAR PREDEFINIÇÃO PREF">
+	<string name="title_graphic">
+		Salvar predefinição de gráficos
+	</string>
+	<string name="title_camera">
+		Salvar predefinição da câmera
+	</string>
+	<text name="Preset">
+		Digite um nome para a predefinição ou escolha uma predefinição existente.
+	</text>
+	<button label="Salvar" name="save"/>
+	<button label="Cancelar" name="cancel"/>
+</floater>

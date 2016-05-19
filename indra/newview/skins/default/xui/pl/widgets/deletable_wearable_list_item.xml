@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<deletable_wearable_list_item name="deletable_wearable_item">
+	<delete_btn name="btn_delete" tool_tip="Usuń ze stroju" />
+</deletable_wearable_list_item>

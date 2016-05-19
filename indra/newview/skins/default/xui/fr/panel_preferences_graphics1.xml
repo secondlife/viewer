@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Graphiques" name="Display panel">
+	<text name="preset_text">
+		(Aucun/Aucune)
+	</text>
 	<text name="QualitySpeed">
-		Qualité et vitesse :
-	</text>
-	<text name="FasterText">
-		Plus rapide
-	</text>
-	<text name="BetterText">
-		Meilleure
+		Qualité et vitesse :
 	</text>
 	<text name="ShadersPrefText">
 		Faible
@@ -21,94 +18,17 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<panel label="Graphiques personnalisés" name="CustomGraphics Panel">
-		<text name="ShadersText">
-			Effets :
-		</text>
-		<check_box initial_value="true" label="Eau transparente" name="TransparentWater"/>
-		<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
-		<check_box initial_value="true" label="Lumières locales" name="LocalLights"/>
-		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="La désactivation de cette option peut éviter le plantage de certains pilotes de cartes graphiques"/>
-		<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Modèle d&apos;éclairage avancé" name="UseLightShaders"/>
-		<check_box initial_value="true" label="Occlusion ambiante" name="UseSSAO"/>
-		<check_box initial_value="true" label="Profondeur de champ" name="UseDoF"/>
-		<text name="shadows_label">
-			Ombres :
-		</text>
-		<combo_box name="ShadowDetail">
-			<combo_box.item label="Aucune" name="0"/>
-			<combo_box.item label="Soleil/Lune" name="1"/>
-			<combo_box.item label="Soleil/Lune + Projecteurs" name="2"/>
-		</combo_box>
-		<text name="reflection_label">
-			Reflets dans l&apos;eau :
-		</text>
-		<combo_box initial_value="true" label="Reflets dans l&apos;eau" name="Reflections">
-			<combo_box.item label="Minimes" name="0"/>
-			<combo_box.item label="Terrain et arbres" name="1"/>
-			<combo_box.item label="Tous les objets statiques" name="2"/>
-			<combo_box.item label="Tous les objets et avatars" name="3"/>
-			<combo_box.item label="Tout" name="4"/>
-		</combo_box>
-		<slider label="Prop. physiques avatar :" name="AvatarPhysicsDetail"/>
-		<text name="AvatarPhysicsDetailText">
-			Faible
-		</text>
-		<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
-		<text name="DrawDistanceMeterText2">
-			m
-		</text>
-		<slider label="Nb max. de particules :" label_width="147" name="MaxParticleCount"/>
-		<slider label="Avatars max. non éloignés en 2D :" name="MaxNumberAvatarDrawn"/>
-		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
-		<text name="MeshDetailText">
-			Détails des rendus :
-		</text>
-		<slider label="  Objets :" name="ObjectMeshDetail"/>
-		<slider label="  Flexiprims :" name="FlexibleMeshDetail"/>
-		<slider label="  Arbres :" name="TreeMeshDetail"/>
-		<slider label="  Avatars :" name="AvatarMeshDetail"/>
-		<slider label="  Relief :" name="TerrainMeshDetail"/>
-		<slider label="  Ciel :" name="SkyMeshDetail"/>
-		<text name="PostProcessText">
-			Faible
-		</text>
-		<text name="ObjectMeshDetailText">
-			Faible
-		</text>
-		<text name="FlexibleMeshDetailText">
-			Faible
-		</text>
-		<text name="TreeMeshDetailText">
-			Faible
-		</text>
-		<text name="AvatarMeshDetailText">
-			Faible
-		</text>
-		<text name="TerrainMeshDetailText">
-			Faible
-		</text>
-		<text name="SkyMeshDetailText">
-			Faible
-		</text>
-		<text name="AvatarRenderingText">
-			Rendu de l&apos;avatar :
-		</text>
-		<check_box initial_value="true" label="Avatars éloignés en 2D" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Accélération du rendu" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Mouvement des habits" name="AvatarCloth"/>
-		<text left="380" name="TerrainDetailText">
-			Rendu du terrain :
-		</text>
-		<radio_group name="TerrainDetailRadio">
-			<radio_item label="Faible" name="0"/>
-			<radio_item label="Élevé" name="2"/>
-		</radio_group>
-		--&gt;
-	</panel>
-	<button label="Appliquer" label_selected="Appliquer" name="Apply"/>
-	<button label="Réinitialiser" name="Defaults"/>
-	<button label="Avancé" name="Advanced"/>
-	<button label="Matériel" label_selected="Matériel" name="GraphicsHardwareButton"/>
+	<text name="FasterText">
+		Plus rapide
+	</text>
+	<text name="BetterText">
+		Meilleure
+	</text>
+	<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="Modèle d’éclairage avancé" name="UseLightShaders"/>
+	<button label="Enregistrer les paramètres comme préréglage..." name="PrefSaveButton"/>
+	<button label="Charger un préréglage..." name="PrefLoadButton"/>
+	<button label="Supprimer un préréglage..." name="PrefDeleteButton"/>
+	<button label="Réinitialiser les paramètres recommandés" name="Defaults"/>
+	<button label="Paramètres avancés" name="AdvancedSettings"/>
 </panel>

@@ -7,7 +7,7 @@
 		画像をインベントリに保存するには L$[UPLOAD_COST] の費用がかかります。画像をテクスチャとして保存するには平方形式の 1 つを選択してください。
 	</text>
 	<combo_box label="解像度" name="texture_size_combo">
-		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="現在のウィンドウ (512x512)" name="CurrentWindow"/>
 		<combo_box.item label="小（128x128）" name="Small(128x128)"/>
 		<combo_box.item label="中（256x256）" name="Medium(256x256)"/>
 		<combo_box.item label="大（512x512）" name="Large(512x512)"/>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="autoreplace_floater" title="Ustawienia Autokorekty">
+	<check_box label="Włącz Autokorektę" name="autoreplace_enable" tool_tip="Autokorekta będzie sprawdzać wszystko co napiszesz w poszukiwaniu słów zdefiniowanych na pierwszej liście i wstawiać na ich na miejsce zamienniki z drugiej listy."/>
+	<button name="autoreplace_import_list" label="Importuj listę" tool_tip="Kliknij, aby wczytać z pliku wyeksportowaną wcześniej listę."/>
+	<button name="autoreplace_export_list" label="Eksportuj listę" tool_tip="Kliknij, aby zapisać listę do pliku i podzielić się nią z kimś."/>
+	<button name="autoreplace_new_list" label="Nowa lista" tool_tip="Stwórz nową listę."/>
+	<button name="autoreplace_delete_list" label="Usuń listę" tool_tip="Usuń wybraną listę."/>
+	<button name="autoreplace_list_up" tool_tip="Nadaj tej liście wyższy priorytet."/>
+	<button name="autoreplace_list_down" tool_tip="Nadaj tej liście niższy priorytet."/>
+	<scroll_list name="autoreplace_list_replacements">
+		<scroll_list.columns label="Szukane" name="keyword"/>
+		<scroll_list.columns label="Zamiennik" name="replacement"/>
+	</scroll_list>
+	<button name="autoreplace_add_entry" label="Dodaj"/>
+	<button name="autoreplace_delete_entry" label="Usuń"/>
+	<text name="autoreplace_keyword_txt">
+		Szukane:
+	</text>
+	<text name="autoreplace_replacement_txt">
+		Zamiennik:
+	</text>
+	<button name="autoreplace_save_entry" label="Zapisz pozycję" tool_tip="Zapisz tą pozycję."/>
+	<button name="autoreplace_save_changes" label="Zapisz zmiany" tool_tip="Zapisz wszystkie zmiany."/>
+	<button name="autoreplace_cancel" label="Anuluj" tool_tip="Anuluj wszytkie zmiany."/>
+</floater>

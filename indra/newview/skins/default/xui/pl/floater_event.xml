@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater can_resize="true" follows="all" height="400" help_topic="event_details" label="Event" layout="topleft" name="Event" save_rect="true" save_visibility="false" title="EVENT DETAILS" width="600">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater label="Wydarzenie" name="Event" title="SZCZEGÓŁY WYDARZENIA">
 	<floater.string name="loading_text">
 		Ładowanie...
 	</floater.string>
 	<floater.string name="done_text">
-		Zakończono
+		Gotowe
 	</floater.string>
-	<web_browser follows="left|right|top|bottom" height="365" layout="topleft" left="10" name="browser" top="0" trusted_content="true" width="580"/>
-	<text follows="bottom|left" height="16" layout="topleft" left_delta="0" name="status_text" top_pad="10" width="150"/>
 </floater>

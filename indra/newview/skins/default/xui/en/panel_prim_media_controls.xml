@@ -338,6 +338,7 @@
 		  mouse_opaque="false"
 		  orientation="horizontal">
 		<layout_panel
+			name="media_address_url_icons_wl"
 			layout="topleft"
 			width="16"
 			mouse_opaque="false"

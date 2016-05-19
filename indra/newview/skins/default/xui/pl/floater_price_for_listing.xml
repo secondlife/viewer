@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="price_for_listing" title="PUBLIKUJ REKLAMĘ">
+	<text name="explanation_text">
+		Twoja reklama będzie wyświetlana przez okres jednego tygodnia od daty jej publikacji.
+
+Pozycja Twojej reklamy na liście zależy od tego, jak dużo za nią zapłacisz.
+
+Lepiej opłacone reklamy pojawiają się na szczycie listy i wyżej w wynikach wyszukiwania.
+	</text>
+	<text name="price_text">
+		Ustal cenę:
+	</text>
+	<button label="Anuluj" name="cancel_btn" />
+</floater>

@@ -14,5 +14,8 @@
 	<menu_item_call label="ダンプ XML" name="Dump XML"/>
 	<menu_item_call label="ズームイン" name="Zoom In"/>
 	<menu_item_call label="支払う" name="Pay..."/>
+	<menu_item_check label="通常表示" name="RenderNormally"/>
+	<menu_item_check label="表示しない" name="DoNotRender"/>
+	<menu_item_check label="完全表示" name="AlwaysRenderFully"/>
 	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
 </context_menu>

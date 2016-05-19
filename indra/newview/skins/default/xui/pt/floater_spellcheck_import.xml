@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="spellcheck_import" title="Importar dicionário">
+	<text name="import_dict">
+		Dicionário:
+	</text>
 	<button label="Procurar" label_selected="Procurar" name="dictionary_path_browse"/>
+	<text name="import_name">
+		Nome:
+	</text>
+	<text name="import_lang">
+		Idioma:
+	</text>
 	<button label="Importar" name="ok_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>
 </floater>

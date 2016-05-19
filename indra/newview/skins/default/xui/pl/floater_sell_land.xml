@@ -1,65 +1,53 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="sell land" title="SPRZEDAJ POSIADŁOŚĆ">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="sell land" title="SPRZEDAJ DZIAŁKĘ">
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="info_parcel_label">
-				Posiadłość:
-			</text>
-			<text name="info_parcel">
-				NAZWA POSIADŁOŚCI
+				Działka:
 			</text>
 			<text name="info_size_label">
 				Rozmiar:
 			</text>
-			<text name="info_size">
-				[AREA] m²
-			</text>
 			<text name="info_action">
-				Aby sprzedać tą posiadłość:
+				Aby sprzedać tą działkę:
 			</text>
 			<text name="price_label">
 				1. Ustal cenę:
 			</text>
 			<text name="price_text">
-				Wybierz właściwą cenę za tą posiadłość.
+				Wybierz cenę za działkę.
 			</text>
-			<text name="price_ld">
-				L$
-			</text>
-			<line_editor name="price">
-				0
-			</line_editor>
 			<text name="price_per_m">
-				(L$[PER_METER] za m²)
+				([PER_METER]L$ za m²)
 			</text>
 			<text name="sell_to_label">
-				2. Sprzedaj posiadłość:
+				2. Sprzedaj działkę:
 			</text>
 			<text name="sell_to_text">
 				Wybierz sprzedaż dla kogokolwiek albo dla wybranego kupca.
 			</text>
 			<combo_box name="sell_to">
-				<combo_box.item label="- Wybierz -" name="--selectone--"/>
-				<combo_box.item label="Ktokolwiek" name="Anyone"/>
-				<combo_box.item label="Wybrany Kupiec:" name="Specificuser:"/>
+				<combo_box.item label="- Wybierz -" name="--selectone--" />
+				<combo_box.item label="Ktokolwiek" name="Anyone" />
+				<combo_box.item label="Wybrany Kupiec:" name="Specificuser:" />
 			</combo_box>
-			<button label="Wybierz" name="sell_to_select_agent"/>
-			<text name="sell_objects_label" font="SansSerifSmall">
-				3. Obiekty sprzedawane razem z posiadłością?
+			<button label="Wybierz" name="sell_to_select_agent" />
+			<text name="sell_objects_label">
+				3. Sprzedać obiekty razem z działką?
 			</text>
 			<text name="sell_objects_text">
-				Przekazywalne obiekty właściciela posiadłości zmienią właściciela.
+				Przekazywalne obiekty właściciela działki zmienią właściciela.
 			</text>
 			<radio_group name="sell_objects">
-				<radio_item label="Nie, zatrzymaj obiekty" name="no"/>
-				<radio_item label="Tak, sprzedaj obiekty razem z posiadłością" name="yes"/>
+				<radio_item label="Nie, zatrzymaj obiekty" name="no" />
+				<radio_item label="Tak, sprzedaj razem z działką" name="yes" />
 			</radio_group>
-			<button label="Pokaż Obiekty" name="show_objects"/>
+			<button label="Pokaż obiekty" name="show_objects" />
 			<text name="nag_message_label">
-				PAMIĘTAJ: Sprzedaż jest nieodwracalna.
+				UWAGA: Sprzedaży nie można cofnąć.
 			</text>
-			<button label="Wystaw ziemię na sprzedaż" name="sell_btn"/>
-			<button label="Anuluj" name="cancel_btn"/>
+			<button label="Wystaw ziemię na sprzedaż" name="sell_btn" />
+			<button label="Anuluj" name="cancel_btn" />
 		</panel>
 	</scroll_container>
 </floater>

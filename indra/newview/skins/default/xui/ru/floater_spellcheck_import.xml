@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="spellcheck_import" title="Импорт словаря">
+	<text name="import_dict">
+		Словарь:
+	</text>
 	<button label="Обзор" label_selected="Обзор" name="dictionary_path_browse"/>
+	<text name="import_name">
+		Имя:
+	</text>
+	<text name="import_lang">
+		Язык:
+	</text>
 	<button label="Импорт" name="ok_btn"/>
 	<button label="Отмена" name="cancel_btn"/>
 </floater>

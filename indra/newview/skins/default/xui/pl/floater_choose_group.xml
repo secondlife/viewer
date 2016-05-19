@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="groups" title="GRUPY">
 	<text name="groupdesc">
-		Wybierz Grupę:
+		Wybierz grupę:
 	</text>
-	<button label="OK" label_selected="OK" name="OK"/>
-	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel" />
 </floater>

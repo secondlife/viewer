@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="表示" name="Display panel">
+	<text name="preset_text">
+		(なし)
+	</text>
 	<text name="QualitySpeed">
 		クオリティとスピード：
-	</text>
-	<text name="FasterText">
-		速い
-	</text>
-	<text name="BetterText">
-		遅い
 	</text>
 	<text name="ShadersPrefText">
 		低
@@ -21,94 +18,17 @@
 	<text name="ShadersPrefText4">
 		超高
 	</text>
-	<panel label="カスタムグラフィック" name="CustomGraphics Panel">
-		<text name="ShadersText">
-			シェーダー：
-		</text>
-		<check_box initial_value="true" label="透明な水" name="TransparentWater"/>
-		<check_box initial_value="true" label="バンプマッピングと光沢" name="BumpShiny"/>
-		<check_box initial_value="true" label="近くの光" name="LocalLights"/>
-		<check_box initial_value="true" label="基本シェーダー" name="BasicShaders" tool_tip="このオプションを無効にすると、グラフィックカードのドライバの種類によっては、クラッシュするのを防ぎます。"/>
-		<check_box initial_value="true" label="周囲（大気）シェーダー" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="高度なライティングモデル" name="UseLightShaders"/>
-		<check_box initial_value="true" label="アンビエントオクルージョン" name="UseSSAO"/>
-		<check_box initial_value="true" label="フィールドの遠近感" name="UseDoF"/>
-		<text name="shadows_label">
-			影：
-		</text>
-		<combo_box name="ShadowDetail">
-			<combo_box.item label="なし" name="0"/>
-			<combo_box.item label="太陽/月" name="1"/>
-			<combo_box.item label="太陽/月・プロジェクタ" name="2"/>
-		</combo_box>
-		<text name="reflection_label">
-			水の反射：
-		</text>
-		<combo_box initial_value="true" label="水の反射" name="Reflections">
-			<combo_box.item label="最小" name="0"/>
-			<combo_box.item label="地形と樹木" name="1"/>
-			<combo_box.item label="すべての静止オブジェクト" name="2"/>
-			<combo_box.item label="すべてのアバターとオブジェクト" name="3"/>
-			<combo_box.item label="すべて" name="4"/>
-		</combo_box>
-		<slider label="アバターの物理作用：" name="AvatarPhysicsDetail"/>
-		<text name="AvatarPhysicsDetailText">
-			低
-		</text>
-		<slider label="描画距離：" name="DrawDistance"/>
-		<text name="DrawDistanceMeterText2">
-			m
-		</text>
-		<slider label="最大パーティクル数：" name="MaxParticleCount"/>
-		<slider label="簡略化せずに描画するアバターの最大数：" name="MaxNumberAvatarDrawn"/>
-		<slider label="ポストプロセス品質：" name="RenderPostProcess"/>
-		<text name="MeshDetailText">
-			メッシュ詳細：
-		</text>
-		<slider label="  オブジェクト：" name="ObjectMeshDetail"/>
-		<slider label="  フレキシプリム：" name="FlexibleMeshDetail"/>
-		<slider label="  樹木：" name="TreeMeshDetail"/>
-		<slider label="  アバター：" name="AvatarMeshDetail"/>
-		<slider label="  地形：" name="TerrainMeshDetail"/>
-		<slider label="  空：" name="SkyMeshDetail"/>
-		<text name="PostProcessText">
-			低
-		</text>
-		<text name="ObjectMeshDetailText">
-			低
-		</text>
-		<text name="FlexibleMeshDetailText">
-			低
-		</text>
-		<text name="TreeMeshDetailText">
-			低
-		</text>
-		<text name="AvatarMeshDetailText">
-			低
-		</text>
-		<text name="TerrainMeshDetailText">
-			低
-		</text>
-		<text name="SkyMeshDetailText">
-			低
-		</text>
-		<text name="AvatarRenderingText">
-			アバターレンダリング：
-		</text>
-		<check_box initial_value="true" label="アバターの描画を簡略化" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="ハードウェアスキニング" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="アバターの布" name="AvatarCloth"/>
-		<text name="TerrainDetailText">
-			地形詳細：
-		</text>
-		<radio_group name="TerrainDetailRadio">
-			<radio_item label="低" name="0"/>
-			<radio_item label="高" name="2"/>
-		</radio_group>
-		--&gt;
-	</panel>
-	<button label="適用" label_selected="適用" name="Apply"/>
-	<button label="リセット" name="Defaults"/>
-	<button label="詳しい設定" name="Advanced"/>
-	<button label="ハードウェア" label_selected="ハードウェア" name="GraphicsHardwareButton"/>
+	<text name="FasterText">
+		速い
+	</text>
+	<text name="BetterText">
+		遅い
+	</text>
+	<check_box initial_value="true" label="周囲 (大気) シェーダー" name="WindLightUseAtmosShaders"/>
+	<check_box initial_value="true" label="高度なライティングモデル" name="UseLightShaders"/>
+	<button label="設定をプリセットとして保存..." name="PrefSaveButton"/>
+	<button label="プリセットをロード..." name="PrefLoadButton"/>
+	<button label="事前設定を削除..." name="PrefDeleteButton"/>
+	<button label="推奨設定にリセット" name="Defaults"/>
+	<button label="詳細設定..." name="AdvancedSettings"/>
 </panel>

@@ -163,6 +163,10 @@
 &apos;[ERROR_CODE]&apos;
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="MerchantForceValidateListing">
+		リストを作成するために、リストするコンテンツの階層を固定しました。
+		<usetemplate ignoretext="リストの作成によりコンテンツの階層が修正されることを警告する" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmMerchantActiveChange">
 		この操作により、このリストの有効な内容が変更されます。続けますか？
 		<usetemplate ignoretext="マーケットプレイスで有効なリストを変更する前に確認する" name="okcancelignore" notext="取り消し" yestext="OK"/>
@@ -210,15 +214,9 @@
 		在庫が空のため、リストを削除しました。もう一度リストを表示するには、在庫フォルダにユニットを追加する必要があります。
 		<usetemplate ignoretext="在庫フォルダが空のためにリストが表示されないと警告が表示されます" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		次の理由で、スクリプト用テキストのアップロード時に問題が起こりました。
-[REASON]
-後でもう一度お試しください。
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		次の理由で、コンパイルしたスクリプトのアップロード時に問題が起こりました。
-[REASON]
-後でもう一度お試しください。
+	<notification name="AlertMerchantVersionFolderEmpty">
+		バージョンフォルダが空のため、リストを削除しました。もう一度リストを表示するには、バージョンフォルダにアイテムを追加する必要があります。
+		<usetemplate ignoretext="バージョンフォルダが空のためにリストが表示されないと警告が表示されます" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="WriteAnimationFail">
 		アニメーションデータの書き込みに問題があります。後でもう一度お試しください。
@@ -331,6 +329,14 @@
 		[COUNT] 名のメンバーをグループから追放しようとしています。
 		<usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="取り消し" yestext="追放"/>
 	</notification>
+	<notification name="BanGroupMemberWarning">
+		[AVATAR_NAME] をグループから追放しようとしています。
+		<usetemplate ignoretext="グループからの参加者の追放を確認します" name="okcancelignore" notext="取り消し" yestext="禁止"/>
+	</notification>
+	<notification name="BanGroupMembersWarning">
+		[COUNT] 名のメンバーをグループから追放しようとしています。
+		<usetemplate ignoretext="グループからの複数のメンバーの追放を確認します" name="okcancelignore" notext="取り消し" yestext="禁止"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		アタッチメントを下に置こうとしています。
 続けますか？
@@ -425,7 +431,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		全てのリストされたオブジェクトを所有者に本当に返却しますか？
+		リストされた全てのオブジェクトを所有者の持ち物に戻しますか?これによりすべてのスクリプト化されたオブジェクトがリージョンに戻ります!
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
@@ -609,15 +615,9 @@ L$ が不足しているのでこのグループに参加することができ�
 （**警告**：この操作後元に戻すことはできません）
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		次の理由で、スクリプトの保存に問題が起こりました。 [REASON]。  後でもう一度試してください。
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		スクリプトの保存に失敗しました。スクリプトが入ったオブジェクトが見つかりません。
 オブジェクトは範囲外か、または削除されているかもしれません。
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		次の理由で、コンパイルしたスクリプトの保存時に問題が起こりました。 [REASON]。  後でもう一度試してください。
 	</notification>
 	<notification name="StartRegionEmpty">
 		ログイン位置が指定されていません。
@@ -630,6 +630,10 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="CannotDownloadFile">
 		ファイルをダウンロードできません。
+	</notification>
+	<notification label="" name="MediaFileDownloadUnsupported">
+		[SECOND_LIFE] でサポートされていないファイルのダウンロードを要求しました。
+		<usetemplate ignoretext="サポートされていないファイルのダウンロードを警告する" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="CannotWriteFile">
 		ファイル [[FILE]] を書き込めません。
@@ -1139,8 +1143,9 @@ L$ は返金されません。
 通常これは一時的なエラーです。 数分後にもう一度着用物をカスタマイズ・保存してください。
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		しまった、 [SECOND_LIFE] からログアウトされてしまいました。
-            [MESSAGE]
+		しまった、[SECOND_LIFE] からログアウトされてしまいました。
+
+[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="IMとチャットを表示"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1389,6 +1394,13 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries を参照してく
 		<form name="form">
 			<ignore name="ignore" text="衣類がダウンロードされるまで時間がかかっているとき"/>
 		</form>
+	</notification>
+	<notification name="RegionAndAgentComplexity">
+		ご使用の [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 表示の複雑さ] は [AGENT_COMPLEXITY] です。
+[OVERLIMIT_MSG]
+	</notification>
+	<notification name="AgentComplexity">
+		ご使用の [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 表示の複雑さ] は [AGENT_COMPLEXITY] です。
 	</notification>
 	<notification name="FirstRun">
 		[APP_NAME] のインストールが完了しました。
@@ -1669,6 +1681,25 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 [[INFO_URL] このアップデートに関する情報] を参照
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UpdateDownloadInProgress">
+		アップデートを利用できます。
+バックグラウンドでアップデートをダウンロードしています。準備ができ次第、インストールを完了するために、ビューワを再起動するように求めるメッセージが表示されます。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateDownloadComplete">
+		アップデートがダウンロードされました。再起動中にインストールされます。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateCheckError">
+		アップデートの確認中にエラーが発生しました。
+あとでもう一度お試しください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateViewerUpToDate">
+		ご利用のビューワは最新です!
+最新の機能と修正を今すぐ試したい場合は、代替ビューワページ (http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers) をチェックしてください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		このオブジェクトを譲渡するとグループは以下のことが可能です：
 * オブジェクトに支払われた L$ を受領します。
@@ -1775,6 +1806,14 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 	<notification name="JoinedTooManyGroups">
 		加入できるグループの最大限に達しました。 新しくグループに参加、または作成する前に、どれかグループから抜けてください。
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupLimitInfo">
+		ベースアカウントのグループ制限は [MAX_BASIC]、[https://secondlife.com/premium/ プレミアム] アカウントの
+グループ制限は [MAX_PREMIUM] です。
+アカウントをダウングレードした場合、さらにグループに参加する前に、下の [MAX_BASIC] グループ制限を取得する必要があります。
+
+[https://secondlife.com/my/account/membership.php 今すぐアップグレード!]
+		<usetemplate name="okbutton" yestext="閉じる"/>
 	</notification>
 	<notification name="KickUser">
 		どのようなメッセージを添えてこの住人を追い出しますか？
@@ -1973,11 +2012,11 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateTrustedExperienceAdd">
-		この不動産のキー体験リストにのみ追加しますか、それとも [ALL_ESTATES] のキー体験リストに追加しますか?
+		この不動産のキー リストにのみ追加しますか、それとも [ALL_ESTATES] のキー リストに追加しますか?
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateTrustedExperienceRemove">
-		この不動産の信頼済み体験リストからのみ削除しますか、それとも [ALL_ESTATES] の信頼済みリストから削除しますか?
+		この不動産のキーリストからのみ削除しますか、それとも [ALL_ESTATES] のキーリストから削除しますか?
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="キックを確認" name="EstateKickUser">
@@ -2291,6 +2330,10 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 		L$[AMOUNT] を [TARGET] に支払うことを確認してください。
 		<usetemplate ignoretext="支払い前に確認 (合計金額が L$200 以上の場合)" name="okcancelignore" notext="取り消し" yestext="支払い"/>
 	</notification>
+	<notification name="PayObjectFailed">
+		支払いが失敗しました： オブジェクトが見つかりませんでした。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		このオブジェクトには、あなたがコピーできるアイテムはありません。
 	</notification>
@@ -2322,10 +2365,9 @@ L$ [AMOUNT] で、このクラシファイド広告を今すぐ公開します�
 		[QUESTION]
 		<usetemplate ignoretext="アイテムを削除する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
-	<notification name="HelpReportAbuseEmailLL">
-		このツールを利用して [http://secondlife.com/corporate/tos.php 利用規約] や [http://jp.secondlife.com/corporate/cs.php コミュニティスタンダード] の違反を報告してください。
-
-報告された嫌がらせはすべて調査・解決されます。
+	<notification name="ConfirmUnlink">
+		これは、リンクセットによる広範囲の選択です。リンクを解除すると、もう一度リンクできなくなる可能性があります。そのような場合に備えて、リンクセットを自分の持ち物にコピーできます。
+		<usetemplate ignoretext="リンクセットのリンクを解除するときに確認する" name="okcancelignore" notext="取り消し" yestext="リンクを外す"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		嫌がらせ報告のカテゴリを選択してください。
@@ -3034,7 +3076,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		所有者のレーティング区分より高いレーティング区分の体験を設定できません。
 	</notification>
 	<notification name="RestrictedTermExperienceProfileMessage">
-		次の条件により、体験プロフィール名および説明の更新ができませんでした: [extra_info]
+		次の条件により、体験プロフィール名および説明の更新ができませんでした： [extra_info]
 	</notification>
 	<notification name="TeleportedHomeExperienceRemoved">
 		体験 secondlife:///app/experience/[public_id]/profile を削除するために、[region_name] リージョンからテレポートされ、このリージョンに入ることはできなくなりました。
@@ -3049,7 +3091,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="TrustedExperiencesAvailable">
-		この目的地へのアクセス権がありません。下の体験を受け入れることにより、このリージョンに入ることができます:
+		この目的地へのアクセス権がありません。下の体験を受け入れることにより、このリージョンに入ることができます：
 
 [EXPERIENCE_LIST]
 
@@ -3058,7 +3100,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="ExperienceEvent">
 		[EventType] by the secondlife:///app/experience/[public_id]/profile experience により、オブジェクトでアクション ([EventType]) を実行することが許可されました。
 所有者：secondlife:///app/agent/[OwnerID]/inspect
-オブジェクト名:[ObjectName]
+オブジェクト名：[ObjectName]
 区画名：[ParcelName]
 	</notification>
 	<notification name="ExperienceEventAttachment">
@@ -3072,9 +3114,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 
 権限が許可されると、体験プロフィールから呼び出さない限り、この体験にこのメッセージが再び表示されることはありません。
 
-この体験に関連付けられたスクリプトにより、この体験が有効なリージョンで以下のことを実行できます: 
+この体験に関連付けられたスクリプトにより、この体験が有効なリージョンで以下のことを実行できます：  
 
-[QUESTIONS]よろしいですか？
+[QUESTIONS] よろしいですか？
 		<form name="form">
 			<button name="BlockExperience" text="体験をブロック"/>
 			<button name="Mute" text="オブジェクトをブロックする"/>
@@ -3256,6 +3298,12 @@ M キーを押して変更します。
 	<notification name="AttachmentSaved">
 		アタッチメントが保存されました。
 	</notification>
+	<notification name="PresetNotSaved">
+		プリセット [NAME] の保存中にエラーが発生しました。
+	</notification>
+	<notification name="PresetNotDeleted">
+		プリセット [NAME] の削除中にエラーが発生しました。
+	</notification>
 	<notification name="UnableToFindHelpTopic">
 		ヘルプトピックが見つかりませんでした。
 	</notification>
@@ -3288,9 +3336,8 @@ M キーを押して変更します。
 		共有する住人を選択します。
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] をアップロードできませんでした：[MESSAGE] [IDENTIFIER] 
-
-詳細についてはログをご覧ください。
+		[LABEL] をアップロードできませんでした：[MESSAGE] [IDENTIFIER]
+[DETAILS] 詳しくは、SecondLife.log をご覧ください。
 	</notification>
 	<notification name="MeshUploadPermError">
 		メッシュのアップロード許可をリクエスト中にエラーが発生しました。

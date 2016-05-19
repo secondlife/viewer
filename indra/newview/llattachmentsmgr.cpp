@@ -421,6 +421,15 @@ void LLAttachmentsMgr::onDetachCompleted(const LLUUID& inv_item_id)
     mQuestionableCOFLinks.addTime(inv_item_id);
 }
 
+bool LLAttachmentsMgr::isAttachmentStateComplete() const
+{
+    return  mPendingAttachments.empty()
+        && mAttachmentRequests.empty()
+        && mDetachRequests.empty()
+        && mRecentlyArrivedAttachments.empty()
+        && mQuestionableCOFLinks.empty();
+}
+
 // Check for attachments that are (a) linked in COF and (b) not
 // attached to the avatar.  This is a rotten function to have to
 // include, because it runs the risk of either repeatedly spamming out

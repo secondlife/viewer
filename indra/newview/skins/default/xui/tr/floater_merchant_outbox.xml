@@ -12,15 +12,20 @@
 	<string name="OutboxInitializing">
 		Başlatılıyor...
 	</string>
-	<panel label="">
-		<panel>
+	<panel label="" name="panel_1">
+		<panel name="panel_2">
 			<panel name="outbox_inventory_placeholder_panel">
 				<text name="outbox_inventory_placeholder_title">
 					Yükleniyor...
 				</text>
 			</panel>
 		</panel>
-		<panel>
+		<panel name="panel_3">
+			<panel name="outbox_generic_drag_target">
+				<text name="text_1">
+					Klasör oluşturmak için öğeleri buraya sürükleyin
+				</text>
+			</panel>
 			<button label="Pazaryerine Gönder" name="outbox_import_btn" tool_tip="Pazaryeri Vitrinime Gönder"/>
 		</panel>
 	</panel>

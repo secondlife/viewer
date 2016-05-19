@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater_sound_devices" title="URZĄDZENIA DŹWIĘKOWE">
+	<text name="voice_label">
+		Czat głos.
+	</text>
+	<check_box name="enable_voice" label="Włączone" />
+</floater>

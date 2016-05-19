@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_notifications_tabbed" title="BİLDİRİMLER">
+	<floater.string name="system_tab_title">
+		Sistem ([COUNT])
+	</floater.string>
+	<floater.string name="transactions_tab_title">
+		İşlemler ([COUNT])
+	</floater.string>
+	<floater.string name="group_invitations_tab_title">
+		Davetler ([COUNT])
+	</floater.string>
+	<floater.string name="group_notices_tab_title">
+		Grup ([COUNT])
+	</floater.string>
+	<string name="title_notification_tabbed_window">
+		BİLDİRİMLER
+	</string>
+	<layout_stack name="TabButtonsStack">
+		<layout_panel name="TabButtonsLayoutPanel">
+			<tab_container name="notifications_tab_container">
+				<panel label="Sistem (0)" name="system_notification_list_tab"/>
+				<panel label="İşlemler (0)" name="transaction_notifications_tab"/>
+				<panel label="Davetler (0)" name="group_invite_notifications_tab"/>
+				<panel label="Grup (0)" name="group_notice_notifications_tab"/>
+			</tab_container>
+			<layout_stack name="ButtonsStack">
+				<layout_panel name="CondenseAllButtonPanel">
+					<button label="Tümünü daralt" name="collapse_all_button"/>
+				</layout_panel>
+				<layout_panel name="GapLayoutPanel">
+					<panel label="Boşluk Paneli" name="GapPanel"/>
+				</layout_panel>
+				<layout_panel name="DeleteAllButtonPanel">
+					<button label="Tümünü sil" name="delete_all_button"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

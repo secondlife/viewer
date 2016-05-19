@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Email Popup">
+	<menu_item_call label="Escrever email em cliente externo" name="email_open_external"/>
+	<menu_item_call label="Copiar email para área de transferência" name="email_copy"/>
+</context_menu>

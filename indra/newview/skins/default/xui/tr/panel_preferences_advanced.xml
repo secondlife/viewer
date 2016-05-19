@@ -27,6 +27,6 @@
 	<check_box label="Birden Çok Görüntüleyiciye İzin Ver" name="allow_multiple_viewer_check"/>
 	<check_box label="Oturum açarken Ağ Seçimini göster" name="show_grid_selection_check"/>
 	<check_box label="Gelişmiş Menüyü Göster" name="show_advanced_menu_check"/>
-	<check_box label="Geliştirici Menüsünü Göster" name="show_develop_menu_check"/>
+	<check_box label="Geliştirme Menüsünü Göster" name="show_develop_menu_check"/>
 	<button label="Varsayılan Oluşturma İzinleri" name="default_creation_permissions"/>
 </panel>

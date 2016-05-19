@@ -27,6 +27,6 @@
 	<check_box label="Consenti più Viewer" name="allow_multiple_viewer_check"/>
 	<check_box label="Mostra selezione griglia all&apos;accesso" name="show_grid_selection_check"/>
 	<check_box label="Mostra menu Avanzato" name="show_advanced_menu_check"/>
-	<check_box label="Mostra menu Sviluppatore" name="show_develop_menu_check"/>
+	<check_box label="Mostra menu sviluppo" name="show_develop_menu_check"/>
 	<button label="Diritti di creazione predefiniti" name="default_creation_permissions"/>
 </panel>

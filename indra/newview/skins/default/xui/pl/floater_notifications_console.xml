@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="notifications_console" title="KONSOLA POWIADOMIEŃ">
+	<combo_box label="Wybierz typ powiadomień" name="notification_types" />
+	<button label="Dodaj" name="add_notification" />
+</floater>
