@@ -34,6 +34,7 @@
 #include "llpolymorph.h"
 #include "llwearable.h"
 #include "llfasttimer.h"
+#include "llcallstack.h"
 
 #include "llpolyskeletaldistortion.h"
 
@@ -134,55 +135,58 @@ LLPolySkeletalDistortion::~LLPolySkeletalDistortion()
 
 BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 {
-        llassert(mInfo == NULL);
-        if (info->mID < 0)
-                return FALSE;
-        mInfo = info;
-        mID = info->mID;
-        setWeight(getDefaultWeight());
+    if (info->mID < 0)
+    {
+        return FALSE;
+    }
+    mInfo = info;
+    mID = info->mID;
+    setWeight(getDefaultWeight());
 
-        LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
-        for (iter = getInfo()->mBoneInfoList.begin(); iter != getInfo()->mBoneInfoList.end(); iter++)
+    LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
+    for (iter = getInfo()->mBoneInfoList.begin(); iter != getInfo()->mBoneInfoList.end(); iter++)
+    {
+        LLPolySkeletalBoneInfo *bone_info = &(*iter);
+        LLJoint* joint = mAvatar->getJoint(bone_info->mBoneName);
+        if (!joint)
         {
-                LLPolySkeletalBoneInfo *bone_info = &(*iter);
-                LLJoint* joint = mAvatar->getJoint(bone_info->mBoneName);
-                if (!joint)
-                {
-                        LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
-                        continue;
-                }
-
-                if (mJointScales.find(joint) != mJointScales.end())
-                {
-                        LL_WARNS() << "Scale deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
-                }
-
-                // store it
-                mJointScales[joint] = bone_info->mScaleDeformation;
-
-                // apply to children that need to inherit it
-                for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
-                     iter != joint->mChildren.end(); ++iter)
-                {
-                        LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);
-                        if (child_joint->inheritScale())
-                        {
-                                LLVector3 childDeformation = LLVector3(child_joint->getScale());
-                                childDeformation.scaleVec(bone_info->mScaleDeformation);
-                                mJointScales[child_joint] = childDeformation;
-                        }
-                }
-
-                if (bone_info->mHasPositionDeformation)
-                {
-                        if (mJointOffsets.find(joint) != mJointOffsets.end())
-                        {
-                                LL_WARNS() << "Offset deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
-                        }
-                        mJointOffsets[joint] = bone_info->mPositionDeformation;
-                }
+            LL_WARNS() << "Joint " << bone_info->mBoneName << " not found." << LL_ENDL;
+            continue;
         }
-        return TRUE;
+
+        // BENTO remove?
+        //if (mJointScales.find(joint) != mJointScales.end())
+        //{
+        //    LL_WARNS() << "Scale deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
+        //}
+
+        // store it
+        mJointScales[joint] = bone_info->mScaleDeformation;
+
+        // apply to children that need to inherit it
+        for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
+             iter != joint->mChildren.end(); ++iter)
+        {
+            LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);
+            if (child_joint->inheritScale())
+            {
+                LLVector3 childDeformation = LLVector3(child_joint->getScale());
+                childDeformation.scaleVec(bone_info->mScaleDeformation);
+                mJointScales[child_joint] = childDeformation;
+            }
+        }
+
+        if (bone_info->mHasPositionDeformation)
+        {
+            // BENTO remove?
+            //if (mJointOffsets.find(joint) != mJointOffsets.end())
+            //{
+            //    LL_WARNS() << "Offset deformation already supplied for joint " << joint->getName() << "." << LL_ENDL;
+            //}
+            mJointOffsets[joint] = bone_info->mPositionDeformation;
+        }
+    }
+    return TRUE;
 }
 
 /*virtual*/ LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
@@ -211,9 +215,16 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 joint = iter->first;
                 LLVector3 newScale = joint->getScale();
                 LLVector3 scaleDelta = iter->second;
-                newScale = newScale + (effective_weight * scaleDelta) - (mLastWeight * scaleDelta);				                
+                LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
+                newScale = newScale + offset;
 				//An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
 				// needed? // joint->storeScaleForReset( newScale );				
+
+                // BENTO debugging stuff can be pulled.
+                std::stringstream ostr;
+                ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
+                LLScopedContextString str(ostr.str());
+
 				joint->setScale(newScale);
         }
 
@@ -225,7 +236,9 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
                 LLVector3 newPosition = joint->getPosition();
                 LLVector3 positionDelta = iter->second;				
                 newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
-                joint->setPosition(newPosition);
+                // SL-315
+                // BENTO - allow attachment positions to override requests from the params.
+                joint->setPosition(newPosition, true);
         }
 
         if (mLastWeight != mCurWeight && !mIsAnimating)

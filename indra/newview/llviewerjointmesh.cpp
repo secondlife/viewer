@@ -203,7 +203,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 // DrawElementsBLEND and utility code
 //--------------------------------------------------------------------
 
-// compate_int is used by the qsort function to sort the index array
+// compare_int is used by the qsort function to sort the index array
 int compare_int(const void *a, const void *b)
 {
 	if (*(U32*)a < *(U32*)b)

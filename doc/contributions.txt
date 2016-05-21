@@ -12,6 +12,7 @@ Able Whitman
 Adam Marker
 	VWR-2755
 Adeon Writer
+	MAINT-1211
 Aeonix Aeon
 Agathos Frascati
 	CT-246
@@ -304,6 +305,7 @@ Catherine Pfeffer
 	VWR-1282
 	VWR-8624
 	VWR-10854
+Cathy Foil
 Cayu Cluny
 Celierra Darling
 	VWR-1274
@@ -856,6 +858,7 @@ MartinRJ Fayray
     STORM-1845
     STORM-1911
     STORM-1934
+Matrice Laville
 Matthew Anthony
 Matthew Dowd
 	VWR-1344

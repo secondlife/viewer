@@ -1416,6 +1416,13 @@ Port settings take effect after you restart [APP_NAME].
 
   <notification
    icon="alertmodal.tga"
+   name="ChangeDeferredDebugSetting"
+   type="alertmodal">
+This debug setting change will take effect after you restart [APP_NAME].
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ChangeSkin"
    type="alertmodal">
 The new skin will appear after you restart [APP_NAME].
@@ -10351,6 +10358,14 @@ Not enough script resources available to attach object!
    type="notify">
     <tag>fail</tag>
     Cannot attach object because it is already being removed.
+  </notification>
+
+  <notification
+  icon="alertmodal.tga"
+  name="IllegalAttachment"
+  type="notify">
+   <tag>fail</tag>
+   The attachment has requested a nonexistent point on the avatar. It has been attached to the chest instead.
   </notification>
 
   <notification

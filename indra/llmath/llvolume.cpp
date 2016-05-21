@@ -2544,7 +2544,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 						U16 influence = weights[idx++];
 						influence |= ((U16) weights[idx++] << 8);
 
-						F32 w = llclamp((F32) influence / 65535.f, 0.f, 0.99999f);
+						F32 w = llclamp((F32) influence / 65535.f, 0.001f, 0.999f);
 						wght.mV[cur_influence] = w;
 						joints[cur_influence] = joint;
 						cur_influence++;
@@ -2561,11 +2561,13 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
                     F32 wsum = wght.mV[VX] + wght.mV[VY] + wght.mV[VZ] + wght.mV[VW];
                     if (wsum <= 0.f)
                     {
-                        wght = LLVector4(0.99999f,0.f,0.f,0.f);
+                        wght = LLVector4(0.999f,0.f,0.f,0.f);
                     }
-                    for (U32 k=0; k<4; k++)
+                    for (U32 k=0; k<cur_influence; k++)
                     {
-                        joints_with_weights[k] = (F32) joints[k] + wght[k];
+                        F32 f_combined = (F32) joints[k] + wght[k];
+                        llassert(f_combined-(S32)f_combined>0); // If this fails, we have a floating point precision error.
+                        joints_with_weights[k] = f_combined;
                     }
 					face.mWeights[cur_vertex].loadua(joints_with_weights.mV);
 
@@ -4568,6 +4570,7 @@ LLVolumeFace::LLVolumeFace() :
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+    mWeightsRemapped(FALSE),
 	mOctree(NULL),
 	mOptimized(FALSE)
 {
@@ -4593,6 +4596,7 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+    mWeightsRemapped(FALSE),
 	mOctree(NULL)
 { 
 	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
@@ -4664,6 +4668,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 			ll_aligned_free_16(mWeights);
 			mWeights = NULL;
 		}
+        mWeightsRemapped = src.mWeightsRemapped;
 	}
 
 	if (mNumIndices)

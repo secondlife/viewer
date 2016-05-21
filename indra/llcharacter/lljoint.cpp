@@ -32,6 +32,8 @@
 #include "lljoint.h"
 
 #include "llmath.h"
+#include "llcallstack.h"
+#include <boost/algorithm/string.hpp>
 
 S32 LLJoint::sNumUpdates = 0;
 S32 LLJoint::sNumTouches = 0;
@@ -108,6 +110,8 @@ void LLJoint::init()
 	mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
 	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
 	mUpdateXform = TRUE;
+    mSupport = SUPPORT_BASE;
+    mEnd = LLVector3(0.0f, 0.0f, 0.0f);
 }
 
 LLJoint::LLJoint() :
@@ -124,13 +128,12 @@ LLJoint::LLJoint(S32 joint_num) :
 	touch();
 }
 
-
 //-----------------------------------------------------------------------------
 // LLJoint()
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLJoint::LLJoint(const std::string &name, LLJoint *parent) :
-	mJointNum(0)
+	mJointNum(-2)
 {
 	init();
 	mUpdateXform = FALSE;
@@ -170,6 +173,27 @@ void LLJoint::setup(const std::string &name, LLJoint *parent)
 }
 
 //-----------------------------------------------------------------------------
+// setSupport()
+//-----------------------------------------------------------------------------
+void LLJoint::setSupport(const std::string& support_name)
+{
+    if (support_name == "extended")
+    {
+        setSupport(SUPPORT_EXTENDED);
+    }
+    else if (support_name == "base")
+    {
+        setSupport(SUPPORT_BASE);
+    }
+    else
+    {
+        LL_WARNS() << "unknown support string " << support_name << LL_ENDL;
+        setSupport(SUPPORT_BASE);
+    }
+}
+    
+
+//-----------------------------------------------------------------------------
 // touch()
 // Sets all dirty flags for all children, recursively.
 //-----------------------------------------------------------------------------
@@ -194,6 +218,18 @@ void LLJoint::touch(U32 flags)
 	}
 }
 
+//-----------------------------------------------------------------------------
+// setJointNum()
+//-----------------------------------------------------------------------------
+void LLJoint::setJointNum(S32 joint_num)
+{
+    mJointNum = joint_num;
+    if (mJointNum + 2 >= LL_CHARACTER_MAX_ANIMATED_JOINTS)
+    {
+        LL_INFOS() << "LL_CHARACTER_MAX_ANIMATED_JOINTS needs to be increased" << LL_ENDL;
+        LL_ERRS() << "joint_num " << joint_num << " + 2 is too large for " << LL_CHARACTER_MAX_ANIMATED_JOINTS << LL_ENDL;
+    }
+}
 //-----------------------------------------------------------------------------
 // getRoot()
 //-----------------------------------------------------------------------------
@@ -290,31 +326,67 @@ const LLVector3& LLJoint::getPosition()
 
 bool do_debug_joint(const std::string& name)
 {
-	return false;
+    if (std::find(LLJoint::s_debugJointNames.begin(), LLJoint::s_debugJointNames.end(),name) != LLJoint::s_debugJointNames.end())
+    {
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------
 // setPosition()
 //--------------------------------------------------------------------
-void LLJoint::setPosition( const LLVector3& pos )
+void LLJoint::setPosition( const LLVector3& requested_pos, bool apply_attachment_overrides )
 {
-	if (pos != getPosition())
+    LLVector3 pos(requested_pos);
+
+    LLVector3 active_override;
+    LLUUID mesh_id;
+    if (apply_attachment_overrides && m_attachmentOverrides.findActiveOverride(mesh_id,active_override))
+    {  
+        if (pos != active_override && do_debug_joint(getName()))
+        {
+            LLScopedContextString str("setPosition");
+            LL_DEBUGS("Avatar") << " joint " << getName() << " requested_pos " << requested_pos
+                                << " overriden by attachment " << active_override << LL_ENDL;
+        }
+        pos = active_override;
+    }
+	if ((pos != getPosition()) && do_debug_joint(getName()))
 	{
-		if (do_debug_joint(getName()))
-		{
-			LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
-		}
+        LLScopedContextString str("setPosition");
+        LLCallStack cs;
+        LLContextStatus con_status;
+        LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
+        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << "====================" << LL_ENDL;
+        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
 	}
 	mXform.setPosition(pos);
 	touch(MATRIX_DIRTY | POSITION_DIRTY);
 }
 
+void LLJoint::setDefaultPosition( const LLVector3& pos )
+{
+    mDefaultPosition = pos;
+}
+
+const LLVector3& LLJoint::getDefaultPosition() const
+{
+    return mDefaultPosition;
+}
 void showJointPosOverrides( const LLJoint& joint, const std::string& note, const std::string& av_info )
 {
         std::ostringstream os;
         os << joint.m_posBeforeOverrides;
         joint.m_attachmentOverrides.showJointPosOverrides(os);
         LL_DEBUGS("Avatar") << av_info << " joint " << joint.getName() << " " << note << " " << os.str() << LL_ENDL;
+}
+
+bool above_joint_pos_threshold(const LLVector3& diff)
+{
+	//return !diff.isNull();
+	const F32 max_joint_pos_offset = 0.0001f; // 0.1 mm
+	return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
 }
 
 //--------------------------------------------------------------------
@@ -326,6 +398,15 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
 	{
 		return;
 	}
+    if (!above_joint_pos_threshold(pos-getDefaultPosition()))
+    {
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "Attachment pos override ignored for " << getName()
+                                << ", pos " << pos << " is same as default pos" << LL_ENDL;
+        }
+		return;
+    }
 	if (!m_attachmentOverrides.count())
 	{
 		if (do_debug_joint(getName()))
@@ -385,6 +466,49 @@ void LLJoint::clearAttachmentPosOverrides()
 }
 
 //--------------------------------------------------------------------
+// showAttachmentPosOverrides()
+//--------------------------------------------------------------------
+void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
+{
+    LLVector3 active_override;
+    bool has_active_override;
+    LLUUID mesh_id;
+    has_active_override = m_attachmentOverrides.findActiveOverride(mesh_id,active_override);
+    U32 count = m_attachmentOverrides.count();
+    if (count==1)
+    {
+		LLPosOverrideMap::map_type::const_iterator it = m_attachmentOverrides.getMap().begin();
+        std::string highlight = (has_active_override && (it->second == active_override)) ? "*" : "";
+        LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
+                            << " has single attachment pos override " << highlight << "" << it->second << " default " << mDefaultPosition << LL_ENDL;
+    }
+    else if (count>1)
+    {
+        LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " has " << count << " attachment pos overrides" << LL_ENDL;
+		std::set<LLVector3> distinct_offsets;
+        LLPosOverrideMap::map_type::const_iterator it = m_attachmentOverrides.getMap().begin();
+        for (; it != m_attachmentOverrides.getMap().end(); ++it)
+        {
+            distinct_offsets.insert(it->second);
+        }
+        if (distinct_offsets.size()>1)
+        {
+            LL_DEBUGS("Avatar") << "CONFLICTS, " << distinct_offsets.size() << " different values" << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("Avatar") << "no conflicts" << LL_ENDL;
+        }
+        std::set<LLVector3>::iterator dit = distinct_offsets.begin();
+        for ( ; dit != distinct_offsets.end(); ++dit)
+        {
+            std::string highlight = (has_active_override && *dit == active_override) ? "*" : "";
+            LL_DEBUGS("Avatar") << "  POS " << highlight << "" << (*dit) << " default " << mDefaultPosition << LL_ENDL;
+        }
+	}
+}
+
+//--------------------------------------------------------------------
 // updatePos()
 //--------------------------------------------------------------------
 void LLJoint::updatePos(const std::string& av_info)
@@ -393,15 +517,38 @@ void LLJoint::updatePos(const std::string& av_info)
 	LLUUID mesh_id;
 	if (m_attachmentOverrides.findActiveOverride(mesh_id,found_pos))
 	{
-		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner of " << m_attachmentOverrides.count() << " is mesh " << mesh_id << " pos " << found_pos << LL_ENDL;
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner of " << m_attachmentOverrides.count() << " is mesh " << mesh_id << " pos " << found_pos << LL_ENDL;
+        }
 		pos = found_pos;
 	}
 	else
 	{
-		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
+        }
 		pos = m_posBeforeOverrides;
 	}
 	setPosition(pos);
+}
+
+// init static
+LLJoint::debug_joint_name_t LLJoint::s_debugJointNames = debug_joint_name_t();
+
+//--------------------------------------------------------------------
+// setDebugJointNames
+//--------------------------------------------------------------------
+void LLJoint::setDebugJointNames(const debug_joint_name_t& names)
+{
+    s_debugJointNames = names;
+}
+void LLJoint::setDebugJointNames(const std::string& names_string)
+{
+    debug_joint_name_t names;
+    boost::split(names, names_string, boost::is_any_of(" :,"));
+    setDebugJointNames(names);
 }
 
 //--------------------------------------------------------------------
@@ -531,11 +678,17 @@ const LLVector3& LLJoint::getScale()
 //--------------------------------------------------------------------
 void LLJoint::setScale( const LLVector3& scale )
 {
-//	if (mXform.getScale() != scale)
+	if ((mXform.getScale() != scale) && do_debug_joint(getName()))
 	{	
-		mXform.setScale(scale);
-		touch();
+        LLScopedContextString str("setScale");
+        LLCallStack cs;
+        LLContextStatus con_status;
+        LL_DEBUGS("Avatar") << " joint " << getName() << " set scale " << scale << LL_ENDL;
+        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << LL_ENDL;
+        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
 	}
+    mXform.setScale(scale);
+    touch();
 
 }
 

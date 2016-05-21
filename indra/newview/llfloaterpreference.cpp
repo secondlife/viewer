@@ -364,6 +364,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",	boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",	boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
+	mCommitCallbackRegistrar.add("Pref.EnhancedSkeletonEnable",	boost::bind(&LLFloaterPreference::onEnhancedSkeletonEnable, this, _1));
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",		boost::bind(&LLFloaterPreference::refreshUI,this));
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",		boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));
@@ -805,6 +806,16 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledGraphics()
 void LLFloaterPreference::onAvatarImpostorsEnable()
 {
 	refreshEnabledGraphics();
+}
+
+void LLFloaterPreference::onEnhancedSkeletonEnable(LLUICtrl *ctrl)
+{
+    bool enabled = ctrl->getValue().asBoolean();
+    bool curr_enabled = gSavedSettings.getBOOL("IncludeEnhancedSkeleton"); 
+    if (enabled != curr_enabled)
+    {
+        gSavedSettings.setBOOL("IncludeEnhancedSkeleton",enabled);
+    }
 }
 
 //static
@@ -1251,6 +1262,10 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
 	bumpshiny_ctrl->setEnabled(bumpshiny ? TRUE : FALSE);
 	
+    LLCheckBoxCtrl* ctrl_enhanced_skel = getChild<LLCheckBoxCtrl>("AvatarEnhancedSkeleton");
+    bool enhanced_skel_enabled = gSavedSettings.getBOOL("IncludeEnhancedSkeleton");
+    ctrl_enhanced_skel->setValue(enhanced_skel_enabled);
+    
 	// Avatar Mode
 	// Enable Avatar Shaders
 	LLCheckBoxCtrl* ctrl_avatar_vp = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
@@ -2004,7 +2019,7 @@ void LLFloaterPreference::onClickAutoReplace()
 
 void LLFloaterPreference::onClickSpellChecker()
 {
-		LLFloaterReg::showInstance("prefs_spellchecker");
+    LLFloaterReg::showInstance("prefs_spellchecker");
 }
 
 void LLFloaterPreference::onClickAdvanced()

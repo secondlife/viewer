@@ -117,6 +117,8 @@ protected:
 	void onVertexShaderEnable();
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
+    // callback for when enhanced skeleton support checkbox toggled.
+    void onEnhancedSkeletonEnable(LLUICtrl *ctrl);
 
 	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
 	void onClickActionChange();

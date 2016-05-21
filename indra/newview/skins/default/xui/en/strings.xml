@@ -2255,6 +2255,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="BodyPartsLeftLeg">Left Leg</string>
 	<string name="BodyPartsTorso">Torso</string>
 	<string name="BodyPartsRightLeg">Right Leg</string>
+    <string name="BodyPartsEnhancedSkeleton">Enhanced Skeleton</string>
 
 	<!-- slider -->
 	<string name="GraphicsQualityLow">Low</string>
@@ -2476,8 +2477,23 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
-        <string name="Neck">Neck</string>
-        <string name="Avatar Center">Avatar Center</string>
+    <string name="Neck">Neck</string>
+    <string name="Avatar Center">Avatar Center</string>
+    <string name="Left Ring Finger">Left Ring Finger</string>
+    <string name="Right Ring Finger">Right Ring Finger</string>
+    <string name="Tail Base">Tail Base</string>
+    <string name="Tail Tip">Tail Tip</string>
+    <string name="Left Wing">Left Wing</string>
+    <string name="Right Wing">Right Wing</string>
+    <string name="Jaw">Jaw</string>
+    <string name="Alt Left Ear">Alt Left Ear</string>
+    <string name="Alt Right Ear">Alt Right Ear</string>
+    <string name="Alt Left Eye">Alt Left Eye</string>
+    <string name="Alt Right Eye">Alt Right Eye</string>
+    <string name="Tongue">Tongue</string>
+    <string name="Groin">Groin</string>
+    <string name="Left Hind Foot">Left Hind Foot</string>
+    <string name="Right Hind Foot">Right Hind Foot</string>
 	<string name="Invalid Attachment">Invalid Attachment Point</string>
 	<string name="ATTACHMENT_MISSING_ITEM">Error: missing item</string>
 	<string name="ATTACHMENT_MISSING_BASE_ITEM">Error: missing base item</string>
