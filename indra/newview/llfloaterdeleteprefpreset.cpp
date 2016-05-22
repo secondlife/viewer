@@ -53,6 +53,8 @@ BOOL LLFloaterDeletePrefPreset::postBuild()
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterDeletePrefPreset::onBtnCancel, this));
 	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterDeletePrefPreset::onPresetsListChange, this));
 
+	onPresetsListChange(); // ensure that delete button is disabled when the list is empty
+
 	return TRUE;
 }
 
