@@ -122,6 +122,9 @@ class ViewerManifest(LLManifest):
                     settings_install['CmdLineGridChoice']['Value'] = self.grid()
                     print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
 
+                #COYOT: channel: self.channel_with_pkg_suffix()
+                print "COYOT: version %s" % '.'.join(self.args['version'])
+
                 # put_in_file(src=) need not be an actual pathname; it
                 # only needs to be non-empty
                 self.put_in_file(llsd.format_pretty_xml(settings_install),
