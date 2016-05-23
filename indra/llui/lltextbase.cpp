@@ -269,6 +269,8 @@ LLTextBase::~LLTextBase()
 {
 	mSegments.clear();
 	delete mURLClickSignal;
+	delete mIsFriendSignal;
+	delete mIsObjectBlockedSignal;
 }
 
 void LLTextBase::initFromParams(const LLTextBase::Params& p)
