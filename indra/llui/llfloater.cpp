@@ -1326,7 +1326,7 @@ void LLFloater::setMinimized(BOOL minimize)
 		}
 		
 		mMinimized = FALSE;
-
+		setFrontmost();
 		// Reshape *after* setting mMinimized
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
