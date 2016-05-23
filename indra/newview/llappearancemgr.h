@@ -36,6 +36,8 @@
 #include "llviewerinventory.h"
 #include "llcorehttputil.h"
 
+#define  APPEARANCEBAKE_AS_IN_AIS_QUEUE 1
+
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
 class LLOutfitUnLockTimer;

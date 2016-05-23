@@ -7313,7 +7313,6 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
-    static S32 largestSelfCOFSeen(LLViewerInventoryCategory::VERSION_UNKNOWN);
 	LL_DEBUGS("Avatar") << "starts" << LL_ENDL;
 	
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
@@ -7348,6 +7347,36 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		return;
 	}
 
+    S32 thisAppearanceVersion(contents.mCOFVersion);
+    if (isSelf())
+    {   // In the past this was considered to be the canonical COF version, 
+        // that is no longer the case.  The canonical version is maintained 
+        // by the AIS code and should match the COF version there. Even so,
+        // we must prevent rolling this one backwards backwards or processing 
+        // stale versions.
+
+        S32 aisCOFVersion(LLAppearanceMgr::instance().getCOFVersion());
+
+        LL_INFOS("Avatar") << "handling self appearance message #" << thisAppearanceVersion <<
+            " (highest seen #" << mLastUpdateReceivedCOFVersion <<
+            ") (AISCOF=#" << aisCOFVersion << ")" << LL_ENDL;
+
+        if (mLastUpdateReceivedCOFVersion >= thisAppearanceVersion)
+        {
+            LL_WARNS("Avatar") << "Stale appearance received #" << thisAppearanceVersion <<
+                " attempt to roll back from #" << mLastUpdateReceivedCOFVersion <<
+                "... dropping." << LL_ENDL;
+            return;
+        }
+        if (isEditingAppearance())
+        {
+            LL_DEBUGS("Avatar") << "Editing appearance.  Dropping appearance update." << LL_ENDL;
+            return;
+        }
+
+    }
+
+#if 0
 	S32 this_update_cof_version = contents.mCOFVersion;
 	S32 last_update_request_cof_version = mLastUpdateRequestCOFVersion;
 
@@ -7385,6 +7414,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		LL_DEBUGS("Avatar") << "ignoring appearance message while in appearance edit" << LL_ENDL;
 		return;
 	}
+#endif
 
 	// SUNSHINE CLEANUP - is this case OK now?
 	S32 num_params = contents.mParamWeights.size();
@@ -7399,13 +7429,16 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 	// No backsies zone - if we get here, the message should be valid and usable, will be processed.
-    LL_INFOS("Avatar") << "Processing appearance message version " << this_update_cof_version << LL_ENDL;
+    LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
 
-	// Note:
-	// RequestAgentUpdateAppearanceResponder::onRequestRequested()
-	// assumes that cof version is only updated with server-bake
-	// appearance messages.
-	mLastUpdateReceivedCOFVersion = this_update_cof_version;
+    if (isSelf())
+    {
+        // Note:
+        // RequestAgentUpdateAppearanceResponder::onRequestRequested()
+        // assumes that cof version is only updated with server-bake
+        // appearance messages.
+        mLastUpdateReceivedCOFVersion = thisAppearanceVersion;
+    }
 		
     if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
     {
