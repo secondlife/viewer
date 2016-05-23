@@ -8314,8 +8314,18 @@ Appearance has been saved to XML to [PATH]
     <notification icon="notifytip.tga"
 		name="AppearanceToXMLFailed" type="notifytip">
 Failed to save appearance to XML.
+  </notification>
+
+  <notification
     icon="notifytip.tga"
-	name="PresetNotDeleted"
+    name="PresetNotSaved"
+    type="notifytip">
+Error saving preset [NAME].
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+    name="PresetNotDeleted"
     type="notifytip">
 Error deleting preset [NAME].
   </notification>
