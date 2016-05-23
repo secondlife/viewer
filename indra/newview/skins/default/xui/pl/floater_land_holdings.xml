@@ -1,40 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="land holdings floater" title="MOJA POSIADŁOŚĆ">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="land holdings floater" title="MOJE DZIAŁKI">
 	<scroll_list name="parcel list">
-		<column label="Posiadłość" name="name"/>
-		<column label="Region" name="location"/>
-		<column label="Typ" name="type"/>
-		<column label="Obszar" name="area"/>
-		<column label="" name="hidden"/>
+		<scroll_list.columns label="Działka" name="name" />
+		<scroll_list.columns label="Typ" name="type" />
+		<scroll_list.columns label="Obszar" name="area" />
 	</scroll_list>
-	<button label="Teleportuj" label_selected="Teleport" name="Teleport" tool_tip="Teleportuj się do centrum tej Posiadłości."/>
-	<button label="Mapa" label_selected="Mapa" name="Show on Map" tool_tip="Pokaż to miejsce na mapie świata."/>
+	<button label="Teleportuj" label_selected="Teleportuj" name="Teleport" tool_tip="Teleportuj się do centrum tej działki." />
+	<button label="Mapa" label_selected="Mapa" name="Show on Map" tool_tip="Pokaż to miejsce na mapie świata." />
 	<text name="contrib_label">
-		Kontrybucje do Twoich Grup:
+		Kontrybucje do Twoich grup:
 	</text>
 	<scroll_list name="grant list">
-		<column label="Grupa" name="group"/>
-		<column label="Obszar" name="area"/>
+		<scroll_list.columns label="Grupa" name="group" />
+		<scroll_list.columns label="Obszar" name="area" />
 	</scroll_list>
 	<text name="allowed_label">
 		Dozwolone udziały przy obecnym planie płatności:
 	</text>
-	<text name="allowed_text">
-		[AREA] m²
-	</text>
 	<text name="current_label">
-		Udziały w Posiadłościach:
-	</text>
-	<text name="current_text">
-		[AREA] m²
+		Udziały w działkach:
 	</text>
 	<text name="available_label">
-		Dostępne na zakup Posiadłości:
+		Dostępne na zakup działek:
 	</text>
-	<text name="available_text">
-		[AREA] m²
-	</text>
-	<string name="area_string">
-		[AREA] m²
-	</string>
 </floater>

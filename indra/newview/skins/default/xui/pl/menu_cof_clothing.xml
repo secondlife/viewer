@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <context_menu name="COF Clothing">
-	<menu_item_call label="Zdejmij" name="take_off"/>
-	<menu_item_call label="Edytuj" name="edit"/>
-	<menu_item_call label="Zastąp" name="replace"/>
+	<menu_item_call label="Zdejmij" name="take_off" />
+	<menu_item_call label="Edytuj" name="edit" />
+	<menu_item_call label="Zastąp" name="replace" />
+	<menu_item_call label="Utwórz nowe" name="create_new" />
 </context_menu>

@@ -39,16 +39,12 @@ int main(int argc, char **argv)
     LLSD options = LLApp::instance()->getOptionData(
                         LLApp::PRIORITY_COMMAND_LINE);
     
-    if (!(options.has("pid") && options.has("dumpdir")))
-    {
-        llwarns << "Insufficient parameters to crash report." << llendl;
-    }
-    
 	if (! app.init())
 	{
 		LL_WARNS() << "Unable to initialize application." << LL_ENDL;
 		return 1;
 	}
+
     if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
     {
 //        return NSApplicationMain(argc, (const char **)argv);

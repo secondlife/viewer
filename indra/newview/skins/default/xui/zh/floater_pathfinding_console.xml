@@ -66,6 +66,16 @@
 	<floater.string name="pathing_error">
 		產生路徑時出錯。
 	</floater.string>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
+			瀏覽器狀態
+		</text>
+	</panel>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
+			模擬器狀態
+		</text>
+	</panel>
 	<tab_container name="view_test_tab_container">
 		<panel label="視角" name="view_panel">
 			<text name="show_label">

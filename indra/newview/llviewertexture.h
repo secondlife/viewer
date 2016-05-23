@@ -346,7 +346,10 @@ public:
 
 	bool updateFetch();
 	bool setDebugFetching(S32 debug_level);
-	bool isInDebug() {return mInDebug;}
+	bool isInDebug() const { return mInDebug; }
+
+	void setUnremovable(BOOL value) { mUnremovable = value; }
+	bool isUnremovable() const { return mUnremovable; }
 	
 	void clearFetchedResults(); //clear all fetched results, for debug use.
 
@@ -435,6 +438,7 @@ private:
 private:
 	BOOL  mFullyLoaded;
 	BOOL  mInDebug;
+	BOOL  mUnremovable;
 	BOOL  mInFastCacheList;
 	BOOL  mForceCallbackFetch;
 

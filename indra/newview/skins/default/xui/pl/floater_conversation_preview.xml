@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="preview_conversation" title="ROZMOWA:">
+	<floater.string name="Title">
+		Rozmowa: [NAME]
+	</floater.string>
+	<text name="page_label" value="Str." />
+</floater>

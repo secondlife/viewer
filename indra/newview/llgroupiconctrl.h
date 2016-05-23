@@ -66,6 +66,8 @@ public:
 	 */
 	virtual void setValue(const LLSD& value);
 
+	void setIconId(const LLSD& value);
+
 	// LLGroupMgrObserver observer trigger
 	virtual void changed(LLGroupChange gc);
 

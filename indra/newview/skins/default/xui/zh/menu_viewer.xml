@@ -178,6 +178,7 @@
 		<menu_item_call label="回報臭蟲" name="Report Bug"/>
 		<menu_item_call label="碰撞、推擠與打擊" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="關於 [APP_NAME]" name="About Second Life"/>
+		<menu_item_call label="查詢是否有新版" name="Check for Updates"/>
 	</menu>
 	<menu label="進階" name="Advanced">
 		<menu_item_call label="重新產出材質" name="Rebake Texture"/>
@@ -191,7 +192,7 @@
 			<menu_item_call label="Lag 測量器" name="Lag Meter"/>
 			<menu_item_check label="統計列" name="Statistics Bar"/>
 			<menu_item_call label="場景負載統計資料" name="Scene Load Statistics"/>
-			<menu_item_check label="顯示化身的繪製重量" name="Avatar Rendering Cost"/>
+			<menu_item_check label="顯示化身複雜度資訊" name="Avatar Draw Info"/>
 		</menu>
 		<menu label="高亮顯示與可見度" name="Highlighting and Visibility">
 			<menu_item_check label="Cheesy 指標" name="Cheesy Beacon"/>
@@ -314,8 +315,6 @@
 			<menu_item_check label="接點" name="Joints"/>
 			<menu_item_check label="光線投射" name="Raycast"/>
 			<menu_item_check label="風力向量" name="Wind Vectors"/>
-			<menu_item_check label="繪出複雜度" name="rendercomplexity"/>
-			<menu_item_check label="附件位元組" name="attachment bytes"/>
 			<menu_item_check label="雕刻" name="Sculpt"/>
 			<menu label="材質密度" name="Texture Density">
 				<menu_item_check label="無" name="None"/>
@@ -421,13 +420,11 @@
 			<menu_item_check label="除錯字元可見性" name="Debug Character Vis"/>
 			<menu_item_check label="顯示碰撞骨架" name="Show Collision Skeleton"/>
 			<menu_item_check label="顯示用戶目標" name="Display Agent Target"/>
-			--&gt;
 			<menu_item_call label="傾印附件" name="Dump Attachments"/>
 			<menu_item_call label="除錯化身材質" name="Debug Avatar Textures"/>
 			<menu_item_call label="傾印本地材質" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP 材質" name="HTTP Textures"/>
-		<menu_item_check label="HTTP 收納區" name="HTTP Inventory"/>
 		<menu_item_call label="壓縮圖像" name="Compress Images"/>
 		<menu_item_call label="啟用記憶體洩漏視覺偵測器" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="輸出除錯小型傾印" name="Output Debug Minidump"/>

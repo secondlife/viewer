@@ -122,10 +122,6 @@ class LLFloaterCompileQueue : public LLFloaterScriptQueue
 {
 	friend class LLFloaterReg;
 public:
-	static void onSaveBytecodeComplete(const LLUUID& asset_id,
-									void* user_data,
-									S32 status);
-									
 	// remove any object in mScriptScripts with the matching uuid.
 	void removeItemByItemID(const LLUUID& item_id);
 	

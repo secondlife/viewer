@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<bodyparts_list_item name="wearable_item">
+	<lock_panel name="btn_lock" tool_tip="Nie masz uprawnień do edycji"/>
+	<edit_btn name="btn_edit" tool_tip="Edytuj ten kształt" />
+</bodyparts_list_item>

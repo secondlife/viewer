@@ -1,8 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!--
-  Not can_close / no title to avoid window chrome
-  Single instance - only have one at a time, recycle it each spawn
--->
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="inspect_group">
 	<string name="PrivateGroup">
 		Grupa prywatna
@@ -11,12 +7,12 @@
 		Wstęp wolny
 	</string>
 	<string name="CostToJoin">
-		L$[AMOUNT] by dołączyć
+		[AMOUNT]L$ by dołączyć
 	</string>
 	<string name="YouAreMember">
-		Jesteś członkiem
+		Jesteś w grupie
 	</string>
-	<button label="Dołącz" name="join_btn"/>
-	<button label="Opuść" name="leave_btn"/>
-	<button label="Zobacz profil" name="view_profile_btn"/>
+	<button label="Dołącz" name="join_btn" />
+	<button label="Opuść" name="leave_btn" />
+	<button label="Zobacz profil" name="view_profile_btn" />
 </floater>

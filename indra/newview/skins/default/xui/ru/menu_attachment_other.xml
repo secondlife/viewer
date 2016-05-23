@@ -15,5 +15,8 @@
 	<menu_item_call label="Приблизить" name="Zoom In"/>
 	<menu_item_call label="Заплатить" name="Pay..."/>
 	<menu_item_call label="Профиль объекта" name="Object Inspect"/>
+	<menu_item_check label="Обычная прорисовка" name="RenderNormally"/>
+	<menu_item_check label="Не рисовать" name="DoNotRender"/>
+	<menu_item_check label="Полная прорисовка" name="AlwaysRenderFully"/>
 	<menu_item_call label="Блокировать владельца участка" name="Mute Particle"/>
 </context_menu>

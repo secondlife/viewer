@@ -515,29 +515,13 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 	if (log.length() > 0 || warns)
 	{
+        LL_DEBUGS("ShaderLoading") << "Shader loading ";
+        
 		if (!filename.empty())
 		{
-			if (warns)
-			{
-				LL_WARNS("ShaderLoading") << "From " << filename << ":" << LL_ENDL;
-			}
-			else
-			{
-				LL_INFOS("ShaderLoading") << "From " << filename << ":" << LL_ENDL;
-			}
+            LL_CONT << "From " << filename << ":\n";
 		}
-	}
-
-	if ( log.length() > 0 )
-	{
-		if (warns)
-		{
-			LL_WARNS("ShaderLoading") << log << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS("ShaderLoading") << log << LL_ENDL;
-		}
+        LL_CONT << log << LL_ENDL;
 	}
  }
 

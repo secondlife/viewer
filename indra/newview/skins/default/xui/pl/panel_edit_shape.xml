@@ -1,26 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="edit_shape_panel">
 	<string name="meters">
 		Metry
 	</string>
 	<string name="feet">
-		Feet
+		Stopy
 	</string>
 	<string name="height">
 		Wysokość:
 	</string>
-	<text name="avatar_height"/>
 	<panel label="Koszula" name="accordion_panel">
 		<accordion name="wearable_accordion">
-			<accordion_tab name="shape_body_tab" title="Ciało"/>
-			<accordion_tab name="shape_head_tab" title="Głowa"/>
-			<accordion_tab name="shape_eyes_tab" title="Oczy"/>
-			<accordion_tab name="shape_ears_tab" title="Uszy"/>
-			<accordion_tab name="shape_nose_tab" title="Nos"/>
-			<accordion_tab name="shape_mouth_tab" title="Usta"/>
-			<accordion_tab name="shape_chin_tab" title="Podbródek"/>
-			<accordion_tab name="shape_torso_tab" title="Tors"/>
-			<accordion_tab name="shape_legs_tab" title="Nogi"/>
+			<accordion_tab name="shape_body_tab" title="Ciało" />
+			<accordion_tab name="shape_head_tab" title="Głowa" />
+			<accordion_tab name="shape_eyes_tab" title="Oczy" />
+			<accordion_tab name="shape_ears_tab" title="Uszy" />
+			<accordion_tab name="shape_nose_tab" title="Nos" />
+			<accordion_tab name="shape_mouth_tab" title="Usta" />
+			<accordion_tab name="shape_chin_tab" title="Podbródek" />
+			<accordion_tab name="shape_torso_tab" title="Tułów" />
+			<accordion_tab name="shape_legs_tab" title="Nogi" />
 		</accordion>
 	</panel>
 </panel>

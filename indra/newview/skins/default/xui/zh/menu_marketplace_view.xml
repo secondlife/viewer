@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_marketplace_sort">
+	<menu_item_check label="依名稱排序" name="sort_by_name"/>
+	<menu_item_check label="依最近時間排序" name="sort_by_recent"/>
 	<menu_item_check label="按存量排序（由少到多）" name="sort_by_stock_amount"/>
 	<menu_item_check label="只顯示刊登資料夾" name="show_only_listing_folders"/>
 </toggleable_menu>

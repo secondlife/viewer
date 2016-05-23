@@ -14,6 +14,7 @@ set(cmake_SOURCE_FILES
     Boost.cmake
     BuildVersion.cmake
     CEFPlugin.cmake
+    CEFPlugin.cmake
     CMakeCopyIfDifferent.cmake
     ConfigurePkgConfig.cmake
     CURL.cmake
@@ -77,7 +78,6 @@ set(cmake_SOURCE_FILES
     LLVFS.cmake
     LLWindow.cmake
     LLXML.cmake
-    LScript.cmake
     Linking.cmake
     MediaPluginBase.cmake
     NDOF.cmake

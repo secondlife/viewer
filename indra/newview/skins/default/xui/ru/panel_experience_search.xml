@@ -22,14 +22,14 @@
 		&quot;Parcel_R_Light&quot;
 	</string>
 	<panel name="search_panel">
-		<button label="Перейти" name="find"/>
+		<button label="Начать" name="find"/>
 		<icons_combo_box label="Умеренный" name="maturity">
 			<icons_combo_box.item label="Для взрослых" name="Adult" value="42"/>
 			<icons_combo_box.item label="Умеренный" name="Mature" value="21"/>
 			<icons_combo_box.item label="Общий" name="PG" value="13"/>
 		</icons_combo_box>
 		<scroll_list name="search_results">
-			<columns label="Название" name="experience_name"/>
+			<columns label="Имя" name="experience_name"/>
 			<columns label="Владелец" name="owner"/>
 		</scroll_list>
 		<button label="OK" label_selected="OK" name="ok_btn"/>

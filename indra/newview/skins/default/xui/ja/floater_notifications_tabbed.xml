@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_notifications_tabbed" title="通知">
+	<floater.string name="system_tab_title">
+		システム ([COUNT])
+	</floater.string>
+	<floater.string name="transactions_tab_title">
+		取引 ([COUNT])
+	</floater.string>
+	<floater.string name="group_invitations_tab_title">
+		招待 ([COUNT])
+	</floater.string>
+	<floater.string name="group_notices_tab_title">
+		グループ ([COUNT])
+	</floater.string>
+	<string name="title_notification_tabbed_window">
+		通知
+	</string>
+	<layout_stack name="TabButtonsStack">
+		<layout_panel name="TabButtonsLayoutPanel">
+			<tab_container name="notifications_tab_container">
+				<panel label="システム (0)" name="system_notification_list_tab"/>
+				<panel label="取引 (0)" name="transaction_notifications_tab"/>
+				<panel label="招待 (0)" name="group_invite_notifications_tab"/>
+				<panel label="グループ (0)" name="group_notice_notifications_tab"/>
+			</tab_container>
+			<layout_stack name="ButtonsStack">
+				<layout_panel name="CondenseAllButtonPanel">
+					<button label="全て折り畳む" name="collapse_all_button"/>
+				</layout_panel>
+				<layout_panel name="GapLayoutPanel">
+					<panel label="ギャップパネル" name="GapPanel"/>
+				</layout_panel>
+				<layout_panel name="DeleteAllButtonPanel">
+					<button label="全て削除" name="delete_all_button"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

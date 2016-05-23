@@ -300,6 +300,7 @@ public:
 								wrap,
 								use_ellipses,
 								parse_urls,
+								force_urls_external,
 								parse_highlights,
 								clip,
 								clip_partial,
@@ -368,6 +369,7 @@ public:
 	std::string				getMisspelledWord(U32 pos) const;
 	bool					isMisspelledWord(U32 pos) const;
 	void					onSpellCheckSettingsChange();
+	virtual void			onSpellCheckPerformed(){}
 
 	// used by LLTextSegment layout code
 	bool					getWordWrap() { return mWordWrap; }
@@ -654,6 +656,7 @@ protected:
 	S32							mLineSpacingPixels;	// padding between lines
 	bool						mBorderVisible;
 	bool                		mParseHTML;			// make URLs interactive
+	bool						mForceUrlsExternal; // URLs from this textbox will be opened in external browser
 	bool						mParseHighlights;	// highlight user-defined keywords
 	bool                		mWordWrap;
 	bool						mUseEllipses;

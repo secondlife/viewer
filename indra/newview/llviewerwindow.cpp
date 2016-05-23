@@ -677,14 +677,13 @@ public:
 			{
 				LLVOAvatar* avatar = av_iter->second;
 
-				avatar->calculateUpdateRenderCost();			// Make sure the numbers are up-to-date
+				avatar->calculateUpdateRenderComplexity(); // Make sure the numbers are up-to-date
 
 				trunc_name = utf8str_truncate(avatar->getFullname(), 16);
-				addText(xpos, ypos, llformat("%s : rez %d, weight %d, bytes %d area %.2f",
+				addText(xpos, ypos, llformat("%s : %s, complexity %d, area %.2f",
 					trunc_name.c_str(),
-					avatar->getRezzedStatus(),
+                    LLVOAvatar::rezStatusToString(avatar->getRezzedStatus()).c_str(),
 					avatar->getVisualComplexity(),
-					avatar->getAttachmentGeometryBytes(),
 					avatar->getAttachmentSurfaceArea()));
 				ypos += y_inc;
 				av_iter++;
@@ -1037,7 +1036,16 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 
 BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = TRUE;
+    mAllowMouseDragging = FALSE;
+    if (!mMouseDownTimer.getStarted())
+    {
+        mMouseDownTimer.start();
+    }
+    else
+    {
+        mMouseDownTimer.reset();
+    }    
+    BOOL down = TRUE;
 	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
 }
 
@@ -1056,7 +1064,11 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 
 BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = FALSE;
+    if (mMouseDownTimer.getStarted())
+    {
+        mMouseDownTimer.stop();
+    }
+    BOOL down = FALSE;
 	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
 }
 
@@ -1286,6 +1298,22 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 	{
 		gAgent.clearAFK();
 	}
+}
+
+void LLViewerWindow::handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask)
+{
+    if (mMouseDownTimer.getStarted())
+    {
+        if (mMouseDownTimer.getElapsedTimeF32() > 0.1)
+        {
+            mAllowMouseDragging = TRUE;
+            mMouseDownTimer.stop();
+        }
+    }
+    if(mAllowMouseDragging || !LLToolCamera::getInstance()->hasMouseCapture())
+    {
+        handleMouseMove(window, pos, mask);
+    }
 }
 
 void LLViewerWindow::handleMouseLeave(LLWindow *window)
@@ -1617,6 +1645,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mMiddleMouseDown(FALSE),
 	mRightMouseDown(FALSE),
 	mMouseInWindow( FALSE ),
+    mAllowMouseDragging(TRUE),
+    mMouseDownTimer(),
 	mLastMask( MASK_NONE ),
 	mToolStored( NULL ),
 	mHideCursorPermanent( FALSE ),
@@ -4951,6 +4981,13 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		
 		gGLManager.mIsDisabled = TRUE;
 		stop_glerror();
+
+		//unload shader's
+		while (LLGLSLShader::sInstances.size())
+		{
+			LLGLSLShader* shader = *(LLGLSLShader::sInstances.begin());
+			shader->unload();
+		}
 		
 		LL_INFOS() << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemory.value() << " bytes" << LL_ENDL;
 	}

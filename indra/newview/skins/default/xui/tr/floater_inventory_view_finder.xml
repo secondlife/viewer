@@ -24,6 +24,12 @@
 		<radio_item label="Şundan daha eski:" name="older"/>
 	</radio_group>
 	<spinner label="Saat Önce" name="spin_hours_ago"/>
+	<text name="label_hours">
+		Saat
+	</text>
 	<spinner label="Gün Önce" name="spin_days_ago"/>
+	<text name="label_days">
+		Gün
+	</text>
 	<button label="Kapat" label_selected="Kapat" name="Close"/>
 </floater>

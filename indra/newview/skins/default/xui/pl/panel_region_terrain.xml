@@ -1,30 +1,51 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Teren" name="Terrain">
-	<text name="region_text_lbl">
-		Region:
-	</text>
 	<text name="region_text">
 		brak danych
 	</text>
 	<spinner label="Poziom wody" name="water_height_spin" />
-	<button label="?" name="water_height_help" />
 	<spinner label="Górny limit terenu" name="terrain_raise_spin" />
-	<button label="?" name="terrain_raise_help" />
 	<spinner label="Dolny limit terenu" name="terrain_lower_spin" />
-	<button label="?" name="terrain_lower_help" />
-	<check_box label="Używaj Słońca Majątku" name="use_estate_sun_check" />
-	<button label="?" name="use_estate_sun_help" />
-	<check_box label="Stałe Słońce" name="fixed_sun_check" />
-	<button label="?" name="fixed_sun_help" />
-	<slider label="Pora doby" name="sun_hour_slider" />
+	<text name="detail_texture_text">
+		Tekstury terenu (512x512 / 1024x1024, 24 bitowy plik .tga)
+	</text>
+	<text name="height_text_lbl">
+		1 (Nisko)
+	</text>
+	<text name="height_text_lbl4">
+		4 (Wysoko)
+	</text>
+	<text name="height_text_lbl5">
+		Zakresy elewacyjne tekstur
+	</text>
+	<text name="height_text_lbl10">
+		Te wartości reprezentują zakres przenikania tekstur wyżej.
+	</text>
+	<text name="height_text_lbl11">
+		Mierzone w metrach, wartość Nisko jest maksymalną wys. tekstury #1, a wartość Wysoko jest minimalną wys. tekstury #4.
+	</text>
+	<text name="height_text_lbl6">
+		Północny zach.
+	</text>
+	<text name="height_text_lbl7">
+		Północny wsch.
+	</text>
+	<spinner label="Nisko" name="height_start_spin_1" />
+	<spinner label="Nisko" name="height_start_spin_3" />
+	<spinner label="Wys." name="height_range_spin_1" />
+	<spinner label="Wys." name="height_range_spin_3" />
+	<text name="height_text_lbl8">
+		Południowy zach.
+	</text>
+	<text name="height_text_lbl9">
+		Południowy wsch.
+	</text>
+	<spinner label="Nisko" name="height_start_spin_0" />
+	<spinner label="Nisko" name="height_start_spin_2" />
+	<spinner label="Wys." name="height_range_spin_0" />
+	<spinner label="Wys." name="height_range_spin_2" />
+	<button label="Zapisz surowy teren..." name="download_raw_btn" tool_tip="Dostępne tylko dla właścicieli Majątku, nie dla zarządców" />
+	<button label="Załaduj surowy teren..." name="upload_raw_btn" tool_tip="Dostępne tylko dla właścicieli Majątku, nie dla zarządców" />
+	<button label="Ustal teren" name="bake_terrain_btn" tool_tip="(Bake Terrain) Zapamiętaj obecny teren jako punkt odniesienia dla limitów podnoszenia i opuszczania" />
 	<button label="Zastosuj" name="apply_btn" />
-	<button label="Zapisz surowy teren..." name="download_raw_btn"
-	     tool_tip="Dostępne tylko dla właścicieli Majątku, nie dla zarządców" />
-	<button label="?" name="download_raw_help" />
-	<button label="Załaduj surowy teren..." name="upload_raw_btn"
-	     tool_tip="Dostępne tylko dla właścicieli Majątku, nie dla zarządców" />
-	<button label="?" name="upload_raw_help" />
-	<button label="Ustal teren" name="bake_terrain_btn"
-	     tool_tip="Zapamiętaj obecny teren jako punkt odniesienia dla limitów podnoszenia i opuszczania" />
-	<button label="?" name="bake_terrain_help" />
 </panel>

@@ -66,6 +66,16 @@
 	<floater.string name="pathing_error">
 		パスの生成中にエラーが発生しました。
 	</floater.string>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
+			ビューワステータス
+		</text>
+	</panel>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
+			シミュレータステータス
+		</text>
+	</panel>
 	<tab_container name="view_test_tab_container">
 		<panel label="表示" name="view_panel">
 			<text name="show_label">

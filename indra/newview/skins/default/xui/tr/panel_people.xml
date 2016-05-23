@@ -18,6 +18,7 @@ Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/worldmap Dünya
 	<string name="no_groups_msg" value="Katılacak Gruplar mı arıyorsunuz? [secondlife:///app/search/groups Ara] deneyin."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Haritayı açmak için çift tıkla, yatay hareket için shift çek)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Işınlamak için çift tıkla, yatay hareket için shift çek)"/>
+	<string name="GroupCountWithInfo" value="[COUNT] gruba üyesiniz, daha [REMAINING] gruba üye olabilirsiniz.  [secondlife:/// Daha fazlasını mı istiyorsunuz?]"/>
 	<tab_container name="tabs">
 		<panel label="YAKIN" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">

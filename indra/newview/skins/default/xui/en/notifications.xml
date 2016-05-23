@@ -554,22 +554,6 @@ This listing could not be updated.
 
   <notification
    icon="alertmodal.tga"
-   name="CompileQueueSaveText"
-   type="alertmodal">
-There was a problem uploading the text for a script due to the following reason: [REASON]. Please try again later.
-    <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="CompileQueueSaveBytecode"
-   type="alertmodal">
-There was a problem uploading the compiled script due to the following reason: [REASON]. Please try again later.
-    <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="WriteAnimationFail"
    type="alertmodal">
 There was a problem writing animation data.  Please try again later.
@@ -1552,26 +1536,10 @@ Would you like to load the server&apos;s last saved version?
 
   <notification
    icon="alertmodal.tga"
-   name="SaveScriptFailReason"
-   type="alertmodal">
-There was a problem saving a script due to the following reason: [REASON].  Please try re-saving the script later.
-<tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="SaveScriptFailObjectNotFound"
    type="alertmodal">
 Could not save the script because the object it is in could not be found.
 The object may be out of range or may have been deleted.
-<tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="SaveBytecodeFailReason"
-   type="alertmodal">
-There was a problem saving a compiled script due to the following reason: [REASON].  Please try re-saving the script later.
 <tag>fail</tag>
   </notification>
 
@@ -2771,8 +2739,9 @@ This is usually a temporary failure. Please customize and save the wearable agai
    icon="alertmodal.tga"
    name="YouHaveBeenLoggedOut"
    type="alertmodal">
-Darn. You have been logged out of [SECOND_LIFE]
-            [MESSAGE]
+Darn. You have been logged out of [SECOND_LIFE].
+
+[MESSAGE]
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -3341,6 +3310,32 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
   </notification>
 
   <notification
+   icon = "notifytip.tga"
+   name = "AgentComplexityWithVisibility"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] is [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+   <usetemplate
+    ignoretext="Warn me if my avatar complexity may be too high"
+    name="notifyignore"/>
+  </notification>
+
+  <notification
+   icon = "notifytip.tga"
+   name = "AgentComplexity"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] is [AGENT_COMPLEXITY].
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="FirstRun"
    type="alertmodal">
@@ -3576,6 +3571,19 @@ Do you really want to bake the current terrain, make it the center for terrain r
      name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmTextureHeights"
+   type="alertmodal">
+You're about to use low values greater than high ones for Elevation Ranges. Proceed?
+   <tag>confirm</tag>
+   <usetemplate
+    name="yesnocancelbuttons"
+    yestext="Ok"
+    notext="Cancel"
+    canceltext="Don't ask"/>
   </notification>
 
   <notification
@@ -3857,9 +3865,10 @@ We have downloaded an update to your [APP_NAME] installation.
   </notification>
   
   <notification
- icon="alertmodal.tga"
- name="RequiredUpdateDownloadedVerboseDialog"
- type="alertmodal">
+   icon="alertmodal.tga"
+   name="RequiredUpdateDownloadedVerboseDialog"
+   type="alertmodal"
+   force_urls_external="true">
 We have downloaded a required software update.
 Version [VERSION] [[INFO_URL] Information about this update]
 
@@ -3871,9 +3880,10 @@ We must restart [APP_NAME] to install the update.
   </notification>
   
   <notification
- icon="alertmodal.tga"
- name="RequiredUpdateDownloadedDialog"
- type="alertmodal">
+   icon="alertmodal.tga"
+   name="RequiredUpdateDownloadedDialog"
+   type="alertmodal"
+   force_urls_external="true">
 We must restart [APP_NAME] to install the update.
 [[INFO_URL] Information about this update]
     <tag>confirm</tag>
@@ -3913,9 +3923,10 @@ see [[INFO_URL] Information about this update]
   </notification>
   
   <notification
- icon="alertmodal.tga"
- name="OtherChannelRequiredUpdateDownloadedVerboseDialog"
- type="alertmodal">
+   icon="alertmodal.tga"
+   name="OtherChannelRequiredUpdateDownloadedVerboseDialog"
+   type="alertmodal"
+   force_urls_external="true">
 We have downloaded a required software update.
 Version [VERSION]
 This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
@@ -3929,9 +3940,10 @@ We must restart [APP_NAME] to install the update.
   </notification>
   
   <notification
- icon="alertmodal.tga"
- name="OtherChannelRequiredUpdateDownloadedDialog"
- type="alertmodal">
+   icon="alertmodal.tga"
+   name="OtherChannelRequiredUpdateDownloadedDialog"
+   type="alertmodal"
+   force_urls_external="true">
 We must restart [APP_NAME] to install the update.
 This experimental viewer has been replaced by a [NEW_CHANNEL] viewer;
 see [[INFO_URL] Information about this update]
@@ -4145,28 +4157,6 @@ Leave Group?
     <usetemplate
      name="okbutton"
      yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="aler.tga"
-   name="GroupDepartError"
-   type="alert">
-Unable to leave group: [reason].
-      <tag>reason</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="GroupDepart"
-   type="alert">
-You have left the group [group_name].
-      <tag>group_name</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
   </notification>
 
   <notification
@@ -5975,6 +5965,18 @@ Are you sure you want to permanently delete the contents of your Trash?
 
   <notification
    icon="alertmodal.tga"
+   name="TrashIsFull"
+   type="alertmodal">
+Your trash is overflowing. This may cause problems logging in.
+      <tag>confirm</tag>
+        <usetemplate
+         name="okcancelbuttons"
+         notext="I will empty trash later"
+         yestext="Empty trash now"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
 Are you sure you want to delete your travel, web, and search history?
@@ -7520,8 +7522,8 @@ Load web page [URL] ?
 
 [MESSAGE]
 
-From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME]
-    <tag>confirm</tag>
+From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME_SLURL]
+	<tag>confirm</tag>
     <form name="form">
       <button
        index="0"
@@ -8260,6 +8262,20 @@ Are you sure you want to close all IMs?
   <notification icon="notifytip.tga"
 		name="AttachmentSaved" type="notifytip">
 Attachment has been saved.
+  </notification>
+  
+  <notification icon="notify.tga" persist="true"
+		name="AppearanceToXMLSaved" type="notify">
+Appearance has been saved to XML to [PATH]
+  </notification>
+  
+    <notification icon="notifytip.tga"
+		name="AppearanceToXMLFailed" type="notifytip">
+Failed to save appearance to XML.
+    icon="notifytip.tga"
+	name="PresetNotDeleted"
+    type="notifytip">
+Error deleting preset [NAME].
   </notification>
 
   <notification

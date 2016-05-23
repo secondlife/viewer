@@ -6,7 +6,7 @@
 	<combo_box name="language_combobox">
 		<combo_box.item label="Systemvorgabe" name="System Default Language"/>
 		<combo_box.item label="English (Englisch)" name="English"/>
-		<combo_box.item label="Danks (Dänisch) - Beta" name="Danish"/>
+		<combo_box.item label="Dansk (Dänisch) - Beta" name="Danish"/>
 		<combo_box.item label="Deutsch - Beta" name="Deutsch(German)"/>
 		<combo_box.item label="Español (Spanisch) - Beta" name="Spanish"/>
 		<combo_box.item label="Français (Französisch) - Beta" name="French"/>

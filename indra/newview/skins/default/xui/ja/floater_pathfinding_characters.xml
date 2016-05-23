@@ -27,7 +27,7 @@
 	<floater.string name="character_owner_group">
 		[group]
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_chars_main">
 		<scroll_list name="objects_scroll_list">
 			<scroll_list.columns label="名前" name="name"/>
 			<scroll_list.columns label="説明" name="description"/>
@@ -36,15 +36,15 @@
 			<scroll_list.columns label="高度" name="altitude"/>
 		</scroll_list>
 		<text name="messaging_status">
-			キャラクター:
+			キャラクター：
 		</text>
-		<button label="リストを更新" name="refresh_objects_list"/>
+		<button label="リスト更新" name="refresh_objects_list"/>
 		<button label="すべて選択" name="select_all_objects"/>
 		<button label="何も選択しない" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
-			選択したキャラクターに対するアクション:
+			選択したキャラクターに対するアクション：
 		</text>
 		<check_box label="ビーコンを表示" name="show_beacon"/>
 		<check_box label="物理効果カプセルを表示" name="show_physics_capsule"/>

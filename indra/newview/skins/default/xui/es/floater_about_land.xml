@@ -10,13 +10,13 @@
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
 	<floater.string name="Minutes">
-		[MINUTES] minutos
+		[MINUTES] min.
 	</floater.string>
 	<floater.string name="Minute">
-		minuto
+		min.
 	</floater.string>
 	<floater.string name="Seconds">
-		[SECONDS] segundos
+		[SECONDS] seg.
 	</floater.string>
 	<floater.string name="Remaining">
 		restantes
@@ -356,7 +356,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<text name="allow_label5" top="170">
 				Los avatares de otras parcelas pueden ver a los avatares de esta parcela y chatear con ellos
 			</text>
-			<check_box label="Ver los avatares" name="SeeAvatarsCheck" top="170" tool_tip="Permite que los avatares de otras parcelas vean a los avatares de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
+			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los avatares de otras parcelas vean a los avatares de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos." top="170"/>
 			<text name="landing_point">
 				Punto de llegada: [LANDING]
 			</text>
@@ -451,7 +451,7 @@ los media:
 			<spinner label="Horas de acceso:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
 				<text label="Always Allow" name="AllowedText">
-					Residentes autorizados
+					Residentes permitidos ([COUNT])
 				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
 				<button label="Añadir" name="add_allowed"/>
@@ -459,7 +459,7 @@ los media:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Ban" name="BanCheck">
-					Residentes con el acceso prohibido
+					Residentes no admitidos ([COUNT])
 				</text>
 				<name_list name="BannedList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
 				<button label="Añadir" name="add_banned"/>

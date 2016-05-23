@@ -716,7 +716,8 @@ void LLViewerTexture::setBoostLevel(S32 level)
 	{
 		mBoostLevel = level;
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE && 
-			mBoostLevel != LLViewerTexture::BOOST_SELECTED)
+			mBoostLevel != LLViewerTexture::BOOST_SELECTED && 
+			mBoostLevel != LLViewerTexture::BOOST_ICON)
 		{
 			setNoDelete();		
 		}
@@ -1117,6 +1118,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mLastCallBackActiveTime = 0.f;
 	mForceCallbackFetch = FALSE;
 	mInDebug = FALSE;
+	mUnremovable = FALSE;
 
 	mFTType = FTT_UNKNOWN;
 }
@@ -3322,7 +3324,7 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 
 	setCategory(LLGLTexture::MEDIA);
 	
-	LLViewerTexture* tex = gTextureList.findImage(mID, TEX_LIST_DISCARD);
+	LLViewerTexture* tex = gTextureList.findImage(mID, TEX_LIST_STANDARD);
 	if(tex) //this media is a parcel media for tex.
 	{
 		tex->setParcelMedia(this);
@@ -3332,7 +3334,7 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 //virtual 
 LLViewerMediaTexture::~LLViewerMediaTexture() 
 {	
-	LLViewerTexture* tex = gTextureList.findImage(mID, TEX_LIST_DISCARD);
+	LLViewerTexture* tex = gTextureList.findImage(mID, TEX_LIST_STANDARD);
 	if(tex) //this media is a parcel media for tex.
 	{
 		tex->setParcelMedia(NULL);
@@ -3387,7 +3389,7 @@ BOOL LLViewerMediaTexture::findFaces()
 
 	BOOL ret = TRUE;
 	
-	LLViewerTexture* tex = gTextureList.findImage(mID, TEX_LIST_DISCARD);
+	LLViewerTexture* tex = gTextureList.findImage(mID, TEX_LIST_STANDARD);
 	if(tex) //this media is a parcel media for tex.
 	{
 		for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
@@ -3496,7 +3498,7 @@ void LLViewerMediaTexture::addFace(U32 ch, LLFace* facep)
 	const LLTextureEntry* te = facep->getTextureEntry();
 	if(te && te->getID().notNull())
 	{
-		LLViewerTexture* tex = gTextureList.findImage(te->getID(), TEX_LIST_DISCARD);
+		LLViewerTexture* tex = gTextureList.findImage(te->getID(), TEX_LIST_STANDARD);
 		if(tex)
 		{
 			mTextureList.push_back(tex);//increase the reference number by one for tex to avoid deleting it.
@@ -3525,7 +3527,7 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 	const LLTextureEntry* te = facep->getTextureEntry();
 	if(te && te->getID().notNull())
 	{
-		LLViewerTexture* tex = gTextureList.findImage(te->getID(), TEX_LIST_DISCARD);
+		LLViewerTexture* tex = gTextureList.findImage(te->getID(), TEX_LIST_STANDARD);
 		if(tex)
 		{
 			for(std::list< LLPointer<LLViewerTexture> >::iterator iter = mTextureList.begin();
@@ -3634,10 +3636,10 @@ void LLViewerMediaTexture::switchTexture(U32 ch, LLFace* facep)
 			const LLTextureEntry* te = facep->getTextureEntry();
 			if(te)
 			{
-				LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_DISCARD) : NULL;
+				LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_STANDARD) : NULL;
 				if(!tex && te->getID() != mID)//try parcel media.
 				{
-					tex = gTextureList.findImage(mID, TEX_LIST_DISCARD);
+					tex = gTextureList.findImage(mID, TEX_LIST_STANDARD);
 				}
 				if(!tex)
 				{

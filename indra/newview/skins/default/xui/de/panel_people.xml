@@ -18,6 +18,7 @@ Sie suchen nach Leuten? Verwenden Sie die [secondlife:///app/worldmap Karte].
 	<string name="no_groups_msg" value="Suchen Sie nach Gruppen? Versuchen Sie es mit der [secondlife:///app/search/groups Suche]."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Doppelklicken, um Karte zu öffnen; Umschalttaste gedrückt halten und ziehen, um zu schwenken)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Doppelklicken, um zu teleportieren; Umschalttaste gedrückt halten und ziehen, um zu schwenken)"/>
+	<string name="GroupCountWithInfo" value="Sie gehören [COUNT] Gruppen an und können [REMAINING] weiteren beitreten.  [secondlife:/// Möchten Sie noch mehr?]"/>
 	<tab_container name="tabs">
 		<panel label="IN DER NÄHE" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">

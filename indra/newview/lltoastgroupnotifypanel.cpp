@@ -31,7 +31,7 @@
 #include "llfocusmgr.h"
 
 #include "llbutton.h"
-#include "lliconctrl.h"
+#include "llgroupiconctrl.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llnotifications.h"
@@ -65,8 +65,10 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
 	}
 
 	//group icon
-	LLIconCtrl* pGroupIcon = getChild<LLIconCtrl>("group_icon", TRUE);
-	pGroupIcon->setValue(groupData.mInsigniaID);
+	LLGroupIconCtrl* pGroupIcon = getChild<LLGroupIconCtrl>("group_icon", TRUE);
+
+	// We should already have this data preloaded, so no sense in setting icon through setValue(group_id)
+	pGroupIcon->setIconId(groupData.mInsigniaID);
 
 	//header title
 	std::string from_name = payload["sender_name"].asString();

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_notifications_tabbed" title="BENACHRICHTIGUNGEN">
+	<floater.string name="system_tab_title">
+		System ([COUNT])
+	</floater.string>
+	<floater.string name="transactions_tab_title">
+		Transaktionen ([COUNT])
+	</floater.string>
+	<floater.string name="group_invitations_tab_title">
+		Einladungen ([COUNT])
+	</floater.string>
+	<floater.string name="group_notices_tab_title">
+		Gruppe ([COUNT])
+	</floater.string>
+	<string name="title_notification_tabbed_window">
+		BENACHRICHTIGUNGEN
+	</string>
+	<layout_stack name="TabButtonsStack">
+		<layout_panel name="TabButtonsLayoutPanel">
+			<tab_container name="notifications_tab_container">
+				<panel label="System (0)" name="system_notification_list_tab"/>
+				<panel label="Transaktionen (0)" name="transaction_notifications_tab"/>
+				<panel label="Einladungen (0)" name="group_invite_notifications_tab"/>
+				<panel label="Gruppe (0)" name="group_notice_notifications_tab"/>
+			</tab_container>
+			<layout_stack name="ButtonsStack">
+				<layout_panel name="CondenseAllButtonPanel">
+					<button label="Alle schließen" name="collapse_all_button"/>
+				</layout_panel>
+				<layout_panel name="GapLayoutPanel">
+					<panel label="Lückenbedienfeld" name="GapPanel"/>
+				</layout_panel>
+				<layout_panel name="DeleteAllButtonPanel">
+					<button label="Alle löschen" name="delete_all_button"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

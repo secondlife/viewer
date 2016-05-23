@@ -38,11 +38,8 @@
 		Grafikinitialisierung fehlgeschlagen. Bitte aktualisieren Sie Ihren Grafiktreiber.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
-	<string name="AboutCompiler">
-		Kompiliert mit [COMPILER], Version [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Sie befinden sich an [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] auf &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -64,10 +61,9 @@ Grafikkarte: [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		OpenGL-Version: [OPENGL_VERSION]
 
-libcurl-Version: [LIBCURL_VERSION]
 J2C-Decoderversion: [J2C_VERSION]
 Audiotreiberversion: [AUDIO_DRIVER_VERSION]
-Qt-Webkit-Version: [QT_WEBKIT_VERSION]
+LLCEFLib/CEF-Version: [LLCEFLIB_VERSION]
 Voice-Server-Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -177,6 +173,12 @@ Voice-Server-Version: [VOICE_VERSION]
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		Second Life Main Grid (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Second Life Beta Test Grid (Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download
@@ -453,6 +455,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Sie können keinen Ordner tragen, der mehr als [AMOUNT] Elemente enthält.  Sie können diesen Höchstwert unter „Erweitert“ &gt; „Debug-Einstellungen anzeigen“ &gt; „WearFolderLimit“ ändern.
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$"/>
+	<string name="TooltipSLIcon">
+		Führt zu einer Seite in der offiziellen Domäne SecondLife.com oder LindenLab.com.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		Sie können keine Objekte aus dem Marktplatz-Auflistungsordner rezzen
 	</string>
@@ -472,7 +477,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Anzahl von Bestandsobjekten überschreitet [AMOUNT].
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		Sie können Objekte oder Ordner nur in der Registerkarte „Alle“ ablegen. Wählen Sie diese Registerkarte aus und verschieben Sie Ihre Objekte bzw. Ordner noch einmal.
+		Sie können Objekte oder Ordner nur in der Registerkarte „ALLE“ oder „NICHT VERKNüPFT“ ablegen. Klicken Sie auf eine dieser Registerkarten und versuchen Sie dann erneut, Ihre Objekte bzw. Ordner zu verschieben.
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		Mindestens eines dieser Objekte kann nicht verkauft oder übertragen werden
@@ -556,6 +561,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Anklicken, um Befehl secondlife:// auszuführen
 	</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Klicken, um eine E-Mail zu verfassen
+	</string>
 	<string name="SLurlLabelTeleport">
 		Teleportieren nach
 	</string>
@@ -1081,7 +1089,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="AgentNameSubst">
 		(Sie)
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Beim Verwalten von Grundbesitzzugangslisten Warnhinweise unterdrücken
 	</string>
@@ -1860,6 +1868,21 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="TodayOld">
 		Seit heute Mitglied
 	</string>
+	<string name="av_render_everyone_now">
+		Jetzt kann jeder Sie sehen.
+	</string>
+	<string name="av_render_not_everyone">
+		Sie sind u. U. nicht für alle Leute in Ihrer Nähe sichtbar.
+	</string>
+	<string name="av_render_over_half">
+		Sie sind u. U. für mehr als die Hälfte der Leute in Ihrer Nähe nicht sichtbar.
+	</string>
+	<string name="av_render_most_of">
+		Sie sind u. U. für die meisten Leuten in Ihrer Nähe nicht sichtbar.
+	</string>
+	<string name="av_render_anyone">
+		Sie sind u. U. für niemanden in Ihrer Nähe sichtbar.
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] Jahr
 	</string>
@@ -1977,6 +2000,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="CompileQueueUnknownFailure">
 		Unbekannter Fehler beim Herunterladen
 	</string>
+	<string name="CompileNoExperiencePerm">
+		Skript „[SCRIPT]“ mit Erlebnis „[EXPERIENCE]“ wird übersprungen.
+	</string>
 	<string name="CompileQueueTitle">
 		Rekompilierung
 	</string>
@@ -2021,9 +2047,6 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="GroupsNone">
 		keine
-	</string>
-	<string name="CompileNoExperiencePerm">
-		Skript „[SCRIPT]“ mit Erlebnis „[EXPERIENCE]“ wird übersprungen.
 	</string>
 	<string name="Group" value=" (Gruppe)"/>
 	<string name="Unknown">
@@ -5380,18 +5403,6 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="UserDictionary">
 		[Benutzer]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Unterhaltungen werden nicht protokolliert. Um ein Protokoll zu starten, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Es werden keine Unterhaltungen mehr protokolliert. Um weiterhin ein Protokoll zu führen, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Keine protokollierten Unterhaltungen verfügbar. Hier erscheint ein Protokolleintrag, wenn Sie eine Person kontaktieren oder von einer Person kontaktiert werden.
-	</string>
-	<string name="loading_chat_logs">
-		Laden...
-	</string>
 	<string name="experience_tools_experience">
 		Erlebnis
 	</string>
@@ -5408,7 +5419,7 @@ Setzen Sie den Editorpfad in Anführungszeichen
 		Gridumfang
 	</string>
 	<string name="Allowed_Experiences_Tab">
-		ZULÄSSIG
+		ZULäSSIG
 	</string>
 	<string name="Blocked_Experiences_Tab">
 		BLOCKIERT
@@ -5472,5 +5483,38 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Berechtigung
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Unterhaltungen werden nicht protokolliert. Um ein Protokoll zu starten, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Es werden keine Unterhaltungen mehr protokolliert. Um weiterhin ein Protokoll zu führen, wählen Sie „Speichern: nur Protokoll“ oder „Speichern: Protokoll und Transkripte“ unter „Einstellungen“ &gt; „Chat“.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Keine protokollierten Unterhaltungen verfügbar. Hier erscheint ein Protokolleintrag, wenn Sie eine Person kontaktieren oder von einer Person kontaktiert werden.
+	</string>
+	<string name="loading_chat_logs">
+		Laden...
+	</string>
+	<string name="preset_combo_label">
+		-Leere Liste-
+	</string>
+	<string name="Default">
+		Standard
+	</string>
+	<string name="none_paren_cap">
+		(Keine)
+	</string>
+	<string name="no_limit">
+		Keine Begrenzung
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		Die Physikform enthält Dreiecke, die zu klein sind. Versuchen Sie, das Physikmodell zu vereinfachen.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		Die Physikform enthält ungültige Bestätigungsdaten. Versuchen Sie, das Physikmodell zu korrigieren.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		Die Physikform hat keine korrekte Version. Legen Sie die korrekte Version für das Physikmodell fest.
 	</string>
 </strings>

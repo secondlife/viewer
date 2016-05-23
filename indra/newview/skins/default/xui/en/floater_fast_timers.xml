@@ -22,10 +22,10 @@
              top="5"
              width="150"
              height="20">
-    <item label="2x Average"/>
-    <item label="Max"/>
-    <item label="Recent Max"/>
-    <item label="100ms"/>
+    <item name="2x Average" label="2x Average"/>
+    <item name="Max" label="Max"/>
+    <item name="Recent Max" label="Recent Max"/>
+    <item name="100ms" label="100ms"/>
   </combo_box>
   <combo_box name="metric_combo"
              follows="left|top"
@@ -33,9 +33,9 @@
              top="5"
              width="150"
              height="20">
-    <item label="Time"/>
-    <item label="Number of Calls"/>
-    <item label="Hz"/>
+    <item name="Time" label="Time"/>
+    <item name="Number of Calls" label="Number of Calls"/>
+    <item name="Hz" label="Hz"/>
   </combo_box>
   <button follows="top|right" 
           name="pause_btn"

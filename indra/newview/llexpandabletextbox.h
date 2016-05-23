@@ -147,6 +147,7 @@ public:
 	 * *HACK: Update the inner textbox shape.
 	 */
 	void updateTextShape();
+	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	/**
 	 * Draws text box, collapses text box if its expanded and its parent's position changed

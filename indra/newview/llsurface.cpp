@@ -718,7 +718,6 @@ void LLSurface::decompressDCTPatch(LLBitPack &bitpack, LLGroupHeader *gopp, BOOL
 				<< " quant_wbits " << (S32)ph.quant_wbits
 				<< " patchids " << (S32)ph.patchids
 				<< LL_ENDL;
-            LLAppViewer::instance()->badNetworkHandler();
 			return;
 		}
 

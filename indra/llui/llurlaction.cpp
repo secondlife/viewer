@@ -83,12 +83,13 @@ void LLUrlAction::openURLExternal(std::string url)
 	}
 }
 
-void LLUrlAction::executeSLURL(std::string url)
+bool LLUrlAction::executeSLURL(std::string url, bool trusted_content)
 {
 	if (sExecuteSLURLCallback)
 	{
-		sExecuteSLURLCallback(url ,true);
+		return sExecuteSLURLCallback(url, trusted_content);
 	}
+	return false;
 }
 
 void LLUrlAction::clickAction(std::string url, bool trusted_content)
@@ -227,6 +228,6 @@ void LLUrlAction::blockObject(std::string url)
 	std::string object_name = getObjectName(url);
 	if (LLUUID::validate(object_id))
 	{
-		executeSLURL("secondlife:///app/agent/" + object_id + "/block/" + object_name);
+		executeSLURL("secondlife:///app/agent/" + object_id + "/block/" + LLURI::escape(object_name));
 	}
 }

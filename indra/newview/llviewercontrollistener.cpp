@@ -121,7 +121,7 @@ struct Info
 		if (control)
 		{
 			response["name"]	= control->getName();
-			response["type"]	= group->typeEnumToString(control->type());
+			response["type"]	= LLControlGroup::typeEnumToString(control->type());
 			response["value"]	= control->get();
 			response["comment"] = control->getComment();
 		}
@@ -167,7 +167,7 @@ void LLViewerControlListener::toggle(LLSD const & request)
 		info.response.error(STRINGIZE("toggle of non-boolean '" << info.groupname
 									  << "' control '" << info.key
 									  << "', type is "
-									  << info.group->typeEnumToString(info.control->type())));
+									  << LLControlGroup::typeEnumToString(info.control->type())));
 	}
 }
 
@@ -199,7 +199,7 @@ struct CollectVars: public LLControlGroup::ApplyFunctor
 	{
 		vars.append(LLSDMap
 					("name", name)
-					("type", mGroup->typeEnumToString(control->type()))
+					("type", LLControlGroup::typeEnumToString(control->type()))
 					("value", control->get())
 					("comment", control->getComment()));
 	}

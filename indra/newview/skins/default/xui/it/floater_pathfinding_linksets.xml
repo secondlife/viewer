@@ -90,7 +90,16 @@
 	<floater.string name="linkset_choose_use">
 		Seleziona uso set collegati...
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			Filtra per:
+		</text>
+		<text name="linksets_name_label">
+			Nome
+		</text>
+		<text name="linksets_desc_label">
+			Descrizione
+		</text>
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="Filtra in base all&apos;uso set collegati..." name="filter_by_linkset_use_none"/>
 			<combo_box.item label="Camminabile" name="filter_by_linkset_use_walkable"/>
@@ -122,7 +131,10 @@
 		<button label="Seleziona tutto" name="select_all_objects"/>
 		<button label="Non selezionare nessuno" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			Azioni sui set collegati selezionati (se si rimuove un set collegato dal mondo, si potrebbero perdere i relativi attributi):
+		</text>
 		<check_box label="Mostra marcatore" name="show_beacon"/>
 		<button label="Prendi" name="take_objects"/>
 		<button label="Prendi copia" name="take_copy_objects"/>
@@ -130,7 +142,10 @@
 		<button label="Restituisci" name="return_objects"/>
 		<button label="Elimina" name="delete_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			Modifica gli attributi dei set collegati selezionati e premi il pulsante per applicare le modifiche
+		</text>
 		<text name="walkability_coefficients_label">
 			Camminabilità:
 		</text>

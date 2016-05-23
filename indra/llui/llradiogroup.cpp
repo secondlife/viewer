@@ -179,6 +179,18 @@ BOOL LLRadioGroup::setSelectedIndex(S32 index, BOOL from_event)
 		return FALSE;
 	}
 
+    if (index < -1)
+    {
+        // less then minimum value
+        return FALSE;
+    }
+
+    if (index < 0 && mSelectedIndex >= 0 && !mAllowDeselect)
+    {
+        // -1 is "nothing selected"
+        return FALSE;
+    }
+
 	if (mSelectedIndex >= 0)
 	{
 		LLRadioCtrl* old_radio_item = mRadioButtons[mSelectedIndex];

@@ -669,6 +669,7 @@ private:
  * is required to distribute data and perform global actions.
  * In pseudo-UML, it looks like:
  *
+ * @verbatim
  *                       Main                 Thread1
  *                        .                      .
  *                        .                      .
@@ -711,7 +712,6 @@ private:
  *                        .                      .
  *                        .                      .
  *
- *
  * Key:
  *
  * SRE - Set Region Enqueued.  Enqueue a 'Set Region' command in
@@ -736,6 +736,7 @@ private:
  *       global pointers used to find the 'current stats'.
  * RSC - Read Stats Collector.  Extract collector data cloning it
  *       (i.e. deep copy) when necessary.
+ * @endverbatim
  *
  */
 class LLTextureFetch::TFRequest // : public LLQueuedThread::QueuedRequest
@@ -4449,7 +4450,7 @@ void LLTextureFetchDebugger::addHistoryEntry(LLTextureFetchWorker* worker)
 			mRefetchedAllData += worker->mFormattedImage->getDataSize();
 
 			// refetch list only requests/creates normal images, so requesting ui='false'
-			LLViewerFetchedTexture* tex = LLViewerTextureManager::findFetchedTexture(worker->mID, TEX_LIST_DISCARD);
+			LLViewerFetchedTexture* tex = LLViewerTextureManager::findFetchedTexture(worker->mID, TEX_LIST_STANDARD);
 			if(tex && mRefetchList[tex].begin() != mRefetchList[tex].end())
 			{
 				if(worker->mDecodedDiscard == mFetchingHistory[mRefetchList[tex][0]].mDecodedLevel)

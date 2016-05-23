@@ -19,7 +19,7 @@
 				</layout_panel>
 				<layout_panel name="marketplace panel">
 					<text name="Location">
-						Loja do Marketplace
+						Loja do Mercado
 					</text>
 					<text name="LocationTextText">
 						qualquer lugar

@@ -18,6 +18,7 @@
 	<string name="no_groups_msg" value="要尋找群組考慮加入嗎？ 請試試[secondlife:///app/search/groups 搜尋]。"/>
 	<string name="MiniMapToolTipMsg" value="[REGION]（雙擊以開啟地圖，按下 shift 鍵拖曳來平移）"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION]（雙擊以瞬間傳送，按下 shift 鍵拖曳來平移）"/>
+	<string name="GroupCountWithInfo" value="你目前屬於 [COUNT] 個群組，可再加入 [REMAINING] 個。  [secondlife:/// 想要更多？]"/>
 	<tab_container name="tabs">
 		<panel label="附近" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">

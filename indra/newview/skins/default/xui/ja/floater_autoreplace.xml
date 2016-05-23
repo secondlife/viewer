@@ -13,6 +13,12 @@
 	</scroll_list>
 	<button label="追加..." name="autoreplace_add_entry"/>
 	<button label="削除" name="autoreplace_delete_entry"/>
+	<text name="autoreplace_keyword_txt">
+		キーワード：
+	</text>
+	<text name="autoreplace_replacement_txt">
+		置換：
+	</text>
 	<button label="エントリを保存" name="autoreplace_save_entry" tool_tip="このエントリを保存します。"/>
 	<button label="変更を保存" name="autoreplace_save_changes" tool_tip="変更をすべて保存します。"/>
 	<button label="取り消し" name="autoreplace_cancel" tool_tip="変更をすべて破棄します。"/>

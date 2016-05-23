@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Sound Preview" title="DŹWIĘK.WAV">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="Sound Preview">
 	<text name="name_label">
-		Opis:
+		Nazwa:
 	</text>
 	<text name="description_label">
 		Opis:
 	</text>
-	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
-	<button label="Załaduj ([AMOUNT]L$)" label_selected="Załaduj ([AMOUNT]L$)" name="ok_btn"/>
+	<button label="Załaduj ([AMOUNT]L$)" name="ok_btn" />
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
 </floater>

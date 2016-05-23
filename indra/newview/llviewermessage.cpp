@@ -33,7 +33,6 @@
 #include "llaudioengine.h" 
 #include "llavataractions.h"
 #include "llavatarnamecache.h"		// IDEVO HACK
-#include "lscript_byteformat.h"
 #include "lleconomy.h"
 #include "lleventtimer.h"
 #include "llfloaterreg.h"
@@ -78,6 +77,7 @@
 #include "llpanelgrouplandmoney.h"
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
+#include "llscriptruntimeperms.h"
 #include "llselectmgr.h"
 #include "llstartup.h"
 #include "llsky.h"
@@ -117,6 +117,7 @@
 
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
+#include <boost/foreach.hpp>
 
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
@@ -158,47 +159,6 @@ const F32 OFFER_THROTTLE_TIME=10.f; //time period in seconds
 const U8 AU_FLAGS_NONE      		= 0x00;
 const U8 AU_FLAGS_HIDETITLE      	= 0x01;
 const U8 AU_FLAGS_CLIENT_AUTOPILOT	= 0x02;
-
-//script permissions
-const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] = 
-	{ 
-		"ScriptTakeMoney",
-		"ActOnControlInputs",
-		"RemapControlInputs",
-		"AnimateYourAvatar",
-		"AttachToYourAvatar",
-		"ReleaseOwnership",
-		"LinkAndDelink",
-		"AddAndRemoveJoints",
-		"ChangePermissions",
-		"TrackYourCamera",
-		"ControlYourCamera",
-		"TeleportYourAgent",
-		"JoinAnExperience",
-		"SilentlyManageEstateAccess",
-		"OverrideYourAnimations",
-		"ScriptReturnObjects"
-	};
-
-const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] = 
-{
-	TRUE,	// ScriptTakeMoney,
-	FALSE,	// ActOnControlInputs
-	FALSE,	// RemapControlInputs
-	FALSE,	// AnimateYourAvatar
-	FALSE,	// AttachToYourAvatar
-	FALSE,	// ReleaseOwnership,
-	FALSE,	// LinkAndDelink,
-	FALSE,	// AddAndRemoveJoints
-	FALSE,	// ChangePermissions
-	FALSE,	// TrackYourCamera,
-	FALSE,	// ControlYourCamera
-	FALSE,	// TeleportYourAgent
-	FALSE,	// JoinAnExperience
-	FALSE,	// SilentlyManageEstateAccess
-	FALSE,	// OverrideYourAnimations
-	FALSE,	// ScriptReturnObjects
-};
 
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 {
@@ -2362,6 +2322,20 @@ static void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::s
 	}
 }
 
+const std::string NOT_ONLINE_MSG("User not online - message will be stored and delivered later.");
+const std::string NOT_ONLINE_INVENTORY("User not online - inventory has been saved.");
+void translate_if_needed(std::string& message)
+{
+	if (message == NOT_ONLINE_MSG)
+	{
+		message = LLTrans::getString("not_online_msg");
+	}
+	else if (message == NOT_ONLINE_INVENTORY)
+	{
+		message = LLTrans::getString("not_online_inventory");
+	}
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	LLUUID from_id;
@@ -2426,6 +2400,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	chat.mFromID = from_id;
 	chat.mFromName = name;
 	chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
+	
+	if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+	{ // Translate server message if required (MAINT-6109)
+		translate_if_needed(message);
+	}
 
 	LLViewerObject *source = gObjectList.findObject(session_id); //Session ID is probably the wrong thing.
 	if (source)
@@ -2470,7 +2449,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = message;
 	
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			// add to IM panel, but do not bother the user
 			gIMMgr->addMessage(
@@ -2519,7 +2498,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			buffer = saved + message;
 
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
 			if(accept_im_from_only_friend && !is_friend && !is_linden)
@@ -2984,7 +2963,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = message;
 	
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "message in dnd; session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			// add to IM panel, but do not bother the user
 			gIMMgr->addMessage(
@@ -3011,7 +2990,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = saved + message;
 
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "standard message session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			gIMMgr->addMessage(
 				session_id,
@@ -5598,6 +5577,10 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	bool you_paid_someone = (source_id == gAgentID);
 	if (you_paid_someone)
 	{
+		if(!gSavedSettings.getBOOL("NotifyMoneySpend"))
+		{
+			return;
+		}
 		args["NAME"] = dest_slurl;
 		is_name_group = is_dest_group;
 		name_id = dest_id;
@@ -5635,6 +5618,10 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 	else {
 		// ...someone paid you
+		if(!gSavedSettings.getBOOL("NotifyMoneyReceived"))
+		{
+			return;
+		}
 		args["NAME"] = source_slurl;
 		is_name_group = is_source_group;
 		name_id = source_id;
@@ -6350,21 +6337,22 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		BOOL caution = FALSE;
 		S32 count = 0;
 		std::string perms;
-		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
+		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
 		{
-			if ((orig_questions & LSCRIPTRunTimePermissionBits[i]) && SCRIPT_QUESTION_IS_CAUTION[i])
+			if ((orig_questions & script_perm.permbit)
+				&& script_perm.caution)
 			{
 				count++;
 				caution = TRUE;
 
 				// add a comma before the permission description if it is not the first permission
 				// added to the list or the last permission to check
-				if ((count > 1) && (i < SCRIPT_PERMISSION_EOF))
+				if (count > 1)
 				{
 					perms.append(", ");
 				}
 
-				perms.append(LLTrans::getString(SCRIPT_QUESTIONS[i]));
+				perms.append(LLTrans::getString(script_perm.question));
 			}
 		}
 
@@ -6593,27 +6581,27 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	std::string script_question;
 	if (questions)
 	{
-		BOOL caution = FALSE;
+		bool caution = false;
 		S32 count = 0;
 		LLSD args;
 		args["OBJECTNAME"] = object_name;
 		args["NAME"] = LLCacheName::cleanFullName(owner_name);
 		S32 known_questions = 0;
-		BOOL has_not_only_debit = questions ^ LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_DEBIT];
+		bool has_not_only_debit = questions ^ SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
 		// check the received permission flags against each permission
-		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
+		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
 		{
-			if (questions & LSCRIPTRunTimePermissionBits[i])
+			if (questions & script_perm.permbit)
 			{
 				count++;
-				known_questions |= LSCRIPTRunTimePermissionBits[i];
+				known_questions |= script_perm.permbit;
 				// check whether permission question should cause special caution dialog
-				caution |= (SCRIPT_QUESTION_IS_CAUTION[i]);
+				caution |= (script_perm.caution);
 
-				if (("ScriptTakeMoney" ==  SCRIPT_QUESTIONS[i]) && has_not_only_debit)
+				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
 					continue;
 
-				script_question += "    " + LLTrans::getString(SCRIPT_QUESTIONS[i]) + "\n";
+				script_question += "    " + LLTrans::getString(script_perm.question) + "\n";
 			}
 		}
 	
@@ -7419,7 +7407,7 @@ void callback_load_url_name(const LLUUID& id, const std::string& full_name, bool
 			args["URL"] = load_url_info["url"].asString();
 			args["MESSAGE"] = load_url_info["message"].asString();;
 			args["OBJECTNAME"] = load_url_info["object_name"].asString();
-			args["NAME"] = owner_name;
+			args["NAME_SLURL"] = LLSLURL(is_group ? "group" : "agent", id, "about").getSLURLString();
 
 			LLNotificationsUtil::add("LoadWebPage", args, load_url_info);
 		}
