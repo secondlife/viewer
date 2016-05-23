@@ -1307,10 +1307,9 @@ set(viewer_HEADER_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-#Channel added for VMP programmatic access.  MAINT-6413/SL-321
-set(SUMMARY_VERSION "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
-set(SUMMARY_CHANNEL "${VIEWER_CHANNEL}")
-configure_file(summary.json.in ${CMAKE_BINARY_DIR}/summary.json @ONLY)
+# the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
+# the summary.json file is created for the benefit of the TeamCity builds, where
+#   it is used to provide descriptive information to the build results page
 
 set_source_files_properties(
    llversioninfo.cpp tests/llversioninfo_test.cpp 
