@@ -236,6 +236,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands = getChild<LLPanel>("bottom_panel");
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 	mMyOutfitsPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+	mOutfitGalleryPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onGalleryTrashButtonClick, this));
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -247,6 +248,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 
 	LLButton* wear_btn = mListCommands->getChild<LLButton>("wear_btn");
 	mMyOutfitsPanel->childSetEnabled("trash_btn", trash_enabled);
+	mOutfitGalleryPanel->childSetEnabled("trash_btn", trash_enabled);
 	wear_btn->setEnabled(wear_enabled);
 	wear_btn->setVisible(wear_visible);
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
@@ -256,6 +258,11 @@ void LLPanelOutfitsInventory::updateListCommands()
 void LLPanelOutfitsInventory::onTrashButtonClick()
 {
 	mMyOutfitsPanel->removeSelected();
+}
+
+void LLPanelOutfitsInventory::onGalleryTrashButtonClick()
+{
+	mOutfitGalleryPanel->removeSelected();
 }
 
 bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
