@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_group_plus">
-	<menu_item_call label="Dołącz do grupy..." name="item_join"/>
-	<menu_item_call label="Nowa grupa..." name="item_new"/>
-</menu>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="menu_group_plus">
+	<menu_item_call name="item_join" label="Dołącz do grupy..." />
+	<menu_item_call name="item_new" label="Nowa grupa..." />
+</toggleable_menu>

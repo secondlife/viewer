@@ -64,7 +64,7 @@
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Perfil da região" name="Place Profile"/>
 		<menu_item_call label="Sobre terrenos" name="About Land"/>
-		<menu_item_call label="Região/Propriedade" name="RegionEstate"/>
+		<menu_item_call label="Região/terreno" name="RegionEstate"/>
 		<menu_item_call label="Meus terrenos..." name="My Land"/>
 		<menu_item_call label="Comprar este terreno" name="Buy Land"/>
 		<menu label="Mostrar" name="LandShow">
@@ -180,6 +180,7 @@
 		<menu_item_call label="Relatar bug" name="Report Bug"/>
 		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="Sobre [APP_NAME]" name="About Second Life"/>
+		<menu_item_call label="Verificar atualizações" name="Check for Updates"/>
 	</menu>
 	<menu label="Avançado" name="Advanced">
 		<menu_item_call label="Recarregar texturas" name="Rebake Texture"/>
@@ -193,7 +194,7 @@
 			<menu_item_call label="Medidor de lag" name="Lag Meter"/>
 			<menu_item_check label="Barra de estatísticas" name="Statistics Bar"/>
 			<menu_item_call label="Estatísticas de carregamento de cena" name="Scene Load Statistics"/>
-			<menu_item_check label="Mostrar peso do desenho para avatares" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Exibir informações de complexidade do avatar" name="Avatar Draw Info"/>
 		</menu>
 		<menu label="Realces e visibilidade" name="Highlighting and Visibility">
 			<menu_item_check label="Efeito baliza piscando" name="Cheesy Beacon"/>
@@ -298,8 +299,6 @@
 			<menu_item_check label="Partículas" name="Particles"/>
 			<menu_item_check label="Junções" name="Joints"/>
 			<menu_item_check label="Vetores de vento" name="Wind Vectors"/>
-			<menu_item_check label="Renderizar complexidade" name="rendercomplexity"/>
-			<menu_item_check label="Bytes do anexo" name="attachment bytes"/>
 			<menu_item_check label="Esculpir" name="Sculpt"/>
 			<menu label="Densidade da textura" name="Texture Density">
 				<menu_item_check label="Nenhuma" name="None"/>
@@ -373,7 +372,6 @@
 			<menu_item_call label="Depurar texturas do avatar" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="Texturas HTTP" name="HTTP Textures"/>
-		<menu_item_check label="Inventário HTTP" name="HTTP Inventory"/>
 		<menu_item_call label="Habilitar Visual Leak Detector" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
 		<menu label="Configurar nível de registro em log" name="Set Logging Level">

@@ -228,6 +228,6 @@ void LLUrlAction::blockObject(std::string url)
 	std::string object_name = getObjectName(url);
 	if (LLUUID::validate(object_id))
 	{
-		executeSLURL("secondlife:///app/agent/" + object_id + "/block/" + object_name);
+		executeSLURL("secondlife:///app/agent/" + object_id + "/block/" + LLURI::escape(object_name));
 	}
 }

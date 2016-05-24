@@ -593,7 +593,7 @@ static void settings_to_globals()
 	LLVOTree::sTreeFactor				= gSavedSettings.getF32("RenderTreeLODFactor");
 	LLVOAvatar::sLODFactor				= gSavedSettings.getF32("RenderAvatarLODFactor");
 	LLVOAvatar::sPhysicsLODFactor		= gSavedSettings.getF32("RenderAvatarPhysicsLODFactor");
-	LLVOAvatar::sMaxVisible				= (U32)gSavedSettings.getS32("RenderAvatarMaxVisible");
+	LLVOAvatar::updateImpostorRendering(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"));
 	LLVOAvatar::sVisibleInFirstPerson	= gSavedSettings.getBOOL("FirstPersonAvatarVisible");
 	// clamp auto-open time to some minimum usable value
 	LLFolderView::sAutoOpenTime			= llmax(0.25f, gSavedSettings.getF32("FolderAutoOpenDelay"));
@@ -615,7 +615,6 @@ static void settings_modify()
 	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderDeferred");
 	LLPipeline::sRenderBump				= gSavedSettings.getBOOL("RenderObjectBump");
 	LLPipeline::sRenderDeferred		= LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
-	LLVOAvatar::sUseImpostors			= gSavedSettings.getBOOL("RenderUseImpostors");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
@@ -3276,9 +3275,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	version.append(LLVersionInfo::getBuild());
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
-	info["BUILD_DATE"] = __DATE__;
-	info["BUILD_TIME"] = __TIME__;
 	info["CHANNEL"] = LLVersionInfo::getChannel();
+    std::string build_config = LLVersionInfo::getBuildConfig();
+    if (build_config != "Release")
+    {
+        info["BUILD_CONFIG"] = build_config;
+    }
 
 	// return a URL to the release notes for this viewer, such as:
 	// http://wiki.secondlife.com/wiki/Release_Notes/Second Life Beta Viewer/2.1.0.123456
@@ -3289,14 +3291,6 @@ LLSD LLAppViewer::getViewerInfo() const
 	url += LLURI::escape(LLVersionInfo::getVersion());
 
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
-
-#if LL_MSVC
-	info["COMPILER"] = "MSVC";
-	info["COMPILER_VERSION"] = _MSC_VER;
-#elif LL_GNUC
-	info["COMPILER"] = "GCC";
-	info["COMPILER_VERSION"] = GCC_VERSION;
-#endif
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
@@ -3331,7 +3325,7 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
-	info["LIBCURL_VERSION"] = LLCore::LLHttp::getCURLVersion();
+
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
@@ -3424,6 +3418,10 @@ std::string LLAppViewer::getViewerInfoString() const
 
 	// Now build the various pieces
 	support << LLTrans::getString("AboutHeader", args);
+	if (info.has("BUILD_CONFIG"))
+	{
+		support << "\n" << LLTrans::getString("BuildConfig", args);
+	}
 	if (info.has("REGION"))
 	{
 		support << "\n\n" << LLTrans::getString("AboutPosition", args);
@@ -5100,7 +5098,7 @@ void LLAppViewer::idle()
 	}
 
 	// Update AV render info
-	LLAvatarRenderInfoAccountant::idle();
+	LLAvatarRenderInfoAccountant::getInstance()->idle();
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_AUDIO_UPDATE);

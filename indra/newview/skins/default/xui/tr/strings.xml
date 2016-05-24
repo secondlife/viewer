@@ -38,11 +38,8 @@
 		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Sürüm Notları]]
-	</string>
-	<string name="AboutCompiler">
-		[COMPILER] [COMPILER_VERSION] sürümü ile oluşturuldu
 	</string>
 	<string name="AboutPosition">
 		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] konumundasınız
@@ -64,10 +61,9 @@ Grafik Kartı: [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		OpenGL Sürümü: [OPENGL_VERSION]
 
-libcurl Sürümü: [LIBCURL_VERSION]
 J2C Kod Çözücü Sürümü: [J2C_VERSION]
 Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
-Qt Web Kit Sürümü: [QT_WEBKIT_VERSION]
+LLCEFLib/CEF Sürümü: [LLCEFLIB_VERSION]
 Ses Sunucusu Sürümü: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -177,6 +173,12 @@ Ses Sunucusu Sürümü: [VOICE_VERSION]
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		Second Life Ana Ağı (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Second Life Beta Test Ağı (Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download
@@ -453,6 +455,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		[AMOUNT] öğeden fazlasını içeren bir klasörü kullanamazsınız.  Bu limiti Gelişmiş &gt; Hata Ayıklama Ayarlarını Göster &gt; KullanılabilirKlasörLimiti öğesinden değiştirebilirsiniz.
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipSLIcon">
+		Bu bağlantı, resmi SecondLife.com ya da LindenLab.com etki alanındaki bir sayfaya gider.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		Pazaryeri İlanları klasöründen öğe oluşturamazsınız
 	</string>
@@ -472,7 +477,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Stok öğelerinin sayısı [AMOUNT] değerini geçiyor.
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		Öğeleri veya klasörleri sadece TÜMÜ sekmesine bırakabilirsiniz. Lütfen bu sekmeyi seçin ve öğelerinizi ya da klasörlerinizi yeniden taşıyın.
+		Öğeleri veya klasörleri sadece TÜMÜ ya da İLİŞKİLENDİRİLMEMİŞ sekmesine bırakabilirsiniz. Lütfen bu sekmelerden birini seçin ve öğelerinizi ya da klasörlerinizi taşıyın.
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz
@@ -556,6 +561,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		secondlife:// komutunu çalıştırmak için tıklayın
 	</string>
 	<string name="CurrentURL" value="Geçerli URL: [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Bir e-posta oluşturmak için tıklayın
+	</string>
 	<string name="SLurlLabelTeleport">
 		Şuraya ışınla:
 	</string>
@@ -1078,7 +1086,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="AgentNameSubst">
 		(Siz)
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Gayri menkul erişim listelerini yönetirken uyarıları bastır
 	</string>
@@ -1857,6 +1865,21 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="TodayOld">
 		Bugün katıldı
 	</string>
+	<string name="av_render_everyone_now">
+		Artık herkes sizi görebilir.
+	</string>
+	<string name="av_render_not_everyone">
+		Çevrenizdeki herkes sizi işleyemeyebilir.
+	</string>
+	<string name="av_render_over_half">
+		Çevrenizdeki kişilerin yarıdan fazlası sizi işleyemeyebilir.
+	</string>
+	<string name="av_render_most_of">
+		Çevrenizdeki çoğu kişi sizi işleyemeyebilir.
+	</string>
+	<string name="av_render_anyone">
+		Çevrenizdeki kimse sizi işleyemeyebilir.
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] yıl
 	</string>
@@ -1974,6 +1997,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="CompileQueueUnknownFailure">
 		Karşıdan yüklerken bilinmeyen hata
 	</string>
+	<string name="CompileNoExperiencePerm">
+		[SCRIPT] komut dizisi [EXPERIENCE] deneyimiyle atlanıyor.
+	</string>
 	<string name="CompileQueueTitle">
 		Tekrar Derleme İlerlemesi
 	</string>
@@ -2018,9 +2044,6 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="GroupsNone">
 		hiçbiri
-	</string>
-	<string name="CompileNoExperiencePerm">
-		[SCRIPT] komut dizisi [EXPERIENCE] deneyimiyle atlanıyor.
 	</string>
 	<string name="Group" value="(grup)"/>
 	<string name="Unknown">
@@ -5387,18 +5410,6 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="UserDictionary">
 		[User]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
-	</string>
-	<string name="loading_chat_logs">
-		Yükleniyor...
-	</string>
 	<string name="experience_tools_experience">
 		Deneyim
 	</string>
@@ -5475,9 +5486,42 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Kamera Kontrolü
 	</string>
 	<string name="ExperiencePermissionShort11">
-		Işınla
+		Işınlama
 	</string>
 	<string name="ExperiencePermissionShort12">
 		İzin
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Bundan böyle sohbetlerin günlükleri tutulmayacak. Bir günlük tutmaya devam etmek için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Günlüğü tutulmuş sohbet yok. Siz biriyle iletişime geçtikten sonra veya biri sizinle iletişime geçtikten sonra, burada bir günlük girişi gösterilir.
+	</string>
+	<string name="loading_chat_logs">
+		Yükleniyor...
+	</string>
+	<string name="preset_combo_label">
+		-Boş liste-
+	</string>
+	<string name="Default">
+		Varsayılan
+	</string>
+	<string name="none_paren_cap">
+		(Hiçbiri)
+	</string>
+	<string name="no_limit">
+		Sınırsız
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		Fiziksel görünüm çok küçük üçgenler içeriyor. Fiziksel modeli basitleştirmeye çalışın.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		Fiziksel şekil geçersiz doğrulama verileri içeriyor. Fiziksel modeli düzeltmeye çalışın.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		Fiziksel şekil doğru sürüme sahip değil. Fiziksel model için doğru sürümü ayarlayın.
 	</string>
 </strings>

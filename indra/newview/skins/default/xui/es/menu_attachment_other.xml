@@ -15,5 +15,8 @@
 	<menu_item_call label="Acercar el zoom" name="Zoom In"/>
 	<menu_item_call label="Pagar" name="Pay..."/>
 	<menu_item_call label="Perfil del objeto" name="Object Inspect"/>
+	<menu_item_check label="Renderizar normalmente" name="RenderNormally"/>
+	<menu_item_check label="No renderizar" name="DoNotRender"/>
+	<menu_item_check label="Renderizar completamente" name="AlwaysRenderFully"/>
 	<menu_item_call label="Ignorar al propietario de la partícula" name="Mute Particle"/>
 </context_menu>

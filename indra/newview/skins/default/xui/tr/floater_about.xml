@@ -3,6 +3,7 @@
 	<tab_container name="about_tab">
 		<panel label="Bilgi" name="support_panel">
 			<button label="Panoya Kopyala" name="copy_btn"/>
+			<button label="Güncellemeleri kontrol et" name="update_btn"/>
 		</panel>
 		<panel label="Katkıda Bulunanlar" name="credits_panel">
 			<text name="linden_intro">Second Life, Lindens tarafından geliştirilmiştir ve 

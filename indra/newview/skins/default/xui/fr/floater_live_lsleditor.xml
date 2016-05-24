@@ -10,16 +10,16 @@
 		SCRIPT : [NAME]
 	</floater.string>
 	<floater.string name="experience_enabled">
-		Supprimer la coche pour supprimer l&apos;expérience actuelle
+		Supprimer la coche pour supprimer l’expérience actuelle
 	</floater.string>
 	<floater.string name="no_experiences">
-		Vous n&apos;êtes autorisé(e) pour aucune expérience.
+		Vous n’êtes autorisé(e) pour aucune expérience.
 	</floater.string>
 	<floater.string name="add_experiences">
 		Sélectionner pour ajouter une expérience
 	</floater.string>
 	<floater.string name="show_experience_profile">
-		Cliquer pour afficher le profil de l&apos;expérience
+		Cliquer pour afficher le profil de l’expérience
 	</floater.string>
 	<floater.string name="loading">
 		Chargement...

@@ -1,19 +1,40 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Rzeczy" name="objects panel">
-	<panel label="" name="sidepanel_inventory_panel">
+	<panel name="sidepanel_inventory_panel">
+		<layout_stack name="inventory_layout_stack">
+			<layout_panel name="inbox_layout_panel">
+				<panel name="marketplace_inbox">
+					<string name="InboxLabelWithArg">
+						Odebrane przedmioty ([NUM])
+					</string>
+					<string name="InboxLabelNoArg">
+						Odebrane przedmioty
+					</string>
+					<button label="Odebrane przedmioty" name="inbox_btn" />
+					<text name="inbox_fresh_new_count">
+						[NUM] nowe/y
+					</text>
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="Przeciągnij przedmioty do swojej Szafy, aby ich używać">
+						<text name="inbox_inventory_placeholder">
+							Rzeczy kupione na Marketplace będą tu dostarczane.
+						</text>
+					</panel>
+				</panel>
+			</layout_panel>
+		</layout_stack>
 		<panel name="button_panel">
-			<layout_stack name="button_panel_ls">
+			<layout_stack name="button_panel_ls">	
 				<layout_panel name="info_btn_lp">
-					<button label="Profil" name="info_btn" tool_tip="Pokaż profil obiektu"/>
+					<button label="Profil" name="info_btn" tool_tip="Pokaż profil obiektu" />
 				</layout_panel>
 				<layout_panel name="share_btn_lp">
-					<button label="Udostępnij" name="share_btn" tool_tip="Udostępnij obiekt z Szafy"/>
+					<button label="Udostępnij" name="share_btn" tool_tip="Udostępnij obiekt z Szafy" />
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
-					<button label="Zakupy" name="shop_btn" tool_tip="Otwórz stronę Marketplace"/>
-					<button label="Załóż" name="wear_btn" tool_tip="Załóż wybrany strój"/>
-					<button label="Odtwarzaj" name="play_btn"/>
-					<button label="Teleportuj" name="teleport_btn" tool_tip="Teleportuj się w wybrane miejsce"/>
+					<button label="Zakupy" name="shop_btn" tool_tip="Otwórz stronę Marketplace" />
+					<button label="Załóż" name="wear_btn" tool_tip="Załóż wybrany strój" />
+					<button label="Odtwarzaj" name="play_btn" />
+					<button label="Teleportuj" name="teleport_btn" tool_tip="Teleportuj się w wybrane miejsce" />
 				</layout_panel>
 			</layout_stack>
 		</panel>

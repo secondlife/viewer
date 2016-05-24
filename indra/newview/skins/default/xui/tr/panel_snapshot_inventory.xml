@@ -7,7 +7,7 @@
 		Bir görüntüyü envanterinize kaydetmenin maliyeti L$[UPLOAD_COST] olur. Görüntünüzü bir doku olarak kaydetmek için kare formatlardan birini seçin.
 	</text>
 	<combo_box label="Çözünürlük" name="texture_size_combo">
-		<combo_box.item label="Mevcut Pencere" name="CurrentWindow"/>
+		<combo_box.item label="Mevcut Pencere(512x512)" name="CurrentWindow"/>
 		<combo_box.item label="Küçük (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Orta (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Büyük (512x512)" name="Large(512x512)"/>

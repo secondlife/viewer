@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_twitter_account">
+	<string name="twitter_connected" value="Połączenie z Twitterem jako:" />
+	<string name="twitter_disconnected" value="Brak połączenia z Twitterem" />
+	<text name="account_caption_label">
+		Brak połączenia z Twitterem.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Połącz..." name="connect_btn" />
+		<button label="Rozłącz" name="disconnect_btn" />
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Twitter/ta-p/2435453 Więcej o wysyłaniu na Twittera]
+		</text>
+	</panel>
+</panel>

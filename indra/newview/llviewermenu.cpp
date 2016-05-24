@@ -1008,10 +1008,6 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY;
 	}
-	else if ("shame" == info_display)
-	{
-		return LLPipeline::RENDER_DEBUG_SHAME;
-	}
 	else if ("texture area" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_TEXTURE_AREA;
@@ -1040,9 +1036,9 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_COMPOSITION;
 	}
-	else if ("attachment bytes" == info_display)
+	else if ("avatardrawinfo" == info_display)
 	{
-		return LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES;
+		return (LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO);
 	}
 	else if ("glow" == info_display)
 	{
@@ -1078,6 +1074,7 @@ U32 info_display_from_string(std::string info_display)
 	}
 	else
 	{
+		LL_WARNS() << "unrecognized feature name '" << info_display << "'" << LL_ENDL;
 		return 0;
 	}
 };
@@ -2896,6 +2893,8 @@ BOOL enable_object_build(void*)
 
 bool enable_object_edit()
 {
+	if (!isAgentAvatarValid()) return false;
+	
 	// *HACK:  The new "prelude" Help Islands have a build sandbox area,
 	// so users need the Edit and Create pie menu options when they are
 	// there.  Eventually this needs to be replaced with code that only 
@@ -3056,11 +3055,11 @@ class LLAvatarCheckImpostorMode : public view_listener_t
 		switch (mode) 
 		{
 			case 0:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_RENDER_NORMALLY);
 			case 1:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_DO_NOT_RENDER);
 			case 2:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::NEVER_VISUAL_MUTE);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER);
 			default:
 				return false;
 		}
@@ -3082,19 +3081,18 @@ class LLAvatarSetImpostorMode : public view_listener_t
 		switch (mode) 
 		{
 			case 0:
-				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_RENDER_NORMALLY);
 				break;
 			case 1:
-				avatar->setVisualMuteSettings(LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_DO_NOT_RENDER);
 				break;
 			case 2:
-				avatar->setVisualMuteSettings(LLVOAvatar::NEVER_VISUAL_MUTE);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_ALWAYS_RENDER);
 				break;
 			default:
 				return false;
 		}
 
-		avatar->forceUpdateVisualMuteSettings();
 		LLVOAvatar::cullAvatarsByPixelArea();
 		return true;
 	}	// handleEvent()
@@ -3114,6 +3112,8 @@ class LLObjectMute : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object(object); 
 		if (avatar)
 		{
+			avatar->mNeedsImpostorUpdate = TRUE;
+
 			id = avatar->getID();
 
 			LLNameValue *firstname = avatar->getNVPair("FirstName");

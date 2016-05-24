@@ -90,7 +90,16 @@
 	<floater.string name="linkset_choose_use">
 		選擇聯結集的使用…
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			過濾方式：
+		</text>
+		<text name="linksets_name_label">
+			名稱
+		</text>
+		<text name="linksets_desc_label">
+			描述
+		</text>
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="按聯結集的使用來過濾…" name="filter_by_linkset_use_none"/>
 			<combo_box.item label="可行走的" name="filter_by_linkset_use_walkable"/>
@@ -122,7 +131,10 @@
 		<button label="全選" name="select_all_objects"/>
 		<button label="全都不選" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			對所選聯結集採取的動作（如果連結集從虛擬世界移除，其屬性恐會遺失）：
+		</text>
 		<check_box label="顯示指標" name="show_beacon"/>
 		<button label="取得" name="take_objects"/>
 		<button label="拿取副本" name="take_copy_objects"/>
@@ -130,7 +142,10 @@
 		<button label="退回" name="return_objects"/>
 		<button label="刪除" name="delete_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			編輯所選聯結集的屬性，並按按鈕啟用變更
+		</text>
 		<text name="walkability_coefficients_label">
 			可行走性：
 		</text>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<flat_list_view>
+    <flat_list_view.no_items_text name="no_items_msg" value="Niczego nie znaleziono" />
+</flat_list_view>

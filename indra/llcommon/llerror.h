@@ -363,13 +363,4 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_INFOS_ONCE(...)	lllog(LLError::LEVEL_INFO, true, ##__VA_ARGS__)
 #define LL_WARNS_ONCE(...)	lllog(LLError::LEVEL_WARN, true, ##__VA_ARGS__)
 
-// DEPRECATED: Use the new macros that allow tags and *look* like macros.
-#define lldebugs	LL_COMPILE_TIME_MESSAGE("Warning: lldebugs deprecated, use LL_DEBUGS() instead") LL_DEBUGS()
-#define llinfos		LL_COMPILE_TIME_MESSAGE("Warning: llinfos deprecated, use LL_INFOS() instead") LL_INFOS()
-#define llwarns		LL_COMPILE_TIME_MESSAGE("Warning: llwarns deprecated, use LL_WARNS() instead") LL_WARNS()
-#define llerrs		LL_COMPILE_TIME_MESSAGE("Warning: llerrs deprecated, use LL_ERRS() instead") LL_ERRS()
-#define llcont		LL_COMPILE_TIME_MESSAGE("Warning: llcont deprecated, use LL_CONT instead") LL_CONT
-#define llendl		LL_COMPILE_TIME_MESSAGE("Warning: llendl deprecated, use LL_ENDL instead") LL_ENDL
-
-
 #endif // LL_LLERROR_H

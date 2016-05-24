@@ -21,11 +21,11 @@
 		<combo_box.item label="Materiali" name="Materials"/>
 		<combo_box.item label="Multimedia" name="Media"/>
 	</combo_box>
-	<combo_box name="combobox mattype">
-		<combo_box.item label="Texture (diffusa)" name="Texture (diffuse)"/>
-		<combo_box.item label="Irregolarità (normale)" name="Bumpiness (normal)"/>
-		<combo_box.item label="Lucentezza (speculare)" name="Shininess (specular)"/>
-	</combo_box>
+	<radio_group name="radio_material_type">
+		<radio_item label="Texture (diffusa)" name="Texture (diffuse)" value="0"/>
+		<radio_item label="Irregolarità (normale)" name="Bumpiness (normal)" value="1"/>
+		<radio_item label="Lucentezza (speculare)" name="Shininess (specular)" value="2"/>
+	</radio_group>
 	<texture_picker label="Texture" name="texture control" tool_tip="Clicca per scegliere una fotografia"/>
 	<text name="label alphamode">
 		Modalità Alfa

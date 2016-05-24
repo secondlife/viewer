@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Edytuj Reklamę" name="panel_edit_classified">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Edytuj reklamę" name="panel_edit_classified">
 	<panel.string name="location_notice">
 		(zostanie zaktualizowane po zapisaniu)
 	</panel.string>
@@ -15,7 +15,7 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<panel name="snapshot_panel">
-				<icon label="" name="edit_icon" tool_tip="Kliknij by wybrać teksturę"/>
+				<icon name="edit_icon" tool_tip="Kliknij by wybrać teksturę" />
 			</panel>
 			<text name="Name:">
 				Tytuł:
@@ -29,25 +29,22 @@
 			<text name="classified_location">
 				ładowanie...
 			</text>
-			<button label="Ustaw na bieżącą lokalizację" name="set_to_curr_location_btn"/>
-			<text name="category_label" value="Kategoria:"/>
-			<text name="content_type_label" value="Typ zawartości:"/>
+			<button label="Ustaw na bieżącą lokalizację" name="set_to_curr_location_btn" />
+			<text name="category_label" value="Kategoria:" />
+			<text name="content_type_label" value="Typ zawartości:" />
 			<icons_combo_box label="Treść General" name="content_type">
-				<icons_combo_box.item label="Treść Moderate" name="mature_ci" value="Mature"/>
-				<icons_combo_box.item label="Treść General" name="pg_ci" value="PG"/>
+				<icons_combo_box.item label="Treść Moderate" name="mature_ci" />
+				<icons_combo_box.item label="Treść General" name="pg_ci" />
 			</icons_combo_box>
-			<check_box label="Ponawiaj automatycznie co tydzień." name="auto_renew"/>
-			<text name="price_for_listing_label" value="Cena za wyświetlenie:"/>
-			<spinner label="L$" name="price_for_listing" tool_tip="Cena za umieszczenie reklamy." value="50"/>
+			<check_box label="Ponawiaj automatycznie co tydzień" name="auto_renew" />
+			<text name="price_for_listing_label" value="Koszt listowania:" />
+			<spinner name="price_for_listing" tool_tip="Koszt listowania reklamy." />
 		</panel>
 	</scroll_container>
-	<panel label="bottom_panel" name="bottom_panel">
+	<panel name="bottom_panel">
 		<layout_stack name="bottom_panel_ls">
-			<layout_panel name="save_changes_btn_lp">
-				<button label="[LABEL]" name="save_changes_btn"/>
-			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="Cofnij" name="cancel_btn"/>
+				<button label="Anuluj" name="cancel_btn" />
 			</layout_panel>
 		</layout_stack>
 	</panel>

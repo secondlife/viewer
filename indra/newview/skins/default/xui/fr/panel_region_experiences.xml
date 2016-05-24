@@ -3,31 +3,31 @@
 	<panel.string name="trusted_estate_text">
 		Toute expérience peut être une expérience avec clé.
 
-Les expériences avec clé peuvent s&apos;exécuter dans ce domaine.
+Les expériences avec clé peuvent s’exécuter dans ce domaine.
 
-En outre, si le domaine n&apos;autorise pas l&apos;accès public, les résidents participant à une expérience avec clé peuvent pénétrer dans ce domaine et y rester tant qu&apos;ils participent à ladite expérience.
+En outre, si le domaine n’autorise pas l’accès public, les résidents participant à une expérience avec clé peuvent pénétrer dans ce domaine et y rester tant qu’ils participent à ladite expérience.
 	</panel.string>
 	<panel.string name="allowed_estate_text">
-		Seules les expériences à l&apos;échelle des terrains peuvent être autorisées.
+		Seules les expériences à l’échelle des terrains peuvent être autorisées.
 
-Les expériences autorisées peuvent s&apos;exécuter dans ce domaine.
+Les expériences autorisées peuvent s’exécuter dans ce domaine.
 	</panel.string>
 	<panel.string name="blocked_estate_text">
-		Seules les expériences à l&apos;échelle de la grille peuvent être bloquées.
+		Seules les expériences à l’échelle de la grille peuvent être bloquées.
       
-Les expériences bloquées ne peuvent pas s&apos;exécuter dans ce domaine.
+Les expériences bloquées ne peuvent pas s’exécuter dans ce domaine.
 	</panel.string>
 	<panel.string name="estate_caption">
 		Les modifications des paramètres de cet onglet affecteront toutes les régions du domaine.
 	</panel.string>
 	<panel.string name="allowed_parcel_text">
-		Seules les expériences à l&apos;échelle des terrains peuvent être autorisées.
+		Seules les expériences à l’échelle des terrains peuvent être autorisées.
       
-Les expériences autorisées peuvent s&apos;exécuter sur cette parcelle si elles ne sont pas bloquées par le domaine.
+Les expériences autorisées peuvent s’exécuter sur cette parcelle si elles ne sont pas bloquées par le domaine.
 	</panel.string>
 	<panel.string name="blocked_parcel_text">
 		Toute expérience de résident peut être bloquée.
       
-Les expériences bloquées ne peuvent pas s&apos;exécuter dans cette parcelle.
+Les expériences bloquées ne peuvent pas s’exécuter dans cette parcelle.
 	</panel.string>
 </panel>

@@ -24,6 +24,12 @@
 		<radio_item label="早於" name="older"/>
 	</radio_group>
 	<spinner label="小時前" name="spin_hours_ago"/>
+	<text name="label_hours">
+		小時
+	</text>
 	<spinner label="天前" name="spin_days_ago"/>
+	<text name="label_days">
+		日
+	</text>
 	<button label="關閉" label_selected="關閉" name="Close"/>
 </floater>

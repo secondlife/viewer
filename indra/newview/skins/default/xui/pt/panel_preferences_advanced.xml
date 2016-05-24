@@ -27,6 +27,6 @@
 	<check_box label="Permitir vários visualizadores" name="allow_multiple_viewer_check"/>
 	<check_box label="Mostrar grade selecionada ao entrar" name="show_grid_selection_check"/>
 	<check_box label="Exibir menu avançado" name="show_advanced_menu_check"/>
-	<check_box label="Exibir menu desenvolvedor" name="show_develop_menu_check"/>
+	<check_box label="Exibir menu de desenvolvimento" name="show_develop_menu_check"/>
 	<button label="Permissões de criação padrão" name="default_creation_permissions"/>
 </panel>

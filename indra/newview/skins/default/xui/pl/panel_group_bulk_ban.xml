@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Banowanie Rezydentów" name="bulk_ban_panel">
+	<panel.string name="loading">
+		(wczytywanie...)
+	</panel.string>
+	<panel.string name="ban_selection_too_large">
+		Bany grupowe nie zostały wysłane: zaznaczono zbyt wielu Rezydentów. Limit to 100 na jedno żądanie.
+	</panel.string>
+	<panel.string name="ban_not_permitted">
+		Bany grupowe nie zostały wysłane: nie masz przywileju zarządzania listą banów.
+	</panel.string>
+	<panel.string name="ban_limit_fail">
+		Bany grupowe nie zostały wysłane: Twoja grupa osiągnęła ich limit.
+	</panel.string>
+	<panel.string name="partial_ban">
+		Niektóre bany grupowe nie zostały wysłane:
+[REASONS]
+	</panel.string>
+	<panel.string name="ban_failed">
+		Bany grupowe nie zostały wysłane:
+[REASONS]
+	</panel.string>
+	<panel.string name="residents_already_banned">
+		- Następujące osoby są już zbanowane: [RESIDENTS].
+	</panel.string>
+	<panel.string name="ban_limit_reached">
+		- Osiągnięto limit banów, następujące osoby nie zostały zbanowane: [RESIDENTS].
+	</panel.string>
+	<panel.string name="cant_ban_yourself">
+		- Nie możesz zbanować samego/samej siebie.
+	</panel.string>
+	<text name="help_text">
+		Możesz wybrać wielu Rezydentów do zbanowania z grupy. Kliknij na &apos;Wybierz osoby&apos;, aby rozpocząć.
+	</text>
+	<button label="Wybierz osoby" name="add_button" />
+	<name_list name="banned_agent_list" tool_tip="Przytrzymaj klawisz Ctrl i klikaj na imionach Rezydentów, aby wybrać wiele pozycji" />
+	<button label="Usuń wybrane z listy" name="remove_button" tool_tip="Usuń wybranych powyżej Rezydentów z listy zbanowanych" />
+	<button label="Banuj Rezydentów" name="ban_button" />
+	<button label="Anuluj" name="cancel_button" />
+	<string name="GroupBulkBan">
+		Bany grupowe
+	</string>
+</panel>

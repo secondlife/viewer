@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="script_experience" title="体験">
 	<button label="体験" name="Expand Experience"/>
-	<check_box label="次の体験を使用：" name="enable_xp"/>
+	<check_box label="体験を使用" name="enable_xp"/>
 	<layout_stack name="xp_details">
 		<layout_panel>
 			<combo_box label="体験を選択..." name="Experiences..."/>

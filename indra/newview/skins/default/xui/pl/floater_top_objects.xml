@@ -1,16 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="Główne Obiekty">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="top_objects" title="Szczytowe obiekty">
 	<floater.string name="top_scripts_title">
 		Główne skrypty
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] skryptów działa w czasie [TIME] ms
+		[COUNT] skryptów zabiera w sumie [TIME] ms
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		Czas
-	</floater.string>
-	<floater.string name="scripts_mono_time_label">
-		Czas Mono
 	</floater.string>
 	<floater.string name="top_colliders_title">
 		Główne kolizje
@@ -22,35 +19,45 @@
 		Wynik
 	</floater.string>
 	<floater.string name="none_descriptor">
-		Nieodnalezione
+		Nieodnalezione.
+	</floater.string>
+	<floater.string name="URLs">
+		URLe
+	</floater.string>
+	<floater.string name="memory">
+		Pamięć (KB)
 	</floater.string>
 	<text name="title_text">
 		Ładowanie...
 	</text>
 	<scroll_list name="objects_list">
-		<scroll_list.columns label="Wynik" name="score"/>
-		<scroll_list.columns label="Nazwa" name="name"/>
-		<scroll_list.columns label="Właściciel" name="owner"/>
-		<scroll_list.columns label="Miejsce" name="location"/>
-		<scroll_list.columns label="Czas" name="time"/>
-		<scroll_list.columns label="Czas Mono" name="mono_time"/>
-		<scroll_list.columns label="URL" name="URLs"/>
+		<scroll_list.columns label="Wynik" name="score" />
+		<scroll_list.columns label="Nazwa" name="name" />
+		<scroll_list.columns label="Właściciel" name="owner" />
+		<scroll_list.columns label="Miejsce" name="location" />
+		<scroll_list.columns label="Działka" name="parcel" />
+		<scroll_list.columns label="Czas" name="time" />
+		<scroll_list.columns label="URLe" name="URLs" />
+		<scroll_list.columns label="Pamięć (KB)" name="memory" />
 	</scroll_list>
 	<text name="id_text">
 		ID obiektu:
 	</text>
-	<button label="Pokaż emitery" name="show_beacon_btn"/>
+	<button label="Pokaż emiter" name="show_beacon_btn" />
 	<text name="obj_name_text">
 		Nazwa obiektu:
 	</text>
-	<button label="Filtr" name="filter_object_btn"/>
+	<button label="Filtruj" name="filter_object_btn" />
 	<text name="owner_name_text">
 		Właściciel:
 	</text>
-	<button label="Filter" name="filter_owner_btn"/>
-	<button label="Odśwież" name="refresh_btn"/>
-	<button label="Zwróć wybrane" name="return_selected_btn"/>
-	<button label="Zwróć wszystko" name="return_all_btn"/>
-	<button label="Dezaktywuj wybrane" name="disable_selected_btn"/>
-	<button label="Dezaktywuj wszystko" name="disable_all_btn"/>
+	<button label="Filtruj" name="filter_owner_btn" />
+	<text name="parcel_name_text">
+		Działka:
+	</text>
+	<button label="Filtruj" name="filter_parcel_btn" />
+	<button label="Zwróć wybrane" name="return_selected_btn" />
+	<button label="Zwróć wszystko" name="return_all_btn" />
+	<button label="Dezakt. wybrane" name="disable_selected_btn" />
+	<button label="Dezakt. wszystko" name="disable_all_btn" />
 </floater>

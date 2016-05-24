@@ -24,6 +24,12 @@
 		<radio_item label="Älter als" name="older"/>
 	</radio_group>
 	<spinner label="Stunden zuvor" label_width="80" name="spin_hours_ago"/>
+	<text name="label_hours">
+		Stunden
+	</text>
 	<spinner label="Tage zuvor" name="spin_days_ago"/>
+	<text name="label_days">
+		Tage
+	</text>
 	<button label="Schließen" label_selected="Schließen" name="Close"/>
 </floater>

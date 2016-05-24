@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Region" name="General">
-	<text name="region_text_lbl">
-		Region:
-	</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="General">
 	<text name="region_text">
 		brak danych
 	</text>
@@ -16,28 +13,24 @@
 		Typ:
 	</text>
 	<text name="region_type">
-		nieznany
+		brak danych
 	</text>
-	<check_box label="Zablokuj zmiany terenu" name="block_terraform_check"/>
-	<check_box label="Zablokuj latanie" name="block_fly_check"/>
-	<check_box label="Uszkodzenia dozwolone" name="allow_damage_check"/>
-	<check_box label="Zablokuj popychanie" name="restrict_pushobject"/>
-	<check_box label="Odsprzedaż dozwolona" name="allow_land_resell_check"/>
-	<check_box label="Łączenie/Dzielenie dozwolone" name="allow_parcel_changes_check"/>
-	<check_box label="Zablokuj wyszukiwanie" name="block_parcel_search_check" tool_tip="Pozwól na wyświetlanie nazwy regionu i posiadłości w wynikach wyszukiwania"/>
-	<spinner label="Limit gości" name="agent_limit_spin"/>
-	<spinner label="Ekstra obiekty" name="object_bonus_spin"/>
+	<check_box label="Zablokuj zmiany terenu" name="block_terraform_check" />
+	<check_box label="Zablokuj latanie" name="block_fly_check" />
+	<check_box label="Blokuj przelot ponad działką" name="block_fly_over_check" tool_tip="Rozszerz sprawdzanie jeszcze wyżej, aby zapobiec lataniu ponad działką" />
+	<check_box label="Uszkodzenia dozwolone" name="allow_damage_check" />
+	<check_box label="Zablokuj popychanie" name="restrict_pushobject" />
+	<check_box label="Odsprzedaż dozwolona" name="allow_land_resell_check" />
+	<check_box label="Łączenie/dzielenie dozwolone" name="allow_parcel_changes_check" />
+	<check_box label="Zablokuj w wyszukiwaniu" name="block_parcel_search_check" tool_tip="Pozwól na wyświetlanie nazwy regionu i działki w wynikach wyszukiwania" />
+	<spinner label="Limit gości" name="agent_limit_spin" />
+	<spinner label="Ekstra obiekty" name="object_bonus_spin" />
 	<text label="Ograniczenia wieku" name="access_text">
 		Rodzaj:
 	</text>
-	<icons_combo_box label="&apos;Mature&apos;" name="access_combo">
-		<icons_combo_box.item label="&apos;Adult&apos;" name="Adult" value="42"/>
-		<icons_combo_box.item label="&apos;Moderate&apos;" name="Mature" value="21"/>
-		<icons_combo_box.item label="&apos;General&apos;" name="PG" value="13"/>
-	</icons_combo_box>
-	<button label="Zastosuj" name="apply_btn"/>
-	<button label="Teleportuj do Miejsca Startu jednego Rezydenta..." name="kick_btn"/>
-	<button label="Teleportuj do Miejsca Startu wszystkich Rezydentów..." name="kick_all_btn"/>
-	<button label="Wyślij wiadomość do Regionu..." name="im_btn"/>
-	<button label="Obsługa teleportera..." name="manage_telehub_btn"/>
+	<button label="Zastosuj" name="apply_btn" />
+	<button label="Teleportuj do Startu jednego Rezydenta" name="kick_btn" />
+	<button label="Teleportuj do Startu wszystkich Rezydentów" name="kick_all_btn" />
+	<button label="Wyślij wiadomość do Regionu" name="im_btn" />
+	<button label="Obsługa teleportera" name="manage_telehub_btn" />
 </panel>

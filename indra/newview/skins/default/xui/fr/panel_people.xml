@@ -18,6 +18,7 @@ Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife://
 	<string name="no_groups_msg" value="Vous souhaitez trouver des groupes à rejoindre ? Utilisez [secondlife:///app/search/groups Rechercher]."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Carte : double-clic ; Panoramique : Maj + faire glisser)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Téléportation : double-clic ; Panoramique : Maj + faire glisser)"/>
+	<string name="GroupCountWithInfo" value="Vous appartenez à [COUNT] groupes, et pouvez en rejoindre [REMAINING] autres.  [secondlife:/// Vous en voulez plus ?]"/>
 	<tab_container name="tabs">
 		<panel label="PRÈS DE VOUS" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">

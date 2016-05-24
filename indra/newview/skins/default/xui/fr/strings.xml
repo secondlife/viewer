@@ -38,11 +38,8 @@
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
-	</string>
-	<string name="AboutCompiler">
-		Compilé avec [COMPILER] version [COMPILER_VERSION]
 	</string>
 	<string name="AboutPosition">
 		Vous êtes à [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] dans [REGION], se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -64,10 +61,9 @@ Carte graphique : [GRAPHICS_CARD]
 	<string name="AboutLibs">
 		Version OpenGL : [OPENGL_VERSION]
 
-Version libcurl : [LIBCURL_VERSION]
 Version J2C Decoder : [J2C_VERSION]
 Version Audio Driver : [AUDIO_DRIVER_VERSION]
-Version Qt Webkit : [QT_WEBKIT_VERSION]
+Version LLCEFLib/CEF : [LLCEFLIB_VERSION]
 Version serveur vocal : [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
@@ -177,6 +173,12 @@ Version serveur vocal : [VOICE_VERSION]
 	</string>
 	<string name="create_account_url">
 		http://join.secondlife.com/?sourceid=[sourceid]
+	</string>
+	<string name="AgniGridLabel">
+		Grille principale de Second Life (Agni)
+	</string>
+	<string name="AditiGridLabel">
+		Grille de test bêta Second Life (Aditi)
 	</string>
 	<string name="ViewerDownloadURL">
 		http://secondlife.com/download
@@ -453,6 +455,9 @@ Veuillez réessayer de vous connecter dans une minute.
 		Vous ne pouvez pas porter un dossier contenant plus de [AMOUNT] articles.  Vous pouvez modifier cette limite dans Avancé &gt; Afficher les paramètres de débogage &gt; WearFolderLimit.
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$ :"/>
+	<string name="TooltipSLIcon">
+		Il s’agit d’un lien vers une page dans le domaine officiel SecondLife.com ou LindenLab.com.
+	</string>
 	<string name="TooltipOutboxDragToWorld">
 		Vous ne pouvez pas rezzer (charger) des articles du dossier Annonces de la Place de marché
 	</string>
@@ -472,7 +477,7 @@ Veuillez réessayer de vous connecter dans une minute.
 		Le nombre d&apos;articles de stock dépasse [AMOUNT].
 	</string>
 	<string name="TooltipOutboxCannotDropOnRoot">
-		Vous ne pouvez déposer des articles ou des dossiers que dans l&apos;onglet TOUT. Veuillez activer cet onglet et déplacer à nouveau article(s) et dossier(s).
+		Vous pouvez uniquement déposer des articles ou des dossiers dans les onglets TOUS ou NON ASSOCIÉS. Sélectionnez l’un de ces onglets et déplacez à nouveau votre ou vos article ou dossiers.
 	</string>
 	<string name="TooltipOutboxNoTransfer">
 		Impossible de vendre ou de transférer un ou plusieurs de ces objets
@@ -556,6 +561,9 @@ Veuillez réessayer de vous connecter dans une minute.
 		Cliquez pour exécuter la commande secondlife://
 	</string>
 	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
+	<string name="TooltipEmail">
+		Cliquez pour composer un message
+	</string>
 	<string name="SLurlLabelTeleport">
 		Me téléporter vers
 	</string>
@@ -1081,7 +1089,7 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="AgentNameSubst">
 		(Vous)
 	</string>
-	<string name="JoinAnExperience"/><!-- intentionally blank -->
+	<string name="JoinAnExperience"/>
 	<string name="SilentlyManageEstateAccess">
 		Supprimer les alertes lors de la gestion des listes d&apos;accès aux domaines
 	</string>
@@ -1860,6 +1868,21 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="TodayOld">
 		Inscrit aujourd&apos;hui
 	</string>
+	<string name="av_render_everyone_now">
+		Désormais, tout le monde peut vous voir.
+	</string>
+	<string name="av_render_not_everyone">
+		Vous risquez de ne pas être rendu par tous les gens qui vous entourent.
+	</string>
+	<string name="av_render_over_half">
+		Vous risquez de ne pas être rendu par plus de la moitié des gens qui vous entourent.
+	</string>
+	<string name="av_render_most_of">
+		Vous risquez de ne pas être rendu par la plupart des gens qui vous entourent.
+	</string>
+	<string name="av_render_anyone">
+		Vous risquez de n’être rendu par aucune des personnes qui vous entourent.
+	</string>
 	<string name="AgeYearsA">
 		[COUNT] an
 	</string>
@@ -1977,6 +2000,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="CompileQueueUnknownFailure">
 		Échec du téléchargement, erreur inconnue
 	</string>
+	<string name="CompileNoExperiencePerm">
+		En train d’ignorer le script [SCRIPT] avec l’expérience [EXPERIENCE].
+	</string>
 	<string name="CompileQueueTitle">
 		Recompilation - progrès
 	</string>
@@ -2021,9 +2047,6 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="GroupsNone">
 		aucun
-	</string>
-	<string name="CompileNoExperiencePerm">
-		En train d&apos;ignorer le script [SCRIPT] avec l&apos;expérience [EXPERIENCE].
 	</string>
 	<string name="Group" value=" (groupe)"/>
 	<string name="Unknown">
@@ -5380,18 +5403,6 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="UserDictionary">
 		[User]
 	</string>
-	<string name="logging_calls_disabled_log_empty">
-		Les conversations ne sont pas archivées. Pour commencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
-	</string>
-	<string name="logging_calls_disabled_log_not_empty">
-		Aucune conversation ne sera plus enregistrée. Pour recommencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
-	</string>
-	<string name="logging_calls_enabled_log_empty">
-		Il n&apos;y a aucune conversation enregistrée. Quand quelqu&apos;un vous contacte ou quand vous contactez quelqu&apos;un, une entrée de journal s&apos;affiche ici.
-	</string>
-	<string name="loading_chat_logs">
-		Chargement...
-	</string>
 	<string name="experience_tools_experience">
 		Expérience
 	</string>
@@ -5402,10 +5413,10 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		(expérience sans titre)
 	</string>
 	<string name="Land-Scope">
-		À l&apos;échelle des terrains
+		À l’échelle des terrains
 	</string>
 	<string name="Grid-Scope">
-		À l&apos;échelle de la grille
+		À l’échelle de la grille
 	</string>
 	<string name="Allowed_Experiences_Tab">
 		AUTORISÉE
@@ -5447,7 +5458,7 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		vous téléporter
 	</string>
 	<string name="ExperiencePermission12">
-		accepter automatiquement les permissions d&apos;expérience
+		accepter automatiquement les permissions d’expérience
 	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		a effectué une opération inconnue : [Permission]
@@ -5468,9 +5479,42 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Contrôler la caméra
 	</string>
 	<string name="ExperiencePermissionShort11">
-		Téléporter
+		Téléportation
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Permission
+	</string>
+	<string name="logging_calls_disabled_log_empty">
+		Les conversations ne sont pas archivées. Pour commencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
+	</string>
+	<string name="logging_calls_disabled_log_not_empty">
+		Aucune conversation ne sera plus enregistrée. Pour recommencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.
+	</string>
+	<string name="logging_calls_enabled_log_empty">
+		Il n&apos;y a aucune conversation enregistrée. Quand quelqu&apos;un vous contacte ou quand vous contactez quelqu&apos;un, une entrée de journal s&apos;affiche ici.
+	</string>
+	<string name="loading_chat_logs">
+		Chargement...
+	</string>
+	<string name="preset_combo_label">
+		-Liste vide-
+	</string>
+	<string name="Default">
+		Valeur par défaut
+	</string>
+	<string name="none_paren_cap">
+		(Aucun/Aucune)
+	</string>
+	<string name="no_limit">
+		Aucune limite
+	</string>
+	<string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
+		La forme physique contient des triangles trop petits. Essayez de simplifier le modèle physique.
+	</string>
+	<string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+		La forme physique contient de mauvaises données de confirmation. Essayez de corriger le modèle physique.
+	</string>
+	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
+		La forme physique n’a pas la version correcte. Configurez la version correcte pour le modèle physique.
 	</string>
 </strings>

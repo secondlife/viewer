@@ -57,7 +57,7 @@
 		<panel name="edit_panel_experience_info">
 			<scroll_container name="edit_xp_scroll">
 				<panel name="edit_scrolling_panel">
-					<text name="edit_experience_title_label" value="Название:"/>
+					<text name="edit_experience_title_label" value="Имя:"/>
 					<text name="edit_experience_desc_label" value="Описание:"/>
 					<button label="Группа" name="Group_btn"/>
 					<text name="edit_ContentRating">

@@ -7,7 +7,7 @@
 		Salvare un&apos;immagine nell&apos;inventario costa L$[UPLOAD_COST]. Per salvare l&apos;immagine come texture, selezionare uno dei formati quadrati.
 	</text>
 	<combo_box label="Risoluzione" name="texture_size_combo">
-		<combo_box.item label="Finestra attuale" name="CurrentWindow"/>
+		<combo_box.item label="Finestra corrente (512x512)" name="CurrentWindow"/>
 		<combo_box.item label="Piccola (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Media (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>

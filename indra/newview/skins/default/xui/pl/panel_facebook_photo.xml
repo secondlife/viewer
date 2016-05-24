@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_facebook_photo">
+	<combo_box name="resolution_combobox" tool_tip="Rozdzielczość obrazka">
+		<combo_box.item label="Obecne okno" name="CurrentWindow" />
+	</combo_box>
+	<combo_box name="filters_combobox" tool_tip="Filtry obrazka">
+		<combo_box.item  label="Bez filtru" name="NoFilter" />
+	</combo_box>
+	<text name="working_lbl">
+		Odświeżanie...
+	</text>
+	<button label="Odśwież" name="new_snapshot_btn" tool_tip="Kliknij, aby odświeżyć" />
+	<button label="Podgląd" name="big_preview_btn" tool_tip="Kliknij, aby przełączyć podgląd" />
+	<text name="caption_label">
+		Komentarz (opcjonalnie):
+	</text>
+	<button label="Wyślij" name="post_photo_btn" />
+	<button label="Anuluj" name="cancel_photo_btn" />
+</panel>

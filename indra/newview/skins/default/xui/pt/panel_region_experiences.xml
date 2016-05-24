@@ -3,31 +3,31 @@
 	<panel.string name="trusted_estate_text">
 		Qualquer experiência pode ser chave.
 
-Experiências-chave têm permissão para serem executadas nessa propriedade.
+Experiências-chave têm permissão para serem executadas nesse terreno.
 
-Além disso, se a propriedade não permitir acesso público, os residentes participantes de qualquer experiência-chave podem entrar e permanecer na propriedade, desde que estejam na experiência-chave.
+Além disso, se a propriedade não permitir acesso público, os residentes participantes de qualquer experiência-chave podem entrar e permanecer no terreno, desde que estejam na experiência-chave.
 	</panel.string>
 	<panel.string name="allowed_estate_text">
 		Somente experiências dentro do terreno podem ser permitidas.
 
-Experiências permitidas têm permissão para ser executadas nessa propriedade.
+Experiências permitidas têm permissão para ser executadas nesse terreno.
 	</panel.string>
 	<panel.string name="blocked_estate_text">
 		Somente experiências dentro da grade podem ser bloqueadas.
       
-É possível que as experiências bloqueadas não sejam executadas nessa propriedade.
+É possível que as experiências bloqueadas não sejam executadas nesse terreno.
 	</panel.string>
 	<panel.string name="estate_caption">
-		Mudar as opções desta guia afeta todas as regiões desta propriedade.
+		Mudar as configurações desta guia afeta todas as regiões deste terreno.
 	</panel.string>
 	<panel.string name="allowed_parcel_text">
 		Somente experiências dentro do terreno podem ser permitidas.
       
-Experiências permitidas têm permissão para ser executadas nesse terreno se não estiverem bloqueadas pela propriedade.
+Experiências permitidas têm permissão para ser executadas nesse terreno se não estiverem bloqueadas pela parcela.
 	</panel.string>
 	<panel.string name="blocked_parcel_text">
 		Qualquer experiência de residente pode ser bloqueada.
       
-É possível que as experiências bloqueadas não sejam executadas neste terreno.
+É possível que as experiências bloqueadas não sejam executadas nesta parcela.
 	</panel.string>
 </panel>

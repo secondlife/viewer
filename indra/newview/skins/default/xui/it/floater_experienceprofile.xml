@@ -28,7 +28,7 @@
 						</layout_panel>
 						<layout_panel name="location panel">
 							<text name="Location">
-								Luogo:
+								Posizione:
 							</text>
 						</layout_panel>
 						<layout_panel>
@@ -66,10 +66,10 @@
 					<icons_combo_box label="Moderato" name="edit_ContentRatingText" tool_tip="Se si aumenta la categoria di accesso di un&apos;esperienza, vengono ripristinate le autorizzazioni per tutti i residenti che hanno consentito l&apos;esperienza.">
 						<icons_combo_box.item label="Adulti" name="Adult" value="42"/>
 						<icons_combo_box.item label="Moderato" name="Mature" value="21"/>
-						<icons_combo_box.item label="Generale" name="PG" value="13"/>
+						<icons_combo_box.item label="Generali" name="PG" value="13"/>
 					</icons_combo_box>
 					<text name="edit_Location">
-						Luogo:
+						Posizione:
 					</text>
 					<button label="Imposta come attuale" name="location_btn"/>
 					<button label="Cancella luogo" name="clear_btn"/>
