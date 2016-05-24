@@ -5807,29 +5807,10 @@ void LLAppViewer::launchUpdater()
 */
 void LLAppViewer::showReleaseNotesIfRequired()
 {
-	if (!gLastRunVersion.empty() && gSavedSettings.getBOOL("UpdaterShowReleaseNotes"))
+	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion && gSavedSettings.getBOOL("UpdaterShowReleaseNotes"))
 	{
-		try
-		{
-			boost::regex expr("(?<chan>[\\w\\s]+)\\s(?<maj>\\d+)\\.(?<min>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)", boost::regex::perl | boost::regex::icase);
-			boost::smatch matches;
-			if (boost::regex_search(gLastRunVersion, matches, expr))
-			{
-				if (LLVersionInfo::getChannel() == matches["chan"] &&  // don't show Release Notes when changing a channel
-					(LLVersionInfo::getBuild() > std::stoi(matches["build"])
-					|| LLVersionInfo::getPatch() > std::stoi(matches["patch"])
-					|| LLVersionInfo::getMinor() > std::stoi(matches["min"])
-					|| LLVersionInfo::getMajor() > std::stoi(matches["maj"])))
-				{
-					LLSD info(getViewerInfo());
-					LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
-				}
-			}
-		}
-		catch (boost::regex_error& e)
-		{
-			LL_WARNS() << "Can't parse previous run version, regex errpr: " << e.what() << LL_ENDL;
-		}
+		LLSD info(getViewerInfo());
+		LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
 	}
 }
 
