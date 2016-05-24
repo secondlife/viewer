@@ -30,6 +30,7 @@ import sys
 import os.path
 import shutil
 import errno
+import json
 import re
 import tarfile
 import time
@@ -122,9 +123,6 @@ class ViewerManifest(LLManifest):
                     settings_install['CmdLineGridChoice']['Value'] = self.grid()
                     print "Set CmdLineGridChoice in settings_install.xml to '%s'" % self.grid()
 
-                #COYOT: channel: self.channel_with_pkg_suffix()
-                print "COYOT: version %s" % '.'.join(self.args['version'])
-
                 # put_in_file(src=) need not be an actual pathname; it
                 # only needs to be non-empty
                 self.put_in_file(llsd.format_pretty_xml(settings_install),
@@ -184,9 +182,16 @@ class ViewerManifest(LLManifest):
                 self.path("*.tga")
                 self.end_prefix("local_assets")
 
-            # Files in the newview/ directory
+            # File in the newview/ directory
             self.path("gpu_table.txt")
-            # The summary.json file gets left in the build directory by newview/CMakeLists.txt.
+
+            #summary.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
+            summary_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),"Channel":self.channel_with_pkg_suffix()}
+            with open(os.path.join(os.pardir,'summary.json'), 'w') as summary_handle:
+                json.dump(summary_dict,summary_handle)
+
+            #we likely no longer need the test, since we will throw an exception above, but belt and suspenders and we get the
+            #return code for free.
             if not self.path2basename(os.pardir, "summary.json"):
                 print "No summary.json file"
 
