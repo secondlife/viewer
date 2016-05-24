@@ -966,7 +966,10 @@ void AISUpdate::doUpdate()
             // the AIS version should be considered the true version. Adjust 
             // our local category model to reflect this version number.  Otherwise 
             // it becomes possible to get stuck with the viewer being out of 
-            // sync with the inventory system.
+            // sync with the inventory system.  Under normal circumstances 
+            // inventory COF is maintained on the viewer through calls to 
+            // LLInventoryModel::accountForUpdate when a changing operation 
+            // is performed.  This occasionally gets out of sync however.
             cat->setVersion(version);
 		}
 	}

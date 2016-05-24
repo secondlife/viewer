@@ -207,7 +207,6 @@ void LLAvatarRenderNotifier::updateNotificationState()
         mLastSkeletonSerialNum = gAgentAvatarp->mLastSkeletonSerialNum;
     }
     else if (mLastCofVersion >= 0
-//        && (mLastCofVersion != gAgentAvatarp->mLastUpdateRequestCOFVersion // RIDER: Check this!
         && (mLastCofVersion != LLAppearanceMgr::instance().getCOFVersion()
         || mLastSkeletonSerialNum != gAgentAvatarp->mLastSkeletonSerialNum))
     {

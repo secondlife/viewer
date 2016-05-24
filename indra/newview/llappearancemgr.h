@@ -36,8 +36,6 @@
 #include "llviewerinventory.h"
 #include "llcorehttputil.h"
 
-#define  APPEARANCEBAKE_AS_IN_AIS_QUEUE 1
-
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
 class LLOutfitUnLockTimer;
@@ -230,11 +228,7 @@ public:
 
 
 private:
-#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
     void serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter);
-#else
-    void serverAppearanceUpdateCoro();
-#endif
 
     static void debugAppearanceUpdateCOF(const LLSD& content);
 

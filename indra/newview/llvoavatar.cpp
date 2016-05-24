@@ -7357,7 +7357,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
         S32 aisCOFVersion(LLAppearanceMgr::instance().getCOFVersion());
 
-        LL_INFOS("Avatar") << "handling self appearance message #" << thisAppearanceVersion <<
+        LL_DEBUGS("Avatar") << "handling self appearance message #" << thisAppearanceVersion <<
             " (highest seen #" << mLastUpdateReceivedCOFVersion <<
             ") (AISCOF=#" << aisCOFVersion << ")" << LL_ENDL;
 
@@ -7375,46 +7375,6 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
         }
 
     }
-
-#if 0
-	S32 this_update_cof_version = contents.mCOFVersion;
-	S32 last_update_request_cof_version = mLastUpdateRequestCOFVersion;
-
-	if( isSelf() )
-	{
-		LL_DEBUGS("Avatar") << "this_update_cof_version " << this_update_cof_version
-				<< " last_update_request_cof_version " << last_update_request_cof_version
-				<<  " my_cof_version " << LLAppearanceMgr::instance().getCOFVersion() << LL_ENDL;
-
-        if (largestSelfCOFSeen > this_update_cof_version)
-        {
-            LL_WARNS("Avatar") << "Already processed appearance for COF version " <<
-                largestSelfCOFSeen << ", discarding appearance with COF " << this_update_cof_version << LL_ENDL;
-            return;
-        }
-        largestSelfCOFSeen = this_update_cof_version;
-
-	}
-	else
-	{
-		LL_DEBUGS("Avatar") << "appearance message received" << LL_ENDL;
-	}
-
-	// Check for stale update.
-	if (isSelf()
-		&& (this_update_cof_version < last_update_request_cof_version))
-	{
-		LL_WARNS() << "Stale appearance update, wanted version " << last_update_request_cof_version
-				<< ", got " << this_update_cof_version << LL_ENDL;
-		return;
-	}
-
-	if (isSelf() && isEditingAppearance())
-	{
-		LL_DEBUGS("Avatar") << "ignoring appearance message while in appearance edit" << LL_ENDL;
-		return;
-	}
-#endif
 
 	// SUNSHINE CLEANUP - is this case OK now?
 	S32 num_params = contents.mParamWeights.size();
@@ -7434,9 +7394,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     if (isSelf())
     {
         // Note:
-        // RequestAgentUpdateAppearanceResponder::onRequestRequested()
-        // assumes that cof version is only updated with server-bake
-        // appearance messages.
+        // locally the COF is maintained via LLInventoryModel::accountForUpdate
+        // which is called from various places.  This should match the simhost's 
+        // idea of what the COF version is.  AIS however maintains its own version
+        // of the COF that should be considered canonical. 
         mLastUpdateReceivedCOFVersion = thisAppearanceVersion;
     }
 		
@@ -7561,7 +7522,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		// Got an update for some other avatar
 		// Ignore updates for self, because we have a more authoritative value in the preferences.
 		setHoverOffset(contents.mHoverOffset);
-		LL_INFOS("Avatar") << avString() << "setting hover to " << contents.mHoverOffset[2] << LL_ENDL;
+		LL_DEBUGS("Avatar") << avString() << "setting hover to " << contents.mHoverOffset[2] << LL_ENDL;
 	}
 
 	if (!contents.mHoverOffsetWasSet && !isSelf())
