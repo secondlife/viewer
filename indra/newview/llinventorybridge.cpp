@@ -286,6 +286,16 @@ BOOL LLInvFVBridge::cutToClipboard()
 	return FALSE;
 }
 
+// virtual
+bool LLInvFVBridge::isCutToClipboard()
+{
+    if (LLClipboard::instance().isCutMode())
+    {
+        return LLClipboard::instance().isOnClipboard(mUUID);
+    }
+    return false;
+}
+
 // Callback for cutToClipboard if DAMA required...
 BOOL LLInvFVBridge::callback_cutToClipboard(const LLSD& notification, const LLSD& response)
 {
@@ -307,9 +317,7 @@ BOOL LLInvFVBridge::perform_cutToClipboard()
 	if (obj && isItemMovable() && isItemRemovable())
 	{
 		LLClipboard::instance().setCutMode(true);
-		BOOL added_to_clipboard = LLClipboard::instance().addToClipboard(mUUID);
-        removeObject(&gInventory, mUUID);   // Always perform the remove even if the object couldn't make it to the clipboard
-        return added_to_clipboard;
+		return LLClipboard::instance().addToClipboard(mUUID);
 	}
 	return FALSE;
 }
