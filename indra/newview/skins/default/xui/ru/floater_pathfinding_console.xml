@@ -66,6 +66,16 @@
 	<floater.string name="pathing_error">
 		Ошибка при создании пути.
 	</floater.string>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
+			Статус клиента
+		</text>
+	</panel>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
+			Статус сервера
+		</text>
+	</panel>
 	<tab_container name="view_test_tab_container">
 		<panel label="Вид" name="view_panel">
 			<text name="show_label">

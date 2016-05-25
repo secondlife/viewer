@@ -27,6 +27,6 @@
 	<check_box label="Clients multiples autorisés" name="allow_multiple_viewer_check"/>
 	<check_box label="Liste de sélection de grille affichée à la connexion" name="show_grid_selection_check"/>
 	<check_box label="Menu Avancé affiché" name="show_advanced_menu_check"/>
-	<check_box label="Menu Développeurs affiché" name="show_develop_menu_check"/>
+	<check_box label="Afficher le menu Développeurs" name="show_develop_menu_check"/>
 	<button label="Permissions de création par défaut" name="default_creation_permissions"/>
 </panel>

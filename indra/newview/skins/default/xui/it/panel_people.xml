@@ -18,6 +18,7 @@ Stai cercando persone da frequentare? Prova la [secondlife:///app/worldmap Mappa
 	<string name="no_groups_msg" value="Stai cercando gruppi di cui far parte? Prova [secondlife:///app/search/groups Cerca]."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Fai doppio clic per aprire la Mappa, premi il tasto Maiusc e trascina per la panoramica)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Fai doppio clic per teleportarti, premi il tasto Maiusc e trascina per la panoramica)"/>
+	<string name="GroupCountWithInfo" value="Fai parte di [COUNT] gruppi e puoi iscriverti a [REMAINING] altri. [secondlife:/// Ne vuoi altri?]"/>
 	<tab_container name="tabs">
 		<panel label="NELLE VICINANZE" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">

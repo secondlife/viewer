@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu name="Conversation Gear Menu">
+	<menu_item_call label="Pokaż profil" name="View Profile" />
+	<menu_item_call label="Dodaj do znajomych" name="Add Friend" />
+	<menu_item_call label="Usuń znajomego" name="remove_friend" />
+	<menu_item_call label="Proponuj teleport" name="offer_teleport" />
+	<menu_item_call label="Zaproś do grupy..." name="invite_to_group" />
+	<menu_item_call label="Logi czatu..." name="chat_history" />
+	<menu_item_call label="Przybliż" name="zoom_in" />
+	<menu_item_call label="Mapa" name="map" />
+	<menu_item_call label="Udostępnij" name="Share" />
+	<menu_item_call label="Zapłać" name="Pay" />
+	<menu_item_check label="Wycisz głos" name="Block/Unblock" />
+	<menu_item_check label="Wycisz czat" name="MuteText" />
+</toggleable_menu>

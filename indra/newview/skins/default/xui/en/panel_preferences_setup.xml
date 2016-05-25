@@ -173,7 +173,7 @@
       label="Use built-in browser for all links"
       layout="topleft"
       left="0"
-      name="internal"
+      name="external_all"
       value="2"
       tool_tip="Use the built-in web browser for help, web links, etc. This browser opens as a new window inside [APP_NAME]."
       top_delta="20"

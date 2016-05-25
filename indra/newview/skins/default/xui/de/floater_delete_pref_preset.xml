@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Delete Pref Preset" title="BEVORZ. VOREINST. LöSCHEN">
+	<string name="title_graphic">
+		Grafikvoreinstellung löschen
+	</string>
+	<string name="title_camera">
+		Kameravoreinstellung löschen
+	</string>
+	<text name="Preset">
+		Voreinstellung auswählen
+	</text>
+	<button label="Löschen" name="delete"/>
+	<button label="Abbrechen" name="cancel"/>
+</floater>

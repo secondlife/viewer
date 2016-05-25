@@ -3,6 +3,7 @@
 	<tab_container name="about_tab">
 		<panel label="Información" name="support_panel">
 			<button label="Copiar al portapapeles" name="copy_btn" width="165"/>
+			<button label="Buscar actualizaciones" name="update_btn"/>
 		</panel>
 		<panel label="Créditos" name="credits_panel">
 			<text name="linden_intro">Second Life ofrecido por los Lindens, 

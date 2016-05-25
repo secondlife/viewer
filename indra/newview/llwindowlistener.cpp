@@ -55,7 +55,7 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
 		"Given [\"keysym\"], [\"keycode\"] or [\"char\"], inject the specified ";
 	std::string keyExplain =
 		"(integer keycode values, or keysym string from any addKeyName() call in\n"
-		"http://hg.secondlife.com/viewer-development/src/tip/indra/llwindow/llkeyboard.cpp )\n";
+		"http://bitbucket.org/lindenlab/viewer-release/src/tip/indra/llwindow/llkeyboard.cpp )\n";
 	std::string mask =
 		"Specify optional [\"mask\"] as an array containing any of \"CTL\", \"ALT\",\n"
 		"\"SHIFT\" or \"MAC_CONTROL\"; the corresponding modifier bits will be combined\n"
@@ -70,7 +70,7 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
 		"(button values \"LEFT\", \"MIDDLE\", \"RIGHT\")\n";
 	std::string paramsExplain =
 		"[\"path\"] is as for LLUI::resolvePath(), described in\n"
-		"http://hg.secondlife.com/viewer-development/src/tip/indra/llui/llui.h\n"
+		"http://bitbucket.org/lindenlab/viewer-release/src/tip/indra/llui/llui.h\n"
 		"If you omit [\"path\"], you must specify both [\"x\"] and [\"y\"].\n"
 		"If you specify [\"path\"] without both [\"x\"] and [\"y\"], will synthesize (x, y)\n"
 		"in the center of the LLView selected by [\"path\"].\n"

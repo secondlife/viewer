@@ -1,26 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Ogłoszenia" name="notices_tab">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Notices" name="notices_tab">
 	<panel.string name="help_text">
-		Ogłoszenia to szybka droga do komunikowania się ze wszystkmi członkami grupy poprzez wysylanie ich na grupowym kanale. Dodatkowo, do ogłoszenia można dołańczać załączniki. Ogłoszenia docierają jedynie do członków grupy, którzy mają zdolność ich otrzymywania. By nie otrzymywać ogłoszeń, w zakładce Ogólne pozostaw niezaznaczonym &quot;Otrzymuj grupowe ogłoszenia&quot;.
+		Ogłoszenia to szybka droga do komunikowania się ze wszystkimi osobami w grupie poprzez wysyłanie ich na grupowym kanale.
+Dodatkowo, do ogłoszenia można dołączać załączniki. Ogłoszenia docierają jedynie do tych osób, które mają zdolność ich otrzymywania.
+By nie otrzymywać ogłoszeń, w zakładce Ogólne pozostaw niezaznaczone &quot;Otrzymuj grupowe ogłoszenia&quot;.
 	</panel.string>
 	<panel.string name="no_notices_text">
-		Brak przeszłych ogłoszeń
+		Brak ogłoszeń
 	</panel.string>
 	<text name="lbl2">
 		Ogłoszenia przechowywane są przez 14 dni.
 Limit dzienny ogłoszeń dla grupy wynosi 200.
 	</text>
 	<scroll_list name="notice_list">
-		<scroll_list.columns label="" name="icon"/>
-		<scroll_list.columns label="Temat" name="subject"/>
-		<scroll_list.columns label="Autor" name="from"/>
-		<scroll_list.columns label="Data" name="date"/>
+		<scroll_list.columns label="Temat" name="subject" />
+		<scroll_list.columns label="Autor" name="from" />
+		<scroll_list.columns label="Data" name="date" />
 	</scroll_list>
 	<text name="notice_list_none_found">
 		Nie znaleziono
 	</text>
-	<button label="Stwórz Ogłoszenie" label_selected="Stwórz nowe ogłoszenie" name="create_new_notice" tool_tip="Stwórz ogłoszenie"/>
-	<button label="Odśwież" label_selected="Odśwież Listę" name="refresh_notices" tool_tip="Użyj Odśwież by zobaczyć czy nowe ogłoszenia zostały wysłane."/>
+	<button label="Nowe" name="create_new_notice" tool_tip="Stwórz nowe ogłoszenie" />
+	<button name="refresh_notices" tool_tip="Odśwież listę Ogłoszeń" />
 	<panel label="Stwórz nowe ogłoszenie" name="panel_create_new_notice">
 		<text name="lbl">
 			Stwórz ogłoszenie
@@ -35,19 +36,19 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 			Załącz:
 		</text>
 		<text name="string">
-			Przeciągnij i upuść załącznik tutaj aby go dodać:
+			Przeciągnij załącznik tutaj aby go dodać:
 		</text>
-		<button label="Szafa" name="open_inventory" tool_tip="Otwórz Szafę"/>
-		<button label="Usuń załącznik" label_selected="Usuń Załącznik" name="remove_attachment" tool_tip="Usuń załącznik z noty"/>
-		<button label="Wyślij" label_selected="Wyślij" name="send_notice"/>
-		<group_drop_target name="drop_target" tool_tip="Przeciągnij załącznik ze swojej Szafy na pole docelowe aby wysłać go z Ogłoszeniem. Musisz posiadać prawo do kopiowania i transferu załącznika aby go dodać do ogłoszenia."/>
+		<button name="open_inventory" label="Szafa" tool_tip="Otwórz Szafę" />
+		<button name="remove_attachment" tool_tip="Usuń załącznik z ogłoszenia" />
+		<button label="Wyślij" label_selected="Wyślij" name="send_notice" />
+		<group_drop_target name="drop_target" tool_tip="Przeciągnij załącznik ze swojej Szafy na to pole docelowe aby wysłać go z Ogłoszeniem. Musisz posiadać prawo do kopiowania i transferu załącznika aby go dodać do ogłoszenia." />
 	</panel>
-	<panel label="Zobacz przeszłe Ogłoszenia" name="panel_view_past_notice">
+	<panel label="Zobacz ogłoszenia archiwalne" name="panel_view_past_notice">
 		<text name="lbl">
-			Ogłoszenia zachowane
+			Ogłoszenia archiwalne
 		</text>
 		<text name="lbl2">
-			W celu wysłania nowego ogłoszenia kliknij + Stwórz ogłoszenie
+			Aby wysłać nowe ogłoszenie kliknij na "+Nowe"
 		</text>
 		<text name="lbl3">
 			Temat:
@@ -55,6 +56,6 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 		<text name="lbl4">
 			Treść:
 		</text>
-		<button label="Otwórz załącznik" label_selected="Otwórz załącznik" name="open_attachment"/>
+		<button label="Otwórz załącznik" name="open_attachment" />
 	</panel>
 </panel>

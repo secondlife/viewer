@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater title="EXPERIENCE PROFILE">
 	<floater.string name="empty_slurl">
-		（なし）
+		(なし)
 	</floater.string>
 	<floater.string name="maturity_icon_general">
 		&quot;Parcel_PG_Light&quot;

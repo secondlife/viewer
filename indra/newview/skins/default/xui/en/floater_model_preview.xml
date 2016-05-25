@@ -185,9 +185,11 @@
              width="135">
                 <item
                  name="Load from file"
+                 label="Load from file"
                  value="Load from file" />
                 <item
                  name="Generate"
+                 label="Generate"
                  value="Generate" />
             </combo_box>
             <line_editor
@@ -220,9 +222,11 @@
              width="130">
                 <item
                  name="Triangle Limit"
+                 label="Triangle Limit"
                  value="Triangle Limit" />
                 <item
                  name="Error Threshold"
+                 label="Error Threshold"
                  value="Error Threshold" />
             </combo_box>
             <spinner
@@ -310,12 +314,15 @@
              width="135">
                 <item
                  name="Load from file"
+                 label="Load from file"
                  value="Load from file" />
                 <item
                  name="Generate"
+                 label="Generate"
                  value="Generate" />
                 <item
                  name="Use LoD above"
+                 label="Use LoD above"
                  value="Use LoD above" />
             </combo_box>
             <line_editor
@@ -349,9 +356,11 @@
              width="130">
                 <item
                  name="Triangle Limit"
+                 label="Triangle Limit"
                  value="Triangle Limit" />
                 <item
                  name="Error Threshold"
+                 label="Error Threshold"
                  value="Error Threshold" />
             </combo_box>
             <spinner
@@ -438,12 +447,15 @@
              width="135">
                 <item
                  name="Load from file"
+                 label="Load from file"
                  value="Load from file" />
                 <item
                  name="Generate"
+                 label="Generate"
                  value="Generate" />
                 <item
                  name="Use LoD above"
+                 label="Use LoD above"
                  value="Use LoD above" />
             </combo_box>
             <line_editor
@@ -477,9 +489,11 @@
              width="130">
                 <item
                  name="Triangle Limit"
+                 label="Triangle Limit"
                  value="Triangle Limit" />
                 <item
                  name="Error Threshold"
+                 label="Error Threshold"
                  value="Error Threshold" />
             </combo_box>
             <spinner
@@ -566,12 +580,15 @@
              width="135">
                 <item
                  name="Load from file"
+                 label="Load from file"
                  value="Load from file" />
                 <item
                  name="Generate"
+                 label="Generate"
                  value="Generate" />
                 <item
                  name="Use LoD above"
+                 label="Use LoD above"
                  value="Use LoD above" />
             </combo_box>
             <line_editor
@@ -605,9 +622,11 @@
              width="130">
                 <item
                  name="Triangle Limit"
+                 label="Triangle Limit"
                  value="Triangle Limit" />
                 <item
                  name="Error Threshold"
+                 label="Error Threshold"
                  value="Error Threshold" />
             </combo_box>
             <spinner

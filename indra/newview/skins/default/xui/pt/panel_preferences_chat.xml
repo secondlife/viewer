@@ -89,8 +89,19 @@
 		<check_box label="Oferta de inventário" name="inventory_offer"/>
 	</panel>
 	<panel name="log_settings">
+		<text name="logging_label">
+			Salvar:
+		</text>
+		<combo_box name="conversation_log_combo">
+			<item label="Log e transcrições" name="log_and_transcripts" value="2"/>
+			<item label="Apenas log" name="log_only" value="1"/>
+			<item label="Sem log ou transcrição" name="no_log_or_transcript" value="0"/>
+		</combo_box>
 		<button label="Limpar registro..." name="clear_log"/>
 		<button label="Excluir transcrições..." name="delete_transcripts"/>
+		<text name="log_location_label">
+			Localização:
+		</text>
 		<button label="Procurar..." label_selected="Procurar" name="log_path_button"/>
 	</panel>
 	<button label="Tradução..." name="ok_btn"/>

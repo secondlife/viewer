@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<person_view>
+	<facebook_icon name="facebook_icon" tool_tip="Użytkownik Facebooka" />
+	<permission_edit_theirs_icon name="permission_edit_theirs_icon" tool_tip="Możesz edytować obiekty tego Znajomego" />
+	<permission_edit_mine_icon name="permission_edit_mine_icon" tool_tip="Ten Znajomy może edytować, kasować lub wziąć Twoje obiekty" />
+	<permission_map_icon tool_tip="Ten Znajomy może zlokalizować Cię na mapie" name="permission_map_icon" />
+	<permission_online_icon name="permission_online_icon" tool_tip="Ten Znajomy widzi Ciebie kiedy jesteś obecny/a w SL" />
+	<info_btn name="info_btn" tool_tip="Więcej informacji" />
+	<profile_btn name="profile_btn" tool_tip="Zobacz profil" />
+</person_view>

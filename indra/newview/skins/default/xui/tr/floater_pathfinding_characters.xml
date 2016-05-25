@@ -27,7 +27,7 @@
 	<floater.string name="character_owner_group">
 		[grup]
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_chars_main">
 		<scroll_list name="objects_scroll_list">
 			<scroll_list.columns label="Ad" name="name"/>
 			<scroll_list.columns label="Açıklama" name="description"/>
@@ -42,7 +42,7 @@
 		<button label="Tümünü seç" name="select_all_objects"/>
 		<button label="Hiçbirini seçme" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
 			Seçilen karakterler üzerinde eylemler:
 		</text>

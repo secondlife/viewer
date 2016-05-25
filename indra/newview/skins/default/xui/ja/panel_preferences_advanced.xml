@@ -27,6 +27,6 @@
 	<check_box label="複数のビューワを許可" name="allow_multiple_viewer_check"/>
 	<check_box label="ログイン時にグリッド選択を表示" name="show_grid_selection_check"/>
 	<check_box label="アドバンスメニューを表示" name="show_advanced_menu_check"/>
-	<check_box label="デベロッパーメニューを表示" name="show_develop_menu_check"/>
+	<check_box label="開発メニューを表示" name="show_develop_menu_check"/>
 	<button label="デフォルト作成許可" name="default_creation_permissions"/>
 </panel>

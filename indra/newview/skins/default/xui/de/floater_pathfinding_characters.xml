@@ -27,7 +27,7 @@
 	<floater.string name="character_owner_group">
 		[Gruppe]
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_chars_main">
 		<scroll_list name="objects_scroll_list">
 			<scroll_list.columns label="Name" name="name"/>
 			<scroll_list.columns label="Beschreibung" name="description"/>
@@ -42,7 +42,7 @@
 		<button label="Alle auswählen" name="select_all_objects"/>
 		<button label="Keine auswählen" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
 			Aktionen für ausgewählte Figuren:
 		</text>

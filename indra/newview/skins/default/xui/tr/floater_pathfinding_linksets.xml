@@ -90,7 +90,16 @@
 	<floater.string name="linkset_choose_use">
 		Bağlantı kümesi kullanımını seç...
 	</floater.string>
-	<panel>
+	<panel name="pathfinding_linksets_main">
+		<text name="linksets_filter_label">
+			Şuna göre filtrele:
+		</text>
+		<text name="linksets_name_label">
+			Ad
+		</text>
+		<text name="linksets_desc_label">
+			Açıklama
+		</text>
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="Bağlantı kümesi kullanımına göre filtrele..." name="filter_by_linkset_use_none"/>
 			<combo_box.item label="Yürüyebilir" name="filter_by_linkset_use_walkable"/>
@@ -122,7 +131,10 @@
 		<button label="Tümünü seç" name="select_all_objects"/>
 		<button label="Hiçbirini seçme" name="select_none_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_actions">
+		<text name="linksets_actions_label">
+			Seçilen bağlantı kümeleri üzerindeki işlemler (bir bağlantı kümesi dünyadan çıkarılırsa, özellikleri de kaybolabilir)
+		</text>
 		<check_box label="İşareti göster" name="show_beacon"/>
 		<button label="Al" name="take_objects"/>
 		<button label="Kopya al" name="take_copy_objects"/>
@@ -130,7 +142,10 @@
 		<button label="İade Et" name="return_objects"/>
 		<button label="Sil" name="delete_objects"/>
 	</panel>
-	<panel>
+	<panel name="pathfinding_linksets_attributes">
+		<text name="linksets_attributes_label">
+			Seçili bağlantı kümelerinin özelliklerini düzenleyin ve değişiklikleri uygulamak için düğmeye basın
+		</text>
 		<text name="walkability_coefficients_label">
 			Yürüyebilirlik:
 		</text>

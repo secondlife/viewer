@@ -180,6 +180,7 @@
 		<menu_item_call label="Signaler un bug" name="Report Bug"/>
 		<menu_item_call label="Collisions, coups et bousculades" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
+		<menu_item_call label="Rechercher des mises à jour" name="Check for Updates"/>
 	</menu>
 	<menu label="Avancé" name="Advanced">
 		<menu_item_call label="Refixer les textures" name="Rebake Texture"/>
@@ -193,7 +194,7 @@
 			<menu_item_call label="Mesure du lag" name="Lag Meter"/>
 			<menu_item_check label="Barre de statistiques" name="Statistics Bar"/>
 			<menu_item_call label="Statistiques de chargement de scène" name="Scene Load Statistics"/>
-			<menu_item_check label="Afficher le poids de dessin pour les avatars" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Afficher les informations de complexité de l’avatar" name="Avatar Draw Info"/>
 		</menu>
 		<menu label="Surbrillance et visibilité" name="Highlighting and Visibility">
 			<menu_item_check label="Balise animée" name="Cheesy Beacon"/>
@@ -316,8 +317,6 @@
 			<menu_item_check label="Articulations" name="Joints"/>
 			<menu_item_check label="Rayons" name="Raycast"/>
 			<menu_item_check label="Vecteurs de vent" name="Wind Vectors"/>
-			<menu_item_check label="Complexité du rendu" name="rendercomplexity"/>
-			<menu_item_check label="Octets d&apos;éléments attachés" name="attachment bytes"/>
 			<menu_item_check label="Sculpture" name="Sculpt"/>
 			<menu label="Densité des textures" name="Texture Density">
 				<menu_item_check label="Aucune" name="None"/>
@@ -423,13 +422,11 @@
 			<menu_item_check label="Debogage Character Vis" name="Debug Character Vis"/>
 			<menu_item_check label="Afficher le squelette de collision" name="Show Collision Skeleton"/>
 			<menu_item_check label="Afficher la cible de l&apos;avatar" name="Display Agent Target"/>
-			--&gt;
 			<menu_item_call label="Dump Attachments" name="Dump Attachments"/>
 			<menu_item_call label="Débogage des textures des avatars" name="Debug Avatar Textures"/>
 			<menu_item_call label="Dump Local Textures" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="Textures HTTP" name="HTTP Textures"/>
-		<menu_item_check label="Inventaire HTTP" name="HTTP Inventory"/>
 		<menu_item_call label="Compresser les images" name="Compress Images"/>
 		<menu_item_call label="Activer Visual Leak Detector" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>

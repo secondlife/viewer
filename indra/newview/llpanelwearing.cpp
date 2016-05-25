@@ -94,6 +94,7 @@ protected:
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
 		registrar.add("Wearing.Edit", boost::bind(&edit_outfit));
+		registrar.add("Wearing.ShowOriginal", boost::bind(show_item_original, mUUIDs.front()));
 		registrar.add("Wearing.TakeOff",
 					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
 		registrar.add("Wearing.Detach", 
@@ -144,6 +145,7 @@ protected:
 		menu->setItemVisible("take_off",	allow_take_off);
 		menu->setItemVisible("detach",		allow_detach);
 		menu->setItemVisible("edit_outfit_separator", allow_take_off || allow_detach);
+		menu->setItemVisible("show_original", mUUIDs.size() == 1);
 	}
 };
 

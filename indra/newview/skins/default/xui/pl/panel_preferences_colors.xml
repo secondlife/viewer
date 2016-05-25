@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Kolory" name="colors_panel">
 	<text name="effects_color_textbox">
-		Moje efekty (opcje wyboru):
+		Efekty wyboru (wiązka cząstek):
 	</text>
-	<color_swatch name="effect_color_swatch" tool_tip="Kliknij aby wybrać kolor"/>
+	<color_swatch name="effect_color_swatch" tool_tip="Kliknij, aby wybrać kolor" />
 	<text name="font_colors">
-		Kolory czcionki czatu:
+		Wiadomości czatu:
 	</text>
 	<text name="text_box1">
-		Ja
+		Mój tekst
 	</text>
 	<text name="text_box2">
 		Inni
@@ -16,26 +16,26 @@
 	<text name="text_box3">
 		Obiekty
 	</text>
-	<text name="text_box4">
-		System
-	</text>
 	<text name="text_box5">
 		Błędy
+	</text>
+	<text name="text_box10">
+		Bezpośrednie
 	</text>
 	<text name="text_box7">
 		Właściciel
 	</text>
 	<text name="text_box9">
-		URL
+		URLe
 	</text>
 	<text name="bubble_chat">
-		Kolor tła taga (dotyczy również czatu chmurkowego):
+		Tło tagów imion i czatu chmurkowego:
 	</text>
-	<color_swatch name="background" tool_tip="Wybierz kolor taga"/>
-	<slider label="Przeźroczystość:" name="bubble_chat_opacity" tool_tip="Wybierz przeźroczystość taga"/>
+	<color_swatch name="background" tool_tip="Wybierz kolor tła imienia (taga)" />
+	<slider label="Przezrocz.:" name="bubble_chat_opacity" tool_tip="Wybierz przezroczystość tła tagów imion" />
 	<text name="floater_opacity">
-		Floater Opacity:
+		Przezroczystość okna:
 	</text>
-	<slider label="Aktywne:" name="active"/>
-	<slider label="Nieaktywne:" name="inactive"/>
+	<slider label="Aktywne:" name="active" />
+	<slider label="Nieaktywne:" name="inactive" />
 </panel>

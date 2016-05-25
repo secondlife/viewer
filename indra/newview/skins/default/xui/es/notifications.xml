@@ -164,6 +164,10 @@ La inicialización del mercado ha fallado por un error del sistema o de la red. 
         &apos;[ERROR_CODE]&apos;
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="MerchantForceValidateListing">
+		Para crear tu lista de artículos, hemos corregido la jerarquía del contenido de la lista.
+		<usetemplate ignoretext="Recordarme que al crear una lista de artículos se modifica la jerarquía del contenido" name="okignore" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmMerchantActiveChange">
 		Esta acción cambiará el contenido activo de esta lista de artículos. ¿Quieres continuar?
 		<usetemplate ignoretext="Confirmar antes de que cambie una lista de artículos activa en el Mercado" name="okcancelignore" notext="Cancelar" yestext="OK"/>
@@ -211,11 +215,9 @@ La inicialización del mercado ha fallado por un error del sistema o de la red. 
 		Hemos retirado tu lista de artículos porque el stock está vacío. Para volver a publicar tus artículos, añade más unidades a la carpeta de stock.
 		<usetemplate ignoretext="Mostrar alerta cuando una lista de artículos se retire porque la carpeta de stock está vacía" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="CompileQueueSaveText">
-		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
-	</notification>
-	<notification name="CompileQueueSaveBytecode">
-		Hubo un problema al subir el script compilado por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
+	<notification name="AlertMerchantVersionFolderEmpty">
+		Hemos retirado tu lista de artículos porque la carpeta de versión está vacía. Para volver a publicar tus artículos, añade artículos a la carpeta de versión.
+		<usetemplate ignoretext="Mostrar una alerta cuando una lista de artículos se retire porque la carpeta de versión está vacía" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="WriteAnimationFail">
 		Hubo un problema al escribir los datos de la animación. Por favor, inténtalo más tarde.
@@ -316,6 +318,14 @@ Si no quieres que este rol siga teniendo dichas capacidades, deshabilítalas inm
 		Estás a punto de expulsar a [COUNT] miembros del grupo.
 		<usetemplate ignoretext="Confirmar la expulsión de varios miembros del grupo" name="okcancelignore" notext="Cancelar" yestext="Expulsar"/>
 	</notification>
+	<notification name="BanGroupMemberWarning">
+		Te dispones a expulsar a [AVATAR_NAME] del grupo.
+		<usetemplate ignoretext="Confirma la expulsión de un participante del grupo" name="okcancelignore" notext="Cancelar" yestext="Prohibir el acceso"/>
+	</notification>
+	<notification name="BanGroupMembersWarning">
+		Te dispones a expulsar a [COUNT] miembros del grupo.
+		<usetemplate ignoretext="Confirma la expulsión de varios miembros del grupo" name="okcancelignore" notext="Cancelar" yestext="Prohibir el acceso"/>
+	</notification>
 	<notification name="AttachmentDrop">
 		Vas a soltar tu anexado.
     ¿Estás seguro de que quieres continuar?
@@ -400,7 +410,7 @@ Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		¿Estás seguro de que quieres devolver al inventario de su propietario todos los objetos de la lista?
+		¿Estás seguro de que deseas devolver todos los objetos enumerados al inventario de sus propietarios? ¡Se devolverán TODOS los objetos programados de la región!
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
@@ -582,15 +592,9 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 (**Cuidado** No podrás deshacer esta operación).
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="SaveScriptFailReason">
-		Al guardar un script, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde.
-	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		No se ha podido guardar el script porque no se pudo encontrar el objeto que incluye.
 El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&apos;)..
-	</notification>
-	<notification name="SaveBytecodeFailReason">
-		Al guardar un script compilado, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde..
 	</notification>
 	<notification name="StartRegionEmpty">
 		No está definida tu región inicial.
@@ -603,6 +607,10 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 	</notification>
 	<notification name="CannotDownloadFile">
 		No se ha podido descargar el archivo.
+	</notification>
+	<notification label="" name="MediaFileDownloadUnsupported">
+		Has solicitado descargar un archivo, pero [SECOND_LIFE] no lo admite.
+		<usetemplate ignoretext="Avisarme si las descargas de archivos no se admiten" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="CannotWriteFile">
 		No se ha podido escribir el archivo [[FILE]]
@@ -1110,8 +1118,9 @@ Deberás reconfigurar el nombre y las opciones de la nueva parcela.
 Generalmente, esto es un fallo pasajero. Por favor, personaliza y guarda el ítem de aquí a unos minutos.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Vaya, se ha cerrado tu sesión en [SECOND_LIFE].
-            [MESSAGE]
+		Vaya, has sido desconectado de [SECOND_LIFE].
+
+[MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Salir" yestext="Ver MI y Chat"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1360,6 +1369,13 @@ Puedes usar [SECOND_LIFE] de forma normal; los demás residentes te verán corre
 		<form name="form">
 			<ignore name="ignore" text="La ropa está tardando mucho en descargarse"/>
 		</form>
+	</notification>
+	<notification name="RegionAndAgentComplexity">
+		Tu [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complejidad visual] es [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+	</notification>
+	<notification name="AgentComplexity">
+		Tu [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 complejidad visual] es [AGENT_COMPLEXITY].
 	</notification>
 	<notification name="FirstRun">
 		Se ha completado la instalación de [SECOND_LIFE].
@@ -1642,6 +1658,25 @@ Este visor experimental se ha sustituido por un visor de [NEW_CHANNEL].
 Consulta [[INFO_URL] Información sobre esta actualización].
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="UpdateDownloadInProgress">
+		Está disponible una actualización.
+Se está descargando en segundo plano y, en cuanto esté lista, te pediremos que reinicies el visor para terminar de instalarla.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateDownloadComplete">
+		Se ha descargado una actualización. Se instalará durante el reinicio.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateCheckError">
+		Ha ocurrido un error al comprobar si hay actualizaciones.
+Repite la operación más adelante.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="UpdateViewerUpToDate">
+		El visor está actualizado.
+Si estás impaciente por probar las nuevas funciones y correcciones, lee la página sobre los visores alternativos. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeedObjectToGroup">
 		Transferir este objeto al grupo hará que:
 * Reciba los L$ pagados en el objeto
@@ -1746,6 +1781,14 @@ Consulta [[INFO_URL] Información sobre esta actualización].
 	<notification name="JoinedTooManyGroups">
 		Has superado tu número máximo de grupos. Por favor, sal de al menos uno de ellos antes de crear uno nuevo o entrar en alguno.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GroupLimitInfo">
+		El límite de grupos para las cuentas básicas es de [MAX_BASIC], y para
+las cuentas [https://secondlife.com/premium/ Premium] es de [MAX_PREMIUM].
+Si has bajado la categoría de tu cuenta, tendrás que estar por debajo del límite de [MAX_BASIC] grupos para poder apuntarte a más grupos.
+
+[https://secondlife.com/my/account/membership.php Cámbiate hoy a Premium]
+		<usetemplate name="okbutton" yestext="Cerrar"/>
 	</notification>
 	<notification name="KickUser">
 		¿Con qué mensaje quieres expulsar a este Residente?
@@ -2258,6 +2301,10 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		Confirma que deseas pagar L$[AMOUNT] a [TARGET].
 		<usetemplate ignoretext="Confirmar antes de pagar (sumas mayores de 200 L$)" name="okcancelignore" notext="Cancelar" yestext="Pagar"/>
 	</notification>
+	<notification name="PayObjectFailed">
+		Error en el pago: no se encuentra el objeto.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="OpenObjectCannotCopy">
 		En este objeto, no hay ítems que estés autorizado a copiar.
 	</notification>
@@ -2289,10 +2336,9 @@ Esta acción no se puede deshacer.
 		[QUESTION]
 		<usetemplate ignoretext="Confirmar antes de eliminar elementos" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="HelpReportAbuseEmailLL">
-		Usa esta herramienta para denunciar violaciones de las [http://secondlife.com/corporate/tos.php Condiciones del Servicio] o las [http://secondlife.com/corporate/cs.php Normas de la Comunidad].
-
-Se investigan y resuelven todas las infracciones denunciadas.
+	<notification name="ConfirmUnlink">
+		La selección es grande y contiene linksets. Si la desenlazas, quizás no puedas volver establecer los vínculos. Puede ser conveniente guardar copias de los linksets como medida de precaución.
+		<usetemplate ignoretext="Confirmar que desenlazas un linkset" name="okcancelignore" notext="Cancelar" yestext="Desenlazar"/>
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Por favor, elige una categoría para esta denuncia de infracción.
@@ -2991,19 +3037,19 @@ Del objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propietario: [NAME_SLURL]
 		Cambios omitidos en el campo &apos;[field]&apos; que solo puede configurar el propietario de la experiencia.
 	</notification>
 	<notification name="MaturityRatingExceedsOwnerExperienceProfileMessage">
-		No puedes definir un nivel de calificación de una experiencia superior al establecido por el propietario.
+		No puedes definir una calificación de contenido de una experiencia con un nivel superior al del propietario.
 	</notification>
 	<notification name="RestrictedTermExperienceProfileMessage">
 		Las condiciones siguientes han impedido la actualización del nombre o la descripción del perfil de la experiencia: [extra_info]
 	</notification>
 	<notification name="TeleportedHomeExperienceRemoved">
-		Te has teleportado desde la región [region_name] porque al quitar la experiencia secondlife:///app/experience/[public_id]/profile ya no tienes permiso para entrar en la región.
+		Has sido teleportado desde la región [region_name] porque al quitar la experiencia secondlife:///app/experience/[public_id]/profile ya no tienes permiso para entrar en la región.
 		<form name="form">
 			<ignore name="ignore" text="Expulsado de la región por quitar una experiencia"/>
 		</form>
 	</notification>
 	<notification name="TrustedExperienceEntry">
-		La participación en la experiencia clave secondlife:///app/experience/[public_id]/profile te otorga permiso para entrar en la región [region_name]. Si quitas esta experiencia, puede que te expulsen de la región.
+		La participación en la experiencia clave secondlife:///app/experience/[public_id]/profile te otorga permiso para entrar en la región [region_name]. Si quitas esta experiencia, puede que seas expulsado de la región.
 		<form name="form">
 			<ignore name="ignore" text="Admitido en una región por una experiencia"/>
 		</form>
@@ -3016,13 +3062,13 @@ Del objeto: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, propietario: [NAME_SLURL]
 Pueden estar disponibles otras experiencias clave.
 	</notification>
 	<notification name="ExperienceEvent">
-		La experiencia secondlife:///app/experience/[public_id]/profile permitió la siguiente operación con un objeto: [EventType].
+		La experiencia secondlife:///app/experience/[public_id]/profile permitió un objeto de [EventType].
     Propietario: secondlife:///app/agent/[OwnerID]/inspect
     Nombre del objeto: [ObjectName]
     Nombre de la parcela: [ParcelName]
 	</notification>
 	<notification name="ExperienceEventAttachment">
-		La experiencia secondlife:///app/experience/[public_id]/profile permitió la siguiente operación con un anexo: [EventType].
+		La experiencia secondlife:///app/experience/[public_id]/profile permitió un anexo de [EventType].
     Propietario: secondlife:///app/agent/[OwnerID]/inspect
 	</notification>
 	<notification name="ScriptQuestionExperience">
@@ -3212,6 +3258,12 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 	<notification name="AttachmentSaved">
 		Se ha guardado el adjunto.
 	</notification>
+	<notification name="PresetNotSaved">
+		Error al guardar el valor predefinido [NAME].
+	</notification>
+	<notification name="PresetNotDeleted">
+		Error al eliminar el valor predefinido [NAME].
+	</notification>
 	<notification name="UnableToFindHelpTopic">
 		No se ha podido encontrar un tema de ayuda para este elemento.
 	</notification>
@@ -3244,9 +3296,8 @@ Se mostrará cuando haya suficiente espacio.
 		Selecciona los residentes con quienes deseas compartir.
 	</notification>
 	<notification name="MeshUploadError">
-		[LABEL] no se pudo subir: [MESSAGE] [IDENTIFIER] 
-
-Consulta los detalles en el archivo de registro.
+		[LABEL] no se pudo subir: [MESSAGE] [IDENTIFIER]
+[DETAILS]Consulta los detalles en SecondLife.log
 	</notification>
 	<notification name="MeshUploadPermError">
 		Error al solicitar los permisos para subir la malla.

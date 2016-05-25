@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="perms default" title="DOMYŚLNE UPRAWNIENIA TWORZENIA">
+	<panel label="Domyślne uprawnienia" name="default permissions">
+		<text name="label_1">
+			Następny właściciel:
+		</text>
+		<text name="label_2">
+			Kopiowanie
+		</text>
+		<text name="label_3">
+			Modyfikacja
+		</text>
+		<text name="label_4">
+			Transferowanie
+		</text>    
+		<text name="label_5">
+			Udostępnianie grupie
+		</text>
+		<text name="label_6">
+			Każdy może kopiować
+		</text>
+		<text name="label_7" tool_tip="Domyślne uprawnienia dla nowych obiektów">
+			Obiekty
+		</text>
+		<text name="label_8" tool_tip="Domyślne uprawnienia dla nowych przedmiotów ładowanych z dysku">
+			Z dysku
+		</text>
+		<text name="label_9" tool_tip="Domyślne uprawnienia dla nowych skryptów">
+			Skrypty
+		</text>
+		<text name="label_10" tool_tip="Domyślne uprawnienia dla nowych notek">
+			Notki
+		</text>
+		<text name="label_11" tool_tip="Domyślne uprawnienia dla nowych gestów">
+			Gesty
+		</text>
+		<text name="label_12" tool_tip="Domyślne uprawnienia dla nowych ubrań i części ciała">
+			Ubrania
+		</text>
+	</panel>
+	<button label="Anuluj" label_selected="Anuluj" name="cancel" />
+</floater>

@@ -66,6 +66,16 @@
 	<floater.string name="pathing_error">
 		Ocorreu um erro durante a geração do caminho.
 	</floater.string>
+	<panel name="pathfinding_console_main">
+		<text name="viewer_status_label">
+			Status do visualizador
+		</text>
+	</panel>
+	<panel name="pathfinding_console_simulator">
+		<text name="simulator_status_label">
+			Status do simulador
+		</text>
+	</panel>
 	<tab_container name="view_test_tab_container">
 		<panel label="Visualizar" name="view_panel">
 			<text name="show_label">

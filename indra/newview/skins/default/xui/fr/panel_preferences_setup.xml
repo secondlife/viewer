@@ -17,17 +17,17 @@
 	<radio_group name="preferred_browser_behavior">
 		<radio_item label="Utiliser mon navigateur (Chrome, Firefox, IE) pour tous les liens" name="internal" tool_tip="Utiliser le navigateur web système par défaut pour l&apos;aide, les liens, etc. Non recommandé en mode plein écran." value="0"/>
 		<radio_item label="Utiliser le navigateur intégré pour les liens Second Life uniquement" name="external" tool_tip="Utilisez le navigateur web système par défaut pour l&apos;aide, les liens Web, etc. Le navigateur intégré sera uniquement utilisé pour les liens LindenLab/SecondLife." value="1"/>
+		<radio_item label="Utiliser le navigateur intégré pour tous les liens" name="external_all" tool_tip="Utilisez le navigateur intégré pour obtenir de l’aide, ouvrir des liens etc. Ce navigateur s’ouvre dans [APP_NAME]." value="2"/>
 	</radio_group>
 	<check_box initial_value="true" label="Activer les plugins" name="browser_plugins_enabled"/>
 	<check_box initial_value="true" label="Accepter les cookies" name="cookies_enabled"/>
 	<check_box initial_value="true" label="Activer Javascript" name="browser_javascript_enabled"/>
-	<check_box initial_value="false" label="Activer les fenêtres popup de navigateur de médias" name="media_popup_enabled"/>
 	<text name="Software updates:">
 		Mises à jour logicielles :
 	</text>
 	<combo_box name="updater_service_combobox">
 		<combo_box.item label="Installation automatique" name="Install_automatically"/>
-		<combo_box.item label="Téléchargement et installation manuels" name="Install_manual"/>
+		<combo_box.item label="Je téléchargerai et installerai les mises à jour manuellement" name="Install_manual"/>
 	</combo_box>
 	<check_box label="Accepte de passer aux versions avant sortie officielle" name="update_willing_to_test"/>
 	<text name="Proxy Settings:">

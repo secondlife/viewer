@@ -5,7 +5,23 @@
 		<key>print-location</key>   <boolean>false</boolean>
 		<key>settings</key>
 			<array>
-				<!-- sample entry for changing settings on specific items -->
+				<!-- Suppress anything but ERROR for some very verbose components -->
+				<map>
+					<key>level</key><string>ERROR</string>
+					<key>functions</key>
+						<array>
+						</array>
+					<key>classes</key>
+						<array>
+						</array>
+					<key>files</key>
+						<array>
+						</array>
+					<key>tags</key>
+						<array>
+							<string>ShaderLoading</string>
+						</array>
+				</map>
 				<map>
 					<key>level</key><string>INFO</string>
 					<key>functions</key>
@@ -19,14 +35,6 @@
 						</array>
 					<key>tags</key>
 						<array>
-							<string>AppInit</string>
-							<string>Capabilities</string>
-							<string>SystemInfo</string>
-							<string>TextureCache</string>
-							<string>AppCache</string>
-							<string>Window</string>
-							<string>RenderInit</string>
-							<string>MediaAuth</string>
 						</array>
 				</map>
 				<map>

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="contents" title="KUP KOPIĘ">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="contents" title="KUP KOPIĘ OBIEKTU">
 	<floater.string name="title_buy_text">
 		Kup
 	</floater.string>
@@ -16,14 +16,11 @@
 		(bez prawa transferu)
 	</floater.string>
 	<text name="contents_text">
-		i jej zawartość
+		i jej zawartość:
 	</text>
 	<text name="buy_text">
-		Kup za L$[AMOUNT] od:
+		Kup za [AMOUNT]L$ od:
 	</text>
-	<text name="buy_name_text">
-		[NAME]?
-	</text>
-	<button label="Kup" label_selected="Kup" name="buy_btn"/>
-	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
+	<button label="Kup" label_selected="Kup" name="buy_btn" />
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
 </floater>

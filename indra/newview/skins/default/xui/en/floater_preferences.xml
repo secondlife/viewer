@@ -11,7 +11,7 @@
  single_instance="true"
  title="PREFERENCES"
  width="658">
-    <button
+   <button
      follows="right|bottom"
      height="23"
      label="OK"

@@ -19,6 +19,6 @@
 		[TIME]  [NAME] 以物理物件擊中你
 	</floater.string>
 	<floater.string name="timeStr">
-		[[hour,datetime,slt]:[min,datetime,slt]]
+		[[hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt]]
 	</floater.string>
 </floater>

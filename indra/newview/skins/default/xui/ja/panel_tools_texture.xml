@@ -21,11 +21,11 @@
 		<combo_box.item label="材質" name="Materials"/>
 		<combo_box.item label="メディア" name="Media"/>
 	</combo_box>
-	<combo_box name="combobox mattype">
-		<combo_box.item label="テクスチャ (拡散)" name="Texture (diffuse)"/>
-		<combo_box.item label="凹凸 (標準)" name="Bumpiness (normal)"/>
-		<combo_box.item label="輝き (反射)" name="Shininess (specular)"/>
-	</combo_box>
+	<radio_group name="radio_material_type">
+		<radio_item label="テクスチャ (拡散)" name="Texture (diffuse)" value="0"/>
+		<radio_item label="凹凸 (標準)" name="Bumpiness (normal)" value="1"/>
+		<radio_item label="輝き (反射)" name="Shininess (specular)" value="2"/>
+	</radio_group>
 	<texture_picker label="テクスチャ" name="texture control" tool_tip="クリックして写真を選択します"/>
 	<text name="label alphamode">
 		アルファモード

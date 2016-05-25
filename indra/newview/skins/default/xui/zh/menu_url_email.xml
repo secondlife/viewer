@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Email Popup">
+	<menu_item_call label="用外部客戶程式編纂電郵" name="email_open_external"/>
+	<menu_item_call label="複製電郵到剪貼簿" name="email_copy"/>
+</context_menu>

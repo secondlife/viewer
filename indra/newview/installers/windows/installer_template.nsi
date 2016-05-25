@@ -648,6 +648,7 @@ Function un.ProgramFiles
 %%DELETE_FILES%%
 
 # Optional/obsolete files.  Delete won't fail if they don't exist.
+Delete "$INSTDIR\autorun.bat"
 Delete "$INSTDIR\dronesettings.ini"
 Delete "$INSTDIR\message_template.msg"
 Delete "$INSTDIR\newview.pdb"
@@ -678,6 +679,16 @@ FOLDERFOUND:
   RMDir /r "$INSTDIR"
 
 NOFOLDER:
+
+MessageBox MB_YESNO $(DeleteRegistryKeysMB) IDYES DeleteKeys IDNO NoDelete
+
+DeleteKeys:
+  DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Classes\x-grid-location-info"
+  DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Classes\secondlife"
+  DeleteRegKey HKEY_CLASSES_ROOT "x-grid-location-info"
+  DeleteRegKey HKEY_CLASSES_ROOT "secondlife"
+
+NoDelete:
 
 FunctionEnd
 

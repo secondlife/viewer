@@ -11,6 +11,7 @@
  name="spellcheck_import"
  title="Import Dictionary">
   <text
+   name="import_dict"
    follows="top|left"
    height="16"
    layout="topleft"
@@ -41,6 +42,7 @@
    top_delta="0"
    width="75" />
   <text
+   name="import_name"
    follows="top|left"
    height="16"
    layout="topleft"
@@ -61,6 +63,7 @@
    top_delta="-5"
    width="200" />
   <text
+   name="import_lang"
    follows="top|left"
    height="16"
    layout="topleft"

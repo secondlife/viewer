@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="presets_pulldown">
+	<text name="Graphic Presets">
+		Grafik Ön Ayarları
+	</text>
+	<button label="Grafik Tercihlerini Aç" name="open_prefs_btn" tool_tip="Grafik tercihlerini getir"/>
+</panel>

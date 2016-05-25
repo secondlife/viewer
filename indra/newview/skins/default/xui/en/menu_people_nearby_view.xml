@@ -50,4 +50,12 @@
          function="ToggleControl"
          parameter="NearbyListShowMap" />
     </menu_item_check>
+    <menu_item_check name="view_usernames" label="Hide usernames">
+        <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="view_usernames" />
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="NearbyListHideUsernames" />
+    </menu_item_check>
 </toggleable_menu>

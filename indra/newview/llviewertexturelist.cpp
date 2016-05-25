@@ -171,18 +171,38 @@ void LLViewerTextureList::doPreloadImages()
 		mImagePreloads.insert(image);
 	}
 	image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
-		0,0,LLUUID("8dcd4a48-2d37-4909-9f78-f7a9eb4ef903"));
+		0, 0, IMG_TRANSPARENT);
 	if (image) 
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
 	}
-	
+	image = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient.tga", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
+		GL_ALPHA8, GL_ALPHA, IMG_ALPHA_GRAD);
+	if (image)
+	{
+		image->setAddressMode(LLTexUnit::TAM_CLAMP);
+		mImagePreloads.insert(image);
+	}
+	image = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
+		GL_ALPHA8, GL_ALPHA, IMG_ALPHA_GRAD_2D);
+	if (image)
+	{
+		image->setAddressMode(LLTexUnit::TAM_CLAMP);
+		mImagePreloads.insert(image);
+	}
+
+	LLPointer<LLImageRaw> img_blak_square_tex(new LLImageRaw(2, 2, 3));
+	memset(img_blak_square_tex->getData(), 0, img_blak_square_tex->getDataSize());
+	LLPointer<LLViewerFetchedTexture> img_blak_square(new LLViewerFetchedTexture(img_blak_square_tex, FTT_DEFAULT, FALSE));
+	gBlackSquareID = img_blak_square->getID();
+	img_blak_square->setUnremovable(TRUE);
+	addImage(img_blak_square, TEX_LIST_STANDARD);
 }
 
 static std::string get_texture_list_name()
 {
-	return gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "texture_list_" + gSavedSettings.getString("LoginLocation") + ".xml");
+	return gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + ".xml");
 }
 
 void LLViewerTextureList::doPrefetchImages()
@@ -287,7 +307,7 @@ void LLViewerTextureList::shutdown()
 			break;
 	}
 	
-	if (count > 0 && !gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "").empty())
+	if (count > 0 && !gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "").empty())
 	{
 		std::string filename = get_texture_list_name();
 		llofstream file;
@@ -860,7 +880,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			LLPointer<LLViewerFetchedTexture> imagep = iter->second;
 			++iter; // safe to increment now
 
-			if(imagep->isInDebug())
+			if(imagep->isInDebug() || imagep->isUnremovable())
 			{
 				update_counter--;
 				continue; //is in debug, ignore.

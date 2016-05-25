@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview notecard" title="NOTA:">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="preview notecard" title="NOTKA:">
 	<floater.string name="no_object">
 		Nie można znaleźć obiektu zawierającego tą notkę.
 	</floater.string>
 	<floater.string name="not_allowed">
-		Nie masz pozwolenia na zobaczenie tej notki.
+		Nie masz uprawnień aby zobaczyć tą notkę.
 	</floater.string>
 	<floater.string name="Title">
 		Notka: [NAME]
@@ -15,6 +15,6 @@
 	<text_editor name="Notecard Editor">
 		Ładowanie...
 	</text_editor>
-	<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-	<button label="Usuń" label_selected="Usuń" name="Delete"/>
+	<button label="Zapisz" label_selected="Zapisz" name="Save" />
+	<button label="Usuń" label_selected="Usuń" name="Delete" />
 </floater>

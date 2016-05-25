@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<floater name="floater_conversation_log" title="DZIENNIK ROZMÓW">
+	<panel name="buttons_panel">
+		<filter_editor label="Filtruj ludzi" name="people_filter_input" />
+		<menu_button name="conversation_view_btn" tool_tip="Opcje widoku/sortowania" />
+		<menu_button name="conversations_gear_btn" tool_tip="Akcje dotyczące wybranej osoby lub grupy" />
+	</panel>
+</floater>

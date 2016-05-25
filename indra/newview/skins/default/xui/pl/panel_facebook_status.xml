@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_facebook_status">
+	<string name="facebook_connected" value="Połączenie z Facebookiem jako:" />
+	<string name="facebook_disconnected" value="Brak połączenia z Facebookiem" />
+	<text name="account_caption_label">
+		Brak połączenia z Facebookiem.
+	</text>
+	<panel name="panel_buttons">
+		<button label="Połącz..." name="connect_btn" />
+		<button label="Rozłącz" name="disconnect_btn" />
+		<text name="account_learn_more_label">
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Facebook/ta-p/2149711 Więcej o wysyłaniu na Facebooka]
+		</text>
+	</panel>
+	<text name="status_caption_label">
+		O czym teraz myślisz?
+	</text>
+	<button label="Wyślij" name="post_status_btn" />
+	<button label="Anuluj" name="cancel_status_btn" />
+</panel>

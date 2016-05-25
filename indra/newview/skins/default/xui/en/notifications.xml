@@ -554,22 +554,6 @@ This listing could not be updated.
 
   <notification
    icon="alertmodal.tga"
-   name="CompileQueueSaveText"
-   type="alertmodal">
-There was a problem uploading the text for a script due to the following reason: [REASON]. Please try again later.
-    <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="CompileQueueSaveBytecode"
-   type="alertmodal">
-There was a problem uploading the compiled script due to the following reason: [REASON]. Please try again later.
-    <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="WriteAnimationFail"
    type="alertmodal">
 There was a problem writing animation data.  Please try again later.
@@ -1166,6 +1150,22 @@ Error encoding snapshot.
 
   <notification
    icon="alertmodal.tga"
+   name="ErrorPhotoCannotAfford"
+   type="alertmodal">
+    You need L$[COST] to save a photo to your inventory. You may either buy L$ or save the photo to your computer instead.
+    <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ErrorTextureCannotAfford"
+   type="alertmodal">
+    You need L$[COST] to save a texture to your inventory. You may either buy L$ or save the photo to your computer instead.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ErrorUploadingPostcard"
    type="alertmodal">
 There was a problem sending a snapshot due to the following reason: [REASON]
@@ -1552,26 +1552,10 @@ Would you like to load the server&apos;s last saved version?
 
   <notification
    icon="alertmodal.tga"
-   name="SaveScriptFailReason"
-   type="alertmodal">
-There was a problem saving a script due to the following reason: [REASON].  Please try re-saving the script later.
-<tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="SaveScriptFailObjectNotFound"
    type="alertmodal">
 Could not save the script because the object it is in could not be found.
 The object may be out of range or may have been deleted.
-<tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="SaveBytecodeFailReason"
-   type="alertmodal">
-There was a problem saving a compiled script due to the following reason: [REASON].  Please try re-saving the script later.
 <tag>fail</tag>
   </notification>
 
@@ -2771,8 +2755,9 @@ This is usually a temporary failure. Please customize and save the wearable agai
    icon="alertmodal.tga"
    name="YouHaveBeenLoggedOut"
    type="alertmodal">
-Darn. You have been logged out of [SECOND_LIFE]
-            [MESSAGE]
+Darn. You have been logged out of [SECOND_LIFE].
+
+[MESSAGE]
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -3341,6 +3326,32 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
   </notification>
 
   <notification
+   icon = "notifytip.tga"
+   name = "AgentComplexityWithVisibility"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] is [AGENT_COMPLEXITY].
+[OVERLIMIT_MSG]
+   <usetemplate
+    ignoretext="Warn me if my avatar complexity may be too high"
+    name="notifyignore"/>
+  </notification>
+
+  <notification
+   icon = "notifytip.tga"
+   name = "AgentComplexity"
+   type = "notifytip"
+   log_to_chat = "false">
+   <unique combine = "cancel_old">
+     <context>AgentComplexityNotice</context>
+   </unique>
+Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Rendering-Complexity/ta-p/2967838 avatar complexity] is [AGENT_COMPLEXITY].
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="FirstRun"
    type="alertmodal">
@@ -3522,6 +3533,19 @@ Teleport all Residents in this region home?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ChangeObjectBonusFactor"
+   type="alertmodal">
+    Lowering the object bonus after builds have been established in a region may cause objects to be returned or deleted. Are you sure you want to change object bonus?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm changing object bonus factor"
+     name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
   </notification>
@@ -4162,28 +4186,6 @@ Leave Group?
     <usetemplate
      name="okbutton"
      yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="aler.tga"
-   name="GroupDepartError"
-   type="alert">
-Unable to leave group: [reason].
-      <tag>reason</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alert.tga"
-   name="GroupDepart"
-   type="alert">
-You have left the group [group_name].
-      <tag>group_name</tag>
-      <usetemplate
-       name="okbutton"
-       yestext="OK"/>
   </notification>
 
   <notification
@@ -6908,6 +6910,19 @@ This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="PathfindingDirtyRebake"
+   persist="true"
+   type="notify">
+   <unique/>
+   The region has pending pathfinding changes.  If you have build rights, you may rebake the region by clicking on the “Rebake region” button.
+   <usetemplate
+     name="okbutton"
+     yestext="Rebake region"
+   />
+  </notification>
+
+  <notification
      icon="notify.tga"
      name="DynamicPathfindingDisabled"
      persist="true"
@@ -8299,6 +8314,20 @@ Appearance has been saved to XML to [PATH]
     <notification icon="notifytip.tga"
 		name="AppearanceToXMLFailed" type="notifytip">
 Failed to save appearance to XML.
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+    name="PresetNotSaved"
+    type="notifytip">
+Error saving preset [NAME].
+  </notification>
+
+  <notification
+    icon="notifytip.tga"
+    name="PresetNotDeleted"
+    type="notifytip">
+Error deleting preset [NAME].
   </notification>
 
   <notification

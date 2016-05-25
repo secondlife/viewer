@@ -107,7 +107,7 @@ void LLWLDayCycle::loadDayCycleFromFile(const std::string & fileName)
 // static
 LLSD LLWLDayCycle::loadDayCycleFromPath(const std::string& file_path)
 {
-	LL_INFOS("Windlight") << "Loading DayCycle settings from " << file_path << LL_ENDL;
+	LL_DEBUGS("Windlight") << "Loading DayCycle settings from " << file_path << LL_ENDL;
 	
 	llifstream day_cycle_xml(file_path.c_str());
 	if (day_cycle_xml.is_open())

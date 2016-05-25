@@ -1118,6 +1118,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mLastCallBackActiveTime = 0.f;
 	mForceCallbackFetch = FALSE;
 	mInDebug = FALSE;
+	mUnremovable = FALSE;
 
 	mFTType = FTT_UNKNOWN;
 }
@@ -1874,7 +1875,8 @@ bool LLViewerFetchedTexture::updateFetch()
 	static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled", false);
 	static LLCachedControl<F32>  sCameraMotionThreshold(gSavedSettings,"TextureCameraMotionThreshold", 0.2);
 	static LLCachedControl<S32>  sCameraMotionBoost(gSavedSettings,"TextureCameraMotionBoost", 3);
-	if(textures_decode_disabled)
+	if(textures_decode_disabled ||
+	   (gUseWireframe && mBoostLevel < LLGLTexture::BOOST_AVATAR_BAKED_SELF)) // don't fetch the surface textures in wireframe mode
 	{
 		return false;
 	}
