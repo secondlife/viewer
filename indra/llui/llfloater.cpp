@@ -1575,6 +1575,7 @@ BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 		if(offerClickToButton(x, y, mask, BUTTON_TEAR_OFF)) return TRUE;
 		if(offerClickToButton(x, y, mask, BUTTON_DOCK)) return TRUE;
 
+		setFrontmost(TRUE, FALSE);
 		// Otherwise pass to drag handle for movement
 		return mDragHandle->handleMouseDown(x, y, mask);
 	}
@@ -1649,7 +1650,7 @@ void LLFloater::setVisibleAndFrontmost(BOOL take_focus,const LLSD& key)
 	}
 }
 
-void LLFloater::setFrontmost(BOOL take_focus)
+void LLFloater::setFrontmost(BOOL take_focus, BOOL restore)
 {
 	LLMultiFloater* hostp = getHost();
 	if (hostp)
@@ -1665,7 +1666,7 @@ void LLFloater::setFrontmost(BOOL take_focus)
 		LLFloaterView * parent = dynamic_cast<LLFloaterView*>( getParent() );
 		if (parent)
 		{
-			parent->bringToFront(this, take_focus);
+			parent->bringToFront(this, take_focus, restore);
 		}
 
 		// Make sure to set the appropriate transparency type (STORM-732).
@@ -2394,7 +2395,7 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 }
 
 
-void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
+void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus, BOOL restore)
 {
 	if (!child)
 		return;
@@ -2478,7 +2479,12 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 	{
 		sendChildToFront(child);
 	}
-	child->setMinimized(FALSE);
+
+	if(restore)
+	{
+		child->setMinimized(FALSE);
+	}
+
 	if (give_focus && !gFocusMgr.childHasKeyboardFocus(child))
 	{
 		child->setFocus(TRUE);
