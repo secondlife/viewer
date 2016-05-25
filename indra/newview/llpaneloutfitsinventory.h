@@ -73,6 +73,8 @@ protected:
 	void 					initTabPanels();
 	void 					onTabChange();
 	bool 					isCOFPanelActive() const;
+	bool 					isOutfitsListPanelActive() const;
+	bool 					isOutfitsGalleryPanelActive() const;
 
 private:
 	LLPanelAppearanceTab*	mActivePanel;
@@ -91,7 +93,6 @@ protected:
 	void onWearButtonClick();
 	void showGearMenu();
 	void onTrashButtonClick();
-	void onGalleryTrashButtonClick();
 	bool isActionEnabled(const LLSD& userdata);
 	void setWearablesLoading(bool val);
 	void onWearablesLoaded();

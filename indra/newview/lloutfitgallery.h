@@ -89,6 +89,8 @@ public:
     void onSelectPhoto(LLUUID selected_outfit_id);
     void onTakeSnapshot(LLUUID selected_outfit_id);
 
+    void wearSelectedOutfit();
+
 
     /*virtual*/ void setFilterSubString(const std::string& string);
 
