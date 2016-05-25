@@ -1851,6 +1851,10 @@ void LLVOAvatar::resetSkeleton()
         return;
     }
 
+    // Save mPelvis state
+    LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
+    LLQuaternion pelvis_rot = getJoint("mPelvis")->getRotation();
+
     // Clear all attachment pos overrides
     clearAttachmentPosOverrides();
 
@@ -1903,6 +1907,10 @@ void LLVOAvatar::resetSkeleton()
     // Restore attachment pos overrides
     rebuildAttachmentPosOverrides();
 
+    // Restore mPelvis state
+    getJoint("mPelvis")->setRotation(pelvis_rot);
+    getJoint("mPelvis")->setPosition(pelvis_pos);
+    
     // Restart animations
     resetAnimations();
 
@@ -7855,7 +7863,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 			LLVisualParam* param = contents.mParams[i];
 			F32 newWeight = contents.mParamWeights[i];
 
-			if (is_first_appearance_message || (param->getWeight() != newWeight))
+			if (slam_params || is_first_appearance_message || (param->getWeight() != newWeight))
 			{
 				params_changed = TRUE;
 				params_changed_count++;

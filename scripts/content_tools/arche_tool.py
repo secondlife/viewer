@@ -39,10 +39,12 @@ def node_key(e):
         return e.tag + " " + e.get("name")
     return None
 
-def compare_matched_nodes(key,items):
+def compare_matched_nodes(key,items,summary):
     tags = list(set([e.tag for e in items]))
     if len(tags) != 1:
         print "different tag types for key",key
+        summary.setdefault("tag_mismatch",0)
+        summary["tag_mismatch"] += 1
         return
     all_attrib = list(set(chain.from_iterable([e.attrib.keys() for e in items])))
     #print key,"all_attrib",all_attrib
@@ -50,11 +52,14 @@ def compare_matched_nodes(key,items):
         vals = [e.get(attr) for e in items]
         #print "key",key,"attr",attr,"vals",vals
         if len(set(vals)) != 1:
-            print "key",key,"attr",attr,"multiple values",vals
-    
+            print key,"- attr",attr,"multiple values",vals
+            summary.setdefault("attr",{})
+            summary["attr"].setdefault(attr,0)
+            summary["attr"][attr] += 1
 
 def compare_trees(file_trees):
     print "compare_trees"
+    summary = {}
     all_keys = list(set([node_key(e) for tree in file_trees for e in tree.getroot().iter() if node_key(e)]))
     #print "keys",all_keys
     tree_nodes = []
@@ -66,9 +71,13 @@ def compare_trees(file_trees):
         for nodes in tree_nodes:
             if not key in nodes:
                 print "file",i,"missing item for key",key
+                summary.setdefault("missing",0)
+                summary["missing"] += 1
             else:
                 items.append(nodes[key])
-        compare_matched_nodes(key,items)
+        compare_matched_nodes(key,items,summary)
+    print "Summary:"
+    print summary
                 
 
 if __name__ == "__main__":
