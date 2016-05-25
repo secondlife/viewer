@@ -1319,7 +1319,6 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 # the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
            "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
-           "{\"Type\":\"viewer\",\"Version\":\"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\"}\n")
 
 set_source_files_properties(
    llversioninfo.cpp tests/llversioninfo_test.cpp 
