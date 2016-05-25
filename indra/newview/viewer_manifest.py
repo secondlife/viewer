@@ -116,7 +116,6 @@ class ViewerManifest(LLManifest):
                     settings_install['CmdLineChannel'] = settings_template['CmdLineChannel'].copy()
                     settings_install['CmdLineChannel']['Value'] = self.channel_with_pkg_suffix()
                     print "Set CmdLineChannel in settings_install.xml to '%s'" % self.channel_with_pkg_suffix()
-                print "COYOT: channel set or not: %s" % self.channel_with_pkg_suffix()
 
                 if 'grid' in self.args and self.args['grid']:
                     settings_install['CmdLineGridChoice'] = settings_template['CmdLineGridChoice'].copy()
