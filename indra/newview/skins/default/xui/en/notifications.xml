@@ -9837,6 +9837,17 @@ You don't have permission to modify that object
 
   <notification
    icon="alertmodal.tga"
+   name="TooMuchObjectInventorySelected"
+   type="alertmodal">
+    <tag>fail</tag>
+    Too many objects with large inventory are selected. Please select fewer objects and try again.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantEnablePhysObjContributesToNav"
    type="notify">
    <tag>fail</tag>
