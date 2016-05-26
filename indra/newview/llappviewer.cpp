@@ -3341,7 +3341,7 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
 	}
 
-#if LL_LINUX
+#if !LL_LINUX
 	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
 #else
 	info["LLCEFLIB_VERSION"] = "Undefined";
