@@ -903,7 +903,7 @@ void LLFolderViewItem::draw()
 	//
 	if (!mLabelSuffix.empty())
 	{
-		font->renderUTF8( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor,
+		font->renderUTF8( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : (LLColor4)sSuffixColor,
 						  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 						  S32_MAX, S32_MAX, &right_x, FALSE );
 	}
