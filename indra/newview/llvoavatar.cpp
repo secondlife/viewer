@@ -1852,8 +1852,8 @@ void LLVOAvatar::resetSkeleton()
     }
 
     // Save mPelvis state
-    LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
-    LLQuaternion pelvis_rot = getJoint("mPelvis")->getRotation();
+    //LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
+    //LLQuaternion pelvis_rot = getJoint("mPelvis")->getRotation();
 
     // Clear all attachment pos overrides
     clearAttachmentPosOverrides();
@@ -1908,11 +1908,14 @@ void LLVOAvatar::resetSkeleton()
     rebuildAttachmentPosOverrides();
 
     // Restore mPelvis state
-    getJoint("mPelvis")->setRotation(pelvis_rot);
-    getJoint("mPelvis")->setPosition(pelvis_pos);
+    //getJoint("mPelvis")->setRotation(pelvis_rot);
+    //getJoint("mPelvis")->setPosition(pelvis_pos);
     
-    // Restart animations
-    resetAnimations();
+    // Restart animations BENTO - not needed? Removing this fixes a
+    // problem seen if avatar is sitting and animated relative to sit
+    // point.
+
+    //resetAnimations();
 
     LL_DEBUGS("Avatar") << avString() << " reset ends" << LL_ENDL;
 }

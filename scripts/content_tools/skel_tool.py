@@ -155,6 +155,7 @@ def validate_child_order(tree, ogtree, fix=False):
 # - corresponding right and left joints should be mirror symmetric.
 # - childless elements should be in short form (<bone /> instead of <bone></bone>)
 # - digits of precision should be consistent (again, except for old joints)
+# - new bones should have pos, pivot the same
 def validate_skel_tree(tree, ogtree, reftree, fix=False):
     print "validate_skel_tree"
     (num_bones,num_cvs) = (0,0)
@@ -205,6 +206,10 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
         enforce_precision_rules(element)
         for field in ["pos","pivot"]:
             enforce_symmetry(tree, element, field, fix)
+        if element.get("support")=="extended":
+            if element.get("pos") != element.get("pivot"):
+                print "extended joint",element.get("name"),"has mismatched pos, pivot"
+        
 
         if element.tag == "linden_skeleton":
             num_bones = int(element.get("num_bones"))
