@@ -124,8 +124,10 @@
 #include "llcoros.h"
 #if !LL_LINUX
 #include "cef/llceflib.h"
+#if LL_WINDOWS
 #include "vlc/libvlc_version.h"
-#endif
+#endif // LL_WINDOWS
+#endif // LL_LINUX
 
 // Third party library includes
 #include <boost/bind.hpp>
@@ -3339,7 +3341,14 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
 	}
 
-#if !LL_LINUX
+#if LL_LINUX
+	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
+#else
+	info["LLCEFLIB_VERSION"] = "Undefined";
+
+#endif
+
+#if LL_WINDOWS
 	std::ostringstream ver_codec;
 	ver_codec << LIBVLC_VERSION_MAJOR;
 	ver_codec << ".";
@@ -3347,11 +3356,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	ver_codec << ".";
 	ver_codec << LIBVLC_VERSION_REVISION;
 	info["LIBVLC_VERSION"] = ver_codec.str();
-
-	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
 #else
-	info["LLCEFLIB_VERSION"] = "Undefined";
-
 	info["LIBVLC_VERSION"] = "Undefined";
 #endif
 
