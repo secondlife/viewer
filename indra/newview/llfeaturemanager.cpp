@@ -809,3 +809,62 @@ void LLFeatureManager::applyBaseMasks()
 		maskFeatures("safe");
 	}
 }
+
+LLSD LLFeatureManager::getRecommendedSettingsMap()
+{
+	// Create the map and fill it with the hardware recommended settings.
+	// It's needed to create an initial Default graphics preset (MAINT-6435).
+	// The process is similar to the one LLFeatureManager::applyRecommendedSettings() does.
+
+	LLSD map(LLSD::emptyMap());
+
+	loadGPUClass();
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	LL_INFOS("RenderInit") << "Getting the map of recommended settings for level " << level << LL_ENDL;
+
+	applyBaseMasks();
+	std::string features(isValidGraphicsLevel(level) ? getNameForGraphicsLevel(level) : "Low");
+
+	maskFeatures(features);
+
+	LLControlVariable* ctrl = gSavedSettings.getControl("RenderQualityPerformance"); // include the quality value for correct preset loading   
+	map["RenderQualityPerformance"]["Value"] = (LLSD::Integer)level;
+	map["RenderQualityPerformance"]["Comment"] = ctrl->getComment();;
+	map["RenderQualityPerformance"]["Persist"] = 1;
+	map["RenderQualityPerformance"]["Type"] = LLControlGroup::typeEnumToString(ctrl->type());
+
+
+
+	for (feature_map_t::iterator mIt = mFeatures.begin(); mIt != mFeatures.end(); ++mIt)
+	{
+		LLControlVariable* ctrl = gSavedSettings.getControl(mIt->first);
+		if (ctrl == NULL)
+		{
+			LL_WARNS() << "AHHH! Control setting " << mIt->first << " does not exist!" << LL_ENDL;
+			continue;
+		}
+
+		if (ctrl->isType(TYPE_BOOLEAN))
+		{
+			map[mIt->first]["Value"] = (LLSD::Boolean)getRecommendedValue(mIt->first);
+		}
+		else if (ctrl->isType(TYPE_S32) || ctrl->isType(TYPE_U32))
+		{
+			map[mIt->first]["Value"] = (LLSD::Integer)getRecommendedValue(mIt->first);
+		}
+		else if (ctrl->isType(TYPE_F32))
+		{
+			map[mIt->first]["Value"] = (LLSD::Real)getRecommendedValue(mIt->first);
+		}
+		else
+		{
+			LL_WARNS() << "AHHH! Control variable is not a numeric type!" << LL_ENDL;
+			continue;
+		}
+		map[mIt->first]["Comment"] = ctrl->getComment();;
+		map[mIt->first]["Persist"] = 1;
+		map[mIt->first]["Type"] = LLControlGroup::typeEnumToString(ctrl->type());
+	}
+	
+	return map;
+}
