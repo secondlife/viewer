@@ -173,25 +173,17 @@ void MediaPluginLibVLC::playMedia()
 	gLibVLCMedia = libvlc_media_new_location(gLibVLC, mURL.c_str());
 	if (!gLibVLCMedia)
 	{
-		printf("libvlc_media_new_location failed\n");
-	}
-	else
-	{
-		printf("libvlc_media_new_location ok\n");
+		gLibVLCMediaPlayer = 0;
+		return;
 	}
 
 	gLibVLCMediaPlayer = libvlc_media_player_new_from_media(gLibVLCMedia);
 	if (!gLibVLCMediaPlayer)
 	{
-		printf("libvlc_media_player_new_from_media failed\n");
-	}
-	else
-	{
-		printf("libvlc_media_player_new_from_media ok...\n");
+		return;
 	}
 
 	libvlc_media_release(gLibVLCMedia);
-
 
 	gVLCCallbackContext.parent = this;
 	gVLCCallbackContext.texture_pixels = mPixels;
