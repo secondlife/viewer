@@ -152,6 +152,11 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     {
         removeFromGalleryLast(*it);
     }
+    for (std::vector<LLOutfitGalleryItem*>::const_reverse_iterator it = mHiddenItems.rbegin(); it != mHiddenItems.rend(); ++it)
+    {
+        buf_items.push_back(*it);
+    }
+    mHiddenItems.clear();
     
     mItemsInRow+= row_diff;
     updateGalleryWidth();
@@ -159,7 +164,9 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     
     for (std::vector<LLOutfitGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {
-        addToGallery(*it);
+    	(*it)->setHidden(false);
+    	applyFilter(*it,sFilterSubString);
+    	addToGallery(*it);
     }
 }
 
@@ -214,6 +221,11 @@ LLPanel* LLOutfitGallery::addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item
 
 void LLOutfitGallery::addToGallery(LLOutfitGalleryItem* item)
 {
+    if(item->isHidden())
+    {
+        mHiddenItems.push_back(item);
+        return;
+    }
     mItemsAddedCount++;
     mItemIndexMap[item] = mItemsAddedCount - 1;
     int n = mItemsAddedCount;
@@ -241,6 +253,11 @@ void LLOutfitGallery::addToGallery(LLOutfitGalleryItem* item)
 
 void LLOutfitGallery::removeFromGalleryLast(LLOutfitGalleryItem* item)
 {
+    if(item->isHidden())
+    {
+        mHiddenItems.pop_back();
+        return;
+    }
     int n_prev = mItemsAddedCount;
     int n = mItemsAddedCount - 1;
     int row_count = (n % mItemsInRow) == 0 ? n / mItemsInRow : n / mItemsInRow + 1;
@@ -264,6 +281,11 @@ void LLOutfitGallery::removeFromGalleryLast(LLOutfitGalleryItem* item)
 
 void LLOutfitGallery::removeFromGalleryMiddle(LLOutfitGalleryItem* item)
 {
+    if(item->isHidden())
+    {
+        mHiddenItems.erase(std::remove(mHiddenItems.begin(), mHiddenItems.end(), item), mHiddenItems.end());
+        return;
+    }
     int n = mItemIndexMap[item];
     mItemIndexMap.erase(item);
     std::vector<LLOutfitGalleryItem*> saved;
@@ -371,9 +393,8 @@ LLOutfitGallery::~LLOutfitGallery()
 
 void LLOutfitGallery::setFilterSubString(const std::string& string)
 {
-    //TODO: Implement filtering
-
     sFilterSubString = string;
+    reArrangeRows();
 }
 
 void LLOutfitGallery::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
@@ -386,6 +407,20 @@ void LLOutfitGallery::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
     {
         mOutfitMap[prev_id]->setOutfitWorn(false);
     }
+}
+
+void LLOutfitGallery::applyFilter(LLOutfitGalleryItem* item, const std::string& filter_substring)
+{
+    if (!item) return;
+
+    std::string outfit_name = item->getItemName();
+    LLStringUtil::toUpper(outfit_name);
+
+    std::string cur_filter = filter_substring;
+    LLStringUtil::toUpper(cur_filter);
+
+    bool hidden = (std::string::npos == outfit_name.find(cur_filter));
+    item->setHidden(hidden);
 }
 
 void LLOutfitGallery::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
@@ -555,6 +590,7 @@ BOOL LLOutfitGalleryItem::postBuild()
     mFotoBgPanel = getChild<LLPanel>("foto_bg_panel");
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     setOutfitWorn(false);
+    mHidden = false;
     return TRUE;
 }
 
