@@ -99,6 +99,7 @@ BOOL LLOutfitGallery::postBuild()
     BOOL rv = LLOutfitListBase::postBuild();
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
     mGalleryPanel = getChild<LLPanel>("gallery_panel");
+    mMessageTextBox = getChild<LLTextBox>("no_outfits_txt");
     mOutfitGalleryMenu = new LLOutfitGalleryContextMenu(this);
     return rv;
 }
@@ -168,6 +169,7 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     	applyFilter(*it,sFilterSubString);
     	addToGallery(*it);
     }
+    updateMessageVisibility();
 }
 
 void LLOutfitGallery::updateGalleryWidth()
@@ -556,6 +558,22 @@ bool LLOutfitGallery::hasItemSelected()
 bool LLOutfitGallery::canWearSelected()
 {
     return false;
+}
+
+void LLOutfitGallery::updateMessageVisibility()
+{
+    if(mItems.empty())
+    {
+        mMessageTextBox->setVisible(TRUE);
+        mScrollPanel->setVisible(FALSE);
+        std::string message = sFilterSubString.empty()? getString("no_outfits_msg") : getString("no_matched_outfits_msg");
+        mMessageTextBox->setValue(message);
+    }
+    else
+    {
+        mScrollPanel->setVisible(TRUE);
+        mMessageTextBox->setVisible(FALSE);
+    }
 }
 
 LLOutfitListGearMenuBase* LLOutfitGallery::createGearMenu()
