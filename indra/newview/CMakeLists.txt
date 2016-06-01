@@ -1969,6 +1969,7 @@ if (LINUX)
     linux-crash-logger
     SLPlugin
     media_plugin_gstreamer010
+    media_plugin_libvlc
     llcommon
     )
 

@@ -19,4 +19,9 @@ if (WINDOWS)
     )
 elseif (DARWIN)
 elseif (LINUX)
+    # Specify a full path to make sure we get a static link
+    set(VLC_PLUGIN_LIBRARIES
+        ${LIBS_PREBUILT_DIR}/lib/libvlc.a
+        ${LIBS_PREBUILT_DIR}/lib/libvlccore.a
+    )
 endif (WINDOWS)
