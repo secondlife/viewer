@@ -174,7 +174,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="video/*">
@@ -317,7 +317,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
@@ -328,7 +328,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
@@ -339,7 +339,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_cef
+			media_plugin_libvlc
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/bmp">
