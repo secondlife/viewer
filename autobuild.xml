@@ -2159,6 +2159,18 @@
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2f410640df3f9812d1abff02a414cfa8</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/315283/arch/Linux/vlc_bin-2.2.3-linux-201606011750-r10.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
         </map>
         <key>version</key>
         <string>2.2.3.315283</string>
