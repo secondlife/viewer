@@ -582,7 +582,7 @@
      pie_slice="11"
      name="Tongue"
      joint="mFaceTongueTip"
-     location="ATTACH_FACE_TOUNGE"
+     location="ATTACH_FACE_TONGUE"
      position="0.000 0.000 0.000"
      rotation="0 0 0"
      visible_in_first_person="true"/>
