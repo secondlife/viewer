@@ -86,13 +86,13 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mNeedsFlash(TRUE),
 	mSnapshotQuality(gSavedSettings.getS32("SnapshotQuality")),
 	mDataSize(0),
-    mSnapshotType(LLPanelSnapshot::SNAPSHOT_POSTCARD),
-    mSnapshotFormat(LLFloaterSnapshotBase::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat"))),
+	mSnapshotType(LLSnapshotModel::SNAPSHOT_POSTCARD),
+	mSnapshotFormat(LLSnapshotModel::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat"))),
 	mSnapshotUpToDate(FALSE),
 	mCameraPos(LLViewerCamera::getInstance()->getOrigin()),
 	mCameraRot(LLViewerCamera::getInstance()->getQuaternion()),
 	mSnapshotActive(FALSE),
-	mSnapshotBufferType(LLViewerWindow::SNAPSHOT_TYPE_COLOR),
+	mSnapshotBufferType(LLSnapshotModel::SNAPSHOT_TYPE_COLOR),
     mFilterName(""),
     mAllowRenderUI(TRUE),
     mAllowFullScreenPreview(TRUE),
@@ -737,7 +737,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 previewp->getWidth(),
                 previewp->getHeight(),
                 previewp->mKeepAspectRatio,//gSavedSettings.getBOOL("KeepAspectForSnapshot"),
-                previewp->getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE,
+                previewp->getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE,
                 previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
                 FALSE,
                 previewp->mSnapshotBufferType,
@@ -813,7 +813,7 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
         mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
         LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
         gGL.getTexUnit(0)->bind(curr_preview_image);
-        curr_preview_image->setFilteringOption(getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
+        curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
         curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 
@@ -827,7 +827,7 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
 S32 LLSnapshotLivePreview::getEncodedImageWidth() const
 {
     S32 width = getWidth();
-    if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE)
     {
         width = LLImageRaw::biasedDimToPowerOfTwo(width,MAX_TEXTURE_SIZE);
     }
@@ -836,7 +836,7 @@ S32 LLSnapshotLivePreview::getEncodedImageWidth() const
 S32 LLSnapshotLivePreview::getEncodedImageHeight() const
 {
     S32 height = getHeight();
-    if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE)
     {
         height = LLImageRaw::biasedDimToPowerOfTwo(height,MAX_TEXTURE_SIZE);
     }
@@ -854,7 +854,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
             mPreviewImage->getHeight(),
             mPreviewImage->getComponents());
         
-        if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
+        if (getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE)
 		{
             // We don't store the intermediate formatted image in mFormattedImage in the J2C case 
 			LL_DEBUGS() << "Encoding new image of format J2C" << LL_ENDL;
@@ -881,7 +881,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
 		{
             // Update mFormattedImage if necessary
             getFormattedImage();
-            if (getSnapshotFormat() == LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP)
+            if (getSnapshotFormat() == LLSnapshotModel::SNAPSHOT_FORMAT_BMP)
             {
                 // BMP hack : copy instead of decode otherwise decode will crash.
                 mPreviewImageEncoded->copy(mPreviewImage);
@@ -903,23 +903,23 @@ void LLSnapshotLivePreview::estimateDataSize()
     // Compression ratio
     F32 ratio = 1.0;
     
-    if (getSnapshotType() == LLPanelSnapshot::SNAPSHOT_TEXTURE)
+    if (getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE)
     {
         ratio = 8.0;    // This is what we shoot for when compressing to J2C
     }
     else
     {
-        LLFloaterSnapshotBase::ESnapshotFormat format = getSnapshotFormat();
+        LLSnapshotModel::ESnapshotFormat format = getSnapshotFormat();
         switch (format)
         {
-            case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
+            case LLSnapshotModel::SNAPSHOT_FORMAT_PNG:
                 ratio = 3.0;    // Average observed PNG compression ratio
                 break;
-            case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
+            case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
                 // Observed from JPG compression tests
                 ratio = (110 - mSnapshotQuality) / 2;
                 break;
-            case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
+            case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
                 ratio = 1.0;    // No compression with BMP
                 break;
         }
@@ -947,18 +947,18 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
         }
         
         // Create the new formatted image of the appropriate format.
-        LLFloaterSnapshotBase::ESnapshotFormat format = getSnapshotFormat();
+        LLSnapshotModel::ESnapshotFormat format = getSnapshotFormat();
         LL_DEBUGS() << "Encoding new image of format " << format << LL_ENDL;
             
         switch (format)
         {
-            case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
+		    case LLSnapshotModel::SNAPSHOT_FORMAT_PNG:
                 mFormattedImage = new LLImagePNG();
                 break;
-            case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
                 mFormattedImage = new LLImageJPEG(mSnapshotQuality);
                 break;
-            case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
                 mFormattedImage = new LLImageBMP();
                 break;
         }
@@ -978,7 +978,7 @@ void LLSnapshotLivePreview::setSize(S32 w, S32 h)
 	setHeight(h);
 }
 
-void LLSnapshotLivePreview::setSnapshotFormat(LLFloaterSnapshotBase::ESnapshotFormat format)
+void LLSnapshotLivePreview::setSnapshotFormat(LLSnapshotModel::ESnapshotFormat format)
 {
     if (mSnapshotFormat != format)
     {

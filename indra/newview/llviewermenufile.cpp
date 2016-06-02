@@ -37,6 +37,7 @@
 #include "llfloatermap.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
+#include "llfloateroutfitsnapshot.h"
 #include "llimage.h"
 #include "llimagebmp.h"
 #include "llimagepng.h"
@@ -507,9 +508,11 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
-		bool is_floater_snapshot_opened = floater_snapshot && floater_snapshot->isInVisibleChain();
-		bool open_children = gFloaterView->allChildrenClosed() && !is_floater_snapshot_opened;
+		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::getInstance();
+		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::getInstance();
+		bool is_floaters_snapshot_opened = floater_snapshot && floater_snapshot->isInVisibleChain()
+			|| floater_outfit_snapshot && floater_outfit_snapshot->isInVisibleChain();
+		bool open_children = gFloaterView->allChildrenClosed() && !is_floaters_snapshot_opened;
 		return !open_children;
 	}
 };
@@ -520,7 +523,12 @@ class LLFileCloseAllWindows : public view_listener_t
 	{
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
-		LLFloaterSnapshot::getInstance()->closeFloater(app_quitting);
+		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::getInstance();
+		if (floater_snapshot)
+			floater_snapshot->closeFloater(app_quitting);
+		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::getInstance();
+		if (floater_outfit_snapshot)
+			floater_outfit_snapshot->closeFloater(app_quitting);
 		if (gMenuHolder) gMenuHolder->hideMenus();
 		return true;
 	}
@@ -551,18 +559,18 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			gViewerWindow->playSnapshotAnimAndSound();
 			LLPointer<LLImageFormatted> formatted;
-            LLFloaterSnapshotBase::ESnapshotFormat fmt = (LLFloaterSnapshotBase::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+            LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
 			switch (fmt)
 			{
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
 				formatted = new LLImageJPEG(gSavedSettings.getS32("SnapshotQuality"));
 				break;
 			default:
 				LL_WARNS() << "Unknown local snapshot format: " << fmt << LL_ENDL;
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_PNG:
 				formatted = new LLImagePNG;
 				break;
-			case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
+			case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
 				formatted = new LLImageBMP;
 				break;
 			}

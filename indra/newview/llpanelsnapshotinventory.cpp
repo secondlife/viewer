@@ -32,7 +32,6 @@
 #include "llspinctrl.h"
 
 #include "llfloatersnapshot.h" // FIXME: replace with a snapshot storage model
-#include "llfloateroutfitsnapshot.h"
 #include "llpanelsnapshot.h"
 #include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
@@ -48,10 +47,10 @@ class LLPanelSnapshotInventoryBase
 public:
     LLPanelSnapshotInventoryBase();
 
+	/*virtual*/ BOOL postBuild();
 protected:
-    virtual void onSend() = 0;
-    /*virtual*/ LLPanelSnapshot::ESnapshotType getSnapshotType();
-
+    void onSend();
+    /*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
 };
 
 class LLPanelSnapshotInventory
@@ -74,7 +73,6 @@ private:
 	/*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
 	/*virtual*/ void updateControls(const LLSD& info);
 
-    /*virtual*/ void onSend();
 };
 
 class LLPanelOutfitSnapshotInventory
@@ -95,7 +93,6 @@ private:
     /*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
     /*virtual*/ void updateControls(const LLSD& info);
 
-    /*virtual*/ void onSend();
     /*virtual*/ void cancel();
 };
 
@@ -107,9 +104,14 @@ LLPanelSnapshotInventoryBase::LLPanelSnapshotInventoryBase()
 {
 }
 
-LLPanelSnapshot::ESnapshotType LLPanelSnapshotInventoryBase::getSnapshotType()
+BOOL LLPanelSnapshotInventoryBase::postBuild()
 {
-    return LLPanelSnapshot::SNAPSHOT_TEXTURE;
+    return LLPanelSnapshot::postBuild();
+}
+
+LLSnapshotModel::ESnapshotType LLPanelSnapshotInventoryBase::getSnapshotType()
+{
+    return LLSnapshotModel::SNAPSHOT_TEXTURE;
 }
 
 LLPanelSnapshotInventory::LLPanelSnapshotInventory()
@@ -125,7 +127,7 @@ BOOL LLPanelSnapshotInventory::postBuild()
 	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
 
 	getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onResolutionCommit, this, _1));
-	return LLPanelSnapshot::postBuild();
+	return LLPanelSnapshotInventoryBase::postBuild();
 }
 
 // virtual
@@ -149,10 +151,13 @@ void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 	getChild<LLSpinCtrl>(getHeightSpinnerName())->setVisible(!current_window_selected);
 }
 
-void LLPanelSnapshotInventory::onSend()
+void LLPanelSnapshotInventoryBase::onSend()
 {
-	LLFloaterSnapshot::saveTexture();
-	LLFloaterSnapshot::postSave();
+    if (mSnapshotFloater)
+    {
+        mSnapshotFloater->saveTexture();
+        mSnapshotFloater->postSave();
+    }
 }
 
 LLPanelOutfitSnapshotInventory::LLPanelOutfitSnapshotInventory()
@@ -164,7 +169,7 @@ LLPanelOutfitSnapshotInventory::LLPanelOutfitSnapshotInventory()
 // virtual
 BOOL LLPanelOutfitSnapshotInventory::postBuild()
 {
-    return LLPanelSnapshot::postBuild();
+    return LLPanelSnapshotInventoryBase::postBuild();
 }
 
 // virtual
@@ -181,13 +186,10 @@ void LLPanelOutfitSnapshotInventory::updateControls(const LLSD& info)
     getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
 }
 
-void LLPanelOutfitSnapshotInventory::onSend()
-{
-    LLFloaterOutfitSnapshot::saveTexture();
-    LLFloaterOutfitSnapshot::postSave();
-}
-
 void LLPanelOutfitSnapshotInventory::cancel()
 {
-    getParentByType<LLFloater>()->closeFloater();
+    if (mSnapshotFloater)
+    {
+        mSnapshotFloater->closeFloater();
+    }
 }

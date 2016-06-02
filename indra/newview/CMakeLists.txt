@@ -1144,6 +1144,7 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llsnapshotlivepreview.h
+    llsnapshotmodel.h
     llspatialpartition.h
     llspeakers.h
     llspeakingindicatormanager.h

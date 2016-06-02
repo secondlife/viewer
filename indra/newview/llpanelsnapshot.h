@@ -27,9 +27,13 @@
 #ifndef LL_LLPANELSNAPSHOT_H
 #define LL_LLPANELSNAPSHOT_H
 
-#include "llfloatersnapshot.h"
+//#include "llfloatersnapshot.h"
+#include "llpanel.h"
+#include "llsnapshotmodel.h"
 
+class LLSpinCtrl;
 class LLSideTrayPanelContainer;
+class LLFloaterSnapshotBase;
 
 /**
  * Snapshot panel base class.
@@ -37,13 +41,7 @@ class LLSideTrayPanelContainer;
 class LLPanelSnapshot: public LLPanel
 {
 public:
-    enum ESnapshotType
-    {
-        SNAPSHOT_POSTCARD,
-        SNAPSHOT_TEXTURE,
-        SNAPSHOT_LOCAL,
-        SNAPSHOT_WEB
-    };
+	LLPanelSnapshot();
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
@@ -59,8 +57,8 @@ public:
 	virtual LLSpinCtrl* getWidthSpinner();
 	virtual LLSpinCtrl* getHeightSpinner();
 	virtual void enableAspectRatioCheckbox(BOOL enable);
-    virtual LLFloaterSnapshotBase::ESnapshotFormat getImageFormat() const;
-    virtual ESnapshotType getSnapshotType();
+    virtual LLSnapshotModel::ESnapshotFormat getImageFormat() const;
+	virtual LLSnapshotModel::ESnapshotType getSnapshotType();
 	virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings
 	void enableControls(BOOL enable);
 
@@ -74,6 +72,8 @@ protected:
 	void onCustomResolutionCommit();
 	void onResolutionComboCommit(LLUICtrl* ctrl);
 	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
+
+	LLFloaterSnapshotBase* mSnapshotFloater;
 };
 
 #endif // LL_LLPANELSNAPSHOT_H

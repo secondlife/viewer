@@ -27,7 +27,7 @@
 #ifndef LL_LLSNAPSHOTLIVEPREVIEW_H
 #define LL_LLSNAPSHOTLIVEPREVIEW_H
 
-#include "llpanelsnapshot.h"
+#include "llsnapshotmodel.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
 
@@ -72,8 +72,8 @@ public:
 	void setMaxImageSize(S32 size) ;
 	S32  getMaxImageSize() {return mMaxImageSize ;}
 
-    LLPanelSnapshot::ESnapshotType getSnapshotType() const { return mSnapshotType; }
-    LLFloaterSnapshotBase::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
+    LLSnapshotModel::ESnapshotType getSnapshotType() const { return mSnapshotType; }
+    LLSnapshotModel::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
 	BOOL getSnapshotUpToDate() const { return mSnapshotUpToDate; }
 	BOOL isSnapshotActive() { return mSnapshotActive; }
 	LLViewerTexture* getThumbnailImage() const { return mThumbnailImage ; }
@@ -90,10 +90,10 @@ public:
 	void setImageScaled(BOOL scaled) { mImageScaled[mCurImageIndex] = scaled; }
 	const LLVector3d& getPosTakenGlobal() const { return mPosTakenGlobal; }
 
-    void setSnapshotType(LLPanelSnapshot::ESnapshotType type) { mSnapshotType = type; }
-    void setSnapshotFormat(LLFloaterSnapshotBase::ESnapshotFormat format);
+    void setSnapshotType(LLSnapshotModel::ESnapshotType type) { mSnapshotType = type; }
+    void setSnapshotFormat(LLSnapshotModel::ESnapshotFormat format);
 	bool setSnapshotQuality(S32 quality, bool set_by_user = true);
-	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
+	void setSnapshotBufferType(LLSnapshotModel::ESnapshotLayerType type) { mSnapshotBufferType = type; }
     void setAllowRenderUI(BOOL allow) { mAllowRenderUI = allow; }
     void setAllowFullScreenPreview(BOOL allow) { mAllowFullScreenPreview = allow; }
     void setFilter(std::string filter_name) { mFilterName = filter_name; }
@@ -161,14 +161,14 @@ private:
 	LLVector3d					mPosTakenGlobal;
 	S32							mSnapshotQuality;
 	S32							mDataSize;
-    LLPanelSnapshot::ESnapshotType				mSnapshotType;
-    LLFloaterSnapshotBase::ESnapshotFormat	mSnapshotFormat;
+    LLSnapshotModel::ESnapshotType				mSnapshotType;
+    LLSnapshotModel::ESnapshotFormat	mSnapshotFormat;
 	BOOL						mSnapshotUpToDate;
 	LLFrameTimer				mFallAnimTimer;
 	LLVector3					mCameraPos;
 	LLQuaternion				mCameraRot;
 	BOOL						mSnapshotActive;
-	LLViewerWindow::ESnapshotType mSnapshotBufferType;
+	LLSnapshotModel::ESnapshotLayerType mSnapshotBufferType;
     std::string                 mFilterName;
 
 public:

@@ -65,13 +65,13 @@ private:
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "postcard_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "postcard_size_combo"; }
 	/*virtual*/ std::string getImageSizePanelName() const	{ return "postcard_image_size_lp"; }
-    /*virtual*/ LLFloaterSnapshotBase::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshotBase::SNAPSHOT_FORMAT_JPEG; }
-    /*virtual*/ LLPanelSnapshot::ESnapshotType getSnapshotType();
-    /*virtual*/ void updateControls(const LLSD& info);
+	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG; }
+	/*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
+	/*virtual*/ void updateControls(const LLSD& info);
 
 	bool missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response);
-    static void sendPostcardFinished(LLSD result);
-    void sendPostcard();
+	static void sendPostcardFinished(LLSD result);
+	void sendPostcard();
 
 	void onMsgFormFocusRecieved();
 	void onFormatComboCommit(LLUICtrl* ctrl);
@@ -192,8 +192,8 @@ void LLPanelSnapshotPostcard::sendPostcard()
             getChild<LLUICtrl>("to_form")->getValue().asString(),
             getChild<LLUICtrl>("subject_form")->getValue().asString(),
             getChild<LLUICtrl>("msg_form")->getValue().asString(),
-            LLFloaterSnapshot::getPosTakenGlobal(),
-            LLFloaterSnapshot::getImageData(),
+            mSnapshotFloater->getPosTakenGlobal(),
+            mSnapshotFloater->getImageData(),
             boost::bind(&LLPanelSnapshotPostcard::sendPostcardFinished, _4)));
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
@@ -207,7 +207,7 @@ void LLPanelSnapshotPostcard::sendPostcard()
     // Give user feedback of the event.
     gViewerWindow->playSnapshotAnimAndSound();
 
-    LLFloaterSnapshot::postSave();
+    mSnapshotFloater->postSave();
 }
 
 void LLPanelSnapshotPostcard::onMsgFormFocusRecieved()
@@ -267,7 +267,7 @@ void LLPanelSnapshotPostcard::onSend()
 	sendPostcard();
 }
 
-LLPanelSnapshot::ESnapshotType LLPanelSnapshotPostcard::getSnapshotType()
+LLSnapshotModel::ESnapshotType LLPanelSnapshotPostcard::getSnapshotType()
 {
-    return LLPanelSnapshot::SNAPSHOT_POSTCARD;
+    return LLSnapshotModel::SNAPSHOT_POSTCARD;
 }

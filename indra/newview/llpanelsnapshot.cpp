@@ -29,6 +29,8 @@
 
 // libs
 #include "llcombobox.h"
+#include "llfloater.h"
+#include "llfloatersnapshot.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltrans.h"
@@ -50,6 +52,10 @@ S32 power_of_two(S32 sz, S32 upper)
 	return res;
 }
 
+LLPanelSnapshot::LLPanelSnapshot()
+	: mSnapshotFloater(NULL)
+{}
+
 // virtual
 BOOL LLPanelSnapshot::postBuild()
 {
@@ -67,6 +73,8 @@ BOOL LLPanelSnapshot::postBuild()
         getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onKeepAspectRatioCommit, this, _1));
     }
 	updateControls(LLSD());
+
+	mSnapshotFloater = getParentByType<LLFloaterSnapshotBase>();
 	return TRUE;
 }
 
@@ -88,9 +96,9 @@ void LLPanelSnapshot::onOpen(const LLSD& key)
 	}
 }
 
-LLFloaterSnapshotBase::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
+LLSnapshotModel::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
 {
-	return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
+	return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG;
 }
 
 void LLPanelSnapshot::enableControls(BOOL enable)
@@ -228,7 +236,7 @@ void LLPanelSnapshot::onKeepAspectRatioCommit(LLUICtrl* ctrl)
     getParentByType<LLFloater>()->notify(LLSD().with("keep-aspect-change", ctrl->getValue().asBoolean()));
 }
 
-LLPanelSnapshot::ESnapshotType LLPanelSnapshot::getSnapshotType()
+LLSnapshotModel::ESnapshotType LLPanelSnapshot::getSnapshotType()
 {
-    return LLPanelSnapshot::SNAPSHOT_WEB;
+	return LLSnapshotModel::SNAPSHOT_WEB;
 }
