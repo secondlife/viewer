@@ -597,6 +597,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
 
+				y = mHeight - y;
+
 				// only even send left mouse button events to LLCEFLib
 				// (partially prompted by crash in OS X CEF when sending right button events)
 				// we catch the right click in viewer and display our own context menu anyway
