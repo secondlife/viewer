@@ -2563,11 +2563,13 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
                     {
                         wght = LLVector4(0.999f,0.f,0.f,0.f);
                     }
-                    for (U32 k=0; k<cur_influence; k++)
+                    for (U32 k=0; k<4; k++)
                     {
                         F32 f_combined = (F32) joints[k] + wght[k];
-                        llassert(f_combined-(S32)f_combined>0); // If this fails, we have a floating point precision error.
                         joints_with_weights[k] = f_combined;
+                        // Any weights we added above should wind up non-zero and applied to a specific bone.
+                        // A failure here would indicate a floating point precision error in the math.
+                        llassert((k >= cur_influence) || (f_combined - S32(f_combined) > 0.0f));
                     }
 					face.mWeights[cur_vertex].loadua(joints_with_weights.mV);
 

@@ -262,6 +262,7 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 // static
 void LLSkinningUtil::remapSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
+	checkSkinWeights(weights, num_vertices, skin);
     llassert(skin->mJointRemap.size()>0); // Must call remapSkinInfoJoints() first, which this checks for.
     const U32* remap = &skin->mJointRemap[0];
     const S32 max_joints = skin->mJointRemap.size();
@@ -277,6 +278,7 @@ void LLSkinningUtil::remapSkinWeights(LLVector4a* weights, U32 num_vertices, con
             w[k] = remap[i] + f;
         }
     }
+	checkSkinWeights(weights, num_vertices, skin);
 }
 
 // static
