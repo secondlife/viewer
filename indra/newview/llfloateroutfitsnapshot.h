@@ -60,7 +60,7 @@ public:
     void setGallery(LLOutfitGallery* gallery) { mOutfitGallery = gallery; }
 
     class Impl;
-    friend Impl;
+    friend class Impl;
 private:
 
     LLUUID mOutfitID;

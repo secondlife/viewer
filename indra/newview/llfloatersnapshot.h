@@ -63,7 +63,7 @@ public:
 	void setFailureLabelPanelVisible(bool value) { mFailureLblPanel->setVisible(value); }
 
 	class ImplBase;
-	friend ImplBase;
+	friend class ImplBase;
 	ImplBase* impl;
 
 protected:
@@ -152,7 +152,7 @@ public:
 	static void setAgentEmail(const std::string& email);
 
 	class Impl;
-	friend Impl;
+	friend class Impl;
 };
 
 ///----------------------------------------------------------------------------
