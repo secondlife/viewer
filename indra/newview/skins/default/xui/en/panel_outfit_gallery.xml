@@ -9,7 +9,7 @@
    layout="topleft"
    left="0"
    top="0"
-   width="312">
+   width="318">
   <string name="outfit_photo_string">
     Photo of "[OUTFIT_NAME]" outfit
   </string>
