@@ -145,6 +145,23 @@ void LLOutfitGallery::updateRowsIfNeeded()
     }
 }
 
+bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
+{
+    if((item1->mIsDefaultImage() && item2->mIsDefaultImage()) || (!item1->mIsDefaultImage() && !item2->mIsDefaultImage()))
+    {
+        std::string name1 = item1->getItemName();
+        std::string name2 = item2->getItemName();
+
+        LLStringUtil::toUpper(name1);
+        LLStringUtil::toUpper(name2);
+        return name1 < name2;
+    }
+    else
+    {
+        return item2->mIsDefaultImage();
+    }
+}
+
 void LLOutfitGallery::reArrangeRows(S32 row_diff)
 {
  
@@ -161,7 +178,7 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     
     mItemsInRow+= row_diff;
     updateGalleryWidth();
-    std::sort(buf_items.begin(), buf_items.end(), LLOutfitGalleryItem::compareGalleryItem());
+    std::sort(buf_items.begin(), buf_items.end(), compareGalleryItem);
     
     for (std::vector<LLOutfitGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {

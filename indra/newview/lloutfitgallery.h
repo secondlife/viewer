@@ -258,21 +258,6 @@ public:
     
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
-
-    struct compareGalleryItem
-    {
-        bool operator()(LLOutfitGalleryItem* a, LLOutfitGalleryItem* b)
-        {
-            if((a->mIsDefaultImage() && b->mIsDefaultImage()) || (!a->mIsDefaultImage() && !b->mIsDefaultImage()))
-            {
-                return a->getItemName().compare(b->getItemName()) < 0;
-            }
-            else
-            {
-                return b->mIsDefaultImage();
-            }
-        }
-    };
     
 private:
     LLPointer<LLViewerTexture> mTexturep;
