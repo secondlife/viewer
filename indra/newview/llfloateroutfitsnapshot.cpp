@@ -53,8 +53,6 @@
 ///----------------------------------------------------------------------------
 LLOutfitSnapshotFloaterView* gOutfitSnapshotFloaterView = NULL;
 
-const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
-
 const S32 OUTFIT_SNAPSHOT_WIDTH = 256;
 const S32 OUTFIT_SNAPSHOT_HEIGHT = 256;
 

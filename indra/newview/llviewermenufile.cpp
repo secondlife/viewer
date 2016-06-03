@@ -510,8 +510,8 @@ class LLFileEnableCloseAllWindows : public view_listener_t
 	{
 		LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::getInstance();
 		LLFloaterOutfitSnapshot* floater_outfit_snapshot = LLFloaterOutfitSnapshot::getInstance();
-		bool is_floaters_snapshot_opened = floater_snapshot && floater_snapshot->isInVisibleChain()
-			|| floater_outfit_snapshot && floater_outfit_snapshot->isInVisibleChain();
+		bool is_floaters_snapshot_opened = (floater_snapshot && floater_snapshot->isInVisibleChain())
+			|| (floater_outfit_snapshot && floater_outfit_snapshot->isInVisibleChain());
 		bool open_children = gFloaterView->allChildrenClosed() && !is_floaters_snapshot_opened;
 		return !open_children;
 	}
