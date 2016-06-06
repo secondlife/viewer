@@ -1484,11 +1484,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7db18237c7ac2f49a9d17a4c5ca7b23e</string>
+              <string>705c0d33a4af1a1ee76098ba7f46d551</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/315268/arch/Darwin/installer/llceflib-1.5.3.315268-darwin-315268.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/315894/arch/Darwin/installer/llceflib-1.5.3.315894-darwin-315894.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1498,18 +1498,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0dc2c50d785dfd5ff7098d262ed29499</string>
+              <string>7de13dc8894dfab5c38317bd8a876392</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/315268/arch/CYGWIN/installer/llceflib-1.5.3.315268-windows-315268.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/315894/arch/CYGWIN/installer/llceflib-1.5.3.315894-windows-315894.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.5.3.315268</string>
+        <string>1.5.3.315894</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -2147,18 +2147,6 @@
         <string>vlc-bin</string>
         <key>platforms</key>
         <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3bdbb86adc2119a0b7bb17a54372dcd2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/315283/arch/CYGWIN/installer/vlc_bin-2.2.3.315283-windows-315283.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
@@ -2170,6 +2158,18 @@
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3bdbb86adc2119a0b7bb17a54372dcd2</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/315283/arch/CYGWIN/installer/vlc_bin-2.2.3.315283-windows-315283.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
         <key>version</key>
