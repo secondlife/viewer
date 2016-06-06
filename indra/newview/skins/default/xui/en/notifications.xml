@@ -8804,23 +8804,6 @@ Click and drag anywhere on the world to rotate your view
   </notification>
 
   <notification
-  name="PopupAttempt"
-  icon="Popup_Caution"
-  type="browser">
-    A pop-up was prevented from opening.
-    <form name="form">
-      <ignore name="ignore"
-              control="MediaEnablePopups"
-              invert_control="true"
-              text="Enable all pop-ups"/>
-      <button default="true"
-              index="0"
-              name="open"
-              text="Open pop-up window"/>
-    </form>
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="SOCKS_NOT_PERMITTED"
    type="alertmodal">
