@@ -62,7 +62,16 @@
         <on_click
         function="Outfit.TakeSnapshot" />
     </menu_item_call>
-    
+    <menu_item_call
+        label="Remove Photo"
+        layout="topleft"
+        name="remove_photo">
+        <on_click
+        function="Outfit.RemovePhoto" />
+        <on_visible
+        function="Outfit.OnVisible"
+        parameter="remove_photo" />
+    </menu_item_call>
     <menu_item_separator name="sepatator1" />
     <menu
         height="175"

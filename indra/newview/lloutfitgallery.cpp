@@ -147,7 +147,7 @@ void LLOutfitGallery::updateRowsIfNeeded()
 
 bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 {
-    if((item1->mIsDefaultImage() && item2->mIsDefaultImage()) || (!item1->mIsDefaultImage() && !item2->mIsDefaultImage()))
+    if((item1->isDefaultImage() && item2->isDefaultImage()) || (!item1->isDefaultImage() && !item2->isDefaultImage()))
     {
         std::string name1 = item1->getItemName();
         std::string name2 = item2->getItemName();
@@ -158,7 +158,7 @@ bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
     }
     else
     {
-        return item2->mIsDefaultImage();
+        return item2->isDefaultImage();
     }
 }
 
@@ -577,6 +577,15 @@ bool LLOutfitGallery::canWearSelected()
     return false;
 }
 
+bool LLOutfitGallery::hasDefaultImage(const LLUUID& outfit_cat_id)
+{
+    if (mOutfitMap[outfit_cat_id])
+    {
+        return mOutfitMap[outfit_cat_id]->isDefaultImage();
+    }
+    return false;
+}
+
 void LLOutfitGallery::updateMessageVisibility()
 {
     if(mItems.empty())
@@ -731,7 +740,7 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     registrar.add("Outfit.UploadPhoto", boost::bind(&LLOutfitGalleryContextMenu::onUploadPhoto, this, selected_id));
     registrar.add("Outfit.SelectPhoto", boost::bind(&LLOutfitGalleryContextMenu::onSelectPhoto, this, selected_id));
     registrar.add("Outfit.TakeSnapshot", boost::bind(&LLOutfitGalleryContextMenu::onTakeSnapshot, this, selected_id));
-    
+    registrar.add("Outfit.RemovePhoto", boost::bind(&LLOutfitGalleryContextMenu::onRemovePhoto, this, selected_id));
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
     
@@ -753,6 +762,16 @@ void LLOutfitGalleryContextMenu::onSelectPhoto(const LLUUID& outfit_cat_id)
     if (gallery && outfit_cat_id.notNull())
     {
         gallery->onSelectPhoto(outfit_cat_id);
+    }
+}
+
+void LLOutfitGalleryContextMenu::onRemovePhoto(const LLUUID& outfit_cat_id)
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    if (gallery && outfit_cat_id.notNull())
+    {
+        gallery->checkRemovePhoto(outfit_cat_id);
+        gallery->refreshOutfit(outfit_cat_id);
     }
 }
 
@@ -800,6 +819,15 @@ bool LLOutfitGalleryContextMenu::onEnable(LLSD::String param)
 
 bool LLOutfitGalleryContextMenu::onVisible(LLSD::String param)
 {
+    if ("remove_photo" == param)
+    {
+        LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+        LLUUID selected_id = mUUIDs.front();
+        if (gallery && selected_id.notNull())
+        {
+            return !gallery->hasDefaultImage(selected_id);
+        }
+    }
     return LLOutfitContextMenu::onVisible(param);
 }
 
@@ -817,6 +845,7 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("upload_photo", have_selection);
     mMenu->setItemVisible("select_photo", have_selection);
     mMenu->setItemVisible("take_snapshot", have_selection);
+    mMenu->setItemVisible("remove_photo", !hasDefaultImage());
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -840,6 +869,17 @@ void LLOutfitGalleryGearMenu::onSelectPhoto()
     }
 }
 
+void LLOutfitGalleryGearMenu::onRemovePhoto()
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    LLUUID selected_outfit_id = getSelectedOutfitID();
+    if (gallery && !selected_outfit_id.isNull())
+    {
+        gallery->checkRemovePhoto(selected_outfit_id);
+        gallery->refreshOutfit(selected_outfit_id);
+    }
+}
+
 void LLOutfitGalleryGearMenu::onTakeSnapshot()
 {
     LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
@@ -848,6 +888,17 @@ void LLOutfitGalleryGearMenu::onTakeSnapshot()
     {
         gallery->onTakeSnapshot(selected_outfit_id);
     }
+}
+
+bool LLOutfitGalleryGearMenu::hasDefaultImage()
+{
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    LLUUID selected_outfit_id = getSelectedOutfitID();
+    if (gallery && selected_outfit_id.notNull())
+    {
+        return gallery->hasDefaultImage(selected_outfit_id);
+    }
+    return true;
 }
 
 void LLOutfitGallery::onTextureSelectionChanged(LLInventoryItem* itemp)

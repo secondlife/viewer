@@ -166,6 +166,7 @@ protected:
     virtual void onUploadFoto();
     virtual void onSelectPhoto();
     virtual void onTakeSnapshot();
+    virtual void onRemovePhoto();
 
     const LLUUID& getSelectedOutfitID();
 

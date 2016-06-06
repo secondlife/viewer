@@ -105,6 +105,7 @@ public:
     /*virtual*/ bool getHasExpandableFolders() { return FALSE; }
 
     void updateMessageVisibility();
+    bool hasDefaultImage(const LLUUID& outfit_cat_id);
 
     void refreshTextures(const LLUUID& category_id);
     void refreshOutfit(const LLUUID& category_id);
@@ -209,6 +210,7 @@ protected:
     bool onVisible(LLSD::String param);
     void onUploadPhoto(const LLUUID& outfit_cat_id);
     void onSelectPhoto(const LLUUID& outfit_cat_id);
+    void onRemovePhoto(const LLUUID& outfit_cat_id);
     void onTakeSnapshot(const LLUUID& outfit_cat_id);
     void onCreate(const LLSD& data);
     void onRemoveOutfit(const LLUUID& outfit_cat_id);
@@ -230,6 +232,9 @@ private:
     /*virtual*/ void onUploadFoto();
     /*virtual*/ void onSelectPhoto();
     /*virtual*/ void onTakeSnapshot();
+    /*virtual*/ void onRemovePhoto();
+
+    bool hasDefaultImage();
 };
 
 class LLOutfitGalleryItem : public LLPanel
@@ -254,7 +259,7 @@ public:
     void setSelected(bool value);
     
     std::string getItemName() {return mOutfitName;}
-    bool mIsDefaultImage() {return mDefaultImage;}
+    bool isDefaultImage() {return mDefaultImage;}
     
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
