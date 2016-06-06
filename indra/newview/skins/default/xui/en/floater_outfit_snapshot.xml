@@ -20,64 +20,16 @@
     unknown
   </floater.string>
   <string
-   name="postcard_progress_str">
-    Sending Email
-  </string>
-  <string
-      name="facebook_progress_str">
-    Posting to Facebook
-  </string>
-  <string
-      name="profile_progress_str">
-    Posting
-  </string>
-  <string
    name="inventory_progress_str">
     Saving to Inventory
-  </string>
-  <string
-   name="local_progress_str">
-    Saving to Computer
-  </string>
-  <string
-        name="facebook_succeeded_str">
-    Image uploaded
-  </string>
-  <string
-        name="profile_succeeded_str">
-    Image uploaded
-  </string>
-  <string
- 	 name="postcard_succeeded_str">
-    Email Sent!
   </string>
   <string
  	 name="inventory_succeeded_str">
     Saved to Inventory!
   </string>
   <string
- 	 name="local_succeeded_str">
-    Saved to Computer!
-  </string>
-  <string
-     name="facebook_failed_str">
-    Failed to upload image to your Facebook timeline.
-  </string>
-  <string
-     name="profile_failed_str">
-    Failed to upload image to your Profile Feed.
-  </string>
-  <string
- 	 name="postcard_failed_str">
-    Failed to send email.
-  </string>
-  <string
  	 name="inventory_failed_str">
     Failed to save to inventory.
-  </string>
-  <string
- 	 name="local_failed_str">
-    Failed to save to computer.
   </string>
   <button
      follows="left|top"
@@ -358,7 +310,7 @@
 	width="400"
 	height="400"
     follows="top|left"/>
-  <!--view_border 
+  <view_border 
    bevel_style="in" 
    height="21"
    layout="topleft"
@@ -366,7 +318,7 @@
    top_pad="0"
    right="-10"
    follows="left|top|right"
-   left_delta="0"/>-->
+   left_delta="0"/>
    <text
     type="string"
     font="SansSerifSmall"

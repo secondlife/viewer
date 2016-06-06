@@ -406,7 +406,7 @@
 	width="400"
 	height="400"
     follows="top|left"/>
-  <!--view_border 
+  <view_border 
    bevel_style="in" 
    height="21"
    layout="topleft"
@@ -414,7 +414,7 @@
    top_pad="0"
    right="-10"
    follows="left|top|right"
-   left_delta="0"/>-->
+   left_delta="0"/>
    <text
     type="string"
     font="SansSerifSmall"
