@@ -5452,19 +5452,29 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
 						pJoint->setId( currentId );
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
                         //Set the joint position
+                        LLUUID curr_mesh_id;
+                        LLVector3 curr_joint_pos;
+                        if (!pJoint->hasAttachmentPosOverride( curr_joint_pos, curr_mesh_id ) ||
+                            curr_joint_pos != jointPos)
+                        {
+                            //If joint is a pelvis then handle old/new pelvis to foot values
+                            if ( lookingForJoint == "mPelvis" )
+                            {	
+                                pelvisGotSet = true;											
+                            }										
+                        }
                         pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
                             
-                        //If joint is a pelvis then handle old/new pelvis to foot values
-                        if ( lookingForJoint == "mPelvis" )
-                        {	
-                            pelvisGotSet = true;											
-                        }										
 					}										
 				}																
 				if (pelvisZOffset != 0.0F)
 				{
+                    F32 curr_pelvis_fixup;
+                    if (!hasPelvisFixup(curr_pelvis_fixup) || (curr_pelvis_fixup != pelvisZOffset))
+                    {
+                        pelvisGotSet = true;											
+                    }
 					addPelvisFixup( pelvisZOffset, mesh_id );
-					pelvisGotSet = true;											
 				}
 			}							
 		}
