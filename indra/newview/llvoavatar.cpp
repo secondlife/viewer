@@ -5453,9 +5453,15 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
                         //Set the joint position
                         LLUUID curr_mesh_id;
-                        LLVector3 curr_joint_pos;
-                        if (!pJoint->hasAttachmentPosOverride( curr_joint_pos, curr_mesh_id ) ||
-                            curr_joint_pos != jointPos)
+                        LLVector3 joint_pos_before;
+                        bool has_pos_before = pJoint->hasAttachmentPosOverride( joint_pos_before, curr_mesh_id );
+
+                        pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
+
+                        LLVector3 joint_pos_after;
+                        pJoint->hasAttachmentPosOverride( joint_pos_after, curr_mesh_id );
+                        
+                        if (!has_pos_before || joint_pos_before != joint_pos_after)
                         {
                             //If joint is a pelvis then handle old/new pelvis to foot values
                             if ( lookingForJoint == "mPelvis" )
@@ -5463,18 +5469,21 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
                                 pelvisGotSet = true;											
                             }										
                         }
-                        pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
                             
 					}										
 				}																
 				if (pelvisZOffset != 0.0F)
 				{
-                    F32 curr_pelvis_fixup;
-                    if (!hasPelvisFixup(curr_pelvis_fixup) || (curr_pelvis_fixup != pelvisZOffset))
+                    F32 pelvis_fixup_before;
+                    bool has_fixup_before =  hasPelvisFixup(pelvis_fixup_before);
+					addPelvisFixup( pelvisZOffset, mesh_id );
+					F32 pelvis_fixup_after;
+                    hasPelvisFixup(pelvis_fixup_after); // Don't have to check bool here because we just added it...
+                    if (!has_fixup_before || (pelvis_fixup_before != pelvis_fixup_after))
                     {
                         pelvisGotSet = true;											
                     }
-					addPelvisFixup( pelvisZOffset, mesh_id );
+                    
 				}
 			}							
 		}
