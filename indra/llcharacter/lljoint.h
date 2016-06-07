@@ -52,12 +52,12 @@ const U32 LL_FACE_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-2);
 const S32 LL_CHARACTER_MAX_PRIORITY = 7;
 const F32 LL_MAX_PELVIS_OFFSET = 5.f;
 
-class LLPosOverrideMap
+class LLVector3OverrideMap
 {
 public:
-	LLPosOverrideMap() {}
+	LLVector3OverrideMap() {}
 	bool findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const;
-	void showJointPosOverrides(std::ostringstream& os) const;
+	void showJointVector3Overrides(std::ostringstream& os) const;
 	U32 count() const;
 	void add(const LLUUID& mesh_id, const LLVector3& pos);
 	bool remove(const LLUUID& mesh_id);
@@ -114,6 +114,7 @@ protected:
 	LLUUID				mId;
 
     LLVector3       mDefaultPosition;
+    LLVector3       mDefaultScale;
     
 public:
 	U32				mDirtyFlags;
@@ -140,10 +141,16 @@ public:
     static void setDebugJointNames(const debug_joint_name_t& names);
     static void setDebugJointNames(const std::string& names_string);
 
-	LLPosOverrideMap m_attachmentOverrides;
+    // Position overrides
+	LLVector3OverrideMap m_attachmentPosOverrides;
 	LLVector3 m_posBeforeOverrides;
 
+    // Scale overrides
+	LLVector3OverrideMap m_attachmentScaleOverrides;
+	LLVector3 m_scaleBeforeOverrides;
+
 	void updatePos(const std::string& av_info);
+	void updateScale(const std::string& av_info);
 
 public:
 	LLJoint();
@@ -215,6 +222,10 @@ public:
 	void setDefaultPosition( const LLVector3& pos );
 	const LLVector3& getDefaultPosition() const;
 
+    // Tracks the default scale defined by the skeleton
+	void setDefaultScale( const LLVector3& scale );
+	const LLVector3& getDefaultScale() const;
+
 	// get/set world position
 	LLVector3 getWorldPosition();
 	LLVector3 getLastWorldPosition();
@@ -231,7 +242,7 @@ public:
 
 	// get/set local scale
 	const LLVector3& getScale();
-	void setScale( const LLVector3& scale );
+	void setScale( const LLVector3& scale, bool apply_attachment_overrides = false );
 
 	// get/set world matrix
 	const LLMatrix4 &getWorldMatrix();
@@ -259,6 +270,12 @@ public:
 	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
 	void clearAttachmentPosOverrides();
     void showAttachmentPosOverrides(const std::string& av_info) const;
+
+	void addAttachmentScaleOverride( const LLVector3& scale, const LLUUID& mesh_id, const std::string& av_info );
+	void removeAttachmentScaleOverride( const LLUUID& mesh_id, const std::string& av_info );
+	bool hasAttachmentScaleOverride( LLVector3& scale, LLUUID& mesh_id ) const;
+	void clearAttachmentScaleOverrides();
+    void showAttachmentScaleOverrides(const std::string& av_info) const;
 
 	//Accessor for the joint id
 	LLUUID getId( void ) { return mId; }

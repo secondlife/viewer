@@ -854,7 +854,7 @@ void LLWearableHoldingPattern::onAllComplete()
 		// attachments, even those that are not being removed. This is
 		// needed to get joint positions all slammed down to their
 		// pre-attachment states.
-		gAgentAvatarp->clearAttachmentPosOverrides();
+		gAgentAvatarp->clearAttachmentOverrides();
 
 		if (objects_to_remove.size() || items_to_add.size())
 		{
@@ -877,7 +877,7 @@ void LLWearableHoldingPattern::onAllComplete()
 			 ++it)
 		{
 			LLViewerObject *objectp = *it;
-			gAgentAvatarp->addAttachmentPosOverridesForObject(objectp);
+			gAgentAvatarp->addAttachmentOverridesForObject(objectp);
 		}
 		
 		// Add new attachments to match those requested.

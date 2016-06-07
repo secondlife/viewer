@@ -612,6 +612,7 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 	joint->setRotation(mayaQ(info->mRot.mV[VX], info->mRot.mV[VY],
 							 info->mRot.mV[VZ], LLQuaternion::XYZ));
 	joint->setScale(info->mScale);
+	joint->setDefaultScale(info->mScale);
     joint->setSupport(info->mSupport);
 	joint->setEnd(info->mEnd);
 

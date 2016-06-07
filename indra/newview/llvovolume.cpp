@@ -4780,10 +4780,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
             if (rigged && pAvatarVO)
             {
-                pAvatarVO->addAttachmentPosOverridesForObject(vobj);
+                pAvatarVO->addAttachmentOverridesForObject(vobj);
 				if (pAvatarVO->isSelf())
 				{
-					//pAvatarVO->showAttachmentPosOverrides();
+					//pAvatarVO->showAttachmentOverrides();
 				}
             }
 

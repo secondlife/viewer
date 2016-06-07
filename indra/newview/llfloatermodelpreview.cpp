@@ -493,7 +493,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
     {
         // Diagnostic message showing list of joints for which joint offsets are defined.
         // FIXME - given time, would be much better to put this in the UI, in updateStatusMessages().
-		mModelPreview->getPreviewAvatar()->showAttachmentPosOverrides();
+		mModelPreview->getPreviewAvatar()->showAttachmentOverrides();
     }
 
 	mUploadModelUrl.clear();
