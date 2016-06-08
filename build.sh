@@ -16,11 +16,11 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 
-check_for()
-{
-    if [ -e "$2" ]; then found_dict='FOUND'; else found_dict='MISSING'; fi
-    echo "$1 ${found_dict} '$2' " 1>&2
-}
+# check_for() ]
+# { ]
+#     if [ -e "$2" !#\; then found_dict='FOUND'; else found_dict='MISSING'; fi ]
+#     echo "$1 ${found_dict} '$2' " 1>&2 ]
+# } ]
 
 build_dir_Darwin()
 {
@@ -107,7 +107,8 @@ pre_build()
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
-     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
+     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     2>&$stderr
 
   end_section "Configure $variant"
 }
@@ -119,12 +120,12 @@ package_llphysicsextensions_tpv()
   if [ "$variant" = "Release" ]
   then 
       llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
-      "$autobuild" build --quiet --config-file $llpetpvcfg -c Tpv
+      "$autobuild" build --quiet --config-file $llpetpvcfg -c Tpv 2>&$stderr
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$autobuild" package --quiet --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
+      "$autobuild" package --quiet --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)" 2>&$stderr
       tpv_status=$?
       if [ -r "${PKGTMP}" ]
       then
@@ -146,18 +147,17 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    "$autobuild" build --no-configure -c $variant
+    "$autobuild" build --no-configure -c $variant 2>&$stderr
     build_ok=$?
 
     # Run build extensions
-    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]; then
-        for extension in ${build_dir}/packages/build-extensions/*.sh; do
+    if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]
+    then
+        for extension in ${build_dir}/packages/build-extensions/*.sh
+        do
             begin_section "Extension $extension"
-            . $extension
+            . $extension 2>&$trace
             end_section "Extension $extension"
-            if [ $build_ok -ne 0 ]; then
-                break
-            fi
         done
     fi
 
@@ -173,25 +173,23 @@ build()
   fi
 }
 
-# Check to see if we were invoked from the wrapper, if not, re-exec ourselves from there
-if [ "x$arch" = x ]
+################################################################
+# Start of the actual script
+################################################################
+
+# Check to see if we were invoked from the master buildscripts wrapper, if not, fail
+if [ "x${BUILDSCRIPTS_SUPPORT_FUNCTIONS}" = x ]
 then
-  top=`hg root`
-  if [ -x "$top/../buildscripts/hg/bin/build.sh" ]
-  then
-    exec "$top/../buildscripts/hg/bin/build.sh" "$top"
-  else
-    cat <<EOF
-This script, if called in a development environment, requires that the branch
-independent build script repository be checked out next to this repository.
-This repository is located at http://bitbucket.org/lindenlabinternal/sl-buildscripts
-EOF
+    echo "This script relies on being run by the master Linden Lab buildscripts" 1>&2
     exit 1
-  fi
 fi
 
 # Check to see if we're skipping the platform
-eval '$build_'"$arch" || pass
+if ! '$build_'"$arch"
+then
+    record_event "building on architecture $arch is disabled"
+    pass
+fi
 
 # ensure AUTOBUILD is in native path form for child processes
 AUTOBUILD="$(native_path "$AUTOBUILD")"
@@ -235,14 +233,13 @@ do
 
   begin_section "Initialize $variant Build Directory"
   rm -rf "$build_dir"
-  mkdir -p "$build_dir"
-  mkdir -p "$build_dir/tmp"
+  mkdir -p "$build_dir/tmp" 2>&$stderr
   end_section "Initialize $variant Build Directory"
 
   if pre_build "$variant" "$build_dir"
   then
       begin_section "Build $variant"
-      build "$variant" "$build_dir" 2>&1 | tee -a "$build_log" | sed -n 's/^ *\(##teamcity.*\)/\1/p'
+      build "$variant" "$build_dir"
       if `cat "$build_dir/build_ok"`
       then
           case "$variant" in
@@ -270,7 +267,7 @@ do
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
-                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
+                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html" 2>&$stderr
                   upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
               fi
               ;;
@@ -307,13 +304,13 @@ then
           --distribution unstable \
           --newversion "${VIEWER_VERSION}" \
           "Automated build #$build_id, repository $branch revision $revision." \
-          >> "$build_log" 2>&1
+          2>&$stderr
 
       # build the debian package
-      $pkg_default_debuild_command  >>"$build_log" 2>&1 || record_failure "\"$pkg_default_debuild_command\" failed."
+      $pkg_default_debuild_command 2>&$stderr || record_failure "\"$pkg_default_debuild_command\" failed."
 
       # Unmangle the changelog file
-      hg revert debian/changelog
+      hg revert debian/changelog 2>&$stderr
 
       end_section "Build Viewer Debian Package"
 
@@ -324,8 +321,8 @@ then
           done
       fi
       # Move any .deb results.
-      mkdir -p ../packages_public
-      mkdir -p ../packages_private
+      mkdir -p ../packages_public 2>&$stderr
+      mkdir -p ../packages_private 2>&$stderr
       mv ${build_dir}/packages/*.deb ../packages_public 2>/dev/null || true
       mv ${build_dir}/packages/packages_private/*.deb ../packages_private 2>/dev/null || true
 
@@ -345,7 +342,7 @@ then
       # doesn't make a remote repo again.
       for debian_repo_type in debian_repo debian_repo_private; do
         if [ -d "$build_log_dir/$debian_repo_type" ]; then
-          mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed
+          mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed 2>&$stderr
         fi
       done
 
@@ -359,10 +356,10 @@ then
       end_section "Upload Debian Repository"
       
     else
-      echo debian build not enabled
+      record_event "debian build not enabled"
     fi
   else
-    echo skipping debian build due to failed build.
+    record_event "skipping debian build due to failed build"
   fi
 fi
 
@@ -376,7 +373,7 @@ then
     package=$(installer_$arch)
     if [ x"$package" = x ] || test -d "$package"
     then
-      # Coverity doesn't package, so it's ok, anything else is fail
+      record_event "??? mystery event $package // $build_coverity"
       succeeded=$build_coverity
     else
       # Upload base package.
@@ -428,12 +425,12 @@ then
     fi
     end_section Upload Installer
   else
-    echo skipping upload of installer
+    record_event "skipping upload of installer"
   fi
 
   
 else
-  echo skipping upload of installer due to failed build.
+    record_event "skipping upload of installer due to failed build"
 fi
 
 # The branch independent build.sh script invoking this script will finish processing
