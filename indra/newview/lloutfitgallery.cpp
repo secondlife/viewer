@@ -1073,22 +1073,7 @@ void LLOutfitGallery::linkPhotoToOutfit(LLUUID photo_id, LLUUID outfit_id)
 
 bool LLOutfitGallery::checkRemovePhoto(LLUUID outfit_id)
 {
-    //remove existing photo link from outfit folder
-    LLInventoryModel::cat_array_t sub_cat_array;
-    LLInventoryModel::item_array_t outfit_item_array;
-    gInventory.collectDescendents(
-        outfit_id,
-        sub_cat_array,
-        outfit_item_array,
-        LLInventoryModel::EXCLUDE_TRASH);
-    BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
-    {
-        LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
-        if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
-        {
-            gInventory.removeItem(outfit_item->getUUID());
-        }
-    }
+    LLAppearanceMgr::instance().removeOutfitPhoto(outfit_id);
     return true;
 }
 

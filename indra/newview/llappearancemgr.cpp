@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -1513,6 +1514,26 @@ void LLAppearanceMgr::replaceCurrentOutfit(const LLUUID& new_outfit)
 {
 	LLViewerInventoryCategory* cat = gInventory.getCategory(new_outfit);
 	wearInventoryCategory(cat, false, false);
+}
+
+// Remove existing photo link from outfit folder.
+void LLAppearanceMgr::removeOutfitPhoto(const LLUUID& outfit_id)
+{
+    LLInventoryModel::cat_array_t sub_cat_array;
+    LLInventoryModel::item_array_t outfit_item_array;
+    gInventory.collectDescendents(
+        outfit_id,
+        sub_cat_array,
+        outfit_item_array,
+        LLInventoryModel::EXCLUDE_TRASH);
+    BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+    {
+        LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
+        if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+        {
+            gInventory.removeItem(outfit_item->getUUID());
+        }
+    }
 }
 
 // Open outfit renaming dialog.
