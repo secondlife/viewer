@@ -6635,7 +6635,7 @@
         <volume_morph
           name="RIGHT_PEC"
           scale="-0.05 0.0 0.0"
-          pos="-0.01 -0.01 -0.02"/>
+          pos="-0.01 0.01 -0.02"/>
 	  </param_morph>
     </param>
 
@@ -6661,7 +6661,7 @@
         <volume_morph
           name="RIGHT_PEC"
           scale="-0.051 0.0 0.0"
-          pos="-0.02 -0.01 -0.03"/>
+          pos="-0.02 0.01 -0.03"/>
 	  </param_morph>
     </param>
 
