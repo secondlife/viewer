@@ -687,7 +687,7 @@ void LLFolderView::draw()
 	if (mRenameItem && mRenamer && mRenamer->getVisible() && !getVisibleRect().contains(mRenamer->getRect()))
 	{
 		// renamer is not connected to the item we are renaming in any form so manage it manually
-		closeRenamer();
+		finishRenamingItem();
 	}
 
 	// skip over LLFolderViewFolder::draw since we don't want the folder icon, label, 
