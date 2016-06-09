@@ -180,7 +180,7 @@
             <bone aliases="rFoot avatar_mAnkleRight" connected="true" end="0.112 0.000 -0.061" group="Legs" name="mAnkleRight" pivot="-0.028869 0.000000 -0.468494" pos="-0.029 0.000 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
                <collision_volume end="0.089 0.000 -0.026" group="Collision" name="R_FOOT" pos="0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05" support="base"/>
                <bone aliases="avatar_mFootRight" connected="true" end="0.105 -0.010 -0.000" group="Extra" name="mFootRight" pivot="0.111956 -0.000000 -0.060637" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
-                  <bone aliases="avatar_mToeRight" connected="true" end="0.020 0.000 0.000" group="Extra" name="mToeRight" pivot="0.105399 -0.010408 -0.000104" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
+                  <bone aliases="avatar_mToeRight" connected="false" end="0.020 0.000 0.000" group="Extra" name="mToeRight" pivot="0.105399 -0.010408 -0.000104" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
                </bone>
             </bone>
          </bone>
@@ -192,7 +192,7 @@
             <bone aliases="lFoot avatar_mAnkleLeft" connected="true" end="0.112 0.000 -0.061" group="Legs" name="mAnkleLeft" pivot="-0.028887 0.001378 -0.468449" pos="-0.029 0.001 -0.468" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
                <collision_volume end="0.089 0.000 -0.026" group="Collision" name="L_FOOT" pos="0.077 0.0 -0.041" rot="0.000000 10.00000 0.000000" scale="0.13 0.05 0.05" support="base"/>
                <bone aliases="avatar_mFootLeft" connected="true" end="0.105 0.008 0.001" group="Extra" name="mFootLeft" pivot="0.111956 -0.000000 -0.060620" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base">
-                  <bone aliases="avatar_mToeLeft" connected="true" end="0.020 0.000 0.000" group="Extra" name="mToeLeft" pivot="0.105387 0.008270 0.000871" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
+                  <bone aliases="avatar_mToeLeft" connected="false" end="0.020 0.000 0.000" group="Extra" name="mToeLeft" pivot="0.105387 0.008270 0.000871" pos="0.109 0.000 0.000" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="base"/>
                </bone>
             </bone>
          </bone>
@@ -220,7 +220,7 @@
         <bone connected="false" end="0.002 0.046 -0.491" group="Limb" name="mHindLimb1Right" pivot="-0.204 -0.129 -0.125" pos="-0.204 -0.129 -0.125" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
           <bone connected="true" end="-0.030 0.003 -0.468" group="Limb" name="mHindLimb2Right" pivot="0.002 0.046 -0.491" pos="0.002 0.046 -0.491" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
             <bone connected="true" end="0.112 0.000 -0.061" group="Limb" name="mHindLimb3Right" pivot="-0.030 0.003 -0.468" pos="-0.030 0.003 -0.468" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended">
-              <bone connected="true" end="0.105 0.008 0.001" group="Limb" name="mHindLimb4Right" pivot="0.112 -0.000 -0.061" pos="0.112 -0.000 -0.061" rot="0.000000 0.000000 0.000000" scale="1.000 1.000 1.000" support="extended" />
+              <bone connected="true" end="0.105 -0.008 0.001" group="Limb" name="mHindLimb4Right" pivot="0.112 -0.000 -0.061" pos="0.112 -0.000 -0.061" rot="0.000 0.000 0.000" scale="1.00 1.00 1.00" support="extended" />
             </bone>
           </bone>
         </bone>
