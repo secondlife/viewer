@@ -49,7 +49,7 @@
       height="10"
       layout="topleft"
       name="outfit_name"
-      top="0"
+      top="2"
       width="150"
       use_ellipses="true">
       Summer hipster, Pierce Pierce Pierce Pierce
@@ -62,7 +62,7 @@
       height="10"
       layout="topleft"
       name="outfit_worn_text"
-      top="10"
+      top="12"
       width="150">
       (worn)
     </text>
