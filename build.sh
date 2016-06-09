@@ -101,7 +101,7 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    "$autobuild" configure -c $variant -- \
+    "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
@@ -202,7 +202,7 @@ then
 fi
 
 # load autobuild provided shell functions and variables
-eval "$("$autobuild" source_environment)"
+eval "$("$autobuild" --quiet source_environment)"
 
 # something about the additional_packages mechanism messes up buildscripts results.py on Linux
 # since we don't care about those packages on Linux, just zero it out, yes - a HACK
