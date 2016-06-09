@@ -16,12 +16,6 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 
-# check_for() ]
-# { ]
-#     if [ -e "$2" !#\; then found_dict='FOUND'; else found_dict='MISSING'; fi ]
-#     echo "$1 ${found_dict} '$2' " 1>&2 ]
-# } ]
-
 build_dir_Darwin()
 {
   echo build-darwin-i386
@@ -185,7 +179,7 @@ then
 fi
 
 # Check to see if we're skipping the platform
-if ! '$build_'"$arch"
+if ! eval '$build_'"$arch"
 then
     record_event "building on architecture $arch is disabled"
     pass
