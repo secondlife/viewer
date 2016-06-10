@@ -98,6 +98,19 @@ namespace
         LLEventPump &                       mPump;
     };
 
+    class HandleScriptUserData
+    {
+    public:
+        HandleScriptUserData(const std::string &pumpname) :
+            mPumpname(pumpname)
+        { }
+
+        const std::string &getPumpName() const { return mPumpname; }
+
+    private:
+        std::string mPumpname;
+    };
+
 
 }
 
@@ -274,19 +287,6 @@ void LLFloaterCompileQueue::handleHTTPResponse(std::string pumpName, const LLSD 
 {
     LLEventPumps::instance().post(pumpName, expresult);
 }
-
-class HandleScriptUserData 
-{
-public:
-    HandleScriptUserData(std::string &pumpname) :
-        mPumpname(pumpname)
-    { }
-
-    const std::string &getPumpName() const { return mPumpname; }
-
-private:
-    std::string mPumpname;
-};
 
 // *TODO: handleSCriptRetrieval is passed into the VFS via a legacy C function pointer
 // future project would be to convert these to C++ callables (std::function<>) so that 
