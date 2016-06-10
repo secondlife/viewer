@@ -167,6 +167,7 @@ protected:
     virtual void onSelectPhoto();
     virtual void onTakeSnapshot();
     virtual void onRemovePhoto();
+    virtual void onChangeSortOrder();
 
     const LLUUID& getSelectedOutfitID();
 

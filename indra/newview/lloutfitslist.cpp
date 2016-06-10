@@ -1094,6 +1094,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     registrar.add("Gear.SelectPhoto", boost::bind(&LLOutfitListGearMenuBase::onSelectPhoto, this));
     registrar.add("Gear.TakeSnapshot", boost::bind(&LLOutfitListGearMenuBase::onTakeSnapshot, this));
     registrar.add("Gear.RemovePhoto", boost::bind(&LLOutfitListGearMenuBase::onRemovePhoto, this));
+    registrar.add("Gear.SortByName", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
 
     enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
     enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenuBase::onVisible, this, _2));
@@ -1246,6 +1247,12 @@ void LLOutfitListGearMenuBase::onRemovePhoto()
 {
 
 }
+
+void LLOutfitListGearMenuBase::onChangeSortOrder()
+{
+
+}
+
 LLOutfitListGearMenu::LLOutfitListGearMenu(LLOutfitListBase* olist)
     : LLOutfitListGearMenuBase(olist)
 {}
@@ -1262,6 +1269,8 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("select_photo", FALSE);
     mMenu->setItemVisible("take_snapshot", FALSE);
     mMenu->setItemVisible("remove_photo", FALSE);
+    mMenu->setItemVisible("sepatator3", FALSE);
+    mMenu->setItemVisible("sort_folders_by_name", FALSE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 

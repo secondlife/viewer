@@ -261,4 +261,15 @@
          function="Gear.OnVisible"
          parameter="delete" />
     </menu_item_call>
+    <menu_item_separator name="sepatator3" />
+    <menu_item_check
+     label="Sort Folders Always by Name"
+     layout="topleft"
+     name="sort_folders_by_name">
+        <on_click
+         function="Gear.SortByName" />
+        <on_check
+         function="CheckControl"
+         parameter="OutfitGallerySortByName" />
+    </menu_item_check>
 </toggleable_menu>

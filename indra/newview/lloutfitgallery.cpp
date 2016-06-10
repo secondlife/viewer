@@ -46,6 +46,7 @@
 #include "lllocalbitmaps.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
+#include "llviewercontrol.h"
 #include "llviewermenufile.h"
 #include "llwearableitemslist.h"
 
@@ -147,7 +148,8 @@ void LLOutfitGallery::updateRowsIfNeeded()
 
 bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 {
-    if((item1->isDefaultImage() && item2->isDefaultImage()) || (!item1->isDefaultImage() && !item2->isDefaultImage()))
+    if(gSavedSettings.getBOOL("OutfitGallerySortByName") ||
+            ((item1->isDefaultImage() && item2->isDefaultImage()) || (!item1->isDefaultImage() && !item2->isDefaultImage())))
     {
         std::string name1 = item1->getItemName();
         std::string name2 = item2->getItemName();
@@ -847,6 +849,8 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("select_photo", have_selection);
     mMenu->setItemVisible("take_snapshot", have_selection);
     mMenu->setItemVisible("remove_photo", !hasDefaultImage());
+    mMenu->setItemVisible("sepatator3", TRUE);
+    mMenu->setItemVisible("sort_folders_by_name", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -888,6 +892,17 @@ void LLOutfitGalleryGearMenu::onTakeSnapshot()
     if (gallery && !selected_outfit_id.isNull())
     {
         gallery->onTakeSnapshot(selected_outfit_id);
+    }
+}
+
+void LLOutfitGalleryGearMenu::onChangeSortOrder()
+{
+    bool sort_by_name = !gSavedSettings.getBOOL("OutfitGallerySortByName");
+    gSavedSettings.setBOOL("OutfitGallerySortByName", sort_by_name);
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    if (gallery)
+    {
+        gallery->reArrangeRows();
     }
 }
 
