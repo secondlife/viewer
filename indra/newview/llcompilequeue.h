@@ -37,6 +37,8 @@
 
 #include "llviewerinventory.h"
 
+#include "llevents.h"
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterScriptQueue
 //
@@ -48,7 +50,7 @@
 // scripts manipulated.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLFloaterScriptQueue : public LLFloater, public LLVOInventoryListener
+class LLFloaterScriptQueue : public LLFloater/*, public LLVOInventoryListener*/
 {
 public:
 	LLFloaterScriptQueue(const LLSD& key);
@@ -64,29 +66,18 @@ public:
 	// start() returns TRUE if the queue has started, otherwise FALSE.
 	BOOL start();
 	
-protected:
-	// This is the callback method for the viewer object currently
-	// being worked on.
-	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
-								 LLInventoryObject::object_list_t* inv,
-								 S32 serial_num,
-								 void* queue);
-	
-	// This is called by inventoryChanged
-	virtual void handleInventory(LLViewerObject* viewer_obj,
-								LLInventoryObject::object_list_t* inv) = 0;
+    void addProcessingMessage(const std::string &message, const LLSD &args);
+    void addStringMessage(const std::string &message);
 
+    std::string getStartString() const { return mStartString; }
+
+protected:
 	static void onCloseBtn(void* user_data);
 
 	// returns true if this is done
 	BOOL isDone() const;
 
-	virtual BOOL startQueue();
-
-	// go to the next object. If no objects left, it falls out
-	// silently and waits to be killed by the deleteIfDone() callback.
-	BOOL nextObject();
-	BOOL popNext();
+	virtual bool startQueue() = 0;
 
 	void setStartString(const std::string& s) { mStartString = s; }
 
@@ -96,12 +87,16 @@ protected:
 	LLButton* mCloseBtn;
 
 	// Object Queue
-	std::vector<LLUUID> mObjectIDs;
+    uuid_list_t     mObjectIDs;
 	LLUUID mCurrentObjectID;
 	bool mDone;
 
 	std::string mStartString;
 	bool mMono;
+
+    typedef boost::function<bool(const LLPointer<LLViewerObject> &, LLInventoryObject*, LLEventPump &)>   fnQueueAction_t;
+    static void objectScriptProcessingQueueCoro(std::string action, LLHandle<LLFloaterScriptQueue> hfloater, uuid_list_t objectList, fnQueueAction_t func);
+
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,8 +117,6 @@ class LLFloaterCompileQueue : public LLFloaterScriptQueue
 {
 	friend class LLFloaterReg;
 public:
-	// remove any object in mScriptScripts with the matching uuid.
-	void removeItemByItemID(const LLUUID& item_id);
 	
 	void experienceIdsReceived( const LLSD& content );
 	BOOL hasExperience(const LLUUID& id)const;
@@ -132,27 +125,17 @@ protected:
 	LLFloaterCompileQueue(const LLSD& key);
 	virtual ~LLFloaterCompileQueue();
 	
-	// This is called by inventoryChanged
-	virtual void handleInventory(LLViewerObject* viewer_obj,
-								LLInventoryObject::object_list_t* inv);
+	virtual bool startQueue();
 
-	static void requestAsset(struct LLScriptQueueData* datap, const LLSD& experience);
+    static bool processScript(LLHandle<LLFloaterCompileQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
 
-
-    static void finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, std::string scriptName, LLUUID queueId);
-
-	// This is the callback for when each script arrives
-	static void scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
-								LLAssetType::EType type,
-								void* user_data, S32 status, LLExtStat ext_status);
-
-	virtual BOOL startQueue();
-protected:
-	LLViewerInventoryItem::item_array_t mCurrentScripts;
+    //bool checkAssetId(const LLUUID &assetId);
+    static void handleHTTPResponse(std::string pumpName, const LLSD &expresult);
+    static void handleScriptRetrieval(LLVFS *vfs, const LLUUID& assetId, LLAssetType::EType type, void* userData, S32 status, LLExtStat extStatus);
 
 private:
     static void processExperienceIdResults(LLSD result, LLUUID parent);
-
+    //uuid_list_t mAssetIds;  // list of asset IDs processed.
 	uuid_list_t mExperienceIds;
 };
 
@@ -169,9 +152,9 @@ protected:
 	LLFloaterResetQueue(const LLSD& key);
 	virtual ~LLFloaterResetQueue();
 	
-	// This is called by inventoryChanged
-	virtual void handleInventory(LLViewerObject* viewer_obj,
-								LLInventoryObject::object_list_t* inv);
+    static bool resetObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
+
+    virtual bool startQueue();
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,10 +169,10 @@ class LLFloaterRunQueue : public LLFloaterScriptQueue
 protected:
 	LLFloaterRunQueue(const LLSD& key);
 	virtual ~LLFloaterRunQueue();
-	
-	// This is called by inventoryChanged
-	virtual void handleInventory(LLViewerObject* viewer_obj,
-								LLInventoryObject::object_list_t* inv);
+
+    static bool runObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
+
+    virtual bool startQueue();
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -205,9 +188,9 @@ protected:
 	LLFloaterNotRunQueue(const LLSD& key);
 	virtual ~LLFloaterNotRunQueue();
 	
-	// This is called by inventoryChanged
-	virtual void handleInventory(LLViewerObject* viewer_obj,
-								LLInventoryObject::object_list_t* inv);
+    static bool stopObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
+
+    virtual bool startQueue();
 };
 
 #endif // LL_LLCOMPILEQUEUE_H
