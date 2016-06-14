@@ -518,6 +518,7 @@ if __name__ == "__main__":
     parser.add_argument("--rand_pos", help="request random positions", action="store_true")
     parser.add_argument("--reset_pos", help="request original positions", action="store_true")
     parser.add_argument("--pos", help="specify sequence of positions", type=float_triple, nargs="+")
+    parser.add_argument("--num_pos", help="number of positions to create", type=int, default=2)
     parser.add_argument("--delete_joints", help="specify joints to be deleted", nargs="+")
     parser.add_argument("--joints", help="specify joints to be added or modified", nargs="+")
     parser.add_argument("--summary", help="print summary of the output animation", action="store_true")
@@ -566,7 +567,7 @@ if __name__ == "__main__":
             anim.add_pos(joints, args.pos)
         if joints and args.rand_pos:
             for joint in joints:
-                pos_array = list(tuple(random.uniform(-1,1) for i in xrange(3)) for j in xrange(2))
+                pos_array = list(tuple(random.uniform(-1,1) for i in xrange(3)) for j in xrange(args.num_pos))
                 pos_array.append(pos_array[0])
                 anim.add_pos([joint], pos_array)
         if joints and args.reset_pos:
