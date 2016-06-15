@@ -5451,17 +5451,11 @@ void LLVOAvatar::addAttachmentPosOverridesForObject(LLViewerObject *vo)
 					{   									
 						pJoint->setId( currentId );
 						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-                        //Set the joint position
-                        LLUUID curr_mesh_id;
-                        LLVector3 joint_pos_before;
-                        bool has_pos_before = pJoint->hasAttachmentPosOverride( joint_pos_before, curr_mesh_id );
 
-                        pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString() );
+                        bool override_changed;
+                        pJoint->addAttachmentPosOverride( jointPos, mesh_id, avString(), override_changed );
 
-                        LLVector3 joint_pos_after;
-                        pJoint->hasAttachmentPosOverride( joint_pos_after, curr_mesh_id );
-                        
-                        if (!has_pos_before || joint_pos_before != joint_pos_after)
+                        if (override_changed)
                         {
                             //If joint is a pelvis then handle old/new pelvis to foot values
                             if ( lookingForJoint == "mPelvis" )
@@ -5633,8 +5627,9 @@ void LLVOAvatar::resetJointPositionsOnDetach(const LLUUID& mesh_id)
 		//Reset joints except for pelvis
 		if ( pJoint )
 		{			
+            bool dummy; // unused
 			pJoint->setId( LLUUID::null );
-			pJoint->removeAttachmentPosOverride(mesh_id, avString());
+			pJoint->removeAttachmentPosOverride(mesh_id, avString(), dummy);
 		}		
 		if ( pJoint && pJoint == pJointPelvis)
 		{

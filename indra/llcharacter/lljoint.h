@@ -254,8 +254,8 @@ public:
 
 	virtual BOOL isAnimatable() const { return TRUE; }
 
-	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info );
-	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info );
+	void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
+	void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
 	bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
 	void clearAttachmentPosOverrides();
     void showAttachmentPosOverrides(const std::string& av_info) const;
