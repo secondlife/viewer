@@ -4034,7 +4034,7 @@ void LLMeshRepository::uploadError(LLSD& args)
 //static
 F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
 {
-	if (header.size() == 0)
+	if (header.size() == 0 || header.has("404") || header["version"].asInteger() > MAX_MESH_VERSION)
 	{
 		return 0.f;
 	}

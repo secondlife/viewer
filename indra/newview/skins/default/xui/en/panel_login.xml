@@ -67,7 +67,7 @@
     follows="left|top"
     height="32"
     left_pad="-11"
-    max_length_bytes="64"
+    max_length_chars="16"
     text_pad_left="8"
     name="password_edit"
     label="Password"
