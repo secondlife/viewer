@@ -101,8 +101,7 @@ pre_build()
      -DVIEWER_CHANNEL:STRING="\"$viewer_channel\"" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
-     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
-     2>&$stderr
+     -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
 
   end_section "Configure $variant"
 }
@@ -114,12 +113,12 @@ package_llphysicsextensions_tpv()
   if [ "$variant" = "Release" ]
   then 
       llpetpvcfg=$build_dir/packages/llphysicsextensions/autobuild-tpv.xml
-      "$autobuild" build --quiet --config-file $llpetpvcfg -c Tpv 2>&$stderr
+      "$autobuild" build --quiet --config-file $llpetpvcfg -c Tpv
       
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       trap "rm $PKGTMP* 2>/dev/null" 0
-      "$autobuild" package --quiet --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)" 2>&$stderr
+      "$autobuild" package --quiet --config-file $llpetpvcfg --results-file "$(native_path $PKGTMP)"
       tpv_status=$?
       if [ -r "${PKGTMP}" ]
       then
@@ -141,7 +140,7 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    "$autobuild" build --no-configure -c $variant 2>&$stderr
+    "$autobuild" build --no-configure -c $variant
     build_ok=$?
 
     # Run build extensions
@@ -150,7 +149,7 @@ build()
         for extension in ${build_dir}/packages/build-extensions/*.sh
         do
             begin_section "Extension $extension"
-            . $extension 2>&$trace
+            . $extension
             end_section "Extension $extension"
         done
     fi
@@ -227,7 +226,7 @@ do
 
   begin_section "Initialize $variant Build Directory"
   rm -rf "$build_dir"
-  mkdir -p "$build_dir/tmp" 2>&$stderr
+  mkdir -p "$build_dir/tmp"
   end_section "Initialize $variant Build Directory"
 
   if pre_build "$variant" "$build_dir"
@@ -246,7 +245,7 @@ do
                   then
                       record_dependencies_graph # defined in buildscripts/hg/bin/build.sh
                   else
-                      record_event "TBD - no dependency graph for linux (probable python version dependency)" 1>&2
+                      record_event "TBD - no dependency graph for linux (probable python version dependency)"
                   fi
                   end_section "Autobuild metadata"
               else
@@ -261,7 +260,7 @@ do
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
-                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html" 2>&$stderr
+                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
                   upload_item docs "$build_dir/viewer-doxygen.tar.bz2" binary/octet-stream
               fi
               ;;
@@ -297,14 +296,13 @@ then
       dch --force-bad-version \
           --distribution unstable \
           --newversion "${VIEWER_VERSION}" \
-          "Automated build #$build_id, repository $branch revision $revision." \
-          2>&$stderr
+          "Automated build #$build_id, repository $branch revision $revision."
 
       # build the debian package
-      $pkg_default_debuild_command 2>&$stderr || record_failure "\"$pkg_default_debuild_command\" failed."
+      $pkg_default_debuild_command || record_failure "\"$pkg_default_debuild_command\" failed."
 
       # Unmangle the changelog file
-      hg revert debian/changelog 2>&$stderr
+      hg revert debian/changelog
 
       end_section "Build Viewer Debian Package"
 
@@ -315,8 +313,8 @@ then
           done
       fi
       # Move any .deb results.
-      mkdir -p ../packages_public 2>&$stderr
-      mkdir -p ../packages_private 2>&$stderr
+      mkdir -p ../packages_public
+      mkdir -p ../packages_private
       mv ${build_dir}/packages/*.deb ../packages_public 2>/dev/null || true
       mv ${build_dir}/packages/packages_private/*.deb ../packages_private 2>/dev/null || true
 
@@ -336,7 +334,7 @@ then
       # doesn't make a remote repo again.
       for debian_repo_type in debian_repo debian_repo_private; do
         if [ -d "$build_log_dir/$debian_repo_type" ]; then
-          mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed 2>&$stderr
+          mv $build_log_dir/$debian_repo_type $build_log_dir/${debian_repo_type}_pushed
         fi
       done
 
