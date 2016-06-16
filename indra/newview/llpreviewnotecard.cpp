@@ -437,6 +437,23 @@ void LLPreviewNotecard::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, 
     }
 }
 
+void LLPreviewNotecard::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId)
+{
+
+    LLSD floater_key;
+    floater_key["taskid"] = taskId;
+    floater_key["itemid"] = itemId;
+    LLPreviewNotecard* nc = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", floater_key);
+    if (nc)
+    {
+        if (nc->hasEmbeddedInventory())
+        {
+            gVFS->removeFile(newAssetId, LLAssetType::AT_NOTECARD);
+        }
+        nc->setAssetId(newAssetId);
+        nc->refreshFromInventory();
+    }
+}
 
 bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 {
@@ -485,7 +502,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
                 else if (!mObjectUUID.isNull() && !task_url.empty())
                 {
                     uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
-                        boost::bind(&LLPreviewNotecard::finishInventoryUpload, _1, _3, LLUUID::null)));
+                        boost::bind(&LLPreviewNotecard::finishTaskUpload, _1, _3, mObjectUUID)));
                     url = task_url;
                 }
 
