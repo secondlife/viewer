@@ -717,7 +717,7 @@ LLAppViewer::LLAppViewer()
 
 	gLoggedInTime.stop();
 
-    gBogusVariable = 1;
+    syntaxerror
     
 	initLoggingAndGetLastDuration();
 	
