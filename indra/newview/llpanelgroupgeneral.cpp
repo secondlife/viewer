@@ -199,7 +199,7 @@ void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 
 
 	mGroupNameEditor = panel_group->getChild<LLLineEditor>("group_name_editor");
-	mGroupNameEditor->setPrevalidate( LLTextValidate::validateASCII );
+	mGroupNameEditor->setPrevalidate( LLTextValidate::validateASCIINoLeadingSpace );
 	
 
 }
