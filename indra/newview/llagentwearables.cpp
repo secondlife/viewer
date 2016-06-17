@@ -62,23 +62,37 @@ using namespace LLAvatarAppearanceDefines;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void set_default_permissions(LLViewerInventoryItem* item)
+{
+	llassert(item);
+	LLPermissions perm = item->getPermissions();
+	if (perm.getMaskNextOwner() != LLFloaterPerms::getNextOwnerPerms("Wearables")
+		|| perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Wearables")
+		|| perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Wearables"))
+	{
+		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
+		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
+		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
+
+		item->setPermissions(perm);
+
+		item->updateServer(FALSE);
+	}
+}
+
 // Callback to wear and start editing an item that has just been created.
 void wear_and_edit_cb(const LLUUID& inv_item)
 {
 	if (inv_item.isNull()) return;
 	
-		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-		if (!item) return;
+	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+	if (!item) return;
 
-		LLPermissions perm = item->getPermissions();
-		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-		item->setPermissions(perm);
+	set_default_permissions(item);
 
-		item->updateServer(FALSE);
-		gInventory.updateItem(item);
-		gInventory.notifyObservers();
+	// item was just created, update even if permissions did not changed
+	gInventory.updateItem(item);
+	gInventory.notifyObservers();
 
 	// Request editing the item after it gets worn.
 	gAgentWearables.requestEditingWearable(inv_item);
@@ -94,13 +108,8 @@ void wear_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Wearables"));
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Wearables"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Wearables"));
-			item->setPermissions(perm);
+			set_default_permissions(item);
 
-			item->updateServer(FALSE);
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 		}

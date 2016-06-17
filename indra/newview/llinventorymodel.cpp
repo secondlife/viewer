@@ -582,7 +582,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	// Add the category to the internal representation
 	LLPointer<LLViewerInventoryCategory> cat =
 		new LLViewerInventoryCategory(id, parent_id, preferred_type, name, gAgent.getID());
-	cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL);
+	cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
 	cat->setDescendentCount(0);
 	LLCategoryUpdate update(cat->getParentUUID(), 1);
 	accountForUpdate(update);
@@ -640,7 +640,7 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
         result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
         result["name"].asString(), gAgent.getID());
 
-    cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL);
+    cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
     cat->setDescendentCount(0);
     LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
     

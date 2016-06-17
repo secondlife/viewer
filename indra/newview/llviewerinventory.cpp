@@ -1036,6 +1036,22 @@ void activate_gesture_cb(const LLUUID& inv_item)
 	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
+void set_default_permissions(LLViewerInventoryItem* item, std::string perm_type)
+{
+	llassert(item);
+	LLPermissions perm = item->getPermissions();
+	if (perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms(perm_type)
+		|| perm.getMaskGroup() != LLFloaterPerms::getGroupPerms(perm_type))
+	{
+		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms(perm_type));
+		perm.setMaskGroup(LLFloaterPerms::getGroupPerms(perm_type));
+
+		item->setPermissions(perm);
+
+		item->updateServer(FALSE);
+	}
+}
+
 void create_script_cb(const LLUUID& inv_item)
 {
 	if (!inv_item.isNull())
@@ -1043,13 +1059,9 @@ void create_script_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
+			set_default_permissions(item, "Scripts");
 
-			item->setPermissions(perm);
-
-			item->updateServer(FALSE);
+			// item was just created, update even if permissions did not changed
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 		}
@@ -1065,13 +1077,8 @@ void create_gesture_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
+			set_default_permissions(item, "Gestures");
 
-			item->setPermissions(perm);
-
-			item->updateServer(FALSE);
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 
@@ -1090,13 +1097,8 @@ void create_notecard_cb(const LLUUID& inv_item)
 		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 		if (item)
 		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Notecards"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Notecards"));
+			set_default_permissions(item, "Notecards");
 
-			item->setPermissions(perm);
-
-			item->updateServer(FALSE);
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 		}
