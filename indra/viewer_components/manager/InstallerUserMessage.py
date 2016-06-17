@@ -46,7 +46,11 @@ class InstallerUserMessage(tk.Tk):
     #Non-goals:
     #  No claim to threadsafety is made or warranted.  Your mileage may vary. 
     #     Please consult a doctor if you experience thread pain.
-    def __init__(self, text="", title="", width=500, height=200, fillcolor='#487A7B', *args, **kwargs):
+
+    #Linden standard green color, from Marketing
+    linden_green = "#487A7B"
+
+    def __init__(self, text="", title="", width=500, height=200, icon_name = None, icon_path = None, **kwargs):
         tk.Tk.__init__(self)
         self.grid()
         self.title(title)
@@ -56,15 +60,22 @@ class InstallerUserMessage(tk.Tk):
         # http://tinyurl.com/tkmacbuttons
         ttk.Style().configure('Linden.TLabel', foreground='#487A7B', background='black')
         ttk.Style().configure('Linden.TButton', foreground='#487A7B', background='black')
-        ttk.Style().configure("black.Horizontal.TProgressbar", foreground='#487A7B', background='black')
+        ttk.Style().configure("black.Horizontal.TProgressbar", foreground=InstallerUserMessage.linden_green, background='black')
 
+        #This bit of configuration centers the window on the screen
         # The constants below are to adjust for typical overhead from the
         # frame borders.
         self.xp = (self.winfo_screenwidth()  / 2) - (width  / 2) - 8
         self.yp = (self.winfo_screenheight() / 2) - (height / 2) - 20
         self.geometry('{0}x{1}+{2}+{3}'.format(width, height, self.xp, self.yp))
+
+        #find a few things
         self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.icon_dir = os.path.abspath(os.path.join(self.script_dir, 'icons'))
+
+        #finds the icon and creates the widget
+        self.find_icon(icon_path, icon_name)
+
         #defines what to do when window is closed
         self.protocol("WM_DELETE_WINDOW", self._delete_window)
 
@@ -79,7 +90,7 @@ class InstallerUserMessage(tk.Tk):
 
     def set_colors(self, widget):
         # #487A7B is "Linden Green"
-        widget.config(foreground = '#487A7B')
+        widget.config(foreground = InstallerUserMessage.linden_green)
         widget.config(background='black') 
 
     def find_icon(self, icon_path = None, icon_name = None):
@@ -110,22 +121,21 @@ class InstallerUserMessage(tk.Tk):
             else:
                 self.rowconfigure(x, weight=1)
 
-    def basic_message(self, message, icon_path = None, icon_name = None):
+    def basic_message(self, message, icon_name = None):
         #message: text to be displayed
         #icon_path: directory holding the icon, defaults to icons subdir of script dir
         #icon_name: filename of icon to be displayed
         self.choice.set(True)
-        self.find_icon(icon_path, icon_name)
         self.text_label = tk.Label(text = message)
         self.set_colors(self.text_label)
         self.set_colors(self.image_label)
         #pad, direction and weight are all experimentally derived by retrying various values
         self.image_label.grid(row = 1, column = 1, sticky = 'W')
         self.text_label.grid(row = 1, column = 2, sticky = 'W', padx =100)
-        self.auto_resize(1, 2)
+        self.auto_resize(row_count = 1, column_count = 2)
         self.mainloop()
 
-    def binary_choice_message(self, message, icon_path = None, icon_name = None, one = 'Yes', two = 'No'):
+    def binary_choice_message(self, message, true = 'Yes', false = 'No'):
         #one: first option, returns True
         #two: second option, returns False
         #usage is kind of opaque and relies on this object persisting after the window destruction to pass back choice
@@ -134,7 +144,7 @@ class InstallerUserMessage(tk.Tk):
         #   frame = frame.binary_choice_message( ... )
         #   (wait for user to click)
         #   value = frame.choice.get()
-        self.find_icon(icon_path, icon_name)
+
         self.text_label = tk.Label(text = message)
         #command registers the callback to the method named.  We want the frame to go away once clicked.
         #button 1 returns True/1, button 2 returns False/0
@@ -154,13 +164,12 @@ class InstallerUserMessage(tk.Tk):
         self.update()
         self.mainloop()
 
-    def progress_bar(self, message = None, icon_path = None, icon_name = None, size = 0, interval = 100, pb_queue = None):
+    def progress_bar(self, message = None, size = 0, interval = 100, pb_queue = None):
         #Best effort attempt at a real progress bar
         #  This is what Tk calls "determinate mode" rather than "indeterminate mode"
         #size: denominator of percent complete
         #interval: frequency, in ms, of how often to poll the file for progress
         #pb_queue: queue object used to send updates to the bar
-        self.find_icon(icon_path, icon_name)
         self.text_label = tk.Label(text = message)
         self.set_colors(self.text_label)
         self.set_colors(self.image_label)
@@ -170,7 +179,7 @@ class InstallerUserMessage(tk.Tk):
         self.progress.grid(row = 3, column = 1, sticky = 'NSEW')
         self.value = 0
         self.progress["maximum"] = size
-        self.auto_resize(1, 3)
+        self.auto_resize(row_count = 1, column_count = 3)
         self.queue = pb_queue
         self.check_scheduler()
 
@@ -191,7 +200,8 @@ class InstallerUserMessage(tk.Tk):
                     self.progress.step(msg)
                     self.value = msg
             except Queue.Empty:
-                pass
+                #nothing to do
+                return
 
 class ThreadedClient(threading.Thread):
     #for test only, not part of the functional code
@@ -214,9 +224,6 @@ class ThreadedClient(threading.Thread):
 if __name__ == "__main__":
     #When run as a script, just test the InstallUserMessage.  
     #To proceed with the test, close the first window, select on the second.  The third will close by itself.
-    from contextlib import closing
-    from multiprocessing import Process
-
     import sys
     import tempfile
 
@@ -229,15 +236,15 @@ if __name__ == "__main__":
             print "Over now"
 
     #basic message window test
-    frame2 = InstallerUserMessage(text = "Something in the way she moves....", title = "Beatles Quotes for 100")
-    frame2.basic_message(message = "...attracts me like no other.", icon_name="head-sl-logo.gif")
+    frame2 = InstallerUserMessage(text = "Something in the way she moves....", title = "Beatles Quotes for 100", icon_name="head-sl-logo.gif")
+    frame2.basic_message(message = "...attracts me like no other.")
     print "Destroyed!"
     sys.stdout.flush()
 
     #binary choice test.  User destroys window when they select.
-    frame3 = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 200")
-    frame3.binary_choice_message(message = "And all I have to do is think of her.", icon_name="head-sl-logo.gif", 
-        one = "Don't want to leave her now", two = 'You know I believe and how')
+    frame3 = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 200", icon_name="head-sl-logo.gif")
+    frame3.binary_choice_message(message = "And all I have to do is think of her.", 
+        true = "Don't want to leave her now", false = 'You know I believe and how')
     print frame3.choice.get()
     sys.stdout.flush()
 
@@ -247,8 +254,8 @@ if __name__ == "__main__":
     thread.start()
     print "thread started"
 
-    frame4 = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 300")
-    frame4.progress_bar(message = "You're asking me will my love grow", icon_name="head-sl-logo.gif", size = 100, pb_queue = queue)
+    frame4 = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 300", icon_name="head-sl-logo.gif")
+    frame4.progress_bar(message = "You're asking me will my love grow", size = 100, pb_queue = queue)
     print "frame defined"
     
     frame4.mainloop()
