@@ -717,6 +717,8 @@ LLAppViewer::LLAppViewer()
 
 	gLoggedInTime.stop();
 
+    gBogusVariable = 1;
+    
 	initLoggingAndGetLastDuration();
 	
 	processMarkerFiles();
