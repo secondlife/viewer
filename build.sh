@@ -140,9 +140,8 @@ build()
   local variant="$1"
   if $build_viewer
   then
-    "$autobuild" build --no-configure -c $variant
-    build_ok=$?
-
+    "$autobuild" build --no-configure -c $variant || fatal "failed building $variant"
+    
     # Run build extensions
     if [ $build_ok -eq 0 -a -d ${build_dir}/packages/build-extensions ]
     then
@@ -155,14 +154,12 @@ build()
     fi
 
     # *TODO: Make this a build extension.
-    package_llphysicsextensions_tpv
-    tpvlib_build_ok=$?
-    if [ $build_ok -eq 0 -a $tpvlib_build_ok -eq 0 ]
-    then
+    package_llphysicsextensions_tpv || fatal "failed building llphysicsextensions packages"
+
+    echo true >"$build_dir"/build_ok
+  else
+      echo "Skipping build due to configuration build_viewer=${build_viewer}"
       echo true >"$build_dir"/build_ok
-    else
-      echo false >"$build_dir"/build_ok
-    fi
   fi
 }
 
