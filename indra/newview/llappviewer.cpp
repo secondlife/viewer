@@ -717,8 +717,6 @@ LLAppViewer::LLAppViewer()
 
 	gLoggedInTime.stop();
 
-    syntaxerror
-    
 	initLoggingAndGetLastDuration();
 	
 	processMarkerFiles();
