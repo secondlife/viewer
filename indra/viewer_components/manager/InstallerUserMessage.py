@@ -121,7 +121,7 @@ class InstallerUserMessage(tk.Tk):
             else:
                 self.rowconfigure(x, weight=1)
 
-    def basic_message(self, message, icon_name = None):
+    def basic_message(self, message):
         #message: text to be displayed
         #icon_path: directory holding the icon, defaults to icons subdir of script dir
         #icon_name: filename of icon to be displayed
@@ -148,9 +148,9 @@ class InstallerUserMessage(tk.Tk):
         self.text_label = tk.Label(text = message)
         #command registers the callback to the method named.  We want the frame to go away once clicked.
         #button 1 returns True/1, button 2 returns False/0
-        self.button_one = ttk.Radiobutton(text = one, variable = self.choice, value = True, 
+        self.button_one = ttk.Radiobutton(text = true, variable = self.choice, value = True, 
             command = self._delete_window, style = 'Linden.TButton')
-        self.button_two = ttk.Radiobutton(text = two, variable = self.choice, value = False, 
+        self.button_two = ttk.Radiobutton(text = false, variable = self.choice, value = False, 
             command = self._delete_window, style = 'Linden.TButton')
         self.set_colors(self.text_label)
         self.set_colors(self.image_label)
