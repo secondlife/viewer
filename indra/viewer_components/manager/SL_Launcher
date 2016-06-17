@@ -15,12 +15,13 @@
 # WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
 # COMPLETENESS OR PERFORMANCE.
 # $/LicenseInfo$
+# Copyright (c) 2013, Linden Research, Inc.
 
 import argparse
 import os
 import sys
 import subprocess
-import Tkinter as tk 
+import InstallerUserMessage
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 
@@ -51,13 +52,10 @@ parser = argparse.ArgumentParser()
 args = parser.parse_known_args(sys.argv)
 args_list_to_pass = args[1][1:]
 args_list_to_pass.insert(0,viewer_binary)
-#print "COYOT: arrrrrghs to pass", args_list_to_pass
+print "COYOT: arrrrrghs to pass", args_list_to_pass
 
 #to prove we are launching from the script, launch a Tkinter window first
-root = tk.Tk()
-w = tk.Label(root, text=viewer_binary)
-w.pack()
-root.after(10000, lambda: root.destroy()) # Destroy the widget after 10 seconds
-root.mainloop()
+frame2 = InstallerUserMessage(title = "Second Life")
+frame2.basic_message(message = viewer_binary, icon_name="head-sl-logo.gif")
 
-viewer_process = subprocess.Popen(args_list_to_pass)
+#viewer_process = subprocess.Popen(args_list_to_pass)
