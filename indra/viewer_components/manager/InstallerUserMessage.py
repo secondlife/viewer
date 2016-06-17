@@ -50,7 +50,7 @@ class InstallerUserMessage(tk.Tk):
     #Linden standard green color, from Marketing
     linden_green = "#487A7B"
 
-    def __init__(self, text="", title="", width=500, height=200, icon_name = None, icon_path = None, **kwargs):
+    def __init__(self, text="", title="", width=500, height=200, icon_name = None, icon_path = None):
         tk.Tk.__init__(self)
         self.grid()
         self.title(title)
