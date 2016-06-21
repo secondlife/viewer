@@ -29,6 +29,7 @@ $/LicenseInfo$
 """
 
 import sys
+import os
 import struct
 import StringIO
 import math
@@ -511,6 +512,11 @@ def resolve_joints(names, skel_tree, lad_tree):
 
 if __name__ == "__main__":
 
+    # default search location for config files is defined relative to
+    # the script location; assuming they live in the same viewer repo
+    pathname = os.path.dirname(sys.argv[0])        
+    path_to_skel = os.path.join(os.path.abspath(pathname),"..","..","indra","newview","character")
+
     parser = argparse.ArgumentParser(description="process SL animations")
     parser.add_argument("--verbose", help="verbose flag", action="store_true")
     parser.add_argument("--dump", help="dump to specified file")
@@ -522,8 +528,8 @@ if __name__ == "__main__":
     parser.add_argument("--delete_joints", help="specify joints to be deleted", nargs="+")
     parser.add_argument("--joints", help="specify joints to be added or modified", nargs="+")
     parser.add_argument("--summary", help="print summary of the output animation", action="store_true")
-    parser.add_argument("--skel", help="name of the avatar_skeleton file", default="avatar_skeleton.xml")
-    parser.add_argument("--lad", help="name of the avatar_lad file", default="avatar_lad.xml")
+    parser.add_argument("--skel", help="name of the avatar_skeleton file", default= os.path.join(path_to_skel,"avatar_skeleton.xml"))
+    parser.add_argument("--lad", help="name of the avatar_lad file", default= os.path.join(path_to_skel,"avatar_lad.xml"))
     parser.add_argument("--set_version", nargs=2, type=int, help="set version and sub-version to specified values")
     parser.add_argument("--no_hud", help="omit hud joints from list of attachments", action="store_true")
     parser.add_argument("infilename", help="name of a .anim file to input")
