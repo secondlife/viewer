@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <linden_avatar
-  version="2.0" wearable_definition_version="22">
+  version="2.0" wearable_definition_version="22"> 
   <!-- The wearable_definition_version is checked during asset upload. -->
   <!-- If you increment it, check indra/lib/python/indra/assetutil.py.  -->
   <skeleton
@@ -430,7 +430,7 @@
        hud="true"
        max_attachment_offset="2.0"
        visible_in_first_person="true" />
-
+       
     <attachment_point
        id="39"
        group="6"
@@ -441,7 +441,7 @@
        position="0 0 0"
        rotation="0 0 0"
        visible_in_first_person="true" />
-
+  	
   	<attachment_point
        id="40"
        group="6"
@@ -452,7 +452,7 @@
        position="0 0 0"
        rotation="0 0 0"
        visible_in_first_person="true" />
-
+ 
      <!-- BENTO ADDITIONS -->
 
     <attachment_point
@@ -708,10 +708,10 @@
          name="mHindLimb2Right"
          scale=".05 .05 .1" />
 
-        <bone name="mWingsRoot" scale="0 0 0" offset="0 0 0" />
-
+        <bone name="mWingsRoot"  scale="0 0 0" offset="0 0 0" />
+ 
 		<bone name="mWing1Right" scale="0 0 0" offset="-0.05 0 0" />
-
+ 
 		<bone name="mWing1Left"  scale="0 0 0" offset="-0.05 0 0" />
 
       </param_skeleton>
@@ -880,7 +880,7 @@
         <bone
          name="mSpine2"
          scale="0.1 0.1 0" />
-
+		 
         <bone
          name="mHipLeft"
          scale="0.13 0.13 0" />
@@ -971,7 +971,7 @@
          scale="0.0 0.0 0.0"
          offset="0 -0.02 0" />
 
-		<bone
+		<bone 
          name="mWing1Left"
          scale="0.0 0.0 0.0"
          offset="0 0.02 0" />
@@ -1163,7 +1163,7 @@
          name="mEyeRight"
          scale="0 0 0"
          offset="0 -.009 0" />
-
+		 
 	    <bone
          name="mFaceEyeAltLeft"
          scale="0 0 0 "
@@ -1173,47 +1173,47 @@
          name="mFaceEyeAltRight"
          scale="0 0 0 "
          offset="0 -.009 0" />
-
+		 
 	    <bone
          name="mFaceEyeLidLowerLeft"
          scale="0 0 0 "
-         offset="0 .009 0" />
+         offset="0 .00930 0" />
 
         <bone
          name="mFaceEyeLidLowerRight"
          scale="0 0 0 "
-         offset="0 -.009 0" />
-
+         offset="0 -.00930 0" />
+		 
 	    <bone
          name="mFaceEyeLidUpperLeft"
          scale="0 0 0 "
-         offset="0 .009 0" />
+         offset="0 .00930 0" />
 
         <bone
          name="mFaceEyeLidUpperRight"
          scale="0 0 0 "
-         offset="0 -.009 0" />
-
+         offset="0 -.00930 0" />
+		 
 	    <bone
          name="mFaceEyebrowInnerLeft"
          scale="0 0 0 "
-         offset="0 .009 0" />
+         offset="0 .00930 0" />
 
         <bone
          name="mFaceEyebrowInnerRight"
          scale="0 0 0 "
-         offset="0 -.009 0" />
-
+         offset="0 -.00930 0" />
+		 
 	    <bone
          name="mFaceEyebrowCenterLeft"
          scale="0 0 0 "
-         offset="0 .009 0" />
+         offset="0 .00930 0" />
 
         <bone
          name="mFaceEyebrowCenterRight"
          scale="0 0 0 "
-         offset="0 -.009 0" />
-
+         offset="0 -.00930 0" />
+		 
 	    <bone
          name="mFaceEyebrowOuterLeft"
          scale="0 0 0 "
@@ -1223,7 +1223,7 @@
          name="mFaceEyebrowOuterRight"
          scale="0 0 0 "
          offset="0 -.005 0" />
-
+		 
         <bone
          name="mFaceEyecornerInnerLeft"
          scale="0 0 0 "
@@ -1233,7 +1233,7 @@
          name="mFaceEyecornerInnerRight"
          scale="0 0 0 "
          offset="0 -.008 0" />
-
+ 
       </param_skeleton>
     </param>
 
@@ -1257,7 +1257,7 @@
          name="mEyeRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
         <bone
          name="mFaceEyeAltLeft"
          scale="0 0 0"
@@ -1266,7 +1266,7 @@
         <bone
          name="mFaceEyeAltRight"
          scale="0 0 0"
-         offset="0 0 -.004" />
+         offset="0 0 -.004" /> 
 
 		<bone
          name="mFaceNoseRight"
@@ -1291,27 +1291,27 @@
          name="mFaceLipUpperLeft"
          scale="0 0 0"
          offset="0 0 .004" />
-
+		 
 		 <bone
          name="mFaceLipUpperRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceLipLowerLeft"
          scale="0 0 0"
          offset="0 0 .004" />
-
+		 
 		 <bone
          name="mFaceLipLowerRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceLipCornerRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceLipCornerLeft"
          scale="0 0 0"
@@ -1326,7 +1326,7 @@
          name="mFaceCheekLowerRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceCheekUpperLeft"
          scale="0 0 0"
@@ -1336,7 +1336,7 @@
          name="mFaceCheekUpperRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceEyeLidUpperLeft"
          scale="0 0 0"
@@ -1346,7 +1346,7 @@
          name="mFaceEyeLidUpperRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceEyeLidLowerLeft"
          scale="0 0 0"
@@ -1356,7 +1356,7 @@
          name="mFaceEyeLidLowerRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceEyebrowInnerLeft"
          scale="0 0 0"
@@ -1366,7 +1366,7 @@
          name="mFaceEyebrowInnerRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceEyebrowCenterLeft"
          scale="0 0 0"
@@ -1386,17 +1386,17 @@
          name="mFaceEyebrowOuterRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceEyecornerInnerRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
 		 <bone
          name="mFaceEyecornerInnerLeft"
          scale="0 0 0"
          offset="0 0 0.004" />
-
+		 
 		 <bone
          name="mFaceForeheadLeft"
          scale="0 0 0"
@@ -1406,7 +1406,7 @@
          name="mFaceForeheadRight"
          scale="0 0 0"
          offset="0 0 -.004" />
-
+		 
       </param_skeleton>
     </param>
 
@@ -1440,6 +1440,26 @@
          name="mFaceEyeAltRight"
          scale="0 0 0"
          offset=".016 0 0" />
+		 
+		 <bone
+         name="mFaceEyeLidUpperLeft"
+         scale="0 0 0"
+         offset="-0.0038 0 0" />
+
+		 <bone
+         name="mFaceEyeLidUpperRight"
+         scale="0 0 0"
+         offset="-0.0038 0 0" />
+		 
+		 <bone
+         name="mFaceEyeLidLowerLeft"
+         scale="0 0 0"
+         offset="-0.0038 0 0" />
+
+		 <bone
+         name="mFaceEyeLidLowerRight"
+         scale="0 0 0"
+         offset="-0.0038 0 0" />
 
 		<bone
          name="mFaceRoot"
@@ -1467,56 +1487,56 @@
          offset=".005 0 0" />
 
 		<bone
+         name="mFaceLipUpperLeft"
+         scale="0 0 0"
+         offset="0.005 0 0" />
+
+		<bone
          name="mFaceLipUpperCenter"
          scale="0 0 0"
          offset="0.005 0 0" />
 
 		<bone
-         name="mFaceLipLowerCenter"
-         scale="0 0 0"
-         offset="0.01 0 0" />
-
-		 <bone
-         name="mFaceLipUpperLeft"
-         scale="0 0 0"
-         offset="0.005 0 0" />
-
-		 <bone
          name="mFaceLipUpperRight"
          scale="0 0 0"
          offset="0.005 0 0" />
-
-		 <bone
+		 
+		<bone
          name="mFaceLipLowerLeft"
          scale="0 0 0"
-         offset="0.004 0 0" />
+         offset="0.02 0 0" />		 
 
-		 <bone
+		<bone
+         name="mFaceLipLowerCenter"
+         scale="0 0 0"
+         offset="0.02 0 0" />
+
+		<bone
          name="mFaceLipLowerRight"
          scale="0 0 0"
-         offset="0.004 0 0" />
-
-		 <bone
+         offset="0.02 0 0" />
+		 
+		<bone
          name="mFaceLipCornerRight"
          scale="0 0 0"
          offset="0.004 0 0" />
 
-		 <bone
+		<bone
          name="mFaceLipCornerLeft"
          scale="0 0 0"
          offset="0.004 0 0" />
-
-		 <bone
+		 
+		<bone
          name="mFaceCheekLowerLeft"
          scale="0 0 0"
          offset="0.007 0 0" />
-
-		 <bone
+		 
+		<bone
          name="mFaceCheekLowerRight"
          scale="0 0 0"
          offset="-0.007 0 0" />
 
-		 <bone
+		<bone
          name="mFaceTeethUpper"
          scale="0 0 0"
          offset="0.012 0 0" />
@@ -1527,9 +1547,19 @@
          offset="0.012 0 0" />
 
 		 <bone
-         name="mFaceJaw"
+         name="mFaceChin"
          scale="0 0 0"
-         offset="0.01 0 0" />
+         offset="0.014 0 0" />
+
+		 <bone
+         name="mFaceTongueBase"
+         scale="0 0 0"
+         offset="0.014 0 0" />
+
+		 <bone
+         name="mFaceTongueTip"
+         scale="0 0 0"
+         offset="0.008 0 0" />
 
       </param_skeleton>
     </param>
@@ -1623,10 +1653,10 @@
          name="mFaceEyebrowOuterLeft"
          scale="0 0 0 "
          offset=".0013 0 0" />
+		 
+		 
 
-
-
-
+		 
       </param_skeleton>
     </param>
 
@@ -1648,27 +1678,27 @@
          name = "mFaceTeethLower"
          scale = "1 1 1"
          offset = "0 0 0" />
-
+ 
         <bone
          name = "mFaceTeethUpper"
          scale = "1 1 1"
          offset = "0 0 0" />
-
+ 
         <bone
          name = "mFaceEyecornerInnerLeft"
          scale = "1 1 1"
          offset = "0 0 0" />
-
+ 
         <bone
          name = "mFaceEyecornerInnerRight"
          scale = "1 1 1"
          offset = "0 0 0" />
-
+ 
         <bone
          name = "mFaceNoseBridge"
          scale = "1 1 1"
          offset = "0 0 0" />
-
+ 
         <bone
          name = "mFaceNoseBase"
          scale = "1 1 1"
@@ -1687,7 +1717,7 @@
          name="mFaceRoot"
          scale="1 1 1"
          offset="0 0 0" />
-
+ 
         <bone
          name="mEyeLeft"
          scale="1 1 1"
@@ -1697,7 +1727,7 @@
          name="mEyeRight"
          scale="1 1 1"
          offset="0 0 0" />
-
+ 
         <bone
          name="mFaceEyeAltLeft"
          scale="1 1 1"
@@ -1707,7 +1737,7 @@
          name="mFaceEyeAltRight"
          scale="1 1 1"
          offset="0 0 0" />
-
+ 
         <bone
          name="mFaceForeheadLeft"
          scale="1 1 1"
@@ -1742,42 +1772,42 @@
          name="mFaceEyebrowOuterRight"
          scale="1 1 1"
          offset="0 0 0" />
-
+		 
         <bone
          name="mFaceEyebrowCenterRight"
          scale="1 1 1"
          offset="0 0 0" />
-
+		 
         <bone
          name="mFaceEyebrowInnerRight"
          scale="1 1 1"
          offset="0 0 0" />
-
+        
         <bone
          name="mFaceEyeLidUpperLeft"
          scale="1 1 1"
          offset="0 0 0" />
-
+        
         <bone
          name="mFaceEyeLidLowerLeft"
          scale="1 1 1"
          offset="0 0 0" />
-
+                
         <bone
          name="mFaceEyeLidUpperRight"
          scale="1 1 1"
          offset="0 0 0" />
-
+        
         <bone
          name="mFaceEyeLidLowerRight"
          scale="1 1 1"
          offset="0 0 0" />
-
+        
         <bone
          name="mFaceNoseLeft"
          scale="1 1 1"
          offset="0 0 0" />
-
+		 
 	    <bone
          name="mFaceNoseCenter"
          scale="1 1 1"
@@ -1805,6 +1835,16 @@
 
         <bone
          name="mFaceCheekUpperRight"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceTongueBase"
+         scale="1 1 1"
+         offset="0 0 0" />
+
+        <bone
+         name="mFaceTongueTip"
          scale="1 1 1"
          offset="0 0 0" />
 
@@ -2039,7 +2079,7 @@
          name="mEyeRight"
          scale="0 0 0"
          offset="-.005 0 0" />
-
+		 
         <bone
          name="mFaceEyeAltLeft"
          scale="0 0 0"
@@ -2049,37 +2089,37 @@
          name="mFaceEyeAltRight"
          scale="0 0 0"
          offset="-.005 0 0" />
-
+		 
         <bone
          name="mFaceEyeLidLowerRight"
-         scale="0 0.7 0.5"
-         offset="-.003 0 -0.003" />
+         scale="0 0 0"
+         offset="-.005 0.0 -0.0" />
 
         <bone
          name="mFaceEyeLidLowerLeft"
-         scale="0 0.7 0.5"
-         offset="-.003 0 -0.003" />
-
+         scale="0 0 0"
+         offset="-.005 0.0 -0.0" />
+		 
         <bone
          name="mFaceEyeLidUpperRight"
-         scale="0 0.7 0.5"
-         offset="-.003 0 0.003" />
+         scale="0 0 0"
+         offset="-.005 0.0 -0.0" />
 
         <bone
          name="mFaceEyeLidUpperLeft"
-         scale="0 0.7 0.5"
-         offset="-.003 0 0.003" />
-
+         scale="0 0 0"
+         offset="-.005 0.0 -0.0" />
+		 
         <bone
          name="mFaceEyecornerInnerLeft"
          scale="0 0 0"
          offset="-0.005 -0.008 0.0" />
-
+		 
         <bone
          name="mFaceEyecornerInnerRight"
          scale="0 0 0"
          offset="-0.005 0.008 0.0" />
-
+		 
       </param_skeleton>
     </param>
 
@@ -2183,7 +2223,7 @@
          scale="0 0 .5" />
       </param_skeleton>
     </param>
-
+	
     <param
      id="11001"
      group="0"
@@ -2199,7 +2239,7 @@
      camera_distance="2.5">
       <param_skeleton />
     </param>
-
+	
     <param
      id="30002"
      group="1"
@@ -2226,7 +2266,7 @@
 
       </param_skeleton>
     </param>
-
+	
     <param
      id="30004"
      group="1"
@@ -2244,7 +2284,7 @@
          scale  = "0.0 0.0 0.0" />
       </param_skeleton>
     </param>
-
+	
     <param
      id="30020"
      group="1"
@@ -2267,7 +2307,7 @@
 		 scale  = "0 0.3 0"
 		 offset = "0 -0.0015 0"
 		 />
-
+		 
       </param_skeleton>
 	</param>
 
@@ -2285,11 +2325,11 @@
         <bone
          name   = "mFaceNoseLeft"
 		 scale  = "0 0 0"
-		 offset = "0.001 0.010 0"/>
+		 offset = "0.001 0.010 0"/>		 
         <bone
          name   = "mFaceNoseRight"
 		 scale  = "0 0 0"
-		 offset = "-0.001 -0.01 0" />
+		 offset = "-0.001 -0.01 0" />		 
       </param_skeleton>
     </param>
 
@@ -2302,44 +2342,44 @@
       <param_skeleton>
         <bone
          name   = "mFaceNoseCenter"
-         scale  = "0.0 0.00 0.0"
+         scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 0.009 0.0" />
-
+        
         <bone
          name   = "mFaceNoseBase"
-         scale  = "0.0 0.00 0.0"
+         scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 0.007 0.0" />
-
+        
 		<bone
          name   = "mFaceNoseLeft"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.005 0.0"/>
-
+		 
         <bone
          name   = "mFaceNoseRight"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.005 0.0" />
-
+		 
         <bone
          name   = "mFaceLipCornerLeft"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.001 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.002 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.003 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperRight"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.002 0.0" />
-
+		 
         <bone
          name   = "mFaceLipCornerRight"
 		 scale  = "0.0 0.00 0.0"
@@ -2354,22 +2394,22 @@
          name   = "mFaceEyebrowInnerLeft"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.0008 0.0" />
-
+		 
         <bone
          name   = "mFaceNoseBridge"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.004 0.0" />
-
+		 
         <bone
          name   = "mFaceTeethUpper"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.003 0.0" />
-
+		 		 
         <bone
          name   = "mFaceEyecornerInnerRight"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.001 0.0" />
-
+		 
         <bone
          name   = "mFaceEyecornerInnerLeft"
 		 scale  = "0.0 0.00 0.0"
@@ -2377,7 +2417,7 @@
 
       </param_skeleton>
     </param>
-
+	
     <param
      id="30155"
      group="1"
@@ -2390,27 +2430,27 @@
          name   = "mFaceLipCornerLeft"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.005 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.003 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperRight"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 -0.003 0.0" />
-
+		 
         <bone
          name   = "mFaceLipLowerLeft"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.003 0.0" />
-
+		 
         <bone
          name   = "mFaceLipLowerRight"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 -0.003 0.0" />
-
+		 
         <bone
          name   = "mFaceLipCornerRight"
 		 scale  = "0.0 0.00 0.0"
@@ -2430,32 +2470,32 @@
          name   = "mFaceLipCornerLeft"
 		 scale  = "0.2 0.00 0.2"
 		 offset = "-0.01 0.00 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0.2 0.00 0.2"
 		 offset = "-0.01 0.00 0.0015" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 		 scale  = "0.2 0.00 0.2"
 		 offset = "-0.01 0.00 0.0025" />
-
+		 
         <bone
          name   = "mFaceLipUpperRight"
 		 scale  = "0.2 0.00 0.2"
 		 offset = "-0.01 0.00 0.0015" />
-
+		 
         <bone
          name   = "mFaceLipCornerRight"
 		 scale  = "0.2 0.00 0.2"
 		 offset = "-0.01 0.00 0.0" />
-
+		 		 
 	    <bone
          name   = "mFaceLipLowerLeft"
 		 scale  = "0.2 0.00 0.2"
 		 offset = "-0.01 0.00 -0.0015" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 		 scale  = "0.2 0.00 0.2"
@@ -2465,10 +2505,10 @@
          name   = "mFaceLipLowerRight"
 		 scale  = "0.2 0.00 0.2"
 		 offset = "-0.01 0.00 -0.0015" />
-
+		 
       </param_skeleton>
     </param>
-
+	
     <param
      id="30505"
      group="1"
@@ -2481,32 +2521,32 @@
          name   = "mFaceLipCornerLeft"
 		 scale  = "0.2 0.00 -0.6"
 		 offset = "-0.01 0.00 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0.2 0.00 -0.6"
 		 offset = "-0.012 0.00 -0.005" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 		 scale  = "0.2 0.00 -0.6"
 		 offset = "-0.015 0.00 -0.005" />
-
+		 
         <bone
          name   = "mFaceLipUpperRight"
 		 scale  = "0.2 0.00 -0.6"
 		 offset = "-0.012 0.00 -0.005" />
-
+		 
         <bone
          name   = "mFaceLipCornerRight"
 		 scale  = "0.2 0.00 -0.6"
 		 offset = "-0.01 0.00 0.0" />
-
+		 		 
 	    <bone
          name   = "mFaceLipLowerLeft"
 		 scale  = "0.2 0.00 -0.6"
 		 offset = "-0.01 0.00 0.008" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 		 scale  = "0.2 0.00 -0.6"
@@ -2519,7 +2559,7 @@
 
       </param_skeleton>
     </param>
-
+	
     <param
      id="31505"
      group="1"
@@ -2532,32 +2572,32 @@
          name   = "mFaceLipCornerLeft"
 		 scale  = "0.2 0.00 0.1"
 		 offset = "0.005 0.00 0.0" />
-
+		 
         <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0.2 0.00 0.7"
 		 offset = "0.004 0.00 0.006" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 		 scale  = "0.2 0.00 0.7"
 		 offset = "0.004 0.00 0.006" />
-
+		 
         <bone
          name   = "mFaceLipUpperRight"
 		 scale  = "0.2 0.00 0.7"
 		 offset = "0.004 0.00 0.006" />
-
+		 
         <bone
          name   = "mFaceLipCornerRight"
 		 scale  = "0.2 0.00 0.1"
 		 offset = "0.005 0.00 0.0" />
-
+		 		 
 	    <bone
          name   = "mFaceLipLowerLeft"
 		 scale  = "0.2 0.00 0.3"
 		 offset = "0.006 0.00 -0.003" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 		 scale  = "0.2 0.00 0.3"
@@ -2570,7 +2610,7 @@
 
       </param_skeleton>
     </param>
-
+		
     <param
      id="30797"
      group="1"
@@ -2578,7 +2618,7 @@
      value_min="0"
      value_max="1.5">
       <param_skeleton>
-
+		 		 
         <bone
          name   = "mFaceLipCornerLeft"
 		 scale  = "0 0 0"
@@ -2593,7 +2633,7 @@
          name   = "mFaceLipUpperLeft"
 	     scale  = " 0.1 0 0.6"
 		 offset = "-0.006 0.00 0.006" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 	     scale  = " 0.1 0 0.4"
@@ -2606,9 +2646,9 @@
 
  	    <bone
          name   = "mFaceLipLowerLeft"
-	     scale  = " 0 0 0"
+	     scale  = " 0 0 0"	 
 		 offset = "-0.002 0.00 0.001" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 	     scale  = " 0 0 0"
@@ -2629,7 +2669,7 @@
      value_min="0"
      value_max="1.5">
       <param_skeleton>
-
+		 		 
         <bone
          name   = "mFaceLipCornerLeft"
 		 scale  = "0 0 0"
@@ -2644,7 +2684,7 @@
          name   = "mFaceLipUpperLeft"
 	     scale  = " 0 0 0"
 		 offset = "-0.002 0.00 -0.003" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 	     scale  = " 0 0 0"
@@ -2654,12 +2694,12 @@
          name   = "mFaceLipUpperRight"
 	     scale  = " 0 0 0"
 		 offset = "-0.002 0.00 -0.003" />
-
+		 
 	    <bone
          name   = "mFaceLipLowerLeft"
 	     scale  = " 0.1 0 0.25"
 		 offset = "-0.005 0.00 -0.004" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 	     scale  = " 0.1 0 0.25"
@@ -2672,7 +2712,7 @@
 
       </param_skeleton>
     </param>
-
+	
     <param
      id="30506"
      group="1"
@@ -2680,7 +2720,7 @@
      value_min="-2"
      value_max="2">
       <param_skeleton>
-
+		 		 
         <bone
          name   = "mFaceLipCornerLeft"
 		 scale  = "0 0 0"
@@ -2695,7 +2735,7 @@
          name   = "mFaceLipUpperLeft"
 	     scale  = " 0 0 0"
 		 offset = "0 0 -0.006" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 	     scale  = " 0 0 0"
@@ -2705,12 +2745,12 @@
          name   = "mFaceLipUpperRight"
 	     scale  = " 0 0 0"
 		 offset = "0 0 -0.006" />
-
+		 
 	    <bone
          name   = "mFaceLipLowerLeft"
 	     scale  = " 0 0 0"
 		 offset = "0 0 -0.006" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 	     scale  = " 0 0 0"
@@ -2735,7 +2775,7 @@
          name   = "mFaceTeethLower"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0 0 -0.006" />
-
+		 
         <bone
          name   = "mFaceNoseBase"
 		 scale  = "0.0 0.00 0.0"
@@ -2743,7 +2783,7 @@
 
       </param_skeleton>
     </param>
-
+	
     <param
      id="30658"
      group="1"
@@ -2765,7 +2805,7 @@
          name   = "mFaceLipUpperLeft"
 	     scale  = "0 0 0"
 		 offset = "0 0 0" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 	     scale  = "0 0 0"
@@ -2775,12 +2815,12 @@
          name   = "mFaceLipUpperRight"
 	     scale  = "0 0 0"
 		 offset = "0 0 0" />
-
+		 
 	    <bone
          name   = "mFaceLipLowerLeft"
 	     scale  = "0 0 0"
 		 offset = "0 0 0.001" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 	     scale  = "0 0 0"
@@ -2800,7 +2840,7 @@
      value_min="0"
      value_max="1.4">
       <param_skeleton>
-
+		 		 
         <bone
          name   = "mFaceLipCornerLeft"
 		 scale  = "0 0 0"
@@ -2815,7 +2855,7 @@
          name   = "mFaceLipUpperLeft"
 		 scale  = "0 0 0"
 		 offset = "0 0.002 0" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 		 scale  = "0 0 0"
@@ -2825,12 +2865,12 @@
          name   = "mFaceLipUpperRight"
 		 scale  = "0 0 0"
 		 offset = "0 -0.002 0" />
-
+		 
 	    <bone
          name   = "mFaceLipLowerLeft"
 		 scale  = "0 0 0"
 		 offset = "0 0.001 0" />
-
+		 
         <bone
          name   = "mFaceLipLowerCenter"
 		 scale  = "0 0 0"
@@ -2843,7 +2883,7 @@
 
       </param_skeleton>
     </param>
-
+	
     <param
      id="30764"
      group="1"
@@ -2851,12 +2891,12 @@
      value_min="-1"
      value_max="1.2">
       <param_skeleton>
-
+		 		 
 	    <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0 0 0"
 		 offset = "0 0 0.002" />
-
+		 
         <bone
          name   = "mFaceLipUpperCenter"
 		 scale  = "0 0 0"
@@ -2869,7 +2909,7 @@
 
       </param_skeleton>
 	 </param>
-
+	 
     <param
      id="30025"
      group="1"
@@ -2877,12 +2917,12 @@
      value_min="-.8"
      value_max="1.5">
       <param_skeleton>
-
+		 		 
 	    <bone
          name   = "mFaceLipUpperLeft"
 		 scale  = "0 0 0"
 		 offset = "0 0.004 0" />
-
+		 
         <bone
          name   = "mFaceLipUpperRight"
 		 scale  = "0  0 0"
@@ -2890,7 +2930,7 @@
 
       </param_skeleton>
     </param>
-
+	
     <param
      id="31663"
      group="1"
@@ -2900,14 +2940,14 @@
       <param_skeleton>
         <bone
          name   = "mFaceNoseCenter"
-         scale  = "0.0 0.00 0.0"
+         scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 -0.003 0.0" />
 
         <bone
          name   = "mFaceNoseBase"
-         scale  = "0.0 0.00 0.0"
+         scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 -0.004 0.0" />
-
+        
 		<bone
          name   = "mFaceNoseLeft"
 		 scale  = "0.0 0.00 0.0"
@@ -2957,18 +2997,18 @@
          name   = "mFaceLipLowerRight"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "-0.002 -0.005 0.0" />
-
+		 
         <bone
          name   = "mFaceTeethUpper"
 		 scale  = "0.0  0.00 0.0"
 		 offset = "-0.002 -0.005 0.0" />
-
+		 
         <bone
          name   = "mFaceTeethLower"
 		 scale  = "0.0  0.00 0.0"
 		 offset = "-0.002 -0.006 0.0" />
-
-
+		 
+		 
 
       </param_skeleton>
     </param>
@@ -2982,14 +3022,14 @@
       <param_skeleton>
         <bone
          name   = "mFaceNoseCenter"
-         scale  = "0.0 0.00 0.0"
+         scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 0.003 0.0" />
 
         <bone
          name   = "mFaceNoseBase"
-         scale  = "0.0 0.00 0.0"
+         scale  = "0.0 0.00 0.0" 
 		 offset = "0.0 0.004 0.0" />
-
+        
 		<bone
          name   = "mFaceNoseLeft"
 		 scale  = "0.0 0.00 0.0"
@@ -3023,7 +3063,7 @@
         <bone
          name   = "mFaceLipCornerRight"
 		 scale  = "0.0 0.00 0.0"
-		 offset = "0.0 0.005 0.0" />
+		 offset = "0.0 0.005 0.0" />		 
 
         <bone
          name   = "mFaceLipLowerLeft"
@@ -3039,17 +3079,17 @@
          name   = "mFaceLipLowerRight"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "0.0 0.007 0.0" />
-
+		 
         <bone
          name   = "mFaceTeethUpper"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "-0.002 0.005 0.0" />
-
+		 
         <bone
          name   = "mFaceTeethLower"
 		 scale  = "0.0 0.00 0.0"
 		 offset = "-0.002 0.006 0.0" />
-
+		 
 
        </param_skeleton>
 	  </param>
@@ -3063,15 +3103,15 @@
       <param_skeleton>
         <bone
          name   = "mFaceEar1Left"
-         scale  = "0.55 0.55 0.55"
+         scale  = "0.55 0.55 0.55" 
 		 offset = "0.0  -0.002   0.001" />
         <bone
          name   = "mFaceEar1Right"
-         scale  = "0.55 0.55 0.55"
+         scale  = "0.55 0.55 0.55" 
 		 offset = "0.0  0.002   0.001" />
        </param_skeleton>
     </param>
-
+	
     <param
      id="30015"
      group="1"
@@ -3090,7 +3130,7 @@
          scale  = "0.0 0.0 0.0" />
        </param_skeleton>
      </param>
-
+	 
     <param
      id="30796"
      group="1"
@@ -3108,39 +3148,19 @@
          scale  = "0.0 0.0 0.0" />
        </param_skeleton>
     </param>
-
+	
     <param
      id="30185"
      group="1"
      name="Deep_Chin"
      value_min="-1"
      value_max="1">
+	 <!-- used for the chin depth slider -->
       <param_skeleton>
         <bone
-         name   = "mFaceJaw"
-		 offset = "0.0  0.00   -0.02"
+         name   = "mFaceChin"
+		 offset = "0.0  0.00   -0.03"
          scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceLipLowerLeft"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceLipLowerRight"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceLipLowerCenter"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceTongueBase"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
        </param_skeleton>
     </param>
     <param
@@ -3149,35 +3169,15 @@
      name="Deep_Chin"
      value_min="-1"
      value_max="1">
+	  <!-- used for the head shape slider -->
       <param_skeleton>
         <bone
-         name   = "mFaceJaw"
+         name   = "mFaceChin"
 		 offset = "0.0  0.00   -0.02"
          scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceLipLowerLeft"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceLipLowerRight"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceLipLowerCenter"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
-        <bone
-         name   = "mFaceTongueBase"
-		 offset = "0.0  0.00   0.02"
-         scale  = "0.0 0.0 0.0" />
-
        </param_skeleton>
     </param>
-
+	
     <param
      id="30760"
      group="1"
@@ -3200,6 +3200,12 @@
          name   = "mFaceLipLowerRight"
 		 offset = "0.0  0.00   -0.03"
          scale  = "0.0 0.0 0.0" />
+		 
+        <bone
+         name   = "mFaceTeethLower"
+		 offset = "0.0  0.00   -0.03"
+         scale  = "0.0 0.0 0.0" />
+
 
         <bone
          name   = "mFaceLipLowerCenter"
@@ -3210,16 +3216,16 @@
          name   = "mFaceTongueBase"
 		 offset = "0.0  0.00   -0.03"
          scale  = "0.0 0.0 0.0" />
-
+		 
         <bone
          name   = "mFaceChin"
 		 offset = "0.0  0.00   -0.03"
          scale  = "0.0 0.0 0.0" />
-
+		 
        </param_skeleton>
     </param>
-
-
+	
+	
     <param
      id="30665"
      group="1"
@@ -3228,18 +3234,39 @@
      value_max="2">
       <param_skeleton>
         <bone
-         name   = "mFaceJaw"
-		 offset = "0.0085  0.00  0"
+         name   = "mFaceTongueBase"
+		 offset = "0.01  0.00  0"
          scale  = "0.0 0.0 0.0" />
 
         <bone
-        name   = "mFaceTeethLower"
-        offset = "0.008 0 0"
-        scale  = "0.0 0.0 0.0" />
+         name   = "mFaceTeethLower"
+         offset = "0.005 0 0"
+         scale  = "0.0 0.0 0.0" />
 
+        <bone
+         name   = "mFaceChin"
+		 offset = "0.01  0.00  0"
+         scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceLipLowerRight"
+		 offset = "0.01  0.00  0"
+         scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceLipLowerLeft"
+		 offset = "0.01  0.00  0"
+         scale  = "0.0 0.0 0.0" />
+
+        <bone
+         name   = "mFaceLipLowerCenter"
+		 offset = "0.01  0.00  0"
+         scale  = "0.0 0.0 0.0" />
+
+		 
        </param_skeleton>
     </param>
-
+	
     <param
      id="30006"
      group="1"
@@ -3251,10 +3278,10 @@
          name   = "mFaceNoseCenter"
 		 offset = "0.0  0.00  0.0"
          scale  = "0.1 0.1 0.1" />
-
+		 
        </param_skeleton>
     </param>
-
+	
     <param
      id="30007"
      group="1"
@@ -3264,12 +3291,12 @@
       <param_skeleton>
         <bone
          name   = "mFaceChin"
-		 offset = "-0.025  0.00  0.005"
+		 offset = "-0.06  0.00  0.01"
          scale  = "0.0 0.0 0.0" />
-
+		 
        </param_skeleton>
 	</param>
-
+	
     <param
      id="40007"
      group="1"
@@ -3281,10 +3308,10 @@
          name   = "mFaceChin"
 		 offset = "-0.025  0.00  0.005"
          scale  = "0.0 0.0 0.0" />
-
+		 
        </param_skeleton>
 	</param>
-
+	
     <param
      id="30008"
      group="1"
@@ -3295,12 +3322,12 @@
         <bone
          name   = "mFaceChin"
 		 offset = "-0.002 0.0 -0.01"
-         scale  = "0.0 0.0 0.0" />
-
+         scale  = "0.0 0.5 0.0" />
+		 
        </param_skeleton>
     </param>
-
-
+	
+	
     <param
      id="30024"
      group="1"
@@ -3312,26 +3339,26 @@
 		 <bone
          name="mFaceEyeLidUpperLeft"
          scale="0 0 0"
-         offset="0 0 .003" />
+         offset="0 0 .0035" />
 
 		 <bone
          name="mFaceEyeLidUpperRight"
          scale="0 0 0"
-         offset="0 0 .003" />
-
+         offset="0 0 .0035" />
+		 
 		 <bone
          name="mFaceEyeLidLowerLeft"
          scale="0 0 0"
-         offset="0 0 -.003" />
+         offset="0 0 -.0035" />
 
 		 <bone
          name="mFaceEyeLidLowerRight"
          scale="0 0 0"
-         offset="0 0 -.003" />
+         offset="0 0 -.0035" />
 
        </param_skeleton>
     </param>
-
+	
     <param
      id="30650"
      group="1"
@@ -3348,9 +3375,9 @@
          name="mFaceEyebrowOuterRight"
          scale="0 0 0"
          offset="0 0 .004" />
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
-
+	
     <param
      id="30880"
      group="1"
@@ -3367,9 +3394,9 @@
          name="mFaceEyecornerInnerRight"
          scale="0 0 0"
          offset="0 0 .004" />
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
-
+	
     <param
      id="30765"
      group="1"
@@ -3381,12 +3408,12 @@
          <bone
           name="mFaceEyeLidLowerLeft"
           scale="0.05 0.05 0.05"
-          offset="0 0 .0003" />
+          offset="0 0 0" />
 
          <bone
           name="mFaceEyeLidLowerRight"
           scale="0.05 0.05 0.05"
-          offset="0 0 .0003" />
+          offset="0 0 0" />
 
          <bone
           name="mFaceEyecornerInnerLeft"
@@ -3398,7 +3425,7 @@
           scale="0.05 0.05 0.05"
           offset="0 0 0" />
 
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
 
     <param
@@ -3424,9 +3451,9 @@
          scale="0 0 0.08"
          offset="0.02 0 0" />
 
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
-
+	
     <param
      id="41629"
      group="1"
@@ -3450,9 +3477,9 @@
          scale="0 0 0.08"
          offset="0.02 0 0" />
 
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
-
+	
     <param
      id="30647"
      group="1"
@@ -3463,35 +3490,35 @@
       <param_skeleton>
 
 		 <bone
-         name="mFaceRoot"
+         name="mFaceChin"
          scale="0 -0.07 0.07"
          offset="0 0 -0.005" />
-
+		 
 		 <bone
 		  name="mFaceEyeLidLowerRight"
 		  scale="0 0 0"
 		  offset="0 -0.0033 0.0025" />
-
+		 
 		 <bone
 		  name="mFaceEyeLidUpperRight"
 		  scale="0 0 0"
 		  offset="0 -0.0033 0.002" />
-
+		 
 		 <bone
 		  name="mFaceEyecornerInnerRight"
 		  scale="0 0 0"
 		  offset="0 -0.0017 0.0025" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowOuterRight"
 		  scale="0 0 0"
 		  offset="0 -0.004 0.0014" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowCenterRight"
 		  scale="0 0 0"
 		  offset="0 -0.00377 0.00061" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowInnerRight"
 		  scale="0 0 0"
@@ -3505,51 +3532,51 @@
 		  name="mFaceLipUpperCenter"
 		  scale="0 0 0"
 		  offset="0 0 0.007" />
-
+		  
 		 <bone
 		  name="mFaceTeethUpper"
 		  scale="0 0 0"
 		  offset="0 0 0.007" />
-
+		  
 		 <bone
 		  name="mFaceLipLowerRight"
 		  scale="0 0 0"
-		  offset="0 0 0.0005" />
+		  offset="0 0 0.005" />
 		 <bone
 		  name="mFaceLipCornerRight"
 		  scale="0 0 0"
-		  offset="0 -0.00225 0.0075" />
-
+		  offset="0 -0.00225 0.0075" />		  
+		 
 		 <bone
 		  name="mFaceEyeLidLowerLeft"
 		  scale="0 0 0"
 		  offset="0 0.0033 0.0025" />
-
+		 
 		 <bone
 		  name="mFaceEyeLidUpperLeft"
 		  scale="0 0 0"
 		  offset="0 0.0033 0.002" />
-
+		 
 		 <bone
 		  name="mFaceEyecornerInnerLeft"
 		  scale="0 0 0"
 		  offset="0 0.0017 0.0025" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowOuterLeft"
 		  scale="0 0 0"
 		  offset="0 0.004 0.0014" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowCenterLeft"
 		  scale="0 0 0"
 		  offset="0 0.00377 0.00061" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowInnerLeft"
 		  scale="0 0 0"
 		  offset="0 0.00225 0.001" />
-
+		  
 		 <bone
 		  name="mFaceLipUpperLeft"
 		  scale="0 0 0"
@@ -3557,7 +3584,7 @@
 		 <bone
 		  name="mFaceLipLowerCenter"
 		  scale="0 0 0"
-		  offset="0 0 0.001" />
+		  offset="0 0 0.005" />
 		 <bone
 		  name="mFaceTeethLower"
 		  scale="0 0 0"
@@ -3565,22 +3592,17 @@
 		 <bone
 		  name="mFaceLipLowerLeft"
 		  scale="0 0 0"
-		  offset="0 0.000 0.0005" />
+		  offset="0 0.000 0.005" />
 		 <bone
 		  name="mFaceLipCornerLeft"
 		  scale="0 0 0"
 		  offset="0 0.00225 0.0075" />
-
+		  
 		 <bone
 		  name="mFaceTongueBase"
-		  scale="0 0 0"
-		  offset="0 0 0.00" />
-
-		 <bone
-		  name="mFaceJaw"
-		  scale="0 0 0"
-		  offset="0 0 0.0085" />
-
+		  scale="0 -0.07 0.07"
+          offset="0 0 0.005" />
+		  
 		 <bone
 		  name="mFaceCheekLowerRight"
 		  scale="0 0 0"
@@ -3589,7 +3611,7 @@
 		  name="mFaceCheekLowerLeft"
 		  scale="0 0 0"
 		  offset="0 0 0.0085" />
-
+		  
 		 <bone
 		  name="mFaceCheekUpperRight"
 		  scale="0 0 0"
@@ -3598,7 +3620,7 @@
 		  name="mFaceCheekUpperLeft"
 		  scale="0 0 0"
 		  offset="0 0 0.005" />
-
+		  
 		 <bone
 		  name="mFaceNoseCenter"
 		  scale="0 0 0"
@@ -3618,8 +3640,8 @@
 		  name="mFaceNoseBase"
 		  scale="0 0 0"
 		  offset="0 0 0.006" />
-
-	  </param_skeleton>
+		  
+	  </param_skeleton>		
     </param>
     <param
      id="40647"
@@ -3631,35 +3653,35 @@
       <param_skeleton>
 
 		 <bone
-         name="mFaceRoot"
+         name="mFaceChin"
          scale="0 -0.07 0.07"
          offset="0 0 -0.005" />
-
+		 
 		 <bone
 		  name="mFaceEyeLidLowerRight"
 		  scale="0 0 0"
 		  offset="0 -0.0033 0.0025" />
-
+		 
 		 <bone
 		  name="mFaceEyeLidUpperRight"
 		  scale="0 0 0"
 		  offset="0 -0.0033 0.002" />
-
+		 
 		 <bone
 		  name="mFaceEyecornerInnerRight"
 		  scale="0 0 0"
 		  offset="0 -0.0017 0.0025" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowOuterRight"
 		  scale="0 0 0"
 		  offset="0 -0.004 0.0014" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowCenterRight"
 		  scale="0 0 0"
 		  offset="0 -0.00377 0.00061" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowInnerRight"
 		  scale="0 0 0"
@@ -3673,12 +3695,12 @@
 		  name="mFaceLipUpperCenter"
 		  scale="0 0 0"
 		  offset="0 0 0.007" />
-
+		  
 		 <bone
 		  name="mFaceTeethUpper"
 		  scale="0 0 0"
 		  offset="0 0 0.007" />
-
+		  
 		 <bone
 		  name="mFaceLipLowerRight"
 		  scale="0 0 0"
@@ -3686,38 +3708,38 @@
 		 <bone
 		  name="mFaceLipCornerRight"
 		  scale="0 0 0"
-		  offset="0 -0.00225 0.0075" />
-
+		  offset="0 -0.00225 0.0075" />		  
+		 
 		 <bone
 		  name="mFaceEyeLidLowerLeft"
 		  scale="0 0 0"
 		  offset="0 0.0033 0.0025" />
-
+		 
 		 <bone
 		  name="mFaceEyeLidUpperLeft"
 		  scale="0 0 0"
 		  offset="0 0.0033 0.002" />
-
+		 
 		 <bone
 		  name="mFaceEyecornerInnerLeft"
 		  scale="0 0 0"
 		  offset="0 0.0017 0.0025" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowOuterLeft"
 		  scale="0 0 0"
 		  offset="0 0.004 0.0014" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowCenterLeft"
 		  scale="0 0 0"
 		  offset="0 0.00377 0.00061" />
-
+		  
 		 <bone
 		  name="mFaceEyebrowInnerLeft"
 		  scale="0 0 0"
 		  offset="0 0.00225 0.001" />
-
+		  
 		 <bone
 		  name="mFaceLipUpperLeft"
 		  scale="0 0 0"
@@ -3738,17 +3760,12 @@
 		  name="mFaceLipCornerLeft"
 		  scale="0 0 0"
 		  offset="0 0.00225 0.0075" />
-
+		  
 		 <bone
 		  name="mFaceTongueBase"
 		  scale="0 0 0"
 		  offset="0 0 0.00" />
-
-		 <bone
-		  name="mFaceJaw"
-		  scale="0 0 0"
-		  offset="0 0 0.0085" />
-
+		  
 		 <bone
 		  name="mFaceCheekLowerRight"
 		  scale="0 0 0"
@@ -3757,7 +3774,7 @@
 		  name="mFaceCheekLowerLeft"
 		  scale="0 0 0"
 		  offset="0 0 0.0085" />
-
+		  
 		 <bone
 		  name="mFaceCheekUpperRight"
 		  scale="0 0 0"
@@ -3766,7 +3783,7 @@
 		  name="mFaceCheekUpperLeft"
 		  scale="0 0 0"
 		  offset="0 0 0.005" />
-
+		  
 		 <bone
 		  name="mFaceNoseCenter"
 		  scale="0 0 0"
@@ -3787,7 +3804,7 @@
 		  scale="0 0 0"
 		  offset="0 0 0.006" />
 
-	  </param_skeleton>
+	  </param_skeleton>		
     </param>
 
     <param
@@ -3812,28 +3829,28 @@
          name="mFaceForeheadRight"
          scale="0 0 0.2"
          offset="-0.01 0 -0.01" />
-
+		 
 		 <bone
          name="mFaceEyebrowInnerRight"
          scale="0 0 0"
          offset="0 0 0.002" />
-
+		 
 		 <bone
          name="mFaceEyebrowInnerLeft"
          scale="0 0 0"
          offset="0 0 0.002" />
-
+		 
 		 <bone
          name="mFaceEyebrowCenterRight"
          scale="0 0 0"
          offset="0 0 0.003" />
-
+		 
 		 <bone
          name="mFaceEyebrowCenterLeft"
          scale="0 0 0"
          offset="0 0 0.003" />
 
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
 
     <param
@@ -3858,28 +3875,28 @@
          name="mFaceForeheadRight"
          scale="0 0 0.2"
          offset="-0.01 0 -0.01" />
-
+		 
 		 <bone
          name="mFaceEyebrowInnerRight"
          scale="0 0 0"
          offset="0 0 0.002" />
-
+		 
 		 <bone
          name="mFaceEyebrowInnerLeft"
          scale="0 0 0"
          offset="0 0 0.002" />
-
+		 
 		 <bone
          name="mFaceEyebrowCenterRight"
          scale="0 0 0"
          offset="0 0 0.003" />
-
+		 
 		 <bone
          name="mFaceEyebrowCenterLeft"
          scale="0 0 0"
          offset="0 0 0.003" />
 
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
 
     <param
@@ -3899,35 +3916,35 @@
          name="mFaceEyebrowInnerRight"
          scale="0.1 0 0"
          offset="0.004 0 0" />
-
+		 
 		 <bone
          name="mFaceEyebrowInnerLeft"
          scale="0.1 0 0"
          offset="0.004 0 0" />
-
+		 
 		 <bone
          name="mFaceEyebrowCenterRight"
          scale="0.1 0 0"
          offset="0.004 0 0" />
-
+		 
 		 <bone
          name="mFaceEyebrowCenterLeft"
          scale="0.1 0 0"
          offset="0.004 0 0" />
-
+		 
 		 <bone
          name="mFaceEyebrowOuterRight"
          scale="0 0 0"
          offset="0.004 0 0" />
-
+		 
 		 <bone
          name="mFaceEyebrowOuterLeft"
          scale="0 0 0"
          offset="0.004 0 0" />
 
-       </param_skeleton>
+       </param_skeleton>		 
     </param>
-
+	
     <param
      id="30011"
      group="1"
@@ -3985,7 +4002,7 @@
 
        </param_skeleton>
     </param>
-
+	
     <param
      id="30759"
      group="1"
@@ -4003,8 +4020,8 @@
        </param_skeleton>
 
     </param>
-
-
+	
+	
     <param
      id="30010"
      group="1"
@@ -4036,7 +4053,7 @@
 
          <bone
          name="mFaceChin"
-         scale="0.0 0.7 0.0"
+         scale="0.0 1.0 0.0"
          offset="0.0 0.0 0.0" />
 
        </param_skeleton>
@@ -4054,7 +4071,7 @@
          name="mFaceJaw"
          scale="0.0 0.5 0.0"
          offset="0.0 0.0 0.0" />
-
+		 
 		 <bone
          name="mFaceLipLowerRight"
          scale="0.0 0.0 0.0"
@@ -4067,8 +4084,8 @@
 
        </param_skeleton>
 	</param>
-
-
+	
+	
     <param
      id="30018"
      group="1"
@@ -4089,7 +4106,7 @@
 
        </param_skeleton>
     </param>
-
+	
     <param
      id="30021"
      group="1"
@@ -4152,7 +4169,7 @@
 
        </param_skeleton>
     </param>
-
+	
     <param
      id="30019"
      group="1"
@@ -4183,7 +4200,7 @@
 
        </param_skeleton>
     </param>
-
+	
 	<param
      id="30879"
      group="1"
@@ -4200,7 +4217,7 @@
 
 	   </param_skeleton>
     </param>
-
+	
 	<param
 	id="30193"
 	group="1"
@@ -4236,6 +4253,199 @@
 
 		</param_skeleton>
 	</param>
+	
+    <param
+     id="30646"
+     group="0"
+     name="Egg_Head"
+     value_min="-1.3"
+     value_max="1"
+     value_default="0">
+      <param_skeleton> 
+
+		<bone
+         name="mFaceRoot"
+         scale="0 -0.07 0.07"
+         offset="0 0 -0.005" />
+
+		<bone
+         name="mFaceForeheadLeft"
+         scale="0 0 0.2"
+         offset="-0.01 0 -0.01" />
+
+		 <bone
+         name="mFaceForeheadCenter"
+         scale="0 0 0"
+         offset="-0.001 0 0.001" />
+
+		 <bone
+         name="mFaceForeheadRight"
+         scale="0 0 0.2"
+         offset="-0.01 0 -0.01" />
+ 
+		<bone
+         name   = "mFaceChin"
+		 offset = "-0.025  0.00  0.005"
+         scale  = "0.0 0.0 0.0" />
+
+		<bone
+		 name="mFaceEyeLidLowerRight"
+		 scale="0 0 0"
+		 offset="0 -0.0033 0.0025" />
+
+		 <bone
+		  name="mFaceEyeLidUpperRight"
+		  scale="0 0 0"
+		  offset="0 -0.0033 0.002" />
+
+		 <bone
+		  name="mFaceEyecornerInnerRight"
+		  scale="0 0 0"
+		  offset="0 -0.0017 0.0025" />
+
+		 <bone
+		  name="mFaceEyebrowOuterRight"
+		  scale="0 0 0"
+		  offset="0 -0.004 0.0014" />
+
+		 <bone
+		  name="mFaceEyebrowCenterRight"
+		  scale="0 0 0"
+		  offset="0 -0.00377 0.00061" />
+
+		 <bone
+		  name="mFaceEyebrowInnerRight"
+		  scale="0 0 0"
+		  offset="0 -0.00225 0.001" />
+
+		 <bone
+		  name="mFaceLipUpperRight"
+		  scale="0 0 0"
+		  offset="0 -0.0014 0.007" />
+
+		 <bone
+		  name="mFaceLipUpperCenter"
+		  scale="0 0 0"
+		  offset="0 0 0.007" />
+
+		 <bone
+		  name="mFaceTeethUpper"
+		  scale="0 0 0"
+		  offset="0 0 0.007" />
+
+		 <bone
+		  name="mFaceLipLowerRight"
+		  scale="0 0 0"
+		  offset="0 -0.00225 0.0055" />
+
+		 <bone
+		  name="mFaceLipCornerRight"
+		  scale="0 0 0"
+		  offset="0 -0.00225 0.0075" />		  
+
+		 <bone
+		  name="mFaceEyeLidLowerLeft"
+		  scale="0 0 0"
+		  offset="0 0.0033 0.0025" />
+
+		 <bone
+		  name="mFaceEyeLidUpperLeft"
+		  scale="0 0 0"
+		  offset="0 0.0033 0.002" />
+
+		 <bone
+		  name="mFaceEyecornerInnerLeft"
+		  scale="0 0 0"
+		  offset="0 0.0017 0.0025" />
+
+		 <bone
+		  name="mFaceEyebrowOuterLeft"
+		  scale="0 0 0"
+		  offset="0 0.004 0.0014" />
+
+		 <bone
+		  name="mFaceEyebrowCenterLeft"
+		  scale="0 0 0"
+		  offset="0 0.00377 0.00061" />
+
+		 <bone
+		  name="mFaceEyebrowInnerLeft"
+		  scale="0 0 0"
+		  offset="0 0.00225 0.001" />
+
+		 <bone
+		  name="mFaceLipUpperLeft"
+		  scale="0 0 0"
+		  offset="0 0.0014 0.007" />
+
+		 <bone
+		  name="mFaceLipLowerCenter"
+		  scale="0 0 0"
+		  offset="0 0 0.0055" />
+
+		 <bone
+		  name="mFaceTeethLower"
+		  scale="0 0 0"
+		  offset="0 0 0.006" />
+
+		 <bone
+		  name="mFaceLipLowerLeft"
+		  scale="0 0 0"
+		  offset="0 0.00225 0.0055" />
+
+		 <bone
+		  name="mFaceLipCornerLeft"
+		  scale="0 0 0"
+		  offset="0 0.00225 0.0075" />
+
+		 <bone
+		  name="mFaceTongueBase"
+		  scale="0 0 0"
+		  offset="0 0 0.006" />
+
+		 <bone
+		  name="mFaceCheekLowerRight"
+		  scale="0 0 0"
+		  offset="0 0 0.0085" />
+
+		 <bone
+		  name="mFaceCheekLowerLeft"
+		  scale="0 0 0"
+		  offset="0 0 0.0085" />
+
+		 <bone
+		  name="mFaceCheekUpperRight"
+		  scale="0 0 0"
+		  offset="0 0 0.005" />
+
+		 <bone
+		  name="mFaceCheekUpperLeft"
+		  scale="0 0 0"
+		  offset="0 0 0.005" />
+
+		 <bone
+		  name="mFaceNoseCenter"
+		  scale="0 0 0"
+		  offset="0 0 0.005" />
+
+		 <bone
+		  name="mFaceNoseRight"
+		  scale="0 0 0"
+		  offset="0 0 0.005" />
+
+		 <bone
+		  name="mFaceNoseLeft"
+		  scale="0 0 0"
+		  offset="0 0 0.005" />
+
+		 <bone
+		  name="mFaceNoseBase"
+		  scale="0 0 0"
+		  offset="0 0 0.006" />
+
+      </param_skeleton>
+    </param>
+	
   </skeleton>
 
   <mesh
@@ -5049,11 +5259,11 @@
  lod="0"
    file_name="avatar_head.llm"
    min_pixel_width="320">
-    <!--
+    <!-- 
                 begin morph targets
                 #############
                 tweakable morphs
-                #############
+                ############# 
       -->
     <param
      id="20001"
@@ -5090,7 +5300,7 @@
      value_max="1.5">
       <param_morph />
     </param>
-
+	
     <param
      id="20656"
      group="1"
@@ -5099,7 +5309,7 @@
      value_max="2">
       <param_morph />
     </param>
-
+	
     <param
      id="20004"
      group="1"
@@ -5117,7 +5327,7 @@
      value_max="2">
       <param_morph />
     </param>
-
+	
     <param
      id="20506"
      group="1"
@@ -5126,7 +5336,7 @@
      value_max="2">
       <param_morph />
     </param>
-
+	
     <param
      id="20764"
      group="1"
@@ -5144,7 +5354,7 @@
      value_max="1.5">
       <param_morph/>
     </param>
-
+	
     <param
      id="20663"
      group="1"
@@ -5154,7 +5364,7 @@
      value_default="0">
       <param_morph />
     </param>
-
+	
     <param
      id="20035"
      group="1"
@@ -5163,7 +5373,7 @@
      value_max="2">
       <param_morph/>
     </param>
-
+	
     <param
      id="20015"
      group="1"
@@ -5172,7 +5382,7 @@
      value_max="1.5">
       <param_morph/>
     </param>
-
+	
     <param
      id="20796"
      group="1"
@@ -5181,7 +5391,7 @@
      value_max="3">
       <param_morph />
     </param>
-
+	
     <param
      id="20185"
      group="1"
@@ -5190,7 +5400,7 @@
      value_max="1">
       <param_morph />
     </param>
-
+	
     <param
      id="20665"
      group="1"
@@ -5199,7 +5409,7 @@
      value_max="2">
       <param_morph />
     </param>
-
+	
     <param
      id="20024"
      group="1"
@@ -5208,7 +5418,7 @@
      value_max="2">
       <param_morph />
     </param>
-
+	
     <param
      id="20650"
      group="1"
@@ -5217,7 +5427,7 @@
      value_max="1.2">
       <param_morph />
     </param>
-
+	
     <param
      id="20765"
      group="1"
@@ -5397,7 +5607,7 @@
      value_max="1">
       <param_morph />
     </param>
-
+	
     <param
      id="20021"
      group="1"
@@ -5665,7 +5875,7 @@
        value_max="1.2">
       <param_morph />
     </param>
-
+ 
     <param
      id="657"
      group="1"
@@ -5835,7 +6045,7 @@
        -->
     <!--
             ##############
-            # Facial Expression morphs
+            # Facial Expression morphs 
             ##############
             -->
     <param
@@ -6374,10 +6584,10 @@
      value_max="1.2">
       <param_morph />
     </param>
-
+ 
     <!--
             ##############
-            # Facial Expression morphs
+            # Facial Expression morphs 
             ##############
             -->
     <param
@@ -7006,7 +7216,7 @@
           pos="0.004 0.0 -0.01"/>
       </param_morph>
     </param>
-
+    
     <param
      id="628"
      group="1"
@@ -7093,7 +7303,7 @@
           pos="0.0 0.026 0.0"/>
       </param_morph>
     </param>
-
+    
     <param
      id="685"
      group="0"
@@ -7122,8 +7332,8 @@
       </param_morph>
     </param>
 
-    <!-- ############# #
-      other morphs (not user controlled)
+    <!-- ############# # 
+      other morphs (not user controlled) 
       ############# -->
     <param
      id="100"
@@ -7909,7 +8119,7 @@
       <param_morph />
     </param>
 
-
+    
     <param
      id="1205"
      group="1"
@@ -8311,9 +8521,9 @@
      name="skirt_male"
      wearable="skirt"
      edit_group="driven"
-     cross_wearable="true"
-     value_min="0"
-     value_max="1">
+     cross_wearable="true" 
+     value_min="0" 
+     value_max="1"> 
       <param_morph />
     </param>
 
@@ -8754,7 +8964,7 @@
     <layer
      name="head bump definition"
      render_pass="bump">
-
+         
 
       <texture
            tga_file="bump_head_base.tga"
@@ -10826,7 +11036,7 @@ render_pass="bump">
       <texture
        local_texture="upper_jacket"
        local_texture_alpha_only="true" />
-
+          
 
       <param
       id="875"
@@ -11844,7 +12054,7 @@ render_pass="bump">
       <texture
        local_texture="lower_jacket"
        local_texture_alpha_only="true" />
-
+          
 
       <param
        id="876"
@@ -12257,7 +12467,7 @@ render_pass="bump">
 		 id="30004" />
       </param_driver>
     </param>
-
+	
     <param
      id="517"
      group="0"
@@ -12280,8 +12490,8 @@ render_pass="bump">
 		<driven
 		 id="30517" />
       </param_driver>
-    </param>
-
+    </param>	
+		
     <param
      id="20"
      group="0"
@@ -12327,7 +12537,7 @@ render_pass="bump">
 		 id="30656" />
       </param_driver>
     </param>
-
+	
     <param
      id="653"
      group="0"
@@ -12373,7 +12583,7 @@ render_pass="bump">
 		 id="30506" />
       </param_driver>
     </param>
-
+	
     <param
      id="764"
      group="0"
@@ -12395,7 +12605,7 @@ render_pass="bump">
 		 id="30764" />
       </param_driver>
     </param>
-
+	
     <param
      id="25"
      group="0"
@@ -12437,7 +12647,7 @@ render_pass="bump">
       <param_driver>
         <driven
          id="20663" />
-
+		 
 		<driven
 		 id="31663"
          min1="-2"
@@ -12475,7 +12685,7 @@ render_pass="bump">
 		 id="30035" />
       </param_driver>
     </param>
-
+	
     <param
      id="15"
      group="0"
@@ -12498,7 +12708,7 @@ render_pass="bump">
 		 id="30015" />
       </param_driver>
     </param>
-
+	
     <param
      id="796"
      group="0"
@@ -12521,7 +12731,7 @@ render_pass="bump">
 		 id="30796" />
       </param_driver>
     </param>
-
+	
     <param
      id="185"
      group="0"
@@ -12544,7 +12754,7 @@ render_pass="bump">
 		 id="30185" />
       </param_driver>
     </param>
-
+	
     <param
      id="760"
      group="0"
@@ -12568,8 +12778,8 @@ render_pass="bump">
 		 id="30760" />
       </param_driver>
     </param>
-
-
+	
+	
     <param
      id="665"
      group="0"
@@ -12593,7 +12803,7 @@ render_pass="bump">
 		 id="30665" />
       </param_driver>
     </param>
-
+	
     <param
      id="6"
      group="0"
@@ -12614,9 +12824,9 @@ render_pass="bump">
          id="20006" />
 		<driven
 		 id="30006" />
-      </param_driver>
+      </param_driver>    
     </param>
-
+	
     <param
      id="7"
      group="0"
@@ -12637,7 +12847,7 @@ render_pass="bump">
          id="20007" />
 		<driven
 		 id="30007" />
-      </param_driver>
+      </param_driver>    
 	</param>
 
     <param
@@ -12660,10 +12870,10 @@ render_pass="bump">
          id="20008" />
 		<driven
 		 id="30008" />
-      </param_driver>
+      </param_driver>    
     </param>
-
-
+	
+	
     <param
      id="24"
      group="0"
@@ -12708,7 +12918,7 @@ render_pass="bump">
 		 id="30650" />
       </param_driver>
     </param>
-
+	
     <param
        id="880"
        group="0"
@@ -12730,7 +12940,7 @@ render_pass="bump">
 		 id="30880" />
       </param_driver>
     </param>
-
+	
     <param
      id="21"
      group="0"
@@ -12796,7 +13006,7 @@ render_pass="bump">
 		 id="30765" />
       </param_driver>
     </param>
-
+	
     <param
      id="1"
      group="0"
@@ -12819,7 +13029,7 @@ render_pass="bump">
 		 id="30001" />
       </param_driver>
     </param>
-
+	
     <param
      id="11"
      group="0"
@@ -12865,7 +13075,7 @@ render_pass="bump">
 		 id="30758" />
       </param_driver>
     </param>
-
+	
     <param
      id="27"
      group="0"
@@ -12888,7 +13098,7 @@ render_pass="bump">
 		 id="30027" />
       </param_driver>
     </param>
-
+	
     <param
      id="759"
      group="0"
@@ -12912,7 +13122,7 @@ render_pass="bump">
 		 id="30759" />
       </param_driver>
     </param>
-
+	
 
     <param
      id="10"
@@ -12937,7 +13147,7 @@ render_pass="bump">
 		 id="30010" />
       </param_driver>
     </param>
-
+	
     <param
      id="17"
      group="0"
@@ -12960,7 +13170,7 @@ render_pass="bump">
 		 id="30017" />
       </param_driver>
     </param>
-
+	
     <param
      id="18"
      group="0"
@@ -12983,7 +13193,7 @@ render_pass="bump">
 		 id="30018" />
       </param_driver>
     </param>
-
+	
     <param
      id="14"
      group="0"
@@ -13006,7 +13216,7 @@ render_pass="bump">
 		 id="30014" />
       </param_driver>
     </param>
-
+	
     <param
      id="19"
      group="0"
@@ -13454,7 +13664,7 @@ render_pass="bump">
          max1="1"
          max2="1"
          min2="1" />
-
+		 
 		<driven
 		 id="30505"
          min1="0"
@@ -13502,7 +13712,7 @@ render_pass="bump">
          max1="1"
          max2="1"
          min2="1" />
-
+		 
         <driven
          id="30797"
          min1="0"
@@ -13516,7 +13726,7 @@ render_pass="bump">
          max1="1"
          max2="1"
          min2="1" />
-
+		         		 
       </param_driver>
     </param>
 
@@ -13542,7 +13752,7 @@ render_pass="bump">
 
         <driven
          id="30" />
-
+		
 		<driven
 		 id="30155" />
 
@@ -14232,7 +14442,7 @@ render_pass="bump">
          max1="1"
          max2="1"
          min2="1" />
-
+		 
 		<driven
 		 id="31629"
          min1="0"
@@ -14246,7 +14456,7 @@ render_pass="bump">
          max1="1"
          max2="1"
          min2="1" />
-
+		 
       </param_driver>
     </param>
 
@@ -14273,28 +14483,9 @@ render_pass="bump">
 
         <driven
          id="186" />
-
+		
 		<driven
-		 min1="-1.3"
-		 max1="-1.3"
-		 max2="-1.3"
-		 min2="1"
-         id="40017" />
-
-		<driven
-		 id="40185" />
-
-		<driven
-		 id="41629" />
-
-		<driven
-		 id="42629" />
-
-		<driven
-		 id="40007" />
-
-		<driven
-		 id="40647" />
+		 id="30646" />
 
       </param_driver>
     </param>
@@ -14322,7 +14513,7 @@ render_pass="bump">
 
         <driven
          id="187" />
-
+		 
 		<driven
 		 id="30647" />
 
@@ -15579,7 +15770,7 @@ render_pass="bump">
          id="872" />
       </param_driver>
     </param>
-
+      
 
     <param
      id="877"
@@ -15599,13 +15790,13 @@ render_pass="bump">
       <param_driver>
         <driven
          id="875" />
-
+             
 
         <driven
         id="876" />
       </param_driver>
     </param>
-
+      
     <param
      id="1071"
      group="2"
@@ -15662,7 +15853,7 @@ render_pass="bump">
          max1="1"
          max2="1"
          min2="1" />
-
+         
         <driven
          id="1069"
          min1="0"
