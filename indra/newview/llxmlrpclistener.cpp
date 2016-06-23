@@ -322,7 +322,7 @@ public:
         mBoundListener =
             LLEventPumps::instance().
             obtain("mainloop").
-            listen(LLEventPump::inventName(), boost::bind(&Poller::poll, this, _1));
+            listen(LLEventPump::ANONYMOUS, boost::bind(&Poller::poll, this, _1));
 
         LL_INFOS("LLXMLRPCListener") << mMethod << " request sent to " << mUri << LL_ENDL;
     }
