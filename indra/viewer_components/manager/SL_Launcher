@@ -34,7 +34,6 @@ elif sys.platform.startswith("win") or sys.platform.startswith("cyg"):
    elif os.path.isfile(os.path.join(cwd,"SecondLifeTest.exe")):
       executable_name = "SecondLifeTest.exe"
    else:
-      #unsupported by prototypeS
       sys.exit("Can't find Windows viewer binary")
 elif sys.platform.startswith("linux"):
    executable_name = "secondlife"

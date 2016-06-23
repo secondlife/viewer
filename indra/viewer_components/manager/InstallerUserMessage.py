@@ -58,8 +58,8 @@ class InstallerUserMessage(tk.Tk):
         self.config(background = 'black')
         # background="..." doesn't work on MacOS for radiobuttons or progress bars
         # http://tinyurl.com/tkmacbuttons
-        ttk.Style().configure('Linden.TLabel', foreground='#487A7B', background='black')
-        ttk.Style().configure('Linden.TButton', foreground='#487A7B', background='black')
+        ttk.Style().configure('Linden.TLabel', foreground=InstallerUserMessage.linden_green, background='black')
+        ttk.Style().configure('Linden.TButton', foreground=InstallerUserMessage.linden_green, background='black')
         ttk.Style().configure("black.Horizontal.TProgressbar", foreground=InstallerUserMessage.linden_green, background='black')
 
         #This bit of configuration centers the window on the screen
@@ -136,8 +136,8 @@ class InstallerUserMessage(tk.Tk):
         self.mainloop()
 
     def binary_choice_message(self, message, true = 'Yes', false = 'No'):
-        #one: first option, returns True
-        #two: second option, returns False
+        #true: first option, returns True
+        #false: second option, returns False
         #usage is kind of opaque and relies on this object persisting after the window destruction to pass back choice
         #usage:
         #   frame = InstallerUserMessage.InstallerUserMessage( ... )
@@ -160,6 +160,38 @@ class InstallerUserMessage(tk.Tk):
         self.button_one.grid(row = 1, column = 3, sticky = 'W', pady = 40)
         self.button_two.grid(row = 2, column = 3, sticky = 'W', pady = 0)
         self.auto_resize(row_count = 2, column_count = 3, heavy_column = 3)
+        #self.button_two.deselect()
+        self.update()
+        self.mainloop()
+
+    def trinary_choice_message(self, message, one = 1, two = 2, three = 3):
+        #one: first option, returns 1
+        #two: second option, returns 2
+        #three: third option, returns 3
+        #usage is kind of opaque and relies on this object persisting after the window destruction to pass back choice
+        #usage:
+        #   frame = InstallerUserMessage.InstallerUserMessage( ... )
+        #   frame = frame.binary_choice_message( ... )
+        #   (wait for user to click)
+        #   value = frame.choice.get()
+
+        self.text_label = tk.Label(text = message)
+        #command registers the callback to the method named.  We want the frame to go away once clicked.
+        self.button_one = ttk.Radiobutton(text = one, variable = self.choice, value = 1, 
+            command = self._delete_window, style = 'Linden.TButton')
+        self.button_two = ttk.Radiobutton(text = two, variable = self.choice, value = 2, 
+            command = self._delete_window, style = 'Linden.TButton')
+        self.button_three = ttk.Radiobutton(text = three, variable = self.choice, value = 3, 
+            command = self._delete_window, style = 'Linden.TButton')
+        self.set_colors(self.text_label)
+        self.set_colors(self.image_label)
+        #pad, direction and weight are all experimentally derived by retrying various values
+        self.image_label.grid(row = 1, column = 1, rowspan = 4, sticky = 'W')
+        self.text_label.grid(row = 1, column = 2, rowspan = 4, padx = 5)
+        self.button_one.grid(row = 1, column = 3, sticky = 'W', pady = 5)
+        self.button_two.grid(row = 2, column = 3, sticky = 'W', pady = 5)
+        self.button_three.grid(row = 3, column = 3, sticky = 'W', pady = 5)
+        self.auto_resize(row_count = 3, column_count = 3, heavy_column = 3)
         #self.button_two.deselect()
         self.update()
         self.mainloop()
@@ -248,6 +280,13 @@ if __name__ == "__main__":
     print frame3.choice.get()
     sys.stdout.flush()
 
+    #trinary choice test.  User destroys window when they select.
+    frame3a = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 200", icon_name="head-sl-logo.gif")
+    frame3a.trinary_choice_message(message = "And all I have to do is think of her.", 
+        one = "Don't want to leave her now", two = 'You know I believe and how', three = 'John is Dead')
+    print frame3a.choice.get()
+    sys.stdout.flush()
+
     #progress bar
     queue = Queue.Queue()
     thread = ThreadedClient(queue)
@@ -257,9 +296,4 @@ if __name__ == "__main__":
     frame4 = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 300", icon_name="head-sl-logo.gif")
     frame4.progress_bar(message = "You're asking me will my love grow", size = 100, pb_queue = queue)
     print "frame defined"
-    
     frame4.mainloop()
-
-
-
-
