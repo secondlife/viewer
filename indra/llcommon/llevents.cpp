@@ -320,7 +320,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     // if the supplied name is empty we are not interested in the ordering mechanism 
     // and can bypass attempting to find the optimal location to insert the new 
     // listener.  We'll just tack it on to the end.
-    if (name != ANONYMOUS)
+    if (!name.empty()) // should be the same as testing against ANONYMOUS
     {
         // Check for duplicate name before connecting listener to mSignal
         ConnectionMap::const_iterator found = mConnections.find(name);
@@ -464,7 +464,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     // connect it.
     LLBoundListener bound = mSignal->connect(nodePosition, listener);
     
-    if (name != ANONYMOUS)
+    if (!name.empty())
     {   // note that we are not tracking anonymous listeners here either.
         // This means that it is the caller's responsibility to either assign 
         // to a TempBoundListerer (scoped_connection) or manually disconnect 
