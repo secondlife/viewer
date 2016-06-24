@@ -437,7 +437,7 @@ public:
 	// viewer object has the inventory stored locally.
 	void registerInventoryListener(LLVOInventoryListener* listener, void* user_data);
 	void removeInventoryListener(LLVOInventoryListener* listener);
-	BOOL isInventoryPending() { return mInventoryPending; }
+	BOOL isInventoryPending();
 	void clearInventoryListeners();
 	bool hasInventoryListeners();
 	void requestInventory();
@@ -757,7 +757,7 @@ protected:
 	S16 mInventorySerialNum;
 
 	LLViewerRegion	*mRegionp;					// Region that this object belongs to.
-	BOOL			mInventoryPending;
+	F64				mInvRequestExpireTime;
 	BOOL			mInventoryDirty;
 	BOOL			mDead;
 	BOOL			mOrphaned;					// This is an orphaned child
