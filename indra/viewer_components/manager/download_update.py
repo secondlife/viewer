@@ -43,14 +43,6 @@ def download_update(url = None, download_dir = None, size = None, progressbar = 
     #total size (for progressbar) of download
     #progressbar: whether to display one (not used for background downloads)
     #chunk_size is in bytes
-    #in_queue is to communicate between download_update and the thread
-    #out_queue is to communicate between the thread and the progressbar
-    #if progressbar:
-        #out_queue = Queue.Queue()
-        #buffer_thread = ThreadedBuffer(size, in_queue, out_queue)
-        #buffer_thread.start()
-        #pb_thread = ThreadedBar(size, out_queue)
-        #pb_thread.start()
     
     queue = Queue.Queue()
     filename = os.path.join(download_dir, url.split('/')[-1])
