@@ -213,7 +213,7 @@
         width="22">
         <button.commit_callback
           function="WebContent.TestVideo"
-          parameter="https://callum-linden.s3.amazonaws.com/sample_media/kubo.webm"/>
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/jumprope.webm"/>
       </button>
 
       <button
@@ -232,8 +232,30 @@
         name="VLC Plugin Test"
         top="22"
         width="22">
-        function="WebContent.TestVideo"
-        parameter="https://callum-linden.s3.amazonaws.com/alegria.mp3"/>
+        <button.commit_callback
+          function="WebContent.TestVideo"
+          parameter="https://callum-linden.s3.amazonaws.com/alegria.mp3"/>
+      </button>
+
+      <button
+        image_overlay="Video_URL_Off"
+		    image_disabled="PushButton_Disabled"
+		    image_disabled_selected="PushButton_Disabled"
+		    image_selected="PushButton_Selected"
+		    image_unselected="PushButton_Off"
+        chrome="true"
+        tool_tip="FLV Test"
+        enabled="true"
+        follows="left|top"
+        height="22"
+        layout="topleft"
+        left="99"
+        name="VLC Plugin Test"
+        top="22"
+        width="22">
+        <button.commit_callback
+          function="WebContent.TestVideo"
+          parameter="https://callum-linden.s3.amazonaws.com/sample_media/vandal.flv"/>
       </button>
 
     </layout_panel>
