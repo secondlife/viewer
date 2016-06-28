@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# $LicenseInfo:firstyear=2016&license=internal$
-# 
 # Copyright (c) 2016, Linden Research, Inc.
 # 
 # The following source code is PROPRIETARY AND CONFIDENTIAL. Use of
@@ -14,8 +12,8 @@
 # ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
 # WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
 # COMPLETENESS OR PERFORMANCE.
-# $LicenseInfo:firstyear=2013&license=viewerlgpl$
-# Copyright (c) 2013, Linden Research, Inc.
+# $LicenseInfo:firstyear=2016&license=viewerlgpl$
+# Copyright (c) 2016, Linden Research, Inc.
 # $/LicenseInfo$
 
 """
@@ -36,8 +34,10 @@ import Queue
 import requests
 import threading
 
+#module default
+CHUNK_SIZE = 1024
 
-def download_update(url = None, download_dir = None, size = None, progressbar = False, chunk_size = 1024):
+def download_update(url = None, download_dir = None, size = None, progressbar = False, chunk_size = CHUNK_SIZE):
     #url to download from
     #download_dir to download to
     #total size (for progressbar) of download
@@ -54,6 +54,9 @@ def download_update(url = None, download_dir = None, size = None, progressbar = 
         frame = IUM.InstallerUserMessage(title = "Second Life Downloader", icon_name="head-sl-logo.gif")
         frame.progress_bar(message = "Download Progress", size = size, pb_queue = queue)
         frame.mainloop()
+    else:
+        #nothing for the main thread to do
+        down_thread.join()
 
 class ThreadedDownload(threading.Thread):
     def __init__(self, req, filename, chunk_size, progressbar, in_queue):
@@ -78,7 +81,7 @@ def main():
     parser.add_argument('--dir', dest='download_dir', help='directory to be downloaded to', required=True)
     parser.add_argument('--pb', dest='progressbar', help='whether or not to show a progressbar', action="store_true", default = False)
     parser.add_argument('--size', dest='size', help='size of download for progressbar')
-    parser.add_argument('--chunk_size', dest='chunk_size', help='max portion size of download to be loaded in memory in bytes.')
+    parser.add_argument('--chunk_size', dest='chunk_size', default=CHUNK_SIZE, help='max portion size of download to be loaded in memory in bytes.')
     args = parser.parse_args()
 
     download_update(url = args.url, download_dir = args.download_dir, size = args.size, progressbar = args.progressbar, chunk_size = args.chunk_size)
