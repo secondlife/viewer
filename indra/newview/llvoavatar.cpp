@@ -3913,13 +3913,90 @@ void LLVOAvatar::updateHeadOffset()
 		mHeadOffset = lerp(midEyePt, mHeadOffset,  u);
 	}
 }
+
+void LLVOAvatar::debugBodySize() const
+{
+	LLVector3 pelvis_scale = mPelvisp->getScale();
+
+	// some of the joints have not been cached
+	LLVector3 skull = mSkullp->getPosition();
+    LL_DEBUGS("Avatar") << "skull pos " << skull << LL_ENDL;
+	//LLVector3 skull_scale = mSkullp->getScale();
+
+	LLVector3 neck = mNeckp->getPosition();
+	LLVector3 neck_scale = mNeckp->getScale();
+    LL_DEBUGS("Avatar") << "neck pos " << neck << " neck_scale " << neck_scale << LL_ENDL;
+
+	LLVector3 chest = mChestp->getPosition();
+	LLVector3 chest_scale = mChestp->getScale();
+    LL_DEBUGS("Avatar") << "chest pos " << chest << " chest_scale " << chest_scale << LL_ENDL;
+
+	// the rest of the joints have been cached
+	LLVector3 head = mHeadp->getPosition();
+	LLVector3 head_scale = mHeadp->getScale();
+    LL_DEBUGS("Avatar") << "head pos " << head << " head_scale " << head_scale << LL_ENDL;
+
+	LLVector3 torso = mTorsop->getPosition();
+	LLVector3 torso_scale = mTorsop->getScale();
+    LL_DEBUGS("Avatar") << "torso pos " << torso << " torso_scale " << torso_scale << LL_ENDL;
+
+	LLVector3 hip = mHipLeftp->getPosition();
+	LLVector3 hip_scale = mHipLeftp->getScale();
+    LL_DEBUGS("Avatar") << "hip pos " << hip << " hip_scale " << hip_scale << LL_ENDL;
+
+	LLVector3 knee = mKneeLeftp->getPosition();
+	LLVector3 knee_scale = mKneeLeftp->getScale();
+    LL_DEBUGS("Avatar") << "knee pos " << knee << " knee_scale " << knee_scale << LL_ENDL;
+
+	LLVector3 ankle = mAnkleLeftp->getPosition();
+	LLVector3 ankle_scale = mAnkleLeftp->getScale();
+    LL_DEBUGS("Avatar") << "ankle pos " << ankle << " ankle_scale " << ankle_scale << LL_ENDL;
+
+	LLVector3 foot  = mFootLeftp->getPosition();
+    LL_DEBUGS("Avatar") << "foot pos " << foot << LL_ENDL;
+
+	F32 new_offset = (const_cast<LLVOAvatar*>(this))->getVisualParamWeight(AVATAR_HOVER);
+    LL_DEBUGS("Avatar") << "new_offset " << new_offset << LL_ENDL;
+
+	F32 new_pelvis_to_foot = hip.mV[VZ] * pelvis_scale.mV[VZ] -
+        knee.mV[VZ] * hip_scale.mV[VZ] -
+        ankle.mV[VZ] * knee_scale.mV[VZ] -
+        foot.mV[VZ] * ankle_scale.mV[VZ];
+    LL_DEBUGS("Avatar") << "new_pelvis_to_foot " << new_pelvis_to_foot << LL_ENDL;
+
+	LLVector3 new_body_size;
+	new_body_size.mV[VZ] = new_pelvis_to_foot +
+					   // the sqrt(2) correction below is an approximate
+					   // correction to get to the top of the head
+					   F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
+					   head.mV[VZ] * neck_scale.mV[VZ] + 
+					   neck.mV[VZ] * chest_scale.mV[VZ] + 
+					   chest.mV[VZ] * torso_scale.mV[VZ] + 
+					   torso.mV[VZ] * pelvis_scale.mV[VZ]; 
+
+	// TODO -- measure the real depth and width
+	new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
+	new_body_size.mV[VY] = DEFAULT_AGENT_WIDTH;
+
+    LL_DEBUGS("Avatar") << "new_body_size " << new_body_size << LL_ENDL;
+}
+   
 //------------------------------------------------------------------------
 // postPelvisSetRecalc
 //------------------------------------------------------------------------
-void LLVOAvatar::postPelvisSetRecalc( void )
+void LLVOAvatar::postPelvisSetRecalc()
 {		
 	mRoot->updateWorldMatrixChildren();			
+    // BENTO extra tracing around computeBodySize()
+    LLVector3 body_size = mBodySize;
+    LLVector3 avatar_offset = mAvatarOffset;
 	computeBodySize();
+    if (mBodySize != body_size || mAvatarOffset != avatar_offset)
+    {
+        debugBodySize();
+        LL_DEBUGS("Avatar") << avString() << "old mBodySize " << body_size << " old mAvatarOffset " << avatar_offset << LL_ENDL;
+        LL_DEBUGS("Avatar") << avString() << "new mBodySize " << mBodySize << " new mAvatarOffset " << mAvatarOffset << LL_ENDL;
+    }
 	dirtyMesh(2);
 }
 //------------------------------------------------------------------------
@@ -5862,7 +5939,16 @@ void LLVOAvatar::updateVisualParams()
 
 	if (mLastSkeletonSerialNum != mSkeletonSerialNum)
 	{
+        // BENTO extra tracing around computeBodySize()
+        LLVector3 body_size = mBodySize;
+        LLVector3 avatar_offset = mAvatarOffset;
 		computeBodySize();
+        if (mBodySize != body_size || mAvatarOffset != avatar_offset)
+        {
+            debugBodySize();
+            LL_DEBUGS("Avatar") << avString() << "old mBodySize " << body_size << " old mAvatarOffset " << avatar_offset << LL_ENDL;
+            LL_DEBUGS("Avatar") << avString() << "new mBodySize " << mBodySize << " new mAvatarOffset " << mAvatarOffset << LL_ENDL;
+        }
 		mLastSkeletonSerialNum = mSkeletonSerialNum;
 		mRoot->updateWorldMatrixChildren();
 	}

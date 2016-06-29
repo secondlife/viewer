@@ -402,6 +402,12 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
 	{
 		return;
 	}
+    // BENTO
+    // Not clear pelvis overrides are meaningful/useful.
+    //if (mName == "mPelvis")
+    //{
+    //    return;
+    //}
     if (!above_joint_pos_threshold(pos-getDefaultPosition()))
     {
         if (do_debug_joint(getName()))
