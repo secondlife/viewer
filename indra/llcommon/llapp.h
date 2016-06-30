@@ -172,12 +172,12 @@ public:
 	virtual bool cleanup() = 0;			// Override to do application cleanup
 
 	//
-	// mainLoop()
+	// frame()
 	//
-	// Runs the application main loop.  It's assumed that when you exit
-	// this method, the application is in one of the cleanup states, either QUITTING or ERROR
+	// Pass control to the application for a single frame. Returns 'done'
+	// flag: if frame() returns false, it expects to be called again.
 	//
-	virtual bool mainLoop() = 0; // Override for the application main loop.  Needs to at least gracefully notice the QUITTING state and exit.
+	virtual bool frame() = 0; // Override for application body logic
 
 	//
 	// Crash logging
