@@ -2214,9 +2214,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d13d7927692eab2d6a63e36166b72a8a</string>
+              <string>f7dc825d13dec920a36641823f87dd94</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298370/arch/Linux/installer/llphysicsextensions_stub-1.0.298370-linux-298370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_llphysicsextensions/rev/314246/arch/Linux/installer/llphysicsextensions_stub-1.0.314246-linux-314246.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2238,9 +2238,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9594f6fd79ee924fe675a4a23e30516e</string>
+              <string>c4bbf70033235c9cab33eec17690dfcb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298370/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.298370-windows-298370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_llphysicsextensions/rev/314246/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.314246-windows-314246.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2259,7 +2259,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.0.298370</string>
+        <string>1.0.314246</string>
       </map>
       <key>mesa</key>
       <map>
