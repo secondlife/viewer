@@ -24,14 +24,12 @@ set(cmake_SOURCE_FILES
     DirectX.cmake
     DragDrop.cmake
     EXPAT.cmake
-##  ExamplePlugin.cmake
     FindAPR.cmake
     FindAutobuild.cmake
     FindBerkeleyDB.cmake
     FindFMODEX.cmake
     FindGLH.cmake
     FindGoogleBreakpad.cmake
-    FindGooglePerfTools.cmake
     FindHUNSPELL.cmake
     FindJsonCpp.cmake
     FindNDOF.cmake
@@ -47,11 +45,8 @@ set(cmake_SOURCE_FILES
     GLOD.cmake
 ##  GStreamer010Plugin.cmake
     GetPrerequisites_2_8.cmake
-##  Glui.cmake
-    Glut.cmake
     GoogleBreakpad.cmake
     GoogleMock.cmake
-    GooglePerfTools.cmake
     Havok.cmake
     Hunspell.cmake
     JPEG.cmake
@@ -91,7 +86,6 @@ set(cmake_SOURCE_FILES
     Prebuilt.cmake
     PulseAudio.cmake
     Python.cmake
-    QuickTimePlugin.cmake
     TemplateCheck.cmake
     Tut.cmake
     UI.cmake
