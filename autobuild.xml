@@ -154,9 +154,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0e627ccbf2ca903814f42cd871a3233d</string>
+              <string>c59749f019f13b198bcb22ea30bb9ada</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/314242/arch/Darwin/installer/boost-1.57-darwin64-314242.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/316951/arch/Darwin/installer/boost-1.57-darwin64-316951.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -166,9 +166,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d60e5ed54e2774e399a231b8defcb31b</string>
+              <string>f0853d6ac6adc9c617913d40724e9205</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/314242/arch/Linux/installer/boost-1.57-linux-314242.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/316951/arch/Linux/installer/boost-1.57-linux-316951.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -178,9 +178,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2471164e2db975b5340741e50ad74c76</string>
+              <string>74a8503704fca1001ed003724b67e307</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/314242/arch/Linux/installer/boost-1.57-linux64-314242.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/316951/arch/Linux/installer/boost-1.57-linux64-316951.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -190,9 +190,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a9ab519a3e3424d8326defdf68358c64</string>
+              <string>eef5afdba83fa4403f246b4f551c7dcd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/314242/arch/CYGWIN/installer/boost-1.57-windows-314242.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/316951/arch/CYGWIN/installer/boost-1.57-windows-316951.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -202,9 +202,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>766a0830be9312db870febe5e64e4b43</string>
+              <string>34935d95fd67d7db2ab89ee4c18c16c5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/314242/arch/CYGWIN/installer/boost-1.57-windows64-314242.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-boost/rev/316951/arch/CYGWIN/installer/boost-1.57-windows64-316951.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
