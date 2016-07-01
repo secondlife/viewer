@@ -3346,23 +3346,31 @@ void LLVOAvatar::updateDebugText()
 		{
 			debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
 		}
-		debug_line += llformat(" bsz-z: %f avofs-z: %f", mBodySize[2], mAvatarOffset[2]);
+		debug_line += llformat(" bsz-z: %.3f", mBodySize[2]);
+        if (mAvatarOffset[2] != 0.0f)
+        {
+            debug_line += llformat("avofs-z: %.3f", mAvatarOffset[2]);
+        }
 		bool hover_enabled = getRegion() && getRegion()->avatarHoverHeightEnabled();
 		debug_line += hover_enabled ? " H" : " h";
 		const LLVector3& hover_offset = getHoverOffset();
 		if (hover_offset[2] != 0.0)
 		{
-			debug_line += llformat(" hov_z: %f", hover_offset[2]);
+			debug_line += llformat(" hov_z: %.3f", hover_offset[2]);
 			debug_line += llformat(" %s", (mIsSitting ? "S" : "T"));
 			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
 		}
-		F32 elapsed = mLastAppearanceMessageTimer.getElapsedTimeF32();
-		static const char *elapsed_chars = "Xx*...";
-		U32 bucket = U32(elapsed*2);
-		if (bucket < strlen(elapsed_chars))
-		{
-			debug_line += llformat(" %c", elapsed_chars[bucket]);
-		}
+        LLVector3 ankle_right_pos_agent = mFootRightp->getWorldPosition();
+		LLVector3 normal;
+        LLVector3 ankle_right_ground_agent = ankle_right_pos_agent;
+        resolveHeightAgent(ankle_right_pos_agent, ankle_right_ground_agent, normal);
+        F32 rightElev = llmax(-0.2f, ankle_right_pos_agent.mV[VZ] - ankle_right_ground_agent.mV[VZ]);
+        debug_line += llformat(" relev %.3f", rightElev);
+
+        LLVector3 root_pos = mRoot->getPosition();
+        LLVector3 pelvis_pos = mPelvisp->getPosition();
+        debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
+
 		addDebugText(debug_line);
 	}
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
