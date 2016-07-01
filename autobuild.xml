@@ -442,12 +442,24 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c11ff7e2e0bd59e6e59628f24902bbcd</string>
+              <string>6d676abd9ad8d2883b855dbe397d9034</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/297768/arch/Linux/installer/dbus_glib-0.76-linux-297768.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-dbus-glib/rev/314266/arch/Linux/installer/dbus_glib-0.76-linux-314266.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7ee7b9aed3c0c8c09e7bf26bba7af8e1</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-dbus-glib/rev/314266/arch/Linux/installer/dbus_glib-0.76-linux64-314266.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
         </map>
         <key>version</key>
