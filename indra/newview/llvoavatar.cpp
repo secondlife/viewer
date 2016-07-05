@@ -8974,7 +8974,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 				   && (all_textures.find(image_id) == all_textures.end()))
 				{
 					// attachment texture not previously seen.
-					LL_INFOS() << "attachment_texture: " << image_id.asString() << LL_ENDL;
+					LL_DEBUGS("ARCdetail") << "attachment_texture: " << image_id.asString() << LL_ENDL;
 					all_textures.insert(image_id);
 				}
 			}
@@ -8994,7 +8994,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 					continue;
 				if (all_textures.find(image_id) == all_textures.end())
 				{
-					LL_INFOS() << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
+					LL_DEBUGS("ARCdetail") << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
 					all_textures.insert(image_id);
 				}
 			}
