@@ -244,7 +244,10 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 
 	filename = cleanFileName(filename);
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, filename);
-	filename += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+	if (!filename.empty())
+	{
+		filename += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+	}
 
 	return filename;
 }
