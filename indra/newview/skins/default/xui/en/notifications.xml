@@ -832,6 +832,13 @@ If you no longer wish to have these abilities granted to this role, disable them
   </notification>
 
   <notification
+    icon="notify.tga"
+    name="GroupBanUserOnBanlist"
+    type="notify">
+Some residents have not been sent an invite due to being banned from the group.
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="AttachmentDrop"
    type="alertmodal">
@@ -3665,6 +3672,13 @@ Can&apos;t add estate owner to estate &apos;Banned Resident&apos; list.
 
   <notification
    icon="alertmodal.tga"
+   name="ProblemAddingEstateManagerBanned"
+   type="alertmodal">
+Unable to add banned resident to estate manager list.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CanNotChangeAppearanceUntilLoaded"
    type="alertmodal">
 Can&apos;t change appearance until clothing and shape are loaded.
@@ -4178,10 +4192,29 @@ Leave Group?
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="GroupDepart"
+   type="notify">
+You have left the group &apos;[group_name]&apos;.
+    <tag>group</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="OwnerCannotLeaveGroup"
    type="alertmodal">
     Unable to leave group. You cannot leave the group because you are the last owner of the group. Please assign another member to the owner role first.
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GroupDepartError"
+   type="alertmodal">
+    Unable to leave group.
     <tag>group</tag>
     <usetemplate
      name="okbutton"
@@ -5310,6 +5343,17 @@ There are too many prims selected.  Please select [MAX_PRIM_COUNT] or fewer prim
 	</notification>
 
 	<notification
+	  icon="alertmodal.tga"
+	  name="TooManyScriptsSelected"
+	  type="alertmodal">
+Too many scripts in the objects selected.  Please select fewer objects and try again
+  <tag>fail</tag>
+		<usetemplate
+		 name="okbutton"
+		 yestext="OK"/>
+	</notification>
+
+	<notification
    icon="alertmodal.tga"
    name="ProblemImportingEstateCovenant"
    type="alertmodal">
@@ -5720,6 +5764,17 @@ Warning: The &apos;Pay object&apos; click action has been set, but it will only 
    name="PayObjectFailed"
    type="alertmodal">
     Payment failed: object was not found.
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PaymentBlockedButtonMismatch"
+   type="alertmodal">
+    Payment stopped:  the price paid does not match any of the pay buttons set for this object.
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -6898,6 +6953,15 @@ This area has voice chat disabled. You won&apos;t be able to hear anyone talking
    type="notify">
     <unique/>    
 This area has building disabled. You can&apos;t build or rez objects here.
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="AutopilotCanceled"
+   persist="true"
+   type="notify">
+    <unique/>
+Autopilot canceled
   </notification>
 
   <notification
@@ -9785,6 +9849,14 @@ Can't move object '[OBJECT_NAME]' to
 
   <notification
    icon="alertmodal.tga"
+   name="NoParcelPermsNoObject"
+   type="notify">
+   <tag>fail</tag>
+Copy failed because you lack access to that parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantMoveObjectRegionVersion"
    type="notify">
    <tag>fail</tag>
@@ -9924,6 +9996,22 @@ Cannot save to object contents: Item with that name already exists in inventory
    type="notify">
    <tag>fail</tag>
 Cannot save to object contents: This would modify the attachment permissions.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AttachmentHasTooMuchInventory"
+   type="notify">
+   <tag>fail</tag>
+Your attachments contain too much inventory to add more.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="IllegalAttachment"
+   type="notify">
+   <tag>fail</tag>
+The attachment has requested a nonexistent point on the avatar. It has been attached to the chest instead.
   </notification>
 
   <notification
@@ -10962,6 +11050,14 @@ Unable to find object.
    type="notify">
    <tag>fail</tag>
 Money transfers to objects are currently disabled in this region.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DroppedMoneyTransferRequest"
+   type="notify">
+   <tag>fail</tag>
+Unable to make payment due to system load.
   </notification>
 
   <notification
