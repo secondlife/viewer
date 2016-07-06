@@ -3701,6 +3701,17 @@
         <key>Value</key>
         <integer>1</integer>
     </map>
+    <key>QueueInventoryFetchTimeout</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time llcompilequeue will wait for inventory fetch to complete (in seconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <integer>40.0</integer>
+    </map>
     <key>FindLandArea</key>
     <map>
       <key>Comment</key>
