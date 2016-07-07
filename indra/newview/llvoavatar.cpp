@@ -1907,16 +1907,6 @@ void LLVOAvatar::resetSkeleton()
     // Restore attachment pos overrides
     rebuildAttachmentPosOverrides();
 
-    // Restore mPelvis state
-    //getJoint("mPelvis")->setRotation(pelvis_rot);
-    //getJoint("mPelvis")->setPosition(pelvis_pos);
-    
-    // Restart animations BENTO - not needed? Removing this fixes a
-    // problem seen if avatar is sitting and animated relative to sit
-    // point.
-
-    //resetAnimations();
-
     LL_DEBUGS("Avatar") << avString() << " reset ends" << LL_ENDL;
 }
 
@@ -3356,23 +3346,31 @@ void LLVOAvatar::updateDebugText()
 		{
 			debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
 		}
-		debug_line += llformat(" bsz-z: %f avofs-z: %f", mBodySize[2], mAvatarOffset[2]);
+		debug_line += llformat(" bsz-z: %.3f", mBodySize[2]);
+        if (mAvatarOffset[2] != 0.0f)
+        {
+            debug_line += llformat("avofs-z: %.3f", mAvatarOffset[2]);
+        }
 		bool hover_enabled = getRegion() && getRegion()->avatarHoverHeightEnabled();
 		debug_line += hover_enabled ? " H" : " h";
 		const LLVector3& hover_offset = getHoverOffset();
 		if (hover_offset[2] != 0.0)
 		{
-			debug_line += llformat(" hov_z: %f", hover_offset[2]);
+			debug_line += llformat(" hov_z: %.3f", hover_offset[2]);
 			debug_line += llformat(" %s", (mIsSitting ? "S" : "T"));
 			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
 		}
-		F32 elapsed = mLastAppearanceMessageTimer.getElapsedTimeF32();
-		static const char *elapsed_chars = "Xx*...";
-		U32 bucket = U32(elapsed*2);
-		if (bucket < strlen(elapsed_chars))
-		{
-			debug_line += llformat(" %c", elapsed_chars[bucket]);
-		}
+        LLVector3 ankle_right_pos_agent = mFootRightp->getWorldPosition();
+		LLVector3 normal;
+        LLVector3 ankle_right_ground_agent = ankle_right_pos_agent;
+        resolveHeightAgent(ankle_right_pos_agent, ankle_right_ground_agent, normal);
+        F32 rightElev = llmax(-0.2f, ankle_right_pos_agent.mV[VZ] - ankle_right_ground_agent.mV[VZ]);
+        debug_line += llformat(" relev %.3f", rightElev);
+
+        LLVector3 root_pos = mRoot->getPosition();
+        LLVector3 pelvis_pos = mPelvisp->getPosition();
+        debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
+
 		addDebugText(debug_line);
 	}
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
@@ -3598,6 +3596,12 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 		mInAir = in_air;
 
+        // SL-402: with the ability to animate the position of joints
+        // that affect the body size calculation, computed body size
+        // can get stale much more easily. Simplest fix is to update
+        // it frequently.
+        computeBodySize();
+    
 		// correct for the fact that the pelvis is not necessarily the center 
 		// of the agent's physical representation
 		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
@@ -3923,10 +3927,78 @@ void LLVOAvatar::updateHeadOffset()
 		mHeadOffset = lerp(midEyePt, mHeadOffset,  u);
 	}
 }
+
+void LLVOAvatar::debugBodySize() const
+{
+	LLVector3 pelvis_scale = mPelvisp->getScale();
+
+	// some of the joints have not been cached
+	LLVector3 skull = mSkullp->getPosition();
+    LL_DEBUGS("Avatar") << "skull pos " << skull << LL_ENDL;
+	//LLVector3 skull_scale = mSkullp->getScale();
+
+	LLVector3 neck = mNeckp->getPosition();
+	LLVector3 neck_scale = mNeckp->getScale();
+    LL_DEBUGS("Avatar") << "neck pos " << neck << " neck_scale " << neck_scale << LL_ENDL;
+
+	LLVector3 chest = mChestp->getPosition();
+	LLVector3 chest_scale = mChestp->getScale();
+    LL_DEBUGS("Avatar") << "chest pos " << chest << " chest_scale " << chest_scale << LL_ENDL;
+
+	// the rest of the joints have been cached
+	LLVector3 head = mHeadp->getPosition();
+	LLVector3 head_scale = mHeadp->getScale();
+    LL_DEBUGS("Avatar") << "head pos " << head << " head_scale " << head_scale << LL_ENDL;
+
+	LLVector3 torso = mTorsop->getPosition();
+	LLVector3 torso_scale = mTorsop->getScale();
+    LL_DEBUGS("Avatar") << "torso pos " << torso << " torso_scale " << torso_scale << LL_ENDL;
+
+	LLVector3 hip = mHipLeftp->getPosition();
+	LLVector3 hip_scale = mHipLeftp->getScale();
+    LL_DEBUGS("Avatar") << "hip pos " << hip << " hip_scale " << hip_scale << LL_ENDL;
+
+	LLVector3 knee = mKneeLeftp->getPosition();
+	LLVector3 knee_scale = mKneeLeftp->getScale();
+    LL_DEBUGS("Avatar") << "knee pos " << knee << " knee_scale " << knee_scale << LL_ENDL;
+
+	LLVector3 ankle = mAnkleLeftp->getPosition();
+	LLVector3 ankle_scale = mAnkleLeftp->getScale();
+    LL_DEBUGS("Avatar") << "ankle pos " << ankle << " ankle_scale " << ankle_scale << LL_ENDL;
+
+	LLVector3 foot  = mFootLeftp->getPosition();
+    LL_DEBUGS("Avatar") << "foot pos " << foot << LL_ENDL;
+
+	F32 new_offset = (const_cast<LLVOAvatar*>(this))->getVisualParamWeight(AVATAR_HOVER);
+    LL_DEBUGS("Avatar") << "new_offset " << new_offset << LL_ENDL;
+
+	F32 new_pelvis_to_foot = hip.mV[VZ] * pelvis_scale.mV[VZ] -
+        knee.mV[VZ] * hip_scale.mV[VZ] -
+        ankle.mV[VZ] * knee_scale.mV[VZ] -
+        foot.mV[VZ] * ankle_scale.mV[VZ];
+    LL_DEBUGS("Avatar") << "new_pelvis_to_foot " << new_pelvis_to_foot << LL_ENDL;
+
+	LLVector3 new_body_size;
+	new_body_size.mV[VZ] = new_pelvis_to_foot +
+					   // the sqrt(2) correction below is an approximate
+					   // correction to get to the top of the head
+					   F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
+					   head.mV[VZ] * neck_scale.mV[VZ] + 
+					   neck.mV[VZ] * chest_scale.mV[VZ] + 
+					   chest.mV[VZ] * torso_scale.mV[VZ] + 
+					   torso.mV[VZ] * pelvis_scale.mV[VZ]; 
+
+	// TODO -- measure the real depth and width
+	new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
+	new_body_size.mV[VY] = DEFAULT_AGENT_WIDTH;
+
+    LL_DEBUGS("Avatar") << "new_body_size " << new_body_size << LL_ENDL;
+}
+   
 //------------------------------------------------------------------------
 // postPelvisSetRecalc
 //------------------------------------------------------------------------
-void LLVOAvatar::postPelvisSetRecalc( void )
+void LLVOAvatar::postPelvisSetRecalc()
 {		
 	mRoot->updateWorldMatrixChildren();			
 	computeBodySize();
@@ -8313,6 +8385,12 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			}
 		}
 
+        // Root joint
+        const LLVector3& pos = mRoot->getPosition();
+        const LLVector3& scale = mRoot->getScale();
+        apr_file_printf( file, "\t\t<root name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+                         mRoot->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
+
         // Bones
 		avatar_joint_list_t::iterator iter = mSkeleton.begin();
 		avatar_joint_list_t::iterator end  = mSkeleton.end();
@@ -8896,7 +8974,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 				   && (all_textures.find(image_id) == all_textures.end()))
 				{
 					// attachment texture not previously seen.
-					LL_INFOS() << "attachment_texture: " << image_id.asString() << LL_ENDL;
+					LL_DEBUGS("ARCdetail") << "attachment_texture: " << image_id.asString() << LL_ENDL;
 					all_textures.insert(image_id);
 				}
 			}
@@ -8916,7 +8994,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 					continue;
 				if (all_textures.find(image_id) == all_textures.end())
 				{
-					LL_INFOS() << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
+					LL_DEBUGS("ARCdetail") << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
 					all_textures.insert(image_id);
 				}
 			}

@@ -40,8 +40,8 @@
 #include "xform.h"
 
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
-// BENTO JOINT COUNT LIMIT - need to set this to final skeleton size
-// (bones + attachments) + 2, rounded to next multiple of 4.
+// Need to set this to count of animate-able joints (currently #bones +
+// #attachments) + 2, rounded to next multiple of 4.
 const U32 LL_CHARACTER_MAX_ANIMATED_JOINTS = 192; // must be divisible by 4!
 const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 110;
 
