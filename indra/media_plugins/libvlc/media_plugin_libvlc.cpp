@@ -189,6 +189,7 @@ void MediaPluginLibVLC::playMedia()
 	gVLCCallbackContext.texture_pixels = mPixels;
 	gVLCCallbackContext.mp = gLibVLCMediaPlayer;
 
+	libvlc_audio_set_volume(gLibVLCMediaPlayer, 0);
 	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, unlock, display, &gVLCCallbackContext);
 	libvlc_video_set_format(gLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * mDepth);
 	libvlc_media_player_play(gLibVLCMediaPlayer);
