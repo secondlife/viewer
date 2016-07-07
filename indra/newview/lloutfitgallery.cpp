@@ -48,6 +48,7 @@
 #include "lltexturectrl.h"
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"
+#include "llviewertexturelist.h"
 #include "llwearableitemslist.h"
 
 static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
@@ -705,8 +706,7 @@ BOOL LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 void LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
 {
     mImageAssetId = image_asset_id;
-    mTexturep = LLViewerTextureManager::getFetchedTexture(image_asset_id);
-    mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+    mTexturep = LLViewerTextureManager::getFetchedTexture(image_asset_id, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
     getChildView("preview_outfit")->setVisible(FALSE);
     mDefaultImage = false;
 }
