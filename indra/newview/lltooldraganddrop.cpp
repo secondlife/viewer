@@ -223,66 +223,6 @@ void LLCategoryDropObserver::done()
 	}
 	delete this;
 }
-/* Doesn't seem to be used anymore.
-class LLCategoryDropDescendentsObserver : public LLInventoryFetchDescendentsObserver
-{
-public:
-	LLCategoryDropDescendentsObserver(
-		const LLUUID& obj_id, LLToolDragAndDrop::ESource src) :
-		mObjectID(obj_id),
-		mSource(src)
-	{}
-	~LLCategoryDropDescendentsObserver() {}
-	virtual void done();
-
-protected:
-	LLUUID mObjectID;
-	LLToolDragAndDrop::ESource mSource;
-};
-
-void LLCategoryDropDescendentsObserver::done()
-{
-
-	gInventory.removeObserver(this);
-	uuid_vec_t::iterator it = mComplete.begin();
-	uuid_vec_t::iterator end = mComplete.end();
-	LLViewerInventoryCategory::cat_array_t cats;
-	LLViewerInventoryItem::item_array_t items;
-	for(; it != end; ++it)
-	{
-		gInventory.collectDescendents(
-			(*it),
-			cats,
-			items,
-			LLInventoryModel::EXCLUDE_TRASH);
-	}
-
-	S32 count = items.size();
-	if (count)
-	{
-		std::set<LLUUID> unique_ids;
-		for(S32 i = 0; i < count; ++i)
-		{
-			unique_ids.insert(items.get(i)->getUUID());
-		}
-		uuid_vec_t ids;
-		std::back_insert_iterator<uuid_vec_t> copier(ids);
-		std::copy(unique_ids.begin(), unique_ids.end(), copier);
-		LLCategoryDropObserver* dropper;
-		dropper = new LLCategoryDropObserver(ids, mObjectID, mSource);
-		dropper->startFetch();
-		if (dropper->isDone())
-		{
-			dropper->done();
-		}
-		else
-		{
-			gInventory.addObserver(dropper);
-		}
-	}
-	delete this;
-}
-*/
 
 S32 LLToolDragAndDrop::sOperationId = 0;
 
