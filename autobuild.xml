@@ -976,7 +976,7 @@
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
+        </map>
           <key>linux64</key>
           <map>
             <key>archive</key>
@@ -1158,7 +1158,7 @@
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
+      </map>
           <key>linux64</key>
           <map>
             <key>archive</key>
@@ -2757,12 +2757,12 @@
               <string>93d3371551a87ed9c8fa4b27cde150da</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-pcre/rev/314136/arch/Linux/installer/pcre-8.35.314136-linux64-314136.tar.bz2</string>
-            </map>
+        </map>
             <key>name</key>
             <string>linux64</string>
-          </map>
+      </map>
           <key>windows</key>
-          <map>
+      <map>
             <key>archive</key>
             <map>
               <key>hash</key>
@@ -2770,7 +2770,7 @@
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-pcre/rev/314136/arch/CYGWIN/installer/pcre-8.35.314136-windows-314136.tar.bz2</string>
             </map>
-            <key>name</key>
+        <key>name</key>
             <string>linux</string>
           </map>
           <key>windows64</key>
