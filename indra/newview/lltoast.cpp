@@ -202,6 +202,21 @@ void LLToast::hide()
 	}
 }
 
+/*virtual*/
+void LLToast::setFocus(BOOL b)
+{
+    if (b && !hasFocus() && mPanel)
+    {
+        LLModalDialog::setFocus(TRUE);
+        // mostly for buttons
+        mPanel->setFocus(TRUE);
+    }
+    else
+    {
+        LLModalDialog::setFocus(b);
+    }
+}
+
 void LLToast::onFocusLost()
 {
 	if(mWrapperPanel && !isBackgroundVisible())
