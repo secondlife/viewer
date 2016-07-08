@@ -3710,7 +3710,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <integer>40.0</integer>
+        <real>40.0</real>
     </map>
     <key>FindLandArea</key>
     <map>
