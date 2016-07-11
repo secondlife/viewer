@@ -810,34 +810,44 @@
 		 
         <bone
          name="mWing1Left"
+         scale="0 0 0"
          offset="0 0 0" /> 
         <bone
          name="mWing2Left"
+         scale="0 0 0"
          offset="-0.015 0.015 0" /> 
         <bone
          name="mWing3Left"
+         scale="0 0 0"
          offset="-0.025 0.025 0" /> 
         <bone
          name="mWing4Left"
+         scale="0 0 0"
          offset="-0.03 0.03 0" /> 
         <bone
          name="mWing4FanLeft"
+         scale="0 0 0"
          offset="-0.03 0.03 0" /> 
 		 
         <bone
          name="mWing1Right"
+         scale="0 0 0"
          offset="0 0 0" /> 
         <bone
          name="mWing2Right"
+         scale="0 0 0"
          offset="-0.015 -0.015 0" /> 
         <bone
          name="mWing3Right"
+         scale="0 0 0"
          offset="-0.025 -0.025 0" /> 
         <bone
          name="mWing4Right"
+         scale="0 0 0"
          offset="-0.03 -0.03 0" /> 
         <bone
          name="mWing4FanRight"
+         scale="0 0 0"
          offset="-0.03 -0.03 0" /> 
 		 
       </param_skeleton>
