@@ -1774,7 +1774,8 @@ if (WINDOWS)
        --distpath ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} 
             ${CMAKE_SOURCE_DIR}/viewer_components/manager/SL_Launcher
     COMMENT "Performing pyinstaller compile of SL_Launcher"
-    
+)
+
     add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/apply_update.exe
     COMMAND ${PYTHON_DIRECTORY}/Scripts/pyinstaller.exe
@@ -1784,7 +1785,8 @@ if (WINDOWS)
        --distpath ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} 
             ${CMAKE_SOURCE_DIR}/viewer_components/manager/apply_update.py
     COMMENT "Performing pyinstaller compile of updater"
-    
+)
+
     add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/download_update.exe
     COMMAND ${PYTHON_DIRECTORY}/Scripts/pyinstaller.exe
@@ -1794,7 +1796,8 @@ if (WINDOWS)
        --distpath ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} 
             ${CMAKE_SOURCE_DIR}/viewer_components/manager/download_update.py
     COMMENT "Performing pyinstaller compile of update downloader"
-    
+)
+
     add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/update_manager.exe
     COMMAND ${PYTHON_DIRECTORY}/Scripts/pyinstaller.exe
