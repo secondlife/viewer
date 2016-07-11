@@ -42,9 +42,10 @@ def download_update(url = None, download_dir = None, size = None, progressbar = 
     #download_dir to download to
     #total size (for progressbar) of download
     #progressbar: whether to display one (not used for background downloads)
-    #chunk_size is in bytes
+    #chunk_size is in bytes, amount to download at once
     
     queue = Queue.Queue()
+    #the url split provides the basename of the filename
     filename = os.path.join(download_dir, url.split('/')[-1])
     req = requests.get(url, stream=True)
     down_thread = ThreadedDownload(req, filename, chunk_size, progressbar, queue)
@@ -60,6 +61,11 @@ def download_update(url = None, download_dir = None, size = None, progressbar = 
 
 class ThreadedDownload(threading.Thread):
     def __init__(self, req, filename, chunk_size, progressbar, in_queue):
+        #req is a python request object
+        #target filename to download to
+        #chunk_size is in bytes, amount to download at once
+        #progressbar: whether to display one (not used for background downloads)
+        #in_queue mediates communication between this thread and the progressbar
         threading.Thread.__init__(self)
         self.req = req
         self.filename = filename
@@ -69,13 +75,19 @@ class ThreadedDownload(threading.Thread):
         
     def run(self):
         with open(self.filename, 'wb') as fd:
+            #keep downloading until we run out of chunks, then download the last bit
             for chunk in self.req.iter_content(self.chunk_size):
                 fd.write(chunk)
                 if self.progressbar:
-                    self.in_queue.put(len(chunk))                       
+                    #this will increment the progress bar by len(chunk)/size units
+                    self.in_queue.put(len(chunk))  
+            #signal value saying to the progress bar that it is done and can destroy itself
+            #if len(chunk) is ever -1, we get to file a bug against Python
             self.in_queue.put(-1)
 
 def main():
+    #main method is for standalone use such as support and QA
+    #VMP will import this module and run download_update directly
     parser = argparse.ArgumentParser("Download URI to directory")
     parser.add_argument('--url', dest='url', help='URL of file to be downloaded', required=True)
     parser.add_argument('--dir', dest='download_dir', help='directory to be downloaded to', required=True)

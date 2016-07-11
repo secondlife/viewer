@@ -33,11 +33,14 @@ import InstallerUserMessage as IUM
 import os
 import os.path
 import plistlib
+import re
 import shutil
 import subprocess
 import sys
 import tarfile
 import tempfile
+
+#Module level variables
 
 #fnmatch expressions
 LNX_REGEX = '*' + '.bz2'
@@ -65,6 +68,9 @@ def silent_write(log_file_handle, text):
 
 def get_filename(download_dir = None):
     #given a directory that supposedly has the download, find the installable
+    #if you are on platform X and you give the updater a directory with an installable  
+    #for platform Y, you are either trying something fancy or get what you deserve
+    #or both
     for filename in os.listdir(download_dir):
         if (fnmatch.fnmatch(filename, LNX_REGEX) 
           or fnmatch.fnmatch(filename, MAC_REGEX) 
@@ -77,10 +83,14 @@ def try_dismount(log_file_handle = None, installable = None, tmpdir = None):
     #best effort cleanup try to dismount the dmg file if we have mounted one
     #the French judge gave it a 5.8
     try:
+        #use the df command to find the device name
+        #Filesystem   512-blocks   Used Available Capacity iused  ifree %iused  Mounted on
+        #/dev/disk1s2    2047936 643280   1404656    32%   80408 175582   31%   /private/tmp/mnt/Second Life Installer
         command = ["df", os.path.join(tmpdir, "Second Life Installer")]
         output = subprocess.check_output(command)
         #first word of second line of df output is the device name
         mnt_dev = output.split('\n')[1].split()[0]
+        #do the dismount
         command = ["hdiutil", "detach", "-force", mnt_dev]
         output = subprocess.check_output(command)
         silent_write(log_file_handle, "hdiutil detach succeeded")
@@ -88,17 +98,20 @@ def try_dismount(log_file_handle = None, installable = None, tmpdir = None):
     except Exception, e:
         silent_write(log_file_handle, "Could not detach dmg file %s.  Error messages: %s" % (installable, e.message))    
 
-def apply_update(download_dir = None, platform_key = None, log_file_handle = None):
+def apply_update(download_dir = None, platform_key = None, log_file_handle = None, in_place = True):
     #for lnx and mac, returns path to newly installed viewer
     #for win, return the name of the executable
     #returns None on failure for all three
     #throws an exception if it can't find an installable at all
     
+    IN_PLACE = in_place
+    
     installable = get_filename(download_dir)
     if not installable:
-        #could not find download
+        #could not find the download
         raise ValueError("Could not find installable in " + download_dir)
     
+    #apply update using the platform specific tools
     if platform_key == 'lnx':
         installed = apply_linux_update(installable, log_file_handle)
     elif platform_key == 'mac':
@@ -225,7 +238,17 @@ def apply_windows_update(installable = None, log_file_handle = None):
         silent_write(log_file_handle, "%s failed with return code %s. Error messages: %s." % 
                      (cpe.cmd, cpe.returncode, cpe.message))
         return None
-    return installable
+    #Due to the black box nature of the install, we have to derive the application path from the
+    #name of the installable.  This is essentially reverse-engineering app_name()/app_name_oneword()
+    #in viewer_manifest.py
+    #the format of the filename is:  Second_Life_{Project Name}_A-B-C-XXXXXX_i686_Setup.exe
+    #which deploys to C:\Program Files (x86)\SecondLifeProjectName\
+    #so we want all but the last four phrases and tack on Viewer if there is no project
+    if re.search('Project', installable):
+        winstall = os.path.join("C:\\Program Files (x86)\\", "".join(installable.split("_")[:-3]))
+    else:
+        winstall = os.path.join("C:\\Program Files (x86)\\", "".join(installable.split("_")[:-3])+"Viewer")
+    return winstall
 
 def main():
     parser = argparse.ArgumentParser("Apply Downloaded Update")

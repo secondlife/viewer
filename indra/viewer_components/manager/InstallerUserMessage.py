@@ -280,13 +280,6 @@ if __name__ == "__main__":
     print frame3.choice.get()
     sys.stdout.flush()
 
-    #trinary choice test.  User destroys window when they select.
-    frame3a = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 200", icon_name="head-sl-logo.gif")
-    frame3a.trinary_choice_message(message = "And all I have to do is think of her.", 
-        one = "Don't want to leave her now", two = 'You know I believe and how', three = 'John is Dead')
-    print frame3a.choice.get()
-    sys.stdout.flush()
-
     #progress bar
     queue = Queue.Queue()
     thread = ThreadedClient(queue)
@@ -297,3 +290,10 @@ if __name__ == "__main__":
     frame4.progress_bar(message = "You're asking me will my love grow", size = 100, pb_queue = queue)
     print "frame defined"
     frame4.mainloop()
+
+    #trinary choice test.  User destroys window when they select.
+    frame3a = InstallerUserMessage(text = "Something in the way she knows....", title = "Beatles Quotes for 200", icon_name="head-sl-logo.gif")
+    frame3a.trinary_choice_message(message = "And all I have to do is think of her.", 
+        one = "Don't want to leave her now", two = 'You know I believe and how', three = 'John is Dead')
+    print frame3a.choice.get()
+    sys.stdout.flush()

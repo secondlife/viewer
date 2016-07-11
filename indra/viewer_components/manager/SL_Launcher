@@ -18,10 +18,19 @@
 # Copyright (c) 2013, Linden Research, Inc.
 
 import argparse
+import InstallerUserMessage
 import os
 import sys
 import subprocess
-import InstallerUserMessage
+import update_manager
+
+def after_frame(my_message, timeout = 10000):
+   #pop up a InstallerUserMessage.basic_message that kills itself after timeout milliseconds
+   #note that this blocks the caller for the duration of timeout
+   frame = InstallerUserMessage(title = "Second Life Installer", icon_name="head-sl-logo.gif")
+   #this is done before basic_message so that we aren't blocked by mainloop()
+   frame.after(timout, lambda: frame._delete_window)
+   frame.basic_message(message = my_message)
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 
@@ -40,21 +49,47 @@ elif sys.platform.startswith("linux"):
 else:
    #SL doesn't run on VMS or punch cards
    sys.exit("Unsupported platform")
+   
+#check for an update
+#TODO
 
-#print "COYOT: executable name ", executable_name
-#print "COYOT: path ", os.path.dirname(os.path.abspath(sys.argv[0]))
-
+#find the viewer to be lauched
 viewer_binary = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),executable_name) 
 
 parser = argparse.ArgumentParser()
-#parser.add_argument('--f', action='store_const', const=42)
 args = parser.parse_known_args(sys.argv)
 args_list_to_pass = args[1][1:]
-args_list_to_pass.insert(0,viewer_binary)
-print "COYOT: arrrrrghs to pass", args_list_to_pass
+#make a copy by value, not by reference
+command = list(args_list_to_pass)
 
-#to prove we are launching from the script, launch a Tkinter window first
-frame2 = InstallerUserMessage(title = "Second Life")
-frame2.basic_message(message = viewer_binary, icon_name="head-sl-logo.gif")
-
-#viewer_process = subprocess.Popen(args_list_to_pass)
+(success, state, condition) = update_manager.update_manager()
+# From update_manager:
+#  (False, 'setup', None): error occurred before we knew what the update was (e.g., in setup or parsing)
+#  (False, 'download', version): we failed to download the new version
+#  (False, 'apply', version): we failed to apply the new version
+#  (True, None, None): No update found
+#  (True, 'in place', True): update applied in place
+#  (True, 'in place', path_to_new_launcher): Update applied by a new install to a new location
+#  (True, 'background', True): background download initiated
+#These boil down three cases:
+#  Success is False, then pop up a message and launch the current viewer
+#  No update, update succeeded in place in foreground, or background update started: silently launch the current viewer channel
+#  Updated succeed to a different channel, launch that viewer and exit
+if not success:
+   msg = 'Update failed in the %s process.  Please check logs.  Viewer will launch starting momentarily.'
+   after_frame(msg)
+   command.insert(0,viewer_binary)
+   viewer_process = subprocess.Popen(command)
+   #at the moment, we just exit here.  Later, the crash monitor will be launched at this point
+elif (success == True and 
+      (state == None 
+       or (state ==  'background' and condition == True)
+       or (state == 'in_place' and condition == True))):
+   command.insert(0,viewer_binary)
+   viewer_process = subprocess.Popen(command)
+   #at the moment, we just exit here.  Later, the crash monitor will be launched at this point
+else:
+   #'condition' is the path to the new launcher.
+   command.insert(0,condition)
+   viewer_process = subprocess.Popen(command)
+   sys.exit(0)
