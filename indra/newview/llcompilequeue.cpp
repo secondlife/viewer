@@ -207,9 +207,10 @@ void LLFloaterScriptQueue::onCloseBtn(void* user_data)
 	self->closeFloater();
 }
 
-void LLFloaterScriptQueue::addObject(const LLUUID& id)
+void LLFloaterScriptQueue::addObject(const LLUUID& id, std::string name)
 {
-	mObjectIDs.insert(id);
+    ObjectData obj = { id, name };
+    mObjectList.push_back(obj);
 }
 
 BOOL LLFloaterScriptQueue::start()
@@ -218,7 +219,7 @@ BOOL LLFloaterScriptQueue::start()
 
 	LLStringUtil::format_map_t args;
 	args["[START]"] = mStartString;
-	args["[COUNT]"] = llformat ("%d", mObjectIDs.size());
+	args["[COUNT]"] = llformat ("%d", mObjectList.size());
 	buffer = getString ("Starting", args);
 	
 	getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
@@ -241,7 +242,7 @@ void LLFloaterScriptQueue::addStringMessage(const std::string &message)
 
 BOOL LLFloaterScriptQueue::isDone() const
 {
-	return (mCurrentObjectID.isNull() && (mObjectIDs.size() == 0));
+	return (mCurrentObjectID.isNull() && (mObjectList.size() == 0));
 }
 
 ///----------------------------------------------------------------------------
@@ -339,7 +340,7 @@ void LLFloaterCompileQueue::processExperienceIdResults(LLSD result, LLUUID paren
     LLCoros::instance().launch("ScriptQueueCompile", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         queue->mStartString,
         hFloater,
-        queue->mObjectIDs,
+        queue->mObjectList,
         fn));
 
 }
@@ -393,7 +394,9 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
 
         if (result.has("timeout") && result["timeout"].asBoolean())
         {
-            std::string buffer = "Timeout: " + inventory->getName();
+            LLStringUtil::format_map_t args;
+            args["[OBJECT_NAME]"] = inventory->getName();
+            std::string buffer = that->getString("Timeout", args);
             that->addStringMessage(buffer);
             return true;
         }
@@ -443,7 +446,9 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     {
         if (result.has("timeout") && result["timeout"].asBoolean())
         {
-            std::string buffer = "Timeout: " + inventory->getName();
+            LLStringUtil::format_map_t args;
+            args["[OBJECT_NAME]"] = inventory->getName();
+            std::string buffer = that->getString("Timeout", args);
             that->addStringMessage(buffer);
             return true;
         }
@@ -497,7 +502,9 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     {
         if (result.has("timeout") && result["timeout"].asBoolean())
         {
-            std::string buffer = "Timeout: " + inventory->getName();
+            LLStringUtil::format_map_t args;
+            args["[OBJECT_NAME]"] = inventory->getName();
+            std::string buffer = that->getString("Timeout", args);
             that->addStringMessage(buffer);
             return true;
         }
@@ -601,7 +608,7 @@ bool LLFloaterResetQueue::startQueue()
     LLCoros::instance().launch("ScriptResetQueue", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         mStartString,
         getDerivedHandle<LLFloaterScriptQueue>(),
-        mObjectIDs,
+        mObjectList,
         fn));
 
     return true;
@@ -655,7 +662,7 @@ bool LLFloaterRunQueue::startQueue()
     LLCoros::instance().launch("ScriptRunQueue", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         mStartString,
         hFloater,
-        mObjectIDs,
+        mObjectList,
         fn));
 
     return true;
@@ -710,7 +717,7 @@ bool LLFloaterNotRunQueue::startQueue()
     LLCoros::instance().launch("ScriptQueueNotRun", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         mStartString,
         hFloater,
-        mObjectIDs,
+        mObjectList,
         fn));
 
     return true;
@@ -730,7 +737,7 @@ void ObjectInventoryFetcher::inventoryChanged(LLViewerObject* object,
 }
 
 void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, LLHandle<LLFloaterScriptQueue> hfloater,
-    uuid_list_t objectList, fnQueueAction_t func)
+    object_data_list_t objectList, fnQueueAction_t func)
 {
     LLCoros::set_consuming(true);
     LLFloaterScriptQueue * floater(NULL);
@@ -744,12 +751,13 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
 //         .with("[COUNT]", LLSD::Integer(objectList.size())));
 //     floater = NULL;
 
-    for (uuid_list_t::iterator itObj(objectList.begin()); (itObj != objectList.end()); ++itObj)
+    for (object_data_list_t::iterator itObj(objectList.begin()); (itObj != objectList.end()); ++itObj)
     {
         bool firstForObject = true;
-        LL_INFOS("SCRIPTQ") << "Next object in queue with ID=" << (*itObj).asString() << LL_ENDL;
+        LLUUID object_id = (*itObj).mObjectId;
+        LL_INFOS("SCRIPTQ") << "Next object in queue with ID=" << object_id.asString() << LL_ENDL;
 
-        LLPointer<LLViewerObject> obj = gObjectList.findObject(*itObj);
+        LLPointer<LLViewerObject> obj = gObjectList.findObject(object_id);
         LLInventoryObject::object_list_t inventory;
         if (obj)
         {
@@ -757,13 +765,31 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
 
             fetcher->fetchInventory();
 
+            floater = hfloater.get();
+            if (floater)
+            {
+                LLStringUtil::format_map_t args;
+                args["[OBJECT_NAME]"] = (*itObj).mObjectName;
+                floater->addStringMessage(floater->getString("LoadingObjInv", args));
+            }
+
             LLSD result = llcoro::suspendUntilEventOnWithTimeout(maildrop, fetch_timeout,
                 LLSD().with("timeout", LLSD::Boolean(true)));
 
             if (result.has("timeout") && result["timeout"].asBoolean())
             {
-                LL_WARNS("SCRIPTQ") << "Unable to retrieve inventory for object " << (*itObj).asString() <<
+                LL_WARNS("SCRIPTQ") << "Unable to retrieve inventory for object " << object_id.asString() <<
                     ". Skipping to next object." << LL_ENDL;
+
+                // floater could have been closed
+                floater = hfloater.get();
+                if (floater)
+                {
+                    LLStringUtil::format_map_t args;
+                    args["[OBJECT_NAME]"] = (*itObj).mObjectName;
+                    floater->addStringMessage(floater->getString("Timeout", args));
+                }
+
                 continue;
             }
 
@@ -771,7 +797,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         }
         else
         {
-            LL_WARNS("SCRIPTQ") << "Unable to retrieve object with ID of " << (*itObj) <<
+            LL_WARNS("SCRIPTQ") << "Unable to retrieve object with ID of " << object_id <<
                 ". Skipping to next." << LL_ENDL;
             continue;
         }

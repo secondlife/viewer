@@ -61,7 +61,7 @@ public:
 	void setMono(bool mono) { mMono = mono; }
 	
 	// addObject() accepts an object id.
-	void addObject(const LLUUID& id);
+	void addObject(const LLUUID& id, std::string name);
 
 	// start() returns TRUE if the queue has started, otherwise FALSE.
 	BOOL start();
@@ -87,7 +87,14 @@ protected:
 	LLButton* mCloseBtn;
 
 	// Object Queue
-    uuid_list_t     mObjectIDs;
+	struct ObjectData
+	{
+		LLUUID mObjectId;
+		std::string mObjectName;
+	};
+	typedef std::vector<ObjectData> object_data_list_t;
+
+	object_data_list_t mObjectList;
 	LLUUID mCurrentObjectID;
 	bool mDone;
 
@@ -95,7 +102,7 @@ protected:
 	bool mMono;
 
     typedef boost::function<bool(const LLPointer<LLViewerObject> &, LLInventoryObject*, LLEventPump &)>   fnQueueAction_t;
-    static void objectScriptProcessingQueueCoro(std::string action, LLHandle<LLFloaterScriptQueue> hfloater, uuid_list_t objectList, fnQueueAction_t func);
+    static void objectScriptProcessingQueueCoro(std::string action, LLHandle<LLFloaterScriptQueue> hfloater, object_data_list_t objectList, fnQueueAction_t func);
 
 };
 
