@@ -57,7 +57,7 @@ public:
 
 
 private:
-    boost::unique_ptr<LLEventPolling::Details::LLEventPollImpl>    mImpl;
+    boost::shared_ptr<LLEventPolling::Details::LLEventPollImpl>  mImpl;
 };
 
 
