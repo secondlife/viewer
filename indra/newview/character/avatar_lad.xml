@@ -3701,16 +3701,6 @@
          scale="0 0 0"
          offset="0 0 -.006" />
 
-		 <bone
-         name="mFaceEyeAltLeft"
-         scale="0 0 0"
-         offset="0 0 -.006" />
-
-		 <bone
-         name="mFaceEyeAltRight"
-         scale="0 0 0"
-         offset="0 0 -.006" />
-
        </param_skeleton>
     </param>
 
