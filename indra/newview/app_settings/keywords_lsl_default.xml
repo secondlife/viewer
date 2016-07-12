@@ -1007,7 +1007,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>0x800</integer>
+            <string>0x800</string>
             <key>tooltip</key>
             <string/>
          </map>
@@ -1617,7 +1617,7 @@
             <key>type</key>
             <string>string</string>
             <key>value</key>
-            <string>0x0A0x0A0x0A</string>
+            <string>\\n\\n\\n</string>
             <key>tooltip</key>
             <string>Indicates the last line of a notecard was read.</string>
          </map>
@@ -5511,7 +5511,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>0x40</integer>
+            <string>0x40</string>
             <key>tooltip</key>
             <string>Controls whether the object can be grabbed.\nA grab is the default action when in third person, and is available as the hand tool in build mode. This is useful for physical objects that you don't want other people to be able to trivially disturb. The default is FALSE</string>
          </map>
@@ -5520,7 +5520,7 @@
             <key>type</key>
             <string>integer</string>
             <key>value</key>
-            <integer>0x400</integer>
+            <string>0x400</string>
             <key>tooltip</key>
             <string>Prevent click-and-drag movement on all prims in the object.</string>
          </map>
@@ -9802,15 +9802,17 @@
             <key>return</key>
             <string>string</string>
             <key>arguments</key>
-            <map>
-               <key>Error</key>
-               <map>
+            <array>
+              <map>
+                <key>Error</key>
+                <map>
                   <key>type</key>
                   <string>integer</string>
                   <key>tooltip</key>
                   <string>An Experience error code to translate.</string>
-               </map>
-            </map>
+                </map>
+              </map>
+            </array>
             <key>tooltip</key>
             <string>
                Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code.
@@ -10160,7 +10162,7 @@
                   <key>Parameters</key>
                   <map>
                      <key>type</key>
-                     <string>integer</string>
+                     <string>list</string>
                      <key>tooltip</key>
                      <string>A list of PRIM_* property constants to return values of.</string>
                   </map>
@@ -10251,7 +10253,7 @@
                   <key>Parameters</key>
                   <map>
                      <key>type</key>
-                     <string>integer</string>
+                     <string>list</string>
                      <key>tooltip</key>
                      <string>PRIM_* flags.</string>
                   </map>
@@ -12172,7 +12174,7 @@
                 <key>First</key>
                 <map>
                   <key>type</key>
-                  <string>string</string>
+                  <string>integer</string>
                   <key>tooltip</key>
                   <string>Index of the first key to return.</string>
                 </map>
@@ -12181,7 +12183,7 @@
                 <key>Count</key>
                 <map>
                   <key>type</key>
-                  <string>string</string>
+                  <string>integer</string>
                   <key>tooltip</key>
                   <string>The number of keys to return.</string>
                 </map>
@@ -14797,7 +14799,7 @@
             <key>arguments</key>
             <array>
               <map>
-                <key>AvatarID</key>
+                <key>AgentID</key>
                 <map>
                   <key>type</key>
                   <string>key</string>
