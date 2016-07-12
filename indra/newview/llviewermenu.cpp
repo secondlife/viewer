@@ -6988,20 +6988,25 @@ class LLAvatarCall : public view_listener_t
 
 namespace
 {
-	struct QueueObjects : public LLSelectedObjectFunctor
+	struct QueueObjects : public LLSelectedNodeFunctor
 	{
 		BOOL scripted;
 		BOOL modifiable;
 		LLFloaterScriptQueue* mQueue;
 		QueueObjects(LLFloaterScriptQueue* q) : mQueue(q), scripted(FALSE), modifiable(FALSE) {}
-		virtual bool apply(LLViewerObject* obj)
+		virtual bool apply(LLSelectNode* node)
 		{
+			LLViewerObject* obj = node->getObject();
+			if (!obj)
+			{
+				return true;
+			}
 			scripted = obj->flagScripted();
 			modifiable = obj->permModify();
 
 			if( scripted && modifiable )
 			{
-				mQueue->addObject(obj->getID());
+				mQueue->addObject(obj->getID(), node->mName);
 				return false;
 			}
 			else
@@ -7017,7 +7022,7 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 	QueueObjects func(q);
 	LLSelectMgr *mgr = LLSelectMgr::getInstance();
 	LLObjectSelectionHandle selectHandle = mgr->getSelection();
-	bool fail = selectHandle->applyToObjects(&func);
+	bool fail = selectHandle->applyToNodes(&func);
 	if(fail)
 	{
 		if ( !func.scripted )
