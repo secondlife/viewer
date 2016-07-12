@@ -40,6 +40,8 @@
 #include "llcorehttputil.h"
 #include "lleventfilter.h"
 
+#include "boost/make_shared.hpp"
+
 namespace LLEventPolling
 {
 namespace Details
@@ -273,7 +275,7 @@ namespace Details
 LLEventPoll::LLEventPoll(const std::string&	poll_url, const LLHost& sender):
     mImpl()
 { 
-    mImpl = boost::shared_ptr<LLEventPolling::Details::LLEventPollImpl>(new LLEventPolling::Details::LLEventPollImpl(sender));
+    mImpl = boost::make_shared<LLEventPolling::Details::LLEventPollImpl>(sender);
     mImpl->start(poll_url);
 }
 
