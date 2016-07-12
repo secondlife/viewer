@@ -189,10 +189,35 @@ void MediaPluginLibVLC::playMedia()
 	gVLCCallbackContext.texture_pixels = mPixels;
 	gVLCCallbackContext.mp = gLibVLCMediaPlayer;
 
+	// Send a "navigate begin" event.
+	// This is really a browser message but the QuickTime plugin did it and 
+	// the media system relies on this message to update internal state so we must send it too
+	// Note: see "navigate_complete" message below too
+	// https://jira.secondlife.com/browse/MAINT-6528
+	LLPluginMessage message_begin(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_begin");
+	message_begin.setValue("uri", mURL);
+	message_begin.setValueBoolean("history_back_available", false);
+	message_begin.setValueBoolean("history_forward_available", false);
+	sendMessage(message_begin);
+
+	// volume should be initialized - when media is in range, the distance based attenuation
+	// will set the correct value
+	// https://jira.secondlife.com/browse/MAINT-6527
 	libvlc_audio_set_volume(gLibVLCMediaPlayer, 0);
 	libvlc_video_set_callbacks(gLibVLCMediaPlayer, lock, unlock, display, &gVLCCallbackContext);
 	libvlc_video_set_format(gLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * mDepth);
 	libvlc_media_player_play(gLibVLCMediaPlayer);
+
+	// Send a "navigate complete" event.
+	// This is really a browser message but the QuickTime plugin did it and 
+	// the media system relies on this message to update internal state so we must send it too
+	// Note: see "navigate_begin" message above too
+	// https://jira.secondlife.com/browse/MAINT-6528
+	LLPluginMessage message_complete(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
+	message_complete.setValue("uri", mURL);
+	message_complete.setValueS32("result_code", 200);
+	message_complete.setValue("result_string", "OK");
+	sendMessage(message_complete);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
