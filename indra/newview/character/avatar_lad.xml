@@ -850,6 +850,37 @@
          scale="0 0 0"
          offset="-0.03 -0.03 0" /> 
 		 
+      <bone
+         name="mTail1"
+		 scale ="0 0 0"
+         offset="-0.02 0 0" /> 
+		 
+        <bone
+         name="mTail2"
+		 scale ="0 0 0"
+         offset="-0.02 0 0" /> 
+		 
+        <bone
+         name="mTail3"
+		 scale ="0 0 0"
+         offset="-0.02 0 0" /> 
+		 
+        <bone
+         name="mTail4"
+		 scale ="0 0 0"
+         offset="-0.02 0 0" /> 
+		 
+        <bone
+         name="mTail55"
+		 scale ="0 0 0"
+         offset="-0.02 0 0" /> 
+		 
+        <bone
+         name="mTail6"
+		 scale ="0 0 0"
+         offset="-0.02 0 0" /> 
+		 
+		 
       </param_skeleton>
     </param>
 
@@ -1992,6 +2023,27 @@
       <param_skeleton>
 	  
         <bone
+         name="mEyeLeft"
+         scale="0 0 0"
+         offset="-.005 0 0" />
+
+        <bone
+         name="mEyeRight"
+         scale="0 0 0"
+         offset="-.005 0 0" />
+		 
+	  
+<bone
+         name="mFaceEyeAltLeft"
+         scale="0 0 0"
+         offset="-.005 0 0" />
+
+        <bone
+         name="mFaceEyeAltRight"
+         scale="0 0 0"
+         offset="-.005 0 0" />
+	  
+        <bone
          name="mFaceEyeLidLowerRight"
          scale="0 0.3 0.7"
          offset=" 0 0 0" />
@@ -1999,16 +2051,6 @@
         <bone
          name="mFaceEyeLidLowerLeft"
          scale="0 0.3 0.7"
-         offset=" 0 0 0" />
-		 
-        <bone
-         name="mFaceEyeAltLeft"
-         scale="0 0 0"
-         offset="0 0 0" />
-
-        <bone
-         name="mFaceEyeAltRight"
-         scale="0 0 0"
          offset="0 0 0" />
 
 		 <bone
@@ -4037,22 +4079,22 @@
         <bone
          name="mEyeLeft"
          scale="0.3195 0.3280 0.3280"
-         offset="-.005 0 0" />
+         offset="0 0 0" />
 
         <bone
          name="mEyeRight"
          scale="0.3195 0.3280 0.3280"
-         offset="-.005 0 0" />
+         offset="0 0 0" />
 
         <bone
          name="mFaceEyeAltLeft"
          scale="0.3195 0.3280 0.3280"
-		 offset="-0.005 0 0" />
+		 offset="0 0 0" />
 
         <bone
          name="mFaceEyeAltRight"
          scale="0.3195 0.3280 0.3280"
-         offset="-0.005 0 0" />
+         offset="0 0 0" />
 
       </param_skeleton>
     </param>
