@@ -1810,9 +1810,9 @@ if (WINDOWS)
 )
 
 add_custom_target(compile_w_viewer_launcher ALL DEPENDS ${CMAKE_CFG_INTDIR}/SL_Launcher.exe)
-add_custom_target(compile_w_viewer_launcher ALL DEPENDS ${CMAKE_CFG_INTDIR}/apply_update.exe)
-add_custom_target(compile_w_viewer_launcher ALL DEPENDS ${CMAKE_CFG_INTDIR}/download_update.exe)
-add_custom_target(compile_w_viewer_launcher ALL DEPENDS ${CMAKE_CFG_INTDIR}/update_manager.exe)
+add_custom_target(compile_w_viewer_updater ALL DEPENDS ${CMAKE_CFG_INTDIR}/apply_update.exe)
+add_custom_target(compile_w_viewer_downloader ALL DEPENDS ${CMAKE_CFG_INTDIR}/download_update.exe)
+add_custom_target(compile_w_viewer_update_manager ALL DEPENDS ${CMAKE_CFG_INTDIR}/update_manager.exe)
     
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
