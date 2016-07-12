@@ -3906,8 +3906,8 @@ void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
 
 bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 {
-	LLSD mesh = mThread->getMeshHeader(mesh_id);
-	if (mesh.has("physics_mesh") && mesh["physics_mesh"].has("size") && (mesh["physics_mesh"]["size"].asInteger() > 0))
+	const LLSD* mesh = mThread->getMeshHeader(mesh_id);
+	if (mesh && mesh->has("physics_mesh") && (*mesh)["physics_mesh"].has("size") && ((*mesh)["physics_mesh"]["size"].asInteger() > 0))
 	{
 		return true;
 	}
@@ -3921,27 +3921,26 @@ bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 	return false;
 }
 
-LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
+const LLSD* LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
 {
 	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	return mThread->getMeshHeader(mesh_id);
 }
 
-LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
+const LLSD* LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
 {
-	static LLSD dummy_ret;
 	if (mesh_id.notNull())
 	{
 		LLMutexLock lock(mHeaderMutex);
 		mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
 		if (iter != mMeshHeader.end())
 		{
-			return iter->second;
+			return &(iter->second);
 		}
 	}
 
-	return dummy_ret;
+	return NULL;
 }
 
 
