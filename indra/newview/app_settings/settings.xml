@@ -12792,6 +12792,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>LastSystemUIScaleFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of system UI during last run. On Windows 100% (96 DPI) system setting is 1.0 UI size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>UIScrollbarSize</key>
     <map>
       <key>Comment</key>

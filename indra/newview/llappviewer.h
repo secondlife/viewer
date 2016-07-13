@@ -318,6 +318,7 @@ private:
 	// llcorehttp library init/shutdown helper
 	LLAppCoreHttp mAppCoreHttp;
 
+	bool mIsFirstRun;
 	//---------------------------------------------
 	//*NOTE: Mani - legacy updater stuff
 	// Still useable?

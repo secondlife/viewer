@@ -4073,6 +4073,18 @@ Do you want to open your Web browser to view this content?
 
   <notification
    icon="alertmodal.tga"
+   name="SystemUIScaleFactorChanged"
+   type="alertmodal">
+System UI size factor has changed since last run. Do you want to open UI size adjustment settings page?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="WebLaunchJoinNow"
    type="alertmodal">
 Go to your [http://secondlife.com/account/ Dashboard] to manage your account?
