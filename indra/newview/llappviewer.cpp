@@ -231,6 +231,7 @@
 #include "llcoproceduremanager.h"
 #include "llviewereventrecorder.h"
 
+#include <stdexcept>
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -5512,8 +5513,7 @@ void LLAppViewer::forceErrorInfiniteLoop()
 void LLAppViewer::forceErrorSoftwareException()
 {
    	LL_WARNS() << "Forcing a deliberate exception" << LL_ENDL;
-    // *FIX: Any way to insure it won't be handled?
-    throw; 
+    throw std::runtime_error("User selected Force Software Exception");
 }
 
 void LLAppViewer::forceErrorDriverCrash()
